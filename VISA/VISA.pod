@@ -16,51 +16,115 @@ blablabla
 
 =head1 FUNCTIONS
 
-=head2 viOpenDefaultRM
-
-    ($status, $resource_manager)=
-        VISA::viOpenDefaultRM();
-
-Opens the default resource manager.
-
-=head2 viFindRsrc
-
-    ($status, $listhandle, $count, $first_resource_name)=
-        VISA::viFindRsrc($resource_manager, $regular_expression);
-
-=head2 viOpen
-
-    ($status, $instrument)=
-        VISA::viOpen($resource_manager, $resource_name, $access_mode, $timeout);
-
-Opens an instrument.
-
 =head2 viClear
 
-    $status=VISA::viClear($object);
+    $status=VISA::viClear($vi);
 
-=head2 viSetAttribute
-
-    $status=VISA::viSetAttribute($object, $attr_name, $attr_value);
-
-=head2 viGetAttribute
-
-    ($status, $attribute)=
-	    viGetAttribute($object, $attr_name);
-
-=head2 viRead
-
-    ($status, $result, $read_count)=
-	    VISA::viRead($instrument, $max_read);
-
-=head2 viWrite
-
-    ($status, $write_count)=
-	    VISA::viWrite($instrument, $string, $length);
+The viClear() operation performs an IEEE 488.1-style clear of the device.
 
 =head2 viClose
 
     $status=viClose($object);
+
+The viClose() operation closes a session, event, or a find list. In this process all the data
+structures that had been allocated for the specified vi are freed. Calling viClose() on a
+VISA Resource Manager session will also close all I/O sessions associated with that resource
+manager session.
+
+=head2 viFindNext
+
+    ($status, $instrDesc)=VISA::viFindNext($findList);
+
+The viFindNext() operation returns the next device found in the list created by
+viFindRsrc(). The list is referenced by the handle that was returned by viFindRsrc().
+
+=head2 viFindRsrc
+
+    ($status, $findList, $retcnt, $instrDesc)=
+        VISA::viFindRsrc($sesn, $expr);
+
+The viFindRsrc() operation matches the value specified in the expr parameter with the
+resources available for a particular interface.
+
+On successful completion, this function returns the first resource found (instrDesc) and
+returns a count (retcnt) to indicate if there were more resources found for the designated
+interface. This function also returns, in the findList parameter, a handle to a find list.
+This handle points to the list of resources and it must be used as an input to viFindNext().
+When this handle is no longer needed, it should be passed to viClose().
+
+The search criteria specified in the expr parameter has two parts: a regular expression over
+a resource string and an optional logical expression over attribute values. The regular
+expression is matched against the resource strings of resources known to the VISA Resource
+Manager. If the resource string matches the regular expression, the attribute values of the
+resource are then matched against the expression over attribute values. If the match is
+successful, the resource has met the search criteria and gets added to the list of resources
+found.
+
+All resource strings returned by viFindRsrc() will always be recognized by
+viOpen(). However, viFindRsrc() will not necessarily return all strings that you can pass
+to viParseRsrc() or viOpen(). This is especially true for network and TCPIP resources.
+
+=head2 viGetAttribute
+
+    ($status, $attrState)=
+	    viGetAttribute($object, $attribute);
+
+The viGetAttribute() operation is used to retrieve the state of an attribute for the
+specified session, event, or find list.
+
+=head2 viOpen
+
+    ($status, $vi)=
+        VISA::viOpen($sesn, $rsrcName, $accessMode, $openTimeout);
+
+The viOpen() operation opens a session to the specified resource. It returns a session
+identifier that can be used to call any other operations of that resource. The address string
+passed to viOpen() must uniquely identify a resource.
+
+For the parameter accessMode, the value VI_EXCLUSIVE_LOCK (1) is used to acquire an
+exclusive lock immediately upon opening a session; if a lock cannot be acquired, the session
+is closed and an error is returned. The value VI_LOAD_CONFIG (4) is used to configure
+attributes to values specified by some external configuration utility. Multiple access modes
+can be used simultaneously by specifying a bit-wise OR of the values other than VI_NULL.
+NI-VISA currently supports VI_LOAD_CONFIG only on Serial INSTR sessions.
+
+=head2 viOpenDefaultRM
+
+    ($status, $sesn)=VISA::viOpenDefaultRM();
+
+The viOpenDefaultRM() function must be called before any VISA operations can be
+invoked. The first call to this function initializes the VISA system, including the Default
+Resource Manager resource, and also returns a session to that resource. Subsequent calls
+to this function return unique sessions to the same Default Resource Manager resource.
+
+When a Resource Manager session is passed to viClose(), not only is that session closed,
+but also all find lists and device sessions (which that Resource Manager session was used to
+create) are closed.
+
+=head2 viRead
+
+    ($status, $buf, $retCount)=
+	    VISA::viRead($vi, $count);
+
+The viRead() operation synchronously transfers data. The data read is to be stored in the
+buffer represented by buf. This operation returns only when the transfer terminates. Only one
+synchronous read operation can occur at any one time.
+
+=head2 viSetAttribute
+
+    $status=VISA::viSetAttribute($vi, $attribute, $attrState);
+
+The viSetAttribute() operation is used to modify the state of an attribute for the specified
+object.
+
+=head2 viWrite
+
+    ($status, $retCount)=
+	    VISA::viWrite($vi, $buf, $count);
+
+The viWrite() operation synchronously transfers data. The data to be written is in the buffer
+represented by buf. This operation returns only when the transfer terminates. Only one
+synchronous write operation can occur at any one time.
 
 =head1 CAVEATS/BUGS
 

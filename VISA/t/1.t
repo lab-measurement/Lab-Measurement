@@ -2,7 +2,7 @@
 #$Id$
 
 use strict;
-use Test::More tests => 9;
+use Test::More tests => 10;
 
 BEGIN { use_ok('VISA') };
 
@@ -38,6 +38,9 @@ SKIP: {
 		diag "Second instrument: $description";
 	}
 };
+
+$status=VISA::viClose($listhandle);
+ok($status == $VISA::VI_SUCCESS,'Close findList');
 
 $status=VISA::viClose($def_rm);
 ok($status == $VISA::VI_SUCCESS,'Close resource manager');
