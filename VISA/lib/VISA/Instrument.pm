@@ -18,6 +18,55 @@ sub new {
 	return $self
 }
 
+sub find {
+	my $proto = shift;
+    my $expr=shift;
+	my $class = ref($proto) || $proto;
+    my $self = {};
+    bless ($self, $class);
+
+	my ($status,$res)=VISA::viOpenDefaultRM();
+	if ($status != $VISA::VI_SUCCESS) { die "Cannot open resource manager: $status";}
+	$self->{default_rm}=$res;
+
+	($status,my $listhandle,my $count,my $description)=VISA::viFindRsrc($def_rm,'?*INSTR');
+	if ($status != $VISA::VI_SUCCESS) { die "Cannot find resources: $status";}	
+	my $found;
+	while ($count-- > 0) {
+		($status,my $instrument)=VISA::viOpen($def_rm,$description,$VISA::VI_NULL,$VISA::VI_NULL);
+		if ($status != $VISA::VI_SUCCESS) { die "Cannot open instrument $description. status: $status";}
+		my $cmd='*IDN?';
+		my $result=$self->Query($cmd);
+		$status=VISA::viClose($instrument);
+		if ($status != $VISA::VI_SUCCESS) { die "Cannot close instrument $description. status: $status";}
+		if ($result =~ $expr) {
+			$found=$description;
+			$count=0;
+		}
+		if ($count) {
+			($status, $description)=VISA::viFindNext($listhandle);
+			if ($status != $VISA::VI_SUCCESS) { die "Cannot find next instrument: $status";}
+		}
+	}
+	$status=VISA::viClose($listhandle);
+	if ($status != $VISA::VI_SUCCESS) { die "Cannot close find list: $status";}
+	
+	if ($found) {
+		($status,my $instrument)=VISA::viOpen($def_rm,$description,$VISA::VI_NULL,$VISA::VI_NULL);
+		if ($status != $VISA::VI_SUCCESS) { die "Cannot open instrument $description. status: $status";}
+		$self->{instr}=$res;
+		
+		$status=VISA::viClear($self->{instr});
+		if ($status != $VISA::VI_SUCCESS) { die "Error while clearing instrument: $status";}
+		
+		$status=VISA::viSetAttribute($self->{instr}, $VISA::VI_ATTR_TMO_VALUE, 3000);
+		if ($status != $VISA::VI_SUCCESS) { die "Error while setting timeout value: $status";}
+	
+		return $self;
+	}
+	return 0;
+}
+
 sub Connect {
     my $self = shift;
 	my ($gpib_board,$gpib_addr)=@_;
@@ -44,6 +93,7 @@ sub Connect {
 	$status=VISA::viSetAttribute($self->{instr}, $VISA::VI_ATTR_TMO_VALUE, 3000);
 	if ($status != $VISA::VI_SUCCESS) { die "Error while setting timeout value: $status";}
 }
+
 
 sub Write {
 	my $self=shift;
