@@ -43,7 +43,7 @@
 
 package XMLtree;
 
-use 5.008003;
+use 5.008;
 use strict;
 use warnings;
 
