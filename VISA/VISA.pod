@@ -8,27 +8,59 @@ VISA - Perl interface to National Instrument's NI-VISA library
 
 =head1 DESCRIPTION
 
+dfsdfdsddfsfdfsa
+
 =head1 ABSTRACT
 
 blablabla
 
 =head1 FUNCTIONS
 
-=head2 viOpenDefaultRM()
+=head2 viOpenDefaultRM
 
-=head2 viOpen($resource_manager, $resource_name, $access_mode, timeout)
+    ($status, $resource_manager)=
+        VISA::viOpenDefaultRM();
 
-=head2 viClear($object);
+Opens the default resource manager.
 
-=head2 viSetAttribute($object, $attr_name, $attr_value);
+=head2 viFindRsrc
 
-=head2 viGetAttribute($object, $attr_name)
+    ($status, $listhandle, $count, $first_resource_name)=
+        VISA::viFindRsrc($resource_manager, $regular_expression);
 
-=head2 viRead($instrument, $max_read)
+=head2 viOpen
 
-=head2 viWrite($instrument, $string, $length)
+    ($status, $instrument)=
+        VISA::viOpen($resource_manager, $resource_name, $access_mode, $timeout);
 
-=head2 viClose($object)
+Opens an instrument.
+
+=head2 viClear
+
+    $status=VISA::viClear($object);
+
+=head2 viSetAttribute
+
+    $status=VISA::viSetAttribute($object, $attr_name, $attr_value);
+
+=head2 viGetAttribute
+
+    ($status, $attribute)=
+	    viGetAttribute($object, $attr_name);
+
+=head2 viRead
+
+    ($status, $result, $read_count)=
+	    VISA::viRead($instrument, $max_read);
+
+=head2 viWrite
+
+    ($status, $write_count)=
+	    VISA::viWrite($instrument, $string, $length);
+
+=head2 viClose
+
+    $status=viClose($object);
 
 =head1 CAVEATS/BUGS
 
