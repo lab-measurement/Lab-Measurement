@@ -29,10 +29,10 @@ $VERSION=sprintf("%d.%02d", q$Revision$ =~ /(\d+)\.(\d+)/);
 %enddef
 
 %define %cstring_bounded_output(TYPEMAP, MAX)
-%typemap(ignore) TYPEMAP(char temp[MAX+1]) {
+%typemap(in,numinputs=0) TYPEMAP(char temp[MAX+1]) {
    $1 = ($1_ltype) temp;
 }
-%typemap(argout,fragment="t_output_helper") TYPEMAP {
+%typemap(argout) TYPEMAP {
     if (argvi >= items){
          EXTEND(sp, 1);
     }
@@ -40,7 +40,6 @@ $VERSION=sprintf("%d.%02d", q$Revision$ =~ /(\d+)\.(\d+)/);
     $result = sv_newmortal();
     sv_setpv($result,(char *)$1);
     argvi++;
-    free($1);
 }
 %enddef
 
