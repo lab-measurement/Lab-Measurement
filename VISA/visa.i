@@ -58,5 +58,5 @@ extern ViStatus viClear(ViSession vi);
 %cstring_output_maxsize(ViPBuf buf, ViUInt32 cnt);
 extern ViStatus _VI_FUNC viRead (ViSession vi, ViPBuf buf, ViUInt32 cnt, ViUInt32 *OUTPUT);
 
-%cstring_output_maxsize(ViString expr, 512);
-extern ViStatus viFindRsrc(ViSession vi, ViString expr, ViFindList *OUTPUT, ViUInt32 *OUTPUT, ViChar *OUTPUT);
+%cstring_bounded_output(ViPChar instrDesc, 512);
+extern ViStatus viFindRsrc(ViSession vi, ViString expr, ViFindList *OUTPUT, ViUInt32 *OUTPUT, ViPChar instrDesc);
