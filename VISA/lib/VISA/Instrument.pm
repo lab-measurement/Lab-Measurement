@@ -29,13 +29,14 @@ sub find {
 	if ($status != $VISA::VI_SUCCESS) { die "Cannot open resource manager: $status";}
 	$self->{default_rm}=$res;
 
-	($status,my $listhandle,my $count,my $description)=VISA::viFindRsrc($def_rm,'?*INSTR');
+	($status,my $listhandle,my $count,my $description)=VISA::viFindRsrc($self->{default_rm},'?*INSTR');
 	if ($status != $VISA::VI_SUCCESS) { die "Cannot find resources: $status";}	
 	my $found;
 	while ($count-- > 0) {
-		($status,my $instrument)=VISA::viOpen($def_rm,$description,$VISA::VI_NULL,$VISA::VI_NULL);
+		($status,my $instrument)=VISA::viOpen($self->{default_rm},$description,$VISA::VI_NULL,$VISA::VI_NULL);
 		if ($status != $VISA::VI_SUCCESS) { die "Cannot open instrument $description. status: $status";}
 		my $cmd='*IDN?';
+		$self->{instr}=$instrument;
 		my $result=$self->Query($cmd);
 		$status=VISA::viClose($instrument);
 		if ($status != $VISA::VI_SUCCESS) { die "Cannot close instrument $description. status: $status";}
@@ -52,9 +53,9 @@ sub find {
 	if ($status != $VISA::VI_SUCCESS) { die "Cannot close find list: $status";}
 	
 	if ($found) {
-		($status,my $instrument)=VISA::viOpen($def_rm,$description,$VISA::VI_NULL,$VISA::VI_NULL);
+		($status,my $instrument)=VISA::viOpen($self->{default_rm},$description,$VISA::VI_NULL,$VISA::VI_NULL);
 		if ($status != $VISA::VI_SUCCESS) { die "Cannot open instrument $description. status: $status";}
-		$self->{instr}=$res;
+		$self->{instr}=$instrument;
 		
 		$status=VISA::viClear($self->{instr});
 		if ($status != $VISA::VI_SUCCESS) { die "Error while clearing instrument: $status";}
