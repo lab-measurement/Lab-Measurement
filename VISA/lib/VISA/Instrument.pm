@@ -22,8 +22,8 @@ sub new {
 	my $resource_name;
 	if ($#args >0) { # GPIB
 		$resource_name=sprintf("GPIB%u::%u::INSTR",$args[0],$args[1]);
-	} elsif ($gpib_board =~ /ASRL/) {	# serial
-		$resource_name=$gpib_board."::INSTR";
+	} elsif ($args[0] =~ /ASRL/) {	# serial
+		$resource_name=$args[0]."::INSTR";
 	} else {	#find
 		($status,my $listhandle,my $count,my $description)=VISA::viFindRsrc($self->{default_rm},'?*INSTR');
 		if ($status != $VISA::VI_SUCCESS) { die "Cannot find resources: $status";}	
@@ -50,8 +50,8 @@ sub new {
 	}
 	
 	if ($resource_name) {
-		($status,my $instrument)=VISA::viOpen($self->{default_rm},$description,$VISA::VI_NULL,$VISA::VI_NULL);
-		if ($status != $VISA::VI_SUCCESS) { die "Cannot open instrument $description. status: $status";}
+		($status,my $instrument)=VISA::viOpen($self->{default_rm},$resource_name,$VISA::VI_NULL,$VISA::VI_NULL);
+		if ($status != $VISA::VI_SUCCESS) { die "Cannot open instrument $resource_name. status: $status";}
 		$self->{instr}=$instrument;
 		
 		$status=VISA::viClear($self->{instr});
