@@ -2,8 +2,9 @@
 #$Id$
 
 use strict;
-use Test::More tests => 2;
+use Test::More tests => 3;
 
 BEGIN { use_ok('VISA::Instrument::HP34401A') };
 
-ok(my $vi=new VISA::Instrument::HP34401A(0,24),'Open HP @ 22');
+ok(my $hp=new VISA::Instrument::HP34401A("34401A"),'Open any HP');
+ok($hp->read_voltage_dc(10,0.00001),'read_voltage_dc(10,0.00001)');

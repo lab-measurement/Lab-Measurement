@@ -32,13 +32,13 @@ sub read_voltage_dc {
 
 =head1 NAME
 
-HP34401A - a HP 34401A digital multimeter
+VISA::Instrument::HP34401A - a HP 34401A digital multimeter
 
 =head1 SYNOPSIS
 
-    use HP34401A;
+    use VISA::Instrument::HP34401A;
     
-    my $hp22=new HP34401A(0,22);
+    my $hp22=new VISA::Instrument::HP34401A(0,22);
 	print $hp22->read_voltage_dc(10,0.00001);
 
 =head1 DESCRIPTION
@@ -59,13 +59,9 @@ probably many
 
 =over 4
 
-=item VISA
-
-The HP34401A class uses the VISA module (L<VISA>).
-
 =item VISA::Instrument
 
-The HP34401A class is a VISA::Instrument (L<VISA::Instrument>).
+The HP34401A uses the VISA::Instrument class (L<VISA::Instrument>).
 
 =back
 

@@ -13,46 +13,43 @@ sub new {
     my $self = {};
     bless ($self, $class);
 
-	$self->Connect(@_);
-
-	return $self
-}
-
-sub find {
-	my $proto = shift;
-    my $expr=shift;
-	my $class = ref($proto) || $proto;
-    my $self = {};
-    bless ($self, $class);
-
+	my @args=@_;
+	
 	my ($status,$res)=VISA::viOpenDefaultRM();
 	if ($status != $VISA::VI_SUCCESS) { die "Cannot open resource manager: $status";}
 	$self->{default_rm}=$res;
 
-	($status,my $listhandle,my $count,my $description)=VISA::viFindRsrc($self->{default_rm},'?*INSTR');
-	if ($status != $VISA::VI_SUCCESS) { die "Cannot find resources: $status";}	
-	my $found;
-	while ($count-- > 0) {
-		($status,my $instrument)=VISA::viOpen($self->{default_rm},$description,$VISA::VI_NULL,$VISA::VI_NULL);
-		if ($status != $VISA::VI_SUCCESS) { die "Cannot open instrument $description. status: $status";}
-		my $cmd='*IDN?';
-		$self->{instr}=$instrument;
-		my $result=$self->Query($cmd);
-		$status=VISA::viClose($instrument);
-		if ($status != $VISA::VI_SUCCESS) { die "Cannot close instrument $description. status: $status";}
-		if ($result =~ $expr) {
-			$found=$description;
-			$count=0;
+	my $resource_name;
+	if ($#args >0) { # GPIB
+		$resource_name=sprintf("GPIB%u::%u::INSTR",$args[0],$args[1]);
+	} elsif ($gpib_board =~ /ASRL/) {	# serial
+		$resource_name=$gpib_board."::INSTR";
+	} else {	#find
+		($status,my $listhandle,my $count,my $description)=VISA::viFindRsrc($self->{default_rm},'?*INSTR');
+		if ($status != $VISA::VI_SUCCESS) { die "Cannot find resources: $status";}	
+		my $found;
+		while ($count-- > 0) {
+			($status,my $instrument)=VISA::viOpen($self->{default_rm},$description,$VISA::VI_NULL,$VISA::VI_NULL);
+			if ($status != $VISA::VI_SUCCESS) { die "Cannot open instrument $description. status: $status";}
+			my $cmd='*IDN?';
+			$self->{instr}=$instrument;
+			my $result=$self->Query($cmd);
+			$status=VISA::viClose($instrument);
+			if ($status != $VISA::VI_SUCCESS) { die "Cannot close instrument $description. status: $status";}
+			if ($result =~ $args[0]) {
+				$resource_name=$description;
+				$count=0;
+			}
+			if ($count) {
+				($status, $description)=VISA::viFindNext($listhandle);
+				if ($status != $VISA::VI_SUCCESS) { die "Cannot find next instrument: $status";}
+			}
 		}
-		if ($count) {
-			($status, $description)=VISA::viFindNext($listhandle);
-			if ($status != $VISA::VI_SUCCESS) { die "Cannot find next instrument: $status";}
-		}
+		$status=VISA::viClose($listhandle);
+		if ($status != $VISA::VI_SUCCESS) { die "Cannot close find list: $status";}		
 	}
-	$status=VISA::viClose($listhandle);
-	if ($status != $VISA::VI_SUCCESS) { die "Cannot close find list: $status";}
 	
-	if ($found) {
+	if ($resource_name) {
 		($status,my $instrument)=VISA::viOpen($self->{default_rm},$description,$VISA::VI_NULL,$VISA::VI_NULL);
 		if ($status != $VISA::VI_SUCCESS) { die "Cannot open instrument $description. status: $status";}
 		$self->{instr}=$instrument;
@@ -67,34 +64,6 @@ sub find {
 	}
 	return 0;
 }
-
-sub Connect {
-    my $self = shift;
-	my ($gpib_board,$gpib_addr)=@_;
-	
-	my ($status,$res)=VISA::viOpenDefaultRM();
-	if ($status != $VISA::VI_SUCCESS) { die "Cannot open resource manager: $status";}
-	$self->{default_rm}=$res;
-	
-	my $resource_name;
-	if ($gpib_board =~ /ASRL/) {	# serial
-		$resource_name=$gpib_board."::INSTR";
-	} else { # GPIB
-		$resource_name=sprintf("GPIB%u::%u::INSTR",$gpib_board,$gpib_addr);
-	}
-	($status,$res)=VISA::viOpen($self->{default_rm},
-								$resource_name,
-								$VISA::VI_NULL,$VISA::VI_NULL);
-	if ($status != $VISA::VI_SUCCESS) { die "Cannot open instrument: $status";}
-	$self->{instr}=$res;
-	
-	$status=VISA::viClear($self->{instr});
-	if ($status != $VISA::VI_SUCCESS) { die "Error while clearing instrument: $status";}
-	
-	$status=VISA::viSetAttribute($self->{instr}, $VISA::VI_ATTR_TMO_VALUE, 3000);
-	if ($status != $VISA::VI_SUCCESS) { die "Error while setting timeout value: $status";}
-}
-
 
 sub Write {
 	my $self=shift;
@@ -129,12 +98,15 @@ sub DESTROY {
 
 =head1 NAME
 
-VISAInstrument - Base class for VISA based instrument classes
+VISA::Instrument - Helper class for VISA based instrument modules
 
 =head1 SYNOPSIS
 
-    use VISAInstrument;
-    our @ISA=('VISAInstrument');
+    use VISA::Instrument;
+	
+	my $any=	new VISA::Instrument("");
+	my $any_hp=	new VISA::Instrument('34401A');
+	my $hp22=	new VISA::Instrument(0,22);
 
 =head1 DESCRIPTION
 
