@@ -67,6 +67,13 @@ sub new {
 	return 0;
 }
 
+sub Clear {
+	my $self=shift;
+	
+	my $status=VISA::viClear($self->{instr});
+	if ($status != $VISA::VI_SUCCESS) { die "Error while clearing instrument: $status";}
+}
+
 sub Write {
 	my $self=shift;
 	my $cmd=shift;
