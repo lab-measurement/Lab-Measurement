@@ -21,7 +21,7 @@ even more high level comfort. Everything is set up already, waiting for you to u
 
 This manpage describes the perl syntax of the API. Each function is explained
 with some sentences which I cited from [1]. See this manual for further
-documentation of the library.
+documentation on the library.
 
 [1] NI-VISA Programmer Reference Manual. Part Number 370132C-01.
 
@@ -143,9 +143,11 @@ synchronous write operation can occur at any one time.
 
 Probably many.
 
-I have only tested this on Linux so far, but it should work on Windows as well.
+I have only tested this on Linux so far. It should work on Windows, provided that
+you manage to run swig and compile the wrapper code.
 
-Not all API functions are supported, just the ones that I needed.
+Not all API functions are supported, just the ones that I needed. Only GPIB connections
+are tested so far.
 
 =head1 SEE ALSO
 
@@ -161,7 +163,7 @@ This is $Id$
 
 =head1 COPYRIGHT
 
-Don't know. This swig-based interface is copyright 2004 Daniel Schröer (L<http://www.danielschroeer.de>).
+Don't know. This swig-based interface is copyright 2004/2005 Daniel Schröer (L<http://www.danielschroeer.de>).
 It is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 
 For the rest National Instruments or the VXI Consortium will probably have a word to say.

@@ -1,16 +1,17 @@
-VISA version 0.01
-=================
+VISA
+====
 
-The README is used to introduce the module and provide instructions on
-how to install the module, any machine dependencies it may have (for
-example C compilers and installed libraries) and any other information
-that should be provided before the module is installed.
+This library offers a perl interface to National Instrument's NI-VISA library.
 
-A README file is required for CPAN modules since CPAN extracts the
-README file from a module distribution so that people browsing the
-archive can use it get an idea of the modules uses. It is usually a
-good idea to provide version information here so that people can
-decide whether fixes for the module are worth downloading.
+With this library you can easily control the instruments in your lab (multimeters, voltage
+sources, magnet sources, pulse generators etc.) from perl. You can perform
+complicated measurement jobs with just some perl loops.
+
+It comes even better. The general VISA::Instrument class reduces the
+communication overhead to a minimum. And the specialized instrument classes
+(virtual instruments) like the VISA::Instrument::HP34401A class offer
+even more high level comfort. Everything is set up already, waiting for you to use it.
+
 
 INSTALLATION
 
@@ -21,17 +22,24 @@ To install this module type the following:
    make test
    make install
 
+
 DEPENDENCIES
 
-This module requires these other modules and libraries:
+This module requires the National Instrument's NI-VISA library to
+be installed. For further information on this library, see
+National Instruments website at
 
-  blah blah blah
+http://digital.ni.com/softlib.nsf/webcategories/85256410006C055586256BBB002C0E91?opendocument&node=132060_US
+
+If you plan to use GPIB (most likely), you will have to have the NI-488.2
+libarary installed as well. See the website at
+
+http://ni.com/linux/ni488dl.htm
+
 
 COPYRIGHT AND LICENCE
 
-Put the correct copyright and licence information here.
-
-Copyright (C) 2004 Daniel Schroeer
+Copyright (C) 2004 Daniel Schröer
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. 
