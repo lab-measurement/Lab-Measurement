@@ -14,9 +14,11 @@ Currently only Linux is supported, although support for Windows should be fairly
 
 Currently not all API functions are supported. Only the ones, that I needed.
 
-This manpage only describes the perl syntax of the API. Each function is described
-in some sentences that I copied from the NI-VISA Programmer Reference Manual. See this
-manual for further description of the library.
+This manpage describes the perl syntax of the API. Each function is explained
+with some sentences that I copied from [1]. See this manual for further
+documentation of the library.
+
+[1] NI-VISA Programmer Reference Manual. Part Number 370132C-01.
 
 =head1 FUNCTIONS
 
@@ -96,7 +98,7 @@ NI-VISA currently supports VI_LOAD_CONFIG only on Serial INSTR sessions.
 =head2 viOpenDefaultRM
 
     ($status, $sesn)=
-		VISA::viOpenDefaultRM();
+        VISA::viOpenDefaultRM();
 
 The viOpenDefaultRM() function must be called before any VISA operations can be
 invoked. The first call to this function initializes the VISA system, including the Default
@@ -110,7 +112,7 @@ create) are closed.
 =head2 viRead
 
     ($status, $buf, $retCount)=
-	    VISA::viRead($vi, $count);
+        VISA::viRead($vi, $count);
 
 The viRead() operation synchronously transfers data. The data read is to be stored in the
 buffer represented by buf. This operation returns only when the transfer terminates. Only one
@@ -126,7 +128,7 @@ object.
 =head2 viWrite
 
     ($status, $retCount)=
-	    VISA::viWrite($vi, $buf, $count);
+        VISA::viWrite($vi, $buf, $count);
 
 The viWrite() operation synchronously transfers data. The data to be written is in the buffer
 represented by buf. This operation returns only when the transfer terminates. Only one
