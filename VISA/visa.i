@@ -59,4 +59,4 @@ extern ViStatus _VI_FUNC viRead (ViSession vi, ViPBuf buf, ViUInt32 cnt, ViUInt3
 
 %cstring_bounded_output(ViPChar instrDesc, 512);
 extern ViStatus viFindRsrc(ViSession vi, ViString expr, ViFindList *OUTPUT, ViUInt32 *OUTPUT, ViPChar instrDesc);
-extern ViStatus viFindNext(ViFindList findList, ViPChar);
+extern ViStatus viFindNext(ViFindList findList, ViPChar instrDesc);
