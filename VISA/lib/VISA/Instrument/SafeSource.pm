@@ -89,6 +89,14 @@ VISA::Instrument::SafeSource - a generalised voltage source with sweep rate limi
 
 =head1 METHODS
 
+=head2 configure($config)
+
+ my $default_config={
+     gate_protect			=> 1,
+     gp_max_volt_per_step	=> 0.001,
+     gp_max_volt_per_second	=> 0.002
+ };
+
 =head2 set_voltage($voltage)
 
 =head2 get_voltage()
