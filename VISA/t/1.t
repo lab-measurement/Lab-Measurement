@@ -36,6 +36,7 @@ SKIP: {
 		($status, $description)=VISA::viFindNext($listhandle);
 		ok($status == $VISA::VI_SUCCESS,'Find next instrument');
 		diag "Second instrument: $description";
+	}
 };
 
 $status=VISA::viClose($def_rm);
