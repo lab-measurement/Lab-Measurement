@@ -8,15 +8,15 @@ use ExtUtils::MakeMaker;
 
 WriteMakefile(
 	'NAME'			=> 'VISA',
-	'VERSION_FROM'	=> 'visa.i',			# finds $VERSION
-	'PREREQ_PM'		=> {},					# e.g., Module::Name => 1.1
-	($] >= 5.005 ?							## Add these new keywords supported since 5.005
-		(ABSTRACT_FROM	=> 'VISA.pod',		# retrieve abstract from module
+	'VERSION_FROM'	=> 'visa.i',
+	'PREREQ_PM'		=> {},
+	($] >= 5.005 ?
+		(ABSTRACT_FROM	=> 'VISA.pod',
 		 AUTHOR			=> 'Daniel Schröer <daniel.schroeer@physik.uni-muenchen.de.de>') : ()),
-	'LIBS'			=> ['-lvisa -lstdc++'],				# e.g., '-lm'
+	'LIBS'			=> ['-lvisa -lstdc++'],
 	'OBJECT'		=> q/$(O_FILES)/,
-	'DEFINE'		=> '',					# e.g., '-DHAVE_SOMETHING'
-	'INC'			=> '-I.',				# e.g., '-I. -I/usr/include/other'
+	'DEFINE'		=> '',
+	'INC'			=> '-I.',
 	'clean'			=> {
 		FILES	=> 'VISA.pm visa_wrap.cxx'},
 );
