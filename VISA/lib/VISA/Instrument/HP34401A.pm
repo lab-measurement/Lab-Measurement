@@ -112,6 +112,17 @@ sub reset {
 	$self->{vi}->Write("*RST");
 }
 
+sub scroll_message {
+	use Time::HiRes (qw/usleep/);
+	my $self=shift;
+	my $message="            This perl instrument driver is copyright 2004/2005 by Daniel Schroeer.            ";
+	for (0..(length($message)-12)) {
+		$self->display_text(substr($message,$_,$_+11));
+		usleep(100000);
+	}
+	$self->display_clear();
+}
+
 1;
 
 =head1 NAME

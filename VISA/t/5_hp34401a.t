@@ -2,7 +2,7 @@
 #$Id$
 
 use strict;
-use Test::More tests => 10;
+use Test::More tests => 11;
 
 BEGIN { use_ok('VISA::Instrument::HP34401A') };
 
@@ -16,5 +16,6 @@ ok($hp->display_on(),'display_on');
 ok($hp->display_clear(),'display_clear');
 ok(my ($err_num,$err_msg)=$hp->get_error(),'get_error');
 diag "error $err_num: $err_msg";
+ok($hp->scroll_message(),'scroll_message');
 ok($hp->beep(),"beep");
 
