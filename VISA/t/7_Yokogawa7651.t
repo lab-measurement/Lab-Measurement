@@ -5,7 +5,9 @@ use strict;
 use Test::More tests => 6;
 
 BEGIN { use_ok('VISA::Instrument::Yokogawa7651') };
-ok(my $yoko=new VISA::Instrument::Yokogawa7651(0,10),'Open Yoko');
+ok(my $yoko=new VISA::Instrument::Yokogawa7651({
+	'GPIB_board'		=> 0,
+	'GPIB_address'		=> 10}),'Open Yoko');
 
 ok(my $status=$yoko->{vi}->Write('H1'),'Write H1');
 

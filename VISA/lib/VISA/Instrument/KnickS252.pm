@@ -9,13 +9,20 @@ our $VERSION = sprintf("%d.%02d", q$Revision$ =~ /(\d+)\.(\d+)/);
 
 our @ISA=('VISA::Instrument::SafeSource');
 
+my $default_config={
+	gate_protect			=> 0,
+	gp_max_volt_per_step	=> 0.0005,
+	gp_max_volt_per_second	=> 0.002
+};
+
 sub new {
 	my $proto = shift;
+	my @args=@_;
     my $class = ref($proto) || $proto;
-    my $self = new $class->SUPER();
+    my $self = new $class->SUPER($default_config,@args);
     bless ($self, $class);
 
-	$self->{vi}=new VISA::Instrument(@_);
+	$self->{vi}=new VISA::Instrument(@args);
 
 	return $self
 }
