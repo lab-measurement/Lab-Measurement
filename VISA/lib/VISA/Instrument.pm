@@ -22,10 +22,12 @@ sub new {
 	my $resource_name;
 	if ((ref $args[0]) eq 'HASH') {
 		my $config=$args[0];
-		if (defined ($config->{GPIB_address}) {
+		if (defined ($config->{GPIB_address})) {
 			@args=(
-				(defined ($config->{GPIB_board}) ? $config->{GPIB_board} : 0,
+				(defined ($config->{GPIB_board})) ? $config->{GPIB_board} : 0,
 				 $config->{GPIB_address});
+		} else {
+			die "scheiss argumente";
 		}
 	}
 	if ($#args >0) { # GPIB

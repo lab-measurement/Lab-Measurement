@@ -19,7 +19,7 @@ sub new {
 	my $proto = shift;
 	my @args=@_;
 	my $class = ref($proto) || $proto;
-	my $self = new SUPER($default_config,@args);
+	my $self = $class->SUPER::new($default_config,@args);
 	bless ($self, $class);
 
 	$self->{vi}=new VISA::Instrument(@args);

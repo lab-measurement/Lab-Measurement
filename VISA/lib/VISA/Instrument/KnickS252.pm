@@ -19,7 +19,7 @@ sub new {
 	my $proto = shift;
 	my @args=@_;
     my $class = ref($proto) || $proto;
-    my $self = new $class->SUPER($default_config,@args);
+    my $self = $class->SUPER::new($default_config,@args);
     bless ($self, $class);
 
 	$self->{vi}=new VISA::Instrument(@args);
@@ -80,6 +80,8 @@ KnickS252 - a Knick S 252 DC source
 
 =head2 new($gpib_board,$gpib_addr)
 
+Or any other type of construction supported by VISA::Instrument.
+
 =head1 METHODS
 
 =head2 set_voltage($voltage)
@@ -88,7 +90,13 @@ KnickS252 - a Knick S 252 DC source
 
 =head2 set_range($range)
 
+	#  5	 5V
+	# 20	20V
+
 =head2 get_range()
+
+	#  5	 5V
+	# 20	20V
 
 =head1 CAVEATS/BUGS
 
