@@ -174,27 +174,27 @@ VISA::Instrument::IPS120_10 - an IPS120-10 superconducting magnet power supply
 
 =head2 read_parameter($parameter)
 
- # 0 Demand current (output current)	amp
- # 1 Measured power supply voltage		volt
- # 2 Measured magnet current			amp
+ # 0 Demand current (output current)    amp
+ # 1 Measured power supply voltage      volt
+ # 2 Measured magnet current            amp
  # 3 -
  # 4 -
- # 5 Set point (target current)			amp
- # 6 Current sweep rate					amp/min
- # 7 Demand field (output field)		tesla
- # 8 Set point (target field)			tesla
- # 9 Field sweep rate					tesla/minute
+ # 5 Set point (target current)         amp
+ # 6 Current sweep rate                 amp/min
+ # 7 Demand field (output field)        tesla
+ # 8 Set point (target field)           tesla
+ # 9 Field sweep rate                   tesla/minute
  #10 - 14 -
- #15 Software voltage limit				volt
- #16 Persistent magnet current			amp
- #17 Trip current						amp
- #18 Persistent magnet field			tesla
- #19 Trip field							tesla
- #20 Switch heater current				milliamp
- #21 Safe current limit, most negative	amp
- #22 Safe current limit, most positive	amp
- #23 Lead resistance					milliohm
- #24 Magnet inductance					henry
+ #15 Software voltage limit             volt
+ #16 Persistent magnet current          amp
+ #17 Trip current                       amp
+ #18 Persistent magnet field            tesla
+ #19 Trip field                         tesla
+ #20 Switch heater current              milliamp
+ #21 Safe current limit, most negative  amp
+ #22 Safe current limit, most positive  amp
+ #23 Lead resistance                    milliohm
+ #24 Magnet inductance                  henry
 
 =head2 set_activity($activity)
 
@@ -205,11 +205,11 @@ VISA::Instrument::IPS120_10 - an IPS120-10 superconducting magnet power supply
 
 =head2 set_switch_heater($mode)
 
- # 0 Heater Off						(close switch)
- # 1 Heater On if PSU=Magnet		(open switch)
+ # 0 Heater Off                     (close switch)
+ # 1 Heater On if PSU=Magnet        (open switch)
  #  (only perform operation
  #   if recorded magnet current==present power supply output current)
- # 2 Heater On, no Checks			(open switch)
+ # 2 Heater On, no Checks           (open switch)
 
 =head2 set_target_current($current)
 
@@ -217,13 +217,13 @@ VISA::Instrument::IPS120_10 - an IPS120-10 superconducting magnet power supply
 
 =head2 set_mode($mode)
 
- #		Display		Magnet Sweep
- # 0 	Amps		Fast
- # 1	Tesla		Fast
- # 4	Amps		Slow
- # 5	Tesla		Slow
- # 8	Amps		Unaffected
- # 9	Tesla		Unaffected
+ #      Display     Magnet Sweep
+ # 0    Amps        Fast
+ # 1    Tesla       Fast
+ # 4    Amps        Slow
+ # 5    Tesla       Slow
+ # 8    Amps        Unaffected
+ # 9    Tesla       Unaffected
 
 =head2 set_polarity($polarity)
 
