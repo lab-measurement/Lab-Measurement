@@ -107,8 +107,17 @@ VISA::Instrument - Helper class for VISA based instrument modules
 	my $any=	new VISA::Instrument("");
 	my $any_hp=	new VISA::Instrument('34401A');
 	my $hp22=	new VISA::Instrument(0,22);
+	
+	my $id=$hp22->Query('*IDN?');
 
 =head1 DESCRIPTION
+
+This class describes a general visa based instrument.
+
+It can be used either directly by the laborant to work with an instrument that
+is not supported by an own perl class. Or it can be used by such a specialized
+perl instrument class, to delegate the actual visa work (all the instruments
+in the default package do so).
 
 =head1 CONSTRUCTORS
 
@@ -136,7 +145,7 @@ The VISA::Instrument class uses the VISA module (L<VISA>).
 
 This is $Id$
 
-Copyright 2004 Daniel Schröer (L<http://www.danielschroeer.de>)
+Copyright 2004/2005 Daniel Schröer (L<http://www.danielschroeer.de>)
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 

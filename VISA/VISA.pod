@@ -10,12 +10,12 @@ VISA - Perl interface to National Instrument's NI-VISA library
 
 This library offers a perl interface to National Instrument's NI-VISA library.
 
-Currently only Linux is supported, although support for Windows should be fairly easy.
+I have only tested this on Linux so far, but it should work on Windows as well.
 
-Currently not all API functions are supported. Only the ones, that I needed.
+Not all API functions are supported, just the ones that I needed.
 
 This manpage describes the perl syntax of the API. Each function is explained
-with some sentences that I copied from [1]. See this manual for further
+with some sentences which I cited from [1]. See this manual for further
 documentation of the library.
 
 [1] NI-VISA Programmer Reference Manual. Part Number 370132C-01.
