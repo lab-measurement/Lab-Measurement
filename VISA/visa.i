@@ -1,6 +1,7 @@
 /*$Id$
 $VERSION=sprintf("%d.%02d", q$Revision$ =~ /(\d+)\.(\d+)/);
 */
+
 %module VISA
 %{
 #include "/usr/local/vxipnp/linux/include/visa.h"
