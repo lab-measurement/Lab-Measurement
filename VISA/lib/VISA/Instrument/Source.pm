@@ -4,11 +4,21 @@ use strict;
 
 our $VERSION = sprintf("%d.%02d", q$Revision$ =~ /(\d+)\.(\d+)/);
 
+my $default_config={};
+
 sub new {
 	my $proto = shift;
     my $class = ref($proto) || $proto;
+	my $def_conf=shift;
+	my @args=@_;
+	for my $conf_name (keys %{$def_conf}) {
+		$default_config->{$conf_name}=$def_conf->{$conf_name};
+	}
+
 	my $self = {};
     bless ($self, $class);
+	
+	$self->configure(@args);
 
 	return $self
 }
@@ -17,9 +27,9 @@ sub configure {
 	my $self=shift;
 	my $config=shift;
 
-	for my $conf_name (keys %{$self->{default_config}}) {
+	for my $conf_name (keys %{$default_config}) {
 		unless ((defined($self->{config}->{$conf_name})) || (defined($config->{$conf_name}))) {
-			$self->{config}->{$conf_name}=$self->{default_config}->{$conf_name};
+			$self->{config}->{$conf_name}=$default_config->{$conf_name};
 		} elsif (defined($self->{config}->{$conf_name})) {
 			$self->{config}->{$conf_name}=$config->{$conf_name};
 		}
@@ -59,7 +69,7 @@ VISA::Instrument::Source - Base class for voltage source instruments
 
 =head1 CONSTRUCTORS
 
-=head2 new($source_num)
+=head2 new($default_config,$config)
 
 =head1 METHODS
 
@@ -80,14 +90,6 @@ VISA::Instrument::Source - Base class for voltage source instruments
 probably many
 
 =head1 SEE ALSO
-
-=over 4
-
-=item DB2Kconnector
-
-The NGsource class uses the DB2Kconnector module (L<DB2Kconnector>).
-
-=back
 
 =head1 AUTHOR/COPYRIGHT
 

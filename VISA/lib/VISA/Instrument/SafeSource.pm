@@ -7,20 +7,26 @@ use Time::HiRes;
 our $VERSION = sprintf("%d.%02d", q$Revision$ =~ /(\d+)\.(\d+)/);
 our @ISA=('VISA::Instrument::Source');
 
+my $default_config={
+	gate_protect			=> 1,
+	gp_max_volt_per_step	=> 0.001,
+	gp_max_volt_per_second	=> 0.002
+};
+
 sub new {
 	my $proto = shift;
+	my $def_conf=shift;
+	my @args=@_;
+	for my $conf_name (keys %{$def_conf}) {
+		$default_config->{$conf_name}=$def_conf->{$conf_name};
+	}
+	
     my $class = ref($proto) || $proto;
-    my $self = $class->SUPER::new();
+    my $self = $class->SUPER::new($default_config,@_);
     bless ($self, $class);
 
     $self->{_gp}->{last_voltage}=undef;
     $self->{_gp}->{last_settime}=undef;
-
-	$self->{default_config}->{gate_protect}=0;
-	$self->{default_config}->{gp_max_volt_per_step}=0.001;
-	$self->{default_config}->{gp_max_volt_per_second}=0.002;
-	
-	$self->configure();
 	
 	return $self
 }
@@ -40,8 +46,8 @@ sub sweep_to_voltage {
 	my $self=shift;
 	my $voltage=shift;
 	
-	my $mpsec=$self->{default_config}->{gp_max_volt_per_second};
-	my $mpstep=$self->{default_config}->{gp_max_volt_per_step};
+	my $mpsec=$self->{config}->{gp_max_volt_per_second};
+	my $mpstep=$self->{config}->{gp_max_volt_per_step};
 
 	unless (defined $self->{_gp}->{last_voltage}) {
 		$self->{_gp}->{last_voltage}=$self->get_voltage();
@@ -58,7 +64,7 @@ sub sweep_to_voltage {
 	($ns,$nmu)=Time::HiRes::gettimeofday();
 	$self->{_gp}->{last_settime}=$ns*1000000+$nmu;
 	
-	if (abs($voltage-$self->{_gp}->{last_voltage}) > $self->{default_config}->{gp_max_volt_per_step}) {
+	if (abs($voltage-$self->{_gp}->{last_voltage}) > $self->{config}->{gp_max_volt_per_step}) {
 		my $next_voltage=$self->{_gp}->{last_voltage}+$mpstep*($voltage>$self->{_gp}->{last_voltage}) ? 1 : -1;
 		$self->_set_voltage($next_voltage);
 		$self->sweep_to_voltage($voltage);
@@ -71,20 +77,15 @@ sub sweep_to_voltage {
 
 =head1 NAME
 
-NGsource - a next generation home-built voltage source
+VISA::Instrument::SafeSource - a generalised voltage source with sweep rate limitations
 
 =head1 SYNOPSIS
-
-    use NGsource;
-    
-    my $gate14=new NGsource(3);
-	$gate14->set_voltage(0.734);
 
 =head1 DESCRIPTION
 
 =head1 CONSTRUCTORS
 
-=head2 new($source_num)
+=head2 new($default_config,$config)
 
 =head1 METHODS
 
@@ -108,9 +109,13 @@ probably many
 
 =over 4
 
-=item DB2Kconnector
+=item VISA::Instrument::Source
 
-The NGsource class uses the DB2Kconnector module (L<DB2Kconnector>).
+The VISA::Instrument::SafeSource class uses the L<VISA::Instrument::Source> module.
+
+=item Time::HiRes
+
+The VISA::Instrument::SafeSource class uses the L<Time::HiRes> module.
 
 =back
 
