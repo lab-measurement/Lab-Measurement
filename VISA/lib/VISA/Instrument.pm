@@ -122,26 +122,24 @@ sub DESTROY {
 
 =head1 NAME
 
-VISA::Instrument - Helper class for VISA based instrument classes
+VISA::Instrument - Worker class for VISA based instrument classes
 
 =head1 SYNOPSIS
 
  use VISA::Instrument;
  
- my $any=	new VISA::Instrument("");
- my $any_hp=	new VISA::Instrument('34401A');
  my $hp22=	new VISA::Instrument(0,22);
- 
  my $id=$hp22->Query('*IDN?');
 
 =head1 DESCRIPTION
 
 This class describes a general visa based instrument.
 
-It can be used either directly by the laborant to work with an instrument that
-doesn't have its own perl class. Or it can be used by such a specialized
-perl instrument class, to delegate the actual visa work. (All the instruments
-in the default package do so.)
+It can be used either directly by the laborant (programmer) to work with
+an instrument that doesn't have its own perl class
+(like VISA::Instrument::HP34401A). Or it can be used by such a specialized
+perl instrument class (like VISA::Instrument::HP34401A), to delegate the
+actual visa work. (All the instruments in the default package do so.)
 
 =head1 CONSTRUCTORS
 
@@ -169,7 +167,7 @@ in the default package do so.)
 
 =head1 CAVEATS/BUGS
 
-probably many
+Probably many.
 
 =head1 SEE ALSO
 
