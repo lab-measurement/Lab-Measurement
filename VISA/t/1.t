@@ -12,13 +12,15 @@ ok($status == $VISA::VI_SUCCESS,'Open default resource manager');
 ($status,my $listhandle,my $count,my $description)=VISA::viFindRsrc($def_rm,'?*INSTR');
 ok($status == $VISA::VI_SUCCESS,'Find all instruments');
 
+print "\n$count instruments found.\ndescription of first: $description\n";
+
 SKIP: {
 	skip("No instruments found", 4) unless ($count > 0);
 	
 	($status,my $instrument)=VISA::viOpen($def_rm,$description,$VISA::VI_NULL,$VISA::VI_NULL);
 	ok($status == $VISA::VI_SUCCESS,'Open first instrument');
 	
-	my $cmd="?IDN*";
+	my $cmd='?IDN*';
 	($status,my $write_cnt)=VISA::viWrite($instrument,$cmd,length($cmd));
 	ok($status == $VISA::VI_SUCCESS,'Write to instrument');
 
