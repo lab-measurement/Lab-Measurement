@@ -3,16 +3,16 @@
 package VISA::Instrument::KnickS252;
 use strict;
 use VISA::Instrument;
-use SafeSource;
+use VISA::Instrument::SafeSource;
 
 our $VERSION = sprintf("%d.%02d", q$Revision$ =~ /(\d+)\.(\d+)/);
 
-our @ISA=('SafeSource');
+our @ISA=('VISA::Instrument::SafeSource');
 
 sub new {
 	my $proto = shift;
     my $class = ref($proto) || $proto;
-    my $self = new SafeSource();
+    my $self = new VISA::Instrument::SafeSource();
     bless ($self, $class);
 
 	$self->{vi}=new VISA::Instrument(@_);
@@ -23,32 +23,32 @@ sub new {
 sub _set_voltage {
 	my $self=shift;
 	my $voltage=shift;
-	my $cmd=sprintf("X OUT %e",$voltage);
+	my $cmd=sprintf("X OUT %e\n",$voltage);
 	$self->{vi}->Write($cmd);
 }
 
 sub get_voltage {
 	my $self=shift;
-	my $cmd="R OUT";
+	my $cmd="R OUT\n";
 	my $result=$self->{vi}->Query($cmd);
-	$result=~s/OUT //;
-	return $result;
+	$result=~/^OUT\s+([\d\.E\+\-]+)V/;
+	return $1;
 }
 
 sub set_range {
 	my $self=shift;
 	my $range=shift;
-	my $cmd="P RANGE $range";
+	my $cmd="P RANGE $range\n";
 	$self->{vi}->Write($cmd);
 }
 
 sub get_range {
 	my $self=shift;
-	my $cmd="R RANGE";
+	my $cmd="R RANGE\n";
 		#  5	 5V
 		# 20	20V
 	my $result=$self->{vi}->Query($cmd);
-	$result=~s/RANGE //;
+	($result)=$result=~/^RANGE\s+((AUTO)|5|(20))/;
 	return $result;
 }
 

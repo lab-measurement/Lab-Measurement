@@ -1,11 +1,11 @@
 #$Id$
 package VISA::Instrument::SafeSource;
 use strict;
-use Source;
+use VISA::Instrument::Source;
 use Time::HiRes;
 
 our $VERSION = sprintf("%d.%02d", q$Revision$ =~ /(\d+)\.(\d+)/);
-our @ISA=('Source');
+our @ISA=('VISA::Instrument::Source');
 
 sub new {
 	my $proto = shift;

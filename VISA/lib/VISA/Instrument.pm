@@ -29,6 +29,7 @@ sub new {
 		if ($status != $VISA::VI_SUCCESS) { die "Cannot find resources: $status";}	
 		my $found;
 		while ($count-- > 0) {
+			print STDERR  "VISA::Instrument: checking $description\n";
 			($status,my $instrument)=VISA::viOpen($self->{default_rm},$description,$VISA::VI_NULL,$VISA::VI_NULL);
 			if ($status != $VISA::VI_SUCCESS) { die "Cannot open instrument $description. status: $status";}
 			my $cmd='*IDN?';
@@ -36,6 +37,7 @@ sub new {
 			my $result=$self->Query($cmd);
 			$status=VISA::viClose($instrument);
 			if ($status != $VISA::VI_SUCCESS) { die "Cannot close instrument $description. status: $status";}
+			print STDERR  "VISA::Instrument: id $result\n";
 			if ($result =~ $args[0]) {
 				$resource_name=$description;
 				$count=0;
@@ -54,8 +56,8 @@ sub new {
 		if ($status != $VISA::VI_SUCCESS) { die "Cannot open instrument $resource_name. status: $status";}
 		$self->{instr}=$instrument;
 		
-		$status=VISA::viClear($self->{instr});
-		if ($status != $VISA::VI_SUCCESS) { die "Error while clearing instrument: $status";}
+#		$status=VISA::viClear($self->{instr});
+#		if ($status != $VISA::VI_SUCCESS) { die "Error while clearing instrument: $status";}
 		
 		$status=VISA::viSetAttribute($self->{instr}, $VISA::VI_ATTR_TMO_VALUE, 3000);
 		if ($status != $VISA::VI_SUCCESS) { die "Error while setting timeout value: $status";}
@@ -71,7 +73,7 @@ sub Write {
 	my ($status, $write_cnt)=VISA::viWrite($self->{instr},
 										   $cmd,
 										   length($cmd));
-	if ($status != $VISA::VI_SUCCESS) { die "Error while reading voltage: $status";}
+	if ($status != $VISA::VI_SUCCESS) { die "Error while writing: $status";}
 	return $write_cnt;
 }
 
@@ -81,11 +83,11 @@ sub Query {
 	my ($status, $write_cnt)=VISA::viWrite($self->{instr},
 										   $cmd,
 										   length($cmd));
-	if ($status != $VISA::VI_SUCCESS) { die "Error while reading voltage: $status";}
+	if ($status != $VISA::VI_SUCCESS) { die "Error while writing: $status";}
 	
 	($status,my $result,my $read_cnt)=VISA::viRead($self->{instr},300);
-	if ($status != $VISA::VI_SUCCESS) { die "Error while reading voltage: $status";}
-	return $result;
+	if ($status != $VISA::VI_SUCCESS) { die "Error while reading: $status";}
+	return substr($result,0,$read_cnt);
 }
 
 sub DESTROY {
