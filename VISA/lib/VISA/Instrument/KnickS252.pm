@@ -63,44 +63,53 @@ sub get_range {
 
 =head1 NAME
 
-KnickS252 - a Knick S 252 DC source
+VISA::Instrument::KnickS252 - a Knick S 252 DC source
 
 =head1 SYNOPSIS
 
-    use KnickS252;
+    use VISA::Instrument::KnickS252;
     
-    my $gate14=new KnickS252(0,11);
+    my $gate14=new VISA::Instrument::KnickS252(0,11);
 	$gate14->set_range(5);
 	$gate14->set_voltage(0.745);
 	print $gate14->get_voltage();
 
 =head1 DESCRIPTION
 
-=head1 CONSTRUCTORS
+The VISA::Instrument::KnickS252 class implements an interface to the Knick S 252 dc calibrator.
 
-=head2 new($gpib_board,$gpib_addr)
+=head1 CONSTRUCTOR
 
-Or any other type of construction supported by VISA::Instrument.
+	$knick=new VISA::Instrument::KnickS252($gpib_board,$gpib_addr);
+	# Or any other type of construction supported by VISA::Instrument.
 
 =head1 METHODS
 
-=head2 set_voltage($voltage)
+=head2 set_voltage
 
-=head2 get_voltage()
+	$knick->set_voltage($voltage);
 
-=head2 set_range($range)
+=head2 get_voltage
 
-	#  5	 5V
-	# 20	20V
+	$voltage=$knick->get_voltage();
 
-=head2 get_range()
+=head2 set_range
 
-	#  5	 5V
-	# 20	20V
+	$knick->set_range($range);
+	# $range is 5 or 20
+	#  5  is 5V
+	# 20  is 20V
+
+=head2 get_range
+
+	$range=$knick->get_range();
+	# $range is 5 or 20
+	#  5  is 5V
+	# 20  is 20V
 
 =head1 CAVEATS/BUGS
 
-probably many
+Probably many.
 
 =head1 SEE ALSO
 
@@ -108,15 +117,15 @@ probably many
 
 =item VISA
 
-The HP34401A class uses the VISA module (L<VISA>).
+The VISA::Instrument::KnickS252 class uses the VISA module (L<VISA>).
 
 =item VISA::Instrument
 
-The KnickS252 class is a VISA::Instrument (L<VISA::Instrument>).
+The VISA::Instrument::KnickS252 class is a VISA::Instrument (L<VISA::Instrument>).
 
 =item SafeSource
 
-Inherits from SafeSource (L<SafeSource>)
+Inherits from SafeSource (L<SafeSource>).
 
 =back
 
@@ -124,7 +133,7 @@ Inherits from SafeSource (L<SafeSource>)
 
 This is $Id$
 
-Copyright 2004 Daniel Schröer (L<http://www.danielschroeer.de>)
+Copyright 2004/2005 Daniel Schröer (L<http://www.danielschroeer.de>)
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 
