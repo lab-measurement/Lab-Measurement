@@ -12,7 +12,7 @@ our @ISA=('VISA::Instrument::SafeSource');
 sub new {
 	my $proto = shift;
     my $class = ref($proto) || $proto;
-    my $self = new VISA::Instrument::SafeSource();
+    my $self = new $class->SUPER();
     bless ($self, $class);
 
 	$self->{vi}=new VISA::Instrument(@_);
