@@ -83,35 +83,57 @@ VISA::Instrument::SafeSource - a generalised voltage source with sweep rate limi
 
 =head1 DESCRIPTION
 
+This class extends the L<VISA::Instrument::Source> class. It is meant to be
+inherited by instrument classes (virtual instruments), that implement voltage
+sources (e.g. the L<VISA::Instrument::Yokogawa7651> class).
+
+The VISA::Instrument::SafeSource class extends the L<VISA::Instrument::Source>
+class to provide a sweep rate limitation mechanism, to protect sensible samples.
+Blabla.
+
+From the view of an author of new instruments classes, there is no difference
+between inheriting from VISA::Instrument::Source and VISA::Instrument::SafeSource.
+The same methods have to be implemented. See VISA::Instrument::Source for details.
+The only difference is the additional protection mechanism, which can also be
+turned off.
+
 =head1 CONSTRUCTORS
 
-=head2 new($default_config,$config)
+    $self=new VISA::Instrument::SafeSource($default_config,\%options);
 
 =head1 METHODS
 
-=head2 configure($config)
+=head2 configure
 
- my $default_config={
-     gate_protect			=> 1,
-     gp_max_volt_per_step	=> 0.001,
-     gp_max_volt_per_second	=> 0.002
- };
+    $self->configure(\%config);
 
-=head2 set_voltage($voltage)
+The available options and default settings look like this:
 
-=head2 get_voltage()
+    $default_config={
+        gate_protect           => 1,
+        gp_max_volt_per_step   => 0.001,
+        gp_max_volt_per_second => 0.002
+    };
 
-=head2 set_value($value)
+=head2 set_voltage
 
-=head2 get_value()
+    $self->set_voltage($voltage);
 
-=head2 get_number()
+This is the protected version of the set_voltage() method. It takes into account the
+gp_max_volt_per_step and gp_max_volt_per_second settings, by employing the sweep_to_voltage()
+method.
 
-=head2 get_full_range()
+=head2 sweep_to_voltage
+
+    $self->sweep_to_voltage($voltage);
+
+This method sweeps the output voltage to the desired value. The voltage is changed with
+the maximum speed and granularity, that the gp_max_volt_per_step and
+gp_max_volt_per_second settings allow.
 
 =head1 CAVEATS/BUGS
 
-probably many
+Probably many.
 
 =head1 SEE ALSO
 
@@ -119,7 +141,7 @@ probably many
 
 =item VISA::Instrument::Source
 
-The VISA::Instrument::SafeSource class uses the L<VISA::Instrument::Source> module.
+The VISA::Instrument::SafeSource class inherits from the L<VISA::Instrument::Source> module.
 
 =item Time::HiRes
 
