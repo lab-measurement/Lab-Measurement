@@ -8,11 +8,15 @@ VISA - Perl interface to National Instrument's NI-VISA library
 
 =head1 DESCRIPTION
 
-dfsdfdsddfsfdfsa
+This library offers a perl interface to National Instrument's NI-VISA library.
 
-=head1 ABSTRACT
+Currently only Linux is supported, although support for Windows should be fairly easy.
 
-blablabla
+Currently not all API functions are supported. Only the ones, that I needed.
+
+This manpage only describes the perl syntax of the API. Each function is described
+in some sentences that I copied from the NI-VISA Programmer Reference Manual. See this
+manual for further description of the library.
 
 =head1 FUNCTIONS
 
@@ -24,7 +28,7 @@ The viClear() operation performs an IEEE 488.1-style clear of the device.
 
 =head2 viClose
 
-    $status=viClose($object);
+    $status=VISA::viClose($object);
 
 The viClose() operation closes a session, event, or a find list. In this process all the data
 structures that had been allocated for the specified vi are freed. Calling viClose() on a
@@ -33,7 +37,8 @@ manager session.
 
 =head2 viFindNext
 
-    ($status, $instrDesc)=VISA::viFindNext($findList);
+    ($status, $instrDesc)=
+        VISA::viFindNext($findList);
 
 The viFindNext() operation returns the next device found in the list created by
 viFindRsrc(). The list is referenced by the handle that was returned by viFindRsrc().
@@ -67,7 +72,7 @@ to viParseRsrc() or viOpen(). This is especially true for network and TCPIP reso
 =head2 viGetAttribute
 
     ($status, $attrState)=
-	    viGetAttribute($object, $attribute);
+        VISA::viGetAttribute($object, $attribute);
 
 The viGetAttribute() operation is used to retrieve the state of an attribute for the
 specified session, event, or find list.
@@ -90,7 +95,8 @@ NI-VISA currently supports VI_LOAD_CONFIG only on Serial INSTR sessions.
 
 =head2 viOpenDefaultRM
 
-    ($status, $sesn)=VISA::viOpenDefaultRM();
+    ($status, $sesn)=
+		VISA::viOpenDefaultRM();
 
 The viOpenDefaultRM() function must be called before any VISA operations can be
 invoked. The first call to this function initializes the VISA system, including the Default
@@ -128,7 +134,7 @@ synchronous write operation can occur at any one time.
 
 =head1 CAVEATS/BUGS
 
-probably many
+Probably many.
 
 =head1 SEE ALSO
 
