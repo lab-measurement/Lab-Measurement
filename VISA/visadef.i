@@ -502,3 +502,6 @@ typedef ViUInt32      ViAttr;
 
 typedef ViUInt32      ViAccessMode;
 typedef ViUInt32      ViAttrState;
+
+typedef ViObject	  ViFindList;
+typedef ViFindList	* ViPFindList;
