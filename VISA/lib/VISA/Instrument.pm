@@ -20,6 +20,14 @@ sub new {
 	$self->{default_rm}=$res;
 
 	my $resource_name;
+	if ((ref $args[0]) eq 'HASH') {
+		my $config=$args[0];
+		if (defined ($config->{GPIB_address}) {
+			@args=(
+				(defined ($config->{GPIB_board}) ? $config->{GPIB_board} : 0,
+				 $config->{GPIB_address});
+		}
+	}
 	if ($#args >0) { # GPIB
 		$resource_name=sprintf("GPIB%u::%u::INSTR",$args[0],$args[1]);
 	} elsif ($args[0] =~ /ASRL/) {	# serial
