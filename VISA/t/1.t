@@ -15,7 +15,7 @@ ok($status == $VISA::VI_SUCCESS,'Find all instruments');
 SKIP: {
 	skip("No instruments found", 4) unless ($count > 0);
 	
-	($status,my $instrument)=VISA::viOpen($def_rm,$description);
+	($status,my $instrument)=VISA::viOpen($def_rm,$description,$VISA::VI_NULL,$VISA::VI_NULL);
 	ok($status == $VISA::VI_SUCCESS,'Open first instrument');
 	
 	my $cmd="?IDN*";
