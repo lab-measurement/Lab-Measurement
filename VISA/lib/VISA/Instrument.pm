@@ -97,6 +97,11 @@ sub Query {
 	return substr($result,0,$read_cnt);
 }
 
+sub Handle {
+	my $self=shift;
+	return $self->{instr};
+}
+
 sub DESTROY {
 	my $self=shift;
 	my $status=VISA::viClose($self->{instr});
@@ -107,34 +112,50 @@ sub DESTROY {
 
 =head1 NAME
 
-VISA::Instrument - Helper class for VISA based instrument modules
+VISA::Instrument - Helper class for VISA based instrument classes
 
 =head1 SYNOPSIS
 
-    use VISA::Instrument;
-	
-	my $any=	new VISA::Instrument("");
-	my $any_hp=	new VISA::Instrument('34401A');
-	my $hp22=	new VISA::Instrument(0,22);
-	
-	my $id=$hp22->Query('*IDN?');
+ use VISA::Instrument;
+ 
+ my $any=	new VISA::Instrument("");
+ my $any_hp=	new VISA::Instrument('34401A');
+ my $hp22=	new VISA::Instrument(0,22);
+ 
+ my $id=$hp22->Query('*IDN?');
 
 =head1 DESCRIPTION
 
 This class describes a general visa based instrument.
 
 It can be used either directly by the laborant to work with an instrument that
-is not supported by an own perl class. Or it can be used by such a specialized
-perl instrument class, to delegate the actual visa work (all the instruments
-in the default package do so).
+doesn't have its own perl class. Or it can be used by such a specialized
+perl instrument class, to delegate the actual visa work. (All the instruments
+in the default package do so.)
 
 =head1 CONSTRUCTORS
 
-=head2 new($gpib_board,$gpib_addr)
+=head2 new
+
+ $instrument=new VISA::Instrument($gpib_board,$gpib_addr);
 
 =head1 METHODS
 
-=head2 DESTROY;
+=head2 Write
+
+ $write_count=$instrument->Write($command);
+
+=head2 Query
+
+ $result=$instrument->Query($command);
+
+=head2 Clear
+
+ $instrument->Clear();
+
+=head2 Handle
+
+ $instr_handle=$instrument->Handle();
 
 =head1 CAVEATS/BUGS
 
