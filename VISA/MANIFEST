@@ -5,6 +5,8 @@ VISA.pod
 t/1.t
 visa.i
 visadef.i
+VISA.pm
+visa_wrap.cxx
 lib/VISA/Instrument.pm
 lib/VISA/Instrument/Source.pm
 lib/VISA/Instrument/SafeSource.pm
