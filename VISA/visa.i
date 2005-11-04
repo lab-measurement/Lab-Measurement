@@ -1,5 +1,5 @@
 /*$Id$
-$VERSION=sprintf("%d.%02d", q$Revision$ =~ /(\d+)\.(\d+)/);
+$VERSION=sprintf("%d.01_%02d", q$Revision$ =~ /(\d+)\.(\d+)/);
 */
 
 %module VISA
