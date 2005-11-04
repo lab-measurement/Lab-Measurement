@@ -142,7 +142,7 @@ sub set_field_sweep_rate {
 
 =head1 NAME
 
-VISA::Instrument::IPS120_10 - an IPS120-10 superconducting magnet power supply
+VISA::Instrument::IPS120_10 - IPS120-10 superconducting magnet power supply
 
 =head1 SYNOPSIS
 
