@@ -4,7 +4,7 @@ use 5.008;
 use strict;
 use ExtUtils::MakeMaker;
 
-`swig -perl5 -c++ visa.i`;
+#`swig -perl5 -c++ visa.i`;
 
 WriteMakefile(
 	'NAME'			=> 'VISA',
@@ -18,5 +18,6 @@ WriteMakefile(
 	'DEFINE'		=> '',
 	'INC'			=> '-I.',
 	'clean'			=> {
-		FILES	=> 'VISA.pm visa_wrap.cxx'},
+#		FILES	=> 'VISA.pm visa_wrap.cxx'
+	},
 );
