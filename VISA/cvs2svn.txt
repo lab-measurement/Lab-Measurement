@@ -1,0 +1,17 @@
+how to import the lab project from cvs to svn:
+
+rm -rf transfer_*
+
+mkdir /shared/rep/code
+svnadmin create /shared/rep/code/lab
+mkdir ~/transfer_cvs
+cp -r /shared/Archiv/Benutzer/schroeer/cvsroot/perl_lib/Lab/VISA/ 
+~/transfer_cvs/
+mkdir ~/transfer_cvs/CVSROOT
+mkdir ~/transfer_svn
+cd ~/transfer_svn
+cvs2svn --use-cvs --trunk-only --dump-only ~/transfer_cvs/
+  svn mkdir file:///shared/rep/code/lab/VISA -m "Added VISA directory."
+  svnadmin --parent-dir VISA load /shared/rep/code/lab/ < cvs2svn-dump
+svnadmin load /shared/rep/code/lab/ < cvs2svn-dump
+svn list --verbose file:///shared/rep/code/lab/
