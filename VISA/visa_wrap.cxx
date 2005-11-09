@@ -225,7 +225,7 @@ SWIG_TypeClientData(swig_type_info *ti, void *clientdata) {
  * perl5.swg
  *
  * Perl5 runtime library
- * $Header$
+ * $Header: /cvs/projects/SWIG/Lib/perl5/Attic/perlrun.swg,v 1.1.2.11 2002/11/19 19:26:01 beazley Exp $
  * ----------------------------------------------------------------------------- */
 
 #define SWIGPERL
@@ -518,10 +518,10 @@ static swig_type_info *swig_types[4];
 
 /* -------- TYPES TABLE (END) -------- */
 
-#define SWIG_init    boot_VISA
+#define SWIG_init    boot_Lab__VISA
 
-#define SWIG_name   "VISA::boot_VISA"
-#define SWIG_prefix "VISA::"
+#define SWIG_name   "Lab::VISA::boot_Lab__VISA"
+#define SWIG_prefix "Lab::VISA::"
 
 #ifdef __cplusplus
 extern "C"
@@ -550,8 +550,8 @@ extern ViStatus viRead(ViSession,ViPBuf,ViUInt32,ViUInt32 *);
 extern ViStatus viFindRsrc(ViSession,ViString,ViFindList *,ViUInt32 *,ViPChar);
 extern ViStatus viFindNext(ViFindList,ViPChar);
 #ifdef PERL_OBJECT
-#define MAGIC_CLASS _wrap_VISA_var::
-class _wrap_VISA_var : public CPerlObj {
+#define MAGIC_CLASS _wrap_Lab::VISA_var::
+class _wrap_Lab::VISA_var : public CPerlObj {
 public:
 #else
 #define MAGIC_CLASS
@@ -1271,16 +1271,16 @@ static swig_variable_info swig_variables[] = {
 {0}
 };
 static swig_command_info swig_commands[] = {
-{"VISA::viOpenDefaultRM", _wrap_viOpenDefaultRM},
-{"VISA::viOpen", _wrap_viOpen},
-{"VISA::viSetAttribute", _wrap_viSetAttribute},
-{"VISA::viGetAttribute", _wrap_viGetAttribute},
-{"VISA::viWrite", _wrap_viWrite},
-{"VISA::viClose", _wrap_viClose},
-{"VISA::viClear", _wrap_viClear},
-{"VISA::viRead", _wrap_viRead},
-{"VISA::viFindRsrc", _wrap_viFindRsrc},
-{"VISA::viFindNext", _wrap_viFindNext},
+{"Lab::VISA::viOpenDefaultRM", _wrap_viOpenDefaultRM},
+{"Lab::VISA::viOpen", _wrap_viOpen},
+{"Lab::VISA::viSetAttribute", _wrap_viSetAttribute},
+{"Lab::VISA::viGetAttribute", _wrap_viGetAttribute},
+{"Lab::VISA::viWrite", _wrap_viWrite},
+{"Lab::VISA::viClose", _wrap_viClose},
+{"Lab::VISA::viClear", _wrap_viClear},
+{"Lab::VISA::viRead", _wrap_viRead},
+{"Lab::VISA::viFindRsrc", _wrap_viFindRsrc},
+{"Lab::VISA::viFindNext", _wrap_viFindNext},
 {0,0}
 };
 

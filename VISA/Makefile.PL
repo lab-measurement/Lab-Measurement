@@ -4,10 +4,10 @@ use 5.008;
 use strict;
 use ExtUtils::MakeMaker;
 
-#`swig -perl5 -c++ visa.i`;
+`swig -perl5 -module Lab::VISA -c++ visa.i`;
 
 WriteMakefile(
-	'NAME'			=> 'VISA',
+	'NAME'			=> 'Lab::VISA',
 	'VERSION_FROM'	=> 'visa.i',
 	'PREREQ_PM'		=> {},
 	($] >= 5.005 ?
