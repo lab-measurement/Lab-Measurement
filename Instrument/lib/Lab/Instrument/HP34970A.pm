@@ -1,33 +1,33 @@
 #$Id$
 
-package VISA::Instrument::HP34970A;
+package Lab::Instrument::HP34970A;
 
 use strict;
-use VISA::Instrument;
+use Lab::Instrument;
 
-our $VERSION = sprintf("%d.%02d", q$Revision$ =~ /(\d+)\.(\d+)/);
+our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
 
 sub new {
-	my $proto = shift;
+    my $proto = shift;
     my $class = ref($proto) || $proto;
     my $self = {};
     bless ($self, $class);
 
-	$self->{vi}=new VISA::Instrument(@_);
+    $self->{vi}=new Lab::Instrument(@_);
 
-	return $self
+    return $self
 }
 
 sub read_voltage_dc {
-	my $self=shift;
-	my ($range,$resolution,@scan_list)=@_;
-	
-	$range="DEF" unless (defined $range);
-	$resolution="DEF" unless (defined $resolution);
-	
-	my $cmd=sprintf("MEASure:VOLTage:DC? %u,%f, (\@%s)",$range,$resolution,join ",",@scan_list);
+    my $self=shift;
+    my ($range,$resolution,@scan_list)=@_;
+    
+    $range="DEF" unless (defined $range);
+    $resolution="DEF" unless (defined $resolution);
+    
+    my $cmd=sprintf("MEASure:VOLTage:DC? %u,%f, (\@%s)",$range,$resolution,join ",",@scan_list);
     my ($value)=split "\n",$self->{vi}->Query($cmd);
-	return $value;
+    return $value;
 }
 
 sub conf_monitor {
@@ -42,73 +42,73 @@ sub read_monitor {
 }
 
 sub display_text {
-	my $self=shift;
-	my $text=shift;
-	
-	if ($text) {
-		$self->{vi}->Write(qq(DISPlay:TEXT "$text"));
-	} else {
-		chomp($text=$self->{vi}->Query(qq(DISPlay:TEXT?)));
-		$text=~s/\"//g;
-	}
-	return $text;
+    my $self=shift;
+    my $text=shift;
+    
+    if ($text) {
+        $self->{vi}->Write(qq(DISPlay:TEXT "$text"));
+    } else {
+        chomp($text=$self->{vi}->Query(qq(DISPlay:TEXT?)));
+        $text=~s/\"//g;
+    }
+    return $text;
 }
 
 sub display_on {
-	my $self=shift;
-	$self->{vi}->Write("DISPlay ON");
+    my $self=shift;
+    $self->{vi}->Write("DISPlay ON");
 }
 
 sub display_off {
-	my $self=shift;
-	$self->{vi}->Write("DISPlay OFF");
+    my $self=shift;
+    $self->{vi}->Write("DISPlay OFF");
 }
 
 sub display_clear {
-	my $self=shift;
-	$self->{vi}->Write("DISPlay:TEXT:CLEar");
+    my $self=shift;
+    $self->{vi}->Write("DISPlay:TEXT:CLEar");
 }
 
 sub beep {
-	my $self=shift;
-	$self->{vi}->Write("SYSTem:BEEPer");
+    my $self=shift;
+    $self->{vi}->Write("SYSTem:BEEPer");
 }
 
 sub get_error {
-	my $self=shift;
-	chomp(my $err=$self->{vi}->Query("SYSTem:ERRor?"));
-	my ($err_num,$err_msg)=split ",",$err;
-	$err_msg=~s/\"//g;
-	return ($err_num,$err_msg);
+    my $self=shift;
+    chomp(my $err=$self->{vi}->Query("SYSTem:ERRor?"));
+    my ($err_num,$err_msg)=split ",",$err;
+    $err_msg=~s/\"//g;
+    return ($err_num,$err_msg);
 }
 
 sub reset {
-	my $self=shift;
-	$self->{vi}->Write("*RST");
+    my $self=shift;
+    $self->{vi}->Write("*RST");
 }
 
 sub scroll_message {
-	use Time::HiRes (qw/usleep/);
-	my $self=shift;
-	my $message="            This perl instrument driver is copyright 2004/2005 by Daniel Schroeer.            ";
-	for (0..(length($message)-12)) {
-		$self->display_text(substr($message,$_,$_+11));
-		usleep(100000);
-	}
-	$self->display_clear();
+    use Time::HiRes (qw/usleep/);
+    my $self=shift;
+    my $message="            This perl instrument driver is copyright 2004/2005 by Daniel Schroeer.            ";
+    for (0..(length($message)-12)) {
+        $self->display_text(substr($message,$_,$_+11));
+        usleep(100000);
+    }
+    $self->display_clear();
 }
 
 1;
 
 =head1 NAME
 
-VISA::Instrument::HP34401A - a HP 34401A digital multimeter
+Lab::Instrument::HP34401A - a HP 34401A digital multimeter
 
 =head1 SYNOPSIS
 
-    use VISA::Instrument::HP34401A;
+    use Lab::Instrument::HP34401A;
     
-    my $hp=new VISA::Instrument::HP34401A(0,22);
+    my $hp=new Lab::Instrument::HP34401A(0,22);
     print $hp->read_voltage_dc(10,0.00001);
 
 =head1 DESCRIPTION
@@ -216,9 +216,9 @@ probably many
 
 =over 4
 
-=item VISA::Instrument
+=item Lab::Instrument
 
-The HP34401A uses the VISA::Instrument class (L<VISA::Instrument>).
+The HP34401A uses the Lab::Instrument class (L<Lab::Instrument>).
 
 =back
 

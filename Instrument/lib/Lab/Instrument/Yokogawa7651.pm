@@ -1,173 +1,173 @@
 #$Id$
 
-package VISA::Instrument::Yokogawa7651;
+package Lab::Instrument::Yokogawa7651;
 use strict;
-use VISA::Instrument;
-use VISA::Instrument::SafeSource;
+use Lab::Instrument;
+use Lab::Instrument::SafeSource;
 
-our $VERSION = sprintf("%d.%02d", q$Revision$ =~ /(\d+)\.(\d+)/);
+our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
 
-our @ISA=('VISA::Instrument::SafeSource');
+our @ISA=('Lab::Instrument::SafeSource');
 
 my $default_config={
-	gate_protect			=> 0,
-	gp_max_volt_per_step	=> 0.0005,
-	gp_max_volt_per_second	=> 0.002
+    gate_protect            => 0,
+    gp_max_volt_per_step    => 0.0005,
+    gp_max_volt_per_second  => 0.002
 };
 
 sub new {
-	my $proto = shift;
-	my @args=@_;
-	my $class = ref($proto) || $proto;
-	my $self = $class->SUPER::new($default_config,@args);
-	bless ($self, $class);
+    my $proto = shift;
+    my @args=@_;
+    my $class = ref($proto) || $proto;
+    my $self = $class->SUPER::new($default_config,@args);
+    bless ($self, $class);
 
-	$self->{vi}=new VISA::Instrument(@args);
-	
-	return $self
+    $self->{vi}=new Lab::Instrument(@args);
+    
+    return $self
 }
 
 sub _set_voltage {
-	my $self=shift;
-	my $voltage=shift;
-	$self->_set($voltage);
+    my $self=shift;
+    my $voltage=shift;
+    $self->_set($voltage);
 }
 
 sub set_current {
-	my $self=shift;
-	my $voltage=shift;
-	$self->_set($voltage);
+    my $self=shift;
+    my $voltage=shift;
+    $self->_set($voltage);
 }
 
 sub _set {
-	my $self=shift;
-	my $value=shift;
-	my $cmd=sprintf("S%e",$value);
-	$self->{vi}->Write($cmd);
-	$cmd="E";
-	$self->{vi}->Write($cmd);
+    my $self=shift;
+    my $value=shift;
+    my $cmd=sprintf("S%e",$value);
+    $self->{vi}->Write($cmd);
+    $cmd="E";
+    $self->{vi}->Write($cmd);
 }
 
 sub get_voltage {
-	my $self=shift;
-	return $self->_get();
+    my $self=shift;
+    return $self->_get();
 }
 
 sub get_current {
-	my $self=shift;
-	return $self->_get();
+    my $self=shift;
+    return $self->_get();
 }
 
 sub _get {
-	my $self=shift;
-	my $cmd="OD";
-	my $result=$self->{vi}->Query($cmd);
-	$result=~/....([\+\-\d\.E]*)/;
-	return $1;
+    my $self=shift;
+    my $cmd="OD";
+    my $result=$self->{vi}->Query($cmd);
+    $result=~/....([\+\-\d\.E]*)/;
+    return $1;
 }
 
 sub set_current_mode {
-	my $self=shift;
-	my $cmd="F5";
-	$self->{vi}->Write($cmd);
+    my $self=shift;
+    my $cmd="F5";
+    $self->{vi}->Write($cmd);
 }
 
 sub set_voltage_mode {
-	my $self=shift;
-	my $cmd="F1";
-	$self->{vi}->Write($cmd);
+    my $self=shift;
+    my $cmd="F1";
+    $self->{vi}->Write($cmd);
 }
 
 sub set_range {
-	my $self=shift;
-	my $range=shift;
-	my $cmd="R$range";
-	  #fixed voltage mode
-	  # 2   10mV
-	  # 3   100mV
-	  # 4   1V
-	  # 5   10V
-	  # 6   30V
-	  #fixed current mode
-	  # 4   1mA
-	  # 5   10mA
-	  # 6   100mA
-	$self->{vi}->Write($cmd);
+    my $self=shift;
+    my $range=shift;
+    my $cmd="R$range";
+      #fixed voltage mode
+      # 2   10mV
+      # 3   100mV
+      # 4   1V
+      # 5   10V
+      # 6   30V
+      #fixed current mode
+      # 4   1mA
+      # 5   10mA
+      # 6   100mA
+    $self->{vi}->Write($cmd);
 }
 
 sub get_info {
-	my $self=shift;
-	my $result=$self->{vi}->Query("OS");
-	return $result;
+    my $self=shift;
+    my $result=$self->{vi}->Query("OS");
+    return $result;
 }
 
 sub output_on {
-	my $self=shift;
-	$self->{vi}->Write('O1');
-	$self->{vi}->Write('E');
+    my $self=shift;
+    $self->{vi}->Write('O1');
+    $self->{vi}->Write('E');
 }
-	
+    
 sub output_off {
-	my $self=shift;
-	$self->{vi}->Write('O0');
-	$self->{vi}->Write('E');
+    my $self=shift;
+    $self->{vi}->Write('O0');
+    $self->{vi}->Write('E');
 }
 
 sub get_output {
-	my $self=shift;
-	my %res=$self->get_status();
-	return $res{output};
+    my $self=shift;
+    my %res=$self->get_status();
+    return $res{output};
 }
 
 sub initialize {
-	my $self=shift;
-	$self->{vi}->Write('RC');
+    my $self=shift;
+    $self->{vi}->Write('RC');
 }
 
 sub set_voltage_limit {
-	my $self=shift;
-	my $value=shift;
-	my $cmd=sprintf("LV%e",$value);
-	$self->{vi}->Write($cmd);
+    my $self=shift;
+    my $value=shift;
+    my $cmd=sprintf("LV%e",$value);
+    $self->{vi}->Write($cmd);
 }
 
 sub set_current_limit {
-	my $self=shift;
-	my $value=shift;
-	my $cmd=sprintf("LA%e",$value);
-	$self->{vi}->Write($cmd);
+    my $self=shift;
+    my $value=shift;
+    my $cmd=sprintf("LA%e",$value);
+    $self->{vi}->Write($cmd);
 }
 
 sub get_status {
-	my $self=shift;
-	my $status=$self->{vi}->Query('OC');
-	
-	$status=~/STS1=(\d*)/;
-	$status=$1;
-	my @flags=qw/
-		CAL_switch  memory_card calibration_mode    output
-		unstable    error   execution   setting/;
-	my %result;
-	for (0..7) {
-		if ($status&128) {
-			$result{$flags[$_]}=1;
-		}
-		$status<<=1;
-	}
-	return %result;
+    my $self=shift;
+    my $status=$self->{vi}->Query('OC');
+    
+    $status=~/STS1=(\d*)/;
+    $status=$1;
+    my @flags=qw/
+        CAL_switch  memory_card calibration_mode    output
+        unstable    error   execution   setting/;
+    my %result;
+    for (0..7) {
+        if ($status&128) {
+            $result{$flags[$_]}=1;
+        }
+        $status<<=1;
+    }
+    return %result;
 }
 
 1;
 
 =head1 NAME
 
-VISA::Instrument::Yokogawa7651 - a Yokogawa 7651 DC source
+Lab::Instrument::Yokogawa7651 - a Yokogawa 7651 DC source
 
 =head1 SYNOPSIS
 
-    use VISA::Instrument::Yokogawa7651;
+    use Lab::Instrument::Yokogawa7651;
     
-    my $gate14=new VISA::Instrument::Yokogawa7651(0,11);
+    my $gate14=new Lab::Instrument::Yokogawa7651(0,11);
     $gate14->set_range(5);
     $gate14->set_voltage(0.745);
     print $gate14->get_voltage();
@@ -307,9 +307,9 @@ probably many
 
 The Yokogawa7651 class uses the VISA module (L<VISA>).
 
-=item VISA::Instrument
+=item Lab::Instrument
 
-The Yokogawa7651 class is a VISA::Instrument (L<VISA::Instrument>).
+The Yokogawa7651 class is a Lab::Instrument (L<Lab::Instrument>).
 
 =item SafeSource
 
