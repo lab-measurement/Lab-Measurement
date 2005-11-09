@@ -2,7 +2,7 @@
 $VERSION=sprintf("%d.01_%02d", q$Revision$ =~ /(\d+)\.(\d+)/);
 */
 
-%module VISA
+%module Lab::VISA
 %{
 #include "/usr/local/vxipnp/linux/include/visa.h"
 %}
