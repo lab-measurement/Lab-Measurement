@@ -303,9 +303,9 @@ probably many
 
 =over 4
 
-=item VISA
+=item Lab::VISA
 
-The Yokogawa7651 class uses the VISA module (L<VISA>).
+The Yokogawa7651 class uses the Lab::VISA module (L<Lab::VISA>).
 
 =item Lab::Instrument
 

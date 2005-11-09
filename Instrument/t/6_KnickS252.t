@@ -4,9 +4,9 @@
 use strict;
 use Test::More tests => 3;
 
-BEGIN { use_ok('VISA::Instrument::KnickS252') };
+BEGIN { use_ok('Lab::Instrument::KnickS252') };
 
-ok(my $knick=new VISA::Instrument::KnickS252({
+ok(my $knick=new Lab::Instrument::KnickS252({
 	'GPIB_board'				=> 0,
 	'GPIB_address'				=> 16,
 	'gp_max_volt_per_second'	=> 0.021}),'Open any Knick');

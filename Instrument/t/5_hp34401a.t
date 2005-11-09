@@ -4,9 +4,9 @@
 use strict;
 use Test::More tests => 11;
 
-BEGIN { use_ok('VISA::Instrument::HP34401A') };
+BEGIN { use_ok('Lab::Instrument::HP34401A') };
 
-ok(my $hp=new VISA::Instrument::HP34401A(0,24),'Open HP 24');
+ok(my $hp=new Lab::Instrument::HP34401A(0,24),'Open HP 24');
 ok(my $voltage=$hp->read_voltage_dc(10,0.00001),'read_voltage_dc(10,0.00001)');
 diag "read $voltage";
 ok($hp->display_text("japh"),'display_text($text)');

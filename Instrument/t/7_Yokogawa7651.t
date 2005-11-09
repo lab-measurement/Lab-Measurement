@@ -4,8 +4,8 @@
 use strict;
 use Test::More tests => 6;
 
-BEGIN { use_ok('VISA::Instrument::Yokogawa7651') };
-ok(my $yoko=new VISA::Instrument::Yokogawa7651({
+BEGIN { use_ok('Lab::Instrument::Yokogawa7651') };
+ok(my $yoko=new Lab::Instrument::Yokogawa7651({
 	'GPIB_board'		=> 0,
 	'GPIB_address'		=> 10}),'Open Yoko');
 

@@ -8,6 +8,7 @@ my $build=Module::Build->new(
     module_name => 'Lab::Instrument', 
     license     => 'perl',
     requires    => {
+        'Lab::VISA'   => 0,
     },
     script_files    	=> [],
     create_readme   	=> 0,

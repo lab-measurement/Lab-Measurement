@@ -4,7 +4,7 @@ use 5.008;
 use strict;
 use ExtUtils::MakeMaker;
 
-`swig -perl5 -module Lab::VISA -c++ visa.i`;
+#`swig -perl5 -module Lab::VISA -c++ visa.i`;
 
 WriteMakefile(
 	'NAME'			=> 'Lab::VISA',
