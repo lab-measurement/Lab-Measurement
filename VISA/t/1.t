@@ -9,9 +9,11 @@ BEGIN { use_ok('Lab::VISA') };
 my ($status,$def_rm)=Lab::VISA::viOpenDefaultRM();
 ok($status == $Lab::VISA::VI_SUCCESS,'Open default resource manager');
 
-($status,my $listhandle,my $count,my $description)=Lab::VISA::viFindRsrc($def_rm,'?*INSTR');
-ok($status == $Lab::VISA::VI_SUCCESS,'Find all instruments');
-diag "$count instruments found";
+my ($rsrc_status,$listhandle,$count,$description)=Lab::VISA::viFindRsrc($def_rm,'?*INSTR');
+
+if ($rsrc_status == $Lab::VISA::VI_ERROR_RSRC_NFOUND) {diag "No instruments connected. Skipping instrument tests."}
+elsif ($rsrc_status == $Lab::VISA::VI_SUCCESS) {diag "Found $count instruments."}
+else {fail "Find Resources: $rsrc_status"}
 
 SKIP: {
 	skip("No instruments found", 5) unless ($count > 0);
@@ -25,7 +27,7 @@ SKIP: {
 
 	($status,my $result,my $read_cnt)=Lab::VISA::viRead($instrument,300);
 	ok($status == $Lab::VISA::VI_SUCCESS,'Read from instrument');
-	diag "First instrument read: $result";
+	diag "First instrument says: $result";
 
 	$status=Lab::VISA::viClose($instrument);
 	ok($status == $Lab::VISA::VI_SUCCESS,'Close first instrument');
@@ -39,8 +41,11 @@ SKIP: {
 	}
 };
 
-$status=Lab::VISA::viClose($listhandle);
-ok($status == $Lab::VISA::VI_SUCCESS,'Close findList');
+SKIP: {
+	skip("No resource list obtained",1) unless ($rsrc_status==$Lab::VISA::VI_SUCCESS);
+	Lab::VISA::viClose($listhandle);
+	ok($status == $Lab::VISA::VI_SUCCESS,'Close findList');
+}
 
 $status=Lab::VISA::viClose($def_rm);
 ok($status == $Lab::VISA::VI_SUCCESS,'Close resource manager');
