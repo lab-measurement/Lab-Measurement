@@ -1,10 +1,10 @@
 =head1 NAME
 
-VISA - Perl interface to National Instrument's NI-VISA library
+Lab::VISA - Perl interface to National Instrument's VISA library
 
 =head1 SYNOPSIS
 
-    use VISA;
+    use Lab::VISA;
 
 =head1 DESCRIPTION
 
@@ -14,9 +14,9 @@ With this library you can easily control the instruments in your lab (multimeter
 sources, magnet sources, pulse generators etc.) from perl. You can perform
 complicated measurement jobs with just some perl loops.
 
-It comes even better. The general L<VISA::Instrument> class reduces the
+It comes even better. The general L<Lab::Instrument> class reduces the
 communication overhead to a minimum. And the specialized instrument classes
-(virtual instruments) like the L<VISA::Instrument::HP34401A> class offer
+(virtual instruments) like the L<Lab::Instrument::HP34401A> class offer
 even more high level comfort. Everything is set up already, waiting for you to use it.
 
 This manpage describes the perl syntax of the API. Each function is explained
@@ -29,13 +29,13 @@ documentation on the library.
 
 =head2 viClear
 
-    $status=VISA::viClear($vi);
+    $status=Lab::VISA::viClear($vi);
 
 The viClear() operation performs an IEEE 488.1-style clear of the device.
 
 =head2 viClose
 
-    $status=VISA::viClose($object);
+    $status=Lab::VISA::viClose($object);
 
 The viClose() operation closes a session, event, or a find list. In this process all the data
 structures that had been allocated for the specified vi are freed. Calling viClose() on a
@@ -45,7 +45,7 @@ manager session.
 =head2 viFindNext
 
     ($status, $instrDesc)=
-        VISA::viFindNext($findList);
+        Lab::VISA::viFindNext($findList);
 
 The viFindNext() operation returns the next device found in the list created by
 viFindRsrc(). The list is referenced by the handle that was returned by viFindRsrc().
@@ -53,7 +53,7 @@ viFindRsrc(). The list is referenced by the handle that was returned by viFindRs
 =head2 viFindRsrc
 
     ($status, $findList, $retcnt, $instrDesc)=
-        VISA::viFindRsrc($sesn, $expr);
+        Lab::VISA::viFindRsrc($sesn, $expr);
 
 The viFindRsrc() operation matches the value specified in the expr parameter with the
 resources available for a particular interface.
@@ -79,7 +79,7 @@ to viParseRsrc() or viOpen(). This is especially true for network and TCPIP reso
 =head2 viGetAttribute
 
     ($status, $attrState)=
-        VISA::viGetAttribute($object, $attribute);
+        Lab::VISA::viGetAttribute($object, $attribute);
 
 The viGetAttribute() operation is used to retrieve the state of an attribute for the
 specified session, event, or find list.
@@ -87,7 +87,7 @@ specified session, event, or find list.
 =head2 viOpen
 
     ($status, $vi)=
-        VISA::viOpen($sesn, $rsrcName, $accessMode, $openTimeout);
+        Lab::VISA::viOpen($sesn, $rsrcName, $accessMode, $openTimeout);
 
 The viOpen() operation opens a session to the specified resource. It returns a session
 identifier that can be used to call any other operations of that resource. The address string
@@ -103,7 +103,7 @@ NI-VISA currently supports VI_LOAD_CONFIG only on Serial INSTR sessions.
 =head2 viOpenDefaultRM
 
     ($status, $sesn)=
-        VISA::viOpenDefaultRM();
+        Lab::VISA::viOpenDefaultRM();
 
 The viOpenDefaultRM() function must be called before any VISA operations can be
 invoked. The first call to this function initializes the VISA system, including the Default
@@ -117,7 +117,7 @@ create) are closed.
 =head2 viRead
 
     ($status, $buf, $retCount)=
-        VISA::viRead($vi, $count);
+        Lab::VISA::viRead($vi, $count);
 
 The viRead() operation synchronously transfers data. The data read is to be stored in the
 buffer represented by buf. This operation returns only when the transfer terminates. Only one
@@ -125,7 +125,7 @@ synchronous read operation can occur at any one time.
 
 =head2 viSetAttribute
 
-    $status=VISA::viSetAttribute($vi, $attribute, $attrState);
+    $status=Lab::VISA::viSetAttribute($vi, $attribute, $attrState);
 
 The viSetAttribute() operation is used to modify the state of an attribute for the specified
 object.
@@ -133,7 +133,7 @@ object.
 =head2 viWrite
 
     ($status, $retCount)=
-        VISA::viWrite($vi, $buf, $count);
+        Lab::VISA::viWrite($vi, $buf, $count);
 
 The viWrite() operation synchronously transfers data. The data to be written is in the buffer
 represented by buf. This operation returns only when the transfer terminates. Only one
@@ -153,7 +153,7 @@ are tested so far.
 
 =over 4
 
-=item VISA::Instrument
+=item Lab::Instrument
 
 =back
 
@@ -163,7 +163,7 @@ This is $Id$
 
 =head1 COPYRIGHT
 
-Don't know. This swig-based interface is copyright 2004/2005 Daniel Schröer (L<http://www.danielschroeer.de>).
+I don't know. This swig-based interface is copyright 2004/2005 Daniel Schröer (L<http://www.danielschroeer.de>).
 It is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 
 For the rest National Instruments or the VXI Consortium will probably have a word to say.
