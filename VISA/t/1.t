@@ -12,6 +12,9 @@ ok($status == $Lab::VISA::VI_SUCCESS,'Open default resource manager');
 my ($rsrc_status,$listhandle,$count,$description)=Lab::VISA::viFindRsrc($def_rm,'?*INSTR');
 
 if ($rsrc_status == $Lab::VISA::VI_ERROR_RSRC_NFOUND) {diag "No instruments connected. Skipping instrument tests."}
+elsif ($rsrc_status == $Lab::VISA::VI_ERROR_INV_OBJECT) {diag "The given session reference is invalid."}
+elsif ($rsrc_status == $Lab::VISA::VI_ERROR_NSUP_OPER) {diag "The given sesn does not support this operation. This operation is supported only by a Resource Manager session."}
+elsif ($rsrc_status == $Lab::VISA::VI_ERROR_INV_EXPR) {diag "Invalid expression specified for search."}
 elsif ($rsrc_status == $Lab::VISA::VI_SUCCESS) {diag "Found $count instruments."}
 else {fail "Find Resources: $rsrc_status"}
 
