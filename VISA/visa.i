@@ -1,5 +1,5 @@
 /*
-$VERSION=sprintf("1.0_%03d", q$Revision$ =~ / (\d+) /);
+$VERSION=sprintf("1.00_%03d", q$Revision: 82 $ =~ / (\d+) /);
 */
 
 %module VISA
