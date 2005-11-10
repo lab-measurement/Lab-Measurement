@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-#$Id: Build.PL,v 1.5 2005/11/03 23:28:53 wolfgang Exp $
+#$Id$
 
 use strict;
 use Module::Build;
