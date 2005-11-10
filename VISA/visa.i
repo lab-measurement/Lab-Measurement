@@ -1,4 +1,4 @@
-/*$Id$
+/*
 $VERSION=sprintf("1.0_%03d", q$Revision$ =~ / (\d+) /);
 */
 
