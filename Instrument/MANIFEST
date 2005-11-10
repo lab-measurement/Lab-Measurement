@@ -1,0 +1,19 @@
+Build.PL
+MANIFEST			This list of files
+doc/34401a_reference_manual.pdf
+doc/34401a_user_guide.pdf
+doc/34970userguide.pdf
+lib/Lab/Instrument.pm
+lib/Lab/Instrument/HP34401A.pm
+lib/Lab/Instrument/HP34970A.pm
+lib/Lab/Instrument/IPS120_10.pm
+lib/Lab/Instrument/KnickS252.pm
+lib/Lab/Instrument/SafeSource.pm
+lib/Lab/Instrument/Source.pm
+lib/Lab/Instrument/Yokogawa7651.pm
+scripts/broken_knick.pl
+t/2_visa-instrument.t
+t/5_hp34401a.t
+t/6_KnickS252.t
+t/7_Yokogawa7651.t
+META.yml
