@@ -1,12 +1,12 @@
 #!/usr/bin/perl
 
 use strict;
-use VISA::Instrument::KnickS252;
-use VISA::Instrument::HP34970A;
+use Lab::Instrument::KnickS252;
+use Lab::Instrument::HP34970A;
 use Time::HiRes qw/usleep/;
 
-my $knick=new VISA::Instrument::KnickS252({GPIB_board=>0,GPIB_address=>16});
-my $hp=new VISA::Instrument::HP34970A({GPIB_board=>0,GPIB_address=>25});
+my $knick=new Lab::Instrument::KnickS252({GPIB_board=>0,GPIB_address=>16});
+my $hp=new Lab::Instrument::HP34970A({GPIB_board=>0,GPIB_address=>25});
 
 $hp->conf_monitor(101);
 
