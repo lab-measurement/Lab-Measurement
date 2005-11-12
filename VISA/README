@@ -15,11 +15,6 @@ even more high level comfort. Everything is set up already, waiting for you to u
 
 INSTALLATION
 
-Daq-Karte
-
-Straighforward
-
-
 NI-GPIB
 
 Kernel neu kompiliert mit "Enable loadable module support", "Set version information on all symbols for modules", "Kernel daemon support" (to enable autoloading of module)
@@ -28,22 +23,9 @@ ISAPNP konfiguriert: IRQ 5, IO-Base 02c0, DMA channel 5
 
 nigpib installiert (straightforward)
 
-/usr/local/gpib/include/ angelegt und ugpib.h rein
-/usr/local/gpib/lib/libgpib.a dito
-beide für perl-GPIB
-
-
 
 NI-VISA
 
-
-
-
-
-
-===========================
-
-nach reboot:
 
 insmod nigpib
 insmod db2k

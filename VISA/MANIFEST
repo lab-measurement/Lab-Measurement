@@ -7,3 +7,4 @@ VISA.pm
 VISA.pod
 visa_wrap.cxx
 visadef.i
+META.yml                                 Module meta-data (added by MakeMaker)

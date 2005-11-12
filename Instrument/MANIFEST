@@ -8,9 +8,11 @@ lib/Lab/Instrument/SafeSource.pm
 lib/Lab/Instrument/Source.pm
 lib/Lab/Instrument/Yokogawa7651.pm
 MANIFEST			This list of files
+META.yml
 scripts/broken_knick.pl
+scripts/simple_knick.pl
 t/2_visa-instrument.t
 t/5_hp34401a.t
 t/6_KnickS252.t
 t/7_Yokogawa7651.t
-META.yml
+Makefile.PL

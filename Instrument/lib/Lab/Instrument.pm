@@ -5,7 +5,7 @@ package Lab::Instrument;
 use strict;
 use VISA;
 
-our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
+our $VERSION = sprintf("0.01_%03d", q$Revision$ =~ / (\d+) /);
 
 sub new {
     my $proto = shift;
