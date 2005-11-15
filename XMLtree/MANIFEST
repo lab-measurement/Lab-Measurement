@@ -1,5 +1,0 @@
-Build.PL
-MANIFEST
-README
-t/XMLtree.t
-lib/Lab/XMLtree.pm
