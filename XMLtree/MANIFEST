@@ -1,5 +1,5 @@
-Makefile.PL
+Build.PL
 MANIFEST
 README
 t/XMLtree.t
-lib/XMLtree.pm
+lib/Lab/XMLtree.pm
