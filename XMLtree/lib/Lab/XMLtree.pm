@@ -56,7 +56,7 @@ use XML::DOM;
 use XML::Generator ();
 use Data::Dumper;
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%02d", q$Revision$ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("1.%04d", q$Revision$ =~ / (\d+) /);
 
 our $AUTOLOAD;
 
@@ -600,7 +600,7 @@ Example:
 
 =item HASH|PHASH
 
-Element occurs zero or more times. Folding will be done using an hash reference. If $key is given, this XML element will be used as a key.
+Element occurs zero or more times. Folding will be done using a hash reference. If $key is given, this XML element will be used as a key.
 
 Example:
 
