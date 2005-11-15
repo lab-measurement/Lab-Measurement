@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-#$Id: Dataset.pm,v 1.7 2005/02/04 17:29:48 manonegra Exp $
+#$Id$
 
 package Lab::Dataset;
 
@@ -10,12 +10,12 @@ use warnings;
 use Carp;
 use Data::Dumper;
 use File::Basename;
-use XMLtree;
+use Lab::Data::XMLtree;
 require Exporter;
 
 our @ISA = qw(Exporter);
 
-our $VERSION = sprintf("%d.%02d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/);
+our $VERSION = sprintf("%d.%02d", q$Revision$ =~ /(\d+)\.(\d+)/);
 
 our $AUTOLOAD;
 
@@ -93,7 +93,7 @@ sub new {
 	$self->configure($config);
 
 	$self->{Data}=undef;
-	$self->{Description}=XMLtree->new($description_def);
+	$self->{Description}=Lab::Data::XMLtree->new($description_def);
 	
 	if ($basepathname) {
 		my ($basename,$path,$suffix)=fileparse($basepathname,qr{\..*});
@@ -126,7 +126,7 @@ sub open_dataset {
 		$self->{Data}=$data;
 		$self->{Description}->merge_tree($desc);
 		
-		if (my $loaded_desc=XMLtree->read_xml($description_def,"$path$basename.description")) {
+		if (my $loaded_desc=Lab::Data::XMLtree->read_xml($description_def,"$path$basename.description")) {
 			# diese description in die vorhandene einmergen
 			$self->{Description}->merge_tree($loaded_desc);
 		}
@@ -488,7 +488,7 @@ Lab::Dataset - A dataset
 
 =head1 AUTHOR/COPYRIGHT
 
-This is $Id: Dataset.pm,v 1.7 2005/02/04 17:29:48 manonegra Exp $
+This is $Id$
 
 Copyright 2004 Daniel Schröer (L<http://www.danielschroeer.de>)
 

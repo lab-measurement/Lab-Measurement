@@ -5,7 +5,7 @@
 #bei den ganzen rekursiven functionen
 #rauslaufen.
 #diese werden dann die methoden der
-#unteren XMLtrees bemühen, anstatt sich
+#unteren Lab::Data::XMLtrees bemühen, anstatt sich
 #selbst.
 
 #allerdings bietet objektorientierter ansatz auch nachteile
@@ -41,7 +41,7 @@
 ##vielleicht sollte man LISTNODE intern auch als hash machen
 ##damit es richtig verwirrend wird
 
-package XMLtree;
+package Lab::Data::XMLtree;
 
 use 5.008;
 use strict;
@@ -470,11 +470,11 @@ __END__
 
 =head1 NAME
 
-XMLtree - Handle and store XML and perl data structures with precise declaration.
+Lab::Data::XMLtree - Handle and store XML and perl data structures with precise declaration.
 
 =head1 SYNOPSIS
 
-    use XMLtree;
+    use Lab::Data::XMLtree;
     
     my $data_declaration = {
         info                     => [#              type B
@@ -506,8 +506,8 @@ XMLtree - Handle and store XML and perl data structures with precise declaration
             }
         ]
     };
-    #create XMLtree object from file
-    $data=XMLtree->read_xml($data_declaration,'filename.xml');
+    #create Lab::Data::XMLtree object from file
+    $data=Lab::Data::XMLtree->read_xml($data_declaration,'filename.xml');
 
     #the autoloader
     # get
@@ -522,7 +522,7 @@ XMLtree - Handle and store XML and perl data structures with precise declaration
 
 =head1 DESCRIPTION
 
-XMLtree will take you to similar spots as XML::Simple does, but in a
+Lab::Data::XMLtree will take you to similar spots as XML::Simple does, but in a
 bigger bus and with fewer wild animals.
 
 That's not a bad thing. You get more control of the data
@@ -530,7 +530,7 @@ transformation processes and you get some extra functionality.
 
 =head1 DATA DECLARATION
 
-XMLtree uses a data declaration, that describes, what the
+Lab::Data::XMLtree uses a data declaration, that describes, what the
 perl data structure looks like, and how this data structure
 is converted to XML.
 
@@ -612,21 +612,21 @@ Example:
 
 =head2 new($declaration,[$data])
 
-Create a new XMLtree. $data must be hashref and should match the declaration. Returns XMLtree object.
+Create a new Lab::Data::XMLtree. $data must be hashref and should match the declaration. Returns Lab::Data::XMLtree object.
 
 =head2 read_xml($declaration,$filename)
 
-Opens a XML file $filename. Returns XMLtree object.
+Opens a XML file $filename. Returns Lab::Data::XMLtree object.
 
 =head2 read_yaml($declaration,$filename)
 
-Opens a YAML file $filename. Returns XMLtree object.
+Opens a YAML file $filename. Returns Lab::Data::XMLtree object.
 
 =head1 METHODS
 
 =head2 merge_tree($tree)
 
-Merge another XMLtree into this one. Other tree must not necessarily be blessed.
+Merge another Lab::Data::XMLtree into this one. Other tree must not necessarily be blessed.
 
 =head2 save_xml($filename)
 
@@ -670,7 +670,7 @@ Get/set anything you want. Accounts the data declaration.
 
 =head1 CAVEATS/BUGS
 
-XMLtree does not support all possible kinds of perl data structures.
+Lab::Data::XMLtree does not support all possible kinds of perl data structures.
 It is also not too flexible when it comes to XML. It simply supports
 something that i needed.
 
@@ -680,19 +680,19 @@ something that i needed.
 
 =item XML::Simple
 
-XMLtree is similar to XML::Simple (L<XML::Simple>).
+Lab::Data::XMLtree is similar to XML::Simple (L<XML::Simple>).
 
 =item XML::DOM
 
-XMLtree can use XML::DOM (L<XML::DOM>) to retrieve stored data.
+Lab::Data::XMLtree can use XML::DOM (L<XML::DOM>) to retrieve stored data.
 
 =item XML::Generator
 
-XMLtree can use XML::Generator (L<XML::Generator>) to store data as XML.
+Lab::Data::XMLtree can use XML::Generator (L<XML::Generator>) to store data as XML.
 
 =item YAML
 
-XMLtree can use YAML (L<YAML>) for data storage.
+Lab::Data::XMLtree can use YAML (L<YAML>) for data storage.
 
 =back
 
