@@ -1,0 +1,96 @@
+#$Id$
+
+package Lab::Instrument::Dummysource;
+use strict;
+use Lab::Instrument::Source;
+
+our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
+
+our @ISA=('Lab::Instrument::Source');
+
+my $default_config={
+    gate_protect            => 1,
+    gp_max_volt_per_step    => 0.001,
+    gp_max_volt_per_second  => 0.001,
+    gp_max_step_per_second  => 2,   # already implemented?
+};
+
+sub new {
+    my $proto = shift;
+    my @args=@_;
+    my $class = ref($proto) || $proto;
+    my $self = $class->SUPER::new($default_config,@args);
+    bless ($self, $class);
+    print "DS: Created dummy instrument with config\n";
+    while (my ($k,$v)=each %{$self->configure()}) {
+        print "DS:   $k -> $v\n";
+    }
+    $self->{last_volt}=0;
+    $self->{last_range}=1;
+    return $self
+}
+
+sub _set_voltage {
+    my $self=shift;
+    my $voltage=shift;
+    $self->{last_volt}=$voltage;
+    print "DS: _setting voltage to $voltage\n";
+}
+
+sub get_voltage {
+    my $self=shift;
+    print "DS: getting voltage: $$self{last_volt}\n";
+    return $self->{last_volt};
+}
+
+sub set_range {
+    my $self=shift;
+    my $range=shift;
+    $self->{last_range}=$range;
+    print "DS: setting range to $range\n";
+}
+
+sub get_range {
+    my $self=shift;
+    print "DS: getting range: $$self{last_range}\n";
+    return $self->{last_range};
+}
+
+1;
+
+=head1 NAME
+
+Lab::Instrument::Dummysource - a dummy voltage source
+
+=head1 SYNOPSIS
+
+=head1 DESCRIPTION
+
+The Lab::Instrument::Dummysource class implements a dummy voltage source
+that does nothing but fulfill testing purposes.
+
+=head1 CONSTRUCTOR
+
+=head1 METHODS
+
+=head1 CAVEATS/BUGS
+
+Probably many.
+
+=head1 SEE ALSO
+
+=over 4
+
+=item (L<Lab::Instrument::Source>).
+
+=back
+
+=head1 AUTHOR/COPYRIGHT
+
+This is $Id$
+
+Copyright 2005 Daniel Schröer (L<http://www.danielschroeer.de>)
+
+This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
+
+=cut

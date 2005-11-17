@@ -3,16 +3,27 @@
 package Lab::Instrument::Yokogawa7651;
 use strict;
 use Lab::Instrument;
-use Lab::Instrument::SafeSource;
+use Lab::Instrument::Source;
 
 our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
 
-our @ISA=('Lab::Instrument::SafeSource');
+our @ISA=('Lab::Instrument::Source');
 
 my $default_config={
     gate_protect            => 0,
-    gp_max_volt_per_step    => 0.0005,
-    gp_max_volt_per_second  => 0.002
+    gp_max_volt_per_step    => 0.0004,
+    gp_max_volt_per_second  => 0.0015,
+    gp_max_step_per_second  => 2,   # already implemented?
+    
+    check_range             => 1,
+    auto_range              => 0,
+    ranges                  => {
+        2       =>  10e-3,
+        3       =>  100e-3,
+        4       =>  1,
+        5       =>  10,
+        6       =>  30,
+    },
 };
 
 sub new {

@@ -9,6 +9,7 @@ my $build=Module::Build->new(
     license     => 'perl',
     requires    => {
         'Lab::VISA'   => 0,
+        'Time::HiRes' => 0,
     },
     script_files    	=> [],
     create_readme   	=> 0,
