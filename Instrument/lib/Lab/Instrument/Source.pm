@@ -46,64 +46,74 @@ sub set_voltage {
     my $voltage=shift;
     
     if ($self->{config}->{gate_protect}) {
-        # DIESES VERHALTEN IST FALSCH!
-        # so kann man nie einfach selbst einen (sicheren) Schritt tun
-        # ?vielleicht auch nicht? Angelegenheit von sweep
-        $self->sweep_to_voltage($voltage);
+        $voltage=$self->sweep_to_voltage($voltage);
+        $self->{_gp}->{last_voltage}=$voltage;
     } else {
         $self->_set_voltage($voltage);
+        $self->{_gp}->{last_voltage}=$voltage;
     }
+    return $voltage;
 }
 
 sub step_to_voltage {
     my $self=shift;
     my $voltage=shift;
     
-    my $mpsec=$self->{config}->{gp_max_volt_per_second};
-    my $mpstep=$self->{config}->{gp_max_volt_per_step};
+    my $voltpersec=abs($self->{config}->{gp_max_volt_per_second});
+    my $voltperstep=abs($self->{config}->{gp_max_volt_per_step});
+    my $steppersec=abs($self->{config}->{gp_max_step_per_second});
 
+    #read output voltage from instrument (only at the beginning)
     my $last_v=$self->{_gp}->{last_voltage};
-    my $last_t=$self->{_gp}->{last_settime_mus};
-    
     unless (defined $last_v) {
         $last_v=$self->get_voltage();
         $self->{_gp}->{last_voltage}=$last_v;
     }
 
+    #already there
+    return $voltage if $voltage == $last_v;
+
+    #do the magic step calculation
+    my ($step,$wait);
+    if ($voltpersec < $voltperstep * $steppersec) {
+        # ignore $steppersecond
+        $step=$voltperstep;
+        $wait=$voltperstep/$voltpersec;
+    } else {
+        # ignore $voltpersec
+        $step=$voltperstep;
+        $wait=1/$steppersec;
+    }
+    $step*=-1 if $voltage < $last_v;
+
+    #wait if necessary
     my ($ns,$nmu)=gettimeofday();
     my $now=$ns*1e6+$nmu;
-    
-    #wait if necessary
-    unless (defined $last_t) {
+    unless (defined (my $last_t=$self->{_gp}->{last_settime_mus})) {
         $self->{_gp}->{last_settime_mus}=$now;
-        $last_t=$now;
-    } elsif (($last_t-$now)<(1e6*($mpstep/$mpsec))) {
-        usleep ( ( 1e6*($mpstep/$mpsec) - ($last_t-$now) ));
+    } elsif ( $now-$last_t < 1e6*$wait ) {
+        usleep ( ( 1e6*$wait - ($now-$last_t) ) );
+        ($ns,$nmu)=gettimeofday();
+        $now=$ns*1e6+$nmu;
+        $self->{_gp}->{last_settime_mus}=$now;
     }
     
-    ($ns,$nmu)=gettimeofday();
-    $now=$ns*1e6+$nmu;
-    $self->{_gp}->{last_settime_mus}=$now;
-    $last_t=$now;
-
     #do one step
-    if (abs($voltage-$last_v) > $mpstep) {
-        my $next_voltage=$last_v+$mpstep*(($voltage>$last_v) ? 1 : -1);
-        $self->_set_voltage($next_voltage);
-        $self->{_gp}->{last_voltage}=$next_voltage;
-        return "not arrived";
-    } else {
-        $self->_set_voltage($voltage);
-        $self->{_gp}->{last_voltage}=$voltage;
-        return "arrived";
+    if (abs($voltage-$last_v) > abs($step)) {
+        $voltage=$last_v+$step;
     }
+    $voltage=0+sprintf("%.10f",$voltage);
+    $self->_set_voltage($voltage);
+    $self->{_gp}->{last_voltage}=$voltage;
+    return $voltage;
 }
 
 sub sweep_to_voltage {
     my $self=shift;
     my $voltage=shift;
 
-    while ($self->step_to_voltage($voltage) !~ /^arrived/) {};
+    while (abs($self->step_to_voltage($voltage)-$voltage) > 0.00001) {};
+    return $voltage;
 }
 
 sub _set_voltage {
@@ -111,7 +121,14 @@ sub _set_voltage {
 }
 
 sub get_voltage {
-    warn 'get_voltage not implemented for this instrument';
+    my $self=shift;
+    my $voltage=$self->_get_voltage(@_);
+    $self->{_gp}->{last_voltage}=$voltage;
+    return $voltage;
+}
+
+sub _get_voltage {
+    warn '_get_voltage not implemented for this instrument';
 }
 
 sub get_range() {

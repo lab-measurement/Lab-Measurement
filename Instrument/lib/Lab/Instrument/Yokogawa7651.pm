@@ -11,19 +11,9 @@ our @ISA=('Lab::Instrument::Source');
 
 my $default_config={
     gate_protect            => 0,
-    gp_max_volt_per_step    => 0.0004,
     gp_max_volt_per_second  => 0.0015,
-    gp_max_step_per_second  => 2,   # already implemented?
-    
-    check_range             => 1,
-    auto_range              => 0,
-    ranges                  => {
-        2       =>  10e-3,
-        3       =>  100e-3,
-        4       =>  1,
-        5       =>  10,
-        6       =>  30,
-    },
+    gp_max_volt_per_step    => 0.0004,
+    gp_max_step_per_second  => 2,
 };
 
 sub new {
@@ -59,7 +49,7 @@ sub _set {
     $self->{vi}->Write($cmd);
 }
 
-sub get_voltage {
+sub _get_voltage {
     my $self=shift;
     return $self->_get();
 }

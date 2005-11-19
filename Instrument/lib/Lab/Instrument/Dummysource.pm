@@ -10,9 +10,9 @@ our @ISA=('Lab::Instrument::Source');
 
 my $default_config={
     gate_protect            => 1,
+    gp_max_volt_per_second  => 0.002,
     gp_max_volt_per_step    => 0.001,
-    gp_max_volt_per_second  => 0.001,
-    gp_max_step_per_second  => 2,   # already implemented?
+    gp_max_step_per_second  => 2,
 };
 
 sub new {
@@ -34,12 +34,12 @@ sub _set_voltage {
     my $self=shift;
     my $voltage=shift;
     $self->{last_volt}=$voltage;
-    print "DS: _setting voltage to $voltage\n";
+    print "DS: _setting virtual voltage to $voltage\n";
 }
 
-sub get_voltage {
+sub _get_voltage {
     my $self=shift;
-    print "DS: getting voltage: $$self{last_volt}\n";
+    print "DS: _getting virtual voltage: $$self{last_volt}\n";
     return $self->{last_volt};
 }
 
@@ -47,12 +47,12 @@ sub set_range {
     my $self=shift;
     my $range=shift;
     $self->{last_range}=$range;
-    print "DS: setting range to $range\n";
+    print "DS: setting virtual range to $range\n";
 }
 
 sub get_range {
     my $self=shift;
-    print "DS: getting range: $$self{last_range}\n";
+    print "DS: getting virtual range: $$self{last_range}\n";
     return $self->{last_range};
 }
 
