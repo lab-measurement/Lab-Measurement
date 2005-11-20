@@ -13,6 +13,8 @@ my $default_config={
     gp_max_volt_per_second  => 0.002,
     gp_max_volt_per_step    => 0.001,
     gp_max_step_per_second  => 2,
+    gp_min_volt             => -1,
+    gp_max_volt             => 1,
 };
 
 sub new {
@@ -67,15 +69,9 @@ Lab::Instrument::Dummysource - a dummy voltage source
 =head1 DESCRIPTION
 
 The Lab::Instrument::Dummysource class implements a dummy voltage source
-that does nothing but fulfill testing purposes.
+that does nothing but fullfill testing purposes.
 
-=head1 CONSTRUCTOR
-
-=head1 METHODS
-
-=head1 CAVEATS/BUGS
-
-Probably many.
+Only developers can make use of this class.
 
 =head1 SEE ALSO
 

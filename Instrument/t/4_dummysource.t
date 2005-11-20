@@ -27,15 +27,15 @@ ok($source->configure({
 }),'Set custom configuration (hashref)');
 ok(abs($source->step_to_voltage(0.11)-0.106) < 0.00001,'step_to_voltage test 1a');
 ok(abs($source->step_to_voltage(0.1065)-0.1065) < 0.00001,'step_to_voltage test 1b');
-ok(abs($source->step_to_voltage(0.1075)-0.1075) < 0.00001,'step_to_voltage test 1c');
-ok(abs($source->sweep_to_voltage(0.11)-0.11) < 0.00001,'sweep_to_voltage test 1');
+ok((abs($source->step_to_voltage(0.1075)-0.1075) < 0.00001),'step_to_voltage test 1c');
+ok((abs($source->sweep_to_voltage(0.11)-0.11) < 0.00001),'sweep_to_voltage test 1');
 
 my ($ns,$mus)=gettimeofday();
 my $start=$ns*1e6+$mus;
 ok(abs($source->set_voltage(0.14)-0.14) < 0.00001,'set_voltage test 1');
 ($ns,$mus)=gettimeofday();
 my $now=$ns*1e6+$mus;
-ok((abs(($now-$start))/1e6)-15 < 1,'timing test 1');
+ok((abs(($now-$start)/1e6)-15) < 1,'timing test 1');
 
 
 $source->configure({

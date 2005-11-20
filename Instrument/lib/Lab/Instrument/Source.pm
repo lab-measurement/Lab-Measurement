@@ -22,7 +22,13 @@ sub new {
 
 sub configure {
     my $self=shift;
-    
+    #supported config options are (so far)
+    #   gate_protect
+    #   gp_max_volt_per_second
+    #   gp_max_volt_per_step
+    #   gp_max_step_per_second
+    #   gp_min_volt
+    #   gp_max_volt
     my $config=shift;
     if ((ref $config) =~ /HASH/) {
         for my $conf_name (keys %{$self->{default_config}}) {
@@ -70,29 +76,29 @@ sub step_to_voltage {
         $self->{_gp}->{last_voltage}=$last_v;
     }
 
+    if (defined($self->{config}->{gp_max_volt}) && ($voltage > $self->{config}->{gp_max_volt})) {
+        $voltage = $self->{config}->{gp_max_volt};
+    }
+    if (defined($self->{config}->{gp_min_volt}) && ($voltage < $self->{config}->{gp_min_volt})) {
+        $voltage = $self->{config}->{gp_min_volt};
+    }
+
     #already there
     return $voltage if $voltage == $last_v;
 
     #do the magic step calculation
-    my ($step,$wait);
-    if ($voltpersec < $voltperstep * $steppersec) {
-        # ignore $steppersecond
-        $step=$voltperstep;
-        $wait=$voltperstep/$voltpersec;
-    } else {
-        # ignore $voltpersec
-        $step=$voltperstep;
-        $wait=1/$steppersec;
-    }
-    $step*=-1 if $voltage < $last_v;
-
+    my $wait = ($voltpersec < $voltperstep * $steppersec) ?
+        $voltperstep/$voltpersec : # ignore $steppersec
+        1/$steppersec;             # ignore $voltpersec
+    my $step=$voltperstep * ($voltage <=> $last_v);
+    
     #wait if necessary
     my ($ns,$nmu)=gettimeofday();
     my $now=$ns*1e6+$nmu;
     unless (defined (my $last_t=$self->{_gp}->{last_settime_mus})) {
         $self->{_gp}->{last_settime_mus}=$now;
     } elsif ( $now-$last_t < 1e6*$wait ) {
-        usleep ( ( 1e6*$wait - ($now-$last_t) ) );
+        usleep ( ( 1e6*$wait+$last_t-$now ) );
         ($ns,$nmu)=gettimeofday();
         $now=$ns*1e6+$nmu;
         $self->{_gp}->{last_settime_mus}=$now;
@@ -112,7 +118,16 @@ sub sweep_to_voltage {
     my $self=shift;
     my $voltage=shift;
 
-    while (abs($self->step_to_voltage($voltage)-$voltage) > 0.00001) {};
+    my $last;
+    my $cont=1;
+    while($cont) {
+        $cont=0;
+        my $this=$self->step_to_voltage($voltage);
+        if ($last!=$this) {
+            $last=$this;
+            $cont++;
+        }
+    }; #ugly
     return $voltage;
 }
 
@@ -149,23 +164,23 @@ Lab::Instrument::Source - Base class for voltage source instruments
 
 =head1 DESCRIPTION
 
-OUTDATED: This class extends the L<Lab::Instrument::Source> class. It is meant to be
-inherited by instrument classes (virtual instruments), that implement voltage
-sources (e.g. the L<Lab::Instrument::Yokogawa7651> class).
+This class implements a general voltage source. It is meant to be
+inherited by instrument classes (virtual instruments), that implement
+real voltage sources (e.g. the L<Lab::Instrument::Yokogawa7651> class).
 
-OUTDATED: The Lab::Instrument::SafeSource class extends the L<Lab::Instrument::Source>
-class to provide a sweep rate limitation mechanism, to protect sensible samples.
-Blabla.
+The class provides a unified user interface for those virtual voltage sources
+to support the exchangeability of instruments.
 
-OUTDATED: From the view of an author of new instruments classes, there is no difference
-between inheriting from Lab::Instrument::Source and Lab::Instrument::SafeSource.
-The same methods have to be implemented. See Lab::Instrument::Source for details.
-The only difference is the additional protection mechanism, which can also be
-turned off.
+Additionally, this class provides a safety mechanism called C<gate_protect>
+to protect delicate samples. It includes automatic limitations of sweep rates,
+voltage step sizes, minimal and maximal voltages.
 
 =head1 CONSTRUCTORS
 
-    $self=new Lab::Instrument::SafeSource($default_config,\%options);
+    $self=new Lab::Instrument::SafeSource(\%default_config,\%config);
+
+The constructor will only be used by instrument driver that inherit this class,
+not by the user.
 
 =head1 METHODS
 
@@ -173,29 +188,58 @@ turned off.
 
     $self->configure(\%config);
 
-The available options and default settings look like this:
+Supported configure options are all related to the included safety mechanism:
 
-    $default_config={
-        gate_protect           => 1,
-        gp_max_volt_per_step   => 0.001,
-        gp_max_volt_per_second => 0.002
-    };
+=over 2
+
+=item gate_protect
+
+=item gp_max_volt_per_second
+
+=item gp_max_volt_per_step
+
+=item gp_max_step_per_second
+
+=item gp_min_volt
+
+=item gp_max_volt
+
+=back
 
 =head2 set_voltage
 
-    $self->set_voltage($voltage);
+    $new_volt=$self->set_voltage($voltage);
 
-This is the protected version of the set_voltage() method. It takes into account the
-gp_max_volt_per_step and gp_max_volt_per_second settings, by employing the sweep_to_voltage()
-method.
+Sets the output to $voltage (in Volt). If the configure option C<gate_protect> is set
+to a true value, the safety mechanism takes into account the C<gp_max_volt_per_step>,
+C<gp_max_volt_per_second> etc. settings, by employing the sweep_to_voltage() method.
+
+Returns the actually set output voltage. This can be different from C<$voltage>, due
+to the C<gp_max_volt>, C<gp_min_volt> settings.
+
+=head2 step_to_voltage
+
+    $new_volt=$self->step_to_voltage($voltage);
+
+Makes one safe step in direction to C<$voltage>. The output voltage is not changed by more
+than C<gp_max_volt_per_step>. Before the voltage is changed, the methods waits if not
+enough times has passed since the last voltage change. For step voltage and waiting time
+calculation, the larger of C<gp_max_volt_per_second> or C<gp_max_step_per_second> is ignored
+(see code).
+
+Returns the actually set output voltage. This can be different from C<$voltage>, due
+to the C<gp_max_volt>, C<gp_min_volt> settings.
 
 =head2 sweep_to_voltage
 
-    $self->sweep_to_voltage($voltage);
+    $new_volt=$self->sweep_to_voltage($voltage);
 
-This method sweeps the output voltage to the desired value. The voltage is changed with
-the maximum speed and granularity, that the gp_max_volt_per_step and
-gp_max_volt_per_second settings allow.
+This method sweeps the output voltage to the desired value and only returns then.
+Uses the L</step_to_voltage> method internally, so all discussions of config options
+from there apply too.
+
+Returns the actually set output voltage. This can be different from C<$voltage>, due
+to the C<gp_max_volt>, C<gp_min_volt> settings.
 
 =head1 CAVEATS/BUGS
 
@@ -205,13 +249,7 @@ Probably many.
 
 =over 4
 
-=item Lab::Instrument::Source
-
-The Lab::Instrument::SafeSource class inherits from the L<Lab::Instrument::Source> module.
-
-=item Time::HiRes
-
-The Lab::Instrument::SafeSource class uses the L<Time::HiRes> module.
+=item L<Time::HiRes>
 
 =back
 
