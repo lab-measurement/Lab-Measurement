@@ -16,7 +16,7 @@ WriteMakefile(
 	'LIBS'			=> ['-lvisa -lstdc++'],
 	'OBJECT'		=> q/$(O_FILES)/,
 	'DEFINE'		=> '',
-	'INC'			=> '-I.',
+	'INC'			=> '-I/usr/local/vxipnp/linux/include/',
 	'clean'			=> {
 #		FILES	=> 'VISA.pm visa_wrap.cxx'
 	},

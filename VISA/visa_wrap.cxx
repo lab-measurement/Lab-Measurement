@@ -537,7 +537,7 @@ SWIGEXPORT(void) SWIG_init (CV *cv, CPerlObj *);
 #endif
 
 
-#include "/usr/local/vxipnp/linux/include/visa.h"
+#include "visa.h"
 
 extern ViStatus viOpenDefaultRM(ViSession *);
 extern ViStatus viOpen(ViSession,ViRsrc,ViAccessMode,ViUInt32,ViSession *);

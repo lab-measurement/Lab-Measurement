@@ -1,10 +1,10 @@
 /*
-$VERSION=sprintf("1.00_%03d", q$Revision: 82 $ =~ / (\d+) /);
+$VERSION=sprintf("1.00_%03d", q$Revision$ =~ / (\d+) /);
 */
 
 %module VISA
 %{
-#include "/usr/local/vxipnp/linux/include/visa.h"
+#include "visa.h"
 %}
 
 %include "visadef.i"
