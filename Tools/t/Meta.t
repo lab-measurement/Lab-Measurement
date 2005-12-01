@@ -11,11 +11,8 @@ ok(my $meta=new Lab::Data::Meta(),'create Meta object.');
 is(ref $meta,'Lab::Data::Meta','is of right class.');
 
 ok($meta->column_label(4,'test1'),'set column label with autoloader');
-#print Dumper($meta);
-#fehler liegt wohl in _magic_get_perlnode
 is($meta->{column}->[4]->{label},'test1','is set correctly');
 is($meta->column_label(4),'test1','can be read back correctly');
-#print Dumper($meta);
 
 ok(
     my $meta2=new Lab::Data::Meta({
