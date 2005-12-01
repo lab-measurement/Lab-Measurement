@@ -435,6 +435,13 @@ sub _magic_get_perlnode {
 	my $atype= (@_) ? shift : 'ARRAY';
 	my $htype= (@_) ? shift : 'HASH';
 	my ($type,$key_name,$children_defnode_list)=_get_defnode_type($defnode_list->{$node_name});
+	
+	unless(defined($perlnode_list->{$node_name})) {
+		if    ($type =~ $stype) {$perlnode_list->{$node_name}=undef}
+		elsif ($type =~ $htype) {$perlnode_list->{$node_name}->{$key}={}}
+		elsif ($type =~ $atype) {$perlnode_list->{$node_name}->[$key]={}}
+	}
+
 	return
 		($type =~ $stype)	? 
 			$perlnode_list->{$node_name} :
@@ -442,7 +449,7 @@ sub _magic_get_perlnode {
 			$perlnode_list->{$node_name}->{$key}: 
 		($type =~ $atype) ?
 			$perlnode_list->{$node_name}->[$key]:
-			undef;
+		undef;
 }
 
 sub _magic_set_perlnode {
