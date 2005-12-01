@@ -64,7 +64,7 @@ my $declaration = {
 sub new {
 	my $proto = shift;
     my $class = ref($proto) || $proto;
-    bless $class->SUPER::new($declaration), $class;
+    bless $class->SUPER::new($declaration,@_), $class;
 }
 
 1;

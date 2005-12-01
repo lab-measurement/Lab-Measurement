@@ -3,4 +3,4 @@
 use strict;
 
 use Test::More tests => 1;
-BEGIN { use_ok('Lab::XMLtree') };
+BEGIN { use_ok('Lab::Data::XMLtree') };

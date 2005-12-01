@@ -383,7 +383,7 @@ sub _getset_node_list_from_string {
 			}
 		}
 	}
-	carp("attempt to get/set undeclared element $nodes_string");
+	carp("XMLtree warning: attempt to access undeclared element $nodes_string");
 }
 #--------------------------------------#
 
