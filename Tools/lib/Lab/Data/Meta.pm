@@ -5,9 +5,6 @@
 package Lab::Data::Meta;
 
 use strict;
-use warnings;
-use Data::Dumper;
-use File::Basename;
 use Lab::Data::XMLtree;
 require Exporter;
 
