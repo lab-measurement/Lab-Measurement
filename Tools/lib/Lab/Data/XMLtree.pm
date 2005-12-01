@@ -41,7 +41,7 @@
 ##vielleicht sollte man LISTNODE intern auch als hash machen
 ##damit es richtig verwirrend wird
 
-package Lab::XMLtree;
+package Lab::Data::XMLtree;
 
 use 5.008;
 use strict;
