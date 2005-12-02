@@ -3,5 +3,5 @@
 use strict;
 
 use Test::More tests => 1;
-BEGIN { use_ok('Lab::Lib::Dataset') };
+BEGIN { use_ok('Lab::Data::Dataset') };
 

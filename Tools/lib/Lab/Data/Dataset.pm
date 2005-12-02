@@ -10,7 +10,7 @@ use warnings;
 use Carp;
 use Data::Dumper;
 use File::Basename;
-use Lab::XMLtree;
+use Lab::Data::XMLtree;
 require Exporter;
 
 our @ISA = qw(Exporter);
@@ -93,7 +93,7 @@ sub new {
 	$self->configure($config);
 
 	$self->{Data}=undef;
-	$self->{Description}=Lab::XMLtree->new($description_def);
+	$self->{Description}=Lab::Data::XMLtree->new($description_def);
 	
 	if ($basepathname) {
 		my ($basename,$path,$suffix)=fileparse($basepathname,qr{\..*});
@@ -126,7 +126,7 @@ sub open_dataset {
 		$self->{Data}=$data;
 		$self->{Description}->merge_tree($desc);
 		
-		if (my $loaded_desc=Lab::XMLtree->read_xml($description_def,"$path$basename.description")) {
+		if (my $loaded_desc=Lab::Data::XMLtree->read_xml($description_def,"$path$basename.description")) {
 			# diese description in die vorhandene einmergen
 			$self->{Description}->merge_tree($loaded_desc);
 		}
