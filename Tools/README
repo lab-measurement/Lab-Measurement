@@ -1,20 +1,20 @@
 Dataset README version $Revision$ 
-=================================
+=======================================
 
 INSTALLATION
 
 To install this module type the following:
 
-   perl Makefile.PL
-   make
-   make test
-   make install
+   perl Build.PL
+   perl Build
+   perl Build test
+   perl Build install
 
 DEPENDENCIES
 
-This module requires these other modules and libraries:
+This package requires these other modules and libraries:
 
-  XMLtree.pm
+  Lab::Data::XMLtree
 
 COPYRIGHT AND LICENCE
 
