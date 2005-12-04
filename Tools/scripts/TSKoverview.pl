@@ -10,8 +10,8 @@ unless ($basename=$ARGV[0]) {
 
 open IN,"<$basename\.RAW" or die;
 my $numblocks;
-my @max=(-1e38,-1e38,-1e38);
-my @min=( 1e38, 1e38, 1e38);
+my @max=(-1e38)x3;
+my @min=(1e38)x3;
 while (<IN>) {
 	chomp;
 	unless ($_) {
