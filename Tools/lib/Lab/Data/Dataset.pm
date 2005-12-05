@@ -2,7 +2,7 @@
 
 #$Id$
 
-package Lab::Dataset;
+package Lab::Data::Dataset;
 
 use 5.008;
 use strict;
@@ -399,7 +399,7 @@ __END__
 
 =head1 NAME
 
-Lab::Dataset - A dataset
+Lab::Data::Dataset - A dataset
 
 =head1 SYNOPSIS
 
