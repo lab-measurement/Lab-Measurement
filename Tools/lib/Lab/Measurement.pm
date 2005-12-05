@@ -10,7 +10,7 @@ require Exporter;
 
 our @ISA = qw(Exporter);
 
-our $VERSION = sprintf("%d.%02d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/);
+our $VERSION = sprintf("%d.%02d", q$Revision$ =~ / (\d+) /);
 
 our $AUTOLOAD;
 
@@ -65,6 +65,9 @@ sub log_block {
 	my $comment=shift;
 }
 
+sub log_start_block {
+}
+
 sub log_line {
 	my $self=shift;
 	my @data=shift;
@@ -100,14 +103,11 @@ sub log {
 		#ist das die letzte Spalte?
 		if ($column == $#{$self->{magic_log}->{column}}) {
 			#ausgeben
-			for my $col_num (0..$#{$self->{magic_log}->{column}}) {
-				print {$self->{Filehandle}} $self->{magic_log}->{column}->[$col_num]->{datum};
-				if ($col_num < $#{$self->{magic_log}->{column}}) {
-					print {$self->{Filehandle}} $self->{config}->{col_sep};
-				}
-				$self->{magic_log}->{column}->[$col_num]->{status}='set';
-			}
-			print {$self->{Filehandle}} $self->{config}->{line_sep};
+			my $last_col=$#{$self->{magic_log}->{column}};
+			$self->log_line(map{
+				$self->{magic_log}->{column}->[$_]->{status}='set';
+				$self->{magic_log}->{column}->[$_]->{datum}
+			} (0..$last_col));
 		} else {
 		#	warn "Du Bauer hast irgendwas verbockt: $column $datum\n";
 			$self->{magic_log}->{column}->[$column]->{status}='fresh';
@@ -163,7 +163,7 @@ Lab::Measurement - Perl extension for logging measured data
 
 =head1 AUTHOR/COPYRIGHT
 
-This is $Id: Datalog.pm,v 1.2 2005/01/31 22:44:16 manonegra Exp $
+This is $Id$
 
 Copyright 2004 Daniel Schröer (L<http://www.danielschroeer.de>)
 

@@ -116,6 +116,7 @@ sub save_xml {
 	my $self=shift;
 	my $filename=shift;
 	my $data=shift;
+		#warum nicht $self?????
 	my $rootname=shift;
 	my $generator = XML::Generator->new(pretty	=> "\t",escape=>'high-bit');
 	
@@ -147,7 +148,6 @@ sub AUTOLOAD {
     my $type = ref($self) or croak "$self is not an object";
     my $name = $AUTOLOAD;
     $name =~ s/.*://;
-
 	return _getset_node_list_from_string($self,$self->{___declaration},$name,@parms);
 }
 
@@ -342,6 +342,7 @@ sub _getset_node_list_from_string {
 								} else {
 									if (!(ref $param)) {
 										#skalaren wert für element ohne children setzen
+										print "XMLtree: setting element $node_name->$param to $nextparam\n";
 										return $perlnode_list->{$node_name}->{$param}=$nextparam;
 									}
 								}
@@ -363,6 +364,7 @@ sub _getset_node_list_from_string {
 								} else {
 									if (!(ref $param)) {
 										#skalaren wert für element ohne children setzen
+										print "XMLtree: setting element $node_name->[$param] to $nextparam\n";
 										return $perlnode_list->{$node_name}->[$param]=$nextparam;
 									}
 								}
@@ -373,6 +375,7 @@ sub _getset_node_list_from_string {
 						} elsif ($type =~ /P?SCALAR/) {
 							#simple set
 							#anymore parameters ignored (same above)
+							print "XMLtree: setting element $node_name to $param\n";
 							return $perlnode_list->{$node_name}=$param;
 						}
 					}

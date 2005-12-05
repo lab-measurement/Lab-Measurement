@@ -19,8 +19,7 @@ our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 our @EXPORT = qw();
 
 my $declaration = {
-	filename_base			=> ['PSCALAR'],#	PSCALAR! Dient als basename für DATA und META
-	filename_path			=> ['PSCALAR'],#	PSCALAR! Dient als speicherpfad für DATA und META
+	data_complete			=> ['SCALAR'],
 
 	dataset_title			=> ['SCALAR'],
 	dataset_description		=> ['SCALAR'],
@@ -42,15 +41,14 @@ my $declaration = {
 			unit		=> ['SCALAR'],
 			label		=> ['SCALAR'],
 			description	=> ['SCALAR'],
-			min			=> ['PSCALAR'],
-			max			=> ['PSCALAR']
+			min			=> ['SCALAR'],
+			max			=> ['SCALAR']
 		}
 	],
 	axis					=> [
 		'HASH',
 		'label',
 		{
-#			column		=> ['SCALAR'],	# entfernt, da schwachsinnig. soll per expression auch mehrere spalten abdecken können
 			unit		=> ['SCALAR'],
 			logscale	=> ['SCALAR'],
 			expression	=> ['SCALAR'],
@@ -65,6 +63,12 @@ sub new {
 	my $proto = shift;
     my $class = ref($proto) || $proto;
     bless $class->SUPER::new($declaration,@_), $class;
+}
+
+sub save {
+	my $self = shift;
+	my $filename = shift;
+	$self->save_xml($filename,$self,'metadata');
 }
 
 1;
