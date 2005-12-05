@@ -1,4 +1,5 @@
 #!/usr/bin/perl
+#$Id$
 
 # Eierlegende Wollmilchsau. Öffnet RAW-File mit SD-Sweeps über Kondopeak und
 # findet linkes und rechtes Minimum und dazwischenliegendes Maximum. Dann wird von
@@ -68,7 +69,7 @@ for $blocknum (0..$#{$data}) {
 	#Minima nochmal finden
 	($min1,$min2)=find_min($data->[$blocknum]);
 
-#	#Maximum zwischen neuen Minima nochmal finden
+	#Maximum zwischen neuen Minima nochmal finden
 	my $max2=find_max($data->[$blocknum],$min1,$min2);
 	
 	#Halbwertbreite finden
@@ -129,7 +130,7 @@ printf(qq(plot "%s" using 1:5 with linespoints\n),$outname3);
 print "\nPlot right side:\n";
 printf(qq(plot "%s" using 1:6 with linespoints\n),$outname3);
 
-sub find_min() {
+sub find_min {
 	my $data=shift;
 	my ($min1,$min2);
 	for $linenum (0..$#{$data}) {
@@ -149,7 +150,7 @@ sub find_min() {
 	return ($min1,$min2);
 }
 
-sub find_max() {
+sub find_max {
 	my ($data,$min1,$min2)=@_;
 	my $max;
 	for $linenum (0..$#{$data}) {
@@ -164,7 +165,7 @@ sub find_max() {
 	return $max;
 }
 
-sub find_ende_max() {
+sub find_ende_max {
 	my $data=shift;
 	my $ende_max;
 	for $linenum ($#{$data}-4..$#{$data}) {
@@ -174,7 +175,7 @@ sub find_ende_max() {
 	return($ende_max/5);
 }
 
-sub integrate() {
+sub integrate {
 	my ($data,$min1,$min2)=@_;
 	my $integral;
 	for $linenum (0..$#{$data}) {
