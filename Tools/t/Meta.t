@@ -3,16 +3,18 @@
 use strict;
 use Data::Dumper;
 
-use Test::More tests => 17;
+use Test::More tests => 28;
 
 BEGIN { use_ok('Lab::Data::Meta') };
 
 ok(my $meta=new Lab::Data::Meta(),'create Meta object.');
 is(ref $meta,'Lab::Data::Meta','is of right class.');
 
-ok($meta->column_label(4,'test1'),'set column label with autoloader');
+ok($meta->column_label(4,'test1'),'set column #4\'s label with autoloader');
 is($meta->{column}->[4]->{label},'test1','is set correctly');
 is($meta->column_label(4),'test1','can be read back correctly');
+ok($meta->column_label(0,'test2'),'set column #0\'s label with autoloader');
+is($meta->{column}->[0]->{label},'test2','is set correctly');
 
 ok(
     my $meta2=new Lab::Data::Meta({
@@ -46,3 +48,19 @@ is($meta2->axis_unit('time'),'s','time axis has right unit');
 is($meta2->axis_description('energy'),'kinetic energy','energy axis has right description');
 is($meta2->{axis}->{energy}->{description},'kinetic energy','can also be accessed directly');
 isnt($meta2->jibbet_nisch(),'nono','only allowed elements exist (XMLtree warning is ok)');
+
+ok( my $meta3=new Lab::Data::Meta({
+    data_complete			=> 0,
+    dataset_title			=> 'newname',
+    dataset_description		=> 'Imported by Importer.pm on '.(join "-",localtime(time)),
+    data_file				=> "newname.DATA",
+}),'Create yet another Meta object.');
+
+for (1..3) {
+    ok($meta3->column_label($_,'column '.($_)),"Set column #$_\'s label");
+}
+for (0..4) {
+    ok($meta3->block_comment($_,"block $_"),"Set block #$_\'s comment");
+}
+
+$meta3->save("test.META");

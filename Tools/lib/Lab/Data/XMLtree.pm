@@ -64,7 +64,6 @@ our %EXPORT_TAGS = ( 'all' => [ qw() ] );
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 our @EXPORT = qw();
 
-# Preloaded methods go here.
 sub new {
 	my $proto = shift;
     my $class = ref($proto) || $proto;
