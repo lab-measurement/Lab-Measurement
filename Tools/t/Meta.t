@@ -3,7 +3,7 @@
 use strict;
 use Data::Dumper;
 
-use Test::More tests => 34;
+use Test::More tests => 41;
 
 BEGIN { use_ok('Lab::Data::Meta') };
 
@@ -71,4 +71,23 @@ for (qw/V_g1 V_g2 V_SD/) {
     ok($meta3->axis_description($_,"Dies ist die $_-Achse"),"Set description for axis $_");
 }
 
-$meta3->save("test.META");
+ok($meta3->save("test.META"),'Save as XML');
+
+ok(my $meta4=Lab::Data::Meta->load('test.META'),'Create new Meta object (4) from file (with class method)');
+ok(my $meta5=$meta3->load('test.META'),'Create new Meta object (5) from file (with object method)');
+
+print Dumper($meta4);
+
+is($meta3->column_label(2),'column 2','Column 2 is good for Meta 3');
+is($meta4->column_label(2),'column 2','Column 2 is good for Meta 4');
+is($meta5->column_label(2),'column 2','Column 2 is good for Meta 5');
+
+is($meta3->column_label(0),'column 0','Column 0 is good for Meta 3');
+is($meta4->column_label(0),'column 0','Column 0 is good for Meta 4');
+is($meta5->column_label(0),'column 0','Column 0 is good for Meta 5');
+
+is($meta3->block_comment(3),'block 3','Block 3 is good for Meta 3');
+is($meta4->block_comment(3),'block 3','Block 3 is good for Meta 4');
+is($meta5->block_comment(3),'block 3','Block 3 is good for Meta 5');
+
+unlink "test.META";

@@ -71,6 +71,12 @@ sub save {
     $self->save_xml($filename,$self,'metadata');
 }
 
+sub load {
+    my $self = shift;
+    my $filename=shift;
+    return $self->read_xml($declaration,$filename);
+}
+
 1;
 
 __END__
