@@ -341,7 +341,6 @@ sub _getset_node_list_from_string {
 								} else {
 									if (!(ref $param)) {
 										#skalaren wert für element ohne children setzen
-										print "XMLtree: setting element $node_name->$param to $nextparam\n";
 										return $perlnode_list->{$node_name}->{$param}=$nextparam;
 									}
 								}
@@ -363,7 +362,6 @@ sub _getset_node_list_from_string {
 								} else {
 									if (!(ref $param)) {
 										#skalaren wert für element ohne children setzen
-										print "XMLtree: setting element $node_name->[$param] to $nextparam\n";
 										return $perlnode_list->{$node_name}->[$param]=$nextparam;
 									}
 								}
@@ -374,7 +372,6 @@ sub _getset_node_list_from_string {
 						} elsif ($type =~ /P?SCALAR/) {
 							#simple set
 							#anymore parameters ignored (same above)
-							print "XMLtree: setting element $node_name to $param\n";
 							return $perlnode_list->{$node_name}=$param;
 						}
 					}
@@ -436,12 +433,15 @@ sub _magic_get_perlnode {
 	my $stype= (@_) ? shift : 'SCALAR';
 	my $atype= (@_) ? shift : 'ARRAY';
 	my $htype= (@_) ? shift : 'HASH';
+    
 	my ($type,$key_name,$children_defnode_list)=_get_defnode_type($defnode_list->{$node_name});
-	
-	unless(defined($perlnode_list->{$node_name})) {
-		if    ($type =~ $stype) {$perlnode_list->{$node_name}=undef}
-		elsif ($type =~ $htype) {$perlnode_list->{$node_name}->{$key}={}}
-		elsif ($type =~ $atype) {$perlnode_list->{$node_name}->[$key]={}}
+    
+	if ($type =~ $stype) {
+        $perlnode_list->{$node_name}=undef unless defined($perlnode_list->{$node_name});
+    } elsif ($type =~ $htype) {
+        $perlnode_list->{$node_name}->{$key}={} unless defined($perlnode_list->{$node_name}->{$key});
+	} elsif ($type =~ $atype) {
+        $perlnode_list->{$node_name}->[$key]={} unless defined($perlnode_list->{$node_name}->[$key]);
 	}
 
 	return
