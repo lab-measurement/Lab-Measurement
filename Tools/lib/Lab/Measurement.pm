@@ -62,7 +62,6 @@ sub DESTROY {
 
 sub log_block {
 	my $self=shift;
-	my $comment=shift;
 }
 
 sub log_start_block {

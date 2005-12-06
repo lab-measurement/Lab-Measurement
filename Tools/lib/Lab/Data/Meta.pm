@@ -19,56 +19,56 @@ our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 our @EXPORT = qw();
 
 my $declaration = {
-	data_complete			=> ['SCALAR'],
+    data_complete           => ['SCALAR'],
 
-	dataset_title			=> ['SCALAR'],
-	dataset_description		=> ['SCALAR'],
-	data_file				=> ['SCALAR'],#		relativ zur descriptiondatei
+    dataset_title           => ['SCALAR'],
+    dataset_description     => ['SCALAR'],
+    data_file               => ['SCALAR'],#     relativ zur descriptiondatei
 
-	block					=> [
-		'ARRAY',
-		'id',
-		{
-			original_filename	=> ['SCALAR'],
-			timestamp			=> ['SCALAR'],
-			comment				=> ['SCALAR']
-		}
-	],
-	column					=> [
-		'ARRAY',
-		'id',
-		{
-			unit		=> ['SCALAR'],
-			label		=> ['SCALAR'],
-			description	=> ['SCALAR'],
-			min			=> ['SCALAR'],
-			max			=> ['SCALAR']
-		}
-	],
-	axis					=> [
-		'HASH',
-		'label',
-		{
-			unit		=> ['SCALAR'],
-			logscale	=> ['SCALAR'],
-			expression	=> ['SCALAR'],
-			min			=> ['SCALAR'],
-			max			=> ['SCALAR'],
-			description	=> ['SCALAR']
-		}
-	],
+    block                   => [
+        'ARRAY',
+        'id',
+        {
+            original_filename   => ['SCALAR'],
+            timestamp           => ['SCALAR'],
+            comment             => ['SCALAR']
+        }
+    ],
+    column                  => [
+        'ARRAY',
+        'id',
+        {
+            unit        => ['SCALAR'],
+            label       => ['SCALAR'],
+            description => ['SCALAR'],
+            min         => ['SCALAR'],
+            max         => ['SCALAR']
+        }
+    ],
+    axis                    => [
+        'HASH',
+        'label',
+        {
+            unit        => ['SCALAR'],
+            logscale    => ['SCALAR'],
+            expression  => ['SCALAR'],
+            min         => ['SCALAR'],
+            max         => ['SCALAR'],
+            description => ['SCALAR']
+        }
+    ],
 };
 
 sub new {
-	my $proto = shift;
+    my $proto = shift;
     my $class = ref($proto) || $proto;
     bless $class->SUPER::new($declaration,@_), $class;
 }
 
 sub save {
-	my $self = shift;
-	my $filename = shift;
-	$self->save_xml($filename,$self,'metadata');
+    my $self = shift;
+    my $filename = shift;
+    $self->save_xml($filename,$self,'metadata');
 }
 
 1;
