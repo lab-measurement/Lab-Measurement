@@ -11,7 +11,7 @@ ok(my $meta=new Lab::Data::Meta(),'meta1: create Meta object.');
 is(ref $meta,'Lab::Data::Meta','meta1: is of right class.');
 
 ok($meta->column_label(4,'test1'),'meta1: set column #4\'s label with autoloader');
-is($meta->{column}->[4]->{label},'meta1: test1','is set correctly');
+is($meta->{column}->[4]->{label},'test1','meta1: is set correctly');
 is($meta->column_label(4),'test1','meta1: can be read back correctly');
 
 ok($meta->column_label(0,'test2'),'meta1: set column #0\'s label with autoloader');
