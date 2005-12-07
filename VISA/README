@@ -16,7 +16,8 @@ even more high level comfort. Everything is prepared and waiting for you.
 INSTALLATION
 ------------
 
-This library compiles has been tested on Linux and Windows.
+This library has been tested to work on Linux and Windows. Installation is trivial
+since precompiled binary .ppm files are available for Windows and Linux (for perl 5.8.x).
 
 Before you start, you must have the VISA library by National Instrument
 installed. If you plan to use GPIB connections (which is very likely), you must also
@@ -29,15 +30,30 @@ See National Instrument's website at
 
  http://ni.com/linux/ni488dl.htm
 
-If you are on Windows, you will need a compiler and the Microsoft make program called
-'nmake'. I successfully used the freely available Visual C++ 2005.
+
+Now simply install the ppm distribution of the module with (same for Windows and Linux)
+
+ ppm install http://www.nano.physik.uni-muenchen.de/svn/lab/trunk/VISA/Lab-VISA.ppd
+
+That's it!
+
+
+BUILDING
+--------
+
+If you want to build the module yourself, you will need a compiler and a make program.
+On Windows the make program is called 'nmake', so replace the 'make' command in the
+instructions below with 'nmake'. I successfully used the freely available Visual C++ 2005
+on Windows.
+
+If you also want to re-generate the wrapper code from the Swig description file (visa.i),
+you must have Swig installed. Uncomment the swig line in the Makefile.PL to run swig.
 
 To build and install this module, type the following commands. Windows users replace
 'make' by 'nmake'.
 
    perl Makefile.PL
    make
-   make test
    make install
 
 In case the compiler or linker cannot find certain include files (e.g. visa.h) or libraries,

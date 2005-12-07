@@ -62,7 +62,7 @@ resources available for a particular interface.
 
 On successful completion, this function returns the first resource found (C<instrDesc>) and
 returns a count (C<retcnt>) to indicate if there were more resources found for the designated
-interface. This function also returns, in the findList parameter, a handle to a find list.
+interface. This function also returns, in the C<findList> parameter, a handle to a find list.
 This handle points to the list of resources and it must be used as an input to C<viFindNext()>.
 When this handle is no longer needed, it should be passed to C<viClose()>.
 
