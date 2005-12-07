@@ -62,7 +62,10 @@ my $declaration = {
 sub new {
     my $proto = shift;
     my $class = ref($proto) || $proto;
-    bless $class->SUPER::new($declaration,@_), $class;
+    bless $class->SUPER::new($declaration,pop @_), $class;
+        # this pop is here as a clumsy work-around to
+        # when xmltree creates a new Lab::Meta with a declaration
+        # as first argument
 }
 
 sub save {
