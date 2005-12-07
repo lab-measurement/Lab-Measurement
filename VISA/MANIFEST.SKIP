@@ -20,3 +20,4 @@
 cvs2svn.txt
 komodo_svn_VISA.kpf
 ^doc/
+\.tar\.gz$
