@@ -7,4 +7,9 @@
         <ARCHITECTURE NAME="i586-linux-thread-multi" />
         <CODEBASE HREF="" />
     </IMPLEMENTATION>
+    <IMPLEMENTATION>
+        <OS NAME="MSWin32" />
+        <ARCHITECTURE NAME="MSWin32-x86-multi-thread-5.8" />
+        <CODEBASE HREF="http://www.nano.physik.uni-muenchen.de/~schroeer/Lab-VISA-1.1_0236-win.tar.gz" />
+    </IMPLEMENTATION>
 </SOFTPKG>
