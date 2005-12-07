@@ -1,5 +1,6 @@
-README for VISA $VERSION = 1.1
-==============================
+README for VISA
+===============
+$VERSION = 1.11
 
 This library offers a perl interface to National Instrument's NI-VISA library.
 
