@@ -22,7 +22,7 @@ WriteMakefile(
 
 	(($] >=	5.005)
 	?	(ABSTRACT_FROM	=> 'VISA.pod',
-		 AUTHOR			=> 'Daniel Schröer <daniel.schroeer@physik.uni-muenchen.de.de>') : ()),
+		 AUTHOR			=> 'Daniel Schroeer <daniel.schroeer@physik.uni-muenchen.de.de>') : ()),
 
 	# Adjust these pathes according to your local setup!
 	# First two lines are for Windows,

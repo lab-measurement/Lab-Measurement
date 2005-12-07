@@ -10,46 +10,37 @@ complicated measurement jobs with just some perl loops.
 It comes even better. The general VISA::Instrument class reduces the
 communication overhead to a minimum. And the specialized instrument classes
 (virtual instruments) like the VISA::Instrument::HP34401A class offer
-even more high level comfort. Everything is set up already, waiting for you to use it.
+even more high level comfort. Everything is prepared and waiting for you.
 
 
 INSTALLATION
 
-NI-GPIB
+This library compiles has been tested on Linux and Windows.
 
-Kernel neu kompiliert mit "Enable loadable module support", "Set version information on all symbols for modules", "Kernel daemon support" (to enable autoloading of module)
+Before you start, you must have the VISA library by National Instrument
+installed. If you plan to use GPIB connections (which is very likely), you must also
+have the necessary drivers (NI-488.2) for your GPIB adapter card installed. Refer to the good
+documentation by National Instrument to find out, how to install these packages.
 
-ISAPNP konfiguriert: IRQ 5, IO-Base 02c0, DMA channel 5
+See National Instrument's website at
 
-nigpib installiert (straightforward)
+ http://digital.ni.com/softlib.nsf/webcategories/85256410006C055586256BBB002C0E91?opendocument&node=132060_US
 
+ http://ni.com/linux/ni488dl.htm
 
-NI-VISA
+If you are on Windows, you will need a compiler and the Microsoft make program called
+'nmake'. I successfully used the freely available Visual C++ 2005.
 
-
-insmod nigpib
-insmod db2k
-
-To install this module type the following:
+To build and install this module, type the following commands. Windows users replace
+'make' by 'nmake'.
 
    perl Makefile.PL
    make
    make test
    make install
 
-
-DEPENDENCIES
-
-This module requires the National Instrument's NI-VISA library to
-be installed. For further information on this library, see
-National Instruments website at
-
-http://digital.ni.com/softlib.nsf/webcategories/85256410006C055586256BBB002C0E91?opendocument&node=132060_US
-
-If you plan to use GPIB (most likely), you will have to have the NI-488.2
-libarary installed as well. See the website at
-
-http://ni.com/linux/ni488dl.htm
+In case the compiler or linker cannot find certain include files (e.g. visa.h) or libraries,
+adjust the platform specific lines in Makefile.PL where indicated. 
 
 
 COPYRIGHT AND LICENCE

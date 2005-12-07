@@ -14,9 +14,9 @@ With this library you can easily control the instruments in your lab (multimeter
 sources, magnet sources, pulse generators etc.) from perl. You can perform
 complicated measurement jobs with just some perl loops.
 
-It comes even better. The general L<Lab::Instrument> class reduces the
+It comes even better. The general L<Lab::Instrument|Lab::Instrument> class reduces the
 communication overhead to a minimum. And the specialized instrument classes
-(virtual instruments) like the L<Lab::Instrument::HP34401A> class offer
+(virtual instruments) like the L<Lab::Instrument::HP34401A|Lab::Instrument::HP34401A> class offer
 even more high level comfort. Everything is set up already, waiting for you to use it.
 
 This manpage describes the perl syntax of the API. Each function is explained
@@ -37,8 +37,8 @@ The viClear() operation performs an IEEE 488.1-style clear of the device.
 
     $status=Lab::VISA::viClose($object);
 
-The viClose() operation closes a session, event, or a find list. In this process all the data
-structures that had been allocated for the specified vi are freed. Calling viClose() on a
+The C<viClose()> operation closes a session, event, or a find list. In this process all the data
+structures that had been allocated for the specified vi are freed. Calling C<viClose()> on a
 VISA Resource Manager session will also close all I/O sessions associated with that resource
 manager session.
 
@@ -47,22 +47,22 @@ manager session.
     ($status, $instrDesc)=
         Lab::VISA::viFindNext($findList);
 
-The viFindNext() operation returns the next device found in the list created by
-viFindRsrc(). The list is referenced by the handle that was returned by viFindRsrc().
+The C<viFindNext()> operation returns the next device found in the list created by
+C<viFindRsrc()>. The list is referenced by the handle that was returned by C<viFindRsrc()>.
 
 =head2 viFindRsrc
 
     ($status, $findList, $retcnt, $instrDesc)=
         Lab::VISA::viFindRsrc($sesn, $expr);
 
-The viFindRsrc() operation matches the value specified in the expr parameter with the
+The C<viFindRsrc()> operation matches the value specified in the C<expr> parameter with the
 resources available for a particular interface.
 
 On successful completion, this function returns the first resource found (instrDesc) and
-returns a count (retcnt) to indicate if there were more resources found for the designated
+returns a count (C<retcnt>) to indicate if there were more resources found for the designated
 interface. This function also returns, in the findList parameter, a handle to a find list.
-This handle points to the list of resources and it must be used as an input to viFindNext().
-When this handle is no longer needed, it should be passed to viClose().
+This handle points to the list of resources and it must be used as an input to C<viFindNext()>.
+When this handle is no longer needed, it should be passed to C<viClose()>.
 
 The search criteria specified in the expr parameter has two parts: a regular expression over
 a resource string and an optional logical expression over attribute values. The regular
@@ -72,16 +72,16 @@ resource are then matched against the expression over attribute values. If the m
 successful, the resource has met the search criteria and gets added to the list of resources
 found.
 
-All resource strings returned by viFindRsrc() will always be recognized by
-viOpen(). However, viFindRsrc() will not necessarily return all strings that you can pass
-to viParseRsrc() or viOpen(). This is especially true for network and TCPIP resources.
+All resource strings returned by C<viFindRsrc()> will always be recognized by
+C<viOpen()>. However, C<viFindRsrc()> will not necessarily return all strings that you can pass
+to C<viParseRsrc()> or C<viOpen()>. This is especially true for network and TCPIP resources.
 
 =head2 viGetAttribute
 
     ($status, $attrState)=
         Lab::VISA::viGetAttribute($object, $attribute);
 
-The viGetAttribute() operation is used to retrieve the state of an attribute for the
+The C<viGetAttribute()> operation is used to retrieve the state of an attribute for the
 specified session, event, or find list.
 
 =head2 viOpen
@@ -89,28 +89,28 @@ specified session, event, or find list.
     ($status, $vi)=
         Lab::VISA::viOpen($sesn, $rsrcName, $accessMode, $openTimeout);
 
-The viOpen() operation opens a session to the specified resource. It returns a session
+The C<viOpen()> operation opens a session to the specified resource. It returns a session
 identifier that can be used to call any other operations of that resource. The address string
-passed to viOpen() must uniquely identify a resource.
+passed to C<viOpen()> must uniquely identify a resource.
 
-For the parameter accessMode, the value VI_EXCLUSIVE_LOCK (1) is used to acquire an
+For the parameter accessMode, the value C<VI_EXCLUSIVE_LOCK> (1) is used to acquire an
 exclusive lock immediately upon opening a session; if a lock cannot be acquired, the session
-is closed and an error is returned. The value VI_LOAD_CONFIG (4) is used to configure
+is closed and an error is returned. The value C<VI_LOAD_CONFIG> (4) is used to configure
 attributes to values specified by some external configuration utility. Multiple access modes
-can be used simultaneously by specifying a bit-wise OR of the values other than VI_NULL.
-NI-VISA currently supports VI_LOAD_CONFIG only on Serial INSTR sessions.
+can be used simultaneously by specifying a bit-wise OR of the values other than C<VI_NULL>.
+NI-VISA currently supports C<VI_LOAD_CONFIG> only on Serial INSTR sessions.
 
 =head2 viOpenDefaultRM
 
     ($status, $sesn)=
         Lab::VISA::viOpenDefaultRM();
 
-The viOpenDefaultRM() function must be called before any VISA operations can be
+The C<viOpenDefaultRM()> function must be called before any VISA operations can be
 invoked. The first call to this function initializes the VISA system, including the Default
 Resource Manager resource, and also returns a session to that resource. Subsequent calls
 to this function return unique sessions to the same Default Resource Manager resource.
 
-When a Resource Manager session is passed to viClose(), not only is that session closed,
+When a Resource Manager session is passed to C<viClose()>, not only is that session closed,
 but also all find lists and device sessions (which that Resource Manager session was used to
 create) are closed.
 
@@ -119,7 +119,7 @@ create) are closed.
     ($status, $buf, $retCount)=
         Lab::VISA::viRead($vi, $count);
 
-The viRead() operation synchronously transfers data. The data read is to be stored in the
+The C<viRead()> operation synchronously transfers data. The data read is to be stored in the
 buffer represented by buf. This operation returns only when the transfer terminates. Only one
 synchronous read operation can occur at any one time.
 
@@ -127,7 +127,7 @@ synchronous read operation can occur at any one time.
 
     $status=Lab::VISA::viSetAttribute($vi, $attribute, $attrState);
 
-The viSetAttribute() operation is used to modify the state of an attribute for the specified
+The C<viSetAttribute()> operation is used to modify the state of an attribute for the specified
 object.
 
 =head2 viWrite
@@ -135,7 +135,7 @@ object.
     ($status, $retCount)=
         Lab::VISA::viWrite($vi, $buf, $count);
 
-The viWrite() operation synchronously transfers data. The data to be written is in the buffer
+The C<viWrite()> operation synchronously transfers data. The data to be written is in the buffer
 represented by buf. This operation returns only when the transfer terminates. Only one
 synchronous write operation can occur at any one time.
 
@@ -143,8 +143,9 @@ synchronous write operation can occur at any one time.
 
 Probably many.
 
-I have only tested this on Linux so far. It should work on Windows, provided that
-you manage to run swig and compile the wrapper code.
+I have tested this on Linux and Windows. Compilation is a little tricky if you don't have
+much experience (I didn't have much), but definitely possible. See the README file for
+more information.
 
 Not all API functions are supported, just the ones that I needed. Only GPIB connections
 are tested so far.
@@ -153,7 +154,7 @@ are tested so far.
 
 =over 4
 
-=item Lab::Instrument
+=item L<Lab::Instrument>
 
 =back
 
