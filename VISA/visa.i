@@ -1,6 +1,4 @@
-/*
-$VERSION=sprintf("1.1_%04d", q$Revision$ =~ / (\d+) /);
-*/
+/* $Id$ */
 
 %module VISA
 %{
@@ -10,7 +8,6 @@ $VERSION=sprintf("1.1_%04d", q$Revision$ =~ / (\d+) /);
 %include "visadef.i"
 %include "typemaps.i"
 
-/*%include "cstring.i"*/
 %define %cstring_output_maxsize(TYPEMAP, SIZE)
 %typemap(in) (TYPEMAP, SIZE){
     $2 = ($2_ltype)SvIV($input);

@@ -1,6 +1,8 @@
 #!/usr/bin/perl
 #$Id$
 
+# This test currently sucks.
+
 use strict;
 use Test::More tests => 10;
 

@@ -1,3 +1,5 @@
+=pod
+
 =head1 NAME
 
 Lab::VISA - Perl interface to National Instrument's VISA library
@@ -31,7 +33,7 @@ documentation on the library.
 
     $status=Lab::VISA::viClear($vi);
 
-The viClear() operation performs an IEEE 488.1-style clear of the device.
+The C<viClear()> operation performs an IEEE 488.1-style clear of the device.
 
 =head2 viClose
 
@@ -58,13 +60,13 @@ C<viFindRsrc()>. The list is referenced by the handle that was returned by C<viF
 The C<viFindRsrc()> operation matches the value specified in the C<expr> parameter with the
 resources available for a particular interface.
 
-On successful completion, this function returns the first resource found (instrDesc) and
+On successful completion, this function returns the first resource found (C<instrDesc>) and
 returns a count (C<retcnt>) to indicate if there were more resources found for the designated
 interface. This function also returns, in the findList parameter, a handle to a find list.
 This handle points to the list of resources and it must be used as an input to C<viFindNext()>.
 When this handle is no longer needed, it should be passed to C<viClose()>.
 
-The search criteria specified in the expr parameter has two parts: a regular expression over
+The search criteria specified in the C<expr> parameter has two parts: a regular expression over
 a resource string and an optional logical expression over attribute values. The regular
 expression is matched against the resource strings of resources known to the VISA Resource
 Manager. If the resource string matches the regular expression, the attribute values of the
@@ -74,7 +76,7 @@ found.
 
 All resource strings returned by C<viFindRsrc()> will always be recognized by
 C<viOpen()>. However, C<viFindRsrc()> will not necessarily return all strings that you can pass
-to C<viParseRsrc()> or C<viOpen()>. This is especially true for network and TCPIP resources.
+to C<viParseRsrc()> or C<viOpen()>. This is especially true for network and C<TCPIP> resources.
 
 =head2 viGetAttribute
 
@@ -158,16 +160,14 @@ are tested so far.
 
 =back
 
-=head1 AUTHOR
+=head1 AUTHOR/COPYRIGHT
 
 This is $Id$
 
-=head1 COPYRIGHT
-
-I don't know. This swig-based interface is copyright 2004/2005 Daniel Schröer (L<http://www.danielschroeer.de>).
+This swig-based interface is copyright 2004/2005 by Daniel Schröer.
 It is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 
-For the rest National Instruments or the VXI Consortium will probably have a word to say.
+For the rest National Instruments or the VXI Consortium will probably have a word to say. See
+National Instrument's license for the NI-VISA library.
 
 =cut
-
