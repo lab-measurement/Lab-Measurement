@@ -1,0 +1,10 @@
+<SOFTPKG NAME="Lab-VISA" VERSION="1,11,0,0">
+    <TITLE>Lab-VISA</TITLE>
+    <ABSTRACT>Perl interface to National Instrument's VISA library</ABSTRACT>
+    <AUTHOR>Daniel Schroeer &lt;daniel.schroeer@physik.uni-muenchen.de.de&gt; (SCHROEER)</AUTHOR>
+    <IMPLEMENTATION>
+        <OS NAME="linux" />
+        <ARCHITECTURE NAME="i586-linux-thread-multi" />
+        <CODEBASE HREF="" />
+    </IMPLEMENTATION>
+</SOFTPKG>
