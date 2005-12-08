@@ -7,14 +7,24 @@ unless (2==scalar @ARGV) {
 	print "This programm can join the datafiles of a multidim sweep with GPplus\nusage: $0 <one_filename> <new_name>\n";
 	exit;
 }
-my ($filename,$newname)=@ARGV;
+my ($filename,$destname)=@ARGV;
+
+my $archive;
+GetOptions("archive=s" => \$archive);  # flag
+
+unless (defined($archive)) {
+	print "Do you want to put the source files to an archive directory below $destname?\n";
+	print "([no]|copy|move) ";
+	chomp(my $archive=<STDIN>);
+}
+$archive=0 unless ($archive =~ /copy|move/);
 
 my $importer=new Lab::Data::Importer;
 my ($newpath,$newname,$num_files,$total_lines,$num_col,$blocknum)=
 	$importer->import_gpplus(
 		filename	=> $filename,
-		newname		=> $newname,
-		archive		=> 1,
+		newname		=> $destname,
+		archive		=> $archive,
 	);
 
 if ($newpath) {

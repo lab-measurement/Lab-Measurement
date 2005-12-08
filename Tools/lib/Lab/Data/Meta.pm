@@ -94,11 +94,9 @@ Lab::Data::Meta - Meta data for datasets
 
 =head1 CONSTRUCTOR
 
-=head2 new([$config][,$basepathname])
+=head2 new([$contents])
 
 =head1 METHODS
-
-=head2 Description Methods done via AUTOLOAD
 
 =head1 AUTHOR/COPYRIGHT
 

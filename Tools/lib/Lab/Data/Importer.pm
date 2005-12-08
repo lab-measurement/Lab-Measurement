@@ -8,6 +8,7 @@ use strict;
 use Carp;
 use Data::Dumper;
 use File::Basename;
+use File::Copy;
 use Lab::Data::Meta;
 
 my $default_config = {
@@ -160,14 +161,18 @@ sub import_gpplus {
         $meta->data_complete(1);
         $meta->save("$newpath$newname.".$self->configure('output_meta_ext'));
         if ($opts{archive}) {
-            if (-d $newpath."imported_gpplus") {warn "Destination directory $newpath\imported_gpplus already exists";return ()}
+            if (-d $newpath."imported_gpplus") {warn "Destination directory {$newpath}imported_gpplus already exists";return ()}
             unless (mkdir $newpath."imported_gpplus") {
-                warn "Cannot create directory $newpath\imported_gpplus: $!\n";
+                warn "Cannot create directory {$newpath}imported_gpplus: $!\n";
                 return ();
             };
             for my $old (@files) {
                 my ($oldname,$oldpath,$oldsuffix)=fileparse($old,qr/\..*/);
-                rename $old,$newpath."imported_gpplus/".$oldname.$oldsuffix or warn "Cannot move file $old to archive: $!\n";
+                if ($opts{archive} eq 'move') {
+                    move $old,$newpath."imported_gpplus/".$oldname.$oldsuffix or warn "Cannot move file $old to archive: $!\n";
+                } else {
+                    copy $old,$newpath."imported_gpplus/".$oldname.$oldsuffix or warn "Cannot copy file $old to archive: $!\n";
+                }
                 chmod 0440,$newpath."imported_gpplus/".$oldname.$oldsuffix or warn "Cannot change permissions: $!\n";
             }
         }
