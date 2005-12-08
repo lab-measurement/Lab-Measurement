@@ -80,6 +80,7 @@ ok(my $meta5=$meta3->load('test.META'),'meta5: Create new Meta object (5) from f
 is($meta3->data_complete(),1,'meta3: data_complete is good for Meta 3');
 is($meta4->data_complete(),1,'meta4: data_complete is good for Meta 4');
 is($meta5->data_complete(),1,'meta5: data_complete is good for Meta 5');
+print Dumper($meta5);
 
 unlink "test.META";
 
