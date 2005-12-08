@@ -48,12 +48,15 @@ sub configure {
     }
 }
 
-# generalized data loader bräuchte
-#  der blockseparator matcht (z.B. Leerzeile)
-#   oder Sonderfall FILES (wobei er einfach alle filenames für FILE in liste bekommt)
-#  der Datenzeile matcht und in $1, $2 etc. teilt; gar nicht so einfach
-#  der Kommentarzeile matcht
+sub log_line {
+	my ($self,$fh,@data)=@_;
+    print $fh (join $self->configure('output_col_sep'),@data),$self->configure('output_line_sep');
+}
 
+sub log_finish_block {
+    my ($self,$fh)=@_;
+    print $fh $self->configure('output_block_sep');
+}
 
 sub import_gpplus {
     my $self=shift;
@@ -93,7 +96,7 @@ sub import_gpplus {
     });
     $meta->save("$newpath$newname.".$self->configure('output_meta_ext'));
     
-    open DATAOUT,">$newpath$newname.".$self->configure('output_data_ext');
+    open my $dataout,">$newpath$newname.".$self->configure('output_data_ext');
     
     my (@min,@max);
     my $blocknum=0;
@@ -109,8 +112,7 @@ sub import_gpplus {
                 if (/^([\d\-+\.Ee]+;)+/) {
                     if (/E+37/) { warn "Attention: Contains bad data due to overload!\n" }
                     my @value=split ";";
-                    print DATAOUT (join $self->configure('output_col_sep'),@value),
-                                  $self->configure('output_line_sep');
+                    $self->log_line($dataout,@value);
                     for (0..$#value) {
                         $min[$_]=$value[$_] if (!(defined $min[$_]) || ($value[$_] < $min[$_]));
                         $max[$_]=$value[$_] if (!(defined $max[$_]) || ($value[$_] > $max[$_]));
@@ -141,7 +143,7 @@ sub import_gpplus {
             }
             close IN;
             $blocknum++;
-            print DATAOUT $self->configure('output_block_sep');
+            $self->log_finish_line($dataout);
             if ($linenum > 0) { $ok=1 }
             $linenum=0;
         } else {
@@ -149,37 +151,37 @@ sub import_gpplus {
             return ();
         }
     }
-    close DATAOUT;
+    close $dataout;
     
-    if ($ok) {
-        chmod 0440,"$newpath$newname.".($self->configure('output_data_ext'))
-            or warn "Cannot change permissions for newly created data file: $!\n";
-        for (0..$#min) {
-            $meta->column_min($_,$min[$_]);
-            $meta->column_max($_,$max[$_]);
-        }
-        $meta->data_complete(1);
-        $meta->save("$newpath$newname.".$self->configure('output_meta_ext'));
-        if ($opts{archive}) {
-            if (-d $newpath."imported_gpplus") {warn "Destination directory {$newpath}imported_gpplus already exists";return ()}
-            unless (mkdir $newpath."imported_gpplus") {
-                warn "Cannot create directory {$newpath}imported_gpplus: $!\n";
-                return ();
-            };
-            for my $old (@files) {
-                my ($oldname,$oldpath,$oldsuffix)=fileparse($old,qr/\..*/);
-                if ($opts{archive} eq 'move') {
-                    move $old,$newpath."imported_gpplus/".$oldname.$oldsuffix or warn "Cannot move file $old to archive: $!\n";
-                } else {
-                    copy $old,$newpath."imported_gpplus/".$oldname.$oldsuffix or warn "Cannot copy file $old to archive: $!\n";
-                }
-                chmod 0440,$newpath."imported_gpplus/".$oldname.$oldsuffix or warn "Cannot change permissions: $!\n";
-            }
-        }
-        return ($newpath,$newname,$#files,$total_lines,$numcol+1,$blocknum-1);
+    unless ($ok) {
+        warn "No data!\n";
+        return ();
     }
-    warn "No data!\n";
-    return ();
+    chmod 0440,"$newpath$newname.".($self->configure('output_data_ext'))
+        or warn "Cannot change permissions for newly created data file: $!\n";
+    for (0..$#min) {
+        $meta->column_min($_,$min[$_]);
+        $meta->column_max($_,$max[$_]);
+    }
+    $meta->data_complete(1);
+    $meta->save("$newpath$newname.".$self->configure('output_meta_ext'));
+    if ($opts{archive}) {
+        if (-d $newpath."imported_gpplus") {warn "Destination directory {$newpath}imported_gpplus already exists";return ()}
+        unless (mkdir $newpath."imported_gpplus") {
+            warn "Cannot create directory {$newpath}imported_gpplus: $!\n";
+            return ();
+        };
+        for my $old (@files) {
+            my ($oldname,$oldpath,$oldsuffix)=fileparse($old,qr/\..*/);
+            if ($opts{archive} eq 'move') {
+                move $old,$newpath."imported_gpplus/".$oldname.$oldsuffix or warn "Cannot move file $old to archive: $!\n";
+            } else {
+                copy $old,$newpath."imported_gpplus/".$oldname.$oldsuffix or warn "Cannot copy file $old to archive: $!\n";
+            }
+            chmod 0440,$newpath."imported_gpplus/".$oldname.$oldsuffix or warn "Cannot change permissions: $!\n";
+        }
+    }
+    return ($newpath,$newname,$#files,$total_lines,$numcol+1,$blocknum-1);
 }
 
 1;
@@ -198,6 +200,27 @@ Lab::Data::Importer - A dataset import tool
 
 =head1 METHODS
 
+=head2 configure
+
+    output_data_ext     => "DATA",
+    output_meta_ext     => "META",
+
+    output_col_sep      => "\t",
+    output_line_sep     => "\n",
+    output_block_sep    => "\n",
+    output_comment_char => "# ",
+
+=head2 import_gpplus(%opts)
+
+Imports GPplus TSK-files. Valid parameters are
+
+  filename => 'path/to/one/of/the/tsk-files',
+  newname  => 'path/to/new/directory/newname',
+  archive  => '[copy|move]'
+
+The path C<path/to/new/directory/> must exist, while C<newname> shall not
+exist there.
+
 =head1 AUTHOR/COPYRIGHT
 
 This is $Id$
@@ -207,3 +230,11 @@ Copyright 2004 Daniel Schröer (L<http://www.danielschroeer.de>)
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 
 =cut
+
+# generalized data loader bräuchte
+# regex
+# der blockseparator matcht (z.B. Leerzeile)
+#   oder Sonderfall FILES (wobei er einfach alle filenames für FILE in liste bekommt)
+#  der Datenzeile matcht und in $1, $2 etc. teilt; gar nicht so einfach
+#  der Kommentarzeile matcht
+

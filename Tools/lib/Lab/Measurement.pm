@@ -58,20 +58,6 @@ sub DESTROY {
 	close($self->{Filehandle});
 }
 
-#Methoden für nicht-magisches Interface
-
-sub log_block {
-	my $self=shift;
-}
-
-sub log_start_block {
-}
-
-sub log_line {
-	my $self=shift;
-	my @data=shift;
-}
-
 #magisches Interface
 sub log {
 	my $self=shift;

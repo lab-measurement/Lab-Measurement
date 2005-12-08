@@ -1,12 +1,18 @@
 #!/usr/bin/perl
 
-#rename to PDLtools;
-package TSKTools;
+package Lab::Data::PDL;
 
 use strict;
 use PDL;
 
-sub TSKload {
+sub load {
+    my @cols=rcols shift;
+    my $piddle=pdl [@cols];
+    return $piddle;
+}
+
+sub import_gpplus {
+#should not be used
     my $basename=shift;
     $basename=~s/_$//;
 
@@ -60,8 +66,8 @@ sub coord_transform {
     # 3 columns named x,y,color
     # transform data to a new coordinate system
     # xx = 4  +   0.3 * x  +  0.1 * y  +  0 * color
-    # yy = 5  +  -0.2 * x  +  1.8 * y  + ..
-    # cc = 0  +   color    + ..
+    # yy = 5  +  -0.2 * x  +  1.8 * y  +  0 * color
+    # cc = 0  +  0         +  0        +  1 * color
     # ($piddle,
     #   [ 4   , 5   , 0 ],
     #   [ 0.3 , 0.1 , 0 ,
