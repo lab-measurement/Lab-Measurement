@@ -293,8 +293,10 @@ sub _getset_node_list_from_string {
     my $defnode_list=shift;
     my $nodes_string=shift;
     my @parms=@_;
+    #browse through all defined notes at the current root of the defnode_list
     for my $node_name (keys %$defnode_list) {
         if ($nodes_string =~ /^$node_name/) {
+            #is the right node
             $nodes_string=~s/^$node_name\_?//;
             my ($type,$key,$children)=_get_defnode_type($defnode_list->{$node_name});
             if ($nodes_string gt "") {
@@ -377,8 +379,14 @@ sub _getset_node_list_from_string {
                         }
                     }
                 } else {
-                    #simple get
-                    return $perlnode_list->{$node_name};
+                    #simple get (context sensitive)
+                    return $perlnode_list->{$node_name} unless wantarray;
+                    if ($type =~/P?ARRAY/) {
+                        return @{$perlnode_list->{$node_name}};
+                    } elsif ($type =~ /P?HASH/) {
+                        return %{$perlnode_list->{$node_name}};
+                    }
+                    return $perlnode_list->{$node_name};                    
                 }
             }
         }

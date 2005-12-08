@@ -3,7 +3,7 @@
 use strict;
 use Data::Dumper;
 
-use Test::More tests => 50;
+use Test::More tests => 58;
 
 BEGIN { use_ok('Lab::Data::Meta') };
 
@@ -81,6 +81,8 @@ is($meta3->data_complete(),1,'meta3: data_complete is good for Meta 3');
 is($meta4->data_complete(),1,'meta4: data_complete is good for Meta 4');
 is($meta5->data_complete(),1,'meta5: data_complete is good for Meta 5');
 
+unlink "test.META";
+
 is($meta3->column_label(2),'column 2','meta3: Column 2 is good for Meta 3');
 is($meta4->column_label(2),'column 2','meta4: Column 2 is good for Meta 4');
 is($meta5->column_label(2),'column 2','meta5: Column 2 is good for Meta 5');
@@ -93,4 +95,12 @@ is($meta3->block_comment(3),'block 3','meta3: Block 3 is good for Meta 3');
 is($meta4->block_comment(3),'block 3','meta4: Block 3 is good for Meta 4');
 is($meta5->block_comment(3),'block 3','meta5: Block 3 is good for Meta 5');
 
-unlink "test.META";
+ok(my $m4_cols=$meta4->column(),'meta4: get column list reference');
+is($#{$m4_cols},2,'meta4: list has right length');
+ok(my @m4_cols=$meta4->column(),'meta4: get column list');
+is($#m4_cols,2,'meta4: list has right length');
+
+ok(my $m5_axes=$meta5->axis(),'meta5: get axes as hash reference');
+is(scalar keys %{$m5_axes},3,'meta5: hash has right length');
+ok(my %m5_axes=$meta5->axis(),'meta5: get axes as hash');
+is(scalar keys %m5_axes,3,'meta5: hash has right length');
