@@ -21,7 +21,7 @@ WriteMakefile(
     (($^O =~ /MSWin32/)
     ?   ('LIBS'         => ['-lC:\\VXIPNP\\WinNT\\lib\\msc\\visa32.lib'], # needs full path on my setup
          'INC'          => '-IC:\\VXIPNP\\WinNT\\include '.               # next one is for windows sdk
-                           '"-IC:\\Program Files\\Microsoft Visual Studio 8\\VC\\PlatformSDK\\Include"',)
+                           '"-ID:\\Microsoft Platform SDK\\Include"',)
     :   ('LIBS'         => ['-lvisa -lstdc++'],                           # stdc++ is necessary here
          'INC'          => '-I/usr/local/vxipnp/linux/include/',)),
 
