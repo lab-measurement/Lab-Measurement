@@ -7,7 +7,7 @@ use Test::More tests => 6;
 BEGIN { use_ok('Lab::Instrument::Yokogawa7651') };
 ok(my $yoko=new Lab::Instrument::Yokogawa7651({
 	'GPIB_board'		=> 0,
-	'GPIB_address'		=> 10}),'Open Yoko');
+	'GPIB_address'		=> 02}),'Open Yoko');
 
 ok(my $status=$yoko->{vi}->Write('H1'),'Write H1');
 
