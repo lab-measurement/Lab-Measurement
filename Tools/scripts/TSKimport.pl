@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 use strict;
-use Lab::Data::Importer;
+use Lab::Data::Writer;
 
 unless (2==scalar @ARGV) {
 	print "This programm can join the datafiles of a multidim sweep with GPplus\nusage: $0 <one_filename> <new_name>\n";
@@ -19,7 +19,7 @@ unless (defined($archive)) {
 }
 $archive=0 unless ($archive =~ /copy|move/);
 
-my $importer=new Lab::Data::Importer;
+my $importer=new Lab::Data::Writer;
 my ($newpath,$newname,$num_files,$total_lines,$num_col,$blocknum)=
 	$importer->import_gpplus(
 		filename	=> $filename,
