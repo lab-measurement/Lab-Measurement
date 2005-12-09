@@ -2,7 +2,7 @@
 
 #$Id$
 
-package Lab::Data::Writer;
+package Lab::Data::Importer;
 
 use strict;
 use Carp;
@@ -190,7 +190,7 @@ __END__
 
 =head1 NAME
 
-Lab::Data::Writer - A dataset import tool
+Lab::Data::Importer - A dataset import tool
 
 =head1 SYNOPSIS
 
