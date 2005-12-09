@@ -10,6 +10,6 @@
     <IMPLEMENTATION>
         <OS NAME="MSWin32" />
         <ARCHITECTURE NAME="MSWin32-x86-multi-thread-5.8" />
-        <CODEBASE HREF="http://www.nano.physik.uni-muenchen.de/~schroeer/Lab-VISA-1.1_0236-win.tar.gz" />
+        <CODEBASE HREF="http://www.nano.physik.uni-muenchen.de/~schroeer/Lab-VISA-1.11-win.tar.gz" />
     </IMPLEMENTATION>
 </SOFTPKG>
