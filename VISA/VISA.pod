@@ -10,16 +10,21 @@ Lab::VISA - Perl interface to National Instrument's VISA library
 
 =head1 DESCRIPTION
 
-This library offers a perl interface to National Instrument's NI-VISA library.
+This library offers a Perl interface to National Instrument's NI-VISA library.
 
 With this library you can easily control the instruments in your lab (multimeters, voltage
-sources, magnet sources, pulse generators etc.) from perl. You can perform
-complicated measurement jobs with just some perl loops.
+sources, magnet sources, pulse generators etc.) with Perl. You can perform
+complicated measurement jobs with just some Perl loops.
 
-It comes even better. The general L<Lab::Instrument|Lab::Instrument> class reduces the
-communication overhead to a minimum. And the specialized instrument classes
-(virtual instruments) like the L<Lab::Instrument::HP34401A|Lab::Instrument::HP34401A> class offer
-even more high level comfort. Everything is set up already, waiting for you to use it.
+It comes even better: The general L<Lab::Instrument|Lab::Instrument> class reduces the
+communication overhead to minimal C<read>, C<write> and C<query> methods.
+And on top of this, there are specialized instrument classes (virtual instruments) such as
+L<Lab::Instrument::HP34401A|Lab::Instrument::HP34401A>, that offer
+even more high level comfort with methods as C<read_voltage>.
+Everything is prepared so that you can just start the measurement.
+
+The L<Lab::Tools|Lab::Tools> package offers classes to simplify the task
+to log data to files and to maintain this data.
 
 This manpage describes the perl syntax of the API. Each function is explained
 with some sentences which I cited from [1]. See this manual for further
