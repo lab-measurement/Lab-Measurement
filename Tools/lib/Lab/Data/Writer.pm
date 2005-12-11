@@ -190,7 +190,7 @@ __END__
 
 =head1 NAME
 
-Lab::Data::Writer - A dataset import tool
+Lab::Data::Writer - Tools for dataset files
 
 =head1 SYNOPSIS
 

@@ -5,7 +5,7 @@ package Lab::Instrument;
 use strict;
 use Lab::VISA;
 
-our $VERSION = sprintf("0.01_%03d", q$Revision$ =~ / (\d+) /);
+our $VERSION = sprintf("1.%04d", q$Revision$ =~ / (\d+) /);
 
 sub new {
     my $proto = shift;
@@ -133,7 +133,9 @@ Lab::Instrument - Worker class for VISA based instrument classes
 
 =head1 DESCRIPTION
 
-This class describes a general visa based instrument.
+C<Lab::Instrument> offers an abstract interface to an instrument, that is connected via
+GPIB, serial connection or ethernet. It provides general C<read>, C<write> and C<query> methods,
+and more.
 
 It can be used either directly by the laborant (programmer) to work with
 an instrument that doesn't have its own perl class

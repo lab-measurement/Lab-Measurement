@@ -5,10 +5,11 @@ use strict;
 use Module::Build;
 
 my $build=Module::Build->new(
-    module_name => 'Lab::Instrument', 
-    license     => 'perl',
-    requires    => {
-        'Lab::VISA'   => 0,
+    module_name         => 'Lab::Instrument',
+    dist_version_from   => 'README',
+    license             => 'perl',
+    requires            => {
+        'Lab::VISA'   => '1.11',
         'Time::HiRes' => 0,
     },
     script_files    	=> [],
