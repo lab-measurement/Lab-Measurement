@@ -23,17 +23,9 @@ my $declaration = {
 
     dataset_title           => ['SCALAR'],
     dataset_description     => ['SCALAR'],
+    dataset_sample          => ['SCALAR'],
     data_file               => ['SCALAR'],#     relativ zur descriptiondatei
 
-    block                   => [
-        'ARRAY',
-        'id',
-        {
-            original_filename   => ['SCALAR'],
-            timestamp           => ['SCALAR'],
-            comment             => ['SCALAR']
-        }
-    ],
     column                  => [
         'ARRAY',
         'id',
@@ -43,6 +35,15 @@ my $declaration = {
             description => ['SCALAR'],
             min         => ['SCALAR'],
             max         => ['SCALAR']
+        }
+    ],
+    block                   => [
+        'ARRAY',
+        'id',
+        {
+            original_filename   => ['SCALAR'],
+            timestamp           => ['SCALAR'],
+            comment             => ['SCALAR']
         }
     ],
     axis                    => [
