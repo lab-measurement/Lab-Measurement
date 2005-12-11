@@ -5,7 +5,6 @@
 package Lab::Data::Writer;
 
 use strict;
-use Carp;
 use Data::Dumper;
 use File::Basename;
 use File::Copy;
@@ -60,34 +59,31 @@ sub log_finish_block {
 
 sub import_gpplus {
     my $self=shift;
-    my %opts=@_;
-    my $filename=$opts{filename};
-    my $given_name=$opts{newname};
-            # archive
+    my %opts=@_;    #filename, newname, archive
 
-    unless ((defined $filename) && ($filename ne '')) {
-        warn "What should I import?";
-        return ();
-    }
-    my ($filenamebase,$path,$suffix)=fileparse($filename,qr/_\d+\.TSK/);
-    for ($path,$filenamebase) {
+    #print "Options: ",Dumper(\%opts);
+    
+    return "What should I import?" unless ((defined $opts{filename}) && ($opts{filename} ne ''));
+
+    my ($filenamebase,$path,$suffix)=fileparse($opts{filename},qr/_\d+\.TSK/);
+    my ($newname) = $opts{newname} =~ /[\/\\]?([^\/\\]+)$/;
+    my $newpath=$opts{newname} || $filenamebase;
+    $newpath.="/" unless ($newpath =~ /[\/\\]$/);
+    for ($path,$filenamebase,$newpath) {
         s/\\/\//g;
         s/ /\\ /g;
     }
+    $newname=$newname || $filenamebase;
     my $basename=$path.$filenamebase;
-    my $newname=$given_name || $filenamebase;
-    my $newpath=$path.$newname."/";
-    print "basename: $basename\nnewpath: $newpath\nnewname: $newname\n";
+    #print "basename: $basename\nnewpath: $newpath\nnewname: $newname\n";
     my @files=sort {
         ($a =~ /$basename\_(\d+)\.TSK/)[0] <=> ($b =~ /$basename\_(\d+)\.TSK/)[0]
     } glob($basename."_*.TSK");
 
     #print "Files:\n ",(join "\n ",@files),"\n";
-    if (-d $newpath) {warn "Destination directory $newpath already exists";return ()}
-    unless (mkdir $newpath) {
-        warn "Cannot create directory $newpath: $!\n";
-        return ();
-    }
+    return "Destination directory $newpath already exists" if (-d $newpath);
+    return "Cannot create directory $newpath: $!\n" unless (mkdir $newpath);
+        
     my $meta=new Lab::Data::Meta({
         data_complete           => 0,
         dataset_title           => $newname,
@@ -96,7 +92,8 @@ sub import_gpplus {
     });
     $meta->save("$newpath$newname.".$self->configure('output_meta_ext'));
     
-    open my $dataout,">$newpath$newname.".$self->configure('output_data_ext');
+    open my $dataout,">$newpath$newname.".$self->configure('output_data_ext')
+        || return "Cannot open output file $newpath$newname.".$self->configure('output_data_ext').": $!";
     
     my (@min,@max);
     my $blocknum=0;
@@ -106,57 +103,50 @@ sub import_gpplus {
     my $ok=0;
     
     for my $old_file (@files) {
-        if (open IN,"<$old_file") {
-            while (<IN>) {
-                $_=~s/[\n\r]+$//;
-                if (/^([\d\-+\.Ee]+;)+/) {
-                    if (/E+37/) { warn "Attention: Contains bad data due to overload!\n" }
-                    my @value=split ";";
-                    $self->log_line($dataout,@value);
-                    for (0..$#value) {
-                        $min[$_]=$value[$_] if (!(defined $min[$_]) || ($value[$_] < $min[$_]));
-                        $max[$_]=$value[$_] if (!(defined $max[$_]) || ($value[$_] > $max[$_]));
-                    }
-                    if (($linenum==0) && ($blocknum==0)) {
-                        $numcol=$#value;
-                        for (0..$numcol) {
-                            $meta->column_label($_,'column '.($_+1));
-                        }
-                    } elsif ($numcol!=$#value) {
-                        die "spaltenzahl scheisse in zeile $linenum von block $blocknum.\n".
-                            "sollte ".1+$numcol." sein. so habe ich keinen bock und sterbe jetzt";
-                    }
-                    $linenum++;$total_lines++;
-                } elsif (/^Saved at ([\d:]{8}) on ([\d.]{8})/) {
-                    #Zeit und Datum werden von GPplus pro File/Block gespeichert
-                    my ($time,$date)=($1,$2);
-                    $meta->block_comment($blocknum,"Saved at $time on $date");
-                    $meta->block_timestamp($blocknum,"$date-$time");
-                    $meta->block_original_filename($blocknum,$old_file);
-                } elsif ($blocknum == 0) {
-                    #Kommentar
-                    $meta->dataset_description($meta->dataset_description().$_."\n")
-                        if ($_ !~ /DATA MEASURED/);
-                } else {
-                    #ignorierter Kommentar: GPplus schreibt gleichen Kommentar in jedes File
+        open IN,"<$old_file" || return "Cannot open file $old_file: $!";
+        while (<IN>) {
+            $_=~s/[\n\r]+$//;
+            if (/^([\d\-+\.Ee]+;)+/) {
+                if (/E+37/) { print "Attention: Contains bad data due to overload!\n" }
+                my @value=split ";";
+                $self->log_line($dataout,@value);
+                for (0..$#value) {
+                    $min[$_]=$value[$_] if (!(defined $min[$_]) || ($value[$_] < $min[$_]));
+                    $max[$_]=$value[$_] if (!(defined $max[$_]) || ($value[$_] > $max[$_]));
                 }
+                if (($linenum==0) && ($blocknum==0)) {
+                    $numcol=$#value;
+                    for (0..$numcol) {
+                        $meta->column_label($_,'column '.($_+1));
+                    }
+                } elsif ($numcol!=$#value) {
+                    die "spaltenzahl scheisse in zeile $linenum von block $blocknum.\n".
+                        "sollte ".1+$numcol." sein. so habe ich keinen bock und sterbe jetzt";
+                }
+                $linenum++;$total_lines++;
+            } elsif (/^Saved at ([\d:]{8}) on ([\d.]{8})/) {
+                #Zeit und Datum werden von GPplus pro File/Block gespeichert
+                my ($time,$date)=($1,$2);
+                $meta->block_comment($blocknum,"Saved at $time on $date");
+                $meta->block_timestamp($blocknum,"$date-$time");
+                $meta->block_original_filename($blocknum,$old_file);
+            } elsif ($blocknum == 0) {
+                #Kommentar
+                $meta->dataset_description($meta->dataset_description().$_."\n")
+                    if ($_ !~ /DATA MEASURED/);
+            } else {
+                #ignorierter Kommentar: GPplus schreibt gleichen Kommentar in jedes File
             }
-            close IN;
-            $blocknum++;
-            $self->log_finish_line($dataout);
-            if ($linenum > 0) { $ok=1 }
-            $linenum=0;
-        } else {
-            warn "Cannot open file $old_file: $!\n";
-            return ();
         }
+        close IN;
+        $blocknum++;
+        $self->log_finish_block($dataout);
+        if ($linenum > 0) { $ok=1 }
+        $linenum=0;
     }
     close $dataout;
-    
-    unless ($ok) {
-        warn "No data!\n";
-        return ();
-    }
+    return "No data!\n" unless ($ok);
+
     chmod 0440,"$newpath$newname.".($self->configure('output_data_ext'))
         or warn "Cannot change permissions for newly created data file: $!\n";
     for (0..$#min) {
@@ -165,23 +155,22 @@ sub import_gpplus {
     }
     $meta->data_complete(1);
     $meta->save("$newpath$newname.".$self->configure('output_meta_ext'));
+    my $archive_dir=$newpath."imported_gpplus";
     if ($opts{archive}) {
-        if (-d $newpath."imported_gpplus") {warn "Destination directory {$newpath}imported_gpplus already exists";return ()}
-        unless (mkdir $newpath."imported_gpplus") {
-            warn "Cannot create directory {$newpath}imported_gpplus: $!\n";
-            return ();
-        };
+        return "Destination directory {$newpath}imported_gpplus already exists" if (-d $archive_dir);
+        return "Cannot create directory {$newpath}imported_gpplus: $!\n" unless (mkdir $archive_dir);
+
         for my $old (@files) {
             my ($oldname,$oldpath,$oldsuffix)=fileparse($old,qr/\..*/);
             if ($opts{archive} eq 'move') {
-                move $old,$newpath."imported_gpplus/".$oldname.$oldsuffix or warn "Cannot move file $old to archive: $!\n";
+                move $old,"$archive_dir/$oldname$oldsuffix" or warn "Cannot move file $old to archive: $!\n";
             } else {
-                copy $old,$newpath."imported_gpplus/".$oldname.$oldsuffix or warn "Cannot copy file $old to archive: $!\n";
+                copy $old,"$archive_dir/$oldname$oldsuffix" or warn "Cannot copy file $old to archive: $!\n";
             }
-            chmod 0440,$newpath."imported_gpplus/".$oldname.$oldsuffix or warn "Cannot change permissions: $!\n";
+            chmod 0440,"$archive_dir/$oldname$oldsuffix" or warn "Cannot change permissions: $!\n";
         }
     }
-    return ($newpath,$newname,$#files,$total_lines,$numcol+1,$blocknum-1);
+    return ($newpath,$newname,$#files,$total_lines,$numcol+1,$blocknum-1,$archive_dir);
 }
 
 1;
