@@ -1,6 +1,12 @@
 #!/usr/bin/perl
 #$Id$
 
+# This is an example of how to perform a simple gate voltage
+# sweep at controlled speed, where the timing is done by the
+# gp_... mechanism.
+
+# Adjust the GPIB addresses to your local settings.
+
 use strict;
 use Lab::Instrument::Yokogawa7651;
 use Lab::Instrument::HP34401A;

@@ -87,9 +87,11 @@ sub Clear {
 sub Write {
     my $self=shift;
     my $cmd=shift;
-    my ($status, $write_cnt)=Lab::VISA::viWrite($self->{instr},
-                                           $cmd,
-                                           length($cmd));
+    my ($status, $write_cnt)=Lab::VISA::viWrite(
+        $self->{instr},
+        $cmd,
+        length($cmd)
+    );
     if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while writing: $status";}
     return $write_cnt;
 }
@@ -97,9 +99,11 @@ sub Write {
 sub Query {
     my $self=shift;
     my $cmd=shift;
-    my ($status, $write_cnt)=Lab::VISA::viWrite($self->{instr},
-                                           $cmd,
-                                           length($cmd));
+    my ($status, $write_cnt)=Lab::VISA::viWrite(
+        $self->{instr},
+        $cmd,
+        length($cmd)
+    );
     if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while writing: $status";}
     
     ($status,my $result,my $read_cnt)=Lab::VISA::viRead($self->{instr},300);
@@ -128,8 +132,8 @@ Lab::Instrument - Worker class for VISA based instrument classes
 
  use Lab::Instrument;
  
- my $hp22=  new Lab::Instrument(0,22);
- my $id=$hp22->Query('*IDN?');
+ my $hp22 =  new Lab::Instrument(0,22); # gpib board 0, address 22
+ print $hp22->Query('*IDN?');
 
 =head1 DESCRIPTION
 
@@ -148,7 +152,8 @@ actual visa work. (All the instruments in the default package do so.)
 =head2 new
 
  $instrument=new Lab::Instrument($gpib_board,$gpib_addr);
-
+ $instrument2=new Lab::Instrument({GPIB_board => $board, GPIB_address => $addr});
+ 
 =head1 METHODS
 
 =head2 Write
@@ -175,9 +180,7 @@ Probably many.
 
 =over 4
 
-=item VISA
-
-The Lab::Instrument class uses the VISA module (L<VISA>).
+=item L<Lab::VISA>
 
 =back
 

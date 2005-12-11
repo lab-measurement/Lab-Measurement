@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/perl -w
 # $Id$
 
 # This is an example of how to perform a measurement without any
@@ -7,11 +7,10 @@
 # The measurement is a two dimensional sweep of two voltages.
 # At every point a HP multimeter is read out.
 
+# Adjust the GPIB addresses to your local settings.
+
 # print with
 # a2ps --tabsize=4 --columns=1 --font-size=10 --pretty-print=perl --landscape -o code.ps charge-stability.pl
-
-#
-
 
 use strict;                                                     # we'll write clean perl
 

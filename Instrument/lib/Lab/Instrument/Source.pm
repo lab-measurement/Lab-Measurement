@@ -3,7 +3,7 @@ package Lab::Instrument::Source;
 use strict;
 use Time::HiRes qw(usleep gettimeofday);
 
-our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
+our $VERSION = sprintf("1.%04d", q$Revision$ =~ / (\d+) /);
 
 sub new {
     my $proto = shift;
@@ -123,7 +123,7 @@ sub sweep_to_voltage {
     while($cont) {
         $cont=0;
         my $this=$self->step_to_voltage($voltage);
-        if ($last!=$this) {
+        if (!($last) || ($last!=$this)) {
             $last=$this;
             $cont++;
         }
