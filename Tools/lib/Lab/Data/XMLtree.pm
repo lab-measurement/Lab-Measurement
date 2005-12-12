@@ -118,7 +118,7 @@ sub save_xml {
     my $data=shift;
         #warum nicht $self?????
     my $rootname=shift;
-    my $generator = XML::Generator->new(pretty  => "\t",escape=>'high-bit');
+    my $generator = XML::Generator->new(pretty  => 2,escape=>'high-bit');
     
     open FILE,">$filename" || die;
         print FILE $generator->$rootname(@{_write_node_list($generator,$self->{___declaration},$data)});
@@ -273,8 +273,9 @@ sub _write_node_list {
                 if ($children_defnode_list) {
                     $perlnode_content=_write_node_list($generator,$children_defnode_list,_magic_get_perlnode($defnode_list,$perlnode_list,$node_name,$key_val));                    
                 } else {
-                    push(@$perlnode_content,_magic_get_perlnode($defnode_list,$perlnode_list,$node_name,$key_val));
+                    push(@$perlnode_content,$generator->xmlcdata(_magic_get_perlnode($defnode_list,$perlnode_list,$node_name,$key_val)));
                 }   
+                #print "\n\nHier: ",Dumper($perlnode_content);
                 push(@$xmlnode_list,
                     $generator->$node_name(
                         (defined $key_name) ? {$key_name=>$key_val} : {},

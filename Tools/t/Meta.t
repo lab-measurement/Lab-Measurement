@@ -3,7 +3,7 @@
 use strict;
 use Data::Dumper;
 
-use Test::More tests => 58;
+use Test::More tests => 61;
 
 BEGIN { use_ok('Lab::Data::Meta') };
 
@@ -54,10 +54,17 @@ is($meta2->axis_description('energy'),'kinetic energy','meta2: energy axis has r
 is($meta2->{axis}->{energy}->{description},'kinetic energy','meta2: can also be accessed directly');
 isnt($meta2->jibbet_nisch(),'nono','meta2: only allowed elements exist (XMLtree warning is ok)');
 
+my $testdescription=<<ENDE;
+Dies ist die erste Zeile der Description.
+Die zweite Zeile enthält Sonderzeichen: äöüß¤.
+
+Nach einer Leerzeile hier nun Zeile 4.
+In Zeile 5 droht Gefahr: <strong>Gefahr</strong>
+ENDE
 ok( my $meta3=new Lab::Data::Meta({
     data_complete			=> 0,
     dataset_title			=> 'newname',
-    dataset_description		=> 'Yet another test',
+    dataset_description		=> $testdescription,
     data_file				=> "newname.DATA",
 }),'meta3: Create yet another Meta object.');
 
@@ -77,12 +84,16 @@ ok($meta3->save("test.META"),'meta3: Save as XML');
 ok(my $meta4=Lab::Data::Meta->load('test.META'),'meta4: Create new Meta object (4) from file (with class method)');
 ok(my $meta5=$meta3->load('test.META'),'meta5: Create new Meta object (5) from file (with object method)');
 
+is($meta3->dataset_description(),$testdescription,'meta3: is right description');
+is($meta4->dataset_description(),$testdescription,'meta4: is right description');
+is($meta5->dataset_description(),$testdescription,'meta5: is right description');
 is($meta3->data_complete(),1,'meta3: data_complete is good for Meta 3');
 is($meta4->data_complete(),1,'meta4: data_complete is good for Meta 4');
 is($meta5->data_complete(),1,'meta5: data_complete is good for Meta 5');
-print Dumper($meta5);
+#print Dumper($meta5);
+print $meta5->dataset_description();
 
-unlink "test.META";
+#unlink "test.META";
 
 is($meta3->column_label(2),'column 2','meta3: Column 2 is good for Meta 3');
 is($meta4->column_label(2),'column 2','meta4: Column 2 is good for Meta 4');
