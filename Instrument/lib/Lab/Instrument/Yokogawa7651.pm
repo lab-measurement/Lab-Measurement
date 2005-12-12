@@ -162,7 +162,7 @@ sub get_status {
 
 =head1 NAME
 
-Lab::Instrument::Yokogawa7651 - a Yokogawa 7651 DC source
+Lab::Instrument::Yokogawa7651 - Yokogawa 7651 DC source
 
 =head1 SYNOPSIS
 

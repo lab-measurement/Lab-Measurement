@@ -126,7 +126,7 @@ sub DESTROY {
 
 =head1 NAME
 
-Lab::Instrument - Worker class for VISA based instrument classes
+Lab::Instrument - General VISA based instrument
 
 =head1 SYNOPSIS
 

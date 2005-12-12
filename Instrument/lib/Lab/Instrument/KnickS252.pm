@@ -64,7 +64,7 @@ sub get_range {
 
 =head1 NAME
 
-Lab::Instrument::KnickS252 - a Knick S 252 DC source
+Lab::Instrument::KnickS252 - Knick S 252 DC source
 
 =head1 SYNOPSIS
 

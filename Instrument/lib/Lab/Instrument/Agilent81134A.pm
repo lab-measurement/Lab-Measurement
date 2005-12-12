@@ -83,7 +83,7 @@ sub pulse_example {
 
 =head1 NAME
 
-Lab::Instrument::Agilent81134A - a Agilent 81134A pulse generator
+Lab::Instrument::Agilent81134A - Agilent 81134A pulse generator
 
 =head1 SYNOPSIS
 

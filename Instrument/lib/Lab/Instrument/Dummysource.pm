@@ -62,7 +62,7 @@ sub get_range {
 
 =head1 NAME
 
-Lab::Instrument::Dummysource - a dummy voltage source
+Lab::Instrument::Dummysource - Dummy voltage source
 
 =head1 SYNOPSIS
 
