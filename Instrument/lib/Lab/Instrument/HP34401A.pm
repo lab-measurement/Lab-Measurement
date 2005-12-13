@@ -241,9 +241,7 @@ probably many
 
 =over 4
 
-=item Lab::Instrument
-
-The HP34401A uses the Lab::Instrument class (L<Lab::Instrument>).
+=item L<Lab::Instrument>
 
 =back
 
