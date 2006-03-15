@@ -123,7 +123,7 @@ sub sweep_to_voltage {
     while($cont) {
         $cont=0;
         my $this=$self->step_to_voltage($voltage);
-        if (!($last) || ($last!=$this)) {
+        if (!(defined $last) || ($last!=$this)) {
             $last=$this;
             $cont++;
         }
