@@ -138,6 +138,9 @@ Lab::Instrument::HP34401A - HP/Agilent 34401A digital multimeter
 
 =head1 DESCRIPTION
 
+The Lab::Instrument::HP34401A class implements an interface to the 34401A digital multimeter by
+Agilent (formerly HP).
+
 =head1 CONSTRUCTOR
 
     my $hp=new(\%options);
@@ -249,7 +252,7 @@ probably many
 
 This is $Id$
 
-Copyright 2004 Daniel Schröer (L<http://www.danielschroeer.de>)
+Copyright 2004-2006 Daniel Schröer (L<http://www.danielschroeer.de>)
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 

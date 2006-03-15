@@ -77,7 +77,9 @@ Lab::Instrument::KnickS252 - Knick S 252 DC source
 
 =head1 DESCRIPTION
 
-The Lab::Instrument::KnickS252 class implements an interface to the Knick S 252 dc calibrator.
+The Lab::Instrument::KnickS252 class implements an interface
+to the Knick S 252 dc calibrator. This class derives from
+L<Lab::Instrument::Source> and provides all functionality described there.
 
 =head1 CONSTRUCTOR
 

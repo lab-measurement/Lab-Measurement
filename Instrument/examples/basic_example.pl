@@ -29,7 +29,7 @@ for (my $l_volt=-0.4;$l_volt-=0.0005;$l_volt>=-0.5) {           # Sweep left gat
     $left_gate->set_voltage($l_volt);                           # Set left gate voltage
     for (my $r_volt=-0.75;$r_volt+=0.001;$r_volt=<-0.65) {      # Sweep right gate from -750mV to -650mV (1mV/step)
         $right_gate->set_voltage($r_volt);                      # Set right gate voltage
-        usleep(500);                                            # Wait for 500ms
+        usleep(500000);                                         # Wait for 500ms
         my $cond=$dqd_cond->read_voltage_dc(10);                # Read data from multimeter
         print "$l_volt\t$r_volt\t$cond\n";                      # Log data
     }
