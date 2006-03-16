@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<data_description>
+
+	<data_file>testdata.raw</data_file><!-- relativ zu dieser datei -->
+    <dataset_sample>S4a</dataset_sample>
+	<dataset_description>Dies ist ein Testdatensatz, aufgenommen am 16.3.2006.</dataset_description>
+	<dataset_title>Testdatensatz</dataset_title>
+
+	<block id="0">
+		<timestamp></timestamp>
+		<comment>stinknormaler Block</comment>
+	</block>
+	<block id="1">
+		<timestamp></timestamp>
+		<comment>noch ein Block</comment>
+	</block>
+	<block id="2">
+		<timestamp></timestamp>
+		<comment>ein weiterer Block</comment>
+	</block>
+
+	<column id="0">
+		<unit>V</unit>
+		<label>Spannung Gate 11</label>
+		<description>Angelegt mit Knick10 über Tiefpaß</description>
+	</column>
+	<column id="1">
+		<unit>V</unit>
+		<label>Spannung Gate 3</label>
+		<description>Angelegt mit Yoko24 über Tiefpaß</description>
+	</column>
+	<column id="2">
+		<unit>V</unit>
+		<label>Strom durch QP</label>
+		<description>Gemessen mit HP12 an Kontakt 7 über Ithaco bei 1e-9 und Lock-In 1mV. V_SD=0 an Kontakt 9, moduliert mit 20µV.</description>
+	</column>
+
+	<axis label="V_{Gate 11}">
+		<description>Spannung an linkem Plungergate 11 in mV, nur interessanter Bereich</description>
+		<unit>mV</unit>
+		<expression>$C0*1000</expression>   <!-- heisst $C0 heisst Column 0 -->
+		<logscale>0</logscale> <!-- ob logscale, min und max hier hergehören, oder ob man besser -->
+		<min>-200</min>        <!-- noch eine weitere Ebene Plot o.ä. macht? -->
+		<max>-80</max>
+	</axis>
+	<axis label="V_{Gate 3}">
+		<description>Spannung an rechtem Plungergate 3 in mV, nur interessanter Bereich</description>
+		<unit>mV</unit>
+		<expression>$C2*1000</expression>
+		<logscale>0</logscale>
+		<min>-400</min>
+		<max>-300</max>
+	</axis>
+	<axis label="G">
+		<description>Leitwert des DQD mit Lock-In gemessen</description>
+		<unit>S</unit>
+		<expression>(($C2/10)*1e-3*1e-9)/2e-5</expression>
+		<logscale>1</logscale>
+		<min>0</min>
+		<max>1e-3</max>
+	</axis>
+	
+</data_description>
