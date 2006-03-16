@@ -31,10 +31,10 @@ my $declaration = {
         'id',
         {
             unit        => ['SCALAR'],
-            label       => ['SCALAR'],
+            label       => ['SCALAR'],  # evtl. weg
             description => ['SCALAR'],
-            min         => ['SCALAR'],
-            max         => ['SCALAR']
+#            min         => ['SCALAR'],
+#            max         => ['SCALAR']
         }
     ],
     block                   => [
@@ -51,8 +51,8 @@ my $declaration = {
         'label',
         {
             unit        => ['SCALAR'],
-            logscale    => ['SCALAR'],
-            expression  => ['SCALAR'],
+#            logscale    => ['SCALAR'],  # evtl. weg; gehört zu Plot
+            expression  => ['SCALAR'],,
             min         => ['SCALAR'],
             max         => ['SCALAR'],
             description => ['SCALAR']
