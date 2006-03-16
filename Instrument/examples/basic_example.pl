@@ -22,7 +22,7 @@ use Time::HiRes (qw/usleep/);                                   # for high resol
 my $left_gate=new Lab::Instrument::KnickS252({                  # create objects of instrument classes
     GPIB_address    => 15                                       # means: connect to instruments
 });
-my $right_gate=new Lab::Instrument::Yokogawa7651(0,10);         # short form for gpib
+my $right_gate=new Lab::Instrument::Yokogawa7651(0,10);         # short form for gpib board 0 adress 10
 my $dqd_cond=new Lab::Instrument::HP34401A(0,24);
 
 for (my $l_volt=-0.4;$l_volt-=0.0005;$l_volt>=-0.5) {           # Sweep left gate from -400mV to -500mV (-0.5mV/step)
