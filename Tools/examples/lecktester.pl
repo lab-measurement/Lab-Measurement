@@ -34,7 +34,7 @@ my $old_fh = select(LOG);
 $| = 1;
 select($old_fh);
 
-#nur fdamit gnuplot kein leeres file findet
+#nur damit gnuplot kein leeres file findet
     my $read_volt=$hp->read_voltage_dc(10,0.0001);
     $read_volt=12 if ($read_volt > 12);
     my $rate=($read_volt/10)*$bereich;
@@ -45,11 +45,12 @@ select($old_fh);
 
 system("gnuplot $filename.gnuplot &");
 
-print "Leak test in progress\n";
+print "Leak test in progress\nPress 's' to stop.";
 print LOG "#$comment\n";
 
 my $key;
-while (not defined ($key=ReadKey(-1))) {
+ReadMode('cbreak');
+while (ReadKey(-1) ne "s") {
     my $read_volt=$hp->read_voltage_dc(10,0.0001);
     $read_volt=12 if ($read_volt > 12);
     my $rate=($read_volt/10)*$bereich;
@@ -59,4 +60,5 @@ while (not defined ($key=ReadKey(-1))) {
     printf LOG "%4d-%02d-%02d %02d:%02d:%.2f\t%f\n",$year,$mon,$mday,$hour,$min,$sec+$ms/1e6,$rate;
     usleep(500000);
 }
+ReadMode('normal');
 close LOG;
