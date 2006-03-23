@@ -3,7 +3,7 @@
 use strict;
 use Lab::Instrument::HP34401A;
 use Time::HiRes qw/usleep gettimeofday/;
-use HotKey;
+use Term::ReadKey;
 
 unless (@ARGV == 4) {
     print "Usage: $0 GPIB-address Sensitivity Filename Comment\n";
@@ -40,7 +40,10 @@ print LOG "#$comment\n";
 print "Leak test in progress\nPress 's' to stop; 'm' to mark position.\n";
 
 my $key;
+
+ReadMode('cbreak');
 while ($key ne "s") {
+#while (1) {
     my $read_volt=$hp->read_voltage_dc(10,0.0001);
     $read_volt=12 if ($read_volt > 12);
     my $rate=($read_volt/10)*$bereich;
@@ -57,8 +60,9 @@ while ($key ne "s") {
     }
     print $gpipe $gp2;
     usleep(500000);
-    $key=readkey;
+    $key=ReadKey(-1);
 }
+ReadMode('normal');
 close LOG;
 close $gpipe;
 
