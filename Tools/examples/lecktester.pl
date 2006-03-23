@@ -1,9 +1,9 @@
 #!/usr/bin/perl
 
 use strict;
-#use Lab::Instrument::HP34401A;
+use Lab::Instrument::HP34401A;
 use Time::HiRes qw/usleep gettimeofday/;
-use Term::ReadKey;
+use HotKey;
 
 unless (@ARGV == 4) {
     print "Usage: $0 GPIB-address Sensitivity Filename Comment\n";
@@ -12,7 +12,7 @@ unless (@ARGV == 4) {
 }
 my ($gpib,$bereich,$filename,$comment)=@ARGV;
 
-#my $hp=new Lab::Instrument::HP34401A({GPIB_board=>0,GPIB_address=>$gpib});
+my $hp=new Lab::Instrument::HP34401A({GPIB_board=>0,GPIB_address=>$gpib});
 
 my $gp1=<<GNUPLOT1;
 set xdata time
@@ -40,9 +40,8 @@ print LOG "#$comment\n";
 print "Leak test in progress\nPress 's' to stop; 'm' to mark position.\n";
 
 my $key;
-ReadMode('cbreak');
 while ($key ne "s") {
-    my $read_volt=rand(10);#$hp->read_voltage_dc(10,0.0001);
+    my $read_volt=$hp->read_voltage_dc(10,0.0001);
     $read_volt=12 if ($read_volt > 12);
     my $rate=($read_volt/10)*$bereich;
     my ($s,$ms)=gettimeofday();
@@ -56,21 +55,21 @@ while ($key ne "s") {
         print $gpipe $mark;
         $gp1.=$mark;
     }
-    usleep(500000);
     print $gpipe $gp2;
-    $key=ReadKey(-1);
+    usleep(500000);
+    $key=readkey;
 }
-ReadMode('normal');
 close LOG;
 close $gpipe;
 
 open GP,">$filename.gnuplot" or die "cannot open gnuplot file";
-print GP $gp1,<<GNUPLOT3,$gp2;
+print GP <<GNUPLOT3,$gp1,$gp2;
 set term post col enh
 set out "$filename.ps"
 GNUPLOT3
 
 system("gnuplot $filename.gnuplot");
+system("gv $filename.ps &");
 
 sub get_pipe {
 	my $gpname;
