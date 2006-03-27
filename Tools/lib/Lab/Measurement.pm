@@ -6,6 +6,7 @@ use 5.008;
 use strict;
 use warnings;
 use FileHandle;
+use Lab::Data::Writer;
 require Exporter;
 
 our @ISA = qw(Exporter);

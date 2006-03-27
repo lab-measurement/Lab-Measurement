@@ -48,6 +48,11 @@ That's it!
 BUILDING
 --------
 
+The swig-based wrapper code does NOT work with plain perl 5.8.8. No swig code does, due
+to a bug in this perl release. In order to make it work, either use another version of
+perl or apply the patch described in this message:
+http://www.xray.mpe.mpg.de/mailing-lists/perl5-porters/2006-02/msg00572.html.
+
 If you want to build the module yourself, you will need a compiler and a make program.
 On Windows the make program is called 'nmake', so replace the 'make' command in the
 instructions below with 'nmake'. I successfully used the freely available Visual C++ 2005

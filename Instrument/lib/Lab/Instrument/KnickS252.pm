@@ -10,9 +10,9 @@ our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
 our @ISA=('Lab::Instrument::Source');
 
 my $default_config={
-    gate_protect            => 0,
+    gate_protect            => 1,
     gp_max_volt_per_second  => 0.002,
-    gp_max_volt_per_step    => 0.0005,
+    gp_max_volt_per_step    => 0.001,
     gp_max_step_per_second  => 2,
 };
 
