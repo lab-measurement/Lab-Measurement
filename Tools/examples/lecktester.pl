@@ -43,7 +43,6 @@ my $key;
 
 ReadMode('cbreak');
 while ($key ne "s") {
-#while (1) {
     my $read_volt=$hp->read_voltage_dc(10,0.0001);
     $read_volt=12 if ($read_volt > 12);
     my $rate=($read_volt/10)*$bereich;
@@ -82,7 +81,7 @@ sub get_pipe {
 	} else {
 		$gpname="gnuplot";
 	}
-	if (open my $GP,"| $gpname") {
+	if (open my $GP,"| $gpname -noraise") {
 		my $oldfh = select($GP);
 		$| = 1;
 		select($oldfh);
