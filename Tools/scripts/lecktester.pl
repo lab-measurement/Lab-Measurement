@@ -4,12 +4,15 @@ use strict;
 use Lab::Instrument::HP34401A;
 use Time::HiRes qw/usleep gettimeofday/;
 use Term::ReadKey;
+use File::Basename;
 
 unless (@ARGV == 4) {
     print "Usage: $0 GPIB-address Sensitivity Filename Comment\n";
     exit;
 }
-my ($gpib,$bereich,$filename,$comment)=@ARGV;
+my ($gpib,$bereich,$file,$comment)=@ARGV;
+
+my ($filename,$path,$suffix)=fileparse($file, qr/\.[^.]*/);
 
 my $hp=new Lab::Instrument::HP34401A({GPIB_board=>0,GPIB_address=>$gpib});
 
@@ -23,18 +26,18 @@ set xtics rotate
 set title "$comment"
 GNUPLOT1
 my $gp2=<<GNUPLOT2;
-plot "$filename" using 1:3 with lines
+plot "$filename$suffix" using 1:3 with lines
 GNUPLOT2
 
 my $gpipe=get_pipe() or die;
 print $gpipe $gp1;
 
-open LOG,">$filename" or die "cannot open log file";
+open LOG,">$path$filename$suffix" or die "cannot open log file";
 my $old_fh = select(LOG);
 $| = 1;
 select($old_fh);
 
-print LOG "#$comment\n";
+print LOG "#$comment\n#\n",'#Measured with $Id$',"\n#Parameters: GPIB: $gpib; Bereich: $bereich\n";
 
 print "Leak test in progress\nPress 's' to stop; 'm' to mark position.\n";
 
@@ -64,14 +67,14 @@ ReadMode('normal');
 close LOG;
 close $gpipe;
 
-open GP,">$filename.gnuplot" or die "cannot open gnuplot file";
+open GP,">$path$filename.gnuplot" or die "cannot open gnuplot file";
 print GP <<GNUPLOT3,$gp1,$gp2;
 set term post col enh
 set out "$filename.ps"
 GNUPLOT3
 
-system("gnuplot $filename.gnuplot");
-system("gv $filename.ps &");
+system("gnuplot $path$filename.gnuplot");
+system("gv $path$filename.ps &");
 
 sub get_pipe {
 	my $gpname;
