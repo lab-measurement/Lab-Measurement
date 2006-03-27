@@ -12,6 +12,7 @@ sub new {
     my $self = bless {}, $class;
 
     %{$self->{default_config}}=%{shift @_};
+    %{$self->{config}}=%{$self->{default_config}};
     $self->configure(@_);
 
     $self->{_gp}->{last_voltage}=undef;
