@@ -20,7 +20,7 @@ Erster Test ohne Gates dran.
 COMMENT
 
 unless (@ARGV == 1) {
-    print "This program pinches-off a QPC using a Knick.\n";
+    print "This program tests a gate using a Knick.\n";
     print "Usage: $0 Filename\n";
     exit;
 }
@@ -65,7 +65,7 @@ $| = 1;
 select($old_fh);
 
 my $fcomment="#$comment";$fcomment=~s/(\n|\n\r)([^\n\r]*)/$1#$2/g;
-print LOG "#$title\n$fcomment",'#Measured with $Id: pinch-off-qpc.pl 298 2006-03-28 13:13:50Z schroeer $',"\n#Parameters: Knick-GPIB: $knick_gpib; HP-GPIB: $hp_gpib; Amplification: $ithaco_amp\n";
+print LOG "#$title\n$fcomment",'#Measured with $Id$',"\n#Parameters: Knick-GPIB: $knick_gpib; HP-GPIB: $hp_gpib; Amplification: $ithaco_amp\n";
 
 my $stepsign=$step/abs($step);
 
