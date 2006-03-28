@@ -7,30 +7,59 @@ use Time::HiRes qw/usleep gettimeofday/;
 use File::Basename;
 
 my $start_voltage=0;
-my $end_voltage=-0.02;
+my $end_voltage=-0.005;
+my $step=-5e-4;
 
-unless (@ARGV == 5) {
+my $knick_gpib=14;
+my $hp_gpib=24;
+
+my $v_sd=500e-6;
+my $ithaco_amp=1e-7;
+
+my $title="QPC-Testmessung";
+my $comment=<<COMMENT;
+Das hier ist ein mehrzeiliger
+Kommentar.
+
+Ja, Leute. Hier ist das Ende.
+COMMENT
+
+unless (@ARGV == 1) {
     print "This program pinches-off a QPC using a Knick.\n";
-    print "Usage: $0 Gate-GPIB Current-GPIB Amplification Filename Comment\n";
+    print "Usage: $0 Filename\n";
     exit;
 }
-my ($knick_gpib,$hp_gpib,$amp,$file,$comment)=@ARGV;
-
+my ($file)=@ARGV;
 my ($filename,$path,$suffix)=fileparse($file, qr/\.[^.]*/);
+unless (($end_voltage-$start_voltage)/$step > 0) {
+    warn "This will not work: start=$start_voltage, end=$end_voltage, step=$step\n";
+    exit;
+}
 
-my $knick=new Lab::Instrument::KnickS252(0,$knick_gpib);
+my $knick=new Lab::Instrument::KnickS252({
+    GPIB_address            => $knick_gpib,
+    gate_protect            => 0,
+});
+
 my $hp=new Lab::Instrument::HP34401A(0,$hp_gpib);
 
-print "Driving source to start value...\n";
+print "Driving source to start voltage...\n";
 $knick->sweep_to_voltage($start_voltage);
 
 my $gp1=<<GNUPLOT1;
-set ylabel "QPC Current (A)"
+set ylabel "QPC Conductance (2e^2/h)"
 set xlabel "Gate voltage (V)"
-set title "$comment"
+set title "$title"
+unset key
+set label "V_{SD}=$v_sd V" at graph 0.02, graph 0.95
 GNUPLOT1
+my $h=0.93;
+for (split "\n|(\n\r)",$comment) {
+    $h-=0.02;
+    $gp1.=qq(set label "$_" at graph 0.02, graph $h\n);
+}
 my $gp2=<<GNUPLOT2;
-plot "$filename$suffix" using 1:(\$2*$amp) with lines
+plot "$filename$suffix" using 1:((\$2*$ithaco_amp/$v_sd)/7.748091733e-5) with lines
 GNUPLOT2
 
 my $gpipe=get_pipe() or die;
@@ -41,9 +70,12 @@ my $old_fh = select(LOG);
 $| = 1;
 select($old_fh);
 
-print LOG "#$comment\n#\n",'#Measured with $Id$',"\n#Parameters: Knick-GPIB: $knick_gpib; HP-GPIB: $hp_gpib; Amplification: $amp\n";
+my $fcomment="#$comment";$fcomment=~s/(\n|\n\r)([^\n\r]*)/$1#$2/g;
+print LOG "#$title\n$fcomment",'#Measured with $Id$',"\n#Parameters: Knick-GPIB: $knick_gpib; HP-GPIB: $hp_gpib; Amplification: $ithaco_amp\n";
 
-for (my $volt=$start_voltage;$volt>=$end_voltage;$volt-=5e-4) {
+my $stepsign=$step/abs($step);
+
+for (my $volt=$start_voltage;$stepsign*$volt<=$stepsign*$end_voltage;$volt+=$step) {
     $knick->set_voltage($volt);
     usleep(500000);
     my $read_volt=$hp->read_voltage_dc(10,0.0001);
