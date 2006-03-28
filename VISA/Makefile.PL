@@ -9,12 +9,12 @@ use ExtUtils::MakeMaker;
 # If you do so, also un-comment the 'clean' section below
 # to delete the swig-generated files when doing 'make clean'.
 
-`swig -perl5 -module Lab::VISA -c++ visa.i`;
+#`swig -perl5 -module Lab::VISA -c++ visa.i`;
 
 WriteMakefile(
-   'clean'             => {
-       FILES => 'VISA.pm visa_wrap.cxx'
-   },
+#   'clean'             => {
+#       FILES => 'VISA.pm visa_wrap.cxx'
+#   },
 
 # Adjust the 'LIBS' and 'INC' pathes according to your local setup!
 # First two lines are for Windows, second two lines are for Linux.
