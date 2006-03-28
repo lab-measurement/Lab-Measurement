@@ -7,7 +7,7 @@ use Time::HiRes qw/usleep gettimeofday/;
 use File::Basename;
 
 my $start_voltage=0;
-my $end_voltage=-0.005;
+my $end_voltage=-0.01;
 my $step=-5e-4;
 
 my $knick_gpib=14;
@@ -16,7 +16,7 @@ my $hp_gpib=24;
 my $v_sd=500e-6;
 my $ithaco_amp=1e-7;
 
-my $title="QPC-Testmessung";
+my $title="Gate-Leck-Testmessung";
 my $comment=<<COMMENT;
 Das hier ist ein mehrzeiliger
 Kommentar.

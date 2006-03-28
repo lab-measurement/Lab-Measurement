@@ -10,8 +10,12 @@ my $build=Module::Build->new(
     license     => 'perl',
     requires    => {
     },
-    script_files    	=> ['scripts/lecktester.pl','scripts/yoko_goto.pl','scripts/knick_goto.pl'],
+    script_files    	=> ['scripts/lecktester.pl',
+                            'scripts/yoko_goto.pl',
+                            'scripts/knick_goto.pl',
+                            'scripts/pinch-off-qpc.pl',
+                           ],
     create_readme   	=> 0,
     create_makefile_pl	=> 'passthrough',
-    dist_author     	=> 'Daniel Schroeer <daniel@daimla1.de>');
+    dist_author     	=> 'Daniel Schroeer <daniel.schroeer@physik.uni-muenchen.de>');
 $build->create_build_script;
