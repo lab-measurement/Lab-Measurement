@@ -8,15 +8,15 @@ use File::Basename;
 
 my $start_voltage=0;
 my $end_voltage=-0.01;
-my $step=-5e-4;
+my $step=-2e-4;
 
 my $knick_gpib=14;
 my $hp_gpib=24;
 
 my $title="Gate-Leck-Testmessung";
 my $comment=<<COMMENT;
-Teste Gates auf Kurzschlüsse.
-Erster Test ohne Gates dran.
+Teste Gates auf Kurzschluesse.
+Gate 16.
 COMMENT
 
 unless (@ARGV == 1) {
@@ -65,7 +65,7 @@ $| = 1;
 select($old_fh);
 
 my $fcomment="#$comment";$fcomment=~s/(\n|\n\r)([^\n\r]*)/$1#$2/g;
-print LOG "#$title\n$fcomment",'#Measured with $Id$',"\n#Parameters: Knick-GPIB: $knick_gpib; HP-GPIB: $hp_gpib; Amplification: $ithaco_amp\n";
+print LOG "#$title\n$fcomment",'#Measured with $Id$',"\n#Parameters: Knick-GPIB: $knick_gpib; HP-GPIB: $hp_gpib\n";
 
 my $stepsign=$step/abs($step);
 

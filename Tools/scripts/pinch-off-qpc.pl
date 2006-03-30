@@ -7,21 +7,24 @@ use Time::HiRes qw/usleep gettimeofday/;
 use File::Basename;
 
 my $start_voltage=0;
-my $end_voltage=-0.01;
+my $end_voltage=-1.35;
 my $step=-5e-4;
 
 my $knick_gpib=14;
 my $hp_gpib=24;
 
-my $v_sd=500e-6;
+my $v_sd=0.39/1563;
 my $ithaco_amp=1e-7;
 
-my $title="Gate-Leck-Testmessung";
-my $comment=<<COMMENT;
-Das hier ist ein mehrzeiliger
-Kommentar.
+my $U_Kontakt=1.708;    #die Spannung, die Stromverstärker bei V_Gate=0 anzeigt
 
-Ja, Leute. Hier ist das Ende.
+my $title="S4a (D040123A) QPC rechts oben";
+my $comment=<<COMMENT;
+29.03.2006
+Strom von 4 nach 13
+Gates 3 und 5
+Hi und Lo der Kabel aufgetrennt
+Tuer zu, Deckel zu, Licht aus
 COMMENT
 
 unless (@ARGV == 1) {
@@ -38,7 +41,9 @@ unless (($end_voltage-$start_voltage)/$step > 0) {
 
 my $knick=new Lab::Instrument::KnickS252({
     GPIB_address            => $knick_gpib,
-    gate_protect            => 0,
+    gate_protect            => 1,
+    gp_max_volt_per_second  => 0.002,
+    gp_max_volt_per_step    => 0.001,
 });
 
 my $hp=new Lab::Instrument::HP34401A(0,$hp_gpib);
@@ -46,21 +51,34 @@ my $hp=new Lab::Instrument::HP34401A(0,$hp_gpib);
 print "Driving source to start voltage...\n";
 $knick->sweep_to_voltage($start_voltage);
 
+my $left=($start_voltage<$end_voltage) ? $start_voltage : $end_voltage;
+my $right=($start_voltage<$end_voltage) ? $end_voltage : $start_voltage;
 my $gp1=<<GNUPLOT1;
-set ylabel "QPC Conductance (2e^2/h)"
 set xlabel "Gate voltage (V)"
+set xrange [$left:$right]
 set title "$title"
+set grid ytics
 unset key
-set label "V_{SD}=$v_sd V" at graph 0.02, graph 0.95
+vsd=$v_sd
+amp=$ithaco_amp
+g0=7.748091733e-5
+Ukontakt=$U_Kontakt
+set label "V_{SD}=%1.2e V",vsd at graph 0.02, graph 0.95
 GNUPLOT1
-my $h=0.93;
+my $h=0.92;
 for (split "\n|(\n\r)",$comment) {
     $h-=0.02;
     $gp1.=qq(set label "$_" at graph 0.02, graph $h\n);
 }
 my $gp2=<<GNUPLOT2;
-plot "$filename$suffix" using 1:((\$2*$ithaco_amp/$v_sd)/7.748091733e-5) with lines
+set ylabel "Total Conductance (2e^2/h)"
+plot "$filename$suffix" using 1:(abs(\$2) * (amp/(vsd*g0)) ) with lines
 GNUPLOT2
+my $gp2qpc=<<GNUPLOT2QPC;
+set ylabel "QPC Conductance (2e^2/h)"
+set yrange [-0.1:5]
+plot "$filename$suffix" using 1:( (1/(1/abs(\$2)-1/Ukontakt)) * (amp/(vsd*g0)) ) with lines
+GNUPLOT2QPC
 
 my $gpipe=get_pipe() or die;
 print $gpipe $gp1;
@@ -86,7 +104,7 @@ close LOG;
 close $gpipe;
 
 open GP,">$path$filename.gnuplot" or die "cannot open gnuplot file";
-print GP <<GNUPLOT3,$gp1,$gp2;
+print GP <<GNUPLOT3,$gp1,$gp2qpc;
 set term post col enh
 set out "$filename.ps"
 GNUPLOT3
