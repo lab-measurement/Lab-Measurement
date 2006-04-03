@@ -6,17 +6,60 @@ use strict;
 use warnings;
 use FileHandle;
 use Lab::Data::Writer;
+use Lab::Data::Meta;
+use File::Basename;
+use Time::HiRes qw/usleep gettimeofday tv_interval/;
 require Exporter;
 
 our @ISA = qw(Exporter);
 
-our $VERSION = sprintf("%d.%02d", q$Revision$ =~ / (\d+) /);
+our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
 
 our $AUTOLOAD;
 
 our %EXPORT_TAGS = ( 'all' => [ qw() ] );
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 our @EXPORT = qw();
+
+sub start_measurement {
+	my %params=shift;
+		#sample			=> '',
+		#title			=> '',
+		#filename		=> '',
+		#filename_base	=> '',	# for auto_naming
+		#description	=> '',
+		#
+		#columns		=> [],
+		#axes			=> [],
+	    #plots       	=> [],
+		
+		#plot_online	=> '',
+
+	# filenamen finden
+		#my ($filename,$path,$suffix)=fileparse($file, qr/\.[^.]*/);
+	
+	# logdatei öffnen
+	# flush etc.
+	# header schreiben
+	
+	# meta erzeugen
+	
+	# ggf.
+	# gnuplot öffnen
+	# flush etc.
+	# header schreiben
+	
+	# handle zurückgeben
+}
+
+sub log_line {
+}
+
+sub log_finish_block {
+}
+
+sub finish_measurement {
+}
 
 sub new {
 	my $proto = shift;
@@ -39,10 +82,6 @@ sub configure {
 	my $self=shift;
 	my $config=shift;
 	my $default_config={
-		col_sep			=> "\t",
-		line_sep		=> "\n",
-		block_sep		=> "\n",
-		comment_char	=> "#",
 	};
 	for my $conf_name (keys %$default_config) {
 		unless ((defined($self->{config}->{$conf_name})) || (defined($config->{$conf_name}))) {
@@ -106,6 +145,28 @@ sub log {
 		$self->{magic_log}->{column}->[$column]->{status}='fresh';
 		$self->{magic_log}->{column}->[$column]->{datum}=$datum;
 	}
+}
+
+sub _get_gnuplot_pipe {
+	my $gpname;
+	if ($^O =~ /MSWin32/) {
+		$gpname="pgnuplot";
+	} else {
+		$gpname="gnuplot";
+	}
+	if (open my $GP,"| $gpname -noraise") {
+		my $oldfh = select($GP);
+		$| = 1;
+		select($oldfh);
+		return $GP;
+	}
+	return undef;
+}
+
+sub now_string {
+	my ($sec,$min,$hour,$mday,$mon,$year)=localtime(time);
+	$year+=1900;$mon++;
+	return sprintf "%4d-%02d-%02d %02d:%02d:%02d",$year,$mon,$mday,$hour,$min,$sec;
 }
 
 1;

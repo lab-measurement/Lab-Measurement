@@ -10,7 +10,7 @@ require Exporter;
 
 our @ISA = qw(Exporter Lab::Data::XMLtree);
 
-our $VERSION = sprintf("1.%04d", q$Revision$ =~ / (\d+) /);
+our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
 
 our $AUTOLOAD;
 
@@ -24,7 +24,7 @@ my $declaration = {
     dataset_title               => ['SCALAR'],
     dataset_description         => ['SCALAR'],
     dataset_sample              => ['SCALAR'],
-    data_file                   => ['SCALAR'],#     relativ zur descriptiondatei
+    data_file                   => ['SCALAR'],  # relativ zur descriptiondatei
 
     column                  => [
         'ARRAY',

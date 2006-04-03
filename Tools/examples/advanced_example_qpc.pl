@@ -62,7 +62,7 @@ END_DESCRIPTION
 			'unit'			=> 'A',
 			'expression'	=> "\$C2*$amp",
 			'label'			=> 'QPC current',
-			'description	=> 'Current through QPC 1',
+			'description'	=> 'Current through QPC 1',
 		},
         {
             'unit'          => '2e^2/h',
@@ -76,7 +76,7 @@ END_DESCRIPTION
         },
         
 	],
-    plots       => [
+    plots       => [],
         
 );
 

@@ -10,6 +10,8 @@ use File::Basename;
 use File::Copy;
 use Lab::Data::Meta;
 
+our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
+
 my $default_config = {
     output_data_ext     => "DATA",
     output_meta_ext     => "META",
