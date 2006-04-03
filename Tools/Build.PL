@@ -14,6 +14,7 @@ my $build=Module::Build->new(
                             'scripts/yoko_goto.pl',
                             'scripts/knick_goto.pl',
                             'scripts/pinch-off-qpc.pl',
+                            'scripts/QPC_Noise.pl',
                            ],
     create_readme   	=> 0,
     create_makefile_pl	=> 'passthrough',
