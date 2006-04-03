@@ -8,19 +8,20 @@ use File::Basename;
 
 ##################################
 
-my $hp_gpib=24;
+my $hp_gpib=21;
 
 my $v_sd=0.78/1563;
-my $v_gate=-1.1727;
+my $v_gate=-1.1800;
 my $ithaco_amp=1e-7;
 
-my $U_Kontakt=3.465;    #die Spannung, die Stromverstärker bei V_Gate=0 anzeigt
+my $U_Kontakt=3.49;    #die Spannung, die Stromverstärker bei V_Gate=0 anzeigt
 
 my $title="S4a (D040123A) QPC rechts oben";
 my $comment=<<COMMENT;
-Strom von 4 nach 13; Ithaco Amp $ithaco_amp, Sup 10^{-10}, Avg 0.3ms.
+Strom von 4 nach 13; Ithaco Amp $ithaco_amp, Sup 10^{-10}, Rise 0.3ms.
 Gates 3 und 5; V_{Gates}=$v_gate.
 Hi und Lo der Kabel aufgetrennt, Tuer zu, Deckel zu, Licht aus.
+HP innen.
 Nur Rot-Pumpe; ca. 100mK.
 COMMENT
 
@@ -42,8 +43,8 @@ my $hp=new Lab::Instrument::HP34401A({GPIB_board=>0,GPIB_address=>$hp_gpib});
 my ($sec,$min,$hour,$mday,$mon,$year)=localtime(time);
 $year+=1900;$mon++;
 my $timestamp=sprintf "%4d-%02d-%02d %02d:%02d:%02d",$year,$mon,$mday,$hour,$min,$sec;
-
 my $fn=$filename;$fn=~s/_/\\\\_/g;
+
 my $gp1=<<GNUPLOT1;
 Ukontakt=$U_Kontakt
 vsd=$v_sd

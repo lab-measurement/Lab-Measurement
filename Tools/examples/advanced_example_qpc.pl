@@ -15,6 +15,10 @@ use Lab::Instrument::Yokogawa7651;
 use Lab::Instrument::HP34401A;
 use Lab::Measurement;
 
+my $amp;    # Ithaco amplification
+my $v_sd;
+my $U_Kontakt;
+
 my $yoko=new Lab::Instrument::Yokogawa7651({
 	'GPIB_board'	=> 0,
 	'GPIB_address'	=> 10,
@@ -32,7 +36,7 @@ start_measurement(
 	title		=> 'QPC sweep', #auto name-generation?
 	description	=> <<END_DESCRIPTION,
 Yet another sweep for the top left quantum point contact.
-Source-Drain-Voltage 1µV applied to contact 24.
+Source-Drain-Voltage $v_sd V applied to contact 24.
 END_DESCRIPTION
 
 	columns		=> [
@@ -43,8 +47,8 @@ END_DESCRIPTION
 		},
 		{
 			'unit'			=> 'V',
-			'label'			=> 'QPC Current',
-			'description' 	=> 'Voltage measured by current amplifier set to 10^-8.',
+			'label'			=> 'Amplifier output',
+			'description' 	=> "Voltage measured by current amplifier set to $amp.",
 		}
 	],
 	axes		=> [
@@ -56,11 +60,24 @@ END_DESCRIPTION
 		},
 		{
 			'unit'			=> 'A',
-			'expression'	=> '$C2*10e-8',
+			'expression'	=> "\$C2*$amp",
 			'label'			=> 'QPC current',
 			'description	=> 'Current through QPC 1',
-		}
-	]
+		},
+        {
+            'unit'          => '2e^2/h',
+            'expression'    => "(\$A1/$v_sd)/$g0)",
+            'label'         => "Total conductance",
+        },
+        {
+            'unit'          => '2e^2/h',
+            'expression'    => "(1/(1/abs(\$C2)-1/$U_kontakt)) * ($amp/($v_sd*$g0))",
+            'label'         => "QPC conductance",
+        },
+        
+	],
+    plots       => [
+        
 );
 
 for (my $gate_volt=0;$gate_volt-=1e-3;$gate_volt>=-0.7) {

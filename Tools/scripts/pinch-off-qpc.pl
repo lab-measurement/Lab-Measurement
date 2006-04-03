@@ -6,26 +6,29 @@ use Lab::Instrument::KnickS252;
 use Time::HiRes qw/usleep gettimeofday/;
 use File::Basename;
 
+###################################
+
 my $start_voltage=0;
-my $end_voltage=-1.35;
-my $step=-5e-4;
+my $end_voltage=-1.2;
+my $step=-1e-3;
 
 my $knick_gpib=14;
 my $hp_gpib=24;
 
-my $v_sd=0.39/1563;
+my $v_sd=0.78/1563;
 my $ithaco_amp=1e-7;
 
-my $U_Kontakt=1.708;    #die Spannung, die Stromverstärker bei V_Gate=0 anzeigt
+my $U_Kontakt=3.49;    #die Spannung, die Stromverstärker bei V_Gate=0 anzeigt
 
 my $title="S4a (D040123A) QPC rechts oben";
 my $comment=<<COMMENT;
-29.03.2006
 Strom von 4 nach 13
 Gates 3 und 5
 Hi und Lo der Kabel aufgetrennt
 Tuer zu, Deckel zu, Licht aus
 COMMENT
+
+###################################
 
 unless (@ARGV == 1) {
     print "This program pinches-off a QPC using a Knick.\n";
@@ -51,6 +54,10 @@ my $hp=new Lab::Instrument::HP34401A(0,$hp_gpib);
 print "Driving source to start voltage...\n";
 $knick->sweep_to_voltage($start_voltage);
 
+my ($sec,$min,$hour,$mday,$mon,$year)=localtime(time);
+$year+=1900;$mon++;
+my $timestamp=sprintf "%4d-%02d-%02d %02d:%02d:%02d",$year,$mon,$mday,$hour,$min,$sec;
+my $fn=$filename;$fn=~s/_/\\\\_/g;
 my $left=($start_voltage<$end_voltage) ? $start_voltage : $end_voltage;
 my $right=($start_voltage<$end_voltage) ? $end_voltage : $start_voltage;
 my $gp1=<<GNUPLOT1;
@@ -63,11 +70,12 @@ vsd=$v_sd
 amp=$ithaco_amp
 g0=7.748091733e-5
 Ukontakt=$U_Kontakt
-set label "V_{SD}=%1.2e V",vsd at graph 0.02, graph 0.95
+set label "$fn; started at $timestamp." at graph 0.02, graph 0.95
+set label "V_{SD}=%1.2e V",vsd at graph 0.02, graph 0.91
 GNUPLOT1
-my $h=0.92;
-for (split "\n|(\n\r)",$comment) {
-    $h-=0.02;
+my $h=0.91;
+for (split "\n",$comment) {
+    $h-=0.04;
     $gp1.=qq(set label "$_" at graph 0.02, graph $h\n);
 }
 my $gp2=<<GNUPLOT2;
