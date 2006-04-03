@@ -19,22 +19,20 @@ our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 our @EXPORT = qw();
 
 my $declaration = {
-    data_complete           => ['SCALAR'],
+    data_complete               => ['SCALAR'],
 
-    dataset_title           => ['SCALAR'],
-    dataset_description     => ['SCALAR'],
-    dataset_sample          => ['SCALAR'],
-    data_file               => ['SCALAR'],#     relativ zur descriptiondatei
+    dataset_title               => ['SCALAR'],
+    dataset_description         => ['SCALAR'],
+    dataset_sample              => ['SCALAR'],
+    data_file                   => ['SCALAR'],#     relativ zur descriptiondatei
 
     column                  => [
         'ARRAY',
         'id',
         {
-            unit        => ['SCALAR'],
-            label       => ['SCALAR'],  # evtl. weg
-            description => ['SCALAR'],
-#            min         => ['SCALAR'],
-#            max         => ['SCALAR']
+            unit                => ['SCALAR'],
+            label               => ['SCALAR'],  # evtl. weg
+            description         => ['SCALAR'],
         }
     ],
     block                   => [
@@ -47,15 +45,27 @@ my $declaration = {
         }
     ],
     axis                    => [
-        'HASH',
-        'label',
+        'ARRAY',
+        'id',
         {
-            unit        => ['SCALAR'],
-#            logscale    => ['SCALAR'],  # evtl. weg; gehört zu Plot
-            expression  => ['SCALAR'],,
-            min         => ['SCALAR'],
-            max         => ['SCALAR'],
-            description => ['SCALAR']
+            label               => ['SCALAR'],
+            unit                => ['SCALAR'],
+            expression          => ['SCALAR'],
+            min                 => ['SCALAR'],
+            max                 => ['SCALAR'],
+            description         => ['SCALAR']
+        }
+    ],
+    plot                    => [
+        'HASH',
+        'key',
+        {
+            type                => ['SCALAR'],
+            x                   => ['SCALAR'],
+            y                   => ['SCALAR'],
+            z                   => ['SCALAR'],
+            c                   => ['SCALAR'],
+            logscale            => ['SCALAR'],
         }
     ],
 };

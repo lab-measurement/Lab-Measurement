@@ -43,7 +43,6 @@
 
 package Lab::Data::XMLtree;
 
-use 5.008;
 use strict;
 use warnings;
 
