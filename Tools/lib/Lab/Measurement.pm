@@ -33,14 +33,27 @@ sub start_measurement {
 		#axes			=> [],
 	    #plots       	=> [],
 		
-		#plot_online	=> '',
+		#live_plot  	=> '',
 
 	# filenamen finden
-		#my ($filename,$path,$suffix)=fileparse($file, qr/\.[^.]*/);
-	
+	if ($params{filename_base}) {
+        my $fnb=$params{filename_base};
+        my $last=(sort {$b <=> $a} grep {s/$fnb\_(\d+)\..*/$1/} glob "$fnb\_*")[0];
+        $params{filename}=$fnb."_".$last+1;
+    }
+    # suffix wird ignoriert
+    my ($filename,$path,$suffix)=fileparse($params{filename}, qr/\.[^.]*/);
+	    
 	# logdatei öffnen
+    open LOG,">$path$filename$suffix" or die "cannot open log file";
 	# flush etc.
+    my $old_fh = select(LOG);
+    $| = 1;
+    select($old_fh);
 	# header schreiben
+    #my $fcomment="#$comment";$fcomment=~s/(\n|\n\r)([^\n\r]*)/$1#$2/g;
+    #print LOG "#$title\n$fcomment",'#Measured with $Id$',"\n#Parameters: Knick-GPIB: $knick_gpib; HP-GPIB: $hp_gpib; Amplification: $ithaco_amp\n";
+
 	
 	# meta erzeugen
 	

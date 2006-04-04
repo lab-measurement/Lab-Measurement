@@ -58,7 +58,7 @@ my $declaration = {
     ],
     plot                    => [
         'HASH',
-        'key',
+        'name',
         {
             type                => ['SCALAR'],
             x                   => ['SCALAR'],
