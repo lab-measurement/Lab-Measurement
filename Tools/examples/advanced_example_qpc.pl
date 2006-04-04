@@ -48,19 +48,19 @@ END_DESCRIPTION
 		{
 			'unit'			=> 'V',
 			'label'			=> 'Amplifier output',
-			'description' 	=> "Voltage measured by current amplifier set to $amp.",
+			'description' 	=> "Voltage output by current amplifier set to $amp.",
 		}
 	],
 	axes		=> [
 		{
 			'unit'			=> 'V',
-            'expression'  	=> '$C1',
+            'expression'  	=> '$C0',
 			'label'		  	=> 'Gate voltage',
 			'description' 	=> 'Applied to gates 16 and 17 via low path filter.',
 		},
 		{
 			'unit'			=> 'A',
-			'expression'	=> "\$C2*$amp",
+			'expression'	=> "\$C1*$amp",
 			'label'			=> 'QPC current',
 			'description'	=> 'Current through QPC 1',
 		},
@@ -71,12 +71,27 @@ END_DESCRIPTION
         },
         {
             'unit'          => '2e^2/h',
-            'expression'    => "(1/(1/abs(\$C2)-1/$U_kontakt)) * ($amp/($v_sd*$g0))",
+            'expression'    => "(1/(1/abs(\$C1)-1/$U_kontakt)) * ($amp/($v_sd*$g0))",
             'label'         => "QPC conductance",
         },
         
 	],
-    plots       => [],
+    plots       => [
+        {
+            'name'          => 'QPC current',
+            'type'          => 'line',
+            'x'             => '$A0',
+            'y'             => '$A1',
+        },
+        {
+            'name'          => 'QPC conductance',
+            'type'          => 'line',
+            'x'             => '$A0',
+            'y'             => '$A3'
+        }
+    ],
+    
+    live_plot   => 'QPC current',
         
 );
 
