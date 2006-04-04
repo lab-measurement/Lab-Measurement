@@ -4,7 +4,6 @@ package Lab::Measurement;
 
 use strict;
 use warnings;
-use FileHandle;
 use Lab::Data::Writer;
 use Lab::Data::Meta;
 use File::Basename;
@@ -24,38 +23,48 @@ our @EXPORT = qw();
 sub start_measurement {
 	my %params=shift;
 		#sample			=> '',
-		#title			=> '',
+		#title			=> '',  # single line
 		#filename		=> '',
 		#filename_base	=> '',	# for auto_naming
-		#description	=> '',
+		#description	=> '',  # multi line
 		#
 		#columns		=> [],
 		#axes			=> [],
 	    #plots       	=> [],
 		
 		#live_plot  	=> '',
+		
+		#writer_config	=> {},
 
 	# filenamen finden
 	if ($params{filename_base}) {
         my $fnb=$params{filename_base};
         my $last=(sort {$b <=> $a} grep {s/$fnb\_(\d+)\..*/$1/} glob "$fnb\_*")[0];
-        $params{filename}=$fnb."_".$last+1;
+        $params{filename}=$fnb."_".(sprintf "%3u",$last+1);
     }
-    # suffix wird ignoriert
-    my ($filename,$path,$suffix)=fileparse($params{filename}, qr/\.[^.]*/);
-	    
-	# logdatei öffnen
-    open LOG,">$path$filename$suffix" or die "cannot open log file";
-	# flush etc.
-    my $old_fh = select(LOG);
-    $| = 1;
-    select($old_fh);
-	# header schreiben
-    #my $fcomment="#$comment";$fcomment=~s/(\n|\n\r)([^\n\r]*)/$1#$2/g;
-    #print LOG "#$title\n$fcomment",'#Measured with $Id$',"\n#Parameters: Knick-GPIB: $knick_gpib; HP-GPIB: $hp_gpib; Amplification: $ithaco_amp\n";
 
-	
+	# Writer erzeugen, Log öffnen
+	my $writer=new Lab::Data::Writer($params{filename},$params{writer_config});
+	# header schreiben
+    $writer->log_comment(now_string());
+	$writer->log_comment("Sample $params{sample}");
+	$writer->log_comment($params{title});
+	$writer->log_comment($params{description});
+    $writer->log_comment('Recorded with $Id$');
+		
 	# meta erzeugen
+    my $meta=new Lab::Data::Meta({
+        data_complete           => 0,
+        dataset_title           => $params{title},
+        dataset_description     => $params{description},
+#       data_file               => ,	# TODO
+    });
+	$meta->column($params{columns});
+	$meta->axis($params{axes});
+	$meta->plot($params{plots});
+	
+    my ($filename,$path,$suffix)=fileparse($params{filename}, qr/\.[^.]*/);
+    $meta->save("$path$filename.".$writer->configure('output_meta_ext'));
 	
 	# ggf.
 	# gnuplot öffnen

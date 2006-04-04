@@ -32,14 +32,17 @@ my $hp=new Lab::Instrument::HP34401A({
 
 
 start_measurement(
-	sample		=> 'S11_3',
-	title		=> 'QPC sweep', #auto name-generation?
-	description	=> <<END_DESCRIPTION,
+	sample			=> 'S11_3',
+	title			=> 'QPC sweep',
+	filename_base	=> 'qpc_pinch_off',
+	description		=> <<END_DESCRIPTION,
 Yet another sweep for the top left quantum point contact.
 Source-Drain-Voltage $v_sd V applied to contact 24.
 END_DESCRIPTION
 
-	columns		=> [
+    live_plot   	=> 'QPC current',
+        
+	columns			=> [
 		{
 			'unit'		  	=> 'V',
 			'label'		  	=> 'Gate voltage',
@@ -51,7 +54,7 @@ END_DESCRIPTION
 			'description' 	=> "Voltage output by current amplifier set to $amp.",
 		}
 	],
-	axes		=> [
+	axes			=> [
 		{
 			'unit'			=> 'V',
             'expression'  	=> '$C0',
@@ -76,7 +79,7 @@ END_DESCRIPTION
         },
         
 	],
-    plots       => [
+    plots       	=> [
         {
             'name'          => 'QPC current',
             'type'          => 'line',
@@ -90,9 +93,6 @@ END_DESCRIPTION
             'y'             => '$A3'
         }
     ],
-    
-    live_plot   => 'QPC current',
-        
 );
 
 for (my $gate_volt=0;$gate_volt-=1e-3;$gate_volt>=-0.7) {

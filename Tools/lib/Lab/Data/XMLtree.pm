@@ -1,4 +1,3 @@
-#!/usr/bin/perl -w
 #$Id$
 
 #wird wohl auf die selbe architektur wie
@@ -690,7 +689,7 @@ Get/set anything you want. Accounts the data declaration.
 
 Lab::XMLtree does not support all possible kinds of perl data structures.
 It is also not too flexible when it comes to XML. It simply supports
-something that i needed.
+something that I needed.
 
 =head1 SEE ALSO
 

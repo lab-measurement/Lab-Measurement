@@ -33,6 +33,8 @@ my $declaration = {
             unit                => ['SCALAR'],
             label               => ['SCALAR'],  # evtl. weg
             description         => ['SCALAR'],
+            min                 => ['SCALAR'],
+            max                 => ['SCALAR'],
         }
     ],
     block                   => [
