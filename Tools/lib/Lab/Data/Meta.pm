@@ -5,6 +5,7 @@
 package Lab::Data::Meta;
 
 use strict;
+use Carp;
 use Lab::Data::XMLtree;
 require Exporter;
 
@@ -63,10 +64,10 @@ my $declaration = {
         'name',
         {
             type                => ['SCALAR'],
-            x                   => ['SCALAR'],
-            y                   => ['SCALAR'],
-            z                   => ['SCALAR'],
-            c                   => ['SCALAR'],
+            'xaxis'            => ['SCALAR'],
+            'yaxis'            => ['SCALAR'],
+            'zaxis'            => ['SCALAR'],
+            'caxis'            => ['SCALAR'],
             logscale            => ['SCALAR'],
         }
     ],

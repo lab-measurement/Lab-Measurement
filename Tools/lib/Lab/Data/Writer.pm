@@ -26,10 +26,17 @@ sub new {
     my $self  = {};
     bless ($self, $class);
     
-    my $filename=shift;
+    my $file=shift;
     $self->configure(shift);
 
-    $self->{filehandle}=$self->open_log($filename);
+    my ($filename,$path,$suffix)=fileparse($file, qr/\.[^.]*/);
+    open my $log,">$path$filename.".$self->configure('output_data_ext') or die "Cannot open log file";
+    my $old_fh = select($log);
+    $| = 1;
+    select($old_fh);
+    $self->{filehandle}=$log;
+    $self->{filename}=$filename;
+    $self->{filepath}=$path;
     
     return $self;
 }
@@ -50,29 +57,22 @@ sub configure {
     }
 }
 
-sub open_log {
-    my ($self,$file)=@_;
-    my ($filename,$path,$suffix)=fileparse($file, qr/\.[^.]*/);
-	    
-    open my $log,">$path$filename".$self->configure('output_data_ext') or die "Cannot open log file";
-    my $old_fh = select($log);
-    $| = 1;
-    select($old_fh);
-    return $log;
+sub get_filename {
+    my $self=shift;
+    return ($self->{filename},$self->{filepath});
 }
 
 sub log_comment {
     my ($self,$comment)=@_;
     my $fh=$self->{filehandle};
-    for(split /\n|(\n\r)/, $comment) {
-        print $fh $self->configure('output_data_ext'),$_,$\n;
+    for (split /\n|(\n\r)/, $comment) {
+        print $fh $self->configure('output_comment_char'),$_,"\n";
     }
 }
 
 sub log_line {
 	my ($self,@data)=@_;
-    my $fh=$self->{filehandle};
-    print $fh (join $self->configure('output_col_sep'),@data),$self->configure('output_line_sep');
+    print $self->{filehandle} (join $self->configure('output_col_sep'),@data),$self->configure('output_line_sep');
 }
 
 sub log_finish_block {

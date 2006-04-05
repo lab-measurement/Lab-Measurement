@@ -6,6 +6,7 @@ use strict;
 use warnings;
 use Lab::Data::Writer;
 use Lab::Data::Meta;
+use Lab::Data::Plotter;
 use File::Basename;
 use Time::HiRes qw/usleep gettimeofday tv_interval/;
 require Exporter;
@@ -21,7 +22,7 @@ our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 our @EXPORT = qw();
 
 sub start_measurement {
-	my %params=shift;
+	my %params=@_;
 		#sample			=> '',
 		#title			=> '',  # single line
 		#filename		=> '',
@@ -40,7 +41,8 @@ sub start_measurement {
 	if ($params{filename_base}) {
         my $fnb=$params{filename_base};
         my $last=(sort {$b <=> $a} grep {s/$fnb\_(\d+)\..*/$1/} glob "$fnb\_*")[0];
-        $params{filename}=$fnb."_".(sprintf "%3u",$last+1);
+        $last=0 unless $last;
+        $params{filename}=$fnb."_".(sprintf "%03u",$last+1);
     }
 
 	# Writer erzeugen, Log öffnen
@@ -57,21 +59,21 @@ sub start_measurement {
         data_complete           => 0,
         dataset_title           => $params{title},
         dataset_description     => $params{description},
-#       data_file               => ,	# TODO
+        data_file               => ($writer->get_filename)[0],
     });
 	$meta->column($params{columns});
 	$meta->axis($params{axes});
 	$meta->plot($params{plots});
+	my ($filename,$path,$suffix)=($writer->get_filename(),$writer->configure('output_meta_ext'));
+    $meta->save("$path$filename.$suffix");
 	
-    my ($filename,$path,$suffix)=fileparse($params{filename}, qr/\.[^.]*/);
-    $meta->save("$path$filename.".$writer->configure('output_meta_ext'));
-	
-	# ggf.
-	# gnuplot öffnen
-	# flush etc.
-	# header schreiben
-	
+	if ($params{live_plot}) {
+        my $plotter=new Lab::Data::Plotter();
+        $plotter->start_live_plot($meta,$params{live_plot});
+    }
+        
 	# handle zurückgeben
+    # braucht noch $writer, $meta, $plotter
 }
 
 sub log_line {
@@ -90,13 +92,6 @@ sub new {
 	my $self = {};
     bless ($self, $class);
 
-    my $filename=shift;
-	$self->{filename}=$filename;
-	
-	$self->configure(@_);
-	
-	$self->{Filehandle}=new FileHandle(">$filename") or die;
-	
 	return $self
 }
 
@@ -169,22 +164,6 @@ sub log {
 	}
 }
 
-sub _get_gnuplot_pipe {
-	my $gpname;
-	if ($^O =~ /MSWin32/) {
-		$gpname="pgnuplot";
-	} else {
-		$gpname="gnuplot";
-	}
-	if (open my $GP,"| $gpname -noraise") {
-		my $oldfh = select($GP);
-		$| = 1;
-		select($oldfh);
-		return $GP;
-	}
-	return undef;
-}
-
 sub now_string {
 	my ($sec,$min,$hour,$mday,$mon,$year)=localtime(time);
 	$year+=1900;$mon++;
@@ -192,6 +171,7 @@ sub now_string {
 }
 
 1;
+
 __END__
 
 =head1 NAME
@@ -199,15 +179,6 @@ __END__
 Lab::Measurement - Perl extension for logging measured data 
 
 =head1 SYNOPSIS
-
-	use Lab::Measurement;
-	my $logger=new Lab::Measurement('data.dat');
-	for (1..10) {
-		$logger->log($_,0,'Outer loop');
-		for (1..100) {
-			$logger->log($_,1,'Inner loop');
-		}
-	}
 
 =head1 DESCRIPTION
 

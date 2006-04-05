@@ -8,13 +8,13 @@ use File::Basename;
 
 ##################################
 
-my $hp_gpib=21;
+my $hp_gpib=24;
 
 my $v_sd=0.78/1563;
-my $v_gate=-1.1800;
-my $ithaco_amp=1e-7;
+my $v_gate=-1.1865;
+my $ithaco_amp=1e-8;
 
-my $U_Kontakt=3.49;    #die Spannung, die Stromverstärker bei V_Gate=0 anzeigt
+my $U_Kontakt=12.827;    #die Spannung, die Stromverstärker bei V_Gate=0 anzeigt
 
 my $title="S4a (D040123A) QPC rechts oben";
 my $comment=<<COMMENT;

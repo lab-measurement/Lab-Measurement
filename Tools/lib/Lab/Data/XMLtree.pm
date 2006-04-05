@@ -44,6 +44,7 @@ package Lab::Data::XMLtree;
 
 use strict;
 use warnings;
+use Carp;
 
 require Exporter;
 

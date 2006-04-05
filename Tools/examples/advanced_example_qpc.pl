@@ -11,17 +11,23 @@
 # Adjust the GPIB addresses to your local settings.
 
 use strict;
-use Lab::Instrument::Yokogawa7651;
+use Lab::Instrument::KnickS252;
 use Lab::Instrument::HP34401A;
 use Lab::Measurement;
+
+my $start_voltage=-1.25;
+my $end_voltage=0;
+my $step=1e-3;
 
 my $amp;    # Ithaco amplification
 my $v_sd;
 my $U_Kontakt;
 
-my $yoko=new Lab::Instrument::Yokogawa7651({
+my $g0=7.748091733e-5;
+
+my $knick=new Lab::Instrument::KnickS252({
 	'GPIB_board'	=> 0,
-	'GPIB_address'	=> 10,
+	'GPIB_address'	=> 14,
 
 	'gp_max_volt_per_second' => 0.001,
 });
@@ -31,7 +37,7 @@ my $hp=new Lab::Instrument::HP34401A({
 });
 
 
-start_measurement(
+Lab::Measurement::start_measurement(
 	sample			=> 'S11_3',
 	title			=> 'QPC sweep',
 	filename_base	=> 'qpc_pinch_off',
@@ -59,6 +65,8 @@ END_DESCRIPTION
 			'unit'			=> 'V',
             'expression'  	=> '$C0',
 			'label'		  	=> 'Gate voltage',
+            'min'           => ($start_voltage < $end_voltage) ? $start_voltage : $end_voltage,
+            'max'           => ($start_voltage < $end_voltage) ? $end_voltage : $start_voltage,
 			'description' 	=> 'Applied to gates 16 and 17 via low path filter.',
 		},
 		{
@@ -74,29 +82,30 @@ END_DESCRIPTION
         },
         {
             'unit'          => '2e^2/h',
-            'expression'    => "(1/(1/abs(\$C1)-1/$U_kontakt)) * ($amp/($v_sd*$g0))",
+            'expression'    => "(1/(1/abs(\$C1)-1/$U_Kontakt)) * ($amp/($v_sd*$g0))",
             'label'         => "QPC conductance",
         },
         
 	],
-    plots       	=> [
-        {
-            'name'          => 'QPC current',
+    plots       	        => {
+        'QPC current'    => {
             'type'          => 'line',
-            'x'             => '$A0',
-            'y'             => '$A1',
+            'x-axis'        => 0,
+            'y-axis'        => 1,
         },
-        {
-            'name'          => 'QPC conductance',
+        'QPC conductance'=> {
+            'name'          => ,
             'type'          => 'line',
-            'x'             => '$A0',
-            'y'             => '$A3'
+            'x-axis'        => 0,
+            'y-axis'        => 2,
         }
-    ],
+    },
 );
 
-for (my $gate_volt=0;$gate_volt-=1e-3;$gate_volt>=-0.7) {
-    $yoko->set_voltage($gate_volt);
+my $stepsign=$step/abs($step);
+
+for (my $volt=$start_voltage;$stepsign*$volt<=$stepsign*$end_voltage;$volt+=$step) {
+    $knick->set_voltage($volt);
     my $meas=$hp->get_voltage();
     log_line($volt,$meas);
 }
