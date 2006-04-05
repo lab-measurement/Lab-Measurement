@@ -7,21 +7,16 @@ use warnings;
 use Lab::Data::Writer;
 use Lab::Data::Meta;
 use Lab::Data::Plotter;
-use File::Basename;
-use Time::HiRes qw/usleep gettimeofday tv_interval/;
-require Exporter;
-
-our @ISA = qw(Exporter);
 
 our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
 
-our $AUTOLOAD;
+sub new {
+	my $proto = shift;
+    my $class = ref($proto) || $proto;
 
-our %EXPORT_TAGS = ( 'all' => [ qw() ] );
-our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
-our @EXPORT = qw();
+	my $self = {};
+    bless ($self, $class);
 
-sub start_measurement {
 	my %params=@_;
 		#sample			=> '',
 		#title			=> '',  # single line
@@ -68,31 +63,48 @@ sub start_measurement {
     $meta->save("$path$filename.$suffix");
 	
 	if ($params{live_plot}) {
-        my $plotter=new Lab::Data::Plotter();
-        $plotter->start_live_plot($meta,$params{live_plot});
+        $self->{live_plotter}=new Lab::Data::Plotter();
+        $self->{live_plotter}->start_live_plot($meta,$params{live_plot});
     }
-        
-	# handle zurückgeben
-    # braucht noch $writer, $meta, $plotter
+    
+	$self->{writer}=$writer;
+	$self->{meta}=$meta;
+	
+	return $self;
+}
+
+sub DESTROY {
+	my $self=shift;
+	if ($self->{writer}) {
+		$self->finish_measurement();
+	}
 }
 
 sub log_line {
+	my $self=shift;
+	$self->{writer}->log_line(@_);
+	
+	if ($self->{live_plotter}) {
+		$self->{live_plotter}->update_live_plot();
+	}
 }
 
 sub log_finish_block {
+	my $self=shift;
+	$self->{writer}->log_finish_block();
 }
 
 sub finish_measurement {
-}
-
-sub new {
-	my $proto = shift;
-    my $class = ref($proto) || $proto;
-
-	my $self = {};
-    bless ($self, $class);
-
-	return $self
+	my $self=shift;
+	$self->{meta}->data_complete(1);
+	my ($filename,$path,$suffix)=($writer->get_filename(),$writer->configure('output_meta_ext'));
+    $meta->save("$path$filename.$suffix");
+	if ($self->{live_plotter}) {
+		$self->{live_plotter}->stop_live_plot();
+		undef $self->{live_plotter};
+	}
+	undef $self->{writer};
+	undef $self->{meta};
 }
 
 sub configure {
@@ -107,11 +119,6 @@ sub configure {
 			$self->{config}->{$conf_name}=$config->{$conf_name};
 		}
 	}
-}
-
-sub DESTROY {
-	my $self=shift;
-	close($self->{Filehandle});
 }
 
 #magisches Interface
@@ -166,8 +173,7 @@ sub log {
 
 sub now_string {
 	my ($sec,$min,$hour,$mday,$mon,$year)=localtime(time);
-	$year+=1900;$mon++;
-	return sprintf "%4d-%02d-%02d %02d:%02d:%02d",$year,$mon,$mday,$hour,$min,$sec;
+	return sprintf "%4d-%02d-%02d %02d:%02d:%02d",$year+1900,$mon+1,$mday,$hour,$min,$sec;
 }
 
 1;

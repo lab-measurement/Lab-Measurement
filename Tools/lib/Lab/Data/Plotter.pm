@@ -49,23 +49,25 @@ sub update_live_plot {
     my $xaxis=$meta->plot_xaxis($plot);
     my $yaxis=$meta->plot_yaxis($plot);
     
-    sub reduce_exp {
-        $_=shift;
-        while (/\$A\d+/) {
-            s/\$A(\d+)/$meta->axis_expression($1)/;
-        }
-        while (/\$C\d+/) {
-            s/\$C(\d+)/\$$1/;
-        }
-        $_;
-    }
-    my $xexp=reduce_exp($meta->axis_expression($xaxis));
-    my $yexp=reduce_exp($meta->axis_expression($yaxis));
-    
+    my $xexp=_flatten_exp($meta,$xaxis);
+    my $yexp=_flatten_exp($meta,$yaxis);
+
     my $datafile=$meta->datafile;   # TODO: Pfad!
     
     print $pipe qq(plot "$datafile" using $xexp:$yexp with lines\n);
 }        
+
+sub _flatten_exp {
+    my ($meta,$axis)=@_;
+    $_=$meta->axis_expression($axis);
+    while (/\$A\d+/) {
+        s/\$A(\d+)/$meta->axis_expression($1)/;
+    }
+    while (/\$C\d+/) {
+        s/\$C(\d+)/\$$1/;
+    }
+    $_;
+}
 
 sub stop_live_plot {
     my $self=shift;

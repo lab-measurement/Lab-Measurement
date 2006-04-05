@@ -41,6 +41,12 @@ sub new {
     return $self;
 }
 
+sub DESTROY {
+    my $self=shift;
+    close($self->{filehandle});
+}
+
+
 sub configure {
     my $self=shift;
     my $config=shift;
@@ -80,6 +86,7 @@ sub log_finish_block {
     my $fh=$self->{filehandle};
     print $fh $self->configure('output_block_sep');
 }
+
 
 sub import_gpplus {
     my $self=shift;

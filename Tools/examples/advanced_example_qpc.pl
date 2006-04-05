@@ -37,7 +37,7 @@ my $hp=new Lab::Instrument::HP34401A({
 });
 
 
-Lab::Measurement::start_measurement(
+my $measurement=new Lab::Measurement(
 	sample			=> 'S11_3',
 	title			=> 'QPC sweep',
 	filename_base	=> 'qpc_pinch_off',
@@ -107,7 +107,7 @@ my $stepsign=$step/abs($step);
 for (my $volt=$start_voltage;$stepsign*$volt<=$stepsign*$end_voltage;$volt+=$step) {
     $knick->set_voltage($volt);
     my $meas=$hp->get_voltage();
-    log_line($volt,$meas);
+    $measurement->log_line($volt,$meas);
 }
 
-finish_measurement();
+$measurement->finish_measurement();
