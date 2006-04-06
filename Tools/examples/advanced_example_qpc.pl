@@ -15,19 +15,20 @@ use Lab::Instrument::KnickS252;
 use Lab::Instrument::HP34401A;
 use Lab::Measurement;
 
-my $start_voltage=-1.25;
-my $end_voltage=0;
-my $step=1e-3;
+my $start_voltage=0;
+my $end_voltage=-0.1;
+my $step=-1e-3;
 
-my $amp;    # Ithaco amplification
-my $v_sd;
-my $U_Kontakt;
+my $amp=1e-8;    # Ithaco amplification
+my $v_sd=780e-3/1563;
+my $U_Kontakt=12.827;
 
 my $g0=7.748091733e-5;
 
 my $knick=new Lab::Instrument::KnickS252({
 	'GPIB_board'	=> 0,
 	'GPIB_address'	=> 14,
+    'gate_protect'  => 0,
 
 	'gp_max_volt_per_second' => 0.001,
 });
@@ -90,14 +91,13 @@ END_DESCRIPTION
     plots       	        => {
         'QPC current'    => {
             'type'          => 'line',
-            'x-axis'        => 0,
-            'y-axis'        => 1,
+            'xaxis'        => 0,
+            'yaxis'        => 1,
         },
         'QPC conductance'=> {
-            'name'          => ,
-            'type'          => 'line',
-            'x-axis'        => 0,
-            'y-axis'        => 2,
+            'type'         => 'line',
+            'xaxis'        => 0,
+            'yaxis'        => 3,
         }
     },
 );
@@ -106,7 +106,7 @@ my $stepsign=$step/abs($step);
 
 for (my $volt=$start_voltage;$stepsign*$volt<=$stepsign*$end_voltage;$volt+=$step) {
     $knick->set_voltage($volt);
-    my $meas=$hp->get_voltage();
+    my $meas=$hp->read_voltage_dc(100,0.0001);
     $measurement->log_line($volt,$meas);
 }
 

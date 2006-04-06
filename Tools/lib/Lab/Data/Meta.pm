@@ -64,10 +64,10 @@ my $declaration = {
         'name',
         {
             type                => ['SCALAR'],
-            'xaxis'            => ['SCALAR'],
-            'yaxis'            => ['SCALAR'],
-            'zaxis'            => ['SCALAR'],
-            'caxis'            => ['SCALAR'],
+            'xaxis'             => ['SCALAR'],
+            'yaxis'             => ['SCALAR'],
+            'zaxis'             => ['SCALAR'],
+            'caxis'             => ['SCALAR'],
             logscale            => ['SCALAR'],
         }
     ],

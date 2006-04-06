@@ -4,6 +4,7 @@ package Lab::Measurement;
 
 use strict;
 use warnings;
+use Data::Dumper;
 use Lab::Data::Writer;
 use Lab::Data::Meta;
 use Lab::Data::Plotter;
@@ -54,7 +55,7 @@ sub new {
         data_complete           => 0,
         dataset_title           => $params{title},
         dataset_description     => $params{description},
-        data_file               => ($writer->get_filename)[0],
+        data_file               => ($writer->get_filename)[0].".".$writer->configure('output_data_ext'),
     });
 	$meta->column($params{columns});
 	$meta->axis($params{axes});
@@ -97,8 +98,8 @@ sub log_finish_block {
 sub finish_measurement {
 	my $self=shift;
 	$self->{meta}->data_complete(1);
-	my ($filename,$path,$suffix)=($writer->get_filename(),$writer->configure('output_meta_ext'));
-    $meta->save("$path$filename.$suffix");
+	my ($filename,$path,$suffix)=($self->{writer}->get_filename(),$self->{writer}->configure('output_meta_ext'));
+    $self->{meta}->save("$path$filename.$suffix");
 	if ($self->{live_plotter}) {
 		$self->{live_plotter}->stop_live_plot();
 		undef $self->{live_plotter};

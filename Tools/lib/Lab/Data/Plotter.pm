@@ -52,20 +52,22 @@ sub update_live_plot {
     my $xexp=_flatten_exp($meta,$xaxis);
     my $yexp=_flatten_exp($meta,$yaxis);
 
-    my $datafile=$meta->datafile;   # TODO: Pfad!
+    my $datafile=$meta->data_file();   # TODO: Pfad!
     
-    print $pipe qq(plot "$datafile" using $xexp:$yexp with lines\n);
+    print $pipe qq(plot "$datafile" using ($xexp):($yexp) with lines\n);
 }        
 
 sub _flatten_exp {
     my ($meta,$axis)=@_;
     $_=$meta->axis_expression($axis);
+#    print "expression before flattening: $_\n";
     while (/\$A\d+/) {
-        s/\$A(\d+)/$meta->axis_expression($1)/;
+        s/\$A(\d+)/($meta->axis_expression($1))/;
     }
     while (/\$C\d+/) {
-        s/\$C(\d+)/\$$1/;
+        s/\$C(\d+)/'$'.($1+1)/e;
     }
+#    print "expression after flattening: $_\n";
     $_;
 }
 

@@ -78,7 +78,8 @@ sub log_comment {
 
 sub log_line {
 	my ($self,@data)=@_;
-    print $self->{filehandle} (join $self->configure('output_col_sep'),@data),$self->configure('output_line_sep');
+    my $fh=$self->{filehandle};
+    print $fh (join $self->configure('output_col_sep'),@data),$self->configure('output_line_sep');
 }
 
 sub log_finish_block {

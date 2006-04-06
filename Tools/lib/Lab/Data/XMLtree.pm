@@ -445,6 +445,8 @@ sub _magic_get_perlnode {
     
     my ($type,$key_name,$children_defnode_list)=_get_defnode_type($defnode_list->{$node_name});
     
+    #print Dumper($node_name,$key);
+    
     if ($type =~ $stype) {
         $perlnode_list->{$node_name}=undef unless defined($perlnode_list->{$node_name});
     } elsif ($type =~ $htype) {
