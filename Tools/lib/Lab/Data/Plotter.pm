@@ -3,6 +3,8 @@
 package Lab::Data::Plotter;
 
 use strict;
+use Lab::Data::Meta;
+use Data::Dumper;
 
 our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
 
@@ -16,7 +18,16 @@ sub new {
 
 sub start_live_plot {
     my ($self,$meta,$plot)=@_;
-    die "plot undefined" unless (defined($meta->plot($plot)));
+    my $gpipe=$self->_start_plot($meta,$plot);
+    
+    $self->{live_plot}->{pipe}=$gpipe;
+    $self->{live_plot}->{meta}=$meta;
+    $self->{live_plot}->{plot}=$plot;
+}
+
+sub _start_plot {
+    my ($self,$meta,$plot)=@_;
+    die "plot \"$plot\" undefined" unless (defined($meta->plot($plot)));
     my $gpipe=$self->get_gnuplot_pipe();
     
     my $xaxis=$meta->plot_xaxis($plot);
@@ -32,10 +43,7 @@ set title "$plot"
 GNUPLOT
 
     print $gpipe $gp;
-    
-    $self->{live_plot}->{pipe}=$gpipe;
-    $self->{live_plot}->{meta}=$meta;
-    $self->{live_plot}->{plot}=$plot;
+    return $gpipe;
 }
 
 sub update_live_plot {
@@ -52,7 +60,7 @@ sub update_live_plot {
     my $xexp=_flatten_exp($meta,$xaxis);
     my $yexp=_flatten_exp($meta,$yaxis);
 
-    my $datafile=$meta->data_file();   # TODO: Pfad!
+    my $datafile=$meta->get_abs_path().$meta->data_file();
     
     print $pipe qq(plot "$datafile" using ($xexp):($yexp) with lines\n);
 }        
@@ -79,6 +87,30 @@ sub stop_live_plot {
     undef $self->{live_plot};
 }
 
+sub plot {
+    my ($self,$meta,$plot)=@_;
+    
+    unless (ref $meta eq 'Lab::Data::Meta') {
+        die "fuck you" unless (-e $meta);
+        my $mm=Lab::Data::Meta->new_from_file($meta);
+        $meta=$mm;
+    }
+    
+    my $gpipe=$self->_start_plot($meta,$plot);
+
+    my $xaxis=$meta->plot_xaxis($plot);
+    my $yaxis=$meta->plot_yaxis($plot);
+    
+    my $xexp=_flatten_exp($meta,$xaxis);
+    my $yexp=_flatten_exp($meta,$yaxis);
+
+    my $datafile=$meta->get_abs_path().$meta->data_file();
+    
+    print $gpipe qq(plot "$datafile" using ($xexp):($yexp) with lines\n);
+    
+    return $gpipe;
+}
+
 sub get_gnuplot_pipe {
 	my $self=shift;
     my $gpname;
@@ -87,7 +119,7 @@ sub get_gnuplot_pipe {
 	} else {
 		$gpname="gnuplot";
 	}
-	if (open my $GP,"| $gpname -noraise") {
+	if (open my $GP,"| $gpname") {
 		my $oldfh = select($GP);
 		$| = 1;
 		select($oldfh);

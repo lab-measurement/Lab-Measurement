@@ -7,6 +7,9 @@ package Lab::Data::Meta;
 use strict;
 use Carp;
 use Lab::Data::XMLtree;
+use File::Basename;
+use Cwd 'abs_path';
+use Data::Dumper;
 require Exporter;
 
 our @ISA = qw(Exporter Lab::Data::XMLtree);
@@ -82,18 +85,33 @@ sub new {
         # as first argument
 }
 
+sub new_from_file {
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
+    my $filename=shift;
+    my $self=$class->read_xml($declaration,$filename);
+    my $filepath=abs_path($filename);
+    my ($file,$path,$suffix)=fileparse($filepath, qr/\.[^.]*/);
+    $path=~s/\\/\//g;
+    $self->{__abs_path}=$path;
+    return $self;
+}
+
 sub save {
     my $self = shift;
     my $filename = shift;
     $self->save_xml($filename,$self,'metadata');
+    my $filepath=abs_path($filename);
+    my ($file,$path,$suffix)=fileparse($filepath, qr/\.[^.]*/);
+    $path=~s/\\/\//g;
+    $self->{__abs_path}=$path;
 }
 
-sub load {
-    my $self = shift;
-    my $filename=shift;
-    return $self->read_xml($declaration,$filename);
+sub get_abs_path {
+    # I think this should really be someone else's job!
+    my $self=shift;
+    return $self->{__abs_path};
 }
-
 1;
 
 __END__
