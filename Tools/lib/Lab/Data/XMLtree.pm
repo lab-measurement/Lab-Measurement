@@ -87,7 +87,9 @@ sub read_xml {
 #            print Dumper($perlnode_list);
             return $class->new($def,$perlnode_list);
         }
+        warn "I'm having difficulties reading the file $xml_filename! Please help!\n";
     }
+    warn "No file read!\n";
     return undef;
 }
 
@@ -349,7 +351,12 @@ sub _getset_node_list_from_string {
                                 }
                             } else {
                                 #get
-                                return $perlnode_list->{$node_name}->{$param};
+                                if (defined ($perlnode_list->{$node_name}->{$param})) {
+                                    return $perlnode_list->{$node_name}->{$param};
+                                } else {
+                                    warn "Attempt to access non-existing element $node_name(\"$param\")\n";
+                                    return undef;
+                                }
                             }
                         } elsif ($type =~ /P?ARRAY/) {
                             #parameter muss index sein
@@ -444,8 +451,6 @@ sub _magic_get_perlnode {
     my $htype= (@_) ? shift : 'HASH';
     
     my ($type,$key_name,$children_defnode_list)=_get_defnode_type($defnode_list->{$node_name});
-    
-    #print Dumper($node_name,$key);
     
     if ($type =~ $stype) {
         $perlnode_list->{$node_name}=undef unless defined($perlnode_list->{$node_name});

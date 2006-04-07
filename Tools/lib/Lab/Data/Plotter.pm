@@ -37,19 +37,19 @@ sub _start_plot {
     
     $gp.='set xlabel "'.($meta->axis_label($xaxis)).' ('.($meta->axis_unit($xaxis)).")\"\n";
     $gp.='set ylabel "'.($meta->axis_label($yaxis))." (".($meta->axis_unit($yaxis)).")\"\n";
-
-    my $xmin=($meta->axis_min($xaxis)) ? $min=$meta->axis_min($xaxis) : "*";
-    my $xmax=($meta->axis_max($xaxis)) ? $min=$meta->axis_max($xaxis) : "*";
-    my $ymin=($meta->axis_min($yaxis)) ? $min=$meta->axis_min($yaxis) : "*";
-    my $ymax=($meta->axis_max($yaxis)) ? $min=$meta->axis_max($yaxis) : "*";
+    
+    my $xmin=(defined $meta->axis_min($xaxis)) ? $meta->axis_min($xaxis) : "*";
+    my $xmax=(defined $meta->axis_max($xaxis)) ? $meta->axis_max($xaxis) : "*";
+    my $ymin=(defined $meta->axis_min($yaxis)) ? $meta->axis_min($yaxis) : "*";
+    my $ymax=(defined $meta->axis_max($yaxis)) ? $meta->axis_max($yaxis) : "*";
     $gp.="set xrange [$xmin:$xmax]\n";
     $gp.="set yrange [$ymin:$ymax]\n";
-    
-    if ($meta->plot_logscale()) {
-        $gp.="set logscale ".$meta->plot_logscale()."\n";
+
+    if ($meta->plot_logscale($plot)) {
+        $gp.="set logscale ".$meta->plot_logscale($plot)."\n";
     }
     
-    $gp.=qq(set title "Plot '$plot' of dataset ').$meta->dataset_title()."' (Sample '".$meta->sample()."')\"\n";
+    $gp.=qq(set title "Dataset ').$meta->dataset_title()."' (Sample '".$meta->sample()."')\"\n";
     my $h=0.95;
     for (split "\n",$meta->dataset_description()) {
         $gp.=qq(set label "$_" at graph 0.02, graph $h\n);
@@ -76,14 +76,14 @@ sub update_live_plot {
 
     my $datafile=$meta->get_abs_path().$meta->data_file();
     
-    print $pipe qq(plot "$datafile" using ($xexp):($yexp) with lines\n);
+    print $pipe qq(plot "$datafile" using ($xexp):($yexp) title "$plot" with lines\n);
 }        
 
 sub _flatten_exp {
     my ($meta,$axis)=@_;
     $_=$meta->axis_expression($axis);
     while (/\$A\d+/) {
-        s/\$A(\d+)/($meta->axis_expression($1))/;
+        s/\$A(\d+)/($meta->axis_expression($1))/e;
     }
     while (/\$C\d+/) {
         s/\$C(\d+)/'$'.($1+1)/e;
@@ -102,10 +102,11 @@ sub stop_live_plot {
 sub plot {
     my ($self,$meta,$plot)=@_;
     
+    die "Plot what?" unless ($meta && $plot);
+    
     unless (ref $meta eq 'Lab::Data::Meta') {
         die "fuck you" unless (-e $meta);
-        my $mm=Lab::Data::Meta->new_from_file($meta);
-        $meta=$mm;
+        $meta=Lab::Data::Meta->new_from_file($meta);
     }
     
     my $gpipe=$self->_start_plot($meta,$plot);
@@ -118,7 +119,7 @@ sub plot {
 
     my $datafile=$meta->get_abs_path().$meta->data_file();
     
-    print $gpipe qq(plot "$datafile" using ($xexp):($yexp) with lines\n);
+    print $gpipe qq(plot "$datafile" using ($xexp):($yexp) title "$plot" with lines\n);
     
     return $gpipe;
 }
@@ -129,9 +130,9 @@ sub get_gnuplot_pipe {
 	if ($^O =~ /MSWin32/) {
 		$gpname="pgnuplot";
 	} else {
-		$gpname="gnuplot";
+		$gpname="gnuplot -noraise";
 	}
-	if (open my $GP,"| $gpname -noraise") {
+	if (open my $GP,"| $gpname") {
 		my $oldfh = select($GP);
 		$| = 1;
 		select($oldfh);

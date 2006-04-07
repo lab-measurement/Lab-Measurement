@@ -89,12 +89,14 @@ sub new_from_file {
     my $proto = shift;
     my $class = ref($proto) || $proto;
     my $filename=shift;
-    my $self=$class->read_xml($declaration,$filename);
-    my $filepath=abs_path($filename);
-    my ($file,$path,$suffix)=fileparse($filepath, qr/\.[^.]*/);
-    $path=~s/\\/\//g;
-    $self->{__abs_path}=$path;
-    return $self;
+    if (my $self=$class->read_xml($declaration,$filename)) {
+        my $filepath=abs_path($filename);
+        my ($file,$path,$suffix)=fileparse($filepath, qr/\.[^.]*/);
+        $path=~s/\\/\//g;
+        $self->{__abs_path}=$path;
+        return $self;
+    }
+    warn "Cannot load meta data from file!\n";
 }
 
 sub save {
