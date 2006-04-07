@@ -27,7 +27,7 @@ my $declaration = {
 
     dataset_title               => ['SCALAR'],
     dataset_description         => ['SCALAR'],
-    dataset_sample              => ['SCALAR'],
+    sample                      => ['SCALAR'],
     data_file                   => ['SCALAR'],  # relativ zur descriptiondatei
 
     column                  => [

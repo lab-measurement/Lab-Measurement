@@ -117,7 +117,7 @@ sub save_xml {
     my $data=shift;
         #warum nicht $self?????
     my $rootname=shift;
-    my $generator = XML::Generator->new(pretty  => 2,escape=>'high-bit');
+    my $generator = XML::Generator->new(pretty  => 0,escape=>'high-bit');
     
     open FILE,">$filename" || die;
         print FILE $generator->$rootname(@{_write_node_list($generator,$self->{___declaration},$data)});

@@ -88,7 +88,6 @@ sub log_finish_block {
     print $fh $self->configure('output_block_sep');
 }
 
-
 sub import_gpplus {
     my $self=shift;
     my %opts=@_;    #filename, newname, archive

@@ -33,14 +33,28 @@ sub _start_plot {
     my $xaxis=$meta->plot_xaxis($plot);
     my $yaxis=$meta->plot_yaxis($plot);
     
-    my $xlabel=($meta->axis_label($xaxis))." (".($meta->axis_unit($xaxis)).")";
-    my $ylabel=($meta->axis_label($yaxis))." (".($meta->axis_unit($yaxis)).")";
+    my $gp;
+    
+    $gp.='set xlabel "'.($meta->axis_label($xaxis)).' ('.($meta->axis_unit($xaxis)).")\"\n";
+    $gp.='set ylabel "'.($meta->axis_label($yaxis))." (".($meta->axis_unit($yaxis)).")\"\n";
 
-    my $gp=<<GNUPLOT;
-set xlabel "$xlabel"
-set ylabel "$ylabel"
-set title "$plot"
-GNUPLOT
+    my $xmin=($meta->axis_min($xaxis)) ? $min=$meta->axis_min($xaxis) : "*";
+    my $xmax=($meta->axis_max($xaxis)) ? $min=$meta->axis_max($xaxis) : "*";
+    my $ymin=($meta->axis_min($yaxis)) ? $min=$meta->axis_min($yaxis) : "*";
+    my $ymax=($meta->axis_max($yaxis)) ? $min=$meta->axis_max($yaxis) : "*";
+    $gp.="set xrange [$xmin:$xmax]\n";
+    $gp.="set yrange [$ymin:$ymax]\n";
+    
+    if ($meta->plot_logscale()) {
+        $gp.="set logscale ".$meta->plot_logscale()."\n";
+    }
+    
+    $gp.=qq(set title "Plot '$plot' of dataset ').$meta->dataset_title()."' (Sample '".$meta->sample()."')\"\n";
+    my $h=0.95;
+    for (split "\n",$meta->dataset_description()) {
+        $gp.=qq(set label "$_" at graph 0.02, graph $h\n);
+        $h-=0.04;
+    }
 
     print $gpipe $gp;
     return $gpipe;
@@ -68,14 +82,12 @@ sub update_live_plot {
 sub _flatten_exp {
     my ($meta,$axis)=@_;
     $_=$meta->axis_expression($axis);
-#    print "expression before flattening: $_\n";
     while (/\$A\d+/) {
         s/\$A(\d+)/($meta->axis_expression($1))/;
     }
     while (/\$C\d+/) {
         s/\$C(\d+)/'$'.($1+1)/e;
     }
-#    print "expression after flattening: $_\n";
     $_;
 }
 
@@ -119,7 +131,7 @@ sub get_gnuplot_pipe {
 	} else {
 		$gpname="gnuplot";
 	}
-	if (open my $GP,"| $gpname") {
+	if (open my $GP,"| $gpname -noraise") {
 		my $oldfh = select($GP);
 		$| = 1;
 		select($oldfh);

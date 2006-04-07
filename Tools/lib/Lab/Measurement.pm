@@ -102,10 +102,10 @@ sub finish_measurement {
     $self->{meta}->save("$path$filename.$suffix");
 	if ($self->{live_plotter}) {
 		$self->{live_plotter}->stop_live_plot();
-		undef $self->{live_plotter};
+		delete $self->{live_plotter};
 	}
-	undef $self->{writer};
-	undef $self->{meta};
+	delete $self->{writer};
+    return delete $self->{meta};
 }
 
 sub configure {
