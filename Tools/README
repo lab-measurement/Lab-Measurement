@@ -1,5 +1,5 @@
-Dataset README version $Revision$ 
-=======================================
+Lab::Tools README version $Revision$ 
+==========================================
 
 INSTALLATION
 
@@ -10,25 +10,10 @@ To install this module type the following:
    perl Build test
    perl Build install
 
-DEPENDENCIES
-
-This package requires these other modules and libraries:
-
-  Lab::Data::XMLtree
-
 COPYRIGHT AND LICENCE
 
-Copyright (C) 2004 by Daniel Schröer
+Copyright (C) 2004-2006 by Daniel Schröer
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.3 or,
 at your option, any later version of Perl 5 you may have available.
-
-
-plan:
-
-Dataset
- has Data
- has Meta
-
-is something.
