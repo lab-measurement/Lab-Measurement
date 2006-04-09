@@ -111,6 +111,15 @@ sub Query {
     return substr($result,0,$read_cnt);
 }
 
+sub Read {
+    my $self=shift;
+    my $length=shift;
+
+    my ($status,$result,$read_cnt)=Lab::VISA::viRead($self->{instr},$length);
+    if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while reading: $status";}
+    return substr($result,0,$read_cnt);
+}
+
 sub Handle {
     my $self=shift;
     return $self->{instr};
@@ -160,9 +169,18 @@ actual visa work. (All the instruments in the default package do so.)
 
  $write_count=$instrument->Write($command);
 
+=head2 Read
+
+ $result=$instrument->Read($length);
+
+Reads a result of maximum length C<$length> from the instrument and returns it.
+
 =head2 Query
 
  $result=$instrument->Query($command);
+
+The length of the read buffer is haphazardly set to 300 bytes. This can be
+changed in the source code. Or you use seperate C<Write> and C<Read> commands.
 
 =head2 Clear
 
