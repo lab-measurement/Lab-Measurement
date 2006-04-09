@@ -9,7 +9,10 @@ GPIB, serial connection or ethernet. It provides general read(), write() and que
 
 Derived from Lab::Instrument there are specialized instrument classes
 (virtual instruments) such as Lab::Instrument::HP34401A, that offer even more high
-level comfort with methods as read_voltage().
+level comfort with methods like read_voltage().
+
+These classes are really nice and useful. Documentation could improve of course, but I
+believe that most things are self-explanatory.
 
 INSTALLATION
 
