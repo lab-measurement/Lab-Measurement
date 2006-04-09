@@ -18,5 +18,5 @@ my $build=Module::Build->new(
                            ],
     create_readme   	=> 0,
     create_makefile_pl	=> 'passthrough',
-    dist_author     	=> 'Daniel Schroeer <daniel.schroeer@physik.uni-muenchen.de>');
+    dist_author     	=> 'Daniel Schroeer <schroeer@cpan.org>');
 $build->create_build_script;

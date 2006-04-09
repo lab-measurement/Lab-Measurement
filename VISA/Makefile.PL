@@ -34,6 +34,6 @@ WriteMakefile(
 
     (($] >= 5.005)
     ?   (ABSTRACT_FROM  => 'VISA.pod',
-         AUTHOR         => 'Daniel Schroeer (SCHROEER) <daniel.schroeer@physik.uni-muenchen.de>') : ()),
+         AUTHOR         => 'Daniel Schroeer (SCHROEER) <schroeer@cpan.org>') : ()),
 
 );
