@@ -176,18 +176,32 @@ Additionally, this class provides a safety mechanism called C<gate_protect>
 to protect delicate samples. It includes automatic limitations of sweep rates,
 voltage step sizes, minimal and maximal voltages.
 
+As a user you are NOT supposed to create instances of this class, but rather
+instances of instrument classes that internally use this module!
+
 =head1 CONSTRUCTORS
 
-    $self=new Lab::Instrument::SafeSource(\%default_config,\%config);
+  $self=new Lab::Instrument::SafeSource(\%default_config,\%config);
 
-The constructor will only be used by instrument driver that inherit this class,
+The constructor will only be used by instrument drivers that inherit this class,
 not by the user.
+
+The instrument driver (e.g. L<Lab::Instrument::KnickS252>) has a constructor
+like this:
+
+  $knick=new Lab::Instrument::KnickS252({
+    GPIB_board      => $board,
+    GPIB_address    => $address,
+    
+    gate_protect    => $gp,
+    [...]
+  });
 
 =head1 METHODS
 
 =head2 configure
 
-    $self->configure(\%config);
+  $self->configure(\%config);
 
 Supported configure options are all related to the included safety mechanism:
 
@@ -195,15 +209,38 @@ Supported configure options are all related to the included safety mechanism:
 
 =item gate_protect
 
+Whether to use the automatic sweep speed limitation. Can be set to 0 (off) or 1 (on).
+If it is turned on, the output voltage will not be changed faster than allowed
+by the C<gp_max_volt_per_second>, C<gp_max_volt_per_step> and C<gp_max_step_per_second>
+values. These three parameters overdefine the allowed speed. Only two
+parameters are necessary. If all three are set, the smalles allowed sweep rate
+is chosen.
+
+Additionally the maximal and minimal output voltages are limited.
+
+This mechanism is useful to protect sensible samples, that are destroyed by
+abrupt voltage changes. An example are gate electrodes on semiconductor
+nanoelectronic samples, hence the name.
+
 =item gp_max_volt_per_second
+
+How much the output voltage is allowed to change per second.
 
 =item gp_max_volt_per_step
 
+How much the output voltage is allowed to change per step.
+
 =item gp_max_step_per_second
+
+How many steps are allowed per second.
 
 =item gp_min_volt
 
+The smallest allowed output voltage.
+
 =item gp_max_volt
+
+The largest allowed output voltage.
 
 =back
 
@@ -220,7 +257,7 @@ to the C<gp_max_volt>, C<gp_min_volt> settings.
 
 =head2 step_to_voltage
 
-    $new_volt=$self->step_to_voltage($voltage);
+  $new_volt=$self->step_to_voltage($voltage);
 
 Makes one safe step in direction to C<$voltage>. The output voltage is not changed by more
 than C<gp_max_volt_per_step>. Before the voltage is changed, the methods waits if not
@@ -233,7 +270,7 @@ to the C<gp_max_volt>, C<gp_min_volt> settings.
 
 =head2 sweep_to_voltage
 
-    $new_volt=$self->sweep_to_voltage($voltage);
+  $new_volt=$self->sweep_to_voltage($voltage);
 
 This method sweeps the output voltage to the desired value and only returns then.
 Uses the L</step_to_voltage> method internally, so all discussions of config options
@@ -252,13 +289,23 @@ Probably many.
 
 =item L<Time::HiRes>
 
+Used internally for the sweep timing.
+
+=item L<Lab::Instrument::KnickS252>
+
+This class inherits the gate protection mechanism.
+
+=item L<Lab::Instrument::Yokogawa7651>
+
+This class inherits the gate protection mechanism.
+
 =back
 
 =head1 AUTHOR/COPYRIGHT
 
 This is $Id$
 
-Copyright 2004 Daniel Schröer (L<http://www.danielschroeer.de>)
+Copyright 2004-2006 Daniel Schröer (L<http://www.danielschroeer.de>)
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 
