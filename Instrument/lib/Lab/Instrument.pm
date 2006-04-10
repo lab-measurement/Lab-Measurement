@@ -147,7 +147,7 @@ Lab::Instrument - General VISA based instrument
 =head1 DESCRIPTION
 
 C<Lab::Instrument> offers an abstract interface to an instrument, that is connected via
-GPIB, serial connection or ethernet. It provides general C<read>, C<write> and C<query> methods,
+GPIB, serial bus or ethernet. It provides general C<Read>, C<Write> and C<Query> methods,
 and more.
 
 It can be used either directly by the laborant (programmer) to work with
@@ -160,14 +160,21 @@ actual visa work. (All the instruments in the default package do so.)
 
 =head2 new
 
- $instrument=new Lab::Instrument($gpib_board,$gpib_addr);
+ $instrument=new Lab::Instrument($board,$addr);
  $instrument2=new Lab::Instrument({GPIB_board => $board, GPIB_address => $addr});
+
+Creates a new instrument object and open the instrument with GPIB address C<$addr>
+connected to the GPIB board C<$board> (usually 0). All instrument classes that
+internally use the C<Lab::Instrument> module (that's all instruments in the default
+distribution) can use both forms of the constructor.
  
 =head1 METHODS
 
 =head2 Write
 
  $write_count=$instrument->Write($command);
+ 
+Sends the command C<$command> to the instrument.
 
 =head2 Read
 
@@ -179,16 +186,22 @@ Reads a result of maximum length C<$length> from the instrument and returns it.
 
  $result=$instrument->Query($command);
 
-The length of the read buffer is haphazardly set to 300 bytes. This can be
-changed in the source code. Or you use seperate C<Write> and C<Read> commands.
+Sends the command C<$command> to the instrument and reads a result from the
+instrument and returns it. The length of the read buffer is haphazardly
+set to 300 bytes. This can be changed in the source code. Or you use
+seperate C<Write> and C<Read> commands.
 
 =head2 Clear
 
  $instrument->Clear();
 
+Sends a clear command to the instrument.
+
 =head2 Handle
 
  $instr_handle=$instrument->Handle();
+
+Returns the VISA handle. You can use this handle with the L<Lab::VISA> module.
 
 =head1 CAVEATS/BUGS
 
