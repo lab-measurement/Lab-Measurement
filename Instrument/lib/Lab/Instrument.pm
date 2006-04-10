@@ -156,7 +156,7 @@ an instrument that doesn't have its own perl class
 perl instrument class (like Lab::Instrument::HP34401A), to delegate the
 actual visa work. (All the instruments in the default package do so.)
 
-=head1 CONSTRUCTORS
+=head1 CONSTRUCTOR
 
 =head2 new
 
@@ -167,7 +167,7 @@ Creates a new instrument object and open the instrument with GPIB address C<$add
 connected to the GPIB board C<$board> (usually 0). All instrument classes that
 internally use the C<Lab::Instrument> module (that's all instruments in the default
 distribution) can use both forms of the constructor.
- 
+
 =head1 METHODS
 
 =head2 Write
@@ -219,7 +219,7 @@ Probably many.
 
 This is $Id$
 
-Copyright 2004/2005 Daniel Schröer (L<http://www.danielschroeer.de>)
+Copyright 2004-2006 Daniel Schröer (L<http://www.danielschroeer.de>)
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 

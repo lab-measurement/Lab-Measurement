@@ -179,13 +179,13 @@ Stanford Research SR780 Network Signal Analyzer.
 
 =head1 CONSTRUCTOR
 
-  $sr780=new Lab::Instrument::SR780($board,$gpib)
+  $sr780=new Lab::Instrument::SR780($board,$gpib);
 
 =head1 METHODS
 
 =head2 start_measurement
 
-  $sr780->start_measurement()
+  $sr780->start_measurement();
 
 Starts the measurement. Any average in progress is reset
 and started over. If the measurement is paused, starts the measurement
@@ -193,14 +193,14 @@ over. This method is the same as pressing the [Start/Reset] key.
 
 =head2 pause_measurement
 
-  $sr780->pause_measurement()
+  $sr780->pause_measurement();
 
 If the measurement is already in progress, pauses the measurement. If the measurement
 is paused, it has no effect. This method is similar to pressing the [Pause/Cont] key.
 
 =head2 continue_measurement
 
-  $sr780->continue_measurement()
+  $sr780->continue_measurement();
 
 If the measurement is paused, continues the measurement.
 If the measurement is running, it has no effect.
@@ -208,51 +208,51 @@ This method is similar to pressing the [Pause/Cont] key.
 
 =head2 read_display_data
 
-  @data=$sr780->read_display_data($display)
+  @data=$sr780->read_display_data($display);
 
-Returns a list of data from the given display ($display is either 'A' or 'B').
+Returns a list of data from the given display (C<$display> is either 'A' or 'B').
 
 =head2 read_data_pairs
 
-  @pairs=$sr780->read_data_pairs($display)
+  @pairs=$sr780->read_data_pairs($display);
 
 Reads the data of display C<$display>. The data is returned as a list of references to arrays with
 a frequency,data pair.
 
 =head2 average_status
 
-  $num_avg=$sr780->average_status($display)
+  $num_avg=$sr780->average_status($display);
 
 Returns the number of already completed averages for display C<$display>.
 
 =head2 send_commands
 
-  $sr780->send_commands(@commands)
+  $sr780->send_commands(@commands);
 
 Sends a list of commands to the instrument. Useful for mass configuration.
 
 =head2 id
 
-  $id=$sr780->id()
+  $id=$sr780->id();
 
 Returns the instruments ID string.
 
 =head2 play
 
-  $sr780->play($sound)
+  $sr780->play($sound);
 
 Plays the predefinded sound C<$sound> (between 0 and 6). 
 
 =head2 tone
 
-  $sr780->tone($tone,$duration)
+  $sr780->tone($tone,$duration);
 
 Plays the note C<$tone> (between 0 and 66) on the internal speaker. The tone is played
 for the time C<$duration>, which is in units of 5ms.
 
 =head2 play_song
 
-  $sr780->play_song()
+  $sr780->play_song();
 
 Plays the song I<Alle meine Entchen> on the internal speaker of the SR780. While this might
 not be especially useful for your measurements, it will guaranty you I<ubergeek> status among

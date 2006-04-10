@@ -167,7 +167,8 @@ Lab::Instrument::Source - Base class for voltage source instruments
 
 This class implements a general voltage source. It is meant to be
 inherited by instrument classes (virtual instruments), that implement
-real voltage sources (e.g. the L<Lab::Instrument::Yokogawa7651> class).
+real voltage sources (e.g. the
+L<Lab::Instrument::Yokogawa7651|Lab::Instrument::Yokogawa7651> class).
 
 The class provides a unified user interface for those virtual voltage sources
 to support the exchangeability of instruments.
@@ -179,15 +180,15 @@ voltage step sizes, minimal and maximal voltages.
 As a user you are NOT supposed to create instances of this class, but rather
 instances of instrument classes that internally use this module!
 
-=head1 CONSTRUCTORS
+=head1 CONSTRUCTOR
 
   $self=new Lab::Instrument::SafeSource(\%default_config,\%config);
 
 The constructor will only be used by instrument drivers that inherit this class,
 not by the user.
 
-The instrument driver (e.g. L<Lab::Instrument::KnickS252>) has a constructor
-like this:
+The instrument driver (e.g. L<Lab::Instrument::KnickS252|Lab::Instrument::KnickS252>)
+has a constructor like this:
 
   $knick=new Lab::Instrument::KnickS252({
     GPIB_board      => $board,
@@ -203,7 +204,7 @@ like this:
 
   $self->configure(\%config);
 
-Supported configure options are all related to the included safety mechanism:
+Supported configure options are all related to the safety mechanism:
 
 =over 2
 
@@ -219,8 +220,8 @@ is chosen.
 Additionally the maximal and minimal output voltages are limited.
 
 This mechanism is useful to protect sensible samples, that are destroyed by
-abrupt voltage changes. An example are gate electrodes on semiconductor
-nanoelectronic samples, hence the name.
+abrupt voltage changes. One example is gate electrodes on semiconductor electronics
+samples, hence the name.
 
 =item gp_max_volt_per_second
 
@@ -246,11 +247,11 @@ The largest allowed output voltage.
 
 =head2 set_voltage
 
-    $new_volt=$self->set_voltage($voltage);
+  $new_volt=$self->set_voltage($voltage);
 
-Sets the output to $voltage (in Volt). If the configure option C<gate_protect> is set
+Sets the output to C<$voltage> (in Volts). If the configure option C<gate_protect> is set
 to a true value, the safety mechanism takes into account the C<gp_max_volt_per_step>,
-C<gp_max_volt_per_second> etc. settings, by employing the sweep_to_voltage() method.
+C<gp_max_volt_per_second> etc. settings, by employing the C<sweep_to_voltage> method.
 
 Returns the actually set output voltage. This can be different from C<$voltage>, due
 to the C<gp_max_volt>, C<gp_min_volt> settings.
