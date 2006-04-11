@@ -1,0 +1,124 @@
+=pod
+
+=head1 NAME
+
+Lab::VISA::Tutorial - Tutorial on using Lab::VISA and related packages
+
+=head1 Basics
+
+This section provides a very rough introduction to what the terms VISA
+and GPIB stand for and then explains the general architecture of Lab::VISA
+and related modules.
+
+For a more detailed explanation of the VISA and GPIB
+standards, the involved communication principles and the available
+commands for your specific instruments, please refer to the literature.
+
+=head2 VISA
+
+Traditionally, test and measurement instruments can be connected and
+controlled via various standards and protocols. VISA, the Virtual
+Instrument Software Architecture, is an effort to provide a single
+standarised interface to communicate with instruments via several
+protocols. It was developed by the VXIplug&play Systems Alliance and
+is currently maintained by the IVI consortium. VISA can control VXI,
+GPIB, serial, or computer-based instruments and makes the appropriate
+driver calls depending on the type of instrument used. Hence, VISA is
+located in the application layer. The National Instruments NI-VISA
+library is one implementation of the VISA standard.
+
+In one word: VISA tries to make it unimportant, how an instrument is
+connected physically.
+
+=head2 GPIB
+
+GPIB (IEEE488) is a lower lying standard invented by Hewlett-Packard. It
+describes a way of connecting instruments. The standard is divided
+into the physical layer IEEE488.1 that defines cables and signals and
+the command layer IEEE488.2 that describes a syntax for messages
+between communicating instruments. SCPI (Standard Commands for
+Programmable Instruments) is an extension of IEEE488.2 and refines the
+available commands further, with the goal of obtaining a language that
+is independent of the exact model of the instruments in use. This
+could be very useful, as, in theory, it would allow you to exchange
+one instrument in your setup with a similar one from another
+manufacturer, without having to change your measurement software. In
+practise however, not many instruments support this standard, and even
+if, small differences make things a pain.
+
+In one word: GPIB tries to make communication with various instruments
+more similar.
+
+=head2 Architecture
+
+ +--------------------------+   +-------------------------+
+ |Lab::Instrument::KnickS252|   |Lab::Instrument::HP34401A|
+ +-----------------------+--+   +--+----------------------+
+                         |         |
+                      +--+---------+--+
+                      |Lab::Instrument|
+                      +-------+-------+
+                              |
+                         +----+----+
+                         |Lab::VISA|
+                         +----+----+
+                              |
+                      +-------+-------+
+                      |NI-VISA Library|
+                      +---+-------+---+
+                          |       |
+               +----------+-+   +-+----+
+               |GPIB Library|   |  OS  |
+               +----------+-+   +-+----+
+                          |       |
+                          |       |Serial connection
+           GPIB connection|       |TCP/IP connection
+                          |       |USB connection
+                          |       |
+                 +--------+-+   +-+--------+
+                 |Instrument|   |Instrument|
+                 +----------+   +----------+
+
+The L<Lab::VISA|Lab::VISA> module provides a perl binding for National
+Instruments' NI-VISA library. It makes the standard VISA calls
+available from within Perl programs.
+
+The L<Lab::Instrument|Lab::Instrument> module builds on top of
+C<Lab::VISA> and simplifies the routine tasks of opening VISA
+resources, sending and receiving messages.
+
+The instrument classes
+L<Lab::Instrument::KnickS252|Lab::Instrument::KnickS252> are
+specialized modules for certain instrument. Most other measurement
+software packages would call this virtual instruments or instrument
+drivers, but I'll try to not use these terms, to avoid confusion with
+their various existing definitions. Each such class provides methods
+that are specific for one instrument. The L<IPS120_10|IPS120_10> for
+example class is dedicated to a certain magnet power supply and
+therefore provides methods like C<set_target_field>.
+
+=head1 Examples
+
+=head2 Using pure VISA calls
+
+=head2 Using the Lab::Instrument class
+
+=head2 Using Lab::Instrument::xxx virtual instruments
+
+=head2 Using Lab::Tools
+
+=head1 SEE ALSO
+
+=over 4
+
+=item L<Lab::Instrument>
+
+=back
+
+=head1 AUTHOR/COPYRIGHT
+
+This is $Id$
+
+Copyright 2004-2006 by Daniel Schröer. This is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
+
+=cut
