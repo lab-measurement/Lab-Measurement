@@ -4,21 +4,21 @@
 
 Lab::VISA::Tutorial - Tutorial on using Lab::VISA and related packages
 
-=head1 Abstract
+=head1 Introduction
 
-Lab::VISA and its related packages allow to control test and measurement tasks with Perl scripts. It provides an interface to National Instruments' NI-VISA library, 
-making the standard VISA calls available from within Perl programs. Dedicated instrument
-driver classes relieve the user from taking care for internal details and make measurements as easy as C<< $voltage=$multimeter->read_voltage() >>.
+Lab::VISA and its related packages allow to control test and measurement
+tasks with Perl scripts. It provides an interface to National Instruments'
+NI-VISA library,  making the standard VISA calls available from within Perl
+programs. Dedicated instrument driver classes relieve the user from taking
+care for internal details and make measurements as easy as C<<
+$voltage=$multimeter->read_voltage() >>.
 
-=head1 Basics
+=head1 Measurement automation basics
 
-This section provides a very brief introduction to what the terms VISA
-and GPIB stand for and then explains the general architecture of Lab::VISA
-and related modules.
-
-For a more detailed explanation of the VISA and GPIB
-standards, the involved communication principles and the available
-commands for your specific instruments, please refer to the literature[1-3].
+This section provides a very brief introduction to the terms VISA and GPIB.
+For a more detailed explanation of the VISA and GPIB standards, the
+involved communication principles and the available commands for your
+specific instruments, please refer to the literature[1-3].
 
 =head2 VISA
 
@@ -26,12 +26,12 @@ Traditionally, test and measurement instruments can be connected and
 controlled via various standards and protocols. VISA, the Virtual
 Instrument Software Architecture[1,2], is an effort to provide a single
 standarised interface to communicate with instruments via several
-protocols. It was developed by the VXIplug&play Systems Alliance[4] and
-is currently maintained by the IVI foundation[5]. VISA can control VXI,
-GPIB, serial, or computer-based instruments and makes the appropriate
-driver calls depending on the type of instrument used. Hence, VISA is
-located in the application layer. The National Instruments NI-VISA
-library is one implementation of the VISA standard.
+protocols. It was developed by the VXIplug&play Systems Alliance[4] and is
+currently maintained by the IVI foundation[5]. VISA can control VXI, GPIB,
+serial, or computer-based instruments and makes the appropriate driver
+calls depending on the type of instrument used. Hence, VISA is located in
+the application layer. The National Instruments NI-VISA library is one
+implementation of the VISA standard.
 
 In one word: VISA tries to make it unimportant, how an instrument is
 connected physically.
@@ -39,26 +39,28 @@ connected physically.
 =head2 GPIB
 
 GPIB (IEEE488)[3] is a lower lying standard invented by Hewlett-Packard. It
-describes a way of connecting instruments. The standard is divided
-into the physical layer IEEE488.1 that defines cables and signals and
-the command layer IEEE488.2 that describes a syntax for messages
-between communicating instruments. SCPI (Standard Commands for
-Programmable Instruments) is an extension of IEEE488.2 and refines the
-available commands further, with the goal of obtaining a language that
-is independent of the exact model of the instruments in use. This
-could be very useful, as, in theory, it would allow you to exchange
-one instrument in your setup with a similar one from another
-manufacturer, without having to change your measurement software. In
-practise however, not many instruments support this standard, and even
-if, small differences make things a pain. As described below, the Lab::Instrument package follows another route to achieve interchangeability by providing common interfaces for similar instruments at a much higher level (e.g. the Lab::Instrument::Source interface).
+describes a way of connecting instruments. The standard is divided into the
+physical layer IEEE488.1 that defines cables and signals and the command
+layer IEEE488.2 that describes a syntax for messages between communicating
+instruments. SCPI (Standard Commands for Programmable Instruments) is an
+extension of IEEE488.2 and refines the available commands further, with the
+goal of obtaining a language that is independent of the exact model of the
+instruments in use. This could be very useful, as, in theory, it would
+allow you to exchange one instrument in your setup with a similar one from
+another manufacturer, without having to change your measurement software.
+In practise however, not many instruments support this standard, and even
+if, small differences make things a pain. As described below, the
+Lab::Instrument package follows another route to achieve interchangeability
+by providing common interfaces for similar instruments at a much higher
+level (e.g. the Lab::Instrument::Source interface).
 
-In one word: GPIB tries to make communication with various instruments
-more similar.
+In one word: GPIB tries to make communication with various instruments more
+similar.
 
-=head2 Architecture
+=head1 Architecture
 
-A schematic view of the various software layers between your perl measurement script
-and the instrument hardware looks like this:
+A schematic view of the various software layers between your perl
+measurement script and the instrument hardware looks like this:
 
  +-------------------------+ +---------------+ +------------------+
  |Lab::Instrument::HP34401A| |L::I::KnickS252| |L::I::Yokogawa7651|
@@ -93,25 +95,23 @@ and the instrument hardware looks like this:
                  +----------+   +----------+
 
 The L<Lab::VISA|Lab::VISA> module provides a perl binding for National
-Instruments' NI-VISA library. It makes the standard VISA calls
-available from within Perl programs.
+Instruments' NI-VISA library. It makes the standard VISA calls available
+from within Perl programs.
 
-The L<Lab::Instrument|Lab::Instrument> module builds on top of
-Lab::VISA and simplifies the routine tasks of opening VISA
-resources, sending and receiving messages.
+The L<Lab::Instrument|Lab::Instrument> module builds on top of Lab::VISA
+and simplifies the routine tasks of opening VISA resources, sending and
+receiving messages.
 
 The instrument classes like 
-L<Lab::Instrument::KnickS252|Lab::Instrument::KnickS252> are
-specialized modules for certain instruments. Most other measurement
-software packages would call this virtual instruments or instrument
-drivers, but I'll try to not use these terms, to avoid confusion with
-their various existing definitions. Each such class provides methods
-that are specific for one instrument. The
-L<Lab::Instrument::IPS120_10|Lab::Instrument::IPS120_10> class for
-example class is dedicated to a certain magnet power supply and
-therefore provides methods like C<set_target_field>. Similar instruments
-(e.g. various voltage sources) however share common interfaces
-(e.g. L<Lab::Instrument::Source|Lab::Instrument::Source>) to make
+L<Lab::Instrument::KnickS252|Lab::Instrument::KnickS252> are specialized
+modules for certain instruments. Most other measurement software packages
+would call this a virtual instruments or an instrument drivers. Each such
+class provides methods that are specific for one instrument. The
+L<Lab::Instrument::IPS120_10|Lab::Instrument::IPS120_10> class for example
+class is dedicated to a certain magnet power supply and therefore provides
+methods like C<set_target_field>. Similar instruments (e.g. various voltage
+sources) however share common interfaces (e.g.
+L<Lab::Instrument::Source|Lab::Instrument::Source>) to make
 interchangeability of similar instruments possible.
 
 =head1 Examples
@@ -120,72 +120,148 @@ Remember: This is neither a Perl, nor a VISA/GPIB tutorial. This tutorial
 explains, how to use the Lab::VISA package. If you feel the need for more
 information on Perl or VISA/GPIB, see the L</References> section.
 
+All the examples can be found in the Tutorials directory of the Lab::VISA
+package.
+
 =head2 Using pure VISA calls
 
-First we will see how to use the plain VISA interface and communicate with an instrument
-with standard VISA C<viRead> and C<viWrite> calls.
+First we will see how to use the plain VISA interface and communicate with
+an instrument with standard VISA C<viRead> and C<viWrite> calls. First we
+have to open a resource manager. This manager can then provide us with a
+handle to one instrument. We try to open an instrument that is connected
+via GPIB to the GPIB board 0 in our computer and uses the GPIB address 24.
+This is specified by the resource name. We then ask the instrument for its
+identification string, read the answer and print it. We do so by sending
+the C<*IDN?> command. This is a standard SCPI command, that all instruments
+that support the SCPI language, will understand. Agilent instruments do so
+for example.
 
-    use Lab::VISA;
-    
-    my $gpib=24;
-    my $board=0;
-    
-    #Open default resource manager
-    my ($status,$default_rm)=Lab::VISA::viOpenDefaultRM();
-    if ($status != $Lab::VISA::VI_SUCCESS) {
-        die "Cannot open resource manager: $status";
-    }
-    
-    #Open resource
-    my $resource_name=
-        sprintf("GPIB%u::%u::INSTR",$board,$gpib);
-    ($status, my $instr)=Lab::VISA::viOpen(
-        $default_rm,
-        $resource_name,
-        $Lab::VISA::VI_NULL,
-        $Lab::VISA::VI_NULL
-    );
-    if ($status != $Lab::VISA::VI_SUCCESS) {
-        die "Cannot open instrument $resource_name. status: $status";
-    }
-    
-    $status=Lab::VISA::viSetAttribute(
-        $instr,
-        $Lab::VISA::VI_ATTR_TMO_VALUE,
-        3000
-    );
-    if ($status != $Lab::VISA::VI_SUCCESS) {
-        die "Error while setting timeout value: $status";
-    }
-    
-    #Clear the instrument
-    my $status=Lab::VISA::viClear($instr);
-    if ($status != $Lab::VISA::VI_SUCCESS) {
-        die "Error while clearing instrument: $status";
-    }
-    
-    my $cmd="*IDN?";
-    
-    ($status, my $write_cnt)=Lab::VISA::viWrite(
-        $instr,
-        $cmd,
-        length($cmd)
-    );
-    if ($status != $Lab::VISA::VI_SUCCESS) {
-        die "Error while writing: $status";
-    }
-    
-    ($status, my $result, my $read_cnt)=Lab::VISA::viRead(
-        $self->{instr},
-        300
-    );
-    if ($status != $Lab::VISA::VI_SUCCESS) {
-        die "Error while reading: $status";
-    }
-    
-    print $result;
+  #!/usr/bin/perl
+  
+  # example1.pl
+
+  use strict;
+  use Lab::VISA;
+
+  # Initialize VISA system and
+  # Open default resource manager
+  my ($status,$default_rm)=Lab::VISA::viOpenDefaultRM();
+  if ($status != $Lab::VISA::VI_SUCCESS) {
+      die "Cannot open resource manager: $status";
+  }
+
+  # Open one resource (an instrument)
+  my $gpib=24;            # we want to open the instrument
+  my $board=0;            # with GPIB address 24
+                          # connected to GPIB board 0 in our computer
+  my $resource_name=sprintf("GPIB%u::%u::INSTR",$board,$gpib);
+
+  ($status, my $instr)=Lab::VISA::viOpen(
+      $default_rm,        # the resource manager session
+      $resource_name,     # a string describing the 
+      $Lab::VISA::VI_NULL,# access mode (no special mode)
+      $Lab::VISA::VI_NULL # time out for open (no time out)
+  );
+  if ($status != $Lab::VISA::VI_SUCCESS) {
+      die "Cannot open instrument $resource_name. status: $status";
+  }
+
+  # We set a time out for communication with this instrument
+  $status=Lab::VISA::viSetAttribute(
+      $instr,             # the session identifier
+      $Lab::VISA::VI_ATTR_TMO_VALUE,  # which attribute to modify
+      3000                # the new value
+  );
+  if ($status != $Lab::VISA::VI_SUCCESS) {
+      die "Error while setting timeout value: $status";
+  }
+
+  # Clear the instrument
+  my $status=Lab::VISA::viClear($instr);
+  if ($status != $Lab::VISA::VI_SUCCESS) {
+      die "Error while clearing instrument: $status";
+  }
+
+  # Now we are going to send one command and read the result.
+
+  # We send the simple SCPI command "*IDN?" which asks the instrument
+  # to identify itself. Of course the instrument must support this
+  # command, in order to make this example work.
+  my $cmd="*IDN?";
+  ($status, my $write_cnt)=Lab::VISA::viWrite(
+      $instr,             # the session identifier 
+      $cmd,               # the command to send
+      length($cmd)        # the length of the command in bytes
+  );
+  if ($status != $Lab::VISA::VI_SUCCESS) {
+      die "Error while writing: $status";
+  }
+
+  # Now we will read the instruments reply
+  ($status,               # indicates if the operation was successful
+   my $result,            # the answer string
+   my $read_cnt)=         # the length of the answer in bytes
+  Lab::VISA::viRead(
+      $instr,             # the session identifier
+      300                 # read 300 bytes
+  );
+  if ($status != $Lab::VISA::VI_SUCCESS) {
+      die "Error while reading: $status";
+  }
+  # The result string will be 300 bytes long, but only $read_cnt
+  # bytes are part of the answer. We cut away the rest.
+  $result=substr($result,0,$read_cnt);
+
+  print "$result\n";
+
+  # As good citizens we'll cleanup now.
+  # Close the instrument
+  $status=Lab::VISA::viClose($instr);
+  # And the resource manager
+  $status=Lab::VISA::viClose($default_rm);
+
+  __END__
+
+We see that there is a lot of protocol overhead involved, that makes this
+very simple example a bit lengthy and ugly. These things should be factored
+out. The Lab::Instrument class can do all this dirty work for us, as we will
+learn in the next section.
 
 =head2 Using the Lab::Instrument class
+
+The next example shows, how the Lab::Instrument class makes our life easier
+and our programs shorter and nicer.
+
+  #!/usr/bin/perl
+
+  # example2.pl
+
+  use strict;
+  use Lab::Instrument;
+
+  my $gpib=24;            # we want to open the instrument
+  my $board=0;            # with GPIB address 24
+                          # connected to GPIB board 0 in our computer
+
+  # Create an instrument object
+  my $instr=new Lab::Instrument($board,$gpib);
+
+  my $cmd="*IDN?";
+
+  # Query the instrument
+  # Query is a combined Write and Read
+  my $result=$instr->Query($cmd);
+
+  print $result;
+
+  __END__
+
+This program achieves exactly the same as C<example1.pl>, but with only two
+lines of code: one to open the instrument, one to query it. We don't have
+to care about resource managers and string lengths and cleaning up.
+Lab::Instrument does it for us. Now that's already quite nice, eh?
+
+Let's see another example:
 
 =head2 Using Lab::Instrument::xxx virtual instruments
 
@@ -195,11 +271,14 @@ with standard VISA C<viRead> and C<viWrite> calls.
 
 =over
 
-=item [1] NI-VISA User Manual (L<http://www.ni.com/pdf/manuals/370423a.pdf>)
+=item [1] NI-VISA User Manual
+(L<http://www.ni.com/pdf/manuals/370423a.pdf>)
 
-=item [2] NI-VISA Programmer Manual (L<http://www.ni.com/pdf/manuals/370132c.pdf>)
+=item [2] NI-VISA Programmer Manual
+(L<http://www.ni.com/pdf/manuals/370132c.pdf>)
 
-=item [3] NI 488.2 User Manual (L<http://www.ni.com/pdf/manuals/370428c.pdf>)
+=item [3] NI 488.2 User Manual
+(L<http://www.ni.com/pdf/manuals/370428c.pdf>)
 
 =item [4] http://www.vxipnp.org/
 
