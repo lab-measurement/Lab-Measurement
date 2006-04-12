@@ -139,23 +139,23 @@ for example.
   #!/usr/bin/perl
   
   # example1.pl
-
+  
   use strict;
   use Lab::VISA;
-
+  
   # Initialize VISA system and
   # Open default resource manager
   my ($status,$default_rm)=Lab::VISA::viOpenDefaultRM();
   if ($status != $Lab::VISA::VI_SUCCESS) {
       die "Cannot open resource manager: $status";
   }
-
+  
   # Open one resource (an instrument)
   my $gpib=24;            # we want to open the instrument
   my $board=0;            # with GPIB address 24
                           # connected to GPIB board 0 in our computer
   my $resource_name=sprintf("GPIB%u::%u::INSTR",$board,$gpib);
-
+  
   ($status, my $instr)=Lab::VISA::viOpen(
       $default_rm,        # the resource manager session
       $resource_name,     # a string describing the 
@@ -165,7 +165,7 @@ for example.
   if ($status != $Lab::VISA::VI_SUCCESS) {
       die "Cannot open instrument $resource_name. status: $status";
   }
-
+  
   # We set a time out for communication with this instrument
   $status=Lab::VISA::viSetAttribute(
       $instr,             # the session identifier
@@ -175,15 +175,15 @@ for example.
   if ($status != $Lab::VISA::VI_SUCCESS) {
       die "Error while setting timeout value: $status";
   }
-
+  
   # Clear the instrument
   my $status=Lab::VISA::viClear($instr);
   if ($status != $Lab::VISA::VI_SUCCESS) {
       die "Error while clearing instrument: $status";
   }
-
+  
   # Now we are going to send one command and read the result.
-
+  
   # We send the simple SCPI command "*IDN?" which asks the instrument
   # to identify itself. Of course the instrument must support this
   # command, in order to make this example work.
@@ -196,7 +196,7 @@ for example.
   if ($status != $Lab::VISA::VI_SUCCESS) {
       die "Error while writing: $status";
   }
-
+  
   # Now we will read the instruments reply
   ($status,               # indicates if the operation was successful
    my $result,            # the answer string
@@ -211,15 +211,15 @@ for example.
   # The result string will be 300 bytes long, but only $read_cnt
   # bytes are part of the answer. We cut away the rest.
   $result=substr($result,0,$read_cnt);
-
+  
   print "$result\n";
-
+  
   # As good citizens we'll cleanup now.
   # Close the instrument
   $status=Lab::VISA::viClose($instr);
   # And the resource manager
   $status=Lab::VISA::viClose($default_rm);
-
+  
   __END__
 
 We see that there is a lot of protocol overhead involved, that makes this
@@ -233,27 +233,27 @@ The next example shows, how the Lab::Instrument class makes our life easier
 and our programs shorter and nicer.
 
   #!/usr/bin/perl
-
+  
   # example2.pl
-
+  
   use strict;
   use Lab::Instrument;
-
+  
   my $gpib=24;            # we want to open the instrument
   my $board=0;            # with GPIB address 24
                           # connected to GPIB board 0 in our computer
-
+  
   # Create an instrument object
   my $instr=new Lab::Instrument($board,$gpib);
-
+  
   my $cmd="*IDN?";
-
+  
   # Query the instrument
   # Query is a combined Write and Read
   my $result=$instr->Query($cmd);
-
+  
   print $result;
-
+  
   __END__
 
 This program achieves exactly the same as C<example1.pl>, but with only two
@@ -261,9 +261,75 @@ lines of code: one to open the instrument, one to query it. We don't have
 to care about resource managers and string lengths and cleaning up.
 Lab::Instrument does it for us. Now that's already quite nice, eh?
 
-Let's see another example:
+Let's see another example. This time we will send a great bunch of commands
+to an Agilent 81134A pulse generator, to set it up for pulse mode.
+
+  #!/usr/bin/perl
+  
+  # example3.pl
+  
+  use strict;
+  use Lab::Instrument;
+  
+  # Open instrument
+  # We use the other form of the constructor here.
+  my $instr=new Lab::Instrument({
+      GPIB_board      => 0,
+      GPIB_address    => 10
+  });
+  
+  # Send a bunch of commands to configure instrument
+  for ((
+  # Protect the DUT
+      ':OUTP:CENT OFF',       #disconnect channels
+  
+  # Set up the Instrument
+      ':FUNC PATT',           #set mode to Pulse/Pattern
+      ':PER 20 ns',           #set period to 20 ns
+  
+  # Set up Channel 1
+      ':FUNC:MODE1 PULSE',    #set pattern mode to Pulse
+      ':WIDT1 5 ns',          #set width to 5 ns
+      ':VOLT1:AMPL 2.000 V',  #set ampl to 2 V
+      ':VOLT1:OFFSET 1.5 V',  #set offset to 1.5 V
+      ':OUTP1:POS ON',        #enable output channel 1
+  
+  # Generate the Signals
+      ':OUTP:CENT ON',        #reconnect the channels
+      ':OUTP0:SOUR PER',      #use trigger mode Pulse
+      ':OUTP0 ON',            #enable trigger output
+  )) {
+      $self->{vi}->Write($_);
+  }
+  
+  __END__
+
+This example shows that Perl's great list handling makes it the ideal
+language for instrument control and data aquisistion tasks. In which other
+language could we send a lot of commands so efficiently?
 
 =head2 Using Lab::Instrument::xxx virtual instruments
+
+  #!/usr/bin/perl
+  
+  # example4.pl
+  
+  use strict;
+  use Lab::Instrument::HP34401A;
+  
+  my $gpib=24;            # we want to open the instrument
+  my $board=0;            # with GPIB address 24
+                          # connected to GPIB board 0 in our computer
+  
+  # Create an instrument object
+  my $hp=new Lab::Instrument::HP34401A($board,$gpib);
+
+  # Use the id method to query the instruments ID string
+  my $result=$hp->id();
+  
+  print $result;
+  
+  __END__
 
 =head2 Using Lab::Tools
 
