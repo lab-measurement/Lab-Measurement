@@ -123,6 +123,11 @@ sub scroll_message {
     $self->display_clear();
 }
 
+sub id {
+    my $self=shift;
+    $self->{vi}->Query('*IDN?');
+}
+
 1;
 
 =head1 NAME
@@ -235,6 +240,12 @@ queue. Errors are retrieved in first-in-first out (FIFO) order.
     $hp->reset();
 
 Reset the multimeter to its power-on configuration.
+
+=head2 id
+
+    $id=$hp->id();
+
+Returns the instruments ID string.
 
 =head1 CAVEATS/BUGS
 

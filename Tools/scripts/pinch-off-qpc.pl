@@ -8,24 +8,26 @@ use File::Basename;
 
 ###################################
 
-my $start_voltage=-1.25;
-my $end_voltage=0;
-my $step=1e-3;
+my $start_voltage=0;
+my $end_voltage=-0.25;
+my $step=-5e-4;
 
 my $knick_gpib=14;
 my $hp_gpib=24;
 
 my $v_sd=0.78/1563;
-my $ithaco_amp=1e-8;
+my $ithaco_amp=1e-7;
 
-my $U_Kontakt=12.827;    #die Spannung, die Stromverstärker bei V_Gate=0 anzeigt
+my $U_Kontakt=1.7;    #die Spannung, die Stromverstärker bei V_Gate=0 anzeigt
 
-my $title="S4a (D040123A) QPC rechts oben";
+my $title="S5a-II (81059) QPC rechts oben";
 my $comment=<<COMMENT;
-Strom von 4 nach 13, Ithaco amp $ithaco_amp, supr 10^{-10}, rise 0.1ms
-Gates 3 und 5
+Abgekuehlt mit +200mV
+Strom von 5 nach 1, Ithaco amp $ithaco_amp, supr 10^{-10}, rise 0.3ms
+Gates 3 und 6
 Hi und Lo der Kabel aufgetrennt
 Tuer zu, Deckel zu, Licht aus
+Nur Rotary, ca. 80mK
 COMMENT
 
 ###################################
@@ -104,7 +106,7 @@ my $stepsign=$step/abs($step);
 for (my $volt=$start_voltage;$stepsign*$volt<=$stepsign*$end_voltage;$volt+=$step) {
     $knick->set_voltage($volt);
     usleep(500000);
-    my $read_volt=$hp->read_voltage_dc(100,0.0001);
+    my $read_volt=$hp->read_voltage_dc(10,0.0001);
     print LOG "$volt\t$read_volt\n";
     print $gpipe $gp2;
 }

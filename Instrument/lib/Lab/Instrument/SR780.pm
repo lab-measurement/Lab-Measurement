@@ -92,6 +92,8 @@ sub play_song {
         $self->tone(@$_) if ($_->[0] > 0);
         usleep($_->[1]*15000);
     }
+    # Now how many square meters of LabView code
+    # would you need to do this?
 }
               
 1;

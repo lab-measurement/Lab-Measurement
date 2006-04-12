@@ -124,6 +124,17 @@ sub plot {
     return $gpipe;
 }
 
+sub available_plots {
+    my ($self,$meta)=@_;
+    
+    unless (ref $meta eq 'Lab::Data::Meta') {
+        die "fuck you" unless (-e $meta);
+        $meta=Lab::Data::Meta->new_from_file($meta);
+    }
+    my %plots=$meta->plot();
+    return keys %plots;
+}
+
 sub get_gnuplot_pipe {
 	my $self=shift;
     my $gpname;
