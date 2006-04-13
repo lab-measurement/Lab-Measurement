@@ -64,8 +64,8 @@ sub new {
     $meta->save("$path$filename.$suffix");
 	
 	if ($params{live_plot}) {
-        $self->{live_plotter}=new Lab::Data::Plotter();
-        $self->{live_plotter}->start_live_plot($meta,$params{live_plot});
+        $self->{live_plotter}=new Lab::Data::Plotter($meta);
+        $self->{live_plotter}->start_live_plot($params{live_plot});
     }
     
 	$self->{writer}=$writer;
