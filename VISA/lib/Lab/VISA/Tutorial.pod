@@ -10,8 +10,9 @@ Lab::VISA and its related packages allow to control test and measurement
 tasks with Perl scripts. It provides an interface to National Instruments'
 NI-VISA library,  making the standard VISA calls available from within Perl
 programs. Dedicated instrument driver classes relieve the user from taking
-care for internal details and make measurements as easy as C<<
-$voltage=$multimeter->read_voltage() >>.
+care for internal details and make measurements as easy as
+
+  $voltage=$multimeter->read_voltage().
 
 =head1 Measurement automation basics
 
