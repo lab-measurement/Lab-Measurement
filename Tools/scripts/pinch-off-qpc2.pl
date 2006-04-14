@@ -1,51 +1,62 @@
 #!/usr/bin/perl
 #$Id$
 
-# This is an example of how to use the advanced features
-# to simplify the task of voltage sweeping and data logging.
-
-# Doesn't work yet. 
-
-# The measurement records a conductance curve of a quantum point contact.
-
-# Adjust the GPIB addresses to your local settings.
-
 use strict;
 use Lab::Instrument::KnickS252;
 use Lab::Instrument::HP34401A;
+use Time::HiRes qw/usleep/;
 use Lab::Measurement;
+
+################################
 
 my $start_voltage=0;
 my $end_voltage=-0.1;
 my $step=-1e-3;
 
-my $amp=1e-8;    # Ithaco amplification
+my $knick_gpib=14;
+my $hp_gpib=24;
+
 my $v_sd=780e-3/1563;
+my $amp=1e-8;    # Ithaco amplification
+
 my $U_Kontakt=12.827;
+
+my $sample="S5a-III (81059)";
+my $title="QPC rechts oben";
+my $comment=<<COMMENT;
+Abgekühlt mit +150mV.
+Strom von 5 nach 13, Ithaco amp $ithaco_amp, supr 10^{-10}, rise 0.3ms, V_{SD}=$v_sd V.
+Gates 3 und 6.
+Hi und Lo der Kabel aufgetrennt; Tür zu, Deckel zu, Licht aus; nur Rotary, ca. 85mK.
+COMMENT
+
+################################
 
 my $g0=7.748091733e-5;
 
+unless (($end_voltage-$start_voltage)/$step > 0) {
+    warn "This will not work: start=$start_voltage, end=$end_voltage, step=$step.\n";
+    exit;
+}
+
 my $knick=new Lab::Instrument::KnickS252({
 	'GPIB_board'	=> 0,
-	'GPIB_address'	=> 14,
-    'gate_protect'  => 0,
+	'GPIB_address'	=> $knick_gpib,
+    'gate_protect'  => 1,
 
 	'gp_max_volt_per_second' => 0.001,
 });
 
 my $hp=new Lab::Instrument::HP34401A({
-	'GPIB_address'	=> 24,
+	'GPIB_address'	=> $hp_gpib,
 });
 
 
 my $measurement=new Lab::Measurement(
-	sample			=> 'S11_3',
-	title			=> 'QPC sweep',
+	sample			=> $sample,
+	title			=> $title,
 	filename_base	=> 'qpc_pinch_off',
-	description		=> <<END_DESCRIPTION,
-Yet another sweep for the top left quantum point contact.
-Source-Drain-Voltage $v_sd V applied to contact 24.
-END_DESCRIPTION
+	description		=> $comment,
 
     live_plot   	=> 'QPC current',
         
@@ -53,7 +64,7 @@ END_DESCRIPTION
 		{
 			'unit'		  	=> 'V',
 			'label'		  	=> 'Gate voltage',
-			'description' 	=> 'Applied to gates 16 and 17 via low path filter.',
+			'description' 	=> 'Applied to gates via low path filter.',
 		},
 		{
 			'unit'			=> 'V',
@@ -68,13 +79,13 @@ END_DESCRIPTION
 			'label'		  	=> 'Gate voltage',
             'min'           => ($start_voltage < $end_voltage) ? $start_voltage : $end_voltage,
             'max'           => ($start_voltage < $end_voltage) ? $end_voltage : $start_voltage,
-			'description' 	=> 'Applied to gates 16 and 17 via low path filter.',
+			'description' 	=> 'Applied to gates via low path filter.',
 		},
 		{
 			'unit'			=> 'A',
 			'expression'	=> "\$C1*$amp",
 			'label'			=> 'QPC current',
-			'description'	=> 'Current through QPC 1',
+			'description'	=> 'Current through QPC',
 		},
         {
             'unit'          => '2e^2/h',
@@ -85,6 +96,8 @@ END_DESCRIPTION
             'unit'          => '2e^2/h',
             'expression'    => "(1/(1/abs(\$C1)-1/$U_Kontakt)) * ($amp/($v_sd*$g0))",
             'label'         => "QPC conductance",
+            'min'           => -0.1,
+            'max'           => 5
         },
         
 	],
@@ -106,8 +119,16 @@ my $stepsign=$step/abs($step);
 
 for (my $volt=$start_voltage;$stepsign*$volt<=$stepsign*$end_voltage;$volt+=$step) {
     $knick->set_voltage($volt);
-    my $meas=$hp->read_voltage_dc(100,0.0001);
+    usleep(500000);
+    my $meas=$hp->read_voltage_dc(10,0.0001);
     $measurement->log_line($volt,$meas);
 }
 
-$measurement->finish_measurement();
+my $meta=$measurement->finish_measurement();
+
+my $plotter=new Lab::Data::Plotter($meta);
+
+$plotter->plot('QPC conductance');
+
+my $a=<stdin>;
+

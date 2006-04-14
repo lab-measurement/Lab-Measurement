@@ -65,7 +65,7 @@ sub _start_plot {
     my $xaxis=$self->{meta}->plot_xaxis($plot);
     my $yaxis=$self->{meta}->plot_yaxis($plot);
     
-    my $gp;
+    my $gp="set encoding iso_8859_1\n";
     
     $gp.='set xlabel "'.($self->{meta}->axis_label($xaxis)).' ('.($self->{meta}->axis_unit($xaxis)).")\"\n";
     $gp.='set ylabel "'.($self->{meta}->axis_label($yaxis))." (".($self->{meta}->axis_unit($yaxis)).")\"\n";
@@ -84,6 +84,7 @@ sub _start_plot {
     $gp.=qq(set title "Dataset ').$self->{meta}->dataset_title()."' (Sample '".$self->{meta}->sample()."')\"\n";
     my $h=0.95;
     for (split "\n",$self->{meta}->dataset_description()) {
+        s/_/\\\\_/;
         $gp.=qq(set label "$_" at graph 0.02, graph $h\n);
         $h-=0.04;
     }

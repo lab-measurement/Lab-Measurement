@@ -37,6 +37,7 @@ sub new {
     $self->{filehandle}=$log;
     $self->{filename}=$filename;
     $self->{filepath}=$path;
+    $self->{block_num}=0;
     
     return $self;
 }
@@ -82,10 +83,13 @@ sub log_line {
     print $fh (join $self->configure('output_col_sep'),@data),$self->configure('output_line_sep');
 }
 
-sub log_finish_block {
+sub log_start_block {
     my $self=shift;
     my $fh=$self->{filehandle};
-    print $fh $self->configure('output_block_sep');
+    if ($self->{block_num}) {
+        print $fh $self->configure('output_block_sep');
+    }
+    return $self->{block_num}++;
 }
 
 sub import_gpplus {

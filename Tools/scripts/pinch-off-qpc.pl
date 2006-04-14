@@ -8,9 +8,9 @@ use File::Basename;
 
 ###################################
 
-my $start_voltage=0;
-my $end_voltage=-0.25;
-my $step=-5e-4;
+my $start_voltage=-0.38;
+my $end_voltage=0;
+my $step=5e-4;
 
 my $knick_gpib=14;
 my $hp_gpib=24;
@@ -18,16 +18,16 @@ my $hp_gpib=24;
 my $v_sd=0.78/1563;
 my $ithaco_amp=1e-7;
 
-my $U_Kontakt=1.7;    #die Spannung, die Stromverstärker bei V_Gate=0 anzeigt
+my $U_Kontakt=1.821;    #die Spannung, die Stromverstärker bei V_Gate=0 anzeigt
 
-my $title="S5a-II (81059) QPC rechts oben";
+my $title="S5a-III (81059) QPC rechts oben";
 my $comment=<<COMMENT;
-Abgekuehlt mit +200mV
-Strom von 5 nach 1, Ithaco amp $ithaco_amp, supr 10^{-10}, rise 0.3ms
+Abgekuehlt mit +150mV
+Strom von 5 nach 13, Ithaco amp $ithaco_amp, supr 10^{-10}, rise 0.3ms
 Gates 3 und 6
 Hi und Lo der Kabel aufgetrennt
 Tuer zu, Deckel zu, Licht aus
-Nur Rotary, ca. 80mK
+Nur Rotary, ca. 85mK
 COMMENT
 
 ###################################

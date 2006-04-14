@@ -8,6 +8,7 @@ use Data::Dumper;
 use Lab::Data::Writer;
 use Lab::Data::Meta;
 use Lab::Data::Plotter;
+#use Time::HiRes qw/usleep gettimeofday/;
 
 our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
 
@@ -41,10 +42,11 @@ sub new {
         $params{filename}=$fnb."_".(sprintf "%03u",$last+1);
     }
 
+    $params{description}.=$params{filename}."; started at ".now_string()."\n";
+
 	# Writer erzeugen, Log öffnen
 	my $writer=new Lab::Data::Writer($params{filename},$params{writer_config});
 	# header schreiben
-    $writer->log_comment(now_string());
 	$writer->log_comment("Sample $params{sample}");
 	$writer->log_comment($params{title});
 	$writer->log_comment($params{description});
@@ -90,9 +92,10 @@ sub log_line {
 	}
 }
 
-sub log_finish_block {
+sub log_start_block {
 	my $self=shift;
-	$self->{writer}->log_finish_block();
+	my $num=$self->{writer}->log_start_block();
+    $self->{meta}->block_timestamp($num,now_string());
 }
 
 sub finish_measurement {
@@ -108,18 +111,9 @@ sub finish_measurement {
     return delete $self->{meta};
 }
 
-sub configure {
-	my $self=shift;
-	my $config=shift;
-	my $default_config={
-	};
-	for my $conf_name (keys %$default_config) {
-		unless ((defined($self->{config}->{$conf_name})) || (defined($config->{$conf_name}))) {
-			$self->{config}->{$conf_name}=$default_config->{$conf_name};
-		} elsif (defined($self->{config}->{$conf_name})) {
-			$self->{config}->{$conf_name}=$config->{$conf_name};
-		}
-	}
+sub now_string {
+	my ($sec,$min,$hour,$mday,$mon,$year)=localtime(time);
+	return sprintf "%4d/%02d/%02d-%02d:%02d:%02d",$year+1900,$mon+1,$mday,$hour,$min,$sec;
 }
 
 #magisches Interface
@@ -170,11 +164,6 @@ sub log {
 		$self->{magic_log}->{column}->[$column]->{status}='fresh';
 		$self->{magic_log}->{column}->[$column]->{datum}=$datum;
 	}
-}
-
-sub now_string {
-	my ($sec,$min,$hour,$mday,$mon,$year)=localtime(time);
-	return sprintf "%4d-%02d-%02d %02d:%02d:%02d",$year+1900,$mon+1,$mday,$hour,$min,$sec;
 }
 
 1;
