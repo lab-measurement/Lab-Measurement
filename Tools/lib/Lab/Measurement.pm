@@ -175,35 +175,154 @@ __END__
 
 =head1 NAME
 
-Lab::Measurement - Perl extension for logging measured data 
+Lab::Measurement - Log, describe and plot data on the fly
 
 =head1 SYNOPSIS
 
+  use Lab::Measurement;
+  
+  my $measurement=new Lab::Measurement(
+	  sample			=> $sample,
+	  title			    => $title,
+	  filename_base	    => 'qpc_pinch_off',
+	  description		=> $comment,
+
+      live_plot   	    => 'QPC current',
+
+	  columns			=> [
+		  {
+			  'unit'		  	=> 'V',
+			  'label'		  	=> 'Gate voltage',
+			  'description' 	=> 'Applied to gates via low path filter.',
+		  },
+		  {
+			  'unit'			=> 'V',
+			  'label'			=> 'Amplifier output',
+			  'description' 	=> "Voltage output by current amplifier set to $amp.",
+		  }
+	  ],
+	  axes			    => [
+		  {
+			  'unit'			=> 'V',
+              'expression'  	=> '$C0',
+			  'label'		  	=> 'Gate voltage',
+              'min'             => ($start_voltage < $end_voltage) ? $start_voltage : $end_voltage,
+              'max'             => ($start_voltage < $end_voltage) ? $end_voltage : $start_voltage,
+			  'description' 	=> 'Applied to gates via low path filter.',
+		  },
+		  {
+			  'unit'			=> 'A',
+			  'expression'	    => "abs(\$C1)*$amp",
+			  'label'			=> 'QPC current',
+			  'description'	    => 'Current through QPC',
+		  },
+          {
+              'unit'            => '2e^2/h',
+              'expression'      => "(\$A1/$v_sd)/$g0)",
+              'label'           => "Total conductance",
+          },
+          {
+              'unit'            => '2e^2/h',
+              'expression'      => "(1/(1/abs(\$C1)-1/$U_Kontakt)) * ($amp/($v_sd*$g0))",
+              'label'           => "QPC conductance",
+              'min'             => -0.1,
+              'max'             => 5
+          },
+
+	  ],
+      plots             => {
+          'QPC current'    => {
+              'type'          => 'line',
+              'xaxis'         => 0,
+              'yaxis'         => 1,
+              'grid'          => 'xtics ytics',
+          },
+          'QPC conductance'=> {
+              'type'          => 'line',
+              'xaxis'         => 0,
+              'yaxis'         => 3,
+              'grid'          => 'ytics',
+          }
+      },
+  );
+
+  $measurement->start_block();
+
+  my $stepsign=$step/abs($step);
+  for (my $volt=$start_voltage;$stepsign*$volt<=$stepsign*$end_voltage;$volt+=$step) {
+      $knick->set_voltage($volt);
+      usleep(500000);
+      my $meas=$hp->read_voltage_dc(10,0.0001);
+      $measurement->log_line($volt,$meas);
+  }
+
+  my $meta=$measurement->finish_measurement();
+
 =head1 DESCRIPTION
+
+If your measurements turn out to be shitty, it's not because of the software you are using.
 
 =head1 CONSTRUCTORS
 
-=head2 new($filename,[$config])
+=head2 new
+
+  $measurement=new Lab::Measurement(%config);
+
+where C<%config> can contain
+
+  sample		=> '',  # see Meta
+  title			=> '',  # single line
+  filename		=> '',
+  filename_base	=> '',	# for auto_naming
+  description	=> '',  # multi line
+
+  columns		=> [],
+  axes			=> [],
+  plots       	=> [],  # See Meta
+
+  live_plot  	=> '',  # Name of plot that is to be plotted live
+
+  writer_config	=> {},  # Configuration options for L<Lab::Data::Writer|Lab::Data::Writer>
 
 =head1 METHODS
 
-=head2 configure($config)
+=head2 start_block
 
-	my $default_config={
-		col_sep		=> "\t",
-		line_sep	=> "\n",
-		block_sep	=> "\n",
-	};
+  $block_num=$measurement->start_block();
+
+=head2 log_line
+
+  $measurement->log_line(@data);
+
+=head2 finish_measurement
+
+  $meta=$measurement->finish_measurement();
+
+=head2 now_string
+
+  $now=$measurement->now_string();
 
 =head2 log($datum,$column,$description)
 
+magic log. deprecated.
+
 =head1 SEE ALSO
+
+=over 4
+
+=item L<Lab::Data::Meta>
+
+=item L<Lab::Data::Writer>
+
+=item L<Lab::Data::Plotter>
+
+=back
 
 =head1 AUTHOR/COPYRIGHT
 
 This is $Id$
 
-Copyright 2004 Daniel Schröer (L<http://www.danielschroeer.de>)
+Copyright 2004-2006 Daniel Schröer (L<http://www.danielschroeer.de>)
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. 

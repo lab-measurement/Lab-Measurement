@@ -11,7 +11,7 @@ use File::Basename;
 my $hp_gpib=24;
 
 my $v_sd=0.78/1563;
-my $v_gate=-0.5316;
+my $v_gate=-0.5304;
 my $ithaco_amp=1e-7;
 
 my $U_Kontakt=2.10;    #die Spannung, die Stromverstärker bei V_Gate=0 anzeigt
