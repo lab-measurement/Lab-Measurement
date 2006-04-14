@@ -9,25 +9,25 @@ use Lab::Measurement;
 
 ################################
 
-my $start_voltage=0;
-my $end_voltage=-0.1;
-my $step=-1e-3;
+my $start_voltage=-0.6;
+my $end_voltage=0;
+my $step=5e-4;
 
 my $knick_gpib=14;
 my $hp_gpib=24;
 
 my $v_sd=780e-3/1563;
-my $amp=1e-8;    # Ithaco amplification
+my $amp=1e-7;    # Ithaco amplification
 
-my $U_Kontakt=12.827;
+my $U_Kontakt=2.10;
 
 my $sample="S5a-III (81059)";
-my $title="QPC rechts oben";
+my $title="QPC rechts unten";
 my $comment=<<COMMENT;
-Abgekühlt mit +150mV.
-Strom von 5 nach 13, Ithaco amp $ithaco_amp, supr 10^{-10}, rise 0.3ms, V_{SD}=$v_sd V.
-Gates 3 und 6.
-Hi und Lo der Kabel aufgetrennt; Tür zu, Deckel zu, Licht aus; nur Rotary, ca. 85mK.
+Abgekuehlt mit +150mV.
+Strom von 8 nach 1, Ithaco amp $amp, supr 10e-10, rise 0.3ms, V_{SD}=$v_sd V.
+Gates 7 und 9.
+Hi und Lo der Kabel aufgetrennt; Tuer zu, Deckel zu, Licht aus; nur Rotary, ca. 85mK.
 COMMENT
 
 ################################
@@ -44,7 +44,7 @@ my $knick=new Lab::Instrument::KnickS252({
 	'GPIB_address'	=> $knick_gpib,
     'gate_protect'  => 1,
 
-	'gp_max_volt_per_second' => 0.001,
+	'gp_max_volt_per_second' => 0.002,
 });
 
 my $hp=new Lab::Instrument::HP34401A({
@@ -83,7 +83,7 @@ my $measurement=new Lab::Measurement(
 		},
 		{
 			'unit'			=> 'A',
-			'expression'	=> "\$C1*$amp",
+			'expression'	=> "abs(\$C1)*$amp",
 			'label'			=> 'QPC current',
 			'description'	=> 'Current through QPC',
 		},
@@ -104,19 +104,22 @@ my $measurement=new Lab::Measurement(
     plots       	        => {
         'QPC current'    => {
             'type'          => 'line',
-            'xaxis'        => 0,
-            'yaxis'        => 1,
+            'xaxis'         => 0,
+            'yaxis'         => 1,
+            'grid'          => 'xtics ytics',
         },
         'QPC conductance'=> {
-            'type'         => 'line',
-            'xaxis'        => 0,
-            'yaxis'        => 3,
+            'type'          => 'line',
+            'xaxis'         => 0,
+            'yaxis'         => 3,
+            'grid'          => 'ytics',
         }
     },
 );
 
-my $stepsign=$step/abs($step);
+$measurement->start_block();
 
+my $stepsign=$step/abs($step);
 for (my $volt=$start_voltage;$stepsign*$volt<=$stepsign*$end_voltage;$volt+=$step) {
     $knick->set_voltage($volt);
     usleep(500000);

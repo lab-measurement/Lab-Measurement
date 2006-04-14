@@ -168,6 +168,7 @@ sub _load_xml {
     }) {
         return _parse_domnode_list([$doc->getDocumentElement()->getChildNodes()],$definition);
     } else {
+        warn "Parsing $filename failed!";
         return undef;
     }
 }

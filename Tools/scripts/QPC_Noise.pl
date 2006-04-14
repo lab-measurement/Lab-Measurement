@@ -11,21 +11,21 @@ use File::Basename;
 my $hp_gpib=24;
 
 my $v_sd=0.78/1563;
-my $v_gate=-0.3306;
+my $v_gate=-0.5316;
 my $ithaco_amp=1e-7;
 
-my $U_Kontakt=1.822;    #die Spannung, die Stromverstärker bei V_Gate=0 anzeigt
+my $U_Kontakt=2.10;    #die Spannung, die Stromverstärker bei V_Gate=0 anzeigt
 
-my $title="S5a-III (81059) QPC rechts oben";
+my $title="S5a-III (81059) QPC rechts unten";
 my $comment=<<COMMENT;
 Abgekuehlt mit +150mV.
-Strom von 5 nach 13; Ithaco Amp $ithaco_amp, Sup 10^{-10}, Rise 0.3ms.
-Gates 3 und 6; V_{Gates}=$v_gate V.
+Strom von 8 nach 1; Ithaco Amp $ithaco_amp, Sup 10^{-10}, Rise 0.3ms.
+Gates 7 und 9; V_{Gates}=$v_gate V.
 Hi und Lo der Kabel aufgetrennt, Tuer zu, Deckel zu, Licht aus.
-Nur Rot-Pumpe; ca. 80mK.
+Nur Rot-Pumpe; ca. 85mK.
 COMMENT
 
-my $duration=1800;
+my $duration=300;
 
 ##################################
 

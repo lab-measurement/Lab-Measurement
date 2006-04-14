@@ -70,6 +70,9 @@ sub _start_plot {
     $gp.='set xlabel "'.($self->{meta}->axis_label($xaxis)).' ('.($self->{meta}->axis_unit($xaxis)).")\"\n";
     $gp.='set ylabel "'.($self->{meta}->axis_label($yaxis))." (".($self->{meta}->axis_unit($yaxis)).")\"\n";
     
+    if (defined $self->{meta}->plot_grid($plot)) {
+        $gp.="set grid ".($self->{meta}->plot_grid($plot))."\n";
+    }
     my $xmin=(defined $self->{meta}->axis_min($xaxis)) ? $self->{meta}->axis_min($xaxis) : "*";
     my $xmax=(defined $self->{meta}->axis_max($xaxis)) ? $self->{meta}->axis_max($xaxis) : "*";
     my $ymin=(defined $self->{meta}->axis_min($yaxis)) ? $self->{meta}->axis_min($yaxis) : "*";
@@ -84,7 +87,6 @@ sub _start_plot {
     $gp.=qq(set title "Dataset ').$self->{meta}->dataset_title()."' (Sample '".$self->{meta}->sample()."')\"\n";
     my $h=0.95;
     for (split "\n",$self->{meta}->dataset_description()) {
-        s/_/\\\\_/;
         $gp.=qq(set label "$_" at graph 0.02, graph $h\n);
         $h-=0.04;
     }

@@ -71,7 +71,8 @@ my $declaration = {
             'yaxis'             => ['SCALAR'],
             'zaxis'             => ['SCALAR'],
             'caxis'             => ['SCALAR'],
-            logscale            => ['SCALAR'],
+            logscale            => ['SCALAR'],# z.b: 'x' oder 'yzx'
+            grid                => ['SCALAR'],# z.B. 'ytics'
         }
     ],
 };

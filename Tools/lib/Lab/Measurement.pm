@@ -42,7 +42,9 @@ sub new {
         $params{filename}=$fnb."_".(sprintf "%03u",$last+1);
     }
 
-    $params{description}.=$params{filename}."; started at ".now_string()."\n";
+    my $desc_add=$params{filename}."; started at ".now_string()."\n";
+    $desc_add =~ s/_/\\\\_/g;
+    $params{description}.=$desc_add;
 
 	# Writer erzeugen, Log öffnen
 	my $writer=new Lab::Data::Writer($params{filename},$params{writer_config});
@@ -55,6 +57,7 @@ sub new {
 	# meta erzeugen
     my $meta=new Lab::Data::Meta({
         data_complete           => 0,
+        sample                  => $params{sample},
         dataset_title           => $params{title},
         dataset_description     => $params{description},
         data_file               => ($writer->get_filename)[0].".".$writer->configure('output_data_ext'),
@@ -92,7 +95,7 @@ sub log_line {
 	}
 }
 
-sub log_start_block {
+sub start_block {
 	my $self=shift;
 	my $num=$self->{writer}->log_start_block();
     $self->{meta}->block_timestamp($num,now_string());
