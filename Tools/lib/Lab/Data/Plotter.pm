@@ -269,7 +269,7 @@ L<Lab::Data::Meta|Lab::Data::Meta> or a filename that points to a C<.META> file.
 
 =head2 plot
 
-  $plotter->plot($plot);
+  $plotter->plot($plot,%options);
 
 =head2 start_live_plot
 
