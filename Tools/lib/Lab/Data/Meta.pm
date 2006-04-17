@@ -23,10 +23,10 @@ our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 our @EXPORT = qw();
 
 my $declaration = {
-    data_complete               => ['SCALAR'],
+    data_complete               => ['SCALAR'],  # boolean
 
     dataset_title               => ['SCALAR'],
-    dataset_description         => ['SCALAR'],
+    dataset_description         => ['SCALAR'],  # multiline
     sample                      => ['SCALAR'],
     data_file                   => ['SCALAR'],  # relativ zur descriptiondatei
 
@@ -36,17 +36,17 @@ my $declaration = {
         {
             unit                => ['SCALAR'],
             label               => ['SCALAR'],  # evtl. weg
-            description         => ['SCALAR'],
-            min                 => ['SCALAR'],
-            max                 => ['SCALAR'],
+            description         => ['SCALAR'],  # evtl. weg
+            min                 => ['SCALAR'],  # unnütz, aber von GPplus-Import unterstützt
+            max                 => ['SCALAR'],  # dito
         }
     ],
     block                   => [
         'ARRAY',
         'id',
         {
-            original_filename   => ['SCALAR'],
-            timestamp           => ['SCALAR'],
+            original_filename   => ['SCALAR'],  # nur von GPplus-Import unterstützt
+            timestamp           => ['SCALAR'],  # Format %Y/%m/%d-%H:%M:%S
             comment             => ['SCALAR']
         }
     ],
@@ -59,20 +59,28 @@ my $declaration = {
             expression          => ['SCALAR'],
             min                 => ['SCALAR'],
             max                 => ['SCALAR'],
-            description         => ['SCALAR']
+            description         => ['SCALAR']   # evtl. weg
         }
     ],
     plot                    => [
         'HASH',
         'name',
         {
-            type                => ['SCALAR'],
-            'xaxis'             => ['SCALAR'],
-            'yaxis'             => ['SCALAR'],
-            'zaxis'             => ['SCALAR'],
-            'caxis'             => ['SCALAR'],
-            logscale            => ['SCALAR'],# z.b: 'x' oder 'yzx'
-            grid                => ['SCALAR'],# z.B. 'ytics'
+            type                => ['SCALAR'],  # line, pm3d
+            xaxis               => ['SCALAR'],
+            yaxis               => ['SCALAR'],
+            zaxis               => ['SCALAR'],
+            caxis               => ['SCALAR'],
+            logscale            => ['SCALAR'],  # z.b: 'x' oder 'yzx'
+            grid                => ['SCALAR'],  # z.B. 'ytics' oder 'xtics ytics'
+        }
+    ],
+    constant                => [
+        'ARRAY',
+        'id',
+        {
+            name                => ['SCALAR'],
+            value               => ['SCALAR'],
         }
     ],
 };

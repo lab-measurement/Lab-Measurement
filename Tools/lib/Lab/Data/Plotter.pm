@@ -65,7 +65,13 @@ sub _start_plot {
     my $xaxis=$self->{meta}->plot_xaxis($plot);
     my $yaxis=$self->{meta}->plot_yaxis($plot);
     
-    my $gp="set encoding iso_8859_1\n";
+    my $gp="";
+    
+    for (@{$self->{meta}->constant()}) {
+        $gp.=($_->{name})."=".($_->{value})."\n";
+    }    
+    
+    $gp.="set encoding iso_8859_1\n";
     
     $gp.='set xlabel "'.($self->{meta}->axis_label($xaxis)).' ('.($self->{meta}->axis_unit($xaxis)).")\"\n";
     $gp.='set ylabel "'.($self->{meta}->axis_label($yaxis))." (".($self->{meta}->axis_unit($yaxis)).")\"\n";

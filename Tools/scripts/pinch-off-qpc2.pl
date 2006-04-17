@@ -32,76 +32,92 @@ COMMENT
 
 ################################
 
-my $g0=7.748091733e-5;
-
 unless (($end_voltage-$start_voltage)/$step > 0) {
     warn "This will not work: start=$start_voltage, end=$end_voltage, step=$step.\n";
     exit;
 }
 
 my $knick=new Lab::Instrument::KnickS252({
-	'GPIB_board'	=> 0,
-	'GPIB_address'	=> $knick_gpib,
+    'GPIB_board'    => 0,
+    'GPIB_address'  => $knick_gpib,
     'gate_protect'  => 1,
 
-	'gp_max_volt_per_second' => 0.002,
+    'gp_max_volt_per_second' => 0.002,
 });
 
 my $hp=new Lab::Instrument::HP34401A({
-	'GPIB_address'	=> $hp_gpib,
+    'GPIB_address'  => $hp_gpib,
 });
 
 
 my $measurement=new Lab::Measurement(
-	sample			=> $sample,
-	title			=> $title,
-	filename_base	=> 'qpc_pinch_off',
-	description		=> $comment,
+    sample          => $sample,
+    title           => $title,
+    filename_base   => 'qpc_pinch_off',
+    description     => $comment,
 
-    live_plot   	=> 'QPC current',
-        
-	columns			=> [
+    live_plot       => 'QPC current',
+    
+	constants		=> [
 		{
-			'unit'		  	=> 'V',
-			'label'		  	=> 'Gate voltage',
-			'description' 	=> 'Applied to gates via low path filter.',
+			'name'			=> 'G0',
+			'value'			=> '7.748091733e-5',
 		},
 		{
-			'unit'			=> 'V',
-			'label'			=> 'Amplifier output',
-			'description' 	=> "Voltage output by current amplifier set to $amp.",
-		}
-	],
-	axes			=> [
+			'name'			=> 'UKontakt',
+			'value'			=> $U_Kontakt,
+		},
 		{
-			'unit'			=> 'V',
-            'expression'  	=> '$C0',
-			'label'		  	=> 'Gate voltage',
+			'name'			=> 'V_SD',
+			'value'			=> $v_sd,
+		},
+		{
+			'name'			=> 'AMP',
+			'value'			=> $amp,
+		},
+	],
+	columns         => [
+        {
+            'unit'          => 'V',
+            'label'         => 'Gate voltage',
+            'description'   => 'Applied to gates via low path filter.',
+        },
+        {
+            'unit'          => 'V',
+            'label'         => 'Amplifier output',
+            'description'   => "Voltage output by current amplifier set to $amp.",
+        }
+    ],
+    axes            => [
+        {
+            'unit'          => 'V',
+            'expression'    => '$C0',
+            'label'         => 'Gate voltage',
             'min'           => ($start_voltage < $end_voltage) ? $start_voltage : $end_voltage,
             'max'           => ($start_voltage < $end_voltage) ? $end_voltage : $start_voltage,
-			'description' 	=> 'Applied to gates via low path filter.',
-		},
-		{
-			'unit'			=> 'A',
-			'expression'	=> "abs(\$C1)*$amp",
-			'label'			=> 'QPC current',
-			'description'	=> 'Current through QPC',
-		},
+            'description'   => 'Applied to gates via low path filter.',
+        },
+        {
+            'unit'          => 'A',
+            'expression'    => "abs(\$C1)*AMP",
+            'label'         => 'QPC current',
+            'description'   => 'Current through QPC',
+        },
         {
             'unit'          => '2e^2/h',
-            'expression'    => "(\$A1/$v_sd)/$g0)",
+            'expression'    => "(\$A1/V_SD)/G0)",
             'label'         => "Total conductance",
         },
         {
             'unit'          => '2e^2/h',
-            'expression'    => "(1/(1/abs(\$C1)-1/$U_Kontakt)) * ($amp/($v_sd*$g0))",
+            'expression'    => "(1/(1/abs(\$C1)-1/UKontakt)) * (AMP/(V_SD*G0))",
             'label'         => "QPC conductance",
             'min'           => -0.1,
             'max'           => 5
         },
         
-	],
-    plots       	        => {
+    ],
+    plots           => {
         'QPC current'    => {
             'type'          => 'line',
             'xaxis'         => 0,
