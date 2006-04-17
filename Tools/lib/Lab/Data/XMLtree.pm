@@ -54,6 +54,7 @@ use Carp;
 use XML::DOM;
 use XML::Generator ();
 use Data::Dumper;
+use Encode;
 use vars qw($VERSION);
 $VERSION = sprintf("1.%04d", q$Revision$ =~ / (\d+) /);
 
@@ -84,7 +85,7 @@ sub read_xml {
     my $def=shift;
     if (my $xml_filename=shift) {
         if (my $perlnode_list=_load_xml($def,$xml_filename)) {
-#            print Dumper($perlnode_list);
+            print Dumper($perlnode_list);
             return $class->new($def,$perlnode_list);
         }
         warn "I'm having difficulties reading the file $xml_filename! Please help!\n";
@@ -247,7 +248,7 @@ sub _parse_domnode_list{
                     my ($text_node)=$domnode->getChildNodes();
                     if ((defined $text_node)
                      && ($text_node->getNodeType() == TEXT_NODE)) {
-                        $rr=$text_node->getData();
+                        $rr=decode("utf8", $text_node->getData());
                     }
                 }   
                 for ($type) {
