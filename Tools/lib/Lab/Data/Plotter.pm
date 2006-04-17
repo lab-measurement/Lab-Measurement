@@ -67,18 +67,40 @@ sub _start_plot {
     
     my $gp="";
     
+    $gp.="set encoding iso_8859_1\n";
+    
+    $gp.="# Constants\n" if (@{$self->{meta}->constant()});
     for (@{$self->{meta}->constant()}) {
         $gp.=($_->{name})."=".($_->{value})."\n";
     }    
     
-    $gp.="set encoding iso_8859_1\n";
-    
+    $gp.="# Axis labels\n";
     $gp.='set xlabel "'.($self->{meta}->axis_label($xaxis)).' ('.($self->{meta}->axis_unit($xaxis)).")\"\n";
     $gp.='set ylabel "'.($self->{meta}->axis_label($yaxis))." (".($self->{meta}->axis_unit($yaxis)).")\"\n";
     
     if (defined $self->{meta}->plot_grid($plot)) {
+        $gp.="# Grid\n";
         $gp.="set grid ".($self->{meta}->plot_grid($plot))."\n";
     }
+
+    if ($self->{meta}->plot_time($plot)) {
+        $gp.="# Time axes\n";
+        for (qw/x y z cb/) {
+            if ($self->{meta}->plot_time($plot) =~ /$_/) { $gp.="set ".$_."data time\n" }
+        }
+        $gp.=qq(set timefmt "%s"\n);
+    }
+    
+    my $gp_help;
+    for (qw/x y z cb/) {
+        my $name="plot_".$_."format";
+        if ($self->{meta}->$name($plot)) {
+            $gp_help.=qq(set format $_ ").($self->{meta}->$name($plot)).qq("\n);
+        }
+    }
+    $gp.="# Axis format\n".$gp_help if ($gp_help);
+    
+    $gp.="# Ranges\n";
     my $xmin=(defined $self->{meta}->axis_min($xaxis)) ? $self->{meta}->axis_min($xaxis) : "*";
     my $xmax=(defined $self->{meta}->axis_max($xaxis)) ? $self->{meta}->axis_max($xaxis) : "*";
     my $ymin=(defined $self->{meta}->axis_min($yaxis)) ? $self->{meta}->axis_min($yaxis) : "*";
@@ -87,9 +109,11 @@ sub _start_plot {
     $gp.="set yrange [$ymin:$ymax]\n";
 
     if ($self->{meta}->plot_logscale($plot)) {
+        $gp.="# Axes with logscale\n";
         $gp.="set logscale ".$self->{meta}->plot_logscale($plot)."\n";
     }
-    
+
+    $gp.="# Title and labels\n";
     $gp.=qq(set title "Dataset ').$self->{meta}->dataset_title()."' (Sample '".$self->{meta}->sample()."')\"\n";
     my $h=0.95;
     for (split "\n",$self->{meta}->dataset_description()) {

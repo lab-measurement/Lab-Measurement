@@ -68,10 +68,15 @@ my $declaration = {
         {
             type                => ['SCALAR'],  # line, pm3d
             xaxis               => ['SCALAR'],
+            xformat             => ['SCALAR'],
             yaxis               => ['SCALAR'],
+            yformat             => ['SCALAR'],
             zaxis               => ['SCALAR'],
-            caxis               => ['SCALAR'],
-            logscale            => ['SCALAR'],  # z.b: 'x' oder 'yzx'
+            zformat             => ['SCALAR'],
+            cbaxis              => ['SCALAR'],
+            cbformat            => ['SCALAR'],
+            logscale            => ['SCALAR'],  # z.b: 'x' oder 'yzxcb'
+            time                => ['SCALAR'],  # wie oben (anders als in GnuPlot) (Achsen müssen %s-Format haben)
             grid                => ['SCALAR'],  # z.B. 'ytics' oder 'xtics ytics'
         }
     ],
