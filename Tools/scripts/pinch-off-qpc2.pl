@@ -45,10 +45,7 @@ my $knick=new Lab::Instrument::KnickS252({
     'gp_max_volt_per_second' => 0.002,
 });
 
-my $hp=new Lab::Instrument::HP34401A({
-    'GPIB_address'  => $hp_gpib,
-});
-
+my $hp=new Lab::Instrument::HP34401A(0,$hp_gpib);
 
 my $measurement=new Lab::Measurement(
     sample          => $sample,
