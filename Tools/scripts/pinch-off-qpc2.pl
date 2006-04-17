@@ -24,10 +24,10 @@ my $U_Kontakt=2.10;
 my $sample="S5a-III (81059)";
 my $title="QPC rechts unten";
 my $comment=<<COMMENT;
-Abgekuehlt mit +150mV.
+Abgekühlt mit +150mV.
 Strom von 8 nach 1, Ithaco amp $amp, supr 10e-10, rise 0.3ms, V_{SD}=$v_sd V.
 Gates 7 und 9.
-Hi und Lo der Kabel aufgetrennt; Tuer zu, Deckel zu, Licht aus; nur Rotary, ca. 85mK.
+Hi und Lo der Kabel aufgetrennt; Tür zu, Deckel zu, Licht aus; nur Rotary, ca. 85mK.
 COMMENT
 
 ################################
