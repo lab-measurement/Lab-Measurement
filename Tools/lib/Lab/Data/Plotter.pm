@@ -46,38 +46,59 @@ sub stop_live_plot {
 }
 
 sub plot {
-    my ($self,$plot)=@_;
+    my ($self,$plot,%options)=@_;
     
     die "Plot what?" unless ($self->{meta} && $plot);
     
-    my $gpipe=$self->_start_plot($plot);
+    my $gpipe=$self->_start_plot($plot,%options);
     $self->_plot($gpipe,$plot);
     
     return $gpipe;
 }
 
 sub _start_plot {
-    my ($self,$plot)=@_;
+    my ($self,$plot,%options)=@_;
     die "plot \"$plot\" undefined" unless (defined($self->{meta}->plot($plot)));
 
-    my $gpipe=$self->get_gnuplot_pipe();
-    
-    my $xaxis=$self->{meta}->plot_xaxis($plot);
-    my $yaxis=$self->{meta}->plot_yaxis($plot);
+    my $gpipe;
+    if ($options{dump}) {
+        open $gpipe,">$options{dump}" or die "cannot open gnuplot dump file $options{dump}";
+    } else {
+        $gpipe=$self->get_gnuplot_pipe();
+    }
     
     my $gp="";
-    
+    $gp.="# Encoding of this file\n";
     $gp.="set encoding iso_8859_1\n";
+    
+    if ($options{eps}) {
+        $gp.="# Output to file\n";
+        $gp.="set terminal postscript color enhanced\n";
+        $gp.=qq(set output ").$options{eps}.qq("\n);
+    }
+    
+    if ($self->{meta}->plot_type($plot) eq 'pm3d') {
+        $gp.="# Set color plot\n";
+        $gp.="set pm3d map\n";
+        $gp.="set view map\n";
+    }
     
     $gp.="# Constants\n" if (@{$self->{meta}->constant()});
     for (@{$self->{meta}->constant()}) {
         $gp.=($_->{name})."=".($_->{value})."\n";
     }    
     
+    my $xaxis=$self->{meta}->plot_xaxis($plot);
+    my $yaxis=$self->{meta}->plot_yaxis($plot);
+    my $zaxis=$self->{meta}->plot_zaxis($plot);
+    my $cbaxis=$self->{meta}->plot_cbaxis($plot);
+    
     $gp.="# Axis labels\n";
     $gp.='set xlabel "'.($self->{meta}->axis_label($xaxis)).' ('.($self->{meta}->axis_unit($xaxis)).")\"\n";
     $gp.='set ylabel "'.($self->{meta}->axis_label($yaxis))." (".($self->{meta}->axis_unit($yaxis)).")\"\n";
-    
+    $gp.='set zlabel "'.($self->{meta}->axis_label($zaxis)).' ('.($self->{meta}->axis_unit($zaxis)).")\"\n" if ($zaxis);
+    $gp.='set cblabel "'.($self->{meta}->axis_label($cbaxis))." (".($self->{meta}->axis_unit($cbaxis)).")\"\n" if ($cbaxis);
+   
     if (defined $self->{meta}->plot_grid($plot)) {
         $gp.="# Grid\n";
         $gp.="set grid ".($self->{meta}->plot_grid($plot))."\n";
@@ -107,6 +128,16 @@ sub _start_plot {
     my $ymax=(defined $self->{meta}->axis_max($yaxis)) ? $self->{meta}->axis_max($yaxis) : "*";
     $gp.="set xrange [$xmin:$xmax]\n";
     $gp.="set yrange [$ymin:$ymax]\n";
+    if ($zaxis) {
+        my $zmin=(defined $self->{meta}->axis_min($zaxis)) ? $self->{meta}->axis_min($zaxis) : "*";
+        my $zmax=(defined $self->{meta}->axis_max($zaxis)) ? $self->{meta}->axis_max($zaxis) : "*";
+        $gp.="set zrange [$zmin:$zmax]\n";
+    }
+    if ($cbaxis) {
+        my $cbmin=(defined $self->{meta}->axis_min($cbaxis)) ? $self->{meta}->axis_min($cbaxis) : "*";
+        my $cbmax=(defined $self->{meta}->axis_max($cbaxis)) ? $self->{meta}->axis_max($cbaxis) : "*";
+        $gp.="set cbrange [$cbmin:$cbmax]\n";
+    }
 
     if ($self->{meta}->plot_logscale($plot)) {
         $gp.="# Axes with logscale\n";
@@ -130,13 +161,24 @@ sub _plot {
 
     my $xaxis=$self->{meta}->plot_xaxis($plot);
     my $yaxis=$self->{meta}->plot_yaxis($plot);
-    
+    my $zaxis=$self->{meta}->plot_zaxis($plot);
+    my $cbaxis=$self->{meta}->plot_cbaxis($plot);
+
     my $xexp=$self->_flatten_exp($xaxis);
     my $yexp=$self->_flatten_exp($yaxis);
+    my $zexp=$self->_flatten_exp($zaxis) if ($zaxis);
+    my $cbexp=$self->_flatten_exp($cbaxis) if ($cbaxis);
 
     my $datafile=$self->{meta}->get_abs_path().$self->{meta}->data_file();
     
-    print $gpipe qq(plot "$datafile" using ($xexp):($yexp) title "$plot" with lines\n);
+    my $pp;
+    if ($self->{meta}->plot_type($plot) eq 'pm3d') {
+        $pp=qq(splot "$datafile" using ($xexp):($yexp):($cbexp) title "$plot"\n);
+    } else {
+        $pp=qq(plot "$datafile" using ($xexp):($yexp) title "$plot" with lines\n);
+    }
+    print $gpipe $pp;
+    
 }
 
 sub _flatten_exp {

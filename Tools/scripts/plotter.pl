@@ -7,12 +7,14 @@ use Pod::Usage;
 
 my %options=(#	=> default
 	list_plots	=> 0,
-	eps_file	=> '',
+	dump		=> '',
+	eps			=> '',
 );
 
 GetOptions(\%options,
     'list_plots!',
-    'eps_file=s',
+	'dump=s',
+	'eps=s',
 	'help|?',
     'man',
 );
@@ -32,7 +34,9 @@ if ($options{list_plots}) {
     exit;
 }
 
-my $gp=$plotter->plot(@ARGV);
+my $plot=shift(@ARGV) or pod2usage(1);
+
+my $gp=$plotter->plot($plot,%options);
 
 my $a=<stdin>;
 
@@ -48,17 +52,53 @@ plotter.pl [OPTIONS] METAFILE [PLOT]
 
 =head1 DESCRIPTION
 
-Kabla.
+This is a commandline tool to plot data that has been recorded using
+the L<Lab::Measurement|Lab::Measurement> module.
 
 =head1 OPTIONS AND ARGUMENTS
 
-viele blöde argumente
+The file C<METAFILE> contains the meta information for the data that is
+to be plotted. The name C<PLOT> of the plot that you want to draw must
+be supplied, unless you use the C<--list_plots> option, that lists all
+available plots defined in the C<METAFILE>.
 
-zu viele optionen
+=over 2
+
+=item --help|-?
+
+Print short usage information.
+
+=item --man
+
+Show manpage.
+
+=item --list_plots
+
+List available plots defined in C<METAFILE>.
+
+=item --dump=filename
+
+Do not plot now, but dump a gnuplot file C<filename> instead.
+
+=item --eps=filename
+
+Don't plot on screen, but create eps file C<filename>.
+
+=back
 
 =head1 SEE ALSO
 
-Uses gnuplot(1). See the code.
+=over 2
+
+=item gnuplot(1)
+
+=item L<Lab::Measurement>
+
+=item L<Lab::Data::Plotter>
+
+=item L<Lab::Data::Meta>
+
+=back
 
 =head1 AUTHOR/COPYRIGHT
 
@@ -66,6 +106,7 @@ This is $Id$.
 
 Copyright 2004 Daniel Schröer.
 
-This program is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
+This program is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
 
 =cut
