@@ -83,10 +83,12 @@ sub _start_plot {
         $gp.="set view map\n";
     }
     
-    $gp.="# Constants\n" if (@{$self->{meta}->constant()});
-    for (@{$self->{meta}->constant()}) {
-        $gp.=($_->{name})."=".($_->{value})."\n";
-    }    
+    if ($self->{meta}->constant()) {
+        $gp.="# Constants\n" ;
+        for (@{$self->{meta}->constant()}) {
+            $gp.=($_->{name})."=".($_->{value})."\n";
+        }
+    }
     
     my $xaxis=$self->{meta}->plot_xaxis($plot);
     my $yaxis=$self->{meta}->plot_yaxis($plot);
