@@ -51,7 +51,7 @@ $start=$ns*1e6+$mus;
 ok(abs($source->set_voltage(0.115)-0.115) < 0.00001,'set_voltage test 2');
 ($ns,$mus)=gettimeofday();
 $now=$ns*1e6+$mus;
-ok((abs(($now-$start)/1e6)-12.5) < 1,'timing test 2');
+ok((abs(($now-$start)/1e6)-12.5) < 2,'timing test 2');
 diag "Should have taken 12.5s, took ",abs(($now-$start)/1e6)," s.";
 
 ok($source->configure({
@@ -98,7 +98,7 @@ sub conftest {
     $fail.="Sweep failed. " unless (abs($source->set_voltage($finalvolt)-$finalvolt) < 0.00001);
     ($ns,$mus)=gettimeofday();
     $now=$ns*1e6+$mus;
-    $fail.="Timing test failed: took ".abs(($now-$start)/1e6)."s, not 10s. " unless ((abs(($now-$start)/1e6)-10) < 1);
+    $fail.="Timing test failed: took ".abs(($now-$start)/1e6)."s, not 10s. " unless ((abs(($now-$start)/1e6)-10) < 2);
     diag "Testing step_to and sweep_to in other direction";
     $fail.="step_to part2 failed" unless (
         (abs($source->step_to_voltage($finalvolt+$step)-($finalvolt+$step)) < 0.00001) &

@@ -25,4 +25,11 @@
 \b\.#
 
 \bdoc\b
+\bexamples
 
+\bt/2_
+\bt/5_
+\bt/6_
+\bt/7_
+
+.tar.gz$
