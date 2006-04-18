@@ -1,5 +1,9 @@
 /* $Id$ */
 
+/*$Id$
+$VERSION="1.11";
+*/
+
 %module VISA
 %{
 #include "visa.h"
