@@ -23,3 +23,12 @@
 \.bak$
 \#$
 \b\.#
+
+
+\blib/Lab/Data/PDL.pm$
+\blib/Lab/Data/Dataset.pm$
+\bexamples
+\bscripts
+
+\bt/Dataset.t
+\bt/XMLtree.t

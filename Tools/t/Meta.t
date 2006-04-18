@@ -3,7 +3,7 @@
 use strict;
 use Data::Dumper;
 
-use Test::More tests => 61;
+use Test::More tests => 64;
 
 BEGIN { use_ok('Lab::Data::Meta') };
 
@@ -17,9 +17,9 @@ is($meta->column_label(4),'test1','meta1: can be read back correctly');
 ok($meta->column_label(0,'test2'),'meta1: set column #0\'s label with autoloader');
 is($meta->{column}->[0]->{label},'test2','meta1: is set correctly');
 
-ok($meta->axis_description('testachse','meta1: Dies ist eine Testachse'),'set axis description');
-is($meta->{axis}->{testachse}->{description},'meta1: Dies ist eine Testachse','is set correctly');
-is($meta->axis_description('testachse'),'meta1: Dies ist eine Testachse','can be read back correctly');
+ok($meta->axis_description(0,'meta1: Dies ist eine Testachse'),'set axis description');
+is($meta->{axis}->[0]->{description},'meta1: Dies ist eine Testachse','is set correctly');
+is($meta->axis_description(0),'meta1: Dies ist eine Testachse','can be read back correctly');
 
 ok(
     my $meta2=new Lab::Data::Meta({
@@ -30,16 +30,16 @@ ok(
             {label  =>'selber hallo',
              unit   =>'mV'},
         ],
-        axis           => {
-            time    => {
+        axis           => [
+            {
                 unit        => 's',
                 description => 'the time',
             },
-            energy  => {
+            {
                 unit        => 'eV',
                 description => 'kinetic energy',
             },
-        },
+        ],
     }
 ),'meta2: Create another Meta object.');
 is(ref $meta,'Lab::Data::Meta','meta2: is of right class.');
@@ -49,9 +49,9 @@ is($meta2->column_label(0),'hallo','meta2: 1st column has right label');
 ok($meta2->column_label(0,'ciao'),'meta2: 1st column can be changed');
 is($meta2->column_label(0),'ciao','meta2: 1st column is changed');
 is($meta2->column_unit(1),'mV','meta2: 2nd column has right unit');
-is($meta2->axis_unit('time'),'s','meta2: time axis has right unit');
-is($meta2->axis_description('energy'),'kinetic energy','meta2: energy axis has right description');
-is($meta2->{axis}->{energy}->{description},'kinetic energy','meta2: can also be accessed directly');
+is($meta2->axis_unit(0),'s','meta2: time axis has right unit');
+is($meta2->axis_description(1),'kinetic energy','meta2: energy axis has right description');
+is($meta2->{axis}->[1]->{description},'kinetic energy','meta2: can also be accessed directly');
 isnt($meta2->jibbet_nisch(),'nono','meta2: only allowed elements exist (XMLtree warning is ok)');
 
 my $testdescription=<<ENDE;
@@ -74,15 +74,18 @@ for (0..2) {
 for (0..4) {
     ok($meta3->block_comment($_,"block $_"),"meta3: Set block #$_\'s comment");
 }
-for (qw/V_g1 V_g2 V_SD/) {
+for (0..2) {
     ok($meta3->axis_description($_,"Dies ist die $_-Achse"),"meta3: Set description for axis $_");
+}
+for (qw/erster zweiter dritter/) {
+    ok($meta3->plot_type($_,"line"),"meta3: Set type for plot $_");
 }
 ok($meta3->data_complete(1),"meta3: Set data_complete.");
 
 ok($meta3->save("test.META"),'meta3: Save as XML');
 
-ok(my $meta4=Lab::Data::Meta->load('test.META'),'meta4: Create new Meta object (4) from file (with class method)');
-ok(my $meta5=$meta3->load('test.META'),'meta5: Create new Meta object (5) from file (with object method)');
+ok(my $meta4=Lab::Data::Meta->new_from_file('test.META'),'meta4: Create new Meta object (4) from file (with class method)');
+ok(my $meta5=$meta3->new_from_file('test.META'),'meta5: Create new Meta object (5) from file (with object method)');
 
 is($meta3->dataset_description(),$testdescription,'meta3: is right description');
 is($meta4->dataset_description(),$testdescription,'meta4: is right description');
@@ -93,7 +96,7 @@ is($meta5->data_complete(),1,'meta5: data_complete is good for Meta 5');
 #print Dumper($meta5);
 print $meta5->dataset_description();
 
-#unlink "test.META";
+unlink "test.META";
 
 is($meta3->column_label(2),'column 2','meta3: Column 2 is good for Meta 3');
 is($meta4->column_label(2),'column 2','meta4: Column 2 is good for Meta 4');
@@ -112,7 +115,7 @@ is($#{$m4_cols},2,'meta4: list has right length');
 ok(my @m4_cols=$meta4->column(),'meta4: get column list');
 is($#m4_cols,2,'meta4: list has right length');
 
-ok(my $m5_axes=$meta5->axis(),'meta5: get axes as hash reference');
-is(scalar keys %{$m5_axes},3,'meta5: hash has right length');
-ok(my %m5_axes=$meta5->axis(),'meta5: get axes as hash');
-is(scalar keys %m5_axes,3,'meta5: hash has right length');
+ok(my $m5_plots=$meta5->plot(),'meta5: get plots as hash reference');
+is(scalar keys %{$m5_plots},3,'meta5: hash has right length');
+ok(my %m5_plots=$meta5->plot(),'meta5: get axes as hash');
+is(scalar keys %m5_plots,3,'meta5: hash has right length');

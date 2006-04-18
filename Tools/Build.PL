@@ -10,11 +10,8 @@ my $build=Module::Build->new(
     license     => 'perl',
     requires    => {
     },
-    script_files    	=> ['scripts/lecktester.pl',
-                            'scripts/yoko_goto.pl',
+    script_files    	=> ['scripts/yoko_goto.pl',
                             'scripts/knick_goto.pl',
-                            'scripts/pinch-off-qpc.pl',
-                            'scripts/QPC_Noise.pl',
                            ],
     create_readme   	=> 0,
     create_makefile_pl	=> 'passthrough',

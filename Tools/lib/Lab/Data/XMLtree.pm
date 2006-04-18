@@ -248,7 +248,7 @@ sub _parse_domnode_list{
                     my ($text_node)=$domnode->getChildNodes();
                     if ((defined $text_node)
                      && ($text_node->getNodeType() == TEXT_NODE)) {
-                        $rr=decode("utf8", $text_node->getData());
+                        $rr=encode("iso-8859-1",$text_node->getData());
                     }
                 }   
                 for ($type) {
