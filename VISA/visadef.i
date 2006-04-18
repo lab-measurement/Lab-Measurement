@@ -420,6 +420,22 @@
 #define _VI_FUNC
 #define _VI_SIGNED          signed
 
+/*- Completion and Error Codes ----------------------------------------------*/
+
+#define VI_SUCCESS          (0L)
+
+/*- Other VISA Definitions --------------------------------------------------*/
+
+#define VI_NULL             (0)
+
+#define VI_TRUE             (1)
+#define VI_FALSE            (0)
+
+/*- Backward Compatibility Macros -------------------------------------------*/
+
+#define VISAFN              _VI_FUNC
+#define ViPtr               _VI_PTR
+
 typedef unsigned long ViUInt32;
 typedef ViUInt32    * ViPUInt32;
 typedef ViUInt32    * ViAUInt32;
