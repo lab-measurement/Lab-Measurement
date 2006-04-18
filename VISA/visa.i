@@ -1,10 +1,12 @@
-/* $Id$ */
+/*$Id$*/
 
-/*$Id$
-$VERSION="1.11";
-*/
 
 %module VISA
+
+%perlcode %{
+$Lab::VISA::VERSION="1.11";
+%}
+
 %{
 #include "visa.h"
 %}
