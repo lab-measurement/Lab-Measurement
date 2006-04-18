@@ -1,10 +1,9 @@
 /*$Id$*/
 
-
 %module VISA
 
 %perlcode %{
-$Lab::VISA::VERSION="1.11";
+$Lab::VISA::VERSION="1.12";
 %}
 
 %{

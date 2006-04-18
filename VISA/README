@@ -1,5 +1,4 @@
 README for Lab::VISA
-$VERSION = 1.12
 -----------------------------------------------------------------------
 
 This library offers a perl interface to National Instrument's NI-VISA library.

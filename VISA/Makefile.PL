@@ -27,13 +27,13 @@ WriteMakefile(
          'INC'          => '-I/usr/local/vxipnp/linux/include/',)),
 
     'NAME'              => 'Lab::VISA',
-    'VERSION_FROM'      => 'README',
+    'VERSION_FROM'      => 'VISA.pm',
     'PREREQ_PM'         => {},
     'OBJECT'            => q/$(O_FILES)/,
     'DEFINE'            => '',
 
     (($] >= 5.005)
     ?   (ABSTRACT_FROM  => 'VISA.pod',
-         AUTHOR         => 'Daniel Schroeer (SCHROEER) <schroeer@cpan.org>') : ()),
+         AUTHOR         => 'Daniel Schroeer <schroeer@cpan.org>') : ()),
 
 );
