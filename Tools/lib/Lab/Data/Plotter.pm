@@ -88,7 +88,7 @@ sub _start_plot {
     
     if ($self->{meta}->plot_type($plot) eq 'pm3d') {
         $gp.="# Set color plot\n";
-        $gp.="set pm3d map\n";
+        $gp.="set pm3d map corners2color c1\n";
         $gp.="set view map\n";
     }
     
