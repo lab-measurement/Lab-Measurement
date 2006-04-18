@@ -90,4 +90,3 @@ my $plotter=new Lab::Data::Plotter($meta);
 $plotter->plot('QPC lines');
 
 my $a=<stdin>;
-
