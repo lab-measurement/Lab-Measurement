@@ -11,21 +11,21 @@ use File::Basename;
 my $hp_gpib=24;
 
 my $v_sd=0.78/1563;
-my $v_gate=-0.5304;
+my $v_gate=-0.3305;
 my $ithaco_amp=1e-7;
 
-my $U_Kontakt=2.10;    #die Spannung, die Stromverstärker bei V_Gate=0 anzeigt
+my $U_Kontakt=1.81;    #die Spannung, die Stromverstärker bei V_Gate=0 anzeigt
 
-my $title="S5a-III (81059) QPC rechts unten";
+my $title="S5a-III (81059) QPC rechts oben";
 my $comment=<<COMMENT;
 Abgekuehlt mit +150mV.
-Strom von 8 nach 1; Ithaco Amp $ithaco_amp, Sup 10^{-10}, Rise 0.3ms.
-Gates 7 und 9; V_{Gates}=$v_gate V.
+Strom von 5 nach 13; Ithaco Amp $ithaco_amp, Sup 10^{-10}, Rise 0.3ms.
+Gates 3 und 6; V_{Gates}=$v_gate V.
 Hi und Lo der Kabel aufgetrennt, Tuer zu, Deckel zu, Licht aus.
 Nur Rot-Pumpe; ca. 85mK.
 COMMENT
 
-my $duration=300;
+my $duration=3600;
 
 ##################################
 
@@ -55,7 +55,7 @@ set label "$fn; started at $timestamp." at graph 0.02, graph 0.95
 set label "V_{SD}=%1.2e V",vsd at graph 0.02, graph 0.91
 set xlabel "Seconds"
 set ylabel "QPC Conductance (2e^2/h)"
-set yrange [0.46:0.54]
+#set yrange [0.46:0.54]
 set grid ytics
 unset key
 GNUPLOT1

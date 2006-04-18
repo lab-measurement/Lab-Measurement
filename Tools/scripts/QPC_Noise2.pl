@@ -5,18 +5,15 @@
 use strict;
 use Lab::Instrument::KnickS252;
 use Lab::Instrument::HP34401A;
-use Time::HiRes qw/usleep/;
+use Time::HiRes qw/usleep gettimeofday tv_interval/;
+use Term::ReadKey;
 use Lab::Measurement;
 
 ################################
 
-my $start_voltage=-0.38;
-my $end_voltage=0;
-my $step=1e-3;
-
-my $knick_gpib=14;
 my $hp_gpib=24;
 
+my $v_gate=-0.3305;
 my $v_sd=780e-3/1563;
 my $amp=1e-7;    # Ithaco amplification
 
@@ -27,34 +24,24 @@ my $title="QPC rechts oben";
 my $comment=<<COMMENT;
 Abgekuehlt mit +150mV.
 Strom von 5 nach 13, Ithaco amp $amp, supr 10e-10, rise 0.3ms, V_{SD}=$v_sd V.
-Gates 3 und 6.
+Gates 3 und 6; V_{Gates}=$v_gate V.
 Hi und Lo der Kabel aufgetrennt; Tuer zu, Deckel zu, Licht aus; nur Rotary, ca. 85mK.
 COMMENT
 
+my $duration=30;
+
 ################################
-
-unless (($end_voltage-$start_voltage)/$step > 0) {
-    warn "This will not work: start=$start_voltage, end=$end_voltage, step=$step.\n";
-    exit;
-}
-
-my $knick=new Lab::Instrument::KnickS252({
-    'GPIB_board'    => 0,
-    'GPIB_address'  => $knick_gpib,
-    'gate_protect'  => 1,
-
-    'gp_max_volt_per_second' => 0.002,
-});
 
 my $hp=new Lab::Instrument::HP34401A(0,$hp_gpib);
 
 my $measurement=new Lab::Measurement(
     sample          => $sample,
     title           => $title,
-    filename_base   => 'qpc_pinch_off',
+    filename_base   => 'qpc_noise',
     description     => $comment,
 
-    live_plot       => 'QPC current',
+    live_plot       => 'QPC conductance live',
+    live_refresh    => 3,
     
 	constants		=> [
 		{
@@ -76,9 +63,9 @@ my $measurement=new Lab::Measurement(
 	],
 	columns         => [
         {
-            'unit'          => 'V',
-            'label'         => 'Gate voltage',
-            'description'   => 'Applied to gates via low path filter.',
+            'unit'          => 's',
+            'label'         => 'Time',
+            'description'   => 'Time elapsed since start of measurement',
         },
         {
             'unit'          => 'V',
@@ -88,43 +75,43 @@ my $measurement=new Lab::Measurement(
     ],
     axes            => [
         {
-            'unit'          => 'V',
+            'unit'          => 's',
             'expression'    => '$C0',
-            'label'         => 'Gate voltage',
-            'min'           => ($start_voltage < $end_voltage) ? $start_voltage : $end_voltage,
-            'max'           => ($start_voltage < $end_voltage) ? $end_voltage : $start_voltage,
-            'description'   => 'Applied to gates via low path filter.',
+            'label'         => 'Time',
+            'description'   => 'Time elapsed since start of measurement',
         },
         {
-            'unit'          => 'A',
-            'expression'    => "abs(\$C1)*AMP",
-            'label'         => 'QPC current',
-            'description'   => 'Current through QPC',
-        },
-        {
-            'unit'          => '2e^2/h',
-            'expression'    => "(\$A1/V_SD)/G0)",
-            'label'         => "Total conductance",
+            'unit'          => 's',
+            'expression'    => '$C0',
+            'label'         => 'Time',
+            'description'   => 'Time elapsed since start of measurement',
+            'min'           => 0,
+            'max'           => $duration
         },
         {
             'unit'          => '2e^2/h',
             'expression'    => "(1/(1/abs(\$C1)-1/UKontakt)) * (AMP/(V_SD*G0))",
             'label'         => "QPC conductance",
-            'min'           => -0.1,
-            'max'           => 5
+        },
+        {
+            'unit'          => '2e^2/h',
+            'expression'    => "(1/(1/abs(\$C1)-1/UKontakt)) * (AMP/(V_SD*G0))",
+            'label'         => "QPC conductance",
+            'min'           => 0.46,
+            'max'           => 0.54
         },
         
     ],
     plots           => {
-        'QPC current'    => {
+        'QPC conductance live'=> {
             'type'          => 'line',
             'xaxis'         => 0,
-            'yaxis'         => 1,
-            'grid'          => 'xtics ytics',
+            'yaxis'         => 2,
+            'grid'          => 'ytics',
         },
         'QPC conductance'=> {
             'type'          => 'line',
-            'xaxis'         => 0,
+            'xaxis'         => 1,
             'yaxis'         => 3,
             'grid'          => 'ytics',
         }
@@ -133,19 +120,25 @@ my $measurement=new Lab::Measurement(
 
 $measurement->start_block();
 
-my $stepsign=$step/abs($step);
-for (my $volt=$start_voltage;$stepsign*$volt<=$stepsign*$end_voltage;$volt+=$step) {
-    $knick->set_voltage($volt);
-    usleep(500000);
-    my $meas=$hp->read_voltage_dc(10,0.0001);
-    $measurement->log_line($volt,$meas);
+print "Measurement running\nPress 's' to stop; 'm' to mark position.\n";
+
+my $key;
+
+ReadMode('cbreak');
+my $count=10;
+my $elapsed=0;
+my $start_int=[gettimeofday];
+while (($key ne "s") && ($elapsed < $duration)) {
+    my $read_volt=$hp->read_voltage_dc(10,0.0001);
+    $elapsed=tv_interval ( $start_int, [gettimeofday()]);
+    $measurement->log_line($elapsed,$read_volt);
+    if ($key eq "m") {
+        #print "Marking position $timestamp (not really yet)\n";
+        #my $mark=qq(set arrow from "$timestamp", graph 0 to "$timestamp", graph 1 nohead lt 2 lw 2\n);
+    }
+    $key=ReadKey(-1);
 }
+ReadMode('normal');
 
 my $meta=$measurement->finish_measurement();
-
-my $plotter=new Lab::Data::Plotter($meta);
-
-$plotter->plot('QPC conductance');
-
-my $a=<stdin>;
 

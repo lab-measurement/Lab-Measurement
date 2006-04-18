@@ -5,6 +5,7 @@ package Lab::Data::Plotter;
 use strict;
 use Lab::Data::Meta;
 use Data::Dumper;
+use Time::HiRes qw/gettimeofday tv_interval/;
 
 our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
 
@@ -25,14 +26,22 @@ sub new {
 }
 
 sub start_live_plot {
-    my ($self,$plot)=@_;
+    my ($self,$plot,$interval)=@_;
     $self->{live_plot}->{pipe}=$self->_start_plot($plot);
     $self->{live_plot}->{plot}=$plot;
+    $self->{live_plot}->{refresh}=$interval;
+    $self->{live_plot}->{last}=[gettimeofday];
 }
 
 sub update_live_plot {
     my $self=shift;
     return unless (defined $self->{live_plot});
+    
+    return if (($self->{live_plot}->{refresh}) && 
+               (tv_interval($self->{live_plot}->{last},[gettimeofday]) < 
+               ($self->{live_plot}->{refresh})));
+               
+    $self->{live_plot}->{last}=[gettimeofday];
 
     $self->_plot($self->{live_plot}->{pipe},$self->{live_plot}->{plot});
 }        

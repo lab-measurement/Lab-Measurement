@@ -8,7 +8,6 @@ use Data::Dumper;
 use Lab::Data::Writer;
 use Lab::Data::Meta;
 use Lab::Data::Plotter;
-#use Time::HiRes qw/usleep gettimeofday/;
 
 our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
 
@@ -32,6 +31,7 @@ sub new {
         #constants      => [],
         
         #live_plot      => '',
+        #live_refresh  => '',
         
         #writer_config  => {},
 
@@ -72,7 +72,7 @@ sub new {
     
     if ($params{live_plot}) {
         $self->{live_plotter}=new Lab::Data::Plotter($meta);
-        $self->{live_plotter}->start_live_plot($params{live_plot});
+        $self->{live_plotter}->start_live_plot($params{live_plot},$params{live_refresh});
     }
     
     $self->{writer}=$writer;
@@ -283,6 +283,8 @@ where C<%config> can contain
   plots         => [],  # See Meta
 
   live_plot     => '',  # Name of plot that is to be plotted live
+  live_refresh  => '',
+        
 
   writer_config => {},  # Configuration options for L<Lab::Data::Writer|Lab::Data::Writer>
 
