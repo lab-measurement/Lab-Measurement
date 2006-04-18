@@ -220,20 +220,20 @@ sub available_plots {
 }
 
 sub get_gnuplot_pipe {
-	my $self=shift;
+    my $self=shift;
     my $gpname;
-	if ($^O =~ /MSWin32/) {
-		$gpname="pgnuplot";
-	} else {
-		$gpname="gnuplot -noraise";
-	}
-	if (open my $GP,"| $gpname") {
-		my $oldfh = select($GP);
-		$| = 1;
-		select($oldfh);
-		return $GP;
-	}
-	return undef;
+    if ($^O =~ /MSWin32/) {
+        $gpname="pgnuplot";
+    } else {
+        $gpname="gnuplot -noraise";
+    }
+    if (open my $GP,"| $gpname") {
+        my $oldfh = select($GP);
+        $| = 1;
+        select($oldfh);
+        return $GP;
+    }
+    return undef;
 }
 
 1;
