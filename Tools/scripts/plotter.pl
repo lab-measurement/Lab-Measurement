@@ -5,17 +5,17 @@ use Lab::Data::Plotter;
 use Getopt::Long;
 use Pod::Usage;
 
-my %options=(#	=> default
-	list_plots	=> 0,
-	dump		=> '',
-	eps			=> '',
+my %options=(#  => default
+    list_plots  => 0,
+    dump        => '',
+    eps         => '',
 );
 
 GetOptions(\%options,
     'list_plots!',
-	'dump=s',
-	'eps=s',
-	'help|?',
+    'dump=s',
+    'eps=s',
+    'help|?',
     'man',
 );
 pod2usage(1) if $options{help};

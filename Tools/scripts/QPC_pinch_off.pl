@@ -56,25 +56,25 @@ my $measurement=new Lab::Measurement(
 
     live_plot       => 'QPC current',
     
-	constants		=> [
-		{
-			'name'			=> 'G0',
-			'value'			=> '7.748091733e-5',
-		},
-		{
-			'name'			=> 'UKontakt',
-			'value'			=> $U_Kontakt,
-		},
-		{
-			'name'			=> 'V_SD',
-			'value'			=> $v_sd,
-		},
-		{
-			'name'			=> 'AMP',
-			'value'			=> $amp,
-		},
-	],
-	columns         => [
+    constants       => [
+        {
+            'name'          => 'G0',
+            'value'         => '7.748091733e-5',
+        },
+        {
+            'name'          => 'UKontakt',
+            'value'         => $U_Kontakt,
+        },
+        {
+            'name'          => 'V_SD',
+            'value'         => $v_sd,
+        },
+        {
+            'name'          => 'AMP',
+            'value'         => $amp,
+        },
+    ],
+    columns         => [
         {
             'unit'          => 'V',
             'label'         => 'Gate voltage',

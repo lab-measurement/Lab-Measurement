@@ -16,13 +16,13 @@ DESCRIPTION
 
     live_plot       => 'QPC lines',
     
-	constants		=> [
-		{
-			'name'			=> 'G0',
-			'value'			=> '7.748091733e-5',
-		},
-	],
-	columns         => [
+    constants       => [
+        {
+            'name'          => 'G0',
+            'value'         => '7.748091733e-5',
+        },
+    ],
+    columns         => [
         {
             'unit'          => 'V',
             'label'         => 'Gate voltage',
@@ -69,18 +69,18 @@ DESCRIPTION
             'type'          => 'pm3d',
             'xaxis'         => 0,
             'yaxis'         => 1,
-			'cbaxis'		=> 2,
+            'cbaxis'        => 2,
         }
     },
 );
 
 for my $outer (-20..0) {
-	$measurement->start_block();
-	for my $inner (-100..-40) {
-		my $val=sin($outer/5)+cos($inner/10);
-		$measurement->log_line($outer/1000,$inner/1000,$val);
-#		printf "%f - %f - %f\n",$outer/1000,$inner/1000,$val;
-	}
+    $measurement->start_block();
+    for my $inner (-100..-40) {
+        my $val=sin($outer/5)+cos($inner/10);
+        $measurement->log_line($outer/1000,$inner/1000,$val);
+#       printf "%f - %f - %f\n",$outer/1000,$inner/1000,$val;
+    }
 }
 
 my $meta=$measurement->finish_measurement();

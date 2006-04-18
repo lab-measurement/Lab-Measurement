@@ -14,41 +14,41 @@ use Lab::Instrument::HP34401A;
 use Lab::Measurement;
 
 my $yoko=new Lab::Instrument::Yokogawa7651({
-	'GPIB_board'	=> 0,
-	'GPIB_address'	=> 10,
+    'GPIB_board'    => 0,
+    'GPIB_address'  => 10,
 
-	'gp_max_volt_per_second' => 0.001,
+    'gp_max_volt_per_second' => 0.001,
 
-	'unit'		  	=> 'V',
-	'label'		  	=> 'Gate voltage',
-	'description' 	=> 'Applied to gates 16 and 17 via low path filter',
+    'unit'          => 'V',
+    'label'         => 'Gate voltage',
+    'description'   => 'Applied to gates 16 and 17 via low path filter',
 });
 
 my $knick=new Lab::Instrument::KnickS252({
-	'GPIB_board'	=> 0,
-	'GPIB_address'	=> 10,
+    'GPIB_board'    => 0,
+    'GPIB_address'  => 10,
 
-	'gp_max_volt_per_second' => 0.1,
+    'gp_max_volt_per_second' => 0.1,
 
-	'unit'			=> 'V',
-	'label'			=> 'Bias voltage',
-	'description' 	=>
-		'Applied to source contact 12 via combined voltage divider (1/1000) and mixer box. '.
-		'Mixed to Lock-In signal 1V/50000 @ 33Hz.',
+    'unit'          => 'V',
+    'label'         => 'Bias voltage',
+    'description'   =>
+        'Applied to source contact 12 via combined voltage divider (1/1000) and mixer box. '.
+        'Mixed to Lock-In signal 1V/50000 @ 33Hz.',
 });
 
 my $hp=new Lab::Instrument::HP34401A({
-	'GPIB_address'	=> 24,
-	'unit'			=> 'V',
-	'label'			=> 'Conductance',
-	'description' 	=> 'Voltage ',
+    'GPIB_address'  => 24,
+    'unit'          => 'V',
+    'label'         => 'Conductance',
+    'description'   => 'Voltage ',
 });
 
 
 start_measurement(
-	sample		=> 'S11_3',
-	title		=> 'QPC sweep', #auto name-generation?
-	description	=> 'Yet another sweep for the top left quantum point contact',
+    sample      => 'S11_3',
+    title       => 'QPC sweep', #auto name-generation?
+    description => 'Yet another sweep for the top left quantum point contact',
 );
 
 for (273..432) {
