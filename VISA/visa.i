@@ -1,17 +1,19 @@
 /*$Id$*/
 
-%module VISA
-
 %perlcode %{
 $Lab::VISA::VERSION="1.12";
 %}
 
+%module "Lab::VISA"
+
+#define test 7;
 %{
 #include "visa.h"
 %}
 
 %include "visadef.i"
 %include "typemaps.i"
+
 
 %define %cstring_output_maxsize(TYPEMAP, SIZE)
 %typemap(in) (TYPEMAP, SIZE){

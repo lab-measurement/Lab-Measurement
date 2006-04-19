@@ -5,6 +5,7 @@
 
 use strict;
 use Test::More tests => 10;
+use Data::Dumper;
 
 BEGIN { use_ok('Lab::VISA') };
 
@@ -19,6 +20,13 @@ elsif ($rsrc_status == $Lab::VISA::VI_ERROR_NSUP_OPER) {diag "The given sesn doe
 elsif ($rsrc_status == $Lab::VISA::VI_ERROR_INV_EXPR) {diag "Invalid expression specified for search."}
 elsif ($rsrc_status == $Lab::VISA::VI_SUCCESS) {diag "Found $count instruments."}
 else {fail "Find Resources: $rsrc_status"}
+
+print $VISA::VI_ERROR_RSRC_NFOUND,"\n";
+print $VISA::FOO,"\n";
+print $Lab::VISA::FOO,"\n";
+print $Lab::VISA::VI_ERROR_INV_OBJECT,"\n";
+print $Lab::VISA::VI_SUCCESS,"\n";
+print "$rsrc_status,$listhandle,$count,$description\n";
 
 SKIP: {
 	skip("No instruments found", 5) unless ($count > 0);

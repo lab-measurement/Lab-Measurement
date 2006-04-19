@@ -9,7 +9,7 @@ use ExtUtils::MakeMaker;
 # If you do so, also un-comment the 'clean' section below
 # to delete the swig-generated files when doing 'make clean'.
 
-#`swig -perl5 -module Lab::VISA -c++ visa.i`;
+#system("swig -perl5 -module Lab::VISA -c++ visa.i");
 
 WriteMakefile(
 #   'clean'             => {

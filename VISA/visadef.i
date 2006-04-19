@@ -1,3 +1,5 @@
+#define _VI_ERROR           (-2147483647L-1)  /* 0x80000000 */
+
 /*- Attributes --------------------------------------------------------------*/
 
 #define VI_ATTR_RSRC_CLASS          (0xBFFF0001UL)
@@ -420,22 +422,6 @@
 #define _VI_FUNC
 #define _VI_SIGNED          signed
 
-/*- Completion and Error Codes ----------------------------------------------*/
-
-#define VI_SUCCESS          (0L)
-
-/*- Other VISA Definitions --------------------------------------------------*/
-
-#define VI_NULL             (0)
-
-#define VI_TRUE             (1)
-#define VI_FALSE            (0)
-
-/*- Backward Compatibility Macros -------------------------------------------*/
-
-#define VISAFN              _VI_FUNC
-#define ViPtr               _VI_PTR
-
 typedef unsigned long ViUInt32;
 typedef ViUInt32    * ViPUInt32;
 typedef ViUInt32    * ViAUInt32;
@@ -464,7 +450,8 @@ typedef char          ViChar;
 typedef ViChar      * ViPChar;
 typedef ViChar      * ViAChar;
 
-typedef char          ViByte;	/* geändert von unsigned char*/
+typedef  unsigned char ViByte;
+/*typedef char          ViByte;	 geändert von unsigned char*/
 typedef ViByte      * ViPByte;
 typedef ViByte      * ViAByte;
 
