@@ -450,8 +450,8 @@ typedef char          ViChar;
 typedef ViChar      * ViPChar;
 typedef ViChar      * ViAChar;
 
-typedef  unsigned char ViByte;
-/*typedef char          ViByte;	 geändert von unsigned char*/
+typedef unsigned char ViByte;
+/*typedef char          ViByte;	  geändert von unsigned char*/
 typedef ViByte      * ViPByte;
 typedef ViByte      * ViAByte;
 

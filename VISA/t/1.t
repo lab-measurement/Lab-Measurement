@@ -21,11 +21,6 @@ elsif ($rsrc_status == $Lab::VISA::VI_ERROR_INV_EXPR) {diag "Invalid expression 
 elsif ($rsrc_status == $Lab::VISA::VI_SUCCESS) {diag "Found $count instruments."}
 else {fail "Find Resources: $rsrc_status"}
 
-print $VISA::VI_ERROR_RSRC_NFOUND,"\n";
-print $VISA::FOO,"\n";
-print $Lab::VISA::FOO,"\n";
-print $Lab::VISA::VI_ERROR_INV_OBJECT,"\n";
-print $Lab::VISA::VI_SUCCESS,"\n";
 print "$rsrc_status,$listhandle,$count,$description\n";
 
 SKIP: {
