@@ -98,9 +98,10 @@ sub log_line {
 }
 
 sub start_block {
-    my $self=shift;
+    my ($self,$label)=@_;
     my $num=$self->{writer}->log_start_block();
     $self->{meta}->block_timestamp($num,now_string());
+    $self->{meta}->block_label($num,$label) if ($label);
 }
 
 sub finish_measurement {
@@ -292,7 +293,7 @@ where C<%config> can contain
 
 =head2 start_block
 
-  $block_num=$measurement->start_block();
+  $block_num=$measurement->start_block($label);
 
 =head2 log_line
 

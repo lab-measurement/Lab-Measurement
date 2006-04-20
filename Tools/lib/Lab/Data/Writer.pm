@@ -162,7 +162,7 @@ sub import_gpplus {
             } elsif (/^Saved at ([\d:]{8}) on ([\d.]{8})/) {
                 #Zeit und Datum werden von GPplus pro File/Block gespeichert
                 my ($time,$date)=($1,$2);
-                $meta->block_comment($blocknum,"Saved at $time on $date");
+                $meta->block_description($blocknum,"Saved at $time on $date");
                 $meta->block_timestamp($blocknum,"$date-$time");
                 $meta->block_original_filename($blocknum,$old_file);
             } elsif ($blocknum == 0) {

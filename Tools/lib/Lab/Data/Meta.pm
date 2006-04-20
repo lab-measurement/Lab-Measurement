@@ -47,7 +47,8 @@ my $declaration = {
         {
             original_filename   => ['SCALAR'],  # nur von GPplus-Import unterstützt
             timestamp           => ['SCALAR'],  # Format %Y/%m/%d-%H:%M:%S
-            comment             => ['SCALAR']
+            description         => ['SCALAR'],
+            label               => ['SCALAR'],
         }
     ],
     axis                    => [
