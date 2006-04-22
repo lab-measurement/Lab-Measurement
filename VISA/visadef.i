@@ -1,4 +1,171 @@
+#if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)) && !defined(_NI_mswin16_)
+#define _VI_FAR
+#define _VI_FUNC            __stdcall
+#define _VI_FUNCC           __cdecl
+#define _VI_FUNCH           __stdcall
+#define _VI_SIGNED          signed
+#elif defined(_CVI_) && defined(_NI_i386_)
+#define _VI_FAR
+#define _VI_FUNC            _pascal
+#define _VI_FUNCC
+#define _VI_FUNCH           _pascal
+#define _VI_SIGNED          signed
+#elif (defined(_WINDOWS) || defined(_Windows)) && !defined(_NI_mswin16_)
+#define _VI_FAR             _far
+#define _VI_FUNC            _far _pascal _export
+#define _VI_FUNCC           _far _cdecl  _export
+#define _VI_FUNCH           _far _pascal
+#define _VI_SIGNED          signed
+#elif (defined(hpux) || defined(__hpux)) && (defined(__cplusplus) || defined(__cplusplus__))
+#define _VI_FAR
+#define _VI_FUNC
+#define _VI_FUNCC
+#define _VI_FUNCH
+#define _VI_SIGNED
+#else
+#define _VI_FAR
+#define _VI_FUNC
+#define _VI_FUNCC
+#define _VI_FUNCH
+#define _VI_SIGNED          signed
+#endif
+
 #define _VI_ERROR           (-2147483647L-1)  /* 0x80000000 */
+
+/*- VISA Types --------------------------------------------------------------*/
+
+typedef unsigned long       ViUInt32;
+typedef ViUInt32    * ViPUInt32;
+typedef ViUInt32    * ViAUInt32;
+
+typedef _VI_SIGNED long     ViInt32;
+typedef ViInt32     * ViPInt32;
+typedef ViInt32     * ViAInt32;
+
+typedef unsigned short      ViUInt16;
+typedef ViUInt16    * ViPUInt16;
+typedef ViUInt16    * ViAUInt16;
+
+typedef _VI_SIGNED short    ViInt16;
+typedef ViInt16     * ViPInt16;
+typedef ViInt16     * ViAInt16;
+
+typedef unsigned char       ViUInt8;
+typedef ViUInt8     * ViPUInt8;
+typedef ViUInt8     * ViAUInt8;
+
+typedef _VI_SIGNED char     ViInt8;
+typedef ViInt8      * ViPInt8;
+typedef ViInt8      * ViAInt8;
+
+typedef char                ViChar;
+typedef ViChar      * ViPChar;
+typedef ViChar      * ViAChar;
+
+typedef unsigned char       ViByte;
+typedef ViByte      * ViPByte;
+typedef ViByte      * ViAByte;
+
+typedef void        * ViAddr;
+typedef ViAddr      * ViPAddr;
+typedef ViAddr      * ViAAddr;
+
+typedef float               ViReal32;
+typedef ViReal32    * ViPReal32;
+typedef ViReal32    * ViAReal32;
+
+typedef double              ViReal64;
+typedef ViReal64    * ViPReal64;
+typedef ViReal64    * ViAReal64;
+
+typedef ViPByte             ViBuf;
+typedef ViPByte             ViPBuf;
+typedef ViPByte     * ViABuf;
+
+typedef ViPChar             ViString;
+typedef ViPChar             ViPString;
+typedef ViPChar     * ViAString;
+
+typedef ViString            ViRsrc;
+typedef ViString            ViPRsrc;
+typedef ViString    * ViARsrc;
+
+typedef ViUInt16            ViBoolean;
+typedef ViBoolean   * ViPBoolean;
+typedef ViBoolean   * ViABoolean;
+
+typedef ViInt32             ViStatus;
+typedef ViStatus    * ViPStatus;
+typedef ViStatus    * ViAStatus;
+
+typedef ViUInt32            ViVersion;
+typedef ViVersion   * ViPVersion;
+typedef ViVersion   * ViAVersion;
+
+typedef ViUInt32            ViObject;
+typedef ViObject    * ViPObject;
+typedef ViObject    * ViAObject;
+
+typedef ViObject            ViSession;
+typedef ViSession   * ViPSession;
+typedef ViSession   * ViASession;
+
+typedef ViUInt32             ViAttr;
+
+#ifndef _VI_CONST_STRING_DEFINED
+typedef const ViChar * ViConstString;
+#define _VI_CONST_STRING_DEFINED
+#endif  
+
+/*- Completion and Error Codes ----------------------------------------------*/
+
+#define VI_SUCCESS          (0L)
+
+/*- Other VISA Definitions --------------------------------------------------*/
+
+#define VI_NULL             (0)
+
+#define VI_TRUE             (1)
+#define VI_FALSE            (0)
+
+/*- Backward Compatibility Macros -------------------------------------------*/
+
+#define VISAFN              _VI_FUNC
+
+/*- The End -----------------------------------------------------------------*/
+
+#define VI_SPEC_VERSION     (0x00300000UL)
+
+/*- VISA Types --------------------------------------------------------------*/
+
+typedef ViObject             ViEvent;
+typedef ViEvent      * ViPEvent;
+typedef ViObject             ViFindList;
+typedef ViFindList   * ViPFindList;
+
+typedef ViUInt32             ViEventType;
+typedef ViEventType  * ViPEventType;
+typedef ViEventType  * ViAEventType;
+typedef ViUInt32             ViAttrState;
+typedef void         * ViPAttrState;
+typedef ViAttr       * ViPAttr;
+typedef ViAttr       * ViAAttr;
+
+typedef ViString             ViKeyId;
+typedef ViPString            ViPKeyId;
+typedef ViUInt32             ViJobId;
+typedef ViJobId      * ViPJobId;
+typedef ViUInt32             ViAccessMode;
+typedef ViAccessMode * ViPAccessMode;
+typedef ViUInt32             ViBusAddress;
+typedef ViBusAddress * ViPBusAddress;
+typedef ViUInt32             ViBusSize;
+typedef ViUInt32             ViEventFilter;
+
+typedef va_list              ViVAList;
+
+typedef ViStatus (_VI_FUNCH * ViHndlr)
+   (ViSession vi, ViEventType eventType, ViEvent event, ViAddr userHandle);
 
 /*- Attributes --------------------------------------------------------------*/
 
@@ -417,94 +584,62 @@
 #define VI_VXI_CLASS_REGISTER       (3)
 #define VI_VXI_CLASS_OTHER          (4)
 
-/*- VISA Types (aus visatype.h)--------------------------------------------------------------*/
+/*- Backward Compatibility Macros -------------------------------------------*/
 
-#define _VI_FUNC
-#define _VI_SIGNED          signed
+#define viGetDefaultRM(vi)          viOpenDefaultRM(vi)
+#define VI_ERROR_INV_SESSION        (VI_ERROR_INV_OBJECT)
+#define VI_INFINITE                 (VI_TMO_INFINITE)
+#define VI_NORMAL                   (VI_PROT_NORMAL)
+#define VI_FDC                      (VI_PROT_FDC)
+#define VI_HS488                    (VI_PROT_HS488)
+#define VI_ASRL488                  (VI_PROT_4882_STRS)
+#define VI_ASRL_IN_BUF              (VI_IO_IN_BUF)
+#define VI_ASRL_OUT_BUF             (VI_IO_OUT_BUF)
+#define VI_ASRL_IN_BUF_DISCARD      (VI_IO_IN_BUF_DISCARD)
+#define VI_ASRL_OUT_BUF_DISCARD     (VI_IO_OUT_BUF_DISCARD)
 
-typedef unsigned long ViUInt32;
-typedef ViUInt32    * ViPUInt32;
-typedef ViUInt32    * ViAUInt32;
+/*- National Instruments ----------------------------------------------------*/
 
-typedef _VI_SIGNED long ViInt32;
-typedef ViInt32     * ViPInt32;
-typedef ViInt32     * ViAInt32;
+#define VI_INTF_RIO                 (8)
 
-typedef unsigned short ViUInt16;
-typedef ViUInt16    * ViPUInt16;
-typedef ViUInt16    * ViAUInt16;
+#define VI_ATTR_SYNC_MXI_ALLOW_EN   (0x3FFF0161UL) /* ViBoolean, read/write */
 
-typedef _VI_SIGNED short ViInt16;
-typedef ViInt16     * ViPInt16;
-typedef ViInt16     * ViAInt16;
+/* This is for VXI SERVANT resources */
 
-typedef unsigned char ViUInt8;
-typedef ViUInt8     * ViPUInt8;
-typedef ViUInt8     * ViAUInt8;
+#define VI_EVENT_VXI_DEV_CMD        (0xBFFF200FUL)
+#define VI_ATTR_VXI_DEV_CMD_TYPE    (0x3FFF4037UL) /* ViInt16, read-only */
+#define VI_ATTR_VXI_DEV_CMD_VALUE   (0x3FFF4038UL) /* ViUInt32, read-only */
 
-typedef _VI_SIGNED char ViInt8;
-typedef ViInt8      * ViPInt8;
-typedef ViInt8      * ViAInt8;
+#define VI_VXI_DEV_CMD_TYPE_16      (16)
+#define VI_VXI_DEV_CMD_TYPE_32      (32)
 
-typedef char          ViChar;
-typedef ViChar      * ViPChar;
-typedef ViChar      * ViAChar;
+ViStatus _VI_FUNC viVxiServantResponse(ViSession vi, ViInt16 mode, ViUInt32 resp);
+/* mode values include VI_VXI_RESP16, VI_VXI_RESP32, and the next 2 values */
+#define VI_VXI_RESP_NONE            (0)
+#define VI_VXI_RESP_PROT_ERROR      (-1)
 
-typedef unsigned char ViByte;
-/*typedef char          ViByte;	  geändert von unsigned char*/
-typedef ViByte      * ViPByte;
-typedef ViByte      * ViAByte;
+/* This allows extended Serial support on Win32 and on NI ENET Serial products */
 
-typedef void        * ViAddr;
-typedef ViAddr      * ViPAddr;
-typedef ViAddr      * ViAAddr;
+#define VI_ATTR_ASRL_DISCARD_NULL   (0x3FFF00B0UL)
+#define VI_ATTR_ASRL_CONNECTED      (0x3FFF01BBUL)
+#define VI_ATTR_ASRL_BREAK_STATE    (0x3FFF01BCUL)
+#define VI_ATTR_ASRL_BREAK_LEN      (0x3FFF01BDUL)
+#define VI_ATTR_ASRL_ALLOW_TRANSMIT (0x3FFF01BEUL)
+#define VI_ATTR_ASRL_WIRE_MODE      (0x3FFF01BFUL)
 
-typedef float         ViReal32;
-typedef ViReal32    * ViPReal32;
-typedef ViReal32    * ViAReal32;
+#define VI_ASRL_WIRE_485_4          (0)
+#define VI_ASRL_WIRE_485_2_DTR_ECHO (1)
+#define VI_ASRL_WIRE_485_2_DTR_CTRL (2)
+#define VI_ASRL_WIRE_485_2_AUTO     (3)
+#define VI_ASRL_WIRE_232_DTE        (128)
+#define VI_ASRL_WIRE_232_DCE        (129)
+#define VI_ASRL_WIRE_232_AUTO       (130)
 
-typedef double        ViReal64;
-typedef ViReal64    * ViPReal64;
-typedef ViReal64    * ViAReal64;
+#define VI_EVENT_ASRL_BREAK         (0x3FFF2023UL)
+#define VI_EVENT_ASRL_CTS           (0x3FFF2029UL)
+#define VI_EVENT_ASRL_DSR           (0x3FFF202AUL)
+#define VI_EVENT_ASRL_DCD           (0x3FFF202CUL)
+#define VI_EVENT_ASRL_RI            (0x3FFF202EUL)
+#define VI_EVENT_ASRL_CHAR          (0x3FFF2035UL)
+#define VI_EVENT_ASRL_TERMCHAR      (0x3FFF2024UL)
 
-typedef ViPByte       ViBuf;
-typedef ViPByte       ViPBuf;
-typedef ViPByte     * ViABuf;
-
-typedef ViPChar       ViString;
-typedef ViPChar       ViPString;
-typedef ViPChar     * ViAString;
-
-typedef ViString      ViRsrc;
-typedef ViString      ViPRsrc;
-typedef ViString    * ViARsrc;
-
-typedef ViUInt16      ViBoolean;
-typedef ViBoolean   * ViPBoolean;
-typedef ViBoolean   * ViABoolean;
-
-typedef ViInt32       ViStatus;
-typedef ViStatus    * ViPStatus;
-typedef ViStatus    * ViAStatus;
-
-typedef ViUInt32      ViVersion;
-typedef ViVersion   * ViPVersion;
-typedef ViVersion   * ViAVersion;
-
-typedef ViUInt32      ViObject;
-typedef ViObject    * ViPObject;
-typedef ViObject    * ViAObject;
-
-typedef ViObject      ViSession;
-typedef ViSession   * ViPSession;
-typedef ViSession   * ViASession;
-
-typedef ViUInt32      ViAttr;
-
-/*- VISA Types (aus visa.h) --------------------------------------------------------------*/
-
-typedef ViUInt32      ViAccessMode;
-typedef ViUInt32      ViAttrState;
-
-typedef ViObject	  ViFindList;
-typedef ViFindList	* ViPFindList;
