@@ -4,7 +4,7 @@
 # This test currently sucks.
 
 use strict;
-use Test::More tests => 10;
+use Test::More tests => 5;
 use Data::Dumper;
 
 BEGIN { use_ok('Lab::VISA') };
@@ -21,33 +21,20 @@ elsif ($rsrc_status == $Lab::VISA::VI_ERROR_INV_EXPR) {diag "Invalid expression 
 elsif ($rsrc_status == $Lab::VISA::VI_SUCCESS) {diag "Found $count instruments."}
 else {fail "Find Resources: $rsrc_status"}
 
-print "$rsrc_status,$listhandle,$count,$description\n";
-
+    diag "First instrument: $description";
+	
 SKIP: {
-	skip("No instruments found", 5) unless ($count > 0);
-	
-	($status,my $instrument)=Lab::VISA::viOpen($def_rm,$description,$Lab::VISA::VI_NULL,$Lab::VISA::VI_NULL);
-	ok($status == $Lab::VISA::VI_SUCCESS,'Open first instrument');
-	
-	my $cmd='*IDN?';
-	($status,my $write_cnt)=Lab::VISA::viWrite($instrument,$cmd,length($cmd));
-	ok($status == $Lab::VISA::VI_SUCCESS,'Write to instrument');
+	skip("Only one instrument", 1) unless ($count > 1);
 
-	($status,my $result,my $read_cnt)=Lab::VISA::viRead($instrument,300);
-	ok($status == $Lab::VISA::VI_SUCCESS,'Read from instrument');
-	diag "First instrument says: $result";
-
-	$status=Lab::VISA::viClose($instrument);
-	ok($status == $Lab::VISA::VI_SUCCESS,'Close first instrument');
-	
-	SKIP: {
-		skip("Only one instrument", 1) unless ($count > 1);
-		
-		($status, $description)=Lab::VISA::viFindNext($listhandle);
-		ok($status == $Lab::VISA::VI_SUCCESS,'Find next instrument');
-		diag "Second instrument: $description";
-	}
-};
+	($status, $description)=Lab::VISA::viFindNext($listhandle);
+	ok($status == $Lab::VISA::VI_SUCCESS,'Find next instrument');
+	diag "Second instrument: $description";
+    
+    for (3..$count) {
+    	($status, $description)=Lab::VISA::viFindNext($listhandle);
+    	diag "Instrument $_: $description";
+    }
+}
 
 SKIP: {
 	skip("No resource list obtained",1) unless ($rsrc_status==$Lab::VISA::VI_SUCCESS);
