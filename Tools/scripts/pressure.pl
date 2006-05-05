@@ -1,5 +1,7 @@
 #!/usr/bin/perl
 
+#$Id$
+
 use strict;
 use Lab::Instrument::HP34401A;
 use Time::HiRes qw/usleep gettimeofday/;
@@ -7,7 +9,7 @@ use Term::ReadKey;
 use File::Basename;
 
 unless (@ARGV == 3) {
-    print "Usage: $0 GPIB-address Filename Comment\n";
+    print "Usage: $0 GPIB-address Filename Title\n";
     exit;
 }
 my ($gpib,$file,$comment)=@ARGV;
@@ -21,7 +23,7 @@ set xdata time
 set timefmt "%Y-%m-%d %H:%M:%S"
 set format x "%H:%M:%S"
 set ylabel "Pressure (mbar)"
-set xlabel "Time"
+set xlabel "Time (HH:MM:SS)"
 set xtics rotate
 set title "$comment"
 GNUPLOT1
@@ -37,7 +39,7 @@ my $old_fh = select(LOG);
 $| = 1;
 select($old_fh);
 
-print LOG "#$comment\n#\n",'#Measured with $Id: lecktester.pl 361 2006-04-18 16:39:19Z schroeer $',"\n#Parameters: GPIB: $gpib\n";
+print LOG "#$comment\n#\n",'#Measured with $Id$',"\n#Parameters: GPIB: $gpib\n";
 
 print "Measurement in progress\nPress 's' to stop; 'm' to mark position.\n";
 
@@ -60,7 +62,7 @@ while ($key ne "s") {
         $gp1.=$mark;
     }
     print $gpipe $gp2;
-    usleep(500000);
+    sleep(5);
     $key=ReadKey(-1);
 }
 ReadMode('normal');
