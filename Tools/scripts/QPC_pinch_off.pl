@@ -10,9 +10,9 @@ use Lab::Measurement;
 
 ################################
 
-my $start_voltage=-0.38;
+my $start_voltage=-0.19;
 my $end_voltage=0;
-my $step=1e-3;
+my $step=5e-4;
 
 my $knick_gpib=14;
 my $hp_gpib=24;
@@ -20,15 +20,14 @@ my $hp_gpib=24;
 my $v_sd=780e-3/1563;
 my $amp=1e-7;    # Ithaco amplification
 
-my $U_Kontakt=1.81;
+my $U_Kontakt=1.68;
 
-my $sample="S5a-III (81059)";
-my $title="QPC rechts oben";
+my $sample="S8c (mbe5-62)";
+my $title="QPC links oben";
 my $comment=<<COMMENT;
-Abgekuehlt mit +150mV.
-Strom von 5 nach 13, Ithaco amp $amp, supr 10e-10, rise 0.3ms, V_{SD}=$v_sd V.
-Gates 3 und 6.
-Hi und Lo der Kabel aufgetrennt; Tuer zu, Deckel zu, Licht aus; nur Rotary, ca. 85mK.
+Strom von 13 nach 1, Ithaco amp $amp, supr 10e-10, rise 0.3ms, V_{SD}=$v_sd V.
+Gates 2 und 16.
+Hi und Lo der Kabel aufgetrennt; Tuer zu, Deckel zu, Licht aus; nur Rotary, ca. 82mK.
 COMMENT
 
 ################################
@@ -103,7 +102,7 @@ my $measurement=new Lab::Measurement(
         },
         {
             'unit'          => '2e^2/h',
-            'expression'    => "(\$A1/V_SD)/G0)",
+            'expression'    => "(\$A1/V_SD)/G0",
             'label'         => "Total conductance",
         },
         {

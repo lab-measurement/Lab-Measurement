@@ -13,22 +13,21 @@ use Lab::Measurement;
 
 my $hp_gpib=24;
 
-my $v_gate=-0.3305;
+my $v_gate=-0.1608;
 my $v_sd=780e-3/1563;
 my $amp=1e-7;    # Ithaco amplification
 
-my $U_Kontakt=1.81;
+my $U_Kontakt=1.68;
 
-my $sample="S5a-III (81059)";
-my $title="QPC rechts oben";
+my $sample="S8c (mbe5-62)";
+my $title="QPC links oben";
 my $comment=<<COMMENT;
-Abgekuehlt mit +150mV.
-Strom von 5 nach 13, Ithaco amp $amp, supr 10e-10, rise 0.3ms, V_{SD}=$v_sd V.
-Gates 3 und 6; V_{Gates}=$v_gate V.
-Hi und Lo der Kabel aufgetrennt; Tuer zu, Deckel zu, Licht aus; nur Rotary, ca. 85mK.
+Strom von 1 nach 13, Ithaco amp $amp, supr 10e-10, rise 0.3ms, V_{SD}=$v_sd V.
+Gates 2 und 16; V_{Gates}=$v_gate V.
+Hi und Lo der Kabel aufgetrennt; Tuer zu, Deckel zu, Licht aus; nur Rotary, ca. 82mK.
 COMMENT
 
-my $duration=30;
+my $duration=7200;
 
 ################################
 
@@ -41,7 +40,7 @@ my $measurement=new Lab::Measurement(
     description     => $comment,
 
     live_plot       => 'QPC conductance live',
-    live_refresh    => 3,
+    live_refresh    => 30,
     
     constants       => [
         {
@@ -97,8 +96,8 @@ my $measurement=new Lab::Measurement(
             'unit'          => '2e^2/h',
             'expression'    => "(1/(1/abs(\$C1)-1/UKontakt)) * (AMP/(V_SD*G0))",
             'label'         => "QPC conductance",
-            'min'           => 0.46,
-            'max'           => 0.54
+            'min'           => 0.96,
+            'max'           => 1.04
         },
         
     ],
@@ -129,7 +128,7 @@ my $count=10;
 my $elapsed=0;
 my $start_int=[gettimeofday];
 while (($key ne "s") && ($elapsed < $duration)) {
-    my $read_volt=$hp->read_voltage_dc(10,0.0001);
+    my $read_volt=$hp->read_voltage_dc(1,0.00001);
     $elapsed=tv_interval ( $start_int, [gettimeofday()]);
     $measurement->log_line($elapsed,$read_volt);
     if ($key eq "m") {

@@ -12,7 +12,7 @@ my $hp_gpib=24;
 my $v_sd=780e-3/1563;
 my $amp=1e-7;    # Ithaco amplification
 
-my $U_Kontakt=(shift @ARGV) || 3.94;
+my $U_Kontakt=(shift @ARGV) || 1.68;
 
 ################################
 
