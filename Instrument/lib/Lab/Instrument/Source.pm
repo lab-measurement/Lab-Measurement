@@ -54,11 +54,10 @@ sub set_voltage {
     
     if ($self->{config}->{gate_protect}) {
         $voltage=$self->sweep_to_voltage($voltage);
-        $self->{_gp}->{last_voltage}=$voltage;
     } else {
         $self->_set_voltage($voltage);
-        $self->{_gp}->{last_voltage}=$voltage;
     }
+    $self->{_gp}->{last_voltage}=$voltage;
     return $voltage;
 }
 
@@ -102,14 +101,15 @@ sub step_to_voltage {
         usleep ( ( 1e6*$wait+$last_t-$now ) );
         ($ns,$nmu)=gettimeofday();
         $now=$ns*1e6+$nmu;
-        $self->{_gp}->{last_settime_mus}=$now;
-    }
+    } 
+    $self->{_gp}->{last_settime_mus}=$now;
     
     #do one step
     if (abs($voltage-$last_v) > abs($step)) {
         $voltage=$last_v+$step;
     }
     $voltage=0+sprintf("%.10f",$voltage);
+    
     $self->_set_voltage($voltage);
     $self->{_gp}->{last_voltage}=$voltage;
     return $voltage;
