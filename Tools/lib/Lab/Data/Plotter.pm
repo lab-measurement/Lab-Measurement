@@ -14,7 +14,15 @@ sub new {
     my $class = ref($proto) || $proto;
     my $meta=shift;
     unless (ref $meta eq 'Lab::Data::Meta') {
-        die "fuck you" unless (-e $meta);
+        unless (-e $meta) {
+            for (qw/.META META .meta meta/) {
+                if (-e $meta.$_) {
+                    $meta=$meta.$_;
+                    last;
+                }
+            }
+        }
+        die "fuck you! doesn't exist: $meta" unless (-e $meta);
         $meta=Lab::Data::Meta->new_from_file($meta);
     }
     
@@ -81,19 +89,19 @@ sub _start_plot {
     $gp.="set encoding iso_8859_1\n";
     
     if ($options{eps}) {
-        $gp.="# Output to file\n";
+        $gp.="#\n# Output to file\n";
         $gp.="set terminal postscript color enhanced\n";
         $gp.=qq(set output ").$options{eps}.qq("\n);
     }
     
     if ($self->{meta}->plot_type($plot) eq 'pm3d') {
-        $gp.="# Set color plot\n";
+        $gp.="#\n# Set color plot\n";
         $gp.="set pm3d map corners2color c1\n";
         $gp.="set view map\n";
     }
     
     if ($self->{meta}->constant()) {
-        $gp.="# Constants\n" ;
+        $gp.="#\n# Constants\n" ;
         for (@{$self->{meta}->constant()}) {
             $gp.=($_->{name})."=".($_->{value})."\n";
         }
@@ -104,19 +112,19 @@ sub _start_plot {
     my $zaxis=$self->{meta}->plot_zaxis($plot);
     my $cbaxis=$self->{meta}->plot_cbaxis($plot);
     
-    $gp.="# Axis labels\n";
+    $gp.="#\n# Axis labels\n";
     $gp.='set xlabel "'.($self->{meta}->axis_label($xaxis)).' ('.($self->{meta}->axis_unit($xaxis)).")\"\n";
     $gp.='set ylabel "'.($self->{meta}->axis_label($yaxis))." (".($self->{meta}->axis_unit($yaxis)).")\"\n";
     $gp.='set zlabel "'.($self->{meta}->axis_label($zaxis)).' ('.($self->{meta}->axis_unit($zaxis)).")\"\n" if ($zaxis);
     $gp.='set cblabel "'.($self->{meta}->axis_label($cbaxis))." (".($self->{meta}->axis_unit($cbaxis)).")\"\n" if ($cbaxis);
    
     if (defined $self->{meta}->plot_grid($plot)) {
-        $gp.="# Grid\n";
+        $gp.="#\n# Grid\n";
         $gp.="set grid ".($self->{meta}->plot_grid($plot))."\n";
     }
 
     if ($self->{meta}->plot_time($plot)) {
-        $gp.="# Time axes\n";
+        $gp.="#\n# Time axes\n";
         for (qw/x y z cb/) {
             if ($self->{meta}->plot_time($plot) =~ /$_/) { $gp.="set ".$_."data time\n" }
         }
@@ -130,9 +138,9 @@ sub _start_plot {
             $gp_help.=qq(set format $_ ").($self->{meta}->$name($plot)).qq("\n);
         }
     }
-    $gp.="# Axis format\n".$gp_help if ($gp_help);
+    $gp.="#\n# Axis format\n".$gp_help if ($gp_help);
     
-    $gp.="# Ranges\n";
+    $gp.="#\n# Ranges\n";
     my $xmin=(defined $self->{meta}->axis_min($xaxis)) ? $self->{meta}->axis_min($xaxis) : "*";
     my $xmax=(defined $self->{meta}->axis_max($xaxis)) ? $self->{meta}->axis_max($xaxis) : "*";
     my $ymin=(defined $self->{meta}->axis_min($yaxis)) ? $self->{meta}->axis_min($yaxis) : "*";
@@ -151,12 +159,12 @@ sub _start_plot {
     }
 
     if ($self->{meta}->plot_logscale($plot)) {
-        $gp.="# Axes with logscale\n";
+        $gp.="#\n# Axes with logscale\n";
         $gp.="set logscale ".$self->{meta}->plot_logscale($plot)."\n";
     }
 
-    $gp.="# Title and labels\n";
-    $gp.=qq(set title "Dataset ').$self->{meta}->dataset_title()."' (Sample '".$self->{meta}->sample()."')\"\n";
+    $gp.="#\n# Title and labels\n";
+    $gp.=qq(set title ").$self->{meta}->dataset_title()." (".$self->{meta}->sample().")\"\n";
     my $h=0.95;
     for (split "\n",$self->{meta}->dataset_description()) {
         $gp.=qq(set label "$_" at graph 0.02, graph $h\n);
