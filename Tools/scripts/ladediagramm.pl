@@ -36,11 +36,11 @@ my $gate_2_step   = -5e-4;
 
 my $hp_gpib       = 24;
 my $hp_range      = 10;
-my $hp_resolution = 0.00001
+my $hp_resolution = 0.00001;
 
 my $R_Kontakt     = 1773;
 
-my $filename_base = 'ladediagramm'
+my $filename_base = 'ladediagramm';
 
 my $sample        = "S5c (81059)";
 my $title         = "Oberer und linker Quantenpunkt";
