@@ -16,26 +16,26 @@ use Lab::Measurement;
 my $amp=1e-7;    # Ithaco amplification
 my $divider=1000;
 my $v_sd_ac=20e-6;
-my $lock_in_sensitivity=10e-3;
+my $lock_in_sensitivity=5e-3;
 
-my $v_sd_dc=50e-3/1000;
+my $v_sd_dc=-50e-3/1000;
 
-my $gate_1_gpib=1;
+my $gate_1_gpib=4;
 my $gate_1_type='yoko';
-my $gate_1_name='Gate 15';
+my $gate_1_name='Gate 01';
 
-my $gate_1_start =-0.1;
-my $gate_1_end   =-0.4;
-my $gate_1_step  =-10e-3;
+my $gate_1_start =-0.4;
+my $gate_1_end   =-0.49;
+my $gate_1_step  =-1e-3;
 
 
-my $gate_2_gpib=9;
-my $gate_2_type='yoko';
-my $gate_2_name='Gate 01';
+my $gate_2_gpib=14;
+my $gate_2_type='knick';
+my $gate_2_name='Gate hf4';
 
-my $gate_2_start =0;
-my $gate_2_end   =-0.005;
-my $gate_2_step  =-1e-3;
+my $gate_2_start =-0.0;
+my $gate_2_end   =-0.2;
+my $gate_2_step  =-5e-4;
 
 my $hp_gpib=24;
 
@@ -44,10 +44,11 @@ my $R_Kontakt=1773;
 my $sample="S5c (81059)";
 my $title="Oberer und linker Quantenpunkt";
 my $comment=<<COMMENT;
-Differentielle Leitfähigkeit von 12 nach 10. Ca. 20mK.
+Differentielle Leitfähigkeit von 12 nach 10; V_{SD,DC}=$v_sd_dc V; Ca. 20mK.
 Lock-In: Sensitivity $lock_in_sensitivity V, V_{SD,AC}=$v_sd_ac V bei 13Hz, 300ms, Normal, Flat.
 Ithaco: Amplification $amp, Supression 10e-10, Rise Time 0.3ms.
-G11=-0.425 (yoko02); Ghf1=0 (Yoko10); Fahre G01 (yoko04); Ghf2=0 (knick14).
+G11=-0.425 (Yoko02); G15=-0.395 (Yoko10); andere GND
+Fahre aussen G01 (Yoko04); innen Ghf4=0 (Knick14)
 COMMENT
 
 ################################
@@ -197,8 +198,8 @@ my $measurement=new Lab::Measurement(
         },
         'Ladediagramm'=> {
             'type'          => 'pm3d',
-            'xaxis'         => 0,
-            'yaxis'         => 1,
+            'xaxis'         => 1,
+            'yaxis'         => 0,
             'cbaxis'        => 2,
             'grid'          => 'xtics ytics',
         },
@@ -213,8 +214,8 @@ for (my $g1=$gate_1_start;$gate_1_stepsign*$g1<=$gate_1_stepsign*$gate_1_end;$g1
     $gate1->set_voltage($g1);
     for (my $g2=$gate_2_start;$gate_2_stepsign*$g2<=$gate_2_stepsign*$gate_2_end;$g2+=$gate_2_step) {
         $gate2->set_voltage($g2);
-        usleep(300000);
-        my $meas=$hp->read_voltage_dc(10,0.0001);
+        #usleep(100000);
+        my $meas=$hp->read_voltage_dc(10,0.00001);
         $measurement->log_line($g1,$g2,$meas);
     }
 }
