@@ -10,9 +10,9 @@ use Lab::Measurement;
 
 ################################
 
-my $start_voltage=-0.19;
-my $end_voltage=0;
-my $step=5e-4;
+my $start_voltage=0;
+my $end_voltage=-0.4;
+my $step=-1e-3;
 
 my $knick_gpib=14;
 my $hp_gpib=24;
@@ -20,14 +20,14 @@ my $hp_gpib=24;
 my $v_sd=780e-3/1563;
 my $amp=1e-7;    # Ithaco amplification
 
-my $U_Kontakt=1.68;
+my $U_Kontakt=2.24;
 
-my $sample="S8c (mbe5-62)";
-my $title="QPC links oben";
+my $sample="S5c (81059)";
+my $title="QPC 11,hf2";
 my $comment=<<COMMENT;
-Strom von 13 nach 1, Ithaco amp $amp, supr 10e-10, rise 0.3ms, V_{SD}=$v_sd V.
-Gates 2 und 16.
-Hi und Lo der Kabel aufgetrennt; Tuer zu, Deckel zu, Licht aus; nur Rotary, ca. 82mK.
+Strom von 12 nach 10, Ithaco amp $amp, supr 10e-10, rise 0.3ms, V_{SD}=$v_sd V.
+mit Lock-In
+ca. 20mK.
 COMMENT
 
 ################################
@@ -50,7 +50,7 @@ my $hp=new Lab::Instrument::HP34401A(0,$hp_gpib);
 my $measurement=new Lab::Measurement(
     sample          => $sample,
     title           => $title,
-    filename_base   => 'qpc_pinch_off',
+    filename_base   => 'qpctest',
     description     => $comment,
 
     live_plot       => 'QPC current',
@@ -110,7 +110,7 @@ my $measurement=new Lab::Measurement(
             'expression'    => "(1/(1/abs(\$C1)-1/UKontakt)) * (AMP/(V_SD*G0))",
             'label'         => "QPC conductance",
             'min'           => -0.1,
-            'max'           => 5
+            'max'           => 3,
         },
         
     ],

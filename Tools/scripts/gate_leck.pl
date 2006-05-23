@@ -15,8 +15,9 @@ my $hp_gpib=24;
 
 my $title="Gate-Leck-Testmessung";
 my $comment=<<COMMENT;
-Teste Gates auf Kurzschluesse.
-Gate 16.
+21.05.06 Probe S5c
+Teste Gates auf Kurzschluesse. 1MOhm Serienwiderstand.
+Gate hf4.
 COMMENT
 
 unless (@ARGV == 1) {
@@ -33,7 +34,7 @@ unless (($end_voltage-$start_voltage)/$step > 0) {
 
 my $knick=new Lab::Instrument::KnickS252({
     GPIB_address            => $knick_gpib,
-    gate_protect            => 0,
+    gate_protect            => 1,
 });
 
 my $hp=new Lab::Instrument::HP34401A(0,$hp_gpib);
@@ -45,9 +46,11 @@ my $gp1=<<GNUPLOT1;
 set ylabel "Measured voltage (V)"
 set xlabel "Applied voltage (V)"
 set title "$title"
+set xrange [-0.01:0]
+set yrange [-0.01:0]
 unset key
 GNUPLOT1
-my $h=0.93;
+my $h=0.95;
 for (split "\n|(\n\r)",$comment) {
     $h-=0.02;
     $gp1.=qq(set label "$_" at graph 0.02, graph $h\n);
@@ -72,7 +75,7 @@ my $stepsign=$step/abs($step);
 for (my $volt=$start_voltage;$stepsign*$volt<=$stepsign*$end_voltage;$volt+=$step) {
     $knick->set_voltage($volt);
     usleep(500000);
-    my $read_volt=$hp->read_voltage_dc(10,0.0001);
+    my $read_volt=$hp->read_voltage_dc(0.1,0.000001);
     print LOG "$volt\t$read_volt\n";
     print $gpipe $gp2;
 }

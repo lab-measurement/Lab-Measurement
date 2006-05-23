@@ -63,7 +63,7 @@ for (split "\n",$comment) {
     $gp1.=qq(set label "$_" at graph 0.02, graph $h\n);
 }
 my $gp2=<<GNUPLOT2;
-plot "$filename$suffix" using 1:(\$2*amp) with lines
+plot "$filename$suffix" using 1:(\$4*amp) with lines
 GNUPLOT2
 
 my $gpipe=get_pipe() or die;
@@ -87,7 +87,7 @@ my $elapsed=0;
 my $start_int=[gettimeofday];
 while (($key ne "s") && ($elapsed < $duration)) {
 #while ($key ne "s") {
-    my $read_volt=$hp->read_voltage_dc(10,0.0001);
+    my $read_volt=$hp->read_voltage_dc(0.1,0.000001);
     my ($s,$ms)=gettimeofday();
     my ($sec,$min,$hour,$mday,$mon,$year)=localtime($s);
     $year+=1900;$mon++;
@@ -102,9 +102,9 @@ while (($key ne "s") && ($elapsed < $duration)) {
     }
     if ($count-- == 0) {
         print $gpipe $gp2;
-        $count=1;
+        $count=50;
     }
-    sleep(60);
+    #sleep(60);
     $key=ReadKey(-1);
 }
 ReadMode('normal');
