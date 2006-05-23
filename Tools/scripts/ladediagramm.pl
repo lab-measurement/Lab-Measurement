@@ -13,40 +13,41 @@ use Lab::Measurement;
 
 ################################
 
-my $amp=1e-7;    # Ithaco amplification
-my $divider=1000;
-my $v_sd_ac=20e-6;
-my $lock_in_sensitivity=5e-3;
+my $divider_dc    = 1000;
+my $ithaco_amp    = 1e-7;    # Ithaco amplification
+my $lock_in_sensitivity = 5e-3;
 
-my $v_sd_dc=-50e-3/1000;
+my $v_sd_ac       = 20e-6;
+my $v_sd_dc       = -50e-3/$divider_dc;
 
-my $gate_1_gpib=4;
-my $gate_1_type='yoko';
-my $gate_1_name='Gate 01';
+my $gate_1_gpib   = 04;
+my $gate_1_type   = 'Yokogawa7651';
+my $gate_1_name   = 'Gate 01';
+my $gate_1_start  = -0.4;
+my $gate_1_end    = -0.49;
+my $gate_1_step   = -1e-3;
 
-my $gate_1_start =-0.4;
-my $gate_1_end   =-0.49;
-my $gate_1_step  =-1e-3;
+my $gate_2_gpib   = 14;
+my $gate_2_type   = 'KnickS252';
+my $gate_2_name   = 'Gate hf4';
+my $gate_2_start  = -0.0;
+my $gate_2_end    = -0.2;
+my $gate_2_step   = -5e-4;
 
+my $hp_gpib       = 24;
+my $hp_range      = 10;
+my $hp_resolution = 0.00001
 
-my $gate_2_gpib=14;
-my $gate_2_type='knick';
-my $gate_2_name='Gate hf4';
+my $R_Kontakt     = 1773;
 
-my $gate_2_start =-0.0;
-my $gate_2_end   =-0.2;
-my $gate_2_step  =-5e-4;
+my $filename_base = 'ladediagramm'
 
-my $hp_gpib=24;
-
-my $R_Kontakt=1773;
-
-my $sample="S5c (81059)";
-my $title="Oberer und linker Quantenpunkt";
-my $comment=<<COMMENT;
+my $sample        = "S5c (81059)";
+my $title         = "Oberer und linker Quantenpunkt";
+my $comment       = <<COMMENT;
 Differentielle Leitfähigkeit von 12 nach 10; V_{SD,DC}=$v_sd_dc V; Ca. 20mK.
 Lock-In: Sensitivity $lock_in_sensitivity V, V_{SD,AC}=$v_sd_ac V bei 13Hz, 300ms, Normal, Flat.
-Ithaco: Amplification $amp, Supression 10e-10, Rise Time 0.3ms.
+Ithaco: Amplification $ithaco_amp, Supression 10e-10, Rise Time 0.3ms.
 G11=-0.425 (Yoko02); G15=-0.395 (Yoko10); andere GND
 Fahre aussen G01 (Yoko04); innen Ghf4=0 (Knick14)
 COMMENT
@@ -54,68 +55,41 @@ COMMENT
 ################################
 
 unless (($gate_1_end-$gate_1_start)/$gate_1_step > 0) {
-    warn "This will not work: start=$gate_1_start, end=$gate_1_end, step=$gate_1_step.\n";
+    warn "Loop on gate 1 will not work: start=$gate_1_start, end=$gate_1_end, step=$gate_1_step.\n";
     exit;
 }
 
 unless (($gate_2_end-$gate_2_start)/$gate_2_step > 0) {
-    warn "This will not work: start=$gate_2_start, end=$gate_2_end, step=$gate_2_step.\n";
+    warn "Loop on gate 2 will not work: start=$gate_2_start, end=$gate_2_end, step=$gate_2_step.\n";
     exit;
 }
 
-my $gate1;
-if ($gate_1_type eq 'knick') {
-    $gate1=new Lab::Instrument::KnickS252({
-        'GPIB_board'    => 0,
-        'GPIB_address'  => $gate_1_gpib,
-        'gate_protect'  => 1,
+my $gate1=new Lab::Instrument::$gate_1_type({
+    'GPIB_board'    => 0,
+    'GPIB_address'  => $gate_1_gpib,
+    'gate_protect'  => 1,
 
-        'gp_max_volt_per_second' => 0.002,
-        'gp_max_step_per_second' => 3,
-        'gp_max_step_per_step'   => 0.001,
-    })
-} else {
-    $gate1=new Lab::Instrument::Yokogawa7651({
-        'GPIB_board'    => 0,
-        'GPIB_address'  => $gate_1_gpib,
-        'gate_protect'  => 1,
-
-        'gp_max_volt_per_second' => 0.002,
-        'gp_max_step_per_second' => 3,
-        'gp_max_step_per_step'   => 0.001,
-    })
-};
-
+    'gp_max_volt_per_second' => 0.002,
+    'gp_max_step_per_second' => 3,
+    'gp_max_step_per_step'   => 0.001,
+});
     
-my $gate2;
-if ($gate_2_type eq 'knick') {
-    $gate2=new Lab::Instrument::KnickS252({
-        'GPIB_board'    => 0,
-        'GPIB_address'  => $gate_2_gpib,
-        'gate_protect'  => 1,
+my $gate2=new Lab::Instrument::$gate_2_type({
+    'GPIB_board'    => 0,
+    'GPIB_address'  => $gate_2_gpib,
+    'gate_protect'  => 1,
 
-        'gp_max_volt_per_second' => 0.002,
-        'gp_max_step_per_second' => 3,
-        'gp_max_step_per_step'   => 0.001,
-    })
-} else {
-    $gate2=new Lab::Instrument::Yokogawa7651({
-        'GPIB_board'    => 0,
-        'GPIB_address'  => $gate_2_gpib,
-        'gate_protect'  => 1,
-
-        'gp_max_volt_per_second' => 0.002,
-        'gp_max_step_per_second' => 3,
-        'gp_max_step_per_step'   => 0.001,
-    })
-};
+    'gp_max_volt_per_second' => 0.002,
+    'gp_max_step_per_second' => 3,
+    'gp_max_step_per_step'   => 0.001,
+});
 
 my $hp=new Lab::Instrument::HP34401A(0,$hp_gpib);
 
 my $measurement=new Lab::Measurement(
     sample          => $sample,
     title           => $title,
-    filename_base   => 'ladediagramm',
+    filename_base   => $filename_base,
     description     => $comment,
 
     live_plot       => 'Differential Conductance',
@@ -132,11 +106,11 @@ my $measurement=new Lab::Measurement(
         },
         {
             'name'          => 'AMP',
-            'value'         => $amp,
+            'value'         => $ithaco_amp,
         },
         {
             'name'          => 'divider',
-            'value'         => $divider,
+            'value'         => $divider_dc,
         },
         {
             'name'          => 'V_AC',
@@ -151,17 +125,17 @@ my $measurement=new Lab::Measurement(
         {
             'unit'          => 'V',
             'label'         => "Voltage $gate_1_name",
-            'description'   => "Applied to $gate_1_name.",
+            'description'   => "Set voltage on source $gate_1_type$gate_1_gpib connected to $gate_1_name.",
         },
         {
             'unit'          => 'V',
             'label'         => "Voltage $gate_2_name",
-            'description'   => "Applied to $gate_2_name.",
+            'description'   => "Set voltage on source $gate_2_type$gate_2_gpib connected to $gate_2_name.",
         },
         {
             'unit'          => 'V',
-            'label'         => 'Lock-In output',
-            'description'   => "Lock-In output",
+            'label'         => "Lock-In output",
+            'description'   => 'Differential current (Lock-In output)',
         }
     ],
     axes            => [
@@ -171,7 +145,7 @@ my $measurement=new Lab::Measurement(
             'label'         => "Voltage $gate_1_name",
             'min'           => ($gate_1_start < $gate_1_end) ? $gate_1_start : $gate_1_end,
             'max'           => ($gate_1_start < $gate_1_end) ? $gate_1_end : $gate_1_start,
-            'description'   => "Applied $gate_1_name.",
+            'description'   => "Voltage applied to $gate_1_name.",
         },
         {
             'unit'          => 'V',
@@ -179,13 +153,19 @@ my $measurement=new Lab::Measurement(
             'label'         => "Voltage $gate_2_name",
             'min'           => ($gate_2_start < $gate_2_end) ? $gate_2_start : $gate_2_end,
             'max'           => ($gate_2_start < $gate_2_end) ? $gate_2_end : $gate_2_start,
-            'description'   => "Applied $gate_1_name.",
+            'description'   => "Voltage applied to $gate_2_name.",
+        },
+        {
+            'unit'          => 'A',
+            'expression'    => "(\$C2/10)*SENS*AMP",
+            'label'         => 'Differential current',
+            'description'   => 'Differential current',
         },
         {
             'unit'          => '2e^2/h',
-            'expression'    => "(((\$C2/10)*SENS*AMP)/V_AC)/G0",
-            'label'         => 'Differential Conductance',
-            'description'   => 'Differential Conductance',
+            'expression'    => "(\$A2/V_AC)/G0",
+            'label'         => 'Differential conductance',
+            'description'   => 'Differential conductance',
         },
        
     ],
@@ -193,14 +173,14 @@ my $measurement=new Lab::Measurement(
         'Differential Conductance'    => {
             'type'          => 'line',
             'xaxis'         => 1,
-            'yaxis'         => 2,
+            'yaxis'         => 3,
             'grid'          => 'xtics ytics',
         },
         'Ladediagramm'=> {
             'type'          => 'pm3d',
             'xaxis'         => 1,
             'yaxis'         => 0,
-            'cbaxis'        => 2,
+            'cbaxis'        => 3,
             'grid'          => 'xtics ytics',
         },
     },
@@ -215,7 +195,7 @@ for (my $g1=$gate_1_start;$gate_1_stepsign*$g1<=$gate_1_stepsign*$gate_1_end;$g1
     for (my $g2=$gate_2_start;$gate_2_stepsign*$g2<=$gate_2_stepsign*$gate_2_end;$g2+=$gate_2_step) {
         $gate2->set_voltage($g2);
         #usleep(100000);
-        my $meas=$hp->read_voltage_dc(10,0.00001);
+        my $meas=$hp->read_voltage_dc($hp_range,$hp_resolution);
         $measurement->log_line($g1,$g2,$meas);
     }
 }
