@@ -20,21 +20,22 @@ my $lock_in_sensitivity=10e-3;
 
 my $v_sd_dc=50e-3/1000;
 
-my $gate_1_gpib=4;
+my $gate_1_gpib=1;
 my $gate_1_type='yoko';
 my $gate_1_name='Gate 15';
 
-my $gate_1_start=-0.39;
-my $gate_1_end=-0.52;
-my $gate_1_step=-1e-3;
+my $gate_1_start =-0.1;
+my $gate_1_end   =-0.4;
+my $gate_1_step  =-10e-3;
 
-my $gate_2_gpib=14;
-my $gate_2_type='knick';
-my $gate_1_name='Gate 01';
 
-my $gate_2_start=-0.39;
-my $gate_2_end=-0.52;
-my $gate_2_step=-1e-3;
+my $gate_2_gpib=9;
+my $gate_2_type='yoko';
+my $gate_2_name='Gate 01';
+
+my $gate_2_start =0;
+my $gate_2_end   =-0.005;
+my $gate_2_step  =-1e-3;
 
 my $hp_gpib=24;
 
@@ -204,18 +205,17 @@ my $measurement=new Lab::Measurement(
     },
 );
 
-my $stepsign=$step/abs($step);
-my $sdstepsign=$step/abs($step);
+my $gate_1_stepsign=$gate_1_step/abs($gate_1_step);
+my $gate_2_stepsign=$gate_2_step/abs($gate_2_step);
 
-for (my $sd=$start_sd;$sdstepsign*$sd<=$sdstepsign*$end_sd;$sd+=$step_sd) {
-    $measurement->start_block("Bias $sd V");
-    $sd_knick->set_voltage($sd);
-    $gate_knick->sweep_to_voltage($start_voltage);
-    for (my $volt=$start_voltage;$stepsign*$volt<=$stepsign*$end_voltage;$volt+=$step) {
-        $gate_knick->set_voltage($volt);
+for (my $g1=$gate_1_start;$gate_1_stepsign*$g1<=$gate_1_stepsign*$gate_1_end;$g1+=$gate_1_step) {
+    $measurement->start_block("$gate_1_name = $g1 V");
+    $gate1->set_voltage($g1);
+    for (my $g2=$gate_2_start;$gate_2_stepsign*$g2<=$gate_2_stepsign*$gate_2_end;$g2+=$gate_2_step) {
+        $gate2->set_voltage($g2);
         usleep(300000);
         my $meas=$hp->read_voltage_dc(10,0.0001);
-        $measurement->log_line($sd,$volt,$meas);
+        $measurement->log_line($g1,$g2,$meas);
     }
 }
 
