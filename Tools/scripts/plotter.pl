@@ -22,14 +22,14 @@ pod2usage(1) if $options{help};
 pod2usage(-exitstatus => 0, -verbose => 2) if $options{man};
 
 my $metafile=shift(@ARGV) or pod2usage(1);
-
 my $plotter=new Lab::Data::Plotter($metafile);
 
 if ($options{list_plots}) {
     print "Available plots in $metafile:\n";
     my %plots=$plotter->available_plots();
-    for (keys %plots) {
-        print qq/-> $_ ($plots{$_})\n/;
+    my $num=1;
+    for (sort keys %plots) {
+        print qq/$num++ -> $_ ($plots{$_})\n/;
     }
     exit;
 }
