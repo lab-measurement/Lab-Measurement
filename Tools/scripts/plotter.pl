@@ -9,10 +9,12 @@ my %options=(#  => default
     list_plots  => 0,
     dump        => '',
     eps         => '',
+    plot	    => '',
 );
 
 GetOptions(\%options,
     'list_plots!',
+    'plot=s',
     'dump=s',
     'eps=s',
     'help|?',
