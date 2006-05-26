@@ -30,6 +30,16 @@ my $declaration = {
     sample                      => ['SCALAR'],
     data_file                   => ['SCALAR'],  # relativ zur descriptiondatei
 
+    block                   => [
+        'ARRAY',
+        'id',
+        {
+            original_filename   => ['SCALAR'],  # nur von GPplus-Import unterstützt
+            timestamp           => ['SCALAR'],  # Format %Y/%m/%d-%H:%M:%S
+            description         => ['SCALAR'],
+            label               => ['SCALAR'],
+        }
+    ],
     column                  => [
         'ARRAY',
         'id',
@@ -39,16 +49,6 @@ my $declaration = {
             description         => ['SCALAR'],  # evtl. weg
             min                 => ['SCALAR'],  # unnütz, aber von GPplus-Import unterstützt
             max                 => ['SCALAR'],  # dito
-        }
-    ],
-    block                   => [
-        'ARRAY',
-        'id',
-        {
-            original_filename   => ['SCALAR'],  # nur von GPplus-Import unterstützt
-            timestamp           => ['SCALAR'],  # Format %Y/%m/%d-%H:%M:%S
-            description         => ['SCALAR'],
-            label               => ['SCALAR'],
         }
     ],
     axis                    => [
@@ -77,7 +77,7 @@ my $declaration = {
             cbaxis              => ['SCALAR'],
             cbformat            => ['SCALAR'],
             logscale            => ['SCALAR'],  # z.b: 'x' oder 'yzxcb'
-            time                => ['SCALAR'],  # wie oben (anders als in GnuPlot) (Achsen müssen %s-Format haben)
+            time                => ['SCALAR'],  # ??? (was: wie oben (anders als in GnuPlot) (Achsen müssen %s-Format haben))
             grid                => ['SCALAR'],  # z.B. 'ytics' oder 'xtics ytics'
         }
     ],
