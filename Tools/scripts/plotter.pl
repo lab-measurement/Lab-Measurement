@@ -26,7 +26,7 @@ pod2usage(1) if $options{help};
 pod2usage(-exitstatus => 0, -verbose => 2) if $options{man};
 
 my $metafile=shift(@ARGV) or pod2usage(1);
-my $plotter=new Lab::Data::Plotter($metafile);
+my $plotter=new Lab::Data::Plotter($metafile,\%options);
 
 if ($options{list_plots}) {
     print "Available plots in $metafile:\n";
@@ -44,7 +44,7 @@ if ($options{plot} =~ /^\d+$/) {
 
 pod2usage(1) unless ($options{plot});
 
-my $gp=$plotter->plot($options{plot},%options);
+my $gp=$plotter->plot($options{plot});
 
 my $a=<stdin>;
 
