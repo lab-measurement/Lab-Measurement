@@ -12,22 +12,28 @@ our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
 sub new {
     my $proto = shift;
     my $class = ref($proto) || $proto;
-    my $meta=shift;
-    unless (ref $meta eq 'Lab::Data::Meta') {
-        unless (-e $meta) {
-            for (qw/.META META .meta meta/) {
+    my ($main_meta,$options,@other)=@_;
+    my @other_metas;
+    for my $meta ($main_meta,@other) {
+        unless (ref $meta eq 'Lab::Data::Meta') {
+            for ("",qw/.META META .meta meta/) {
                 if (-e $meta.$_) {
                     $meta=$meta.$_;
                     last;
                 }
             }
+            die "Metafile $meta does not exist!" unless (-e $meta);
+            $meta=Lab::Data::Meta->new_from_file($meta);
         }
-        die "Metafile $meta does not exist!" unless (-e $meta);
-        $meta=Lab::Data::Meta->new_from_file($meta);
+        push @other_metas,$meta;
     }
     
+    $main_meta=shift @other_metas;
+    
     my $self = bless {
-        meta    => $meta
+        meta    => $main_meta,
+        options => $options,
+        other_metas => \@other_metas,
     }, $class;
     
     return $self;
@@ -63,11 +69,11 @@ sub stop_live_plot {
 }
 
 sub plot {
-    my ($self,$plot,%options)=@_;
-    
+    my ($self,$plot)=@_;
+        
     die "Plot what?" unless ($self->{meta} && $plot);
     
-    my $gpipe=$self->_start_plot($plot,%options);
+    my $gpipe=$self->_start_plot($plot);
     $self->_plot($gpipe,$plot);
     
     return $gpipe;
@@ -78,8 +84,8 @@ sub _start_plot {
     die "plot \"$plot\" undefined" unless (defined($self->{meta}->plot($plot)));
 
     my $gpipe;
-    if ($options{dump}) {
-        open $gpipe,">$options{dump}" or die "cannot open gnuplot dump file $options{dump}";
+    if ($self->{options}->{dump}) {
+        open $gpipe,">".$self->{options}->{dump} or die "cannot open gnuplot dump file ".$self->{options}->{dump};
     } else {
         $gpipe=$self->get_gnuplot_pipe();
     }
@@ -88,10 +94,10 @@ sub _start_plot {
     $gp.="# Encoding of this file\n";
     $gp.="set encoding iso_8859_1\n";
     
-    if ($options{eps}) {
+    if ($self->{options}->{eps}) {
         $gp.="#\n# Output to file\n";
         $gp.="set terminal postscript color enhanced\n";
-        $gp.=qq(set output ").$options{eps}.qq("\n);
+        $gp.=qq(set output ").$self->{options}->{eps}.qq("\n);
     }
     
     if ($self->{meta}->plot_type($plot) eq 'pm3d') {
@@ -100,10 +106,18 @@ sub _start_plot {
         $gp.="set view map\n";
     }
     
+    #Quatsch. Aussen über Files loopen, dann über Konstanten
     if ($self->{meta}->constant()) {
         $gp.="#\n# Constants\n" ;
         for (@{$self->{meta}->constant()}) {
-            $gp.=($_->{name})."=".($_->{value})."\n";
+            unless ($self->{options}->{multiple}) {
+                $gp.=($_->{name})."=".($_->{value})."\n";
+            } else {
+                my $num=0;
+                for my $meta ($self->{meta},@{$self->{othermetas}}) {
+                    $gp.=($_->{name})."$num++=".($_->{value})."\n";
+                }
+            }
         }
     }
     
@@ -113,10 +127,10 @@ sub _start_plot {
     my $cbaxis=$self->{meta}->plot_cbaxis($plot);
     
     $gp.="#\n# Axis labels\n";
-    $gp.='set xlabel "'.($self->{meta}->axis_label($xaxis)).' ('.($self->{meta}->axis_unit($xaxis)).")".($options{descriptions} ? ('\n'.$self->{meta}->axis_description($xaxis)) : '')."\"\n";
-    $gp.='set ylabel "'.($self->{meta}->axis_label($yaxis))." (".($self->{meta}->axis_unit($yaxis)).")".($options{descriptions} ? ('\n'.$self->{meta}->axis_description($yaxis)) : '')."\"\n";
-    $gp.='set zlabel "'.($self->{meta}->axis_label($zaxis)).' ('.($self->{meta}->axis_unit($zaxis)).")".($options{descriptions} ? ('\n'.$self->{meta}->axis_description($zaxis)) : '')."\"\n" if ($zaxis);
-    $gp.='set cblabel "'.($self->{meta}->axis_label($cbaxis))." (".($self->{meta}->axis_unit($cbaxis)).")".($options{descriptions} ? ('\n'.$self->{meta}->axis_description($cbaxis)) : '')."\"\n" if ($cbaxis);
+    $gp.='set xlabel "'.($self->{meta}->axis_label($xaxis)).' ('.($self->{meta}->axis_unit($xaxis)).")".($self->{options}->{descriptions} ? ('\n'.$self->{meta}->axis_description($xaxis)) : '')."\"\n";
+    $gp.='set ylabel "'.($self->{meta}->axis_label($yaxis))." (".($self->{meta}->axis_unit($yaxis)).")".($self->{options}->{descriptions} ? ('\n'.$self->{meta}->axis_description($yaxis)) : '')."\"\n";
+    $gp.='set zlabel "'.($self->{meta}->axis_label($zaxis)).' ('.($self->{meta}->axis_unit($zaxis)).")".($self->{options}->{descriptions} ? ('\n'.$self->{meta}->axis_description($zaxis)) : '')."\"\n" if ($zaxis);
+    $gp.='set cblabel "'.($self->{meta}->axis_label($cbaxis))." (".($self->{meta}->axis_unit($cbaxis)).")".($self->{options}->{descriptions} ? ('\n'.$self->{meta}->axis_description($cbaxis)) : '')."\"\n" if ($cbaxis);
    
     if (defined $self->{meta}->plot_grid($plot)) {
         $gp.="#\n# Grid\n";
@@ -140,24 +154,26 @@ sub _start_plot {
     }
     $gp.="#\n# Axis format\n".$gp_help if ($gp_help);
     
-    $gp.="#\n# Ranges\n";
-    my $xmin=(defined $self->{meta}->axis_min($xaxis)) ? $self->{meta}->axis_min($xaxis) : "*";
-    my $xmax=(defined $self->{meta}->axis_max($xaxis)) ? $self->{meta}->axis_max($xaxis) : "*";
-    my $ymin=(defined $self->{meta}->axis_min($yaxis)) ? $self->{meta}->axis_min($yaxis) : "*";
-    my $ymax=(defined $self->{meta}->axis_max($yaxis)) ? $self->{meta}->axis_max($yaxis) : "*";
-    $gp.="set xrange [$xmin:$xmax]\n";
-    $gp.="set yrange [$ymin:$ymax]\n";
-    if ($zaxis) {
-        my $zmin=(defined $self->{meta}->axis_min($zaxis)) ? $self->{meta}->axis_min($zaxis) : "*";
-        my $zmax=(defined $self->{meta}->axis_max($zaxis)) ? $self->{meta}->axis_max($zaxis) : "*";
-        $gp.="set zrange [$zmin:$zmax]\n";
+    unless ($self->{options}->{multiple}) {
+        $gp.="#\n# Ranges\n";
+        my $xmin=(defined $self->{meta}->axis_min($xaxis)) ? $self->{meta}->axis_min($xaxis) : "*";
+        my $xmax=(defined $self->{meta}->axis_max($xaxis)) ? $self->{meta}->axis_max($xaxis) : "*";
+        my $ymin=(defined $self->{meta}->axis_min($yaxis)) ? $self->{meta}->axis_min($yaxis) : "*";
+        my $ymax=(defined $self->{meta}->axis_max($yaxis)) ? $self->{meta}->axis_max($yaxis) : "*";
+        $gp.="set xrange [$xmin:$xmax]\n";
+        $gp.="set yrange [$ymin:$ymax]\n";
+        if ($zaxis) {
+            my $zmin=(defined $self->{meta}->axis_min($zaxis)) ? $self->{meta}->axis_min($zaxis) : "*";
+            my $zmax=(defined $self->{meta}->axis_max($zaxis)) ? $self->{meta}->axis_max($zaxis) : "*";
+            $gp.="set zrange [$zmin:$zmax]\n";
+        }
+        if ($cbaxis) {
+            my $cbmin=(defined $self->{meta}->axis_min($cbaxis)) ? $self->{meta}->axis_min($cbaxis) : "*";
+            my $cbmax=(defined $self->{meta}->axis_max($cbaxis)) ? $self->{meta}->axis_max($cbaxis) : "*";
+            $gp.="set cbrange [$cbmin:$cbmax]\n";
+        }
     }
-    if ($cbaxis) {
-        my $cbmin=(defined $self->{meta}->axis_min($cbaxis)) ? $self->{meta}->axis_min($cbaxis) : "*";
-        my $cbmax=(defined $self->{meta}->axis_max($cbaxis)) ? $self->{meta}->axis_max($cbaxis) : "*";
-        $gp.="set cbrange [$cbmin:$cbmax]\n";
-    }
-
+    
     if ($self->{meta}->plot_logscale($plot)) {
         $gp.="#\n# Axes with logscale\n";
         $gp.="set logscale ".$self->{meta}->plot_logscale($plot)."\n";
@@ -194,7 +210,54 @@ sub _plot {
     if ($self->{meta}->plot_type($plot) eq 'pm3d') {
         $pp=qq(splot "$datafile" using ($xexp):($yexp):($cbexp) title "$plot"\n);
     } else {
-        $pp=qq(plot "$datafile" using ($xexp):($yexp) title "$plot" with lines\n);
+        if ($self->{options}->{last_live}) {
+            my %blocks=$self->{meta}->block();
+            my @keys=sort(keys %blocks);
+            @keys=splice @keys,-$self->{options}->{last_live};
+            $pp="plot ";
+            for (@keys) {
+                $pp.=qq("$datafile" using ($xexp):($yexp) every :::$_::$_ title "$blocks{label}" with lines, );
+            }
+            $pp=substr $pp,0,(length $pp) -2;
+        } else {
+            $pp=qq(plot "$datafile" using ($xexp):($yexp) title "$plot"\n);
+        }
+    }
+    print $gpipe $pp;
+    
+}
+
+sub _plot_multiple {
+    my ($self,$gpipe,$plot)=@_;
+
+    my $xaxis=$self->{meta}->plot_xaxis($plot);
+    my $yaxis=$self->{meta}->plot_yaxis($plot);
+    my $zaxis=$self->{meta}->plot_zaxis($plot);
+    my $cbaxis=$self->{meta}->plot_cbaxis($plot);
+
+    my $xexp=$self->_flatten_exp($xaxis);
+    my $yexp=$self->_flatten_exp($yaxis);
+    my $zexp=$self->_flatten_exp($zaxis) if ($zaxis);
+    my $cbexp=$self->_flatten_exp($cbaxis) if ($cbaxis);
+
+    my $datafile=$self->{meta}->get_abs_path().$self->{meta}->data_file();
+    
+    my $pp;
+    if ($self->{meta}->plot_type($plot) eq 'pm3d') {
+        $pp=qq(splot "$datafile" using ($xexp):($yexp):($cbexp) title "$plot"\n);
+    } else {
+        if ($self->{options}->{last_live}) {
+            my %blocks=$self->{meta}->block();
+            my @keys=sort(keys %blocks);
+            @keys=splice @keys,-$self->{options}->{last_live};
+            $pp="plot ";
+            for (@keys) {
+                $pp.=qq("$datafile" using ($xexp):($yexp) every :::$_::$_ title "$blocks{label}" with lines, );
+            }
+            $pp=substr $pp,0,(length $pp) -2;
+        } else {
+            $pp=qq(plot "$datafile" using ($xexp):($yexp) title "$plot"\n);
+        }
     }
     print $gpipe $pp;
     
@@ -275,20 +338,10 @@ being aquired.
 
 =head2 new
 
-  $plotter=new Lab::Data::Plotter($meta);
+  $plotter=new Lab::Data::Plotter($meta,\%options);
 
 Creates a Plotter object. C<$meta> is either an object of type
 L<Lab::Data::Meta|Lab::Data::Meta> or a filename that points to a C<.META> file.
-
-=head1 METHODS
-
-=head2 available_plots
-
-  my %plots=$plotter->available_plots();
-
-=head2 plot
-
-  $plotter->plot($plot,%options);
 
 Available options are
 
@@ -300,7 +353,19 @@ Available options are
 
 =item descriptions
 
+=last_live
+
 =back
+
+=head1 METHODS
+
+=head2 available_plots
+
+  my %plots=$plotter->available_plots();
+
+=head2 plot
+
+  $plotter->plot($plot);
 
 =head2 start_live_plot
 
