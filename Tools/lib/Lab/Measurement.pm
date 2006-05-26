@@ -4,6 +4,7 @@ package Lab::Measurement;
 
 use strict;
 use warnings;
+use encoding::warnings;
 use Data::Dumper;
 use Lab::Data::Writer;
 use Lab::Data::Meta;
@@ -31,11 +32,12 @@ sub new {
         #constants      => [],
         
         #live_plot      => '',
-        #live_refresh  => '',
+        #live_refresh   => '',
+        #live_latest    => '',
         
         #writer_config  => {},
 
-    # filenamen finden
+    # Filenamen finden
     if ($params{filename_base}) {
         my $fnb=$params{filename_base};
         my $last=(sort {$b <=> $a} grep {s/$fnb\_(\d+)\..*/$1/} glob "$fnb\_*")[0];
@@ -55,7 +57,7 @@ sub new {
     $writer->log_comment($params{description});
     $writer->log_comment('Recorded with $Id$');
         
-    # meta erzeugen
+    # Meta erzeugen
     my $meta=new Lab::Data::Meta({
         data_complete           => 0,
         sample                  => $params{sample},
@@ -70,8 +72,13 @@ sub new {
     my ($filename,$path,$suffix)=($writer->get_filename(),$writer->configure('output_meta_ext'));
     $meta->save("$path$filename.$suffix");
     
+    # Liveplot starten
     if ($params{live_plot}) {
-        $self->{live_plotter}=new Lab::Data::Plotter($meta);
+        my %options;
+        if ($params{live_latest}) {
+            $options{live_latest}=$params{live_latest};
+        }
+        $self->{live_plotter}=new Lab::Data::Plotter($meta,\%options);
         $self->{live_plotter}->start_live_plot($params{live_plot},$params{live_refresh});
     }
     
@@ -278,15 +285,15 @@ where C<%config> can contain
   filename      => '',
   filename_base => '',  # for auto_naming
   description   => '',  # multi line
-
+  
   columns       => [],
   axes          => [],
   plots         => [],  # See Meta
-
+  
   live_plot     => '',  # Name of plot that is to be plotted live
   live_refresh  => '',
-        
-
+  live_latest   => '',
+  
   writer_config => {},  # Configuration options for L<Lab::Data::Writer|Lab::Data::Writer>
 
 =head1 METHODS
