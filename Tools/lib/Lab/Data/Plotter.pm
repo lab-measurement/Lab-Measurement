@@ -22,7 +22,7 @@ sub new {
                 }
             }
         }
-        die "fuck you! doesn't exist: $meta" unless (-e $meta);
+        die "Metafile $meta does not exist!" unless (-e $meta);
         $meta=Lab::Data::Meta->new_from_file($meta);
     }
     
@@ -113,10 +113,10 @@ sub _start_plot {
     my $cbaxis=$self->{meta}->plot_cbaxis($plot);
     
     $gp.="#\n# Axis labels\n";
-    $gp.='set xlabel "'.($self->{meta}->axis_label($xaxis)).' ('.($self->{meta}->axis_unit($xaxis)).")\"\n";
-    $gp.='set ylabel "'.($self->{meta}->axis_label($yaxis))." (".($self->{meta}->axis_unit($yaxis)).")\"\n";
-    $gp.='set zlabel "'.($self->{meta}->axis_label($zaxis)).' ('.($self->{meta}->axis_unit($zaxis)).")\"\n" if ($zaxis);
-    $gp.='set cblabel "'.($self->{meta}->axis_label($cbaxis))." (".($self->{meta}->axis_unit($cbaxis)).")\"\n" if ($cbaxis);
+    $gp.='set xlabel "'.($self->{meta}->axis_label($xaxis)).' ('.($self->{meta}->axis_unit($xaxis)).")".($options{descriptions} ? '\n'.$self->{meta}->axis_description($xaxis)) : '')."\"\n";
+    $gp.='set ylabel "'.($self->{meta}->axis_label($yaxis))." (".($self->{meta}->axis_unit($yaxis)).")".($options{descriptions} ? '\n'.$self->{meta}->axis_description($yaxis)) : '')."\"\n";
+    $gp.='set zlabel "'.($self->{meta}->axis_label($zaxis)).' ('.($self->{meta}->axis_unit($zaxis)).")".($options{descriptions} ? '\n'.$self->{meta}->axis_description($zaxis)) : '')."\"\n" if ($zaxis);
+    $gp.='set cblabel "'.($self->{meta}->axis_label($cbaxis))." (".($self->{meta}->axis_unit($cbaxis)).")".($options{descriptions} ? '\n'.$self->{meta}->axis_description($cbaxis)) : '')."\"\n" if ($cbaxis);
    
     if (defined $self->{meta}->plot_grid($plot)) {
         $gp.="#\n# Grid\n";
@@ -289,6 +289,18 @@ L<Lab::Data::Meta|Lab::Data::Meta> or a filename that points to a C<.META> file.
 =head2 plot
 
   $plotter->plot($plot,%options);
+
+Available options are
+
+=over 2
+
+=item dump
+
+=item eps
+
+=item descriptions
+
+=back
 
 =head2 start_live_plot
 
