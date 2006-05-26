@@ -113,10 +113,10 @@ sub _start_plot {
     my $cbaxis=$self->{meta}->plot_cbaxis($plot);
     
     $gp.="#\n# Axis labels\n";
-    $gp.='set xlabel "'.($self->{meta}->axis_label($xaxis)).' ('.($self->{meta}->axis_unit($xaxis)).")".($options{descriptions} ? '\n'.$self->{meta}->axis_description($xaxis)) : '')."\"\n";
-    $gp.='set ylabel "'.($self->{meta}->axis_label($yaxis))." (".($self->{meta}->axis_unit($yaxis)).")".($options{descriptions} ? '\n'.$self->{meta}->axis_description($yaxis)) : '')."\"\n";
-    $gp.='set zlabel "'.($self->{meta}->axis_label($zaxis)).' ('.($self->{meta}->axis_unit($zaxis)).")".($options{descriptions} ? '\n'.$self->{meta}->axis_description($zaxis)) : '')."\"\n" if ($zaxis);
-    $gp.='set cblabel "'.($self->{meta}->axis_label($cbaxis))." (".($self->{meta}->axis_unit($cbaxis)).")".($options{descriptions} ? '\n'.$self->{meta}->axis_description($cbaxis)) : '')."\"\n" if ($cbaxis);
+    $gp.='set xlabel "'.($self->{meta}->axis_label($xaxis)).' ('.($self->{meta}->axis_unit($xaxis)).")".($options{descriptions} ? ('\n'.$self->{meta}->axis_description($xaxis)) : '')."\"\n";
+    $gp.='set ylabel "'.($self->{meta}->axis_label($yaxis))." (".($self->{meta}->axis_unit($yaxis)).")".($options{descriptions} ? ('\n'.$self->{meta}->axis_description($yaxis)) : '')."\"\n";
+    $gp.='set zlabel "'.($self->{meta}->axis_label($zaxis)).' ('.($self->{meta}->axis_unit($zaxis)).")".($options{descriptions} ? ('\n'.$self->{meta}->axis_description($zaxis)) : '')."\"\n" if ($zaxis);
+    $gp.='set cblabel "'.($self->{meta}->axis_label($cbaxis))." (".($self->{meta}->axis_unit($cbaxis)).")".($options{descriptions} ? ('\n'.$self->{meta}->axis_description($cbaxis)) : '')."\"\n" if ($cbaxis);
    
     if (defined $self->{meta}->plot_grid($plot)) {
         $gp.="#\n# Grid\n";
