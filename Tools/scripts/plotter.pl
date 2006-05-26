@@ -9,7 +9,8 @@ my %options=(#  => default
     list_plots  => 0,
     dump        => '',
     eps         => '',
-    plot	    => '',
+    plot        => '',
+    descriptions=> 0,
 );
 
 GetOptions(\%options,
@@ -17,6 +18,7 @@ GetOptions(\%options,
     'plot=s',
     'dump=s',
     'eps=s',
+    'descriptions!',
     'help|?',
     'man',
 );
@@ -36,9 +38,13 @@ if ($options{list_plots}) {
     exit;
 }
 
-my $plot=shift(@ARGV) or pod2usage(1);
+if ($options{plot} =~ /^\d+$/) {
+    $options{plot}=(sort keys ($plotter->available_plots()))[$options{plot}-1];
+}
 
-my $gp=$plotter->plot($plot,%options);
+pod2usage(1) unless ($options{plot});
+
+my $gp=$plotter->plot($options{plot},%options);
 
 my $a=<stdin>;
 
@@ -50,7 +56,7 @@ plotter.pl - Plot data with GnuPlot
 
 =head1 SYNOPSIS
 
-plotter.pl [OPTIONS] METAFILE [PLOT]
+plotter.pl [OPTIONS] METAFILE
 
 =head1 DESCRIPTION
 
@@ -60,9 +66,9 @@ the L<Lab::Measurement|Lab::Measurement> module.
 =head1 OPTIONS AND ARGUMENTS
 
 The file C<METAFILE> contains the meta information for the data that is
-to be plotted. The name C<PLOT> of the plot that you want to draw must
-be supplied, unless you use the C<--list_plots> option, that lists all
-available plots defined in the C<METAFILE>.
+to be plotted. The name OR number of the plot that you want to draw must
+be supplied with the C<--plot> option, unless you use the C<--list_plots>
+option, that lists all available plots defined in the C<METAFILE>.
 
 =over 2
 
@@ -78,6 +84,11 @@ Show manpage.
 
 List available plots defined in C<METAFILE>.
 
+=item --plot=name --plot=number
+
+Show the plot with name C<name> or number C<number>. Numbers are
+given by the C<--list_plots> option.
+
 =item --dump=filename
 
 Do not plot now, but dump a gnuplot file C<filename> instead.
@@ -85,6 +96,10 @@ Do not plot now, but dump a gnuplot file C<filename> instead.
 =item --eps=filename
 
 Don't plot on screen, but create eps file C<filename>.
+
+=item --descriptions
+
+Also show axis descriptions in plot.
 
 =back
 
