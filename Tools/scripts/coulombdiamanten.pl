@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# For Lock-In
+# Transportmessung mit Lock-In
 
 #$Id$
 
@@ -13,58 +13,70 @@ use Lab::Measurement;
 
 ################################
 
-my $start_voltage=-0.39;
-my $end_voltage=-0.52;
-my $step=-1e-3;
-
-my $start_sd=1;
-my $end_sd=-1;
-my $step_sd=-1e-1;
-
-my $gate_knick_gpib=4;
-my $sd_knick_gpib=15;
-my $hp_gpib=24;
-
-my $amp=1e-7;    # Ithaco amplification
-my $divider=1000;
-my $v_sd_ac=20e-6;
+my $divider_dc    = 1000;
+my $ithaco_amp    = 1e-7;    # Ithaco amplification
 my $lock_in_sensitivity=10e-3;
 
-my $R_Kontakt=1773;
+my $v_sd_ac       = 20e-6;
 
-my $sample="S5c (81059)";
-my $title="oberer Quantenpunkt";
-my $comment=<<COMMENT;
+my $gate_gpib     = 14;
+my $gate_type     = 'KnickS252';
+my $gate_name     = 'Gate hf3';
+
+my $gate_start    = -0.13;
+my $gate_end      = +0.1;
+my $gate_step     = +1e-3;
+
+
+my $bias_gpib     = 15;
+my $bias_type     = 'KnickS252';
+
+my $bias_start    = +1;
+my $bias_end      = -1;
+my $bias_step     = -2e-2;
+
+
+my $hp_gpib       = 24;
+my $hp_range      = 10;
+my $hp_resolution = 0.00001;
+
+my $R_Kontakt     = 1773;
+
+my $filename_base = 'coulombdiamant';
+
+my $sample        = "S5c (81059)";
+my $title         = "rechter Quantenpunkt";
+my $comment       = <<COMMENT;
 Differentielle Leitfähigkeit von 12 nach 10. Ca. 20mK.
 Lock-In: Sensitivity $lock_in_sensitivity V, V_{SD,AC}=$v_sd_ac V bei 13Hz, 300ms, Normal, Flat.
-Ithaco: Amplification $amp, Supression 10e-10, Rise Time 0.3ms.
-G11=-0.425 (yoko02); Ghf1=0 (Yoko10); Fahre G01 (yoko04); Ghf2=0 (knick14).
+Ithaco: Amplification $ithaco_amp, Supression 10e-10, Rise Time 0.3ms.
+G01=0 (Yoko04;Kabel5); G11=-0.385 (Yoko02;Kabel4); G06=-0.460 (Yoko10;Kabel1); Fahre Ghf3 (Knick14;Kabel6); Ghf2=-0.140 (Yoko01;Kabel11); andere GND
 COMMENT
 
 ################################
 
-unless (($end_voltage-$start_voltage)/$step > 0) {
-    warn "This will not work: start=$start_voltage, end=$end_voltage, step=$step.\n";
+unless (($gate_end-$gate_start)/$gate_step > 0) {
+    warn "This will not work: start=$gate_start, end=$gate_end, step=$gate_step.\n";
     exit;
 }
 
-unless (($end_sd-$start_sd)/$step_sd > 0) {
-    warn "This will not work: start=$start_sd, end=$end_sd, step=$step_sd.\n";
+unless (($bias_end-$bias_start)/$bias_step > 0) {
+    warn "This will not work: start=$bias_start, end=$bias_end, step=$bias_step.\n";
     exit;
 }
 
-#my $gate_knick=new Lab::Instrument::KnickS252({
-my $gate_knick=new Lab::Instrument::Yokogawa7651({
+my $gate_source=new new Lab::Instrument::$gate_type({
     'GPIB_board'    => 0,
-    'GPIB_address'  => $gate_knick_gpib,
+    'GPIB_address'  => $gate_gpib,
     'gate_protect'  => 1,
 
     'gp_max_volt_per_second' => 0.002,
     'gp_max_step_per_second' => 3,
     'gp_max_step_per_step'   => 0.001,
 });
-my $sd_knick=new Lab::Instrument::KnickS252({
-    'GPIB_address'    => $sd_knick_gpib,
+
+my $bias_source=new new Lab::Instrument::$bias_type({
+    'GPIB_address'    => $bias_gpib,
     'gate_protect'    => 1,
     'gp_max_volt_per_second' => 0.010,
     'gp_max_volt_per_step'   => 0.005,
@@ -76,7 +88,7 @@ my $hp=new Lab::Instrument::HP34401A(0,$hp_gpib);
 my $measurement=new Lab::Measurement(
     sample          => $sample,
     title           => $title,
-    filename_base   => 'coulombdiamant',
+    filename_base   => $filename_base,
     description     => $comment,
 
     live_plot       => 'Differential Conductance',
@@ -93,11 +105,11 @@ my $measurement=new Lab::Measurement(
         },
         {
             'name'          => 'AMP',
-            'value'         => $amp,
+            'value'         => $ithaco_amp,
         },
         {
             'name'          => 'divider',
-            'value'         => $divider,
+            'value'         => $divider_dc,
         },
         {
             'name'          => 'V_AC',
@@ -111,17 +123,17 @@ my $measurement=new Lab::Measurement(
     columns         => [
         {   'unit'          => 'V',
             'label'         => 'Bias voltage',
-            'description'   => 'Applied to divider/mixing box, then source contact',
+            'description'   => 'Voltage applied to divider/mixing box, then source contact',
         },
         {
             'unit'          => 'V',
-            'label'         => 'Gate voltage',
-            'description'   => 'Applied to gate.',
+            'label'         => "Voltage $gate_name",
+            'description'   => "Set voltage on source $gate_type$gate_gpib connected to $gate_name",
         },
         {
             'unit'          => 'V',
             'label'         => 'Lock-In output',
-            'description'   => "Lock-In output",
+            'description'   => "Differential current (Lock-In output)",
         }
     ],
     axes            => [
@@ -129,22 +141,28 @@ my $measurement=new Lab::Measurement(
             'expression'    => '($C0/divider)*1000',
             'label'         => 'Bias voltage',
             'description'   => 'Applied to source contact',
-            'min'           => ($start_sd < $end_sd) ? $start_sd/$divider: $end_sd/$divider,
-            'max'           => ($start_sd < $end_sd) ? $end_sd/$divider : $start_sd/$divider,
+            'min'           => ($bias_start < $bias_end) ? $bias_start/$divider_dc: $bias_end/$divider_dc,
+            'max'           => ($bias_start < $bias_end) ? $bias_end/$divider_dc : $bias_start/$divider_dc,
         },
         {
             'unit'          => 'V',
             'expression'    => '$C1',
-            'label'         => 'Gate voltage',
-            'min'           => ($start_voltage < $end_voltage) ? $start_voltage : $end_voltage,
-            'max'           => ($start_voltage < $end_voltage) ? $end_voltage : $start_voltage,
-            'description'   => 'Applied to gate hf2 via low path filter.',
+            'label'         => "Voltage $gate_name",
+            'min'           => ($gate_start < $gate_end) ? $gate_start : $gate_end,
+            'max'           => ($gate_start < $gate_end) ? $gate_end : $gate_start,
+            'description'   => "Voltage applied to $gate_name",
+        },
+        {
+            'unit'          => 'A',
+            'expression'    => "(\$C2/10)*SENS*AMP",
+            'label'         => 'Differential current',
+            'description'   => 'Differential current',
         },
         {
             'unit'          => '2e^2/h',
-            'expression'    => "(((\$C2/10)*SENS*AMP)/V_AC)/G0",
-            'label'         => 'Differential Conductance',
-            'description'   => 'Differential Conductance',
+            'expression'    => "(\$A2/V_AC)/G0",
+            'label'         => 'Differential conductance',
+            'description'   => 'Differential conductance',
         },
        
     ],
@@ -152,30 +170,30 @@ my $measurement=new Lab::Measurement(
         'Differential Conductance'    => {
             'type'          => 'line',
             'xaxis'         => 1,
-            'yaxis'         => 2,
+            'yaxis'         => 3,
             'grid'          => 'xtics ytics',
         },
         'Diamanten'=> {
             'type'          => 'pm3d',
             'xaxis'         => 1,
             'yaxis'         => 0,
-            'cbaxis'        => 2,
+            'cbaxis'        => 3,
             'grid'          => 'xtics ytics',
         },
     },
 );
 
-my $stepsign=$step/abs($step);
-my $sdstepsign=$step/abs($step);
+my $gate_stepsign=$gate_step/abs($gate_step);
+my $bias_stepsign=$bias_step/abs($bias_step);
 
-for (my $sd=$start_sd;$sdstepsign*$sd<=$sdstepsign*$end_sd;$sd+=$step_sd) {
+for (my $sd=$bias_start;$bias_stepsign*$sd<=$bias_stepsign*$bias_end;$sd+=$bias_step) {
     $measurement->start_block("Bias $sd V");
-    $sd_knick->set_voltage($sd);
-    $gate_knick->sweep_to_voltage($start_voltage);
-    for (my $volt=$start_voltage;$stepsign*$volt<=$stepsign*$end_voltage;$volt+=$step) {
-        $gate_knick->set_voltage($volt);
-        usleep(300000);
-        my $meas=$hp->read_voltage_dc(10,0.0001);
+    $bias_source->set_voltage($sd);
+    $gate_source->sweep_to_voltage($gate_start);
+    for (my $volt=$gate_start;$gate_stepsign*$volt<=$gate_stepsign*$gate_end;$volt+=$gate_step) {
+        $gate_source->set_voltage($volt);
+#        usleep(300000);
+        my $meas=$hp->read_voltage_dc($hp_range,$hp_resolution);
         $measurement->log_line($sd,$volt,$meas);
     }
 }
