@@ -210,17 +210,17 @@ sub _plot {
     if ($self->{meta}->plot_type($plot) eq 'pm3d') {
         $pp=qq(splot "$datafile" using ($xexp):($yexp):($cbexp) title "$plot"\n);
     } else {
-        if ($self->{options}->{last_live}) {
+        if ($self->{options}->{live_latest}) {
             my %blocks=$self->{meta}->block();
             my @keys=sort(keys %blocks);
-            @keys=splice @keys,-$self->{options}->{last_live};
+            @keys=splice @keys,-$self->{options}->{live_latest};
             $pp="plot ";
             for (@keys) {
                 $pp.=qq("$datafile" using ($xexp):($yexp) every :::$_::$_ title "$blocks{label}" with lines, );
             }
             $pp=substr $pp,0,(length $pp) -2;
         } else {
-            $pp=qq(plot "$datafile" using ($xexp):($yexp) title "$plot"\n);
+            $pp=qq(plot "$datafile" using ($xexp):($yexp) title "$plot" with lines\n);
         }
     }
     print $gpipe $pp;

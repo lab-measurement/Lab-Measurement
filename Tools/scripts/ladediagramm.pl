@@ -14,24 +14,24 @@ use Lab::Measurement;
 ################################
 
 my $divider_dc    = 1000;
-my $ithaco_amp    = 1e-7;    # Ithaco amplification
-my $lock_in_sensitivity = 5e-3;
+my $ithaco_amp    = 1e-8;    # Ithaco amplification
+my $lock_in_sensitivity = 20e-3;
 
 my $v_sd_ac       = 20e-6;
-my $v_sd_dc       = -50e-3/$divider_dc;
+my $v_sd_dc       = 0e-3/$divider_dc;
 
-my $gate_1_gpib   = 04;
-my $gate_1_type   = 'Yokogawa7651';
-my $gate_1_name   = 'Gate 01';
-my $gate_1_start  = -0.4;
-my $gate_1_end    = -0.49;
+my $gate_1_gpib   = 14;
+my $gate_1_type   = 'KnickS252';
+my $gate_1_name   = 'Gate hf3';
+my $gate_1_start  = +0.06;
+my $gate_1_end    = -0.05;
 my $gate_1_step   = -1e-3;
 
-my $gate_2_gpib   = 14;
-my $gate_2_type   = 'KnickS252';
-my $gate_2_name   = 'Gate hf4';
-my $gate_2_start  = -0.0;
-my $gate_2_end    = -0.2;
+my $gate_2_gpib   = 04;
+my $gate_2_type   = 'Yokogawa7651';
+my $gate_2_name   = 'Gate 01';
+my $gate_2_start  = -0.2;
+my $gate_2_end    = -0.4;
 my $gate_2_step   = -5e-4;
 
 my $hp_gpib       = 24;
@@ -43,13 +43,13 @@ my $R_Kontakt     = 1773;
 my $filename_base = 'ladediagramm';
 
 my $sample        = "S5c (81059)";
-my $title         = "Oberer und linker Quantenpunkt";
+my $title         = "Oberer und rechter Quantenpunkt";
 my $comment       = <<COMMENT;
 Differentielle Leitfähigkeit von 12 nach 10; V_{SD,DC}=$v_sd_dc V; Ca. 20mK.
 Lock-In: Sensitivity $lock_in_sensitivity V, V_{SD,AC}=$v_sd_ac V bei 13Hz, 300ms, Normal, Flat.
 Ithaco: Amplification $ithaco_amp, Supression 10e-10, Rise Time 0.3ms.
-G11=-0.425 (Yoko02); G15=-0.395 (Yoko10); andere GND
-Fahre aussen G01 (Yoko04); innen Ghf4=0 (Knick14)
+G11=-0.385 (Yoko02;Kabel4); G06=-0.460 (Yoko10;Kabel1); Ghf2=-0.130 (Yoko01;Kabel11); andere GND
+Fahre aussen Ghf3 (Knick14;Kabel6); innen G01 (Yoko04;Kabel5)
 COMMENT
 
 ################################
@@ -64,7 +64,10 @@ unless (($gate_2_end-$gate_2_start)/$gate_2_step > 0) {
     exit;
 }
 
-my $gate1=new Lab::Instrument::$gate_1_type({
+my $g1type="Lab::Instrument::$gate_1_type";
+my $g2type="Lab::Instrument::$gate_2_type";
+
+my $gate1=new $g1type({
     'GPIB_board'    => 0,
     'GPIB_address'  => $gate_1_gpib,
     'gate_protect'  => 1,
@@ -74,7 +77,7 @@ my $gate1=new Lab::Instrument::$gate_1_type({
     'gp_max_step_per_step'   => 0.001,
 });
     
-my $gate2=new Lab::Instrument::$gate_2_type({
+my $gate2=new $g2type({
     'GPIB_board'    => 0,
     'GPIB_address'  => $gate_2_gpib,
     'gate_protect'  => 1,
@@ -94,6 +97,7 @@ my $measurement=new Lab::Measurement(
 
     live_plot       => 'Differential Conductance',
     live_refresh    => 20,
+#    live_latest     => 8,
     
     constants       => [
         {
@@ -157,7 +161,7 @@ my $measurement=new Lab::Measurement(
         },
         {
             'unit'          => 'A',
-            'expression'    => "(\$C2/10)*SENS*AMP",
+            'expression'    => "((\$C2/10)*SENS*AMP)",
             'label'         => 'Differential current',
             'description'   => 'Differential current',
         },

@@ -15,26 +15,23 @@ use Lab::Measurement;
 
 my $divider_dc    = 1000;
 my $ithaco_amp    = 1e-7;    # Ithaco amplification
-my $lock_in_sensitivity=10e-3;
+my $lock_in_sensitivity = 5e-3;
 
 my $v_sd_ac       = 20e-6;
+
 
 my $gate_gpib     = 14;
 my $gate_type     = 'KnickS252';
 my $gate_name     = 'Gate hf3';
-
-my $gate_start    = -0.13;
-my $gate_end      = +0.1;
-my $gate_step     = +1e-3;
-
+my $gate_start    = +0.1;
+my $gate_end      = -0.13;
+my $gate_step     = -1e-3;
 
 my $bias_gpib     = 15;
 my $bias_type     = 'KnickS252';
-
-my $bias_start    = +1;
-my $bias_end      = -1;
+my $bias_start    = +1.2;
+my $bias_end      = -1.2;
 my $bias_step     = -2e-2;
-
 
 my $hp_gpib       = 24;
 my $hp_range      = 10;
@@ -50,7 +47,8 @@ my $comment       = <<COMMENT;
 Differentielle Leitfähigkeit von 12 nach 10. Ca. 20mK.
 Lock-In: Sensitivity $lock_in_sensitivity V, V_{SD,AC}=$v_sd_ac V bei 13Hz, 300ms, Normal, Flat.
 Ithaco: Amplification $ithaco_amp, Supression 10e-10, Rise Time 0.3ms.
-G01=0 (Yoko04;Kabel5); G11=-0.385 (Yoko02;Kabel4); G06=-0.460 (Yoko10;Kabel1); Fahre Ghf3 (Knick14;Kabel6); Ghf2=-0.140 (Yoko01;Kabel11); andere GND
+G01=0 (Yoko04;Kabel5); G11=-0.385 (Yoko02;Kabel4); G06=-0.460 (Yoko10;Kabel1); Ghf2=-0.140 (Yoko01;Kabel11); andere GND
+Fahre aussen Bias an 12 (Knick15;Kabel3), innen Ghf3 (Knick14;Kabel6); 
 COMMENT
 
 ################################
@@ -65,17 +63,16 @@ unless (($bias_end-$bias_start)/$bias_step > 0) {
     exit;
 }
 
-my $gate_source=new new Lab::Instrument::$gate_type({
+my $gate_source=new Lab::Instrument::KnickS252({
     'GPIB_board'    => 0,
     'GPIB_address'  => $gate_gpib,
     'gate_protect'  => 1,
-
     'gp_max_volt_per_second' => 0.002,
     'gp_max_step_per_second' => 3,
     'gp_max_step_per_step'   => 0.001,
 });
 
-my $bias_source=new new Lab::Instrument::$bias_type({
+my $bias_source=new Lab::Instrument::KnickS252({
     'GPIB_address'    => $bias_gpib,
     'gate_protect'    => 1,
     'gp_max_volt_per_second' => 0.010,
@@ -141,8 +138,8 @@ my $measurement=new Lab::Measurement(
             'expression'    => '($C0/divider)*1000',
             'label'         => 'Bias voltage',
             'description'   => 'Applied to source contact',
-            'min'           => ($bias_start < $bias_end) ? $bias_start/$divider_dc: $bias_end/$divider_dc,
-            'max'           => ($bias_start < $bias_end) ? $bias_end/$divider_dc : $bias_start/$divider_dc,
+            'min'           => ($bias_start < $bias_end) ? ($bias_start/$divider_dc)*1000: ($bias_end/$divider_dc)*1000,
+            'max'           => ($bias_start < $bias_end) ? ($bias_end/$divider_dc)*1000 : ($bias_start/$divider_dc)*1000,
         },
         {
             'unit'          => 'V',
@@ -154,7 +151,7 @@ my $measurement=new Lab::Measurement(
         },
         {
             'unit'          => 'A',
-            'expression'    => "(\$C2/10)*SENS*AMP",
+            'expression'    => "((\$C2/10)*SENS*AMP)",
             'label'         => 'Differential current',
             'description'   => 'Differential current',
         },
@@ -189,7 +186,6 @@ my $bias_stepsign=$bias_step/abs($bias_step);
 for (my $sd=$bias_start;$bias_stepsign*$sd<=$bias_stepsign*$bias_end;$sd+=$bias_step) {
     $measurement->start_block("Bias $sd V");
     $bias_source->set_voltage($sd);
-    $gate_source->sweep_to_voltage($gate_start);
     for (my $volt=$gate_start;$gate_stepsign*$volt<=$gate_stepsign*$gate_end;$volt+=$gate_step) {
         $gate_source->set_voltage($volt);
 #        usleep(300000);

@@ -4,7 +4,7 @@ package Lab::Measurement;
 
 use strict;
 use warnings;
-use encoding::warnings;
+#use encoding::warnings;
 use Data::Dumper;
 use Lab::Data::Writer;
 use Lab::Data::Meta;
