@@ -242,21 +242,21 @@ sub _plot_multiple {
 
     my $datafile=$self->{meta}->get_abs_path().$self->{meta}->data_file();
     
-    my $pp;
+    my $pp="#\n# Plot\n";
     if ($self->{meta}->plot_type($plot) eq 'pm3d') {
-        $pp=qq(splot "$datafile" using ($xexp):($yexp):($cbexp) title "$plot"\n);
+        $pp.=qq(splot "$datafile" using ($xexp):($yexp):($cbexp) title "$plot"\n);
     } else {
         if ($self->{options}->{last_live}) {
             my %blocks=$self->{meta}->block();
             my @keys=sort(keys %blocks);
             @keys=splice @keys,-$self->{options}->{last_live};
-            $pp="plot ";
+            $pp.="plot ";
             for (@keys) {
                 $pp.=qq("$datafile" using ($xexp):($yexp) every :::$_::$_ title "$blocks{label}" with lines, );
             }
             $pp=substr $pp,0,(length $pp) -2;
         } else {
-            $pp=qq(plot "$datafile" using ($xexp):($yexp) title "$plot"\n);
+            $pp.=qq(plot "$datafile" using ($xexp):($yexp) title "$plot"\n);
         }
     }
     print $gpipe $pp;
