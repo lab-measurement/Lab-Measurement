@@ -97,7 +97,7 @@ my $measurement=new Lab::Measurement(
 
     live_plot       => 'Differential Conductance',
     live_refresh    => 20,
-#    live_latest     => 8,
+    live_last       => 7,
     
     constants       => [
         {
