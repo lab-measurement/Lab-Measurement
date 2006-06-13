@@ -181,10 +181,14 @@ sub _start_plot {
 
     $gp.="#\n# Title and labels\n";
     $gp.=qq(set title ").$self->{meta}->dataset_title()." (".$self->{meta}->sample().")\"\n";
-    my $h=0.95;
+    my $h=0.95;my $screen=0.99;
     for (split "\n",$self->{meta}->dataset_description()) {
-        $gp.=qq(set label "$_" at graph 0.02, graph $h\n);
-        $h-=0.04;
+        if ($self->{meta}->plot_type($plot) eq 'pm3d') {
+            $gp.=qq(set label "$_" at screen 0.01, screen $screen\n);
+        } else {
+            $gp.=qq(set label "$_" at graph 0.02, graph $h\n);
+        }
+        $h-=0.04;$screen-=0.025;
     }
 
     print $gpipe $gp;
