@@ -30,6 +30,7 @@ sub configure {
     #   gp_max_step_per_second
     #   gp_min_volt
     #   gp_max_volt
+    #   qp_equal_level
     my $config=shift;
     if ((ref $config) =~ /HASH/) {
         for my $conf_name (keys %{$self->{default_config}}) {
@@ -84,7 +85,7 @@ sub step_to_voltage {
     }
 
     #already there
-    return $voltage if (abs($voltage - $last_v) < 1e-5);
+    return $voltage if (abs($voltage - $last_v) < $self->{config}->{gp_equal_level});
 
     #do the magic step calculation
     my $wait = ($voltpersec < $voltperstep * $steppersec) ?
@@ -124,7 +125,7 @@ sub sweep_to_voltage {
     while($cont) {
         $cont=0;
         my $this=$self->step_to_voltage($voltage);
-        if (!(defined $last) || (abs($last-$this) > 1e-5)) {
+        unless ((defined $last) && (abs($last-$this) < $self->{config}->{gp_equal_level})) {
             $last=$this;
             $cont++;
         }
