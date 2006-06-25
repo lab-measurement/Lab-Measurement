@@ -64,7 +64,7 @@ sub set_voltage {
 sub step_to_voltage {
     my $self=shift;
     my $voltage=shift;
-    
+
     my $voltpersec=abs($self->{config}->{gp_max_volt_per_second});
     my $voltperstep=abs($self->{config}->{gp_max_volt_per_step});
     my $steppersec=abs($self->{config}->{gp_max_step_per_second});
@@ -84,7 +84,7 @@ sub step_to_voltage {
     }
 
     #already there
-    return $voltage if $voltage == $last_v;
+    return $voltage if (abs($voltage - $last_v) < 1e-5);
 
     #do the magic step calculation
     my $wait = ($voltpersec < $voltperstep * $steppersec) ?
@@ -124,7 +124,7 @@ sub sweep_to_voltage {
     while($cont) {
         $cont=0;
         my $this=$self->step_to_voltage($voltage);
-        if (!(defined $last) || ($last!=$this)) {
+        if (!(defined $last) || (abs($last-$this) > 1e-5)) {
             $last=$this;
             $cont++;
         }
