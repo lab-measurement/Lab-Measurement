@@ -33,7 +33,8 @@ if ($options{list_plots}) {
     my %plots=$plotter->available_plots();
     my $num=1;
     for (sort keys %plots) {
-        print qq/$num++ -> $_ ($plots{$_})\n/;
+        print qq/$num -> $_ ($plots{$_})\n/;
+        $num++;
     }
     exit;
 }
