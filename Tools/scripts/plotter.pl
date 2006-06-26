@@ -40,7 +40,8 @@ if ($options{list_plots}) {
 }
 
 if ($options{plot} =~ /^\d+$/) {
-    $options{plot}=(sort keys %{$plotter->available_plots()})[$options{plot}-1];
+    my %plots=$plotter->available_plots();
+    $options{plot}=(sort keys %plots)[$options{plot}-1];
 }
 
 pod2usage(1) unless ($options{plot});
