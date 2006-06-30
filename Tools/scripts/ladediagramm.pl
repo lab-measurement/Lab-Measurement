@@ -172,7 +172,6 @@ my $measurement=new Lab::Measurement(
             'label'         => 'Differential conductance',
             'description'   => 'Differential conductance',
         },
-       
     ],
     plots           => {
         'Differential Conductance'    => {
