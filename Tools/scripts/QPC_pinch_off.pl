@@ -1,33 +1,38 @@
 #!/usr/bin/perl
 
+# Eine Spannungsquelle fahren, Leitfähigkeit (ohne Lock-In) messen
+
 #$Id$
 
 use strict;
 use Lab::Instrument::KnickS252;
+use Lab::Instrument::Yokogawa7651;
 use Lab::Instrument::HP34401A;
 use Time::HiRes qw/usleep/;
 use Lab::Measurement;
 
 ################################
 
-my $start_voltage=0;
-my $end_voltage=-0.4;
+my $start_voltage=-0.05;
+my $end_voltage=-0.25;
 my $step=-1e-3;
 
-my $knick_gpib=14;
+my $knick_gpib=4;
 my $hp_gpib=24;
 
-my $v_sd=780e-3/1563;
-my $amp=1e-7;    # Ithaco amplification
+my $v_sd=-300e-3/1000;
+my $amp=1e-9;    # Ithaco amplification
 
 my $U_Kontakt=2.24;
 
 my $sample="S5c (81059)";
-my $title="QPC 11,hf2";
+my $title="QPC links unten";
 my $comment=<<COMMENT;
-Strom von 12 nach 10, Ithaco amp $amp, supr 10e-10, rise 0.3ms, V_{SD}=$v_sd V.
-mit Lock-In
-ca. 20mK.
+Strom von 12 nach 14; V_{SD,DC}=$v_sd V; Lüftung an; Ca. 25mK.
+Ithaco: Amplification $amp, Supression 10e-10 off, Rise Time 0.3ms.
+G11=-0.385 (Manus1); G15=-0.410 (Manus2); G06=-0.440 (Manus3); Ghf1=-0.110 (Manus04); Ghf2=-0.110 (Manus05);
+Ghf3=-0.100 (Yoko09); Ghf4=-0.120 (Yoko04); G01=-0.405 (Yoko01); G03=-0.450 (Yoko02); G13=-0.612 (Knick14); G09=-0.612 (Yoko10);
+Fahre Ghf4 (Yoko04)
 COMMENT
 
 ################################
@@ -37,7 +42,7 @@ unless (($end_voltage-$start_voltage)/$step > 0) {
     exit;
 }
 
-my $knick=new Lab::Instrument::KnickS252({
+my $knick=new Lab::Instrument::Yokogawa7651({
     'GPIB_board'    => 0,
     'GPIB_address'  => $knick_gpib,
     'gate_protect'  => 1,
@@ -109,8 +114,8 @@ my $measurement=new Lab::Measurement(
             'unit'          => '2e^2/h',
             'expression'    => "(1/(1/abs(\$C1)-1/UKontakt)) * (AMP/(V_SD*G0))",
             'label'         => "QPC conductance",
-            'min'           => -0.1,
-            'max'           => 3,
+#            'min'           => -0.1,
+#            'max'           => 3,
         },
         
     ],
@@ -141,10 +146,4 @@ for (my $volt=$start_voltage;$stepsign*$volt<=$stepsign*$end_voltage;$volt+=$ste
 }
 
 my $meta=$measurement->finish_measurement();
-
-my $plotter=new Lab::Data::Plotter($meta);
-
-$plotter->plot('QPC conductance');
-
-my $a=<stdin>;
 
