@@ -107,8 +107,12 @@ sub log_line {
 sub start_block {
     my ($self,$label)=@_;
     my $num=$self->{writer}->log_start_block();
-    $self->{meta}->block_timestamp($num,now_string());
+    my $now=now_string();
+    $self->{meta}->block_timestamp($num,$now);
     $self->{meta}->block_label($num,$label) if ($label);
+    print "Started block $num at $now";
+    print " ($label)" if ($label);
+    print "\n";
 }
 
 sub finish_measurement {

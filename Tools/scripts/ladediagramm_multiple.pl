@@ -23,9 +23,9 @@ my $v_sd_dc       = 0e-3/$divider_dc;
 my $gate_0_gpib   = 1;
 my $gate_0_type   = 'Yokogawa7651';
 my $gate_0_name   = 'Gate 01';  
-my $gate_0_start  = -0.396;
-my $gate_0_end    = -0.380;
-my $gate_0_step   = +2e-3;
+my $gate_0_start  = -0.390;
+my $gate_0_end    = -0.410;
+my $gate_0_step   = -2e-3;
 
 my $gate_1_gpib   = 4;
 my $gate_1_type   = 'Yokogawa7651';

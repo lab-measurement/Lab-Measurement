@@ -190,6 +190,16 @@ sub _start_plot {
         }
         $h-=0.04;$screen-=0.025;
     }
+    
+    if ($self->{meta}->plot_label($plot)) {
+        my @labels=$self->{meta}->plot_label($plot);
+        for (@labels) {
+            my $text=$_->{text};
+            my $x=$_->{x};
+            my $y=$_->{y};
+            $gp.=qq(set label "$text" at $x,$y center front\n);
+        }
+    }
 
     print $gpipe $gp;
     return $gpipe;
@@ -357,7 +367,7 @@ Available options are
 
 =item descriptions
 
-=last_live
+=item last_live
 
 =back
 

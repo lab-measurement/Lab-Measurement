@@ -60,7 +60,7 @@ my $declaration = {
             expression          => ['SCALAR'],
             min                 => ['SCALAR'],
             max                 => ['SCALAR'],
-            description         => ['SCALAR']   # evtl. weg
+            description         => ['SCALAR'],  # evtl. weg
         }
     ],
     plot                    => [
@@ -79,6 +79,15 @@ my $declaration = {
             logscale            => ['SCALAR'],  # z.b: 'x' oder 'yzxcb'
             time                => ['SCALAR'],  # ??? (was: wie oben (anders als in GnuPlot) (Achsen müssen %s-Format haben))
             grid                => ['SCALAR'],  # z.B. 'ytics' oder 'xtics ytics'
+            label               => [
+                'ARRAY',
+                'id',
+                {
+                    text        => ['SCALAR'],
+                    x           => ['SCALAR'],
+                    y           => ['SCALAR'],
+                }
+            ],
         }
     ],
     constant                => [
