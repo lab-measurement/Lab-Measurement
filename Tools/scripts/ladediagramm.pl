@@ -15,23 +15,23 @@ use Lab::Measurement;
 
 my $divider_dc    = 1000;
 my $ithaco_amp    = 1e-9;    # Ithaco amplification
-my $lock_in_sensitivity = 100e-3;
+my $lock_in_sensitivity = 200e-3;
 
 my $v_sd_ac       = 20e-6;
-my $v_sd_dc       = -300e-3/$divider_dc;
+my $v_sd_dc       = +400e-3/$divider_dc;
 
 my $gate_1_gpib   = 4;
 my $gate_1_type   = 'Yokogawa7651';
 my $gate_1_name   = 'Gate hf4';
-my $gate_1_start  = -0.270;
-my $gate_1_end    = -0.130;
+my $gate_1_start  = -0.300;
+my $gate_1_end    = -0.100;
 my $gate_1_step   = +1e-3;
 
 my $gate_2_gpib   = 9;
 my $gate_2_type   = 'Yokogawa7651';
 my $gate_2_name   = 'Gate hf3';  
-my $gate_2_start  = -0.400;
-my $gate_2_end    = -0.100;
+my $gate_2_start  = -0.300;
+my $gate_2_end    = -0.050;
 my $gate_2_step   = +1e-3;
 
 my $hp_gpib       = 24;

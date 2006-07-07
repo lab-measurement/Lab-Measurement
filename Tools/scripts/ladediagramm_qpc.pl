@@ -17,21 +17,21 @@ my $divider_dc    = 1000;
 my $ithaco_amp    = 1e-9;    # Ithaco amplification
 my $lock_in_sensitivity = 5e-3;
 
-my $v_gate_ac     = 0.8e-3;
+my $v_gate_ac     = 0.66e-3;
 my $v_sd_dc       = -300e-3/$divider_dc;
 
 my $gate_1_gpib   = 4;
 my $gate_1_type   = 'Yokogawa7651';
 my $gate_1_name   = 'Gate hf4';
-my $gate_1_start  = -0.250;
-my $gate_1_end    = -0.150;
+my $gate_1_start  = -0.400;
+my $gate_1_end    = -0.200;
 my $gate_1_step   = +2e-3;
 
 my $gate_2_gpib   = 9;
 my $gate_2_type   = 'Yokogawa7651';
 my $gate_2_name   = 'Gate hf3';
-my $gate_2_start  = -0.400;
-my $gate_2_end    = -0.250;
+my $gate_2_start  = -0.500;
+my $gate_2_end    = -0.050;
 my $gate_2_step   = +1e-3;
 
 my $hp_gpib       = 24;
@@ -44,16 +44,16 @@ my $hp2_resolution = 0.001;
 
 my $R_Kontakt     = 1773;
 
-my $filename_base = 'triple_um_eins';
+my $filename_base = 'grosses_diagramm';
 
 my $sample        = "S5c (81059)";
 my $title         = "Tripeldot, gemessen mit QPC links unten";
 my $comment       = <<COMMENT;
-Transconductance von 12 nach 14; Auf Gate hf3 gelockt mit ca. $v_gate_ac V bei 33Hz. V_{SD,DC}=$v_sd_dc V; Ca. 30mK.
+Transconductance von 14 nach 12; Auf Gate hf3 gelockt mit ca. $v_gate_ac V bei 33Hz. V_{SD,DC}=$v_sd_dc V; Ca. 30mK.
 Lock-In: Sensitivity $lock_in_sensitivity V, 0.3s, Normal, Bandpaß Q=50.
 Ithaco: Amplification $ithaco_amp, Supression 10e-10 off, Rise Time 0.3ms.
-G11=-0.385 (Manus1); G15=-0.410 (Manus2); G06=-0.455 (Manus3); Ghf1=-0.115 (Manus04); Ghf2=-0.120 (Manus05);
-G01=-0.394 (Yoko01); G03=-0.450 (Yoko02); G13=-0.607 (Knick14); G09=-0.607 (Yoko10); 10,02,04 auf GND
+G11=-0.385 (Manus1); G15=-0.410 (Manus2); G06=-0.455 (Manus3); Ghf1=-0.145 (Manus04); Ghf2=-0.155 (Manus05);
+G01=-0.382 (Yoko01); G03=-0.450 (Yoko02); G13=-0.603 (Knick14); G09=-0.603 (Yoko10); 10,02,04 auf GND
 Fahre aussen Ghf4 (Yoko04); innen Ghf3 (Yoko09);
 COMMENT
 
@@ -213,6 +213,7 @@ my $gate_2_stepsign=$gate_2_step/abs($gate_2_step);
 for (my $g1=$gate_1_start;$gate_1_stepsign*$g1<=$gate_1_stepsign*$gate_1_end;$g1+=$gate_1_step) {
     $measurement->start_block("$gate_1_name = $g1 V");
     $gate1->set_voltage($g1);
+    print "Started block $gate_1_name = $g1 V\n";
     sleep(10);
     for (my $g2=$gate_2_start;$gate_2_stepsign*$g2<=$gate_2_stepsign*$gate_2_end;$g2+=$gate_2_step) {
         $gate2->set_voltage($g2);
