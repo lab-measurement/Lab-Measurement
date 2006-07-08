@@ -7,7 +7,7 @@ use Lab::Data::Meta;
 use Data::Dumper;
 use Time::HiRes qw/gettimeofday tv_interval/;
 
-our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
+our $VERSION = sprintf("1.%04d", q$Revision$ =~ / (\d+) /);
 
 sub new {
     my $proto = shift;
@@ -104,6 +104,9 @@ sub _start_plot {
         $gp.="#\n# Set color plot\n";
         $gp.="set pm3d map corners2color c1\n";
         $gp.="set view map\n";
+        if ($self->{meta}->plot_palette($plot)) {
+            $gp.="set palette ".$self->{meta}->plot_palette($plot)."\n";
+        }
     }
     
     #Quatsch. Aussen über Files loopen, dann über Konstanten
