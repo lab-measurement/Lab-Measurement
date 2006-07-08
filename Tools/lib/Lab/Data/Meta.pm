@@ -14,7 +14,7 @@ require Exporter;
 
 our @ISA = qw(Exporter Lab::Data::XMLtree);
 
-our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
+our $VERSION = sprintf("1.%04d", q$Revision$ =~ / (\d+) /);
 
 our $AUTOLOAD;
 
@@ -79,6 +79,7 @@ my $declaration = {
             logscale            => ['SCALAR'],  # z.b: 'x' oder 'yzxcb'
             time                => ['SCALAR'],  # ??? (was: wie oben (anders als in GnuPlot) (Achsen müssen %s-Format haben))
             grid                => ['SCALAR'],  # z.B. 'ytics' oder 'xtics ytics'
+            palette             => ['SCALAR'],
             label               => [
                 'ARRAY',
                 'id',
