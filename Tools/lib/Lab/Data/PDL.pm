@@ -5,8 +5,11 @@ package Lab::Data::PDL;
 use strict;
 use PDL;
 
-sub load {
-    # wohl filename von datenfile als argument
+sub DATA_to_cols {
+    # filename von datenfile als argument
+    # gibt spalten als einzelne listen
+    # also matrix, die genauso aussieht, wie das file
+    # blöcke nicht aufgelöst
     my @cols=rcols shift;
     my $piddle=cat @cols;
     return $piddle;
@@ -15,74 +18,84 @@ sub load {
 sub DATA_to_matrix {
     my $filename=shift;
     my @zeilen;
-    my @zeilennamen;
-    my @spaltennamen;
-    if (open IN,"<$filename") {
-        my $blocknum=0;
-        my $linenum=0;
-        my $numlines;
-        my $started=0;
-        #   0 - nicht gestartet: leerzeilen ignorieren, dann 1
-        #   1 - gestartet: ersten block lesen (1 zeilenname, alle spaltennamen), dann 2
-        #   2 - neuer block gestartet: 1 zeilenname lesen; spaltenname vergleichen, dann 3
-        #   3 - innerhalb block größer erstem: spalten- und zeilenname vergleichen
-        while (<IN>) {
-            chomp;
-            if (/^\s*$/) {
-                #leerzeile => neuer block
-                if ($started) {
-                    warn "Letzter Block hatte falsche Zeilenzahl: $linenum statt $numlines"
-                        unless ($numlines == $linenum-1);
-                    $started=2;
-                    $blocknum++;
-                    $linenum=0;
-                }
-            } elsif (/^([\d\-+\.Ee]+\t?)+$/) {
-                my @value=split "\t";
-                my ($spaltenname,$zeilenname)=(shift @value, shift @value);
-                #print "$spaltenname  ***  $zeilenname\n";
-                
-                $started=1 unless $started;
-                if ($started == 3) {
-                    warn "Nicht rechteckig: In Block $blocknum, Zeile $linenum ist erste Spalte $spaltenname anstatt $spaltennamen[$blocknum]"
-                        unless ($spaltennamen[$blocknum] == $spaltenname);
-                }
-                if ($started > 1) {
-                    warn "Nicht rechteckig: In Block $blocknum, Zeile $linenum ist die zweite Spalte $zeilenname anstatt $zeilennamen[$linenum]"
-                        unless ($zeilennamen[$linenum] == $zeilenname);
-                }
-                if ($started < 3) {
-                    $spaltennamen[$blocknum]=$spaltenname;
-                }
-                $started=3 if ($started == 2);
-                if ($started == 1) {
-                    $zeilennamen[$linenum]=$zeilenname;
-                    $numlines=$linenum;
-                }
-                push (@{$zeilen[$blocknum]},[@value]);
-                $linenum++;
-            } else {
-                # kommentarzeile oder sonst was
+    my @xvalues;
+    my @yvalues;
+    open IN,"<$filename" or die "file not found: $filename";
+    my $blocknum=0;
+    my $linenum=0;
+    my $numlines;
+    my $started=0;
+    #   0 - nicht gestartet: leerzeilen ignorieren, dann 1
+    #   1 - gestartet: ersten block lesen (1 zeilenname, alle yvalues), dann 2
+    #   2 - neuer block gestartet: 1 zeilenname lesen; spaltenname vergleichen, dann 3
+    #   3 - innerhalb block größer erstem: spalten- und zeilenname vergleichen
+    while (<IN>) {
+        chomp;
+        if (/^\s*$/) {
+            #leerzeile => neuer block
+            if ($started) {
+                warn "Letzter Block hatte falsche Zeilenzahl: $linenum statt $numlines"
+                    unless ($numlines == $linenum-1);
+                $started=2;
+                $blocknum++;
+                $linenum=0;
             }
+        } elsif (/^([\d\-+\.Ee]+\t?)+$/) {
+            my @value=split "\t";
+            my ($spaltenname,$zeilenname)=(shift @value, shift @value);
+            #print "$spaltenname  ***  $zeilenname\n";
+            
+            $started=1 unless $started;
+            if ($started == 3) {
+                warn "Nicht rechteckig: In Block $blocknum, Zeile $linenum ist erste Spalte $spaltenname anstatt $yvalues[$blocknum]"
+                    unless ($yvalues[$blocknum] == $spaltenname);
+            }
+            if ($started > 1) {
+                warn "Nicht rechteckig: In Block $blocknum, Zeile $linenum ist die zweite Spalte $zeilenname anstatt $xvalues[$linenum]"
+                    unless ($xvalues[$linenum] == $zeilenname);
+            }
+            if ($started < 3) {
+                $yvalues[$blocknum]=$spaltenname;
+            }
+            $started=3 if ($started == 2);
+            if ($started == 1) {
+                $xvalues[$linenum]=$zeilenname;
+                $numlines=$linenum;
+            }
+            push (@{$zeilen[$blocknum]},[@value]);
+            $linenum++;
+        } else {
+            # kommentarzeile oder sonst was
         }
-        close IN;
     }
+    close IN;
     my $ma=pdl[@zeilen];
-    my $zn=pdl(@zeilennamen);
-    my $sn=pdl(@spaltennamen);
+    my $zn=pdl(@xvalues);
+    my $sn=pdl(@yvalues);
     return ($ma,$zn,$sn);
 }
 
 sub matrix_to_DATA {
-    my ($filename,$matrix,$zeilen,$spalten)=@_;
+    my ($filename,$matrix,$xvalues,$yvalues)=@_;
     open OUT,">$filename" or die;
-    for (my $linenum=0;$linenum<$matrix->dim(2);$linenum++) {
-        my $zeile=$matrix->slice(":,($linenum)");
-        my $spalte1=($zeilen->at($linenum)) * ones(nelem($zeile));
+
+    my $xl=$xvalues->nelem();
+    my $yl=$yvalues->nelem();
+    
+    for (my $blocknum=0;$blocknum<$yl;$blocknum++) {
+        my $s1=$yvalues->at($blocknum) * ones($xl);
+        my $s2=$xvalues;
+        my $s3=$matrix->slice(":,:,($blocknum)");
         
+        my @s3s;
+        for (0..(-1+$s3->dim(0))) {
+            push(@s3s,$s3->slice("($_),:"));
+        }
         
-        
+        wcols $s1,$s2,@s3s,*OUT;
+        print OUT "\n";
     }
+    close OUT;
 }
 
 sub import_gpplus {
