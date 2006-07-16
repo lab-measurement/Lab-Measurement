@@ -44,13 +44,13 @@ package Lab::Data::XMLtree;
 
 use strict;
 use warnings;
+use encoding::warnings;
 use Carp;
 
 require Exporter;
 
 our @ISA = qw(Exporter);
 
-use Carp;
 use XML::DOM;
 use XML::Generator ();
 use Data::Dumper;
@@ -231,7 +231,8 @@ sub _parse_domnode_list{
                 my $key_val;
                 if (defined $key) {
                     $key_val=$domnode->getAttribute($key);
-                } else {
+                }
+                unless ((defined $key_val) && ($key_val ne "")) {
                     if (defined $auto_numbering{$node_name}) {
                         $key_val=$auto_numbering{$node_name};
                         $auto_numbering{$node_name}++;

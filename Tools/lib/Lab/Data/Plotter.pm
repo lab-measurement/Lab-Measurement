@@ -80,7 +80,7 @@ sub plot {
 }
 
 sub _start_plot {
-    my ($self,$plot,%options)=@_;
+    my ($self,$plot)=@_;
     die "plot \"$plot\" undefined" unless (defined($self->{meta}->plot($plot)));
 
     my $gpipe;
@@ -128,13 +128,22 @@ sub _start_plot {
     my $yaxis=$self->{meta}->plot_yaxis($plot);
     my $zaxis=$self->{meta}->plot_zaxis($plot);
     my $cbaxis=$self->{meta}->plot_cbaxis($plot);
-    
+
     $gp.="#\n# Axis labels\n";
-    $gp.='set xlabel "'.($self->{meta}->axis_label($xaxis)).' ('.($self->{meta}->axis_unit($xaxis)).")".($self->{options}->{descriptions} ? ('\n'.$self->{meta}->axis_description($xaxis)) : '')."\"\n";
-    $gp.='set ylabel "'.($self->{meta}->axis_label($yaxis))." (".($self->{meta}->axis_unit($yaxis)).")".($self->{options}->{descriptions} ? ('\n'.$self->{meta}->axis_description($yaxis)) : '')."\"\n";
-    $gp.='set zlabel "'.($self->{meta}->axis_label($zaxis)).' ('.($self->{meta}->axis_unit($zaxis)).")".($self->{options}->{descriptions} ? ('\n'.$self->{meta}->axis_description($zaxis)) : '')."\"\n" if ($zaxis);
-    $gp.='set cblabel "'.($self->{meta}->axis_label($cbaxis))." (".($self->{meta}->axis_unit($cbaxis)).")".($self->{options}->{descriptions} ? ('\n'.$self->{meta}->axis_description($cbaxis)) : '')."\"\n" if ($cbaxis);
-   
+    for my $i (qw/x y z cb/) {
+        my $axisname="plot_".$i."axis";
+        if (my $metaaxis=$self->{meta}->$axisname($plot)) {
+            my $label='"'.
+                      ($self->{meta}->axis_label($metaaxis)).
+                      ' ('.($self->{meta}->axis_unit($metaaxis)).")".
+                      ($self->{options}->{fulllabels} ?
+                        ('\n'.$self->{meta}->axis_description($metaaxis)) :
+                        ''
+                      )."\"\n";
+            $gp.="set ".$i."label ".$label;
+        }
+    }
+
     if (defined $self->{meta}->plot_grid($plot)) {
         $gp.="#\n# Grid\n";
         $gp.="set grid ".($self->{meta}->plot_grid($plot))."\n";
@@ -184,26 +193,30 @@ sub _start_plot {
 
     $gp.="#\n# Title and labels\n";
     $gp.=qq(set title ").$self->{meta}->dataset_title()." (".$self->{meta}->sample().")\"\n";
-    my $h=0.95;my $screen=0.99;
-    for (split "\n",$self->{meta}->dataset_description()) {
-        if ($self->{meta}->plot_type($plot) eq 'pm3d') {
-            $gp.=qq(set label "$_" at screen 0.01, screen $screen\n);
-        } else {
-            $gp.=qq(set label "$_" at graph 0.02, graph $h\n);
+    if ($self->{options}->{fulllabels}) {
+        my $h=0.95;my $screen=0.99;
+        my @lines=split "\n",$self->{meta}->dataset_description();
+        for (@lines) {
+            if ($self->{meta}->plot_type($plot) eq 'pm3d') {
+                $gp.=qq(set label "$_" at screen 0.01, screen $screen\n);
+            } else {
+                $gp.=qq(set label "$_" at graph 0.02, graph $h\n);
+            }
+            $h-=0.04;
+            $screen-=0.025;$screen=0.13 if (abs($screen-0.865)<0.001);
         }
-        $h-=0.04;$screen-=0.025;
+    
+        if ($self->{meta}->plot_label($plot)) {
+            my @labels=$self->{meta}->plot_label($plot);
+            for (@labels) {
+                my $text=$_->{text};
+                my $x=$_->{x};
+                my $y=$_->{y};
+                $gp.=qq(set label "$text" at $x,$y center front\n);
+            }
+        }
     }
     
-    if ($self->{meta}->plot_label($plot)) {
-        my @labels=$self->{meta}->plot_label($plot);
-        for (@labels) {
-            my $text=$_->{text};
-            my $x=$_->{x};
-            my $y=$_->{y};
-            $gp.=qq(set label "$text" at $x,$y center front\n);
-        }
-    }
-
     print $gpipe $gp;
     return $gpipe;
 }
@@ -368,7 +381,7 @@ Available options are
 
 =item eps
 
-=item descriptions
+=item fulllabels
 
 =item last_live
 

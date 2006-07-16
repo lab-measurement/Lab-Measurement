@@ -3,6 +3,7 @@
 package Lab::Data::Writer;
 
 use strict;
+use encoding::warnings;
 use Data::Dumper;
 use File::Basename;
 use File::Copy;

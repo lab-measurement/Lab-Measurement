@@ -6,19 +6,19 @@ use Getopt::Long;
 use Pod::Usage;
 
 my %options=(#  => default
-    list_plots  => 0,
+    listplots   => 0,
     dump        => '',
     eps         => '',
     plot        => '',
-    descriptions=> 0,
+    fulllabels  => 0,
 );
 
 GetOptions(\%options,
-    'list_plots!',
+    'listplots!',
     'plot=s',
     'dump=s',
     'eps=s',
-    'descriptions!',
+    'fulllabels!',
     'help|?',
     'man',
 );
@@ -28,7 +28,7 @@ pod2usage(-exitstatus => 0, -verbose => 2) if $options{man};
 my $metafile=shift(@ARGV) or pod2usage(1);
 my $plotter=new Lab::Data::Plotter($metafile,\%options);
 
-if ($options{list_plots}) {
+if ($options{listplots}) {
     print "Available plots in $metafile:\n";
     my %plots=$plotter->available_plots();
     my $num=1;
@@ -82,7 +82,7 @@ Print short usage information.
 
 Show manpage.
 
-=item --list_plots
+=item --listplots
 
 List available plots defined in C<METAFILE>.
 
@@ -99,7 +99,7 @@ Do not plot now, but dump a gnuplot file C<filename> instead.
 
 Don't plot on screen, but create eps file C<filename>.
 
-=item --descriptions
+=item --fulllabels
 
 Also show axis descriptions in plot.
 
