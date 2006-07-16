@@ -15,23 +15,23 @@ use Lab::Measurement;
 
 my $divider_dc    = 1000;
 my $ithaco_amp    = 1e-9;    # Ithaco amplification
-my $lock_in_sensitivity = 200e-3;
+my $lock_in_sensitivity = 5e-3;
 
 my $v_sd_ac       = 20e-6;
-my $v_sd_dc       = +400e-3/$divider_dc;
+my $v_sd_dc       = +500e-3/$divider_dc;
 
 my $gate_1_gpib   = 4;
 my $gate_1_type   = 'Yokogawa7651';
 my $gate_1_name   = 'Gate hf4';
-my $gate_1_start  = -0.300;
-my $gate_1_end    = -0.100;
-my $gate_1_step   = +1e-3;
+my $gate_1_start  = -0.220;
+my $gate_1_end    = -0.120;
+my $gate_1_step   = +2e-3;
 
 my $gate_2_gpib   = 9;
 my $gate_2_type   = 'Yokogawa7651';
 my $gate_2_name   = 'Gate hf3';  
-my $gate_2_start  = -0.300;
-my $gate_2_end    = -0.050;
+my $gate_2_start  = -0.260;
+my $gate_2_end    = -0.100;
 my $gate_2_step   = +1e-3;
 
 my $hp_gpib       = 24;
@@ -40,16 +40,16 @@ my $hp_resolution = 0.00001;
 
 my $R_Kontakt     = 1773;
 
-my $filename_base = 'triple_lade_transport_bias';
+my $filename_base = 'triple_lade_transport_bias_15neg';
 
 my $sample        = "S5c (81059)";
-my $title         = "Alle drei Quantenpunkte: Transport";
+my $title         = "Alle drei Quantenpunkte: Transport bei kleinen Elektronenzahlen";
 my $comment       = <<COMMENT;
 Differentielle Leitfähigkeit von 12 nach 10; V_{SD,DC}=$v_sd_dc V; Lüftung an; Ca. 25mK.
 Lock-In: Sensitivity $lock_in_sensitivity V, V_{SD,AC}=$v_sd_ac V bei 33Hz, 300ms, Normal, Bandpaß 50.
 Ithaco: Amplification $ithaco_amp, Supression 10e-10 off, Rise Time 0.3ms.
-G11=-0.385 (Manus1); G15=-0.410 (Manus2); G06=-0.455 (Manus3); Ghf1=-0.110 (Manus04); Ghf2=-0.120 (Manus05);
-G01=-0.388 (Yoko01); G03=-0.450 (Yoko02); G13=-0.606 (Knick14); G09=-0.606 (Yoko10); 14 offen; 02,04 auf GND
+G11=-0.385 (Manus1); G15=-0.430 (Manus2); G06=-0.455 (Manus3); Ghf1=-0.145 (Manus04); Ghf2=-0.155 (Manus05);
+G01=-0.370 (Yoko01); G03=-0.450 (Yoko02); G13=-0.582 (Knick14); G09=-0.582 (Yoko10); 14 offen; 02,04 auf GND
 Fahre aussen Ghf4 (Yoko04); innen Ghf3 (Yoko09)
 COMMENT
 

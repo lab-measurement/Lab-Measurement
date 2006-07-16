@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Transportmessung mit Lock-In
+# QPC-Messung mit Lock-In
 
 #$Id: ladediagramm.pl 438 2006-05-29 10:41:09Z schroeer $
 
@@ -15,7 +15,7 @@ use Lab::Measurement;
 
 my $divider_dc    = 1000;
 my $ithaco_amp    = 1e-9;    # Ithaco amplification
-my $lock_in_sensitivity = 100e-3;
+my $lock_in_sensitivity = 5e-3;
 
 my $v_gate_ac     = 0.66e-3;
 my $v_sd_dc       = -300e-3/$divider_dc;
@@ -23,16 +23,16 @@ my $v_sd_dc       = -300e-3/$divider_dc;
 my $gate_1_gpib   = 4;
 my $gate_1_type   = 'Yokogawa7651';
 my $gate_1_name   = 'Gate hf4';
-my $gate_1_start  = -0.200;
-my $gate_1_end    = -0.030;
+my $gate_1_start  = -0.265;
+my $gate_1_end    = -0.175;
 my $gate_1_step   = +1e-3;
 
 my $gate_2_gpib   = 9;
 my $gate_2_type   = 'Yokogawa7651';
 my $gate_2_name   = 'Gate hf3';
-my $gate_2_start  = -0.220;
-my $gate_2_end    = -0.050;
-my $gate_2_step   = +1e-3;
+my $gate_2_start  = -0.370;
+my $gate_2_end    = -0.240;
+my $gate_2_step   = +1e-4;
 
 my $hp_gpib       = 24;
 my $hp_range      = 10;
@@ -44,17 +44,17 @@ my $hp2_resolution= 0.001;
 
 my $R_Kontakt     = 1773;
 
-my $filename_base = 'grosses_diagramm';
+my $filename_base = 'rauscheck_langsam_magnet';
 
 my $sample        = "S5c (81059)";
 my $title         = "Tripeldot, gemessen mit QPC links unten";
 my $comment       = <<COMMENT;
-Vierter Teil des Versuches, ein schönes großes Ladediagramm aufzunehmen.
+Schönes Rauscheck, wie rauscheck_langsam_001, aber mit 500mT.
 Transconductance von 14 nach 12; Auf Gate hf3 gelockt mit ca. $v_gate_ac V bei 33Hz. V_{SD,DC}=$v_sd_dc V; Ca. 30mK.
 Lock-In: Sensitivity $lock_in_sensitivity V, 0.3s, Normal, Bandpaß Q=50.
 Ithaco: Amplification $ithaco_amp, Supression 10e-10 off, Rise Time 0.3ms.
-G11=-0.385 (Manus1); G15=-0.410 (Manus2); G06=-0.455 (Manus3); Ghf1=-0.145 (Manus04); Ghf2=-0.155 (Manus05);
-G01=-0.382 (Yoko01); G03=-0.450 (Yoko02); G13=-0.627 (Knick14); G09=-0.627 (Yoko10); 10,02,04 auf GND
+G11=-0.385 (Manus1); G15=-0.430 (Manus2); G06=-0.455 (Manus3); Ghf1=-0.145 (Manus04); Ghf2=-0.155 (Manus05);
+G01=-0.370 (Yoko01); G03=-0.450 (Yoko02); G13=-0.582 (Knick14); G09=-0.582 (Yoko10); 10,02,04 auf GND
 Fahre aussen Ghf4 (Yoko04); innen Ghf3 (Yoko09);
 COMMENT
 
