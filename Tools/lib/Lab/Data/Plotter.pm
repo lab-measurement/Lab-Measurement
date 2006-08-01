@@ -96,7 +96,7 @@ sub _start_plot {
     
     if ($self->{options}->{eps}) {
         $gp.="#\n# Output to file\n";
-        $gp.="set terminal postscript color enhanced\n";
+        $gp.="set terminal postscript color enhanced 10\n";
         $gp.=qq(set output ").$self->{options}->{eps}.qq("\n);
     }
     

@@ -20,19 +20,19 @@ my $lock_in_sensitivity = 5e-3;
 my $v_gate_ac     = 0.66e-3;
 my $v_sd_dc       = -300e-3/$divider_dc;
 
-my $gate_1_gpib   = 4;
+my $gate_1_gpib   = 9;
 my $gate_1_type   = 'Yokogawa7651';
-my $gate_1_name   = 'Gate hf4';
-my $gate_1_start  = -0.265;
-my $gate_1_end    = -0.175;
-my $gate_1_step   = +1e-3;
+my $gate_1_name   = 'Gate hf3';
+my $gate_1_start  = -0.400;
+my $gate_1_end    = -0.300;
+my $gate_1_step   = +5e-3;
 
-my $gate_2_gpib   = 9;
+my $gate_2_gpib   = 4;
 my $gate_2_type   = 'Yokogawa7651';
-my $gate_2_name   = 'Gate hf3';
-my $gate_2_start  = -0.370;
-my $gate_2_end    = -0.240;
-my $gate_2_step   = +1e-4;
+my $gate_2_name   = 'Gate hf4';
+my $gate_2_start  = -0.350;
+my $gate_2_end    = -0.250;
+my $gate_2_step   = +5e-4;
 
 my $hp_gpib       = 24;
 my $hp_range      = 10;
@@ -44,18 +44,18 @@ my $hp2_resolution= 0.001;
 
 my $R_Kontakt     = 1773;
 
-my $filename_base = 'rauscheck_langsam_magnet';
+my $filename_base = 'rauscheck_mit_bias';
 
 my $sample        = "S5c (81059)";
 my $title         = "Tripeldot, gemessen mit QPC links unten";
 my $comment       = <<COMMENT;
-Schönes Rauscheck, wie rauscheck_langsam_001, aber mit 500mT.
-Transconductance von 14 nach 12; Auf Gate hf3 gelockt mit ca. $v_gate_ac V bei 33Hz. V_{SD,DC}=$v_sd_dc V; Ca. 30mK.
+Rauscheck mit anderen Einstellungen und Bias über Quantenpunkten
+Transconductance von 12 nach 14; Auf Gate hf3 gelockt mit ca. $v_gate_ac V bei 33Hz. V_{SD,DC}=$v_sd_dc V; Ca. 25mK.
 Lock-In: Sensitivity $lock_in_sensitivity V, 0.3s, Normal, Bandpaß Q=50.
 Ithaco: Amplification $ithaco_amp, Supression 10e-10 off, Rise Time 0.3ms.
-G11=-0.385 (Manus1); G15=-0.430 (Manus2); G06=-0.455 (Manus3); Ghf1=-0.145 (Manus04); Ghf2=-0.155 (Manus05);
-G01=-0.370 (Yoko01); G03=-0.450 (Yoko02); G13=-0.582 (Knick14); G09=-0.582 (Yoko10); 10,02,04 auf GND
-Fahre aussen Ghf4 (Yoko04); innen Ghf3 (Yoko09);
+G11=-0.385 (Manus1); G15=-0.410 (Manus2); G06=-0.455 (Manus3); Ghf1=-0.125 (Manus04); Ghf2=-0.125 (Manus05);
+G01=-0.394 (Yoko01); G03=-0.450 (Yoko02); G13=-0.604 (Knick14); G09=-0.604 (Yoko10); 10,02,04 auf GND
+Fahre aussen Ghf3 (Yoko09); innen Ghf4 (Yoko04);
 COMMENT
 
 ################################
@@ -201,24 +201,30 @@ my $measurement=new Lab::Measurement(
             'yaxis'         => 2,
             'grid'          => 'xtics ytics',
         },
+        'Stromtraces'    => {
+            'type'          => 'line',
+            'xaxis'         => 1,
+            'yaxis'         => 3,
+            'grid'          => 'xtics ytics',
+        },
         'Ladediagramm'=> {
             'type'          => 'pm3d',
-            'xaxis'         => 1,
-            'yaxis'         => 0,
+            'xaxis'         => 0,
+            'yaxis'         => 1,
             'cbaxis'        => 2,
             'grid'          => 'xtics ytics',
         },
         'Ladediagramm-Strom'=> {
             'type'          => 'pm3d',
-            'xaxis'         => 1,
-            'yaxis'         => 0,
+            'xaxis'         => 0,
+            'yaxis'         => 1,
             'cbaxis'        => 3,
             'grid'          => 'xtics ytics',
         },
         'Ladediagramm-dI-I'=> {
             'type'          => 'pm3d',
-            'xaxis'         => 1,
-            'yaxis'         => 0,
+            'xaxis'         => 0,
+            'yaxis'         => 1,
             'cbaxis'        => 4,
             'grid'          => 'xtics ytics',
         },
