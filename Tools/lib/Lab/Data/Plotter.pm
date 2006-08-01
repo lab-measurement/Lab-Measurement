@@ -128,11 +128,12 @@ sub _start_plot {
     my $yaxis=$self->{meta}->plot_yaxis($plot);
     my $zaxis=$self->{meta}->plot_zaxis($plot);
     my $cbaxis=$self->{meta}->plot_cbaxis($plot);
-
+    
     $gp.="#\n# Axis labels\n";
     for my $i (qw/x y z cb/) {
         my $axisname="plot_".$i."axis";
-        if (my $metaaxis=$self->{meta}->$axisname($plot)) {
+        my $metaaxis=$self->{meta}->$axisname($plot);
+        if (defined $metaaxis) {
             my $label='"'.
                       ($self->{meta}->axis_label($metaaxis)).
                       ' ('.($self->{meta}->axis_unit($metaaxis)).")".
