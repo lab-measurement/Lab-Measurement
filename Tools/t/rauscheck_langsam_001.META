@@ -1,0 +1,535 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="yes"?>
+<metadata>
+  <dataset_title><![CDATA[Tripeldot, gemessen mit QPC links unten]]></dataset_title>
+  <data_file><![CDATA[rauscheck_langsam_001.DATA]]></data_file>
+  <sample><![CDATA[S5c (81059)]]></sample>
+  <data_complete><![CDATA[1]]></data_complete>
+  <dataset_description><![CDATA[Nochmal das Rauscheck: Quer (in hf3-Richtung) gemessen, sehr langsam gefahren. Nicht gemittelt.
+Transconductance von 14 nach 12; Auf Gate hf3 gelockt mit ca. 0.00066 V bei 33Hz. V_{SD,DC}=-0.0003 V; Ca. 30mK.
+Lock-In: Sensitivity 0.005 V, 0.3s, Normal, Bandpaß Q=50.
+Ithaco: Amplification 1e-09, Supression 10e-10 off, Rise Time 0.3ms.
+G11=-0.385 (Manus1); G15=-0.430 (Manus2); G06=-0.455 (Manus3); Ghf1=-0.145 (Manus04); Ghf2=-0.155 (Manus05);
+G01=-0.370 (Yoko01); G03=-0.450 (Yoko02); G13=-0.582 (Knick14); G09=-0.582 (Yoko10); 10,02,04 auf GND
+Fahre aussen Ghf4 (Yoko04); innen Ghf3 (Yoko09);
+rauscheck\\_langsam\\_001; started at 2006/07/14-19:24:24
+]]></dataset_description>
+
+  <constant id="0">
+    <value><![CDATA[7.748091733e-5]]></value>
+    <name><![CDATA[G0]]></name>
+  </constant>
+  <constant id="1">
+    <value><![CDATA[1773]]></value>
+    <name><![CDATA[RKontakt]]></name>
+  </constant>
+  <constant id="2">
+    <value><![CDATA[1e-09]]></value>
+    <name><![CDATA[AMP]]></name>
+  </constant>
+  <constant id="3">
+    <value><![CDATA[1000]]></value>
+    <name><![CDATA[divider]]></name>
+  </constant>
+  <constant id="4">
+    <value><![CDATA[0.00066]]></value>
+    <name><![CDATA[V_GATE_AC]]></name>
+  </constant>
+  <constant id="5">
+    <value><![CDATA[0.005]]></value>
+    <name><![CDATA[SENS]]></name>
+  </constant>
+
+  <column id="0">
+    <unit><![CDATA[V]]></unit>
+    <label><![CDATA[Voltage Gate hf4]]></label>
+    <description><![CDATA[Set voltage on source Yokogawa76514 connected to Gate hf4.]]></description>
+  </column>
+  <column id="1">
+    <unit><![CDATA[V]]></unit>
+    <label><![CDATA[Voltage Gate hf3]]></label>
+    <description><![CDATA[Set voltage on source Yokogawa76519 connected to Gate hf3.]]></description>
+  </column>
+  <column id="2">
+    <unit><![CDATA[V]]></unit>
+    <label><![CDATA[Lock-In output]]></label>
+    <description><![CDATA[Differential current (Lock-In output)]]></description>
+  </column>
+  <column id="3">
+    <unit><![CDATA[V]]></unit>
+    <label><![CDATA[Amplifier output]]></label>
+    <description><![CDATA[Voltage output by current amplifier set to 1e-09.]]></description>
+  </column>
+
+  <axis id="0">
+    <unit><![CDATA[V]]></unit>
+    <min><![CDATA[-0.265]]></min>
+    <expression><![CDATA[$C0]]></expression>
+    <max><![CDATA[-0.175]]></max>
+    <label><![CDATA[V_{Gate hf4}]]></label>
+    <description><![CDATA[Voltage applied to Gate hf4.]]></description>
+  </axis>
+  <axis id="1">
+    <unit><![CDATA[V]]></unit>
+    <min><![CDATA[-0.37]]></min>
+    <expression><![CDATA[$C1]]></expression>
+    <max><![CDATA[-0.24]]></max>
+    <label><![CDATA[V_{Gate hf3}]]></label>
+    <description><![CDATA[Voltage applied to Gate hf3.]]></description>
+  </axis>
+  <axis id="2">
+    <unit><![CDATA[A]]></unit>
+    <min><![CDATA[-6e-12]]></min>
+    <expression><![CDATA[(($C2/10)*SENS*AMP)]]></expression>
+    <max><![CDATA[6e-12]]></max>
+    <label><![CDATA[dI]]></label>
+    <description><![CDATA[Differential current]]></description>
+  </axis>
+  <axis id="3">
+    <unit><![CDATA[A]]></unit>
+    <expression><![CDATA[abs($C3)*AMP]]></expression>
+    <label><![CDATA[I_{QPC}]]></label>
+    <description><![CDATA[QPC current]]></description>
+  </axis>
+  <axis id="4">
+    <unit><![CDATA[%]]></unit>
+    <min><![CDATA[-0.5]]></min>
+    <expression><![CDATA[(100*(($C2/10)*SENS*AMP)/($C3*AMP))]]></expression>
+    <max><![CDATA[0.5]]></max>
+    <label><![CDATA[dI_{QPC}/I_{QPC}]]></label>
+    <description><![CDATA[Relative QPC current change]]></description>
+  </axis>
+
+  <plot name="Ladediagramm">
+    <xaxis><![CDATA[1]]></xaxis>
+    <cbaxis><![CDATA[2]]></cbaxis>
+    <type><![CDATA[pm3d]]></type>
+    <yaxis><![CDATA[0]]></yaxis>
+    <palette>model CMY rgbformulae 4,9,15 positive</palette>
+    <label>
+        <text>0,0,0</text>
+        <x>-0.365215</x>
+        <y>-0.246108</y>
+    </label>
+    <label>
+        <text>0,0,1</text>
+        <x>-0.328217</x>
+        <y>-0.247404</y>
+    </label>
+    <label>
+        <text>0,0,1 / 0,1,1</text>
+        <x>-0.315034</x>
+        <y>-0.225180</y>
+    </label>
+    <label>
+        <text>0,1,1</text>
+        <x>-0.320349</x>
+        <y>-0.193673</y>
+    </label>
+    <label>
+        <text>0,1,2</text>
+        <x>-0.255806</x>
+        <y>-0.233165</y>
+    </label>
+    <label>
+        <text>1,1,2</text>
+        <x>-0.259935</x>
+        <y>-0.181589</y>
+    </label>
+    <label>
+        <text>1,1,1</text>
+        <x>-0.295551</x>
+        <y>-0.178139</y>
+    </label>
+    <label>
+        <text>0,1,0</text>
+        <x>-0.364232</x>
+        <y>-0.183752</y>
+    </label>
+  </plot>
+  <plot name="Ladediagramm-Strom">
+    <grid><![CDATA[xtics ytics]]></grid>
+    <xaxis><![CDATA[1]]></xaxis>
+    <cbaxis><![CDATA[3]]></cbaxis>
+    <type><![CDATA[pm3d]]></type>
+    <yaxis><![CDATA[0]]></yaxis>
+  </plot>
+  <plot name="Ladediagramm-dI-I">
+    <grid><![CDATA[xtics ytics]]></grid>
+    <xaxis><![CDATA[1]]></xaxis>
+    <cbaxis><![CDATA[4]]></cbaxis>
+    <type><![CDATA[pm3d]]></type>
+    <yaxis><![CDATA[0]]></yaxis>
+  </plot>
+  <plot name="Transconductance">
+    <grid><![CDATA[xtics ytics]]></grid>
+    <xaxis><![CDATA[1]]></xaxis>
+    <type><![CDATA[line]]></type>
+    <yaxis><![CDATA[2]]></yaxis>
+  </plot>
+  <plot name="Stromtraces">
+    <xaxis><![CDATA[1]]></xaxis>
+    <type><![CDATA[line]]></type>
+    <yaxis><![CDATA[3]]></yaxis>
+  </plot>
+
+  <block id="0">
+    <timestamp><![CDATA[2006/07/14-19:24:25]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.265 V]]></label>
+  </block>
+  <block id="1">
+    <timestamp><![CDATA[2006/07/14-19:37:03]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.264 V]]></label>
+  </block>
+  <block id="2">
+    <timestamp><![CDATA[2006/07/14-19:49:32]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.263 V]]></label>
+  </block>
+  <block id="3">
+    <timestamp><![CDATA[2006/07/14-20:02:03]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.262 V]]></label>
+  </block>
+  <block id="4">
+    <timestamp><![CDATA[2006/07/14-20:14:32]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.261 V]]></label>
+  </block>
+  <block id="5">
+    <timestamp><![CDATA[2006/07/14-20:27:01]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.26 V]]></label>
+  </block>
+  <block id="6">
+    <timestamp><![CDATA[2006/07/14-20:39:29]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.259 V]]></label>
+  </block>
+  <block id="7">
+    <timestamp><![CDATA[2006/07/14-20:51:58]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.258 V]]></label>
+  </block>
+  <block id="8">
+    <timestamp><![CDATA[2006/07/14-21:04:27]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.257 V]]></label>
+  </block>
+  <block id="9">
+    <timestamp><![CDATA[2006/07/14-21:16:56]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.256 V]]></label>
+  </block>
+  <block id="10">
+    <timestamp><![CDATA[2006/07/14-21:29:25]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.255 V]]></label>
+  </block>
+  <block id="11">
+    <timestamp><![CDATA[2006/07/14-21:41:54]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.254 V]]></label>
+  </block>
+  <block id="12">
+    <timestamp><![CDATA[2006/07/14-21:54:23]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.253 V]]></label>
+  </block>
+  <block id="13">
+    <timestamp><![CDATA[2006/07/14-22:06:52]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.252 V]]></label>
+  </block>
+  <block id="14">
+    <timestamp><![CDATA[2006/07/14-22:19:20]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.251 V]]></label>
+  </block>
+  <block id="15">
+    <timestamp><![CDATA[2006/07/14-22:31:49]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.25 V]]></label>
+  </block>
+  <block id="16">
+    <timestamp><![CDATA[2006/07/14-22:44:18]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.249 V]]></label>
+  </block>
+  <block id="17">
+    <timestamp><![CDATA[2006/07/14-22:56:47]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.248 V]]></label>
+  </block>
+  <block id="18">
+    <timestamp><![CDATA[2006/07/14-23:09:16]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.247 V]]></label>
+  </block>
+  <block id="19">
+    <timestamp><![CDATA[2006/07/14-23:21:45]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.246 V]]></label>
+  </block>
+  <block id="20">
+    <timestamp><![CDATA[2006/07/14-23:34:14]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.245 V]]></label>
+  </block>
+  <block id="21">
+    <timestamp><![CDATA[2006/07/14-23:46:43]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.244 V]]></label>
+  </block>
+  <block id="22">
+    <timestamp><![CDATA[2006/07/14-23:59:12]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.243 V]]></label>
+  </block>
+  <block id="23">
+    <timestamp><![CDATA[2006/07/15-00:11:40]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.242 V]]></label>
+  </block>
+  <block id="24">
+    <timestamp><![CDATA[2006/07/15-00:24:09]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.241 V]]></label>
+  </block>
+  <block id="25">
+    <timestamp><![CDATA[2006/07/15-00:36:38]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.24 V]]></label>
+  </block>
+  <block id="26">
+    <timestamp><![CDATA[2006/07/15-00:49:07]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.239 V]]></label>
+  </block>
+  <block id="27">
+    <timestamp><![CDATA[2006/07/15-01:01:36]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.238 V]]></label>
+  </block>
+  <block id="28">
+    <timestamp><![CDATA[2006/07/15-01:14:05]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.237 V]]></label>
+  </block>
+  <block id="29">
+    <timestamp><![CDATA[2006/07/15-01:26:34]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.236 V]]></label>
+  </block>
+  <block id="30">
+    <timestamp><![CDATA[2006/07/15-01:39:03]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.235 V]]></label>
+  </block>
+  <block id="31">
+    <timestamp><![CDATA[2006/07/15-01:51:32]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.234 V]]></label>
+  </block>
+  <block id="32">
+    <timestamp><![CDATA[2006/07/15-02:04:01]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.233 V]]></label>
+  </block>
+  <block id="33">
+    <timestamp><![CDATA[2006/07/15-02:16:30]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.232 V]]></label>
+  </block>
+  <block id="34">
+    <timestamp><![CDATA[2006/07/15-02:28:59]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.231 V]]></label>
+  </block>
+  <block id="35">
+    <timestamp><![CDATA[2006/07/15-02:41:28]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.23 V]]></label>
+  </block>
+  <block id="36">
+    <timestamp><![CDATA[2006/07/15-02:53:56]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.229 V]]></label>
+  </block>
+  <block id="37">
+    <timestamp><![CDATA[2006/07/15-03:06:25]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.228 V]]></label>
+  </block>
+  <block id="38">
+    <timestamp><![CDATA[2006/07/15-03:18:54]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.227 V]]></label>
+  </block>
+  <block id="39">
+    <timestamp><![CDATA[2006/07/15-03:31:23]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.226 V]]></label>
+  </block>
+  <block id="40">
+    <timestamp><![CDATA[2006/07/15-03:43:52]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.225 V]]></label>
+  </block>
+  <block id="41">
+    <timestamp><![CDATA[2006/07/15-03:56:21]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.224 V]]></label>
+  </block>
+  <block id="42">
+    <timestamp><![CDATA[2006/07/15-04:08:50]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.223 V]]></label>
+  </block>
+  <block id="43">
+    <timestamp><![CDATA[2006/07/15-04:21:19]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.222 V]]></label>
+  </block>
+  <block id="44">
+    <timestamp><![CDATA[2006/07/15-04:33:48]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.221 V]]></label>
+  </block>
+  <block id="45">
+    <timestamp><![CDATA[2006/07/15-04:46:16]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.22 V]]></label>
+  </block>
+  <block id="46">
+    <timestamp><![CDATA[2006/07/15-04:58:45]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.219 V]]></label>
+  </block>
+  <block id="47">
+    <timestamp><![CDATA[2006/07/15-05:11:14]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.218 V]]></label>
+  </block>
+  <block id="48">
+    <timestamp><![CDATA[2006/07/15-05:23:43]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.217 V]]></label>
+  </block>
+  <block id="49">
+    <timestamp><![CDATA[2006/07/15-05:36:12]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.216 V]]></label>
+  </block>
+  <block id="50">
+    <timestamp><![CDATA[2006/07/15-05:48:41]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.215 V]]></label>
+  </block>
+  <block id="51">
+    <timestamp><![CDATA[2006/07/15-06:01:10]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.214 V]]></label>
+  </block>
+  <block id="52">
+    <timestamp><![CDATA[2006/07/15-06:13:39]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.213 V]]></label>
+  </block>
+  <block id="53">
+    <timestamp><![CDATA[2006/07/15-06:26:08]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.212 V]]></label>
+  </block>
+  <block id="54">
+    <timestamp><![CDATA[2006/07/15-06:38:36]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.211 V]]></label>
+  </block>
+  <block id="55">
+    <timestamp><![CDATA[2006/07/15-06:51:05]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.21 V]]></label>
+  </block>
+  <block id="56">
+    <timestamp><![CDATA[2006/07/15-07:03:34]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.209 V]]></label>
+  </block>
+  <block id="57">
+    <timestamp><![CDATA[2006/07/15-07:16:03]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.208 V]]></label>
+  </block>
+  <block id="58">
+    <timestamp><![CDATA[2006/07/15-07:28:32]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.207 V]]></label>
+  </block>
+  <block id="59">
+    <timestamp><![CDATA[2006/07/15-07:41:01]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.206 V]]></label>
+  </block>
+  <block id="60">
+    <timestamp><![CDATA[2006/07/15-07:53:30]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.205 V]]></label>
+  </block>
+  <block id="61">
+    <timestamp><![CDATA[2006/07/15-08:05:59]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.204 V]]></label>
+  </block>
+  <block id="62">
+    <timestamp><![CDATA[2006/07/15-08:18:28]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.203 V]]></label>
+  </block>
+  <block id="63">
+    <timestamp><![CDATA[2006/07/15-08:30:57]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.202 V]]></label>
+  </block>
+  <block id="64">
+    <timestamp><![CDATA[2006/07/15-08:43:25]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.201 V]]></label>
+  </block>
+  <block id="65">
+    <timestamp><![CDATA[2006/07/15-08:55:54]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.2 V]]></label>
+  </block>
+  <block id="66">
+    <timestamp><![CDATA[2006/07/15-09:08:23]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.199 V]]></label>
+  </block>
+  <block id="67">
+    <timestamp><![CDATA[2006/07/15-09:20:52]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.198 V]]></label>
+  </block>
+  <block id="68">
+    <timestamp><![CDATA[2006/07/15-09:33:21]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.197 V]]></label>
+  </block>
+  <block id="69">
+    <timestamp><![CDATA[2006/07/15-09:45:50]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.196 V]]></label>
+  </block>
+  <block id="70">
+    <timestamp><![CDATA[2006/07/15-09:58:19]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.195 V]]></label>
+  </block>
+  <block id="71">
+    <timestamp><![CDATA[2006/07/15-10:10:48]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.194 V]]></label>
+  </block>
+  <block id="72">
+    <timestamp><![CDATA[2006/07/15-10:23:17]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.193 V]]></label>
+  </block>
+  <block id="73">
+    <timestamp><![CDATA[2006/07/15-10:35:46]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.192 V]]></label>
+  </block>
+  <block id="74">
+    <timestamp><![CDATA[2006/07/15-10:48:15]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.191 V]]></label>
+  </block>
+  <block id="75">
+    <timestamp><![CDATA[2006/07/15-11:00:43]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.19 V]]></label>
+  </block>
+  <block id="76">
+    <timestamp><![CDATA[2006/07/15-11:13:12]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.189 V]]></label>
+  </block>
+  <block id="77">
+    <timestamp><![CDATA[2006/07/15-11:25:41]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.188 V]]></label>
+  </block>
+  <block id="78">
+    <timestamp><![CDATA[2006/07/15-11:38:10]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.187 V]]></label>
+  </block>
+  <block id="79">
+    <timestamp><![CDATA[2006/07/15-11:50:39]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.186 V]]></label>
+  </block>
+  <block id="80">
+    <timestamp><![CDATA[2006/07/15-12:03:08]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.185 V]]></label>
+  </block>
+  <block id="81">
+    <timestamp><![CDATA[2006/07/15-12:15:37]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.184 V]]></label>
+  </block>
+  <block id="82">
+    <timestamp><![CDATA[2006/07/15-12:28:06]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.183 V]]></label>
+  </block>
+  <block id="83">
+    <timestamp><![CDATA[2006/07/15-12:40:35]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.182 V]]></label>
+  </block>
+  <block id="84">
+    <timestamp><![CDATA[2006/07/15-12:53:03]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.181 V]]></label>
+  </block>
+  <block id="85">
+    <timestamp><![CDATA[2006/07/15-13:05:32]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.18 V]]></label>
+  </block>
+  <block id="86">
+    <timestamp><![CDATA[2006/07/15-13:18:01]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.179 V]]></label>
+  </block>
+  <block id="87">
+    <timestamp><![CDATA[2006/07/15-13:30:30]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.178 V]]></label>
+  </block>
+  <block id="88">
+    <timestamp><![CDATA[2006/07/15-13:42:59]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.177 V]]></label>
+  </block>
+  <block id="89">
+    <timestamp><![CDATA[2006/07/15-13:55:28]]></timestamp>
+    <label><![CDATA[Gate hf4 = -0.176 V]]></label>
+  </block>
+</metadata>
