@@ -20,8 +20,8 @@ WriteMakefile(
 # First two lines are for Windows, second two lines are for Linux.
     (($^O =~ /MSWin32/)
     ?   ('LIBS'         => ['-lC:\\VXIPNP\\WinNT\\lib\\msc\\visa32.lib'], # needs full path on my setup
-         'INC'          => '-IC:\\VXIPNP\\WinNT\\include '.               # next one is for windows sdk
-                           '"-ID:\\Microsoft Platform SDK\\Include"',
+         'INC'          => '-IC:\\VXIPNP\\WinNT\\include '.               
+                           '"-ID:\\Microsoft Platform SDK\\Include"',     # this one is for windows sdk
 )#         'CCFLAGS'      => '-MT',)
     :   ('LIBS'         => ['-lvisa -lstdc++'],                           # stdc++ is necessary here
          'INC'          => '-I/usr/local/vxipnp/linux/include/',)),
