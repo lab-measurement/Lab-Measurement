@@ -97,6 +97,7 @@ sub Write {
 }
 
 sub Query {
+    # contains a nice bomb: read_cnt is arbitrarly set to 300 bytes
     my $self=shift;
     my $cmd=shift;
     my ($status, $write_cnt)=Lab::VISA::viWrite(
@@ -188,7 +189,7 @@ Reads a result of maximum length C<$length> from the instrument and returns it.
 
 Sends the command C<$command> to the instrument and reads a result from the
 instrument and returns it. The length of the read buffer is haphazardly
-set to 300 bytes. This can be changed in the source code. Or you use
+set to 300 bytes. This can be changed in the source code, hehe. Or you use
 seperate C<Write> and C<Read> commands.
 
 =head2 Clear
