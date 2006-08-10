@@ -75,7 +75,7 @@ $| = 1;
 select($old_fh);
 
 my $fcomment="#$comment";$fcomment=~s/(\n|\n\r)([^\n\r]*)/$1#$2/g;
-print LOG "#$title\n$fcomment",'#Measured with $Id: QPC_Noise.pl 313 2006-04-05 17:18:56Z schroeer $',"\n#Parameters: HP-GPIB: $hp_gpib; Amplification: $ithaco_amp; V_SD=$v_sd\n";
+print LOG "#$title\n$fcomment",'#Measured with $Id$',"\n#Parameters: HP-GPIB: $hp_gpib; Amplification: $ithaco_amp; V_SD=$v_sd\n";
 
 print "Measurement running\nPress 's' to stop; 'm' to mark position.\n";
 

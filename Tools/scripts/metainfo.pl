@@ -93,7 +93,7 @@ This information is printed.
 
 =head1 AUTHOR/COPYRIGHT
 
-This is $Id: plotter.pl 436 2006-05-26 22:57:59Z schroeer $.
+This is $Id$.
 
 Copyright 2004 Daniel Schröer.
 

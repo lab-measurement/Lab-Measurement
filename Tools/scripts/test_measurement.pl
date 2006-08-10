@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-#$Id: pinch-off-qpc2.pl 351 2006-04-17 19:51:09Z schroeer $
+#$Id$
 
 use strict;
 use Time::HiRes qw/usleep/;

@@ -1,8 +1,10 @@
 #!/usr/bin/perl
 
-# Transportmessung mit Lock-In
+# Ladediagramm mit QPC messen
+# QPC mit Lock-In auf ein Gate gelockt.
+# Ein QPC-Gatter zur Kompensation variieren.
 
-#$Id$
+#$Id: ladediagramm.pl 438 2006-05-29 10:41:09Z schroeer $
 
 use strict;
 use Lab::Instrument::KnickS252;
@@ -15,47 +17,51 @@ use Lab::Measurement;
 
 my $divider_dc    = 1000;
 my $ithaco_amp    = 1e-9;    # Ithaco amplification
-my $lock_in_sensitivity = 200e-3;
+my $lock_in_sensitivity = 50e-3;
 
-my $v_sd_ac       = 20e-6;
-my $v_sd_dc       = -300e-3/$divider_dc;
+my $v_gate_ac     = 1e-3;
+my $v_sd_dc       = 500e-3/$divider_dc;
 
-my $gate_1_gpib   = 9;
-my $gate_1_type   = 'Yokogawa7651';
-my $gate_1_name   = 'Gate hf3';
-my $gate_1_start  = -0.300;
-my $gate_1_end    = -0.130;
-my $gate_1_step   = +1e-3;
+my $gate_1_gpib   = 14;
+my $gate_1_type   = 'KnickS252';
+my $gate_1_name   = 'Gate hf4';
+my $gate_1_start  = -0.100;
+my $gate_1_end    = -0.300;
+my $gate_1_step   = -2e-3;
 
-my $gate_2_gpib   = 4;
+my $gate_2_gpib   = 04;
 my $gate_2_type   = 'Yokogawa7651';
-my $gate_2_name   = 'Gate hf4';
-my $gate_2_start  = -0.280;
-my $gate_2_end    = -0.150;
-my $gate_2_step   = +1e-3;
+my $gate_2_name   = 'Gate 01';
+my $gate_2_start  = -0.340;
+my $gate_2_end    = -0.460;
+my $gate_2_step   = -1.5e-3;
+
+# Dies ist das Gate zur Kompensation
+my $gate_3_gpib   = 9;
+my $gate_3_type   = 'Yokogawa7651';
+my $gate_3_name   = 'Gate 13 (QPC)';
+my $gate_3_start  = -0.641;
+my $gate_3_end    = -0.607;
+my $gate_3_step   = ($gate_3_end-$gate_3_start)/
+                    (($gate_1_end-$gate_1_start)/$gate_1_step);
 
 my $hp_gpib       = 24;
 my $hp_range      = 10;
-my $hp_resolution = 0.001;
-
-my $hp2_gpib       = 22;
-my $hp2_range      = 10;
-my $hp2_resolution = 0.00001;
+my $hp_resolution = 0.00001;
 
 my $R_Kontakt     = 1773;
 
-my $filename_base = 'grosser_bereich_500mT_transport_bias';
+my $filename_base = 'qpc_ladediagramm';
 
 my $sample        = "S5c (81059)";
-my $title         = "Alle drei Quantenpunkte: Transport";
+my $title         = "Oberer und linker DQD, gemessen mit QPC lu (mit Kompensation)";
 my $comment       = <<COMMENT;
-Grosser Bereich mit Magnetfeld 500mT
-Differentielle Leitfähigkeit von 12 nach 10; V_{SD,DC}=$v_sd_dc V; Lüftung an; Ca. 25mK.
-Lock-In: Sensitivity $lock_in_sensitivity V, V_{SD,AC}=$v_sd_ac V bei 33Hz, 300ms, Normal, Bandpaß 50, 31°
-Ithaco: Amplification $ithaco_amp, Supression 10e-10 off, Rise Time 0.3ms.
-G11=-0.385 (Manus1); G15=-0.410 (Manus2); G06=-0.455 (Manus3); Ghf1=-0.125 (Manus04); Ghf2=-0.125 (Manus05);
-G01=-0.394 (Yoko01); G03=-0.450 (Yoko02); G13=-0.592 (Knick14); G09=-0.592 (Yoko10); 14 offen, 02,04 auf GND
-Fahre aussen Ghf3 (Yoko09); innen Ghf4 (Yoko04);
+Transconductance von 14 nach 12; Auf Gate 01 gelockt mit ca. $v_gate_ac V bei 13Hz. V_{SD,DC}=$v_sd_dc V; Ca. 20mK.
+Lock-In: Sensitivity $lock_in_sensitivity V, 0.3s, Normal, Bandpass Q=50.
+Ithaco: Amplification $ithaco_amp, Supression 10e-10, Rise Time 0.3ms.
+G11=-0.385 (Yoko02;Kabel4); G15=-0.400 (Yoko10;Kabel1);
+Ghf1=Ghf2=-0.130 (Yoko01;Kabel11); G13=-0.641 ... -0.607 (Yoko09;Kabel8); andere GND
+Fahre aussen Ghf4 (Knick14;Kabel6); innen G01 (Yoko04;Kabel5); 
 COMMENT
 
 ################################
@@ -72,6 +78,7 @@ unless (($gate_2_end-$gate_2_start)/$gate_2_step > 0) {
 
 my $g1type="Lab::Instrument::$gate_1_type";
 my $g2type="Lab::Instrument::$gate_2_type";
+my $g3type="Lab::Instrument::$gate_3_type";
 
 my $gate1=new $g1type({
     'GPIB_board'    => 0,
@@ -89,12 +96,21 @@ my $gate2=new $g2type({
     'gate_protect'  => 1,
 
     'gp_max_volt_per_second' => 0.002,
+    'gp_max_step_per_second' => 4,
+    'gp_max_step_per_step'   => 0.002,
+});
+
+my $gate3=new $g3type({
+    'GPIB_board'    => 0,
+    'GPIB_address'  => $gate_3_gpib,
+    'gate_protect'  => 1,
+
+    'gp_max_volt_per_second' => 0.002,
     'gp_max_step_per_second' => 3,
     'gp_max_step_per_step'   => 0.001,
 });
 
 my $hp=new Lab::Instrument::HP34401A(0,$hp_gpib);
-my $hp2=new Lab::Instrument::HP34401A(0,$hp2_gpib);
 
 my $measurement=new Lab::Measurement(
     sample          => $sample,
@@ -102,9 +118,9 @@ my $measurement=new Lab::Measurement(
     filename_base   => $filename_base,
     description     => $comment,
 
-    live_plot       => 'Differential Conductance',
-    live_refresh    => 120,
-#    live_last       => 7,
+    live_plot       => 'Transconductance',
+    live_refresh    => 60,
+#    live_latest     => 8,
     
     constants       => [
         {
@@ -124,8 +140,8 @@ my $measurement=new Lab::Measurement(
             'value'         => $divider_dc,
         },
         {
-            'name'          => 'V_AC',
-            'value'         => $v_sd_ac,
+            'name'          => 'V_GATE_AC',
+            'value'         => $v_gate_ac,
         },
         {
             'name'          => 'SENS',
@@ -145,13 +161,13 @@ my $measurement=new Lab::Measurement(
         },
         {
             'unit'          => 'V',
-            'label'         => "Lock-In output",
-            'description'   => 'Differential current (Lock-In output)',
+            'label'         => "Voltage $gate_3_name",
+            'description'   => "Set voltage on source $gate_3_type$gate_3_gpib connected to $gate_3_name.",
         },
         {
             'unit'          => 'V',
-            'label'         => 'Amplifier output',
-            'description'   => "Voltage output by current amplifier set to $ithaco_amp.",
+            'label'         => "Lock-In output",
+            'description'   => 'Differential current (Lock-In output)',
         }
     ],
     axes            => [
@@ -172,61 +188,25 @@ my $measurement=new Lab::Measurement(
             'description'   => "Voltage applied to $gate_2_name.",
         },
         {
-            'unit'          => 'A',
-            'expression'    => "((\$C2/10)*SENS*AMP)",
-            'label'         => 'Differential current',
-            'description'   => 'Differential current',
-        },
-        {
-            'unit'          => '2e^2/h',
-            'expression'    => "(\$A2/V_AC)/G0",
-            'label'         => 'Differential conductance',
-            'description'   => 'Differential conductance',
-        },
-        {
-            'unit'          => 'A',
-            'expression'    => "\$C3*AMP",
-            'label'         => 'I_{D}',
-            'description'   => 'Drain Current',
+            'unit'          => 'a.u.',
+            'expression'    => "((\$C3/10)*SENS*AMP)",
+            'label'         => 'Transconductance',
+            'description'   => 'Transconductance',
         },
     ],
     plots           => {
-        'Differential Conductance'    => {
+        'Transconductance'    => {
             'type'          => 'line',
             'xaxis'         => 1,
-            'yaxis'         => 3,
+            'yaxis'         => 2,
             'grid'          => 'xtics ytics',
-#            'logscale'      => 'y',
         },
         'Ladediagramm'=> {
             'type'          => 'pm3d',
-            'xaxis'         => 0,
-            'yaxis'         => 1,
-            'cbaxis'        => 3,
+            'xaxis'         => 1,
+            'yaxis'         => 0,
+            'cbaxis'        => 2,
             'grid'          => 'xtics ytics',
-        },
-        'Ladediagramm-Log'=> {
-            'type'          => 'pm3d',
-            'xaxis'         => 0,
-            'yaxis'         => 1,
-            'cbaxis'        => 3,
-            'grid'          => 'xtics ytics',
-            'logscale'      => 'cb',
-        },
-        'Ladediagramm-Strom'=> {
-            'type'          => 'pm3d',
-            'xaxis'         => 0,
-            'yaxis'         => 1,
-            'cbaxis'        => 4,
-            'grid'          => 'xtics ytics',
-        },
-        'Strom-Log'=> {
-            'type'          => 'pm3d',
-            'xaxis'         => 0,
-            'yaxis'         => 1,
-            'cbaxis'        => 4,
-            'grid'          => 'xtics ytics',
-            'logscale'      => 'cb',
         },
     },
 );
@@ -234,18 +214,18 @@ my $measurement=new Lab::Measurement(
 my $gate_1_stepsign=$gate_1_step/abs($gate_1_step);
 my $gate_2_stepsign=$gate_2_step/abs($gate_2_step);
 
+my $g3=$gate_3_start;
 for (my $g1=$gate_1_start;$gate_1_stepsign*$g1<=$gate_1_stepsign*$gate_1_end;$g1+=$gate_1_step) {
-    $measurement->start_block("$gate_1_name = $g1 V");
-    print "Started block $gate_1_name = $g1 V\n";
+    $measurement->start_block("$gate_1_name = $g1 V; $gate_3_name = $g3 V");
     $gate1->set_voltage($g1);
-    sleep(10);
+    $gate3->set_voltage($g3);
     for (my $g2=$gate_2_start;$gate_2_stepsign*$g2<=$gate_2_stepsign*$gate_2_end;$g2+=$gate_2_step) {
         $gate2->set_voltage($g2);
-        #usleep(100000);
+       # usleep(200000);
         my $meas=$hp->read_voltage_dc($hp_range,$hp_resolution);
-        my $meas2=$hp2->read_voltage_dc($hp2_range,$hp2_resolution);
-        $measurement->log_line($g1,$g2,$meas,$meas2);
+        $measurement->log_line($g1,$g2,$g3,$meas);
     }
+    $g3+=$gate_3_step;
 }
 
 my $meta=$measurement->finish_measurement();

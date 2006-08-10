@@ -2,7 +2,7 @@
 
 # Transportmessung mit Lock-In
 
-#$Id: ladediagramm.pl 438 2006-05-29 10:41:09Z schroeer $
+#$Id$
 
 use strict;
 use Lab::Instrument::KnickS252;

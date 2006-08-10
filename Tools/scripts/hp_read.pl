@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-#$Id: QPC_noise.pl 361 2006-04-18 16:39:19Z schroeer $
+#$Id$
 
 use strict;
 use Lab::Instrument::HP34401A;
