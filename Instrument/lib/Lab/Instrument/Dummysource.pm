@@ -15,6 +15,7 @@ my $default_config={
     gp_max_step_per_second  => 2,
     gp_min_volt             => -1,
     gp_max_volt             => 1,
+    gp_equal_level          => 0.000001,
 };
 
 sub new {
