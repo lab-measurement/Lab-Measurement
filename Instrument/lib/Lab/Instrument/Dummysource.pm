@@ -65,8 +65,6 @@ sub get_range {
 
 Lab::Instrument::Dummysource - Dummy voltage source
 
-=head1 SYNOPSIS
-
 =head1 DESCRIPTION
 
 The Lab::Instrument::Dummysource class implements a dummy voltage source
@@ -86,7 +84,7 @@ Only developers can make use of this class.
 
 This is $Id$
 
-Copyright 2005 Daniel Schröer (L<http://www.danielschroeer.de>)
+Copyright 2005-2006 Daniel Schröer (L<http://www.danielschroeer.de>)
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 

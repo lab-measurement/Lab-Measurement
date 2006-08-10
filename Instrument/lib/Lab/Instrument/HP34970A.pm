@@ -114,6 +114,85 @@ Lab::Instrument::HP34970A - a HP/Agilent 34970A digital multimeter
 
 =head1 METHODS
 
+=head2 read_voltage_dc
+
+    $datum=$hp->read_voltage_dc($range,$resolution);
+
+Preset and make a dc voltage measurement with the specified range
+and resolution.
+
+=over 4
+
+=item $range
+
+Range is given in terms of volts and can be C<[0.1|1|10|100|1000|MIN|MAX|DEF]>. C<DEF> is default.
+
+=item $resolution
+
+Resolution is given in terms of C<$range> or C<[MIN|MAX|DEF]>.
+C<$resolution=0.0001> means 4 1/2 digits for example.
+The best resolution is 100nV: C<$range=0.1>;C<$resolution=0.000001>.
+
+=back
+
+=head2 conf_monitor
+
+    $hp->conf_monitor(@channels);
+
+=head2 read_monitor
+
+    @channels=$hp->read_monitor();
+
+=head2 display_on
+
+    $hp->display_on();
+
+Turn the front-panel display on.
+
+=head2 display_off
+
+    $hp->display_off();
+
+Turn the front-panel display off.
+
+=head2 display_text
+
+    $hp->display_text($text);
+    print $hp->display_text();
+
+Display a message on the front panel. The multimeter will display up to 12
+characters in a message; any additional characters are truncated.
+Without parameter the displayed message is returned.
+
+=head2 display_clear
+
+    $hp->display_clear();
+
+Clear the message displayed on the front panel.
+
+=head2 beep
+
+    $hp->beep();
+
+Issue a single beep immediately.
+
+=head2 get_error
+
+    ($err_num,$err_msg)=$hp->get_error();
+
+Query the multimeter's error queue. Up to 20 errors can be stored in the
+queue. Errors are retrieved in first-in-first out (FIFO) order.
+
+=head2 reset
+
+    $hp->reset();
+
+Reset the multimeter to its power-on configuration.
+
+=head2 scroll_message
+
+    $hp->scroll_message();
+
 =head1 CAVEATS/BUGS
 
 probably many
@@ -130,7 +209,7 @@ probably many
 
 This is $Id$
 
-Copyright 2004 Daniel Schröer (L<http://www.danielschroeer.de>)
+Copyright 2004-2006 Daniel Schröer (L<http://www.danielschroeer.de>)
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 

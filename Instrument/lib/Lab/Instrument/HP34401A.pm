@@ -163,12 +163,13 @@ and resolution.
 
 =item $range
 
-Range is given in terms of volts and can be [0.1|1|10|100|1000|MIN|MAX|DEF]. DEF is default.
+Range is given in terms of volts and can be C<[0.1|1|10|100|1000|MIN|MAX|DEF]>. C<DEF> is default.
 
 =item $resolution
 
-Resolution is given in terms of $range or [MIN|MAX|DEF]. $resolution=0.0001 means 4½ digits for example.
-The best resolution is 100nV: $range=0.1;$resolution=0.000001.
+Resolution is given in terms of C<$range> or C<[MIN|MAX|DEF]>.
+C<$resolution=0.0001> means 4 1/2 digits for example.
+The best resolution is 100nV: C<$range=0.1>;C<$resolution=0.000001>.
 
 =back
 

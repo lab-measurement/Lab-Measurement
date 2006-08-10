@@ -153,8 +153,8 @@ and more.
 
 It can be used either directly by the laborant (programmer) to work with
 an instrument that doesn't have its own perl class
-(like Lab::Instrument::HP34401A). Or it can be used by such a specialized
-perl instrument class (like Lab::Instrument::HP34401A), to delegate the
+(like L<Lab::Instrument::HP34401A|Lab::Instrument::HP34401A>). Or it can be used by such a specialized
+perl instrument class (like C<Lab::Instrument::HP34401A>), to delegate the
 actual visa work. (All the instruments in the default package do so.)
 
 =head1 CONSTRUCTOR
@@ -213,6 +213,20 @@ Probably many.
 =over 4
 
 =item L<Lab::VISA>
+
+=item L<Lab::Instrument::HP34401A>
+
+=item L<Lab::Instrument::HP34970A>
+
+=item L<Lab::Instrument::Source>
+
+=item L<Lab::Instrument::KnickS252>
+
+=item L<Lab::Instrument::Yokogawa7651>
+
+=item L<Lab::Instrument::SR780>
+
+=item L<Lab::Instrument::IPS120_10>
 
 =back
 

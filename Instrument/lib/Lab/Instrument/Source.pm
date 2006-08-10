@@ -244,6 +244,10 @@ The smallest allowed output voltage.
 
 The largest allowed output voltage.
 
+=item qp_equal_level
+
+Voltages with a difference less than this value are considered equal.
+
 =back
 
 =head2 set_voltage
