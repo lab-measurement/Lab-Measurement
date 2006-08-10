@@ -27,8 +27,14 @@
 
 \blib/Lab/Data/PDL.pm$
 \blib/Lab/Data/Dataset.pm$
+\blib/Lab/Measurement/Ladediagramm.pm$
 \bexamples
 \bscripts
 
 \bt/Dataset.t
 \bt/XMLtree.t
+\bt/Generator.t
+\bt/yamltest.pl
+\bt/ladediagramm_qpc.pl
+\bt/xml-generator-test.pl
+\bt/rauscheck_langsam_001

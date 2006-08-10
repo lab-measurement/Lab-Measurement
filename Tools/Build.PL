@@ -6,13 +6,11 @@ use Module::Build;
 
 my $build=Module::Build->new(
     module_name => 'Lab::Tools', 
-    dist_version=> '0.02',
+    dist_version=> '1.00',
     license     => 'perl',
     requires    => {
     },
-    script_files    	=> ['scripts/yoko_goto.pl',
-                            'scripts/knick_goto.pl',
-                           ],
+    script_files    	=> [],
     create_readme   	=> 0,
     create_makefile_pl	=> 'passthrough',
     dist_author     	=> 'Daniel Schroeer <schroeer@cpan.org>');

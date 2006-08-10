@@ -3,18 +3,21 @@
 use strict;
 use Data::Dumper;
 
-use Test::More tests => 64;
+use Test::More tests => 65;
 
-BEGIN { use_ok('Lab::Data::Meta') };
+BEGIN {
+    use_ok('YAML');
+    use_ok('Lab::Data::Meta');
+};
 
 ok(my $meta=new Lab::Data::Meta(),'meta1: create Meta object.');
 is(ref $meta,'Lab::Data::Meta','meta1: is of right class.');
 
-ok($meta->column_label(4,'test1'),'meta1: set column #4\'s label with autoloader');
+ok($meta->column_label(4,'test1'),'meta1: set column no. 4\'s label with autoloader');
 is($meta->{column}->[4]->{label},'test1','meta1: is set correctly');
 is($meta->column_label(4),'test1','meta1: can be read back correctly');
 
-ok($meta->column_label(0,'test2'),'meta1: set column #0\'s label with autoloader');
+ok($meta->column_label(0,'test2'),'meta1: set column no. 0\'s label with autoloader');
 is($meta->{column}->[0]->{label},'test2','meta1: is set correctly');
 
 ok($meta->axis_description(0,'meta1: Dies ist eine Testachse'),'set axis description');
@@ -69,10 +72,10 @@ ok( my $meta3=new Lab::Data::Meta({
 }),'meta3: Create yet another Meta object.');
 
 for (0..2) {
-    ok($meta3->column_label($_,'column '.($_)),"meta3: Set column #$_\'s label");
+    ok($meta3->column_label($_,'column '.($_)),"meta3: Set column no. $_\'s label");
 }
 for (0..4) {
-    ok($meta3->block_comment($_,"block $_"),"meta3: Set block #$_\'s comment");
+    ok($meta3->block_comment($_,"block $_"),"meta3: Set block no. $_\'s comment");
 }
 for (0..2) {
     ok($meta3->axis_description($_,"Dies ist die $_-Achse"),"meta3: Set description for axis $_");
