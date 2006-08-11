@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Coulombdiamanten durch Trace schräg durchs Ladediagramm messen
+# Coulombdiamanten entlang Trace schräg durchs Ladediagramm messen
 
 #$Id$
 
@@ -15,21 +15,21 @@ use Lab::Measurement;
 
 my $divider_dc    =  1000;
 my $ithaco_amp    =  1e-9;    # Ithaco amplification
-my $lock_in_sensitivity = 5e-3;
+my $lock_in_sensitivity = 100e-3;
 
 my $v_sd_ac       = 20e-6;
 
 my $gate_1_gpib   =  9;
 my $gate_1_type   = 'Yokogawa7651';
 my $gate_1_name   = 'Gate hf3';
-my $gate_1_start  = -0.380;
-my $gate_1_end    = -0.130;
+my $gate_1_start  = -0.254905;
+my $gate_1_end    = -0.199938;
 
 my $gate_2_gpib   =  4;
 my $gate_2_type   = 'Yokogawa7651';
 my $gate_2_name   = 'Gate hf4';
-my $gate_2_start  = -0.340;
-my $gate_2_end    = -0.180;
+my $gate_2_start  = -0.260901;
+my $gate_2_end    = -0.217927;
 
 my $start         = -0.3;   # 0 => ($gate_1_start, $gate_2_start)
 my $end           =  1.3;   # 1 => ($gate_1_end, $gate_2_end)
@@ -38,9 +38,9 @@ my $steps         =  200;
 my $sd_gpib       =  15;
 my $sd_type       = 'KnickS252';
 my $sd_name       = 'Bias';
-my $sd_start      = -1;
-my $sd_end        =  1;
-my $sd_step       =  0.02;
+my $sd_start      = -1.2;
+my $sd_end        =  1.2;
+my $sd_step       =  0.01;
 
 my $hp_gpib       =  24;
 my $hp_range      =  10;
@@ -52,17 +52,18 @@ my $hp2_resolution=  0.00001;
 
 my $R_Kontakt     =  1773;
 
-my $filename_base = 'grosser_bereich_qpc_lock-hf4_1500mT';
+my $filename_base = 'diamanten_012-224';
 
 my $sample        = "S5c (81059)";
 my $title         = "Tripeldot, gemessen mit QPC links unten";
 my $comment       = <<COMMENT;
-Transconductance von 14 nach 12; V_{SD,AC}=$v_sd_ac V bei 33Hz. Ca. 30mK.
-Lock-In: Sensitivity $lock_in_sensitivity V, 0.3s, Normal, Bandpaß Q=50.
+Coulombdiamanten von 0,1,2 über 1,1,3 und 1,2,3 nach 2,2,4.
+Differentielle Leitfähigkeit von 12 nach 10; V_{SD,AC}=$v_sd_ac V bei 33Hz. Ca. 30mK.
+Lock-In: Sensitivity $lock_in_sensitivity V, 0.3s, Normal, Bandpaß Q=50, Phase 25.4°.
 Ithaco: Amplification $ithaco_amp, Supression 10e-10 off, Rise Time 0.3ms.
 G11=-0.385 (Manus1); G15=-0.410 (Manus2); G06=-0.455 (Manus3); Ghf1=-0.125 (Manus04); Ghf2=-0.125 (Manus05);
-G01=-0.394 (Yoko01); G03=-0.450 (Yoko02); G13=-0.592 (Knick14); G09=-0.592 (Yoko10); 10,02,04 auf GND
-Fahre aussen Gates (Yoko9 und Yoko04); innen V_{SD} (Knick15)
+G01=-0.394 (Yoko01); G03=-0.450 (Yoko02); G13=-0.615 (Knick14); G09=-0.615 (Yoko10); 14 offen; 02,04 auf GND
+Fahre aussen V_{SD} (Knick15); innen Gates (Yoko9 und Yoko04);
 COMMENT
 
 ################################
@@ -101,9 +102,9 @@ my $sd=new $sdtype({
     'GPIB_address'  => $sd_gpib,
     'gate_protect'  => 1,
 
-    'gp_max_volt_per_second' => 0.02,
-    'gp_max_step_per_second' => 3,
-    'gp_max_step_per_step'   => 0.01,
+    'gp_max_volt_per_second' => 0.1,
+    'gp_max_step_per_second' => 5,
+    'gp_max_step_per_step'   => 0.1,
 });
 
 my $hp=new Lab::Instrument::HP34401A(0,$hp_gpib);
@@ -177,16 +178,12 @@ my $measurement=new Lab::Measurement(
             'unit'          => 'V',
             'expression'    => '$C0',
             'label'         => "V_{$gate_1_name}",
-            'min'           => ($gate_1_start < $gate_1_end) ? $gate_1_start : $gate_1_end,
-            'max'           => ($gate_1_start < $gate_1_end) ? $gate_1_end : $gate_1_start,
             'description'   => "Voltage applied to $gate_1_name.",
         },
         {
             'unit'          => 'V',
             'expression'    => '$C1',
             'label'         => "V_{$gate_2_name}",
-            'min'           => ($gate_2_start < $gate_2_end) ? $gate_2_start : $gate_2_end,
-            'max'           => ($gate_2_start < $gate_2_end) ? $gate_2_end : $gate_2_start,
             'description'   => "Voltage applied to $gate_2_name.",
         },
         {
@@ -211,7 +208,7 @@ my $measurement=new Lab::Measurement(
         },
         {
             'unit'          => 'A',
-            'expression'    => '\$C4*AMP',
+            'expression'    => '$C4*AMP',
             'label'         => 'I_{Drain}',
             'description'   => 'Current',
         },
@@ -219,7 +216,7 @@ my $measurement=new Lab::Measurement(
     plots           => {
         'Differential Conductance'    => {
             'type'          => 'line',
-            'xaxis'         => 2,
+            'xaxis'         => 0,
             'yaxis'         => 3,
             'grid'          => 'xtics ytics',
         },
@@ -227,14 +224,14 @@ my $measurement=new Lab::Measurement(
             'type'          => 'pm3d',
             'xaxis'         => 0,
             'yaxis'         => 2,
-            'cbaxis'        => 3,
+            'cbaxis'        => 4,
             'grid'          => 'xtics ytics',
         },
         'Stromdiamanten'=> {
             'type'          => 'pm3d',
             'xaxis'         => 0,
             'yaxis'         => 2,
-            'cbaxis'        => 3,
+            'cbaxis'        => 5,
             'grid'          => 'xtics ytics',
         },
     },
@@ -242,17 +239,21 @@ my $measurement=new Lab::Measurement(
 
 my $sd_stepsign=$sd_step/abs($sd_step);
 
-for my $s (0..$steps-1) {
-    my $t=$start+($end-$start)*$s;
-    my $g1=($gate_1_end-$gate_1_start)*$t+$gate_1_start;
-    my $g2=($gate_2_end-$gate_2_start)*$t+$gate_2_start;
-    $measurement->start_block("$gate_1_name = $g1 V; $gate_2_name = $g2 V");
+for (my $bias=$sd_start;$sd_stepsign*$bias<=$sd_stepsign*$sd_end;$bias+=$sd_step) {
+    $sd->set_voltage($bias);
+    $measurement->start_block("Bias = $bias V");
+    print "Started block Bias = $bias V\n";
+    my $g1=($gate_1_end-$gate_1_start)*$start+$gate_1_start;
+    my $g2=($gate_2_end-$gate_2_start)*$start+$gate_2_start;
     $gate1->set_voltage($g1);
-    $gate2->set_voltage($g1);
-    print "Started block $gate_1_name = $g1 V; $gate_2_name = $g2 V\n";
+    $gate2->set_voltage($g2);
     sleep(20);
-    for (my $bias=$sd_start;$sd_stepsign*$bias<=$sd_stepsign*$sd_end;$bias+=$sd_step) {
-        $sd->set_voltage($bias);
+    for my $s (0..$steps-1) {
+        my $t=$start+(($end-$start)/$steps)*$s;
+        my $g1=($gate_1_end-$gate_1_start)*$t+$gate_1_start;
+        my $g2=($gate_2_end-$gate_2_start)*$t+$gate_2_start;
+        $gate1->set_voltage($g1);
+        $gate2->set_voltage($g2);
         my $meas=$hp->read_voltage_dc($hp_range,$hp_resolution);
         my $meas2=$hp2->read_voltage_dc($hp2_range,$hp2_resolution);
         $measurement->log_line($g1,$g2,$bias,$meas,$meas2);

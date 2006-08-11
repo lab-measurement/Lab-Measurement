@@ -5,10 +5,11 @@ use strict;
 use Module::Build;
 
 my $build=Module::Build->new(
-    module_name => 'Lab::Tools', 
-    dist_version=> '1.01',
-    license     => 'perl',
-    requires    => {
+    module_name         => 'Lab::Tools', 
+    dist_version        => '1.01',
+    dist_abstract       => 'Tools to obtain and work with data in the laboratory',
+    license             => 'perl',
+    requires            => {
         'XML::DOM'          => 0,
         'XML::Generator'    => 0,
         'Data::Dumper'      => 0,

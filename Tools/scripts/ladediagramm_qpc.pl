@@ -23,8 +23,8 @@ my $v_sd_dc       = -300e-3/$divider_dc;
 my $gate_1_gpib   = 9;
 my $gate_1_type   = 'Yokogawa7651';
 my $gate_1_name   = 'Gate hf3';
-my $gate_1_start  = -0.280;
-my $gate_1_end    = -0.220;
+my $gate_1_start  = -0.230;
+my $gate_1_end    = -0.180;
 my $gate_1_step   = +1e-3;
 
 my $gate_2_gpib   = 4;

@@ -116,7 +116,7 @@ Lab::Instrument::HP34970A - a HP/Agilent 34970A digital multimeter
 
 =head2 read_voltage_dc
 
-    $datum=$hp->read_voltage_dc($range,$resolution);
+    $datum=$hp->read_voltage_dc($range,$resolution,@scan_list);
 
 Preset and make a dc voltage measurement with the specified range
 and resolution.
@@ -132,6 +132,10 @@ Range is given in terms of volts and can be C<[0.1|1|10|100|1000|MIN|MAX|DEF]>. 
 Resolution is given in terms of C<$range> or C<[MIN|MAX|DEF]>.
 C<$resolution=0.0001> means 4 1/2 digits for example.
 The best resolution is 100nV: C<$range=0.1>;C<$resolution=0.000001>.
+
+=item @scan_list
+
+A list of channels to scan. See the instrument manual.
 
 =back
 
