@@ -149,19 +149,136 @@ Lab::Data::Meta - Meta data for datasets
 
 =head1 SYNOPSIS
 
+    use Lab::Data::Meta;
+    
+    my $meta2=new Lab::Data::Meta({
+        dataset_title  => "testtest",
+        column         => [
+            {label  =>'hallo'},
+            {label  =>'selber hallo',
+             unit   =>'mV'},
+        ],
+        axis           => [
+            {
+                unit        => 's',
+                description => 'the time',
+            },
+            {
+                unit        => 'eV',
+                description => 'kinetic energy',
+            },
+        ],
+    });
+
 =head1 DESCRIPTION
+
+This module maintains meta information on a dataset.
+It's build on top of L<Lab::Data::XMLtree|Lab::Data::XMLtree>.
 
 =head1 CONSTRUCTOR
 
-=head2 new([$contents])
+=head2 new
+
+    $meta=new Lab::Data::Meta(\%metainfo);
+
+Currently, C<Lab::Data::Meta> supports the following bits of meta information:
+
+    data_complete               => ['SCALAR'],  # boolean
+
+    dataset_title               => ['SCALAR'],
+    dataset_description         => ['SCALAR'],  # multiline
+    sample                      => ['SCALAR'],
+    data_file                   => ['SCALAR'],  # relativ zur descriptiondatei
+
+    block                   => [
+        'ARRAY',
+        'id',
+        {
+            original_filename   => ['SCALAR'],  # nur von GPplus-Import unterstützt
+            timestamp           => ['SCALAR'],  # Format %Y/%m/%d-%H:%M:%S
+            description         => ['SCALAR'],
+            label               => ['SCALAR'],
+        }
+    ],
+    column                  => [
+        'ARRAY',
+        'id',
+        {
+            unit                => ['SCALAR'],
+            label               => ['SCALAR'],  # evtl. weg
+            description         => ['SCALAR'],  # evtl. weg
+            min                 => ['SCALAR'],  # unnütz, aber von GPplus-Import unterstützt
+            max                 => ['SCALAR'],  # dito
+        }
+    ],
+    axis                    => [
+        'ARRAY',
+        'id',
+        {
+            label               => ['SCALAR'],
+            unit                => ['SCALAR'],
+            expression          => ['SCALAR'],
+            min                 => ['SCALAR'],
+            max                 => ['SCALAR'],
+            description         => ['SCALAR'],  # evtl. weg
+        }
+    ],
+    plot                    => [
+        'HASH',
+        'name',
+        {
+            type                => ['SCALAR'],  # line, pm3d
+            xaxis               => ['SCALAR'],
+            xformat             => ['SCALAR'],
+            yaxis               => ['SCALAR'],
+            yformat             => ['SCALAR'],
+            zaxis               => ['SCALAR'],
+            zformat             => ['SCALAR'],
+            cbaxis              => ['SCALAR'],
+            cbformat            => ['SCALAR'],
+            logscale            => ['SCALAR'],  # z.b: 'x' oder 'yzxcb'
+            time                => ['SCALAR'],  # ??? (was: wie oben (anders als in GnuPlot) (Achsen müssen %s-Format haben))
+            grid                => ['SCALAR'],  # z.B. 'ytics' oder 'xtics ytics'
+            palette             => ['SCALAR'],
+            label               => [
+                'ARRAY',
+                'id',
+                {
+                    text        => ['SCALAR'],
+                    x           => ['SCALAR'],
+                    y           => ['SCALAR'],
+                }
+            ],
+        }
+    ],
+    constant                => [
+        'ARRAY',
+        'id',
+        {
+            name                => ['SCALAR'],
+            value               => ['SCALAR'],
+        }
+    ],
+
+=head2 new_from_file
+
+    $meta=new_from_file Lab::Data::Meta($filename);
 
 =head1 METHODS
+
+=head2 save
+
+    $meta->save($filename);
+
+=head2 get_abs_path
+
+    my $path=get_abs_path();
 
 =head1 AUTHOR/COPYRIGHT
 
 This is $Id$
 
-Copyright 2004 Daniel Schröer (L<http://www.danielschroeer.de>)
+Copyright 2004-2006 Daniel Schröer (L<http://www.danielschroeer.de>)
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 

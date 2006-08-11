@@ -498,11 +498,11 @@ __END__
 
 =head1 NAME
 
-Lab::XMLtree - Handle and store XML and perl data structures with precise declaration.
+Lab::Data::XMLtree - Handle and store XML and perl data structures with precise declaration.
 
 =head1 SYNOPSIS
 
-    use Lab::XMLtree;
+    use Lab::Data::XMLtree;
     
     my $data_declaration = {
         info                     => [#              type B
@@ -534,8 +534,8 @@ Lab::XMLtree - Handle and store XML and perl data structures with precise declar
             }
         ]
     };
-    #create Lab::XMLtree object from file
-    $data=Lab::XMLtree->read_xml($data_declaration,'filename.xml');
+    #create Lab::Data::XMLtree object from file
+    $data=Lab::Data::XMLtree->read_xml($data_declaration,'filename.xml');
 
     #the autoloader
     # get
@@ -550,7 +550,7 @@ Lab::XMLtree - Handle and store XML and perl data structures with precise declar
 
 =head1 DESCRIPTION
 
-Lab::XMLtree will take you to similar spots as XML::Simple does, but in a
+C<Lab::Data::XMLtree> will take you to similar spots as XML::Simple does, but in a
 bigger bus and with fewer wild animals.
 
 That's not a bad thing. You get more control of the data
@@ -558,53 +558,15 @@ transformation processes and you get some extra functionality.
 
 =head1 DATA DECLARATION
 
-Lab::XMLtree uses a data declaration, that describes, what the
+Lab::Data::XMLtree uses a data declaration, that describes, what the
 perl data structure looks like, and how this data structure
 is converted to XML.
 
-Necessary information for each element
+=head1 CONSTRUCTORS
 
-    1) taucht es einmal oder mehrmals aus?
-       a) nur einmal
-       b) mehrmals
-          wie soll dieses mehrmals auftauchende
-          element gespeichert werden?
-           i) speichern in hash (welcher key?)
-          ii) speichern in array (welche id?)
-    
-    2) gibt es unterelemente oder nur skalaren content?
-       (system erlaubt keinen mixed content)
-       a) skalar
-       b) children existieren
+=head2 new($declaration,[$data])
 
-Simple ansatz: Each element is represented by
-C<name=E<gt>$value> with (C<ref $value eq 'ARRAY')>
-
-    @$value=(
-        # mandatory
-        SCALAR|HASH|ARRAY|PSCALAR|PHASH|PARRAY
-        
-        # optional for hash, array. not used for scalar.
-        [,$key|$id]
-        
-        # optional.
-        # otherwise scalar content
-        # (don't mix up with scalar|array|hash above)
-        [,{children}]
-    )
-
-Possible combinations
-
-    (A) SCALAR
-    (B) SCALAR,{children}
-    (C) HASH                    should work. autonumbers as keys.
-    (D) HASH,{children}         same
-    (E) HASH,$key
-    (F) HASH,$key,{children}
-    (G) ARRAY                   should work.
-    (H) ARRAY,{children}        same.
-    (I) ARRAY,$id
-    (K) ARRAY,$id,{children}
+Create a new Lab::Data::XMLtree. $data must be hashref and should match the declaration. Returns Lab::XMLtree object.
 
 The first two elements define the folding behaviour.
 
@@ -636,25 +598,19 @@ Example:
 
 =back
 
-=head1 CONSTRUCTORS
-
-=head2 new($declaration,[$data])
-
-Create a new Lab::XMLtree. $data must be hashref and should match the declaration. Returns Lab::XMLtree object.
-
 =head2 read_xml($declaration,$filename)
 
-Opens a XML file $filename. Returns Lab::XMLtree object.
+Opens a XML file $filename. Returns Lab::Data::XMLtree object.
 
 =head2 read_yaml($declaration,$filename)
 
-Opens a YAML file $filename. Returns Lab::XMLtree object.
+Opens a YAML file $filename. Returns Lab::Data::XMLtree object.
 
 =head1 METHODS
 
 =head2 merge_tree($tree)
 
-Merge another Lab::XMLtree into this one. Other tree must not necessarily be blessed.
+Merge another Lab::Data::XMLtree into this one. Other tree must not necessarily be blessed.
 
 =head2 save_xml($filename)
 
@@ -698,7 +654,7 @@ Get/set anything you want. Accounts the data declaration.
 
 =head1 CAVEATS/BUGS
 
-Lab::XMLtree does not support all possible kinds of perl data structures.
+Lab::Data::XMLtree does not support all possible kinds of perl data structures.
 It is also not too flexible when it comes to XML. It simply supports
 something that I needed.
 
@@ -708,11 +664,11 @@ something that I needed.
 
 =item XML::Simple
 
-Lab::XMLtree is similar to XML::Simple (L<XML::Simple>).
+Lab::Data::XMLtree is similar to XML::Simple (L<XML::Simple>).
 
 =item XML::DOM
 
-Lab::XMLtree can use XML::DOM (L<XML::DOM>) to retrieve stored data.
+Lab::Data::XMLtree can use XML::DOM (L<XML::DOM>) to retrieve stored data.
 
 =item XML::Generator
 
@@ -728,7 +684,7 @@ Lab::XMLtree can use YAML (L<YAML>) for data storage.
 
 This is $Id$
 
-Copyright 2004 Daniel Schröer (L<http://www.danielschroeer.de>)
+Copyright 2004-2006 Daniel Schröer (L<http://www.danielschroeer.de>)
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 

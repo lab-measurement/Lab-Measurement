@@ -6,12 +6,22 @@ use Module::Build;
 
 my $build=Module::Build->new(
     module_name => 'Lab::Tools', 
-    dist_version=> '1.00',
+    dist_version=> '1.01',
     license     => 'perl',
     requires    => {
+        'XML::DOM'          => 0,
+        'XML::Generator'    => 0,
+        'Data::Dumper'      => 0,
+        'Encode'            => 0,
+        'File::Basename'    => 0,
+        'Cwd'               => 0,
+        'Time::HiRes'       => 0,
+        'File::Basename'    => 0,
+        'File::Copy'        => 0,
+        'encoding::warnings'=> 0,
     },
     script_files    	=> [],
     create_readme   	=> 0,
     create_makefile_pl	=> 'passthrough',
-    dist_author     	=> 'Daniel Schroeer <schroeer@cpan.org>');
+    dist_author     	=> 'Daniel Schröer <schroeer@cpan.org>');
 $build->create_build_script;

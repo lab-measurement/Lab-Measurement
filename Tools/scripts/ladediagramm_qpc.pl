@@ -15,7 +15,7 @@ use Lab::Measurement;
 
 my $divider_dc    = 1000;
 my $ithaco_amp    = 1e-9;    # Ithaco amplification
-my $lock_in_sensitivity = 100e-3;
+my $lock_in_sensitivity = 5e-3;
 
 my $v_gate_ac     = 0.66e-3;
 my $v_sd_dc       = -300e-3/$divider_dc;
@@ -23,15 +23,15 @@ my $v_sd_dc       = -300e-3/$divider_dc;
 my $gate_1_gpib   = 9;
 my $gate_1_type   = 'Yokogawa7651';
 my $gate_1_name   = 'Gate hf3';
-my $gate_1_start  = -0.380;
-my $gate_1_end    = -0.130;
+my $gate_1_start  = -0.280;
+my $gate_1_end    = -0.220;
 my $gate_1_step   = +1e-3;
 
 my $gate_2_gpib   = 4;
 my $gate_2_type   = 'Yokogawa7651';
 my $gate_2_name   = 'Gate hf4';
-my $gate_2_start  = -0.340;
-my $gate_2_end    = -0.180;
+my $gate_2_start  = -0.285;
+my $gate_2_end    = -0.200;
 my $gate_2_step   = +1e-3;
 
 my $hp_gpib       = 24;
@@ -44,17 +44,16 @@ my $hp2_resolution= 0.00001;
 
 my $R_Kontakt     = 1773;
 
-my $filename_base = 'grosser_bereich_qpc_lock-hf4_1500mT';
+my $filename_base = 'vorbereitung_coulombdiamant';
 
 my $sample        = "S5c (81059)";
 my $title         = "Tripeldot, gemessen mit QPC links unten";
 my $comment       = <<COMMENT;
-Grosser Bereich mit Magnetfeld 1500mT
-Transconductance von 14 nach 12; Auf Gate hf4 gelockt mit ca. $v_gate_ac V bei 33Hz. V_{SD,DC}=$v_sd_dc V; Ca. 30mK.
+Transconductance von 14 nach 12; Auf Gate hf3 gelockt mit ca. $v_gate_ac V bei 33Hz. V_{SD,DC}=$v_sd_dc V; Ca. 30mK.
 Lock-In: Sensitivity $lock_in_sensitivity V, 0.3s, Normal, Bandpaß Q=50.
 Ithaco: Amplification $ithaco_amp, Supression 10e-10 off, Rise Time 0.3ms.
 G11=-0.385 (Manus1); G15=-0.410 (Manus2); G06=-0.455 (Manus3); Ghf1=-0.125 (Manus04); Ghf2=-0.125 (Manus05);
-G01=-0.394 (Yoko01); G03=-0.450 (Yoko02); G13=-0.592 (Knick14); G09=-0.592 (Yoko10); 10,02,04 auf GND
+G01=-0.394 (Yoko01); G03=-0.450 (Yoko02); G13=-0.615 (Knick14); G09=-0.615 (Yoko10); 10,02,04 auf GND
 Fahre aussen Ghf3 (Yoko09); innen Ghf4 (Yoko04);
 COMMENT
 
