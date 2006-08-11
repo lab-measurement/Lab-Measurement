@@ -163,6 +163,12 @@ are tested so far.
 
 =item L<Lab::Instrument>
 
+=item L<GPIB>
+
+This module can also provide instrument connectivity from perl, but builds on top
+of GPIB instead of the higher level VISA. I could never make it work properly.
+It seems to be unmaintained for a while.
+
 =back
 
 =head1 AUTHOR/COPYRIGHT

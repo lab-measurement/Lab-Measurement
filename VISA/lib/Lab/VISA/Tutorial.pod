@@ -6,13 +6,32 @@ Lab::VISA::Tutorial - Tutorial on using Lab::VISA and related packages
 
 =head1 Introduction
 
-Lab::VISA and its related packages allow to control test and measurement
+Lab::VISA and its related packages allow to perform test and measurement
 tasks with Perl scripts. It provides an interface to National Instruments'
 NI-VISA library,  making the standard VISA calls available from within Perl
 programs. Dedicated instrument driver classes relieve the user from taking
 care for internal details and make measurements as easy as
 
   $voltage=$multimeter->read_voltage().
+
+The Lab::... software is divided into three parts. The are built on top of
+each other and provide increasing comfort. Your measurement scripts can
+be based on each of these stages.
+
+The lowest level is C<Lab::VISA>. It makes the NI-VISA library accessible
+from perl and therefor allows to make any standard VISA call.
+
+The modules in the C<Lab::Instrument> package make communication with
+instruments easier.
+
+The modules in the C<Lab::Tools> package provide additional support for
+writing good measurement scripts. They offer means of writing data and related
+meta information to disk, plotting data etc.
+
+This is neither a Perl, nor a VISA/GPIB tutorial. This tutorial only tries
+to explain, how to use the Lab::VISA package. Some introduction into VISA
+and GPIB terminology is given though. If you feel the need for more
+information on Perl or VISA/GPIB, see the L</References> section[1-6].
 
 =head1 Measurement automation basics
 
@@ -117,18 +136,17 @@ interchangeability of similar instruments possible.
 
 =head1 Examples
 
-Remember: This is neither a Perl, nor a VISA/GPIB tutorial. This tutorial
-explains, how to use the Lab::VISA package. If you feel the need for more
-information on Perl or VISA/GPIB, see the L</References> section.
-
 All the examples can be found in the Tutorials directory of the Lab::VISA
 package.
 
 =head2 Using pure VISA calls
 
 First we will see how to use the plain VISA interface and communicate with
-an instrument with standard VISA C<viRead> and C<viWrite> calls. First we
-have to open a resource manager. This manager can then provide us with a
+an instrument with standard VISA C<viRead> and C<viWrite> calls. It will
+show that this method is rather laborious. Later we will learn how C<Lab::Instrument>
+makes life easier.
+
+First we have to open a resource manager. This manager can then provide us with a
 handle to one instrument. We try to open an instrument that is connected
 via GPIB to the GPIB board 0 in our computer and uses the GPIB address 24.
 This is specified by the resource name. We then ask the instrument for its
@@ -230,8 +248,8 @@ learn in the next section.
 
 =head2 Using the Lab::Instrument class
 
-The next example shows, how the Lab::Instrument class makes our life easier
-and our programs shorter and nicer.
+The Lab::Instrument class can do for us the routine work of connecting to certain
+instrument.
 
   #!/usr/bin/perl
   
@@ -306,10 +324,25 @@ to an Agilent 81134A pulse generator, to set it up for pulse mode.
   __END__
 
 This example shows that Perl's great list handling makes it the ideal
-language for instrument control and data aquisistion tasks. In which other
-language could we send a lot of commands so efficiently?
+language for instrument control and data aquisistion tasks.
+
+By only using C<Lab::Instrument> you should already be able to do about
+everything that can be done the instruments in your lab.
 
 =head2 Using Lab::Instrument::xxx virtual instruments
+
+Many common tasks, like reading a voltage from a digital multimeter,
+require that a series of GPIB commands is sent to an instrument. These
+commands are different for similar instruments from different manufacturers.
+
+The virtual instrument classes in the C<Lab::Instrument> package attempt to
+hide these details from the user by providing high level methods like
+C<set_voltage($voltage)> and C<get_voltage()>.
+
+Additionally they provide an optional safety mechanism for voltage sources.
+This is used to protect sensitive samples which could be destoyed by sudden
+voltage changes. See the documentation of the
+L<Lab::Instrument::Source|Lab::Instrument::Source> module for details.
 
   #!/usr/bin/perl
   
@@ -332,7 +365,22 @@ language could we send a lot of commands so efficiently?
   
   __END__
 
+This example show the usage of a dedicated virtual instrument class, namely
+L<Lab::Instrument::HP34401A|Lab::Instrument::HP34401A>, the driver for a
+Hewlett-Packard/Agilent 34401A digital multimeter. An instance of this class
+is created that is connected to one certain instrument. We use the C<-\>id>
+method that returns the instrument's id string again.
+
+TODO: Examples for C<Lab::Instrument::Source>
+
 =head2 Using Lab::Tools
+
+With the tools introduced so far you should be able to easily write short
+individual scripts for your measurement tasks. These scripts will probably
+serve as well as all other home grown solutions using LabView or whatever.
+
+    - most important: Meta data
+    - reusability of scripts (not perfect yet)
 
 =head1 References
 
@@ -350,6 +398,8 @@ language could we send a lot of commands so efficiently?
 =item [4] http://www.vxipnp.org/
 
 =item [5] http://www.ivifoundation.org/
+
+=item [6] http://perldoc.perl.org/
 
 =back
 
