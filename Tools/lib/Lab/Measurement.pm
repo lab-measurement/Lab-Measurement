@@ -274,7 +274,11 @@ Lab::Measurement - Log, describe and plot data on the fly
 
 =head1 DESCRIPTION
 
-If your measurements turn out to be shitty, it's not because of the software you are using.
+This module simplifies the task of running a measurement, writing the data
+to disk and keeping track of necessary meta information that usually later
+you don't find in your lab book anymore.
+
+If your measurements don't come out nice, it's not because you were using the wrong software.
 
 =head1 CONSTRUCTORS
 
