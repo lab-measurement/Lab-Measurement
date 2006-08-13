@@ -134,12 +134,10 @@ sources) however share common interfaces (e.g.
 L<Lab::Instrument::Source|Lab::Instrument::Source>) to make
 interchangeability of similar instruments possible.
 
-=head1 Examples
+All the examples in the following sections can be found in the Tutorials
+directory of the Lab::VISA package.
 
-All the examples can be found in the Tutorials directory of the Lab::VISA
-package.
-
-=head2 Using pure VISA calls
+=head1 Using pure VISA calls
 
 First we will see how to use the plain VISA interface and communicate with
 an instrument with standard VISA C<viRead> and C<viWrite> calls. It will
@@ -246,7 +244,7 @@ very simple example a bit lengthy and ugly. These things should be factored
 out. The Lab::Instrument class can do all this dirty work for us, as we will
 learn in the next section.
 
-=head2 Using the Lab::Instrument class
+=head1 Using the Lab::Instrument class
 
 The Lab::Instrument class can do for us the routine work of connecting to certain
 instrument.
@@ -329,7 +327,7 @@ language for instrument control and data aquisistion tasks.
 By only using C<Lab::Instrument> you should already be able to do about
 everything that can be done the instruments in your lab.
 
-=head2 Using Lab::Instrument::xxx virtual instruments
+=head1 Using Lab::Instrument::xxx virtual instruments
 
 Many common tasks, like reading a voltage from a digital multimeter,
 require that a series of GPIB commands is sent to an instrument. These
@@ -373,7 +371,7 @@ method that returns the instrument's id string again.
 
 TODO: Examples for C<Lab::Instrument::Source>
 
-=head2 Using Lab::Tools
+=head1 Using Lab::Tools
 
 With the tools introduced so far you should be able to easily write short
 individual scripts for your measurement tasks. These scripts will probably
