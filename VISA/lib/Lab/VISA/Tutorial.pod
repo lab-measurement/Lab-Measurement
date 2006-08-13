@@ -14,7 +14,7 @@ care for internal details and make measurements as easy as
 
   $voltage=$multimeter->read_voltage().
 
-The Lab::... software is divided into three parts. The are built on top of
+The Lab::... software is divided into three parts. They are built on top of
 each other and provide increasing comfort. Your measurement scripts can
 be based on each of these stages.
 
@@ -22,16 +22,18 @@ The lowest level is C<Lab::VISA>. It makes the NI-VISA library accessible
 from perl and therefor allows to make any standard VISA call.
 
 The modules in the C<Lab::Instrument> package make communication with
-instruments easier.
+instruments easier by silently handling the protocol involved.
 
-The modules in the C<Lab::Tools> package provide additional support for
-writing good measurement scripts. They offer means of writing data and related
-meta information to disk, plotting data etc.
+Package C<Lab::Tools> is the highest abstraction layer. These modules
+provide support for writing good measurement scripts. They offer means
+of saving data and related meta information to disk, plotting data etc.
 
-This is neither a Perl, nor a VISA/GPIB tutorial. This tutorial only tries
-to explain, how to use the Lab::VISA package. Some introduction into VISA
-and GPIB terminology is given though. If you feel the need for more
-information on Perl or VISA/GPIB, see the L</References> section[1-6].
+This tutorial will explain how to write measurement scripts that build on
+any of these stages. However, this tutorial does not intend to teach the
+Perl language itself. Some introduction into VISA and GPIB terminology
+is given, but then familarity also with these concepts is assumed.
+If you feel the need for more information on Perl or VISA/GPIB, please
+see the L</References> section[1-6].
 
 =head1 Measurement automation basics
 
@@ -82,6 +84,12 @@ similar.
 A schematic view of the various software layers between your perl
 measurement script and the instrument hardware looks like this:
 
+=begin latex
+
+\clearpage
+
+=end latex
+
  +-------------------------+ +---------------+ +------------------+
  |Lab::Instrument::HP34401A| |L::I::KnickS252| |L::I::Yokogawa7651|
  +-----------------------+-+ +----+----------+ +----+-------------+
@@ -127,15 +135,12 @@ L<Lab::Instrument::KnickS252|Lab::Instrument::KnickS252> are specialized
 modules for certain instruments. Most other measurement software packages
 would call this a virtual instruments or an instrument drivers. Each such
 class provides methods that are specific for one instrument. The
-L<Lab::Instrument::IPS120_10|Lab::Instrument::IPS120_10> class for example
+L<Lab::Instrument::IPS120_10> class for example
 class is dedicated to a certain magnet power supply and therefore provides
 methods like C<set_target_field>. Similar instruments (e.g. various voltage
 sources) however share common interfaces (e.g.
 L<Lab::Instrument::Source|Lab::Instrument::Source>) to make
 interchangeability of similar instruments possible.
-
-All the examples in the following sections can be found in the Tutorials
-directory of the Lab::VISA package.
 
 =head1 Using pure VISA calls
 
@@ -144,14 +149,8 @@ an instrument with standard VISA C<viRead> and C<viWrite> calls. It will
 show that this method is rather laborious. Later we will learn how C<Lab::Instrument>
 makes life easier.
 
-First we have to open a resource manager. This manager can then provide us with a
-handle to one instrument. We try to open an instrument that is connected
-via GPIB to the GPIB board 0 in our computer and uses the GPIB address 24.
-This is specified by the resource name. We then ask the instrument for its
-identification string, read the answer and print it. We do so by sending
-the C<*IDN?> command. This is a standard SCPI command, that all instruments
-that support the SCPI language, will understand. Agilent instruments do so
-for example.
+All the examples in the following sections can be found in the Tutorials
+directory of the Lab::VISA package.
 
   #!/usr/bin/perl
   
@@ -238,6 +237,15 @@ for example.
   $status=Lab::VISA::viClose($default_rm);
   
   __END__
+
+First we have to open a resource manager. This manager can then provide us with a
+handle to one instrument. We try to open an instrument that is connected
+via GPIB to the GPIB board 0 in our computer and uses the GPIB address 24.
+This is specified by the resource name. We then ask the instrument for its
+identification string, read the answer and print it. We do so by sending
+the C<*IDN?> command. This is a standard SCPI command, that all instruments
+that support the SCPI language, will understand. Agilent instruments do so
+for example.
 
 We see that there is a lot of protocol overhead involved, that makes this
 very simple example a bit lengthy and ugly. These things should be factored
@@ -355,7 +363,7 @@ L<Lab::Instrument::Source|Lab::Instrument::Source> module for details.
   
   # Create an instrument object
   my $hp=new Lab::Instrument::HP34401A($board,$gpib);
-
+  
   # Use the id method to query the instruments ID string
   my $result=$hp->id();
   
