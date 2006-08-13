@@ -142,7 +142,7 @@ Lab::Instrument - General VISA based instrument
 
  use Lab::Instrument;
  
- my $hp22 =  new Lab::Instrument(0,22); # gpib board 0, address 22
+ my $hp22 =  new Lab::Instrument(0,22); # GPIB board 0, address 22
  print $hp22->Query('*IDN?');
 
 =head1 DESCRIPTION
@@ -161,8 +161,12 @@ actual visa work. (All the instruments in the default package do so.)
 
 =head2 new
 
- $instrument=new Lab::Instrument($board,$addr);
- $instrument2=new Lab::Instrument({GPIB_board => $board, GPIB_address => $addr});
+ $instrument  = new Lab::Instrument($board,$addr);
+ 
+ $instrument2 = new Lab::Instrument({
+    GPIB_board   => $board,
+    GPIB_address => $addr
+ });
 
 Creates a new instrument object and open the instrument with GPIB address C<$addr>
 connected to the GPIB board C<$board> (usually 0). All instrument classes that

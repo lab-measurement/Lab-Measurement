@@ -374,7 +374,7 @@ L<Lab::Instrument::Source|Lab::Instrument::Source> module for details.
 This example show the usage of a dedicated virtual instrument class, namely
 L<Lab::Instrument::HP34401A|Lab::Instrument::HP34401A>, the driver for a
 Hewlett-Packard/Agilent 34401A digital multimeter. An instance of this class
-is created that is connected to one certain instrument. We use the C<-\>id>
+is created that is connected to one certain instrument. We use the C<-E<gt>id>
 method that returns the instrument's id string again.
 
 TODO: Examples for C<Lab::Instrument::Source>

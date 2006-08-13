@@ -240,6 +240,8 @@ Returns a hash with the following keys:
     
 The value for each key is either 0 or 1, indicating the status of the instrument.
 
+=begin html
+
 =head1 INSTRUMENT SPECIFICATIONS
 
 =head2 DC voltage
@@ -320,6 +322,8 @@ Common mode rejection:
  100mA  ±30 V       more than 10MOhm    2µAp-p      3µAp-p
 
 Common mode rejection: 100nA/V or more (DC, 50/60Hz).
+
+=end html
 
 =head1 CAVEATS
 
