@@ -77,7 +77,7 @@ for (@files) {
     my $parser = MyPod2LaTeX->new();
     $parser->AddPreamble(0);
     $parser->AddPostamble(0);
-    $parser->LevelNoNum(5);
+    $parser->LevelNoNum(2);
     $parser->ReplaceNAMEwithSection(1);
     $parser->TableOfContents(0);
     $parser->StartWithNewPage(0);
