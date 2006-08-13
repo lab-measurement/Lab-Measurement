@@ -1,7 +1,6 @@
 #!/usr/bin/perl
 
 use strict;
-use Pod::Latex;
 use File::Basename;
 
 my @files=qw!
@@ -14,9 +13,9 @@ my @files=qw!
     Instrument/lib/Lab/Instrument/Agilent81134A.pm
     Instrument/lib/Lab/Instrument/SR780.pm
     Instrument/lib/Lab/Instrument/Source.pm
-    Instrument/lib/Lab/Instrument/Dummysource.pm
     Instrument/lib/Lab/Instrument/KnickS252.pm
     Instrument/lib/Lab/Instrument/Yokogawa7651.pm
+    Instrument/lib/Lab/Instrument/Dummysource.pm
     Tools/lib/Lab/Measurement.pm
     Tools/lib/Lab/Data/Meta.pm
     Tools/lib/Lab/Data/Plotter.pm
@@ -37,7 +36,12 @@ my $preamble='
 \usepackage[T1]{fontenc}
 \usepackage{ae}
 \usepackage{textcomp}
+\usepackage{listings}
 \usepackage[ps2pdf,linktocpage,colorlinks=true,citecolor=blue,pagecolor=magenta,pdftitle={Lab::VISA documentation},pdfauthor={Daniel Schröer},pdfsubject=Manual]{hyperref}
+\lstset{language=Perl,basicstyle=\footnotesize\ttfamily,breaklines=true,
+        breakatwhitespace=true,commentstyle=\rmfamily,
+        keywordstyle=\color{red}\bfseries,stringstyle=\sffamily,
+        identifierstyle=\color{blue}}
 
 \begin{document}
 
@@ -70,7 +74,7 @@ open MAIN,'>makedoku_temp/documentation.tex' or die;
 print MAIN $preamble;
 
 for (@files) {
-    my $parser = Pod::LaTeX->new();
+    my $parser = MyPod2LaTeX->new();
     $parser->AddPreamble(0);
     $parser->AddPostamble(0);
     $parser->LevelNoNum(5);
@@ -85,9 +89,12 @@ for (@files) {
         my $basename = fileparse($_,qr{\.(pod|pm)});
         $parser->Head1Level(0) if ($basename =~ /Tutorial/);
         $parser->parse_from_file ($_,qq(makedoku_temp/$basename.tex));
-        print MAIN "\\chapter{The Lab::VISA package}\n" if ($basename =~ /VISA/);
-        print MAIN "\\chapter{The Lab::Instruments package}\n" if ($basename =~ /Instrument/);
-        print MAIN "\\chapter{The Lab::Tools package}\n" if ($basename =~ /Measurement/);
+        for ($basename) {
+            if      (/VISA/) { print MAIN "\\chapter{The Lab::VISA package}\n"}
+            elsif   (/Instrument/) { print MAIN "\\chapter{The Lab::Instruments package}\n"}
+            elsif   (/Measurement/) { print MAIN "\\chapter{The Lab::Tools package}\n"}
+            else {print MAIN "\\cleardoublepage\n"}
+        }
         print MAIN "\\input{$basename}\n";
     } 
 }
@@ -105,3 +112,31 @@ chdir '..';
 rename 'makedoku_temp/documentation.pdf','documentation.pdf';
 unlink <makedoku_temp\\*.*>;# or die "geht nicht $!";
 rmdir 'makedoku_temp';
+
+
+package MyPod2LaTeX;
+use strict;
+use base qw/ Pod::LaTeX /;
+
+sub verbatim {
+  my $self = shift;
+  my ($paragraph, $line_num, $parobj) = @_;
+  if ($self->{_dont_modify_any_para}) {
+    $self->_output($paragraph);
+  } else {
+    return if $paragraph =~ /^\s+$/;
+    $paragraph =~ s/\s+$//;
+    my @l = split("\n",$paragraph);
+    foreach (@l) {
+      1 while s/(^|\n)([^\t\n]*)(\t+)/
+	$1. $2 . (" " x 
+		  (8 * length($3)
+		   - (length($2) % 8)))
+	  /sex;
+    }
+    $paragraph = join("\n",@l);
+    $self->_output('\begin{lstlisting}' . "\n$paragraph\n". '\end{lstlisting}'."\n");
+  }
+}
+
+
