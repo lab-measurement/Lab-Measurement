@@ -2,6 +2,7 @@
 
 use strict;
 use File::Basename;
+use File::Spec;
 
 my @files=qw!
     VISA/lib/Lab/VISA/Tutorial.pod
@@ -39,7 +40,7 @@ my $preamble='
 \usepackage{listings}
 \usepackage[ps2pdf,linktocpage,colorlinks=true,citecolor=blue,pagecolor=magenta,pdftitle={Lab::VISA documentation},pdfauthor={Daniel Schröer},pdfsubject=Manual]{hyperref}
 \lstset{language=Perl,basicstyle=\footnotesize\ttfamily,breaklines=true,
-        breakatwhitespace=true,commentstyle=\rmfamily,
+        commentstyle=\rmfamily,
         keywordstyle=\color{red}\bfseries,stringstyle=\sffamily,
         identifierstyle=\color{blue}}
 
@@ -81,7 +82,7 @@ for (@files) {
     $parser->ReplaceNAMEwithSection(1);
     $parser->TableOfContents(0);
     $parser->StartWithNewPage(0);
-    $parser->select('!(AUTHOR.*|SEE ALSO)');
+    $parser->select('!(AUTHOR.*|SEE ALSO|CAVEATS.*)');
     
     unless (-f $_) {
         warn "File $_ doesn't exist";
@@ -109,10 +110,12 @@ system('dvips -P pdf -t A4 documentation');
 system('ps2pdf documentation.ps');
 chdir '..';
 
-rename 'makedoku_temp/documentation.pdf','documentation.pdf';
-unlink <makedoku_temp\\*.*>;# or die "geht nicht $!";
-rmdir 'makedoku_temp';
-
+rename('makedoku_temp/documentation.pdf','documentation.pdf') or warn "umbenennen geht nicht: $!";
+if (chdir "makedoku_temp") {
+    unlink(<*>) or warn "files löschen geht nicht $!";
+    chdir "..";
+}
+rmdir 'makedoku_temp' or warn "tempdir löschen geht nicht: $!";
 
 package MyPod2LaTeX;
 use strict;
