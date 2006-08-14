@@ -31,16 +31,18 @@ of saving data and related meta information to disk, plotting data etc.
 This tutorial will explain how to write measurement scripts that build on
 any of these stages. However, this tutorial does not intend to teach the
 Perl language itself. Some introduction into VISA and GPIB terminology
-is given, but then familarity also with these concepts is assumed.
-If you feel the need for more information on Perl or VISA/GPIB, please
-see the L</References> section[1-6].
+is given, but then some familarity also with these concepts is assumed. Not
+much is required. If you feel the need for more information on Perl
+or VISA/GPIB, please see the L</References> section[1-6].
 
 =head1 Measurement automation basics
 
 This section provides a very brief introduction to the terms VISA and GPIB.
 For a more detailed explanation of the VISA and GPIB standards, the
 involved communication principles and the available commands for your
-specific instruments, please refer to the literature[1-3].
+specific instruments, please refer to the literature[1-3]. Usage of the higher
+level modules from the C<Lab::Instrument> package requires almost no knowledge
+about VISA and GPIB at all.
 
 =head2 VISA
 
@@ -394,11 +396,12 @@ time, settings of additional instruments, the environment temperature, the
 color of the shirt you were wearing while recording the data and everything
 else that might be of importance for a later interpretation of the data. In
 my experience, having to write these things in a book by hand is tedious and
-error-prone. It's the kind of work that computer were made for.
+error-prone. It's the kind of job that computers were made for.
 
 Another goal is to free the laborant from having to repeat himself all the
-time when data is to be presented. If, for example, you are measuring a very
-small current with the help of a current amplifier. This current amplifier
+time when the data is used for analysis or presentation. Let us assume that,
+for example, you are measuring
+a very small current with the help of a current amplifier. This current amplifier
 will output a voltage that is proportional to the original current, so in
 fact you will be measuring a voltage that can be converted to the original
 current by multiplying it with a certain factor. The last paragraph
@@ -406,12 +409,12 @@ has shown that the C<Lab::Tools> modules will help you to keep track of this
 additional information I<current amplifier constant of proportionality>. But
 as long as the precise formula for this transformation is not stored
 together with the data, you will still find yourself repeatedly typing in
-the same expressions, whenever you make a new plot of your data. So the
-C<Lab::Tools> modules also keep track of exactly how to calculate the
-current from the measured voltage. This is done by defining an I<axis> that
-transforms the values of a I<column>. If you are going to plot I<axes> then,
-the transformation will always be done automatically for you, but the
-original data will still be left untouched.
+the same expressions, whenever you work with the data. This is where the I<axis>
+concept comes into play. Already at the time you are preparing your measurement script,
+you define an I<axis> named I<current> that stores the expression to calculate
+the current from the voltage. From there you work with the current-axis and will
+never have to care about the conversion again. And of course you can define many
+different axes. Read on!
 
 =head2 The Meta data
 
@@ -439,20 +442,20 @@ This dataset shows an example where one quantity (third column) is measured
 in dependence of two others (first and second column). The data was recorded
 in two traces, where one input value is kept constant (1st column) and then
 for every setting of the other input value (2nd column) a datapoint is taken
-(3rd column). The the first input value is increased and the next trace is
+(3rd column). Then the the first input value is increased and the next trace is
 recorded.
 
 =head3 column
 
-The above example measurements has three columns. You will want to store
-additional information for each of these columns: What is beeing set or
+The above example measurement has three columns. You will want to store
+additional information for each of these columns: What is being set or
 measured, what is the unit of the stored value etc. This information is
 stored in the I<column> records of the I<meta> file. More details on the
 available fields is given in the L<Lab::Data::Meta|Lab::Data::Meta> manpage.
 
 =head3 block
 
-The example data above was aquired in two I<traces> or I<scans>, which are
+The example data above was aquired in two traces or scans or sweeps, which are
 separated by an empty line in the I<data> file now. C<Lab::Data::Meta>
 adopts the Gnuplot[7] terminology and calls these I<blocks>. Along with
 every block, additional information like the time the trace was started can
@@ -462,20 +465,38 @@ manpages.
 
 =head3 axis
 
-Usually you will not want the raw data as it is stored in the columns, but
-apply some conversations first and the plot the transformed data (as in the
-current axample above). This means that you will be plotting I<axes> instead
-of I<columns>. An axis value can be calculated from the values of one or
-more columns in one line. The expression C<$C1 + 10 * $C2> defines an axis
-as the sum of the first column plus ten times the value of the second column
-for example. Additionally, axes can have limited ranges that are to be
-plotted, labels, units etc. If you really want to plot the raw data from one
-of the columns, you just define an axis that has the same values as the
-column: C<$C1>.
+Usually you will not want to work with the raw data as it is stored in the columns of
+the file. For example you could want to plot the sum of two columns. Therefor you could
+define a new axis that is defined as the sum of these two columns. An axis value can
+be calculated from the values of one or more columns in one line. The expression
+C<$C1 + 10 * $C2> defines an axis as the sum of the first column plus ten times
+the value of the second column for example. Additionally, axes have labels, units and
+such.
 
 =head3 plot
 
-=head3 Other fields of interest 
+With the plot element, default views on the data be defined. These views can then be
+plotted with a single command, using the L<Lab::Data::Plotter|Lab::Data::Plotter> module
+and the script C<plotter.pl>. Because all the necessary information is stored in
+the I<meta> file, these plots will B<automatically contain the right axes, ranges, labels,
+units and any other information you wish!> Plots can already be defined at the time the
+measurement script is written, and can also be added later. If you use the
+L<Lab::Measurement|Lab::Measurement> module, you can display any of these plots live,
+while the data is being aquired. Since this entire system can run on Linux, you can
+X-forward this graph to your remote desktop at the beach. Imagine the possibilities.
+
+=head2 The Lab::Measurement class
+
+The L<Lab::Measurement|Lab::Measurement> class makes it easy to write a measurement
+script that takes advantage of the meta data system introduced above...
+
+=head2 Examples
+
+=head3 kurzes Example 1D mit Measurement
+
+=head3 
+
+=head3 Example mit nur Writer
 
 =head1 References
 

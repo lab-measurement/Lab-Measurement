@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
-# $Id$
+# This is an example of how to perform a measurement
 
-# This is an example of how to perform a measurement without any
+#without any
 # use of advanced features like the automatic sweeping or logging.
 
 # The measurement is a two dimensional sweep of two voltages.
