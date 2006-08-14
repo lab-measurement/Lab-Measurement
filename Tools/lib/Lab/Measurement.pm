@@ -302,7 +302,7 @@ where C<%config> can contain
   live_refresh  => '',
   live_latest   => '',
   
-  writer_config => {},  # Configuration options for L<Lab::Data::Writer|Lab::Data::Writer>
+  writer_config => {},  # Configuration options for Lab::Data::Writer
 
 =head1 METHODS
 

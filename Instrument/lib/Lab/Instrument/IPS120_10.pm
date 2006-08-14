@@ -236,11 +236,11 @@ This module hasn't been tested! If it quenches your magnet, don't complain to me
 
 =head2 set_current_sweep_rate($rate)
 
- amps/min
+ # in amps/min
 
 =head2 set_field_sweep_rate($rate)
 
- testa/min
+ # in tesla/min
 
 =head1 CAVEATS/BUGS
 
