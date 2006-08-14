@@ -1,5 +1,6 @@
 #!/usr/bin/perl
-#$Id$
+
+# example5.pl
 
 use strict;
 use Lab::Instrument::Yokogawa7651;
@@ -18,3 +19,5 @@ if (defined $goto) {
 } else {
     print $source->get_voltage();
 }
+
+__END__

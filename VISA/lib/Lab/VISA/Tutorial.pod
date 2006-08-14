@@ -381,6 +381,30 @@ C<-E<gt>id> method that returns the instrument's id string again.
 
 TODO: Examples for C<Lab::Instrument::Source>
 
+  #!/usr/bin/perl
+  
+  # example5.pl
+
+  use strict;
+  use Lab::Instrument::Yokogawa7651;
+  
+  unless (@ARGV > 0) {
+      print "Usage: $0 GPIB-address [goto_voltage]\n";
+      exit;
+  }
+  
+  my ($gpib,$goto)=@ARGV;
+  
+  my $source=new Lab::Instrument::Yokogawa7651(0,$gpib);
+  
+  if (defined $goto) {
+      $source->sweep_to_voltage($goto);
+  } else {
+      print $source->get_voltage();
+  }
+  
+  __END__
+
 =head1 Using Lab::Tools
 
 With the tools introduced so far you should be able to easily write short
@@ -492,9 +516,9 @@ script that takes advantage of the meta data system introduced above...
 
 =head2 Examples
 
-=head3 kurzes Example 1D mit Measurement
+=head3 Example 2D mit Measurement
 
-=head3 
+=head3 Beispiel for plotter.pl
 
 =head3 Example mit nur Writer
 
