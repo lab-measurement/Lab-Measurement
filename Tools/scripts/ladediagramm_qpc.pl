@@ -44,12 +44,12 @@ my $hp2_resolution= 0.00001;
 
 my $R_Kontakt     = 1773;
 
-my $filename_base = 'ladewiederholung_2T';
+my $filename_base = 'ladewiederholung_-2T';
 
 my $sample        = "S5c (81059)";
 my $title         = "Tripeldot, gemessen mit QPC links unten";
 my $comment       = <<COMMENT;
-Magnet 2T
+Magnet -2T
 Transconductance von 14 nach 12; Auf Gate hf3 gelockt mit ca. $v_gate_ac V bei 33Hz. V_{SD,DC}=$v_sd_dc V; Ca. 30mK.
 Lock-In: Sensitivity $lock_in_sensitivity V, 0.3s, Normal, Bandpaß Q=50, Phase 0°
 Ithaco: Amplification $ithaco_amp, Supression 10e-10 off, Rise Time 0.3ms.

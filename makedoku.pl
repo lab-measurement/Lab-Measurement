@@ -149,7 +149,7 @@ sub verbatim {
 	  /sex;
     }
     $paragraph = join("\n",@l);
-    $self->_output('\begin{lstlisting}' . "\n$paragraph\n". '\end{lstlisting}'."\n");
+    $self->_output('\leavevmode\begin{lstlisting}' . "\n$paragraph\n". '\end{lstlisting}'."\n");
   }
 }
 
