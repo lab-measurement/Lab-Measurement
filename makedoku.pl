@@ -69,7 +69,7 @@ my $preamble='
 \includegraphics[width=12cm]{title}
 \end{center}
 \vfill
-\today\ ($ $Revision: 166 $ $)
+\today\ ($ $Revision$ $)
 
 \end{flushleft}
 \end{titlepage}
