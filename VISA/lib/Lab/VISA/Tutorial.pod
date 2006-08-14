@@ -374,8 +374,8 @@ L<Lab::Instrument::Source|Lab::Instrument::Source> module for details.
 This example show the usage of a dedicated virtual instrument class, namely
 L<Lab::Instrument::HP34401A|Lab::Instrument::HP34401A>, the driver for a
 Hewlett-Packard/Agilent 34401A digital multimeter. An instance of this class
-is created that is connected to one certain instrument. We use the C<-E<gt>id>
-method that returns the instrument's id string again.
+is created that is connected to one certain instrument. We use the
+C<-E<gt>id> method that returns the instrument's id string again.
 
 TODO: Examples for C<Lab::Instrument::Source>
 
@@ -384,9 +384,98 @@ TODO: Examples for C<Lab::Instrument::Source>
 With the tools introduced so far you should be able to easily write short
 individual scripts for your measurement tasks. These scripts will probably
 serve as well as all other home grown solutions using LabView or whatever.
+The modules in the C<Lab::Tools> package now provide additional tools to
+write better measurement scripts.
 
-    - most important: Meta data
-    - reusability of scripts (not perfect yet)
+One main goal is to provide means to keep additional information stored
+along with the raw measured data. Additional information means all the notes
+that you would usually write down in your laboratory book, like date and
+time, settings of additional instruments, the environment temperature, the
+color of the shirt you were wearing while recording the data and everything
+else that might be of importance for a later interpretation of the data. In
+my experience, having to write these things in a book by hand is tedious and
+error-prone. It's the kind of work that computer were made for.
+
+Another goal is to free the laborant from having to repeat himself all the
+time when data is to be presented. If, for example, you are measuring a very
+small current with the help of a current amplifier. This current amplifier
+will output a voltage that is proportional to the original current, so in
+fact you will be measuring a voltage that can be converted to the original
+current by multiplying it with a certain factor. The last paragraph
+has shown that the C<Lab::Tools> modules will help you to keep track of this
+additional information I<current amplifier constant of proportionality>. But
+as long as the precise formula for this transformation is not stored
+together with the data, you will still find yourself repeatedly typing in
+the same expressions, whenever you make a new plot of your data. So the
+C<Lab::Tools> modules also keep track of exactly how to calculate the
+current from the measured voltage. This is done by defining an I<axis> that
+transforms the values of a I<column>. If you are going to plot I<axes> then,
+the transformation will always be done automatically for you, but the
+original data will still be left untouched.
+
+=head2 The Meta data
+
+The general concept is that a I<dataset> is composed out of I<data> and
+I<metadata>, i.e. additional information about the I<data>. This I<metadata>
+is maintained by the L<Lab::Data::Meta|Lab::Data::Meta> class and is usually
+stored in a file C<dataset_filename.META>, while the I<data> is saved in
+C<dataset_filename.DATA>.
+
+The I<meta> file is stored in YAML or XML format and contains a number of
+elements which are defined in L<Lab::Data::Meta|Lab::Data::Meta>. The most
+important ones are I<column>, I<block>, I<axis> and I<plot>. For the
+following discussion of these fields, let's assume a I<data> file that looks
+like this:
+
+ 0.01   2.0   3
+ 0.01   2.1   3.4
+ 0.01   2.2   2.9
+ 
+ 0.02   2.0   1.7
+ 0.02   2.1   2.4
+ 0.02   2.2   2.2
+
+This dataset shows an example where one quantity (third column) is measured
+in dependence of two others (first and second column). The data was recorded
+in two traces, where one input value is kept constant (1st column) and then
+for every setting of the other input value (2nd column) a datapoint is taken
+(3rd column). The the first input value is increased and the next trace is
+recorded.
+
+=head3 column
+
+The above example measurements has three columns. You will want to store
+additional information for each of these columns: What is beeing set or
+measured, what is the unit of the stored value etc. This information is
+stored in the I<column> records of the I<meta> file. More details on the
+available fields is given in the L<Lab::Data::Meta|Lab::Data::Meta> manpage.
+
+=head3 block
+
+The example data above was aquired in two I<traces> or I<scans>, which are
+separated by an empty line in the I<data> file now. C<Lab::Data::Meta>
+adopts the Gnuplot[7] terminology and calls these I<blocks>. Along with
+every block, additional information like the time the trace was started can
+be saved. Most of this is done automatically. See the 
+L<Lab::Data::Meta|Lab::Data::Meta> and L<Lab::Measurement|Lab::Measurement>
+manpages.
+
+=head3 axis
+
+Usually you will not want the raw data as it is stored in the columns, but
+apply some conversations first and the plot the transformed data (as in the
+current axample above). This means that you will be plotting I<axes> instead
+of I<columns>. An axis value can be calculated from the values of one or
+more columns in one line. The expression C<$C1 + 10 * $C2> defines an axis
+as the sum of the first column plus ten times the value of the second column
+for example. Additionally, axes can have limited ranges that are to be
+plotted, labels, units etc. If you really want to plot the raw data from one
+of the columns, you just define an axis that has the same values as the
+column: C<$C1>.
+
+=head3 plot
+
+=head3 Other fields of interest 
 
 =head1 References
 
@@ -401,11 +490,13 @@ serve as well as all other home grown solutions using LabView or whatever.
 =item [3] NI 488.2 User Manual
 (L<http://www.ni.com/pdf/manuals/370428c.pdf>)
 
-=item [4] http://www.vxipnp.org/
+=item [4] L<http://www.vxipnp.org/>
 
-=item [5] http://www.ivifoundation.org/
+=item [5] L<http://www.ivifoundation.org/>
 
-=item [6] http://perldoc.perl.org/
+=item [6] L<http://perldoc.perl.org/>
+
+=item [7] L<http://www.gnuplot.info/>
 
 =back
 
