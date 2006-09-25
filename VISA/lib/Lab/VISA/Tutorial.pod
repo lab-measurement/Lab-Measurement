@@ -490,12 +490,12 @@ manpages.
 =head3 axis
 
 Usually you will not want to work with the raw data as it is stored in the columns of
-the file. For example you could want to plot the sum of two columns. Therefor you could
-define a new axis that is defined as the sum of these two columns. An axis value can
-be calculated from the values of one or more columns in one line. The expression
-C<$C1 + 10 * $C2> defines an axis as the sum of the first column plus ten times
-the value of the second column for example. Additionally, axes have labels, units and
-such.
+the file. For example you could want to plot the sum of two columns. Also you might
+want to display the data using another unit. Therefor you can define a new axis,
+that is defined as the sum of these two columns times any factor (which can be saved
+as a constant, see below) for the right unit. The expression C<amp * ($C1 + 10 * $C2)>
+defines an axis as the sum of two columns multiplied with a constant C<amp>.
+Additionally, axes have labels, ranges and such.
 
 =head3 plot
 
@@ -503,11 +503,18 @@ With the plot element, default views on the data be defined. These views can the
 plotted with a single command, using the L<Lab::Data::Plotter|Lab::Data::Plotter> module
 and the script C<plotter.pl>. Because all the necessary information is stored in
 the I<meta> file, these plots will B<automatically contain the right axes, ranges, labels,
-units and any other information you wish!> Plots can already be defined at the time the
+units> and any other information you wish! Plots can already be defined at the time the
 measurement script is written, and can also be added later. If you use the
 L<Lab::Measurement|Lab::Measurement> module, you can display any of these plots live,
 while the data is being aquired. Since this entire system can run on Linux, you can
 X-forward this graph to your remote desktop at the beach. Imagine the possibilities.
+
+=head3 constant
+
+This section of meta data can be used to store additional values that are important
+for the later interpretation of the raw data. Examples for such values could be
+amplification factors, voltage dividers etc. Constants have names that can be used
+in expressions of C<axis> definitions.
 
 =head2 The Lab::Measurement class
 
