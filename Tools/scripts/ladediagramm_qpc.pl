@@ -20,19 +20,19 @@ my $lock_in_sensitivity = 5e-3;
 my $v_gate_ac     = 0.66e-3;
 my $v_sd_dc       = -300e-3/$divider_dc;
 
-my $gate_1_gpib   = 9;
+my $gate_1_gpib   = 1;
 my $gate_1_type   = 'Yokogawa7651';
-my $gate_1_name   = 'Gate hf3';
-my $gate_1_start  = -0.300;
-my $gate_1_end    = -0.130;
+my $gate_1_name   = 'Gate 01';
+my $gate_1_start  = -0.540;
+my $gate_1_end    = -0.390;
 my $gate_1_step   = +1e-3;
 
-my $gate_2_gpib   = 4;
+my $gate_2_gpib   = 9;
 my $gate_2_type   = 'Yokogawa7651';
-my $gate_2_name   = 'Gate hf4';
-my $gate_2_start  = -0.320;
-my $gate_2_end    = -0.210;
-my $gate_2_step   = +5e-4;
+my $gate_2_name   = 'Gate hf3';
+my $gate_2_start  = -0.420;
+my $gate_2_end    = -0.250;
+my $gate_2_step   = +1e-3;
 
 my $hp_gpib       = 24;
 my $hp_range      = 10;
@@ -44,18 +44,17 @@ my $hp2_resolution= 0.00001;
 
 my $R_Kontakt     = 1773;
 
-my $filename_base = 'ladewiederholung_-2T';
+my $filename_base = 'doppeldot_rechts';
 
 my $sample        = "S5c (81059)";
-my $title         = "Tripeldot, gemessen mit QPC links unten";
+my $title         = "rechter Doppeldot, gemessen mit QPC links unten";
 my $comment       = <<COMMENT;
-Magnet -2T
 Transconductance von 14 nach 12; Auf Gate hf3 gelockt mit ca. $v_gate_ac V bei 33Hz. V_{SD,DC}=$v_sd_dc V; Ca. 30mK.
 Lock-In: Sensitivity $lock_in_sensitivity V, 0.3s, Normal, Bandpaß Q=50, Phase 0°
 Ithaco: Amplification $ithaco_amp, Supression 10e-10 off, Rise Time 0.3ms.
-G11=-0.385 (Manus1); G15=-0.410 (Manus2); G06=-0.455 (Manus3); Ghf1=-0.125 (Manus04); Ghf2=-0.125 (Manus05);
-G01=-0.394 (Yoko01); G03=-0.450 (Yoko02); G13=-0.583 (Knick14); G09=-0.583 (Yoko10); 10,02,04 auf GND
-Fahre aussen Ghf3 (Yoko09); innen Ghf4 (Yoko04);
+G11=-0.385 (Manus1); G15=-0.300 (Manus2); G06=-0.460 (Manus3); Ghf1=0 (Manus04); Ghf2=-0.130 (Manus05);
+Ghf4=0 (Yoko04); G03=-0.450 (Yoko02); G13=-0.930 (Knick14); G09=-0.630 (Yoko10); 10,02,04 auf GND
+Fahre aussen G01 (Yoko01); innen Ghf3 (Yoko09);
 COMMENT
 
 ################################
@@ -209,22 +208,22 @@ my $measurement=new Lab::Measurement(
         },
         'Ladediagramm'=> {
             'type'          => 'pm3d',
-            'xaxis'         => 0,
-            'yaxis'         => 1,
+            'xaxis'         => 1,
+            'yaxis'         => 0,
             'cbaxis'        => 2,
             'grid'          => 'xtics ytics',
         },
         'Ladediagramm-Strom'=> {
             'type'          => 'pm3d',
-            'xaxis'         => 0,
-            'yaxis'         => 1,
+            'xaxis'         => 1,
+            'yaxis'         => 0,
             'cbaxis'        => 3,
             'grid'          => 'xtics ytics',
         },
         'Ladediagramm-dI-I'=> {
             'type'          => 'pm3d',
-            'xaxis'         => 0,
-            'yaxis'         => 1,
+            'xaxis'         => 1,
+            'yaxis'         => 0,
             'cbaxis'        => 4,
             'grid'          => 'xtics ytics',
         },

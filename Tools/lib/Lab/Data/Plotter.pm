@@ -184,6 +184,7 @@ sub _start_plot {
             my $cbmin=(defined $self->{meta}->axis_min($cbaxis)) ? $self->{meta}->axis_min($cbaxis) : "*";
             my $cbmax=(defined $self->{meta}->axis_max($cbaxis)) ? $self->{meta}->axis_max($cbaxis) : "*";
             $gp.="set cbrange [$cbmin:$cbmax]\n";
+            $gp.="set zrange [$cbmin:$cbmax]\n" if ($self->{meta}->plot_logscale($plot));
         }
     }
     
@@ -207,14 +208,14 @@ sub _start_plot {
             $screen-=0.025;$screen=0.13 if (abs($screen-0.865)<0.001);
         }
     
-        if ($self->{meta}->plot_label($plot)) {
-            my @labels=$self->{meta}->plot_label($plot);
-            for (@labels) {
-                my $text=$_->{text};
-                my $x=$_->{x};
-                my $y=$_->{y};
-                $gp.=qq(set label "$text" at $x,$y center front\n);
-            }
+    }
+    if ($self->{meta}->plot_label($plot)) {
+        my @labels=$self->{meta}->plot_label($plot);
+        for (@labels) {
+            my $text=$_->{text};
+            my $x=$_->{x};
+            my $y=$_->{y};
+            $gp.=qq(set label "$text" at $x,$y center front\n);
         }
     }
     
