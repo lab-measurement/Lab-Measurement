@@ -115,7 +115,7 @@ sub reset {
 sub scroll_message {
     use Time::HiRes (qw/usleep/);
     my $self=shift;
-    my $message="            This perl instrument driver is copyright 2004/2005 by Daniel Schroeer.            ";
+    my $message=shift || "            This perl instrument driver is copyright 2004/2005 by Daniel Schroeer.            ";
     for (0..(length($message)-12)) {
         $self->display_text(substr($message,$_,$_+11));
         usleep(100000);
@@ -222,6 +222,12 @@ Without parameter the displayed message is returned.
     $hp->display_clear();
 
 Clear the message displayed on the front panel.
+
+=head2 scroll_message
+
+    $hp->scroll_message($message);
+
+Scrolls the message C<$message> on the display of the HP.
 
 =head2 beep
 
