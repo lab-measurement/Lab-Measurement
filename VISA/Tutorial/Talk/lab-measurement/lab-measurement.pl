@@ -3,8 +3,8 @@
 use strict;
 use Lab::Instrument::KnickS252;
 use Lab::Instrument::HP34401A;
-use Time::HiRes qw/usleep/;
 use Lab::Measurement;
+use Time::HiRes qw/usleep/;
 
 ################################
 
@@ -13,7 +13,7 @@ my $end_voltage     = -3.5;
 my $step            = -0.1;
 
 my $knick_gpib      = 14;
-my $hp_gpib         = 23;
+my $hp_gpib         = 21;
 
 my $sample          = "Zenerdiode";
 my $title           = "Messung mit Lab::Measurement";
