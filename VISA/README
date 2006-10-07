@@ -20,8 +20,7 @@ of logging data to disk and maintaining this data.
 INSTALLATION
 ------------
 
-This library has been tested to work on Linux and Windows. Installation is trivial
-since precompiled binary .ppm files are available for Windows and Linux (for perl 5.8.x).
+This library has been tested to work on Linux and Windows.
 
 Before you start, you must have the VISA library by National Instrument
 installed. If you plan to use GPIB connections (which is very likely), you must also
@@ -33,21 +32,6 @@ See National Instrument's website at
  http://digital.ni.com/softlib.nsf/webcategories/85256410006C055586256BBB002C0E91?opendocument&node=132060_US
 
  http://ni.com/linux/ni488dl.htm
-
-
-Now simply install the ppm distribution of the module with (same for Windows and Linux)
-
- ppm install http://www.nano.physik.uni-muenchen.de/svn/lab/trunk/VISA/Lab-VISA.ppd
-
-That's it!
-
-IMPORTANT NOTE: Users have instructed me that on Windows unfortunately it is not always as easy as this.
-The precompiled VISA.dll has a dependency on a certain version of the Microsoft C++ runtime library. The
-version of this library however seems to differ from system to system. If you experience problems, the only
-solution seems to be to rebuild the VISA wrapper on your system. See below for instructions.
-
-If you know how to build a VISA.dll that is less picky (probably statically linked), I would be glad to here
-from you!
 
 
 BUILDING

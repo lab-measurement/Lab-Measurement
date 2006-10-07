@@ -10,7 +10,7 @@ use Time::HiRes qw/usleep/;
 
 my $start_voltage   =  1.5;
 my $end_voltage     = -3.5;
-my $step            = -0.1;
+my $step            = -0.05;
 
 my $knick_gpib      = 14;
 my $hp_gpib         = 21;
