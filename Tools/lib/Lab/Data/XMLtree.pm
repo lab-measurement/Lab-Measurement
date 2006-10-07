@@ -54,6 +54,7 @@ our @ISA = qw(Exporter);
 use XML::DOM;
 use XML::Generator ();
 use Data::Dumper;
+use XML::Twig;
 use Encode;
 use vars qw($VERSION);
 $VERSION = sprintf("1.%04d", q$Revision$ =~ / (\d+) /);
@@ -120,10 +121,22 @@ sub save_xml {
     my $data=shift;
         #warum nicht $self?????
     my $rootname=shift;
-    my $generator = XML::Generator->new(pretty  => 0,escape=>'high-bit',conformance => 'strict');
-    open FILE,">$filename" || die;
-        print FILE $generator->xmldecl(encoding=>'ISO-8859-1');
-        print FILE $generator->$rootname(@{_write_node_list($generator,$self->{___declaration},$data)});
+    my $generator = XML::Generator->new(
+        pretty      => 0,
+        escape      => 'high-bit',
+        conformance => 'strict'
+    );
+    my $t = XML::Twig->new(
+        pretty_print  => 'indented',
+        keep_encoding => 1,
+    );
+
+    open FILE,">",$filename || die;
+    print FILE $t->parse(
+        join "",
+            $generator->xmldecl(encoding=>'ISO-8859-1'),
+            $generator->$rootname(@{_write_node_list($generator,$self->{___declaration},$data)}),
+    );
     close FILE;
 }
 
