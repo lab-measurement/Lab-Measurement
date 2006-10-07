@@ -25,7 +25,7 @@ sub read_voltage_dc {
     $range="DEF" unless (defined $range);
     $resolution="DEF" unless (defined $resolution);
     
-    my $cmd=sprintf("MEASure:VOLTage:DC? %u,%f",$range,$resolution);
+    my $cmd=sprintf("MEASure:VOLTage:DC? %s,%s",$range,$resolution);
     my ($value)=split "\n",$self->{vi}->Query($cmd);
     return $value;
 }
@@ -116,8 +116,8 @@ sub scroll_message {
     use Time::HiRes (qw/usleep/);
     my $self=shift;
     my $message=shift || "            This perl instrument driver is copyright 2004/2005 by Daniel Schroeer.            ";
-    for (0..(length($message)-12)) {
-        $self->display_text(substr($message,$_,$_+11));
+    for my $i (0..(length($message)-12)) {
+        $self->display_text(sprintf "%12.12s",substr($message,$i));
         usleep(100000);
     }
     $self->display_clear();
