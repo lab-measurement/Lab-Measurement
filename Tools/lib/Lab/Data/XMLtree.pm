@@ -131,13 +131,12 @@ sub save_xml {
         keep_encoding => 1,
     );
 
-    open FILE,">",$filename || die;
-    print FILE $t->parse(
+    $t->parse(
         join "",
             $generator->xmldecl(encoding=>'ISO-8859-1'),
             $generator->$rootname(@{_write_node_list($generator,$self->{___declaration},$data)}),
     );
-    close FILE;
+    $t->print_to_file($filename);
 }
 
 sub save_yaml {
