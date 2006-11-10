@@ -52,7 +52,6 @@ sub configure {
 sub set_voltage {
     my $self=shift;
     my $voltage=shift;
-    
     if ($self->{config}->{gate_protect}) {
         $voltage=$self->sweep_to_voltage($voltage);
     } else {
@@ -65,7 +64,6 @@ sub set_voltage {
 sub step_to_voltage {
     my $self=shift;
     my $voltage=shift;
-
     my $voltpersec=abs($self->{config}->{gp_max_volt_per_second});
     my $voltperstep=abs($self->{config}->{gp_max_volt_per_step});
     my $steppersec=abs($self->{config}->{gp_max_step_per_second});
