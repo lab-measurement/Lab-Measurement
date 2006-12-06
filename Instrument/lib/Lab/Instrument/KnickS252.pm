@@ -11,7 +11,7 @@ our @ISA=('Lab::Instrument::Source');
 
 my $default_config={
     gate_protect            => 1,
-    qp_equal_level          => 1e-5,
+    gp_equal_level          => 1e-5,
     gp_max_volt_per_second  => 0.002,
     gp_max_volt_per_step    => 0.001,
     gp_max_step_per_second  => 2,

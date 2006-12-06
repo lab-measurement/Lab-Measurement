@@ -74,7 +74,7 @@ sub step_to_voltage {
         $last_v=$self->get_voltage();
         $self->{_gp}->{last_voltage}=$last_v;
     }
-
+    
     if (defined($self->{config}->{gp_max_volt}) && ($voltage > $self->{config}->{gp_max_volt})) {
         $voltage = $self->{config}->{gp_max_volt};
     }
