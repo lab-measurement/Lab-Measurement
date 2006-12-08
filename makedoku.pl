@@ -13,9 +13,11 @@ my @files=qw!
     Instrument/lib/Lab/Instrument/IPS120_10.pm
     Instrument/lib/Lab/Instrument/Agilent81134A.pm
     Instrument/lib/Lab/Instrument/SR780.pm
+    Instrument/lib/Lab/Instrument/HP8360.pm
     Instrument/lib/Lab/Instrument/Source.pm
     Instrument/lib/Lab/Instrument/KnickS252.pm
     Instrument/lib/Lab/Instrument/Yokogawa7651.pm
+    Instrument/lib/Lab/Instrument/IOtech488.pm
     Instrument/lib/Lab/Instrument/Dummysource.pm
     Tools/lib/Lab/Measurement.pm
     Tools/lib/Lab/Data/Meta.pm
@@ -23,6 +25,7 @@ my @files=qw!
     Tools/lib/Lab/Data/Writer.pm
     Tools/lib/Lab/Data/PDL.pm
     Tools/lib/Lab/Data/XMLtree.pm
+    Tools/scripts/plotter.pl
 !;
 #    Tools/lib/Lab/Data/Dataset.pm
 
