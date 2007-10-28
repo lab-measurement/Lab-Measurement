@@ -6,7 +6,7 @@ use Module::Build;
 
 my $build=Module::Build->new(
     module_name         => 'Lab::Tools', 
-    dist_version        => '1.01',
+    dist_version        => '1.2',
     dist_abstract       => 'Tools to obtain and work with data in the laboratory',
     license             => 'perl',
     requires            => {
