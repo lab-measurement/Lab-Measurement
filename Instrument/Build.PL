@@ -16,5 +16,6 @@ my $build=Module::Build->new(
     script_files    	=> [],
     create_readme   	=> 0,
     create_makefile_pl	=> 'passthrough',
-    dist_author     	=> 'Daniel Schroeer <schroeer@cpan.org>');
+    dist_author     	=> 'Daniel Schroeer <schroeer@cpan.org>',
+	dist_abstract		=> 'Virtual instruments');
 $build->create_build_script;

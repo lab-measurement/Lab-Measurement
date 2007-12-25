@@ -1,5 +1,5 @@
 README for Lab::Instrument
-$VERSION = '1.11'
+$VERSION = '1.2'
 -----------------------------------------------------------------------
 
 This package builds on top of the Lab::VISA interface to the NI-VISA library.

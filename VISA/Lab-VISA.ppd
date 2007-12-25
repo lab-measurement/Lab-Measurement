@@ -5,11 +5,11 @@
     <IMPLEMENTATION>
         <OS NAME="linux" />
         <ARCHITECTURE NAME="i586-linux-thread-multi" />
-        <CODEBASE HREF="http://www.nano.physik.uni-muenchen.de/~schroeer/Lab-VISA-1.11-lin.tar.gz" />
+        <CODEBASE HREF="Lab-VISA-1.11-lin.tar.gz" />
     </IMPLEMENTATION>
     <IMPLEMENTATION>
         <OS NAME="MSWin32" />
         <ARCHITECTURE NAME="MSWin32-x86-multi-thread-5.8" />
-        <CODEBASE HREF="http://www.nano.physik.uni-muenchen.de/~schroeer/Lab-VISA-1.11-win.tar.gz" />
+        <CODEBASE HREF="Lab-VISA-1.11-win.tar.gz" />
     </IMPLEMENTATION>
 </SOFTPKG>
