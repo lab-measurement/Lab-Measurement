@@ -9,21 +9,20 @@ use ExtUtils::MakeMaker;
 # If you do so, also un-comment the 'clean' section below
 # to delete the swig-generated files when doing 'make clean'.
 
-#system("swig -perl5 -module Lab::VISA -c++ visa.i");
+#system("swig -perl5 -module Lab::VISA visa.i");
 
 WriteMakefile(
 #   'clean'             => {
-#       FILES => 'VISA.pm visa_wrap.cxx'
+#       FILES => 'VISA.pm visa_wrap.c'
 #   },
 
 # Adjust the 'LIBS' and 'INC' pathes according to your local setup!
 # First two lines are for Windows, second two lines are for Linux.
     (($^O =~ /MSWin32/)
-    ?   ('LIBS'         => ['-lC:\\VXIPNP\\WinNT\\lib\\msc\\visa32.lib'], # needs full path on my setup
-         'INC'          => '-IC:\\VXIPNP\\WinNT\\include '.               
-                           '"-ID:\\Microsoft Platform SDK\\Include"',     # this one is for windows sdk
-)#         'CCFLAGS'      => '-MT',)
-    :   ('LIBS'         => ['-lvisa -lstdc++'],                           # stdc++ is necessary here
+    ?   ('LIBS'         => ['"-lC:\\Programme\\IVI Foundation\\VISA\\WinNT\\lib\\msc\\visa32.lib"'],
+         'INC'          => '"-IC:\\Programme\\National Instruments\\Shared\\CVI\\include "',
+)
+    :   ('LIBS'         => ['-lvisa'],                           # stdc++ is not anymore necessary here
          'INC'          => '-I/usr/local/vxipnp/linux/include/',)),
 
     'NAME'              => 'Lab::VISA',
