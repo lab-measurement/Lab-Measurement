@@ -21,13 +21,13 @@ my $build=Module::Build->new(
         'File::Copy'        => 0,
         'encoding::warnings'=> 0,
     },
-    script_files    	=> [
-	'scripts/yoko_goto.pl',
-	'scripts/knick_goto.pl',
-	'scripts/hp_read.pl',
-	'scripts/plotter.pl',
-	'scripts/metainfo.pl'
-    ],
+#    script_files    	=> [
+#	'scripts/yoko_goto.pl',
+#	'scripts/knick_goto.pl',
+#	'scripts/hp_read.pl',
+#	'scripts/plotter.pl',
+#	'scripts/metainfo.pl'
+#    ],
     create_readme   	=> 0,
     create_makefile_pl	=> 'passthrough',
     dist_author     	=> 'Daniel Schröer <schroeer@cpan.org>');
