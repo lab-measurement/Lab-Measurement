@@ -1,11 +1,11 @@
-#$Id$
+#$Id: HP34401A.pm 529 2006-10-07 20:31:17Z schroeer $
 
-package Lab::Instrument::HP34401A;
+package Lab::Instrument::HP34411A;
 
 use strict;
 use Lab::Instrument;
 
-our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
+our $VERSION = sprintf("0.%04d", q$Revision: 529 $ =~ / (\d+) /);
 
 sub new {
     my $proto = shift;
@@ -126,55 +126,44 @@ sub reset {
 
 sub config_voltage {
     my $self=shift;
-    my ($digits, $range, $counts)=@_;
+    my ($inttime, $range, $counts)=@_;
 
     #set input resistance to >10 GOhm for the three highest resolution values 
-    $self->{vi}->Write("INPut:IMPedance:AUTO ON");
+    $self->{vi}->Write("SENS:VOLTage:DC:IMPedance:AUTO ON");
 
-    $digits = int($digits);
-    $digits = 4 if $digits < 4;
-    $digits = 6 if $digits > 6;
- 
-    if ($range < 0.1) {
-      $range = 0.1;
-    }
-    elsif ($range < 1) {
-      $range = 1;
-    }
-    elsif ($range < 10) {
-      $range = 10;
-    }
-    elsif ($range < 100) {
-      $range = 100;
-    }
-    else{
-      $range = 1000;
-    }
+    # set integration time
+    $self->{vi}->Write("SENS:VOLT:DC:APERture $inttime");
 
-    my $resolution = (10**(-$digits))*$range;
-    $self->{vi}->Write("CONF:VOLT:DC $range,$resolution");
+    # disable autozero
+    $self->{vi}->Write("SENS:VOLT:ZERO:AUTO ONCE");
 
+    # set range
+    $self->{vi}->Write("SENS:VOLT:RANGe $range");
+   
 
-    # calculate integration time, set it and prepare for output
- 
-    my $inttime = 0;
+    # triggering
+    $self->{vi}->Write("TRIGger:SOURce BUS");
+    $self->{vi}->Write("SAMPle:COUNt $counts");
+    $self->{vi}->Write("TRIGger:DELay MIN");
+    $self->{vi}->Write("TRIGger:DELay:AUTO OFF");
+}
 
-    if ($digits ==4) {
-      $inttime = 0.4;
-      $self->{vi}->Write("VOLT:NPLC 0.02");
-    }
-    elsif ($digits ==5) {
-      $inttime = 4;
-      $self->{vi}->Write("VOLT:NPLC 0.2");
-    }
-    elsif ($digits ==6) {
-      $inttime = 200;
-      $self->{vi}->Write("VOLT:NPLC 10");
-      $self->{vi}->Write("ZERO:AUTO OFF");
-    }
+sub config_voltage_plc {
+    my $self=shift;
+    my ($plc, $range, $counts)=@_;
 
-    my $retval = $inttime." ms";
+    #set input resistance to >10 GOhm for the three highest resolution values 
+    $self->{vi}->Write("SENS:VOLTage:DC:IMPedance:AUTO ON");
 
+    # set integration time
+    $self->{vi}->Write("SENS:VOLT:DC:NPLC $plc");
+
+    # disable autozero
+    $self->{vi}->Write("SENS:VOLT:ZERO:AUTO ONCE");
+
+    # set range
+    $self->{vi}->Write("SENS:VOLT:RANGe $range");
+   
 
     # triggering
     $self->{vi}->Write("TRIGger:SOURce BUS");
@@ -182,17 +171,19 @@ sub config_voltage {
     $self->{vi}->Write("TRIGger:DELay MIN");
     $self->{vi}->Write("TRIGger:DELay:AUTO OFF");
 
-    return $retval;
 }
+
+
+
 
 sub read_with_trigger_voltage_dc {
     my $self=shift;
+    my $bytes=shift;
 
     $self->{vi}->Write("INIT");
     $self->{vi}->Write("*TRG");
-    my $value = $self->{vi}->Query("FETCh?");
-
-    chomp $value;
+    my $value = $self->{vi}->long_Query("FETCh?",$bytes);
+    chomp $value;    
 
     my @valarray = split(",",$value);
 
@@ -292,12 +283,17 @@ Preset and measure resistance with specified range and resolution.
 
 =head2 config_voltage
 
-    $inttime=$hp->config_voltage($digits,$range,$count);
+    $hp->config_voltage($inttime,$range,$count);
 
-Configures device for measurement with specified number of digits (4 to 6), voltage range and number of data
-points. Afterwards, data can be taken by triggering the multimeter, resulting in faster measurements than using
-read_voltage_xx.
-Returns string with integration time resulting from number of digits.
+Configures device for measurement with specified integration time, voltage range and number of data
+points (up to 1 million). Afterwards, data can be taken by triggering the multimeter, resulting in faster 
+measurements than using read_voltage_dc, especially when using $count >> 1.
+
+=head2 config_voltage_plc
+
+    $hp->config_voltage_plc($plc,$range,$count);
+
+Same as config_voltage, but here the number of power line cycles ($plc) is given instead of an integration time.
 
 =head2 read_with_trigger_voltage_dc
 
@@ -377,7 +373,7 @@ probably many
 
 =head1 AUTHOR/COPYRIGHT
 
-This is $Id$
+This is $Id: HP34401A.pm 529 2006-10-07 20:31:17Z schroeer $
 
 Copyright 2004-2006 Daniel Schröer (L<http://www.danielschroeer.de>)
 

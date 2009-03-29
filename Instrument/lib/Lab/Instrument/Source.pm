@@ -74,7 +74,7 @@ sub step_to_voltage {
         $last_v=$self->get_voltage();
         $self->{_gp}->{last_voltage}=$last_v;
     }
-    
+
     if (defined($self->{config}->{gp_max_volt}) && ($voltage > $self->{config}->{gp_max_volt})) {
         $voltage = $self->{config}->{gp_max_volt};
     }
@@ -84,6 +84,12 @@ sub step_to_voltage {
 
     #already there
     return $voltage if (abs($voltage - $last_v) < $self->{config}->{gp_equal_level});
+
+    # the next two lines are necessary to respect gp_max_volt and gp_min_volt
+    return $self->{config}->{gp_max_volt} if (defined($self->{config}->{gp_max_volt}) && ($last_v > $self->{config}->{gp_max_volt}));
+    return $self->{config}->{gp_min_volt} if (defined($self->{config}->{gp_min_volt}) && ($last_v < $self->{config}->{gp_min_volt}));
+
+
 
     #do the magic step calculation
     my $wait = ($voltpersec < $voltperstep * $steppersec) ?
