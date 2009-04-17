@@ -34,4 +34,9 @@
 
 lib/Lab/Instrument/Agilent81134A.pm
 
+# this is under construction
+lib/Lab/Instrument/TMRC2.pm
+lib/Lab/Instrument/TemperatureControl.pm
+lib/Lab/Instrument/MagnetSupply.pm
+
 .tar.gz$
