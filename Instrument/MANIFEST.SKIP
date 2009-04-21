@@ -34,9 +34,10 @@
 
 lib/Lab/Instrument/Agilent81134A.pm
 
-# this is under construction
+# this is under construction - Andreas
 lib/Lab/Instrument/TMRC2.pm
 lib/Lab/Instrument/TemperatureControl.pm
 lib/Lab/Instrument/MagnetSupply.pm
+lib/Lab/Instrument/IPS120_10_new.pm
 
 .tar.gz$
