@@ -15,8 +15,8 @@ sub new {
 
     $self->{config}->{field_constant}=0;
     $self->{config}->{max_current}=1;
-    $self->{config}->{max_sweeprate}=0.01;
-    $self->{config}->{max_sweeprate_persistent}=0.01;
+    $self->{config}->{max_sweeprate}=0.001;
+    $self->{config}->{max_sweeprate_persistent}=0.001;
     $self->{config}->{has_heater}=1;
     $self->{config}->{heater_delaytime}=20;
     $self->{config}->{can_reverse}=0;
@@ -64,13 +64,13 @@ sub ItoB {
 	my $self=shift;
 	my $current=shift;
 
-	my $const=$self->{config}->{field_constant}
+	my $fconst=$self->{config}->{field_constant};
 
-	if ($const==0) { 
+	if ($fconst==0) { 
 	  die "Field constant not defined!!!\n";
 	};
 	
-	return($const*$current);
+	return($fconst*$current);
 }
 
 
