@@ -3,6 +3,7 @@
 package Lab::Instrument::IPS12010new;
 
 use strict;
+use Lab::VISA;
 use Lab::Instrument;
 use Lab::Instrument::MagnetSupply;
 
@@ -24,6 +25,12 @@ sub new {
     bless ($self, $class);
 
     $self->{vi}=new Lab::Instrument(@args);
+    
+    my $xstatus=Lab::VISA::viSetAttribute($self->{instr}, $Lab::VISA::VI_ATTR_TERMCHAR, "\r");
+    if ($xstatus != $Lab::VISA::VI_SUCCESS) { die "Error while setting read termination character: $xstatus";}
+
+    $xstatus=Lab::VISA::viSetAttribute($self->{instr}, $Lab::VISA::VI_ATTR_TERMCHAR_EN, Lab::VISA::VI_TRUE);
+    if ($xstatus != $Lab::VISA::VI_SUCCESS) { die "Error while enabling read termination character: $xstatus";}
 
     return $self
 }
