@@ -44,7 +44,7 @@ sub configure {
     my $config=shift;
     if ((ref $config) =~ /HASH/) {
         for my $conf_name (keys %{$self->{default_config}}) {
-            #print "Key: $conf_name, default: ",$self->{default_config}->{$conf_name},", old config: ",$self->{config}->{$conf_name},", new config: ",$config->{$conf_name},"\n";
+            # print "Key: $conf_name, default: ",$self->{default_config}->{$conf_name},", old config: ",$self->{config}->{$conf_name},", new config: ",$config->{$conf_name},"\n";
             unless ((defined($self->{config}->{$conf_name})) || (defined($config->{$conf_name}))) {
                 $self->{config}->{$conf_name}=$self->{default_config}->{$conf_name};
             } elsif (defined($config->{$conf_name})) {
@@ -78,13 +78,13 @@ sub BtoI {
 	my $self=shift;
 	my $field=shift;
 
-	my $const=$self->{config}->{field_constant};
+	my $fconst=$self->{config}->{field_constant};
 
-	if ($const==0) { 
+	if ($fconst==0) { 
 	  die "Field constant not defined!!!\n";
 	};
 	
-	return($field/$const);
+	return($field/$fconst);
 }
 
 	
@@ -108,16 +108,45 @@ sub set_current {
     };
 	
     if ($current<0) {
-	die "reverse current not supported yet\n";
+	if ($self->{config}->{can_reverse}) {
+
+	    if ($self->{config}->{can_use_negative_current}) {
+		
+		    if ($current<-$self->{config}->{max_current}) {
+			$current=-$self->{config}->{max_current};
+		    };
+		
+	    } else {
+
+        	   die "reverse current not supported yet\n";
+		
+    	    };
+	    
+		
+	    
+	    
+	} else {
+    	   die "reverse current not supported\n";
+	}
+	
     };
 
     $self->_set_sweeprate($self->{config}->{max_sweeprate});
 	
-    $self->_set_sweep_target_current($current);
 
+    if ($self->{config}->{can_use_negative_current}) {
+	
+	$self->_set_sweep_target_current($current);
+	
+    } else {
+	
+	die "not supported yet\n";
+	
+    }
+    
     $self->_set_hold(0);
     
-    while (abs($self->get_current()-$current)>0.5) {
+    while (abs($self->get_current()-$current)>0.2) {
        sleep(10);
     };    
 }

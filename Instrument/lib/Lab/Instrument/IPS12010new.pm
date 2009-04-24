@@ -1,5 +1,29 @@
 #$Id$
 
+#
+# IMPORTANT NOTES: 
+#
+# 1) config parameters dont work yet. have to figure out why. for now, you have to do something like 
+#
+# my $magnet=new $type_magnet({
+#     'GPIB_board'    => 0,
+#     'GPIB_address'  => $gpib_magnet,
+# });
+# $magnet->ips_set_communications_protocol(4);
+# $magnet->ips_set_control(3);
+# $magnet->{config}->{field_constant}=0.102796;
+# $magnet->{config}->{max_current}=30;
+# $magnet->{config}->{max_sweeprate}=0.01;
+# $magnet->{config}->{can_reverse}=1;
+# $magnet->{config}->{can_use_negative_current}=1;
+#
+# to circumvent the problem. 
+#
+# 2) Setting the term character in new{} is pretty toxic since it affects also all other 
+#   instruments that are instantiated later! I.e. multimeters stop working. 
+#   This has to be fixed!
+#
+
 package Lab::Instrument::IPS12010new;
 
 use strict;
@@ -26,10 +50,10 @@ sub new {
 
     $self->{vi}=new Lab::Instrument(@args);
     
-    my $xstatus=Lab::VISA::viSetAttribute($self->{instr}, $Lab::VISA::VI_ATTR_TERMCHAR, "\r");
+    my $xstatus=Lab::VISA::viSetAttribute($self->{vi}->{instr}, $Lab::VISA::VI_ATTR_TERMCHAR, 0xD);
     if ($xstatus != $Lab::VISA::VI_SUCCESS) { die "Error while setting read termination character: $xstatus";}
 
-    $xstatus=Lab::VISA::viSetAttribute($self->{instr}, $Lab::VISA::VI_ATTR_TERMCHAR_EN, Lab::VISA::VI_TRUE);
+    $xstatus=Lab::VISA::viSetAttribute($self->{vi}->{instr}, $Lab::VISA::VI_ATTR_TERMCHAR_EN, $Lab::VISA::VI_TRUE);
     if ($xstatus != $Lab::VISA::VI_SUCCESS) { die "Error while enabling read termination character: $xstatus";}
 
     return $self
@@ -43,7 +67,7 @@ sub ips_set_control {
 # 3 Remote & Unlocked
     my $self=shift;
     my $mode=shift;
-    $self->{vi}->Write("C$mode\r");
+    $self->{vi}->Query("C$mode\r");
 }
 
 sub ips_set_communications_protocol {
@@ -81,6 +105,7 @@ sub ips_read_parameter {
     my $self=shift;
     my $parameter=shift;
     my $result=$self->{vi}->Query("R$parameter\r");
+    $result =~ s/^R//;
     return $result;
 }
 
@@ -93,7 +118,7 @@ sub ips_set_activity {
 # 4 Clamp (clamp the power supply output)
     my $self=shift;
     my $mode=shift;
-    $self->{vi}->Write("A$mode\r");
+    $self->{vi}->Query("A$mode\r");
 }   
 
 sub ips_set_switch_heater {
@@ -104,19 +129,19 @@ sub ips_set_switch_heater {
 # 2 Heater On, no Checks        (open switch)
     my $self=shift;
     my $mode=shift;
-    $self->{vi}->Write("H$mode\r");
+    $self->{vi}->Query("H$mode\r");
 }
 
 sub ips_set_target_current {
     my $self=shift;
     my $current=shift;
-    $self->{vi}->Write("I$current\r");
+    $self->{vi}->Query("I$current\r");
 }
 
 sub ips_set_target_field {
     my $self=shift;
     my $field=shift;
-    $self->{vi}->Write("J$field\r");
+    $self->{vi}->Query("J$field\r");
 }
 
 sub ips_set_mode {
@@ -129,7 +154,7 @@ sub ips_set_mode {
 # 9     Tesla       Unaffected
     my $self=shift;
     my $mode=shift;
-    $self->{vi}->Write("M$mode\r");
+    $self->{vi}->Query("M$mode\r");
 }
 
 sub ips_set_polarity {
@@ -139,14 +164,14 @@ sub ips_set_polarity {
 # 3 Swap polarity
     my $self=shift;
     my $mode=shift;
-    $self->{vi}->Write("P$mode\r");
+    $self->{vi}->Query("P$mode\r");
 }
 
 sub ips_set_current_sweep_rate {
 # amps/min
     my $self=shift;
     my $rate=shift;
-    $self->{vi}->Write("S$rate\r");
+    $self->{vi}->Query("S$rate\r");
 }
 
 
@@ -157,7 +182,8 @@ sub ips_set_current_sweep_rate {
 
 sub _get_current {
     my $self=shift;
-    return($self->ips_read_parameter(2));
+    my $res=$self->ips_read_parameter(2);
+    return($res);
 }
 
 sub _set_sweep_target_current {
@@ -184,7 +210,9 @@ sub _get_hold {
 sub _set_sweeprate {
 	my $self=shift;
 	my $rate=shift;
-	$self->ips_set_current_sweep_rate($rate*60);
+	$rate=$rate*60;
+	print "settin sweep rate to $rate\n";
+	#$self->ips_set_current_sweep_rate($rate);
 	return($self->_get_sweeprate());
 }
 
