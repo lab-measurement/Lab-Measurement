@@ -23,6 +23,9 @@
 #   instruments that are instantiated later! I.e. multimeters stop working. 
 #   This has to be fixed!
 #
+# 3) It seems like the power supply refuses all commands after an
+#   DCL (visa clear) command. So, NEVER CLEAR THE INSTRUMENT!
+#
 
 package Lab::Instrument::IPS12010new;
 
@@ -55,6 +58,10 @@ sub new {
 
     $xstatus=Lab::VISA::viSetAttribute($self->{vi}->{instr}, $Lab::VISA::VI_ATTR_TERMCHAR_EN, $Lab::VISA::VI_TRUE);
     if ($xstatus != $Lab::VISA::VI_SUCCESS) { die "Error while enabling read termination character: $xstatus";}
+   
+    $self->ips_set_communications_protocol(4);
+ 
+    $self->ips_set_control(3);
 
     return $self
 }

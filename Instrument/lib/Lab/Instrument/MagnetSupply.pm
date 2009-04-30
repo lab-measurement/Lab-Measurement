@@ -152,6 +152,67 @@ sub set_current {
 }
 
 
+sub start_sweep_to_field {
+    my $self=shift;
+    my $field=shift;
+    $self->start_sweep_to_current($self->BtoI($field));
+}
+
+
+
+
+sub start_sweep_to_current {
+    my $self=shift;
+    my $current=shift;
+
+    if ($current>$self->{config}->{max_current}) {
+		$current=$self->{config}->{max_current};
+    };
+	
+    if ($current<0) {
+	if ($self->{config}->{can_reverse}) {
+
+	    if ($self->{config}->{can_use_negative_current}) {
+		
+		    if ($current<-$self->{config}->{max_current}) {
+			$current=-$self->{config}->{max_current};
+		    };
+		
+	    } else {
+
+        	   die "reverse current not supported yet\n";
+		
+    	    };
+	    
+		
+	    
+	    
+	} else {
+    	   die "reverse current not supported\n";
+	}
+	
+    };
+
+    $self->_set_sweeprate($self->{config}->{max_sweeprate});
+	
+
+    if ($self->{config}->{can_use_negative_current}) {
+	
+	$self->_set_sweep_target_current($current);
+	
+    } else {
+	
+	die "not supported yet\n";
+	
+    }
+    
+    $self->_set_hold(0);
+    
+}
+
+
+
+
 sub get_field {
     my $self=shift;
     return $self->ItoB($self->_get_current());
