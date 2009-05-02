@@ -5,12 +5,10 @@ use strict;
 our $VERSION = sprintf("1.%04d", q$Revision$ =~ / (\d+) /);
 
 sub new {
-    my $proto = shift;
+    my ($proto,$default_config) = @_;
     my $class = ref($proto) || $proto;
 
     my $self = bless {}, $class;
-
-    %{$self->{default_config}}=%{shift @_};
 
     $self->{default_config}->{field_constant}=0;
     $self->{default_config}->{max_current}=1;
@@ -21,6 +19,10 @@ sub new {
     $self->{default_config}->{can_reverse}=0;
     $self->{default_config}->{can_use_negative_current}=0;
     $self->{default_config}->{use_persistentmode}=0;
+
+    for (keys %{$default_config}) {
+        $self->{default_config}->{$_}=$default_config->{$_};
+    }
 
     %{$self->{config}}=%{$self->{default_config}};
 
