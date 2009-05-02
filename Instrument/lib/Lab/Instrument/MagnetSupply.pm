@@ -5,9 +5,10 @@ use strict;
 our $VERSION = sprintf("1.%04d", q$Revision$ =~ / (\d+) /);
 
 sub new {
-    my ($proto,$default_config) = @_;
-    my $class = ref($proto) || $proto;
+    my $proto = shift;
+    my $default_config = shift;
 
+    my $class = ref($proto) || $proto;
     my $self = bless {}, $class;
 
     $self->{default_config}->{field_constant}=0;
