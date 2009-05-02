@@ -19,6 +19,8 @@
 #
 # to circumvent the problem. 
 #
+# ## should work now. schroeer 090502.
+#
 # 2) Setting the term character in new{} is pretty toxic since it affects also all other 
 #   instruments that are instantiated later! I.e. multimeters stop working. 
 #   This has to be fixed!

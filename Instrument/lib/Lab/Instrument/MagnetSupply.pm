@@ -11,17 +11,18 @@ sub new {
     my $self = bless {}, $class;
 
     %{$self->{default_config}}=%{shift @_};
-    %{$self->{config}}=%{$self->{default_config}};
 
-    $self->{config}->{field_constant}=0;
-    $self->{config}->{max_current}=1;
-    $self->{config}->{max_sweeprate}=0.001;
-    $self->{config}->{max_sweeprate_persistent}=0.001;
-    $self->{config}->{has_heater}=1;
-    $self->{config}->{heater_delaytime}=20;
-    $self->{config}->{can_reverse}=0;
-    $self->{config}->{can_use_negative_current}=0;
-    $self->{config}->{use_persistentmode}=0;
+    $self->{default_config}->{field_constant}=0;
+    $self->{default_config}->{max_current}=1;
+    $self->{default_config}->{max_sweeprate}=0.001;
+    $self->{default_config}->{max_sweeprate_persistent}=0.001;
+    $self->{default_config}->{has_heater}=1;
+    $self->{default_config}->{heater_delaytime}=20;
+    $self->{default_config}->{can_reverse}=0;
+    $self->{default_config}->{can_use_negative_current}=0;
+    $self->{default_config}->{use_persistentmode}=0;
+
+    %{$self->{config}}=%{$self->{default_config}};
 
     $self->configure(@_);
 
@@ -43,7 +44,7 @@ sub configure {
     #   
     my $config=shift;
     if ((ref $config) =~ /HASH/) {
-        for my $conf_name (keys %{$self->{default_config}}) {
+        for my $conf_name (keys %{$self->{default_config}}) { # only parameters in default_config are allowed
             # print "Key: $conf_name, default: ",$self->{default_config}->{$conf_name},", old config: ",$self->{config}->{$conf_name},", new config: ",$config->{$conf_name},"\n";
             unless ((defined($self->{config}->{$conf_name})) || (defined($config->{$conf_name}))) {
                 $self->{config}->{$conf_name}=$self->{default_config}->{$conf_name};
