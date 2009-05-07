@@ -9,8 +9,6 @@
 #     'GPIB_board'    => 0,
 #     'GPIB_address'  => $gpib_magnet,
 # });
-# $magnet->ips_set_communications_protocol(4);
-# $magnet->ips_set_control(3);
 # $magnet->{config}->{field_constant}=0.102796;
 # $magnet->{config}->{max_current}=30;
 # $magnet->{config}->{max_sweeprate}=0.01;
@@ -40,10 +38,14 @@ our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
 
 our @ISA=('Lab::Instrument::MagnetSupply');
 
+# the IPS 120-10 usuall can handle a reverse current, and it also nicely accepts negative numbers
+# in addition it supports a pretty nice "tesla interface". 
+
 my $default_config={
     use_persistentmode          => 0,
     can_reverse                 => 1,
     can_use_negative_current    => 1,
+    has_teslamode               => 1,
 };
 
 sub new {
@@ -55,17 +57,24 @@ sub new {
 
     $self->{vi}=new Lab::Instrument(@args);
     
+    # set visa read termination char to \r
     my $xstatus=Lab::VISA::viSetAttribute($self->{vi}->{instr}, $Lab::VISA::VI_ATTR_TERMCHAR, 0xD);
     if ($xstatus != $Lab::VISA::VI_SUCCESS) { die "Error while setting read termination character: $xstatus";}
 
+    # enable visa read termination char
     $xstatus=Lab::VISA::viSetAttribute($self->{vi}->{instr}, $Lab::VISA::VI_ATTR_TERMCHAR_EN, $Lab::VISA::VI_TRUE);
     if ($xstatus != $Lab::VISA::VI_SUCCESS) { die "Error while enabling read termination character: $xstatus";}
    
+    # set communication protocol to "\r" eol and extended resolution
     $self->ips_set_communications_protocol(4);
  
+    # set psu to "remote unlocked"
     $self->ips_set_control(3);
 
-    return $self
+    # nicht sicher ob das so funktioniert
+    $self->postinit();
+
+    return $self;
 }
 
 
@@ -117,6 +126,29 @@ sub ips_read_parameter {
     $result =~ s/^R//;
     return $result;
 }
+
+sub ips_get_statusstring {
+    my $self=shift;
+    my $result=$self->{vi}->Query("X\r");
+}
+
+sub ips_get_heater {
+    my $self=shift;
+    my $status=$self->ips_get_statusstring();
+
+    $status =~ s/^.*?H//;   ###### TEST THIS!!!
+    $status =~ s/M.*$//;
+
+    # what is left is:
+    #   0: Heater off, Magnet at zero
+    #   1: Heater on
+    #   2: Heater off, Magnet at field
+    #   5: Heater Fault (heater is on but current is low)
+    #   8: No switch fitted
+    return $status;
+}
+
+
 
 # Hier spezialisierte read-Methoden einf�hren (read_set_point())
 
@@ -192,6 +224,12 @@ sub ips_set_current_sweep_rate {
 sub _get_current {
     my $self=shift;
     my $res=$self->ips_read_parameter(2);
+    return($res);
+}
+
+sub _get_field {
+    my $self=shift;
+    my $res=$self->ips_read_parameter(7);
     return($res);
 }
 
