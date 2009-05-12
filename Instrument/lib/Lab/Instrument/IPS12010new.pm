@@ -223,7 +223,7 @@ sub ips_set_current_sweep_rate {
 
 sub _get_current {
     my $self=shift;
-    my $res=$self->ips_read_parameter(2);
+    my $res=$self->ips_read_parameter(0);
     return($res);
 }
 
