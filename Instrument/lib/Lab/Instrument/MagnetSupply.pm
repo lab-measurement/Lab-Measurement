@@ -77,20 +77,44 @@ sub postinit {
     my $self=shift;
 
     # this has to be called after the complete initialization of the sub-class, in its constructor
-    print "running postinit\n";
+    print "Running MagnetSupply postinit.\n";
+
+    # to be done:
+    if ($self->{config}->{use_persistentmode}) {
+      die "Support for persistent mode is not present yet.\n";
+    };
 
     # if a feature is not present, it can not be used
     $self->{config}->{use_teslamode}*=$self->{config}->{has_teslamode};
     $self->{config}->{use_persistentmode}*=$self->{config}->{has_persistentmode};
 
+    # in case we DONT want to use the persistent mode, and the heater is OFF, stop for 
+    # safety reasons.
+    if ((!$self->{config}->{use_persistentmode}) && ($self->{config}->{has_persistentmode})) {
+
+       $hon=$self->_get_heater();
+       if (!$hon) {
+
+         die "You dont want to use persistent mode, but the heater is off anyway. I'm confused\n", \
+             "and scared. Aborting...\n";
+
+       };
+    };
+
     if ($self->{config}->{use_teslamode}) {
 
 	# we are using tesla commands and trusting the PSU field constant
+        my $ftmp=$self->_get_fieldconstant();
+        if ($ftmp==0) {
+          warn "Cannot read out field constant from PSU! Using user-supplied value if available.\n";
+        } else {
+          $self->{config}->{field_constant}=$ftmp;
+	};
 
     } else {
 
         # we are using ampere commands and the user-supplied field constant
-
+        # do nothing
 
     };
 
@@ -105,7 +129,7 @@ sub ItoB {
 	my $fconst=$self->{config}->{field_constant};
 
 	if ($fconst==0) { 
-	  die "Field constant not defined!!!\n";
+	  die "Need field constant, but it is not defined!!! Aborting.\n";
 	};
 	
 	return($fconst*$current);
@@ -119,7 +143,7 @@ sub BtoI {
 	my $fconst=$self->{config}->{field_constant};
 
 	if ($fconst==0) { 
-	  die "Field constant not defined!!!\n";
+	  die "Need field constant, but it is not defined!!! Aborting.\n";
 	};
 	
 	return($field/$fconst);
@@ -130,9 +154,18 @@ sub set_field {
     my $self=shift;
     my $field=shift;
 	
-    my $current=$self->BtoI($field);
+    if ($self->{config}->{use_teslamode}) {
 
-    $field=$self->ItoB($self->set_current($current));
+      #need to put the whole logic here...
+      #$field=$self->set_field($field);
+
+    } else {
+
+      my $current=$self->BtoI($field);
+      $field=$self->ItoB($self->set_current($current));
+
+    };
+
     return $field;
 }
 
@@ -141,52 +174,89 @@ sub set_current {
     my $self=shift;
     my $current=shift;
 
-    if ($current>$self->{config}->{max_current}) {
-		$current=$self->{config}->{max_current};
-    };
-	
-    if ($current<0) {
-	if ($self->{config}->{can_reverse}) {
+    if ($self->{config}->{use_teslamode}) {
 
-	    if ($self->{config}->{can_use_negative_current}) {
-		
-		    if ($current<-$self->{config}->{max_current}) {
-			$current=-$self->{config}->{max_current};
-		    };
-		
-	    } else {
+      # we are dealing with tesla mode, so the whole stuff should be done by set_field.
+      my $field=$self->ItoB($current);
+      $current=$self->BtoI($self->set_field($field);
 
-        	   die "reverse current not supported yet\n";
-		
-    	    };
-	    
-		
-	    
-	    
-	} else {
-    	   die "reverse current not supported\n";
-	}
-	
-    };
-
-    $self->_set_sweeprate($self->{config}->{max_sweeprate});
-	
-
-    if ($self->{config}->{can_use_negative_current}) {
-	
-	$self->_set_sweep_target_current($current);
-	
     } else {
+
+      # safety checks: current limits
+      if ($current>$self->{config}->{max_current}) {
+  		$current=$self->{config}->{max_current};
+      };
+      if ($current<-$self->{config}->{max_current}) {
+  		$current=-$self->{config}->{max_current};
+      };
 	
-	die "not supported yet\n";
+      # are we trying the impossible?
+      if (($current<0) && (!$self->{config}->{can_reverse})) {
+        die "You are trying to reverse the current, but the PSU does not support that! Aborting.\n";
+      };
+
+      # set psu to hold
+      $self->_set_hold(1);
+
+      # set the sweeprate to max_sweeprate
+      $self->_set_sweeprate($self->{config}->{max_sweeprate});
 	
-    }
+
+      if ($self->{config}->{can_use_negative_current}) {
+	
+        # this is the simple case. we just tell the PSU where to go and wait.
+
+	$self->_set_sweep_target_current($current);
+
+        $self->_set_hold(0);
     
-    $self->_set_hold(0);
+        while (abs($self->get_current()-$current)>0.2) {
+           sleep(10);
+        };
+	
+      } else {
+	
+        # this braindead PSU does not support a sweep through zero field.
+
+        # get the momentary current (we need it to figure out the polarity)
+        my $oldcurrent=$self->get_current();
+
+	# the polarities
+        my $oldcurrentsign=$oldcurrent<=>0;
+        my $currentsign=$current<=>0;
+
+        # Polarity of start and target current is different: first go to zero, switch polarity, 
+        #   Later go to new value. 
+
+        if ((($current>0) && ($oldcurrent<0)) || (($current<0) && ($oldcurrent>0))) {
+
+	  $self->_set_sweep_target_current(0);
+
+          $self->_set_hold(0);
     
-    while (abs($self->get_current()-$current)>0.2) {
-       sleep(10);
-    };    
+          while (abs($self->get_current())>0.2) {
+             sleep(10);
+          };
+
+          sleep(10);
+
+          $self->_switch_polarity($currentsign);
+
+        };
+
+        # Otherwise, just go.
+
+        # $self->_set_sweep_target_current(
+        ################# WORKING HERE::::::::..... ########
+	
+      };
+
+    $current=$self->get_current();
+
+  };
+
+  return $current;
+    
 }
 
 
@@ -253,13 +323,37 @@ sub start_sweep_to_current {
 
 sub get_field {
     my $self=shift;
-    return $self->ItoB($self->_get_current());
+    my $field;
+
+    if ($self->{config}->{use_teslamode}) {
+
+      $field=$self->_get_field();
+
+    } else {
+
+      $field=$self->ItoB($self->_get_current());
+
+    };
+
+    return $field;
 }
 
 
 sub get_current {
     my $self=shift;
-    return $self->_get_current();
+    my $current;
+
+    if ($self->{config}->{use_teslamode}) {
+
+      $current=$self->BtoI($self->_get_field());
+
+    } else {
+  
+      $current=$self->_get_current();
+
+    };
+
+    return $current;
 }
 
 
@@ -302,6 +396,10 @@ sub _get_sweeprate {
     die '_get_sweeprate not implemented for this instrument';
 }
 
+sub _get_fieldconstant {
+    warn "_get_fieldconstant not implemented for this instrument";
+    return 0;
+}
 
 
 1;
