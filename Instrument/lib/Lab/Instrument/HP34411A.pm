@@ -1,11 +1,11 @@
-#$Id: HP34401A.pm 529 2006-10-07 20:31:17Z schroeer $
+#$Id$
 
 package Lab::Instrument::HP34411A;
 
 use strict;
 use Lab::Instrument;
 
-our $VERSION = sprintf("0.%04d", q$Revision: 529 $ =~ / (\d+) /);
+our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
 
 sub new {
     my $proto = shift;
@@ -373,7 +373,7 @@ probably many
 
 =head1 AUTHOR/COPYRIGHT
 
-This is $Id: HP34401A.pm 529 2006-10-07 20:31:17Z schroeer $
+This is $Id$
 
 Copyright 2004-2006 Daniel Schröer (L<http://www.danielschroeer.de>)
 

@@ -4,8 +4,12 @@ package Lab::Instrument;
 
 use strict;
 use Lab::VISA;
-
+use Time::HiRes qw (usleep);
+use Time::HiRes qw (sleep);
 our $VERSION = sprintf("1.%04d", q$Revision$ =~ / (\d+) /);
+
+our $WAIT_STATUS=10;#usec;
+our $WAIT_QUERY=10;#usec;
 
 sub new {
     my $proto = shift;
@@ -85,18 +89,49 @@ sub Clear {
 }
 
 sub Write {
+    my $arg_cnt=@_;
     my $self=shift;
     my $cmd=shift;
+    #printf "# Variables=$arg_cnt\n"\n
+    my $wait_status=$WAIT_STATUS;
+    if ($arg_cnt==3){ $wait_status=shift}
     my ($status, $write_cnt)=Lab::VISA::viWrite(
         $self->{instr},
         $cmd,
         length($cmd)
     );
-    if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while writing: $status";}
+    usleep($wait_status);
+    if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while writing string \"\n$cmd\n\": $status";}
     return $write_cnt;
 }
 
-sub Query {
+sub Query { # ($cmd, optional $wait_query  , optional $wait_status )
+    # contains a nice bomb: read_cnt is arbitrarly set to 300 bytes
+    my $arg_cnt=@_;
+    my $self=shift;
+    my $cmd=shift;
+    my $wait_status=$WAIT_STATUS;
+    my $wait_query=$WAIT_QUERY;
+    if ($arg_cnt==3){ $wait_query=shift}
+    if ($arg_cnt==4){ $wait_status=shift}    
+    my ($status, $write_cnt)=Lab::VISA::viWrite(
+        $self->{instr},
+        $cmd,
+        length($cmd)
+    );
+    my $result;
+    my $read_cnt;
+    usleep($wait_status); #<---Short Wait until status flag is there.
+    if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while writing string \"\n$cmd\n\": $status";}
+    usleep($wait_query); #<---ensures that asked data presented from the device
+    ($status,$result,$read_cnt)=Lab::VISA::viRead($self->{instr},300);
+    usleep($wait_status); #<---Short Wait until status flag is there.
+    if (($status != $Lab::VISA::VI_SUCCESS) && ($status != 0x3FFF0005)){die "Error while reading: $status";};
+    return substr($result,0,$read_cnt);
+}
+
+
+sub BrutalQuery {
     # contains a nice bomb: read_cnt is arbitrarly set to 300 bytes
     my $self=shift;
     my $cmd=shift;
@@ -108,16 +143,25 @@ sub Query {
     if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while writing: $status";}
     
     ($status,my $result,my $read_cnt)=Lab::VISA::viRead($self->{instr},300);
-    if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while reading: $status";}
+    #if (($status != $Lab::VISA::VI_SUCCESS) && ($status != 0xBFFF0015)) { die "Error while reading: $status";}
     return substr($result,0,$read_cnt);
 }
+
 
 sub Read {
     my $self=shift;
     my $length=shift;
-
     my ($status,$result,$read_cnt)=Lab::VISA::viRead($self->{instr},$length);
     if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while reading: $status";}
+    return substr($result,0,$read_cnt);
+}
+
+sub BrutalRead {
+    my $self=shift;
+    my $length=shift;
+
+    my ($status,$result,$read_cnt)=Lab::VISA::viRead($self->{instr},$length);
+    #if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while reading: $status";}
     return substr($result,0,$read_cnt);
 }
 

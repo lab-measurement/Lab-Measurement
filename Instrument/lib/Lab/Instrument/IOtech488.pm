@@ -6,7 +6,7 @@ use Lab::Instrument;
 use Lab::Instrument::Source;
 use Time::HiRes qw /usleep/;
 
-our $VERSION = sprintf("0.%04d", q$Revision: 489 $ =~ / (\d+) /);
+our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
 
 our @ISA=('Lab::Instrument::Source');
 

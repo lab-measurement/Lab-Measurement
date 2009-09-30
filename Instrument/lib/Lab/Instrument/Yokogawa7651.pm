@@ -2,6 +2,7 @@
 
 package Lab::Instrument::Yokogawa7651;
 use strict;
+use Switch;
 use Lab::Instrument;
 use Lab::Instrument::Source;
 
@@ -9,17 +10,15 @@ our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
 
 our @ISA=('Lab::Instrument::Source');
 
+our $MAX_SWEEP_TIME=3600;
+our $MIN_SWEEP_TIME=0.1;
+
 my $default_config={
     gate_protect            => 1,
     gp_equal_level          => 1e-5,
     gp_max_volt_per_second  => 0.002,
     gp_max_volt_per_step    => 0.001,
     gp_max_step_per_second  => 2,
-
-##### DT 24.10.07
-    gp_max_volt		    => 0.100,
-    gp_min_volt		    => -1.500,
-#####
 };
 
 sub new {
@@ -40,6 +39,12 @@ sub _set_voltage {
     $self->_set($voltage);
 }
 
+sub _set_voltage_auto {
+    my $self=shift;
+    my $voltage=shift;
+    $self->_set_auto($voltage);
+}
+
 sub set_current {
     my $self=shift;
     my $voltage=shift;
@@ -53,6 +58,105 @@ sub _set {
     $self->{vi}->Write($cmd);
     $cmd="E";
     $self->{vi}->Write($cmd);
+}
+
+sub _set_auto {
+    my $self=shift;
+    my $value=shift;
+    my $cmd=sprintf("SA%e",$value);
+    $self->{vi}->Write($cmd);
+    $cmd="E";
+    $self->{vi}->Write($cmd);
+}
+
+sub set_setpoint {
+    my $self=shift;
+    my $value=shift;
+    my $cmd=sprintf("S%+.4e",$value);
+    $self->{vi}->Write($cmd);
+}
+
+sub set_time {
+    my $self=shift;
+    my $sweep_time=shift; #sec.
+    my $interval_time=shift;
+    if ($sweep_time<$MIN_SWEEP_TIME) {
+        warn "Warning Sweep Time: $sweep_time smaller than $MIN_SWEEP_TIME sec!\n Sweep time set to $MIN_SWEEP_TIME sec";
+        $sweep_time=$MIN_SWEEP_TIME}
+    elsif ($sweep_time>$MAX_SWEEP_TIME) {
+        warn "Warning Sweep Time: $sweep_time> $MAX_SWEEP_TIME sec!\n Sweep time set to $MAX_SWEEP_TIME sec";
+        $sweep_time=$MAX_SWEEP_TIME
+    };
+    if ($interval_time<$MIN_SWEEP_TIME) {
+        warn "Warning Interval Time: $interval_time smaller than $MIN_SWEEP_TIME sec!\n Interval time set to $MIN_SWEEP_TIME sec";
+        $interval_time=$MIN_SWEEP_TIME}
+    elsif ($interval_time>$MAX_SWEEP_TIME) {
+        warn "Warning Interval Time: $interval_time> $MAX_SWEEP_TIME sec!\n Interval time set to $MAX_SWEEP_TIME sec";
+        $interval_time=$MAX_SWEEP_TIME
+    };
+    my $cmd=sprintf("PI%.1f",$interval_time);
+    $self->{vi}->Write($cmd);
+    $cmd=sprintf("SW%.1f",$sweep_time);
+    $self->{vi}->Write($cmd);
+}
+
+sub start_program {
+    my $self=shift;
+    my $cmd=sprintf("PRS");
+    $self->{vi}->Write($cmd);
+}
+
+sub end_program {
+    my $self=shift;
+    my $cmd=sprintf("PRE");
+    $self->{vi}->Write($cmd);
+}
+sub execute_program {
+    # 0 HALT
+    # 1 STEP
+    # 2 RUN
+    #3 Continue
+    my $self=shift;
+    my $value=shift;
+    my $cmd=sprintf("RU%d",$value);
+    $self->{vi}->Write($cmd);
+    
+}
+
+sub sweep {
+    my $self=shift;
+    my $stop=shift;
+    my $rate=shift;
+    my $return_rate=$rate;
+    $self->execute_program(0);
+    my $output_now=$self->_get();
+    #Test if $stop in range
+    my $range=$self->get_range();
+    #Start Programming-----
+    $self->start_program();
+    if ($stop>$range){
+        $stop=$range;
+    }
+    elsif ($stop< -$range) {
+        $stop=-$range;
+    }
+    $self->set_setpoint($stop);
+    $self->end_program();
+
+    my $time=abs($output_now -$stop)/$rate;
+    if ($time<$MIN_SWEEP_TIME) {
+        warn "Warning Sweep Time: $time smaller than $MIN_SWEEP_TIME sec!\n Sweep time set to $MIN_SWEEP_TIME sec";
+        $time=$MIN_SWEEP_TIME;
+        $return_rate=abs($output_now -$stop)/$time;
+    }
+    elsif ($time>$MAX_SWEEP_TIME) {
+        warn "Warning Interval Time: $time> $MAX_SWEEP_TIME sec!\n Sweep time set to $MAX_SWEEP_TIME sec";
+        $time=$MAX_SWEEP_TIME;
+        $return_rate=abs($output_now -$stop)/$time;
+    }
+    $self->set_time($time,$time);
+    $self->execute_program(2);
+    return $return_rate;
 }
 
 sub _get_voltage {
@@ -106,6 +210,66 @@ sub get_info {
     my $self=shift;
     my $result=$self->{vi}->Query("OS");
     return $result;
+}
+
+sub get_OS {
+    my $self=shift;
+    $self->{vi}->Write("OS");
+    my @info;
+    for (my $i=0;$i<=10;$i++){
+        my $line=$self->{vi}->BrutalRead(300);
+        if ($line=~/END/){last};
+        chomp $line;
+        $line=~s/\r//;
+        push(@info,sprintf($line));
+    };
+    return @info;
+}
+
+sub get_range{
+    my $self=shift;
+    my @info=$self->get_OS();
+    my $result=$info[1];
+    my $func_nr=0;
+    my $range_nr=0;
+    my $range=0;
+    #printf "$result\n";
+    if ($result=~/F(\d)R(\d)/){
+    $func_nr=$1;
+    #printf "funcnr=$func_nr\n";
+    $range_nr=$2;
+    #    printf "rangenr=$range_nr\n";
+    }
+    if ($func_nr==1){ # DC V
+        switch ($range_nr) {
+            case 2 {$range=10e-3} #10mV
+            case 3 {$range=100e-3} #100mV
+            case 4 {$range=1} #1V
+            case 5 {$range=10} #10V
+            case 6 {$range=30} #30V
+            else {die "Range $range_nr not defined\n"}
+        }
+    }
+    elsif ($func_nr==5){
+        switch ($range_nr) {
+            case 4 {$range=1e-3} #1mA
+            case 5 {$range=10e-3} #10mA
+            case 6 {$range=100e-3} #100mA
+            else {die "Range $range_nr not defined\n"}
+        }
+    }
+    else {die "Function not defined"}
+    #printf "$range\n";
+    return $range
+    
+}
+
+sub set_run_mode {
+    my $self=shift;
+    my $value=shift;
+    if ($value!=0 and $value!=1) {die "Run Mode $value not defined"}
+    my $cmd=sprintf("M%u",$value);
+    $self->{vi}->Write($cmd);
 }
 
 sub output_on {

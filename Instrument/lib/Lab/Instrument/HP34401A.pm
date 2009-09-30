@@ -216,6 +216,13 @@ sub id {
     $self->{vi}->Query('*IDN?');
 }
 
+sub read_value {
+    my $self=shift;
+    my $value=$self->{vi}->Query('READ?');
+    chomp $value;
+    return $value;
+}
+
 1;
 
 =head1 NAME
