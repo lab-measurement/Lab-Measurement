@@ -1,4 +1,4 @@
-package Lab::Instrument::Lakeshore370;
+package Lab::Instrument::Lakeshore336;
 
 use strict;
 use Lab::Instrument;
@@ -16,18 +16,10 @@ sub new {
 }
 
 
-sub set_channel {
-    my ($self,$chan)=@_;
-    $self->{vi}->Write("SCAN $chan,0");	# "0" fuer autoscan = off
-    my $realchan=$self->{vi}->Query("SCAN?");
-    chomp $realchan;
-    return "$realchan";
-}
-
 sub read_t {
 
     my ($self,$chan)= @_;
-    my $temp=$self->{vi}->Query("RDGK? $chan");
+    my $temp=$self->{vi}->Query("KRDG? $chan");
     chomp $temp;
     $temp =~ s/\n//;
     $temp =~ s/\r//;
@@ -37,11 +29,27 @@ sub read_t {
 sub read_r {
 
     my ($self,$chan)= @_;
-    my $r=$self->{vi}->Query("RDGR? $chan");
+    my $r=$self->{vi}->Query("SRDG? $chan");
     chomp $r;
     $r =~ s/\n//;
     $r =~ s/\r//;
     return $r;
+}
+
+sub get_setp {
+
+    my ($self,$output)= @_;
+    my $temp=$self->{vi}->Query("SETP? $output");
+    chomp $temp;
+    $temp =~ s/\n//;
+    $temp =~ s/\r//;
+    return $temp;
+}
+
+sub set_setp {
+
+    my ($self,$output,$t)= @_;
+    $self->{vi}->WRITE("SETP $output,$t");
 }
 
 
@@ -55,21 +63,23 @@ sub id {
 
 =head1 NAME
 
-Lab::Instrument::Lakeshore370 - Lakeshore 370 AC Resistance Bridge
+Lab::Instrument::Lakeshore336 - Lakeshore 336 Temperature controller
+
+UNGETESTET
 
 =head1 SYNOPSIS
 
-    use Lab::Instrument::Lakeshore370;
+    use Lab::Instrument::Lakeshore336;
     
-    my $lake=new Lab::Instrument::Lakeshore370(0,10);
+    my $lake=new Lab::Instrument::Lakeshore336(0,10);
 
     $temp = $lake->read_t();
     $r = $lake->read_r();
     
 =head1 DESCRIPTION
 
-The Lab::Instrument::Lakeshore370 class implements an interface to the
-Lakeshore 370 AC Resistance Bridge.
+The Lab::Instrument::Lakeshore336 class implements an interface to the
+Lakeshore 336 AC Resistance Bridge.
 
 =head1 CONSTRUCTOR
 
@@ -89,15 +99,9 @@ Reads temperature in Kelvin (only possible if temperature curve is available, ot
 
 Reads resistance in ohms.
 
-=head2 set_channel
-
-  $lake->set_channel(4);
-
-Sets channel to scan (with autoscan = off); returns channel the bridge was set to.
-
 =head2 id
 
-  $id=$lake->id();
+  $id=$sr780->id();
 
 Returns the instruments ID string.
 

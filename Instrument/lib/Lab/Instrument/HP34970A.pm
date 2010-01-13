@@ -102,7 +102,7 @@ sub scroll_message {
 
 =head1 NAME
 
-Lab::Instrument::HP34970A - a HP/Agilent 34970A digital multimeter
+Lab::Instrument::HP34970A - a HP/Agilent 34970A Data Acquisition Switch Unit
 
 =head1 SYNOPSIS
 

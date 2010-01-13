@@ -31,9 +31,10 @@ sub new {
 }
 
 sub TRMC2init{
+    # Checks input and output buffer for TRMC2 commands
     my $self=shift;
     if($mounted==1){die "TRMC already Initialized\n"}; 
-    #files öffnen und schliessen
+    #files Ã¶ffnen und schliessen
     if (! open FHIN ,"<$buffin"){
     die "could not open command file $buffin: $!\n"
     };
@@ -46,12 +47,15 @@ sub TRMC2init{
     $mounted=1;
 }
 
-sub TRMC2off
-{
-  $mounted=0;
+sub TRMC2off{
+    # "Unmounts" the TRMC  
+    $mounted=0;
 }
 
 sub TRMC2_Heater_Control_On{
+    # Switch the Heater Control (The coupling heater and set point NOT the heater switch in the main menu)
+    # 1 On
+    # 0 Off
     my $self=shift;
     my $state=shift;
     if($state!=0 && $state!=1){die "TRMC heater control can be turned off or on by 0 and 1 not by $state\n"};
@@ -59,15 +63,7 @@ sub TRMC2_Heater_Control_On{
     TRMC2_Write($cmd,0.3);
 }
 
-#sub TRMC2_Heater_On{
-#    my $self=shift;
-#    my $state=shift;
-#    if($state!=0 && $state!=1){die "TRMC heater control can be turned off or on by 0 and 1 not by $state\n"};
-#    my $cmd=sprintf("Heater:ON?");#=%d\0",$state);
-#    my @value=TRMC2_Query($cmd,0.1);
-#    printf @value;
-#    #sleep($WAIT);
-#}
+
 
 sub TRMC2_Prog_On{
     my $self=shift;
@@ -182,7 +178,7 @@ sub TRMC2_get_R{ #------------Reads Out Resistance-------------
 
 }
 
-sub TRMC2_get_RT{ #------------Reads Out Resistance-------------
+sub TRMC2_get_RT{ #------------Reads Out Resistance and Temperature simoultaneously-------------
     # Sensor Number:
     # 1 Heater
     # 2 Output
@@ -221,6 +217,15 @@ sub TRMC2_Read_Prog{ #------------Reads Heater Batch Job-------------
 }
 
 sub TRMC2_Set_T_Sweep{#------------Set T_Sweep-------------
+    # TRMC2_Set_T_Sweep(SetPoint,Sweeprate,Holdtime=0)
+    # Programs the built in Temperature Sweep.
+    # After Activation it will sweep from the current Temperature
+    # to the Set Temperature with the given Sweeprate.
+    # The Sweep can be started with TRMC2_Start_Sweep(1)
+    # Variables:
+    # SetPoint in K
+    # Sweeprate in K/Min
+    # Holdtime=0 
     my $arg_cnt=@_;
     #printf "#of variables=$arg_cnt\n";
     my $self=shift;
@@ -250,7 +255,7 @@ sub TRMC2_Start_Sweep{#---Start/Stops The Sweep---Provided Heater in TRMC2 Windo
 }
 
 sub TRMC2_All_CHANNEL{
-
+    # Reads Out All Channels and Values and returns an Array
     my $cmd=sprintf("*CHANNEL");
     my @value=TRMC2_Query($cmd,0.1);
     foreach my $val (@value){
@@ -274,12 +279,15 @@ sub TRMC2_Active_CHANNEL{
 }
 
 sub TRMC2_Shut_Down{
+    # Will Stop the Sweep and the Heater Control
     my $self=shift;
     $self->TRMC2_Start_Sweep(0);
     $self->TRMC2_Heater_Control_On(0);
 }
 
 sub TRMC2_Write{
+    # TRMC2_Write($cmd, $wait_write=$WAIT)
+    # Sends a command to the TRMC and will wait $wait_write
     my $arg_cnt=@_;
     my $cmd=shift;
     my $wait_write=$WAIT;
@@ -296,6 +304,9 @@ sub TRMC2_Write{
 
 
 sub TRMC2_Query{
+    # TRMC2_Query($cmd, $wait_query=$WAIT)
+    # Sends a command to the TRMC and will wait $wait_query sec long
+    # and returns the result
     my $arg_cnt=@_;
     #printf "# Variables=$arg_cnt\n";
     my $cmd=shift;

@@ -87,11 +87,22 @@ Lab::Instrument::Agilent81134A - Agilent 81134A pulse generator
 
 =head1 SYNOPSIS
 
+    use Lab::Instrument::Agilent81134A;
+
+    my $a=new Lab::Instrument::Agilent81134A(0,22);
+
 =head1 DESCRIPTION
+
+The Lab::Instrument::Agilent81134A class will provide an interface to the Agilent 81134A pulse generator. 
+Right now, only two small example methods are provided.
 
 =head1 CONSTRUCTOR
 
+    my $a=new(\%options);
+
 =head1 METHODS
+
+To be written.
 
 =head1 CAVEATS/BUGS
 
@@ -109,7 +120,7 @@ probably many
 
 This is $Id$
 
-Copyright 2005 Daniel Schröer (L<http://www.danielschroeer.de>)
+Copyright 2005 Daniel SchrÃ¶er (L<http://www.danielschroeer.de>)
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 

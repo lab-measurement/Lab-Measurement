@@ -1,4 +1,4 @@
-#$Id: HP34970A.pm 489 2006-08-13 15:07:14Z Kalok $
+#$Id$
 
 package Lab::Instrument::HP3458A;
 
@@ -19,6 +19,7 @@ sub new {
 }
 
 sub read_value {
+    # Triggers one Measurement and Reads it
     my $self=shift;
     $self->{vi}->Write("TRIG SGL");
     my $val= $self->{vi}->BrutalRead(16);
@@ -55,6 +56,7 @@ sub display_on {
 
 
 sub beep {
+    # It beeps!
     my $self=shift;
     $self->{vi}->Write("SYSTem:BEEPer");
 }
@@ -68,11 +70,13 @@ sub get_error {
 }
 
 sub reset {
+    # Resets HP3458A into standard configuration
     my $self=shift;
     $self->{vi}->Write("RESET");
 }
 
 sub preset {
+    # Sets HP3458A into predefined configurations
     # 0 Fast
     # 1 Norm
     # 2 DIG 
@@ -81,26 +85,28 @@ sub preset {
     my $cmd=sprintf("PRESET %u",$preset);
     $self->{vi}->Write($cmd);
 }
-#sub scroll_message {
-#    use Time::HiRes (qw/usleep/);
-#    my $self=shift;
-#    my $message="            Orcs Orcs Orcs Orcs Orcs!.            ";
-#    for (0..(length($message)-12)) {
-#        $self->display_text(substr($message,$_,$_+11));
-#        usleep(100000);
-#    }
-#    $self->display_clear();
-#}
+
 
 1;
 
 =head1 NAME
 
-Lab::Instrument::HP34970A - a HP/Agilent 34970A digital multimeter
+Lab::Instrument::HP3458A - The Agilent 3458A Multimeter, recognized the world over as the standard in high performance DMMs, provides both speed and accuracy in the R&D lab, on the production test floor, and in the calibration lab.
 
 =head1 SYNOPSIS
 
+    use Lab::Instrument::HP3458A;
+    
+    my $dmm=new Lab::Instrument::HP3458A({
+        GPIB_board   => 0,
+        GPIB_address => 11,
+    });
+    print $dmm->read_voltage_dc();
+
 =head1 DESCRIPTION
+
+The Lab::Instrument::HP3458A class implements an interface to the Agilent / HP 3458A 
+digital multimeter. 
 
 =head1 CONSTRUCTOR
 
@@ -110,48 +116,15 @@ Lab::Instrument::HP34970A - a HP/Agilent 34970A digital multimeter
 
 =head2 read_voltage_dc
 
-    $datum=$hp->read_voltage_dc($range,$resolution,@scan_list);
+    $datum=$hp->read_voltage_dc();
 
-Preset and make a dc voltage measurement with the specified range
-and resolution.
-
-=over 4
-
-=item $range
-
-Range is given in terms of volts and can be C<[0.1|1|10|100|1000|MIN|MAX|DEF]>. C<DEF> is default.
-
-=item $resolution
-
-Resolution is given in terms of C<$range> or C<[MIN|MAX|DEF]>.
-C<$resolution=0.0001> means 4 1/2 digits for example.
-The best resolution is 100nV: C<$range=0.1>; C<$resolution=0.000001>.
-
-=item @scan_list
-
-A list of channels to scan. See the instrument manual.
-
-=back
-
-=head2 conf_monitor
-
-    $hp->conf_monitor(@channels);
-
-=head2 read_monitor
-
-    @channels=$hp->read_monitor();
+Make a dc voltage measurement.
 
 =head2 display_on
 
     $hp->display_on();
 
 Turn the front-panel display on.
-
-=head2 display_off
-
-    $hp->display_off();
-
-Turn the front-panel display off.
 
 =head2 display_text
 
@@ -161,12 +134,6 @@ Turn the front-panel display off.
 Display a message on the front panel. The multimeter will display up to 12
 characters in a message; any additional characters are truncated.
 Without parameter the displayed message is returned.
-
-=head2 display_clear
-
-    $hp->display_clear();
-
-Clear the message displayed on the front panel.
 
 =head2 beep
 
@@ -187,9 +154,11 @@ queue. Errors are retrieved in first-in-first out (FIFO) order.
 
 Reset the multimeter to its power-on configuration.
 
-=head2 scroll_message
+=head2 preset
 
-    $hp->scroll_message();
+    $hp->preset($config);
+
+Choose one of several configuration presets (0: fast, 1: norm, 2: DIG).
 
 =head1 CAVEATS/BUGS
 
@@ -205,7 +174,7 @@ probably many
 
 =head1 AUTHOR/COPYRIGHT
 
-This is $Id: HP34970A.pm 489 2006-08-13 15:07:14Z kalok $
+This is $Id$
 
 Copyright 2009 David Kalok
 

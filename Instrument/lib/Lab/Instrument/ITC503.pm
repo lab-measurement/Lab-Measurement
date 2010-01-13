@@ -1,13 +1,12 @@
-#$Id: ITC503.pm 571 2009-06-27 16:12:00Z Kalok $
+#$Id$
 
 package Lab::Instrument::ITC503;
 
 use strict;
 use Lab::VISA;
 use Lab::Instrument;
-#use Lab::Instrument::MagnetSupply;
 
-our $VERSION = sprintf("0.%04d", q$Revision: 571 $ =~ / (\d+) /);
+our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
 
 
 my $RuO2_Cernox=1.45; #K Sensor 3

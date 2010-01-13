@@ -8,17 +8,26 @@ my @files=qw!
     VISA/lib/Lab/VISA/Tutorial.pod
     VISA/VISA.pod
     Instrument/lib/Lab/Instrument.pm
-    Instrument/lib/Lab/Instrument/HP34401A.pm
-    Instrument/lib/Lab/Instrument/HP34970A.pm
-    Instrument/lib/Lab/Instrument/IPS120_10.pm
     Instrument/lib/Lab/Instrument/Agilent81134A.pm
-    Instrument/lib/Lab/Instrument/SR780.pm
-    Instrument/lib/Lab/Instrument/HP8360.pm
-    Instrument/lib/Lab/Instrument/Source.pm
-    Instrument/lib/Lab/Instrument/KnickS252.pm
-    Instrument/lib/Lab/Instrument/Yokogawa7651.pm
-    Instrument/lib/Lab/Instrument/IOtech488.pm
     Instrument/lib/Lab/Instrument/Dummysource.pm
+    Instrument/lib/Lab/Instrument/HP34401A.pm
+    Instrument/lib/Lab/Instrument/HP34411A.pm
+    Instrument/lib/Lab/Instrument/HP3458A.pm
+    Instrument/lib/Lab/Instrument/HP34970A.pm
+    Instrument/lib/Lab/Instrument/HP8360.pm
+    Instrument/lib/Lab/Instrument/IOtech488.pm
+    Instrument/lib/Lab/Instrument/IPS12010new.pm
+    Instrument/lib/Lab/Instrument/ITC503.pm
+    Instrument/lib/Lab/Instrument/KnickS252.pm
+    Instrument/lib/Lab/Instrument/Lakeshore370.pm
+    Instrument/lib/Lab/Instrument/SR620.pm
+    Instrument/lib/Lab/Instrument/SR780.pm
+    Instrument/lib/Lab/Instrument/SR830.pm
+    Instrument/lib/Lab/Instrument/Source.pm
+    Instrument/lib/Lab/Instrument/TRMC2.pm
+    Instrument/lib/Lab/Instrument/Yokogawa7651.pm
+    Instrument/lib/Lab/Instrument/MagnetSupply.pm
+    Instrument/lib/Lab/Instrument/TemperatureControl.pm
     Tools/lib/Lab/Measurement.pm
     Tools/lib/Lab/Data/Meta.pm
     Tools/lib/Lab/Data/Plotter.pm

@@ -70,9 +70,6 @@ sub new {
         if ($status != $Lab::VISA::VI_SUCCESS) { die "Cannot open instrument $resource_name. status: $status";}
         $self->{instr}=$instrument;
         
-#       $status=Lab::VISA::viClear($self->{instr});
-#       if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while clearing instrument: $status";}
-        
         $status=Lab::VISA::viSetAttribute($self->{instr}, $Lab::VISA::VI_ATTR_TMO_VALUE, 3000);
         if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting timeout value: $status";}
     
@@ -143,7 +140,6 @@ sub BrutalQuery {
     if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while writing: $status";}
     
     ($status,my $result,my $read_cnt)=Lab::VISA::viRead($self->{instr},300);
-    #if (($status != $Lab::VISA::VI_SUCCESS) && ($status != 0xBFFF0015)) { die "Error while reading: $status";}
     return substr($result,0,$read_cnt);
 }
 
@@ -161,7 +157,6 @@ sub BrutalRead {
     my $length=shift;
 
     my ($status,$result,$read_cnt)=Lab::VISA::viRead($self->{instr},$length);
-    #if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while reading: $status";}
     return substr($result,0,$read_cnt);
 }
 
@@ -230,16 +225,37 @@ Sends the command C<$command> to the instrument.
  $result=$instrument->Read($length);
 
 Reads a result of maximum length C<$length> from the instrument and returns it.
+Dies with a message if an error occurs.
+
+=head2 BrutalRead
+
+ $result=$instrument->BrutalRead($length);
+
+Same as Read, but this command ignores all error conditions.
 
 =head2 Query
 
- $result=$instrument->Query($command);
+ $result=$instrument->Query($command, $wait_query, $wait_status);
 
 Sends the command C<$command> to the instrument and reads a result from the
 instrument and returns it. The length of the read buffer is haphazardly
 set to 300 bytes. This can be changed in the source code, hehe. Or you use
 seperate C<Write> and C<Read> commands.
 
+Optional second and third arguments specify waiting times, i.e. how long the 
+instrument needs to process the query and provide a result (C<$wait_query>) and 
+how long the instrument needs to react on a command at all and set the status 
+line (C<$wait_status>). Both parameters are set to 10us if not specified in 
+the command line.
+
+=head2 BrutalQuery
+
+ $result=$instrument->BrutalQuery($command);
+
+Same as Query, but with a lot less finesse. :) Sends command, asks for a value 
+and returns whatever is returned. All error conditions including timeouts are
+blatantly ignored.
+ 
 =head2 Clear
 
  $instrument->Clear();
@@ -276,14 +292,18 @@ Probably many.
 
 =item L<Lab::Instrument::IPS120_10>
 
+=item and more...
+
 =back
 
 =head1 AUTHOR/COPYRIGHT
 
 This is $Id$
 
-Copyright 2004-2006 Daniel Schr�er (L<http://www.danielschroeer.de>)
+Copyright 2004-2006 Daniel Schröer (L<http://www.danielschroeer.de/>), 
+  2009 Andreas K. Hüttel (L<http://www.akhuettel.de/>) and David Kalok
 
-This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
+This library is free software; you can redistribute it and/or modify it under the same
+terms as Perl itself.
 
 =cut

@@ -235,7 +235,7 @@ Returns sensitivity (as string, e.g. "50 nV").
   $string=$sr830->set_tc(1E-3);
 
 Sets time constant (value given in seconds); possible values are:
-10 µs, 30µs, 100 µs, 300 µs, ..., 10000 s, 30000 s
+10 us, 30us, 100 us, 300 us, ..., 10000 s, 30000 s
 If the argument is not in this list, the next higher value will be chosen.
 
 Returns the value of the time constant that was actually set as string.

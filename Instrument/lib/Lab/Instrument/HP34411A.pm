@@ -211,19 +211,20 @@ sub id {
 
 =head1 NAME
 
-Lab::Instrument::HP34401A - HP/Agilent 34401A digital multimeter
+Lab::Instrument::HP34411A - HP/Agilent 34410A or 34411A digital multimeter
 
 =head1 SYNOPSIS
 
-    use Lab::Instrument::HP34401A;
+    use Lab::Instrument::HP34411A;
     
-    my $hp=new Lab::Instrument::HP34401A(0,22);
+    my $hp=new Lab::Instrument::HP34411A(0,22);
     print $hp->read_voltage_dc(10,0.00001);
 
 =head1 DESCRIPTION
 
-The Lab::Instrument::HP34401A class implements an interface to the 34401A digital multimeter by
-Agilent (formerly HP).
+The Lab::Instrument::HP34411A class implements an interface to the 34410A and 34411A digital multimeters by
+Agilent (formerly HP). Note that the module Lab::Instrument::HP34401A still works for those newer multimeter 
+models.
 
 =head1 CONSTRUCTOR
 
@@ -299,7 +300,7 @@ Same as config_voltage, but here the number of power line cycles ($plc) is given
 
     @array = $hp->read_with_trigger_voltage_dc()
 
-Take data points as configured with config_voltage(). returns an array.
+Take data points as configured with config_voltage(). Returns an array.
 
 =head2 display_on
 

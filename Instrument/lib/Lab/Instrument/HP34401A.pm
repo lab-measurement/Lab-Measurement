@@ -239,7 +239,8 @@ Lab::Instrument::HP34401A - HP/Agilent 34401A digital multimeter
 =head1 DESCRIPTION
 
 The Lab::Instrument::HP34401A class implements an interface to the 34401A digital multimeter by
-Agilent (formerly HP).
+Agilent (formerly HP). This module can also be used to address the newer 34410A and 34411A multimeters,
+but doesn't include new functions. Use the Lab::Instrument::HP34411A class for full functionality.
 
 =head1 CONSTRUCTOR
 
@@ -274,7 +275,7 @@ The best resolution is 100nV: C<$range=0.1>; C<$resolution=0.000001>.
 
 Preset and make an ac voltage measurement with the specified range
 and resolution. For ac measurements, resolution is actually fixed
-at 6½ digits. The resolution parameter only affects the front-panel display.
+at 6 1/2 digits. The resolution parameter only affects the front-panel display.
 
 =head2 read_current_dc
 
@@ -289,7 +290,7 @@ and resolution.
 
 Preset and make an ac current measurement with the specified range
 and resolution. For ac measurements, resolution is actually fixed
-at 6½ digits. The resolution parameter only affects the front-panel display.
+at 6 1/2 digits. The resolution parameter only affects the front-panel display.
 
 =head2 read_resistance
 
@@ -386,8 +387,9 @@ probably many
 
 This is $Id$
 
-Copyright 2004-2006 Daniel Schröer (L<http://www.danielschroeer.de>)
+Copyright 2004-2006 Daniel SchrÃ¶er (L<http://www.danielschroeer.de/>)
 
-This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
+This library is free software; you can redistribute it and/or modify it under the same
+terms as Perl itself.
 
 =cut

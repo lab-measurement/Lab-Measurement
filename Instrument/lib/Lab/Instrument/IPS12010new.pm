@@ -1,32 +1,5 @@
 #$Id$
 
-#
-# IMPORTANT NOTES: 
-#
-# 1) config parameters dont work yet. have to figure out why. for now, you have to do something like 
-#
-# my $magnet=new $type_magnet({
-#     'GPIB_board'    => 0,
-#     'GPIB_address'  => $gpib_magnet,
-# });
-# $magnet->{config}->{field_constant}=0.102796;
-# $magnet->{config}->{max_current}=30;
-# $magnet->{config}->{max_sweeprate}=0.01;
-# $magnet->{config}->{can_reverse}=1;
-# $magnet->{config}->{can_use_negative_current}=1;
-#
-# to circumvent the problem. 
-#
-# ## should work now. schroeer 090502.
-#
-# 2) Setting the term character in new{} is pretty toxic since it affects also all other 
-#   instruments that are instantiated later! I.e. multimeters stop working. 
-#   This has to be fixed!
-#
-# 3) It seems like the power supply refuses all commands after an
-#   DCL (visa clear) command. So, NEVER CLEAR THE INSTRUMENT!
-#
-
 package Lab::Instrument::IPS12010new;
 
 use strict;
@@ -38,14 +11,10 @@ our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
 
 our @ISA=('Lab::Instrument::MagnetSupply');
 
-# the IPS 120-10 usuall can handle a reverse current, and it also nicely accepts negative numbers
-# in addition it supports a pretty nice "tesla interface". 
-
 my $default_config={
     use_persistentmode          => 0,
     can_reverse                 => 1,
     can_use_negative_current    => 1,
-    has_teslamode               => 1,
 };
 
 sub new {
@@ -57,24 +26,19 @@ sub new {
 
     $self->{vi}=new Lab::Instrument(@args);
     
-    # set visa read termination char to \r
     my $xstatus=Lab::VISA::viSetAttribute($self->{vi}->{instr}, $Lab::VISA::VI_ATTR_TERMCHAR, 0xD);
     if ($xstatus != $Lab::VISA::VI_SUCCESS) { die "Error while setting read termination character: $xstatus";}
 
-    # enable visa read termination char
     $xstatus=Lab::VISA::viSetAttribute($self->{vi}->{instr}, $Lab::VISA::VI_ATTR_TERMCHAR_EN, $Lab::VISA::VI_TRUE);
     if ($xstatus != $Lab::VISA::VI_SUCCESS) { die "Error while enabling read termination character: $xstatus";}
+
+#    $self->{vi}->Clear();
    
-    # set communication protocol to "\r" eol and extended resolution
     $self->ips_set_communications_protocol(4);
  
-    # set psu to "remote unlocked"
     $self->ips_set_control(3);
 
-    # nicht sicher ob das so funktioniert
-    $self->postinit();
-
-    return $self;
+    return $self
 }
 
 
@@ -122,35 +86,21 @@ sub ips_read_parameter {
 #24 Magnet inductance                   henry
     my $self=shift;
     my $parameter=shift;
+    #$self->{vi}->Clear();
     my $result=$self->{vi}->Query("R$parameter\r");
+    chomp $result;
     $result =~ s/^R//;
+    $result =~ s/\r//g;
     return $result;
 }
 
-sub ips_get_statusstring {
-    my $self=shift;
-    my $result=$self->{vi}->Query("X\r");
-}
-
-sub ips_get_heater {
-    my $self=shift;
-    my $status=$self->ips_get_statusstring();
-
-    $status =~ s/^.*?H//;   ###### TEST THIS!!!
-    $status =~ s/M.*$//;
-
-    # what is left is:
-    #   0: Heater off, Magnet at zero
-    #   1: Heater on
-    #   2: Heater off, Magnet at field
-    #   5: Heater Fault (heater is on but current is low)
-    #   8: No switch fitted
-    return $status;
-}
-
-
-
 # Hier spezialisierte read-Methoden einf�hren (read_set_point())
+
+#sub ips_get_status {  #freezes magnet
+#	my $self=shift;
+#	my $result=$self->{vi}->Query("X\r");
+#	return $result
+#}
 
 sub ips_set_activity {
 # 0 Hold
@@ -215,6 +165,12 @@ sub ips_set_current_sweep_rate {
     $self->{vi}->Query("S$rate\r");
 }
 
+sub ips_set_field_sweep_rate {
+# amps/min
+    my $self=shift;
+    my $rate=shift;
+    $self->{vi}->Query("T$rate\r");
+}
 
 
 # now comes the interface
@@ -224,12 +180,6 @@ sub ips_set_current_sweep_rate {
 sub _get_current {
     my $self=shift;
     my $res=$self->ips_read_parameter(0);
-    return($res);
-}
-
-sub _get_field {
-    my $self=shift;
-    my $res=$self->ips_read_parameter(7);
     return($res);
 }
 
@@ -258,7 +208,7 @@ sub _set_sweeprate {
 	my $self=shift;
 	my $rate=shift;
 	$rate=$rate*60;
-	print "settin sweep rate to $rate\n";
+	#print "settin sweep rate to $rate\n";
 	#$self->ips_set_current_sweep_rate($rate);
 	return($self->_get_sweeprate());
 }
@@ -268,7 +218,39 @@ sub _get_sweeprate {
 	return(($self->ips_read_parameter(6))/60);
 }
 
+#sub _active_sweep { doesnt work
+#	my $self=shift;
+#	my $status=$self->ips_get_status();
+#	my $mode=substr($status,11,1);
+#	if ($mode!=0){
+#	    return(1); #sweeping 1 ,2 ,3
+#	}else{ 
+#	    return(0) # 0 At Rest 
+#	}
+#}
 
+
+sub _init_magnet {
+	my $self=shift;#
+	print "Set Communication Protocol to Extended Resolution...";
+	#$self->ips_set_activity (0);
+	$self->ips_set_communications_protocol(4);
+	print "done!\n";
+	print "Set Magnet to Remote and Unlocked...";
+	$self->ips_set_control (3);
+	print "done!\n";
+	
+	print "Unclamp Magnet and Set to Hold...";
+	$self->ips_set_activity(0);
+	print "done!\n";
+	
+	# Don't use Heater in Init since the previous user could have used persitent mode and could turn off Power Supply!
+	#print "Switch On Heater\n";
+        #$self->ips_set_switch_heater(1);
+	#print "done!\n";
+	
+	return(($self->ips_read_parameter(6))/60);
+}
 
 
 1;
