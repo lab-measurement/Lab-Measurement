@@ -2154,15 +2154,9 @@ XS(_wrap_viRead) {
       }
       
       ST(argvi) = sv_newmortal();
-      sv_setpv(ST(argvi),(char *)arg2);
+      sv_setpvn(ST(argvi),(char *)arg2, arg4);
       argvi++;
       free(arg2);
-    }
-    if (SWIG_IsTmpObj(res4)) {
-      if (argvi >= items) EXTEND(sp,1);  ST(argvi) = SWIG_From_unsigned_SS_long  SWIG_PERL_CALL_ARGS_1((*arg4)); argvi++  ;
-    } else {
-      int new_flags = SWIG_IsNewObj(res4) ? (SWIG_POINTER_OWN | 0) : 0;
-      if (argvi >= items) EXTEND(sp,1);  ST(argvi) = SWIG_NewPointerObj((void*)(arg4), SWIGTYPE_p_unsigned_long, new_flags); argvi++  ;
     }
     
     

@@ -48,10 +48,6 @@ on a Windows XP system.
 
 	- Unzip/copy sources
 
-	If you're installing from CPAN (version 1.12): {
- 		- Run swig (that's probably easier on a linux system) to use C wrapper instead of C++ wrapper which won't compile with Visual C++
-	} (this is fixed in SVN Head)
-
 	- Adapt LIBS and INC to your installation (see #1); this is what worked for me:
 
     	'LIBS'         => ['-"lC:\\Programme\\IVI Foundation\\VISA\\WinNT\\lib\\msc\\visa32.lib"']
