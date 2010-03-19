@@ -1,0 +1,78 @@
+Instructions for installing Lab::VISA, Lab::Instrument, Lab::Tools, and dependencies
+on a Windows XP system.
+
+
+0) Work with administrator account during installation.
+
+
+1) Install VISA (and GPIB drivers) if necessary.
+    - download current VISA release from NI (tested with 4.4.1, 4.5.0)
+	- run installer
+	- check location of visa32.lib (here: C:\Programme\IVI Foundation\VISA\WinNT\lib\msc\visa32.lib)
+
+
+2) Install compiler
+	- Microsoft Visual C++ 
+	http://www.microsoft.com/express/download/#webInstall: Visual Studio 9.0
+
+
+2a) From now on run all commandline programs during installation only from the "Visual Studio Command line"
+	(see start menu)
+
+
+3) Install Perl
+	- Tested with ActivePerl, http://www.activestate.com/Products/activeperl/index.mhtml
+    - make sure to include Perl Package Manager
+	- make sure to activate the check box to include perl directory in PATH variable
+
+
+4) Install gnuplot 
+	- download from http://sourceforge.net/project/showfiles.php?group_id=2055 (gp425win32.zip)
+	- extract and put it somewhere
+	- add directory containing pgnuplot.exe to path:
+      My Computer => Properties => Advanced => Environment Variables
+
+
+5) Install dependencies of our perl modules
+
+	It's easiest to use PPM (Perl Package Manager, included with ActivePerl) to install precompiled modules instead of compiling them yourself!
+
+	Lab::Tools needs:
+	- XML::Generator		(PPM would write it as XML-Generator...)
+	- XML::DOM
+	- XML::Twig
+	- YAML
+
+	and their respective dependencies which should be automatically installed by PPM 
+
+
+6) Install Lab::VISA
+
+	- Unzip/copy sources
+
+	- Adapt LIBS and INC to your installation (see #1); this is what worked for me:
+
+		'LIBS'         => ['-"lC:\\Programme\\IVI Foundation\\VISA\\WinNT\\lib\\msc\\visa32.lib"']
+		'INC'          => '"-IC:\\Programme\\IVI Foundation\\VISA\\WinNT\\include"'
+
+	- run the following commands in the source directory
+
+	perl Makefile.PL
+	nmake
+	nmake install
+
+
+7) Install Lab::Instrument and Lab::Tools
+
+	- Unzip/copy sources
+	- run the following commands in the source directory
+
+	perl Build.PL
+	perl Build
+	perl Build install
+
+
+8) Have fun!
+
+
+

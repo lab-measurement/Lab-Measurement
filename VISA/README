@@ -1,73 +1,49 @@
-README for Lab::VISA
------------------------------------------------------------------------
+README for Lab::VISA 
+--------------------
 
-This library offers a perl interface to National Instrument's NI-VISA library.
+This library offers a perl interface to National Instrument's NI-VISA 
+library. 
 
-With this library you can easily control the instruments in your lab (multimeters, voltage
-sources, magnet sources, pulse generators etc.) with Perl. You can perform
-complicated measurement jobs with just some Perl loops.
+With this library you can easily control the instruments in your lab 
+(multimeters, voltage sources, magnet sources, pulse generators etc.) 
+with Perl. You can perform complicated measurement jobs with just some 
+Perl loops. 
 
-Even better: The general L<Lab::Instrument|Lab::Instrument> class reduces the
-communication overhead to minimal C<read>, C<write> and C<query> methods.
-On top of this, there are specialized instrument classes (virtual instruments) such as
-L<Lab::Instrument::HP34401A|Lab::Instrument::HP34401A>, that offer
-even more high level comfort with methods such as C<read_voltage>.
+Even better: The Lab::Instrument class reduces the communication 
+overhead to simple read, write and query methods. On top of this, there 
+are specialized instrument classes (virtual instruments) such as 
+Lab::Instrument::HP34401A, that offer even more high level comfort with 
+methods such as read_voltage. 
 
-The L<Lab::Tools|Lab::Tools> package offers classes to simplify the task
-of logging data to disk and maintaining this data.
+The Lab::Tools package offers classes to simplify the task of logging 
+data to disk and maintaining this data. 
 
 
 INSTALLATION
 ------------
 
-This library has been tested to work on Linux and Windows.
+This library has been tested to work on Linux and Windows. 
 
-Before you start, you must have the VISA library by National Instrument
-installed. If you plan to use GPIB connections (which is very likely), you must also
-have the necessary drivers (NI-488.2) for your GPIB adapter card installed. Refer to the good
-documentation by National Instrument to find out, how to install these packages.
+A step-by-step installation tutorial for Windows is given in the file 
+INSTALLATION_ON_WINDOWS.txt. 
 
-See National Instrument's website at
+As a Linux user you will probably be able to figure things out yourself. 
+Before you start, you must have the VISA library by National Instrument 
+installed. If you plan to use GPIB connections (which is very likely), 
+you must also have the necessary drivers (NI-488.2) for your GPIB 
+adapter card installed. Refer to the good documentation by National 
+Instruments to learn about these packages. 
 
- http://digital.ni.com/softlib.nsf/webcategories/85256410006C055586256BBB002C0E91?opendocument&node=132060_US
-
- http://ni.com/linux/ni488dl.htm
-
-
-BUILDING
---------
-
-If you want to build the module yourself, you will need a compiler and a make program.
-On Windows the make program is called 'nmake', so replace the 'make' command in the
-instructions below with 'nmake'. I successfully used the freely available Visual C++ 2005
-on Windows.
-
-If you also want to re-generate the wrapper code from the Swig description file (visa.i),
-you must have Swig installed. Uncomment the swig line in the Makefile.PL to run swig.
-
-To build and install this module, type the following commands. Windows users replace
-'make' by 'nmake'.
-
-   perl Makefile.PL
-   make
-   make install
-
-In case the compiler or linker cannot find certain include files (e.g. visa.h) or libraries,
-adjust the platform specific lines in Makefile.PL where indicated. They are currently set
-to match my local setup. Don't know if these things could ever be found automatically.
-
-IMPORTANT NOTE: The swig-based wrapper code does NOT compile with plain perl 5.8.8. No swig code does, due
-to a bug in this perl release. In order to make it work, either use another version of
-perl or apply the patch described in this message and recompile your perl:
-
-http://www.xray.mpe.mpg.de/mailing-lists/perl5-porters/2006-02/msg00572.html.
+See National Instrument's website at 
+  http://digital.ni.com/softlib.nsf/webcategories/85256410006C055586256BBB002C0E91?opendocument&node=132060_US 
 
 
 COPYRIGHT AND LICENCE
----------------------
+--------------------- 
 
-Copyright (C) 2004-2006 Daniel Schröer
+(c) 2004-2006 Daniel Schröer
+(c) 2006-2010 Daniel Schröer, Andreas Hüttel, Daniela Taubert, and others 
 
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself. 
+This library is free software; you can redistribute it and/or modify it 
+under the same terms as Perl itself. 
 
