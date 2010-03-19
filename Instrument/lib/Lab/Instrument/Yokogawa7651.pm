@@ -360,16 +360,16 @@ L<Lab::Instrument::Source> and provides all functionality described there.
 =head2 set_range($range)
 
     Fixed voltage mode
-        2   10mV
-        3   100mV
-        4   1V
-        5   10V
-        6   30V
+    2   10mV
+    3   100mV
+    4   1V
+    5   10V
+    6   30V
 
     Fixed current mode
-        4   1mA
-        5   10mA
-        6   100mA
+    4   1mA
+    5   10mA
+    6   100mA
 
 =head2 get_info()
 
@@ -406,10 +406,8 @@ Returns a hash with the following keys:
     error
     execution
     setting
-    
-The value for each key is either 0 or 1, indicating the status of the instrument.
 
-=begin html
+The value for each key is either 0 or 1, indicating the status of the instrument.
 
 =head1 INSTRUMENT SPECIFICATIONS
 
@@ -419,40 +417,41 @@ The stability (24h) is the value at 23 ± 1°C. The stability (90days),
 accuracy (90days) and accuracy (1year) are values at 23 ± 5°C.
 The temperature coefficient is the value at 5 to 18°C and 28 to 40°C.
 
- Range  Maximum     Resolution  Stability 24h   Stability 90d   
-        Output                  ±(% of setting  ±(% of setting  
-                                +µV)            +µV)            
- ------------------------------------------------------------- 
- 10mV   ±12.0000mV  100nV       0.002 + 3       0.014 + 4       
- 100mV  ±120.000mV  1µV         0.003 + 3       0.014 + 5       
- 1V     ±1.20000V   10µV        0.001 + 10      0.008 + 50      
- 10V    ±12.0000V   100µV       0.001 + 20      0.008 + 100     
- 30V    ±32.000V    1mV         0.001 + 50      0.008 + 200     
+
+    Range  Maximum     Resolution  Stability 24h   Stability 90d   
+           Output                  ±(% of setting  ±(% of setting  
+                                   +µV)            +µV)            
+    ------------------------------------------------------------- 
+    10mV   ±12.0000mV  100nV       0.002 + 3       0.014 + 4       
+    100mV  ±120.000mV  1µV         0.003 + 3       0.014 + 5       
+    1V     ±1.20000V   10µV        0.001 + 10      0.008 + 50      
+    10V    ±12.0000V   100µV       0.001 + 20      0.008 + 100     
+    30V    ±32.000V    1mV         0.001 + 50      0.008 + 200     
 
 
 
- Range  Accuracy 90d    Accuracy 1yr    Temperature
-        ±(% of setting  ±(% of setting  Coefficient
-        +µV)            +µV)            ±(% of setting
-                                        +µV)/°C
- -----------------------------------------------------
- 10mV   0.018 + 4       0.025 + 5       0.0018 + 0.7
- 100mV  0.018 + 10      0.025 + 10      0.0018 + 0.7
- 1V     0.01 + 100      0.016 + 120     0.0009 + 7
- 10V    0.01 + 200      0.016 + 240     0.0008 + 10
- 30V    0.01 + 500      0.016 + 600     0.0008 + 30
- 
+    Range  Accuracy 90d    Accuracy 1yr    Temperature
+           ±(% of setting  ±(% of setting  Coefficient
+           +µV)            +µV)            ±(% of setting
+                                           +µV)/°C
+    -----------------------------------------------------
+    10mV   0.018 + 4       0.025 + 5       0.0018 + 0.7
+    100mV  0.018 + 10      0.025 + 10      0.0018 + 0.7
+    1V     0.01 + 100      0.016 + 120     0.0009 + 7
+    10V    0.01 + 200      0.016 + 240     0.0008 + 10
+    30V    0.01 + 500      0.016 + 600     0.0008 + 30
 
- 
- Range   Maximum Output                   Output Noise
-         Output  Resistance          DC to 10Hz  DC to 10kHz
-                                                 (typical data)
- ----------------------------------------------------------
- 10mV    -       approx. 2Ohm        3µVp-p      30µVp-p
- 100mV   -       approx. 2Ohm        5µVp-p      30µVp-p
- 1V      ±120mA  less than 2mOhm     15µVp-p     60µVp-p
- 10V     ±120mA  less than 2mOhm     50µVp-p     100µVp-p
- 30V     ±120mA  less than 2mOhm     150µVp-p    200µVp-p
+
+
+    Range   Maximum Output              Output Noise
+            Output  Resistance          DC to 10Hz  DC to 10kHz
+                                        (typical data)
+    ----------------------------------------------------------
+    10mV    -       approx. 2Ohm        3µVp-p      30µVp-p
+    100mV   -       approx. 2Ohm        5µVp-p      30µVp-p
+    1V      ±120mA  less than 2mOhm     15µVp-p     60µVp-p
+    10V     ±120mA  less than 2mOhm     50µVp-p     100µVp-p
+    30V     ±120mA  less than 2mOhm     150µVp-p    200µVp-p
 
 
 Common mode rejection:
@@ -461,38 +460,34 @@ Common mode rejection:
 
 =head2 DC current
 
- Range   Maximum     Resolution  Stability (24 h)    Stability (90 days) 
-         Output                  ±(% of setting      ±(% of setting      
-                                 + µA)               + µA)               
- -----------------------------------------------------------------------
- 1mA     ±1.20000mA  10nA        0.0015 + 0.03       0.016 + 0.1         
- 10mA    ±12.0000mA  100nA       0.0015 + 0.3        0.016 + 0.5         
- 100mA   ±120.000mA  1µA         0.004  + 3          0.016 + 5           
+    Range   Maximum     Resolution  Stability (24 h)    Stability (90 days) 
+            Output                  ±(% of setting      ±(% of setting      
+                                    + µA)               + µA)               
+    -----------------------------------------------------------------------
+    1mA     ±1.20000mA  10nA        0.0015 + 0.03       0.016 + 0.1         
+    10mA    ±12.0000mA  100nA       0.0015 + 0.3        0.016 + 0.5         
+    100mA   ±120.000mA  1µA         0.004  + 3          0.016 + 5           
 
 
-
- Range   Accuracy (90 days)  Accuracy (1 year)   Temperature  
-         ±(% of setting      ±(% of setting      Coefficient     
-         + µA)               + µA)               ±(% of setting  
-                                                 + µA)/°C        
- -----   ------------------------------------------------------  
- 1mA     0.02 + 0.1          0.03 + 0.1          0.0015 + 0.01   
- 10mA    0.02 + 0.5          0.03 + 0.5          0.0015 + 0.1    
- 100mA   0.02 + 5            0.03 + 5            0.002  + 1
-
+    Range   Accuracy (90 days)  Accuracy (1 year)   Temperature  
+            ±(% of setting      ±(% of setting      Coefficient     
+            + µA)               + µA)               ±(% of setting  
+                                                    + µA)/°C        
+    -----   ------------------------------------------------------  
+    1mA     0.02 + 0.1          0.03 + 0.1          0.0015 + 0.01   
+    10mA    0.02 + 0.5          0.03 + 0.5          0.0015 + 0.1    
+    100mA   0.02 + 5            0.03 + 5            0.002  + 1
 
 
- Range  Maximum     Output                   Output Noise
-        Output      Resistance          DC to 10Hz  DC to 10kHz
-                                                    (typical data)
- -----------------------------------------------------------------
- 1mA    ±30 V       more than 100MOhm   0.02µAp-p   0.1µAp-p
- 10mA   ±30 V       more than 100MOhm   0.2µAp-p    0.3µAp-p
- 100mA  ±30 V       more than 10MOhm    2µAp-p      3µAp-p
+    Range  Maximum     Output                   Output Noise
+           Output      Resistance          DC to 10Hz  DC to 10kHz
+                                                       (typical data)
+    -----------------------------------------------------------------
+    1mA    ±30 V       more than 100MOhm   0.02µAp-p   0.1µAp-p
+    10mA   ±30 V       more than 100MOhm   0.2µAp-p    0.3µAp-p
+    100mA  ±30 V       more than 10MOhm    2µAp-p      3µAp-p
 
 Common mode rejection: 100nA/V or more (DC, 50/60Hz).
-
-=end html
 
 =head1 CAVEATS
 
@@ -510,9 +505,9 @@ The Yokogawa7651 class uses the Lab::VISA module (L<Lab::VISA>).
 
 The Yokogawa7651 class is a Lab::Instrument (L<Lab::Instrument>).
 
-=item SafeSource
+=item Lab::Instrument::Source
 
-The Yokogawa7651 class is a SafeSource (L<SafeSource>)
+The Yokogawa7651 class is a Source (L<Lab::Instrument::Source>)
 
 =back
 
