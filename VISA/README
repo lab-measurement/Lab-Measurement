@@ -38,6 +38,24 @@ See National Instrument's website at
   http://digital.ni.com/softlib.nsf/webcategories/85256410006C055586256BBB002C0E91?opendocument&node=132060_US 
 
 
+FURTHER SUPPORT
+---------------
+
+You are encouraged to use a public forum for discussing problems related to
+Lab::VISA. This way future users will take advantage of your findings too.
+
+There is a mailing list set up for Lab::VISA at
+  https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-visa-users
+
+A webbased discussion forum (that can be reached from the CPAN page) is located at
+  http://cpanforum.com/dist/Lab-VISA
+
+Bugs can be reported to
+  https://rt.cpan.org/Public/Dist/Display.html?Name=Lab-VISA
+
+You will also find that the authors of this package are always happy to receive feedback.
+
+
 COPYRIGHT AND LICENCE
 --------------------- 
 
