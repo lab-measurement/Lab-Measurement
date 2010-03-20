@@ -1,5 +1,4 @@
-README for Lab::VISA 
---------------------
+=head1 Lab::VISA 
 
 This library offers a perl interface to National Instrument's NI-VISA 
 library. 
@@ -9,58 +8,216 @@ With this library you can easily control the instruments in your lab
 with Perl. You can perform complicated measurement jobs with just some 
 Perl loops. 
 
-Even better: The Lab::Instrument class reduces the communication 
+Even better: The L<Lab::Instrument|Lab::Instrument> class reduces the communication 
 overhead to simple read, write and query methods. On top of this, there 
 are specialized instrument classes (virtual instruments) such as 
-Lab::Instrument::HP34401A, that offer even more high level comfort with 
+L<Lab::Instrument::HP34401A|Lab::Instrument::HP34401A>, that offer even more high level comfort with 
 methods such as read_voltage. 
 
-The Lab::Tools package offers classes to simplify the task of logging 
+The L<Lab::Tools|Lab::Tools> package offers classes to simplify the task of logging 
 data to disk and maintaining this data. 
 
-
-INSTALLATION
-------------
+=head1 INSTALLATION
 
 This library has been tested to work on Linux and Windows. 
 
-A step-by-step installation tutorial for Windows is given in the file 
-INSTALLATION_ON_WINDOWS.txt. 
+A step-by-step installation tutorial for Windows is given L<below|/WINDOWS INSTALLATION>. 
 
-As a Linux user you will probably be able to figure things out yourself. 
+As a Linux user you will probably be able to figure out things yourself. 
 Before you start, you must have the VISA library by National Instrument 
 installed. If you plan to use GPIB connections (which is very likely), 
 you must also have the necessary drivers (NI-488.2) for your GPIB 
 adapter card installed. Refer to the good documentation by National 
-Instruments to learn about these packages. 
+Instrument to learn about these packages. See National Instrument's website at
+L<http://digital.ni.com/softlib.nsf/webcategories/85256410006C055586256BBB002C0E91?opendocument&node=132060_US>
 
-See National Instrument's website at 
-  http://digital.ni.com/softlib.nsf/webcategories/85256410006C055586256BBB002C0E91?opendocument&node=132060_US 
+=head1 FURTHER SUPPORT
 
+A general introduction to using Lab::Visa is given in L<Lab::VISA::Tutorial|Lab::VISA::Tutorial>.
+A description of the various APIs can be found in the respective POD sections, i.e.
+at L<Lab::VISA|Lab::VISA>.
 
-FURTHER SUPPORT
----------------
-
-You are encouraged to use a public forum for discussing problems related to
-Lab::VISA. This way future users will take advantage of your findings too.
+In case you encounter any problems, you are encouraged to use a
+public forum for discussion. This way future users will be able to take
+advantage of your findings.
 
 There is a mailing list set up for Lab::VISA at
-  https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-visa-users
+L<https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-visa-users>
 
 A webbased discussion forum (that can be reached from the CPAN page) is located at
-  http://cpanforum.com/dist/Lab-VISA
+L<http://cpanforum.com/dist/Lab-VISA>
 
 Bugs can be reported to
-  https://rt.cpan.org/Public/Dist/Display.html?Name=Lab-VISA
+L<https://rt.cpan.org/Public/Dist/Display.html?Name=Lab-VISA>
 
 You will also find that the authors of this package are always happy to receive feedback.
 
+=head1 WINDOWS INSTALLATION
 
-COPYRIGHT AND LICENCE
---------------------- 
+Instructions for installing Lab::VISA, Lab::Instrument, Lab::Tools, and dependencies
+on a Windows XP system.
 
-(c) 2004-2006 Daniel Schröer
-(c) 2006-2010 Daniel Schröer, Andreas Hüttel, Daniela Taubert, and others 
+=over 4
+
+=item 0
+
+Work with administrator account during installation.
+
+=item 1
+
+Install VISA (and GPIB drivers) if necessary.
+
+=over 4
+
+=item *
+
+Download current VISA release from NI (tested with 4.4.1, 4.5.0)
+
+=item *
+
+Run installer
+
+=item *
+
+Check location of visa32.lib (eg. C:\Programme\IVI Foundation\VISA\WinNT\lib\msc\visa32.lib)
+and remember for later.
+
+=back
+
+=item 2
+
+Install Microsoft Visual C++ from L<http://www.microsoft.com/express/Downloads/>
+
+From now on run all commandline programs during installation only from the "Visual Studio Command line",
+which can be found in the Start menu.
+
+=item 3
+
+Install Perl.
+
+=over 4
+
+=item *
+
+Tested with ActivePerl from L<http://www.activestate.com/Products/activeperl/index.mhtml>
+
+=item *
+
+Make sure to include Perl Package Manager.
+
+=item *
+
+Make sure to activate the check box to include perl directory in PATH variable.
+
+=back
+
+=item 4
+
+Install gnuplot
+
+=over 4
+
+=item *
+
+Download from L<http://sourceforge.net/project/showfiles.php?group_id=2055> (gp425win32.zip)
+
+=item *
+
+Extract and put it somewhere
+
+=item *
+
+Add directory containing pgnuplot.exe to path:
+My Computer => Properties => Advanced => Environment Variables
+
+=back
+
+=item 5
+
+Install dependencies of our perl modules. Depending on how familiar you are
+with the perl infrastructure, the easiest might be to use PPM, the Perl Package Manager
+included with ActivePerl.
+
+Lab::Tools needs
+
+=over 4
+
+=item *
+
+XML::Generator (PPM would write it as XML-Generator)
+
+=item *
+
+XML::DOM
+
+=item *
+
+XML::Twig
+
+=item *
+
+YAML
+
+=back
+
+=item 6
+
+Install Lab::VISA
+
+=over 4
+
+=item *
+
+Unzip/copy sources
+
+=item *
+
+In file C<Makefile.PL> adapt the LIBS and INC settings according to your installation
+(the location looked up above). This is what worked for me:
+
+    'LIBS' => ['-"lC:\\Programme\\IVI Foundation\\VISA\\WinNT\\lib\\msc\\visa32.lib"']
+    'INC'  => '"-IC:\\Programme\\IVI Foundation\\VISA\\WinNT\\include"'
+
+=item *
+
+Run the following commands in the source directory
+
+    perl Makefile.PL
+    nmake
+    nmake install
+
+=back
+
+=item 7
+
+Install Lab::Instrument and Lab::Tools
+
+=over 4
+
+=item *
+
+Unzip/copy sources
+
+=item *
+
+Run the following commands in the source directory
+
+    perl Build.PL
+    perl Build
+    perl Build install
+
+=back
+
+=item 8
+
+Have fun!
+
+=back
+
+=head1 COPYRIGHT AND LICENCE
+
+ (c) 2004-2006 Daniel Schröer
+ (c) 2007-2010 Daniel Schröer, Andreas Hüttel, Daniela Taubert, and others 
 
 This library is free software; you can redistribute it and/or modify it 
 under the same terms as Perl itself. 

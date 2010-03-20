@@ -30,6 +30,11 @@ This manpage describes the perl syntax of the API. Each function is explained
 with some sentences which I cited from [1]. See this manual for further
 documentation on the library.
 
+Installation instructions can be found in the L<README> file located in the
+toplevel directory of the package.
+
+A general tutorial for using Lab::VISA and assorted packages is located in L<Lab::VISA::Tutorial>.
+
 [1] NI-VISA Programmer Reference Manual. Part Number 370132C-01.
 
 =head1 FUNCTIONS
@@ -151,7 +156,7 @@ synchronous write operation can occur at any one time.
 Probably many.
 
 I have tested this on Linux and Windows. Compilation is a little tricky if you don't have
-much experience (I didn't have much), but definitely possible. See the README file for
+much experience (I didn't have much), but definitely possible. See the L<README> file for
 more information.
 
 Not all API functions are supported, just the ones that I needed. Only GPIB connections
@@ -163,11 +168,20 @@ are tested so far.
 
 =item L<Lab::Instrument>
 
+=item L<Lab::Tools>
+
 =item L<GPIB>
 
 This module can also provide instrument connectivity from perl, but builds on top
 of GPIB instead of the higher level VISA. I could never make it work properly.
 It seems to be unmaintained for a while.
+
+=item L<http://pyvisa.sourceforge.net/>
+
+As the website states, the PyVISA package enables you to control all kinds of measurement
+equipment through various busses (GPIB, RS232, USB) with Python programs.
+
+This project was indicated to me only recently by a Lab::VISA user. It looks very similar.
 
 =back
 
@@ -175,7 +189,11 @@ It seems to be unmaintained for a while.
 
 This is $Id$
 
-This swig-based interface is copyright 2004/2005 by Daniel Schröer.
+This swig-based interface is
+
+ (c) 2004-2006 Daniel Schröer
+ (c) 2007-2010 Daniel Schröer, Andreas Hüttel, Daniela Taubert, and others 
+
 It is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 
 For the rest National Instruments or the VXI Consortium will probably have a word to say. See

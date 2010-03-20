@@ -21,10 +21,10 @@ WriteMakefile(
     (($^O =~ /MSWin32/)
     ?   ('LIBS'         => ['"-lC:\\Programme\\IVI Foundation\\VISA\\WinNT\\lib\\msc\\visa32.lib"'],
          'INC'          => '"-IC:\\Programme\\National Instruments\\Shared\\CVI\\include "',
-		)
+        )
     :   ('LIBS'         => ['-lvisa'],                           # stdc++ is not anymore necessary here
          'INC'          => '-I/usr/local/vxipnp/linux/include/',
-		)
+        )
     ),
     'NAME'              => 'Lab::VISA',
     'VERSION_FROM'      => 'VISA.pm',
