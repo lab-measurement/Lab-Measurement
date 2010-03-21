@@ -515,7 +515,8 @@ The Yokogawa7651 class is a Source (L<Lab::Instrument::Source>)
 
 This is $Id$
 
-Copyright 2004 Daniel Schröer (L<http://www.danielschroeer.de>)
+ (c) 2004-2006 Daniel Schröer
+ (c) 2007-2010 Daniel Schröer, Daniela Taubert, Andreas Hüttel, and others
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 

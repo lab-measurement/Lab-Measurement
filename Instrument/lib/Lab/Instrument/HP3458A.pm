@@ -91,7 +91,7 @@ sub preset {
 
 =head1 NAME
 
-Lab::Instrument::HP3458A - The Agilent 3458A Multimeter, recognized the world over as the standard in high performance DMMs, provides both speed and accuracy in the R&D lab, on the production test floor, and in the calibration lab.
+Lab::Instrument::HP3458A - Agilent 3458A Multimeter
 
 =head1 SYNOPSIS
 
@@ -106,7 +106,9 @@ Lab::Instrument::HP3458A - The Agilent 3458A Multimeter, recognized the world ov
 =head1 DESCRIPTION
 
 The Lab::Instrument::HP3458A class implements an interface to the Agilent / HP 3458A 
-digital multimeter. 
+digital multimeter. The Agilent 3458A Multimeter, recognized the world over as the
+standard in high performance DMMs, provides both speed and accuracy in the R&D lab,
+on the production test floor, and in the calibration lab.
 
 =head1 CONSTRUCTOR
 
