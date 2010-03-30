@@ -16,13 +16,15 @@ WriteMakefile(
 #       FILES => 'VISA.pm visa_wrap.c'
 #   },
 
-# Adjust the 'LIBS' and 'INC' pathes according to your local setup!
+# Important: you have to adjust the 'LIBS' and 'INC' paths according to your local setup!
+# The correct values may depend on your exact version of LabView, VISA, GPIB drivers, 
+# the phase of the moon and the local neutrino density...
 # First two lines are for Windows, second two lines are for Linux.
     (($^O =~ /MSWin32/)
-    ?   ('LIBS'         => ['"-lC:\\Programme\\IVI Foundation\\VISA\\WinNT\\lib\\msc\\visa32.lib"'],
-         'INC'          => '"-IC:\\Programme\\National Instruments\\Shared\\CVI\\include "',
+    ?   ('LIBS'         => ['"-lC:\\VXIPNP\\WinNT\\lib\\msc\\visa32.lib"'],
+         'INC'          => '"-IC:\\VXIPNP\\WinNT\\include "',
         )
-    :   ('LIBS'         => ['-lvisa'],                           # stdc++ is not anymore necessary here
+    :   ('LIBS'         => ['-lvisa'],
          'INC'          => '-I/usr/local/vxipnp/linux/include/',
         )
     ),

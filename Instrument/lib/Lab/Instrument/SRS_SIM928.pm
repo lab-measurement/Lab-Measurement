@@ -4,7 +4,7 @@ use Lab::Instrument;
 use Lab::Instrument::MultiSource;
 use Time::HiRes qw/usleep/;
 
-our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
+our $VERSION = sprintf("0.%04d", q$Revision: 119 $ =~ / (\d+) /);
 
 our @ISA=('Lab::Instrument::MultiSource');
 
@@ -167,7 +167,7 @@ The Yokogawa7651 class is a SafeSource (L<SafeSource>)
 
 =head1 AUTHOR/COPYRIGHT
 
-This is $Id$
+This is $Id: SRS_SIM928.pm 119 2010-01-13 19:03:49Z hua59129 $
 
 Copyright 2004 Daniel Schröer (L<http://www.danielschroeer.de>)
 

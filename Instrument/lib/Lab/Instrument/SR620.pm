@@ -195,7 +195,7 @@ This driver is heavily work in progress and does not work yet. :(
 
 =head1 AUTHOR/COPYRIGHT
 
-This is $Id$
+This is $Id: SR620.pm 119 2010-01-13 19:03:49Z hua59129 $
 
 Copyright 2009 Tom Geiger and Andreas K. Hüttel (L<http://www.akhuettel.de/>)
 

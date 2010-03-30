@@ -68,7 +68,7 @@ my $preamble=
 \begin{flushleft}
 \newcommand{\Rule}{\rule{\textwidth}{1pt}}
 \sffamily
-{\Large Daniel Schröer}
+{\Large Daniel Schröer, Andreas K. Hüttel, et al.}
 \vspace{5mm}
 
 \Rule
@@ -82,6 +82,8 @@ my $preamble=
 \end{center}
 \vfill
 \today\ ($ $Revision$ $)
+
+\href{http://www.akhuettel.de/labvisa/}{http://www.akhuettel.de/labvisa/}
 
 \end{flushleft}
 \end{titlepage}

@@ -2142,6 +2142,7 @@ XS(_wrap_viRead) {
     } 
     arg1 = (ViSession)(val1);
     {
+      /* this is the vi_Read input typemap */
       arg3 = (ViUInt32)SvIV(ST(1));
       arg2 = (ViPBuf) malloc(arg3 + 1);
     }
@@ -2149,14 +2150,23 @@ XS(_wrap_viRead) {
     result = (ViStatus)viRead(arg1,arg2,arg3,arg4);
     ST(argvi) = SWIG_From_long  SWIG_PERL_CALL_ARGS_1((long)(result)); argvi++ ;
     {
+      /* this is the vi_Read output typemap */
+      
       if (argvi >= items){
         EXTEND(sp, 1);
       }
-      
       ST(argvi) = sv_newmortal();
-      sv_setpvn(ST(argvi),(char *)arg2, arg4);
+      sv_setpvn(ST(argvi),(char *)arg2, *arg4);
       argvi++;
       free(arg2);
+      
+      if (argvi >= items){
+        EXTEND(sp, 1);
+      }
+      ST(argvi) = sv_newmortal();
+      sv_setiv(ST(argvi), *arg4);
+      argvi++;
+      free(arg4);
     }
     
     

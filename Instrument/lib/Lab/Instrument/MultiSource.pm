@@ -327,7 +327,7 @@ This class inherits the gate protection mechanism.
 
 =head1 AUTHOR/COPYRIGHT
 
-This is $Id$
+This is $Id: MultiSource.pm 119 2010-01-13 19:03:49Z hua59129 $
 
 Copyright 2004-2006 Daniel Schröer (L<http://www.danielschroeer.de>)
 
