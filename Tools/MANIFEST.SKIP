@@ -29,7 +29,6 @@
 \blib/Lab/Data/Dataset.pm$
 \blib/Lab/Measurement/Ladediagramm.pm$
 \bexamples
-\bscripts
 
 \bt/Dataset.t
 \bt/XMLtree.t
