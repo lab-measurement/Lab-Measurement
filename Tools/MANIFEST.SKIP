@@ -15,6 +15,7 @@
 # Avoid Module::Build generated and utility files.
 \bBuild$
 \b_build
+^MYMETA.yml$
 
 # Avoid temp and backup files.
 ~$
@@ -28,7 +29,19 @@
 \blib/Lab/Data/PDL.pm$
 \blib/Lab/Data/Dataset.pm$
 \blib/Lab/Measurement/Ladediagramm.pm$
-\bexamples
+\bscripts/coulomb
+\bscripts/gate_leck.pl
+\bscripts/Kondo
+\bscripts/lade
+\bscripts/lecktester.pl
+\bscripts/noise.pl
+\bscripts/pdl
+\bscripts/pressure.pl
+\bscripts/QPC
+\bscripts/raw_tools
+\bscripts/test_measurement.pl
+\bscripts/triple
+\bscripts/TSK
 
 \bt/Dataset.t
 \bt/XMLtree.t
