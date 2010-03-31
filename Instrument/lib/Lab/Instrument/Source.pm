@@ -98,6 +98,13 @@ sub step_to_voltage {
     #already there
     return $voltage if (abs($voltage - $last_v) < $self->{config}->{gp_equal_level});
 
+    #are we already close enough? if so, screw the waiting time...
+    if ((defined $voltperstep) && (abs($voltage - $last_v) < $voltperstep)) {
+        $self->_set_voltage($voltage);
+        $self->{_gp}->{last_voltage}=$voltage;
+        return $voltage;       
+    }    
+
     #do the magic step calculation
     my $wait = ($voltpersec < $voltperstep * $steppersec) ?
         $voltperstep/$voltpersec : # ignore $steppersec

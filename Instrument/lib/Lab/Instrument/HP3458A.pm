@@ -34,6 +34,29 @@ sub read_voltage_dc {
     return $val #$self->{vi}->Query("DCV");
 }
 
+sub set_nplc {
+    my $self=shift;
+    my $n=shift;    
+    
+    $self->{vi}->Write("NPLC $n");
+}
+
+sub selftest {
+    my $self=shift;
+    $self->{vi}->Write("TEST");
+}
+
+sub autocalibration {
+	# Warning... this procedure takes 11 minutes!
+    my $self=shift;
+    $self->{vi}->Write("ACAL ALL");
+}
+
+sub reset {
+    my $self=shift;
+    $self->{vi}->Write("PRESET NORM");
+}
+
 
 sub display_text {
     my $self=shift;
@@ -48,17 +71,32 @@ sub display_text {
     return $text;
 }
 
-sub display_on {
+sub display_text {
     my $self=shift;
-    $self->{vi}->Write("DISPlay ON");
+    my $text=shift;
+    
+    $self->{vi}->Write("DISP MSG,\"$text\"");
 }
 
+sub display_on {
+    my $self=shift;
+    $self->{vi}->Write("DISP ON");
+}
 
+sub display_off {
+    my $self=shift;
+    $self->{vi}->Write("DISP OFF");
+}
+
+sub display_clear {
+    my $self=shift;
+    $self->{vi}->Write("DISP CLR");
+}
 
 sub beep {
     # It beeps!
     my $self=shift;
-    $self->{vi}->Write("SYSTem:BEEPer");
+    $self->{vi}->Write("BEEP");
 }
 
 sub get_error {
@@ -67,12 +105,6 @@ sub get_error {
     my ($err_num,$err_msg)=split ",",$err;
     $err_msg=~s/\"//g;
     return ($err_num,$err_msg);
-}
-
-sub reset {
-    # Resets HP3458A into standard configuration
-    my $self=shift;
-    $self->{vi}->Write("RESET");
 }
 
 sub preset {
@@ -128,6 +160,12 @@ Make a dc voltage measurement.
 
 Turn the front-panel display on.
 
+=head2 display_off
+
+    $hp->display_off();
+
+Turn the front-panel display off.
+
 =head2 display_text
 
     $hp->display_text($text);
@@ -135,7 +173,12 @@ Turn the front-panel display on.
 
 Display a message on the front panel. The multimeter will display up to 12
 characters in a message; any additional characters are truncated.
-Without parameter the displayed message is returned.
+
+=head2 display_clear
+
+    $hp->display_clear();
+
+Clear the message displayed on the front panel.
 
 =head2 beep
 
@@ -178,7 +221,7 @@ probably many
 
 This is $Id$
 
-Copyright 2009 David Kalok
+Copyright 2009, 2010 David Kalok, Andreas K. Huettel
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 

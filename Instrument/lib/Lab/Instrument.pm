@@ -4,6 +4,7 @@ package Lab::Instrument;
 
 use strict;
 use Lab::VISA;
+use Lab::Instrument::IsoBus;
 use Time::HiRes qw (usleep);
 use Time::HiRes qw (sleep);
 our $VERSION = sprintf("1.%04d", q$Revision$ =~ / (\d+) /);
@@ -18,51 +19,62 @@ sub new {
     bless ($self, $class);
 
     my @args=@_;
-    
+	my $config;
+	
+	$config->{isIsoBusInstrument}=0;
+	
     my ($status,$res)=Lab::VISA::viOpenDefaultRM();
     if ($status != $Lab::VISA::VI_SUCCESS) { die "Cannot open resource manager: $status";}
     $self->{default_rm}=$res;
 
     my $resource_name;
+	
+	#
+	# GPIB instruments can be defined by providing a hash as constructor argument
+	#
     if ((ref $args[0]) eq 'HASH') {
-        my $config=$args[0];
+        $config=$args[0];
         if (defined ($config->{GPIB_address})) {
             @args=(
                 (defined ($config->{GPIB_board})) ? $config->{GPIB_board} : 0,
                  $config->{GPIB_address});
         } else {
-            die "scheiss argumente";
+            die "The Lab::Instrument constructor got a malformed hash as argument. Aborting.\n";
         }
     }
-    if ($#args >0) { # GPIB
-        $resource_name=sprintf("GPIB%u::%u::INSTR",$args[0],$args[1]);
-    } elsif ($args[0] =~ /ASRL/) {  # serial
+    if ($#args >0) { 
+		my $firstargtype=ref($args[0]);
+		if ($firstargtype eq 'Lab::Instrument::IsoBus') {
+			print "Hey great! Someone is testing IsoBus instruments!!!\n";
+			#
+			# First argument: the IsoBus instrument
+			# Second argument: the IsoBus address
+			#
+			if ($args[0]->IsoBus_valid()) {			
+				print "Connected to valid IsoBus.\n";
+				$config->{isIsoBusInstrument}=1;
+				$config->{IsoBus}=$args[0];
+				$config->{IsoBusAddress}=$args[1];
+			} else {
+				die "Tried to instantiate IsoBus instrument without valid IsoBus. Aborting.\n";
+			};
+		} else {
+			#
+			# More than one argument: assume GPIB, and the two arguments are gpib adaptor and gpib address
+			#
+			$resource_name=sprintf("GPIB%u::%u::INSTR",$args[0],$args[1]);
+		}
+    } elsif ($args[0] =~ /ASRL/) {  
+		#
+		# Exactly one argument, and it contains ASRL: serial port
+		# this is a legacy construct for older scripts, and should go away at some point :(
+		#
         $resource_name=$args[0]."::INSTR";
-    } else {    #find
-        ($status,my $listhandle,my $count,my $description)=Lab::VISA::viFindRsrc($self->{default_rm},'?*INSTR');
-        if ($status != $Lab::VISA::VI_SUCCESS) { die "Cannot find resources: $status";}  
-        my $found;
-        while ($count-- > 0) {
-            print STDERR  "Lab::Instrument: checking $description\n";
-            ($status,my $instrument)=Lab::VISA::viOpen($self->{default_rm},$description,$Lab::VISA::VI_NULL,$Lab::VISA::VI_NULL);
-            if ($status != $Lab::VISA::VI_SUCCESS) { die "Cannot open instrument $description. status: $status";}
-            my $cmd='*IDN?';
-            $self->{instr}=$instrument;
-            my $result=$self->Query($cmd);
-            $status=Lab::VISA::viClose($instrument);
-            if ($status != $Lab::VISA::VI_SUCCESS) { die "Cannot close instrument $description. status: $status";}
-            print STDERR  "Lab::Instrument: id $result\n";
-            if ($result =~ $args[0]) {
-                $resource_name=$description;
-                $count=0;
-            }
-            if ($count) {
-                ($status, $description)=Lab::VISA::viFindNext($listhandle);
-                if ($status != $Lab::VISA::VI_SUCCESS) { die "Cannot find next instrument: $status";}
-            }
-        }
-        $status=Lab::VISA::viClose($listhandle);
-        if ($status != $Lab::VISA::VI_SUCCESS) { die "Cannot close find list: $status";}     
+    } else {    
+		# 
+		# Exactly one argument -> this is the VISA resource name of the instrument
+		# 
+		$resource_name=$args[0];
     }
     
     if ($resource_name) {
@@ -75,12 +87,19 @@ sub new {
     
         return $self;
     }
+	
+	if ($self->{config}->{isIsoBusInstrument}) {
+	    return $self;
+	}
+	
     return 0;
 }
 
 sub Clear {
     my $self=shift;
     
+	if ($self->{config}->{isIsoBusInstrument}) { die "Clear not implemented for IsoBus instruments.\n"; };
+	
     my $status=Lab::VISA::viClear($self->{instr});
     if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while clearing instrument: $status";}
 }
@@ -89,17 +108,26 @@ sub Write {
     my $arg_cnt=@_;
     my $self=shift;
     my $cmd=shift;
-    #printf "# Variables=$arg_cnt\n"\n
-    my $wait_status=$WAIT_STATUS;
-    if ($arg_cnt==3){ $wait_status=shift}
-    my ($status, $write_cnt)=Lab::VISA::viWrite(
-        $self->{instr},
-        $cmd,
-        length($cmd)
-    );
-    usleep($wait_status);
-    if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while writing string \"\n$cmd\n\": $status";}
-    return $write_cnt;
+
+	if ($self->{config}->{isIsoBusInstrument}) { 
+	
+		my $write_cnt=$self->{config}->{IsoBus}->IsoBus_Write($self->{config}->{IsoBusAddress}, $cmd);
+		return $write_cnt;
+		
+	} else {
+	
+		my $wait_status=$WAIT_STATUS;
+		if ($arg_cnt==3){ $wait_status=shift}
+		my ($status, $write_cnt)=Lab::VISA::viWrite(
+			$self->{instr},
+			$cmd,
+			length($cmd)
+		);
+		usleep($wait_status);
+		if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while writing string \"\n$cmd\n\": $status";}
+		return $write_cnt;
+		
+	};
 }
 
 sub Query { # ($cmd, optional $wait_query  , optional $wait_status )
@@ -107,6 +135,9 @@ sub Query { # ($cmd, optional $wait_query  , optional $wait_status )
     my $arg_cnt=@_;
     my $self=shift;
     my $cmd=shift;
+
+	if ($self->{config}->{isIsoBusInstrument}) { die "Query not implemented for IsoBus instruments.\n"; };
+	
     my $wait_status=$WAIT_STATUS;
     my $wait_query=$WAIT_QUERY;
     if ($arg_cnt==3){ $wait_query=shift}
@@ -132,6 +163,9 @@ sub BrutalQuery {
     # contains a nice bomb: read_cnt is arbitrarly set to 300 bytes
     my $self=shift;
     my $cmd=shift;
+
+	if ($self->{config}->{isIsoBusInstrument}) { die "BrutalQuery not implemented for IsoBus instruments.\n"; };
+
     my ($status, $write_cnt)=Lab::VISA::viWrite(
         $self->{instr},
         $cmd,
@@ -147,6 +181,9 @@ sub BrutalQuery {
 sub Read {
     my $self=shift;
     my $length=shift;
+
+	if ($self->{config}->{isIsoBusInstrument}) { die "Read not implemented for IsoBus instruments.\n"; };	
+
     my ($status,$result,$read_cnt)=Lab::VISA::viRead($self->{instr},$length);
     if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while reading: $status";}
     return substr($result,0,$read_cnt);
@@ -156,19 +193,27 @@ sub BrutalRead {
     my $self=shift;
     my $length=shift;
 
+	if ($self->{config}->{isIsoBusInstrument}) { die "Read not implemented for IsoBus instruments.\n"; };
+	
     my ($status,$result,$read_cnt)=Lab::VISA::viRead($self->{instr},$length);
     return substr($result,0,$read_cnt);
 }
 
 sub Handle {
     my $self=shift;
+	if ($self->{config}->{isIsoBusInstrument}) { die "Handle not implemented for IsoBus instruments.\n"; };		
     return $self->{instr};
 }
 
 sub DESTROY {
     my $self=shift;
-    my $status=Lab::VISA::viClose($self->{instr});
-    $status=Lab::VISA::viClose($self->{default_rm});
+	
+	if ($self->{config}->{isIsoBusInstrument}) {
+		# we dont actually have to do anything here :)
+	} else {
+	    my $status=Lab::VISA::viClose($self->{instr});
+		$status=Lab::VISA::viClose($self->{default_rm});
+	};
 }
 
 1;
