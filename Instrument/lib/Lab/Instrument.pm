@@ -11,6 +11,9 @@ our $VERSION = sprintf("1.%04d", q$Revision$ =~ / (\d+) /);
 
 our $WAIT_STATUS=10;#usec;
 our $WAIT_QUERY=10;#usec;
+our $QUERY_LENGTH=300; # bytes
+our $QUERY_LONG_LENGTH=10240; #bytes
+our $INS_DEBUG=0; # do we need additional output?
 
 sub new {
     my $proto = shift;
@@ -46,6 +49,7 @@ sub new {
 		my $firstargtype=ref($args[0]);
 		if ($firstargtype eq 'Lab::Instrument::IsoBus') {
 			print "Hey great! Someone is testing IsoBus instruments!!!\n";
+			print "IsoBus support is UNTESTED so far. It may eat your pet targh. You have been warned.\n";
 			#
 			# First argument: the IsoBus instrument
 			# Second argument: the IsoBus address
@@ -64,12 +68,6 @@ sub new {
 			#
 			$resource_name=sprintf("GPIB%u::%u::INSTR",$args[0],$args[1]);
 		}
-    } elsif ($args[0] =~ /ASRL/) {  
-		#
-		# Exactly one argument, and it contains ASRL: serial port
-		# this is a legacy construct for older scripts, and should go away at some point :(
-		#
-        $resource_name=$args[0]."::INSTR";
     } else {    
 		# 
 		# Exactly one argument -> this is the VISA resource name of the instrument
@@ -85,10 +83,12 @@ sub new {
         $status=Lab::VISA::viSetAttribute($self->{instr}, $Lab::VISA::VI_ATTR_TMO_VALUE, 3000);
         if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting timeout value: $status";}
     
+		if ($INS_DEBUG) { print "Instantiated VISA resource $resource_name.\n"; };
         return $self;
     }
 	
 	if ($self->{config}->{isIsoBusInstrument}) {
+		if ($INS_DEBUG) { print "Instantiated IsoBus device.\n"; };
 	    return $self;
 	}
 	
@@ -130,6 +130,34 @@ sub Write {
 	};
 }
 
+sub Read {
+    my $self=shift;
+    my $length=shift;
+
+	if ($self->{config}->{isIsoBusInstrument}) { 
+	
+		my $result=$self->{config}->{IsoBus}->IsoBus_Read($self->{config}->{IsoBusAddress}, $length);
+		return $result;
+		
+	} else {	
+
+		my ($status,$result,$read_cnt)=Lab::VISA::viRead($self->{instr},$length);
+		if (($status != $Lab::VISA::VI_SUCCESS) && ($status != 0x3FFF0005)){die "Error while reading: $status";};
+		return substr($result,0,$read_cnt);
+		
+	};
+}
+
+sub BrutalRead {
+    my $self=shift;
+    my $length=shift;
+
+	if ($self->{config}->{isIsoBusInstrument}) { die "BrutalRead not implemented for IsoBus instruments.\n"; };
+	
+    my ($status,$result,$read_cnt)=Lab::VISA::viRead($self->{instr},$length);
+    return substr($result,0,$read_cnt);
+}
+
 sub Query { # ($cmd, optional $wait_query  , optional $wait_status )
     # contains a nice bomb: read_cnt is arbitrarly set to 300 bytes
     my $arg_cnt=@_;
@@ -138,65 +166,59 @@ sub Query { # ($cmd, optional $wait_query  , optional $wait_status )
 
 	if ($self->{config}->{isIsoBusInstrument}) { die "Query not implemented for IsoBus instruments.\n"; };
 	
-    my $wait_status=$WAIT_STATUS;
+	my $wait_status=$WAIT_STATUS;
     my $wait_query=$WAIT_QUERY;
     if ($arg_cnt==3){ $wait_query=shift}
     if ($arg_cnt==4){ $wait_status=shift}    
-    my ($status, $write_cnt)=Lab::VISA::viWrite(
-        $self->{instr},
-        $cmd,
-        length($cmd)
-    );
-    my $result;
+	
+	my $write_cnt=$self->Write($cmd);
     my $read_cnt;
-    usleep($wait_status); #<---Short Wait until status flag is there.
-    if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while writing string \"\n$cmd\n\": $status";}
     usleep($wait_query); #<---ensures that asked data presented from the device
-    ($status,$result,$read_cnt)=Lab::VISA::viRead($self->{instr},300);
-    usleep($wait_status); #<---Short Wait until status flag is there.
-    if (($status != $Lab::VISA::VI_SUCCESS) && ($status != 0x3FFF0005)){die "Error while reading: $status";};
-    return substr($result,0,$read_cnt);
+
+    my $result=$self->Read($QUERY_LENGTH);
+    return $result;
 }
 
-
-sub BrutalQuery {
-    # contains a nice bomb: read_cnt is arbitrarly set to 300 bytes
+sub LongQuery { # ($cmd, optional $wait_query  , optional $wait_status )
+    # contains a nice bomb: read_cnt is arbitrarly set to 10240 bytes
+    my $arg_cnt=@_;
     my $self=shift;
     my $cmd=shift;
 
-	if ($self->{config}->{isIsoBusInstrument}) { die "BrutalQuery not implemented for IsoBus instruments.\n"; };
-
-    my ($status, $write_cnt)=Lab::VISA::viWrite(
-        $self->{instr},
-        $cmd,
-        length($cmd)
-    );
-    if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while writing: $status";}
-    
-    ($status,my $result,my $read_cnt)=Lab::VISA::viRead($self->{instr},300);
-    return substr($result,0,$read_cnt);
-}
-
-
-sub Read {
-    my $self=shift;
-    my $length=shift;
-
-	if ($self->{config}->{isIsoBusInstrument}) { die "Read not implemented for IsoBus instruments.\n"; };	
-
-    my ($status,$result,$read_cnt)=Lab::VISA::viRead($self->{instr},$length);
-    if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while reading: $status";}
-    return substr($result,0,$read_cnt);
-}
-
-sub BrutalRead {
-    my $self=shift;
-    my $length=shift;
-
-	if ($self->{config}->{isIsoBusInstrument}) { die "Read not implemented for IsoBus instruments.\n"; };
+	if ($self->{config}->{isIsoBusInstrument}) { die "Query not implemented for IsoBus instruments.\n"; };
 	
-    my ($status,$result,$read_cnt)=Lab::VISA::viRead($self->{instr},$length);
-    return substr($result,0,$read_cnt);
+	my $wait_status=$WAIT_STATUS;
+    my $wait_query=$WAIT_QUERY;
+    if ($arg_cnt==3){ $wait_query=shift}
+    if ($arg_cnt==4){ $wait_status=shift}    
+	
+	my $write_cnt=$self->Write($cmd);
+    my $read_cnt;
+    usleep($wait_query); #<---ensures that asked data presented from the device
+
+    my $result=$self->Read($QUERY_LONG_LENGTH);
+    return $result;
+}
+
+sub BrutalQuery {
+    # contains a nice bomb: read_cnt is arbitrarly set to 300 bytes
+    my $arg_cnt=@_;
+    my $self=shift;
+    my $cmd=shift;
+
+	if ($self->{config}->{isIsoBusInstrument}) { die "Query not implemented for IsoBus instruments.\n"; };
+	
+	my $wait_status=$WAIT_STATUS;
+    my $wait_query=$WAIT_QUERY;
+    if ($arg_cnt==3){ $wait_query=shift}
+    if ($arg_cnt==4){ $wait_status=shift}    
+	
+	my $write_cnt=$self->Write($cmd);
+    my $read_cnt;
+    usleep($wait_query); #<---ensures that asked data presented from the device
+
+    my $result=$self->BrutalRead($QUERY_LENGTH);
+    return $result;
 }
 
 sub Handle {
@@ -232,10 +254,10 @@ Lab::Instrument - General VISA based instrument
 =head1 DESCRIPTION
 
 C<Lab::Instrument> offers an abstract interface to an instrument, that is connected via
-GPIB, serial bus or ethernet. It provides general C<Read>, C<Write> and C<Query> methods,
-and more.
+GPIB, serial bus, USB, ethernet, or Oxford Instruments IsoBus. It provides general 
+C<Read>, C<Write> and C<Query> methods, and more.
 
-It can be used either directly by the laborant (programmer) to work with
+It can be used either directly by the programmer to work with
 an instrument that doesn't have its own perl class
 (like L<Lab::Instrument::HP34401A|Lab::Instrument::HP34401A>). Or it can be used by such a specialized
 perl instrument class (like C<Lab::Instrument::HP34401A>), to delegate the
@@ -252,10 +274,19 @@ actual visa work. (All the instruments in the default package do so.)
     GPIB_address => $addr
  });
 
+ $instrument3 = new Lab::Instrument($resourcename);
+
+ $instrument4 = new Lab::Instrument($isobus,$addr);
+
 Creates a new instrument object and open the instrument with GPIB address C<$addr>
 connected to the GPIB board C<$board> (usually 0). All instrument classes that
 internally use the C<Lab::Instrument> module (that's all instruments in the default
-distribution) can use both forms of the constructor.
+distribution) can use both forms of the constructor. Alternatively, the VISA resource 
+name C<$resourcename> can be specified as string for serial or USB devices. 
+
+Lastly, an IsoBus device can be instantiated by providing the IsoBus instrument C<$isobus>
+(of type C<Lab::Instrument::IsoBus>) as first parameter and the numeric IsoBus address 
+of the device C<$addr> as second parameter.
 
 =head1 METHODS
 
@@ -292,6 +323,12 @@ instrument needs to process the query and provide a result (C<$wait_query>) and
 how long the instrument needs to react on a command at all and set the status 
 line (C<$wait_status>). Both parameters are set to 10us if not specified in 
 the command line.
+
+=head2 LongQuery
+
+ $result=$instrument->LongQuery($command, $wait_query, $wait_status);
+
+Same as Query, but with a read buffer size of 10240 bytes.
 
 =head2 BrutalQuery
 

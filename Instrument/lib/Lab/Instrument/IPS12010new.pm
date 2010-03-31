@@ -25,6 +25,8 @@ sub new {
     my $self = $class->SUPER::new($default_config,@args);
     bless ($self, $class);
 
+	print "IPS12010 superconducting magnet supply code is experimental. You have been warned.\n";
+	
     $self->{vi}=new Lab::Instrument(@args);
     
     my $xstatus=Lab::VISA::viSetAttribute($self->{vi}->{instr}, $Lab::VISA::VI_ATTR_TERMCHAR, 0xD);

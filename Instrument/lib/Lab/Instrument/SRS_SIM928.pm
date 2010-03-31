@@ -4,7 +4,7 @@ use Lab::Instrument;
 use Lab::Instrument::MultiSource;
 use Time::HiRes qw/usleep/;
 
-our $VERSION = sprintf("0.%04d", q$Revision: 119 $ =~ / (\d+) /);
+our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
 
 our @ISA=('Lab::Instrument::MultiSource');
 
@@ -115,7 +115,7 @@ Lab::Instrument::SRS_SIM928 - SRS SIM928 voltage source module for SIM900 mainfr
 
 The Lab::Instrument::SRS_SIM928 class implements an interface to the
 SIM928 voltage source modules. This class derives from L<Lab::Instrument::MultiSource>
- and provides all functionality described there.
+and provides all functionality described there.
 
 =head1 CONSTRUCTORS
 
@@ -151,23 +151,15 @@ probably many
 
 =over 4
 
-=item Lab::VISA
-
-The Yokogawa7651 class uses the Lab::VISA module (L<Lab::VISA>).
-
-=item Lab::Instrument
-
-The Yokogawa7651 class is a Lab::Instrument (L<Lab::Instrument>).
-
-=item SafeSource
-
-The Yokogawa7651 class is a SafeSource (L<SafeSource>)
+=item L<Lab::VISA>
+=item L<Lab::Instrument>
+=item L<Lab::Instrument::MultiSource>
 
 =back
 
 =head1 AUTHOR/COPYRIGHT
 
-This is $Id: SRS_SIM928.pm 119 2010-01-13 19:03:49Z hua59129 $
+This is $Id$
 
 Copyright 2004 Daniel Schröer (L<http://www.danielschroeer.de>)
 

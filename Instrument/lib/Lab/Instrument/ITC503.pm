@@ -24,6 +24,7 @@ sub new {
     my $class = ref($proto) || $proto;
     my $self = {};
     bless ($self, $class);
+	printf "The ITC driver is work in progress. You have been warned.\n";
     printf "new ITC\n \n";
     printf "Defining ITC...";    
     $self->{vi}=new Lab::Instrument(@args);
@@ -294,3 +295,41 @@ sub itc_clear_sweep_table {
 
 1;
 
+=head1 NAME
+
+Lab::Instrument::ITC - Oxford Instruments ILM Intelligent temperature control
+
+=head1 SYNOPSIS
+
+    use Lab::Instrument::ITC;
+    
+    my $irc=new Lab::Instrument::ILM($gpibadaptor,3);
+ 
+=head1 DESCRIPTION
+
+The Lab::Instrument::ITC class implements an interface to the Oxford Instruments 
+ITC intelligent temperature controller (tested with the ITC503). This driver is still very
+much work in progress and also lacks documentation.
+
+=head1 CAVEATS/BUGS
+
+probably many
+
+=head1 SEE ALSO
+
+=over 4
+
+=item L<Lab::Instrument>
+
+=back
+
+=head1 AUTHOR/COPYRIGHT
+
+This is $Id$
+
+Copyright 2010 David Kalok and Andreas K. Hüttel (L<http://www.akhuettel.de/>)
+
+This library is free software; you can redistribute it and/or modify it under the same
+terms as Perl itself.
+
+=cut

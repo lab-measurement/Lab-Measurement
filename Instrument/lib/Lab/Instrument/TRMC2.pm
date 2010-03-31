@@ -1,4 +1,4 @@
-#$Id: TRMC2.pm 119 2010-01-13 19:03:49Z hua59129 $
+#$Id$
 
 package Lab::Instrument::TRMC2;
 
@@ -8,7 +8,7 @@ use Lab::Instrument;
 use IO::File;
 use Time::HiRes qw/usleep/;
 use Time::HiRes qw/sleep/;
-our $VERSION = sprintf("0.%04d", q$Revision: 119 $ =~ / (\d+) /);
+our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
 
 my $WAIT=0.3; #sec. waiting time for each reading;
 my $mounted=0;	# Ist sie schon mal angemeldet
@@ -345,3 +345,44 @@ sub MakeFrenchComma{
 }
 
 
+
+=head1 NAME
+
+Lab::Instrument::TRMC2 - ABB TRMC2 temperature controller
+
+=head1 SYNOPSIS
+
+    use Lab::Instrument::TRMC2;
+
+=head1 DESCRIPTION
+
+The Lab::Instrument::ILM class implements an interface to the ABB TRMC2 temperature controller.
+The driver works, but documentation is lacking.
+
+
+=head1 CONSTRUCTOR
+
+    my $trmc=...
+
+=head1 CAVEATS/BUGS
+
+probably many
+
+=head1 SEE ALSO
+
+=over 4
+
+=item L<Lab::Instrument>
+
+=back
+
+=head1 AUTHOR/COPYRIGHT
+
+This is $Id$
+
+Copyright 2010 David Kalok and Andreas K. Hüttel (L<http://www.akhuettel.de/>)
+
+This library is free software; you can redistribute it and/or modify it under the same
+terms as Perl itself.
+
+=cut

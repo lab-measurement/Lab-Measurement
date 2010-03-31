@@ -34,6 +34,7 @@ sub new {
 
     $self->configure(@_);   # uses the remaining argument list to configure itself
 
+	print "Magnet power supply support is experimental. You have been warned.\n";
     return $self;
 }
 

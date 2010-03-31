@@ -70,7 +70,7 @@ Lab::Instrument::Dummysource - Dummy voltage source
 The Lab::Instrument::Dummysource class implements a dummy voltage source
 that does nothing but fullfill testing purposes.
 
-Only developers can make use of this class.
+Only developers will ever make use of this class.
 
 =head1 SEE ALSO
 

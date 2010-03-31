@@ -19,6 +19,7 @@ sub new {
     $self->{config}->{max_temp}=1;
     $self->{config}->{temp_tolerance}=5;
 
+	print "The TemperatureControl module is still heavily under development and does not work at all so far.\n";
     return $self;
 }
 

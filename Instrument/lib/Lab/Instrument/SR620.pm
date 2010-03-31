@@ -11,6 +11,7 @@ sub new {
     my $self = {};
     bless ($self, $class);
     $self->{vi}=new Lab::Instrument(@_);
+	print "The SR620 driver is heavily work in progress and does not work yet. :(";
     return $self
 }
 
@@ -195,7 +196,7 @@ This driver is heavily work in progress and does not work yet. :(
 
 =head1 AUTHOR/COPYRIGHT
 
-This is $Id: SR620.pm 119 2010-01-13 19:03:49Z hua59129 $
+This is $Id$
 
 Copyright 2009 Tom Geiger and Andreas K. Hüttel (L<http://www.akhuettel.de/>)
 

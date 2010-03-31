@@ -193,6 +193,12 @@ Issue a single beep immediately.
 Query the multimeter's error queue. Up to 20 errors can be stored in the
 queue. Errors are retrieved in first-in-first out (FIFO) order.
 
+=head2 set_nlpc
+
+    $hp->set_nlcp($number);
+
+Sets the integration time in power line cycles.
+
 =head2 reset
 
     $hp->reset();
@@ -204,6 +210,19 @@ Reset the multimeter to its power-on configuration.
     $hp->preset($config);
 
 Choose one of several configuration presets (0: fast, 1: norm, 2: DIG).
+
+=head2 selftest
+
+    $hp->selftest();
+
+Starts the internal self-test routine.
+
+=head2 autocalibration
+
+	$hp->autocalibration();
+
+Starts the internal autocalibration. Warning... this procedure takes 11 minutes!
+
 
 =head1 CAVEATS/BUGS
 
