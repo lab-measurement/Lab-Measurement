@@ -20,6 +20,8 @@ WriteMakefile(
 # The correct values may depend on your exact version of LabView, VISA, GPIB drivers, 
 # the phase of the moon and the local neutrino density...
 # First two lines are for Windows, second two lines are for Linux.
+# TODO: find out how to figure these out automatically.
+
     (($^O =~ /MSWin32/)
     ?   ('LIBS'         => ['"-lC:\\VXIPNP\\WinNT\\lib\\msc\\visa32.lib"'],
          'INC'          => '"-IC:\\VXIPNP\\WinNT\\include "',

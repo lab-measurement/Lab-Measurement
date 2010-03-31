@@ -34,7 +34,8 @@ L<http://digital.ni.com/softlib.nsf/webcategories/85256410006C055586256BBB002C0E
 =head1 FURTHER SUPPORT
 
 A general introduction to using Lab::Visa is given in L<Lab::VISA::Tutorial|Lab::VISA::Tutorial>.
-A description of the various APIs can be found in the respective POD sections, i.e.
+There is also a powerpoint presentation at L<Tutorial/Talk/Lab-VISA.ppt>. The shown examples
+are located in the C<Tutorial> directory of this package. A description of the various APIs can be found in the respective POD sections, i.e.
 at L<Lab::VISA|Lab::VISA>.
 
 In case you encounter any problems, you are encouraged to use a
