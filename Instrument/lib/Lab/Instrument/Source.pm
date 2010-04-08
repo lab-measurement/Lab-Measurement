@@ -4,6 +4,7 @@ use strict;
 use Time::HiRes qw(usleep gettimeofday);
 
 our $VERSION = sprintf("1.%04d", q$Revision$ =~ / (\d+) /);
+our $maxchannels = 16;
 
 sub new {
     my $proto = shift;
@@ -15,9 +16,13 @@ sub new {
     %{$self->{config}}=%{$self->{default_config}};
     $self->configure(@_);
 
-    $self->{_gp}->{last_voltage}=undef;
-    $self->{_gp}->{last_settime_mus}=undef;
-    
+    for (my $i=1; $i<=$maxchannels; $i++) {
+      my $tmp="last_voltage_$i";
+      $self->{_gp}->{$tmp}=undef;
+      $tmp="last_settime_mus_$i";
+      $self->{_gp}->{$tmp}=undef;
+    }
+
     return $self;
 }
 
@@ -52,42 +57,60 @@ sub configure {
 sub set_voltage {
     my $self=shift;
     my $voltage=shift;
+    my $channel=shift;
+
+    die "Channel must not be negative! Did you swap voltage and channel number? Aborting..." if $channel < 0;
+    die "Channel must be an integer! Did you swap voltage and channel number? Aborting..." if int($channel) != $channel;
+
+    $channel = 1 unless defined($channel);
+
     if ($self->{config}->{gate_protect}) {
-        $voltage=$self->sweep_to_voltage($voltage);
+        $voltage=$self->sweep_to_voltage($voltage,$channel);
     } else {
-        $self->_set_voltage($voltage);
+        $self->_set_voltage($voltage,$channel);
     }
-    $self->{_gp}->{last_voltage}=$voltage;
-    return $voltage;
+ 
+    my $result=$self->get_voltage($channel);
+    my $tmp="last_voltage_$channel";
+    $self->{_gp}->{$tmp}=$result;
+    return $result;
 }
 
 sub set_voltage_auto {
     my $self=shift;
     my $voltage=shift;
+    my $channel=shift;
+    $channel = 1 unless defined($channel);
+
     if ($self->{config}->{gate_protect}) {
-        $voltage=$self->sweep_to_voltage_auto($voltage);
+        $voltage=$self->sweep_to_voltage_auto($voltage,$channel);
     } else {
-        $self->_set_voltage_auto($voltage);
+        $self->_set_voltage_auto($voltage,$channel);
     }
-    $self->{_gp}->{last_voltage}=$voltage;
-    return $voltage;
+    my $result=$self->get_voltage($channel);
+    my $tmp="last_voltage_$channel";
+    $self->{_gp}->{$tmp}=$result;
+    return $result;
 }
 
 
 sub step_to_voltage {
     my $self=shift;
     my $voltage=shift;
+    my $channel=shift;
     my $voltpersec=abs($self->{config}->{gp_max_volt_per_second});
     my $voltperstep=abs($self->{config}->{gp_max_volt_per_step});
     my $steppersec=abs($self->{config}->{gp_max_step_per_second});
 
     #read output voltage from instrument (only at the beginning)
-    my $last_v=$self->{_gp}->{last_voltage};
+    my $last_voltage_channel="last_voltage_$channel";
+
+    my $last_v=$self->{_gp}->{$last_voltage_channel};
     unless (defined $last_v) {
-        $last_v=$self->get_voltage();
-        $self->{_gp}->{last_voltage}=$last_v;
+        $last_v=$self->get_voltage($channel);
+        $self->{_gp}->{$last_voltage_channel}=$last_v;
     }
-    
+
     if (defined($self->{config}->{gp_max_volt}) && ($voltage > $self->{config}->{gp_max_volt})) {
         $voltage = $self->{config}->{gp_max_volt};
     }
@@ -100,8 +123,8 @@ sub step_to_voltage {
 
     #are we already close enough? if so, screw the waiting time...
     if ((defined $voltperstep) && (abs($voltage - $last_v) < $voltperstep)) {
-        $self->_set_voltage($voltage);
-        $self->{_gp}->{last_voltage}=$voltage;
+        $self->_set_voltage($voltage,$channel);
+        $self->{_gp}->{$last_voltage_channel}=$voltage;
         return $voltage;       
     }    
 
@@ -114,14 +137,17 @@ sub step_to_voltage {
     #wait if necessary
     my ($ns,$nmu)=gettimeofday();
     my $now=$ns*1e6+$nmu;
+
+    my $last_settime_mus_channel="last_settime_mus_$channel";
+
     unless (defined (my $last_t=$self->{_gp}->{last_settime_mus})) {
-        $self->{_gp}->{last_settime_mus}=$now;
+        $self->{_gp}->{$last_settime_mus_channel}=$now;
     } elsif ( $now-$last_t < 1e6*$wait ) {
         usleep ( ( 1e6*$wait+$last_t-$now ) );
         ($ns,$nmu)=gettimeofday();
         $now=$ns*1e6+$nmu;
     } 
-    $self->{_gp}->{last_settime_mus}=$now;
+    $self->{_gp}->{$last_settime_mus_channel}=$now;
     
     #do one step
     if (abs($voltage-$last_v) > abs($step)) {
@@ -129,25 +155,28 @@ sub step_to_voltage {
     }
     $voltage=0+sprintf("%.10f",$voltage);
     
-    $self->_set_voltage($voltage);
-    $self->{_gp}->{last_voltage}=$voltage;
+    $self->_set_voltage($voltage,$channel);
+    $self->{_gp}->{$last_voltage_channel}=$voltage;
     return $voltage;
 }
 
 sub step_to_voltage_auto {
     my $self=shift;
     my $voltage=shift;
+    my $channel=shift;
     my $voltpersec=abs($self->{config}->{gp_max_volt_per_second});
     my $voltperstep=abs($self->{config}->{gp_max_volt_per_step});
     my $steppersec=abs($self->{config}->{gp_max_step_per_second});
 
     #read output voltage from instrument (only at the beginning)
-    my $last_v=$self->{_gp}->{last_voltage};
+    my $last_voltage_channel="last_voltage_$channel";
+
+    my $last_v=$self->{_gp}->{$last_voltage_channel};
     unless (defined $last_v) {
-        $last_v=$self->get_voltage();
-        $self->{_gp}->{last_voltage}=$last_v;
+        $last_v=$self->get_voltage($channel);
+        $self->{_gp}->{$last_voltage_channel}=$last_v;
     }
-    
+
     if (defined($self->{config}->{gp_max_volt}) && ($voltage > $self->{config}->{gp_max_volt})) {
         $voltage = $self->{config}->{gp_max_volt};
     }
@@ -167,14 +196,17 @@ sub step_to_voltage_auto {
     #wait if necessary
     my ($ns,$nmu)=gettimeofday();
     my $now=$ns*1e6+$nmu;
+
+    my $last_settime_mus_channel="last_settime_mus_$channel";
+
     unless (defined (my $last_t=$self->{_gp}->{last_settime_mus})) {
-        $self->{_gp}->{last_settime_mus}=$now;
+        $self->{_gp}->{last_settime_mus_channel}=$now;
     } elsif ( $now-$last_t < 1e6*$wait ) {
         usleep ( ( 1e6*$wait+$last_t-$now ) );
         ($ns,$nmu)=gettimeofday();
         $now=$ns*1e6+$nmu;
     } 
-    $self->{_gp}->{last_settime_mus}=$now;
+    $self->{_gp}->{$last_settime_mus_channel}=$now;
     
     #do one step
     if (abs($voltage-$last_v) > abs($step)) {
@@ -182,8 +214,8 @@ sub step_to_voltage_auto {
     }
     $voltage=0+sprintf("%.10f",$voltage);
     
-    $self->_set_voltage_auto($voltage);
-    $self->{_gp}->{last_voltage}=$voltage;
+    $self->_set_voltage_auto($voltage,$channel);
+    $self->{_gp}->{$last_voltage_channel}=$voltage;
     return $voltage;
 }
 
@@ -191,12 +223,13 @@ sub step_to_voltage_auto {
 sub sweep_to_voltage {
     my $self=shift;
     my $voltage=shift;
+    my $channel=shift;
 
     my $last;
     my $cont=1;
     while($cont) {
         $cont=0;
-        my $this=$self->step_to_voltage($voltage);
+        my $this=$self->step_to_voltage($voltage,$channel);
         unless ((defined $last) && (abs($last-$this) < $self->{config}->{gp_equal_level})) {
             $last=$this;
             $cont++;
@@ -215,8 +248,10 @@ sub _set_voltage_auto {
 
 sub get_voltage {
     my $self=shift;
-    my $voltage=$self->_get_voltage(@_);
-    $self->{_gp}->{last_voltage}=$voltage;
+    my $channel=shift;
+    my $voltage=$self->_get_voltage($channel);
+    my $tmp="last_voltage_$channel";
+    $self->{_gp}->{$tmp}=$voltage;
     return $voltage;
 }
 
@@ -242,10 +277,9 @@ Lab::Instrument::Source - Base class for voltage source instruments
 
 =head1 DESCRIPTION
 
-This class implements a general voltage source. It is meant to be
-inherited by instrument classes (virtual instruments), that implement
-real voltage sources (e.g. the
-L<Lab::Instrument::Yokogawa7651|Lab::Instrument::Yokogawa7651> class).
+This class implements a general voltage source, if necessary with several channels. 
+It is meant to be inherited by instrument classes (virtual instruments) that implement
+real voltage sources (e.g. the L<Lab::Instrument::Yokogawa7651|Lab::Instrument::Yokogawa7651> class).
 
 The class provides a unified user interface for those virtual voltage sources
 to support the exchangeability of instruments.
@@ -259,7 +293,7 @@ instances of instrument classes that internally use this module!
 
 =head1 CONSTRUCTOR
 
-  $self=new Lab::Instrument::SafeSource(\%default_config,\%config);
+  $self=new Lab::Instrument::Source(\%default_config,\%config);
 
 The constructor will only be used by instrument drivers that inherit this class,
 not by the user.
@@ -291,12 +325,12 @@ Whether to use the automatic sweep speed limitation. Can be set to 0 (off) or 1 
 If it is turned on, the output voltage will not be changed faster than allowed
 by the C<gp_max_volt_per_second>, C<gp_max_volt_per_step> and C<gp_max_step_per_second>
 values. These three parameters overdefine the allowed speed. Only two
-parameters are necessary. If all three are set, the smalles allowed sweep rate
+parameters are necessary. If all three are set, the smallest allowed sweep rate
 is chosen.
 
 Additionally the maximal and minimal output voltages are limited.
 
-This mechanism is useful to protect sensible samples, that are destroyed by
+This mechanism is useful to protect sensible samples that are destroyed by
 abrupt voltage changes. One example is gate electrodes on semiconductor electronics
 samples, hence the name.
 
@@ -337,9 +371,15 @@ C<gp_max_volt_per_second> etc. settings, by employing the C<sweep_to_voltage> me
 Returns the actually set output voltage. This can be different from C<$voltage>, due
 to the C<gp_max_volt>, C<gp_min_volt> settings.
 
+For a multi-channel device, add the channel number as a parameter:
+
+  $new_volt=$self->set_voltage($voltage,$channel);
+
+
 =head2 step_to_voltage
 
   $new_volt=$self->step_to_voltage($voltage);
+  $new_volt=$self->step_to_voltage($voltage,$channel);
 
 Makes one safe step in direction to C<$voltage>. The output voltage is not changed by more
 than C<gp_max_volt_per_step>. Before the voltage is changed, the methods waits if not
@@ -353,6 +393,7 @@ to the C<gp_max_volt>, C<gp_min_volt> settings.
 =head2 sweep_to_voltage
 
   $new_volt=$self->sweep_to_voltage($voltage);
+  $new_volt=$self->sweep_to_voltage($voltage,$channel);
 
 This method sweeps the output voltage to the desired value and only returns then.
 Uses the L</step_to_voltage> method internally, so all discussions of config options
@@ -360,6 +401,13 @@ from there apply too.
 
 Returns the actually set output voltage. This can be different from C<$voltage>, due
 to the C<gp_max_volt>, C<gp_min_volt> settings.
+
+=head2 get_voltage
+
+  $new_volt=$self->get_voltage();
+  $new_volt=$self->get_voltage($channel);
+
+Returns the voltage currently set.
 
 =head1 CAVEATS/BUGS
 
@@ -387,7 +435,7 @@ This class inherits the gate protection mechanism.
 
 This is $Id$
 
-Copyright 2004-2006 Daniel Schröer (L<http://www.danielschroeer.de>), 2009-2010 Andreas K. Hüttel (L<http://www.akhuettel.de/>)
+Copyright 2004-2006 Daniel Schröer (L<http://www.danielschroeer.de>), 2009-2010 Andreas K. Hüttel (L<http://www.akhuettel.de/>) and Daniela Taubert
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 

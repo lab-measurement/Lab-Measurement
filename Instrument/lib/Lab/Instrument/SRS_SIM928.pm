@@ -1,12 +1,12 @@
 package Lab::Instrument::SRS_SIM928;
 use strict;
 use Lab::Instrument;
-use Lab::Instrument::MultiSource;
+use Lab::Instrument::Source;
 use Time::HiRes qw/usleep/;
 
 our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
 
-our @ISA=('Lab::Instrument::MultiSource');
+our @ISA=('Lab::Instrument::Source');
 
 my $default_config={
     gate_protect            => 1,
@@ -32,8 +32,8 @@ sub new {
 
 sub _set_voltage {
     my $self=shift;
-    my $channel=shift;
     my $value=shift;
+    my $channel=shift;
     my $cmd=sprintf("SNDT $channel, \"VOLT %e\"",$value);
     usleep(0.1e6);
     $self->{vi}->Write($cmd);
@@ -114,7 +114,7 @@ Lab::Instrument::SRS_SIM928 - SRS SIM928 voltage source module for SIM900 mainfr
 =head1 DESCRIPTION
 
 The Lab::Instrument::SRS_SIM928 class implements an interface to the
-SIM928 voltage source modules. This class derives from L<Lab::Instrument::MultiSource>
+SIM928 voltage source modules. This class derives from L<Lab::Instrument::Source>
 and provides all functionality described there.
 
 =head1 CONSTRUCTORS
@@ -123,7 +123,7 @@ and provides all functionality described there.
 
 =head1 METHODS
 
-=head2 set_voltage($channel,$voltage)
+=head2 set_voltage($voltage,$channel)
 
 =head2 get_voltage($channel)
 
@@ -153,7 +153,7 @@ probably many
 
 =item L<Lab::VISA>
 =item L<Lab::Instrument>
-=item L<Lab::Instrument::MultiSource>
+=item L<Lab::Instrument::Source>
 
 =back
 

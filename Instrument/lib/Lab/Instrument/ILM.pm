@@ -3,7 +3,6 @@
 package Lab::Instrument::ILM;
 
 use strict;
-use Lab::Instrument::IsoBus;
 use Lab::Instrument;
 
 our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
@@ -19,8 +18,10 @@ sub new {
 
 sub get_level {
   my $self = shift;
-
-  my $level=$self->{vi}->{IsoBus}->IsoBus_Query($self->{isoaddress}, "R1");
+  my $channel = shift;
+  $channel = "1" unless defined($channel);
+  
+  my $level=$self->Query("R$channel");
   $level=~s/^R//;
   $level/=10;
   return $level;  
@@ -49,18 +50,22 @@ ILM helium level meter (tested with the ILM210).
 
     my $ilm=new Lab::Instrument::ILM($isobus,$addr);
 
-Instantiates a new ILM object, attached to the IsoBus device (of type C<Lab::Instrument::IsoBus>) C<$IsoBus>, 
-with IsoBus address C<$addr>.
+Instantiates a new ILM object, for example attached to the IsoBus device 
+(of type C<Lab::Instrument::IsoBus>) C<$IsoBus>, with IsoBus address C<$addr>. 
+All constructor forms of C<Lab::Instrument> are available.
 
 =head1 METHODS
 
 =head2 get_level
 
     $perc=$ilm->get_level();
+    $perc=$ilm->get_level(1);
 
 Reads out the current helium level in percent. Note that this command does NOT trigger a measurement, but 
 only reads out the last value measured by the ILM. This means that in slow mode values may remain constant
 for several minutes.
+
+As optional parameter a channel number can be provided. This defaults to 1.
 
 =head1 CAVEATS/BUGS
 
@@ -71,7 +76,6 @@ probably many
 =over 4
 
 =item L<Lab::Instrument>
-=item L<Lab::Instrument::IsoBus>
 
 =back
 

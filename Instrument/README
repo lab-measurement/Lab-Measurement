@@ -5,7 +5,9 @@ $VERSION = '1.2'
 This package builds on top of the Lab::VISA interface to the NI-VISA library.
 
 Lab::Instrument offers an abstract interface to an instrument, that is connected via
-GPIB, serial connection or ethernet. It provides general read(), write() and query() methods.
+GPIB, serial connection, ethernet, USB, or in general whatever VISA supports. 
+In addition Oxford Instruments IsoBus is also supported.
+The package provides general Read(), Write() and Query() methods.
 
 Derived from Lab::Instrument there are specialized instrument classes
 (virtual instruments) such as Lab::Instrument::HP34401A, that offer even more high
@@ -18,7 +20,6 @@ To install this module type the following:
 
    perl Build.PL
    perl Build
-   perl Build test
    perl Build install
 
 
@@ -32,7 +33,7 @@ This package requires these other modules and libraries:
 
 COPYRIGHT AND LICENCE
 
-Copyright (C) 2004-2006 by Daniel Schröer
+Copyright (C) 2004-2006 by Daniel Schröer, 2009-2010 Andreas K. Hüttel, Daniela Taubert, David Kalok, and others.
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.3 or,

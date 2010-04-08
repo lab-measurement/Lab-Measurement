@@ -3,7 +3,7 @@
 package Lab::Instrument::IOtech488;
 use strict;
 use Lab::Instrument;
-use Lab::Instrument::MultiSource;
+use Lab::Instrument::Source;
 use Time::HiRes qw /usleep/;
 
 our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
@@ -31,8 +31,8 @@ sub new {
 
 sub _set_voltage {
     my $self=shift;
-    my $channel=shift;
     my $voltage=shift;
+    my $channel=shift;
     
     my $cmd='P'.$channel.'X';
     $self->{vi}->Write($cmd);   # select channel
@@ -65,8 +65,8 @@ sub _get_voltage {
 
 sub set_range {
     my $self=shift;
-    my $channel=shift;
     my $range=shift;
+    my $channel=shift;
     
     # Ranges
     # 1 -  1 volt bipolar
@@ -138,7 +138,7 @@ Lab::Instrument::IOtech488 - IOtech DAC488HR four channel voltage source
 
 The Lab::Instrument::IOtech488 class implements an interface to the
 IOtech DAC488HR four-channel voltage source. This class derives from
-L<Lab::Instrument::MultiSource> and provides all functionality described there.
+L<Lab::Instrument::Source> and provides all functionality described there.
 
 =head1 CONSTRUCTORS
 
@@ -151,11 +151,11 @@ L<Lab::Instrument::MultiSource> and provides all functionality described there.
 
 =head1 METHODS
 
-=head2 set_voltage($channel,$voltage)
+=head2 set_voltage($voltage,$channel)
 
 =head2 get_voltage($channel)
 
-=head2 set_range($channel,$range)
+=head2 set_range($range,$channel)
 
     # Ranges
     # 1 -  1 volt bipolar
