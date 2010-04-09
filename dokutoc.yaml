@@ -1,10 +1,9 @@
 ---
-authors: 'Daniel Schr\x{00f6}er'
+authors: Daniel Schröer, Andreas Hüttel, and others
 toc:
-  - A walk through Lab::VISA:
+  - Introduction to Lab::VISA:
       - VISA/lib/Lab/VISA/Tutorial.pod
   - The Lab::VISA package:
-      - VISA/README
       - VISA/VISA.pod
   - The Lab::Instrument package:
       - Instrument/lib/Lab/Instrument.pm
@@ -19,21 +18,18 @@ toc:
       - Multimeters:
           - Instrument/lib/Lab/Instrument/HP34401A.pm
           - Instrument/lib/Lab/Instrument/HP34411A.pm
-          - Instrument/lib/Lab/Instrument/HP3458A.pm
           - Instrument/lib/Lab/Instrument/HP34970A.pm
-      - Power Supplies:
-          - Instrument/lib/Lab/Instrument/MagnetSupply.pm
-          - Instrument/lib/Lab/Instrument/IPS12010new.pm
-      - High Frequency:
-          - Instrument/lib/Lab/Instrument/SR780.pm
-          - Instrument/lib/Lab/Instrument/Agilent81134A
-          - Instrument/lib/Lab/Instrument/HP8360.pm
-          - Instrument/lib/Lab/Instrument/SR620.pm
+          - Instrument/lib/Lab/Instrument/HP3458A.pm
       - Amplifiers:
           - Instrument/lib/Lab/Instrument/SR830.pm
-      - Oxford cryostats:
-          - Instrument/lib/Lab/Instrument/ILM.pm
+      - High Frequency:
+          - Instrument/lib/Lab/Instrument/SR780.pm
+          - Instrument/lib/Lab/Instrument/SR620.pm
+          - Instrument/lib/Lab/Instrument/HP8360.pm
+          - Instrument/lib/Lab/Instrument/Agilent81134A.pm
+      - Cryostat Handling:
           - Instrument/lib/Lab/Instrument/IsoBus.pm
+          - Instrument/lib/Lab/Instrument/ILM.pm
           - Instrument/lib/Lab/Instrument/ITC503.pm
           - Instrument/lib/Lab/Instrument/Lakeshore336.pm
           - Instrument/lib/Lab/Instrument/Lakeshore370.pm
@@ -41,8 +37,8 @@ toc:
   - The Lab::Tools package:
       - Tools/lib/Lab/Measurement.pm
       - Tools/lib/Lab/Data/Meta.pm
+      - Tools/lib/Lab/Data/XMLtree.pm
       - Tools/lib/Lab/Data/Plotter.pm
+      - Tools/scripts/plotter.pl
       - Tools/lib/Lab/Data/Writer.pm
       - Tools/lib/Lab/Data/PDL.pm
-      - Tools/lib/Lab/Data/XMLtree.pm
-      - Tools/scripts/plotter.pl
