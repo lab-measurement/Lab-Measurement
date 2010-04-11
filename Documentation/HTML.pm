@@ -2,12 +2,14 @@ package Documentation::HTML;
 
 use strict;
 use File::Basename;
+use Syntax::Highlight::Engine::Simple::Perl;
 
 sub new {
     my $proto=shift;
     my $self = bless {
         docdir      => 'Documentation',
         'list_open' => 0,
+        highlighter => Syntax::Highlight::Engine::Simple::Perl->new(),
     }, ref($proto) || $proto;
     return $self;
 }
@@ -36,6 +38,7 @@ sub start_section {
 sub process_element {
     my ($self, $podfile, @sections) = @_;
     my $basename = fileparse($podfile,qr{\.(pod|pm)});
+    
     my $parser = MyPodXHTML->new();
     my $html;
     $parser->output_string(\$html);
@@ -45,6 +48,17 @@ sub process_element {
         print OUTFILE $html;
         print OUTFILE $self->_get_footer();
     close OUTFILE;
+    
+    my $source = $self->{highlighter}->doFile(
+        file       => $podfile,
+        tab_width => 4,
+        encode    => 'iso-8859-1'
+    );
+    open SRCFILE, ">", "$$self{docdir}/html/$basename\_source.html" or die;
+        print SRCFILE $self->_get_source_header($basename, @sections);
+        print SRCFILE "<pre>\n$source</pre>\n";
+        print SRCFILE $self->_get_footer();
+    close SRCFILE;
     
     unless ($self->{list_open}) {
         print {$self->{index_fh}} "<ul>\n";
@@ -61,6 +75,28 @@ sub finish_index {
     }
     print {$self->{index_fh}} $self->_get_footer();
     close $self->{index_fh};
+}
+
+sub _get_header {
+    my ($self, $basename, @sections) = @_;
+    my $title = "$sections[0]: $basename";
+    my $headlines = (@sections) ? 
+            qq(<h1><a href="../index.html">).shift(@sections)
+            .qq(</a>: <span class="basename">$basename</span></h1>\n)
+        : "";
+    my $header = <<HEADER;
+<?xml version="1.0" encoding="iso-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de">
+	<head>
+   		<link rel="stylesheet" type="text/css" href="../doku.css">
+   		<title>$title</title>
+ 	</head>
+ 	<body>
+ 		$headlines
+   		<p>(<a href="$basename\_source.html">Source code</a>)</p>
+HEADER
+    return $header;
 }
 
 sub _get_index_header {
@@ -80,10 +116,10 @@ HEADER
     return $header;
 }
 
-sub _get_header {
+sub _get_source_header {
     my ($self, $basename, @sections) = @_;
     my $title = "$sections[0]: $basename";
-    my $headers = (@sections) ? 
+    my $headlines = (@sections) ? 
             qq(<h1><a href="../index.html">).shift(@sections)
             .qq(</a>: <span class="basename">$basename</span></h1>\n)
         : "";
@@ -96,7 +132,8 @@ sub _get_header {
    		<title>$title</title>
  	</head>
  	<body>
- 		$headers
+ 		$headlines
+   		<p>(<a href="$basename.html">Documentation</a>)</p>
 HEADER
     return $header;
 }

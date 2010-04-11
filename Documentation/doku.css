@@ -72,4 +72,25 @@ H2 A { text-decoration: none; }
 H3 A { text-decoration: none; }
 H4 A { text-decoration: none; }
 
+span.keyword {color: #00f}
+span.keyword2 {color: #808}
+span.number {color: #f00}
+span.identifier {color: #a66}
+span.function {color: #bb5500}
+span.method {color: #bb5500}
+span.variable {color: #990000}
+span.statement {color: #00f}
+span.comment {color: #080}
+span.perlpod {color: #080}
+span.quote {color: #a66}
+span.wquote {color: #600}
+span.value {color: #a66}
+span.regexp_statement {color: #5c5c5c}
+span.tag {color: #00f}
+span.url {color: #00f; text-decoration: underline}
+
+input#URL {
+width:80%;
+padding:5px;
+}
 
