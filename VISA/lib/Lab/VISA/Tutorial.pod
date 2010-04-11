@@ -523,8 +523,6 @@ script that takes advantage of the meta data system introduced above...
 
 =head2 Examples
 
-=head3 Example 2D mit Measurement
-
     #!/usr/bin/perl
     
     # example6.pl
@@ -669,10 +667,7 @@ script that takes advantage of the meta data system introduced above...
     my $meta=$measurement->finish_measurement();
     
 
-
-=head3 Beispiel for plotter.pl
-
-=head3 Example mit nur Writer
+TODO: more examples
 
 =head1 References
 
