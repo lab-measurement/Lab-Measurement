@@ -13,7 +13,7 @@ sub new {
 }
 
 sub start_index {
-    my $self = shift;
+    my ($self, $title, $authors) = @_;
     unless (-d $$self{docdir}) {
         mkdir $$self{docdir};
     }
@@ -21,8 +21,7 @@ sub start_index {
         mkdir "$$self{docdir}/html";
     }
     open $self->{index_fh}, ">", "$$self{docdir}/index.html" or die;
-    print {$self->{index_fh}} $self->_get_header("Index");
-    print {$self->{index_fh}} "<h1>Lab::VISA Documentation</h1>\n";
+    print {$self->{index_fh}} $self->_get_index_header($title, $authors);
 }
 
 sub start_section {
@@ -64,20 +63,36 @@ sub finish_index {
     close $self->{index_fh};
 }
 
+sub _get_index_header {
+    my ($self, $title, $authors) = @_;
+    my $header = <<HEADER;
+<?xml version="1.0" encoding="iso-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de">
+	<head>
+   		<link rel="stylesheet" type="text/css" href="doku.css">
+   		<title>Index</title>
+ 	</head>
+ 	<body>
+ 	    <h1>$title</h1>
+ 	    <p>$authors</p>
+HEADER
+    return $header;
+}
+
 sub _get_header {
     my ($self, $basename, @sections) = @_;
-    my $title = ((@sections) ? "$sections[0]: " : "").$basename;
+    my $title = "$sections[0]: $basename";
     my $headers = (@sections) ? 
             qq(<h1><a href="../index.html">).shift(@sections)
             .qq(</a>: <span class="basename">$basename</span></h1>\n)
         : "";
     my $header = <<HEADER;
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="iso-8859-1" ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de">
 	<head>
    		<link rel="stylesheet" type="text/css" href="../doku.css">
-   		<link rel="stylesheet" type="text/css" href="doku.css">
    		<title>$title</title>
  	</head>
  	<body>

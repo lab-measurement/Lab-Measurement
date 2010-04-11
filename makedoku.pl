@@ -4,16 +4,18 @@ use strict;
 use YAML qw(LoadFile);
 use Documentation::LaTeX;
 use Documentation::HTML;
+use Data::Dumper;
+$Data::Dumper::Indent = 1;
 
 my $dokudef = LoadFile('dokutoc.yaml');
+#print Dumper($dokudef);
 
 my $processor = ($ARGV[0] =~ /html/) ? new Documentation::HTML() : new Documentation::LaTeX();   
 
-$processor->start_index();
+$processor->start_index($dokudef->{title}, $dokudef->{authors});
 
-my $title = "Lab::VISA Documentation";
 for my $section (@{$dokudef->{toc}}) {
-    walk_one_section($section, $title);
+    walk_one_section($section, $dokudef->{title});
 }
 
 $processor->finish_index();

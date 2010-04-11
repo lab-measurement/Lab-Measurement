@@ -14,7 +14,7 @@ sub new {
 }
 
 sub start_index {
-    my $self = shift;
+    my ($self, $title, $authors) = @_;
     
     unless (-d $$self{docdir}) {
         mkdir $$self{docdir};
@@ -29,7 +29,7 @@ sub start_index {
     close EPS;
 
     open $self->{index_fh}, ">", "$$self{tempdir}/documentation.tex" or die;
-    print {$self->{index_fh}} $self->_get_preamble();
+    print {$self->{index_fh}} $self->_get_preamble($title, $authors);
 }
 
 sub start_section {
@@ -68,9 +68,9 @@ sub finish_index {
     my $basedir = getcwd();
     chdir $self->{tempdir};
     for (1..3) {
-        system('latex documentation.tex');
+        system('latex -interaction=batchmode documentation.tex');
     }
-    system('dvips -P pdf -t A4 documentation');
+    system('dvips -q1 -P pdf -t A4 documentation');
     system('ps2pdf documentation.ps');
     chdir $basedir;
     
@@ -83,6 +83,7 @@ sub finish_index {
 }
 
 sub _get_preamble {
+    my ($self, $title, $authors) = @_;
     return '\documentclass[twoside,BCOR4mm,openright,pointlessnumbers,headexclude,a4paper,11pt,final]{scrreprt}   %bzw. twoside,openright,pointednumbers
 \pagestyle{headings}
 \usepackage[latin1]{inputenc}
@@ -103,12 +104,12 @@ sub _get_preamble {
 \begin{flushleft}
 \newcommand{\Rule}{\rule{\textwidth}{1pt}}
 \sffamily
-{\Large Daniel Schröer, Andreas K. Hüttel, et al.}
+{\Large '.$authors.'}
 \vspace{5mm}
 
 \Rule
 \vspace{4mm}
-{\Huge Documentation for Lab::VISA}
+{\Huge '.$title.'}
 \vspace{5mm}\Rule
 
 \vfill
