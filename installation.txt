@@ -43,6 +43,10 @@ on a Windows XP system.
 
 	and their respective dependencies which should be automatically installed by PPM 
 
+	If you want to regenerate the (pdf/html) documentation, you will need in addition the following modules:
+	- Pod::Simple
+	- Syntax::Highlight::Engine::Simple::Perl
+	and their dependencies.
 
 6) Install Lab::VISA
 
