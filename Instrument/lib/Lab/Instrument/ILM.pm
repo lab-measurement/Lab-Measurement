@@ -21,7 +21,7 @@ sub get_level {
   my $channel = shift;
   $channel = "1" unless defined($channel);
   
-  my $level=$self->Query("R$channel");
+  my $level=$self->{vi}->Query("R$channel");
   $level=~s/^R//;
   $level/=10;
   return $level;  

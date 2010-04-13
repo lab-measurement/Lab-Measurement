@@ -134,6 +134,11 @@ Lab::Instrument::IOtech488 - IOtech DAC488HR four channel voltage source
     
     print $gates->get_voltage(1);
 
+    my $plunger=new Lab::Instrument::Source($gates, 3);
+
+    $plunger->set_voltage(-0.5);
+
+
 =head1 DESCRIPTION
 
 The Lab::Instrument::IOtech488 class implements an interface to the

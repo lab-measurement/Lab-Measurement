@@ -111,6 +111,11 @@ Lab::Instrument::SRS_SIM928 - SRS SIM928 voltage source module for SIM900 mainfr
     $gates->set_voltage(0.745,1);
     print $gate14->get_voltage(1);
 
+    my $plunger=new Lab::Instrument::Source($gates, 3);
+
+    $plunger->set_voltage(-0.5);
+
+
 =head1 DESCRIPTION
 
 The Lab::Instrument::SRS_SIM928 class implements an interface to the

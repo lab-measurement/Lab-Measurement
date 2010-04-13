@@ -22,9 +22,8 @@ sub new {
 	bless ($self, $class);
 
 	my @args=@_;
-	my $config;
 	
-	$config->{isIsoBusInstrument}=0;
+	$self->{config}->{isIsoBusInstrument}=0;
 	
 	my ($status,$res)=Lab::VISA::viOpenDefaultRM();
 	if ($status != $Lab::VISA::VI_SUCCESS) { die "Cannot open resource manager: $status";}
@@ -36,10 +35,10 @@ sub new {
 	# GPIB instruments can be defined by providing a hash as constructor argument
 	#
 	if ((ref $args[0]) eq 'HASH') {
-		$config=$args[0];
-		if (defined ($config->{GPIB_address})) {
+		$self->{config}=$args[0];
+		if (defined ($self->{config}->{GPIB_address})) {
 			@args=(
-				(defined ($config->{GPIB_board})) ? $config->{GPIB_board} : 0, $config->{GPIB_address});
+				(defined ($self->{config}->{GPIB_board})) ? $self->{config}->{GPIB_board} : 0, $self->{config}->{GPIB_address});
 		} else {
 			die "The Lab::Instrument constructor got a malformed hash as argument. Aborting.\n";
 		}
@@ -58,9 +57,9 @@ sub new {
 			#
 			if ($args[0]->IsoBus_valid()) {			
 				print "Connected to valid IsoBus.\n";
-				$config->{isIsoBusInstrument}=1;
-				$config->{IsoBus}=$args[0];
-				$config->{IsoBusAddress}=$args[1];
+				$self->{config}->{isIsoBusInstrument}=1;
+				$self->{config}->{IsoBus}=$args[0];
+				$self->{config}->{IsoBusAddress}=$args[1];
 			} else {
 				die "Tried to instantiate IsoBus instrument without valid IsoBus. Aborting.\n";
 			};

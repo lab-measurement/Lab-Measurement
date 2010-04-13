@@ -7,6 +7,7 @@ use Lab::Instrument::Source;
 our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
 
 our @ISA=('Lab::Instrument::Source');
+our $maxchannels=16;
 
 my $default_config={
     gate_protect            => 1,
@@ -28,35 +29,47 @@ sub new {
     while (my ($k,$v)=each %{$self->configure()}) {
         print "DS:   $k -> $v\n";
     }
-    $self->{last_volt}=0;
-    $self->{last_range}=1;
+    for (my $i=1; $i<=$maxchannels; $i++) {
+      my $tmp="last_volt_$i";
+      $self->{$tmp}=0;
+      my $tmp="last_range_$i";
+      $self->{$tmp}=1;
+    }
     return $self
 }
 
 sub _set_voltage {
     my $self=shift;
     my $voltage=shift;
-    $self->{last_volt}=$voltage;
-    print "DS: _setting virtual voltage to $voltage\n";
+    my $channel=shift;
+    my $tmp="last_volt_$channel";
+    $self->{$tmp}=$voltage;
+    print "DS: _setting virtual voltage $channel to $voltage\n";
 }
 
 sub _get_voltage {
     my $self=shift;
-    print "DS: _getting virtual voltage: $$self{last_volt}\n";
-    return $self->{last_volt};
+    my $channel=shift;
+    my $tmp="last_volt_$channel";
+    print "DS: _getting virtual voltage $channel: $$self{$tmp}\n";
+    return $self->{$tmp};
 }
 
 sub set_range {
     my $self=shift;
     my $range=shift;
-    $self->{last_range}=$range;
-    print "DS: setting virtual range to $range\n";
+    my $channel=shift;
+    my $tmp="last_range_$channel";
+    $self->{$tmp}=$range;
+    print "DS: setting virtual range of channel $channel to $range\n";
 }
 
 sub get_range {
     my $self=shift;
-    print "DS: getting virtual range: $$self{last_range}\n";
-    return $self->{last_range};
+    my $channel=shift;
+    my $tmp="last_range_$channel";
+    print "DS: getting virtual range: $$self{$tmp}\n";
+    return $self->{$tmp};
 }
 
 1;

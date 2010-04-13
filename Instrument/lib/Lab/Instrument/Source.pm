@@ -12,17 +12,47 @@ sub new {
 
     my $self = bless {}, $class;
 
-    %{$self->{default_config}}=%{shift @_};
-    %{$self->{config}}=%{$self->{default_config}};
-    $self->configure(@_);
+    my $type=ref $_[0];
 
-    for (my $i=1; $i<=$maxchannels; $i++) {
-      my $tmp="last_voltage_$i";
-      $self->{_gp}->{$tmp}=undef;
-      $tmp="last_settime_mus_$i";
-      $self->{_gp}->{$tmp}=undef;
-    }
+    if ($type =~ /HASH/) {
 
+	# Source gets as parameters 1) the default config of a particular
+	# source class and 2) the config with which the source was instantiated
+
+	%{$self->{default_config}}=%{shift @_};
+	%{$self->{config}}=%{$self->{default_config}};
+	$self->configure(@_);
+
+	for (my $i=1; $i<=$maxchannels; $i++) {
+		my $tmp="last_voltage_$i";
+		$self->{_gp}->{$tmp}=undef;
+		$tmp="last_settime_mus_$i";
+		$self->{_gp}->{$tmp}=undef;
+	}
+
+	$self->{subsource}=0;
+
+    } elsif (($type =~ /^Lab::Instrument/) && ($_[0]->{IamaSource})) {
+
+	# Whenever the first parameter is not a default config hash but a
+	# class object inherited from Lab::Instrument with IamaSource set, 
+	# we are instantiating a subsource of a multichannel source. 
+
+	print "Hey great! Someone is testing subchannel sources...\n";
+	$self->{multisource}=shift;
+	$self->{channel}=shift;
+
+	# the default config is in this case the actual config of the
+	# multisource object
+	%{$self->{default_config}}=%{$self->{multisource}->{config}};
+	%{$self->{config}}=%{$self->{default_config}};
+	$self->configure(@_);
+
+	$self->{subsource}=1;
+
+    };
+
+    $self->{IamaSource}=1;
     return $self;
 }
 
@@ -59,10 +89,10 @@ sub set_voltage {
     my $voltage=shift;
     my $channel=shift;
 
+    $channel = 1 unless defined($channel);
+
     die "Channel must not be negative! Did you swap voltage and channel number? Aborting..." if $channel < 0;
     die "Channel must be an integer! Did you swap voltage and channel number? Aborting..." if int($channel) != $channel;
-
-    $channel = 1 unless defined($channel);
 
     if ($self->{config}->{gate_protect}) {
         $voltage=$self->sweep_to_voltage($voltage,$channel);
@@ -80,7 +110,11 @@ sub set_voltage_auto {
     my $self=shift;
     my $voltage=shift;
     my $channel=shift;
+
     $channel = 1 unless defined($channel);
+
+    die "Channel must not be negative! Did you swap voltage and channel number? Aborting..." if $channel < 0;
+    die "Channel must be an integer! Did you swap voltage and channel number? Aborting..." if int($channel) != $channel;
 
     if ($self->{config}->{gate_protect}) {
         $voltage=$self->sweep_to_voltage_auto($voltage,$channel);
@@ -239,16 +273,31 @@ sub sweep_to_voltage {
 }
 
 sub _set_voltage {
-    warn '_set_voltage not implemented for this instrument';
+    my $self=shift;
+    my $voltage=shift;
+
+    if ($self->{subsource}) {
+        return $self->{multisource}->_set_voltage($voltage, $self->{channel});
+    } else {
+	warn '_set_voltage not implemented for this instrument';
+    };
 }
 
 sub _set_voltage_auto {
-    warn '_set_voltage_auto not implemented for this instrument';
+    my $self=shift;
+    my $voltage=shift;
+
+    if ($self->{subsource}) {
+        return $self->{multisource}->_set_voltage_auto($voltage, $self->{channel});
+    } else {
+	warn '_set_voltage_auto not implemented for this instrument';
+    };
 }
 
 sub get_voltage {
     my $self=shift;
     my $channel=shift;
+    $channel = 1 unless defined($channel);
     my $voltage=$self->_get_voltage($channel);
     my $tmp="last_voltage_$channel";
     $self->{_gp}->{$tmp}=$voltage;
@@ -256,15 +305,32 @@ sub get_voltage {
 }
 
 sub _get_voltage {
-    warn '_get_voltage not implemented for this instrument';
+    my $self=shift;
+
+    if ($self->{subsource}) {
+        return $self->{multisource}->_get_voltage($self->{channel});
+    } else {
+	warn '_get_voltage not implemented for this instrument';
+    };
 }
 
 sub get_range() {
-    warn 'get_range not implemented for this instrument';
+    my $self=shift;
+    if ($self->{subsource}) {
+        return $self->{multisource}->get_range($self->{channel});
+    } else {
+	warn 'get_range not implemented for this instrument';
+    };
 }
 
 sub set_range() {
-    warn 'set_range not implemented for this instrument';
+    my $self=shift;
+    my $range=shift;
+    if ($self->{subsource}) {
+        return $self->{multisource}->set_range($range, $self->{channel});
+    } else {
+	warn 'set_range not implemented for this instrument';
+    };
 }
 
 1;
@@ -288,14 +354,24 @@ Additionally, this class provides a safety mechanism called C<gate_protect>
 to protect delicate samples. It includes automatic limitations of sweep rates,
 voltage step sizes, minimal and maximal voltages.
 
-As a user you are NOT supposed to create instances of this class, but rather
-instances of instrument classes that internally use this module!
+The only user application of this class is to define a voltage source object
+which represents a single channel of a multi-channel voltage source. 
+Otherwise, you will always have to instantiate classes derived from Lab::Instrument::Source. 
 
 =head1 CONSTRUCTOR
 
+  $self=new Lab::Instrument::Source($multisource, $channel);
+  $self=new Lab::Instrument::Source($multisource, $channel, \%config);
+
+This constructor can be used to create a source object which represents
+channel C<$channel> of the multi-channel voltage source C<$multisource>.
+The default configuration of this source is the configuration of C<$multisource>;
+it can be partially or entirely overridden with an additional C<\%config> hash.
+
+
   $self=new Lab::Instrument::Source(\%default_config,\%config);
 
-The constructor will only be used by instrument drivers that inherit this class,
+This constructor will only be used by instrument drivers that inherit this class,
 not by the user.
 
 The instrument driver (e.g. L<Lab::Instrument::KnickS252|Lab::Instrument::KnickS252>)
