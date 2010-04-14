@@ -1,11 +1,11 @@
-#$Id: HP34401A.pm 169 2010-03-31 12:53:22Z hua59129 $
+#$Id$
 
 package Lab::Instrument::HP34420A;
 
 use strict;
 use Lab::Instrument;
 
-our $VERSION = sprintf("0.%04d", q$Revision: 169 $ =~ / (\d+) /);
+our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
 
 sub new {
     my $proto = shift;

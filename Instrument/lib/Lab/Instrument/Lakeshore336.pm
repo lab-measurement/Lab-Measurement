@@ -4,7 +4,7 @@ use strict;
 use Lab::Instrument;
 use Time::HiRes qw (usleep);
 
-our $VERSION = sprintf("0.%04d", q$Revision: 119 $ =~ / (\d+) /);
+our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
 
 sub new {
     my $proto = shift;
@@ -119,7 +119,7 @@ probably many
 
 =head1 AUTHOR/COPYRIGHT
 
-This is $Id: Lakeshore336.pm 119 2010-01-13 19:03:49Z hua59129 $
+This is $Id$
 
 #Copyright 2006 Daniel Schröer (L<http://www.danielschroeer.de>)
 
