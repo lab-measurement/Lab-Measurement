@@ -7,6 +7,11 @@ BODY {
   padding: 1ex 2em;
 }
 
+div#camelgraph {
+	width:300px;
+	float:right;
+}
+
 PRE     {
   background: #eeeeee;
   border: 1px solid #888888;

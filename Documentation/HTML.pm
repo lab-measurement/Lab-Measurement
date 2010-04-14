@@ -56,7 +56,7 @@ sub process_element {
     );
     open SRCFILE, ">", "$$self{docdir}/html/$basename\_source.html" or die;
         print SRCFILE $self->_get_source_header($basename, @sections);
-        print SRCFILE "<pre>\n$source</pre>\n";
+        print SRCFILE "<pre>$source</pre>\n";
         print SRCFILE $self->_get_footer();
     close SRCFILE;
     
@@ -151,7 +151,7 @@ FOOTER
 
 package MyPodXHTML;
 use strict;
-use base qw/ Pod::Simple::XHTML /;
+use base 'Pod::Simple::XHTML';
 use HTML::Entities;
 
 sub new {

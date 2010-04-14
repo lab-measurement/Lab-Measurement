@@ -1,57 +1,63 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML>
-<HEAD>
-	<TITLE>Lab::VISA, Lab::Instrument, and Lab::Tools - measurement control with Perl</TITLE>
-	<STYLE TYPE="text/css">
-	<!--
-		@page { margin: 0.79in }
-		P { margin-bottom: 0.08in }
-	-->
-	</STYLE>
-</HEAD>
-<BODY LANG="en-US" DIR="LTR">
-<P ALIGN=CENTER STYLE="margin-bottom: 0in"><FONT FACE="Arial, sans-serif"><FONT SIZE=7 STYLE="font-size: 60pt">Lab::VISA</FONT></FONT></P>
-<P ALIGN=CENTER STYLE="margin-bottom: 0in"><FONT FACE="Arial, sans-serif"><FONT SIZE=6>Lab::Instrument</FONT></FONT></P>
-<P ALIGN=CENTER STYLE="margin-bottom: 0in"><FONT FACE="Arial, sans-serif"><FONT SIZE=6>Lab::Tools</FONT></FONT></P>
-<P ALIGN=LEFT STYLE="margin-bottom: 0in"><FONT FACE="Arial, sans-serif"><BR><BR><BR>
-<IMAGE SRC="images/camel.png" ALIGN="right" width="300px">
-The Perl packages Lab::VISA, Lab::Instrument, and Lab::Tools offer instrument and measurement
-control with Perl via National Instrument's VISA library. Encapsulating the complexity of VISA calls into a
-straightforward to use library, they are designed to make any lab power user happy.
-<BR><BR>
-The software packages can be downloaded from CPAN: just follow the links for 
-<a href="http://search.cpan.org/dist/Lab-VISA/" target="_blank">Lab::VISA</a>, 
-<a href="http://search.cpan.org/dist/Lab-Instrument/" target="_blank">Lab::Instrument</a>, and
-<a href="http://search.cpan.org/dist/Lab-Tools/" target="_blank">Lab::Tools</a>.
-<BR><BR>
-Although they are already used by at least two research groups in ongoing measurements, 
-these packages are still very much work in progress. Please bear with us while we improve
-code and documentation. 
-<br><br>
-Otherwise, you can have a look at the <A HREF="documentation.pdf">documentation</A> (this is the trunk development version with 
-features soon to come :o), and also subscribe to our <A 
-HREF="https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-visa-users">lab-visa-users
-mailing list</A>. This mailing list is also the right place to give feedback and ask for help.
-<BR><BR>
-Our `reference customers' so far are :)
-<ul>
-<li><a href="http://www.nano.physik.uni-muenchen.de/" target="_blank">nanophysics group, Prof. J. P. Kotthaus, LMU M&uuml;nchen</a><br>
-<font size="-1">... where Daniel started to develop the packages, and</font>
-<li><a href="http://www.physik.uni-regensburg.de/forschung/strunk/" target="_blank">mesoscopic physics group, Prof. C. Strunk, Uni 
-Regensburg</a>
+<?xml version="1.0" encoding="iso-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de">
+<head>
+<title>Lab::VISA - measurement control in Perl</title>
+<link rel="stylesheet" type="text/css" href="../Documentation/doku.css" />
+</head>
+<body>
+<h1>Lab::VISA</h1>
+
+	<div id="camelgraph"><img src="images/camel.png" width="300px" alt="" /></div>
+	<p>The Perl packages <em>Lab::VISA</em>, <em>Lab::Instrument</em>, and <em>Lab::Tools</em>
+offer instrument and measurement control from Perl via National
+Instrument's VISA library. Encapsulating the complexity of VISA calls
+into a straightforward to use library, they are designed to make any lab
+power user happy.</p>
+
+<h2>How to obtain</h2>
+<p>The packages are free software and can be downloaded from CPAN. Follow
+these links for</p><ul>
+	<li><a href="http://search.cpan.org/dist/Lab-VISA/">Lab::VISA</a>,</li>
+	<li><a href="http://search.cpan.org/dist/Lab-Instrument/">Lab::Instrument</a>, and</li>
+	<li><a href="http://search.cpan.org/dist/Lab-Tools/">Lab::Tools.</a></li>
 </ul>
-<BR>
-Lab::VISA is maintained by Daniel Schr&ouml;er and <a href="http://www.akhuettel.de/">Andreas K. H&uuml;ttel</a>.
-<br><br>
-<hr><br>
-<b><FONT FACE="Arial, sans-serif"><FONT SIZE=3>Latest news:</FONT></FONT></b> 
+
+<h2>Documentation</h2>
+<p>Quite some documentation is available online in HTML (<a href="documentation.pdf">here</a>) and PDF (<a href="documentation.pdf">here</a>) format.
+This documentation starts with a general introduction into using <em>Lab::VISA</em> and continues with a description of the various APIs.</p>
+
+<p>Additionally, a powerpoint presentation is contained in the <em>Lab::VISA</em> package at Tutorial/Talk/Lab-VISA.ppt (TODO: make available here).
+The examples shown therein are located in the 'Tutorial' directory of that package.</p>
+
+<p>There is a mailing list set up for Lab::VISA (<a
+	href="https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-visa-users">lab-visa-users
+mailing list</a>). This mailing list is also the right place to give feedback
+and ask for help.</p>
+
+<h2>Status</h2>
+<p>Although this software has been used for years in real measurements by its developers,
+it remains work in progress. Please bear with us while we constantly improve code and documentation.</p>
+<p>Lab::VISA is currently developed at <a href="http://www.nano.physik.uni-muenchen.de/">nanophysics
+group, Prof. J. P. Kotthaus, LMU M&uuml;nchen</a> and <a
+	href="http://www.physik.uni-regensburg.de/forschung/strunk/">mesoscopic physics group, Prof. C. Strunk, Uni
+Regensburg</a>. User feedback indicates further uses in industrial and academic environments.</p>
+
+<h2>Authors</h2>
+<p>Lab::VISA and friends were originally developed by Daniel Schr&ouml;er and are currently continued by <a
+	href="http://www.akhuettel.de/">Andreas K. H&uuml;ttel</a> and Daniel Schr&ouml;er.</p>
+
+<h2>Latest news</h2>
 <ul>
-<li>9.4.2010: We are at the moment testing a new version of Lab::Instruments with a lot more drivers and features. A few minor 
-bugs still have to be ironed out, but likely it will be ready <b>next week</b>. USB and network (TCP) devices are working now!
-<li>31.3.2010: Lab::VISA and Lab::Tools have both been updated on CPAN. This should fix the NULL-byte bug in Lab::VISA and 
-installation problems (missing script files) in Lab::Tools.
+	<li>9.4.2010: We are at the moment testing a new version of
+	Lab::Instruments with a lot more drivers and features. A few minor bugs
+	still have to be ironed out, but likely it will be ready <em>next
+	week</em>. USB and network (TCP) devices are working now!</li>
+	<li>31.3.2010: Lab::VISA and Lab::Tools have both been updated on
+	CPAN. This should fix the NULL-byte bug in Lab::VISA and installation
+	problems (missing script files) in Lab::Tools.</li>
 </ul>
-</P>
+
 
 
 <!-- Start of StatCounter Code -->
@@ -64,13 +70,15 @@ var sc_security="ba953faf";
 </script>
 
 <script type="text/javascript"
-src="http://www.statcounter.com/counter/counter.js"></script><noscript><div
-class="statcounter"><a title="blogger counters"
-href="http://www.statcounter.com/blogger/"
-target="_blank"><img class="statcounter"
-src="http://c.statcounter.com/4606801/0/ba953faf/1/"
-alt="blogger counters" ></a></div></noscript>
+	src="http://www.statcounter.com/counter/counter.js"></script>
+<noscript>
+<div class="statcounter"><a title="blogger counters"
+	href="http://www.statcounter.com/blogger/"><img
+	class="statcounter"
+	src="http://c.statcounter.com/4606801/0/ba953faf/1/"
+	alt="blogger counters" /></a></div>
+</noscript>
 <!-- End of StatCounter Code -->
 
-</BODY>
-</HTML>
+</body>
+</html>
