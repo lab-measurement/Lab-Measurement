@@ -5,7 +5,7 @@ use Module::Build;
 
 my $build=Module::Build->new(
     module_name         => 'Lab::Tools', 
-    dist_version        => '1.3',
+    dist_version        => '1.4',
     dist_abstract       => 'Tools to obtain and work with data in the laboratory',
     license             => 'perl',
     requires            => {
@@ -31,6 +31,5 @@ my $build=Module::Build->new(
     	'scripts/metainfo.pl'
     ],
     create_readme   	=> 0,
-    create_makefile_pl	=> 'passthrough',
     dist_author     	=> 'Daniel Schröer <schroeer@cpan.org>');
 $build->create_build_script;
