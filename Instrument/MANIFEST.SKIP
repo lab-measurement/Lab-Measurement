@@ -14,6 +14,7 @@
 
 # Avoid Module::Build generated and utility files.
 \bBuild$
+\bBuild.bat$
 \b_build
 
 # Avoid temp and backup files.
@@ -33,9 +34,11 @@
 \bt/7_
 
 # this driver does not contain anything actually useful so far - Andreas
-lib/Lab/Instrument/Agilent81134A.pm
+# In my opinion it can serve as an example - Daniel
+# lib/Lab/Instrument/Agilent81134A.pm
 
 # this is very much under construction - Andreas
 lib/Lab/Instrument/TemperatureControl.pm
 
 .tar.gz$
+^MYMETA.yml$

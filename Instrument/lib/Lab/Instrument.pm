@@ -5,8 +5,7 @@ package Lab::Instrument;
 use strict;
 use Lab::VISA;
 use Lab::Instrument::IsoBus;
-use Time::HiRes qw (usleep);
-use Time::HiRes qw (sleep);
+use Time::HiRes qw (usleep sleep);
 our $VERSION = sprintf("1.%04d", q$Revision$ =~ / (\d+) /);
 
 our $WAIT_STATUS=10;#usec;
@@ -403,8 +402,8 @@ Probably many.
 
 This is $Id$
 
-Copyright 2004-2006 Daniel SchrÃ¶er (L<http://www.danielschroeer.de/>), 
-2009-2010 Andreas K. HÃ¼ttel (L<http://www.akhuettel.de/>) and David Kalok
+Copyright 2004-2006 Daniel Schröer <schroeer@cpan.org>, 
+2009-2010 Andreas K. Hüttel (L<http://www.akhuettel.de/>) and David Kalok
 
 This library is free software; you can redistribute it and/or modify it under the same
 terms as Perl itself.

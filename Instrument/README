@@ -1,11 +1,11 @@
 README for Lab::Instrument
-$VERSION = '1.2'
+$VERSION = '2.00'
 -----------------------------------------------------------------------
 
 This package builds on top of the Lab::VISA interface to the NI-VISA library.
 
-Lab::Instrument offers an abstract interface to an instrument, that is connected via
-GPIB, serial connection, ethernet, USB, or in general whatever VISA supports. 
+Lab::Instrument offers an abstract interface to an instrument that is connected via
+GPIB, serial connection, ethernet, USB, or whatever else the NI-VISA library supports. 
 In addition Oxford Instruments IsoBus is also supported.
 The package provides general Read(), Write() and Query() methods.
 
@@ -27,8 +27,8 @@ DEPENDENCIES
 
 This package requires these other modules and libraries:
 
-  Module::Build
   Lab::VISA
+  Module::Build
   Time::HiRes
 
 COPYRIGHT AND LICENCE
