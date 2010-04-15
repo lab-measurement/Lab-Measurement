@@ -297,7 +297,7 @@ sub itc_clear_sweep_table {
 
 =head1 NAME
 
-Lab::Instrument::ITC - Oxford Instruments ILM Intelligent temperature control
+Lab::Instrument::ITC - Oxford Instruments ITC Intelligent Temperature Control
 
 =head1 SYNOPSIS
 
