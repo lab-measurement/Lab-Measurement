@@ -54,12 +54,12 @@ on a Windows XP system.
 
 	- Unzip/copy sources
 
-	- Adapt LIBS and INC to your installation (see #1); this is what worked for me:
+	- Edit VISA/Makefile.pl and adapt LIBS and INC to your installation (see #1); this is what worked for me:
 
     	'LIBS'         => ['-"lC:\\Programme\\IVI Foundation\\VISA\\WinNT\\lib\\msc\\visa32.lib"']
         'INC'          => '"-IC:\\Programme\\IVI Foundation\\VISA\\WinNT\\include"'
-
-	- run the following commands in the source directory
+     
+	- run the following commands in the VISA source directory
 
 	perl Makefile.PL
 	nmake
@@ -68,7 +68,7 @@ on a Windows XP system.
 7) Install Lab::Instrument and Lab::Tools
 
 	- Unzip/copy sources
-	- run the following commands in the source directory
+	- run the following commands in the Instrument and Tools source directory
 
 	perl Build.PL
 	perl Build

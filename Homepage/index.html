@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de">
 <head>
 <title>Lab::VISA - measurement control in Perl</title>
-<link rel="stylesheet" type="text/css" href="../Documentation/doku.css" />
+<link rel="stylesheet" type="text/css" href="doku.css" />
 </head>
 <body>
 <h1>Lab::VISA</h1>
@@ -27,8 +27,9 @@ these links for</p><ul>
 <p>Quite some documentation is available online in HTML (<a href="documentation.pdf">here</a>) and PDF (<a href="documentation.pdf">here</a>) format.
 This documentation starts with a general introduction into using <em>Lab::VISA</em> and continues with a description of the various APIs.</p>
 
-<p>Additionally, a powerpoint presentation is contained in the <em>Lab::VISA</em> package at Tutorial/Talk/Lab-VISA.ppt (TODO: make available here).
-The examples shown therein are located in the 'Tutorial' directory of that package.</p>
+<p>Additionally, a powerpoint presentation is contained in the <em>Lab::VISA</em> package, and also online available as
+HTML (<a href="tutorial/Lab-VISA.html">here</a>) and PDF (<a href="tutorial/Lab-VISA.pdf">here</a>). 
+The examples shown there can be found in the 'Tutorial' directory of Lab::VISA.</p>
 
 <p>There is a mailing list set up for Lab::VISA (<a
 	href="https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-visa-users">lab-visa-users
@@ -49,10 +50,11 @@ Regensburg</a>. User feedback indicates further uses in industrial and academic 
 
 <h2>Latest news</h2>
 <ul>
-	<li>9.4.2010: We are at the moment testing a new version of
-	Lab::Instruments with a lot more drivers and features. A few minor bugs
-	still have to be ironed out, but likely it will be ready <em>next
-	week</em>. USB and network (TCP) devices are working now!</li>
+	<li>15.4.2010: Lab::Instrument and Lab::Tools have been updated on CPAN!
+	In the case of Lab::Tools, this is just a small bugfix; as for Lab::Instrument, 
+	functionality has been extended a lot with many more drivers and features. 
+	USB and network (TCP) devices are working now, and devices attached to an
+	Oxford Instruments IsoBus are supported!</li>
 	<li>31.3.2010: Lab::VISA and Lab::Tools have both been updated on
 	CPAN. This should fix the NULL-byte bug in Lab::VISA and installation
 	problems (missing script files) in Lab::Tools.</li>
