@@ -1,6 +1,4 @@
-BODY, .logo { background: white; }
-
-BODY {
+body {
   color: black;
   font-family: arial,sans-serif;
   margin: 0;
@@ -12,7 +10,7 @@ div#camelgraph {
 	float:right;
 }
 
-PRE     {
+pre {
   background: #eeeeee;
   border: 1px solid #888888;
   color: black;
@@ -20,17 +18,18 @@ PRE     {
   white-space: pre;
 }
 
-H1      {
+h1 {
   background: transparent;
   color: #5c5c5c;
   font-size: 120%;
+  font-weight: bold;
 }
 
-H1 .basename {
+h1 .basename {
   color: #990000;
 }
 
-H2      {
+h2      {
   font-size: 100%;
   font-weight: bold;
   color: #5c5c5c;
@@ -39,43 +38,46 @@ H2      {
   border-color: #eeeeee;
 }
 
-H3      {
+h3      {
   background: transparent;
   color: #5c5c5c;
   font-size: 100%;
 }
 
-H4      {
+h4      {
   background: transparent;
   color: #5c5c5c;
   font-size: 1em;
   font-weight: normal;
 }
 
-a.index {
+a {
   text-decoration: none;
-  color: black;
+  color: #990000;
 }
-
-a.index:visited {
-  color: black;
+a:visited {
+  color: #990000;
 }
-a.index:hover {
+a:hover {
   color: #990000;
   text-decoration: underline;
 }
-a.index:active {
-  color: black;
-}
 
-H1 A {
+h1 a {
   text-decoration: none;
   color: #5c5c5c;
 }
+h1 a:visited {
+  color: #5c5c5c;
+}
+h1 a:hover {
+  color: #990000;
+  text-decoration: none;
+}
 
-H2 A { text-decoration: none; }
-H3 A { text-decoration: none; }
-H4 A { text-decoration: none; }
+h2 a { text-decoration: none; }
+h3 a { text-decoration: none; }
+h4 a { text-decoration: none; }
 
 span.keyword {color: #00f}
 span.keyword2 {color: #808}

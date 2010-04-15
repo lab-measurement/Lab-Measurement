@@ -7,8 +7,8 @@ use Cwd;
 sub new {
     my $proto=shift;
     my $self = bless {
-        docdir      => 'Documentation',
-        tempdir     => 'Documentation/temp',
+        docdir      => shift,
+        tempdir     => shift,
     }, ref($proto) || $proto;
     return $self;
 }

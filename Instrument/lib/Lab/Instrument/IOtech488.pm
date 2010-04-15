@@ -78,6 +78,10 @@ sub set_range {
     # 7 -  5 volt unipolar
     # 8 - 10 volt unipolar
     
+    # TODO: since the documentation says
+    # that the following sets the output to zero
+    # it should probably set_voltage(0) first
+    
     my $cmd='P'.$channel.'X';
     $self->{vi}->Write($cmd);   # select channel
     

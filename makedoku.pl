@@ -10,7 +10,10 @@ $Data::Dumper::Indent = 1;
 my $dokudef = LoadFile('dokutoc.yaml');
 #print Dumper($dokudef);
 
-my $processor = ($ARGV[0] =~ /html/) ? new Documentation::HTML() : new Documentation::LaTeX();   
+my $docdir = "Homepage/docs";
+my $tempdir = "Homepage/temp";
+
+my $processor = ($ARGV[0] =~ /html/) ? new Documentation::HTML($docdir) : new Documentation::LaTeX($docdir, $tempdir);   
 
 $processor->start_index($dokudef->{title}, $dokudef->{authors});
 

@@ -7,7 +7,7 @@ use Syntax::Highlight::Engine::Simple::Perl;
 sub new {
     my $proto=shift;
     my $self = bless {
-        docdir      => 'Documentation',
+        docdir      => shift,
         'list_open' => 0,
         highlighter => Syntax::Highlight::Engine::Simple::Perl->new(),
     }, ref($proto) || $proto;
@@ -19,10 +19,7 @@ sub start_index {
     unless (-d $$self{docdir}) {
         mkdir $$self{docdir};
     }
-    unless (-d "$$self{docdir}/html") {
-        mkdir "$$self{docdir}/html";
-    }
-    open $self->{index_fh}, ">", "$$self{docdir}/index.html" or die;
+    open $self->{index_fh}, ">", "$$self{docdir}/toc.html" or die;
     print {$self->{index_fh}} $self->_get_index_header($title, $authors);
 }
 
@@ -43,7 +40,7 @@ sub process_element {
     my $html;
     $parser->output_string(\$html);
     $parser->parse_file($podfile);
-    open OUTFILE, ">", "$$self{docdir}/html/$basename.html" or die;
+    open OUTFILE, ">", "$$self{docdir}/$basename.html" or die;
         print OUTFILE $self->_get_header($basename, @sections);
         print OUTFILE $html;
         print OUTFILE $self->_get_footer();
@@ -54,7 +51,7 @@ sub process_element {
         tab_width => 4,
         encode    => 'iso-8859-1'
     );
-    open SRCFILE, ">", "$$self{docdir}/html/$basename\_source.html" or die;
+    open SRCFILE, ">", "$$self{docdir}/$basename\_source.html" or die;
         print SRCFILE $self->_get_source_header($basename, @sections);
         print SRCFILE "<pre>$source</pre>\n";
         print SRCFILE $self->_get_footer();
@@ -64,7 +61,7 @@ sub process_element {
         print {$self->{index_fh}} "<ul>\n";
         $self->{list_open} = 1;
     }
-    print {$self->{index_fh}} qq(<li><a class="index" href="html/$basename.html">$basename</a></li>\n);
+    print {$self->{index_fh}} qq(<li><a class="index" href="$basename.html">$basename</a></li>\n);
 }
 
 sub finish_index {
@@ -77,11 +74,28 @@ sub finish_index {
     close $self->{index_fh};
 }
 
+sub _get_index_header {
+    my ($self, $title, $authors) = @_;
+    my $header = <<HEADER;
+<?xml version="1.0" encoding="iso-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de">
+	<head>
+   		<link rel="stylesheet" type="text/css" href="../doku.css">
+   		<title>$title</title>
+ 	</head>
+ 	<body>
+ 	    <h1><a href="../index.html">Lab::VISA</a> Documentation</h1>
+ 	    <p>$authors</p>
+HEADER
+    return $header;
+}
+
 sub _get_header {
     my ($self, $basename, @sections) = @_;
     my $title = "$sections[0]: $basename";
     my $headlines = (@sections) ? 
-            qq(<h1><a href="../index.html">).shift(@sections)
+            qq(<h1><a href="toc.html">).shift(@sections)
             .qq(</a>: <span class="basename">$basename</span></h1>\n)
         : "";
     my $header = <<HEADER;
@@ -99,30 +113,10 @@ HEADER
     return $header;
 }
 
-sub _get_index_header {
-    my ($self, $title, $authors) = @_;
-    my $header = <<HEADER;
-<?xml version="1.0" encoding="iso-8859-1" ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de">
-	<head>
-   		<link rel="stylesheet" type="text/css" href="doku.css">
-   		<title>Index</title>
- 	</head>
- 	<body>
- 	    <h1>$title</h1>
- 	    <p>$authors</p>
-HEADER
-    return $header;
-}
-
 sub _get_source_header {
     my ($self, $basename, @sections) = @_;
     my $title = "$sections[0]: $basename";
-    my $headlines = (@sections) ? 
-            qq(<h1><a href="../index.html">).shift(@sections)
-            .qq(</a>: <span class="basename">$basename</span></h1>\n)
-        : "";
+    my $headlines = qq(<h1><a href="toc.html">).shift(@sections).qq(</a>: <span class="basename">$basename</span></h1>\n);
     my $header = <<HEADER;
 <?xml version="1.0" encoding="iso-8859-1" ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
