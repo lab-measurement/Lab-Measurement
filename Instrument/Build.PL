@@ -16,5 +16,5 @@ my $build=Module::Build->new(
     script_files    	=> [],
     create_readme   	=> 0,
     dist_author     	=> 'Daniel Schroeer <schroeer@cpan.org>',
-	dist_abstract		=> 'Lab::Instrument offers an abstract interface to an instrument that is connected via GPIB, serial connection, ethernet, USB, or whatever else the NI-VISA library supports. In addition Oxford Instruments IsoBus is also supported.');
+	dist_abstract		=> 'Instrument drivers for Lab::VISA');
 $build->create_build_script;
