@@ -66,6 +66,7 @@ sub configure {
     #   gp_min_volt
     #   gp_max_volt
     #   qp_equal_level
+    #   fast_set
     my $config=shift;
     if ((ref $config) =~ /HASH/) {
         for my $conf_name (keys %{$self->{default_config}}) {
@@ -100,7 +101,13 @@ sub set_voltage {
         $self->_set_voltage($voltage,$channel);
     }
  
-    my $result=$self->get_voltage($channel);
+    my $result;
+    if ($self->{config}->{fast_set}) {
+        $result=$voltage;
+    } else {
+        $result=$self->get_voltage($channel);
+    };
+
     my $tmp="last_voltage_$channel";
     $self->{_gp}->{$tmp}=$result;
     return $result;
@@ -121,7 +128,14 @@ sub set_voltage_auto {
     } else {
         $self->_set_voltage_auto($voltage,$channel);
     }
-    my $result=$self->get_voltage($channel);
+    
+    my $result;
+    if ($self->{config}->{fast_set}) {
+        $result=$voltage;
+    } else {
+        $result=$self->get_voltage($channel);
+    };
+    
     my $tmp="last_voltage_$channel";
     $self->{_gp}->{$tmp}=$result;
     return $result;
@@ -391,9 +405,17 @@ has a constructor like this:
 
   $self->configure(\%config);
 
-Supported configure options are all related to the safety mechanism:
+Supported configure options:
 
 =over 2
+
+=item fast_set
+
+This parameter controls the return value of the set_voltage function and can be set to 0 (off, 
+default) or 1 (on). For fast_set off, set_voltage first requests the hardware to set the voltage, 
+and then reads out the actually set voltage via get_voltage. The resulting number is returned. 
+For fast_set on, set_voltage requests the hardware to set the voltage and returns without double-check
+the requested value. This, albeit less secure, may speed up measurements a lot. 
 
 =item gate_protect
 
@@ -444,8 +466,9 @@ Sets the output to C<$voltage> (in Volts). If the configure option C<gate_protec
 to a true value, the safety mechanism takes into account the C<gp_max_volt_per_step>,
 C<gp_max_volt_per_second> etc. settings, by employing the C<sweep_to_voltage> method.
 
-Returns the actually set output voltage. This can be different from C<$voltage>, due
-to the C<gp_max_volt>, C<gp_min_volt> settings.
+Returns for C<fast_set> off the actually set output voltage. This can be different 
+from C<$voltage>, due to the C<gp_max_volt>, C<gp_min_volt> settings. For C<fast_set> on,
+C<set_voltage> returns always C<$voltage>.
 
 For a multi-channel device, add the channel number as a parameter:
 
