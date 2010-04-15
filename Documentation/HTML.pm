@@ -41,21 +41,23 @@ sub process_element {
     $parser->output_string(\$html);
     $parser->parse_file($podfile);
     open OUTFILE, ">", "$$self{docdir}/$basename.html" or die;
-        print OUTFILE $self->_get_header($basename, @sections);
+        print OUTFILE $self->_get_pod_header($basename, (($podfile =~ /\.(pl|pm)$/) ? 1 : 0 ), @sections);
         print OUTFILE $html;
         print OUTFILE $self->_get_footer();
     close OUTFILE;
     
-    my $source = $self->{highlighter}->doFile(
-        file       => $podfile,
-        tab_width => 4,
-        encode    => 'iso-8859-1'
-    );
-    open SRCFILE, ">", "$$self{docdir}/$basename\_source.html" or die;
-        print SRCFILE $self->_get_source_header($basename, @sections);
-        print SRCFILE "<pre>$source</pre>\n";
-        print SRCFILE $self->_get_footer();
-    close SRCFILE;
+    if ($podfile =~ /\.(pl|pm)$/) {
+        my $source = $self->{highlighter}->doFile(
+            file       => $podfile,
+            tab_width => 4,
+            encode    => 'iso-8859-1'
+        );
+        open SRCFILE, ">", "$$self{docdir}/$basename\_source.html" or die;
+            print SRCFILE $self->_get_source_header($basename, @sections);
+            print SRCFILE "<pre>$source</pre>\n";
+            print SRCFILE $self->_get_footer();
+        close SRCFILE;
+    }
     
     unless ($self->{list_open}) {
         print {$self->{index_fh}} "<ul>\n";
@@ -91,13 +93,14 @@ HEADER
     return $header;
 }
 
-sub _get_header {
-    my ($self, $basename, @sections) = @_;
+sub _get_pod_header {
+    my ($self, $basename, $source, @sections) = @_;
     my $title = "$sections[0]: $basename";
     my $headlines = (@sections) ? 
             qq(<h1><a href="toc.html">).shift(@sections)
             .qq(</a>: <span class="basename">$basename</span></h1>\n)
         : "";
+    my $sourcelink = $source ? qq{<p>(<a href="$basename\_source.html">Source code</a>)</p>} : "";
     my $header = <<HEADER;
 <?xml version="1.0" encoding="iso-8859-1" ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
@@ -108,7 +111,7 @@ sub _get_header {
  	</head>
  	<body>
  		$headlines
-   		<p>(<a href="$basename\_source.html">Source code</a>)</p>
+   		$sourcelink
 HEADER
     return $header;
 }

@@ -42,4 +42,3 @@ toc:
       - Tools/lib/Lab/Data/Plotter.pm
       - Tools/scripts/plotter.pl
       - Tools/lib/Lab/Data/Writer.pm
-      - Tools/lib/Lab/Data/PDL.pm
