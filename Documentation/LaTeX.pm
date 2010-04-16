@@ -1,28 +1,13 @@
 package Documentation::LaTeX;
 
 use strict;
+use base 'Documentation::LabVISAdoc';
 use File::Basename;
 use Cwd;
 
-sub new {
-    my $proto=shift;
-    my $self = bless {
-        docdir      => shift,
-        tempdir     => shift,
-    }, ref($proto) || $proto;
-    return $self;
-}
-
-sub start_index {
+sub start {
     my ($self, $title, $authors) = @_;
     
-    unless (-d $$self{docdir}) {
-        mkdir $$self{docdir};
-    }
-    unless (-d $$self{tempdir}) {
-        mkdir $$self{tempdir};
-    }
-
     open EPS,">$$self{tempdir}/title.eps" or die;
     binmode EPS;
     print EPS $self->getEPS();
@@ -60,7 +45,7 @@ sub process_element {
     } 
 }
 
-sub finish_index {
+sub finish {
     my $self = shift;
     print {$self->{index_fh}} $self->_get_postamble();
     close $self->{index_fh};

@@ -1,26 +1,26 @@
 package Documentation::HTML;
 
 use strict;
+use base 'Documentation::LabVISAdoc';
 use File::Basename;
 use Syntax::Highlight::Engine::Simple::Perl;
 
 sub new {
-    my $proto=shift;
-    my $self = bless {
-        docdir      => shift,
-        'list_open' => 0,
-        highlighter => Syntax::Highlight::Engine::Simple::Perl->new(),
-    }, ref($proto) || $proto;
+    my $self = shift->SUPER::new(@_);
+    $self->{'list_open'} = 0;
+    $self->{highlighter} = Syntax::Highlight::Engine::Simple::Perl->new();
     return $self;
 }
 
-sub start_index {
+sub start {
     my ($self, $title, $authors) = @_;
-    unless (-d $$self{docdir}) {
-        mkdir $$self{docdir};
-    }
     open $self->{index_fh}, ">", "$$self{docdir}/toc.html" or die;
-    print {$self->{index_fh}} $self->_get_index_header($title, $authors);
+    
+    print {$self->{index_fh}} $self->_get_header($title);
+ 	print {$self->{index_fh}} qq{
+ 	    <h1><a href="../index.html">Lab::VISA</a> Documentation</h1>
+ 	    <p>$authors</p>
+ 	};
 }
 
 sub start_section {
@@ -36,29 +36,38 @@ sub process_element {
     my ($self, $podfile, @sections) = @_;
     my $basename = fileparse($podfile,qr{\.(pod|pm)});
     
+    # pod page
     my $parser = MyPodXHTML->new();
+    my $title = "$sections[0]: $basename";
     my $html;
     $parser->output_string(\$html);
     $parser->parse_file($podfile);
     open OUTFILE, ">", "$$self{docdir}/$basename.html" or die;
-        print OUTFILE $self->_get_pod_header($basename, (($podfile =~ /\.(pl|pm)$/) ? 1 : 0 ), @sections);
+        print OUTFILE $self->_get_header($title);
+        print OUTFILE qq(<h1><a href="toc.html">$sections[0]</a>: <span class="basename">$basename</span></h1>\n);
+        print OUTFILE ($podfile =~ /\.(pl|pm)$/) ? qq{<p>(<a href="$basename\_source.html">Source code</a>)</p>} : "";
         print OUTFILE $html;
         print OUTFILE $self->_get_footer();
     close OUTFILE;
     
+    # highlighted source file
     if ($podfile =~ /\.(pl|pm)$/) {
         my $source = $self->{highlighter}->doFile(
-            file       => $podfile,
+            file      => $podfile,
             tab_width => 4,
             encode    => 'iso-8859-1'
         );
+        my $title = "$sections[0]: $basename";
         open SRCFILE, ">", "$$self{docdir}/$basename\_source.html" or die;
-            print SRCFILE $self->_get_source_header($basename, @sections);
+            print SRCFILE $self->_get_header($title);
+            print SRCFILE qq(<h1><a href="toc.html">$sections[0]</a>: <span class="basename">$basename</span></h1>\n);
+            print SRCFILE qq{<p>(<a href="$basename.html">Documentation</a>)</p>};
             print SRCFILE "<pre>$source</pre>\n";
             print SRCFILE $self->_get_footer();
         close SRCFILE;
     }
     
+    # link in toc page
     unless ($self->{list_open}) {
         print {$self->{index_fh}} "<ul>\n";
         $self->{list_open} = 1;
@@ -66,7 +75,7 @@ sub process_element {
     print {$self->{index_fh}} qq(<li><a class="index" href="$basename.html">$basename</a></li>\n);
 }
 
-sub finish_index {
+sub finish {
     my $self = shift;
     if ($self->{list_open}) {
         print {$self->{index_fh}} "</ul>\n";
@@ -76,9 +85,9 @@ sub finish_index {
     close $self->{index_fh};
 }
 
-sub _get_index_header {
-    my ($self, $title, $authors) = @_;
-    my $header = <<HEADER;
+sub _get_header {
+    my ($self, $title) = @_;
+    return <<HEADER;
 <?xml version="1.0" encoding="iso-8859-1" ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de">
@@ -87,52 +96,7 @@ sub _get_index_header {
    		<title>$title</title>
  	</head>
  	<body>
- 	    <h1><a href="../index.html">Lab::VISA</a> Documentation</h1>
- 	    <p>$authors</p>
 HEADER
-    return $header;
-}
-
-sub _get_pod_header {
-    my ($self, $basename, $source, @sections) = @_;
-    my $title = "$sections[0]: $basename";
-    my $headlines = (@sections) ? 
-            qq(<h1><a href="toc.html">).shift(@sections)
-            .qq(</a>: <span class="basename">$basename</span></h1>\n)
-        : "";
-    my $sourcelink = $source ? qq{<p>(<a href="$basename\_source.html">Source code</a>)</p>} : "";
-    my $header = <<HEADER;
-<?xml version="1.0" encoding="iso-8859-1" ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de">
-	<head>
-   		<link rel="stylesheet" type="text/css" href="../doku.css"/>
-   		<title>$title</title>
- 	</head>
- 	<body>
- 		$headlines
-   		$sourcelink
-HEADER
-    return $header;
-}
-
-sub _get_source_header {
-    my ($self, $basename, @sections) = @_;
-    my $title = "$sections[0]: $basename";
-    my $headlines = qq(<h1><a href="toc.html">).shift(@sections).qq(</a>: <span class="basename">$basename</span></h1>\n);
-    my $header = <<HEADER;
-<?xml version="1.0" encoding="iso-8859-1" ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de">
-	<head>
-   		<link rel="stylesheet" type="text/css" href="../doku.css"/>
-   		<title>$title</title>
- 	</head>
- 	<body>
- 		$headlines
-   		<p>(<a href="$basename.html">Documentation</a>)</p>
-HEADER
-    return $header;
 }
 
 sub _get_footer {
@@ -141,9 +105,6 @@ sub _get_footer {
 </html>
 FOOTER
 }
-
-
-
 
 
 package MyPodXHTML;
@@ -176,8 +137,5 @@ sub resolve_pod_page_link {
         . encode_entities($to) . $section
         . ($self->perldoc_url_postfix || '');
 }
-
-
-
 
 1;
