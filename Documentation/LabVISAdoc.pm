@@ -28,7 +28,7 @@ sub process {
 sub walk_one_section {
     my ($self, $section, @sections) = @_;
     my $title = (keys %$section)[0];
-    $self->start_section($#sections + 2, $title);
+    $self->start_section($#sections + 2, $title) if (@sections);
     push(@sections, $title);
     for my $element (@{$section->{$title}}) {
         unless (ref($element)) {
