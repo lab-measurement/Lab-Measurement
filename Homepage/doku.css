@@ -18,6 +18,14 @@ pre {
   white-space: pre;
 }
 
+pre.titleclaim {
+  background: transparent;
+  border: none;
+  color: black;
+  padding: 0 1em;
+  white-space: pre;
+}
+
 h1 {
   background: transparent;
   color: #5c5c5c;
@@ -95,9 +103,3 @@ span.value {color: #a66}
 span.regexp_statement {color: #5c5c5c}
 span.tag {color: #00f}
 span.url {color: #00f; text-decoration: underline}
-
-input#URL {
-width:80%;
-padding:5px;
-}
-

@@ -83,7 +83,7 @@ sub _get_index_header {
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de">
 	<head>
-   		<link rel="stylesheet" type="text/css" href="../doku.css">
+   		<link rel="stylesheet" type="text/css" href="../doku.css"/>
    		<title>$title</title>
  	</head>
  	<body>
@@ -106,7 +106,7 @@ sub _get_pod_header {
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de">
 	<head>
-   		<link rel="stylesheet" type="text/css" href="../doku.css">
+   		<link rel="stylesheet" type="text/css" href="../doku.css"/>
    		<title>$title</title>
  	</head>
  	<body>
@@ -125,7 +125,7 @@ sub _get_source_header {
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de">
 	<head>
-   		<link rel="stylesheet" type="text/css" href="../doku.css">
+   		<link rel="stylesheet" type="text/css" href="../doku.css"/>
    		<title>$title</title>
  	</head>
  	<body>
