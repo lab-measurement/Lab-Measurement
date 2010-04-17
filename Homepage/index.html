@@ -10,12 +10,13 @@
 
 <div id="camelgraph"><img src="dokutitle.png" width="300px" alt="" /></div>
 <p>Lab::VISA allows to perform test and measurement tasks with Perl
-scripts. It provides an interface to National Instruments' NI-VISA
-library, making the standard VISA calls available from within Perl
+scripts. It provides an interface to National Instruments' <a
+    href="http://sine.ni.com/psp/app/doc/p/id/psp-411">NI-VISA
+library</a>, making the standard VISA calls available from within Perl
 programs. Dedicated instrument driver classes relieve the user from
 taking care for internal details and make data aquisition as easy as</p>
 
-<pre class="titleclaim">$voltage = $multimeter->read_voltage();</pre>
+<pre class="titleclaim">$voltage = $multimeter-&gt;read_voltage();</pre>
 
 <p>The Lab::VISA software stack comprises three parts that are built
 on top of each other and provide increasing comfort. Your measurement
@@ -25,7 +26,8 @@ scripts can be based on any of these stages.</p>
 accessible from Perl and thus allows to make any standard VISA call.</p>
 
 <p>The modules in the Lab::Instrument package make communicating
-with instruments easier by silently handling the protocol overhead involved.</p>
+with instruments easier by silently handling the protocol overhead
+involved.</p>
 
 <p>Package Lab::Tools is the highest abstraction layer. These
 modules provide support for writing good measurement scripts. They offer
@@ -49,19 +51,20 @@ Follow these links for</p>
 <h2>Documentation</h2>
 <p>Quite some <a href="docs/toc.html">documentation is available
 online in HTML</a> and <a href="docs/documentation.pdf">PDF format</a>. This
-documentation starts with a general introduction into using Lab::VISA
-and continues with a description of the various APIs.</p>
+documentation contains a <a href="docs/Tutorial.html">tutorial on
+using Lab::VISA</a> and a description of the various APIs.</p>
 
-<p>Additionally, a <a href="http://cpansearch.perl.org/src/SCHROEER/Lab-VISA-2.03/Tutorial/Talk/Lab-VISA.ppt">powerpoint
-presentation</a> is contained in the
-Lab::VISA package, and is <a href="Lab-VISA-talk.pdf">available
-online as PDF</a>. The <a href="http://cpansearch.perl.org/src/SCHROEER/Lab-VISA-2.03/Tutorial/Talk">examples</a>
+<p>Additionally, a <a
+    href="http://cpansearch.perl.org/src/SCHROEER/Lab-VISA-2.03/Tutorial/Talk/Lab-VISA.ppt">powerpoint
+presentation</a> is contained in the Lab::VISA package, and is <a
+    href="Lab-VISA-talk.pdf">available online as PDF</a>. The <a
+    href="http://cpansearch.perl.org/src/SCHROEER/Lab-VISA-2.03/Tutorial/Talk">examples</a>
 shown in the presentation are contained in the package as well.</p>
 
 <p>There is a mailing list set up for Lab::VISA (<a
     href="https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-visa-users">lab-visa-users
-mailing list</a>). This mailing list is the right place to give
-feedback and ask for help.</p>
+mailing list</a>). This mailing list is the right place to give feedback and
+ask for help.</p>
 
 <h2>Status</h2>
 <p>Although this software has been used for years in real world
@@ -72,8 +75,8 @@ with us while we constantly improve code and documentation.</p>
     href="http://www.nano.physik.uni-muenchen.de/">nanophysics
 group, LMU M&uuml;nchen</a> and <a
     href="http://www.physik.uni-regensburg.de/forschung/strunk/">mesoscopic
-physics group, Uni Regensburg</a>. Users have reported further applications in
-academic and industrial r&amp;d environments.</p>
+physics group, Uni Regensburg</a>. Users have reported further applications
+in academic and industrial r&amp;d environments.</p>
 
 <h2>Authors</h2>
 <p>The Lab::VISA system was originally developed by <a
@@ -81,6 +84,10 @@ academic and industrial r&amp;d environments.</p>
 is currently continued by <a href="http://www.akhuettel.de/">Andreas
 K. H&uuml;ttel</a> and Daniel Schr&ouml;er. Most of the documentation was
 written by Daniel Schr&ouml;er.</p>
+
+<p>The names National Instruments, VISA, and all names of
+instruments and manufacturers are most likely trademarks of their
+respective owners and are used only for technical specification.</p>
 
 <h2>Latest news</h2>
 <ul>
