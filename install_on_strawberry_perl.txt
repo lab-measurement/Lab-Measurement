@@ -1,0 +1,59 @@
+﻿INSTALLATION on Windows with Strawberry Perl
+
+Strawberry Perl is a Perl distribution for Windows that most closely
+mimics a Perl installation under Linux. It comes with gcc compiler, dmake
+and the other relevant tools included.
+
+Unfortunately, there is a bug in ExtUtils::MakeMaker (see
+https://rt.cpan.org/Ticket/Display.html?id=49026) that prevents
+easy installation.
+
+- have Windows and Strawberry Perl installed
+- download 361mb file visa462full.exe from http://sine.ni.com/psp/app/doc/p/id/psp-411
+  (no need for vaild email during register)
+- install only 'Run Time Support' (i chose all items there)
+- restart Windows
+
+- locate msc version of visa32.lib and visa.h and adjust Makefile.PL accordingly:
+
+    ?   ('LIBS'         => '"-lC:\\Programme\\IVI Foundation\\VISA\\WinNT\\lib\\msc\\visa32.lib"',
+         'INC'          => '"-IC:\\Programme\\IVI Foundation\\VISA\\WinNT\\include"',
+
+- find out that ExtUtils::MakeMaker has a bug that prevents things from working:
+  https://rt.cpan.org/Ticket/Display.html?id=49026
+  
+  Apply the change described there and things will work without further hassle:
+  - dmake
+  - dmake install (if you like)
+
+- Alternative solution, without modifying Kid.pm:
+  - perl Makefile.PL
+  - Edit generated Makefile:
+    - find the two lines containing the words EXTRALIBS and LDLOADLIBS
+    - add the "C:\path\to\visa32.lib" to each of them
+      mine read:    
+	  EXTRALIBS = "C:\Programme\IVI Foundation\VISA\WinNT\lib\msc\visa32.lib" C:\strawberry\c\lib\libmoldname.a C:\strawberry\c\lib\libkernel32.a C:\strawberry\c\lib\libuser32.a C:\strawberry\c\lib\libgdi32.a C:\strawberry\c\lib\libwinspool.a C:\strawberry\c\lib\libcomdlg32.a C:\strawberry\c\lib\libadvapi32.a C:\strawberry\c\lib\libshell32.a C:\strawberry\c\lib\libole32.a C:\strawberry\c\lib\liboleaut32.a C:\strawberry\c\lib\libnetapi32.a C:\strawberry\c\lib\libuuid.a C:\strawberry\c\lib\libws2_32.a C:\strawberry\c\lib\libmpr.a C:\strawberry\c\lib\libwinmm.a C:\strawberry\c\lib\libversion.a C:\strawberry\c\lib\libodbc32.a C:\strawberry\c\lib\libodbccp32.a
+	  LDLOADLIBS = "C:\Programme\IVI Foundation\VISA\WinNT\lib\msc\visa32.lib" C:\strawberry\c\lib\libmoldname.a C:\strawberry\c\lib\libkernel32.a C:\strawberry\c\lib\libuser32.a C:\strawberry\c\lib\libgdi32.a C:\strawberry\c\lib\libwinspool.a C:\strawberry\c\lib\libcomdlg32.a C:\strawberry\c\lib\libadvapi32.a C:\strawberry\c\lib\libshell32.a C:\strawberry\c\lib\libole32.a C:\strawberry\c\lib\liboleaut32.a C:\strawberry\c\lib\libnetapi32.a C:\strawberry\c\lib\libuuid.a C:\strawberry\c\lib\libws2_32.a C:\strawberry\c\lib\libmpr.a C:\strawberry\c\lib\libwinmm.a C:\strawberry\c\lib\libversion.a C:\strawberry\c\lib\libodbc32.a C:\strawberry\c\lib\libodbccp32.a
+  - dmake
+  - and so on as usual
+
+
+Here is a quick test program that you can run after 'dmake' with perl -Mblib test.pl:
+
+#!/usr/bin/perl
+
+use Lab::VISA;
+
+my ($status, $sesn) = Lab::VISA::viOpenDefaultRM();
+
+printf "status: %x (%s)\n", $status, (($status == $Lab::VISA::VI_SUCCESS) ? "success" : "no success");
+print "sesn: $sesn\n";
+
+my ($status, $findList, $retcnt, $instrDesc) = Lab::VISA::viFindRsrc($sesn, "ASRL1::INSTR"); 
+
+printf "status: %x (%s)\n", $status, (($status == $Lab::VISA::VI_SUCCESS) ? "success" : "no success");
+print "findList: $findList\n";
+print "retcnt: $retcnt\n";
+print "instrDesc: $instrDesc\n";
+
+__END__

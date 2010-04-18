@@ -8,6 +8,7 @@ use ExtUtils::MakeMaker;
 # to re-create the wrapper code.
 # If you do so, also un-comment the 'clean' section below
 # to delete the swig-generated files when doing 'make clean'.
+# TODO: should just check if swig is in the path
 
 #system("swig -perl5 -module Lab::VISA visa.i");
 
@@ -25,6 +26,8 @@ WriteMakefile(
     (($^O =~ /MSWin32/)
     ?   ('LIBS'         => ['"-lC:\\VXIPNP\\WinNT\\lib\\msc\\visa32.lib"'],
          'INC'          => '"-IC:\\VXIPNP\\WinNT\\include "',
+#    ?   ('LIBS'         => '"-lC:\\Programme\\IVI Foundation\\VISA\\WinNT\\lib\\msc\\visa32.lib"',
+#         'INC'          => '"-IC:\\Programme\\IVI Foundation\\VISA\\WinNT\\include"',
         )
     :   ('LIBS'         => ['-lvisa'],
          'INC'          => '-I/usr/local/vxipnp/linux/include/',
@@ -32,9 +35,15 @@ WriteMakefile(
     ),
     'NAME'              => 'Lab::VISA',
     'VERSION_FROM'      => 'VISA.pm',
-    'PREREQ_PM'         => {},
     'OBJECT'            => q/$(O_FILES)/,
-    'DEFINE'            => '',
+    'META_MERGE'        => {
+        resources => {
+            homepage    =>      'http://labvisa.de',
+            bugtracker  =>      'http://rt.cpan.org/NoAuth/Bugs.html?Dist=Lab-VISA',
+#            repository  =>      '',
+            MailingList =>      'https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-visa-users',
+        },
+    },
 
     (($] >= 5.005)
     ?   (ABSTRACT_FROM  => 'VISA.pod',
