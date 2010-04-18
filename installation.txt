@@ -58,6 +58,9 @@ on a Windows XP system.
 
     	'LIBS'         => ['-"lC:\\Programme\\IVI Foundation\\VISA\\WinNT\\lib\\msc\\visa32.lib"']
         'INC'          => '"-IC:\\Programme\\IVI Foundation\\VISA\\WinNT\\include"'
+
+	You can find the LIBS folder by checking the registry key "InstDir" in folder 
+	"HKEY_LOCAL_MACHINE\SOFTWARE\National Instruments\NI-VISA for Windows 95/NT".
      
 	- run the following commands in the VISA source directory
 
