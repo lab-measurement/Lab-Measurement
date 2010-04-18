@@ -1,0 +1,12 @@
+History of Lab::VISA
+====================
+
+Lab::VISA 2.04
+  Only small documentation fixes. No need to necessarily upgrade.
+  
+  * added this file
+  * tiny documentation fixes
+  * added homepage and mailing list to META.yml
+
+Lab::VISA 2.03
+  Bugfix version. Please upgrade.
