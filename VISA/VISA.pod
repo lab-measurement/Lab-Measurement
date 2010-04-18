@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-Lab::VISA - Perl interface to National Instrument's VISA library
+Lab::VISA - Perl interface to National Instruments' VISA library
 
 =head1 SYNOPSIS
 
@@ -10,7 +10,7 @@ Lab::VISA - Perl interface to National Instrument's VISA library
 
 =head1 DESCRIPTION
 
-This library offers a Perl interface to National Instrument's NI-VISA library.
+This library offers a Perl interface to National Instruments' NI-VISA library.
 
 With this library you can easily control the instruments in your lab (multimeters, voltage
 sources, magnet sources, pulse generators etc.) with Perl. You can perform
