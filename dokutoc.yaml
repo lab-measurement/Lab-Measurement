@@ -36,9 +36,9 @@ toc:
           - Instrument/lib/Lab/Instrument/Lakeshore370.pm
           - Instrument/lib/Lab/Instrument/TRMC2.pm
   - The Lab::Tools package:
+      - Tools/lib/Lab/Data/Writer.pm
       - Tools/lib/Lab/Measurement.pm
       - Tools/lib/Lab/Data/Meta.pm
       - Tools/lib/Lab/Data/XMLtree.pm
       - Tools/lib/Lab/Data/Plotter.pm
       - Tools/scripts/plotter.pl
-      - Tools/lib/Lab/Data/Writer.pm

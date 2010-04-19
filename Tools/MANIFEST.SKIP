@@ -28,7 +28,6 @@
 
 
 \blib/Lab/Data/PDL.pm$
-\blib/Lab/Data/Dataset.pm$
 \blib/Lab/Measurement/Ladediagramm.pm$
 \bscripts/coulomb
 \bscripts/gate_leck.pl
