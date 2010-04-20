@@ -14,7 +14,7 @@ sub new {
 
 sub start {
     my ($self, $title, $authors) = @_;
-    open $self->{index_fh}, ">", "$$self{docdir}/toc.html" or die;
+    open $self->{index_fh}, ">", "$$self{docdir}/toc.html" or die $!;
     
     print {$self->{index_fh}} $self->_get_header($title);
  	print {$self->{index_fh}} qq{
