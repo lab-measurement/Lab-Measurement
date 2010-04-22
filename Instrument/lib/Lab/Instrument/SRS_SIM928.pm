@@ -157,7 +157,9 @@ probably many
 =over 4
 
 =item L<Lab::VISA>
+
 =item L<Lab::Instrument>
+
 =item L<Lab::Instrument::Source>
 
 =back
