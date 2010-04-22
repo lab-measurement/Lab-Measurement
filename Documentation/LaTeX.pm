@@ -53,11 +53,6 @@ sub finish {
     chdir $basedir;
     
     rename("$$self{tempdir}/documentation.pdf","$$self{docdir}/documentation.pdf") or warn "umbenennen geht nicht: $!";
-    if (chdir $self->{tempdir}) {
-        unlink(<*>) or warn "files löschen geht nicht $!";
-        chdir $basedir;
-    }
-    rmdir $self->{tempdir} or warn "tempdir löschen geht nicht: $!";
 }
 
 sub _get_preamble {

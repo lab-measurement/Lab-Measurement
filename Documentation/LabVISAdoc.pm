@@ -2,6 +2,7 @@ package Documentation::LabVISAdoc;
 
 use strict;
 use File::Basename;
+use Cwd;
 
 sub new {
     my $proto=shift;
@@ -23,6 +24,14 @@ sub process {
     $self->start($dokudef->{title}, $dokudef->{authors});
     $self->walk_one_section({ $dokudef->{title} => $dokudef->{toc} });
     $self->finish();
+    
+    my $basedir = getcwd();
+    if (chdir $self->{tempdir}) {
+        unlink(<*>);
+        chdir $basedir;
+    }
+    rmdir $self->{tempdir} or warn "tempdir löschen geht nicht: $!";
+    
 }
 
 sub walk_one_section {
