@@ -293,8 +293,6 @@ command to change a property like amplitude or time constant might have to be ex
 
 This is $Id$
 
-#Copyright 2006 Daniel Schröer (L<http://www.danielschroeer.de>)
-
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 
 =cut

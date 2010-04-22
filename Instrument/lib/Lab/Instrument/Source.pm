@@ -534,7 +534,8 @@ This class inherits the gate protection mechanism.
 
 This is $Id$
 
-Copyright 2004-2006 Daniel Schröer (L<http://www.danielschroeer.de>), 2009-2010 Andreas K. Hüttel (L<http://www.akhuettel.de/>) and Daniela Taubert
+ Copyright 2004-2008 Daniel Schröer (<schroeer@cpan.org>)
+           2009-2010 Daniel Schröer, Andreas K. Hüttel (L<http://www.akhuettel.de/>) and Daniela Taubert
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 

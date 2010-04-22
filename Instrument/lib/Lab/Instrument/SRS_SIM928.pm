@@ -166,8 +166,6 @@ probably many
 
 This is $Id$
 
-Copyright 2004 Daniel Schröer (L<http://www.danielschroeer.de>)
-
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 
 =cut

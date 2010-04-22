@@ -5,6 +5,8 @@ use Lab::Instrument;
 use Lab::VISA;
 use Time::HiRes qw (usleep);
 
+our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
+
 sub new {
     my $proto = shift;
     my $class = ref($proto) || $proto;
@@ -198,7 +200,7 @@ This driver is heavily work in progress and does not work yet. :(
 
 This is $Id$
 
-Copyright 2009 Tom Geiger and Andreas K. HÃ¼ttel (L<http://www.akhuettel.de/>)
+Copyright 2009 Tom Geiger and Andreas K. Hüttel (L<http://www.akhuettel.de/>)
 
 This library is free software; you can redistribute it and/or modify it under the same
 terms as Perl itself.

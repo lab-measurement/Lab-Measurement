@@ -303,7 +303,11 @@ sub _get_sweeprate {
     die '_get_sweeprate not implemented for this instrument';
 }
 
+=head1 NAME
 
+Lab::Instrument::MagnetSupply - Base class for magnet power supply instruments
+
+=cut
 
 
 1;

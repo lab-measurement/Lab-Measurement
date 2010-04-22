@@ -140,7 +140,7 @@ Inherits from SafeSource (L<SafeSource>).
 
 This is $Id$
 
-Copyright 2004/2005 Daniel Schröer (L<http://www.danielschroeer.de>)
+Copyright 2004/2005 Daniel Schröer (<schroeer@cpan.org>)
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 

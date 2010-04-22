@@ -380,7 +380,7 @@ probably many
 
 This is $Id$
 
-Copyright 2010 David Kalok and Andreas K. HÃ¼ttel (L<http://www.akhuettel.de/>)
+Copyright 2010 David Kalok and Andreas K. Hüttel (L<http://www.akhuettel.de/>)
 
 This library is free software; you can redistribute it and/or modify it under the same
 terms as Perl itself.

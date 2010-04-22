@@ -340,6 +340,12 @@ sub _get_persistent_magnet_current {
 	return(($self->ips_read_parameter(16)));
 }
 
+=head1 NAME
+
+Lab::Instrument::IPS12010new - IPS 120-10 superconducting magnet supply
+
+=cut
+
 
 1;
 
