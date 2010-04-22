@@ -1,0 +1,320 @@
+
+=pod
+
+=head1 NAME
+
+Lab::VISA::Installation - Installation guide for Lab::VISA
+
+=head1 Introduction
+
+This library has been tested to work on Linux and Windows. 
+
+=head1 Installation on Windows XP with ActiveState Perl 
+
+=over
+
+=item
+
+Work with administrator account during installation.
+
+=item
+
+Install VISA (and GPIB drivers) if necessary.
+
+=over
+
+=item *
+
+Download current VISA release from NI (tested with 4.4.1, 4.5.0)
+
+=item *
+
+Run installer
+
+=item *
+
+Check location of visa32.lib (eg. C:\Programme\IVI Foundation\VISA\WinNT\lib\msc\visa32.lib)
+and remember for later.
+
+=back
+
+=item
+
+Install Microsoft Visual C++ from L<http://www.microsoft.com/express/Downloads/>
+
+From now on run all commandline programs during installation only from the "Visual Studio Command line",
+which can be found in the Start menu.
+
+=item
+
+Install Perl.
+
+=over
+
+=item *
+
+Tested with ActivePerl from L<http://www.activestate.com/Products/activeperl/index.mhtml>
+
+=item *
+
+Make sure to include Perl Package Manager.
+
+=item *
+
+Make sure to activate the check box to include perl directory in PATH variable.
+
+=back
+
+=item
+
+Install gnuplot (not mandatory)
+
+=over
+
+=item *
+
+Download from L<http://sourceforge.net/project/showfiles.php?group_id=2055> (gp425win32.zip)
+
+=item *
+
+Extract and put it somewhere
+
+=item *
+
+Add directory containing C<pgnuplot.exe> to path:
+My Computer => Properties => Advanced => Environment Variables
+
+=back
+
+=item
+
+Install dependencies of our perl modules. Depending on how familiar you are
+with the perl infrastructure, the easiest might be to use PPM, the Perl Package Manager
+included with ActivePerl.
+
+Lab::Tools needs
+
+ XML::Generator (PPM would write it as XML-Generator)
+ XML::DOM
+ XML::Twig
+ YAML
+
+=item
+
+Install Lab::VISA
+
+=over
+
+=item *
+
+Unzip/copy sources
+
+=item *
+
+In file C<Makefile.PL> adapt the LIBS and INC settings according to your installation
+(the location looked up above). This is what worked for me:
+
+    'LIBS' => ['-"lC:\\Programme\\IVI Foundation\\VISA\\WinNT\\lib\\msc\\visa32.lib"']
+    'INC'  => '"-IC:\\Programme\\IVI Foundation\\VISA\\WinNT\\include"'
+
+You can find the LIBS folder by checking the registry key "InstDir" in folder 
+	"HKEY_LOCAL_MACHINE\SOFTWARE\National Instruments\NI-VISA for Windows 95/NT".
+
+=item *
+
+Run the following commands in the source directory
+
+    perl Makefile.PL
+    nmake
+    nmake install
+
+=back
+
+=item
+
+Install Lab::Instrument and Lab::Tools
+
+=over
+
+=item *
+
+Unzip/copy sources
+
+=item *
+
+Run the following commands in the source directory
+
+    perl Build.PL
+    perl Build
+    perl Build install
+
+=back
+
+=item
+
+Have fun!
+
+=back
+
+=head1 Installation on Windows XP with Strawberry Perl
+
+Strawberry Perl is a Perl distribution for Windows that most closely
+mimics a Perl installation under Linux. It comes with gcc compiler, dmake
+and the other relevant tools included.
+
+Lab::VISA should in principle install out of the box with just the command
+
+	cpan Lab::VISA
+
+executed on the commandline. Unfortunately there is a bug in ExtUtils::MakeMaker (see
+https://rt.cpan.org/Ticket/Display.html?id=49026) that prevents this. Two possible workarounds
+are provided below, making installation still easy.
+
+=over
+
+=item
+
+Have Windows and Strawberry Perl installed
+
+=item
+
+Install NI-VISA
+
+=over
+
+=item
+
+Download 361mb file C<visa462full.exe> from L<http://sine.ni.com/psp/app/doc/p/id/psp-411>
+
+=item
+
+Install only 'Run Time Support' (I chose all items below that; it's very little)
+
+=item
+
+Restart Windows
+
+=back
+
+=item
+
+Locate msc version of visa32.lib and visa.h and adjust Makefile.PL. This is what
+worked for me:
+
+    'LIBS' => q("-lC:/Programme/IVI Foundation/VISA/WinNT/lib/msc/visa32.lib"),
+    'INC'  => q("-IC:/Programme/IVI Foundation/VISA/WinNT/include"),
+
+=item
+
+Work around the bug
+
+=over
+
+=item
+
+Option 1: Patch MakeMaker
+
+Apply the change described at L<https://rt.cpan.org/Ticket/Display.html?id=49026>.
+  
+=item
+
+Option 2: Edit generated Makefile
+
+If you don't like to modify the installed version of ExtUtils::MakeMaker, you can edit the
+generated Makefile. These changes will be lost after executing C<perl Makefile.PL> again though.
+This option is recommended if you just want to install Lab::VISA.
+
+=over
+
+=item
+
+C<perl Makefile.PL>
+
+=item
+
+Edit generated Makefile:
+
+Find the two lines containing the words C<EXTRALIBS> and C<LDLOADLIBS>. Add the C<"C:\path\to\visa32.lib"> to each of
+of these lines. For me they read:
+
+ EXTRALIBS = "C:\Programme\IVI Foundation\VISA\WinNT\lib\msc\visa32.lib" C:\strawberry\c\lib\libmoldname.a ...
+ LDLOADLIBS = "C:\Programme\IVI Foundation\VISA\WinNT\lib\msc\visa32.lib" C:\strawberry\c\lib\libmoldname.a ...
+
+=back
+
+=back
+
+=item
+
+C<dmake>
+
+=item
+
+C<dmake install>
+
+=back
+
+=head1 Installation on Linux
+
+As a Linux user you will probably be able to figure out things yourself.
+Here is a rough outline:
+
+=over
+
+=item
+
+Before you start, you must have the VISA library by National Instrument 
+installed. If you plan to use GPIB connections (which is very likely), 
+you must also have the necessary drivers (NI-488.2) for your GPIB 
+adapter card installed. Refer to National Instruments' very good documentation for additional information:
+
+L<http://digital.ni.com/softlib.nsf/webcategories/85256410006C055586256BBB002C0E91?opendocument&node=132060_US>
+
+=item
+
+In file C<Makefile.PL> adapt the LIBS and INC settings according to your installation. This is what worked for me:
+
+    'LIBS'         => ['-lvisa'],
+    'INC'          => '-I/usr/local/vxipnp/linux/include/',
+
+=item
+
+Then do the usual
+
+    perl Makefile.PL
+    make
+    make install
+
+=back
+
+=head1 Testing the installation
+
+Here is a quick test program that you can run with perl -Mblib test.pl:
+
+    #!/usr/bin/perl
+    
+    use Lab::VISA;
+    
+    my ($status, $sesn) = Lab::VISA::viOpenDefaultRM();
+    
+    printf "status: %x (%s)\n", $status, (($status == $Lab::VISA::VI_SUCCESS) ? "success" : "no success");
+    print "sesn: $sesn\n";
+    
+    my ($status, $findList, $retcnt, $instrDesc) = Lab::VISA::viFindRsrc($sesn, "ASRL1::INSTR"); 
+    
+    printf "status: %x (%s)\n", $status, (($status == $Lab::VISA::VI_SUCCESS) ? "success" : "no success");
+    print "findList: $findList\n";
+    print "retcnt: $retcnt\n";
+    print "instrDesc: $instrDesc\n";
+    
+    __END__
+
+=head1 COPYRIGHT AND LICENCE
+
+ (c) 2010 Daniel Schröer, Andreas Hüttel, Daniela Taubert, and others 
+
+This library is free software; you can redistribute it and/or modify it 
+under the same terms as Perl itself. 
+
+=cut
+
