@@ -6,7 +6,9 @@ Lab::VISA::Installation - Installation guide for Lab::VISA
 
 =head1 Introduction
 
-This library has been tested to work on Linux and Windows. 
+Lab::VISA has been tested to work on Linux and Windows, both
+with ActiveState Perl and the Microsoft VC++ Compiler, and Strawberry Perl
+with the included gcc compiler.
 
 =head1 Installation on Windows XP with ActiveState Perl 
 
