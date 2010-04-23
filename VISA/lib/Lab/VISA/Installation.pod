@@ -213,8 +213,18 @@ Work around the bug
 
 Option 1: Patch MakeMaker
 
-Apply the change described at L<https://rt.cpan.org/Ticket/Display.html?id=49026>.
+=over
+
+=item
+
+Apply the change described at L<https://rt.cpan.org/Ticket/Display.html?id=49026>
   
+=item
+
+C<perl Makefile.PL>
+
+=back
+
 =item
 
 Option 2: Edit generated Makefile
@@ -234,7 +244,7 @@ C<perl Makefile.PL>
 Edit generated Makefile:
 
 Find the two lines containing the words C<EXTRALIBS> and C<LDLOADLIBS>. Add the C<"C:\path\to\visa32.lib"> to each of
-of these lines. For me they read:
+of these lines. On my system they read:
 
  EXTRALIBS = "C:\Programme\IVI Foundation\VISA\WinNT\lib\msc\visa32.lib" C:\strawberry\c\lib\libmoldname.a ...
  LDLOADLIBS = "C:\Programme\IVI Foundation\VISA\WinNT\lib\msc\visa32.lib" C:\strawberry\c\lib\libmoldname.a ...
