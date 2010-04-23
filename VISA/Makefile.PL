@@ -26,8 +26,6 @@ WriteMakefile(
     (($^O =~ /MSWin32/)
     ?   ('LIBS'         => ['"-lC:\\VXIPNP\\WinNT\\lib\\msc\\visa32.lib"'],
          'INC'          => '"-IC:\\VXIPNP\\WinNT\\include "',
-#    ?   ('LIBS'         => q("-lC:/Programme/IVI Foundation/VISA/WinNT/lib/msc/visa32.lib"),
-#         'INC'          => q("-IC:/Programme/IVI Foundation/VISA/WinNT/include"),
         )
     :   ('LIBS'         => ['-lvisa'],
          'INC'          => '-I/usr/local/vxipnp/linux/include/',
@@ -40,7 +38,7 @@ WriteMakefile(
         resources => {
             homepage    =>      'http://labvisa.de',
             bugtracker  =>      'http://rt.cpan.org/NoAuth/Bugs.html?Dist=Lab-VISA',
-            MailingList =>      'https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-visa-users',
+            MailingList =>      'lab-visa-users@mailman.uni-regensburg.de',
         },
     },
 

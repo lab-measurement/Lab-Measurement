@@ -1,4 +1,3 @@
-
 =pod
 
 =head1 NAME
@@ -311,10 +310,9 @@ Here is a quick test program that you can run with perl -Mblib test.pl:
 
 =head1 COPYRIGHT AND LICENCE
 
- (c) 2010 Daniel Schröer, Andreas Hüttel, Daniela Taubert, and others 
+This is $Id$
 
-This library is free software; you can redistribute it and/or modify it 
-under the same terms as Perl itself. 
+(c) 2010 Daniel Schröer, Andreas Hüttel, Daniela Taubert, and others.
 
 =cut
 

@@ -30,8 +30,7 @@ This manpage describes the perl syntax of the API. Each function is explained
 with some sentences which I cited from [1]. See this manual for further
 documentation on the library.
 
-Installation instructions can be found in the L<README> file located in the
-toplevel directory of the package.
+Installation instructions can be found in L<Lab::VISA::Installation>.
 
 A general tutorial for using Lab::VISA and assorted packages is located in L<Lab::VISA::Tutorial>.
 
