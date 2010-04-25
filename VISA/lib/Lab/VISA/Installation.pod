@@ -167,9 +167,9 @@ Lab::VISA should in principle install out of the box with just the command
 
 	cpan Lab::VISA
 
-executed on the commandline. Unfortunately there is a bug in ExtUtils::MakeMaker (see
-https://rt.cpan.org/Ticket/Display.html?id=49026) that prevents this. Two possible workarounds
-are provided below, making installation still easy.
+executed on the commandline. Unfortunately there is a bug in ExtUtils::MakeMaker
+(L<see here|https://rt.cpan.org/Ticket/Display.html?id=49026>) that prevents this.
+Two possible workarounds are explained below.
 
 =over
 
@@ -185,21 +185,17 @@ Install NI-VISA
 
 =item
 
-Download 361mb file C<visa462full.exe> from L<http://sine.ni.com/psp/app/doc/p/id/psp-411>
+Download 361mb file C<visa462full.exe> from L<NI's website|http://sine.ni.com/psp/app/doc/p/id/psp-411>
 
 =item
 
-Install only 'Run Time Support' (I chose all items below that; it's very little)
-
-=item
-
-Restart Windows
+Install only 'Run Time Support' (I chose all items below that; it's not much)
 
 =back
 
 =item
 
-Locate msc version of visa32.lib and visa.h and adjust Makefile.PL. This is what
+Locate msc version of C<visa32.lib> and C<visa.h> and adjust C<Makefile.PL>. This is what
 worked for me:
 
     'LIBS' => q("-lC:/Programme/IVI Foundation/VISA/WinNT/lib/msc/visa32.lib"),
@@ -207,19 +203,20 @@ worked for me:
 
 =item
 
-Work around the bug
+Work around the bug (known to be present in ExtUtils-MakerMaker-6.56)
 
 =over
 
 =item
 
-Option 1: Patch MakeMaker
+Option 1: Patch ExtUtils::MakeMaker
 
 =over
 
 =item
 
 Apply the change described at L<https://rt.cpan.org/Ticket/Display.html?id=49026>
+to the file C<Kid.pm> of your installation of ExtUtils::MakeMaker
   
 =item
 
@@ -243,7 +240,7 @@ C<perl Makefile.PL>
 
 =item
 
-Edit generated Makefile:
+In the generated file C<Makefile>:
 
 Find the two lines containing the words C<EXTRALIBS> and C<LDLOADLIBS>. Add the C<"C:\path\to\visa32.lib"> to each of
 of these lines. On my system they read:
