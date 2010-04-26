@@ -34,7 +34,7 @@ h1 {
 }
 
 h1 .basename {
-  color: #990000;
+  color: #aa0000;
 }
 
 h2      {
@@ -62,13 +62,13 @@ h4      {
 
 a {
   text-decoration: none;
-  color: #990000;
+  color: #aa0000;
 }
 a:visited {
-  color: #990000;
+  color: #aa0000;
 }
 a:hover {
-  color: #990000;
+  color: #aa0000;
   text-decoration: underline;
 }
 
@@ -80,7 +80,7 @@ h1 a:visited {
   color: #5c5c5c;
 }
 h1 a:hover {
-  color: #990000;
+  color: #aa0000;
   text-decoration: none;
 }
 

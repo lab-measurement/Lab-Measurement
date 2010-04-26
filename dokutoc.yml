@@ -1,6 +1,6 @@
 ---
 title: Lab::VISA Documentation
-authors: Daniel Schröer, Andreas Hüttel, and others
+authors: Daniel Schröer, Andreas K. Hüttel, and others
 toc:
   - Introduction to Lab::VISA:
       - VISA/lib/Lab/VISA/Installation.pod
