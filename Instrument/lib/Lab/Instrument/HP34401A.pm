@@ -387,7 +387,7 @@ probably many
 
 This is $Id$
 
-Copyright 2004-2006 Daniel SchrÃ¶er (L<http://www.danielschroeer.de/>), 2009-2010 Daniela Taubert
+Copyright 2004-2006 Daniel Schröer (<schroeer@cpan.org>), 2009-2010 Daniela Taubert
 
 This library is free software; you can redistribute it and/or modify it under the same
 terms as Perl itself.
