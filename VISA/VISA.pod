@@ -152,22 +152,12 @@ synchronous write operation can occur at any one time.
 
 =head1 CAVEATS/BUGS
 
-Probably many.
-
-I have tested this on Linux and Windows. Compilation is a little tricky if you don't have
-much experience (I didn't have much), but definitely possible. See the L<README> file for
-more information.
-
-Not all API functions are supported, just the ones that I needed. Only GPIB connections
-are tested so far.
+Not all API functions are supported. Only GPIB, serial
+and TCP/IP connections have been tested so far.
 
 =head1 SEE ALSO
 
 =over 4
-
-=item L<Lab::Instrument>
-
-=item L<Lab::Tools>
 
 =item L<GPIB>
 
