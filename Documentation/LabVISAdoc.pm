@@ -3,19 +3,23 @@ package Documentation::LabVISAdoc;
 use strict;
 use File::Basename;
 use Cwd;
+use File::Path qw(make_path);
 
 sub new {
-    my $proto=shift;
+    my ($proto, $docdir, $tempdir) = @_;
     my $self = bless {
-        docdir      => shift,
-        tempdir     => shift,
+        docdir      => $docdir,
+        tempdir     => $tempdir,
+        
     }, ref($proto) || $proto;
+    
     unless (-d $$self{docdir}) {
-        mkdir $$self{docdir};
+        make_path($$self{docdir});
     }
     unless (-d $$self{tempdir}) {
-        mkdir $$self{tempdir};
+        make_path($$self{tempdir});
     }
+    
     return $self;
 }
 
@@ -30,8 +34,7 @@ sub process {
         unlink(<*>);
         chdir $basedir;
     }
-    rmdir $self->{tempdir} or warn "tempdir löschen geht nicht: $!";
-    
+    rmdir $self->{tempdir} or warn sprintf("Cannot delete temp directory %s: %s\n", $self->{tempdir}, $!);
 }
 
 sub walk_one_section {
