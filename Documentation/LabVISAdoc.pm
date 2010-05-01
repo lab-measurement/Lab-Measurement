@@ -26,7 +26,7 @@ sub new {
 sub process {
     my ($self, $dokudef) = @_;
     $self->start($dokudef->{title}, $dokudef->{authors});
-    $self->walk_one_section({ $dokudef->{title} => $dokudef->{toc} });
+    $self->walk_one_section({ $dokudef->{title} => $dokudef->{toc} }, ());
     $self->finish();
     
     my $basedir = getcwd();
@@ -44,10 +44,18 @@ sub walk_one_section {
     push(@sections, $title);
     for my $element (@{$section->{$title}}) {
         unless (ref($element)) {
-            $self->process_element($element, @sections);
+            $self->process_element($element, {}, @sections);
         }
         elsif (ref($element) eq 'HASH') {
-            $self->walk_one_section($element, @sections);
+            my $key0 = (keys %$element)[0];
+            if (ref($element->{$key0}) eq 'HASH') {
+                # element with additional parameters
+                my $params = $element->{$key0}; # TODO: use
+                $self->process_element($key0, $params, @sections);
+            }
+            else {
+                $self->walk_one_section($element, @sections);
+            }
         }
         else {
             die "You have messed up the toc file at ".(join "/", @sections)."/$element";
@@ -67,7 +75,7 @@ sub start_section {
 }
 
 sub process_element {
-    my ($self, $podfile, @sections) = @_;
+    my ($self, $podfile, $params, @sections) = @_;
 }
 
 sub finish {

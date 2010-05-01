@@ -19,11 +19,15 @@ sub start_section {
 }
 
 sub process_element {
-    my ($self, $podfile, @sections) = @_;
+    my ($self, $podfile, $params, @sections) = @_;
 
     unless (-f $podfile) {
         warn "File $podfile doesn't exist";
-    } else {
+    }
+    elsif (defined($params->{pdf}) && ($params->{pdf} == 0)) {
+        # skip
+    }
+    else {
         my $basename = fileparse($podfile,qr{\.(pod|pm)});
         my $parser = MyPod2LaTeX->new();
         $parser->AddPreamble(0);

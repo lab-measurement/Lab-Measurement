@@ -33,7 +33,7 @@ sub start_section {
 }
 
 sub process_element {
-    my ($self, $podfile, @sections) = @_;
+    my ($self, $podfile, $params, @sections) = @_;
     my $basename = fileparse($podfile,qr{\.(pod|pm)});
     
     # pod page
