@@ -394,7 +394,7 @@ Probably many.
 
 =item L<Lab::Instrument::ILM>
 
-=item and many more...
+=item and many more
 
 =back
 
