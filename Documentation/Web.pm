@@ -41,7 +41,7 @@ sub start_section {
 }
 
 sub process_element {
-    my ($self, $podfile, @sections) = @_;
+    my ($self, $podfile, $params, @sections) = @_;
     my $basename = fileparse($podfile,qr{\.(pod|pm)});
     
     # pod page
@@ -89,6 +89,7 @@ sub finish {
         print {$self->{index_fh}} "</ul>\n";
         $self->{list_open} = 0;
     }
+ 	print {$self->{index_fh}} q{<p><a href="documentation.pdf">This documentation as PDF</a>.</p>};
     print {$self->{index_fh}} $self->_get_footer();
     close $self->{index_fh};
 }
