@@ -7,7 +7,7 @@ use Syntax::Highlight::Engine::Simple::Perl;
 
 sub new {
     my $self = shift->SUPER::new(@_);
-    $self->{'list_open'} = 0;
+    $self->{list_open} = 0;
     $self->{highlighter} = Syntax::Highlight::Engine::Simple::Perl->new();
     return $self;
 }
@@ -35,6 +35,7 @@ sub start_section {
 sub process_element {
     my ($self, $podfile, $params, @sections) = @_;
     my $basename = fileparse($podfile,qr{\.(pod|pm)});
+    my $hascode = ($podfile =~ /\.(pl|pm)$/);
     
     # pod page
     my $parser = MyPodXHTML->new();
@@ -45,13 +46,13 @@ sub process_element {
     open OUTFILE, ">", "$$self{docdir}/$basename.html" or die;
         print OUTFILE $self->_get_header($title);
         print OUTFILE qq(<h1><a href="toc.html">$sections[0]</a>: <span class="basename">$basename</span></h1>\n);
-        print OUTFILE ($podfile =~ /\.(pl|pm)$/) ? qq{<p>(<a href="$basename\_source.html">Source code</a>)</p>} : "";
+        print OUTFILE $hascode ? qq{<p>(<a href="$basename\_source.html">Source code</a>)</p>} : "";
         print OUTFILE $html;
         print OUTFILE $self->_get_footer();
     close OUTFILE;
     
     # highlighted source file
-    if ($podfile =~ /\.(pl|pm)$/) {
+    if ($hascode) {
         my $source = $self->{highlighter}->doFile(
             file      => $podfile,
             tab_width => 4,
@@ -81,7 +82,7 @@ sub finish {
         print {$self->{index_fh}} "</ul>\n";
         $self->{list_open} = 0;
     }
- 	print {$self->{index_fh}} q{<p><a href="documentation.pdf">This documentation as PDF</a>.</p>};
+ 	print {$self->{index_fh}} q{<p><a href="documentation.pdf">This documentation as PDF</a></p>};
     print {$self->{index_fh}} $self->_get_footer();
     close $self->{index_fh};
 }
@@ -91,7 +92,7 @@ sub _get_header {
     return <<HEADER;
 <?xml version="1.0" encoding="iso-8859-1" ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 	<head>
    		<link rel="stylesheet" type="text/css" href="../doku.css"/>
    		<title>$title</title>
