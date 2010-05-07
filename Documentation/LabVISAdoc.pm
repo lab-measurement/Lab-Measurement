@@ -50,7 +50,7 @@ sub walk_one_section {
             my $key0 = (keys %$element)[0];
             if (ref($element->{$key0}) eq 'HASH') {
                 # element with additional parameters
-                my $params = $element->{$key0}; # TODO: use
+                my $params = $element->{$key0};
                 $self->process_element($key0, $params, @sections);
             }
             else {
@@ -71,7 +71,7 @@ sub start {
 
 sub start_section {
     my ($self, $level, $title) = @_;
-    # wherein level is [2..]
+    # where level is [2..]
 }
 
 sub process_element {

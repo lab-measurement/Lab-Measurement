@@ -2,7 +2,18 @@ body {
   color: black;
   font-family: arial,sans-serif;
   margin: 0;
-  padding: 1ex 2em;
+  padding: 2ex 2em;
+}
+
+div#header {
+	width:100%;
+	background: #fafafa;
+	padding: 1.5ex 0em;
+	margin: 0 0 3ex 0;
+	border-style: solid;
+	border-width: 1px 0;
+	border-color: #c91c1c;
+	text-align: center;
 }
 
 div#camelgraph {

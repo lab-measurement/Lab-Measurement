@@ -98,6 +98,7 @@ sub _get_header {
    		<title>$title</title>
  	</head>
  	<body>
+<!--    <div id="header"><img id="logo" src="../header.png" alt=""/></div> -->
 HEADER
 }
 
@@ -131,7 +132,8 @@ sub resolve_pod_page_link {
     if (defined $section) {
         $section = '#' . $self->idify($section, 1);
         return $section unless defined $to;
-    } else {
+    }
+    else {
         $section = ''
     }
 
