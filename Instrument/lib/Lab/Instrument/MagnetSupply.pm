@@ -25,16 +25,16 @@ sub new {
     $self->{config}->{field_constant}=0;
     $self->{config}->{max_current}=1;
     $self->{config}->{max_sweeprate}=0.001;
-    $self->{config}->{max_sweeprate_persistent}=0.001;	# David: NOT USED!
+    $self->{config}->{max_sweeprate_persistent}=0.001;  # David: NOT USED!
     $self->{config}->{has_heater}=1;
-    $self->{config}->{heater_delaytime}=20;	# David: NOT USED!
+    $self->{config}->{heater_delaytime}=20; # David: NOT USED!
     $self->{config}->{can_reverse}=0;
     $self->{config}->{can_use_negative_current}=0;
-    $self->{config}->{use_persistentmode}=0; 	# David: NOT USED!
+    $self->{config}->{use_persistentmode}=0;    # David: NOT USED!
 
     $self->configure(@_);   # uses the remaining argument list to configure itself
 
-	print "Magnet power supply support is experimental. You have been warned.\n";
+    print "Magnet power supply support is experimental. You have been warned.\n";
     return $self;
 }
 
@@ -44,15 +44,15 @@ sub new {
 sub configure {
     my $self=shift;
     #supported config options are (so far)
-	#	field_constant (T/A)
-	#	max_current (A)
-	#	max_sweeprate (A/min)
-	#	max_sweeprate_persistent (A/min)
-	#	has_heater (0/1)
-	#	heater_delaytime (s)
-	#	can_reverse (0/1)
-	#	can_use_negative_current (0/1)
-	#	use_persistentmode (0/1)
+    #   field_constant (T/A)
+    #   max_current (A)
+    #   max_sweeprate (A/min)
+    #   max_sweeprate_persistent (A/min)
+    #   has_heater (0/1)
+    #   heater_delaytime (s)
+    #   can_reverse (0/1)
+    #   can_use_negative_current (0/1)
+    #   use_persistentmode (0/1)
     #   
     my $config=shift;
     if ((ref $config) =~ /HASH/) {
@@ -74,31 +74,31 @@ sub configure {
 
 # converts the argument in AMPS to TESLA, if field_constant != 0
 sub ItoB {
-	my $self=shift;
-	my $current=shift;
+    my $self=shift;
+    my $current=shift;
 
-	my $fconst = $self->{config}->{field_constant};
+    my $fconst = $self->{config}->{field_constant};
 
-	if ($fconst==0) { 
-	  die "MagnetSupply.pm: Field constant not defined!!!\n";
-	};
-	
-	return($fconst*$current);
+    if ($fconst==0) { 
+      die "MagnetSupply.pm: Field constant not defined!!!\n";
+    };
+    
+    return($fconst*$current);
 }
 
 
 # converts the argument in TESLA to AMPS, if field_constant != 0
 sub BtoI {
-	my $self=shift;
-	my $field=shift;
+    my $self=shift;
+    my $field=shift;
 
-	my $fconst = $self->{config}->{field_constant};
+    my $fconst = $self->{config}->{field_constant};
 
-	if ($fconst==0) { 
+    if ($fconst==0) { 
         die "MagnetSupply.pm: Field constant not defined!!!\n";
-	};
-	
-	return($field/$fconst);
+    };
+    
+    return($field/$fconst);
 }
 
 
@@ -106,7 +106,7 @@ sub BtoI {
 sub set_field {
     my $self=shift;
     my $field=shift;
-	
+    
     my $current = $self->BtoI($field);
 
     $field = $self->ItoB($self->set_current($current));
@@ -120,9 +120,9 @@ sub set_current {
     my $current=shift;
 
     if ($current > $self->{config}->{max_current}) {
-		$current = $self->{config}->{max_current};
+        $current = $self->{config}->{max_current};
     };
-	
+    
     if ($current < 0) {
         if ($self->{config}->{can_reverse}) {
 
@@ -132,10 +132,10 @@ sub set_current {
                     $current = -$self->{config}->{max_current};
                 };
 
-				# HERE TODO: sweep to negative current
-				die "MagnetSupply.pm: negative current supported, but not yet implemented!";
-				return $self->get_current();
-				
+                # HERE TODO: sweep to negative current
+                die "MagnetSupply.pm: negative current supported, but not yet implemented!";
+                return $self->get_current();
+                
             } else {
                    die "MagnetSupply.pm: negative current not supported\n";
             };
@@ -143,20 +143,20 @@ sub set_current {
         } else {
                die "MagnetSupply.pm: reverse current not supported\n";
         }
-	
+    
     };
 
     $self->_set_sweeprate($self->{config}->{max_sweeprate});
-	
+    
     # TODO: why another test for can_use_negative_current, and why not continue if the test fails?
     # if ($self->{config}->{can_use_negative_current}) {
         # $self->_set_sweep_target_current($current);
     # } else {
-	# die "not supported yet\n";
+    # die "not supported yet\n";
     # }
     
 
-	$self->_sweep_to_current($current);	# sweeps and waits until finished
+    $self->_sweep_to_current($current); # sweeps and waits until finished
 }
 
 
@@ -176,9 +176,9 @@ sub start_sweep_to_current {
     my $current=shift;
 
     if ($current > $self->{config}->{max_current}) {
-		$current = $self->{config}->{max_current};
+        $current = $self->{config}->{max_current};
     };
-	
+    
     if ($current < 0) {
         if ($self->{config}->{can_reverse}) {
 
@@ -188,10 +188,10 @@ sub start_sweep_to_current {
                     $current = -$self->{config}->{max_current};
                 };
 
-				# HERE TODO: sweep to negative current
-				die "MagnetSupply.pm: negative current supported, but not yet implemented!";
-				return $self->get_current();
-				
+                # HERE TODO: sweep to negative current
+                die "MagnetSupply.pm: negative current supported, but not yet implemented!";
+                return $self->get_current();
+                
             } else {
                    die "MagnetSupply.pm: negative current not supported\n";
             };
@@ -199,23 +199,23 @@ sub start_sweep_to_current {
         } else {
                die "MagnetSupply.pm: reverse current not supported\n";
         }
-	
+    
     };
 
     $self->_set_sweeprate($self->{config}->{max_sweeprate});
-	
+    
     # TODO: why another test for can_use_negative_current, and why not continue if the test fails?
     # if ($self->{config}->{can_use_negative_current}) {
         # $self->_set_sweep_target_current($current);
     # } else {
-	# die "not supported yet\n";
+    # die "not supported yet\n";
     # }
     
-	$self->_set_sweep_target_current($current);
-	
+    $self->_set_sweep_target_current($current);
+    
     $self->_set_hold(0);    # pause OFF, so sweeping begins
     
-	# now return, while sweeping continues
+    # now return, while sweeping continues
 }
 
 
@@ -237,9 +237,9 @@ sub get_current {
 # 1 == On (switch open)
 # 2 == Off, Magnet at Field (switch closed)
 sub get_heater() {
-	my $self=shift;
-	my $value = $self->_get_heater();
-	return $value;
+    my $self=shift;
+    my $value = $self->_get_heater();
+    return $value;
 }
 
 # parameter:
@@ -247,23 +247,23 @@ sub get_heater() {
 # 1 == on iff PSU=Magnet
 # 2 == on (no checks)
 sub set_heater() {
-	my $self=shift;
-	my $value=shift;
-	return $self->_set_heater($value);
+    my $self=shift;
+    my $value=shift;
+    return $self->_set_heater($value);
 }
 
 # returns sweeprate in AMPS/MINUTE, or in TESLA/MINUTE if device supports TESLA mode and IS in TESLA mode
 sub get_sweeprate() {
-	my $self=shift;
-	return $self->_get_sweeprate();
+    my $self=shift;
+    return $self->_get_sweeprate();
 }
 
 # $rate in AMPS/MINUTE, or in TESLA/MINUTE if device supports TESLA mode and IS in TESLA mode
 sub set_sweeprate() {
-	my $self=shift;
-	my $rate=shift;
-	$self->{config}->{max_sweeprate} = $rate;
-	return $self->_set_sweeprate($rate);
+    my $self=shift;
+    my $rate=shift;
+    $self->{config}->{max_sweeprate} = $rate;
+    return $self->_set_sweeprate($rate);
 }
 
 

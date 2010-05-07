@@ -14,8 +14,8 @@ my $default_config={
     gp_max_volt_per_second  => 0.002,
     gp_max_volt_per_step    => 0.001,
     gp_max_step_per_second  => 2,
-    gp_max_volt		    => 0.100,
-    gp_min_volt		    => -1.500,
+    gp_max_volt         => 0.100,
+    gp_min_volt         => -1.500,
 };
 
 sub new {
@@ -43,7 +43,7 @@ sub _set_voltage {
 sub _get_voltage {
     my $self=shift;
     my $channel=shift;
-    my $cmd=sprintf("CONN $channel, \"X\"");	# X is only a token for the connection!!
+    my $cmd=sprintf("CONN $channel, \"X\"");    # X is only a token for the connection!!
     $self->{vi}->Write($cmd);
     usleep(0.1e6);
     $cmd="VOLT?";
@@ -62,7 +62,7 @@ sub _get_voltage {
 sub get_battery_status {
     my $self=shift;
     my $channel=shift;
-    my $cmd=sprintf("CONN $channel, \"X\"");	# X is only a token for the connection!!
+    my $cmd=sprintf("CONN $channel, \"X\"");    # X is only a token for the connection!!
     $self->{vi}->Write($cmd);
     my $date=$self->{vi}->Query("BIDN? 4");
     my $cycles = $self->{vi}->Query("BIDN? 3");
@@ -88,7 +88,7 @@ sub reset {
 
 sub id {
     my $self=shift;
-    my $cmd=sprintf("CONN 2, \"X\"");	# X is only a token for the connection!!
+    my $cmd=sprintf("CONN 2, \"X\"");   # X is only a token for the connection!!
     $self->{vi}->Write($cmd);
     $cmd="*IDN?";
     my $result=$self->{vi}->Query($cmd);

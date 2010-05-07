@@ -18,33 +18,33 @@ sub new {
 }
 
 sub reset {
-	my $self=shift;
-	$self->{vi}->Write('*RST');
+    my $self=shift;
+    $self->{vi}->Write('*RST');
 }
 
 sub set_cw {
-	my $self=shift;
-	my $freq=shift;
-	$self->{vi}->Write("FREQ:CW $freq");
-	$self->{vi}->Query('*OPC?');
+    my $self=shift;
+    my $freq=shift;
+    $self->{vi}->Write("FREQ:CW $freq");
+    $self->{vi}->Query('*OPC?');
 }
 
 sub set_power {
-	my $self=shift;
-	my $power=shift;
+    my $self=shift;
+    my $power=shift;
 
-	$self->{vi}->Write("POW:LEV $power");
-	$self->{vi}->Query('*OPC?');
+    $self->{vi}->Write("POW:LEV $power");
+    $self->{vi}->Query('*OPC?');
 }
 
 sub power_on {
-	my $self=shift;
-	$self->{vi}->Write('POWer:STATe ON');
+    my $self=shift;
+    $self->{vi}->Write('POWer:STATe ON');
 }
 
 sub power_off {
-	my $self=shift;
-	$self->{vi}->Write('POWer:STATe OFF');
+    my $self=shift;
+    $self->{vi}->Write('POWer:STATe OFF');
 }
               
 1;

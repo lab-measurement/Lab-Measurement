@@ -38,18 +38,18 @@ my $filename="B=2p5Tto6T_MC_T=100mK_Vg=2p044V";
 #my $end_outer = $stop_sd*1000;
 
 # Sweep rates for different temperature ranges
-my $T_sweep_slow=0.005;			#K/min
-my $T_sweep_medium=0.010;		#K/min
-my $T_sweep_fast=0.020;			#K/min
-my $T_sweep=$T_sweep_slow;		#K/min
-my $T_sweep_rate_switch_slow=0.080;	#K
-my $T_sweep_rate_switch_medium=0.300;	#K
+my $T_sweep_slow=0.005;         #K/min
+my $T_sweep_medium=0.010;       #K/min
+my $T_sweep_fast=0.020;         #K/min
+my $T_sweep=$T_sweep_slow;      #K/min
+my $T_sweep_rate_switch_slow=0.080; #K
+my $T_sweep_rate_switch_medium=0.300;   #K
 
 # Thermalization times for different temperature ranges
-my $T_wait_sp_hot=120;			#sec
-my $T_wait_sp_cold=900;	    	        #sec
-my $T_wait_sp=$T_wait_sp_hot;		#sec
-my $T_wait_sp_cold_switch=0.080;	#K
+my $T_wait_sp_hot=120;          #sec
+my $T_wait_sp_cold=900;                 #sec
+my $T_wait_sp=$T_wait_sp_hot;       #sec
+my $T_wait_sp_cold_switch=0.080;    #K
 
 # Thermometer channel numbers
 my $T_channel_sample=3;
@@ -63,11 +63,11 @@ printf "Init TRMC2... ";
 $TRMC->TRMC2init;
 printf "done.\n";
 
-$TRMC->TRMC2_Start_Sweep(0);			# dont sweep for now
-$TRMC->TRMC2_Set_T(0.100);	# set temperature to 0.03mK ??? what is set here ???
+$TRMC->TRMC2_Start_Sweep(0);            # dont sweep for now
+$TRMC->TRMC2_Set_T(0.100);  # set temperature to 0.03mK ??? what is set here ???
 $TRMC->TRMC2_Heater_Control_On(1);
 
-my @allmeas=$TRMC->TRMC2_AllMEAS();		# read out all channels?
+my @allmeas=$TRMC->TRMC2_AllMEAS();     # read out all channels?
 printf "ALLMEAS=@allmeas\n";
 my $RT_now=0;
 my $T_now=0;
@@ -161,7 +161,7 @@ my $measurement=new Lab::Measurement(
             'name'          => 'AMP',
             'value'         => $amp,
         },
-	  {
+      {
             'name'          => 'OFFSET',
             #'value'         => $gateoffset,
         },
@@ -262,7 +262,7 @@ for my $b_set(@B)
     
   while(1){
     my $t_T=tv_interval($t_start_wait);
-    if ($t_T>=$T_wait_sp) { last };	# end loop after waiting correct time
+    if ($t_T>=$T_wait_sp) { last }; # end loop after waiting correct time
     if ($startwait == 0) {$startwait = 1; last};
     
     printf ("t_T=%d sec\tt_wait=%d sec\n",$t_T,$T_wait_sp); # debug output

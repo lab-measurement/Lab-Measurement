@@ -11,7 +11,7 @@ use Time::HiRes qw/sleep/;
 our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
 
 my $WAIT=0.3; #sec. waiting time for each reading;
-my $mounted=0;	# Ist sie schon mal angemeldet
+my $mounted=0;  # Ist sie schon mal angemeldet
 
 my $buffin="C:\\Program Files\\Trmc2\\buffin.txt";# Hierhin gehen die Befehle
 my $buffout="C:\\Program Files\\Trmc2\\buffout.txt";# Hierher kommen die Antworten

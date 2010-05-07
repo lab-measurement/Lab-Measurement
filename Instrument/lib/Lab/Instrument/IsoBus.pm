@@ -9,59 +9,59 @@ use Lab::VISA;
 our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
 
 sub new {
-	my $proto = shift;
-	my $class = ref($proto) || $proto;
-	my $self = {};
-	bless ($self, $class);
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
+    my $self = {};
+    bless ($self, $class);
 
-	$self->{vi}=new Lab::Instrument(@_);
+    $self->{vi}=new Lab::Instrument(@_);
 
-	# we need to set the following RS232 options: 9600baud, 8 data bits, 1 stop bit, no parity, no flow control
-	# what is the read terminator? we assume CR=13 here, but this is not set in stone
-	# write terminator should I think always be CR=13=0x0d
-	
-	my $status=Lab::VISA::viSetAttribute($self->{vi}->{instr}, $Lab::VISA::VI_ATTR_ASRL_BAUD, 9600);
-	if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting baud: $status";}
-
-	$status=Lab::VISA::viSetAttribute($self->{vi}->{instr}, $Lab::VISA::VI_ATTR_TERMCHAR, 13);
-	if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting termchar: $status";}
-
-	$status=Lab::VISA::viSetAttribute($self->{vi}->{instr}, $Lab::VISA::VI_ATTR_TERMCHAR_EN, 1);
-	if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting termchar enabled: $status";}
-
-	$status=Lab::VISA::viSetAttribute($self->{vi}->{instr}, $Lab::VISA::VI_ATTR_ASRL_END_IN, 	$Lab::VISA::VI_ASRL_END_TERMCHAR);
-	if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting end termchar: $status";}
-
-	#  here we might still have to reinitialize the serial port to make the settings come into effect. how???
+    # we need to set the following RS232 options: 9600baud, 8 data bits, 1 stop bit, no parity, no flow control
+    # what is the read terminator? we assume CR=13 here, but this is not set in stone
+    # write terminator should I think always be CR=13=0x0d
     
-	sleep(1);
+    my $status=Lab::VISA::viSetAttribute($self->{vi}->{instr}, $Lab::VISA::VI_ATTR_ASRL_BAUD, 9600);
+    if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting baud: $status";}
 
-	# here we need to make sure that send and receive buffers are empty. i.e., discard anything that is waiting to be sent, 
-	# and read and discard anything that is still waiting
+    $status=Lab::VISA::viSetAttribute($self->{vi}->{instr}, $Lab::VISA::VI_ATTR_TERMCHAR, 13);
+    if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting termchar: $status";}
 
-	return $self;
+    $status=Lab::VISA::viSetAttribute($self->{vi}->{instr}, $Lab::VISA::VI_ATTR_TERMCHAR_EN, 1);
+    if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting termchar enabled: $status";}
+
+    $status=Lab::VISA::viSetAttribute($self->{vi}->{instr}, $Lab::VISA::VI_ATTR_ASRL_END_IN,    $Lab::VISA::VI_ASRL_END_TERMCHAR);
+    if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting end termchar: $status";}
+
+    #  here we might still have to reinitialize the serial port to make the settings come into effect. how???
+    
+    sleep(1);
+
+    # here we need to make sure that send and receive buffers are empty. i.e., discard anything that is waiting to be sent, 
+    # and read and discard anything that is still waiting
+
+    return $self;
 }
 
 sub IsoBus_Write {
-	my $self=shift;
-	my $addr=shift;
-	my $command=shift;
+    my $self=shift;
+    my $addr=shift;
+    my $command=shift;
 
-	my $value=$self->{vi}->Write(sprintf("@%d%s\r",$addr,$command));
-	return $value;
+    my $value=$self->{vi}->Write(sprintf("@%d%s\r",$addr,$command));
+    return $value;
 }
 
 sub IsoBus_Read {
-	my $self=shift;
-	my $addr=shift;
-	my $length=shift;
+    my $self=shift;
+    my $addr=shift;
+    my $length=shift;
 
-	my $result=$self->{vi}->Read($length);
-	return $result;
+    my $result=$self->{vi}->Read($length);
+    return $result;
 };
 
 sub IsoBus_valid {
-	return 1;
+    return 1;
 }
 
 1;

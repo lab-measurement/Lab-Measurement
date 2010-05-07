@@ -13,7 +13,7 @@ sub new {
     my $self = {};
     bless ($self, $class);
     $self->{vi}=new Lab::Instrument(@_);
-	print "The SR620 driver is heavily work in progress and does not work yet. :(";
+    print "The SR620 driver is heavily work in progress and does not work yet. :(";
     return $self
 }
 

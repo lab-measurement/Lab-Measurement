@@ -15,93 +15,93 @@ our $QUERY_LONG_LENGTH=10240; #bytes
 our $INS_DEBUG=0; # do we need additional output?
 
 sub new {
-	my $proto = shift;
-	my $class = ref($proto) || $proto;
-	my $self = {};
-	bless ($self, $class);
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
+    my $self = {};
+    bless ($self, $class);
 
-	my @args=@_;
-	
-	$self->{config}->{isIsoBusInstrument}=0;
-	
-	my ($status,$res)=Lab::VISA::viOpenDefaultRM();
-	if ($status != $Lab::VISA::VI_SUCCESS) { die "Cannot open resource manager: $status";}
-	$self->{default_rm}=$res;
-
-	my $resource_name;
-	
-	#
-	# GPIB instruments can be defined by providing a hash as constructor argument
-	#
-	if ((ref $args[0]) eq 'HASH') {
-		$self->{config}=$args[0];
-		if (defined ($self->{config}->{GPIB_address})) {
-			@args=(
-				(defined ($self->{config}->{GPIB_board})) ? $self->{config}->{GPIB_board} : 0, $self->{config}->{GPIB_address});
-		} else {
-			die "The Lab::Instrument constructor got a malformed hash as argument. Aborting.\n";
-		}
-	}
-	if ($#args >0) { 
-		#
-		# more than one argument
-		#
-		my $firstargtype=ref($args[0]);
-		if ($firstargtype eq 'Lab::Instrument::IsoBus') {
-			print "Hey great! Someone is testing IsoBus instruments!!!\n";
-			print "IsoBus support is UNTESTED so far. It may eat your pet targh. You have been warned.\n";
-			#
-			# First argument: the IsoBus instrument
-			# Second argument: the IsoBus address
-			#
-			if ($args[0]->IsoBus_valid()) {			
-				print "Connected to valid IsoBus.\n";
-				$self->{config}->{isIsoBusInstrument}=1;
-				$self->{config}->{IsoBus}=$args[0];
-				$self->{config}->{IsoBusAddress}=$args[1];
-			} else {
-				die "Tried to instantiate IsoBus instrument without valid IsoBus. Aborting.\n";
-			};
-		} else {
-			#
-			# More than one argument: assume GPIB, and the two arguments are gpib adaptor and gpib address
-			#
-			$resource_name=sprintf("GPIB%u::%u::INSTR",$args[0],$args[1]);
-		}
-	} else {    
-		# 
-		# Exactly one argument -> this should be the VISA resource name of the instrument
-		# 
-		$resource_name=$args[0];
-	}
+    my @args=@_;
     
-	
-	if ($self->{config}->{isIsoBusInstrument}) {
-		#
-		# we are creating an IsoBus instrument
-		#
-		if ($INS_DEBUG) { print "Instantiated IsoBus device.\n"; };
-		return $self;
-		
-	} else {
-		# 
-		# we are creating a VISA instrument
-		#
-		if ($resource_name) {
-			($status,my $instrument)=Lab::VISA::viOpen($self->{default_rm},$resource_name,$Lab::VISA::VI_NULL,$Lab::VISA::VI_NULL);
-			if ($status != $Lab::VISA::VI_SUCCESS) { die "Cannot open VISA instrument \"$resource_name\". Status: $status";}
-			$self->{instr}=$instrument;
+    $self->{config}->{isIsoBusInstrument}=0;
+    
+    my ($status,$res)=Lab::VISA::viOpenDefaultRM();
+    if ($status != $Lab::VISA::VI_SUCCESS) { die "Cannot open resource manager: $status";}
+    $self->{default_rm}=$res;
+
+    my $resource_name;
+    
+    #
+    # GPIB instruments can be defined by providing a hash as constructor argument
+    #
+    if ((ref $args[0]) eq 'HASH') {
+        $self->{config}=$args[0];
+        if (defined ($self->{config}->{GPIB_address})) {
+            @args=(
+                (defined ($self->{config}->{GPIB_board})) ? $self->{config}->{GPIB_board} : 0, $self->{config}->{GPIB_address});
+        } else {
+            die "The Lab::Instrument constructor got a malformed hash as argument. Aborting.\n";
+        }
+    }
+    if ($#args >0) { 
+        #
+        # more than one argument
+        #
+        my $firstargtype=ref($args[0]);
+        if ($firstargtype eq 'Lab::Instrument::IsoBus') {
+            print "Hey great! Someone is testing IsoBus instruments!!!\n";
+            print "IsoBus support is UNTESTED so far. It may eat your pet targh. You have been warned.\n";
+            #
+            # First argument: the IsoBus instrument
+            # Second argument: the IsoBus address
+            #
+            if ($args[0]->IsoBus_valid()) {         
+                print "Connected to valid IsoBus.\n";
+                $self->{config}->{isIsoBusInstrument}=1;
+                $self->{config}->{IsoBus}=$args[0];
+                $self->{config}->{IsoBusAddress}=$args[1];
+            } else {
+                die "Tried to instantiate IsoBus instrument without valid IsoBus. Aborting.\n";
+            };
+        } else {
+            #
+            # More than one argument: assume GPIB, and the two arguments are gpib adaptor and gpib address
+            #
+            $resource_name=sprintf("GPIB%u::%u::INSTR",$args[0],$args[1]);
+        }
+    } else {    
+        # 
+        # Exactly one argument -> this should be the VISA resource name of the instrument
+        # 
+        $resource_name=$args[0];
+    }
+    
+    
+    if ($self->{config}->{isIsoBusInstrument}) {
+        #
+        # we are creating an IsoBus instrument
+        #
+        if ($INS_DEBUG) { print "Instantiated IsoBus device.\n"; };
+        return $self;
         
-			$status=Lab::VISA::viSetAttribute($self->{instr}, $Lab::VISA::VI_ATTR_TMO_VALUE, 3000);
-			if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting timeout value: $status";}
+    } else {
+        # 
+        # we are creating a VISA instrument
+        #
+        if ($resource_name) {
+            ($status,my $instrument)=Lab::VISA::viOpen($self->{default_rm},$resource_name,$Lab::VISA::VI_NULL,$Lab::VISA::VI_NULL);
+            if ($status != $Lab::VISA::VI_SUCCESS) { die "Cannot open VISA instrument \"$resource_name\". Status: $status";}
+            $self->{instr}=$instrument;
+        
+            $status=Lab::VISA::viSetAttribute($self->{instr}, $Lab::VISA::VI_ATTR_TMO_VALUE, 3000);
+            if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting timeout value: $status";}
     
-			if ($INS_DEBUG) { print "Instantiated VISA resource $resource_name.\n"; };
-			return $self;
-		} else {
-			die "You need to tell me which VISA instrument you want to open!!! Aborting...\n";		
-		};
-	};
-	
+            if ($INS_DEBUG) { print "Instantiated VISA resource $resource_name.\n"; };
+            return $self;
+        } else {
+            die "You need to tell me which VISA instrument you want to open!!! Aborting...\n";      
+        };
+    };
+    
     return 0;
 }
 
@@ -109,56 +109,56 @@ sub new {
 sub Clear {
     my $self=shift;
     
-	if ($self->{config}->{isIsoBusInstrument}) { die "Clear not implemented for IsoBus instruments.\n"; };
-	
+    if ($self->{config}->{isIsoBusInstrument}) { die "Clear not implemented for IsoBus instruments.\n"; };
+    
     my $status=Lab::VISA::viClear($self->{instr});
     if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while clearing instrument: $status";}
 }
 
 
 sub Write {
-	my $arg_cnt=@_;
-	my $self=shift;
-	my $cmd=shift;
+    my $arg_cnt=@_;
+    my $self=shift;
+    my $cmd=shift;
 
-	if ($self->{config}->{isIsoBusInstrument}) { 
-	
-		my $write_cnt=$self->{config}->{IsoBus}->IsoBus_Write($self->{config}->{IsoBusAddress}, $cmd);
-		return $write_cnt;
-		
-	} else {
-	
-		my $wait_status=$WAIT_STATUS;
-		if ($arg_cnt==3){ $wait_status=shift}
-		my ($status, $write_cnt)=Lab::VISA::viWrite(
-			$self->{instr},
-			$cmd,
-			length($cmd)
-		);
-		usleep($wait_status);
-		if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while writing string \"\n$cmd\n\": $status";}
-		return $write_cnt;
-		
-	};
+    if ($self->{config}->{isIsoBusInstrument}) { 
+    
+        my $write_cnt=$self->{config}->{IsoBus}->IsoBus_Write($self->{config}->{IsoBusAddress}, $cmd);
+        return $write_cnt;
+        
+    } else {
+    
+        my $wait_status=$WAIT_STATUS;
+        if ($arg_cnt==3){ $wait_status=shift}
+        my ($status, $write_cnt)=Lab::VISA::viWrite(
+            $self->{instr},
+            $cmd,
+            length($cmd)
+        );
+        usleep($wait_status);
+        if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while writing string \"\n$cmd\n\": $status";}
+        return $write_cnt;
+        
+    };
 }
 
 
 sub Read {
-	my $self=shift;
-	my $length=shift;
+    my $self=shift;
+    my $length=shift;
 
-	if ($self->{config}->{isIsoBusInstrument}) { 
-	
-		my $result=$self->{config}->{IsoBus}->IsoBus_Read($self->{config}->{IsoBusAddress}, $length);
-		return $result;
-		
-	} else {	
+    if ($self->{config}->{isIsoBusInstrument}) { 
+    
+        my $result=$self->{config}->{IsoBus}->IsoBus_Read($self->{config}->{IsoBusAddress}, $length);
+        return $result;
+        
+    } else {    
 
-		my ($status,$result,$read_cnt)=Lab::VISA::viRead($self->{instr},$length);
-		if (($status != $Lab::VISA::VI_SUCCESS) && ($status != 0x3FFF0005)){die "Error while reading: $status";};
-		return substr($result,0,$read_cnt);
-		
-	};
+        my ($status,$result,$read_cnt)=Lab::VISA::viRead($self->{instr},$length);
+        if (($status != $Lab::VISA::VI_SUCCESS) && ($status != 0x3FFF0005)){die "Error while reading: $status";};
+        return substr($result,0,$read_cnt);
+        
+    };
 }
 
 
@@ -166,31 +166,31 @@ sub BrutalRead {
     my $self=shift;
     my $length=shift;
 
-	if ($self->{config}->{isIsoBusInstrument}) { die "BrutalRead not implemented for IsoBus instruments.\n"; };
-	
+    if ($self->{config}->{isIsoBusInstrument}) { die "BrutalRead not implemented for IsoBus instruments.\n"; };
+    
     my ($status,$result,$read_cnt)=Lab::VISA::viRead($self->{instr},$length);
     return substr($result,0,$read_cnt);
 }
 
 
 sub Query { # ($cmd, optional $wait_query  , optional $wait_status )
-	# contains a nice bomb: read_cnt is arbitrarly set to 300 bytes
-	my $arg_cnt=@_;
-	my $self=shift;
-	my $cmd=shift;
+    # contains a nice bomb: read_cnt is arbitrarly set to 300 bytes
+    my $arg_cnt=@_;
+    my $self=shift;
+    my $cmd=shift;
 
-	my $wait_status=$WAIT_STATUS;
-	my $wait_query=$WAIT_QUERY;
-	if ($arg_cnt==3){ $wait_query=shift; };
-	if ($arg_cnt==4){ $wait_status=shift; };
-	
-	my $write_cnt=$self->Write($cmd);
-	my $read_cnt;
+    my $wait_status=$WAIT_STATUS;
+    my $wait_query=$WAIT_QUERY;
+    if ($arg_cnt==3){ $wait_query=shift; };
+    if ($arg_cnt==4){ $wait_status=shift; };
     
-	usleep($wait_query); #<---ensures that asked data presented from the device
+    my $write_cnt=$self->Write($cmd);
+    my $read_cnt;
+    
+    usleep($wait_query); #<---ensures that asked data presented from the device
 
-	my $result=$self->Read($QUERY_LENGTH);
-	return $result;
+    my $result=$self->Read($QUERY_LENGTH);
+    return $result;
 }
 
 
@@ -200,14 +200,14 @@ sub LongQuery { # ($cmd, optional $wait_query  , optional $wait_status )
     my $self=shift;
     my $cmd=shift;
 
-	if ($self->{config}->{isIsoBusInstrument}) { die "LongQuery not implemented for IsoBus instruments.\n"; };
-	
-	my $wait_status=$WAIT_STATUS;
+    if ($self->{config}->{isIsoBusInstrument}) { die "LongQuery not implemented for IsoBus instruments.\n"; };
+    
+    my $wait_status=$WAIT_STATUS;
     my $wait_query=$WAIT_QUERY;
     if ($arg_cnt==3){ $wait_query=shift}
     if ($arg_cnt==4){ $wait_status=shift}    
-	
-	my $write_cnt=$self->Write($cmd);
+    
+    my $write_cnt=$self->Write($cmd);
     my $read_cnt;
     usleep($wait_query); #<---ensures that asked data presented from the device
 
@@ -222,14 +222,14 @@ sub BrutalQuery {
     my $self=shift;
     my $cmd=shift;
 
-	if ($self->{config}->{isIsoBusInstrument}) { die "Query not implemented for IsoBus instruments.\n"; };
-	
-	my $wait_status=$WAIT_STATUS;
+    if ($self->{config}->{isIsoBusInstrument}) { die "Query not implemented for IsoBus instruments.\n"; };
+    
+    my $wait_status=$WAIT_STATUS;
     my $wait_query=$WAIT_QUERY;
     if ($arg_cnt==3){ $wait_query=shift}
     if ($arg_cnt==4){ $wait_status=shift}    
-	
-	my $write_cnt=$self->Write($cmd);
+    
+    my $write_cnt=$self->Write($cmd);
     my $read_cnt;
     usleep($wait_query); #<---ensures that asked data presented from the device
 
@@ -240,20 +240,20 @@ sub BrutalQuery {
 
 sub Handle {
     my $self=shift;
-	if ($self->{config}->{isIsoBusInstrument}) { die "Handle not implemented for IsoBus instruments.\n"; };		
+    if ($self->{config}->{isIsoBusInstrument}) { die "Handle not implemented for IsoBus instruments.\n"; };     
     return $self->{instr};
 }
 
 
 sub DESTROY {
     my $self=shift;
-	
-	if ($self->{config}->{isIsoBusInstrument}) {
-		# we dont actually have to do anything here :)
-	} else {
-	    my $status=Lab::VISA::viClose($self->{instr});
-		$status=Lab::VISA::viClose($self->{default_rm});
-	};
+    
+    if ($self->{config}->{isIsoBusInstrument}) {
+        # we dont actually have to do anything here :)
+    } else {
+        my $status=Lab::VISA::viClose($self->{instr});
+        $status=Lab::VISA::viClose($self->{default_rm});
+    };
 }
 
 

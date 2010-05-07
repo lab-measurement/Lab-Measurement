@@ -14,12 +14,12 @@ sub new {
     %{$self->{config}}=%{$self->{default_config}};
     $self->configure(@_);
 
-	# preset some sane values for device protection
+    # preset some sane values for device protection
     $self->{config}->{min_temp}=0.05;
     $self->{config}->{max_temp}=1;
     $self->{config}->{temp_tolerance}=5;
 
-	print "The TemperatureControl module is still heavily under development and does not work at all so far.\n";
+    print "The TemperatureControl module is still heavily under development and does not work at all so far.\n";
     return $self;
 }
 
@@ -27,9 +27,9 @@ sub configure {
     my $self=shift;
 
     #supported config options are (so far)
-    #   max_temp		maximum safe temperature
-    #   min_temp		minumim reachable temperature
-	#   temp_tolerance	temperature tolerance in percent
+    #   max_temp        maximum safe temperature
+    #   min_temp        minumim reachable temperature
+    #   temp_tolerance  temperature tolerance in percent
 
     my $config=shift;
     if ((ref $config) =~ /HASH/) {
@@ -51,30 +51,30 @@ sub configure {
 
 sub set_temp {
     my $self=shift;
-	my $temp=shift;
-	
-	if ($temp>$self->{config}->{max_temp}) {$temp=$self->{config}->{max_temp}; };
-	if ($temp<0) {$temp=0; };
-	
-	$temp=$self->_set_tmp(@_);
+    my $temp=shift;
+    
+    if ($temp>$self->{config}->{max_temp}) {$temp=$self->{config}->{max_temp}; };
+    if ($temp<0) {$temp=0; };
+    
+    $temp=$self->_set_tmp(@_);
     return $temp;
 }
 
 sub set_temp_wait {
-	my $self=shift;
+    my $self=shift;
 
-	my $target=$self->set_temp(@_);
-	
-	do {
-		# and now wait for the temperature...
-	
-		sleep(10);
-		$now=$self->get_temp();
+    my $target=$self->set_temp(@_);
+    
+    do {
+        # and now wait for the temperature...
+    
+        sleep(10);
+        $now=$self->get_temp();
 
-		if (($target < $self->{config}->{min_temp}) {$target=$self->{config}->{min_temp}; };
-		$diff=(abs($now-$target)/$target*100);
-		
-	} until ($diff <= $self->{config}->{temp_tolerance});
+        if (($target < $self->{config}->{min_temp}) {$target=$self->{config}->{min_temp}; };
+        $diff=(abs($now-$target)/$target*100);
+        
+    } until ($diff <= $self->{config}->{temp_tolerance});
 }
 
 sub _set_temp {

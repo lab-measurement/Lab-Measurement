@@ -39,7 +39,7 @@ sub _set_voltage {
     
     usleep(10000);  # wait; adjust this
 
-    $voltage *= -1;	# outputs are inverted !!    
+    $voltage *= -1; # outputs are inverted !!    
 
     $cmd="V ".$voltage."X";
     $self->{vi}->Write($cmd);   # set voltage

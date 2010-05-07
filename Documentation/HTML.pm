@@ -17,10 +17,10 @@ sub start {
     open $self->{index_fh}, ">", "$$self{docdir}/toc.html" or die $!;
     
     print {$self->{index_fh}} $self->_get_header($title);
- 	print {$self->{index_fh}} qq{
- 	    <h1><a href="../index.html">Lab::VISA</a> Documentation</h1>
- 	    <p>$authors</p>
- 	};
+    print {$self->{index_fh}} qq{
+        <h1><a href="../index.html">Lab::VISA</a> Documentation</h1>
+        <p>$authors</p>
+    };
 }
 
 sub start_section {
@@ -82,7 +82,7 @@ sub finish {
         print {$self->{index_fh}} "</ul>\n";
         $self->{list_open} = 0;
     }
- 	print {$self->{index_fh}} q{<p><a href="documentation.pdf">This documentation as PDF</a></p>};
+    print {$self->{index_fh}} q{<p><a href="documentation.pdf">This documentation as PDF</a></p>};
     print {$self->{index_fh}} $self->_get_footer();
     close $self->{index_fh};
 }
@@ -93,18 +93,18 @@ sub _get_header {
 <?xml version="1.0" encoding="iso-8859-1" ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
-	<head>
-   		<link rel="stylesheet" type="text/css" href="../doku.css"/>
-   		<title>$title</title>
- 	</head>
- 	<body>
+    <head>
+        <link rel="stylesheet" type="text/css" href="../doku.css"/>
+        <title>$title</title>
+    </head>
+    <body>
 <!--    <div id="header"><img id="logo" src="../header.png" alt=""/></div> -->
 HEADER
 }
 
 sub _get_footer {
     return <<FOOTER;
- 	</body>
+    </body>
 </html>
 FOOTER
 }

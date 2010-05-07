@@ -47,7 +47,7 @@ sub selftest {
 }
 
 sub autocalibration {
-	# Warning... this procedure takes 11 minutes!
+    # Warning... this procedure takes 11 minutes!
     my $self=shift;
     $self->{vi}->Write("ACAL ALL");
 }
@@ -219,7 +219,7 @@ Starts the internal self-test routine.
 
 =head2 autocalibration
 
-	$hp->autocalibration();
+    $hp->autocalibration();
 
 Starts the internal autocalibration. Warning... this procedure takes 11 minutes!
 

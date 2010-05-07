@@ -16,39 +16,39 @@ sub new {
 
     if ($type =~ /HASH/) {
 
-	# Source gets as parameters 1) the default config of a particular
-	# source class and 2) the config with which the source was instantiated
+    # Source gets as parameters 1) the default config of a particular
+    # source class and 2) the config with which the source was instantiated
 
-	%{$self->{default_config}}=%{shift @_};
-	%{$self->{config}}=%{$self->{default_config}};
-	$self->configure(@_);
+    %{$self->{default_config}}=%{shift @_};
+    %{$self->{config}}=%{$self->{default_config}};
+    $self->configure(@_);
 
-	for (my $i=1; $i<=$maxchannels; $i++) {
-		my $tmp="last_voltage_$i";
-		$self->{_gp}->{$tmp}=undef;
-		$tmp="last_settime_mus_$i";
-		$self->{_gp}->{$tmp}=undef;
-	}
+    for (my $i=1; $i<=$maxchannels; $i++) {
+        my $tmp="last_voltage_$i";
+        $self->{_gp}->{$tmp}=undef;
+        $tmp="last_settime_mus_$i";
+        $self->{_gp}->{$tmp}=undef;
+    }
 
-	$self->{subsource}=0;
+    $self->{subsource}=0;
 
     } elsif (($type =~ /^Lab::Instrument/) && ($_[0]->{IamaSource})) {
 
-	# Whenever the first parameter is not a default config hash but a
-	# class object inherited from Lab::Instrument with IamaSource set, 
-	# we are instantiating a subsource of a multichannel source. 
+    # Whenever the first parameter is not a default config hash but a
+    # class object inherited from Lab::Instrument with IamaSource set, 
+    # we are instantiating a subsource of a multichannel source. 
 
-	print "Hey great! Someone is testing subchannel sources...\n";
-	$self->{multisource}=shift;
-	$self->{channel}=shift;
+    print "Hey great! Someone is testing subchannel sources...\n";
+    $self->{multisource}=shift;
+    $self->{channel}=shift;
 
-	# the default config is in this case the actual config of the
-	# multisource object
-	%{$self->{default_config}}=%{$self->{multisource}->{config}};
-	%{$self->{config}}=%{$self->{default_config}};
-	$self->configure(@_);
+    # the default config is in this case the actual config of the
+    # multisource object
+    %{$self->{default_config}}=%{$self->{multisource}->{config}};
+    %{$self->{config}}=%{$self->{default_config}};
+    $self->configure(@_);
 
-	$self->{subsource}=1;
+    $self->{subsource}=1;
 
     };
 
@@ -293,7 +293,7 @@ sub _set_voltage {
     if ($self->{subsource}) {
         return $self->{multisource}->_set_voltage($voltage, $self->{channel});
     } else {
-	warn '_set_voltage not implemented for this instrument';
+    warn '_set_voltage not implemented for this instrument';
     };
 }
 
@@ -304,7 +304,7 @@ sub _set_voltage_auto {
     if ($self->{subsource}) {
         return $self->{multisource}->_set_voltage_auto($voltage, $self->{channel});
     } else {
-	warn '_set_voltage_auto not implemented for this instrument';
+    warn '_set_voltage_auto not implemented for this instrument';
     };
 }
 
@@ -324,7 +324,7 @@ sub _get_voltage {
     if ($self->{subsource}) {
         return $self->{multisource}->_get_voltage($self->{channel});
     } else {
-	warn '_get_voltage not implemented for this instrument';
+    warn '_get_voltage not implemented for this instrument';
     };
 }
 
@@ -333,7 +333,7 @@ sub get_range() {
     if ($self->{subsource}) {
         return $self->{multisource}->get_range($self->{channel});
     } else {
-	warn 'get_range not implemented for this instrument';
+    warn 'get_range not implemented for this instrument';
     };
 }
 
@@ -343,7 +343,7 @@ sub set_range() {
     if ($self->{subsource}) {
         return $self->{multisource}->set_range($range, $self->{channel});
     } else {
-	warn 'set_range not implemented for this instrument';
+    warn 'set_range not implemented for this instrument';
     };
 }
 

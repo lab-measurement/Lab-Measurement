@@ -24,7 +24,7 @@ sub new {
     my $class = ref($proto) || $proto;
     my $self = {};
     bless ($self, $class);
-	printf "The ITC driver is work in progress. You have been warned.\n";
+    printf "The ITC driver is work in progress. You have been warned.\n";
     printf "new ITC\n \n";
     printf "Defining ITC...";    
     $self->{vi}=new Lab::Instrument(@args);

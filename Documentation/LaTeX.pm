@@ -125,10 +125,10 @@ sub verbatim {
     my @l = split("\n",$paragraph);
     foreach (@l) {
       1 while s/(^|\n)([^\t\n]*)(\t+)/
-	$1. $2 . (" " x 
-		  (8 * length($3)
-		   - (length($2) % 8)))
-	  /sex;
+    $1. $2 . (" " x 
+          (8 * length($3)
+           - (length($2) % 8)))
+      /sex;
     }
     $paragraph = join("\n",@l);
     $self->_output('\leavevmode\begin{lstlisting}' . "\n$paragraph\n". '\end{lstlisting}'."\n");

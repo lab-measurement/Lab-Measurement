@@ -25,8 +25,8 @@ sub new {
     my $self = $class->SUPER::new($default_config,@args);
     bless ($self, $class);
 
-	print "IPS12010 superconducting magnet supply code is experimental. You have been warned.\n";
-	
+    print "IPS12010 superconducting magnet supply code is experimental. You have been warned.\n";
+    
     $self->{vi}=new Lab::Instrument(@args);
     
     my $xstatus=Lab::VISA::viSetAttribute($self->{vi}->{instr}, $Lab::VISA::VI_ATTR_TERMCHAR, 0xD);
@@ -37,7 +37,7 @@ sub new {
 
 #    $self->{vi}->Clear();
    
-    $self->ips_set_communications_protocol(4);	# set to extended resolution
+    $self->ips_set_communications_protocol(4);  # set to extended resolution
  
     $self->ips_set_control(3);  # set to remote & unlocked
 
@@ -101,9 +101,9 @@ sub ips_read_parameter {
 # Hier spezialisierte read-Methoden einfuehren (read_set_point())
 
 sub ips_get_status {  # freezes magnet (David: not my comment)
-	my $self=shift;
-	my $result=$self->{vi}->Query("X\r");
-	return $result;
+    my $self=shift;
+    my $result=$self->{vi}->Query("X\r");
+    return $result;
 }
 
 # returns:
@@ -112,11 +112,11 @@ sub ips_get_status {  # freezes magnet (David: not my comment)
 # 2 == To Zero
 # 3 == Clamped
 sub ips_get_hold {
-	my $self=shift;
-	my $result=$self->ips_get_status();
-	$result =~ /X[0-9][0-9]A(.)/;
-	$result = $1;
-	return $result;
+    my $self=shift;
+    my $result=$self->ips_get_status();
+    $result =~ /X[0-9][0-9]A(.)/;
+    $result = $1;
+    return $result;
 }
 
 # returns:
@@ -127,10 +127,10 @@ sub ips_get_hold {
 # 8: No Switch Fitted
 sub ips_get_heater {
     my $self=shift;
-	my $result=$self->ips_get_status();
-	$result =~ /X[0-9][0-9]A[0-9]C[0-9]H(.)/;
-	$result = $1;
-	return $result;
+    my $result=$self->ips_get_status();
+    $result =~ /X[0-9][0-9]A[0-9]C[0-9]H(.)/;
+    $result = $1;
+    return $result;
 }
 
 
@@ -153,7 +153,7 @@ sub ips_set_switch_heater {
     my $self=shift;
     my $mode=shift;
     $self->{vi}->Query("H$mode\r");
-    sleep(15);  # wait for heater to open the switch	
+    sleep(15);  # wait for heater to open the switch    
 }
 
 sub ips_set_target_current {
@@ -213,15 +213,15 @@ sub ips_set_field_sweep_rate {
 
 # _set_heater(0) turns the heater OFF
 # _set_heater(1) turns the heater ON if PSU=Magnet (open switch)
-# 	(only perform operation
-# 	if recorded magnet current==present power supply output current)
+#   (only perform operation
+#   if recorded magnet current==present power supply output current)
 # _set_heater(2) Heater On, no Checks        (open switch)
 # returns the heater status as returned by _get_heater()
 sub _set_heater {
     my $self=shift;
     my $mode=shift;
-	$self->ips_set_switch_heater($mode);
-	return $self->_get_heater();
+    $self->ips_set_switch_heater($mode);
+    return $self->_get_heater();
 }
 
 # returns
@@ -243,101 +243,101 @@ sub _get_current {
 }
 
 sub _set_sweep_target_current {
-	my $self=shift;
-	my $current=shift;
-	$self->ips_set_target_current($current);
+    my $self=shift;
+    my $current=shift;
+    $self->ips_set_target_current($current);
 }
 
 # parameter: $current in AMPS
 sub _sweep_to_current {
-	my $self=shift;
-	my $target_current =shift;
-	$self->ips_set_target_current($target_current);
+    my $self=shift;
+    my $target_current =shift;
+    $self->ips_set_target_current($target_current);
     $self->_set_hold(0);    # pause OFF, so sweeping begins
     while (abs($self->_get_current() - $target_current) > 0.05) {
        sleep(10);
-    };    	
+    };      
 }
 
 sub _set_hold {
-	my $self=shift;
-	my $hold=shift;
-	
-	if ($hold) {	# enter if $hold != 0
-		$self->ips_set_activity(0);	# 0 == hold
-	} else {	# enter if $hold == 0
-		$self->ips_set_activity(1);	# 1 == to set point
-	};
+    my $self=shift;
+    my $hold=shift;
+    
+    if ($hold) {    # enter if $hold != 0
+        $self->ips_set_activity(0); # 0 == hold
+    } else {    # enter if $hold == 0
+        $self->ips_set_activity(1); # 1 == to set point
+    };
 }
 
 sub _get_hold {
-	my $self=shift;
-	my $result=$self->ips_get_hold();
-	return $result;
+    my $self=shift;
+    my $result=$self->ips_get_hold();
+    return $result;
 }
-	
+    
 
 
 # parameter is in AMPS/MINUTE
 sub _set_sweeprate {
-	my $self=shift;
-	my $rate=shift;
-	$rate=$rate;
-	# print "setting sweep rate to $rate\n";
-	$self->ips_set_current_sweep_rate($rate);	# David: uncommented
-	return($self->_get_sweeprate());
+    my $self=shift;
+    my $rate=shift;
+    $rate=$rate;
+    # print "setting sweep rate to $rate\n";
+    $self->ips_set_current_sweep_rate($rate);   # David: uncommented
+    return($self->_get_sweeprate());
 }
 
 # returns sweep rate in AMPS/MINUTE
 sub _get_sweeprate {
-	my $self=shift;
-	return(($self->ips_read_parameter(6)));
+    my $self=shift;
+    return(($self->ips_read_parameter(6)));
 }
 
 #sub _active_sweep { doesnt work
-#	my $self=shift;
-#	my $status=$self->ips_get_status();
-#	my $mode=substr($status,11,1);
-#	if ($mode!=0){
-#	    return(1); #sweeping 1 ,2 ,3
-#	}else{ 
-#	    return(0) # 0 At Rest 
-#	}
+#   my $self=shift;
+#   my $status=$self->ips_get_status();
+#   my $mode=substr($status,11,1);
+#   if ($mode!=0){
+#       return(1); #sweeping 1 ,2 ,3
+#   }else{ 
+#       return(0) # 0 At Rest 
+#   }
 #}
 
 
 # returns current sweep rate in AMPS/MINUTE
 sub _init_magnet {
-	my $self=shift;#
-	print "Set Communication Protocol to Extended Resolution...";
-	#$self->ips_set_activity (0);
-	$self->ips_set_communications_protocol(4);
-	print "done!\n";
-	print "Set Magnet to Remote and Unlocked...";
-	$self->ips_set_control (3);
-	print "done!\n";
-	
-	print "Unclamp Magnet and Set to Hold...";
-	$self->ips_set_activity(0);
-	print "done!\n";
-	
-	# Don't use Heater in Init since the previous user could have used persitent mode and could turn off Power Supply!
-	#print "Switch On Heater\n";
+    my $self=shift;#
+    print "Set Communication Protocol to Extended Resolution...";
+    #$self->ips_set_activity (0);
+    $self->ips_set_communications_protocol(4);
+    print "done!\n";
+    print "Set Magnet to Remote and Unlocked...";
+    $self->ips_set_control (3);
+    print "done!\n";
+    
+    print "Unclamp Magnet and Set to Hold...";
+    $self->ips_set_activity(0);
+    print "done!\n";
+    
+    # Don't use Heater in Init since the previous user could have used persitent mode and could turn off Power Supply!
+    #print "Switch On Heater\n";
         #$self->ips_set_switch_heater(1);
-	#print "done!\n";
-	
-	return(($self->ips_read_parameter(6)));
+    #print "done!\n";
+    
+    return(($self->ips_read_parameter(6)));
 }
 
 # returns the AMPS at which the heater was switched off
 # or "" if heater is ON
 sub _get_persistent_magnet_current {
-	my $self=shift;
-	my $heater_status = $self->_get_heater();
-	if ($heater_status == 1) {	# 1 == On (switch open)
-		return "";
-	}
-	return(($self->ips_read_parameter(16)));
+    my $self=shift;
+    my $heater_status = $self->_get_heater();
+    if ($heater_status == 1) {  # 1 == On (switch open)
+        return "";
+    }
+    return(($self->ips_read_parameter(16)));
 }
 
 =head1 NAME

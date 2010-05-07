@@ -18,7 +18,7 @@ sub new {
 
 sub set_channel {
     my ($self,$chan)=@_;
-    $self->{vi}->Write("SCAN $chan,0");	# "0" fuer autoscan = off
+    $self->{vi}->Write("SCAN $chan,0"); # "0" fuer autoscan = off
     my $realchan=$self->{vi}->Query("SCAN?");
     chomp $realchan;
     return "$realchan";
