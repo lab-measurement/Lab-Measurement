@@ -14,7 +14,7 @@ sub new {
 
 sub start {
     my ($self, $title, $authors) = @_;
-    open $self->{index_fh}, ">", "$$self{docdir}/toc.html" or die $!;
+    open $self->{index_fh}, ">", "$$self{docdir}/index.html" or die $!;
     
     print {$self->{index_fh}} $self->_get_header($title);
     print {$self->{index_fh}} qq{
@@ -45,7 +45,7 @@ sub process_element {
     $parser->parse_file($podfile);
     open OUTFILE, ">", "$$self{docdir}/$basename.html" or die;
         print OUTFILE $self->_get_header($title);
-        print OUTFILE qq(<h1><a href="toc.html">$sections[0]</a>: <span class="basename">$basename</span></h1>\n);
+        print OUTFILE qq(<h1><a href="index.html">$sections[0]</a>: <span class="basename">$basename</span></h1>\n);
         print OUTFILE $hascode ? qq{<p>(<a href="$basename\_source.html">Source code</a>)</p>} : "";
         print OUTFILE $html;
         print OUTFILE $self->_get_footer();
@@ -61,14 +61,14 @@ sub process_element {
         my $title = "$sections[0]: $basename";
         open SRCFILE, ">", "$$self{docdir}/$basename\_source.html" or die;
             print SRCFILE $self->_get_header($title);
-            print SRCFILE qq(<h1><a href="toc.html">$sections[0]</a>: <span class="basename">$basename</span></h1>\n);
+            print SRCFILE qq(<h1><a href="index.html">$sections[0]</a>: <span class="basename">$basename</span></h1>\n);
             print SRCFILE qq{<p>(<a href="$basename.html">Documentation</a>)</p>};
             print SRCFILE "<pre>$source</pre>\n";
             print SRCFILE $self->_get_footer();
         close SRCFILE;
     }
     
-    # link in toc page
+    # link in index page
     unless ($self->{list_open}) {
         print {$self->{index_fh}} "<ul>\n";
         $self->{list_open} = 1;
