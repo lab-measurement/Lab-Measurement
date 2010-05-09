@@ -109,25 +109,6 @@ HEADER
 
 sub _get_footer {
     return <<FOOTER;
-
-<!-- Start of StatCounter Code -->
-<script type="text/javascript">
-var sc_project=5798171; 
-var sc_invisible=1; 
-var sc_security="385de927"; 
-</script>
-
-<script type="text/javascript"
-    src="http://www.statcounter.com/counter/counter.js"></script>
-<noscript>
-<div class="statcounter"><a title="free hit counter"
-    href="http://www.statcounter.com/" target="_blank"><img
-    class="statcounter"
-    src="http://c.statcounter.com/5798171/0/385de927/1/"
-    alt="free hit counter"></a></div>
-</noscript>
-<!-- End of StatCounter Code -->
-
     </body>
 </html>
 FOOTER
