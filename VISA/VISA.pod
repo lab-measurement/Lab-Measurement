@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-Lab::VISA - Perl interface to National Instruments' VISA library
+Lab::VISA - Perl interface to National Instruments VISA library
 
 =head1 SYNOPSIS
 
