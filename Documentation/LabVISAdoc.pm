@@ -3,7 +3,10 @@ package Documentation::LabVISAdoc;
 use strict;
 use File::Basename;
 use Cwd;
+use YAML;
 use File::Path qw(make_path);
+use Data::Dumper;
+$Data::Dumper::Indent = 1;
 
 sub new {
     my ($proto, $docdir, $tempdir) = @_;
@@ -24,7 +27,14 @@ sub new {
 }
 
 sub process {
-    my ($self, $dokudef) = @_;
+    my ($self, $yamlfile) = @_;
+    
+    open YAML, "<", $yamlfile || die "Can't open $yamlfile: $!\n";
+    my $yml = join "", <YAML>;
+    close YAML;
+    my $dokudef = Load($yml);
+    #print Dumper($dokudef);
+
     $self->start($dokudef->{title}, $dokudef->{authors});
     $self->walk_one_section({ $dokudef->{title} => $dokudef->{toc} }, ());
     $self->finish();
@@ -63,7 +73,8 @@ sub walk_one_section {
     }
 }
 
-# the following are to be overwritten
+# Documentation::LabVISADoc is sort of an abstract class
+# the following abstract methods are to be overwritten
 
 sub start {
     my ($self, $title, $authors) = @_;
