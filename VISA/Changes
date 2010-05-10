@@ -1,6 +1,12 @@
 History of Lab::VISA
 ====================
 
+Lab::VISA 2.06
+  Update recommended if you experience problems on Linux.
+
+  * Fixed double free() in visa_wrap.c that was causing problems on Linux 
+  * Tidied up Installation.pod
+
 Lab::VISA 2.05
   Only small documentation fixes. No need to necessarily upgrade.
   
