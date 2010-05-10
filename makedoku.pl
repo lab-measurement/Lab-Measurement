@@ -18,14 +18,16 @@ GetOptions(\%options, "docdir=s", "tempdir=s", 'help|?');
 
 my @jobs;
 for (@ARGV) {
-    push (@jobs, "LaTeX") if (/pdf|all/i);
-    push (@jobs, "HTML")  if (/html|all/i);
-    push (@jobs, "Web")   if (/web/i);
+    push @jobs, "LaTeX" if /pdf|all/i;
+    push @jobs, "HTML"  if /html|all/i;
+    push @jobs, "Web"   if /web/i;
 }
+
 pod2usage(-verbose => 99, -sections => "SYNOPSIS|DESCRIPTION|COMMANDS|OPTIONS")
     if ($options{help} || !@jobs);
-for (@jobs) {
-    my $processor = new {"Documentation::$_"}($options{docdir}, $options{tempdir});
+
+for (map "Documentation::$_", @jobs) {
+    my $processor = new {$_}($options{docdir}, $options{tempdir});
     $processor->process("dokutoc.yml");
 }
 
