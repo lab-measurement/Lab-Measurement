@@ -11,6 +11,7 @@ use Pod::Usage;
 # the autoupdater calls with parameter "web"
 
 my %options = (
+    toc     => "dokutoc.yml",
 	docdir  => "Homepage/docs",
 	tempdir => "Homepage/temp",
 );
@@ -28,7 +29,7 @@ pod2usage(-verbose => 99, -sections => "SYNOPSIS|DESCRIPTION|COMMANDS|OPTIONS")
 
 for (map "Documentation::$_", @jobs) {
     my $processor = new {$_}($options{docdir}, $options{tempdir});
-    $processor->process("dokutoc.yml");
+    $processor->process($options{toc});
 }
 
 copy('Homepage/index.html', 'Homepage/index.php');
@@ -46,7 +47,7 @@ makedoku.pl [options] command [command..]
 =head1 DESCRIPTION
 
 This program compiles HTML and PDF Documentation for Lab::VISA from various sources. The actual
-contents are defined in the file F<dokutoc.yml>.
+contents are defined in the file specified with option --toc.
 
 =head1 COMMANDS
 
@@ -77,6 +78,10 @@ Create documentation in html and pdf.
 All option names can be abbreviated as long as they remain unique.
 
 =over
+
+=item --toc=FILE
+
+The table of contents, defined in YAML. Defaults to C<dokutoc.yml>.
 
 =item --docdir=DIRECTORY
 
