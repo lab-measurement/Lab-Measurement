@@ -2166,7 +2166,7 @@ XS(_wrap_viRead) {
       ST(argvi) = sv_newmortal();
       sv_setiv(ST(argvi), *arg4);
       argvi++;
-      free(arg4);
+      /* free(arg4); */
     }
     
     

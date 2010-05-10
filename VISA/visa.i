@@ -38,7 +38,7 @@ $Lab::VISA::VERSION="2.05";
     $result = sv_newmortal();
     sv_setiv($result, *$3);
     argvi++;
-    free($3);
+    /* free($3); */
 }
 %enddef
 

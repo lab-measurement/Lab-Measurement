@@ -28,7 +28,7 @@ WriteMakefile(
          'INC'          => '"-IC:\\VXIPNP\\WinNT\\include "',
         )
     :   ('LIBS'         => ['-lvisa'],
-         'INC'          => '-I/usr/local/vxipnp/linux/include/',
+         'INC'          => '-I/usr/local/include/',
         )
     ),
     'NAME'              => 'Lab::VISA',
