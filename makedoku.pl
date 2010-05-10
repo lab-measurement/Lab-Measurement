@@ -20,8 +20,8 @@ GetOptions(\%options, "docdir=s", "tempdir=s", 'help|?');
 my @jobs;
 for (@ARGV) {
     push @jobs, "LaTeX" if /pdf|all/i;
-    push @jobs, "HTML"  if /html|all/i;
-    push @jobs, "Web"   if /web/i;
+    push @jobs, "HTML"  if /html|web|all/i;
+#    push @jobs, "Web"   if /web/i;
 }
 
 pod2usage(-verbose => 99, -sections => "SYNOPSIS|DESCRIPTION|COMMANDS|OPTIONS")
