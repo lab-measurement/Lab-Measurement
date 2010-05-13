@@ -18,13 +18,39 @@ div#header {
 
 div#toc {
     font-size: smaller;
-	width: 18%;
+	width: 15em;
 	float:right;
 	padding: 1.5ex 1.5em;
 	margin: 0 0 0 2em;
 	border-width: 1px;
 	border-style: solid;
 	border-color: black;
+}
+
+div#toc h1 {
+  color: #5c5c5c;
+  font-size: 110%;
+  font-weight: bold;
+  text-align: center;
+  border-style: solid;
+  border-width: 0 0 2px 0;
+  border-color: #eeeeee;
+  margin: 0;
+}
+
+div#toc h2 {
+  color: #5c5c5c;
+  font-size: 100%;
+  font-weight: bold;
+  border: none;
+}
+
+div#toc ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+div#toc li {
 }
 
 pre {
