@@ -17,25 +17,26 @@ div#header {
 }
 
 div#toc {
+    background: #fafafa;
     font-size: smaller;
-	width: 15em;
+    width: 14em;
 	float:right;
 	padding: 1.5ex 1.5em;
 	margin: 0 0 0 2em;
-	border-width: 1px;
+	border-width: 0px;
 	border-style: solid;
-	border-color: black;
+	border-color: #c91c1c;
 }
 
 div#toc h1 {
   color: #5c5c5c;
-  font-size: 110%;
+  font-size: 120%;
   font-weight: bold;
   text-align: center;
   border-style: solid;
-  border-width: 0 0 2px 0;
-  border-color: #eeeeee;
-  margin: 0;
+  border-width: 0 0 1px 0;
+  border-color: #c91c1c;
+  margin: 0 0 2ex 0;
 }
 
 div#toc h2 {
