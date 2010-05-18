@@ -12,10 +12,10 @@ use Pod::Usage;
 
 my %options = (
     toc     => "dokutoc.yml",
-	docdir  => "Homepage/docs",
-	tempdir => "Homepage/temp",
+    docdir  => "Homepage/docs",
+    tempdir => "Homepage/temp",
 );
-GetOptions(\%options, "docdir=s", "tempdir=s", 'help|?');
+GetOptions( \%options, "docdir=s", "tempdir=s", 'help|?' );
 
 my @jobs;
 for (@ARGV) {
@@ -24,12 +24,15 @@ for (@ARGV) {
 #    push @jobs, "Web"   if /web/i;
 }
 
-pod2usage(-verbose => 99, -sections => "SYNOPSIS|DESCRIPTION|COMMANDS|OPTIONS")
-    if ($options{help} || !@jobs);
+pod2usage(
+    -verbose  => 99,
+    -sections => "SYNOPSIS|DESCRIPTION|COMMANDS|OPTIONS"
+  )
+  if ( $options{help} || !@jobs );
 
-for (map "Documentation::$_", @jobs) {
-    my $processor = new {$_}($options{docdir}, $options{tempdir});
-    $processor->process($options{toc});
+for ( map "Documentation::$_", @jobs ) {
+    my $processor = new { $_ }( $options{docdir}, $options{tempdir} );
+    $processor->process( $options{toc} );
 }
 
 #copy('Homepage/index.html', 'Homepage/index.php');
@@ -98,3 +101,4 @@ This is $Id$.
 Copyright 2010 Daniel Schröer (schroeer@cpan.org).
 
 =cut
+
