@@ -4,7 +4,7 @@ use strict;
 use Documentation::LaTeX;
 use Documentation::HTML;
 use Documentation::Web;
-use File::Copy;
+#use File::Copy;
 use Getopt::Long;
 use Pod::Usage;
 
@@ -32,9 +32,7 @@ for (map "Documentation::$_", @jobs) {
     $processor->process($options{toc});
 }
 
-copy('Homepage/index.html', 'Homepage/index.php');
-
-=pod
+#copy('Homepage/index.html', 'Homepage/index.php');
 
 =head1 NAME
 
