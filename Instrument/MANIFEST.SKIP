@@ -11,6 +11,7 @@
 \bpm_to_blib$
 \bblibdirs$
 ^MANIFEST\.SKIP$
+^MANIFEST$
 
 # Avoid Module::Build generated and utility files.
 \bBuild$
@@ -41,4 +42,5 @@
 lib/Lab/Instrument/TemperatureControl.pm
 
 .tar.gz$
+^MYMETA.yml$
 ^MYMETA.yml$

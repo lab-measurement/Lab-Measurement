@@ -344,7 +344,7 @@ Lab::Instrument::Yokogawa7651 - Yokogawa 7651 DC source
 =head1 DESCRIPTION
 
 The Lab::Instrument::Yokogawa7651 class implements an interface to the
-7651 voltage and current source by Yokogawa. This class derives from
+discontinued voltage and current source 7651 by Yokogawa. This class derives from
 L<Lab::Instrument::Source> and provides all functionality described there.
 
 =head1 CONSTRUCTORS

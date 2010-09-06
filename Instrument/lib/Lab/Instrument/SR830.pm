@@ -16,6 +16,14 @@ sub new {
 }
 
 
+sub empty_buffer{
+    my $self=shift;
+    my $times=shift;
+    for (my $i=0;$i<$times;$i++){
+    $self->{vi}->BrutalRead();
+    }
+}
+
 sub set_frequency {
     my ($self,$freq)=@_;
     $self->{vi}->Write("FREQ $freq");
@@ -88,6 +96,22 @@ sub get_sens {
     my $self = shift;
     my $nr=$self->{vi}->Query("SENS?");
     return $senses[$nr];
+}
+
+sub set_sens_auto{
+    my $self=shift;
+    my $V=shift;
+    my $minsens=shift;
+    #print "V=$V\tminsens=$minsens\n";
+    #my ($lix, $liy) = $self->read_xy();
+    if (abs($V)>=$minsens/2 ){
+        $self->set_sens(abs($V*2.));  
+        my ($lix, $liy) = $self->read_xy();
+    }
+    else{
+        $self->set_sens(abs($minsens));
+        my ($lix, $liy) = $self->read_xy();
+    }  
 }
 
 sub set_tc {

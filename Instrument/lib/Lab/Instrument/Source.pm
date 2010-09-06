@@ -119,7 +119,6 @@ sub set_voltage_auto {
     my $channel=shift;
 
     $channel = 1 unless defined($channel);
-
     die "Channel must not be negative! Did you swap voltage and channel number? Aborting..." if $channel < 0;
     die "Channel must be an integer! Did you swap voltage and channel number? Aborting..." if int($channel) != $channel;
 
@@ -146,6 +145,7 @@ sub step_to_voltage {
     my $self=shift;
     my $voltage=shift;
     my $channel=shift;
+    $channel = 1 unless defined($channel);
     my $voltpersec=abs($self->{config}->{gp_max_volt_per_second});
     my $voltperstep=abs($self->{config}->{gp_max_volt_per_step});
     my $steppersec=abs($self->{config}->{gp_max_step_per_second});
@@ -173,7 +173,7 @@ sub step_to_voltage {
     if ((defined $voltperstep) && (abs($voltage - $last_v) < $voltperstep)) {
         $self->_set_voltage($voltage,$channel);
         $self->{_gp}->{$last_voltage_channel}=$voltage;
-        return $voltage;       
+       return $voltage;       
     }    
 
     #do the magic step calculation
@@ -181,14 +181,13 @@ sub step_to_voltage {
         $voltperstep/$voltpersec : # ignore $steppersec
         1/$steppersec;             # ignore $voltpersec
     my $step=$voltperstep * ($voltage <=> $last_v);
-    
     #wait if necessary
     my ($ns,$nmu)=gettimeofday();
     my $now=$ns*1e6+$nmu;
 
     my $last_settime_mus_channel="last_settime_mus_$channel";
 
-    unless (defined (my $last_t=$self->{_gp}->{last_settime_mus})) {
+    unless (defined (my $last_t=$self->{_gp}->{$last_settime_mus_channel})) {
         $self->{_gp}->{$last_settime_mus_channel}=$now;
     } elsif ( $now-$last_t < 1e6*$wait ) {
         usleep ( ( 1e6*$wait+$last_t-$now ) );
@@ -212,6 +211,7 @@ sub step_to_voltage_auto {
     my $self=shift;
     my $voltage=shift;
     my $channel=shift;
+    $channel = 1 unless defined($channel);
     my $voltpersec=abs($self->{config}->{gp_max_volt_per_second});
     my $voltperstep=abs($self->{config}->{gp_max_volt_per_step});
     my $steppersec=abs($self->{config}->{gp_max_step_per_second});

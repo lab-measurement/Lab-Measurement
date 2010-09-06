@@ -245,6 +245,16 @@ sub Handle {
 }
 
 
+sub Empty {
+    my $self=shift;
+    my $readcnt=0;
+	
+	do {
+		$readcnt=$self->BrutalRead(1024);
+	} until $readcnt==0;
+}
+
+
 sub DESTROY {
     my $self=shift;
     
@@ -402,8 +412,8 @@ Probably many.
 
 This is $Id$
 
- Copyright 2004-2006 Daniel Schröer <schroeer@cpan.org>, 
-           2009-2010 Daniel Schröer, Andreas K. Hüttel (L<http://www.akhuettel.de/>) and David Kalok
+ Copyright 2004-2006 Daniel Schrï¿½er <schroeer@cpan.org>, 
+           2009-2010 Daniel Schrï¿½er, Andreas K. Hï¿½ttel (L<http://www.akhuettel.de/>) and David Kalok
 
 This library is free software; you can redistribute it and/or modify it under the same
 terms as Perl itself.

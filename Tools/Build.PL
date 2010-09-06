@@ -9,8 +9,6 @@ my $build = Module::Build->new(
     dist_abstract => 'Tools to obtain and handle data with Lab::VISA',
     license       => 'perl',
     requires      => {
-#        'Lab::VISA'          => 0,
-#        'Lab::Instruments'   => 0,
         'XML::DOM'           => 0,
         'XML::Generator'     => 0,
         'XML::Twig'          => 0,
@@ -24,7 +22,7 @@ my $build = Module::Build->new(
     },
     recommends   => {
         'Lab::VISA'          => '2.03',
-        'Lab::Instruments'   => '2.00',
+        'Lab::Instrument'    => '2.00',
     },
     script_files => [qw(
         scripts/yoko_goto.pl    scripts/knick_goto.pl   scripts/hp_read.pl
