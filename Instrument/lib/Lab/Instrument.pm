@@ -219,8 +219,10 @@ sub Read {
 			return $self->{'interface'}->Read(@_);
 		}
     	} else {
-
+        
 		my $length=shift;
+        # for compatibility
+        $length = $QUERY_LONG_LENGTH if (not(defined $length) or ($length eq 'all'));
 
 		if ($self->{config}->{isIsoBusInstrument}) { 
 	
@@ -248,6 +250,8 @@ sub BrutalRead {
 	return $self->{'interface'}->Read(@_);
     } else {
     	my $length=shift;
+        # for compatibility
+        $length = $QUERY_LONG_LENGTH if (not(defined $length) or ($length eq 'all'));
 
     	if ($self->{config}->{isIsoBusInstrument}) { die "BrutalRead not implemented for IsoBus instruments.\n"; };
 	
