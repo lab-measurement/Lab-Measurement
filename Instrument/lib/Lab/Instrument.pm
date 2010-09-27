@@ -41,7 +41,7 @@ sub new {
 
 		# new interface using separate interface objects
 		push(@INC, $args{'ModulePath'}) if (exists $args{'ModulePath'});
-		eval('require '.$ifName.';') or die "Could not load the interface package $ifName\n"; # eval required to solve path problems with ::
+		eval('require '.$ifName.';') or die "Could not load the interface package $ifName\n$@\n"; # eval required to solve path problems with ::
 
 		# call the new function
 		$self->{'interface'}=$ifName->new(%args); # small key names for internal functions
@@ -342,8 +342,10 @@ sub DESTROY {
 	if ($self->{config}->{isIsoBusInstrument}) {
 		# we dont actually have to do anything here :)
 	} else {
-	    my $status=Lab::VISA::viClose($self->{instr});
-		$status=Lab::VISA::viClose($self->{default_rm});
+            if (exists $self->{instr} ) {
+	      my $status=Lab::VISA::viClose($self->{instr});
+	      $status=Lab::VISA::viClose($self->{default_rm});
+            }
 	};
    } # done only for old interface
 }
