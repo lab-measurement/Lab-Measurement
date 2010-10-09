@@ -6,11 +6,11 @@ use Module::Build;
 
 my $build = Module::Build->new(
     module_name       => 'Lab::Instrument',
-    dist_abstract     => 'Instrument drivers for Lab::VISA',
+    dist_abstract     => 'Lab instrument drivers',
     dist_version_from => 'README',
     license           => 'perl',
     requires          => {
-        'Lab::VISA'     => '2.03',
+        'Lab::Interface' => '1.0',
         'Time::HiRes'   => 0,
     },
     test_files        => [ 't/3_source.t', 't/4_dummysource.t' ],
