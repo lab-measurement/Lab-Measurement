@@ -6,13 +6,11 @@
 package Lab::Instrument;
 
 use strict;
-# removed to load only if needed
-# use Lab::VISA;
-# use Lab::Instrument::IsoBus;
+
+use Lab::Interface;
 
 use Time::HiRes qw (usleep sleep);
 use POSIX; # added for int() function
-
 
 # setup this variable to add inherited functions later
 our @ISA = ();
@@ -25,324 +23,97 @@ our $QUERY_LENGTH=300; # bytes
 our $QUERY_LONG_LENGTH=10240; #bytes
 our $INS_DEBUG=0; # do we need additional output?
 
-sub new {
+sub new { 
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
 	my $self = {};
 	bless ($self, $class);
 
+	# next argument has to be an interface
+	$self->{'interface'}=shift;
 	
-	# check if arguments is a hash with the key 'interface'
-	my %args = ();
-	%args = @_ if (int(@_/2) == (@_/2)); 
+	# third argument: description
+	my %description=shift;
 
-	if (exists $args{'Interface'}) {
-		my $ifName="Lab::Instrument::".$args{'Interface'};
-
-		# new interface using separate interface objects
-		push(@INC, $args{'ModulePath'}) if (exists $args{'ModulePath'});
-		eval('require '.$ifName.';') or die "Could not load the interface package $ifName\n$@\n"; # eval required to solve path problems with ::
-
-		# call the new function
-		$self->{'interface'}=$ifName->new(%args); # small key names for internal functions
-		# everything okay?
-		return undef unless (defined $self->{'interface'});
-
-		# look to delay property
-		$self->{'InterfaceDelay'} = $args{'InterfaceDelay'} if (exists $args{'InterfaceDelay'});
-		# inherit functions from the interface object
-		push(@ISA,$ifName);
-		# done
-		return $self;
-	} else {
-		# old interface from Lab::Instrument V2.01
-		my @args=@_;
-		# load required packages
-		require Lab::VISA;
-		require Lab::Instrument;
-        
-        	$self->{config}->{isIsoBusInstrument}=0;
-        	
-        	my ($status,$res)=Lab::VISA::viOpenDefaultRM();
-        	if ($status != $Lab::VISA::VI_SUCCESS) { die "Cannot open resource manager: $status";}
-        	$self->{default_rm}=$res;
-        
-        	my $resource_name;
-        	
-        	#
-        	# GPIB instruments can be defined by providing a hash as constructor argument
-        	#
-        	if ((ref $args[0]) eq 'HASH') {
-        		$self->{config}=$args[0];
-        		if (defined ($self->{config}->{GPIB_address})) {
-        			@args=(
-        				(defined ($self->{config}->{GPIB_board})) ? $self->{config}->{GPIB_board} : 0, $self->{config}->{GPIB_address});
-        		} else {
-        			die "The Lab::Instrument constructor got a malformed hash as argument. Aborting.\n";
-        		}
-        	} # argument was a hash - check finished
-
-        	if ($#args >0) { 
-        		#
-        		# more than one argument
-        		#
-        		my $firstargtype=ref($args[0]);
-        		if ($firstargtype eq 'Lab::Instrument::IsoBus') {
-        			print "Hey great! Someone is testing IsoBus instruments!!!\n";
-        			print "IsoBus support is UNTESTED so far. It may eat your pet targh. You have been warned.\n";
-        			#
-        			# First argument: the IsoBus instrument
-        			# Second argument: the IsoBus address
-        			#
-        			if ($args[0]->IsoBus_valid()) {			
-        				print "Connected to valid IsoBus.\n";
-        				$self->{config}->{isIsoBusInstrument}=1;
-        				$self->{config}->{IsoBus}=$args[0];
-        				$self->{config}->{IsoBusAddress}=$args[1];
-        			} else {
-        				die "Tried to instantiate IsoBus instrument without valid IsoBus. Aborting.\n";
-        			};
-        		} else {
-        			#
-        			# More than one argument: assume GPIB, and the two arguments are gpib adaptor and gpib address
-        			#
-        			$resource_name=sprintf("GPIB%u::%u::INSTR",$args[0],$args[1]);
-        		}
-        	} else {    
-        		# 
-        		# Exactly one argument -> this should be the VISA resource name of the instrument
-        		# 
-        		$resource_name=$args[0];
-        	}# arguments given - check finished
-            
-        	
-        	if ($self->{config}->{isIsoBusInstrument}) {
-        		#
-        		# we are creating an IsoBus instrument
-        		#
-        		if ($INS_DEBUG) { print "Instantiated IsoBus device.\n"; };
-        		return $self;
-        		
-        	} else {
-        		# 
-        		# we are creating a VISA instrument
-        		#
-        		if ($resource_name) {
-        			($status,my $instrument)=Lab::VISA::viOpen($self->{default_rm},$resource_name,$Lab::VISA::VI_NULL,$Lab::VISA::VI_NULL);
-        			if ($status != $Lab::VISA::VI_SUCCESS) { die "Cannot open VISA instrument \"$resource_name\". Status: $status";}
-        			$self->{instr}=$instrument;
-                
-        			$status=Lab::VISA::viSetAttribute($self->{instr}, $Lab::VISA::VI_ATTR_TMO_VALUE, 3000);
-        			if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting timeout value: $status";}
-            
-        			if ($INS_DEBUG) { print "Instantiated VISA resource $resource_name.\n"; };
-        			return $self;
-        		} else {
-        			die "You need to tell me which VISA instrument you want to open!!! Aborting...\n";		
-        		};
-        	} # selection if isoBus is used
-	} # end of decision for new or old interface        	
-    return 0;
+	$self->{'handle'}=$self{'interface'}->InstrumentNew(%description);
+	
+	return $self;
 }
 
 
 sub Clear {
-    my $self=shift;
-    
-    if (exists $self->{'interface'}) {
-	# redirect to interface function
-	return $self->{'interface'}->Clear(@_) if ($self->{'interface'}->can('Clear'));
+	my $self=shift;
+	
+	return $self->{'interface'}->InstrumentClear($self->{'handle'}) if ($self->{'interface'}->can('Clear'));
 	# error message
 	die "Clear function is not implemented in the interface ".$self->{'interface'}."\n";
-    } 
-    # use old VISA implementation
-    if ($self->{config}->{isIsoBusInstrument}) { die "Clear not implemented for IsoBus instruments.\n"; };
-	
-    my $status=Lab::VISA::viClear($self->{instr});
-    if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while clearing instrument: $status";}
-    
 }
 
 
 sub Write {
-	my $arg_cnt=@_;
 	my $self=shift;
+	my $data=shift;
 	
-	if (exists $self->{'interface'}) {
-		if ($INS_DEBUG) {
-		  print STDERR "DEBUG: Write(".join(',',@_).")\n";
-		}
-		# redirect to interface function
-		# add delay if defined
-		sleep($self->{'InterfaceDelay'}) if (exists $self->{'InterfaceDelay'});
-		return $self->{'interface'}->Write(@_);
-    	} else {
-		# use old VISA implementation
-		my $cmd=shift;
-
-		if ($self->{config}->{isIsoBusInstrument}) { 
-	
-			my $write_cnt=$self->{config}->{IsoBus}->IsoBus_Write($self->{config}->{IsoBusAddress}, $cmd);
-			return $write_cnt;
-		
-		} else {
-	
-			my $wait_status=$WAIT_STATUS;
-			if ($arg_cnt==3){ $wait_status=shift}
-			my ($status, $write_cnt)=Lab::VISA::viWrite(
-				$self->{instr},
-				$cmd,
-				length($cmd)
-			);
-			usleep($wait_status);
-			if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while writing string \"\n$cmd\n\": $status";}
-			return $write_cnt;
-		
-		};
-	}
+	return $self->{'interface'}->InstrumentWrite($self->{'handle'}, $data);
 }
 
 
 sub Read {
 	my $self=shift;
+	my %options=shift;
+	%options={} unless (%options);
 
-	if (exists $self->{'interface'}) {
-		# redirect to interface function
-		
-		sleep($self->{'InterfaceDelay'}) if (exists $self->{'InterfaceDelay'});
-		
-		if ((exists $self->{'brutal'}) && $self->{'brutal'}) {
-			# do a brutal read
-			return $self->BrutalRead(@_);
-		} else {
-			# normal read
-			return $self->{'interface'}->Read(@_);
-		}
-    	} else {
-        
-		my $length=shift;
-        # for compatibility
-        $length = $QUERY_LONG_LENGTH if (not(defined $length) or ($length eq 'all'));
-
-		if ($self->{config}->{isIsoBusInstrument}) { 
-	
-			my $result=$self->{config}->{IsoBus}->IsoBus_Read($self->{config}->{IsoBusAddress}, $length);
-			return $result;
-		
-		} else {	
-
-			my ($status,$result,$read_cnt)=Lab::VISA::viRead($self->{instr},$length);
-			if (($status != $Lab::VISA::VI_SUCCESS) && ($status != 0x3FFF0005)){die "Error while reading: $status";};
-			return substr($result,0,$read_cnt);
-		
-		};
-	}
+	return $self->{'interface'}->InstrumentRead($self->{'handle'}, %options);
 }
 
 
 sub BrutalRead {
-    my $self=shift;
+    	my $self=shift;
+    	my %options=shift;
+	%options={} unless (%options);
+	%options->{'brutal'}=1;
 
-    if (exists $self->{'interface'}) {
-	# redirect to interface function
- 	return $self->{'interface'}->BrutalRead(@_) if ($self->{'interface'}->can('BrutalRead'));
-	# use Read if Brutal read is not implemented
-	return $self->{'interface'}->Read(@_);
-    } else {
-    	my $length=shift;
-        # for compatibility
-        $length = $QUERY_LONG_LENGTH if (not(defined $length) or ($length eq 'all'));
-
-    	if ($self->{config}->{isIsoBusInstrument}) { die "BrutalRead not implemented for IsoBus instruments.\n"; };
-	
-    	my ($status,$result,$read_cnt)=Lab::VISA::viRead($self->{instr},$length);
-    	return substr($result,0,$read_cnt);
-    }
+	return $self->{'interface'}->InstrumentRead($self->{'handle'}, %options);
 }
 
 
-sub Query { # ($cmd, optional $wait_query  , optional $wait_status )
-	# contains a nice bomb: read_cnt is arbitrarly set to 300 bytes
-	my $arg_cnt=@_;
+sub Query { # $self, $data, %options
 	my $self=shift;
-	
 	my $cmd=shift;
+	my %options=shift;
+	%options={} unless (%options);
 
-	my $wait_status=$WAIT_STATUS;
-	# load own setting if exists
-	$wait_status = $self->{'wait_status'} if (exists $self->{'wait_status'});
 	my $wait_query=$WAIT_QUERY;
 	# load own settings if exists
 	$wait_query = $self->{'wait_query'} if (exists $self->{'wait_query'});
-	if ($arg_cnt==3){ $wait_query=shift; };
-	if ($arg_cnt==4){ $wait_status=shift; };
 	
-	my $write_cnt=$self->Write($cmd);
-	# set default value
-	my $read_cnt = $QUERY_LENGTH;
-	# read own value if defined
-	$read_cnt = $self->{'query_cnt'} if (exists $self->{'query_cnt'});
-
-	# backward compatibility
-	$read_cnt = $QUERY_LENGTH if ( not(exists $self->{'interface'}) and ($read_cnt eq 'all'));
-
-	usleep($wait_query); #<---ensures that asked data presented from the device
-	
-	return $self->Read($read_cnt);
-}
-
-
-sub LongQuery { # ($cmd, optional $wait_query  , optional $wait_status )
-    # contains a nice bomb: read_cnt is arbitrarly set to 10240 bytes
-    my $self=shift;
-
-    # save current setting
-    my $save_read_cnt = $self->{'query_cnt'};
-    # set to long query setup
-    $self->{'query_cnt'} = $QUERY_LONG_LENGTH;
-    $self->{'query_cnt'} = $self->{'long_query_cnt'} if (exists $self->{'long_query_cnt'});
-    # request
-    my $result = $self->Query(@_);
-    # reconfigure read count
-    $self->{'query_cnt'} = $save_read_cnt;
-
-    return $result;
+	$self->Write($cmd);
+	usleep($wait_query);
+	return $self->Read(%options);
 }
 
 
 sub BrutalQuery {
-    # contains a nice bomb: read_cnt is arbitrarly set to 300 bytes
-    my $self=shift;
-    # save current config
-    my $save_config = $self->{'brutal'};
-    # select brutal
-    $self->{'brutal'} = 1;
-    # do the task
-    my $result = $self->Query(@_);    
-    # restor orginal config
-    $self->{'brutal'} = $save_config;
-    return $result;
-}
+	my $self=shift;
+	my $cmd=shift;
+	my %options=shift;
+	%options={} unless (%options);
+	%options{'brutal'}=1;
+	return $self->Query($cmd,%options);
+};
 
 
 sub Handle {
-    my $self=shift;
-    if ($self->{config}->{isIsoBusInstrument}) { die "Handle not implemented for IsoBus instruments.\n"; };		
-    if (exists $self->{'interface'}) {    
-       return $self->{'interface'};
-    }
-    return $self->{instr};
+    	my $self=shift;
+    	return $self->{'handle'};
 }
 
 
 sub DESTROY {
-    my $self=shift;
-    unless( exists $self->{'interface'}) {
-	
-	if ($self->{config}->{isIsoBusInstrument}) {
-		# we dont actually have to do anything here :)
-	} else {
-            if (exists $self->{instr} ) {
+    	my $self=shift;
+        $self->{'interface'}->InstrumentDestroy($self->{'handle'}, %options);
+        
+	if (exists $self->{instr} ) {
 	      my $status=Lab::VISA::viClose($self->{instr});
 	      $status=Lab::VISA::viClose($self->{default_rm});
             }
