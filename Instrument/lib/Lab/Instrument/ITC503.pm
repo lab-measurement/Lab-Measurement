@@ -74,7 +74,7 @@ sub itc_set_control { # don't use it if you get an error message during reading 
     my $self=shift;
     my $mode=shift;
     my $cmd=sprintf("C%d\r",$mode);
-    $self->{vi}->Write($cmd);
+    $self->{vi}->Query($cmd);
     sleep(1);
 }
 #
@@ -117,10 +117,10 @@ sub itc_read_parameter {
 sub itc_get_T_sample {
 # 
 my $self=shift;
-my $s2=$self->itc_read_parameter(3); #T of Sensor 2
+my $s2=$self->itc_read_parameter(2); #T of Sensor 2
 #$s2=$self->itc_read_parameter(3); #T of Sensor 2
 #printf "s2=$s2\n";
-my $s3=$self->itc_read_parameter(4); #T of Sensor 3
+my $s3=$self->itc_read_parameter(3); #T of Sensor 3
  #$s3=$self->itc_read_parameter(4); #T of Sensor 3
 #printf "s3=$s3\n";
 my $T=$s2;
