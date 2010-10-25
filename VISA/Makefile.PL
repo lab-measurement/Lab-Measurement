@@ -25,7 +25,7 @@ WriteMakefile(
 
     (($^O =~ /MSWin32/)
     ?   ('LIBS'         => ['"-lC:\\VXIPNP\\WinNT\\lib\\msc\\visa32.lib"'],
-         'INC'          => '"-IC:\\VXIPNP\\WinNT\\include "',
+         'INC'          => '"-IC:\\VXIPNP\\WinNT\\include"',
         )
     :   ('LIBS'         => ['-lvisa'],
          'INC'          => '-I/usr/local/include/',

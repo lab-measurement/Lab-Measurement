@@ -1,6 +1,10 @@
 History of Lab::VISA
 ====================
 
+Lab::VISA 2.07
+  * Removed trailing space in path name in Makefile.PL
+    (Ticket https://rt.cpan.org/Ticket/Display.html?id=62430 reported by Andreas Werner)
+
 Lab::VISA 2.06
   Update recommended if you experience problems on Linux.
 
