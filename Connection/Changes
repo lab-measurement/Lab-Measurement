@@ -1,0 +1,20 @@
+History of Lab::Instruments
+===========================
+
+Lab::Instruments 2.01
+  
+  * only minor changes, update not strictly necessary
+  * added this file
+  * added website, mailing list etc. to META.yml
+  * removed accidental instrument TMRC2
+  * fixed some instrument docs 
+
+Lab::Instruments 2.00
+
+  * A lot of new functionality. Update is recommended.
+  * IsoBus by Oxford Instruments supported now
+  * Many new instrument classes by the team of A.K. Hüttel
+  * New class MultiSource.pm for voltage sources with several channels by D. Taubert
+  * Modified behaviour of IOtech488.pm
+  * Known to work with GPIB, TCP/IP and Serial connections.
+    Matan Hershkovits has proven to be the iron man of serial connection parameters.
