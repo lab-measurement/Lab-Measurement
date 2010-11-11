@@ -29,16 +29,28 @@ sub new {
 	my $self = {};
 	bless ($self, $class);
 
-	# next argument has to be an interface
-	$self->{'interface'}=shift;
-	
-	# third argument: description
-	my %description=shift;
+	# next argument has to be the configuration hash
+	$self->{'Config'}=shift;
 
-	$self->{'handle'}=$self{'interface'}->InstrumentNew(%description);
+	# now we check if the parameters are valid (i.e. do we support
+	# this particular connection type, ...)
+	$self->_checkconfig();
+
+	# load the required connection module if necessary
+	my $cnName="Lab::Connection::".$self->{'Config'}->{'ConnType'};
+	push(@INC, $self->{'Config'}->{'ModulePath'}) if (exists $self->{'Config'}->{'ModulePath'});
+	# eval required to solve path problems with ::
+	eval('require '.$ifName.';') or die "Could not load the interface package $cnName\n$@\n"; 
+
+	# now create the connection, and give it a reference to the config hash
+	# diese zeile braucht einen guru
+        $self->{'connection'}=new Lab::Connection::$self->{'conntype'}, \$self->{'config'}
 	
 	return $self;
 }
+
+## bis hier übelarbeitet
+
 
 
 sub Clear {

@@ -28,37 +28,13 @@ sub new {
 	my $self = {};
 	bless ($self, $class);
 
-	
-	# check if arguments is a hash with the key 'interface'
-	my %args = ();
-	%args = @_ if (int(@_/2) == (@_/2)); 
+	# we have one more parameter, which is a reference to the instrument config hash
 
-	if (exists $args{'Type'}) {
-		my $ifName="Lab::Interface::".$args{'Type'};
-
-		# new interface using separate interface objects
-		push(@INC, $args{'ModulePath'}) if (exists $args{'ModulePath'});
-
-		# eval required to solve path problems with ::
-		eval('require '.$ifName.';') or die "Could not load the interface package $ifName\n$@\n"; 
-
-		# call the new function
-		$self->{'interface'}=$ifName->new(%args); # small key names for internal functions
-		# everything okay?
-		return undef unless (defined $self->{'interface'});
-
-		# look to delay property
-		$self->{'InterfaceDelay'} = $args{'InterfaceDelay'} if (exists $args{'InterfaceDelay'});
-		# why is this treated separately ???
-		
-		# inherit functions from the interface object
-		push(@ISA,$ifName);
-		# done
-		return $self;
-	} else {
-		die "Interface type not specified\n";
-	};
+	# we can never actually use a "generic" connection, since it does not have any code
+	die "Generic constructor called. I'm sorry, Dave. I'm afraid I can't do that.\n";
 }
+
+## bis hier dulchgealbeitet
 
 
 sub InstrumentClear { # $self, %handle
