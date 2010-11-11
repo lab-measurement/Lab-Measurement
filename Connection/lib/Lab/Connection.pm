@@ -3,7 +3,7 @@
 
 #$Id$
 
-package Lab::Interface;
+package Lab::Connection;
 
 use strict;
 
