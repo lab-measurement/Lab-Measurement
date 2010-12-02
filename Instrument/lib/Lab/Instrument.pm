@@ -7,7 +7,7 @@ package Lab::Instrument;
 
 use strict;
 
-use Lab::Interface;
+use Lab::Connection;
 
 use Time::HiRes qw (usleep sleep);
 use POSIX; # added for int() function
@@ -40,7 +40,7 @@ sub new {
 	my $cnName="Lab::Connection::".$self->{'Config'}->{'ConnType'};
 	push(@INC, $self->{'Config'}->{'ModulePath'}) if (exists $self->{'Config'}->{'ModulePath'});
 	# eval required to solve path problems with ::
-	eval('require '.$ifName.';') or die "Could not load the interface package $cnName\n$@\n"; 
+	eval('require '.$cnName.';') or die "Could not load the interface package $cnName\n$@\n"; 
 
 	# now create the connection, and give it a reference to the config hash
 	# diese zeile braucht einen guru
