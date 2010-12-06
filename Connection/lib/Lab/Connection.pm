@@ -45,8 +45,15 @@ sub new {
 
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
-	my $self = { _permitted => \%fields, %fields };
+	my $self={};
 	bless ($self, $class);
+
+#	my $self = $class->SUPER::new(); # getting fields and _permitted from parent class
+	foreach my $element (keys %fields) {
+		$self->{_permitted}->{$element} = $fields{$element};
+	}
+	@{$self}{keys %fields} = values %fields;
+
 
 
 	# we have one more parameter, which is a reference to the instrument config hash
@@ -72,6 +79,13 @@ sub AUTOLOAD {
 		return $self->{$name};
 	}
 }
+
+# needed so AUTOLOAD doesn't try to call DESTROY on cleanup and prevent the inherited DESTROY
+sub DESTROY {
+        my $self = shift;
+        $self -> SUPER::DESTROY if $self -> can ("SUPER::DESTROY");
+}
+
 
 
 # 
