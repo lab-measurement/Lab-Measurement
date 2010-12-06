@@ -44,6 +44,7 @@ sub new {
 
 	# now create the connection, and give it a reference to the config hash
 	# diese zeile braucht einen guru
+	Lab::Connection::$self->{'conntype'}="test";
         $self->{'connection'}=new Lab::Connection::$self->{'conntype'}, \$self->{'config'}
 	
 	return $self;

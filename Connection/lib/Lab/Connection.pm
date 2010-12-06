@@ -10,6 +10,9 @@ use strict;
 use Time::HiRes qw (usleep sleep);
 use POSIX; # added for int() function
 
+use Carp;
+our $AUTOLOAD;
+
 
 # setup this variable to add inherited functions later
 our @ISA = ();
@@ -22,59 +25,95 @@ our $QUERY_LENGTH=300; # bytes
 our $QUERY_LONG_LENGTH=10240; #bytes
 our $INS_DEBUG=0; # do we need additional output?
 
+our $Config={};
+
+
+#
+# I'll try using the AUTOLOAD method for accessing object data. The access methods named after the
+# variables will be the same for any other approach we might want to change to later.
+#
+my %fields = (
+	Test => 'Blafasl',
+);
+
+
 sub new {
+
+	#
+	# This doesn't do much except setting basic data fields and delivering
+	# their %fields and _permitted to inheriting objects/classes
+
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
-	my $self = {};
+	my $self = { _permitted => \%fields, %fields };
 	bless ($self, $class);
 
+
 	# we have one more parameter, which is a reference to the instrument config hash
-
-	# we can never actually use a "generic" connection, since it does not have any code
-	die "Generic constructor called. I'm sorry, Dave. I'm afraid I can't do that.\n";
+	# $Config = shift;
+	return $self;
 }
 
-## bis hier dulchgealbeitet
+sub AUTOLOAD {
 
+	my $self = shift;
+	my $type = ref($self) or croak "$self is not an object";
 
-sub InstrumentClear { # $self, %handle
-    	my $self=shift;
-    	my %handle=shift;
+	my $name = $AUTOLOAD;
+	$name =~ s/.*://; # strip fuly qualified portion
 
-	# redirect to specific (i.e. ::VISA) interface function
-	return $self->{'interface'}->InstrumentClear(%handle) if ($self->{'interface'}->can('Clear'));
-	# error message
-	die "Clear function is not implemented in the interface ".$self->{'interface'}."\n";
-}
+	unless (exists $self->{_permitted}->{$name} ) {
+		croak "Can't access `$name' field in class $type";
+	}
 
-sub InstrumentRead { # $self, %handle, %options 
-	my $self=shift;
-	my %handle=shift;
-	my %options=shift;
-
-	# redirect to interface function	
-	sleep($self->{'InterfaceDelay'}) if (exists $self->{'InterfaceDelay'});
-	
-	if ($options->{'brutal'}) {
-		# redirect to interface function
- 		return $self->{'interface'}->InstrumentBrutalRead(%handle,%options) if ($self->{'interface'}->can('BrutalRead'));
-		# use Read if Brutal read is not implemented
-	};
-	return $self->{'interface'}->InstrumentRead(%handle,%options);
+	if (@_) {
+		return $self->{$name} = shift;
+	} else {
+		return $self->{$name};
+	}
 }
 
 
-sub InstrumentWrite { # $self, %handle, $data
-	my $self=shift;	
-	my %handle=shift;
-	my $data=shift;
-	
-	# add delay if defined
-	sleep($self->{'InterfaceDelay'}) if (exists $self->{'InterfaceDelay'});
-	# redirect to interface function
-	return $self->{'interface'}->InstrumentWrite(%handle,$data);
-}
-
+# 
+# 
+# sub InstrumentClear { # $self, %handle
+#     	my $self=shift;
+#     	my %handle=shift;
+# 
+# 	# redirect to specific (i.e. ::VISA) interface function
+# 	return $self->{'interface'}->InstrumentClear(%handle) if ($self->{'interface'}->can('Clear'));
+# 	# error message
+# 	die "Clear function is not implemented in the interface ".$self->{'interface'}."\n";
+# }
+# 
+# sub InstrumentRead { # $self, %handle, %options 
+# 	my $self=shift;
+# 	my %handle=shift;
+# 	my %options=shift;
+# 
+# 	# redirect to interface function	
+# 	sleep($self->{'InterfaceDelay'}) if (exists $self->{'InterfaceDelay'});
+# 	
+# 	if ($options->{'brutal'}) {
+# 		# redirect to interface function
+# 		return $self->{'interface'}->InstrumentBrutalRead(%handle,%options) if ($self->{'interface'}->can('BrutalRead'));
+# 		# use Read if Brutal read is not implemented
+# 	};
+# 	return $self->{'interface'}->InstrumentRead(%handle,%options);
+# }
+# 
+# 
+# sub InstrumentWrite { # $self, %handle, $data
+# 	my $self=shift;	
+# 	my %handle=shift;
+# 	my $data=shift;
+# 	
+# 	# add delay if defined
+# 	sleep($self->{'InterfaceDelay'}) if (exists $self->{'InterfaceDelay'});
+# 	# redirect to interface function
+# 	return $self->{'interface'}->InstrumentWrite(%handle,$data);
+# }
+# 
 
 
 # sub DESTROY {
@@ -225,3 +264,6 @@ This library is free software; you can redistribute it and/or modify it under th
 terms as Perl itself.
 
 =cut
+
+
+1;
