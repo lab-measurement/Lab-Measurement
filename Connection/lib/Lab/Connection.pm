@@ -47,7 +47,6 @@ sub new {
 	my $class = ref($proto) || $proto;
 	my $self={};
 	bless ($self, $class);
-
 #	my $self = $class->SUPER::new(); # getting fields and _permitted from parent class
 	foreach my $element (keys %fields) {
 		$self->{_permitted}->{$element} = $fields{$element};

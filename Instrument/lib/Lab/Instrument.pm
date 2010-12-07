@@ -8,12 +8,16 @@ package Lab::Instrument;
 use strict;
 
 use Lab::Connection;
+use Carp;
+use Data::Dumper;
 
 use Time::HiRes qw (usleep sleep);
 use POSIX; # added for int() function
 
 # setup this variable to add inherited functions later
 our @ISA = ();
+
+our $AUTOLOAD;
 
 our $VERSION = sprintf("1.%04d", q$Revision$ =~ / (\d+) /);
 
@@ -23,157 +27,237 @@ our $QUERY_LENGTH=300; # bytes
 our $QUERY_LONG_LENGTH=10240; #bytes
 our $INS_DEBUG=0; # do we need additional output?
 
+my %fields = (
+	Connection => undef,
+	ConnectionType => "",
+	Config => undef,
+	SupportedConnections => [ ],
+);
+
+
+
 sub new { 
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
-	my $self = {};
+	my $self={};
 	bless ($self, $class);
+	foreach my $element (keys %fields) {
+		$self->{_permitted}->{$element} = $fields{$element};
+	}
+	@{$self}{keys %fields} = values %fields;
 
 	# next argument has to be the configuration hash
-	$self->{'Config'}=shift;
-
-	# now we check if the parameters are valid (i.e. do we support
-	# this particular connection type, ...)
-	$self->_checkconfig();
-
-	# load the required connection module if necessary
-	my $cnName="Lab::Connection::".$self->{'Config'}->{'ConnType'};
-	push(@INC, $self->{'Config'}->{'ModulePath'}) if (exists $self->{'Config'}->{'ModulePath'});
-	# eval required to solve path problems with ::
-	eval('require '.$cnName.';') or die "Could not load the interface package $cnName\n$@\n"; 
-
-	# now create the connection, and give it a reference to the config hash
-	# diese zeile braucht einen guru
-	Lab::Connection::$self->{'conntype'}="test";
-        $self->{'connection'}=new Lab::Connection::$self->{'conntype'}, \$self->{'config'}
-	
+	$self->Config(shift);
 	return $self;
 }
 
-## bis hier übelarbeitet
 
-
-
-sub Clear {
+sub _checkconfig {
 	my $self=shift;
-	
-	return $self->{'interface'}->InstrumentClear($self->{'handle'}) if ($self->{'interface'}->can('Clear'));
-	# error message
-	die "Clear function is not implemented in the interface ".$self->{'interface'}."\n";
+	my $Config = $self->Config();
+
+	$self->ConnectionType($Config->{'ConnType'} || "");
+ 	if (1 != grep( /^${\$self->Config()->{'ConnType'}}$/, @{$self->SupportedConnections()} )) {
+ 		croak('Given Connection not supported or not unique');
+ 	}
+	return 1;
 }
 
 
-sub Write {
-	my $self=shift;
-	my $data=shift;
-	
-	return $self->{'interface'}->InstrumentWrite($self->{'handle'}, $data);
+sub AUTOLOAD {
+
+	my $self = shift;
+	my $type = ref($self) or croak "$self is not an object";
+
+	my $name = $AUTOLOAD;
+	$name =~ s/.*://; # strip fuly qualified portion
+
+	unless (exists $self->{_permitted}->{$name} ) {
+		croak "Can't access `$name' field in class $type";
+	}
+
+	if (@_) {
+		return $self->{$name} = shift;
+	} else {
+		return $self->{$name};
+	}
 }
 
-
-sub Read {
-	my $self=shift;
-	my %options=shift;
-	%options={} unless (%options);
-
-	return $self->{'interface'}->InstrumentRead($self->{'handle'}, %options);
-}
-
-
-sub BrutalRead {
-    	my $self=shift;
-    	my %options=shift;
-	%options={} unless (%options);
-	%options->{'brutal'}=1;
-
-	return $self->{'interface'}->InstrumentRead($self->{'handle'}, %options);
-}
-
-
-sub Query { # $self, $data, %options
-	my $self=shift;
-	my $cmd=shift;
-	my %options=shift;
-	%options={} unless (%options);
-
-	my $wait_query=$WAIT_QUERY;
-	# load own settings if exists
-	$wait_query = $self->{'wait_query'} if (exists $self->{'wait_query'});
-	
-	$self->Write($cmd);
-	usleep($wait_query);
-	return $self->Read(%options);
-}
-
-
-sub BrutalQuery {
-	my $self=shift;
-	my $cmd=shift;
-	my %options=shift;
-	%options={} unless (%options);
-	%options{'brutal'}=1;
-	return $self->Query($cmd,%options);
-};
-
-
-sub Handle {
-    	my $self=shift;
-    	return $self->{'handle'};
-}
-
-
+# needed so AUTOLOAD doesn't try to call DESTROY on cleanup and prevent the inherited DESTROY
 sub DESTROY {
-    	my $self=shift;
-        $self->{'interface'}->InstrumentDestroy($self->{'handle'}, %options);
-        
-	if (exists $self->{instr} ) {
-	      my $status=Lab::VISA::viClose($self->{instr});
-	      $status=Lab::VISA::viClose($self->{default_rm});
-            }
-	};
-   } # done only for old interface
-}
-
-sub WriteConfig {
         my $self = shift;
-
-        my %config = @_;
-	%config = %{$_[0]} if (ref($_[0]));
-
-	my $command = "";
-	# function characters init
-	my $inCommand = "";
-	my $betweenCmdAndData = "";
-	my $postData = "";
-	# config data
-	if (exists $self->{'CommandRules'}) {
-		# write stating value by default to command
-		$command = $self->{'CommandRules'}->{'preCommand'} 
-			if (exists $self->{'CommandRules'}->{'preCommand'});
-		$inCommand = $self->{'CommandRules'}->{'inCommand'} 
-			if (exists $self->{'CommandRules'}->{'inCommand'});
-		$betweenCmdAndData = $self->{'CommandRules'}->{'betweenCmdAndData'} 
-			if (exists $self->{'CommandRules'}->{'betweenCmdAndData'});
-		$postData = $self->{'CommandRules'}->{'postData'} 
-			if (exists $self->{'CommandRules'}->{'postData'});
-	}
-	# get command if sub call from itself
-	$command = $_[1] if (ref($_[0])); 
-
-        # build up commands buffer
-        foreach my $key (keys %config) {
-		my $value = $config{$key};
-
-		# reference again?
-		if (ref($value)) {
-			$self->WriteConfig($value,$command.$key.$inCommand);
-		} else {
-			# end of search
-			$self->Write($command.$key.$betweenCmdAndData.$value.$postData);
-		}
-	}
-
+        $self -> SUPER::DESTROY if $self -> can ("SUPER::DESTROY");
 }
+
+
+1;
+
+
+# 	# load the required connection module if necessary
+# 	my $cnName="Lab::Connection::".$self->{'Config'}->{'ConnType'};
+# 	push(@INC, $self->{'Config'}->{'ModulePath'}) if (exists $self->{'Config'}->{'ModulePath'});
+# 	# eval required to solve path problems with ::
+# 	eval('require '.$cnName.';') or die "Could not load the interface package $cnName\n$@\n"; 
+# 
+# 	# now create the connection, and give it a reference to the config hash
+# 	# diese zeile braucht einen guru
+# 	Lab::Connection::$self->{'conntype'}="test";
+#         $self->{'connection'}=new Lab::Connection::$self->{'conntype'}, \$self->{'config'}
+# 	
+# 	return $self;
+# }
+# 
+
+# 
+# sub AUTOLOAD {
+# 
+# 	my $self = shift;
+# 	my $type = ref($self) or croak "$self is not an object";
+# 
+# 	my $name = $AUTOLOAD;
+# 	$name =~ s/.*://; # strip fuly qualified portion
+# 
+# 	unless (exists $self->{_permitted}->{$name} ) {
+# 		croak "Can't access `$name' field in class $type";
+# 	}
+# 
+# 	if (@_) {
+# 		return $self->{$name} = shift;
+# 	} else {
+# 		return $self->{$name};
+# 	}
+# }
+# 
+# 
+# 
+# # needed so AUTOLOAD doesn't try to call DESTROY on cleanup and prevent the inherited DESTROY
+# sub DESTROY {
+#         my $self = shift;
+#         $self -> SUPER::DESTROY if $self -> can ("SUPER::DESTROY");
+# }
+# 
+# 
+# 
+# sub Clear {
+# 	my $self=shift;
+# 	
+# 	return $self->{'interface'}->InstrumentClear($self->{'handle'}) if ($self->{'interface'}->can('Clear'));
+# 	# error message
+# 	die "Clear function is not implemented in the interface ".$self->{'interface'}."\n";
+# }
+# 
+# 
+# sub Write {
+# 	my $self=shift;
+# 	my $data=shift;
+# 	
+# 	return $self->{'interface'}->InstrumentWrite($self->{'handle'}, $data);
+# }
+# 
+# 
+# sub Read {
+# 	my $self=shift;
+# 	my %options=shift;
+# 	%options={} unless (%options);
+# 
+# 	return $self->{'interface'}->InstrumentRead($self->{'handle'}, %options);
+# }
+# 
+# 
+# sub BrutalRead {
+#     	my $self=shift;
+#     	my %options=shift;
+# 	%options={} unless (%options);
+# 	%options->{'brutal'}=1;
+# 
+# 	return $self->{'interface'}->InstrumentRead($self->{'handle'}, %options);
+# }
+# 
+# 
+# sub Query { # $self, $data, %options
+# 	my $self=shift;
+# 	my $cmd=shift;
+# 	my %options=shift;
+# 	%options={} unless (%options);
+# 
+# 	my $wait_query=$WAIT_QUERY;
+# 	# load own settings if exists
+# 	$wait_query = $self->{'wait_query'} if (exists $self->{'wait_query'});
+# 	
+# 	$self->Write($cmd);
+# 	usleep($wait_query);
+# 	return $self->Read(%options);
+# }
+# 
+# 
+# sub BrutalQuery {
+# 	my $self=shift;
+# 	my $cmd=shift;
+# 	my %options=shift;
+# 	%options={} unless (%options);
+# 	%options{'brutal'}=1;
+# 	return $self->Query($cmd,%options);
+# };
+# 
+# 
+# sub Handle {
+#     	my $self=shift;
+#     	return $self->{'handle'};
+# }
+# 
+# 
+# sub DESTROY {
+#     	my $self=shift;
+#         $self->{'interface'}->InstrumentDestroy($self->{'handle'}, %options);
+#         
+# 	if (exists $self->{instr} ) {
+# 	      my $status=Lab::VISA::viClose($self->{instr});
+# 	      $status=Lab::VISA::viClose($self->{default_rm});
+#             }
+# 	};
+#    } # done only for old interface
+# }
+# 
+# sub WriteConfig {
+#         my $self = shift;
+# 
+#         my %config = @_;
+# 	%config = %{$_[0]} if (ref($_[0]));
+# 
+# 	my $command = "";
+# 	# function characters init
+# 	my $inCommand = "";
+# 	my $betweenCmdAndData = "";
+# 	my $postData = "";
+# 	# config data
+# 	if (exists $self->{'CommandRules'}) {
+# 		# write stating value by default to command
+# 		$command = $self->{'CommandRules'}->{'preCommand'} 
+# 			if (exists $self->{'CommandRules'}->{'preCommand'});
+# 		$inCommand = $self->{'CommandRules'}->{'inCommand'} 
+# 			if (exists $self->{'CommandRules'}->{'inCommand'});
+# 		$betweenCmdAndData = $self->{'CommandRules'}->{'betweenCmdAndData'} 
+# 			if (exists $self->{'CommandRules'}->{'betweenCmdAndData'});
+# 		$postData = $self->{'CommandRules'}->{'postData'} 
+# 			if (exists $self->{'CommandRules'}->{'postData'});
+# 	}
+# 	# get command if sub call from itself
+# 	$command = $_[1] if (ref($_[0])); 
+# 
+#         # build up commands buffer
+#         foreach my $key (keys %config) {
+# 		my $value = $config{$key};
+# 
+# 		# reference again?
+# 		if (ref($value)) {
+# 			$self->WriteConfig($value,$command.$key.$inCommand);
+# 		} else {
+# 			# end of search
+# 			$self->Write($command.$key.$betweenCmdAndData.$value.$postData);
+# 		}
+# 	}
+# 
+# }
 
 
 
