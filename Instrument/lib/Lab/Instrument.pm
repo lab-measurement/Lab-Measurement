@@ -56,12 +56,22 @@ sub _checkconfig {
 	my $self=shift;
 	my $Config = $self->Config();
 
-	$self->ConnectionType($Config->{'ConnType'} || "");
- 	if (1 != grep( /^${\$self->Config()->{'ConnType'}}$/, @{$self->SupportedConnections()} )) {
- 		croak('Given Connection not supported or not unique');
- 	}
 	return 1;
 }
+
+sub _checkconnection {
+	my $self=shift;
+
+	my $ConnType = ( split( '::',  ref($self->Connection()) || "undef" ))[-1];
+	print "Found Connection type: " .$ConnType."\n";
+ 	if (1 != grep( /^$ConnType$/, @{$self->SupportedConnections()} )) {
+ 		croak('Given Connection not supported');
+ 	}
+	else {
+		return 1;
+	}
+}
+
 
 
 sub AUTOLOAD {
@@ -94,28 +104,31 @@ sub DESTROY {
 sub Clear {
 	my $self=shift;
 	
-	return $self->{'interface'}->InstrumentClear($self->{'handle'}) if ($self->{'interface'}->can('Clear'));
+	return $self->Connection()->InstrumentClear($self->InstrumentHandle()) if ($self->Connection()->can('Clear'));
 	# error message
-	die "Clear function is not implemented in the interface ".$self->{'interface'}."\n";
+	die "Clear function is not implemented in the connection ".ref($self->Connection())."\n";
 }
-# 
-# 
-# sub Write {
-# 	my $self=shift;
-# 	my $data=shift;
-# 	
-# 	return $self->{'interface'}->InstrumentWrite($self->{'handle'}, $data);
-# }
-# 
-# 
-# sub Read {
-# 	my $self=shift;
-# 	my %options=shift;
-# 	%options={} unless (%options);
-# 
-# 	return $self->{'interface'}->InstrumentRead($self->{'handle'}, %options);
-# }
-# 
+
+
+sub Write {
+	my $self=shift;
+	my $data=shift;
+	
+	return $self->Connection()->InstrumentWrite($self->InstrumentHandle(), $data);
+}
+
+
+
+
+sub Read {
+	my $self=shift;
+	my %options=shift;
+	%options={} unless (%options);
+
+	return $self->Connection()->InstrumentRead($self->InstrumentHandle(), %options);
+}
+
+
 # 
 # sub BrutalRead {
 #     	my $self=shift;
@@ -126,22 +139,24 @@ sub Clear {
 # 	return $self->{'interface'}->InstrumentRead($self->{'handle'}, %options);
 # }
 # 
-# 
-# sub Query { # $self, $data, %options
-# 	my $self=shift;
-# 	my $cmd=shift;
-# 	my %options=shift;
-# 	%options={} unless (%options);
-# 
-# 	my $wait_query=$WAIT_QUERY;
-# 	# load own settings if exists
-# 	$wait_query = $self->{'wait_query'} if (exists $self->{'wait_query'});
-# 	
-# 	$self->Write($cmd);
-# 	usleep($wait_query);
-# 	return $self->Read(%options);
-# }
-# 
+
+
+sub Query { # $self, $data, %options
+	my $self=shift;
+	my $cmd=shift;
+	my %options=shift;
+	%options={} unless (%options);
+
+	my $wait_query=$WAIT_QUERY;
+	# load own settings if exists
+	$wait_query = $self->{'wait_query'} if (exists $self->{'wait_query'});
+	
+	$self->Write($cmd);
+	usleep($wait_query);
+	return $self->Read(%options);
+}
+
+
 # 
 # sub BrutalQuery {
 # 	my $self=shift;

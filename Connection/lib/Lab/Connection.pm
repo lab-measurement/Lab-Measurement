@@ -41,21 +41,15 @@ sub new {
 	#
 	# This doesn't do much except setting basic data fields and delivering
 	# their %fields and _permitted to inheriting objects/classes
-
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
 	my $self={};
 	bless ($self, $class);
-#	my $self = $class->SUPER::new(); # getting fields and _permitted from parent class
 	foreach my $element (keys %fields) {
 		$self->{_permitted}->{$element} = $fields{$element};
 	}
 	@{$self}{keys %fields} = values %fields;
 
-
-
-	# we have one more parameter, which is a reference to the instrument config hash
-	# $Config = shift;
 	return $self;
 }
 
@@ -181,17 +175,17 @@ sub DESTROY {
 
 =head1 NAME
 
-Lab::Interface - General interface package
+Lab::Connection - General connection package
 
 =head1 SYNOPSIS
 
- use Lab::Interface;
+ use Lab::Connection::GPIB;
  use Lab::Instrument;
  
- my $visa =  new Lab::Interface( Type => 'VISA' ); 
- my $rszdz = new Lab::Interface( Type => 'RS232', Device => '/dev/modem' );
+ my $gpib =  new Lab::Connection::GPIB({ GPIB_board => 0 }); 
+ my $rszdz = new Lab::Interface::RS232({ Device => '/dev/modem' });
  
- my $ins=new Lab::Instrument::Bla($visa, {Address=>'GPIB::INSTR::...'});
+ my $ins=new Lab::Instrument::Bla({ Connection => $gpib, GPIB_Paddres => 14 });
  print $ins->Query('*IDN?');
 
 =head1 DESCRIPTION
