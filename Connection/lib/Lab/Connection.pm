@@ -33,7 +33,6 @@ our $Config={};
 # variables will be the same for any other approach we might want to change to later.
 #
 my %fields = (
-	Test => 'Blafasl',
 );
 
 

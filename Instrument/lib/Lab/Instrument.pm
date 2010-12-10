@@ -90,61 +90,14 @@ sub DESTROY {
 }
 
 
-1;
 
-
-# 	# load the required connection module if necessary
-# 	my $cnName="Lab::Connection::".$self->{'Config'}->{'ConnType'};
-# 	push(@INC, $self->{'Config'}->{'ModulePath'}) if (exists $self->{'Config'}->{'ModulePath'});
-# 	# eval required to solve path problems with ::
-# 	eval('require '.$cnName.';') or die "Could not load the interface package $cnName\n$@\n"; 
-# 
-# 	# now create the connection, and give it a reference to the config hash
-# 	# diese zeile braucht einen guru
-# 	Lab::Connection::$self->{'conntype'}="test";
-#         $self->{'connection'}=new Lab::Connection::$self->{'conntype'}, \$self->{'config'}
-# 	
-# 	return $self;
-# }
-# 
-
-# 
-# sub AUTOLOAD {
-# 
-# 	my $self = shift;
-# 	my $type = ref($self) or croak "$self is not an object";
-# 
-# 	my $name = $AUTOLOAD;
-# 	$name =~ s/.*://; # strip fuly qualified portion
-# 
-# 	unless (exists $self->{_permitted}->{$name} ) {
-# 		croak "Can't access `$name' field in class $type";
-# 	}
-# 
-# 	if (@_) {
-# 		return $self->{$name} = shift;
-# 	} else {
-# 		return $self->{$name};
-# 	}
-# }
-# 
-# 
-# 
-# # needed so AUTOLOAD doesn't try to call DESTROY on cleanup and prevent the inherited DESTROY
-# sub DESTROY {
-#         my $self = shift;
-#         $self -> SUPER::DESTROY if $self -> can ("SUPER::DESTROY");
-# }
-# 
-# 
-# 
-# sub Clear {
-# 	my $self=shift;
-# 	
-# 	return $self->{'interface'}->InstrumentClear($self->{'handle'}) if ($self->{'interface'}->can('Clear'));
-# 	# error message
-# 	die "Clear function is not implemented in the interface ".$self->{'interface'}."\n";
-# }
+sub Clear {
+	my $self=shift;
+	
+	return $self->{'interface'}->InstrumentClear($self->{'handle'}) if ($self->{'interface'}->can('Clear'));
+	# error message
+	die "Clear function is not implemented in the interface ".$self->{'interface'}."\n";
+}
 # 
 # 
 # sub Write {
@@ -465,3 +418,4 @@ This library is free software; you can redistribute it and/or modify it under th
 terms as Perl itself.
 
 =cut
+
