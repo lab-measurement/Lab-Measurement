@@ -114,7 +114,7 @@ sub Write {
 	my $self=shift;
 	my $data=shift;
 	
-	return $self->Connection()->InstrumentWrite($self->InstrumentHandle(), $data);
+	return $self->Connection()->InstrumentWrite($self->InstrumentHandle(), { SCPI_cmd => $data });
 }
 
 
@@ -125,7 +125,7 @@ sub Read {
 	my %options=shift;
 	%options={} unless (%options);
 
-	return $self->Connection()->InstrumentRead($self->InstrumentHandle(), %options);
+	return $self->Connection()->InstrumentRead($self->InstrumentHandle(), \%options);
 }
 
 
@@ -141,7 +141,7 @@ sub Read {
 # 
 
 
-sub Query { # $self, $data, %options
+sub Query { # $self, $cmd, %options
 	my $self=shift;
 	my $cmd=shift;
 	my %options=shift;
@@ -151,7 +151,7 @@ sub Query { # $self, $data, %options
 	# load own settings if exists
 	$wait_query = $self->{'wait_query'} if (exists $self->{'wait_query'});
 	
-	$self->Write($cmd);
+	$self->Write({ SCPI_cmd => $cmd });
 	usleep($wait_query);
 	return $self->Read(%options);
 }
