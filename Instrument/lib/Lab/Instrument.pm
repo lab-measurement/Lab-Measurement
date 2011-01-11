@@ -59,13 +59,15 @@ sub _checkconfig {
 	return 1;
 }
 
-sub _checkconnection {
+sub _checkconnection { # Connection object or ConnType string
 	my $self=shift;
+	my $connection=shift;
+	my $ConnType = undef;
 
-	my $ConnType = ( split( '::',  ref($self->Connection()) || "undef" ))[-1];
-	print "Found Connection type: " .$ConnType."\n";
+	$ConnType = ( split( '::',  ref($connection) || $connection ))[-1];
+	print "Found Connection type: " . $ConnType . "\n";
  	if (1 != grep( /^$ConnType$/, @{$self->SupportedConnections()} )) {
- 		croak('Given Connection not supported');
+ 		return 0;
  	}
 	else {
 		return 1;
@@ -96,6 +98,7 @@ sub AUTOLOAD {
 # needed so AUTOLOAD doesn't try to call DESTROY on cleanup and prevent the inherited DESTROY
 sub DESTROY {
         my $self = shift;
+	#$self->Connection()->DESTROY();
         $self -> SUPER::DESTROY if $self -> can ("SUPER::DESTROY");
 }
 

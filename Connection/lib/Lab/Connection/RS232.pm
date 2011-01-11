@@ -1,12 +1,15 @@
 #!/usr/bin/perl -w
 # POD
 
-package Lab::Instrument::RS232;
+package Lab::Connection::RS232;
 
 use strict;
 use warnings;
 
-use Lab::Instrument; 
+use Lab::Connection;
+use Data::Dumper;
+
+our @ISA = ("Lab::Connection");
 
 # load serial driver
 use vars qw( $OS_win);
@@ -27,44 +30,37 @@ our $RS232_DEBUG = 0;
 our $VERSION = sprintf("1.%04d", q$Revision$ =~ / (\d+) /);
 our $WIN32 = ($^O eq "MSWin32") ? 1 : 0;
 
-sub new {
-	my $self = shift;
-	# get arguments
-	my %args = @_;
-	
-	# create hash ref
-	my $object = {};
-	
-	# create object
-	bless ($object,$self);
+my %fields = (
+	Client => undef,
+);
 
-	if (exists $args{'reuse'}) {
-		# reuse INET client object
-		if ( ref($args{'reuse'}) =~ /::SerialPort$/ ) {
-			# IO socket given
-			$object->{'client'} = $args{'reuse'};
-		} else {
-			# Lab::Instrument object!
-			$object->{'client'} = $args{'reuse'}->Handle()->{'client'};
-		}		
-	} else {
-		# clear new port
-        if ($WIN32) {
-            $object->{'client'} = new Win32::SerialPort($args{'Port'}) or print "Could not open serial port\n";
-        } else {
-            $object->{'client'} = new Device::SerialPort($args{'Port'}) or print "Could not open serial port\n";
-        }
-        # config port if needed 
-        $object->{'client'}->purge_all;
-        $args{'Timeout'} = 500 unless (exists $args{'Timeout'} );
-        $object->{'client'}->read_const_time($args{'Timeout'});
-        $object->{'client'}->handshake($args{'Handshake'}) if (exists $args{'Handshake'});
-        $object->{'client'}->baudrate($args{'Baudrate'}) if (exists $args{'Baudrate'});
-        $object->{'client'}->parity($args{'Parity'}) if (exists $args{'Parity'});
-        $object->{'client'}->databits($args{'Databits'}) if (exists $args{'Databits'});
-        $object->{'client'}->stopbits($args{'Stopbits'}) if (exists $args{'Stopbits'});
+sub new {
+	my $proto = shift;
+	my $class = ref($proto) || $proto;
+	my $args = shift;
+	my $self = $class->SUPER::new($args); # getting fields and _permitted from parent class
+	foreach my $element (keys %fields) {
+		$self->{_permitted}->{$element} = $fields{$element};
 	}
-	return $object if (defined $object->{'client'});
+	@{$self}{keys %fields} = values %fields;
+
+	# clear new port
+	if ($WIN32) {
+		$self->Client( new Win32::SerialPort($self->Config()->{'Port'}) or print "Could not open serial port\n" );
+	} else {
+		$self->Client( new Device::SerialPort($self->Config()->{'Port'}) or print "Could not open serial port\n" );
+	}
+	# config port if needed 
+	$self->Client()->purge_all;
+	$self->Config()->{'Timeout'} = 500 unless (exists $self->Config()->{'Timeout'} );
+	$self->Client()->read_const_time($self->Config()->{'Timeout'});
+	$self->Client()->handshake($self->Config()->{'Handshake'}) if (exists $self->Config()->{'Handshake'});
+	$self->Client()->baudrate($self->Config()->{'Baudrate'}) if (exists $self->Config()->{'Baudrate'});
+	$self->Client()->parity($self->Config()->{'Parity'}) if (exists $self->Config()->{'Parity'});
+	$self->Client()->databits($self->Config()->{'Databits'}) if (exists $self->Config()->{'Databits'});
+	$self->Client()->stopbits($self->Config()->{'Stopbits'}) if (exists $self->Config()->{'Stopbits'});
+
+	return $self if (defined $self->{'Client'});
 	# init failed
 	return undef;
 }
@@ -84,16 +80,16 @@ sub Read {
 
     if ($length eq 'all' ) {
 
-  	  my $buf = $self->{'client'}->read(4096);
+  	  my $buf = $self->{'Client'}->read(4096);
       while (length($buf) == 4096) {
 
         $result .= $buf;
-        $buf = $self->{'client'}->read(4096);
+        $buf = $self->{'Client'}->read(4096);
       }
       $result .= $buf;
 
     } else {
-      $result = $self->{'client'}->read($length);
+      $result = $self->{'Client'}->read($length);
     }
 	chomp($result);
 	return $result;
@@ -101,8 +97,14 @@ sub Read {
 
 sub Write {
 	my $self = shift;
-	return $self->{'client'}->write(join("\n",@_));
+	return $self->{'Client'}->write(join("\n",@_));
 }
+
+sub WriteRaw {
+	my $self = shift;
+	return $self->{'Client'}->write(join("",@_));
+}
+
 
 # BrutalRead and Clear not implemented
 

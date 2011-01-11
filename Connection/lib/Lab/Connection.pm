@@ -25,7 +25,6 @@ our $QUERY_LENGTH=300; # bytes
 our $QUERY_LONG_LENGTH=10240; #bytes
 our $INS_DEBUG=0; # do we need additional output?
 
-our $Config={};
 
 
 #
@@ -33,6 +32,7 @@ our $Config={};
 # variables will be the same for any other approach we might want to change to later.
 #
 my %fields = (
+	Config => undef,
 );
 
 
@@ -49,6 +49,9 @@ sub new {
 		$self->{_permitted}->{$element} = $fields{$element};
 	}
 	@{$self}{keys %fields} = values %fields;
+
+	# next argument has to be the configuration hash
+	$self->Config(shift);
 
 	return $self;
 }
