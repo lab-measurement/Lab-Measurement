@@ -65,7 +65,7 @@ sub _checkconnection { # Connection object or ConnType string
 	my $ConnType = undef;
 
 	$ConnType = ( split( '::',  ref($connection) || $connection ))[-1];
-	print "Found Connection type: " . $ConnType . "\n";
+
  	if (1 != grep( /^$ConnType$/, @{$self->SupportedConnections()} )) {
  		return 0;
  	}

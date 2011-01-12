@@ -100,7 +100,7 @@ sub InstrumentRead { # $self=Connection, \%InstrumentHandle, \%Options = { Funct
 	$Success=0 if( scalar(@AnswerArr) < $AnswerArr[2] + 5); # sanity check - does message contain all the bytes it states it carries?
 
 	if($Success==1) {	# read result, as an array of bytes
-		for my $item (@AnswerArr[3 .. 3+$AnswerArr[2]]) {
+		for my $item (@AnswerArr[3 .. 3+$AnswerArr[2]-1]) {
 			push(@Result, $item);
 		}
 		return @Result;

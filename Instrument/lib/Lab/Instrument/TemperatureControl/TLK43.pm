@@ -18,6 +18,45 @@ our @ISA = ("Lab::Instrument");
 my %fields = (
 	SupportedConnections => [ 'MODBUS' ],
 	InstrumentHandle => undef,
+
+	MemTable => {
+		Measurement => 			0x0200,		# measured value
+		Decimal => 				0x0201,		# decimal points dp
+		CalculatedPower => 		0x0202,		# calculated power
+		HeatingPower => 		0x0203,		# available heating power
+		CoolingPower => 		0x0204,		# available cooling power
+		State_Alarm1 => 		0x0205,		# state of alarm 1
+		State_Alarm2 => 		0x0206,		# state of alarm 2
+		State_Alarm3 => 		0x0207,		# state of alarm 3
+		Setpoint		 =>		0x0208,		# current setpoint
+		State_AlarmLBA =>		0x020A,		# state of alarm LBA
+		State_AlarmHB =>		0x020B,		# state of alarm HB (heater break)
+		CurrentHB_closed =>		0x020C,		# current for HB with closed circuit
+		CurrentHB_open =>		0x020D,		# current for HB with open circuit
+		State_Controller =>		0x020F,		# state of controller (0: Off, 1: auto. Reg., 2: Tuning, 3: man. Reg.
+		PreliminaryTarget =>	0x0290,		# preliminary target value (TLK43)
+		AnalogueRepeat =>		0x02A0,		# value to repeat on analogue output (TLK43)
+
+		nSP =>					0x2800,		# number of programmable setpoints
+		SPAt =>					0x2801,		# selects active setpoint
+		SP1 =>					0x2802,		# setpoint 1
+		SP2 =>					0x2803,		# setpoint 2
+		SP3 =>					0x2804,		# setpoint 3
+		SP4 =>					0x2805,		# setpoint 4
+		SPLL  =>				0x2806,		# low setpoint limit
+		SPHL =>					0x2807,		# high setpoint limit
+		HCFG =>					0x2808,		# type of input with universal input configuration
+		SEnS =>					0x2809,		# type of sensor (depends on HCFG)
+		rEFL =>					0x2857,		# coefficient of reflection
+		SSC =>					0x280A,		# start of scale
+		FSC =>					0x280B,		# full scale deflection
+		dp =>					0x280C,		# decimal points (for measurement)
+
+
+
+											# to be continued
+		
+	}
 );
 
 
@@ -62,246 +101,140 @@ sub read_temperature {
 	my $self=shift;
 	my @Result = ();
 	my $Temp = undef;
-	@Result = $self->Connection()->InstrumentRead($self->InstrumentHandle(), {Function => 3, MemAddress => 0x0200, MemCount => 1});
-	if(scalar(@Result) > 1) {
-		$Temp = ( $Result[0] << 8) + $Result[1];
-		return $Temp;
-	}
-	else {
+	my $dp = 0;
+	return undef unless defined($dp = $self->read_address_int('dp'));
+
+	return undef unless defined($Temp = $self->read_address_int( $self->MemTable()->{'Measurement'} ));
+
+	return $Temp / 10**$dp;
+}
+
+
+
+sub set_setpoint { # { Slot => (1..4), Value => Int }
+	my $self=shift;
+	my $args=shift;
+	my $TargetTemp = sprintf("%f",$args->{'Value'});
+	my $Slot = $args->{'Slot'};
+	my $nSP = 1;
+	my $dp = 0;
+
+	return undef unless defined($nSP = $self->read_address_int('nSP'));
+	return undef unless defined($dp = $self->read_address_int('dp'));
+
+	if ($Slot > $nSP || $Slot < 1) {
 		return undef;
 	}
+	else {
+		$TargetTemp *= 10**$dp;
+		$TargetTemp = sprintf("%.0f",$TargetTemp);
+		return $self->write_address({ MemAddress => $self->MemTable()->{'Setpoint'}+$Slot-1, MemValue => $TargetTemp });
+	}
 }
 
 
-sub set_target_temperature {
+sub set_active_setpoint { # $value
 	my $self=shift;
-	my $TargetTemp = shift;
+	my $TargetTemp = sprintf("%f",shift);
+	my $Slot = 1;
+	my $dp = 0;
+	return undef unless defined($Slot = $self->read_address_int('SPAt'));
+	return undef unless defined($dp = $self->read_address_int('dp'));
 
-	return $self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Function => 6, MemAddress => 0x2802, MemValue => $TargetTemp} );
+	$TargetTemp *= 10**$dp;
+	$TargetTemp = sprintf("%.0f",$TargetTemp);
+	printf("Setpoint address: %X\n",$self->MemTable()->{'SP1'});
+	print "Trying: self->write_address({ MemAddress => $self->MemTable()->{'SP1'}+$Slot-1, MemValue => $TargetTemp })\n";
+	return $self->write_address({ MemAddress => $self->MemTable()->{'SP1'}+$Slot-1, MemValue => $TargetTemp });
+}
+
+
+sub set_setpoint_slot { # { Slot => (1..4) }
+	my $self = shift;
+	my $args = shift;
+	my $Slot = int($args->{'Slot'}) || return undef;
+	my $nSP = undef;
+	return undef unless defined($nSP = $self->read_address_int('nSP'));
+
+	if ($Slot > $nSP || $Slot < 1) {
+		return undef;
+	}
+	else {
+		return $self->write_address({ MemAddress => $self->MemTable()->{'SPAt'}, MemValue => $Slot });
+	}
+}
+
+
+sub set_Precision {	# $Precision
+	my $self = shift;
+	my $precision = int(shift);
+
+	return undef if ($precision < 0 || $precision > 3);
+	return $self->write_address({ MemAddress => $self->MemTable()->{'sP'}, MemValue => $precision });
+}
+
+
+sub read_range { # { MemAddress => Address (16bit), MemCount => Count (8bit, (1..4), default 1)
+	my $self = shift;
+	my $args = shift;
+	my $MemAddress = $args->{MemAddress} || undef;
+	my $MemCount = $args->{MemCount} || 1;
+	$MemCount = int($MemCount);
+	if($MemAddress !~ /^[0-9]*$/) {
+		$MemAddress = $self->MemTable()->{$MemAddress} || undef;
+	}
+
+	if(!$MemAddress || !$MemCount || $MemAddress > 0xFFFF || $MemAddress < 0x0200 || $MemCount > 4 || $MemCount <= 0) {
+		return undef;
+	}
+	else {
+		return $self->Connection()->InstrumentRead($self->InstrumentHandle(), {Function => 3, MemAddress => $MemAddress, MemCount => $MemCount});
+	}
+}
+
+
+sub read_address_int { # $Address
+	my $self = shift;
+	my @Result = ();
+	my $MemAddress = shift || undef;
+	if($MemAddress !~ /^[0-9]*$/) {
+		$MemAddress = $self->MemTable()->{$MemAddress} || undef;
+	}
+
+	if(!$MemAddress || $MemAddress > 0xFFFF || $MemAddress < 0x0200) {
+		return undef;
+	}
+	else {
+		@Result = $self->Connection()->InstrumentRead($self->InstrumentHandle(), {Function => 3, MemAddress => $MemAddress, MemCount => 1});
+		if(scalar(@Result)==2) { # correct answer has to be two bytes long
+			return ( $Result[0] << 8) + $Result[1];
+		}
+		else {
+			return undef;
+		}
+	}
+}
+
+
+sub write_address {	# { MemAddress => Address (16bit), MemValue => Value (16 bit word) }
+	my $self = shift;
+	my $args = shift;
+	my $MemAddress = int($args->{MemAddress}) || undef;
+	my $MemValue = int($args->{MemValue}) || undef;
+	if($MemAddress !~ /^[0-9]*$/) {
+		$MemAddress = $self->MemTable()->{$MemAddress} || undef;
+	}
+
+	if(!$MemAddress || !$MemValue || $MemAddress > 0xFFFF || $MemAddress < 0x0200 || $MemValue > 0xFFFF || $MemValue < 0) {
+		return undef;
+	}
+	else {
+		return $self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Function => 6, MemAddress => $MemAddress, MemValue => $MemValue} );
+	}
 }
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-sub read_resistance {
-    my $self=shift;
-    my ($range,$resolution)=@_;
-    
-    $range="DEF" unless (defined $range);
-    $resolution="DEF" unless (defined $resolution);
-    
-	my $cmd=sprintf("MEASure:SCALar:RESIStance? %s,%s",$range,$resolution);
-	my $value = $self->Connection()->InstrumentRead($self->InstrumentHandle(), {SCPI_cmd => $cmd});
-    return $value;
-}
-
-
-sub read_voltage_dc {
-    my $self=shift;
-    my ($range,$resolution)=@_;
-    
-    $range="DEF" unless (defined $range);
-    $resolution="DEF" unless (defined $resolution);
-    
-    my $cmd=sprintf("MEASure:VOLTage:DC? %s,%s",$range,$resolution);
-    my $value = $self->Connection()->InstrumentRead($self->InstrumentHandle(), {SCPI_cmd => $cmd});
-    return $value;
-}
-
-sub read_voltage_ac {
-    my $self=shift;
-    my ($range,$resolution)=@_;
-    
-    $range="DEF" unless (defined $range);
-    $resolution="DEF" unless (defined $resolution);
-    
-    my $cmd=sprintf("MEASure:VOLTage:AC? %s,%s",$range,$resolution);
-    my $value = $self->Connection()->InstrumentRead($self->InstrumentHandle(), {SCPI_cmd => $cmd});
-    return $value;
-}
-
-sub read_current_dc {
-    my $self=shift;
-    my ($range,$resolution)=@_;
-    
-    $range="DEF" unless (defined $range);
-    $resolution="DEF" unless (defined $resolution);
-    
-    my $cmd=sprintf("MEASure:CURRent:DC? %s,%s",$range,$resolution);
-    my $value = $self->Connection()->InstrumentRead($self->InstrumentHandle(), {SCPI_cmd => $cmd});
-    return $value;
-}
-
-sub read_current_ac {
-    my $self=shift;
-    my ($range,$resolution)=@_;
-    
-    $range="DEF" unless (defined $range);
-    $resolution="DEF" unless (defined $resolution);
-    
-    my $cmd=sprintf("MEASure:CURRent:AC? %s,%s",$range,$resolution);
-    my $value = $self->Connection()->InstrumentRead($self->InstrumentHandle(), {SCPI_cmd => $cmd});
-    return $value;
-}
-
-sub display_text {
-    my $self=shift;
-    my $text=shift;
-    
-    if ($text) {
-        $self->Write(qq(DISPlay:TEXT "$text"));
-    } else {
-        chomp($text=$self->Query(qq(DISPlay:TEXT?)));
-        $text=~s/\"//g;
-    }
-    return $text;
-}
-
-sub display_on {
-    my $self=shift;
-    $self->Write("DISPlay ON");
-}
-
-sub display_off {
-    my $self=shift;
-    $self->Write("DISPlay OFF");
-}
-
-sub display_clear {
-    my $self=shift;
-    $self->Write("DISPlay:TEXT:CLEar");
-}
-
-sub beep {
-    my $self=shift;
-    $self->Write("SYSTem:BEEPer");
-}
-
-sub get_error {
-    my $self=shift;
-    chomp(my $err=$self->Query("SYSTem:ERRor?"));
-    my ($err_num,$err_msg)=split ",",$err;
-    $err_msg=~s/\"//g;
-    return ($err_num,$err_msg);
-}
-
-sub reset {
-    my $self=shift;
-    $self->Write("*RST");
-}
-
-
-sub config_voltage {
-    my $self=shift;
-    my ($digits, $range, $counts)=@_;
-
-    #set input resistance to >10 GOhm for the three highest resolution values 
-    $self->Write("INPut:IMPedance:AUTO ON");
-
-    $digits = int($digits);
-    $digits = 4 if $digits < 4;
-    $digits = 6 if $digits > 6;
- 
-    if ($range < 0.1) {
-      $range = 0.1;
-    }
-    elsif ($range < 1) {
-      $range = 1;
-    }
-    elsif ($range < 10) {
-      $range = 10;
-    }
-    elsif ($range < 100) {
-      $range = 100;
-    }
-    else{
-      $range = 1000;
-    }
-
-    my $resolution = (10**(-$digits))*$range;
-    $self->Write("CONF:VOLT:DC $range,$resolution");
-
-
-    # calculate integration time, set it and prepare for output
- 
-    my $inttime = 0;
-
-    if ($digits ==4) {
-      $inttime = 0.4;
-      $self->Write("VOLT:NPLC 0.02");
-    }
-    elsif ($digits ==5) {
-      $inttime = 4;
-      $self->Write("VOLT:NPLC 0.2");
-    }
-    elsif ($digits ==6) {
-      $inttime = 200;
-      $self->Write("VOLT:NPLC 10");
-      $self->Write("ZERO:AUTO OFF");
-    }
-
-    my $retval = $inttime." ms";
-
-
-    # triggering
-    $self->Write("TRIGger:SOURce BUS");
-    $self->Write("SAMPle:COUNt $counts");
-    $self->Write("TRIGger:DELay MIN");
-    $self->Write("TRIGger:DELay:AUTO OFF");
-
-    return $retval;
-}
-
-sub read_with_trigger_voltage_dc {
-    my $self=shift;
-
-    $self->Write("INIT");
-    $self->Write("*TRG");
-    my $value = $self->Query("FETCh?");
-
-    chomp $value;
-
-    my @valarray = split(",",$value);
-
-    return @valarray;
-}
-
-
-sub scroll_message {
-    use Time::HiRes (qw/usleep/);
-    my $self=shift;
-    my $message=shift || "            This perl instrument driver is copyright 2004/2005 by Daniel Schroeer.            ";
-    for my $i (0..(length($message)-12)) {
-        $self->display_text(sprintf "%12.12s",substr($message,$i));
-        usleep(100000);
-    }
-    $self->display_clear();
-}
-
-sub id {
-    my $self=shift;
-    $self->Query('*IDN?');
-}
-
-sub read_value {
-    my $self=shift;
-    my $value=$self->Query('READ?');
-    chomp $value;
-    return $value;
-}
 
 1;
 
@@ -316,149 +249,127 @@ sub read_value {
 
 =head1 NAME
 
-Lab::Instrument::HP34401A - HP/Agilent 34401A digital multimeter
+Lab::Instrument::TLK43 - Electronic process controller TLKA41/42/43 (SIKA GmbH)
 
 =head1 SYNOPSIS
 
-    use Lab::Instrument::HP34401A;
+    use Lab::Instrument::TLK43;
     
-    my $hp=new Lab::Instrument::HP34401A(0,22);
-    print $hp->read_voltage_dc(10,0.00001);
+    my $tlk=new Lab::Instrument::TLK43({ Port => '/dev/ttyS0', SlaveAddress => 1, Baudrate => 19200, Parity => 'none', Databits => 8, Stopbits => 1, Handshake => 'none'  });
+
+	or
+
+	my $Connection = new Lab::Connection::MODBUS({ Port => '/dev/ttyS0', Interface => 'RS232', SlaveAddress => 1, Baudrate => 19200, Parity => 'none', Databits => 8, Stopbits => 1, Handshake => 'none' });
+	my $tlk=new Lab::Instrument::TLK43({ Connection => $Connection });
+
+    print $tlk->read_temperature();
+	$tlk->set_setpoint(200);
 
 =head1 DESCRIPTION
 
-The Lab::Instrument::HP34401A class implements an interface to the 34401A digital multimeter by
-Agilent (formerly HP). This module can also be used to address the newer 34410A and 34411A multimeters,
-but doesn't include new functions. Use the Lab::Instrument::HP34411A class for full functionality.
+The Lab::Instrument::TLK43 class implements an interface to SIKA GmbH's TLK41/42/43 process controllers. The devices
+have to be equipped with the optional RS485 interface. The device can be fully programmed using RS485 or RS232 and an interface
+converter (e.g. "GRS 485 ISO" RS232- RS485 Converter)
+
 
 =head1 CONSTRUCTOR
 
-    my $hp=new(\%options);
+    my $tlk=new(\%options);
 
 =head1 METHODS
 
-=head2 read_voltage_dc
+	
 
-    $datum=$hp->read_voltage_dc($range,$resolution);
+	sub 
 
-Preset and make a dc voltage measurement with the specified range
-and resolution.
+=head2 read_temperature
+
+    $temp = read_temperature();
+
+Returns the currently measured temperature, or undef on errors.
+
+
+=head2 set_setpoint
+
+    $success=$tlk->set_setpoint({ Slot => $Slot, Value => $Value })
+
+Set the value of setpoint slot $Slot.
 
 =over 4
 
-=item $range
+=item $Slot
 
-Range is given in terms of volts and can be C<[0.1|1|10|100|1000|MIN|MAX|DEF]>. C<DEF> is default.
+The TLK controllers provide 4 setpoint slots. $Slot has to be a number of (1..4) and may not
+exceed the nSP-parameter set in the device (set_setpoint return undef in this case)
 
-=item $resolution
+=item $Value
 
-Resolution is given in terms of C<$range> or C<[MIN|MAX|DEF]>.
-C<$resolution=0.0001> means 4 1/2 digits for example.
-The best resolution is 100nV: C<$range=0.1>; C<$resolution=0.000001>.
+Float value to set the setpoint to. Internally this is held by a 16bit number.
+set_setpoint() will cut off the decimal values according to the value of the "dp" parameter of the device.
+(dp=0..3 meaning 0..3 decimal points. only 0,1 work for temperature sensors)
 
 =back
 
-=head2 read_voltage_ac
 
-    $datum=$hp->read_voltage_ac($range,$resolution);
+=head2 set_active_setpoint
 
-Preset and make an ac voltage measurement with the specified range
-and resolution. For ac measurements, resolution is actually fixed
-at 6 1/2 digits. The resolution parameter only affects the front-panel display.
+    $success=$tlk->set_active_setpoint($Value);
 
-=head2 read_current_dc
+Set the value of the currently active setpoint slot.
 
-    $datum=$hp->read_current_dc($range,$resolution);
+=over 4
 
-Preset and make a dc current measurement with the specified range
-and resolution.
+=item $Value
 
-=head2 read_current_ac
+Float value to set the setpoint to. Internally this is held by a 16bit number.
+set_setpoint() will cut off the decimal values according to the value of the "dp" parameter of the device.
+(dp=0..3 meaning 0..3 decimal points. only 0,1 work for temperature sensors)
 
-    $datum=$hp->read_current_ac($range,$resolution);
+=back
 
-Preset and make an ac current measurement with the specified range
-and resolution. For ac measurements, resolution is actually fixed
-at 6 1/2 digits. The resolution parameter only affects the front-panel display.
 
-=head2 read_resistance
+=head2 read_range
 
-    $datum=$hp->read_resistance($range,$resolution);
+    $value=$tlk->read_range({ MemAddresss => (0x0200..0xFFFF || Name), MemCount => (1..4) })
 
-Preset and measure resistance with specified range and resolution.
+Read the values of $MemCount memory slots from $MemAddress on. The Address may be specified as a 16bit Integer in the valid range,
+or as an address name (see TLK43.pm, %fields{'MemTable'}). $MemCount may be in the range 1..4.
+Returns the memory as an array (one byte per field)
 
-=head2 config_voltage
 
-    $inttime=$hp->config_voltage($digits,$range,$count);
+=head2 read_address_int
 
-Configures device for measurement with specified number of digits (4 to 6), voltage range and number of data
-points. Afterwards, data can be taken by triggering the multimeter, resulting in faster measurements than using
-read_voltage_xx.
-Returns string with integration time resulting from number of digits.
+    $value=$tlk->read_range({ MemAddresss => (0x0200..0xFFFF || Name), MemCount => (1..4) })
 
-=head2 read_with_trigger_voltage_dc
+Read the value of the 16bit word at $MemAddress on. The Address may be specified as a 16bit Integer in the valid range,
+or as an address name (see TLK43.pm, %fields{'MemTable'}).
+Returns the value as unsigned integer (internally (byte1 << 8) + byte2)
 
-    @array = $hp->read_with_trigger_voltage_dc()
 
-Take data points as configured with config_voltage(). returns an array.
 
-=head2 display_on
+=head2 write_address
 
-    $hp->display_on();
+    $success=$tlk->write_address({ MemAddress => (0x0200...0xFFFF || Name), MemValue => Value (16 bit word) });
 
-Turn the front-panel display on.
+Write $Value to the given address. The Address may be specified as a 16bit Integer in the valid range,
+or as an address name (see TLK43.pm, %fields{'MemTable'}).
 
-=head2 display_off
 
-    $hp->display_off();
+=head2 set_setpoint_slot
 
-Turn the front-panel display off.
+    $success=$tlk->set_setpoint_slot({ Slot => $Slot })
 
-=head2 display_text
+Set the active setpoint to slot no. $Slot.
 
-    $hp->display_text($text);
-    print $hp->display_text();
+=over 4
 
-Display a message on the front panel. The multimeter will display up to 12
-characters in a message; any additional characters are truncated.
-Without parameter the displayed message is returned.
+=item $Slot
 
-=head2 display_clear
+The TLK controllers provide 4 setpoint slots. $Slot has to be a number of (1..4) and may not
+exceed the nSP-parameter set in the device (set_setpoint_slot return undef in this case)
 
-    $hp->display_clear();
+=back
 
-Clear the message displayed on the front panel.
-
-=head2 scroll_message
-
-    $hp->scroll_message($message);
-
-Scrolls the message C<$message> on the display of the HP.
-
-=head2 beep
-
-    $hp->beep();
-
-Issue a single beep immediately.
-
-=head2 get_error
-
-    ($err_num,$err_msg)=$hp->get_error();
-
-Query the multimeter's error queue. Up to 20 errors can be stored in the
-queue. Errors are retrieved in first-in-first out (FIFO) order.
-
-=head2 reset
-
-    $hp->reset();
-
-Reset the multimeter to its power-on configuration.
-
-=head2 id
-
-    $id=$hp->id();
-
-Returns the instruments ID string.
 
 =head1 CAVEATS/BUGS
 
@@ -474,9 +385,9 @@ probably many
 
 =head1 AUTHOR/COPYRIGHT
 
-This is $Id: HP34401A.pm 663 2010-04-26 20:16:11Z schroeer $
+This is $Id: TLK43.pm 722 2011-01-12Z F. Olbrich $
 
-Copyright 2004-2006 Daniel Schröer (<schroeer@cpan.org>), 2009-2010 Daniela Taubert
+Copyright 2010 Florian Olbrich
 
 This library is free software; you can redistribute it and/or modify it under the same
 terms as Perl itself.
