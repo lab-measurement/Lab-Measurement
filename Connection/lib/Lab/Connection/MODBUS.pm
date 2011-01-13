@@ -28,6 +28,7 @@ my @crctab = ();
 my %fields = (
 	crc_init => 0xFFFF,
  	crc_poly => 0xA001,
+	MaxCrcErrors => 5,
 );
 
 sub new {
@@ -77,6 +78,7 @@ sub InstrumentRead { # $self=Connection, \%InstrumentHandle, \%Options = { Funct
 	my $MemCount = int($Options->{'MemCount'}) || 1;
 	my @Result = ();
 	my $Success = 0;
+	my $ErrCount = 0;
 	my $Message = "";
 	my @MessageArr = ();
 	my @AnswerArr = ();
@@ -90,12 +92,23 @@ sub InstrumentRead { # $self=Connection, \%InstrumentHandle, \%Options = { Funct
 		$Message .= chr($item);
 	}
 
-	$self->Write($Message);
+	$Success=0;
+	$ErrCount=0;
+	do {
+		$self->WriteRaw($Message);
+		@AnswerArr = split(//, $self->Read('all'));
+		for my $item (@AnswerArr) { $item = ord($item) }
+		if ($self->_MB_CRC(@AnswerArr) != 0) {	# CRC over the message including its correct CRC results in a "CRC" of zero
+			$ErrCount++;
+			print "Error in MODBUS response - retrying\n";
+		}
+		else {
+			$Success=1;
+		}
+	} until($Success==1 || $ErrCount >= $self->MaxCrcErrors());
+	return undef unless $Success;
 
-	$Success=1;
-	@AnswerArr = split(//, $self->Read('all'));
-	for my $item (@AnswerArr) { $item = ord($item) }
-	$Success=0 if $self->_MB_CRC(@AnswerArr) != 0;	# CRC over the message including its correct CRC results in a "CRC" of zero
+	# formally correct - check response
 	$Success=0 if( scalar(@AnswerArr) < 7 ); # Error answer received?
 	$Success=0 if( scalar(@AnswerArr) < $AnswerArr[2] + 5); # sanity check - does message contain all the bytes it states it carries?
 
@@ -124,6 +137,7 @@ sub InstrumentWrite { # $self=Connection, \%InstrumentHandle, \%Options = { Func
 	my @MessageArr = ();
 	my $Success = 0;
 	my @AnswerArr;
+	my $ErrCount=0;
 
 	croak('Undefined or unimplemented MODBUS Function') if(!defined $Function || $Function != 6);
 	croak('Invalid Memory Address') if(!defined $MemAddress || $MemAddress < 0 || $MemAddress > 0xFFFF );
@@ -134,13 +148,23 @@ sub InstrumentWrite { # $self=Connection, \%InstrumentHandle, \%Options = { Func
 		$Message .= chr($item);
 	}
 
-	$self->WriteRaw($Message);
-	@AnswerArr = split(//, $self->Read('all'));
-	for my $item (@AnswerArr) { $item = ord($item) }
+	$Success=0;
+	$ErrCount=0;
+	do {
+		$self->WriteRaw($Message);
+		@AnswerArr = split(//, $self->Read('all'));
+		for my $item (@AnswerArr) { $item = ord($item) }
+		if ($self->_MB_CRC(@AnswerArr) != 0) {	# CRC over the message including its correct CRC results in a "CRC" of zero
+			$ErrCount++;
+		}
+		else {
+			$Success=1;
+		}
+	} until($Success==1 || $ErrCount >= $self->MaxCrcErrors());
+	return undef unless $Success;
 
-	# check response;
+	# formally correct - check response;
 	$Success = 1;
-	$Success = 0 if ($self->_MB_CRC(@AnswerArr) != 0);	# CRC over the message including its correct CRC results in a "CRC" of zero
 	$Success = 0 if( scalar(@AnswerArr) == 5 );			# Error received - Error answers are 5 bytes long
 	if($Success==1) {
 		# compare sent message and answer. equality signals success.

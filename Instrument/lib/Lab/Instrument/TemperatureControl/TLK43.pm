@@ -56,7 +56,10 @@ my %fields = (
 
 											# to be continued
 		
-	}
+	},
+
+	MemCache => {	# used by read_int_cached and write_int_cached to cache 16bit values
+	},
 );
 
 
@@ -102,13 +105,45 @@ sub read_temperature {
 	my @Result = ();
 	my $Temp = undef;
 	my $dp = 0;
-	return undef unless defined($dp = $self->read_address_int('dp'));
+	return undef unless defined($dp = $self->read_int_cached({ MemAddress => 'dp' }));		# cached read - twice as fast
+#	return undef unless defined($dp = $self->read_address_int('dp')); # uncached
 
 	return undef unless defined($Temp = $self->read_address_int( $self->MemTable()->{'Measurement'} ));
 
 	return $Temp / 10**$dp;
 }
 
+
+sub read_int_cached { # { MemAddress => $MemAddress, ForceRead => (1,0) }
+	my $self = shift;
+	my $args = shift;
+	my $MemAddress = $args->{'MemAddress'} || undef;
+	my $ForceRead = $args->{'ForceRead'};
+	if($MemAddress !~ /^[0-9]*$/) {
+		$MemAddress = $self->MemTable()->{$MemAddress} || undef;
+	}
+
+	if( !$ForceRead && exists($self->MemCache()->{$MemAddress}) && defined($self->MemCache()->{$MemAddress}) ) {
+		return $self->MemCache()->{$MemAddress};
+	}
+	else {
+		return undef unless defined($self->MemCache()->{$MemAddress} = $self->read_address_int($MemAddress));
+		return $self->MemCache()->{$MemAddress};
+	}
+}
+
+sub write_int_cached {	# { MemAddress => $MemAddress, MemValue => $Value }  stores MemValue as number (int)
+	my $self = shift;
+	my $args = shift;
+	my $MemAddress = $args->{MemAddress} || undef;
+	my $MemValue = int($args->{MemValue}) || undef;
+	if($MemAddress !~ /^[0-9]*$/) {
+		$MemAddress = $self->MemTable()->{$MemAddress} || undef;
+	}
+
+	return undef unless $self->write_address({ MemAddress => $MemAddress, MemValue => $MemValue });
+	return( ($self->MemCache()->{$MemAddress} = $MemValue) );
+}
 
 
 sub set_setpoint { # { Slot => (1..4), Value => Int }
@@ -119,8 +154,8 @@ sub set_setpoint { # { Slot => (1..4), Value => Int }
 	my $nSP = 1;
 	my $dp = 0;
 
-	return undef unless defined($nSP = $self->read_address_int('nSP'));
-	return undef unless defined($dp = $self->read_address_int('dp'));
+	return undef unless defined($nSP = $self->read_int_cached('nSP'));
+	return undef unless defined($dp = $self->read_int_cached('dp'));
 
 	if ($Slot > $nSP || $Slot < 1) {
 		return undef;
@@ -138,13 +173,11 @@ sub set_active_setpoint { # $value
 	my $TargetTemp = sprintf("%f",shift);
 	my $Slot = 1;
 	my $dp = 0;
-	return undef unless defined($Slot = $self->read_address_int('SPAt'));
-	return undef unless defined($dp = $self->read_address_int('dp'));
+	return undef unless defined($Slot = $self->read_int_cached('SPAt'));
+	return undef unless defined($dp = $self->read_int_cached('dp'));
 
 	$TargetTemp *= 10**$dp;
 	$TargetTemp = sprintf("%.0f",$TargetTemp);
-	printf("Setpoint address: %X\n",$self->MemTable()->{'SP1'});
-	print "Trying: self->write_address({ MemAddress => $self->MemTable()->{'SP1'}+$Slot-1, MemValue => $TargetTemp })\n";
 	return $self->write_address({ MemAddress => $self->MemTable()->{'SP1'}+$Slot-1, MemValue => $TargetTemp });
 }
 
@@ -154,7 +187,7 @@ sub set_setpoint_slot { # { Slot => (1..4) }
 	my $args = shift;
 	my $Slot = int($args->{'Slot'}) || return undef;
 	my $nSP = undef;
-	return undef unless defined($nSP = $self->read_address_int('nSP'));
+	return undef unless defined($nSP = $self->read_int_cached('nSP'));
 
 	if ($Slot > $nSP || $Slot < 1) {
 		return undef;
