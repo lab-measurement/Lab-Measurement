@@ -48,12 +48,10 @@ on top of each other and provide increasing comfort. Measurement scripts
 can be based on any of these stages.</p>
 
 <p>The lowest level is Lab::VISA. It makes the NI-VISA library
-accessible from Perl and thus allows to make any standard VISA call.</p>
-
-<p>The modules in the Lab::Instrument package make communication
-with instruments easier by silently handling the protocol overhead.</p>
-
-<p>Package Lab::Tools is the highest abstraction layer and is
+accessible from Perl and thus allows to make any standard VISA call.
+The modules in the Lab::Instrument package make communication
+with instruments easier by silently handling the protocol overhead.
+Package Lab::Tools is the highest abstraction layer and is
 intended to support writing better measurement scripts. The modules in
 this package offer means to log and plot data and its related meta
 information.</p>
@@ -61,6 +59,12 @@ information.</p>
 <p>These packages together are referred to as the Lab::VISA system.
 Encapsulating the complexity of VISA calls into a straightforward to use
 library, the Lab::VISA system is designed to make data aquisition fun.</p>
+
+<p><i>Currently a major reorganization of the underlying code is being done.
+Unless you are interested in helping us hack the gory details, we suggest that
+you stick to the "stable branch", and this is also where nearly all the links 
+on this page lead. For information on the development version, see the end of 
+this page.</i></p>
 
 <h2>How to obtain</h2>
 <p>The packages are free software and can be downloaded from CPAN.
@@ -110,6 +114,10 @@ group, LMU M&uuml;nchen</a> and <a
     href="http://www.physik.uni-regensburg.de/forschung/strunk/">mesoscopic
 physics group, Uni Regensburg</a>. Users have reported further applications
 in academic and industrial r&amp;d environments.</p>
+
+<h2>Development version</h2>
+<p>You can have a look <a href="docs">here</a>, but most likely you'll at the moment 
+only encounter broken links.</p>
 
 <h2>Authors</h2>
 <p>The Lab::VISA system was originally developed by <a
