@@ -1,5 +1,5 @@
 #
-# Driver for SIKA TLK43 controller with RS485 MODBUS-RTU interface
+# Driver for SIKA TLK43/42/41 controller with RS485 MODBUS-RTU interface
 # (over RS232)
 #
 
@@ -7,8 +7,8 @@ package Lab::Instrument::TLK43;
 
 use strict;
 use Lab::Instrument;
-use Lab::Connection;
-use Lab::Connection::RS232;
+use Lab::Connection::MODBUS_RS232;
+use feature "switch";
 use Data::Dumper;
 use Carp;
 
@@ -16,12 +16,13 @@ our $VERSION = sprintf("0.%04d", q$Revision: 720 $ =~ / (\d+) /);
 our @ISA = ("Lab::Instrument");
 
 my %fields = (
-	SupportedConnections => [ 'MODBUS' ],
+	SupportedConnections => [ 'MODBUS_RS232' ],
 	InstrumentHandle => undef,
+	SlaveAddress => undef,
 
 	MemTable => {
 		Measurement => 			0x0200,		# measured value
-		Decimal => 				0x0201,		# decimal points dp
+		Decimal => 				0x0201,		# decimal points dP
 		CalculatedPower => 		0x0202,		# calculated power
 		HeatingPower => 		0x0203,		# available heating power
 		CoolingPower => 		0x0204,		# available cooling power
@@ -37,6 +38,7 @@ my %fields = (
 		PreliminaryTarget =>	0x0290,		# preliminary target value (TLK43)
 		AnalogueRepeat =>		0x02A0,		# value to repeat on analogue output (TLK43)
 
+		# SP group (parameters relative to setpoint)
 		nSP =>					0x2800,		# number of programmable setpoints
 		SPAt =>					0x2801,		# selects active setpoint
 		SP1 =>					0x2802,		# setpoint 1
@@ -45,12 +47,57 @@ my %fields = (
 		SP4 =>					0x2805,		# setpoint 4
 		SPLL  =>				0x2806,		# low setpoint limit
 		SPHL =>					0x2807,		# high setpoint limit
+
+		# InP group (parameters relative to the measure input)
 		HCFG =>					0x2808,		# type of input with universal input configuration
 		SEnS =>					0x2809,		# type of sensor (depends on HCFG)
 		rEFL =>					0x2857,		# coefficient of reflection
 		SSC =>					0x280A,		# start of scale
 		FSC =>					0x280B,		# full scale deflection
-		dp =>					0x280C,		# decimal points (for measurement)
+		dP =>					0x280C,		# decimal points (for measurement)
+		Unit =>					0x280D,		# 0=°C, 1=F
+		FiL =>					0x280E,		# digital filter on input (OFF .. 20.0 sec)
+		OFSt =>					0x2810,		# offset of measurement with dP decimal points (-1999..9999) ?
+		rot =>					0x2811,		# rotation of the measuring straight line
+		InE =>					0x2812,		# "OPE" functioning in case of measuring error (0=OR, 1=Ur, 2=OUr)
+		OPE =>					0x2813,		# output power in case of measuring error (-100..100)
+		dIF =>					0x2858,		# digital input function
+
+		# O1 group (parameteres relative to output 1)
+		O1F =>					0x2814,		# Functioning of output 1 (0=OFF, 1=1.rEg, 2=2.rEg, 3=Alno, 4=ALnc)
+		Aor1 =>					0x2859,		# Beginning of analogue output 1 scale (0=0, 1=no_0)
+		Ao1F =>					0x285A,		# Functioning of analogue output 1 (0=OFF, 1=inp, 2=err, 3=r.SP, 4=r.SEr)
+		Ao1L =>					0x285B,		# Minimum reference for analogical output 1 for signal transmission (with dP, -1999..9999)
+		A01H =>					0x285C,		# Maximum reference for analogical output 1 for signal transmission (with dP, A01L..9999)
+
+		# O2 group (parameteres relative to output 2)
+		O2F =>					0x2815,		# Functioning of output 2 (0=OFF, 1=1.rEg, 2=2.rEg, 3=Alno, 4=ALnc)
+		Aor2 =>					0x285D,		# Beginning of analogue output 2 scale (0=0, 1=no_0)
+		Ao2F =>					0x285E,		# Functioning of analogue output 2 (0=OFF, 1=inp, 2=err, 3=r.SP, 4=r.SEr)
+		Ao2L =>					0x285F,		# Minimum reference for analogical output 2 for signal transmission (with dP, -1999..9999)
+		A02H =>					0x2860,		# Maximum reference for analogical output 2 for signal transmission (with dP, A02L..9999)
+
+		# O3 group (parameteres relative to output 3)
+		O3F =>					0x2816,		# Functioning of output 3 (0=OFF, 1=1.rEg, 2=2.rEg, 3=Alno, 4=ALnc)
+		Aor3 =>					0x2861,		# Beginning of analogue output 3 scale (0=0, 1=no_0)
+		Ao3F =>					0x2862,		# Functioning of analogue output 3 (0=OFF, 1=inp, 2=err, 3=r.SP, 4=r.SEr)
+		Ao3L =>					0x2863,		# Minimum reference for analogical output 3 for signal transmission (with dP, -1999..9999)
+		A03H =>					0x2864,		# Maximum reference for analogical output 3 for signal transmission (with dP, A03L..9999)
+
+		# O4 group (parameters relative to output 4)
+		O4F =>					0x2817,		# Functioning of output 4 (0=OFF, 1=1.rEg, 2=2.rEg, 3=Alno, 4=ALnc)
+
+		# Al1 group (parameteres relative to alarm 1
+		OAL1 =>					0x2818,		# Output where alarm AL1 is addressed (0=OFF, 1=Out1, 2=Out2, 3=Out3, 4=Out4)
+		AL1t =>					0x2819,		# Alarm AL1 type (0=LoAb, 1=HiAb, 2=LHAb, 3=LodE, 4=HidE, 5=LHdE)
+		Ab1 =>					0x281A,		# Alarm AL1 functioning (0=no function, 1=alarm hidden at startup, 2=alarm delayed, 4=alarm stored, 8=alarm acknowledged
+		AL1 =>					0x281B,		# Alarm AL1 threshold (with dP, -1999..9999)
+		AL1L =>					0x281C,		# Low threshold band alarm AL1 or Minimum set alarm AL1 for high or low alarm (with dP, -1999..9999)
+		AL1H =>					0x281D,		# High threshold band alarm AL1 or Maximum set alarm AL1 for high or low alarm (with dP, -1999..9999)
+		HAL1 =>					0x281E,		# Alarm AL1 hysteresis (with dP, 0=OFF..9999)
+		AL1d =>					0x281F,		# Activation delay of alarm AL1 (with dP, 9=OFF..9999sec)
+		AL1i =>					0x2820,		# Alarm AL1 activation in case of measuring error (0=no, 1=yes)
+
 
 
 
@@ -66,35 +113,46 @@ my %fields = (
 sub new {
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
-	my $self = $class->SUPER::new(@_);	# sets $self->Config
+	my $self = $class->SUPER::new(@_);	# sets $self->Config, configures parent class
 	foreach my $element (keys %fields) {
 		$self->{_permitted}->{$element} = $fields{$element};
 	}
 	@{$self}{keys %fields} = values %fields;
 
-	# SlaveAddress checken - nimmt nicht volle 256
-
+	return undef unless $self->SlaveAddress($self->Config()->{'SlaveAddress'});
 	# check the configuration hash for a valid connection object or connection type, and set the connection
 	if( defined($self->Config()->{'Connection'}) ) {
 		if($self->_checkconnection($self->Config()->{'Connection'})) {
 			$self->Connection($self->Config()->{'Connection'});
 		}
-		else { croak('Given Connection not supported'); }
+		else { 
+			warn('Given Connection not supported');
+			return undef;
+		}
 	}
 	else {
-		print "Conntype: " . $self->Config()->{'ConnType'} . "\n";
 		if($self->_checkconnection($self->Config()->{'ConnType'})) {
 			my $ConnType = $self->Config()->{'ConnType'};
 			my $Port = $self->Config()->{'Port'};
 			my $SlaveAddress = $self->Config()->{'SlaveAddress'};
 			my $Interface = "";
-			$Interface = 'RS232' if($ConnType eq 'MODBUS');	# Todo: add connection checks
-			$self->Connection(eval("new Lab::Connection::$ConnType( {Interface => '$Interface', Port => '$Port', SlaveAddress => $SlaveAddress} )")) || croak('Failed to create connection');
+			if($ConnType eq 'MODBUS_RS232') {
+				$self->Config()->{'Interface'} = 'RS232';
+				$self->Connection(new Lab::Connection::MODBUS_RS232( $self->Config() )) || croak('Failed to create connection');
+				#$self->Connection(eval("new Lab::Connection::$ConnType( $self->Config() )")) || croak('Failed to create connection');
+			}
+			else {
+				warn('Only RS232 connection type supported for now!\n');
+				return undef;
+			 }
 		}
-		else { croak('Given Connection Type not supported'); }
+		else {
+			warn('Given Connection Type not supported');
+			return undef;
+		}
 	}
-	$self->InstrumentHandle( $self->Connection()->InstrumentNew(SlaveAddress => $self->Config()->{'SlaveAddress'}) );
 
+	$self->InstrumentHandle( $self->Connection()->InstrumentNew(SlaveAddress => $self->SlaveAddress()) );
 	return $self;
 }
 
@@ -104,13 +162,31 @@ sub read_temperature {
 	my $self=shift;
 	my @Result = ();
 	my $Temp = undef;
-	my $dp = 0;
-	return undef unless defined($dp = $self->read_int_cached({ MemAddress => 'dp' }));		# cached read - twice as fast
-#	return undef unless defined($dp = $self->read_address_int('dp')); # uncached
+	my $dP = 0;
+	return undef unless defined($dP = $self->read_int_cached({ MemAddress => 'dP' }));
 
 	return undef unless defined($Temp = $self->read_address_int( $self->MemTable()->{'Measurement'} ));
-
-	return $Temp / 10**$dp;
+	given( $Temp ) {
+		when(10001) {
+			warn("Warning: Measurement exception $Temp received. Sensor disconnected.\n");
+			return undef;
+		}
+		when(10000) {
+			warn("Warning: Measurement exception $Temp received. Measuring value underrange.\n");
+			return undef;
+		}
+		when(-10000) {
+			warn("Warning: Measurement exception $Temp received. Measuring value overrange.\n");
+			return undef;
+		}
+		when(10003) {
+			warn("Warning: Measurement exception $Temp received. Measured variable not available.\n");
+			return undef;
+		}
+		default {
+			return $Temp / 10**$dP;
+		}
+	}
 }
 
 
@@ -152,16 +228,16 @@ sub set_setpoint { # { Slot => (1..4), Value => Int }
 	my $TargetTemp = sprintf("%f",$args->{'Value'});
 	my $Slot = $args->{'Slot'};
 	my $nSP = 1;
-	my $dp = 0;
+	my $dP = 0;
 
 	return undef unless defined($nSP = $self->read_int_cached('nSP'));
-	return undef unless defined($dp = $self->read_int_cached('dp'));
+	return undef unless defined($dP = $self->read_int_cached('dP'));
 
 	if ($Slot > $nSP || $Slot < 1) {
 		return undef;
 	}
 	else {
-		$TargetTemp *= 10**$dp;
+		$TargetTemp *= 10**$dP;
 		$TargetTemp = sprintf("%.0f",$TargetTemp);
 		return $self->write_address({ MemAddress => $self->MemTable()->{'Setpoint'}+$Slot-1, MemValue => $TargetTemp });
 	}
@@ -172,11 +248,11 @@ sub set_active_setpoint { # $value
 	my $self=shift;
 	my $TargetTemp = sprintf("%f",shift);
 	my $Slot = 1;
-	my $dp = 0;
+	my $dP = 0;
 	return undef unless defined($Slot = $self->read_int_cached('SPAt'));
-	return undef unless defined($dp = $self->read_int_cached('dp'));
+	return undef unless defined($dP = $self->read_int_cached('dP'));
 
-	$TargetTemp *= 10**$dp;
+	$TargetTemp *= 10**$dP;
 	$TargetTemp = sprintf("%.0f",$TargetTemp);
 	return $self->write_address({ MemAddress => $self->MemTable()->{'SP1'}+$Slot-1, MemValue => $TargetTemp });
 }
@@ -229,6 +305,7 @@ sub read_range { # { MemAddress => Address (16bit), MemCount => Count (8bit, (1.
 sub read_address_int { # $Address
 	my $self = shift;
 	my @Result = ();
+	my $SignedValue = 0;
 	my $MemAddress = shift || undef;
 	if($MemAddress !~ /^[0-9]*$/) {
 		$MemAddress = $self->MemTable()->{$MemAddress} || undef;
@@ -240,7 +317,8 @@ sub read_address_int { # $Address
 	else {
 		@Result = $self->Connection()->InstrumentRead($self->InstrumentHandle(), {Function => 3, MemAddress => $MemAddress, MemCount => 1});
 		if(scalar(@Result)==2) { # correct answer has to be two bytes long
-			return ( $Result[0] << 8) + $Result[1];
+			$SignedValue = ( $Result[0] << 8 ) + $Result[1];
+			return $SignedValue >> 15 ? $SignedValue - 2**16 : $SignedValue;
 		}
 		else {
 			return undef;
@@ -265,7 +343,6 @@ sub write_address {	# { MemAddress => Address (16bit), MemValue => Value (16 bit
 		return $self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Function => 6, MemAddress => $MemAddress, MemValue => $MemValue} );
 	}
 }
-
 
 
 
@@ -301,8 +378,11 @@ Lab::Instrument::TLK43 - Electronic process controller TLKA41/42/43 (SIKA GmbH)
 =head1 DESCRIPTION
 
 The Lab::Instrument::TLK43 class implements an interface to SIKA GmbH's TLK41/42/43 process controllers. The devices
-have to be equipped with the optional RS485 interface. The device can be fully programmed using RS485 or RS232 and an interface
-converter (e.g. "GRS 485 ISO" RS232- RS485 Converter)
+have to be equipped with the optional RS485 interface. The device can be fully programmed using RS232 and an interface
+converter (e.g. "GRS 485 ISO" RS232 - RS485 Converter).
+
+The following parameter list configures the RS232 port correctly for a setup with the GRS485 converter and a speed of 19200 baud:
+Port => '/dev/ttyS0', Interface => 'RS232', Baudrate => 19200, Parity => 'none', Databits => 8, Stopbits => 1, Handshake => 'none'
 
 
 =head1 CONSTRUCTOR
@@ -310,10 +390,7 @@ converter (e.g. "GRS 485 ISO" RS232- RS485 Converter)
     my $tlk=new(\%options);
 
 =head1 METHODS
-
-	
-
-	sub 
+ 
 
 =head2 read_temperature
 
@@ -338,8 +415,8 @@ exceed the nSP-parameter set in the device (set_setpoint return undef in this ca
 =item $Value
 
 Float value to set the setpoint to. Internally this is held by a 16bit number.
-set_setpoint() will cut off the decimal values according to the value of the "dp" parameter of the device.
-(dp=0..3 meaning 0..3 decimal points. only 0,1 work for temperature sensors)
+set_setpoint() will cut off the decimal values according to the value of the "dP" parameter of the device.
+(dP=0..3 meaning 0..3 decimal points. only 0,1 work for temperature sensors)
 
 =back
 
@@ -355,8 +432,8 @@ Set the value of the currently active setpoint slot.
 =item $Value
 
 Float value to set the setpoint to. Internally this is held by a 16bit number.
-set_setpoint() will cut off the decimal values according to the value of the "dp" parameter of the device.
-(dp=0..3 meaning 0..3 decimal points. only 0,1 work for temperature sensors)
+set_setpoint() will cut off the decimal values according to the value of the "dP" parameter of the device.
+(dP=0..3 meaning 0..3 decimal points. only 0,1 work for temperature sensors)
 
 =back
 
@@ -417,8 +494,6 @@ probably many
 =back
 
 =head1 AUTHOR/COPYRIGHT
-
-This is $Id: TLK43.pm 722 2011-01-12Z F. Olbrich $
 
 Copyright 2010 Florian Olbrich
 
