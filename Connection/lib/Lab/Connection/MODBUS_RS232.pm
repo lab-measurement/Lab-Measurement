@@ -12,7 +12,7 @@
 
 use strict;
 
-package Lab::Connection::MODBUS;
+package Lab::Connection::MODBUS_RS232;
 use Lab::Connection::RS232;
 use Carp;
 use Data::Dumper;
@@ -65,9 +65,7 @@ sub InstrumentNew { # $self=Connection, { SlaveAddress => Device address (1byte)
 }
 
 
-#
-# Todo: Evaluate $ibstatus: http://linux-gpib.sourceforge.net/doc_html/r634.html
-#
+
 sub InstrumentRead { # $self=Connection, \%InstrumentHandle, \%Options = { Function, MemAddress, MemCount }
 	use bytes;
 	my $self = shift;
@@ -100,12 +98,13 @@ sub InstrumentRead { # $self=Connection, \%InstrumentHandle, \%Options = { Funct
 		for my $item (@AnswerArr) { $item = ord($item) }
 		if ($self->_MB_CRC(@AnswerArr) != 0) {	# CRC over the message including its correct CRC results in a "CRC" of zero
 			$ErrCount++;
-			print "Error in MODBUS response - retrying\n";
+			warn "Error in MODBUS response - retrying\n";
 		}
 		else {
 			$Success=1;
 		}
 	} until($Success==1 || $ErrCount >= $self->MaxCrcErrors());
+	warn "Too many errors, giving up.\n" unless $Success; #Debug
 	return undef unless $Success;
 
 	# formally correct - check response
@@ -119,6 +118,9 @@ sub InstrumentRead { # $self=Connection, \%InstrumentHandle, \%Options = { Funct
 		return @Result;
 	}
 	else {
+		warn "Error answer or sanity check failed.\n";
+		print Dumper(@MessageArr);
+		print Dumper(@AnswerArr);
 		return undef;
 	}
 }
@@ -139,9 +141,9 @@ sub InstrumentWrite { # $self=Connection, \%InstrumentHandle, \%Options = { Func
 	my @AnswerArr;
 	my $ErrCount=0;
 
-	croak('Undefined or unimplemented MODBUS Function') if(!defined $Function || $Function != 6);
-	croak('Invalid Memory Address') if(!defined $MemAddress || $MemAddress < 0 || $MemAddress > 0xFFFF );
-	croak('Invalid Memory Value') if(!defined $MemValue || $MemValue < 0 || $MemValue > 0xFFFF );
+	if(!defined $Function || $Function != 6) 								{ warn("Undefined or unimplemented MODBUS Function\n"); return undef; }
+	if(!defined $MemAddress || $MemAddress < 0 || $MemAddress > 0xFFFF ) 	{ warn("Invalid Memory Address $MemAddress\n"); return undef; }
+	if(!defined $MemValue || $MemValue < 0 || $MemValue > 0xFFFF ) 			{ warn("Invalid Memory Value $MemValue\n"); return undef; }
 
 	@MessageArr = $self->_MB_CRC( $Instrument->{SlaveAddress}, $Function, (int($MemAddress) & 0xFF00) >> 8, int($MemAddress) & 0x00FF, (int($MemValue) & 0xFF00) >> 8, int($MemValue) & 0x00FF);
 	foreach my $item (@MessageArr) {
@@ -156,6 +158,7 @@ sub InstrumentWrite { # $self=Connection, \%InstrumentHandle, \%Options = { Func
 		for my $item (@AnswerArr) { $item = ord($item) }
 		if ($self->_MB_CRC(@AnswerArr) != 0) {	# CRC over the message including its correct CRC results in a "CRC" of zero
 			$ErrCount++;
+			warn "Error in MODBUS response - retrying\n";
 		}
 		else {
 			$Success=1;
@@ -229,27 +232,19 @@ sub _MB_CRC { # @Message
 }
 
 
-# sub DESTROY {
-#         my $self = shift;
-# 		print "Releasing GPIB board.\n";
-# 		ibonl($self->GPIB_Board(),0);
-#         $self -> SUPER::DESTROY if $self -> can ("SUPER::DESTROY");
-# }
-
-
 1;
 
 
 =head1 NAME
 
-Lab::Connection::MODBUS - Perl extension for interfacing with instruments via RS232/RS485 (and later maybe Ethernet) using the MODBUS RTU protocol
+Lab::Connection::MODBUS_RS232 - Perl extension for interfacing with instruments via RS232/RS485 using the MODBUS RTU protocol
 
 =head1 SYNOPSIS
 
-  use Lab::Connection::MODBUS;
-  my $h = Lab::Connection::MODBUS->new( Interface 		=> 'RS232',
-				                		Port			=> 'COM1|/dev/ttyUSB1'
-										SlaveAddress	=> '1');
+  use Lab::Connection::MODBUS_RS232;
+  my $h = Lab::Connection::MODBUS_RS232->new( Interface 		=> 'RS232',
+				                			Port			=> 'COM1|/dev/ttyUSB1'
+											SlaveAddress	=> '1');
 
 
 =head1 DESCRIPTION
@@ -258,13 +253,15 @@ This is an interface package for Lab::Instruments to communicate via RS232/RS485
 It uses Lab::Connection::RS232 (RS485 can be done using a RS232<->RS485 converter for now). It's main use is to calculate the
 checksums needed by MODBUS RTU.
 
+Refer to your device for the correct port configuration.
+
 =head1 CONSTRUCTOR
 
 =head2 new
 
 All parameters are used as by C<Device::SerialPort> respectively C<Lab::Connection::RS232>.
 Port is needed in every case. Default value for timeout is 500ms and can be set by the parameter "Timeout".
-Other options: Handshake, Baudrate, Databits, Stopbits and Parity.
+Other options you probably have to set: Handshake, Baudrate, Databits, Stopbits and Parity.
 
 =head1 METHODS
 

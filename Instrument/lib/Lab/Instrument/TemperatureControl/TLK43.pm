@@ -163,7 +163,11 @@ sub read_temperature {
 	my @Result = ();
 	my $Temp = undef;
 	my $dP = 0;
-	return undef unless defined($dP = $self->read_int_cached({ MemAddress => 'dP' }));
+	#return undef unless defined($dP = $self->read_int_cached({ MemAddress => 'dP' }));
+	if(!defined($dP = $self->read_int_cached({ MemAddress => 'dP' }))) {
+		print "Error in cached read of dP\n";
+		return undef;
+	}
 
 	return undef unless defined($Temp = $self->read_address_int( $self->MemTable()->{'Measurement'} ));
 	given( $Temp ) {
@@ -249,8 +253,8 @@ sub set_active_setpoint { # $value
 	my $TargetTemp = sprintf("%f",shift);
 	my $Slot = 1;
 	my $dP = 0;
-	return undef unless defined($Slot = $self->read_int_cached('SPAt'));
-	return undef unless defined($dP = $self->read_int_cached('dP'));
+	return undef unless defined($Slot = $self->read_int_cached({ MemAddress => 'SPAt' }));
+	return undef unless defined($dP = $self->read_int_cached({ MemAddress => 'dP' }));
 
 	$TargetTemp *= 10**$dP;
 	$TargetTemp = sprintf("%.0f",$TargetTemp);
@@ -312,6 +316,7 @@ sub read_address_int { # $Address
 	}
 
 	if(!$MemAddress || $MemAddress > 0xFFFF || $MemAddress < 0x0200) {
+		print "Address invalid\n";
 		return undef;
 	}
 	else {
@@ -321,6 +326,7 @@ sub read_address_int { # $Address
 			return $SignedValue >> 15 ? $SignedValue - 2**16 : $SignedValue;
 		}
 		else {
+			print "Error on connection level\n";
 			return undef;
 		}
 	}
