@@ -28,7 +28,7 @@ my @crctab = ();
 my %fields = (
 	crc_init => 0xFFFF,
  	crc_poly => 0xA001,
-	MaxCrcErrors => 0,
+	MaxCrcErrors => 3,
 );
 
 sub new {
@@ -103,6 +103,7 @@ sub InstrumentRead { # $self=Connection, \%InstrumentHandle, \%Options = { Funct
 			$ErrCount < $self->MaxCrcErrors() ? warn "Error in MODBUS response - retrying\n" : warn "Error in MODBUS response\n";
 		}
 		else {
+			warn "...Success\n" if $ErrCount > 0;
 			$Success=1;
 		}
 	} until($Success==1 || $ErrCount >= $self->MaxCrcErrors());
@@ -168,6 +169,7 @@ sub InstrumentWrite { # $self=Connection, \%InstrumentHandle, \%Options = { Func
 			$ErrCount < $self->MaxCrcErrors() ? warn "Error in MODBUS response - retrying\n" : warn "Error in MODBUS response\n";
 		}
 		else {
+			warn "...Success\n" if $ErrCount > 0;
 			$Success=1;
 		}
 	} until($Success==1 || $ErrCount >= $self->MaxCrcErrors());
