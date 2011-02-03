@@ -326,7 +326,7 @@ sub read_address_int { # $Address
 			return $SignedValue >> 15 ? $SignedValue - 2**16 : $SignedValue;
 		}
 		else {
-			print "Error on connection level\n";
+			warn "Error on connection level\n";
 			return undef;
 		}
 	}

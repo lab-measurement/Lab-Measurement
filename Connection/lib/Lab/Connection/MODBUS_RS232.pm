@@ -28,7 +28,7 @@ my @crctab = ();
 my %fields = (
 	crc_init => 0xFFFF,
  	crc_poly => 0xA001,
-	MaxCrcErrors => 5,
+	MaxCrcErrors => 0,
 );
 
 sub new {
@@ -100,18 +100,24 @@ sub InstrumentRead { # $self=Connection, \%InstrumentHandle, \%Options = { Funct
 		@TmpArr = $self->_MB_CRC(@AnswerArr);
 		if ($TmpArr[-2] + $TmpArr[-1] != 0) {	# CRC over the message including its correct CRC results in a "CRC" of zero
 			$ErrCount++;
-			warn "Error in MODBUS response - retrying\n";
+			$ErrCount < $self->MaxCrcErrors() ? warn "Error in MODBUS response - retrying\n" : warn "Error in MODBUS response\n";
 		}
 		else {
 			$Success=1;
 		}
 	} until($Success==1 || $ErrCount >= $self->MaxCrcErrors());
-	warn "Too many errors, giving up.\n" unless $Success; #Debug
+	warn "Too CRC many errors, giving up after ${\$self->MaxCrcErrors()} times.\n" unless $Success;
 	return undef unless $Success;
 
 	# formally correct - check response
-	$Success=0 if( scalar(@AnswerArr) < 7 ); # Error answer received?
-	$Success=0 if( scalar(@AnswerArr) < $AnswerArr[2] + 5); # sanity check - does message contain all the bytes it states it carries?
+	if( scalar(@AnswerArr) == 5 ) { # Error answer received?
+		$Success=0;
+		# Now: warn and tell error code. Later: throw exception
+		warn "Received MODBUS error message with error code $AnswerArr[2] \n";
+	}
+	elsif( scalar(@AnswerArr) < $AnswerArr[2] + 5 ) { # correct message length? carries all bytes it says it does?
+		$Success=0;
+	}
 
 	if($Success==1) {	# read result, as an array of bytes
 		for my $item (@AnswerArr[3 .. 3+$AnswerArr[2]-1]) {
@@ -120,9 +126,6 @@ sub InstrumentRead { # $self=Connection, \%InstrumentHandle, \%Options = { Funct
 		return @Result;
 	}
 	else {
-		warn "Error answer or sanity check failed.\n";
-		print Dumper(@MessageArr);
-		print Dumper(@AnswerArr);
 		return undef;
 	}
 }
@@ -142,7 +145,7 @@ sub InstrumentWrite { # $self=Connection, \%InstrumentHandle, \%Options = { Func
 	my $Success = 0;
 	my @AnswerArr;
 	my @TmpArr = ();
-	my $ErrCount=0;
+	my $ErrCount=3;
 
 	if(!defined $Function || $Function != 6) 								{ warn("Undefined or unimplemented MODBUS Function\n"); return undef; }
 	if(!defined $MemAddress || $MemAddress < 0 || $MemAddress > 0xFFFF ) 	{ warn("Invalid Memory Address $MemAddress\n"); return undef; }
@@ -162,17 +165,22 @@ sub InstrumentWrite { # $self=Connection, \%InstrumentHandle, \%Options = { Func
 		@TmpArr = $self->_MB_CRC(@AnswerArr);
 		if ($TmpArr[-2] + $TmpArr[-1] != 0) {	# CRC over the message including its correct CRC results in a "CRC" of zero
 			$ErrCount++;
-			warn "Error in MODBUS response - retrying\n";
+			$ErrCount < $self->MaxCrcErrors() ? warn "Error in MODBUS response - retrying\n" : warn "Error in MODBUS response\n";
 		}
 		else {
 			$Success=1;
 		}
 	} until($Success==1 || $ErrCount >= $self->MaxCrcErrors());
+	warn "Too many CRC errors, giving up after ${\$self->MaxCrcErrors()} times.\n" unless $Success;
 	return undef unless $Success;
 
 	# formally correct - check response;
 	$Success = 1;
-	$Success = 0 if( scalar(@AnswerArr) == 5 );			# Error received - Error answers are 5 bytes long
+	if( scalar(@AnswerArr) == 5 ) { # Error answer received? Error answers are 5 bytes long.
+		$Success=0;
+		# Now: warn and tell error code. Later: throw exception
+		warn "Received MODBUS error message with error code $AnswerArr[2] \n";
+	}
 	if($Success==1) {
 		# compare sent message and answer. equality signals success.
 		for(my $i=0; $i < scalar(@AnswerArr); $i++) {
@@ -185,6 +193,7 @@ sub InstrumentWrite { # $self=Connection, \%InstrumentHandle, \%Options = { Func
 
 	return $Success;
 }
+
 
 
 sub _crc_inittab () {
