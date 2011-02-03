@@ -80,6 +80,7 @@ sub InstrumentRead { # $self=Connection, \%InstrumentHandle, \%Options = { Funct
 	my $Message = "";
 	my @MessageArr = ();
 	my @AnswerArr = ();
+	my @TmpArr = ();
 
 	croak('Undefined or unimplemented Function') if(!defined $Function || $Function != 3);
 	croak('Invalid Memory Address') if(!defined $MemAddress || $MemAddress < 0 || $MemAddress > 0xFFFF );
@@ -96,7 +97,8 @@ sub InstrumentRead { # $self=Connection, \%InstrumentHandle, \%Options = { Funct
 		$self->WriteRaw($Message);
 		@AnswerArr = split(//, $self->Read('all'));
 		for my $item (@AnswerArr) { $item = ord($item) }
-		if ($self->_MB_CRC(@AnswerArr) != 0) {	# CRC over the message including its correct CRC results in a "CRC" of zero
+		@TmpArr = $self->_MB_CRC(@AnswerArr);
+		if ($TmpArr[-2] + $TmpArr[-1] != 0) {	# CRC over the message including its correct CRC results in a "CRC" of zero
 			$ErrCount++;
 			warn "Error in MODBUS response - retrying\n";
 		}
