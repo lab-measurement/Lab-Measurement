@@ -139,6 +139,7 @@ sub InstrumentWrite { # $self=Connection, \%InstrumentHandle, \%Options = { Func
 	my @MessageArr = ();
 	my $Success = 0;
 	my @AnswerArr;
+	my @TmpArr = ();
 	my $ErrCount=0;
 
 	if(!defined $Function || $Function != 6) 								{ warn("Undefined or unimplemented MODBUS Function\n"); return undef; }
@@ -156,7 +157,8 @@ sub InstrumentWrite { # $self=Connection, \%InstrumentHandle, \%Options = { Func
 		$self->WriteRaw($Message);
 		@AnswerArr = split(//, $self->Read('all'));
 		for my $item (@AnswerArr) { $item = ord($item) }
-		if ($self->_MB_CRC(@AnswerArr) != 0) {	# CRC over the message including its correct CRC results in a "CRC" of zero
+		@TmpArr = $self->_MB_CRC(@AnswerArr);
+		if ($TmpArr[-2] + $TmpArr[-1] != 0) {	# CRC over the message including its correct CRC results in a "CRC" of zero
 			$ErrCount++;
 			warn "Error in MODBUS response - retrying\n";
 		}
@@ -217,6 +219,7 @@ sub _MB_CRC { # @Message
 
 	my $crc_poly=$self->crc_poly();
 	my $crc_init=$self->crc_init();
+
 
 	my $size = @message;
 	my $remainder=$crc_init;
