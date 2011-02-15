@@ -11,6 +11,7 @@ use Time::HiRes qw (usleep sleep);
 use POSIX; # added for int() function
 
 use Carp;
+use Data::Dumper;
 our $AUTOLOAD;
 
 
@@ -37,7 +38,6 @@ my %fields = (
 
 
 sub new {
-
 	#
 	# This doesn't do much except setting basic data fields and delivering
 	# their %fields and _permitted to inheriting objects/classes

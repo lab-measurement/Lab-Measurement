@@ -6,6 +6,7 @@ use strict;
 use Lab::Instrument;
 use Lab::Connection;
 use Lab::Connection::GPIB;
+use Carp;
 
 our $VERSION = sprintf("0.%04d", q$Revision: 720 $ =~ / (\d+) /);
 our @ISA = ("Lab::Instrument");
@@ -35,6 +36,7 @@ sub new {
 	else {
 		if($self->_checkconnection($self->Config()->{'ConnType'})) {
 			$self->Connection(eval("new Lab::Connection::${\$self->Config()->{'ConnType'}}({GPIB_Board => 0})")) || croak('Failed to create connection');
+			print "conntype: " . $self->Config()->{'ConnType'}. "\n";
 		}
 		else { croak('Given Connection Type not supported'); }
 	}

@@ -30,11 +30,15 @@ my %fields = (
 sub new {
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
-	my $self = $class->SUPER::new(); # getting fields and _permitted from parent class
+	my $args = shift;
+	my $self = $class->SUPER::new($args); # getting fields and _permitted from parent class
+	warn("HIER\n");
 	foreach my $element (keys %fields) {
 		$self->{_permitted}->{$element} = $fields{$element};
 	}
 	@{$self}{keys %fields} = values %fields;
+
+	print Dumper($self->Config);
 
 	# one board - one connection - one connection object
 	if ( exists $self->Config()->{'GPIB_Board'} ) {
@@ -43,10 +47,10 @@ sub new {
 	}
 
 
-	my $GPIB_Paddr;
+	# my $GPIB_Paddr;
 
 	# using Primary Address only for the moment - no use for secondary here
-	$GPIB_Paddr = $self->Config()->{'GPIB_Paddr'} || 0;
+	# $GPIB_Paddr = $self->Config()->{'GPIB_Paddr'} || 0;
 
 
 	# open device
@@ -61,6 +65,8 @@ sub new {
 # 		die("Error opening Instrument!\n") unless $GPIBInstrument >= 0;
 # 		print "Descriptor is $GPIBInstrument \n";
 # 	}
+
+	warn Dumper($self);
 
 	return $self;
 }

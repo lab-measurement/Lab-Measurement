@@ -243,6 +243,7 @@ sub set_setpoint { # { Slot => (1..4), Value => Int }
 	else {
 		$TargetTemp *= 10**$dP;
 		$TargetTemp = sprintf("%.0f",$TargetTemp);
+		$TargetTemp = ( ( $TargetTemp + 2**16 ) & 0xffff ) if $TargetTemp < 0;
 		return $self->write_address({ MemAddress => $self->MemTable()->{'Setpoint'}+$Slot-1, MemValue => $TargetTemp });
 	}
 }
@@ -258,6 +259,7 @@ sub set_active_setpoint { # $value
 
 	$TargetTemp *= 10**$dP;
 	$TargetTemp = sprintf("%.0f",$TargetTemp);
+	$TargetTemp = ( ( $TargetTemp + 2**16 ) & 0xffff ) if $TargetTemp < 0;
 	return $self->write_address({ MemAddress => $self->MemTable()->{'SP1'}+$Slot-1, MemValue => $TargetTemp });
 }
 
