@@ -229,7 +229,7 @@ sub write_int_cached {	# { MemAddress => $MemAddress, MemValue => $Value }  stor
 sub set_setpoint { # { Slot => (1..4), Value => Int }
 	my $self=shift;
 	my $args=shift;
-	my $TargetTemp = sprintf("%f",$args->{'Value'});
+	my $TargetTemp = $args->{'Value'};
 	my $Slot = $args->{'Slot'};
 	my $nSP = 1;
 	my $dP = 0;
@@ -237,13 +237,13 @@ sub set_setpoint { # { Slot => (1..4), Value => Int }
 	return undef unless defined($nSP = $self->read_int_cached('nSP'));
 	return undef unless defined($dP = $self->read_int_cached('dP'));
 
-	if ($Slot > $nSP || $Slot < 1) {
+	if ($Slot > $nSP || $Slot < 1) { 
 		return undef;
 	}
 	else {
-		$TargetTemp *= 10**$dP;
-		$TargetTemp = sprintf("%.0f",$TargetTemp);
-		$TargetTemp = ( ( $TargetTemp + 2**16 ) & 0xffff ) if $TargetTemp < 0;
+		$TargetTemp = sprintf("%.${dP}f",$TargetTemp) * 10**$dP;	# rounding, shifting decimal places
+		return undef if ($TargetTemp > 32767 || $TargetTemp < -32768);	# still fitting in a signed 16bit int?
+		$TargetTemp = ( $TargetTemp + 2**16  ) if $TargetTemp < 0;
 		return $self->write_address({ MemAddress => $self->MemTable()->{'Setpoint'}+$Slot-1, MemValue => $TargetTemp });
 	}
 }
@@ -251,15 +251,15 @@ sub set_setpoint { # { Slot => (1..4), Value => Int }
 
 sub set_active_setpoint { # $value
 	my $self=shift;
-	my $TargetTemp = sprintf("%f",shift);
+	my $TargetTemp = $args->{'Value'};
 	my $Slot = 1;
 	my $dP = 0;
 	return undef unless defined($Slot = $self->read_int_cached({ MemAddress => 'SPAt' }));
 	return undef unless defined($dP = $self->read_int_cached({ MemAddress => 'dP' }));
 
-	$TargetTemp *= 10**$dP;
-	$TargetTemp = sprintf("%.0f",$TargetTemp);
-	$TargetTemp = ( ( $TargetTemp + 2**16 ) & 0xffff ) if $TargetTemp < 0;
+	$TargetTemp = sprintf("%.${dP}f",$TargetTemp) * 10**$dP;	# rounding, shifting decimal places
+	return undef if ($TargetTemp > 32767 || $TargetTemp < -32768);	# still fitting in a signed 16bit int?
+	$TargetTemp = ( $TargetTemp + 2**16  ) if $TargetTemp < 0;
 	return $self->write_address({ MemAddress => $self->MemTable()->{'SP1'}+$Slot-1, MemValue => $TargetTemp });
 }
 
