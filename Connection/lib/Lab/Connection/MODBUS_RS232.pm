@@ -17,6 +17,10 @@ use Lab::Connection::RS232;
 use Carp;
 use Data::Dumper;
 
+use threads;
+use Thread::Semaphore;
+
+
 # setup this variable to add inherited functions later
 our @ISA = ("Lab::Connection::RS232");
 
@@ -25,6 +29,9 @@ our $VERSION = sprintf("1.%04d", q$Revision: 713 $ =~ / (\d+) /);
 our $INS_DEBUG=0; # do we need additional output?
 
 my @crctab = ();
+
+my $ConnSemaphore = Thread::Semaphore->new();	# a semaphore to prevent simultaneous use of the connection by multiple threads
+
 my %fields = (
 	crc_init => 0xFFFF,
  	crc_poly => 0xA001,
@@ -93,6 +100,7 @@ sub InstrumentRead { # $self=Connection, \%InstrumentHandle, \%Options = { Funct
 
 	$Success=0;
 	$ErrCount=0;
+	$self->ConnSemaphore->down();
 	do {
 		$self->WriteRaw($Message);
 		@AnswerArr = split(//, $self->Read('all'));
@@ -107,6 +115,7 @@ sub InstrumentRead { # $self=Connection, \%InstrumentHandle, \%Options = { Funct
 			$Success=1;
 		}
 	} until($Success==1 || $ErrCount >= $self->MaxCrcErrors());
+	$self->ConnSemaphore->up();
 	warn "Too CRC many errors, giving up after ${\$self->MaxCrcErrors()} times.\n" unless $Success;
 	return undef unless $Success;
 
@@ -159,6 +168,7 @@ sub InstrumentWrite { # $self=Connection, \%InstrumentHandle, \%Options = { Func
 
 	$Success=0;
 	$ErrCount=0;
+	$self->ConnSemaphore->down();
 	do {
 		$self->WriteRaw($Message);
 		@AnswerArr = split(//, $self->Read('all'));
@@ -173,6 +183,7 @@ sub InstrumentWrite { # $self=Connection, \%InstrumentHandle, \%Options = { Func
 			$Success=1;
 		}
 	} until($Success==1 || $ErrCount >= $self->MaxCrcErrors());
+	$self->ConnSemaphore->up();
 	warn "Too many CRC errors, giving up after ${\$self->MaxCrcErrors()} times.\n" unless $Success;
 	return undef unless $Success;
 
