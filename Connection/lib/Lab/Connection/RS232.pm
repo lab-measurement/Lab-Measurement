@@ -95,6 +95,27 @@ sub Read {
 	return $result;
 }
 
+sub ReadRaw {
+	my $self = shift;
+	my $length = shift;
+    my $result = undef;
+
+    if ($length eq 'all' ) {
+
+  	  my $buf = $self->{'Client'}->read(4096);
+      while (length($buf) == 4096) {
+
+        $result .= $buf;
+        $buf = $self->{'Client'}->read(4096);
+      }
+      $result .= $buf;
+
+    } else {
+      $result = $self->{'Client'}->read($length);
+    }
+	return $result;
+}
+
 sub Write {
 	my $self = shift;
 	return $self->{'Client'}->write(join("\n",@_));

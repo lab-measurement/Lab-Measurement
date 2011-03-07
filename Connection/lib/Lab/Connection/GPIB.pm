@@ -66,8 +66,6 @@ sub new {
 # 		print "Descriptor is $GPIBInstrument \n";
 # 	}
 
-	warn Dumper($self);
-
 	return $self;
 }
 
@@ -227,12 +225,6 @@ sub ParseIbstatus { # Ibstatus http://linux-gpib.sourceforge.net/doc_html/r634.h
 
 
 
-sub DESTROY {
-        my $self = shift;
-		print "Releasing GPIB board.\n";
-		ibonl($self->GPIB_Board(),0);
-        $self -> SUPER::DESTROY if $self -> can ("SUPER::DESTROY");
-}
-
 
 1;
+

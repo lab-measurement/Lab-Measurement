@@ -100,10 +100,10 @@ sub InstrumentRead { # $self=Connection, \%InstrumentHandle, \%Options = { Funct
 
 	$Success=0;
 	$ErrCount=0;
-	$self->ConnSemaphore->down();
+	$ConnSemaphore->down();
 	do {
 		$self->WriteRaw($Message);
-		@AnswerArr = split(//, $self->Read('all'));
+		@AnswerArr = split(//, $self->ReadRaw('all'));
 		for my $item (@AnswerArr) { $item = ord($item) }
 		@TmpArr = $self->_MB_CRC(@AnswerArr);
 		if ($TmpArr[-2] + $TmpArr[-1] != 0) {	# CRC over the message including its correct CRC results in a "CRC" of zero
@@ -115,7 +115,7 @@ sub InstrumentRead { # $self=Connection, \%InstrumentHandle, \%Options = { Funct
 			$Success=1;
 		}
 	} until($Success==1 || $ErrCount >= $self->MaxCrcErrors());
-	$self->ConnSemaphore->up();
+	$ConnSemaphore->up();
 	warn "Too CRC many errors, giving up after ${\$self->MaxCrcErrors()} times.\n" unless $Success;
 	return undef unless $Success;
 
@@ -168,10 +168,10 @@ sub InstrumentWrite { # $self=Connection, \%InstrumentHandle, \%Options = { Func
 
 	$Success=0;
 	$ErrCount=0;
-	$self->ConnSemaphore->down();
+	$ConnSemaphore->down();
 	do {
 		$self->WriteRaw($Message);
-		@AnswerArr = split(//, $self->Read('all'));
+		@AnswerArr = split(//, $self->ReadRaw('all'));
 		for my $item (@AnswerArr) { $item = ord($item) }
 		@TmpArr = $self->_MB_CRC(@AnswerArr);
 		if ($TmpArr[-2] + $TmpArr[-1] != 0) {	# CRC over the message including its correct CRC results in a "CRC" of zero
@@ -183,7 +183,7 @@ sub InstrumentWrite { # $self=Connection, \%InstrumentHandle, \%Options = { Func
 			$Success=1;
 		}
 	} until($Success==1 || $ErrCount >= $self->MaxCrcErrors());
-	$self->ConnSemaphore->up();
+	$ConnSemaphore->up();
 	warn "Too many CRC errors, giving up after ${\$self->MaxCrcErrors()} times.\n" unless $Success;
 	return undef unless $Success;
 
