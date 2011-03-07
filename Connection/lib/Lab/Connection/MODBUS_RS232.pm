@@ -72,6 +72,21 @@ sub InstrumentNew { # $self=Connection, { SlaveAddress => Device address (1byte)
 }
 
 
+sub _ordlist { # @list of chars
+	my $self=shift;
+	my @list = @_;
+	for (@list) { $_=ord }
+	return @list;
+}
+
+sub _chrlist { # @list of integers
+	my $self=shift;
+	my @list = @_;
+	for (@list) { $_=chr }
+	return @list; 
+}
+
+
 
 sub InstrumentRead { # $self=Connection, \%InstrumentHandle, \%Options = { Function, MemAddress, MemCount }
 	use bytes;
@@ -89,37 +104,41 @@ sub InstrumentRead { # $self=Connection, \%InstrumentHandle, \%Options = { Funct
 	my @AnswerArr = ();
 	my @TmpArr = ();
 
-	croak('Undefined or unimplemented Function') if(!defined $Function || $Function != 3);
-	croak('Invalid Memory Address') if(!defined $MemAddress || $MemAddress < 0 || $MemAddress > 0xFFFF );
+	if( !defined $Function || $Function != 3 )									{ warn('Undefined or unimplemented Function'); return undef; }
+	if( !defined $MemAddress || $MemAddress < 0 || $MemAddress > 0xFFFF )		{ warn('Invalid Memory Address'); return undef; }
+	if( $MemCount < 1 )															{ warn('Invalid count of registers to be read'); return undef; }
 
-	@MessageArr = $self->_MB_CRC( $Instrument->{SlaveAddress}, $Function, (int($MemAddress) & 0xFF00) >> 8, int($MemAddress) & 0x00FF, (int($MemCount) & 0xFF00) >> 8, int($MemCount) & 0x00FF );
-
-	foreach my $item (@MessageArr) {
-		$Message .= chr($item);
-	}
-
+	@MessageArr = $self->_MB_CRC( pack('C',$Instrument->{SlaveAddress}),pack('C',$Function), pack('n',$MemAddress), pack('n',$MemCount) );
+	$Message = join('',$self->_chrlist(@MessageArr));
+	
 	$Success=0;
 	$ErrCount=0;
 	$ConnSemaphore->down();
 	do {
 		$self->WriteRaw($Message);
 		@AnswerArr = split(//, $self->ReadRaw('all'));
-		for my $item (@AnswerArr) { $item = ord($item) }
-		@TmpArr = $self->_MB_CRC(@AnswerArr);
-		if ($TmpArr[-2] + $TmpArr[-1] != 0) {	# CRC over the message including its correct CRC results in a "CRC" of zero
+		if(scalar(@AnswerArr) == 0) {
+			warn "Error, no answer received - retrying\n";
 			$ErrCount++;
-			$ErrCount < $self->MaxCrcErrors() ? warn "Error in MODBUS response - retrying\n" : warn "Error in MODBUS response\n";
 		}
 		else {
-			warn "...Success\n" if $ErrCount > 0;
-			$Success=1;
+			@TmpArr = $self->_MB_CRC(@AnswerArr);
+			if ($TmpArr[-2] != 0 || $TmpArr[-1] != 0) {	# CRC over the message including its correct CRC results in a "CRC" of zero.
+				$ErrCount++;
+				$ErrCount < $self->MaxCrcErrors() ? warn "Error in MODBUS response - retrying\n" : warn "Error in MODBUS response\n";
+			}
+			else {
+				warn "...Success\n" if $ErrCount > 0;
+				$Success=1;
+			}
 		}
 	} until($Success==1 || $ErrCount >= $self->MaxCrcErrors());
 	$ConnSemaphore->up();
-	warn "Too CRC many errors, giving up after ${\$self->MaxCrcErrors()} times.\n" unless $Success;
+	warn "Too many CRC errors, giving up after ${\$self->MaxCrcErrors()} times.\n" unless $Success;
 	return undef unless $Success;
 
 	# formally correct - check response
+	@AnswerArr = $self->_ordlist(@AnswerArr);
 	if( scalar(@AnswerArr) == 5 ) { # Error answer received?
 		$Success=0;
 		# Now: warn and tell error code. Later: throw exception
@@ -141,7 +160,7 @@ sub InstrumentRead { # $self=Connection, \%InstrumentHandle, \%Options = { Funct
 }
 
 
-sub InstrumentWrite { # $self=Connection, \%InstrumentHandle, \%Options = { Function, MemAddress, MemValue }
+sub InstrumentWrite { # $self=Connection, \%InstrumentHandle, \%Options = { Function, MemAddress, (int)MemValue }
 	use bytes;
 	my $self = shift;
 	my $Instrument=shift;
@@ -149,6 +168,7 @@ sub InstrumentWrite { # $self=Connection, \%InstrumentHandle, \%Options = { Func
 	my $Function = int($Options->{'Function'}) || undef;
 	my $MemAddress = int($Options->{'MemAddress'}) || undef;
 	my $MemValue = int($Options->{'MemValue'});
+	my $SendValue = pack('n!',$MemValue);
 	my $Result = undef;
 	my $Message = "";
 	my @MessageArr = ();
@@ -157,14 +177,12 @@ sub InstrumentWrite { # $self=Connection, \%InstrumentHandle, \%Options = { Func
 	my @TmpArr = ();
 	my $ErrCount=3;
 
-	if(!defined $Function || $Function != 6) 								{ warn("Undefined or unimplemented MODBUS Function\n"); return undef; }
-	if(!defined $MemAddress || $MemAddress < 0 || $MemAddress > 0xFFFF ) 	{ warn("Invalid Memory Address $MemAddress\n"); return undef; }
-	if(!defined $MemValue || $MemValue < 0 || $MemValue > 0xFFFF ) 			{ warn("Invalid Memory Value $MemValue\n"); return undef; }
+	if(!defined $Function || $Function != 6) 								{ warn("Undefined or unimplemented MODBUS Function"); return undef; }
+	if(!defined $MemAddress || $MemAddress < 0 || $MemAddress > 0xFFFF ) 	{ warn("Invalid Memory Address $MemAddress"); return undef; }
+	if(unpack('n!',$SendValue) != $MemValue) 								{ warn("Invalid Memory Value $MemValue"); return undef; }
 
-	@MessageArr = $self->_MB_CRC( $Instrument->{SlaveAddress}, $Function, (int($MemAddress) & 0xFF00) >> 8, int($MemAddress) & 0x00FF, (int($MemValue) & 0xFF00) >> 8, int($MemValue) & 0x00FF);
-	foreach my $item (@MessageArr) {
-		$Message .= chr($item);
-	}
+	@MessageArr = $self->_MB_CRC( pack('C',$Instrument->{SlaveAddress}), pack('C',$Function), pack('n',$MemAddress), $SendValue);
+	$Message = join('',$self->_chrlist(@MessageArr));
 
 	$Success=0;
 	$ErrCount=0;
@@ -172,15 +190,20 @@ sub InstrumentWrite { # $self=Connection, \%InstrumentHandle, \%Options = { Func
 	do {
 		$self->WriteRaw($Message);
 		@AnswerArr = split(//, $self->ReadRaw('all'));
-		for my $item (@AnswerArr) { $item = ord($item) }
-		@TmpArr = $self->_MB_CRC(@AnswerArr);
-		if ($TmpArr[-2] + $TmpArr[-1] != 0) {	# CRC over the message including its correct CRC results in a "CRC" of zero
+		if(scalar(@AnswerArr) == 0) {
+			warn "Error, no answer received - retrying\n";
 			$ErrCount++;
-			$ErrCount < $self->MaxCrcErrors() ? warn "Error in MODBUS response - retrying\n" : warn "Error in MODBUS response\n";
 		}
 		else {
-			warn "...Success\n" if $ErrCount > 0;
-			$Success=1;
+			@TmpArr = $self->_MB_CRC(@AnswerArr);
+			if ($TmpArr[-2] != 0 || $TmpArr[-1] != 0) {	# CRC over the message including its correct CRC results in a "CRC" of zero
+				$ErrCount++;
+				$ErrCount < $self->MaxCrcErrors() ? warn "Error in MODBUS response - retrying\n" : warn "Error in MODBUS response\n";
+			}
+			else {
+				warn "...Success\n" if $ErrCount > 0;
+				$Success=1;
+			}
 		}
 	} until($Success==1 || $ErrCount >= $self->MaxCrcErrors());
 	$ConnSemaphore->up();
@@ -188,7 +211,7 @@ sub InstrumentWrite { # $self=Connection, \%InstrumentHandle, \%Options = { Func
 	return undef unless $Success;
 
 	# formally correct - check response;
-	$Success = 1;
+	@AnswerArr = $self->_ordlist(@AnswerArr);
 	if( scalar(@AnswerArr) == 5 ) { # Error answer received? Error answers are 5 bytes long.
 		$Success=0;
 		# Now: warn and tell error code. Later: throw exception
@@ -236,16 +259,18 @@ sub _crc_inittab () {
 
 
 # generate MODBUS CRC for given message
-sub _MB_CRC { # @Message
+# takes a message in the form of a (list of) binary string(s) like output by pack().
+# generates crc and returns the message including the crc as a list of integers
+sub _MB_CRC { # @Message as character array, e.g. ( chr(1), pack('C',$address), split(//,pack('n',$stuff))
 	my $self = shift;
-	my @message = @_;
+	my @message = $self->_ordlist(split(//,join('',@_)));
 	_crc_inittab() if(!@crctab);
 
 	my $crc_poly=$self->crc_poly();
 	my $crc_init=$self->crc_init();
 
-
 	my $size = @message;
+	if($size == 0) { warn('Empty message!'); return undef; };
 	my $remainder=$crc_init;
 	my $tmp = 0;
 	my $i=0;
