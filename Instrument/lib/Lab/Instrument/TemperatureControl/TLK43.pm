@@ -55,7 +55,7 @@ my %fields = (
 		SSC =>					0x280A,		# start of scale
 		FSC =>					0x280B,		# full scale deflection
 		dP =>					0x280C,		# decimal points (for measurement)
-		Unit =>					0x280D,		# 0=°C, 1=F
+		Unit =>					0x280D,		# 0=Â°C, 1=F
 		FiL =>					0x280E,		# digital filter on input (OFF .. 20.0 sec)
 		OFSt =>					0x2810,		# offset of measurement with dP decimal points (-1999..9999) ?
 		rot =>					0x2811,		# rotation of the measuring straight line
@@ -243,7 +243,7 @@ sub set_setpoint { # { Slot => (1..4), Value => Int }
 	else {
 		$TargetTemp = sprintf("%.${dP}f",$TargetTemp) * 10**$dP;	# rounding, shifting decimal places
 		return undef if ($TargetTemp > 32767 || $TargetTemp < -32768);	# still fitting in a signed 16bit int?
-		$TargetTemp = ( $TargetTemp + 2**16  ) if $TargetTemp < 0;
+		#$TargetTemp = ( $TargetTemp + 2**16  ) if $TargetTemp < 0;
 		return $self->write_address({ MemAddress => $self->MemTable()->{'Setpoint'}+$Slot-1, MemValue => $TargetTemp });
 	}
 }
@@ -251,7 +251,7 @@ sub set_setpoint { # { Slot => (1..4), Value => Int }
 
 sub set_active_setpoint { # $value
 	my $self=shift;
-	my $TargetTemp = $args->{'Value'};
+	my $TargetTemp = shift;
 	my $Slot = 1;
 	my $dP = 0;
 	return undef unless defined($Slot = $self->read_int_cached({ MemAddress => 'SPAt' }));
@@ -259,7 +259,7 @@ sub set_active_setpoint { # $value
 
 	$TargetTemp = sprintf("%.${dP}f",$TargetTemp) * 10**$dP;	# rounding, shifting decimal places
 	return undef if ($TargetTemp > 32767 || $TargetTemp < -32768);	# still fitting in a signed 16bit int?
-	$TargetTemp = ( $TargetTemp + 2**16  ) if $TargetTemp < 0;
+	#$TargetTemp = ( $TargetTemp + 2**16  ) if $TargetTemp < 0;
 	return $self->write_address({ MemAddress => $self->MemTable()->{'SP1'}+$Slot-1, MemValue => $TargetTemp });
 }
 
@@ -324,8 +324,7 @@ sub read_address_int { # $Address
 	else {
 		@Result = $self->Connection()->InstrumentRead($self->InstrumentHandle(), {Function => 3, MemAddress => $MemAddress, MemCount => 1});
 		if(scalar(@Result)==2) { # correct answer has to be two bytes long
-			$SignedValue = ( $Result[0] << 8 ) + $Result[1];
-			return $SignedValue >> 15 ? $SignedValue - 2**16 : $SignedValue;
+			$SignedValue = unpack('n!', join('', @Result));
 		}
 		else {
 			warn "Error on connection level\n";
@@ -338,13 +337,14 @@ sub read_address_int { # $Address
 sub write_address {	# { MemAddress => Address (16bit), MemValue => Value (16 bit word) }
 	my $self = shift;
 	my $args = shift;
-	my $MemAddress = int($args->{MemAddress}) || undef;
+	my $MemAddress = $args->{MemAddress} || undef;
 	my $MemValue = int($args->{MemValue}) || undef;
+	
 	if($MemAddress !~ /^[0-9]*$/) {
 		$MemAddress = $self->MemTable()->{$MemAddress} || undef;
 	}
 
-	if(!$MemAddress || !$MemValue || $MemAddress > 0xFFFF || $MemAddress < 0x0200 || $MemValue > 0xFFFF || $MemValue < 0) {
+	if( !$MemAddress || (!$MemValue && $MemValue != 0) || $MemAddress > 0xFFFF || $MemAddress < 0x0200 || $MemValue > 0xFFFF || $MemValue < 0) {
 		return undef;
 	}
 	else {

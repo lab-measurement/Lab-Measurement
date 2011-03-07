@@ -87,7 +87,7 @@ sub _chrlist { # @list of integers
 }
 
 
-
+# returns the read values as an array of bytes (characters!)
 sub InstrumentRead { # $self=Connection, \%InstrumentHandle, \%Options = { Function, MemAddress, MemCount }
 	use bytes;
 	my $self = shift;
@@ -138,18 +138,17 @@ sub InstrumentRead { # $self=Connection, \%InstrumentHandle, \%Options = { Funct
 	return undef unless $Success;
 
 	# formally correct - check response
-	@AnswerArr = $self->_ordlist(@AnswerArr);
 	if( scalar(@AnswerArr) == 5 ) { # Error answer received?
 		$Success=0;
 		# Now: warn and tell error code. Later: throw exception
-		warn "Received MODBUS error message with error code $AnswerArr[2] \n";
+		warn "Received MODBUS error message with error code". ord($AnswerArr[2]) . "\n";
 	}
-	elsif( scalar(@AnswerArr) < $AnswerArr[2] + 5 ) { # correct message length? carries all bytes it says it does?
+	elsif( scalar(@AnswerArr) < ord($AnswerArr[2]) + 5 ) { # correct message length? carries all bytes it says it does?
 		$Success=0;
 	}
 
 	if($Success==1) {	# read result, as an array of bytes
-		for my $item (@AnswerArr[3 .. 3+$AnswerArr[2]-1]) {
+		for my $item (@AnswerArr[3 .. 3+ord($AnswerArr[2])-1]) {
 			push(@Result, $item);
 		}
 		return @Result;
