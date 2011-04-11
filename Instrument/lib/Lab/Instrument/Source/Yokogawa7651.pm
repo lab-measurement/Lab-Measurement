@@ -10,6 +10,11 @@ our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
 
 our @ISA=('Lab::Instrument::Source');
 
+my %fields = (
+	SupportedConnections => [ 'GPIB', 'RS232' ],
+	InstrumentHandle => undef,
+);
+
 our $MAX_SWEEP_TIME=3600;
 our $MIN_SWEEP_TIME=0.1;
 

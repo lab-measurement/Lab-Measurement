@@ -99,7 +99,38 @@ my %fields = (
 		AL1i =>					0x2820,		# Alarm AL1 activation in case of measuring error (0=no, 1=yes)
 
 
+		# rEG group (parameters relative to controller
+		Cont =>					0x283B,		# Control type (0=PID, 1=On.Fa, 2=On.FS, 3=nr, 4=3Pt)
+		Func =>					0x283C,		# Functioning mode output 1rEg (0=Heat, 1=Cool)
+		Auto =>					0x283D,		# Autotuning Fast enable
+		SELF =>					0x283E,		# Selftuning enable (0=No, 1=Yes)
+		HSEt =>					0x283F,		# Hysteresis of ON/OFF Control (9999 ... -1999)
+		Pb =>					0x2840,		# Proportional band (0...9999)
+		Int =>					0x2841,		# Integral time (0=OFF...9999sec)
+		dEr =>					0x2842,		# Derivative time (0=OFF...9999sec)
+		FuOc =>					0x2843,		# Fuzzy overshoot control (0.00...2.00)
+		tcr1 =>					0x2833,		# Cycle time of output 1rEg (0.1...130sec)
+		Prat =>					0x2845,		# Power ration 2rEg/1rEg (0.1...999.9)
+		tcr2 =>					0x2846,		# Cycle time of 2rEg (0.1...130sec)
+		rS =>					0x2847,		# Manual reset (-100%...100%)
+		tcor =>					0x2866,		# Time for motorised actuator run (4...1000sec)
+		SHrl =>					0x2867,		# Minimum value for motorised actuator control (0.1...10%)
+		PoSI =>					0x2868,		# Switch on position for motorised actuator (0=No, 1=close, 2=open)
+		SLor =>					0x2849,		# Gradient of rise ramp (0.00...99.99)
+		durt =>					0x284A,		# Duration time
+		SLoF =>					0x284B,		# Gradient of fall ramp
+		ro1L =>					0x2869,		# Minimum power in ouput from 1rEG (0...100%)
+		ro1H =>					0x286A,		# Maximum power ... (ro1L...100%)
+		ro2L =>					0x286B,		# Minimum power in output from 2rEG (0...100%)
+		ro2H =>					0x286C,		# Maximum power... (ro2L...100%)
+		tHr1 =>					0x286D,		# Split Range Power threshold of output 1rEG
+		tHr2 =>					0x286E,		# ... of output 2rEG
+		OPS1 =>					0x286F,		# Power variation speed in output from 1rEG (0...50%/sec)
+		OPS2 =>					0x2870,		# ... from 2rEG
+		StP =>					0x284C,		# Soft-start power (-100, -101=OFF, 100)
+		SSt =>					0x284D,		# Soft-start time (0=OFF...7.59 h.min)
 
+		
 
 											# to be continued
 		

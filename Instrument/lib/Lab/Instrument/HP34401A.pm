@@ -1,22 +1,64 @@
-#$Id$
+#$Id: HP34401A.pm 663 2010-04-26 20:16:11Z schroeer $
 
-package Lab::Instrument::HP34401A;
+package Lab::Instrument::newHP34401A;
 
 use strict;
 use Lab::Instrument;
+use Lab::Connection;
+use Lab::Connection::GPIB;
+use Carp;
 
-our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
+our $VERSION = sprintf("0.%04d", q$Revision: 720 $ =~ / (\d+) /);
+our @ISA = ("Lab::Instrument");
+
+my %fields = (
+	SupportedConnections => [ 'GPIB', 'RS232' ],
+	InstrumentHandle => undef,
+);
+
 
 sub new {
-    my $proto = shift;
-    my $class = ref($proto) || $proto;
-    my $self = {};
-    bless ($self, $class);
+	my $proto = shift;
+	my $class = ref($proto) || $proto;
+	my $self = $class->SUPER::new(@_);	# sets $self->Config
+	foreach my $element (keys %fields) {
+		$self->{_permitted}->{$element} = $fields{$element};
+	}
+	@{$self}{keys %fields} = values %fields;
 
-    $self->{vi}=new Lab::Instrument(@_);
+	# check the configuration hash for a valid connection object or connection type, and set the connection
+	if( defined($self->Config()->{'Connection'}) ) {
+		if($self->_checkconnection($self->Config()->{'Connection'})) {
+			$self->Connection($self->Config()->{'Connection'});
+		}
+		else { croak('Given Connection not supported'); }
+	}
+	else {
+		if($self->_checkconnection($self->Config()->{'ConnType'})) {
+			$self->Connection(eval("new Lab::Connection::${\$self->Config()->{'ConnType'}}({GPIB_Board => 0})")) || croak('Failed to create connection');
+			print "conntype: " . $self->Config()->{'ConnType'}. "\n";
+		}
+		else { croak('Given Connection Type not supported'); }
+	}
+	$self->InstrumentHandle( $self->Connection()->InstrumentNew(GPIB_Paddr => $self->Config()->{'GPIB_Paddress'}) );
 
-    return $self
+	return $self;
 }
+
+
+
+sub read_resistance {
+    my $self=shift;
+    my ($range,$resolution)=@_;
+    
+    $range="DEF" unless (defined $range);
+    $resolution="DEF" unless (defined $resolution);
+    
+	my $cmd=sprintf("MEASure:SCALar:RESIStance? %s,%s",$range,$resolution);
+	my $value = $self->Connection()->InstrumentRead($self->InstrumentHandle(), {SCPI_cmd => $cmd});
+    return $value;
+}
+
 
 sub read_voltage_dc {
     my $self=shift;
@@ -26,19 +68,7 @@ sub read_voltage_dc {
     $resolution="DEF" unless (defined $resolution);
     
     my $cmd=sprintf("MEASure:VOLTage:DC? %s,%s",$range,$resolution);
-    my ($value)=split "\n",$self->{vi}->Query($cmd);
-    return $value;
-}
-
-sub read_resistance {
-    my $self=shift;
-    my ($range,$resolution)=@_;
-    
-    $range="DEF" unless (defined $range);
-    $resolution="DEF" unless (defined $resolution);
-    
-    my $cmd=sprintf("MEASure:RESistance? %s,%s",$range,$resolution);
-    my ($value)=split "\n",$self->{vi}->Query($cmd);
+    my $value = $self->Connection()->InstrumentRead($self->InstrumentHandle(), {SCPI_cmd => $cmd});
     return $value;
 }
 
@@ -49,8 +79,8 @@ sub read_voltage_ac {
     $range="DEF" unless (defined $range);
     $resolution="DEF" unless (defined $resolution);
     
-    my $cmd=sprintf("MEASure:VOLTage:AC? %u,%f",$range,$resolution);
-    my ($value)=split "\n",$self->{vi}->Query($cmd);
+    my $cmd=sprintf("MEASure:VOLTage:AC? %s,%s",$range,$resolution);
+    my $value = $self->Connection()->InstrumentRead($self->InstrumentHandle(), {SCPI_cmd => $cmd});
     return $value;
 }
 
@@ -61,8 +91,8 @@ sub read_current_dc {
     $range="DEF" unless (defined $range);
     $resolution="DEF" unless (defined $resolution);
     
-    my $cmd=sprintf("MEASure:CURRent:DC? %u,%f",$range,$resolution);
-    my ($value)=split "\n",$self->{vi}->Query($cmd);
+    my $cmd=sprintf("MEASure:CURRent:DC? %s,%s",$range,$resolution);
+    my $value = $self->Connection()->InstrumentRead($self->InstrumentHandle(), {SCPI_cmd => $cmd});
     return $value;
 }
 
@@ -73,8 +103,8 @@ sub read_current_ac {
     $range="DEF" unless (defined $range);
     $resolution="DEF" unless (defined $resolution);
     
-    my $cmd=sprintf("MEASure:CURRent:AC? %u,%f",$range,$resolution);
-    my ($value)=split "\n",$self->{vi}->Query($cmd);
+    my $cmd=sprintf("MEASure:CURRent:AC? %s,%s",$range,$resolution);
+    my $value = $self->Connection()->InstrumentRead($self->InstrumentHandle(), {SCPI_cmd => $cmd});
     return $value;
 }
 
@@ -83,9 +113,9 @@ sub display_text {
     my $text=shift;
     
     if ($text) {
-        $self->{vi}->Write(qq(DISPlay:TEXT "$text"));
+        $self->Write(qq(DISPlay:TEXT "$text"));
     } else {
-        chomp($text=$self->{vi}->Query(qq(DISPlay:TEXT?)));
+        chomp($text=$self->Query(qq(DISPlay:TEXT?)));
         $text=~s/\"//g;
     }
     return $text;
@@ -93,27 +123,27 @@ sub display_text {
 
 sub display_on {
     my $self=shift;
-    $self->{vi}->Write("DISPlay ON");
+    $self->Write("DISPlay ON");
 }
 
 sub display_off {
     my $self=shift;
-    $self->{vi}->Write("DISPlay OFF");
+    $self->Write("DISPlay OFF");
 }
 
 sub display_clear {
     my $self=shift;
-    $self->{vi}->Write("DISPlay:TEXT:CLEar");
+    $self->Write("DISPlay:TEXT:CLEar");
 }
 
 sub beep {
     my $self=shift;
-    $self->{vi}->Write("SYSTem:BEEPer");
+    $self->Write("SYSTem:BEEPer");
 }
 
 sub get_error {
     my $self=shift;
-    chomp(my $err=$self->{vi}->Query("SYSTem:ERRor?"));
+    chomp(my $err=$self->Query("SYSTem:ERRor?"));
     my ($err_num,$err_msg)=split ",",$err;
     $err_msg=~s/\"//g;
     return ($err_num,$err_msg);
@@ -121,15 +151,16 @@ sub get_error {
 
 sub reset {
     my $self=shift;
-    $self->{vi}->Write("*RST");
+    $self->Write("*RST");
 }
+
 
 sub config_voltage {
     my $self=shift;
     my ($digits, $range, $counts)=@_;
 
     #set input resistance to >10 GOhm for the three highest resolution values 
-    $self->{vi}->Write("INPut:IMPedance:AUTO ON");
+    $self->Write("INPut:IMPedance:AUTO ON");
 
     $digits = int($digits);
     $digits = 4 if $digits < 4;
@@ -152,7 +183,7 @@ sub config_voltage {
     }
 
     my $resolution = (10**(-$digits))*$range;
-    $self->{vi}->Write("CONF:VOLT:DC $range,$resolution");
+    $self->Write("CONF:VOLT:DC $range,$resolution");
 
 
     # calculate integration time, set it and prepare for output
@@ -161,26 +192,26 @@ sub config_voltage {
 
     if ($digits ==4) {
       $inttime = 0.4;
-      $self->{vi}->Write("VOLT:NPLC 0.02");
+      $self->Write("VOLT:NPLC 0.02");
     }
     elsif ($digits ==5) {
       $inttime = 4;
-      $self->{vi}->Write("VOLT:NPLC 0.2");
+      $self->Write("VOLT:NPLC 0.2");
     }
     elsif ($digits ==6) {
       $inttime = 200;
-      $self->{vi}->Write("VOLT:NPLC 10");
-      $self->{vi}->Write("ZERO:AUTO OFF");
+      $self->Write("VOLT:NPLC 10");
+      $self->Write("ZERO:AUTO OFF");
     }
 
     my $retval = $inttime." ms";
 
 
     # triggering
-    $self->{vi}->Write("TRIGger:SOURce BUS");
-    $self->{vi}->Write("SAMPle:COUNt $counts");
-    $self->{vi}->Write("TRIGger:DELay MIN");
-    $self->{vi}->Write("TRIGger:DELay:AUTO OFF");
+    $self->Write("TRIGger:SOURce BUS");
+    $self->Write("SAMPle:COUNt $counts");
+    $self->Write("TRIGger:DELay MIN");
+    $self->Write("TRIGger:DELay:AUTO OFF");
 
     return $retval;
 }
@@ -188,9 +219,9 @@ sub config_voltage {
 sub read_with_trigger_voltage_dc {
     my $self=shift;
 
-    $self->{vi}->Write("INIT");
-    $self->{vi}->Write("*TRG");
-    my $value = $self->{vi}->Query("FETCh?");
+    $self->Write("INIT");
+    $self->Write("*TRG");
+    my $value = $self->Query("FETCh?");
 
     chomp $value;
 
@@ -213,17 +244,26 @@ sub scroll_message {
 
 sub id {
     my $self=shift;
-    $self->{vi}->Query('*IDN?');
+    $self->Query('*IDN?');
 }
 
 sub read_value {
     my $self=shift;
-    my $value=$self->{vi}->Query('READ?');
+    my $value=$self->Query('READ?');
     chomp $value;
     return $value;
 }
 
 1;
+
+
+
+
+
+
+
+
+
 
 =head1 NAME
 
@@ -385,7 +425,7 @@ probably many
 
 =head1 AUTHOR/COPYRIGHT
 
-This is $Id$
+This is $Id: HP34401A.pm 663 2010-04-26 20:16:11Z schroeer $
 
 Copyright 2004-2006 Daniel Schröer (<schroeer@cpan.org>), 2009-2010 Daniela Taubert
 

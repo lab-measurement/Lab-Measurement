@@ -6,55 +6,68 @@ use Time::HiRes qw(usleep gettimeofday);
 our $VERSION = sprintf("1.%04d", q$Revision$ =~ / (\d+) /);
 our $maxchannels = 16;
 
+our @ISA=('Lab::Instrument');
+
+my %fields = (
+	SupportedConnections => [ 'GPIB' ],
+	IamaSource => 1,
+	InstrumentHandle => undef,
+);
+
 sub new {
-    my $proto = shift;
-    my $class = ref($proto) || $proto;
+	my $proto = shift;
+	my $class = ref($proto) || $proto;
+	my $self = $class->SUPER::new(@_);	# sets $self->Config
+	foreach my $element (keys %fields) {
+		$self->{_permitted}->{$element} = $fields{$element};
+	}
+	@{$self}{keys %fields} = values %fields;
 
-    my $self = bless {}, $class;
+	my @args = @_;
 
-    my $type=ref $_[0];
+    if (ref($args[0]) =~ /HASH/) {
 
-    if ($type =~ /HASH/) {
+		# Source gets as parameters 1) the default config of a particular
+		# source class and 2) the config with which the source was instantiated
 
-    # Source gets as parameters 1) the default config of a particular
-    # source class and 2) the config with which the source was instantiated
+		%{$self->{default_config}}=%{shift @_};
+		%{$self->{config}}=%{$self->{default_config}};
+		$self->configure(@_);
 
-    %{$self->{default_config}}=%{shift @_};
-    %{$self->{config}}=%{$self->{default_config}};
-    $self->configure(@_);
+		for (my $i=1; $i<=$maxchannels; $i++) {
+			my $tmp="last_voltage_$i";
+			$self->{_gp}->{$tmp}=undef;
+			$tmp="last_settime_mus_$i";
+			$self->{_gp}->{$tmp}=undef;
+		}
 
-    for (my $i=1; $i<=$maxchannels; $i++) {
-        my $tmp="last_voltage_$i";
-        $self->{_gp}->{$tmp}=undef;
-        $tmp="last_settime_mus_$i";
-        $self->{_gp}->{$tmp}=undef;
+		$self->{subsource}=0;
+
     }
+	elsif ( UNIVERSAL::isa($args[0],"Lab::Instrument::Source" ) {
 
-    $self->{subsource}=0;
+		# Whenever the first parameter is not a default config hash but a
+		# class object inherited from Lab::Instrument with IamaSource set, 
+		# we are instantiating a subsource of a multichannel source. 
 
-    } elsif (($type =~ /^Lab::Instrument/) && ($_[0]->{IamaSource})) {
+		print "Hey great! Someone is testing subchannel sources...\n";
+		$self->{multisource}=shift;
+		$self->{channel}=shift;
 
-    # Whenever the first parameter is not a default config hash but a
-    # class object inherited from Lab::Instrument with IamaSource set, 
-    # we are instantiating a subsource of a multichannel source. 
+		# the default config is in this case the actual config of the
+		# multisource object
+		%{$self->{default_config}}=%{$self->{multisource}->{config}};
+		%{$self->{config}}=%{$self->{default_config}};
+		$self->configure(@_);
 
-    print "Hey great! Someone is testing subchannel sources...\n";
-    $self->{multisource}=shift;
-    $self->{channel}=shift;
-
-    # the default config is in this case the actual config of the
-    # multisource object
-    %{$self->{default_config}}=%{$self->{multisource}->{config}};
-    %{$self->{config}}=%{$self->{default_config}};
-    $self->configure(@_);
-
-    $self->{subsource}=1;
+		$self->{subsource}=1;
 
     };
 
-    $self->{IamaSource}=1;
     return $self;
 }
+
+sub 
 
 sub configure {
     my $self=shift;
