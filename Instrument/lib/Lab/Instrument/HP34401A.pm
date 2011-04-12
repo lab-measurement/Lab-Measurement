@@ -12,7 +12,8 @@ our $VERSION = sprintf("0.%04d", q$Revision: 720 $ =~ / (\d+) /);
 our @ISA = ("Lab::Instrument");
 
 my %fields = (
-	SupportedConnections => [ 'GPIB', 'RS232' ],
+	# SupportedConnections => [ 'GPIB', 'RS232' ],	# in principle RS232, too, but not implemented
+	SupportedConnections => [ 'GPIB' ],
 	InstrumentHandle => undef,
 );
 

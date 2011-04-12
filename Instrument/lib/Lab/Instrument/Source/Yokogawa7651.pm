@@ -1,6 +1,6 @@
 #$Id$
 
-package Lab::Instrument::Yokogawa7651;
+package Lab::Instrument::Source::Yokogawa7651;
 use strict;
 use Switch;
 use Lab::Instrument;
@@ -11,7 +11,8 @@ our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
 our @ISA=('Lab::Instrument::Source');
 
 my %fields = (
-	SupportedConnections => [ 'GPIB', 'RS232' ],
+	# SupportedConnections => [ 'GPIB', 'RS232' ], # RS232 not implemented yet
+	SupportedConnections => [ 'GPIB' ],
 	InstrumentHandle => undef,
 );
 

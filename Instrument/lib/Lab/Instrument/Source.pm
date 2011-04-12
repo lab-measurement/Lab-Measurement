@@ -2,6 +2,7 @@
 package Lab::Instrument::Source;
 use strict;
 use Time::HiRes qw(usleep gettimeofday);
+use Lab::Exception;
 
 our $VERSION = sprintf("1.%04d", q$Revision$ =~ / (\d+) /);
 our $maxchannels = 16;
@@ -10,8 +11,21 @@ our @ISA=('Lab::Instrument');
 
 my %fields = (
 	SupportedConnections => [ 'GPIB' ],
-	IamaSource => 1,
-	InstrumentHandle => undef,
+	InstrumentHandle => undef,		# needed?
+	MultiSource => undef,
+
+	# Config options
+    gate_protect => undef,
+    gp_max_volt_per_second => undef,
+    gp_max_volt_per_step => undef,
+    gp_max_step_per_second => undef,
+    gp_min_volt => undef,
+    gp_max_volt => undef,
+    qp_equal_level => undef,
+    fast_set => undef,
+
+	# Config hash passed to subchannel objects
+	DefaultChannelConfig => undef,
 );
 
 sub new {
@@ -23,15 +37,32 @@ sub new {
 	}
 	@{$self}{keys %fields} = values %fields;
 
-	my @args = @_;
+	$self->DefaultChannelConfig($self->Config()) if(!defined($self->Config()->{DefaultSubchannelConfig}) || ref($self->Config()->{DefaultChannelConfig}) !~ /HASH/);
 
-    if (ref($args[0]) =~ /HASH/) {
+    if ( defined($this->Config()->{MultiSource}) ) {
 
-		# Source gets as parameters 1) the default config of a particular
-		# source class and 2) the config with which the source was instantiated
+		Lab::Exception::CorruptParameter->throw('Given MultiSource object is not a Lab::Instrument::Source! Aborting.') if( !UNIVERSAL::isa($args[0],"Lab::Instrument::Source" ) );
+		Lab::Exception::CorruptParameter->throw('The Channel number has to be a positive integer! Aborting.') if( $this->Config()->{Channel} < 0 || $this->Config()->{Channel} !~ /[0-9]*/ );
 
-		%{$self->{default_config}}=%{shift @_};
+		# We got a multisource parent object => instantiating a subsource of this multichannel source.
+
+		print "Hey great! Someone is testing subchannel sources...\n";
+		$self->MultiSource($this->Config()->{MultiSource});
+		$self->Channel($this->Config()->{Channel});
+
+		# the default config is in this case the actual config of the
+		# multisource object
+		%{$self->{default_config}}=%{$self->{multisource}->{config}};
 		%{$self->{config}}=%{$self->{default_config}};
+		$self->configure(@_);
+
+		$self->{subsource}=1;
+    }
+	elsif ( UNIVERSAL::isa($args[0],"Lab::Instrument::Source" ) {
+
+		# Source gets as parameters 1) the config for this instance 
+		# and 2) the optional default config for derived subchannel objects
+
 		$self->configure(@_);
 
 		for (my $i=1; $i<=$maxchannels; $i++) {
@@ -42,25 +73,6 @@ sub new {
 		}
 
 		$self->{subsource}=0;
-
-    }
-	elsif ( UNIVERSAL::isa($args[0],"Lab::Instrument::Source" ) {
-
-		# Whenever the first parameter is not a default config hash but a
-		# class object inherited from Lab::Instrument with IamaSource set, 
-		# we are instantiating a subsource of a multichannel source. 
-
-		print "Hey great! Someone is testing subchannel sources...\n";
-		$self->{multisource}=shift;
-		$self->{channel}=shift;
-
-		# the default config is in this case the actual config of the
-		# multisource object
-		%{$self->{default_config}}=%{$self->{multisource}->{config}};
-		%{$self->{config}}=%{$self->{default_config}};
-		$self->configure(@_);
-
-		$self->{subsource}=1;
 
     };
 
@@ -80,8 +92,18 @@ sub configure {
     #   gp_max_volt
     #   qp_equal_level
     #   fast_set
+	#
+	#   ... and, in general, all parameters which can be changed by access methods of the objects
+	#   (in fact this is what happens, and the config hash given to configure() ist just a shorthand for e.g.
+	#   $source->gate_protect(1);
+	#   $source->gp_max_volt_per_second(0.1);
+	#   ...
+	#   equivalent: $source->configure({ gate_protect=>1, gp_max_volt_per_second=>0.1, ...)
     my $config=shift;
-    if ((ref $config) =~ /HASH/) {
+	if( ref($config) !~ /HASH/ ) {
+		Lab::Exception::CorruptParameter->throw('Given Configuration is not a hash.');
+	}
+	else {
         for my $conf_name (keys %{$self->{default_config}}) {
             #print "Key: $conf_name, default: ",$self->{default_config}->{$conf_name},", old config: ",$self->{config}->{$conf_name},", new config: ",$config->{$conf_name},"\n";
             unless ((defined($self->{config}->{$conf_name})) || (defined($config->{$conf_name}))) {
@@ -372,7 +394,7 @@ Lab::Instrument::Source - Base class for voltage source instruments
 
 This class implements a general voltage source, if necessary with several channels. 
 It is meant to be inherited by instrument classes (virtual instruments) that implement
-real voltage sources (e.g. the L<Lab::Instrument::Yokogawa7651|Lab::Instrument::Yokogawa7651> class).
+real voltage sources (e.g. the L<Lab::Instrument::Source::Yokogawa7651|Lab::Instrument::Source::Yokogawa7651> class).
 
 The class provides a unified user interface for those virtual voltage sources
 to support the exchangeability of instruments.
@@ -387,24 +409,26 @@ Otherwise, you will always have to instantiate classes derived from Lab::Instrum
 
 =head1 CONSTRUCTOR
 
-  $self=new Lab::Instrument::Source($multisource, $channel);
-  $self=new Lab::Instrument::Source($multisource, $channel, \%config);
+  $self=new Lab::Instrument::Source({ MultiSource=><SourceObject>, Channel=><int>, ...configuration parameters, see below... });
 
 This constructor can be used to create a source object which represents
 channel C<$channel> of the multi-channel voltage source C<$multisource>.
 The default configuration of this source is the configuration of C<$multisource>;
-it can be partially or entirely overridden with an additional C<\%config> hash.
+it can be partially or entirely overridden by just adding the changed config parameters.
 
 
   $self=new Lab::Instrument::Source(\%default_config,\%config);
 
 This constructor will only be used by instrument drivers that inherit this class,
-not by the user.
+not by the user. It accepts an additional configuration hash. The first hash contains the parameters
+used by default for this device and its subchannels, if any. The second hash can be used to override
+options for this instance while still using the defaults for derived objects. If \%config is missing,
+\%default_config is used.
 
-The instrument driver (e.g. L<Lab::Instrument::KnickS252|Lab::Instrument::KnickS252>)
+The instrument driver (e.g. L<Lab::Instrument::Source::Yokogawa7651|Lab::Instrument::Source::Yokogawa7651>)
 has a constructor like this:
 
-  $knick=new Lab::Instrument::KnickS252({
+  $yoko=new Lab::Instrument::Source::Yokogawa7651({
     GPIB_board      => $board,
     GPIB_address    => $address,
     
@@ -419,6 +443,19 @@ has a constructor like this:
   $self->configure(\%config);
 
 Supported configure options:
+
+In general, all parameters which can be changed by access methods of the class/object can be used.
+In fact this is what happens, and the config hash given to configure() ist just a shorthand for this.
+The following are equivalent:
+
+  $source->gate_protect(1);
+  $source->gp_max_volt_per_second(0.1);
+  ...
+
+  $source->configure({ gate_protect=>1, gp_max_volt_per_second=>0.1, ...)
+
+
+Options in detail:
 
 =over 2
 

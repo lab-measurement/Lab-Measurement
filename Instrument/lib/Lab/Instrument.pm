@@ -7,6 +7,7 @@ package Lab::Instrument;
 
 use strict;
 
+use Lab::Exception;
 use Lab::Connection;
 use Carp;
 use Data::Dumper;
@@ -82,10 +83,10 @@ sub AUTOLOAD {
 	my $type = ref($self) or croak "$self is not an object";
 
 	my $name = $AUTOLOAD;
-	$name =~ s/.*://; # strip fuly qualified portion
+	$name =~ s/.*://; # strip fully qualified portion
 
 	unless (exists $self->{_permitted}->{$name} ) {
-		croak "Can't access `$name' field in class $type";
+		Lab::Exception::UndefinedField->throw( error => "Can't access `$name' field in class $type" );
 	}
 
 	if (@_) {
