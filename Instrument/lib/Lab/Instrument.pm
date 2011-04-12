@@ -86,7 +86,7 @@ sub AUTOLOAD {
 	$name =~ s/.*://; # strip fully qualified portion
 
 	unless (exists $self->{_permitted}->{$name} ) {
-		Lab::Exception::UndefinedField->throw( error => "Can't access `$name' field in class $type" );
+		Lab::Exception::UndefinedField->throw( error => "Can't access `$name' field in class $type\n" );
 	}
 
 	if (@_) {

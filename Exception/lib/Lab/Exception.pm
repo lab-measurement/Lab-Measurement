@@ -11,7 +11,7 @@ use Exception::Class (
 	Lab::Exception::CorruptParameter => {
 		isa 		=> 'Lab::Exception::Error',
 		description	=> "A provided method parameter was of wrong type or otherwise corrupt.",
-	}
+	},
 
 	Lab::Exception::Warning => {
 		description => 'A warning.'
@@ -20,7 +20,7 @@ use Exception::Class (
 	Lab::Exception::UndefinedField => {
 		isa 		=> 'Lab::Exception::Warning',
 		description	=> "AUTOLOAD couldn't find requested field in object",
-	}
+	},
 );
 
 1;

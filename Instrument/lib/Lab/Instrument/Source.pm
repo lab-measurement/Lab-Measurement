@@ -3,6 +3,8 @@ package Lab::Instrument::Source;
 use strict;
 use Time::HiRes qw(usleep gettimeofday);
 use Lab::Exception;
+use Lab::Instrument;
+use Data::Dumper;
 
 our $VERSION = sprintf("1.%04d", q$Revision$ =~ / (\d+) /);
 our $maxchannels = 16;
@@ -24,8 +26,8 @@ my %fields = (
     qp_equal_level => undef,
     fast_set => undef,
 
-	# Config hash passed to subchannel objects
-	DefaultChannelConfig => undef,
+	# Config hash passed to subchannel objects, or to $self->configure()
+	DefaultConfig => {},
 );
 
 sub new {
@@ -36,19 +38,31 @@ sub new {
 		$self->{_permitted}->{$element} = $fields{$element};
 	}
 	@{$self}{keys %fields} = values %fields;
+	
+	my ( undef, $DefaultConfig ) = @_;
+	if(defined($DefaultConfig)) {
+		Lab::Exception::CorruptParameter->throw('Given default config is not a hash.') if( ref($DefaultConfig) !~ /HASH/ );
+		$self->DefaultConfig($DefaultConfig);
+	}
+	else {
+		# delete $self->Config()->{DefaultConfig}; # could be undef, but existing
+		$self->DefaultConfig($self->Config());
+	}
 
-	$self->DefaultChannelConfig($self->Config()) if(!defined($self->Config()->{DefaultSubchannelConfig}) || ref($self->Config()->{DefaultChannelConfig}) !~ /HASH/);
+    if ( defined($self->Config()->{MultiSource}) ) {
 
-    if ( defined($this->Config()->{MultiSource}) ) {
+		#
+		# TODO
+		#
 
-		Lab::Exception::CorruptParameter->throw('Given MultiSource object is not a Lab::Instrument::Source! Aborting.') if( !UNIVERSAL::isa($args[0],"Lab::Instrument::Source" ) );
-		Lab::Exception::CorruptParameter->throw('The Channel number has to be a positive integer! Aborting.') if( $this->Config()->{Channel} < 0 || $this->Config()->{Channel} !~ /[0-9]*/ );
+		Lab::Exception::CorruptParameter->throw('Given MultiSource object is not a Lab::Instrument::Source! Aborting.') if( !UNIVERSAL::isa($self->Config()->{MultiSource},"Lab::Instrument::Source" ) );
+		Lab::Exception::CorruptParameter->throw('The Channel number has to be a positive integer! Aborting.') if( $self->Config()->{Channel} < 0 || $self->Config()->{Channel} !~ /[0-9]*/ );
 
 		# We got a multisource parent object => instantiating a subsource of this multichannel source.
 
 		print "Hey great! Someone is testing subchannel sources...\n";
-		$self->MultiSource($this->Config()->{MultiSource});
-		$self->Channel($this->Config()->{Channel});
+		$self->MultiSource($self->Config()->{MultiSource});
+		$self->Channel($self->Config()->{Channel});
 
 		# the default config is in this case the actual config of the
 		# multisource object
@@ -58,12 +72,12 @@ sub new {
 
 		$self->{subsource}=1;
     }
-	elsif ( UNIVERSAL::isa($args[0],"Lab::Instrument::Source" ) {
+	else {
 
 		# Source gets as parameters 1) the config for this instance 
 		# and 2) the optional default config for derived subchannel objects
 
-		$self->configure(@_);
+		$self->configure($self->Config());
 
 		for (my $i=1; $i<=$maxchannels; $i++) {
 			my $tmp="last_voltage_$i";
@@ -78,8 +92,6 @@ sub new {
 
     return $self;
 }
-
-sub 
 
 sub configure {
     my $self=shift;
@@ -104,20 +116,24 @@ sub configure {
 		Lab::Exception::CorruptParameter->throw('Given Configuration is not a hash.');
 	}
 	else {
-        for my $conf_name (keys %{$self->{default_config}}) {
+        for my $conf_name (keys %fields) {
             #print "Key: $conf_name, default: ",$self->{default_config}->{$conf_name},", old config: ",$self->{config}->{$conf_name},", new config: ",$config->{$conf_name},"\n";
-            unless ((defined($self->{config}->{$conf_name})) || (defined($config->{$conf_name}))) {
-                $self->{config}->{$conf_name}=$self->{default_config}->{$conf_name};
-            } elsif (defined($config->{$conf_name})) {
-                $self->{config}->{$conf_name}=$config->{$conf_name};
-            }
-        }
-        return $self;
-    } elsif($config) {
-        return $self->{config}->{$config};
-    } else {
-        return $self->{config};
+			if(defined($config->{$conf_name})) {		# in given config? => set value
+				eval "\$self->${conf_name}(\$config->{\$conf_name})"; 						#try
+				if ( my $e = Exception::Class->caught('Lab::Exception::UndefinedField') ) {		#catch
+					warn("caught warning exception: $e->error");	# not fatal, but notify
+				}
+			}
+			elsif(defined($self->DefaultConfig()->{$conf_name})) {	# or in default config? => set value
+				print "found one\n";
+				eval "\$self->${conf_name}(\$self->DefaultConfig()->{\$conf_name})"; #try
+				if ( my $e = Exception::Class->caught('Lab::Exception::UndefinedField') ) {		#catch
+					warn("caught warning exception: $e->error");	# not fatal, but notify
+				}
+			}
+		}
     }
+	return $self; # what for? let's not break something...
 }
 
 sub set_voltage {
@@ -584,8 +600,8 @@ This class inherits the gate protection mechanism.
 
 This is $Id$
 
- Copyright 2004-2008 Daniel Schröer (<schroeer@cpan.org>)
-           2009-2010 Daniel Schröer, Andreas K. Hüttel (L<http://www.akhuettel.de/>) and Daniela Taubert
+ Copyright 2004-2008 Daniel Schrï¿½er (<schroeer@cpan.org>)
+           2009-2010 Daniel Schrï¿½er, Andreas K. Hï¿½ttel (L<http://www.akhuettel.de/>) and Daniela Taubert
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 
