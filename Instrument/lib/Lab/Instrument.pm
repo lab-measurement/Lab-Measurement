@@ -49,6 +49,7 @@ sub new {
 
 	# next argument has to be the configuration hash
 	$self->Config(shift);
+
 	return $self;
 }
 
@@ -75,6 +76,26 @@ sub _checkconnection { # Connection object or ConnType string
 	}
 }
 
+
+sub _setconnection { # create new or use existing connection
+	my $self=shift;
+
+	# check the configuration hash for a valid connection object or connection type, and set the connection
+	if( defined($self->Config()->{'Connection'}) ) {
+		if($self->_checkconnection($self->Config()->{'Connection'})) {
+			$self->Connection($self->Config()->{'Connection'});
+		}
+		else { Lab::Exception::CorruptParameter->throw('Given connection is not supported.'); }
+	}
+	else {
+		if($self->_checkconnection($self->Config()->{'ConnType'})) {
+			$self->Connection(eval("new Lab::Connection::${\$self->Config()->{'ConnType'}}({GPIB_Board => 0})")) || croak('Failed to create connection');
+			print "conntype: " . $self->Config()->{'ConnType'}. "\n";
+		}
+		else { Lab::Exception::CorruptParameter->throw('Given connection type is not supported.'); }
+	}
+	$self->InstrumentHandle( $self->Connection()->InstrumentNew(GPIB_Paddr => $self->Config()->{'GPIB_Paddress'}) );
+}
 
 
 sub AUTOLOAD {
