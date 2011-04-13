@@ -5,6 +5,7 @@ use Time::HiRes qw(usleep gettimeofday);
 use Lab::Exception;
 use Lab::Instrument;
 use Data::Dumper;
+#use diagnostics;
 
 our $VERSION = sprintf("1.%04d", q$Revision$ =~ / (\d+) /);
 our $maxchannels = 16;
@@ -12,7 +13,7 @@ our $maxchannels = 16;
 our @ISA=('Lab::Instrument');
 
 my %fields = (
-	SupportedConnections => [ 'GPIB' ],
+	SupportedConnections => [],
 	InstrumentHandle => undef,
 	ParentSource => undef,
 	ChildSources => [],
@@ -55,24 +56,21 @@ sub new {
 	#
 
 	# checking and saving the default config hash, if any
-	my ( undef, $DefaultConfig ) = @_;
-	if(defined($DefaultConfig)) {
-		Lab::Exception::CorruptParameter->throw('Given default config is not a hash.') if( ref($DefaultConfig) !~ /HASH/ );
-		$self->DefaultConfig($DefaultConfig);
+	my ( undef, $tmpDefaultConfig ) = @_;
+	if(defined($tmpDefaultConfig)) {
+		Lab::Exception::CorruptParameter->throw('Given default config is not a hash.') if( ref($tmpDefaultConfig) !~ /HASH/ );
+		$self->DefaultConfig($tmpDefaultConfig);
 	}
-	elseif(scalar(keys %{$self->Config()->{DefaultConfig}}) = 0 ) {
-		$self->DefaultConfig($self->Config());
+	elsif(scalar(keys %{$self->Config()->{DefaultConfig}}) == 0 ) {
+		#$self->DefaultConfig($self->Config());
 	}
 	# check max channels
-	if(defined($self->Config()->{MaxChannels}) {
+	if(defined($self->Config()->{MaxChannels})) {
 		if( $self->Config()->{MaxChannels} =~ /^[0-9]*$/ ) { Lab::Exception::CorruptParameter->throw('Parameter MaxChannels has to be an Integer') }
 		else { $self->MaxChannels($self->Config()->{MaxChannels}); }
 	}
 	# checking default channel number
-	Lab::Exception::CorruptParameter->throw('Default channel number is not within the available channels.') if( $self->Config()->{DefaultChannel} > $self->MaxChannels()  || $self->Config()->{DefaultChannel} < 1 );
-
-	# set up the connection.
-	$self->_setconnection();	# throws an exception if connection setup fails. let the user decide if fatal.
+	Lab::Exception::CorruptParameter->throw('Default channel number is not within the available channels.') if( defined($self->Config()->{DefaultChannel}) && ( $self->Config()->{DefaultChannel} > $self->MaxChannels() || $self->Config()->{DefaultChannel} < 1 ));
 
 	$self->configure($self->Config());
 
@@ -121,14 +119,13 @@ sub configure {
 	else {
         for my $conf_name (keys %fields) {
             #print "Key: $conf_name, default: ",$self->{default_config}->{$conf_name},", old config: ",$self->{config}->{$conf_name},", new config: ",$config->{$conf_name},"\n";
-			if(defined($config->{$conf_name})) {		# in given config? => set value
+			if(defined($config->{$conf_name}) && $conf_name !~ /DefaultConfig/) {		# in given config? => set value
 				eval "\$self->${conf_name}(\$config->{\$conf_name})"; 						#try
 				if ( my $e = Exception::Class->caught('Lab::Exception::UndefinedField') ) {		#catch
 					warn("caught warning exception: $e->error");	# not fatal, but notify
 				}
 			}
-			elsif(defined($self->DefaultConfig()->{$conf_name})) {	# or in default config? => set value
-				print "found one\n";
+			elsif(defined($self->DefaultConfig()->{$conf_name}) && $conf_name !~ /DefaultConfig/) {	# or in default config? => set value
 				eval "\$self->${conf_name}(\$self->DefaultConfig()->{\$conf_name})"; #try
 				if ( my $e = Exception::Class->caught('Lab::Exception::UndefinedField') ) {		#catch
 					warn("caught warning exception: $e->error");	# not fatal, but notify
@@ -142,8 +139,8 @@ sub configure {
 sub GetSubSource { #{ Channel=>2, config1=>fasl, config2=>foo };
 	my $self=shift;
 	my $class = ref($self);
-	print "creating from class $class\n";
-	my $subsource = new ${class}(Connection=>$self->Connection(), ParentSource=>$self, gpData=>$self->gpData(), $self->DefaultConfig);
+	my $constructor = "${class}::new";
+	my $subsource = &$constructor({ Connection=>$self->Connection(), ParentSource=>$self, gpData=>$self->gpData(), %{$self->DefaultConfig()} });
 	$self->ChildSources([ @{$self->ChildSources}, $subsource ]);
 	return $subsource;
 }

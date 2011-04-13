@@ -5,6 +5,7 @@ use strict;
 use Switch;
 use Lab::Instrument;
 use Lab::Instrument::Source;
+use Lab::Connection::GPIB;
 
 our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
 
@@ -24,7 +25,7 @@ my %fields = (
 	},
 
 	MAX_SWEEP_TIME=>3600,
-	MIN_SWEEP_TIME=0.1,
+	MIN_SWEEP_TIME=>0.1,
 );
 
 sub new {
@@ -35,8 +36,11 @@ sub new {
 		$self->{_permitted}->{$element} = $fields{$element};
 	}
 	@{$self}{keys %fields} = values %fields;
+
+	# set up the connection.
+	$self->_setconnection();	# throws an exception if connection setup fails. let the user decide if fatal.
     
-    return $self
+    return $self;
 }
 
 sub _set_voltage {
@@ -223,7 +227,7 @@ sub get_OS {
     $self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => "OS"});
     my @info;
     for (my $i=0;$i<=10;$i++){
-        my $line=$self->Connection()->BrutalRead(300);
+        my $line=$self->Connection()->InstrumentRead(300);
         if ($line=~/END/){last};
         chomp $line;
         $line=~s/\r//;

@@ -89,6 +89,8 @@ sub _setconnection { # create new or use existing connection
 	}
 	else {
 		if($self->_checkconnection($self->Config()->{'ConnType'})) {
+			#my $conn=new Lab::Connection::GPIB({GPIB_Board => 0});
+			#$self->Connection($conn);
 			$self->Connection(eval("new Lab::Connection::${\$self->Config()->{'ConnType'}}({GPIB_Board => 0})")) || croak('Failed to create connection');
 			print "conntype: " . $self->Config()->{'ConnType'}. "\n";
 		}
@@ -139,7 +141,7 @@ sub Write {
 	my $self=shift;
 	my $data=shift;
 	
-	return $self->Connection()->InstrumentWrite($self->InstrumentHandle(), { Cmd => $data });
+	return $self->Connection()->InstrumentWrite($self->InstrumentHandle(), { SCPI_cmd => $data });
 }
 
 
@@ -176,7 +178,7 @@ sub Query { # $self, $cmd, %options
 	# load own settings if exists
 	$wait_query = $self->{'wait_query'} if (exists $self->{'wait_query'});
 	
-	$self->Write({ Cmd => $cmd });
+	$self->Write({ SCPI_cmd => $cmd });
 	usleep($wait_query);
 	return $self->Read(%options);
 }

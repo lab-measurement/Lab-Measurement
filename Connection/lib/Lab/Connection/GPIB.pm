@@ -112,7 +112,7 @@ sub InstrumentRead { # $self=Connection, \%InstrumentHandle, \%Options = { Cmd }
 	my $self = shift;
 	my $Instrument=shift;
 	my $Options = shift;
-	my $ScpiCommand = $Options->{'Cmd'} || undef;
+	my $Command = $Options->{'Cmd'} || undef;
 	my $Result = undef;
 	my $Raw = "";
 	my $ResultConv = undef;
@@ -123,11 +123,11 @@ sub InstrumentRead { # $self=Connection, \%InstrumentHandle, \%Options = { Cmd }
     my $read_cnt = 0;
 	my $decimal = 0;
 
-	if(!defined $ScpiCommand) {
+	if(!defined $Command) {
 		die("No command submitted\n");
 	}
 	else {
-		$ibstatus=ibwrt($Instrument->{'GPIBHandle'}, $ScpiCommand, length($ScpiCommand));
+		$ibstatus=ibwrt($Instrument->{'GPIBHandle'}, $Command, length($Command));
 		%IbBits=$self->ParseIbstatus($ibstatus);
 
 		if($IbBits{'ERR'}==1) {
@@ -152,8 +152,9 @@ sub InstrumentRead { # $self=Connection, \%InstrumentHandle, \%Options = { Cmd }
 					$ResultConv *= 10 ** ( $3 )  if defined $3;
 				}
 				else {
-					# for now
-					croak('Non-numeric answer received');
+					# not recognized - well upstream will hopefully be happy, anyway
+					#croak('Non-numeric answer received');
+					return $Raw;
 				}
 			}
 		}
@@ -181,15 +182,15 @@ sub InstrumentWrite { # $self=Connection, \%InstrumentHandle, \%Options = { Cmd 
 	my $self = shift;
 	my $Instrument=shift;
 	my $Options = shift;
-	my $ScpiCommand = $Options->{'Cmd'} || undef;
+	my $Command = $Options->{'Cmd'} || undef;
 
 	my $ibstatus = undef;
 
-	if(!defined $ScpiCommand) {
+	if(!defined $Command) {
 		die("No command submitted\n");
 	}
 	else {
-		$ibstatus=ibwrt($Instrument->{'GPIBHandle'}, $ScpiCommand, length($ScpiCommand));
+		$ibstatus=ibwrt($Instrument->{'GPIBHandle'}, $Command, length($Command));
 	}
 
 	my %IbBits=$self->ParseIbstatus($ibstatus);
