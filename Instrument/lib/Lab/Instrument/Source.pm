@@ -60,8 +60,7 @@ sub new {
 		Lab::Exception::CorruptParameter->throw('Given default config is not a hash.') if( ref($DefaultConfig) !~ /HASH/ );
 		$self->DefaultConfig($DefaultConfig);
 	}
-	else {
-		# delete $self->Config()->{DefaultConfig}; # could be undef, but existing
+	elseif(scalar(keys %{$self->Config()->{DefaultConfig}}) = 0 ) {
 		$self->DefaultConfig($self->Config());
 	}
 	# check max channels

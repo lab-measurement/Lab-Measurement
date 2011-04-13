@@ -56,7 +56,7 @@ sub read_resistance {
     $resolution="DEF" unless (defined $resolution);
     
 	my $cmd=sprintf("MEASure:SCALar:RESIStance? %s,%s",$range,$resolution);
-	my $value = $self->Connection()->InstrumentRead($self->InstrumentHandle(), {SCPI_cmd => $cmd});
+	my $value = $self->Connection()->InstrumentRead($self->InstrumentHandle(), {Cmd => $cmd});
     return $value;
 }
 
@@ -69,7 +69,7 @@ sub read_voltage_dc {
     $resolution="DEF" unless (defined $resolution);
     
     my $cmd=sprintf("MEASure:VOLTage:DC? %s,%s",$range,$resolution);
-    my $value = $self->Connection()->InstrumentRead($self->InstrumentHandle(), {SCPI_cmd => $cmd});
+    my $value = $self->Connection()->InstrumentRead($self->InstrumentHandle(), {Cmd => $cmd});
     return $value;
 }
 
@@ -81,7 +81,7 @@ sub read_voltage_ac {
     $resolution="DEF" unless (defined $resolution);
     
     my $cmd=sprintf("MEASure:VOLTage:AC? %s,%s",$range,$resolution);
-    my $value = $self->Connection()->InstrumentRead($self->InstrumentHandle(), {SCPI_cmd => $cmd});
+    my $value = $self->Connection()->InstrumentRead($self->InstrumentHandle(), {Cmd => $cmd});
     return $value;
 }
 
@@ -93,7 +93,7 @@ sub read_current_dc {
     $resolution="DEF" unless (defined $resolution);
     
     my $cmd=sprintf("MEASure:CURRent:DC? %s,%s",$range,$resolution);
-    my $value = $self->Connection()->InstrumentRead($self->InstrumentHandle(), {SCPI_cmd => $cmd});
+    my $value = $self->Connection()->InstrumentRead($self->InstrumentHandle(), {Cmd => $cmd});
     return $value;
 }
 
@@ -105,7 +105,7 @@ sub read_current_ac {
     $resolution="DEF" unless (defined $resolution);
     
     my $cmd=sprintf("MEASure:CURRent:AC? %s,%s",$range,$resolution);
-    my $value = $self->Connection()->InstrumentRead($self->InstrumentHandle(), {SCPI_cmd => $cmd});
+    my $value = $self->Connection()->InstrumentRead($self->InstrumentHandle(), {Cmd => $cmd});
     return $value;
 }
 

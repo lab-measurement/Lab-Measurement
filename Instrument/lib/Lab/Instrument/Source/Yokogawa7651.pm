@@ -14,27 +14,27 @@ my %fields = (
 	# SupportedConnections => [ 'GPIB', 'RS232' ], # RS232 not implemented yet
 	SupportedConnections => [ 'GPIB' ],
 	InstrumentHandle => undef,
+
+	DefaultConfig => {
+		gate_protect            => 1,
+		gp_equal_level          => 1e-5,
+		gp_max_volt_per_second  => 0.002,
+		gp_max_volt_per_step    => 0.001,
+		gp_max_step_per_second  => 2,
+	},
+
+	MAX_SWEEP_TIME=>3600,
+	MIN_SWEEP_TIME=0.1,
 );
 
-our $MAX_SWEEP_TIME=3600;
-our $MIN_SWEEP_TIME=0.1;
-
-my $default_config={
-    gate_protect            => 1,
-    gp_equal_level          => 1e-5,
-    gp_max_volt_per_second  => 0.002,
-    gp_max_volt_per_step    => 0.001,
-    gp_max_step_per_second  => 2,
-};
-
 sub new {
-    my $proto = shift;
-    my @args=@_;
-    my $class = ref($proto) || $proto;
-    my $self = $class->SUPER::new($default_config,@args);
-    bless ($self, $class);
-
-    $self->{vi}=new Lab::Instrument(@args);
+	my $proto = shift;
+	my $class = ref($proto) || $proto;
+	my $self = $class->SUPER::new(@_);	# sets $self->Config
+	foreach my $element (keys %fields) {
+		$self->{_permitted}->{$element} = $fields{$element};
+	}
+	@{$self}{keys %fields} = values %fields;
     
     return $self
 }
@@ -61,61 +61,61 @@ sub _set {
     my $self=shift;
     my $value=shift;
     my $cmd=sprintf("S%e",$value);
-    $self->{vi}->Write($cmd);
+	$self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => $cmd});
     $cmd="E";
-    $self->{vi}->Write($cmd);
+	$self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => $cmd});
 }
 
 sub _set_auto {
     my $self=shift;
     my $value=shift;
     my $cmd=sprintf("SA%e",$value);
-    $self->{vi}->Write($cmd);
+	$self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => $cmd});
     $cmd="E";
-    $self->{vi}->Write($cmd);
+	$self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => $cmd});
 }
 
 sub set_setpoint {
     my $self=shift;
     my $value=shift;
     my $cmd=sprintf("S%+.4e",$value);
-    $self->{vi}->Write($cmd);
+	$self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => $cmd});
 }
 
 sub set_time {
     my $self=shift;
     my $sweep_time=shift; #sec.
     my $interval_time=shift;
-    if ($sweep_time<$MIN_SWEEP_TIME) {
-        warn "Warning Sweep Time: $sweep_time smaller than $MIN_SWEEP_TIME sec!\n Sweep time set to $MIN_SWEEP_TIME sec";
-        $sweep_time=$MIN_SWEEP_TIME}
-    elsif ($sweep_time>$MAX_SWEEP_TIME) {
-        warn "Warning Sweep Time: $sweep_time> $MAX_SWEEP_TIME sec!\n Sweep time set to $MAX_SWEEP_TIME sec";
-        $sweep_time=$MAX_SWEEP_TIME
+    if ($sweep_time<$self->MIN_SWEEP_TIME()) {
+        warn "Warning Sweep Time: $sweep_time smaller than ${\$self->MIN_SWEEP_TIME()} sec!\n Sweep time set to ${\$self->MIN_SWEEP_TIME()} sec";
+        $sweep_time=$self->MIN_SWEEP_TIME()}
+    elsif ($sweep_time>$self->MAX_SWEEP_TIME()) {
+        warn "Warning Sweep Time: $sweep_time> ${\$self->MAX_SWEEP_TIME()} sec!\n Sweep time set to ${\$self->MAX_SWEEP_TIME()} sec";
+        $sweep_time=$self->MAX_SWEEP_TIME()
     };
-    if ($interval_time<$MIN_SWEEP_TIME) {
-        warn "Warning Interval Time: $interval_time smaller than $MIN_SWEEP_TIME sec!\n Interval time set to $MIN_SWEEP_TIME sec";
-        $interval_time=$MIN_SWEEP_TIME}
-    elsif ($interval_time>$MAX_SWEEP_TIME) {
-        warn "Warning Interval Time: $interval_time> $MAX_SWEEP_TIME sec!\n Interval time set to $MAX_SWEEP_TIME sec";
-        $interval_time=$MAX_SWEEP_TIME
+    if ($interval_time<$self->MIN_SWEEP_TIME()) {
+        warn "Warning Interval Time: $interval_time smaller than ${\$self->MIN_SWEEP_TIME()} sec!\n Interval time set to ${\$self->MIN_SWEEP_TIME()} sec";
+        $interval_time=$self->MIN_SWEEP_TIME()}
+    elsif ($interval_time>$self->MAX_SWEEP_TIME()) {
+        warn "Warning Interval Time: $interval_time> ${\$self->MAX_SWEEP_TIME()} sec!\n Interval time set to ${\$self->MAX_SWEEP_TIME()} sec";
+        $interval_time=$self->MAX_SWEEP_TIME()
     };
     my $cmd=sprintf("PI%.1f",$interval_time);
-    $self->{vi}->Write($cmd);
+	$self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => $cmd});
     $cmd=sprintf("SW%.1f",$sweep_time);
-    $self->{vi}->Write($cmd);
+	$self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => $cmd});
 }
 
 sub start_program {
     my $self=shift;
     my $cmd=sprintf("PRS");
-    $self->{vi}->Write($cmd);
+	$self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => $cmd});
 }
 
 sub end_program {
     my $self=shift;
     my $cmd=sprintf("PRE");
-    $self->{vi}->Write($cmd);
+	$self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => $cmd});
 }
 sub execute_program {
     # 0 HALT
@@ -125,7 +125,7 @@ sub execute_program {
     my $self=shift;
     my $value=shift;
     my $cmd=sprintf("RU%d",$value);
-    $self->{vi}->Write($cmd);
+	$self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => $cmd});
     
 }
 
@@ -150,14 +150,14 @@ sub sweep {
     $self->end_program();
 
     my $time=abs($output_now -$stop)/$rate;
-    if ($time<$MIN_SWEEP_TIME) {
-        warn "Warning Sweep Time: $time smaller than $MIN_SWEEP_TIME sec!\n Sweep time set to $MIN_SWEEP_TIME sec";
-        $time=$MIN_SWEEP_TIME;
+    if ($time<$self->MIN_SWEEP_TIME()) {
+        warn "Warning Sweep Time: $time smaller than ${\$self->MIN_SWEEP_TIME()} sec!\n Sweep time set to ${\$self->MIN_SWEEP_TIME()} sec";
+        $time=$self->MIN_SWEEP_TIME();
         $return_rate=abs($output_now -$stop)/$time;
     }
-    elsif ($time>$MAX_SWEEP_TIME) {
-        warn "Warning Interval Time: $time> $MAX_SWEEP_TIME sec!\n Sweep time set to $MAX_SWEEP_TIME sec";
-        $time=$MAX_SWEEP_TIME;
+    elsif ($time>$self->MAX_SWEEP_TIME()) {
+        warn "Warning Interval Time: $time> ${\$self->MAX_SWEEP_TIME()} sec!\n Sweep time set to ${\$self->MAX_SWEEP_TIME()} sec";
+        $time=$self->MAX_SWEEP_TIME();
         $return_rate=abs($output_now -$stop)/$time;
     }
     $self->set_time($time,$time);
@@ -178,7 +178,7 @@ sub get_current {
 sub _get {
     my $self=shift;
     my $cmd="OD";
-    my $result=$self->{vi}->Query($cmd);
+    my $result=$self->Connection()->InstrumentRead($self->InstrumentHandle(), {Cmd => $cmd});
     $result=~/....([\+\-\d\.E]*)/;
     return $1;
 }
@@ -186,13 +186,13 @@ sub _get {
 sub set_current_mode {
     my $self=shift;
     my $cmd="F5";
-    $self->{vi}->Write($cmd);
+    $self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => $cmd});
 }
 
 sub set_voltage_mode {
     my $self=shift;
     my $cmd="F1";
-    $self->{vi}->Write($cmd);
+    $self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => $cmd});
 }
 
 sub set_range {
@@ -209,21 +209,21 @@ sub set_range {
       # 4   1mA
       # 5   10mA
       # 6   100mA
-    $self->{vi}->Write($cmd);
+    $self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => $cmd});
 }
 
 sub get_info {
     my $self=shift;
-    my $result=$self->{vi}->Query("OS");
+    my $result=$self->Connection()->InstrumentRead($self->InstrumentHandle(), {Cmd => "OS"});
     return $result;
 }
 
 sub get_OS {
     my $self=shift;
-    $self->{vi}->Write("OS");
+    $self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => "OS"});
     my @info;
     for (my $i=0;$i<=10;$i++){
-        my $line=$self->{vi}->BrutalRead(300);
+        my $line=$self->Connection()->BrutalRead(300);
         if ($line=~/END/){last};
         chomp $line;
         $line=~s/\r//;
@@ -275,19 +275,19 @@ sub set_run_mode {
     my $value=shift;
     if ($value!=0 and $value!=1) {die "Run Mode $value not defined"}
     my $cmd=sprintf("M%u",$value);
-    $self->{vi}->Write($cmd);
+    $self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => $cmd});
 }
 
 sub output_on {
     my $self=shift;
-    $self->{vi}->Write('O1');
-    $self->{vi}->Write('E');
+    $self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => 'O1'});
+    $self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => 'E'});
 }
     
 sub output_off {
     my $self=shift;
-    $self->{vi}->Write('O0');
-    $self->{vi}->Write('E');
+    $self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => 'O0'});
+    $self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => 'E'});
 }
 
 sub get_output {
@@ -298,26 +298,26 @@ sub get_output {
 
 sub initialize {
     my $self=shift;
-    $self->{vi}->Write('RC');
+    $self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => 'RC'});
 }
 
 sub set_voltage_limit {
     my $self=shift;
     my $value=shift;
     my $cmd=sprintf("LV%e",$value);
-    $self->{vi}->Write($cmd);
+    $self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => $cmd});
 }
 
 sub set_current_limit {
     my $self=shift;
     my $value=shift;
     my $cmd=sprintf("LA%e",$value);
-    $self->{vi}->Write($cmd);
+    $self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => 'RC'});
 }
 
 sub get_status {
     my $self=shift;
-    my $status=$self->{vi}->Query('OC');
+    my $status=$self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => 'OC'});
     
     $status=~/STS1=(\d*)/;
     $status=$1;

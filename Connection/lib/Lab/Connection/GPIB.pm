@@ -32,13 +32,12 @@ sub new {
 	my $class = ref($proto) || $proto;
 	my $args = shift;
 	my $self = $class->SUPER::new($args); # getting fields and _permitted from parent class
-	warn("HIER\n");
 	foreach my $element (keys %fields) {
 		$self->{_permitted}->{$element} = $fields{$element};
 	}
 	@{$self}{keys %fields} = values %fields;
 
-	print Dumper($self->Config);
+	#print Dumper($self->Config);
 
 	# one board - one connection - one connection object
 	if ( exists $self->Config()->{'GPIB_Board'} ) {
@@ -109,11 +108,11 @@ sub InstrumentNew { # $self=Connection, { GPIB_Paddr => primary address }
 #
 # Todo: Evaluate $ibstatus: http://linux-gpib.sourceforge.net/doc_html/r634.html
 #
-sub InstrumentRead { # $self=Connection, \%InstrumentHandle, \%Options = { SCPI_cmd }
+sub InstrumentRead { # $self=Connection, \%InstrumentHandle, \%Options = { Cmd }
 	my $self = shift;
 	my $Instrument=shift;
 	my $Options = shift;
-	my $ScpiCommand = $Options->{'SCPI_cmd'} || undef;
+	my $ScpiCommand = $Options->{'Cmd'} || undef;
 	my $Result = undef;
 	my $Raw = "";
 	my $ResultConv = undef;
@@ -178,11 +177,11 @@ sub InstrumentRead { # $self=Connection, \%InstrumentHandle, \%Options = { SCPI_
 }
 
 
-sub InstrumentWrite { # $self=Connection, \%InstrumentHandle, \%Options = { SCPI_cmd }
+sub InstrumentWrite { # $self=Connection, \%InstrumentHandle, \%Options = { Cmd }
 	my $self = shift;
 	my $Instrument=shift;
 	my $Options = shift;
-	my $ScpiCommand = $Options->{'SCPI_cmd'} || undef;
+	my $ScpiCommand = $Options->{'Cmd'} || undef;
 
 	my $ibstatus = undef;
 
