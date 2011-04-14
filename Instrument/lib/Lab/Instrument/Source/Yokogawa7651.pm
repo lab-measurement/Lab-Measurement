@@ -16,7 +16,7 @@ my %fields = (
 	SupportedConnections => [ 'GPIB' ],
 	InstrumentHandle => undef,
 
-	DefaultConfig => {
+	DeviceDefaultConfig => {
 		gate_protect            => 1,
 		gp_equal_level          => 1e-5,
 		gp_max_volt_per_second  => 0.002,
@@ -36,6 +36,9 @@ sub new {
 		$self->{_permitted}->{$element} = $fields{$element};
 	}
 	@{$self}{keys %fields} = values %fields;
+
+	# already called in Lab::Instrument::Source, but call it again to respect default values in local DeviceDefaultConfig
+	$self->configure($self->Config());
 
 	# set up the connection.
 	$self->_setconnection();	# throws an exception if connection setup fails. let the user decide if fatal.

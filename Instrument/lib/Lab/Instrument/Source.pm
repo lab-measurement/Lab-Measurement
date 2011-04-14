@@ -18,15 +18,19 @@ my %fields = (
 	ParentSource => undef,
 	ChildSources => [],
 
-	# Config options
-    gate_protect => undef,
-    gp_max_volt_per_second => undef,
-    gp_max_volt_per_step => undef,
-    gp_max_step_per_second => undef,
-    gp_min_volt => undef,
-    gp_max_volt => undef,
-    qp_equal_level => undef,
-    fast_set => undef,
+	# supported config options
+	DeviceConfig => {
+		gate_protect => undef,
+		gp_max_volt_per_second => undef,
+		gp_max_volt_per_step => undef,
+		gp_max_step_per_second => undef,
+		gp_min_volt => undef,
+		gp_max_volt => undef,
+		gp_equal_level => undef,
+		fast_set => undef,
+	},
+
+	DeviceDefaultConfig => {},
 
 	gpData => {},
 
@@ -117,19 +121,15 @@ sub configure {
 		Lab::Exception::CorruptParameter->throw('Given Configuration is not a hash.');
 	}
 	else {
-        for my $conf_name (keys %fields) {
+        for my $conf_name (keys %{$self->DeviceConfig()}) {
             #print "Key: $conf_name, default: ",$self->{default_config}->{$conf_name},", old config: ",$self->{config}->{$conf_name},", new config: ",$config->{$conf_name},"\n";
-			if(defined($config->{$conf_name}) && $conf_name !~ /DefaultConfig/) {		# in given config? => set value
-				eval "\$self->${conf_name}(\$config->{\$conf_name})"; 						#try
-				if ( my $e = Exception::Class->caught('Lab::Exception::UndefinedField') ) {		#catch
-					warn("caught warning exception: $e->error");	# not fatal, but notify
-				}
+			if( defined($config->{$conf_name}) ) {		# in given config? => set value
+				print "Setting $conf_name to $config->{$conf_name}\n";
+				$self->DeviceConfig()->{$conf_name} = $config->{$conf_name};
 			}
-			elsif(defined($self->DefaultConfig()->{$conf_name}) && $conf_name !~ /DefaultConfig/) {	# or in default config? => set value
-				eval "\$self->${conf_name}(\$self->DefaultConfig()->{\$conf_name})"; #try
-				if ( my $e = Exception::Class->caught('Lab::Exception::UndefinedField') ) {		#catch
-					warn("caught warning exception: $e->error");	# not fatal, but notify
-				}
+			elsif( defined($self->DeviceDefaultConfig()->{$conf_name}) ) {	# or in default config? => set value
+				print "Setting $conf_name to " . $self->DeviceDefaultConfig()->{$conf_name} ."\n";
+				$self->DeviceConfig()->{$conf_name} = $self->DeviceDefaultConfig()->{$conf_name};
 			}
 		}
     }
@@ -154,14 +154,14 @@ sub set_voltage {
 	Lab::Exception::CorruptParameter->throw('Channel must not be negative! Did you swap voltage and channel number?') if $channel < 0;
 	Lab::Exception::CorruptParameter->throw('Channel must be an integer! Did you swap voltage and channel number?') if int($channel) != $channel;
 
-    if ($self->gate_protect()) {
+    if ($self->DeviceConfig()->{gate_protect}) {
         $voltage=$self->sweep_to_voltage($voltage,$channel);
     } else {
         $self->_set_voltage($voltage,$channel);
     }
  
     my $result;
-    if ($self->fast_set()) {
+    if ($self->DeviceConfig()->{fast_set}) {
         $result=$voltage;
     } else {
         $result=$self->get_voltage($channel);
@@ -180,14 +180,14 @@ sub set_voltage_auto {
 	Lab::Exception::CorruptParameter->throw('Channel must not be negative! Did you swap voltage and channel number?') if $channel < 0;
 	Lab::Exception::CorruptParameter->throw('Channel must be an integer! Did you swap voltage and channel number?') if int($channel) != $channel;
 
-    if ($self->gate_protect()) {
+    if ($self->DeviceConfig()->{gate_protect}) {
         $voltage=$self->sweep_to_voltage_auto($voltage,$channel);
     } else {
         $self->_set_voltage_auto($voltage,$channel);
     }
     
     my $result;
-    if ($self->fast_set()) {
+    if ($self->DeviceConfig()->{fast_set}) {
         $result=$voltage;
     } else {
         $result=$self->get_voltage($channel);
@@ -207,9 +207,9 @@ sub step_to_voltage {
 	Lab::Exception::CorruptParameter->throw('Channel must not be negative! Did you swap voltage and channel number?') if $channel < 0;
 	Lab::Exception::CorruptParameter->throw('Channel must be an integer! Did you swap voltage and channel number?') if int($channel) != $channel;
 
-    my $voltpersec=abs($self->gp_max_volt_per_second());
-    my $voltperstep=abs($self->gp_max_volt_per_step());
-    my $steppersec=abs($self->gp_max_step_per_second());
+    my $voltpersec=abs($self->DeviceConfig()->{gp_max_volt_per_second});
+    my $voltperstep=abs($self->DeviceConfig()->{gp_max_volt_per_step});
+    my $steppersec=abs($self->DeviceConfig()->{gp_max_step_per_second});
 
     #read output voltage from instrument (only at the beginning)
 
@@ -219,15 +219,15 @@ sub step_to_voltage {
         $self->gpData()->{$channel}->{LastVoltage}=$last_v;
     }
 
-    if (defined($self->gp_max_volt()) && ($voltage > $self->gp_max_volt())) {
-        $voltage = $self->gp_max_volt();
+    if (defined($self->DeviceConfig()->{gp_max_volt}) && ($voltage > $self->DeviceConfig()->{gp_max_volt})) {
+        $voltage = $self->DeviceConfig()->{gp_max_volt};
     }
-    if (defined($self->gp_min_volt()) && ($voltage < $self->gp_min_volt())) {
-        $voltage = $self->gp_min_volt();
+    if (defined($self->DeviceConfig()->{gp_min_volt}) && ($voltage < $self->DeviceConfig()->{gp_min_volt})) {
+        $voltage = $self->DeviceConfig()->{gp_min_volt};
     }
 
     #already there
-    return $voltage if (abs($voltage - $last_v) < $self->gp_equal_level());
+    return $voltage if (abs($voltage - $last_v) < $self->DeviceConfig()->{gp_equal_level});
 
     #are we already close enough? if so, screw the waiting time...
     if ((defined $voltperstep) && (abs($voltage - $last_v) < $voltperstep)) {
@@ -274,9 +274,9 @@ sub step_to_voltage_auto {
 	Lab::Exception::CorruptParameter->throw('Channel must not be negative! Did you swap voltage and channel number?') if $channel < 0;
 	Lab::Exception::CorruptParameter->throw('Channel must be an integer! Did you swap voltage and channel number?') if int($channel) != $channel;
 
-    my $voltpersec=abs($self->gp_max_volt_per_second());
-    my $voltperstep=abs($self->gp_max_volt_per_step());
-    my $steppersec=abs($self->gp_max_step_per_second());
+    my $voltpersec=abs($self->DeviceConfig()->{gp_max_volt_per_second});
+    my $voltperstep=abs($self->DeviceConfig()->{gp_max_volt_per_step});
+    my $steppersec=abs($self->DeviceConfig()->{gp_max_step_per_second});
 
     my $last_v=$self->gpData()->{$channel}->{LastVoltage};
     unless (defined $last_v) {
@@ -284,15 +284,15 @@ sub step_to_voltage_auto {
         $self->gpData()->{$channel}->{LastVoltage}=$last_v;
     }
 
-    if (defined($self->gp_max_volt()) && ($voltage > $self->gp_max_volt())) {
-        $voltage = $self->gp_max_volt();
+    if (defined($self->DeviceConfig()->{gp_max_volt}) && ($voltage > $self->DeviceConfig()->{gp_max_volt})) {
+        $voltage = $self->DeviceConfig()->{gp_max_volt};
     }
-    if (defined($self->gp_min_volt()) && ($voltage < $self->gp_min_volt())) {
-        $voltage = $self->gp_min_volt();
+    if (defined($self->DeviceConfig()->{gp_min_volt}) && ($voltage < $self->DeviceConfig()->{gp_min_volt})) {
+        $voltage = $self->DeviceConfig()->{gp_min_volt};
     }
 
     #already there
-    return $voltage if (abs($voltage - $last_v) < $self->gp_equal_level());
+    return $voltage if (abs($voltage - $last_v) < $self->DeviceConfig()->{gp_equal_level});
 
     #do the magic step calculation
     my $wait = ($voltpersec < $voltperstep * $steppersec) ?
@@ -339,7 +339,7 @@ sub sweep_to_voltage {
     while($cont) {
         $cont=0;
         my $this=$self->step_to_voltage($voltage,$channel);
-        unless ((defined $last) && (abs($last-$this) < $self->gp_equal_level())) {
+        unless ((defined $last) && (abs($last-$this) < $self->DeviceConfig()->{gp_equal_level})) {
             $last=$this;
             $cont++;
         }
