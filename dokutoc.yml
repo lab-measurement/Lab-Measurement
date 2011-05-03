@@ -1,8 +1,8 @@
 ---
-title: Lab::VISA Documentation
-authors: Daniel Schröer, Andreas K. Hüttel, and others
+title: Lab:: Documentation
+authors: Daniel Schröer, Florian Olbrich, Andreas K. Hüttel, and others
 toc:
-  - Using Lab::VISA:
+  - Using Lab::
       - VISA/lib/Lab/VISA/Installation.pod:
           pdf: 0
       - VISA/lib/Lab/VISA/Tutorial.pod:
@@ -10,35 +10,15 @@ toc:
           pdf: 1
   - The Lab::VISA package:
       - VISA/VISA.pod
+  - The Lab::Connection package:
+      - Connection/lib/Lab/Connection.pm
   - The Lab::Instrument package:
       - Instrument/lib/Lab/Instrument.pm
       - Voltage Sources:
           - Instrument/lib/Lab/Instrument/Source.pm
-          - Instrument/lib/Lab/Instrument/Yokogawa7651.pm
-          - Instrument/lib/Lab/Instrument/KnickS252.pm
-          - Instrument/lib/Lab/Instrument/IOtech488.pm
-          - Instrument/lib/Lab/Instrument/SRS_SIM928.pm
-          - Instrument/lib/Lab/Instrument/Dummysource.pm
+          - Instrument/lib/Lab/Instrument/Source/Yokogawa7651.pm
       - Multimeters:
           - Instrument/lib/Lab/Instrument/HP34401A.pm
-          - Instrument/lib/Lab/Instrument/HP34411A.pm
-          - Instrument/lib/Lab/Instrument/HP34420A.pm
-          - Instrument/lib/Lab/Instrument/HP34970A.pm
-          - Instrument/lib/Lab/Instrument/HP3458A.pm
-      - Amplifiers:
-          - Instrument/lib/Lab/Instrument/SR830.pm
-      - High Frequency:
-          - Instrument/lib/Lab/Instrument/SR780.pm
-          - Instrument/lib/Lab/Instrument/SR620.pm
-          - Instrument/lib/Lab/Instrument/HP8360.pm
-          - Instrument/lib/Lab/Instrument/Agilent81134A.pm
-      - Cryostat Handling:
-          - Instrument/lib/Lab/Instrument/IsoBus.pm
-          - Instrument/lib/Lab/Instrument/ILM.pm
-          - Instrument/lib/Lab/Instrument/ITC503.pm
-          - Instrument/lib/Lab/Instrument/Lakeshore336.pm
-          - Instrument/lib/Lab/Instrument/Lakeshore370.pm
-          - Instrument/lib/Lab/Instrument/TRMC2.pm
   - The Lab::Tools package:
       - Tools/lib/Lab/Data/Writer.pm
       - Tools/lib/Lab/Measurement.pm
