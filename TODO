@@ -1,10 +1,15 @@
 TODO's, listed by priority
 
-[***] Add some docs in the HP8360 module.
+- Schnittstellen für Connection und Instrument dokumentieren und einfrieren
 
-[***] Add some docs in the SR620 module.
+- Connection Dummy-Modul für Testzwecke
+- Connection für VISA (alle Typen)
+- Connection für GPIB via linuxgpib
+- Connection für RS232
 
-[***] Add some docs in the TRMC2 module.
+- Code mit einem einfachen Instrument testen
 
-[*] Write actually some useful routines in the 81134A pulse generator module
+- Instrument - Module eines nach dem anderen portieren und testen
+- Besondere Aufmerksamkeit braucht Source
+- Ggf andere Subklassen einführen (Multimeter, ...?)
 
