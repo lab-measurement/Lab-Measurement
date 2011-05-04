@@ -25,6 +25,7 @@ our $INS_DEBUG=0; # do we need additional output?
 
 my %fields = (
 	GPIB_Board	=> 0,
+	Brutal => 0,
 );
 
 sub new {
@@ -108,55 +109,52 @@ sub InstrumentNew { # $self=Connection, { GPIB_Paddr => primary address }
 #
 # Todo: Evaluate $ibstatus: http://linux-gpib.sourceforge.net/doc_html/r634.html
 #
-sub InstrumentRead { # $self=Connection, \%InstrumentHandle, \%Options = { Cmd }
+sub InstrumentRead { # $self=Connection, \%InstrumentHandle, \%Options = { Cmd, Brutal }
 	my $self = shift;
 	my $Instrument=shift;
 	my $Options = shift;
 	my $Command = $Options->{'Cmd'} || undef;
+	my $Brutal = $Options->{'Brutal'};
 	my $Result = undef;
 	my $Raw = "";
 	my $ResultConv = undef;
-	my %IbBits=();
+	my $IbBits=undef;	# hash ref
 
-	my $ReadLength = $Options->{'Read_Length'} || 100;
+	my $ReadLength = $Options->{'Read_Length'} || 1000; # 1000 characters maximum should be sufficient... ?
 	my $ibstatus = undef;
+	my $ibsta_verbose = "";
     my $read_cnt = 0;
 	my $decimal = 0;
 
-	if(!defined $Command) {
-		die("No command submitted\n");
+	if(defined $Command) {
+		$ibstatus=ibwrt($Instrument->{'GPIBHandle'}, $Command, length($Command));
+		$IbBits=$self->ParseIbstatus($ibstatus);
+
+		if( $IbBits->{'ERR'} ) {
+			Lab::Exception::GPIBError->throw( error => sprintf("ibwrt failed with ibstatus %x\n", $ibstatus), ibsta => $ibstatus, ibsta_hash => $IbBits );
+		}
+	}
+
+	$ibstatus = ibrd($Instrument->{'GPIBHandle'}, $Result, $ReadLength);
+	$IbBits=$self->ParseIbstatus($ibstatus);
+
+	if($IbBits->{'ERR'} && !$IbBits->{'TIMO') ) {	# if the error is a timeout, we still evaluate the result and see what to do with the error later
+		Lab::Exception::GPIBError->throw( error => sprintf("ibrd failed with ibstatus %x", $ibstatus), ibsta => $ibstatus, ibsta_hash => $IbBits );
 	}
 	else {
-		$ibstatus=ibwrt($Instrument->{'GPIBHandle'}, $Command, length($Command));
-		%IbBits=$self->ParseIbstatus($ibstatus);
-
-		if($IbBits{'ERR'}==1) {
-			croak(sprintf("InstrumentRead failed in ibwrt with ibstatus %x\n", $ibstatus) . "Options: \n" . Dumper($Options));
+		$Raw = $Result;
+		#printf("Raw: %s\n", $Result);
+		# check for number and convert. secure builtin way? maybe sprintf?
+		if($Result =~ /^\s*([+-][0-9]*\.[0-9]*)([eE]([+-]?[0-9]*))?\s*\x00*/) {
+			$Result = $1;
+			$Result .= "e$3" if defined $3;
+			$ResultConv = $1;
+			$ResultConv *= 10 ** ( $3 )  if defined $3;
 		}
 		else {
-			# 1000 characters maximum should be sufficient... ?
-			$ibstatus = ibrd($Instrument->{'GPIBHandle'}, $Result, $ReadLength);
-			%IbBits=$self->ParseIbstatus($ibstatus);
-
-			if($IbBits{'ERR'}==1) {
-				croak(sprintf("InstrumentRead failed in ibrd with ibstatus %x\n", $ibstatus) . "Options: \n" . Dumper($Options));
-			}
-			else {
-				$Raw = $Result;
-				#printf("Raw: %s\n", $Result);
-				# check for number and convert. secure builtin way? maybe sprintf?
-				if($Result =~ /^\s*([+-][0-9]*\.[0-9]*)([eE]([+-]?[0-9]*))?\s*\x00*/) {
-					$Result = $1;
-					$Result .= "e$3" if defined $3;
-					$ResultConv = $1;
-					$ResultConv *= 10 ** ( $3 )  if defined $3;
-				}
-				else {
-					# not recognized - well upstream will hopefully be happy, anyway
-					#croak('Non-numeric answer received');
-					return $Raw;
-				}
-			}
+			# not recognized - well upstream will hopefully be happy, anyway
+			#croak('Non-numeric answer received');
+			$Result = $Raw
 		}
 	}
 
@@ -168,13 +166,15 @@ sub InstrumentRead { # $self=Connection, \%InstrumentHandle, \%Options = { Cmd }
 # 		print "$key: $IbBits{$key}\n";
 # 	}
 
-	# Todo: better Error checking
-	if($IbBits{'ERR'}==1) {
-		croak(sprintf("InstrumentRead failed with ibstatus %x\n", $ibstatus) . "Options: \n" . Dumper($Options));
+	#
+	# timeout occured - throw exception, but include the received data
+	# if the "Brutal" option is present, ignore the timeout and just return the data
+	#
+	if( $IbBits->{'ERR'} && $IbBits->{'TIMO'} && !$Brutal ) {
+		Lab::Exception::GPIBTimeout->throw( error => sprintf("ibrd failed with a timeout, ibstatus %x\n", $ibstatus), ibsta => $ibstatus, ibsta_hash => $IbBits, $Data => $Result );
 	}
-
+	# no timeout, regular return
 	return $Result;
-	#return $Result;
 }
 
 
@@ -193,13 +193,13 @@ sub InstrumentWrite { # $self=Connection, \%InstrumentHandle, \%Options = { Cmd 
 		$ibstatus=ibwrt($Instrument->{'GPIBHandle'}, $Command, length($Command));
 	}
 
-	my %IbBits=$self->ParseIbstatus($ibstatus);
+	my $IbBits=$self->ParseIbstatus($ibstatus);
 # 	foreach my $key ( keys %IbBits ) {
 # 		print "$key: $IbBits{$key}\n";
 # 	}
 
 	# Todo: better Error checking
-	if($IbBits{'ERR'}==1) {
+	if($IbBits->{'ERR'}==1) {
 		croak(sprintf("InstrumentWrite failed with ibstatus %x\n", $ibstatus) . "Options: \n" . Dumper($Options));
 	}
 
@@ -212,6 +212,10 @@ sub ParseIbstatus { # Ibstatus http://linux-gpib.sourceforge.net/doc_html/r634.h
 	my $ibstatus = shift;	# 16 Bit int
 	my @ibbits = ();
 
+	if( $ibstatus !~ /[0-9]*/ || $ibstatus < 0 || $ibstatus > 0xFFFF ) {	# should be a 16 bit integer
+		Lab::Exception::CorruptParameter->throw( error => 'Lab::Connection::GPIB::VerboseIbstatus() got an invalid ibstatus.' , InvalidParameter => $ibstatus );
+	}
+
 	for (my $i=0; $i<16; $i++) {
 		$ibbits[$i] = 0x0001 & ($ibstatus >> $i);
 	}
@@ -219,12 +223,28 @@ sub ParseIbstatus { # Ibstatus http://linux-gpib.sourceforge.net/doc_html/r634.h
 	my %Ib = ();
 	( $Ib{'DCAS'}, $Ib{'DTAS'}, $Ib{'LACS'}, $Ib{'TACS'}, $Ib{'ATN'}, $Ib{'CIC'}, $Ib{'REM'}, $Ib{'LOK'}, $Ib{'CMPL'}, $Ib{'EVENT'}, $Ib{'SPOLL'}, $Ib{'RQS'}, $Ib{'SRQI'}, $Ib{'END'}, $Ib{'TIMO'}, $Ib{'ERR'} ) = @ibbits;
 
-	return %Ib;
+	return \%Ib;
 
 } # return: ($ERR, $TIMO, $END, $SRQI, $RQS, $SPOLL, $EVENT, $CMPL, $LOK, $REM, $CIC, $ATN, $TACS, $LACS, $DTAS, $DCAS)
 
+sub VerboseIbstatus {
+	my $self = shift;
+	my $ibstatus = shift;
+	my $ibstatus_verbose = "";
 
+	if(ref(\$ibstatus) =~ /SCALAR/) {
+		$ibstatus = $self->ParseIbstatus($ibstatus);
+	}
+	elsif(ref($ibstatus) !~ /HASH/) {
+		Lab::Exception::CorruptParameter->throw( error => 'Lab::Connection::GPIB::VerboseIbstatus() got an invalid ibstatus.' , InvalidParameter => $ibstatus );
+	}
 
+	while( my ($k, $v) = each %$ibstatus ) {
+        $ibstatus_verbose .= "$k: $v\n";
+    }
+
+	return $ibstatus_verbose;
+}
 
 1;
 

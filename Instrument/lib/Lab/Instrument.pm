@@ -157,6 +157,9 @@ sub Read {
 
 
 # 
+# "brutal" read means that it ignores timeouts. It won't complain and just deliver anything it received, even
+# if a timeout occured
+#
 # sub BrutalRead {
 #     	my $self=shift;
 #     	my %options=shift;
