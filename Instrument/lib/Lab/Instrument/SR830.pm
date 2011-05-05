@@ -51,7 +51,7 @@ sub empty_buffer{
     my $self=shift;
     my $times=shift;
     for (my $i=0;$i<$times;$i++) {
-		eval { $self->Connection()->InstrumentRead($self->InstrumentHandle(), {Cmd => $cmd, Brutal => 1} ) };
+		eval { $self->Connection()->InstrumentRead($self->InstrumentHandle(), { Brutal => 1 } ) };
     }
 }
 
@@ -62,7 +62,7 @@ sub set_frequency {
 
 sub get_frequency {
     my $self = shift;
-    my $freq=$self->{vi}->Query("FREQ?");
+    my $freq=$self->Connection()->InstrumentRead( $self->InstrumentHandle(), {Cmd=>"FREQ?"} );
     chomp $freq;
     return "$freq Hz";
 }
@@ -70,7 +70,7 @@ sub get_frequency {
 sub set_amplitude {
     my ($self,$ampl)=@_;
     $self->Connection()->InstrumentWrite( $self->InstrumentHandle(), {Cmd=>"SLVL $ampl"} );
-    my $realampl=$self->{vi}->Query("SLVL?");
+    my $realampl=$self->Connection()->InstrumentRead( $self->InstrumentHandle(), {Cmd=>"SLVL?"} );
     chomp $realampl;
     return "$realampl V";
 }
@@ -228,6 +228,13 @@ sub read_channels {
 sub id {
     my $self=shift;
     $self->Connection()->InstrumentRead( $self->InstrumentHandle(), {Cmd=>'*IDN?'} );
+}
+
+sub send_commands {
+    my ($self,@commands)=@_;
+    for (@commands) {
+        $self->Connection()->InstrumentWrite( $self->InstrumentHandle(), {Cmd=>$_} );
+    }
 }
 
               

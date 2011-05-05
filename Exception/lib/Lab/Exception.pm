@@ -9,7 +9,7 @@ package Lab::Exception::Base;
 
 our @ISA = ("Exception::Class::Base");
 
-use carp;
+#use Carp;
 
 sub new {
 	my $self = $class->SUPER::new(@_);
@@ -59,7 +59,7 @@ use Exception::Class (
 	#
 	Lab::Exception::GPIBError => {
 		isa			=> 'Lab::Exception::Error',
-		description	=> 'An error occured in the GPIB connection (linux-gpib).';
+		description	=> 'An error occured in the GPIB connection (linux-gpib).',
 		fields		=> [
               				'ibsta',	# the raw ibsta status byte received from linux-gpib
 							'ibsta_hash', 	# the ibsta bit values in a named, easy-to-read hash ( 'DCAS' => $val, 'DTAS' => $val, ...
@@ -69,7 +69,7 @@ use Exception::Class (
 
 	Lab::Exception::GPIBTimeout => {
 		isa			=> 'Lab::Exception::GPIBError',
-		description	=> 'A timeout occured in the GPIB connection (linux-gpib).';
+		description	=> 'A timeout occured in the GPIB connection (linux-gpib).',
 		fields		=> [
 							'Data',	# this is meant to contain the data that (maybe) has been read/obtained/generated despite and up to the timeout.
 		],

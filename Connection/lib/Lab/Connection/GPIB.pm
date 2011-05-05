@@ -138,7 +138,7 @@ sub InstrumentRead { # $self=Connection, \%InstrumentHandle, \%Options = { Cmd, 
 	$ibstatus = ibrd($Instrument->{'GPIBHandle'}, $Result, $ReadLength);
 	$IbBits=$self->ParseIbstatus($ibstatus);
 
-	if($IbBits->{'ERR'} && !$IbBits->{'TIMO') ) {	# if the error is a timeout, we still evaluate the result and see what to do with the error later
+	if( $IbBits->{'ERR'} && !$IbBits->{'TIMO'} ) {	# if the error is a timeout, we still evaluate the result and see what to do with the error later
 		Lab::Exception::GPIBError->throw( error => sprintf("ibrd failed with ibstatus %x", $ibstatus), ibsta => $ibstatus, ibsta_hash => $IbBits );
 	}
 	else {
@@ -171,7 +171,7 @@ sub InstrumentRead { # $self=Connection, \%InstrumentHandle, \%Options = { Cmd, 
 	# if the "Brutal" option is present, ignore the timeout and just return the data
 	#
 	if( $IbBits->{'ERR'} && $IbBits->{'TIMO'} && !$Brutal ) {
-		Lab::Exception::GPIBTimeout->throw( error => sprintf("ibrd failed with a timeout, ibstatus %x\n", $ibstatus), ibsta => $ibstatus, ibsta_hash => $IbBits, $Data => $Result );
+		Lab::Exception::GPIBTimeout->throw( error => sprintf("ibrd failed with a timeout, ibstatus %x\n", $ibstatus), ibsta => $ibstatus, ibsta_hash => $IbBits, Data => $Result );
 	}
 	# no timeout, regular return
 	return $Result;
