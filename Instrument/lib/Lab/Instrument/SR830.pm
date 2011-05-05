@@ -174,7 +174,7 @@ sub set_tc {
     $self->Connection()->InstrumentWrite( $self->InstrumentHandle(), {Cmd=>"OFLT $nr"} );
 
     my @tc = ("10 µs", "30µs", "100 µs", "300 µs", "1 ms", "3 ms", "10 ms", "30 ms", "100 ms", "300 ms", "1 s", "3 s", "10 s", "30 s", "100 s", "300 s", "1000 s", "3000 s", "10000 s", "30000 s");
-    my $realtc=$self->Connection()->InstrumentRead( $self->InstrumentHandle(), {Cmd=>OFLT?"} );
+    my $realtc=$self->Connection()->InstrumentRead( $self->InstrumentHandle(), {Cmd=>"OFLT?"} );
     return $tc[$realtc];
 
 
