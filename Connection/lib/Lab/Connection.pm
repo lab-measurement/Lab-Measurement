@@ -27,11 +27,6 @@ our $QUERY_LONG_LENGTH=10240; #bytes
 our $INS_DEBUG=0; # do we need additional output?
 
 
-
-#
-# I'll try using the AUTOLOAD method for accessing object data. The access methods named after the
-# variables will be the same for any other approach we might want to change to later.
-#
 my %fields = (
 	Config => undef,
 );
@@ -41,20 +36,33 @@ sub new {
 	#
 	# This doesn't do much except setting basic data fields and delivering
 	# their %fields and _permitted to inheriting objects/classes
-	my $proto = shift;
+	(my $proto, my $Config) = (shift,shift);
 	my $class = ref($proto) || $proto;
 	my $self={};
 	bless ($self, $class);
-	foreach my $element (keys %fields) {
-		$self->{_permitted}->{$element} = $fields{$element};
-	}
-	@{$self}{keys %fields} = values %fields;
+	$self->ConstructMe();
 
 	# next argument has to be the configuration hash
-	$self->Config(shift);
+	$self->Config($Config);
 
 	return $self;
 }
+
+#
+# config gets it's own accessor - read only access to $self->Config
+# with no argument, returns a reference to $self->Config (just like AUTOLOAD would)
+#
+sub Config {	# $value = self->Config($key);
+	(my $self, my $key) = (shift, shift);
+
+	if(defined $key) {
+		return $self->Config->{'$key'};
+	}
+	else {
+		return $self->Config;
+	}
+}
+
 
 sub AUTOLOAD {
 
@@ -74,6 +82,23 @@ sub AUTOLOAD {
 		return $self->{$name};
 	}
 }
+
+#
+# Call this in inheriting class's constructors to conveniently initialize the %fields object data.
+#
+#
+sub ConstructMe {	# ConstructMe(__PACKAGE__);
+	(my $self, my $package) = (shift, shift);
+	my $class = ref($self);
+
+	foreach my $element (keys %fields) {
+		$self->{_permitted}->{$element} = $fields{$element};
+	}
+	@{$self}{keys %fields} = values %fields;
+}
+	
+
+
 
 # needed so AUTOLOAD doesn't try to call DESTROY on cleanup and prevent the inherited DESTROY
 sub DESTROY {
@@ -132,130 +157,69 @@ sub DESTROY {
 # }
 
 
-# sub WriteConfig {
-#         my $self = shift;
-# 
-#         my %config = @_;
-# 	%config = %{$_[0]} if (ref($_[0]));
-# 
-# 	my $command = "";
-# 	# function characters init
-# 	my $inCommand = "";
-# 	my $betweenCmdAndData = "";
-# 	my $postData = "";
-# 	# config data
-# 	if (exists $self->{'CommandRules'}) {
-# 		# write stating value by default to command
-# 		$command = $self->{'CommandRules'}->{'preCommand'} 
-# 			if (exists $self->{'CommandRules'}->{'preCommand'});
-# 		$inCommand = $self->{'CommandRules'}->{'inCommand'} 
-# 			if (exists $self->{'CommandRules'}->{'inCommand'});
-# 		$betweenCmdAndData = $self->{'CommandRules'}->{'betweenCmdAndData'} 
-# 			if (exists $self->{'CommandRules'}->{'betweenCmdAndData'});
-# 		$postData = $self->{'CommandRules'}->{'postData'} 
-# 			if (exists $self->{'CommandRules'}->{'postData'});
-# 	}
-# 	# get command if sub call from itself
-# 	$command = $_[1] if (ref($_[0])); 
-# 
-#         # build up commands buffer
-#         foreach my $key (keys %config) {
-# 		my $value = $config{$key};
-# 
-# 		# reference again?
-# 		if (ref($value)) {
-# 			$self->WriteConfig($value,$command.$key.$inCommand);
-# 		} else {
-# 			# end of search
-# 			$self->Write($command.$key.$betweenCmdAndData.$value.$postData);
-# 		}
-# 	}
-# 
-# }
+
 
 
 1;
 
 =head1 NAME
 
-Lab::Connection - General connection package
+Lab::Connection - connection base class
 
 =head1 SYNOPSIS
 
- use Lab::Connection::GPIB;
- use Lab::Instrument;
- 
- my $gpib =  new Lab::Connection::GPIB({ GPIB_board => 0 }); 
- my $rszdz = new Lab::Interface::RS232({ Device => '/dev/modem' });
- 
- my $ins=new Lab::Instrument::Bla({ Connection => $gpib, GPIB_Paddres => 14 });
- print $ins->Query('*IDN?');
+This is meant to be used as a base class for inheriting instruments only.
+Every inheriting classes constructors should start as follows:
+
+	sub new {
+		my $proto = shift;
+		my $class = ref($proto) || $proto;
+		my $self = $class->SUPER::new(@_);
+		$self->ConstructMe(__PACKAGE__); #initialize fields etc.
+		...
+	}
 
 =head1 DESCRIPTION
 
-C<Lab::Instrument> offers an abstract interface to an instrument, that is connected via
-GPIB, serial bus, USB, ethernet, or Oxford Instruments IsoBus. It provides general 
-C<Read>, C<Write> and C<Query> methods, and more.
-
-It can be used either directly by the programmer to work with
-an instrument that doesn't have its own perl class
-(like L<Lab::Instrument::HP34401A|Lab::Instrument::HP34401A>). Or it can be used by such a specialized
-perl instrument class (like C<Lab::Instrument::HP34401A>) to delegate the
-actual visa work. (All the instruments in the default package do so.)
+C<Lab::Connection> is a base class for individual connections. It doesn't do anything on its own.
+For more detailed information on the use of connection objects, take a look on a child class, e.g.
+C<Lab::Connection::GPIB>.
 
 =head1 CONSTRUCTOR
 
 =head2 new
 
- $interface = new Lab::Interface( Type => TCPIP|RS232|VISA|TCPIP::Prologix,
-				                     parameter name => parameter,
-				                     ... );
+Generally called in child class constructor:
 
-C<Lab::Interface> interface packages can be used. These packages provide different 
-interfaces. The required parameters can be found in the package description of the corresponding
-package like C<Lab::Interface::TCPIP> for the interface type TCPIP. If the interface modules
-are not located in the default directories, that path can be given by the 'ModulePath' option.
+ my $self = $class->SUPER::new(@_);
+
+Return blessed $self, with @_ accessible through $self->Config().
 
 =head1 METHODS
 
-=head2 Write
+=head2 Config
 
- $write_count=$instrument->Write(%target,$data);
+Provides unified access to the fields in initial @_ to all the cild classes.
+E.g.
+
+ $GPIB_PAddress=$instrument->Config(GPIB_PAddress);
+
+Without arguments, returns a reference to the complete $self->Config aka @_ of the constructor.
+
+ $Config = $connection->Config();
+ $GPIB_PAddress = $connection->Config()->{'GPIB_PAddress'};
  
-
-=head2 Read
-
- $result=$instrument->Read(%target,%options);
-
-=head2 Clear
-
- $instrument->Clear(%target);
-
-Sends a clear command to the instrument if implemented for the interface.
-
-=head2 Handle
-
- $instr_handle=$instrument->Handle();
-
-Returns the instrument package handle.
-
-=head2 WriteConfig
-
 =head1 CAVEATS/BUGS
 
-Probably many. 
+Probably view. Mostly because there's not a lot to be done here.
 
 =head1 SEE ALSO
 
 =over 4
 
-=item L<Lab::VISA>
+=item L<Lab::Connection::GPIB>
 
-=item L<Lab::Instrument::TCPIP>
-
-=item L<Lab::Instrument::TCPIP::Prologix>
-
-=item L<Lab::Instrument::VISA>
+=item L<Lab::Connection::MODBUS>
 
 =item and many more...
 
@@ -268,6 +232,7 @@ This is $Id$
  Copyright 2004-2006 Daniel Schröer <schroeer@cpan.org>, 
            2009-2010 Daniel Schröer, Andreas K. Hüttel (L<http://www.akhuettel.de/>) and David Kalok,
 	       2010      Matthias Völker <mvoelker@cpan.org>
+           2011      Florian Olbrich
 
 This library is free software; you can redistribute it and/or modify it under the same
 terms as Perl itself.

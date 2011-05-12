@@ -31,26 +31,92 @@ our $INS_DEBUG=0; # do we need additional output?
 my %fields = (
 	Connection => undef,
 	ConnectionType => "",
-	Config => undef,
 	SupportedConnections => [ ],
+	Config => undef,
+	InstrumentHandle => undef,
+	WaitQuery => 100,
 );
 
 
 
 sub new { 
-	my $proto = shift;
+	(my $proto, my $Config) = (shift,shift);
 	my $class = ref($proto) || $proto;
 	my $self={};
 	bless ($self, $class);
+	$self->Config($Config);
+
+	$self->_ConstructMe(__PACKAGE__);
+
+	return $self;
+}
+
+#
+# config gets it's own accessor - read only access to $self->Config
+# with no argument, returns a reference to $self->Config (just like AUTOLOAD would)
+#
+sub Config {	# $value = self->Config($key);
+	(my $self, my $key) = (shift, shift);
+
+	if(defined $key) {
+		return $self->Config->{'$key'};
+	}
+	else {
+		return $self->Config;
+	}
+}
+
+sub AUTOLOAD {
+
+	my $self = shift;
+	my $type = ref($self) or croak "$self is not an object";
+
+	my $name = $AUTOLOAD;
+	$name =~ s/.*://; # strip fully qualified portion
+
+	unless (exists $self->{_permitted}->{$name} ) {
+		Lab::Exception::UndefinedField->throw( error => "Can't access `$name' field in class $type\n" );
+	}
+
+	if (@_) {
+		return $self->{$name} = shift;
+	} else {
+		return $self->{$name};
+	}
+}
+
+#
+# Call this in inheriting class's constructors to conveniently initialize the %fields object data.
+#
+sub _ConstructMe {	# ConstructMe(__PACKAGE__);
+	(my $self, my $package) = (shift, shift);
+	my $class = ref($self);
+
 	foreach my $element (keys %fields) {
 		$self->{_permitted}->{$element} = $fields{$element};
 	}
 	@{$self}{keys %fields} = values %fields;
 
-	# next argument has to be the configuration hash
-	$self->Config(shift);
-
-	return $self;
+	#
+	# Check the connection data OR the connection object in $self->Config(), but only if 
+	# ConstructMe() has been called from the instantiated class (and not from somewhere up the heritance hierarchy)
+	# That's because child classes can add new entrys to $self->SupportedConnections(), so delay checking to the top class.
+	#
+	if( $class eq $package ) {
+		# check the configuration hash for a valid connection object or connection type, and set the connection
+		if( defined($self->Config()->{'Connection'}) ) {
+			if($self->_checkconnection($self->Config()->{'Connection'})) {
+				$self->Connection($self->Config()->{'Connection'});
+			}
+			else { croak('Given Connection not supported'); }
+		}
+		else {
+			if($self->_checkconnection($self->Config()->{'ConnType'})) {
+				$self->_setconnection();
+			}
+			else { croak('Given Connection Type not supported'); }
+		}
+	}
 }
 
 
@@ -76,47 +142,21 @@ sub _checkconnection { # Connection object or ConnType string
 	}
 }
 
-
-sub _setconnection { # create new or use existing connection
+#
+# Method to handle connection creation generically. This is called by _ConstructMe().
+# If the following (rather simple code) doesn't suit your child class, or your need to
+# introduce more thorough parameter checking and/or conversion, overwrite it - _ConstructMe()
+# calls it only if it is called by the topmost class in the inheritance hierarchy itself.
+#
+sub _setconnection { # $self->setconnection(__PACKAGE__) create new or use existing connection
 	my $self=shift;
 
-	# check the configuration hash for a valid connection object or connection type, and set the connection
-	if( defined($self->Config()->{'Connection'}) ) {
-		if($self->_checkconnection($self->Config()->{'Connection'})) {
-			$self->Connection($self->Config()->{'Connection'});
-		}
-		else { Lab::Exception::CorruptParameter->throw('Given connection is not supported.'); }
-	}
-	else {
-		if($self->_checkconnection($self->Config()->{'ConnType'})) {
-			#my $conn=new Lab::Connection::GPIB({GPIB_Board => 0});
-			#$self->Connection($conn);
-			$self->Connection(eval("new Lab::Connection::${\$self->Config()->{'ConnType'}}({GPIB_Board => 0})")) || croak('Failed to create connection');
-			print "conntype: " . $self->Config()->{'ConnType'}. "\n";
-		}
-		else { Lab::Exception::CorruptParameter->throw('Given connection type is not supported.'); }
-	}
-	$self->InstrumentHandle( $self->Connection()->InstrumentNew(GPIB_Paddr => $self->Config()->{'GPIB_Paddress'}) );
-}
+	# yep - pass all the parameters on to the connection, it will take the ones it needs.
+	# This way connection setup can be handled generically. Conflicting parameter names? Let's try it.
+	$self->Connection(eval("new Lab::Connection::${\$self->Config()->{'ConnType'}}(\$self->Config())")) || croak('Failed to create connection');
 
-
-sub AUTOLOAD {
-
-	my $self = shift;
-	my $type = ref($self) or croak "$self is not an object";
-
-	my $name = $AUTOLOAD;
-	$name =~ s/.*://; # strip fully qualified portion
-
-	unless (exists $self->{_permitted}->{$name} ) {
-		Lab::Exception::UndefinedField->throw( error => "Can't access `$name' field in class $type\n" );
-	}
-
-	if (@_) {
-		return $self->{$name} = shift;
-	} else {
-		return $self->{$name};
-	}
+	# again, pass it all.
+	$self->InstrumentHandle( $self->Connection()->InstrumentNew( $self->Config() );
 }
 
 # needed so AUTOLOAD doesn't try to call DESTROY on cleanup and prevent the inherited DESTROY
@@ -149,73 +189,63 @@ sub Write {
 
 sub Read {
 	my $self=shift;
-	my %options=shift;
-	%options={} unless (%options);
+	my $options=shift;
+	$options={} unless ($options);
 
-	return $self->Connection()->InstrumentRead($self->InstrumentHandle(), \%options);
+	return $self->Connection()->InstrumentRead($self->InstrumentHandle(), $options);
 }
 
 
-# 
-# "brutal" read means that it ignores timeouts. It won't complain and just deliver anything it received, even
-# if a timeout occured
-#
-# sub BrutalRead {
-#     	my $self=shift;
-#     	my %options=shift;
-# 	%options={} unless (%options);
-# 	%options->{'brutal'}=1;
-# 
-# 	return $self->{'interface'}->InstrumentRead($self->{'handle'}, %options);
-# }
-# 
 
-
-sub Query { # $self, $cmd, %options
+sub BrutalRead {
 	my $self=shift;
-	my $cmd=shift;
-	my %options=shift;
-	%options={} unless (%options);
-
-	my $wait_query=$WAIT_QUERY;
-	# load own settings if exists
-	$wait_query = $self->{'wait_query'} if (exists $self->{'wait_query'});
+	my $options=shift;
+	$options={} unless ($options);
+	$options->{'Brutal' => 1};
 	
-	$self->Write({ SCPI_cmd => $cmd });
-	usleep($wait_query);
-	return $self->Read(%options);
+	return $self->Read($options);
 }
 
 
-# 
-# sub BrutalQuery {
-# 	my $self=shift;
-# 	my $cmd=shift;
-# 	my %options=shift;
-# 	%options={} unless (%options);
-# 	%options{'brutal'}=1;
-# 	return $self->Query($cmd,%options);
-# };
-# 
-# 
-# sub Handle {
-#     	my $self=shift;
-#     	return $self->{'handle'};
-# }
-# 
-# 
-# sub DESTROY {
-#     	my $self=shift;
-#         $self->{'interface'}->InstrumentDestroy($self->{'handle'}, %options);
-#         
-# 	if (exists $self->{instr} ) {
-# 	      my $status=Lab::VISA::viClose($self->{instr});
-# 	      $status=Lab::VISA::viClose($self->{default_rm});
-#             }
-# 	};
-#    } # done only for old interface
-# }
-# 
+
+sub Query {
+	my $self=shift;
+	my $options=shift;
+	$options={} unless ($options);
+
+	my $Cmd = delete $options->{'Cmd'};
+
+	my $WaitQuery=$self->WaitQuery();
+	# load own settings if exists
+	$WaitQuery = delete($options->{'WaitQuery'}) if (exists $options->{'WaitQuery'});
+	
+	$self->Write({ SCPI_cmd => $Cmd });
+	usleep($WaitQuery);
+	return $self->Read($options);
+}
+
+
+
+sub LongQuery {
+	my $self=shift;
+	my $options=shift;
+	$options={} unless ($options);
+
+	$options->{ReadLength} = 10240;
+	return $self->Query($options);
+}
+
+
+sub BrutalQuery {
+	my $self=shift;
+	my $options=shift;
+	$options={} unless ($options);
+
+	$options->{Brutal} = 1;
+	return $self->Query($options);
+}
+
+
 # sub WriteConfig {
 #         my $self = shift;
 # 
@@ -258,7 +288,6 @@ sub Query { # $self, $cmd, %options
 # }
 
 
-
 1;
 
 =head1 NAME
@@ -267,122 +296,105 @@ Lab::Instrument - General instrument package
 
 =head1 SYNOPSIS
 
- use Lab::Instrument;
- 
- # old interface
- my $hp22 =  new Lab::Instrument(0,22); # GPIB board 0, address 22
- print $hp22->Query('*IDN?');
+This is meant to be used as a base class for inheriting instruments only.
+Every inheriting classes constructors should start as follows:
 
- #new interface
- my $hp22 =  new Lab::Instrument( Interface => 'TCPIP',
-		          		          PeerAddr  => 'cs025',
-				                  PeerPort  => 5025); 
- print $hp22->Query('*IDN?');
+  sub new {
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
+    my $self = $class->SUPER::new(@_);
+    $self->ConstructMe(__PACKAGE__);  # check for supported connections, initialize fields etc.
+    ...
+  }
 
 =head1 DESCRIPTION
 
-C<Lab::Instrument> offers an abstract interface to an instrument, that is connected via
-GPIB, serial bus, USB, ethernet, or Oxford Instruments IsoBus. It provides general 
-C<Read>, C<Write> and C<Query> methods, and more.
+C<Lab::Instrument> is the base class for Instruments. It doesn't do anything by itself, but
+is meant to be inherited in specific instrument drivers.
+It provides general C<Read>, C<Write> and C<Query> methods and basic connection handling (internal, C<_set_connection>, C<_check_connection>).
 
-It can be used either directly by the programmer to work with
-an instrument that doesn't have its own perl class
-(like L<Lab::Instrument::HP34401A|Lab::Instrument::HP34401A>). Or it can be used by such a specialized
-perl instrument class (like C<Lab::Instrument::HP34401A>) to delegate the
-actual visa work. (All the instruments in the default package do so.)
+The connection object can be obtained by calling C<Connection()>.
+
+Also, fields common to all instrument classes are created and set to default values where applicable:
+
+  Connection => undef,
+  ConnectionType => "",
+  SupportedConnections => [ ],
+  Config => undef,
+  InstrumentHandle => undef,
+  WaitQuery => 100,
+
+Opposing prior versions, it can't be used directly by the programmer anymore. To work with an instrument
+that doesn't have its own perl class, probably a Lab::Instrument::Generic driver or similar will be introduced.
 
 =head1 CONSTRUCTOR
 
 =head2 new
 
- $instrument  = new Lab::Instrument($board,$addr);
- 
- $instrument2 = new Lab::Instrument({
-    GPIB_board   => $board,
-    GPIB_address => $addr
- });
+This blesses $self (don't do it in an inheriting class!), initializes the basic "fields" to be accessed
+via AUTOLOAD and puts the configuration hash in $self->Config to be accessed in methods and inherited
+classes.
 
- $instrument3 = new Lab::Instrument($resourcename);
-
- $instrument4 = new Lab::Instrument($isobus,$addr);
-
- $instrument5 = new Lab::Instrument( Interface => TCPIP|RS232|VISA|TCPIP::Prologix,
-				                     parameter name => parameter,
-				                     ... );
-
-Creates a new instrument object and open the instrument with GPIB address C<$addr>
-connected to the GPIB board C<$board> (usually 0). Alternatively, the VISA resource 
-name C<$resourcename> can be specified as string 
-for serial or USB devices. All instrument classes that
-internally use the C<Lab::Instrument> module (that's all instruments in the default
-distribution) can use these three forms of the constructor.
-
-An IsoBus device can be instantiated by providing the IsoBus instrument C<$isobus>
-(of type C<Lab::Instrument::IsoBus>) as first parameter and the numeric IsoBus address 
-of the device C<$addr> as second parameter.
-
-Lastly, C<Lab::Instrument> interface packages can be used. These packages provide different 
-interfaces. The required parameters can be found in the package description of the corresponding
-package like C<Lab::Instrument::TCPIP> for the interface type TCPIP. If the interface modules
-are not located in the default directories, that path can be given by the 'ModulePath' option.
+Arguments: just the configuration hash passed along from child classes' constructor.
 
 =head1 METHODS
 
 =head2 Write
 
- $write_count=$instrument->Write($command);
+ $instrument->Write($command);
  
 Sends the command C<$command> to the instrument.
 
 =head2 Read
 
- $result=$instrument->Read($length);
+ $result=$instrument->Read({ ReadLength => <max length>, Cmd => <command>, Brutal => <1/0>);
 
-Reads a result of maximum length C<$length> from the instrument and returns it.
-Dies with a message if an error occurs. 
+Reads a result of C<ReadLength> from the instrument and returns it.
+Returns an exception on error.
 
-If interface package is used and object key 'brutal' is true, Read equals to BrutalRead. 
-The length C<all> can be used to read until timeout. (Only for available if interface package
-is used)
+If the parameter C<Brutal> is set, a timeout in the connection will not result in an Exception thrown,
+but will return the data obtained until the timeout without further comment.
+Be aware that this data is also contained in the the timeout exception object (see C<Lab::Exception>).
+
+Generally, all options are passed to the connection, so additional options may be supported based on the connection.
 
 =head2 BrutalRead
 
- $result=$instrument->BrutalRead($length);
+Equivalent to
 
-Same as Read, but this command ignores all error conditions. If an interface
-package is used Read is used if BrutalRead is not implemented.
+ $result=$instrument->Read({ Brutal =>  1 });
 
 =head2 Query
 
- $result=$instrument->Query($command, $wait_query, $wait_status);
+ $result=$instrument->Query({ Cmd => $command, WaitQuery => $wait_query, ReadLength => $max length, WaitStatus => $wait_status);
 
 Sends the command C<$command> to the instrument and reads a result from the
-instrument and returns it. The length of the read buffer is haphazardly
-set to 300 bytes. 
+instrument and returns it. The length of the read buffer is set to C<ReadLength> or to the
+default set in the connection.
 
-Optional second and third arguments specify waiting times, i.e. how long the 
-instrument needs to process the query and provide a result (C<$wait_query>) and 
-how long the instrument needs to react on a command at all and set the status 
-line (C<$wait_status>). Both parameters are set to 10us if not specified in 
-the command line.
+Waits for C<WaitQuery> microseconds before trying to read the answer.
 
-The default values of 'query_cnt', 'wait_query' and 'wait_status' can be overwritten
+WaitStatus not implemented yet - needed?
+
+The default value of 'wait_query' can be overwritten
 by defining the corresponding object key.
+
+Generally, all options are passed to the connection, so additional options may be supported based on the connection.
 
 =head2 LongQuery
 
- $result=$instrument->LongQuery($command, $wait_query, $wait_status);
+Equivalent to
 
-Same as Query, but with a read buffer size of 10240 bytes. If you need to read
-even more data, you will have to use separate C<Write> and C<Read> calls.
+ $result=$instrument->Query({ Cmd => $command, ReadLength => 10240, ... });
 
 =head2 BrutalQuery
 
- $result=$instrument->BrutalQuery($command);
+Equivalent to
 
-Same as Query (i.e. buffer size 300 bytes), but with a lot less finesse. :) 
-Sends command, asks for a value and returns whatever is returned. All error 
-conditions including timeouts are blatantly ignored.
+ $result=$instrument->Query({ Cmd => $command, Brutal=>1, ... });
+
+This won't complain about a timeout error and quietly return the data it received until abort.
+By the way: you can get to this data without the 'Brutal' option through the timeout exception object if you catch it!
 
 =head2 Clear
 
@@ -390,19 +402,21 @@ conditions including timeouts are blatantly ignored.
 
 Sends a clear command to the instrument if implemented for the interface.
 
-=head2 Handle
+=head2 Connection
 
- $instr_handle=$instrument->Handle();
+ $connection=$instrument->Connection();
 
-Returns the VISA handle or the instrument package handle. The VISA handle can be 
-used with the L<Lab::VISA> module.
+Returns the connection object used by this instrument. It can then be passed on to another object on the
+same connection, or be used to change connection parameters.
 
 =head2 WriteConfig
 
+ # this is not implemented in this base class at present
+
  $instrument->WriteConfig( 'TRIGGER' => { 'SOURCE' => 'CHANNEL1',
   			  	                          'EDGE'   => 'RISE' },
-			               'AQUIRE'  => 'HRES',
-			               'MEASURE' => { 'VRISE' => 'ON' });
+    	               'AQUIRE'  => 'HRES',
+    	               'MEASURE' => { 'VRISE' => 'ON' });
 
 Builds up the commands and sends them to the instrument. To get the correct format a 
 command rules hash has to be set up by the driver package
@@ -410,16 +424,14 @@ command rules hash has to be set up by the driver package
 e.g. for SCPI commands
 $instrument->{'CommandRules'} = { 
                   'preCommand'        => ':',
-				  'inCommand'         => ':',
-				  'betweenCmdAndData' => ' ',
-				  'postData'          => '' # empty entries can be skipped
-				};
+    		  'inCommand'         => ':',
+    		  'betweenCmdAndData' => ' ',
+    		  'postData'          => '' # empty entries can be skipped
+    		};
 
 =head1 CAVEATS/BUGS
 
-Probably many. Currently the old and the new interface is implemented. The goal would be to 
-provide the old interface by loading the C<Lab::Instrument::VISA> package automaticly during
-obejct creation and to remove the old code from all other functions.
+Probably many, with all the porting. This will get better.
 
 =head1 SEE ALSO
 
@@ -457,7 +469,8 @@ This is $Id$
 
  Copyright 2004-2006 Daniel Schröer <schroeer@cpan.org>, 
            2009-2010 Daniel Schröer, Andreas K. Hüttel (L<http://www.akhuettel.de/>) and David Kalok,
-	       2010      Matthias Völker <mvoelker@cpan.org>
+           2010      Matthias Völker <mvoelker@cpan.org>
+           2011      Florian Olbrich
 
 This library is free software; you can redistribute it and/or modify it under the same
 terms as Perl itself.

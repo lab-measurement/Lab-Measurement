@@ -1,4 +1,3 @@
-#$Id: HP34401A.pm 663 2010-04-26 20:16:11Z schroeer $
 
 package Lab::Instrument::newHP34401A;
 
@@ -12,9 +11,8 @@ our $VERSION = sprintf("0.%04d", q$Revision: 720 $ =~ / (\d+) /);
 our @ISA = ("Lab::Instrument");
 
 my %fields = (
-	# SupportedConnections => [ 'GPIB', 'RS232' ],	# in principle RS232, too, but not implemented
+	# SupportedConnections => [ 'GPIB', 'RS232' ],	# in principle RS232, too, but not implemented (yet)
 	SupportedConnections => [ 'GPIB' ],
-	InstrumentHandle => undef,
 );
 
 
@@ -22,26 +20,8 @@ sub new {
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
 	my $self = $class->SUPER::new(@_);	# sets $self->Config
-	foreach my $element (keys %fields) {
-		$self->{_permitted}->{$element} = $fields{$element};
-	}
-	@{$self}{keys %fields} = values %fields;
-
-	# check the configuration hash for a valid connection object or connection type, and set the connection
-	if( defined($self->Config()->{'Connection'}) ) {
-		if($self->_checkconnection($self->Config()->{'Connection'})) {
-			$self->Connection($self->Config()->{'Connection'});
-		}
-		else { croak('Given Connection not supported'); }
-	}
-	else {
-		if($self->_checkconnection($self->Config()->{'ConnType'})) {
-			$self->Connection(eval("new Lab::Connection::${\$self->Config()->{'ConnType'}}({GPIB_Board => 0})")) || croak('Failed to create connection');
-			print "conntype: " . $self->Config()->{'ConnType'}. "\n";
-		}
-		else { croak('Given Connection Type not supported'); }
-	}
-	$self->InstrumentHandle( $self->Connection()->InstrumentNew(GPIB_Paddr => $self->Config()->{'GPIB_Paddress'}) );
+	$self->ConstructMe(__PACKAGE__); 	# this sets up all the object fields out of the inheritance tree.
+										# also, it does generic connection setup.
 
 	return $self;
 }
@@ -272,10 +252,25 @@ Lab::Instrument::HP34401A - HP/Agilent 34401A digital multimeter
 
 =head1 SYNOPSIS
 
-    use Lab::Instrument::HP34401A;
-    
-    my $hp=new Lab::Instrument::HP34401A(0,22);
-    print $hp->read_voltage_dc(10,0.00001);
+	use Lab::Connection::GPIB;
+	use Lab::Instrument::HP34401A;
+
+	my $GPIB = new Lab::Connection::GPIB({ GPIB_Board => 0 });
+	my $Agi = new Lab::Instrument::HP34401A({
+		Connection=>$GPIB,
+		GPIB_Paddress=>14,
+	}
+
+or
+
+	use Lab::Instrument::HP34401A;
+
+	my $Agi = new Lab::Instrument::HP34401A({
+		ConnectionTyoe => 'GPIB',
+		GPIB_Board => 0,
+		GPIB_Paddress=>14,
+	}
+
 
 =head1 DESCRIPTION
 
@@ -285,13 +280,19 @@ but doesn't include new functions. Use the Lab::Instrument::HP34411A class for f
 
 =head1 CONSTRUCTOR
 
-    my $hp=new(\%options);
+    my $Agi=new(\%options);
 
 =head1 METHODS
 
+=head2 read_resistance
+
+    $resistance=$Agi->read_resistance($range,$resolution);
+
+Preset and measure resistance with specified range and resolution.
+
 =head2 read_voltage_dc
 
-    $datum=$hp->read_voltage_dc($range,$resolution);
+    $datum=$Agi->read_voltage_dc($range,$resolution);
 
 Preset and make a dc voltage measurement with the specified range
 and resolution.
@@ -312,7 +313,7 @@ The best resolution is 100nV: C<$range=0.1>; C<$resolution=0.000001>.
 
 =head2 read_voltage_ac
 
-    $datum=$hp->read_voltage_ac($range,$resolution);
+    $datum=$Agi->read_voltage_ac($range,$resolution);
 
 Preset and make an ac voltage measurement with the specified range
 and resolution. For ac measurements, resolution is actually fixed
@@ -320,28 +321,22 @@ at 6 1/2 digits. The resolution parameter only affects the front-panel display.
 
 =head2 read_current_dc
 
-    $datum=$hp->read_current_dc($range,$resolution);
+    $datum=$Agi->read_current_dc($range,$resolution);
 
 Preset and make a dc current measurement with the specified range
 and resolution.
 
 =head2 read_current_ac
 
-    $datum=$hp->read_current_ac($range,$resolution);
+    $datum=$Agi->read_current_ac($range,$resolution);
 
 Preset and make an ac current measurement with the specified range
 and resolution. For ac measurements, resolution is actually fixed
 at 6 1/2 digits. The resolution parameter only affects the front-panel display.
 
-=head2 read_resistance
-
-    $datum=$hp->read_resistance($range,$resolution);
-
-Preset and measure resistance with specified range and resolution.
-
 =head2 config_voltage
 
-    $inttime=$hp->config_voltage($digits,$range,$count);
+    $inttime=$Agi->config_voltage($digits,$range,$count);
 
 Configures device for measurement with specified number of digits (4 to 6), voltage range and number of data
 points. Afterwards, data can be taken by triggering the multimeter, resulting in faster measurements than using
@@ -350,26 +345,26 @@ Returns string with integration time resulting from number of digits.
 
 =head2 read_with_trigger_voltage_dc
 
-    @array = $hp->read_with_trigger_voltage_dc()
+    @array = $Agi->read_with_trigger_voltage_dc()
 
 Take data points as configured with config_voltage(). returns an array.
 
 =head2 display_on
 
-    $hp->display_on();
+    $Agi->display_on();
 
 Turn the front-panel display on.
 
 =head2 display_off
 
-    $hp->display_off();
+    $Agi->display_off();
 
 Turn the front-panel display off.
 
 =head2 display_text
 
-    $hp->display_text($text);
-    print $hp->display_text();
+    $Agi->display_text($text);
+    print $Agi->display_text();
 
 Display a message on the front panel. The multimeter will display up to 12
 characters in a message; any additional characters are truncated.
@@ -377,38 +372,38 @@ Without parameter the displayed message is returned.
 
 =head2 display_clear
 
-    $hp->display_clear();
+    $Agi->display_clear();
 
 Clear the message displayed on the front panel.
 
 =head2 scroll_message
 
-    $hp->scroll_message($message);
+    $Agi->scroll_message($message);
 
 Scrolls the message C<$message> on the display of the HP.
 
 =head2 beep
 
-    $hp->beep();
+    $Agi->beep();
 
 Issue a single beep immediately.
 
 =head2 get_error
 
-    ($err_num,$err_msg)=$hp->get_error();
+    ($err_num,$err_msg)=$Agi->get_error();
 
 Query the multimeter's error queue. Up to 20 errors can be stored in the
 queue. Errors are retrieved in first-in-first out (FIFO) order.
 
 =head2 reset
 
-    $hp->reset();
+    $Agi->reset();
 
 Reset the multimeter to its power-on configuration.
 
 =head2 id
 
-    $id=$hp->id();
+    $id=$Agi->id();
 
 Returns the instruments ID string.
 
@@ -426,9 +421,7 @@ probably many
 
 =head1 AUTHOR/COPYRIGHT
 
-This is $Id: HP34401A.pm 663 2010-04-26 20:16:11Z schroeer $
-
-Copyright 2004-2006 Daniel Schröer (<schroeer@cpan.org>), 2009-2010 Daniela Taubert
+Copyright 2004-2006 Daniel Schröer (<schroeer@cpan.org>), 2009-2010 Daniela Taubert, 2011 Florian Olbrich
 
 This library is free software; you can redistribute it and/or modify it under the same
 terms as Perl itself.

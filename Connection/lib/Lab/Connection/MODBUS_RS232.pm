@@ -292,10 +292,15 @@ Lab::Connection::MODBUS_RS232 - Perl extension for interfacing with instruments 
 
 =head1 SYNOPSIS
 
-  use Lab::Connection::MODBUS_RS232;
-  my $h = Lab::Connection::MODBUS_RS232->new( Interface 		=> 'RS232',
-				                			Port			=> 'COM1|/dev/ttyUSB1'
-											SlaveAddress	=> '1');
+	use Lab::Connection::MODBUS_RS232;
+	my $h = Lab::Connection::MODBUS_RS232->new({
+		Interface => 'RS232',
+		Port => 'COM1|/dev/ttyUSB1'
+		SlaveAddress => '1'
+	});
+
+	COM1 is the Windows notation, /dev/ttyUSB1 the Linux equivalent.
+	Use as needed.
 
 
 =head1 DESCRIPTION
@@ -311,7 +316,7 @@ Refer to your device for the correct port configuration.
 =head2 new
 
 All parameters are used as by C<Device::SerialPort> respectively C<Lab::Connection::RS232>.
-Port is needed in every case. Default value for timeout is 500ms and can be set by the parameter "Timeout".
+'Port' is needed in every case. Default value for timeout is 500ms and can be set by the parameter "Timeout".
 Other options you probably have to set: Handshake, Baudrate, Databits, Stopbits and Parity.
 
 =head1 METHODS
@@ -327,7 +332,7 @@ MemAddress ( 0xFFFF, Address of first word )
 MemCount ( 0xFFFF, Count of words to read )
 
 
-=head2 Write
+=head2 InstrumentWrite
 
 Send data to instrument. Arguments: 
 Function (0x05,0x06,0x0F,0x10 - "Write Single Coil", "Write Single Register", "Write Multiple Coils", "Write Multiple Registers")

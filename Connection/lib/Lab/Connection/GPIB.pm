@@ -10,11 +10,9 @@ use LinuxGpib ':all';
 use Data::Dumper;
 use Carp;
 
-# setup this variable to add inherited functions later
 our @ISA = ("Lab::Connection");
 
-our $VERSION = sprintf("1.%04d", q$Revision: 713 $ =~ / (\d+) /);
-
+# the following will be handled through %fields soon
 our $WAIT_STATUS=10;#usec;
 our $WAIT_QUERY=10;#usec;
 our $QUERY_LENGTH=300; # bytes
@@ -31,40 +29,14 @@ my %fields = (
 sub new {
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
-	my $args = shift;
-	my $self = $class->SUPER::new($args); # getting fields and _permitted from parent class
-	foreach my $element (keys %fields) {
-		$self->{_permitted}->{$element} = $fields{$element};
-	}
-	@{$self}{keys %fields} = values %fields;
-
-	#print Dumper($self->Config);
+	my $self = $class->SUPER::new(@_); # getting fields and _permitted from parent class
+	$self->ConstructMe();
 
 	# one board - one connection - one connection object
 	if ( exists $self->Config()->{'GPIB_Board'} ) {
 		$self->GPIB_Board($self->Config()->{'GPIB_Board'});
-		print "Using GPIB Board " . $self->GPIB_Board() . "\n";
+		 #print "Using GPIB Board " . $self->GPIB_Board() . "\n";
 	}
-
-
-	# my $GPIB_Paddr;
-
-	# using Primary Address only for the moment - no use for secondary here
-	# $GPIB_Paddr = $self->Config()->{'GPIB_Paddr'} || 0;
-
-
-	# open device
-#	my $GPIBInstrument;
-# 	if ($GPIB_Paddr) {
-# 		# see: http://linux-gpib.sourceforge.net/doc_html/r1297.html
-# 		# for timeout constant table: http://linux-gpib.sourceforge.net/doc_html/r2137.html	12 = 3 seconds
-# 		# ibdev arguments: board index, primary address, secondary address, timeout (constants, see link), send_eoi, eos (end-of-string character)
-# 		print "Opening device: " . $GPIB_Paddr . "\n";
-# 		$GPIBInstrument = ibdev(0, $GPIB_Paddr, 0, 12, 1, 0);
-# 		# Error if Descriptor is "-1"
-# 		die("Error opening Instrument!\n") unless $GPIBInstrument >= 0;
-# 		print "Descriptor is $GPIBInstrument \n";
-# 	}
 
 	return $self;
 }
@@ -109,7 +81,7 @@ sub InstrumentNew { # $self=Connection, { GPIB_Paddr => primary address }
 #
 # Todo: Evaluate $ibstatus: http://linux-gpib.sourceforge.net/doc_html/r634.html
 #
-sub InstrumentRead { # $self=Connection, \%InstrumentHandle, \%Options = { Cmd, Brutal }
+sub InstrumentRead { # $self=Connection, \%InstrumentHandle, \%Options = { ReadLength, Cmd, Brutal }
 	my $self = shift;
 	my $Instrument=shift;
 	my $Options = shift;
@@ -120,7 +92,7 @@ sub InstrumentRead { # $self=Connection, \%InstrumentHandle, \%Options = { Cmd, 
 	my $ResultConv = undef;
 	my $IbBits=undef;	# hash ref
 
-	my $ReadLength = $Options->{'Read_Length'} || 1000; # 1000 characters maximum should be sufficient... ?
+	my $ReadLength = $Options->{'ReadLength'} || 1000; # 1000 characters maximum should be sufficient... ?
 	my $ibstatus = undef;
 	my $ibsta_verbose = "";
     my $read_cnt = 0;
@@ -160,11 +132,6 @@ sub InstrumentRead { # $self=Connection, \%InstrumentHandle, \%Options = { Cmd, 
 
 
 	# Todo: additional reads neccessary? (compare VISA)
-
-
-# 	foreach my $key ( keys %IbBits ) {
-# 		print "$key: $IbBits{$key}\n";
-# 	}
 
 	#
 	# timeout occured - throw exception, but include the received data
@@ -245,6 +212,142 @@ sub VerboseIbstatus {
 
 	return $ibstatus_verbose;
 }
+
+
+
+=head1 NAME
+
+Lab::Connection::GPIB - GPIB connection base
+
+=head1 SYNOPSIS
+
+This is the GPIB connection class for the GPIB library C<linux-gpib> (aka C<libgpib0> in the debian world).
+
+  my $GPIB = new Lab::Connection::GPIB({ GPIB_Board => 0 });
+
+or implicit through instrument creation:
+
+  my $instrument = new Lab::Instrument::HP34401A({
+    ConnectionType => 'GPIB',
+    GPIB_Board => 0,
+    GPIB_Paddress=>14,
+  }
+
+=head1 DESCRIPTION
+
+See http://linux-gpib.sourceforge.net/.
+This will work for Linux systems only. On Windows, please use C<Lab::Connection::VISA>. The interfaces are (errr, will be) identical.
+
+=head1 CONSTRUCTOR
+
+=head2 new
+
+ my $connection = Lab::Connection::GPIB({
+    Connection => $connection_object,
+    ConnectionType => $conntype,
+    GPIB_Board => $board_num,
+    GPIB_Paddress => $paddress
+  });
+
+Return blessed $self, with @_ accessible through $self->Config().
+
+=head1 Thrown Exceptions
+
+Lab::Connection::GPIB throws
+
+  Lab::Exception::GPIBError
+    fields:
+    'ibsta', the raw ibsta status byte received from linux-gpib
+    'ibsta_hash', the ibsta bit values in a named, easy-to-read hash ( 'DCAS' => $val, 'DTAS' => $val, ... ). Use Lab::Connection::GPIB::VerboseIbstatus() to get a nice string representation
+
+  Lab::Exception::GPIBTimeout
+    fields:
+    'Data', this is meant to contain the data that (maybe) has been read/obtained/generated despite and up to the timeout.
+    ... and all the fields of Lab::Exception::GPIBError
+
+=head1 METHODS
+
+=head2 InstrumentNew
+
+  $GPIB->InstrumentNew({ GPIB_Paddr => $paddr });
+
+Creates a new instrument handle for this connection. The argument is a hash, which contents depend on the connection type.
+For GPIB at least 'GPIB_Paddr' is needed.
+
+The handle is usually stored in an instrument object and given to InstrumentRead, InstrumentWrite etc.
+to identify and handle the calling instrument:
+
+  $InstrumentHandle = $GPIB->InstrumentNew({ GPIB_Paddr => 13 });
+  $result = $GPIB->InstrumentRead($self->InstrumentHandle(), { options });
+
+See C<Lab::Instrument::Read()>.
+
+
+=head2 InstrumentWrite
+
+  $GPIB->InstrumentWrite( $InstrumentHandle, { Cmd => $Command } );
+
+Sends $Command to the instrument specified by the handle.
+
+
+=head2 InstrumentRead
+
+  $GPIB->InstrumentRead( $InstrumentHandle, { Cmd => $Command, ReadLength => $readlength, Brutal => 0/1 } );
+
+Sends $Command to the instrument specified by the handle. Reads back a maximum of $readlength bytes. If a timeout or
+an error occurs, Lab::Exception::GPIBError or Lab::Exception::GPIBTimeout are thrown, respectively. The Timeout object
+carries the data received up to the timeout event, accessible through $Exception->Data().
+
+Setting C<Brutal> to a true value will result in timeouts being ignored, and the gathered data returned without error.
+
+
+=head2 Config
+
+Provides unified access to the fields in initial @_ to all the cild classes.
+E.g.
+
+ $GPIB_PAddress=$instrument->Config(GPIB_PAddress);
+
+Without arguments, returns a reference to the complete $self->Config aka @_ of the constructor.
+
+ $Config = $connection->Config();
+ $GPIB_PAddress = $connection->Config()->{'GPIB_PAddress'};
+
+=head1 CAVEATS/BUGS
+
+View. Also, not a lot to be done here.
+
+=head1 SEE ALSO
+
+=over 4
+
+=item L<Lab::Connection::GPIB>
+
+=item L<Lab::Connection::MODBUS>
+
+=item and many more...
+
+=back
+
+=head1 AUTHOR/COPYRIGHT
+
+This is $Id: Connection.pm 749 2011-02-15 12:55:20Z olbrich $
+
+ Copyright 2004-2006 Daniel Schröer <schroeer@cpan.org>, 
+           2009-2010 Daniel Schröer, Andreas K. Hüttel (L<http://www.akhuettel.de/>) and David Kalok,
+         2010      Matthias Völker <mvoelker@cpan.org>
+           2011      Florian Olbrich
+
+This library is free software; you can redistribute it and/or modify it under the same
+terms as Perl itself.
+
+=cut
+
+
+
+
+
+
 
 1;
 
