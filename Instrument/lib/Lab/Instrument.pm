@@ -28,11 +28,11 @@ our $QUERY_LENGTH=300; # bytes
 our $QUERY_LONG_LENGTH=10240; #bytes
 our $INS_DEBUG=0; # do we need additional output?
 
-my %fields = (
+our %fields = (
 	Connection => undef,
 	ConnectionType => "",
 	SupportedConnections => [ ],
-	Config => undef,
+	Config => {},
 	InstrumentHandle => undef,
 	WaitQuery => 100,
 );
@@ -44,25 +44,31 @@ sub new {
 	my $class = ref($proto) || $proto;
 	my $self={};
 	bless ($self, $class);
-	$self->Config($Config);
 
-	$self->_ConstructMe(__PACKAGE__);
+	$self->ConstructMe(__PACKAGE__, \%fields);
+
+	$self->Config($Config);
 
 	return $self;
 }
 
+
 #
-# config gets it's own accessor - read only access to $self->Config
-# with no argument, returns a reference to $self->Config (just like AUTOLOAD would)
+# config gets it's own accessor - convenient access like $self->Config('GPIB_Paddress') instead of $self->Config()->{'GPIB_Paddress'}
+# with a hashref as argument, set $self->{'Config'} to the given hashref.
+# without an argument it returns a reference to $self->Config (just like AUTOLOAD would)
 #
 sub Config {	# $value = self->Config($key);
 	(my $self, my $key) = (shift, shift);
 
-	if(defined $key) {
-		return $self->Config->{'$key'};
+	if(!defined $key) {
+		return $self->{'Config'};
+	}
+	elsif(ref($key) =~ /HASH/) {
+		return $self->{'Config'} = $key;
 	}
 	else {
-		return $self->Config;
+		return $self->{'Config'};
 	}
 }
 
@@ -88,14 +94,14 @@ sub AUTOLOAD {
 #
 # Call this in inheriting class's constructors to conveniently initialize the %fields object data.
 #
-sub _ConstructMe {	# ConstructMe(__PACKAGE__);
-	(my $self, my $package) = (shift, shift);
+sub ConstructMe {	# ConstructMe(__PACKAGE__);
+	(my $self, my $package, my $fields) = (shift, shift, shift);
 	my $class = ref($self);
 
-	foreach my $element (keys %fields) {
-		$self->{_permitted}->{$element} = $fields{$element};
+	foreach my $element (keys %{$fields}) {
+		$self->{_permitted}->{$element} = $fields->{$element};
 	}
-	@{$self}{keys %fields} = values %fields;
+	@{$self}{keys %{$fields}} = values %{$fields};
 
 	#
 	# Check the connection data OR the connection object in $self->Config(), but only if 
@@ -103,19 +109,7 @@ sub _ConstructMe {	# ConstructMe(__PACKAGE__);
 	# That's because child classes can add new entrys to $self->SupportedConnections(), so delay checking to the top class.
 	#
 	if( $class eq $package ) {
-		# check the configuration hash for a valid connection object or connection type, and set the connection
-		if( defined($self->Config()->{'Connection'}) ) {
-			if($self->_checkconnection($self->Config()->{'Connection'})) {
-				$self->Connection($self->Config()->{'Connection'});
-			}
-			else { croak('Given Connection not supported'); }
-		}
-		else {
-			if($self->_checkconnection($self->Config()->{'ConnType'})) {
-				$self->_setconnection();
-			}
-			else { croak('Given Connection Type not supported'); }
-		}
+		$self->_setconnection();
 	}
 }
 
@@ -143,20 +137,32 @@ sub _checkconnection { # Connection object or ConnType string
 }
 
 #
-# Method to handle connection creation generically. This is called by _ConstructMe().
+# Method to handle connection creation generically. This is called by ConstructMe().
 # If the following (rather simple code) doesn't suit your child class, or your need to
-# introduce more thorough parameter checking and/or conversion, overwrite it - _ConstructMe()
+# introduce more thorough parameter checking and/or conversion, overwrite it - ConstructMe()
 # calls it only if it is called by the topmost class in the inheritance hierarchy itself.
 #
 sub _setconnection { # $self->setconnection(__PACKAGE__) create new or use existing connection
 	my $self=shift;
 
-	# yep - pass all the parameters on to the connection, it will take the ones it needs.
-	# This way connection setup can be handled generically. Conflicting parameter names? Let's try it.
-	$self->Connection(eval("new Lab::Connection::${\$self->Config()->{'ConnType'}}(\$self->Config())")) || croak('Failed to create connection');
+	# check the configuration hash for a valid connection object or connection type, and set the connection
+	if( defined($self->Config()->{'Connection'}) ) {
+		if($self->_checkconnection($self->Config()->{'Connection'})) {
+			$self->Connection($self->Config()->{'Connection'});
+		}
+		else { croak('Given Connection not supported'); }
+	}
+	else {
+		if($self->_checkconnection($self->Config()->{'ConnType'})) {
+			# yep - pass all the parameters on to the connection, it will take the ones it needs.
+			# This way connection setup can be handled generically. Conflicting parameter names? Let's try it.
+			$self->Connection(eval("new Lab::Connection::${\$self->Config()->{'ConnType'}}(\$self->Config())")) || croak('Failed to create connection');
+		}
+		else { croak('Given Connection Type not supported'); }
+	}
 
 	# again, pass it all.
-	$self->InstrumentHandle( $self->Connection()->InstrumentNew( $self->Config() );
+	$self->InstrumentHandle( $self->Connection()->InstrumentNew( $self->Config() ));
 }
 
 # needed so AUTOLOAD doesn't try to call DESTROY on cleanup and prevent the inherited DESTROY
@@ -201,7 +207,7 @@ sub BrutalRead {
 	my $self=shift;
 	my $options=shift;
 	$options={} unless ($options);
-	$options->{'Brutal' => 1};
+	$options->{'Brutal'} = 1;
 	
 	return $self->Read($options);
 }
@@ -297,7 +303,7 @@ Lab::Instrument - General instrument package
 =head1 SYNOPSIS
 
 This is meant to be used as a base class for inheriting instruments only.
-Every inheriting classes constructors should start as follows:
+Every inheriting class' constructors should start as follows:
 
   sub new {
     my $proto = shift;

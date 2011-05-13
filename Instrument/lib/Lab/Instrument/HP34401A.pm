@@ -1,16 +1,17 @@
 
-package Lab::Instrument::newHP34401A;
+package Lab::Instrument::HP34401A;
 
 use strict;
 use Lab::Instrument;
 use Lab::Connection;
 use Lab::Connection::GPIB;
 use Carp;
+use Data::Dumper;
 
 our $VERSION = sprintf("0.%04d", q$Revision: 720 $ =~ / (\d+) /);
 our @ISA = ("Lab::Instrument");
 
-my %fields = (
+our %fields = (
 	# SupportedConnections => [ 'GPIB', 'RS232' ],	# in principle RS232, too, but not implemented (yet)
 	SupportedConnections => [ 'GPIB' ],
 );
@@ -20,8 +21,9 @@ sub new {
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
 	my $self = $class->SUPER::new(@_);	# sets $self->Config
-	$self->ConstructMe(__PACKAGE__); 	# this sets up all the object fields out of the inheritance tree.
-										# also, it does generic connection setup.
+	$self->ConstructMe(__PACKAGE__, \%fields); 	# this sets up all the object fields out of the inheritance tree.
+												# also, it does generic connection setup.
+
 
 	return $self;
 }

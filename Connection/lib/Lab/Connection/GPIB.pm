@@ -30,7 +30,7 @@ sub new {
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
 	my $self = $class->SUPER::new(@_); # getting fields and _permitted from parent class
-	$self->ConstructMe();
+	$self->ConstructMe(__PACKAGE__, \%fields);
 
 	# one board - one connection - one connection object
 	if ( exists $self->Config()->{'GPIB_Board'} ) {
@@ -43,18 +43,15 @@ sub new {
 
 
 
-sub InstrumentNew { # $self=Connection, { GPIB_Paddr => primary address }
-	my $self = shift;
-	# get arguments
-	my %args = @_;
-	print "New Instrument\n";
+sub InstrumentNew { # { GPIB_Paddress => primary address }
+	(my $self, my $args) = (shift, shift);
 	my $GPIB_Paddr;
 
 	# using Primary Address only for the moment - no use for secondary here
-	if (exists $args{'GPIB_Paddr'}) {
+	if (exists $args->{'GPIB_Paddress'}) {
 		# create if missing
-		$args{'GPIB_Paddr'}=0 unless (exists $args{'GPIB_Paddr'});
- 		$GPIB_Paddr = $args{'GPIB_Paddr'};
+		$args->{'GPIB_Paddress'}=0 unless (exists $args->{'GPIB_Paddress'});
+ 		$GPIB_Paddr = $args->{'GPIB_Paddress'};
 	}
 
 	# open device

@@ -7,13 +7,15 @@ package Lab::Exception::Base;
 # This is for comfy optional adding of custom methods via our own exception base class later
 #
 
+
 our @ISA = ("Exception::Class::Base");
 
 #use Carp;
 
 sub new {
+	my $proto = shift;
+	my $class = ref($proto) || $proto;
 	my $self = $class->SUPER::new(@_);
-	warn "Yes, this is the custom Excepction base indeed.\n";
 	return $self;
 }
 

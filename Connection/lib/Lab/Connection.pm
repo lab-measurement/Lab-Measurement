@@ -40,7 +40,7 @@ sub new {
 	my $class = ref($proto) || $proto;
 	my $self={};
 	bless ($self, $class);
-	$self->ConstructMe();
+	$self->ConstructMe(__PACKAGE__, \%fields);
 
 	# next argument has to be the configuration hash
 	$self->Config($Config);
@@ -49,17 +49,21 @@ sub new {
 }
 
 #
-# config gets it's own accessor - read only access to $self->Config
-# with no argument, returns a reference to $self->Config (just like AUTOLOAD would)
+# config gets it's own accessor - convenient access like $self->Config('GPIB_Paddress') instead of $self->Config()->{'GPIB_Paddress'}
+# with a hashref as argument, set $self->{'Config'} to the given hashref.
+# without an argument it returns a reference to $self->Config (just like AUTOLOAD would)
 #
 sub Config {	# $value = self->Config($key);
 	(my $self, my $key) = (shift, shift);
 
-	if(defined $key) {
-		return $self->Config->{'$key'};
+	if(!defined $key) {
+		return $self->{'Config'};
+	}
+	elsif(ref($key) =~ /HASH/) {
+		return $self->{'Config'} = $key;
 	}
 	else {
-		return $self->Config;
+		return $self->{'Config'};
 	}
 }
 
@@ -86,15 +90,14 @@ sub AUTOLOAD {
 #
 # Call this in inheriting class's constructors to conveniently initialize the %fields object data.
 #
-#
 sub ConstructMe {	# ConstructMe(__PACKAGE__);
-	(my $self, my $package) = (shift, shift);
+	(my $self, my $package, my $fields) = (shift, shift, shift);
 	my $class = ref($self);
 
-	foreach my $element (keys %fields) {
-		$self->{_permitted}->{$element} = $fields{$element};
+	foreach my $element (keys %{$fields}) {
+		$self->{_permitted}->{$element} = $fields->{$element};
 	}
-	@{$self}{keys %fields} = values %fields;
+	@{$self}{keys %{$fields}} = values %{$fields};
 }
 	
 
