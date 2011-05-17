@@ -12,6 +12,7 @@ use POSIX; # added for int() function
 
 use Carp;
 use Data::Dumper;
+use Scalar::Util qw(weaken);
 our $AUTOLOAD;
 
 
@@ -26,9 +27,17 @@ our $QUERY_LENGTH=300; # bytes
 our $QUERY_LONG_LENGTH=10240; #bytes
 our $INS_DEBUG=0; # do we need additional output?
 
+# this holds a list of references to all the connection objects that are floating around in memory,
+# to enable transparent connection reuse, so the user doesn't have to handle (or even know about,
+# to that end) connection objects. weaken() is used so the reference in this list does not prevent destruction
+# of the object when the last "real" reference is gone.
+our %ConnectionList = (
+	# ConnectionType => $ConnectionReference,
+);
 
-my %fields = (
+our %fields = (
 	Config => undef,
+	Type => undef,	# e.g. 'GPIB'
 );
 
 
@@ -88,18 +97,30 @@ sub AUTOLOAD {
 }
 
 #
-# Call this in inheriting class's constructors to conveniently initialize the %fields object data.
+# Call this in inheriting class's constructors to conveniently initialize the %fields object data
 #
 sub ConstructMe {	# ConstructMe(__PACKAGE__);
 	(my $self, my $package, my $fields) = (shift, shift, shift);
 	my $class = ref($self);
+	my $twin = undef;
 
 	foreach my $element (keys %{$fields}) {
 		$self->{_permitted}->{$element} = $fields->{$element};
 	}
 	@{$self}{keys %{$fields}} = values %{$fields};
 }
-	
+
+
+#
+# this is a stub. In child classes, this should search %Lab::Connection::ConnectionList for a reusable
+# instance (and be called in the constructor).
+#
+# e.g.
+# return $self->_search_twin() || $self;
+#
+sub _search_twin {
+	return 0;
+}
 
 
 
@@ -187,6 +208,24 @@ Every inheriting classes constructors should start as follows:
 C<Lab::Connection> is a base class for individual connections. It doesn't do anything on its own.
 For more detailed information on the use of connection objects, take a look on a child class, e.g.
 C<Lab::Connection::GPIB>.
+
+In C<%Lab::Connection::ConnectionList> resides a hash which contains references to all the active connections in your program.
+They are put there by the constructor of the individual connection C<Lab::Connection::new()> and have two levels: Package name and
+a unique connection ID (GPIB board index offers itself for GPIB). This is to transparently (to the use interface) reuse connection objects,
+as there may only be one connection object for every (hardware) connection. weaken() is used on every reference stored in this hash, so
+it doesn't prevent object destruction when the last "real" reference is lost.
+Yes, this breaks object orientation a little, but it comes so handy!
+
+our %Lab::Connection::ConnectionList = [
+
+	$Package => {
+		$UniqueID => $Object,
+	}
+
+	'Lab::Connection::GPIB' => {
+		'0' => $Object,		"0" is the gpib board index, here
+	}
+
 
 =head1 CONSTRUCTOR
 

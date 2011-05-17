@@ -19,23 +19,35 @@ our $QUERY_LENGTH=300; # bytes
 our $QUERY_LONG_LENGTH=10240; #bytes
 our $INS_DEBUG=0; # do we need additional output?
 
-
-
-my %fields = (
+our %fields = (
 	GPIB_Board	=> 0,
 	Brutal => 0,
+	Type => 'GPIB',
 );
 
 sub new {
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
+	my $twin = undef;
 	my $self = $class->SUPER::new(@_); # getting fields and _permitted from parent class
 	$self->ConstructMe(__PACKAGE__, \%fields);
 
 	# one board - one connection - one connection object
 	if ( exists $self->Config()->{'GPIB_Board'} ) {
-		$self->GPIB_Board($self->Config()->{'GPIB_Board'});
-		 #print "Using GPIB Board " . $self->GPIB_Board() . "\n";
+		$self->GPIB_Board($self->Config()->{'GPIB_Board'}); 
+	} # ... or the default
+
+	# search for twin in %Lab::Connection::ConnectionList. If there's none, place $self there and weaken it.
+	if( $class eq __PACKAGE__ ) { # careful - do only if this is not a parent class constructor
+		if($twin = $self->_search_twin()) {
+			warn "Equivalent connection twin found. Go on brother, leave me behind.\n";
+			undef $self;
+			return $twin;	# ...and that's it.
+		}
+		else {
+			warn "I'm alone in this world.\n";
+			$Lab::Connection::ConnectionList{$self->Type()}->{$self->GPIB_Board()} = $self;
+		}
 	}
 
 	return $self;
@@ -211,6 +223,18 @@ sub VerboseIbstatus {
 }
 
 
+#
+# search and return an instance of the same type in %Lab::Connection::ConnectionList
+#
+sub _search_twin {
+	my $self=shift;
+
+	for my $conn ( values %{$Lab::Connection::ConnectionList{$self->Type()}} ) {
+		return $conn if $conn->GPIB_Board() == $self->GPIB_Board();
+	}
+	return undef;
+}
+
 
 =head1 NAME
 
@@ -240,13 +264,14 @@ This will work for Linux systems only. On Windows, please use C<Lab::Connection:
 =head2 new
 
  my $connection = Lab::Connection::GPIB({
-    Connection => $connection_object,
-    ConnectionType => $conntype,
-    GPIB_Board => $board_num,
-    GPIB_Paddress => $paddress
+    GPIB_Board => $board_num
   });
 
 Return blessed $self, with @_ accessible through $self->Config().
+
+Options:
+C<GPIB_Board>: Index of board to use. Can be omitted, 0 is the default.
+
 
 =head1 Thrown Exceptions
 
