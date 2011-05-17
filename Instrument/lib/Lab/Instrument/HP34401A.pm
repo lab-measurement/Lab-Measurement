@@ -2,6 +2,7 @@
 package Lab::Instrument::HP34401A;
 
 use strict;
+use Scalar::Util qw(weaken);
 use Lab::Instrument;
 use Lab::Connection;
 use Lab::Connection::GPIB;
@@ -254,24 +255,27 @@ Lab::Instrument::HP34401A - HP/Agilent 34401A digital multimeter
 
 =head1 SYNOPSIS
 
-	use Lab::Connection::GPIB;
-	use Lab::Instrument::HP34401A;
+  use Lab::Instrument::HP34401A;
 
-	my $GPIB = new Lab::Connection::GPIB({ GPIB_Board => 0 });
-	my $Agi = new Lab::Instrument::HP34401A({
-		Connection=>$GPIB,
-		GPIB_Paddress=>14,
-	}
+  my $Agi = new Lab::Instrument::HP34401A({
+    Connection => new Lab::Connection::GPIB(),
+    GPIB_Paddress => 14,
+  }
 
-or
+This omits the connection option "GPIB_Board => 0" (default). More elaborate:
 
-	use Lab::Instrument::HP34401A;
-
-	my $Agi = new Lab::Instrument::HP34401A({
-		ConnectionTyoe => 'GPIB',
+  my $Agi = new Lab::Instrument::HP34401A({
+    Connection => new Lab::Connection::GPIB({
 		GPIB_Board => 0,
-		GPIB_Paddress=>14,
-	}
+	}),
+    GPIB_Paddress => 14,
+  }
+
+
+Beware that if you give more detailed connection parameters, (only!) the ones from the first connection setup will be used.
+The second setup will automagically reuse the existing connection.
+If you know what you're doing or you have an exotic scenario you can use the connection parameter "IgnoreTwin => 1", but this
+is discouraged - it will kill connection management and you might run into hardware/resource sharing issues.
 
 
 =head1 DESCRIPTION

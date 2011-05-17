@@ -12,7 +12,6 @@ use POSIX; # added for int() function
 
 use Carp;
 use Data::Dumper;
-use Scalar::Util qw(weaken);
 our $AUTOLOAD;
 
 
@@ -38,6 +37,7 @@ our %ConnectionList = (
 our %fields = (
 	Config => undef,
 	Type => undef,	# e.g. 'GPIB'
+	IgnoreTwins => 0, # 
 );
 
 
@@ -53,6 +53,9 @@ sub new {
 
 	# next argument has to be the configuration hash
 	$self->Config($Config);
+
+	# Object data setup
+	$self->IgnoreTwins($self->Config('IgnoreTwins'));
 
 	return $self;
 }
@@ -225,6 +228,8 @@ our %Lab::Connection::ConnectionList = [
 	'Lab::Connection::GPIB' => {
 		'0' => $Object,		"0" is the gpib board index, here
 	}
+
+Place your twin searching code in $self->_search_twin(). Make sure it evaluates $self->IgnoreTwin(). Look at Lab::Connection::GPIB.
 
 
 =head1 CONSTRUCTOR

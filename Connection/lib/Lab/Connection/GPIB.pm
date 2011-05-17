@@ -5,6 +5,8 @@
 use strict;
 
 package Lab::Connection::GPIB;
+use strict;
+use Scalar::Util qw(weaken);
 use Lab::Connection;
 use LinuxGpib ':all';
 use Data::Dumper;
@@ -47,6 +49,7 @@ sub new {
 		else {
 			warn "I'm alone in this world.\n";
 			$Lab::Connection::ConnectionList{$self->Type()}->{$self->GPIB_Board()} = $self;
+			weaken($Lab::Connection::ConnectionList{$self->Type()}->{$self->GPIB_Board()});
 		}
 	}
 
@@ -229,8 +232,10 @@ sub VerboseIbstatus {
 sub _search_twin {
 	my $self=shift;
 
-	for my $conn ( values %{$Lab::Connection::ConnectionList{$self->Type()}} ) {
-		return $conn if $conn->GPIB_Board() == $self->GPIB_Board();
+	if(!$self->IgnoreTwins()) {
+		for my $conn ( values %{$Lab::Connection::ConnectionList{$self->Type()}} ) {
+			return $conn if $conn->GPIB_Board() == $self->GPIB_Board();
+		}
 	}
 	return undef;
 }
@@ -258,6 +263,13 @@ or implicit through instrument creation:
 
 See http://linux-gpib.sourceforge.net/.
 This will work for Linux systems only. On Windows, please use C<Lab::Connection::VISA>. The interfaces are (errr, will be) identical.
+
+Note: you don't need to explicitly handle connection objects. The Instruments will create them themselves, and existing connection will
+be automagically reused.
+
+In GPIB, instantiating two connection with identical parameter "GPIB_Board" will logically lead to the reuse of the first one.
+To override this, use the parameter "IgnoreTwins".
+
 
 =head1 CONSTRUCTOR
 
