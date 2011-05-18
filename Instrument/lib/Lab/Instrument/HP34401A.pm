@@ -269,7 +269,7 @@ This omits the connection option "GPIB_Board => 0" (default). More elaborate:
 		GPIB_Board => 0,
 	}),
     GPIB_Paddress => 14,
-  }
+  } 
 
 
 Beware that if you give more detailed connection parameters, (only!) the ones from the first connection setup will be used.
