@@ -15,7 +15,6 @@ use Data::Dumper;
 our $AUTOLOAD;
 
 
-# setup this variable to add inherited functions later
 our @ISA = ();
 
 our $VERSION = sprintf("1.%04d", q$Revision$ =~ / (\d+) /);
@@ -29,13 +28,9 @@ our %ConnectionList = (
 );
 
 our %fields = (
-	Config => undef,
-	Type => undef,	# e.g. 'GPIB'
-	IgnoreTwins => 0, # 
-	wait_status=>10, # usec;
-	wait_query=>10, # usec;
-	query_length=>300, # bytes
-	query_long_length=>10240, #bytes
+	config => undef,
+	type => undef,	# e.g. 'GPIB'
+	ignore_twins => 0, # 
 	ins_debug=>0,  # do we need additional output?
 );
 
@@ -44,65 +39,25 @@ sub new {
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
 	my $config = undef;
-	if (ref $_[0] eq 'HASH') { $config=shift }
+	if (ref $_[0] eq 'HASH') { $config=shift } # try to be flexible about options as hash/hashref
 	else { $config={@_} }
 	my $self={};
 	bless ($self, $class);
-	$self->ConstructMe(__PACKAGE__, \%fields);
+	$self->_construct(__PACKAGE__, \%fields);
 
-	# next argument has to be the configuration hashref
-	# also, try to be flexible about hashref/hash
-	$self->Config($config);
+	$self->config($config);
 
 	# Object data setup
-	$self->IgnoreTwins($self->Config('IgnoreTwins'));
+	$self->ignore_twins($self->config('ignore_twins'));
 
 	return $self;
 }
 
-#
-# config gets it's own accessor - convenient access like $self->Config('GPIB_Paddress') instead of $self->Config()->{'GPIB_Paddress'}
-# with a hashref as argument, set $self->{'Config'} to the given hashref.
-# without an argument it returns a reference to $self->Config (just like AUTOLOAD would)
-#
-sub Config {	# $value = self->Config($key);
-	(my $self, my $key) = (shift, shift);
-
-	if(!defined $key) {
-		return $self->{'Config'};
-	}
-	elsif(ref($key) =~ /HASH/) {
-		return $self->{'Config'} = $key;
-	}
-	else {
-		return $self->{'Config'};
-	}
-}
-
-
-sub AUTOLOAD {
-
-	my $self = shift;
-	my $type = ref($self) or croak "$self is not an object";
-
-	my $name = $AUTOLOAD;
-	$name =~ s/.*://; # strip fuly qualified portion
-
-	unless (exists $self->{_permitted}->{$name} ) {
-		croak "Can't access `$name' field in class $type";
-	}
-
-	if (@_) {
-		return $self->{$name} = shift;
-	} else {
-		return $self->{$name};
-	}
-}
 
 #
 # Call this in inheriting class's constructors to conveniently initialize the %fields object data
 #
-sub ConstructMe {	# ConstructMe(__PACKAGE__);
+sub _construct {	# _construct(__PACKAGE__, %fields);
 	(my $self, my $package, my $fields) = (shift, shift, shift);
 	my $class = ref($self);
 	my $twin = undef;
@@ -125,63 +80,65 @@ sub _search_twin {
 	return 0;
 }
 
+sub InstrumentRead {
+	return 0;
+}
 
+sub InsrumentWrite {
+	return 0;
+}
+
+sub InstrumentNew {
+	return 0;
+}
+
+
+
+
+
+#
+# config gets it's own accessor - convenient access like $self->config('GPIB_Paddress') instead of $self->config()->{'GPIB_Paddress'}
+# with a hashref as argument, set $self->{'config'} to the given hashref.
+# without an argument it returns a reference to $self->config (just like AUTOLOAD would)
+#
+sub config {	# $value = self->config($key);
+	(my $self, my $key) = (shift, shift);
+
+	if(!defined $key) {
+		return $self->{'config'};
+	}
+	elsif(ref($key) =~ /HASH/) {
+		return $self->{'config'} = $key;
+	}
+	else {
+		return $self->{'config'};
+	}
+}
+
+sub AUTOLOAD {
+
+	my $self = shift;
+	my $type = ref($self) or croak "$self is not an object";
+
+	my $name = $AUTOLOAD;
+	$name =~ s/.*://; # strip fully qualified portion
+
+	unless (exists $self->{_permitted}->{$name} ) {
+		Lab::Exception::Error->throw( error => "AUTOLOAD in " . __PACKAGE__ . " couldn't access field '${name}'.\n" );
+	}
+
+	if (@_) {
+		return $self->{$name} = shift;
+	} else {
+		return $self->{$name};
+	}
+}
 
 # needed so AUTOLOAD doesn't try to call DESTROY on cleanup and prevent the inherited DESTROY
 sub DESTROY {
         my $self = shift;
         $self -> SUPER::DESTROY if $self -> can ("SUPER::DESTROY");
 }
-
-
-
-# 
-# 
-# sub InstrumentClear { # $self, %handle
-#     	my $self=shift;
-#     	my %handle=shift;
-# 
-# 	# redirect to specific (i.e. ::VISA) interface function
-# 	return $self->{'interface'}->InstrumentClear(%handle) if ($self->{'interface'}->can('Clear'));
-# 	# error message
-# 	die "Clear function is not implemented in the interface ".$self->{'interface'}."\n";
-# }
-# 
-# sub InstrumentRead { # $self, %handle, %options 
-# 	my $self=shift;
-# 	my %handle=shift;
-# 	my %options=shift;
-# 
-# 	# redirect to interface function	
-# 	sleep($self->{'InterfaceDelay'}) if (exists $self->{'InterfaceDelay'});
-# 	
-# 	if ($options->{'brutal'}) {
-# 		# redirect to interface function
-# 		return $self->{'interface'}->InstrumentBrutalRead(%handle,%options) if ($self->{'interface'}->can('BrutalRead'));
-# 		# use Read if Brutal read is not implemented
-# 	};
-# 	return $self->{'interface'}->InstrumentRead(%handle,%options);
-# }
-# 
-# 
-# sub InstrumentWrite { # $self, %handle, $data
-# 	my $self=shift;	
-# 	my %handle=shift;
-# 	my $data=shift;
-# 	
-# 	# add delay if defined
-# 	sleep($self->{'InterfaceDelay'}) if (exists $self->{'InterfaceDelay'});
-# 	# redirect to interface function
-# 	return $self->{'interface'}->InstrumentWrite(%handle,$data);
-# }
-# 
-
-
-# sub DESTROY {
-#     my $self=shift;
-#     unless( exists $self->{'interface'}) {
-#     } # done only for old interface
-# }
 
 
 
@@ -202,7 +159,7 @@ Every inheriting classes constructors should start as follows:
 		my $proto = shift;
 		my $class = ref($proto) || $proto;
 		my $self = $class->SUPER::new(@_);
-		$self->ConstructMe(__PACKAGE__); #initialize fields etc.
+		$self->_construct(__PACKAGE__); #initialize fields etc.
 		...
 	}
 

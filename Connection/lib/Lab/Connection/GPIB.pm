@@ -1,5 +1,4 @@
 #!/usr/bin/perl -w
-# POD
 
 
 use strict;
@@ -14,42 +13,39 @@ use Carp;
 
 our @ISA = ("Lab::Connection");
 
-# the following will be handled through %fields soon
-our $WAIT_STATUS=10;#usec;
-our $WAIT_QUERY=10;#usec;
-our $QUERY_LENGTH=300; # bytes
-our $QUERY_LONG_LENGTH=10240; #bytes
-our $INS_DEBUG=0; # do we need additional output?
 
 our %fields = (
-	GPIB_Board	=> 0,
-	Brutal => 0,
-	Type => 'GPIB',
+	gpib_board	=> 0,
+	type => 'GPIB',
+	brutal => 0,	# brutal as default?
+	wait_status=>10, # usec;
+	wait_query=>10, # usec;
+	query_length=>300, # bytes
+	query_long_length=>10240, #bytes
 );
+
 
 sub new {
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
 	my $twin = undef;
 	my $self = $class->SUPER::new(@_); # getting fields and _permitted from parent class
-	$self->ConstructMe(__PACKAGE__, \%fields);
+	$self->_construct(__PACKAGE__, \%fields);
 
 	# one board - one connection - one connection object
-	if ( exists $self->Config()->{'GPIB_Board'} ) {
-		$self->GPIB_Board($self->Config()->{'GPIB_Board'}); 
+	if ( exists $self->config()->{'gpib_board'} ) {
+		$self->gpib_board($self->config()->{'gpib_board'}); 
 	} # ... or the default
 
 	# search for twin in %Lab::Connection::ConnectionList. If there's none, place $self there and weaken it.
 	if( $class eq __PACKAGE__ ) { # careful - do only if this is not a parent class constructor
 		if($twin = $self->_search_twin()) {
-			warn "Equivalent connection twin found. Go on brother, leave me behind.\n";
 			undef $self;
 			return $twin;	# ...and that's it.
 		}
 		else {
-			warn "I'm alone in this world.\n";
-			$Lab::Connection::ConnectionList{$self->Type()}->{$self->GPIB_Board()} = $self;
-			weaken($Lab::Connection::ConnectionList{$self->Type()}->{$self->GPIB_Board()});
+			$Lab::Connection::ConnectionList{$self->type()}->{$self->gpib_board()} = $self;
+			weaken($Lab::Connection::ConnectionList{$self->type()}->{$self->gpib_board()});
 		}
 	}
 
@@ -235,9 +231,9 @@ sub VerboseIbstatus {
 sub _search_twin {
 	my $self=shift;
 
-	if(!$self->IgnoreTwins()) {
-		for my $conn ( values %{$Lab::Connection::ConnectionList{$self->Type()}} ) {
-			return $conn if $conn->GPIB_Board() == $self->GPIB_Board();
+	if(!$self->ignore_twins()) {
+		for my $conn ( values %{$Lab::Connection::ConnectionList{$self->type()}} ) {
+			return $conn if $conn->gpib_board() == $self->gpib_board();
 		}
 	}
 	return undef;
@@ -252,13 +248,13 @@ Lab::Connection::GPIB - GPIB connection base
 
 This is the GPIB connection class for the GPIB library C<linux-gpib> (aka C<libgpib0> in the debian world).
 
-  my $GPIB = new Lab::Connection::GPIB({ GPIB_Board => 0 });
+  my $GPIB = new Lab::Connection::GPIB({ gpib_board => 0 });
 
 or implicit through instrument creation:
 
   my $instrument = new Lab::Instrument::HP34401A({
     ConnectionType => 'GPIB',
-    GPIB_Board => 0,
+    gpib_board => 0,
     GPIB_Paddress=>14,
   }
 
@@ -270,8 +266,8 @@ This will work for Linux systems only. On Windows, please use C<Lab::Connection:
 Note: you don't need to explicitly handle connection objects. The Instruments will create them themselves, and existing connection will
 be automagically reused.
 
-In GPIB, instantiating two connection with identical parameter "GPIB_Board" will logically lead to the reuse of the first one.
-To override this, use the parameter "IgnoreTwins".
+In GPIB, instantiating two connection with identical parameter "gpib_board" will logically lead to the reuse of the first one.
+To override this, use the parameter "ignore_twins".
 
 
 =head1 CONSTRUCTOR
@@ -279,13 +275,13 @@ To override this, use the parameter "IgnoreTwins".
 =head2 new
 
  my $connection = Lab::Connection::GPIB({
-    GPIB_Board => $board_num
+    gpib_board => $board_num
   });
 
-Return blessed $self, with @_ accessible through $self->Config().
+Return blessed $self, with @_ accessible through $self->config().
 
 Options:
-C<GPIB_Board>: Index of board to use. Can be omitted, 0 is the default.
+C<gpib_board>: Index of board to use. Can be omitted, 0 is the default.
 
 
 =head1 Thrown Exceptions
@@ -338,17 +334,17 @@ carries the data received up to the timeout event, accessible through $Exception
 Setting C<Brutal> to a true value will result in timeouts being ignored, and the gathered data returned without error.
 
 
-=head2 Config
+=head2 config
 
 Provides unified access to the fields in initial @_ to all the cild classes.
 E.g.
 
- $GPIB_PAddress=$instrument->Config(GPIB_PAddress);
+ $GPIB_PAddress=$instrument->config(GPIB_PAddress);
 
-Without arguments, returns a reference to the complete $self->Config aka @_ of the constructor.
+Without arguments, returns a reference to the complete $self->config aka @_ of the constructor.
 
- $Config = $connection->Config();
- $GPIB_PAddress = $connection->Config()->{'GPIB_PAddress'};
+ $config = $connection->config();
+ $GPIB_PAddress = $connection->config()->{'GPIB_PAddress'};
 
 =head1 CAVEATS/BUGS
 

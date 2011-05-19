@@ -1,5 +1,4 @@
 #!/usr/bin/perl -w
-# POD
 
 #
 # MODBUS connection driver.
@@ -23,8 +22,6 @@ use Thread::Semaphore;
 
 # setup this variable to add inherited functions later
 our @ISA = ("Lab::Connection::RS232");
-
-our $VERSION = sprintf("1.%04d", q$Revision: 713 $ =~ / (\d+) /);
 
 our $INS_DEBUG=0; # do we need additional output?
 

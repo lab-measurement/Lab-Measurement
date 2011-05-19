@@ -14,15 +14,15 @@ our @ISA = ("Lab::Instrument");
 
 our %fields = (
 	# SupportedConnections => [ 'GPIB', 'RS232' ],	# in principle RS232, too, but not implemented (yet)
-	SupportedConnections => [ 'GPIB' ],
+	supported_connections => [ 'GPIB' ],
 );
 
 
 sub new {
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
-	my $self = $class->SUPER::new(@_);	# sets $self->Config
-	$self->ConstructMe(__PACKAGE__, \%fields); 	# this sets up all the object fields out of the inheritance tree.
+	my $self = $class->SUPER::new(@_);	# sets $self->config
+	$self->_construct(__PACKAGE__, \%fields); 	# this sets up all the object fields out of the inheritance tree.
 												# also, it does generic connection setup.
 
 
@@ -259,14 +259,14 @@ Lab::Instrument::HP34401A - HP/Agilent 34401A digital multimeter
   use Lab::Instrument::HP34401A;
 
   my $Agi = new Lab::Instrument::HP34401A({
-    Connection => new Lab::Connection::GPIB(),
+    connection => new Lab::Connection::GPIB(),
     GPIB_Paddress => 14,
   }
 
 This omits the connection option "GPIB_Board => 0" (default). More elaborate:
 
   my $Agi = new Lab::Instrument::HP34401A({
-    Connection => new Lab::Connection::GPIB({
+    connection => new Lab::Connection::GPIB({
 		GPIB_Board => 0,
 	}),
     GPIB_Paddress => 14,
