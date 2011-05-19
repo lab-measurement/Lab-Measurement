@@ -31,6 +31,7 @@ sub new {
 
 
 
+
 sub read_resistance {
     my $self=shift;
     my ($range,$resolution)=@_;
@@ -39,7 +40,7 @@ sub read_resistance {
     $resolution="DEF" unless (defined $resolution);
     
 	my $cmd=sprintf("MEASure:SCALar:RESIStance? %s,%s",$range,$resolution);
-	my $value = $self->Connection()->InstrumentRead($self->InstrumentHandle(), {Cmd => $cmd});
+	my $value = $self->Read( command => $cmd );
     return $value;
 }
 
@@ -52,7 +53,7 @@ sub read_voltage_dc {
     $resolution="DEF" unless (defined $resolution);
     
     my $cmd=sprintf("MEASure:VOLTage:DC? %s,%s",$range,$resolution);
-    my $value = $self->Connection()->InstrumentRead($self->InstrumentHandle(), {Cmd => $cmd});
+    my $value = $self->Read( command => $cmd );
     return $value;
 }
 
@@ -64,7 +65,7 @@ sub read_voltage_ac {
     $resolution="DEF" unless (defined $resolution);
     
     my $cmd=sprintf("MEASure:VOLTage:AC? %s,%s",$range,$resolution);
-    my $value = $self->Connection()->InstrumentRead($self->InstrumentHandle(), {Cmd => $cmd});
+    my $value = $self->Read( command => $cmd );
     return $value;
 }
 
@@ -76,7 +77,7 @@ sub read_current_dc {
     $resolution="DEF" unless (defined $resolution);
     
     my $cmd=sprintf("MEASure:CURRent:DC? %s,%s",$range,$resolution);
-    my $value = $self->Connection()->InstrumentRead($self->InstrumentHandle(), {Cmd => $cmd});
+    my $value = $self->Read( command => $cmd );
     return $value;
 }
 
@@ -88,7 +89,7 @@ sub read_current_ac {
     $resolution="DEF" unless (defined $resolution);
     
     my $cmd=sprintf("MEASure:CURRent:AC? %s,%s",$range,$resolution);
-    my $value = $self->Connection()->InstrumentRead($self->InstrumentHandle(), {Cmd => $cmd});
+    my $value = $self->Read( command => $cmd );
     return $value;
 }
 
@@ -97,9 +98,9 @@ sub display_text {
     my $text=shift;
     
     if ($text) {
-        $self->Write(qq(DISPlay:TEXT "$text"));
+        $self->Write( command => qq(DISPlay:TEXT "$text"));
     } else {
-        chomp($text=$self->Query(qq(DISPlay:TEXT?)));
+        chomp($text=$self->Query( command => qq(DISPlay:TEXT?) ));
         $text=~s/\"//g;
     }
     return $text;
@@ -107,27 +108,27 @@ sub display_text {
 
 sub display_on {
     my $self=shift;
-    $self->Write("DISPlay ON");
+    $self->Write( command => "DISPlay ON" );
 }
 
 sub display_off {
     my $self=shift;
-    $self->Write("DISPlay OFF");
+    $self->Write( command => "DISPlay OFF" );
 }
 
 sub display_clear {
     my $self=shift;
-    $self->Write("DISPlay:TEXT:CLEar");
+    $self->Write( command => "DISPlay:TEXT:CLEar");
 }
 
 sub beep {
     my $self=shift;
-    $self->Write("SYSTem:BEEPer");
+    $self->Write( command => "SYSTem:BEEPer");
 }
 
 sub get_error {
     my $self=shift;
-    chomp(my $err=$self->Query("SYSTem:ERRor?"));
+    chomp(my $err=$self->Query( command => "SYSTem:ERRor?"));
     my ($err_num,$err_msg)=split ",",$err;
     $err_msg=~s/\"//g;
     return ($err_num,$err_msg);
@@ -135,7 +136,7 @@ sub get_error {
 
 sub reset {
     my $self=shift;
-    $self->Write("*RST");
+    $self->Write( command => "*RST");
 }
 
 
@@ -144,7 +145,7 @@ sub config_voltage {
     my ($digits, $range, $counts)=@_;
 
     #set input resistance to >10 GOhm for the three highest resolution values 
-    $self->Write("INPut:IMPedance:AUTO ON");
+    $self->Write( command => "INPut:IMPedance:AUTO ON");
 
     $digits = int($digits);
     $digits = 4 if $digits < 4;
@@ -167,7 +168,7 @@ sub config_voltage {
     }
 
     my $resolution = (10**(-$digits))*$range;
-    $self->Write("CONF:VOLT:DC $range,$resolution");
+    $self->Write( command => "CONF:VOLT:DC $range,$resolution");
 
 
     # calculate integration time, set it and prepare for output
@@ -176,26 +177,26 @@ sub config_voltage {
 
     if ($digits ==4) {
       $inttime = 0.4;
-      $self->Write("VOLT:NPLC 0.02");
+      $self->Write( command => "VOLT:NPLC 0.02");
     }
     elsif ($digits ==5) {
       $inttime = 4;
-      $self->Write("VOLT:NPLC 0.2");
+      $self->Write( command => "VOLT:NPLC 0.2");
     }
     elsif ($digits ==6) {
       $inttime = 200;
-      $self->Write("VOLT:NPLC 10");
-      $self->Write("ZERO:AUTO OFF");
+      $self->Write( command => "VOLT:NPLC 10");
+      $self->Write( command => "ZERO:AUTO OFF");
     }
 
     my $retval = $inttime." ms";
 
 
     # triggering
-    $self->Write("TRIGger:SOURce BUS");
-    $self->Write("SAMPle:COUNt $counts");
-    $self->Write("TRIGger:DELay MIN");
-    $self->Write("TRIGger:DELay:AUTO OFF");
+    $self->Write( command => "TRIGger:SOURce BUS");
+    $self->Write( command => "SAMPle:COUNt $counts");
+    $self->Write( command => "TRIGger:DELay MIN");
+    $self->Write( command => "TRIGger:DELay:AUTO OFF");
 
     return $retval;
 }
@@ -203,9 +204,9 @@ sub config_voltage {
 sub read_with_trigger_voltage_dc {
     my $self=shift;
 
-    $self->Write("INIT");
-    $self->Write("*TRG");
-    my $value = $self->Query("FETCh?");
+    $self->Write( command => "INIT");
+    $self->Write( command => "*TRG");
+    my $value = $self->Query( command => "FETCh?");
 
     chomp $value;
 
@@ -228,12 +229,12 @@ sub scroll_message {
 
 sub id {
     my $self=shift;
-    $self->Query('*IDN?');
+    $self->Query( command => '*IDN?');
 }
 
 sub read_value {
     my $self=shift;
-    my $value=$self->Query('READ?');
+    my $value=$self->Query( command => 'READ?');
     chomp $value;
     return $value;
 }

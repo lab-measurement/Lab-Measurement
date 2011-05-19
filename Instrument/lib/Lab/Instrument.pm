@@ -22,11 +22,6 @@ our $AUTOLOAD;
 
 our $VERSION = sprintf("1.%04d", q$Revision$ =~ / (\d+) /);
 
-our $WAIT_STATUS=10;#usec;
-our $WAIT_QUERY=10;#usec;
-our $QUERY_LENGTH=300; # bytes
-our $QUERY_LONG_LENGTH=10240; #bytes
-our $INS_DEBUG=0; # do we need additional output?
 
 our %fields = (
 	Connection => undef,
@@ -34,20 +29,28 @@ our %fields = (
 	SupportedConnections => [ ],
 	Config => {},
 	InstrumentHandle => undef,
-	WaitQuery => 100,
+	wait_status => 10, # usec
+	wait_query => 100, # usec
+	query_length => 300, # bytes
+	query_long_length => 10240, # bytes
+	ins_debug => 0, # do we need additional output?
 );
 
 
 
 sub new { 
-	(my $proto, my $Config) = (shift,shift);
+	my $proto = shift;
 	my $class = ref($proto) || $proto;
+	my $config = undef;
+	if (ref $_[0] eq 'HASH') { $config=shift }
+	else { $config={@_} }
+
 	my $self={};
 	bless ($self, $class);
 
 	$self->ConstructMe(__PACKAGE__, \%fields);
 
-	$self->Config($Config);
+	$self->Config($config);
 
 	return $self;
 }
@@ -185,9 +188,11 @@ sub Clear {
 
 sub Write {
 	my $self=shift;
-	my $data=shift;
+	my $options=undef;
+	if (ref $_[0] eq 'HASH') { $options=shift }
+	else { $options={@_} }
 	
-	return $self->Connection()->InstrumentWrite($self->InstrumentHandle(), { SCPI_cmd => $data });
+	return $self->Connection()->InstrumentWrite($self->InstrumentHandle(), $options);
 }
 
 
@@ -195,8 +200,9 @@ sub Write {
 
 sub Read {
 	my $self=shift;
-	my $options=shift;
-	$options={} unless ($options);
+	my $options=undef;
+	if (ref $_[0] eq 'HASH') { $options=shift }
+	else { $options={@_} }
 
 	return $self->Connection()->InstrumentRead($self->InstrumentHandle(), $options);
 }
@@ -205,8 +211,9 @@ sub Read {
 
 sub BrutalRead {
 	my $self=shift;
-	my $options=shift;
-	$options={} unless ($options);
+	my $options=undef;
+	if (ref $_[0] eq 'HASH') { $options=shift }
+	else { $options={@_} }
 	$options->{'Brutal'} = 1;
 	
 	return $self->Read($options);
@@ -216,8 +223,9 @@ sub BrutalRead {
 
 sub Query {
 	my $self=shift;
-	my $options=shift;
-	$options={} unless ($options);
+	my $options=undef;
+	if (ref $_[0] eq 'HASH') { $options=shift }
+	else { $options={@_} }
 
 	my $Cmd = delete $options->{'Cmd'};
 
@@ -234,8 +242,9 @@ sub Query {
 
 sub LongQuery {
 	my $self=shift;
-	my $options=shift;
-	$options={} unless ($options);
+	my $options=undef;
+	if (ref $_[0] eq 'HASH') { $options=shift }
+	else { $options={@_} }
 
 	$options->{ReadLength} = 10240;
 	return $self->Query($options);
@@ -244,8 +253,9 @@ sub LongQuery {
 
 sub BrutalQuery {
 	my $self=shift;
-	my $options=shift;
-	$options={} unless ($options);
+	my $options=undef;
+	if (ref $_[0] eq 'HASH') { $options=shift }
+	else { $options={@_} }
 
 	$options->{Brutal} = 1;
 	return $self->Query($options);

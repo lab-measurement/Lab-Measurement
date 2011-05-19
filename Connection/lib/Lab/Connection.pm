@@ -20,12 +20,6 @@ our @ISA = ();
 
 our $VERSION = sprintf("1.%04d", q$Revision$ =~ / (\d+) /);
 
-our $WAIT_STATUS=10;#usec;
-our $WAIT_QUERY=10;#usec;
-our $QUERY_LENGTH=300; # bytes
-our $QUERY_LONG_LENGTH=10240; #bytes
-our $INS_DEBUG=0; # do we need additional output?
-
 # this holds a list of references to all the connection objects that are floating around in memory,
 # to enable transparent connection reuse, so the user doesn't have to handle (or even know about,
 # to that end) connection objects. weaken() is used so the reference in this list does not prevent destruction
@@ -38,21 +32,27 @@ our %fields = (
 	Config => undef,
 	Type => undef,	# e.g. 'GPIB'
 	IgnoreTwins => 0, # 
+	wait_status=>10, # usec;
+	wait_query=>10, # usec;
+	query_length=>300, # bytes
+	query_long_length=>10240, #bytes
+	ins_debug=>0,  # do we need additional output?
 );
 
 
 sub new {
-	#
-	# This doesn't do much except setting basic data fields and delivering
-	# their %fields and _permitted to inheriting objects/classes
-	(my $proto, my $Config) = (shift,shift);
+	my $proto = shift;
 	my $class = ref($proto) || $proto;
+	my $config = undef;
+	if (ref $_[0] eq 'HASH') { $config=shift }
+	else { $config={@_} }
 	my $self={};
 	bless ($self, $class);
 	$self->ConstructMe(__PACKAGE__, \%fields);
 
-	# next argument has to be the configuration hash
-	$self->Config($Config);
+	# next argument has to be the configuration hashref
+	# also, try to be flexible about hashref/hash
+	$self->Config($config);
 
 	# Object data setup
 	$self->IgnoreTwins($self->Config('IgnoreTwins'));

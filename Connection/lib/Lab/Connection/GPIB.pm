@@ -97,7 +97,7 @@ sub InstrumentRead { # $self=Connection, \%InstrumentHandle, \%Options = { ReadL
 	my $self = shift;
 	my $Instrument=shift;
 	my $Options = shift;
-	my $Command = $Options->{'Cmd'} || undef;
+	my $Command = $Options->{'command'} || undef;
 	my $Brutal = $Options->{'Brutal'};
 	my $Result = undef;
 	my $Raw = "";
@@ -117,6 +117,9 @@ sub InstrumentRead { # $self=Connection, \%InstrumentHandle, \%Options = { ReadL
 		if( $IbBits->{'ERR'} ) {
 			Lab::Exception::GPIBError->throw( error => sprintf("ibwrt failed with ibstatus %x\n", $ibstatus), ibsta => $ibstatus, ibsta_hash => $IbBits );
 		}
+	}
+	else {
+		Lab::Exception::CorruptParameter->throw( error => "No command supplied to InstrumentRead()\n" );
 	}
 
 	$ibstatus = ibrd($Instrument->{'GPIBHandle'}, $Result, $ReadLength);
@@ -161,15 +164,15 @@ sub InstrumentWrite { # $self=Connection, \%InstrumentHandle, \%Options = { Cmd 
 	my $self = shift;
 	my $Instrument=shift;
 	my $Options = shift;
-	my $Command = $Options->{'Cmd'} || undef;
+	my $command = $Options->{'command'} || undef;
 
 	my $ibstatus = undef;
 
-	if(!defined $Command) {
+	if(!defined $command) {
 		die("No command submitted\n");
 	}
 	else {
-		$ibstatus=ibwrt($Instrument->{'GPIBHandle'}, $Command, length($Command));
+		$ibstatus=ibwrt($Instrument->{'GPIBHandle'}, $command, length($command));
 	}
 
 	my $IbBits=$self->ParseIbstatus($ibstatus);
