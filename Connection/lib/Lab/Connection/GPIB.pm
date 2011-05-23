@@ -6,6 +6,7 @@ use strict;
 package Lab::Connection::GPIB;
 use strict;
 use Scalar::Util qw(weaken);
+use Time::HiRes qw (usleep sleep);
 use Lab::Connection;
 use LinuxGpib ':all';
 use Data::Dumper;
@@ -18,8 +19,9 @@ our %fields = (
 	gpib_board	=> 0,
 	type => 'GPIB',
 	brutal => 0,	# brutal as default?
-	wait_status=>10, # usec;
+	wait_status=>0, # usec;
 	wait_query=>10, # usec;
+	read_length=>1000, # bytes
 	query_length=>300, # bytes
 	query_long_length=>10240, #bytes
 );
@@ -54,131 +56,164 @@ sub new {
 
 
 
-sub InstrumentNew { # { GPIB_Paddress => primary address }
-	(my $self, my $args) = (shift, shift);
-	my $GPIB_Paddr;
+sub InstrumentNew { # { gpib_address => primary address }
+	my $self = shift;
+	my $args = undef;
+	if (ref $_[0] eq 'HASH') { $args=shift } # try to be flexible about options as hash/hashref
+	else { $args={@_} }
 
-	# using Primary Address only for the moment - no use for secondary here
-	if (exists $args->{'GPIB_Paddress'}) {
-		# create if missing
-		$args->{'GPIB_Paddress'}=0 unless (exists $args->{'GPIB_Paddress'});
- 		$GPIB_Paddr = $args->{'GPIB_Paddress'};
+	if(!defined $args->{'gpib_address'} || $args->{'gpib_address'} !~ /^[0-9]*$/ ) {
+		Lab::Exception::CorruptParameter->throw (
+			error => "No valid gpib address given to " . __PACKAGE__ . "::InstrumentNew()\n",
+		);
 	}
+
+	my $gpib_address = $args->{'gpib_address'};
+	my $instrument_handle = undef;
+	my $gpib_handle = undef;
 
 	# open device
-	my $GPIBInstrument;
-	if ($GPIB_Paddr) {
-		# see: http://linux-gpib.sourceforge.net/doc_html/r1297.html
-		# for timeout constant table: http://linux-gpib.sourceforge.net/doc_html/r2137.html
-		# ibdev arguments: board index, primary address, secondary address, timeout (constants, see link), send_eoi, eos (end-of-string character)
-		print "Opening device: " . $GPIB_Paddr . "\n";
-		$GPIBInstrument = ibdev(0, $GPIB_Paddr, 0, 12, 1, 0);
+	# see: http://linux-gpib.sourceforge.net/doc_html/r1297.html
+	# for timeout constant table: http://linux-gpib.sourceforge.net/doc_html/r2137.html
+	# ibdev arguments: board index, primary address, secondary address, timeout (constants, see link), send_eoi, eos (end-of-string character)
+	print "Opening device: " . $gpib_address . "\n";
+	$gpib_handle = ibdev(0, $gpib_address, 0, 12, 1, 0);
 
-		# clear
-		my $ibstatus = ibclr($GPIBInstrument);
-		printf("Instrument cleared, ibstatus %x\n", $ibstatus);
-
-		print "Descriptor is $GPIBInstrument \n";
-	}
+	# clear
+	#my $ibstatus = ibclr($GPIBInstrument);
+	#printf("Instrument cleared, ibstatus %x\n", $ibstatus);
 		
-	my $Instrument=  { valid => 1, type => "GPIB", GPIBHandle => $GPIBInstrument };  
-	return $Instrument;
+	$instrument_handle =  { valid => 1, type => "GPIB", gpib_handle => $gpib_handle };  
+	return $instrument_handle;
 }
 
 
 #
 # Todo: Evaluate $ibstatus: http://linux-gpib.sourceforge.net/doc_html/r634.html
 #
-sub InstrumentRead { # $self=Connection, \%InstrumentHandle, \%Options = { ReadLength, Cmd, Brutal }
+sub InstrumentRead { # @_ = ( $instrument_handle, $args = { read_length, brutal }
 	my $self = shift;
-	my $Instrument=shift;
-	my $Options = shift;
-	my $Command = $Options->{'command'} || undef;
-	my $Brutal = $Options->{'Brutal'};
-	my $Result = undef;
-	my $Raw = "";
-	my $ResultConv = undef;
-	my $IbBits=undef;	# hash ref
+	my $instrument_handle=shift;
+	my $args = undef;
+	if (ref $_[0] eq 'HASH') { $args=shift } # try to be flexible about options as hash/hashref
+	else { $args={@_} }
 
-	my $ReadLength = $Options->{'ReadLength'} || 1000; # 1000 characters maximum should be sufficient... ?
+	my $command = $args->{'command'} || undef;
+	my $brutal = $args->{'brutal'} || $self->brutal();
+	my $read_length = $args->{'read_length'} || $self->read_length();
+	my $wait_status = $args->{'wait_status'} || $self->wait_status();
+
+	my $result = undef;
+	my $raw = "";
+	my $ib_bits=undef;	# hash ref
 	my $ibstatus = undef;
 	my $ibsta_verbose = "";
-    my $read_cnt = 0;
 	my $decimal = 0;
 
-	if(defined $Command) {
-		$ibstatus=ibwrt($Instrument->{'GPIBHandle'}, $Command, length($Command));
-		$IbBits=$self->ParseIbstatus($ibstatus);
+	$ibstatus = ibrd($instrument_handle->{'gpib_handle'}, $result, $read_length);
+	$ib_bits=$self->ParseIbstatus($ibstatus);
 
-		if( $IbBits->{'ERR'} ) {
-			Lab::Exception::GPIBError->throw( error => sprintf("ibwrt failed with ibstatus %x\n", $ibstatus), ibsta => $ibstatus, ibsta_hash => $IbBits );
-		}
-	}
-	else {
-		Lab::Exception::CorruptParameter->throw( error => "No command supplied to InstrumentRead()\n" );
-	}
-
-	$ibstatus = ibrd($Instrument->{'GPIBHandle'}, $Result, $ReadLength);
-	$IbBits=$self->ParseIbstatus($ibstatus);
-
-	if( $IbBits->{'ERR'} && !$IbBits->{'TIMO'} ) {	# if the error is a timeout, we still evaluate the result and see what to do with the error later
-		Lab::Exception::GPIBError->throw( error => sprintf("ibrd failed with ibstatus %x", $ibstatus), ibsta => $ibstatus, ibsta_hash => $IbBits );
-	}
-	else {
-		$Raw = $Result;
-		#printf("Raw: %s\n", $Result);
-		# check for number and convert. secure builtin way? maybe sprintf?
-		if($Result =~ /^\s*([+-][0-9]*\.[0-9]*)([eE]([+-]?[0-9]*))?\s*\x00*/) {
-			$Result = $1;
-			$Result .= "e$3" if defined $3;
-			$ResultConv = $1;
-			$ResultConv *= 10 ** ( $3 )  if defined $3;
-		}
-		else {
-			# not recognized - well upstream will hopefully be happy, anyway
-			#croak('Non-numeric answer received');
-			$Result = $Raw
-		}
+	if( $ib_bits->{'ERR'} && !$ib_bits->{'TIMO'} ) {	# if the error is a timeout, we still evaluate the result and see what to do with the error later
+		Lab::Exception::GPIBError->throw(
+			error => sprintf("ibrd failed with ibstatus %x", $ibstatus),
+			ibsta => $ibstatus,
+			ibsta_hash => $ib_bits,
+		);
 	}
 
-
-	# Todo: additional reads neccessary? (compare VISA)
+	# strip spaces and null byte
+	# note to self: find a way to access the ibcnt variable through the perl binding to use
+	# $result = substr($result, 0, $ibcnt)
+	$raw = $result;
+	$result =~ /^\s*([+-][0-9]*\.[0-9]*)([eE]([+-]?[0-9]*))?\s*\x00*$/;
+	$result = $1;
 
 	#
 	# timeout occured - throw exception, but include the received data
 	# if the "Brutal" option is present, ignore the timeout and just return the data
 	#
-	if( $IbBits->{'ERR'} && $IbBits->{'TIMO'} && !$Brutal ) {
-		Lab::Exception::GPIBTimeout->throw( error => sprintf("ibrd failed with a timeout, ibstatus %x\n", $ibstatus), ibsta => $ibstatus, ibsta_hash => $IbBits, Data => $Result );
+	if( $ib_bits->{'ERR'} && $ib_bits->{'TIMO'} && !$brutal ) {
+		Lab::Exception::GPIBTimeout->throw(
+			error => sprintf("ibrd failed with a timeout, ibstatus %x\n", $ibstatus),
+			ibsta => $ibstatus,
+			ibsta_hash => $ib_bits,
+			data => $result
+		);
 	}
 	# no timeout, regular return
-	return $Result;
+	return $result;
 }
 
 
-sub InstrumentWrite { # $self=Connection, \%InstrumentHandle, \%Options = { Cmd }
-	my $self = shift;
-	my $Instrument=shift;
-	my $Options = shift;
-	my $command = $Options->{'command'} || undef;
 
+sub InstrumentQuery { # @_ = ( $instrument_handle, $args = { command, read_length, wait_status, wait_query, brutal }
+	my $self = shift;
+	my $instrument_handle=shift;
+	my $args = undef;
+	if (ref $_[0] eq 'HASH') { $args=shift } # try to be flexible about options as hash/hashref
+	else { $args={@_} }
+
+	my $command = $args->{'command'} || undef;
+	my $brutal = $args->{'brutal'} || $self->brutal();
+	my $read_length = $args->{'read_length'} || $self->read_length();
+	my $wait_status = $args->{'wait_status'} || $self->wait_status();
+	my $wait_query = $args->{'wait_query'} || $self->wait_query();
+	my $result = undef;
+
+
+    $self->InstrumentWrite($args);
+
+    usleep($wait_query); #<---ensures that asked data presented from the device
+
+    $result=$self->InstrumentRead($args);
+    return $result;
+}
+
+
+
+
+sub InstrumentWrite { # @_ = ( $instrument_handle, $args = { command, wait_status }
+	my $self = shift;
+	my $instrument_handle=shift;
+	my $args = undef;
+	if (ref $_[0] eq 'HASH') { $args=shift } # try to be flexible about options as hash/hashref
+	else { $args={@_} }
+
+	my $command = $args->{'command'} || undef;
+	my $brutal = $args->{'brutal'} || $self->brutal();
+	my $read_length = $args->{'read_length'} || $self->read_length();
+	my $wait_status = $args->{'wait_status'} || $self->wait_status();
+
+	my $result = undef;
+	my $raw = "";
+	my $ib_bits=undef;	# hash ref
 	my $ibstatus = undef;
+	my $ibsta_verbose = "";
+	my $decimal = 0;
+
 
 	if(!defined $command) {
-		die("No command submitted\n");
+		Lab::Exception::CorruptParameter->throw(
+			error => "No command given to " . __PACKAGE__ . "::InstrumentWrite().\n",
+		);
 	}
 	else {
-		$ibstatus=ibwrt($Instrument->{'GPIBHandle'}, $command, length($command));
+		$ibstatus=ibwrt($instrument_handle->{'gpib_handle'}, $command, length($command));
+        usleep($wait_status);
 	}
 
-	my $IbBits=$self->ParseIbstatus($ibstatus);
+	$ib_bits=$self->ParseIbstatus($ibstatus);
 # 	foreach my $key ( keys %IbBits ) {
-# 		print "$key: $IbBits{$key}\n";
+# 		print "$key: $ib_bits{$key}\n";
 # 	}
 
 	# Todo: better Error checking
-	if($IbBits->{'ERR'}==1) {
-		croak(sprintf("InstrumentWrite failed with ibstatus %x\n", $ibstatus) . "Options: \n" . Dumper($Options));
+	if($ib_bits->{'ERR'}==1) {
+		Lab::Exception::GPIBError->throw(
+			error => sprintf("Error in " . __PACKAGE__ . "::InstrumentWrite() while executing $command: ibwrite failed with status %x", $ibstatus),
+			ibsta => $ibstatus,
+			ibsta_hash => $ibsta_verbose,
+		);
 	}
 
 	return 1;

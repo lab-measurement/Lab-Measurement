@@ -57,7 +57,7 @@ use Exception::Class (
 
 
 	#
-	# warnings specific to Lab::Connection::GPIB
+	# errors and warnings specific to Lab::Connection::GPIB
 	#
 	Lab::Exception::GPIBError => {
 		isa			=> 'Lab::Exception::Error',
@@ -73,11 +73,33 @@ use Exception::Class (
 		isa			=> 'Lab::Exception::GPIBError',
 		description	=> 'A timeout occured in the GPIB connection (linux-gpib).',
 		fields		=> [
-							'Data',	# this is meant to contain the data that (maybe) has been read/obtained/generated despite and up to the timeout.
+							'data',	# this is meant to contain the data that (maybe) has been read/obtained/generated despite and up to the timeout.
 		],
 	},
 
-	
+
+	#
+	# errors and warnings specific to VISA / Lab::VISA
+	#
+
+	Lab::Exception::VISAError => {
+		isa			=> 'Lab::Exception::Error',
+		description	=> 'An error occured with NI VISA or the Lab::VISA interface',
+		fields		=> [
+							'status', # the status returned from Lab::VISA, if any
+		]
+	},
+
+	Lab::Exception::VISATimeout => {
+		isa			=> 'Lab::Exception::VISAError',
+		description	=> 'A timeout occured while reading/wrting through NI VISA / Lab::VISA',
+		fields		=> [
+							'status', # the status returned from Lab::VISA, if any
+							'command', # the command that led to the timeout
+							'data', # the data read up to the abort
+		]
+	},
+
 
 	#
 	# general warnings

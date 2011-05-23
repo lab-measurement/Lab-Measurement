@@ -25,7 +25,7 @@ our $VERSION = sprintf("1.%04d", q$Revision$ =~ / (\d+) /);
 
 our %fields = (
 	connection => undef,
-	connection_type => "",
+	connection_type => "GPIB", # default
 	supported_connections => [ ],
 	config => {},
 	instrument_handle => undef,
@@ -87,12 +87,12 @@ sub _checkconfig {
 
 sub _checkconnection { # Connection object or ConnType string
 	my $self=shift;
-	my $connection=shift;
-	my $ConnType = undef;
+	my $connection=shift || "";
+	my $conn_type = "";
 
-	$ConnType = ( split( '::',  ref($connection) || $connection ))[-1];
+	$conn_type = ( split( '::',  ref($connection) || $connection ))[-1];
 
- 	if (1 != grep( /^$ConnType$/, @{$self->supported_connections()} )) {
+ 	if (defined $conn_type && 1 != grep( /^$conn_type$/, @{$self->supported_connections()} )) {
  		return 0;
  	}
 	else {
@@ -106,21 +106,23 @@ sub _checkconnection { # Connection object or ConnType string
 # introduce more thorough parameter checking and/or conversion, overwrite it - _construct()
 # calls it only if it is called by the topmost class in the inheritance hierarchy itself.
 #
-sub _setconnection { # $self->setconnection(__PACKAGE__) create new or use existing connection
+sub _setconnection { # $self->setconnection() create new or use existing connection
 	my $self=shift;
-
 	# check the configuration hash for a valid connection object or connection type, and set the connection
-	if( defined($self->config()->{'connection'}) ) {
-		if($self->_checkconnection($self->config()->{'connection'})) {
-			$self->connection($self->config()->{'connection'});
+	if( defined($self->config('connection')) ) {
+		if($self->_checkconnection($self->config('connection')) ) {
+			$self->connection($self->config('connection'));
 		}
 		else { croak('Given Connection not supported'); }
 	}
 	else {
-		if($self->_checkconnection($self->config()->{'ConnType'})) {
+		my $connection_type = $self->config('connection_type') || $self->connection_type();
+		warn "No connection and no connection type given - trying to create default connection $connection_type.\n" if !$self->config('connection_type');
+		if($self->_checkconnection($self->config('connection_type'))) {
 			# yep - pass all the parameters on to the connection, it will take the ones it needs.
 			# This way connection setup can be handled generically. Conflicting parameter names? Let's try it.
-			$self->connection(eval("new Lab::Connection::${\$self->config()->{'ConnType'}}(\$self->config())")) || croak('Failed to create connection');
+			warn ("new Lab::Connection::${connection_type}(\$self->config())");
+			$self->connection(eval("new Lab::Connection::${connection_type}(\$self->config())")) || croak('Failed to create connection');
 		}
 		else { croak('Given Connection Type not supported'); }
 	}
@@ -181,14 +183,10 @@ sub Query {
 	if (ref $_[0] eq 'HASH') { $options=shift }
 	else { $options={@_} }
 
-	my $Cmd = delete $options->{'Cmd'};
+	my $wait_query=$options->{'wait_query'} || $self->wait_query();
 
-	my $WaitQuery=$self->WaitQuery();
-	# load own settings if exists
-	$WaitQuery = delete($options->{'WaitQuery'}) if (exists $options->{'WaitQuery'});
-	
-	$self->Write({ SCPI_cmd => $Cmd });
-	usleep($WaitQuery);
+	$self->Write( $options );
+	usleep($wait_query);
 	return $self->Read($options);
 }
 
@@ -200,7 +198,7 @@ sub LongQuery {
 	if (ref $_[0] eq 'HASH') { $options=shift }
 	else { $options={@_} }
 
-	$options->{ReadLength} = 10240;
+	$options->{read_length} = 10240;
 	return $self->Query($options);
 }
 
@@ -211,7 +209,7 @@ sub BrutalQuery {
 	if (ref $_[0] eq 'HASH') { $options=shift }
 	else { $options={@_} }
 
-	$options->{Brutal} = 1;
+	$options->{brutal} = 1;
 	return $self->Query($options);
 }
 
@@ -235,7 +233,7 @@ sub config {	# $value = self->config($key);
 		return $self->{'config'} = $key;
 	}
 	else {
-		return $self->{'config'};
+		return $self->{'config'}->{$key};
 	}
 }
 

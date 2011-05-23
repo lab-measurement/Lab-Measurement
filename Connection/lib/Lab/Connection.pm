@@ -111,7 +111,7 @@ sub config {	# $value = self->config($key);
 		return $self->{'config'} = $key;
 	}
 	else {
-		return $self->{'config'};
+		return $self->{'config'}->{$key};
 	}
 }
 
