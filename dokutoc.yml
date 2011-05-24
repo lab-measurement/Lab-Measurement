@@ -8,20 +8,23 @@ toc:
       - VISA/lib/Lab/VISA/Tutorial.pod:
           index: 1
           pdf: 1
-#  - The Lab::VISA package:
-#      - VISA/VISA.pod
+  - The Lab::VISA package:
+      - VISA/VISA.pod
   - The Lab::Connection package:
       - Connection/lib/Lab/Connection.pm
       - Connection classes:
+          - Connection/lib/Lab/Connection/DEBUG.pm
           - Connection/lib/Lab/Connection/GPIB.pm
- #         - Connection/lib/Lab/Connection/MODBUS_RS232.pm
+          - Connection/lib/Lab/Connection/MODBUS_RS232.pm
+          - Connection/lib/Lab/Connection/RS232.pm
+          - Connection/lib/Lab/Connection/VISA.pm
   - The Lab::Instrument package:
       - Instrument/lib/Lab/Instrument.pm
       - Multimeters:
           - Instrument/lib/Lab/Instrument/HP34401A.pm
- #     - Voltage Sources:
- #         - Instrument/lib/Lab/Instrument/Source.pm
- #         - Instrument/lib/Lab/Instrument/Source/Yokogawa7651.pm
+      - Voltage Sources:
+          - Instrument/lib/Lab/Instrument/Source.pm
+          - Instrument/lib/Lab/Instrument/Source/Yokogawa7651.pm
   - The Lab::Tools package:
       - Tools/lib/Lab/Data/Writer.pm
       - Tools/lib/Lab/Measurement.pm
@@ -29,3 +32,5 @@ toc:
       - Tools/lib/Lab/Data/XMLtree.pm
       - Tools/lib/Lab/Data/Plotter.pm
       - Tools/scripts/plotter.pl
+  - Cookbook example scripts:
+      - Cookbook/Lock-In-Messung-mit-Temperaturregelung-SR830-und-TLK43.pl
