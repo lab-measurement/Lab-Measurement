@@ -43,7 +43,7 @@ use Exception::Class (
 		isa 		=> 'Lab::Exception::Error',
 		description	=> "A provided method parameter was of wrong type or otherwise corrupt.",
 		fields		=> [
-							'InvalidParameter',	# put the invalid parameter here
+							'invalid_parameter',	# put the invalid parameter here
 		],
 	},
 
@@ -51,7 +51,7 @@ use Exception::Class (
 		isa 		=> 'Lab::Exception::Error',
 		description	=> "A timeout occured. If any data was received nontheless, you can read it off this exception object if you care for it.",
 		fields		=> [
-							'Data',	# this is meant to contain the data that (maybe) has been read/obtained/generated despite and up to the timeout.
+							'data',	# this is meant to contain the data that (maybe) has been read/obtained/generated despite and up to the timeout.
 		],
 	},
 
