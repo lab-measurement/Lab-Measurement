@@ -9,7 +9,11 @@ my $build = Module::Build->new(
     dist_abstract     => 'Interface drivers for Lab::Instrument',
     dist_version_from => 'README',
     license           => 'perl',
-    requires          => {},
+    requires          => {
+        'Lab::Exception' => '0.1',
+        'Lab::VISA' => '0.1',
+        'Time::HiRes'   => 0,
+    },
     test_files        => [],
     script_files      => [],
     create_readme     => 0,

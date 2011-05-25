@@ -1,4 +1,4 @@
-README for Lab::Connection
+README for Lab::Exception
 $VERSION = '0.1'
 -----------------------------------------------------------------------
 
@@ -15,9 +15,7 @@ DEPENDENCIES
 
 This package requires these other modules and libraries:
 
-  Lab::VISA
   Module::Build
-  Time::HiRes
 
 COPYRIGHT AND LICENCE
 

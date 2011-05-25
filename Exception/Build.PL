@@ -1,27 +1,23 @@
 #!/usr/bin/perl
-#$Id$
+#$Id: Build.PL 712 2010-11-11 12:08:46Z huettel $
 
 use strict;
 use Module::Build;
 
 my $build = Module::Build->new(
-    module_name       => 'Lab::Instrument',
-    dist_abstract     => 'Lab instrument drivers',
+    module_name       => 'Lab::Exception',
+    dist_abstract     => 'Exception handling for Lab::Instrument',
     dist_version_from => 'README',
     license           => 'perl',
-    requires          => {
-        'Lab::Connection' => '0.1',
-        'Lab::Exception' => '0.1',
-        'Time::HiRes'   => 0,
-    },
-    test_files        => [ 't/3_source.t', 't/4_dummysource.t' ],
+    requires          => {},
+    test_files        => [],
     script_files      => [],
     create_readme     => 0,
     dist_author       => 'Daniel Schröer <schroeer@cpan.org>',
     meta_merge        => {
         resources       => {
             homepage      => 'http://labvisa.de',
-            bugtracker    => 'http://rt.cpan.org/NoAuth/Bugs.html?Dist=Lab-Instrument',
+            bugtracker    => 'http://rt.cpan.org/NoAuth/Bugs.html?Dist=Lab-Exception',
             MailingList   => 'https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-visa-users',
         }
     },
