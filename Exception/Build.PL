@@ -9,7 +9,9 @@ my $build = Module::Build->new(
     dist_abstract     => 'Exception handling for Lab::Instrument',
     dist_version_from => 'README',
     license           => 'perl',
-    requires          => {},
+    requires          => {
+        'Exception::Class' => '1.0',
+    },
     test_files        => [],
     script_files      => [],
     create_readme     => 0,
