@@ -3,8 +3,29 @@
 
 use strict;
 
+package Lab::Connection::DEBUG::HumanInstrument;
+
+use base "Wx::App";
+
+sub OnInit {
+
+	my $frame = Wx::Frame->new( undef,           # parent window
+		-1,              # ID -1 means any
+		'wxPerl rules',  # title
+		[-1, -1],         # default position
+		[250, 150],       # size
+	);
+
+	$frame->Show( 1 );
+}
+
+
+
 package Lab::Connection::DEBUG;
 use strict;
+use threads;
+use threads::shared;
+use Thread::Semaphore;
 use Scalar::Util qw(weaken);
 use Time::HiRes qw (usleep sleep);
 use Lab::Connection;
@@ -12,6 +33,8 @@ use Data::Dumper;
 use Carp;
 
 our @ISA = ("Lab::Connection");
+
+our $thr = undef;
 
 
 our %fields = (
@@ -42,9 +65,17 @@ sub new {
 		weaken($Lab::Connection::ConnectionList{$self->type()}->{$i});
 	}
 
+	# This is not and will be no gui application, so start the gui main loop in a thread.
+	# A little process communication will soon follow...
+	print "Starting 'human instrument' console.\n";
+	my $human_console = new Lab::Connection::DEBUG::HumanInstrument();
+	$thr = threads->create( sub { $human_console->MainLoop(); print "NOOOOO!"; } );
+
+
+	$thr->detach();
+
 	return $self;
 }
-
 
 
 sub InstrumentNew { # @_ = ({ resource_name => $resource_name })
