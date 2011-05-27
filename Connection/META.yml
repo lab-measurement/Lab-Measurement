@@ -16,6 +16,8 @@ provides:
     version: 1.0793
   Lab::Connection::DEBUG:
     file: lib/Lab/Connection/DEBUG.pm
+  Lab::Connection::DEBUG::HumanInstrument:
+    file: lib/Lab/Connection/DEBUG.pm
   Lab::Connection::GPIB:
     file: lib/Lab/Connection/GPIB.pm
   Lab::Connection::MODBUS_RS232:
