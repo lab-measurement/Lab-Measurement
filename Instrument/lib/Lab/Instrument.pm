@@ -116,13 +116,13 @@ sub _setconnection { # $self->setconnection() create new or use existing connect
 		else { croak('Given Connection not supported'); }
 	}
 	else {
-		my $connection_type = $self->config('connection_type') || $self->connection_type();
+		my $connection_type = $self->config('connection_type') || $self->supported_connections()->[0];
 		warn "No connection and no connection type given - trying to create default connection $connection_type.\n" if !$self->config('connection_type');
 		if($self->_checkconnection($self->config('connection_type'))) {
 			# yep - pass all the parameters on to the connection, it will take the ones it needs.
 			# This way connection setup can be handled generically. Conflicting parameter names? Let's try it.
 			warn ("new Lab::Connection::${connection_type}(\$self->config())");
-			$self->connection(eval("new Lab::Connection::${connection_type}(\$self->config())")) || croak('Failed to create connection');
+			$self->connection(eval("require Lab::Connection::${connection_type}; new Lab::Connection::${connection_type}(\$self->config())")) || croak('Failed to create connection');
 		}
 		else { croak('Given Connection Type not supported'); }
 	}

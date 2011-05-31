@@ -4,9 +4,6 @@ package Lab::Instrument::HP34401A;
 use strict;
 use Scalar::Util qw(weaken);
 use Lab::Instrument;
-use Lab::Connection;
-use Lab::Connection::GPIB;
-#use Lab::Connection::VISA;
 use Carp;
 use Data::Dumper;
 

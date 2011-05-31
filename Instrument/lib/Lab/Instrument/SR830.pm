@@ -2,7 +2,6 @@ package Lab::Instrument::SR830;
 
 use strict;
 use Lab::Instrument;
-use Lab::Connection::GPIB;
 use Data::Dumper;
 use Carp;
 use Time::HiRes qw (usleep);

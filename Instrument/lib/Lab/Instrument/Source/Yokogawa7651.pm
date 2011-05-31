@@ -5,7 +5,6 @@ use strict;
 use Switch;
 use Lab::Instrument;
 use Lab::Instrument::Source;
-use Lab::Connection::GPIB;
 
 our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
 
