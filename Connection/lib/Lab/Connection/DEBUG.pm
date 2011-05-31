@@ -6,6 +6,7 @@ use strict;
 package Lab::Connection::DEBUG::HumanInstrument;
 
 use base "Wx::App";
+use Wx qw(wxTE_MULTILINE wxDefaultPosition);
 
 sub OnInit {
 
@@ -13,8 +14,16 @@ sub OnInit {
 		-1,              # ID -1 means any
 		'wxPerl rules',  # title
 		[-1, -1],         # default position
-		[250, 150],       # size
+		[300, 300],       # size
 	);
+
+	my $textpane = new Wx::TextCtrl($frame, -1, "blablub", wxDefaultPosition, [300,300], wxTE_MULTILINE);
+ 	#my $textPane = Wx::StaticText->new($frame,   # Parent window
+#                                     -1,       # no window id
+#                                     'Welcome to the world of WxPerl!',
+#                                     [20, 20], # Position
+#                                    );
+
 
 	$frame->Show( 1 );
 }
