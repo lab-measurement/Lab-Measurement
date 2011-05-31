@@ -113,8 +113,11 @@ sub _setconnection { # $self->setconnection() create new or use existing connect
 		if($self->_checkconnection($self->config('connection')) ) {
 			$self->connection($self->config('connection'));
 		}
-		else { croak('Given Connection not supported'); }
+		else { Lab::Exception::CorruptParameter->throw( error => 'Received invalid connection object!\n' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__) ); }
 	}
+# 	else {
+# 		Lab::Exception::CorruptParameter->throw( error => 'Received no connection object!\n' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__) );
+# 	}
 	else {
 		my $connection_type = $self->config('connection_type') || $self->supported_connections()->[0];
 		warn "No connection and no connection type given - trying to create default connection $connection_type.\n" if !$self->config('connection_type');

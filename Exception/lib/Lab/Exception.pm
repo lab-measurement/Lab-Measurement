@@ -19,6 +19,21 @@ sub new {
 	return $self;
 }
 
+#
+# convenience routine - receives __LINE__, __PACKAGE__, __FILE__ (typically) and returns a uniform appendix made up from this information
+#
+sub Appendix {	# $line, $file, $package
+	shift if( ref($_[0]) eq 'HASH' ); # omit $self
+	my ($line, $package, $file) = ( shift, shift, shift);
+
+	my $appendix = "";
+	$appendix .= "Line:    $line\n" if defined($line);
+	$appendix .= "Package: $package\n" if defined($package);
+	$appendix .= "File:    $file\n" if defined($file);
+
+	return $appendix;
+}
+
 
 
 

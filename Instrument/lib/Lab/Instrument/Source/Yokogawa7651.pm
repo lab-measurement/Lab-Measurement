@@ -12,7 +12,7 @@ our @ISA=('Lab::Instrument::Source');
 
 my %fields = (
 	# SupportedConnections => [ 'GPIB', 'RS232' ], # RS232 not implemented yet
-	SupportedConnections => [ 'GPIB' ],
+	SupportedConnections => [ 'GPIB', 'VISA', 'DEBUG' ],
 	InstrumentHandle => undef,
 
 	DeviceDefaultConfig => {
@@ -30,17 +30,12 @@ my %fields = (
 sub new {
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
-	my $self = $class->SUPER::new(@_);	# sets $self->Config
-	foreach my $element (keys %fields) {
-		$self->{_permitted}->{$element} = $fields{$element};
-	}
-	@{$self}{keys %fields} = values %fields;
+	my $self = $class->SUPER::new(@_);
+	$self->_construct(__PACKAGE__, \%fields); 	# this sets up all the object fields out of the inheritance tree.
+												# also, it does generic connection setup.
 
 	# already called in Lab::Instrument::Source, but call it again to respect default values in local DeviceDefaultConfig
-	$self->configure($self->Config());
-
-	# set up the connection.
-	$self->_setconnection();	# throws an exception if connection setup fails. let the user decide if fatal.
+	$self->configure($self->config());
     
     return $self;
 }
@@ -67,25 +62,25 @@ sub _set {
     my $self=shift;
     my $value=shift;
     my $cmd=sprintf("S%e",$value);
-	$self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => $cmd});
+	$self->Write( command  => $cmd );
     $cmd="E";
-	$self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => $cmd});
+	$self->Write( command  => $cmd );
 }
 
 sub _set_auto {
     my $self=shift;
     my $value=shift;
     my $cmd=sprintf("SA%e",$value);
-	$self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => $cmd});
+	$self->Write( command  => $cmd );
     $cmd="E";
-	$self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => $cmd});
+	$self->Write( command  => $cmd );
 }
 
 sub set_setpoint {
     my $self=shift;
     my $value=shift;
     my $cmd=sprintf("S%+.4e",$value);
-	$self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => $cmd});
+	$self->Write( command  => $cmd );
 }
 
 sub set_time {
@@ -107,21 +102,21 @@ sub set_time {
         $interval_time=$self->MAX_SWEEP_TIME()
     };
     my $cmd=sprintf("PI%.1f",$interval_time);
-	$self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => $cmd});
+	$self->Write( command  => $cmd );
     $cmd=sprintf("SW%.1f",$sweep_time);
-	$self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => $cmd});
+	$self->Write( command  => $cmd );
 }
 
 sub start_program {
     my $self=shift;
     my $cmd=sprintf("PRS");
-	$self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => $cmd});
+	$self->Write( command  => $cmd );
 }
 
 sub end_program {
     my $self=shift;
     my $cmd=sprintf("PRE");
-	$self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => $cmd});
+	$self->Write( command  => $cmd );
 }
 sub execute_program {
     # 0 HALT
@@ -131,7 +126,7 @@ sub execute_program {
     my $self=shift;
     my $value=shift;
     my $cmd=sprintf("RU%d",$value);
-	$self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => $cmd});
+	$self->Write( command  => $cmd );
     
 }
 
@@ -184,7 +179,7 @@ sub get_current {
 sub _get {
     my $self=shift;
     my $cmd="OD";
-    my $result=$self->Connection()->InstrumentRead($self->InstrumentHandle(), {Cmd => $cmd});
+    my $result=$self->Read( command  => $cmd );
     $result=~/....([\+\-\d\.E]*)/;
     return $1;
 }
@@ -192,13 +187,13 @@ sub _get {
 sub set_current_mode {
     my $self=shift;
     my $cmd="F5";
-    $self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => $cmd});
+    $self->Write( command  => $cmd );
 }
 
 sub set_voltage_mode {
     my $self=shift;
     my $cmd="F1";
-    $self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => $cmd});
+    $self->Write( command  => $cmd );
 }
 
 sub set_range {
@@ -215,21 +210,21 @@ sub set_range {
       # 4   1mA
       # 5   10mA
       # 6   100mA
-    $self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => $cmd});
+    $self->Write( command  => $cmd );
 }
 
 sub get_info {
     my $self=shift;
-    my $result=$self->Connection()->InstrumentRead($self->InstrumentHandle(), {Cmd => "OS"});
+    my $result=$self->Read( command  => "OS"});
     return $result;
 }
 
 sub get_OS {
     my $self=shift;
-    $self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => "OS"});
+    $self->Write( command  => "OS"});
     my @info;
     for (my $i=0;$i<=10;$i++){
-        my $line=$self->Connection()->InstrumentRead(300);
+        my $line=$self->Read( read_length => 300 );
         if ($line=~/END/){last};
         chomp $line;
         $line=~s/\r//;
@@ -259,7 +254,7 @@ sub get_range{
             case 4 {$range=1} #1V
             case 5 {$range=10} #10V
             case 6 {$range=30} #30V
-            else {die "Range $range_nr not defined\n"}
+            else { Lab::Exception::CorruptParameter->throw( error=>"Range $range_nr not defined\n" . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__) ); }
         }
     }
     elsif ($func_nr==5){
@@ -267,10 +262,10 @@ sub get_range{
             case 4 {$range=1e-3} #1mA
             case 5 {$range=10e-3} #10mA
             case 6 {$range=100e-3} #100mA
-            else {die "Range $range_nr not defined\n"}
+            else { Lab::Exception::CorruptParameter->throw( error=>"Range $range_nr not defined\n" . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__) ); }
         }
     }
-    else {die "Function not defined"}
+    else { Lab::Exception::CorruptParameter->throw( error=>"Function not defined: $func_nr\n" . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__) ); }
     #printf "$range\n";
     return $range
     
@@ -279,21 +274,21 @@ sub get_range{
 sub set_run_mode {
     my $self=shift;
     my $value=shift;
-    if ($value!=0 and $value!=1) {die "Run Mode $value not defined"}
+    if ($value!=0 and $value!=1) { Lab::Exception::CorruptParameter->throw( error=>"Run Mode $value not defined\n" . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__) ); }
     my $cmd=sprintf("M%u",$value);
-    $self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => $cmd});
+    $self->Write( command  => $cmd );
 }
 
 sub output_on {
     my $self=shift;
-    $self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => 'O1'});
-    $self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => 'E'});
+    $self->Write( command  => 'O1'});
+    $self->Write( command  => 'E'});
 }
     
 sub output_off {
     my $self=shift;
-    $self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => 'O0'});
-    $self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => 'E'});
+    $self->Write( command  => 'O0'});
+    $self->Write( command  => 'E'});
 }
 
 sub get_output {
@@ -304,26 +299,26 @@ sub get_output {
 
 sub initialize {
     my $self=shift;
-    $self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => 'RC'});
+    $self->Write( command  => 'RC'});
 }
 
 sub set_voltage_limit {
     my $self=shift;
     my $value=shift;
     my $cmd=sprintf("LV%e",$value);
-    $self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => $cmd});
+    $self->Write( command  => $cmd );
 }
 
 sub set_current_limit {
     my $self=shift;
     my $value=shift;
     my $cmd=sprintf("LA%e",$value);
-    $self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => 'RC'});
+    $self->Write( command  => 'RC'});
 }
 
 sub get_status {
     my $self=shift;
-    my $status=$self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Cmd => 'OC'});
+    my $status=$self->Write( command  => 'OC'});
     
     $status=~/STS1=(\d*)/;
     $status=$1;

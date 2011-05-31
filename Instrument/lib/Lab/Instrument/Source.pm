@@ -46,47 +46,53 @@ my %fields = (
 sub new {
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
-	my $self = $class->SUPER::new(@_);	# sets $self->Config
-	foreach my $element (keys %fields) {
-		$self->{_permitted}->{$element} = $fields{$element};
-	}
-	@{$self}{keys %fields} = values %fields;
-
-	# Source gets as parameters 1) the config for this instance 
-	# and 2) the optional default config for derived subchannel objects
+	my $self = $class->SUPER::new(@_);	# sets $self->config
+	$self->_construct(__PACKAGE__, \%fields); 	# this sets up all the object fields out of the inheritance tree.
+												# also, it does generic connection setup.
 
 	#
 	# Parameter parsing
 	#
 
 	# checking and saving the default config hash, if any
-	my ( undef, $tmpDefaultConfig ) = @_;
-	if(defined($tmpDefaultConfig)) {
-		Lab::Exception::CorruptParameter->throw('Given default config is not a hash.') if( ref($tmpDefaultConfig) !~ /HASH/ );
-		$self->DefaultConfig($tmpDefaultConfig);
+	if(defined($self->config('DefaultConfig'))) {
+		if( ref($self->config('DefaultConfig')) !~ /HASH/ ) {
+			Lab::Exception::CorruptParameter->throw('Given default config is not a hash.' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__));
+		}
+		$self->DefaultConfig($self->config('DefaultConfig'));
 	}
-	elsif(scalar(keys %{$self->Config()->{DefaultConfig}}) == 0 ) {
-		#$self->DefaultConfig($self->Config());
+	else {
+		$self->DefaultConfig($self->config());
 	}
+
 	# check max channels
-	if(defined($self->Config()->{MaxChannels})) {
-		if( $self->Config()->{MaxChannels} =~ /^[0-9]*$/ ) { Lab::Exception::CorruptParameter->throw('Parameter MaxChannels has to be an Integer') }
-		else { $self->MaxChannels($self->Config()->{MaxChannels}); }
+	if(defined($self->config('MaxChannels'))) {
+		if( $self->config('MaxChannels') !~ /^[0-9]*$/ ) {
+			Lab::Exception::CorruptParameter->throw('Parameter MaxChannels has to be an Integer' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__));
+		}
+		else { $self->MaxChannels($self->config('MaxChannels')); }
 	}
+
 	# checking default channel number
-	Lab::Exception::CorruptParameter->throw('Default channel number is not within the available channels.') if( defined($self->Config()->{DefaultChannel}) && ( $self->Config()->{DefaultChannel} > $self->MaxChannels() || $self->Config()->{DefaultChannel} < 1 ));
+	if( defined($self->config('DefaultChannel')) && ( $self->config('DefaultChannel') > $self->MaxChannels() || $self->config('DefaultChannel') < 1 )) {
+		Lab::Exception::CorruptParameter->throw('Default channel number is not within the available channels.' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__));
+	}
 
-	$self->configure($self->Config());
+	$self->configure($self->config());
 
-	$self->DefaultChannel($self->Config()->{DefaultChannel}) if defined($self->Config()->{DefaultChannel});
+	$self->DefaultChannel($self->config('DefaultChannel')) if defined($self->config('DefaultChannel'));
 
-	if(defined($self->Config()->{ParentSource})) {
-		if( !UNIVERSAL::isa($self->Config()->{ParentSource},"Lab::Instrument::Source" ) ) { Lab::Exception::CorruptParameter->throw('Given ParentSource object is not a valid Lab::Instrument::Source.'); }
+	if(defined($self->config('ParentSource'))) {
+		if( !UNIVERSAL::isa($self->config('ParentSource'),"Lab::Instrument::Source" ) ) {
+			Lab::Exception::CorruptParameter->throw('Given ParentSource object is not a valid Lab::Instrument::Source.' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__));
+		}
 		# instead of maintaining our own one, use a reference to the gpData from the parent object
-		if( !defined($self->Config()->{gpData}) || ! ref($self->Config()->{gpData}) =~ /HASH/ )  { Lab::Exception::CorruptParameter->throw('Given gpData from ParentSource is invalid.'); }
+		if( !defined($self->config('gpData')) || ! ref($self->config('gpData')) =~ /HASH/ )  {
+			Lab::Exception::CorruptParameter->throw('Given gpData from ParentSource is invalid.' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__));
+		}
 	
-		$self->ParentSource($self->Config()->{ParentSource});
-		$self->gpData($self->Config()->{gpData});
+		$self->ParentSource($self->config('ParentSource'));
+		$self->gpData($self->config('gpData'));
 	}
 	else {
 		# fill gpData
@@ -118,7 +124,7 @@ sub configure {
 	#   equivalent: $source->configure({ gate_protect=>1, gp_max_volt_per_second=>0.1, ...)
     my $config=shift;
 	if( ref($config) !~ /HASH/ ) {
-		Lab::Exception::CorruptParameter->throw('Given Configuration is not a hash.');
+		Lab::Exception::CorruptParameter->throw('Given Configuration is not a hash.' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__));
 	}
 	else {
         for my $conf_name (keys %{$self->DeviceConfig()}) {
@@ -151,8 +157,8 @@ sub set_voltage {
     my $channel=shift;
 
     $channel = $self->DefaultChannel() unless defined($channel);
-	Lab::Exception::CorruptParameter->throw('Channel must not be negative! Did you swap voltage and channel number?') if $channel < 0;
-	Lab::Exception::CorruptParameter->throw('Channel must be an integer! Did you swap voltage and channel number?') if int($channel) != $channel;
+	if ($channel < 0) { Lab::Exception::CorruptParameter->throw('Channel must not be negative! Did you swap voltage and channel number?' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__)); }
+	if (int($channel)) != $channel { Lab::Exception::CorruptParameter->throw('Channel must be an integer! Did you swap voltage and channel number?' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__)); }
 
     if ($self->DeviceConfig()->{gate_protect}) {
         $voltage=$self->sweep_to_voltage($voltage,$channel);
@@ -177,8 +183,8 @@ sub set_voltage_auto {
     my $channel=shift;
 
     $channel = $self->DefaultChannel() unless defined($channel);
-	Lab::Exception::CorruptParameter->throw('Channel must not be negative! Did you swap voltage and channel number?') if $channel < 0;
-	Lab::Exception::CorruptParameter->throw('Channel must be an integer! Did you swap voltage and channel number?') if int($channel) != $channel;
+	if ($channel < 0) { Lab::Exception::CorruptParameter->throw('Channel must not be negative! Did you swap voltage and channel number?' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__)); }
+	if (int($channel)) != $channel { Lab::Exception::CorruptParameter->throw('Channel must be an integer! Did you swap voltage and channel number?' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__)); }
 
     if ($self->DeviceConfig()->{gate_protect}) {
         $voltage=$self->sweep_to_voltage_auto($voltage,$channel);
@@ -204,8 +210,8 @@ sub step_to_voltage {
     my $channel=shift;
 
     $channel = $self->DefaultChannel() unless defined($channel);
-	Lab::Exception::CorruptParameter->throw('Channel must not be negative! Did you swap voltage and channel number?') if $channel < 0;
-	Lab::Exception::CorruptParameter->throw('Channel must be an integer! Did you swap voltage and channel number?') if int($channel) != $channel;
+	if ($channel < 0) { Lab::Exception::CorruptParameter->throw('Channel must not be negative! Did you swap voltage and channel number?' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__)); }
+	if (int($channel)) != $channel { Lab::Exception::CorruptParameter->throw('Channel must be an integer! Did you swap voltage and channel number?' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__)); }
 
     my $voltpersec=abs($self->DeviceConfig()->{gp_max_volt_per_second});
     my $voltperstep=abs($self->DeviceConfig()->{gp_max_volt_per_step});
@@ -271,8 +277,8 @@ sub step_to_voltage_auto {
     my $channel=shift;
 
     $channel = $self->DefaultChannel() unless defined($channel);
-	Lab::Exception::CorruptParameter->throw('Channel must not be negative! Did you swap voltage and channel number?') if $channel < 0;
-	Lab::Exception::CorruptParameter->throw('Channel must be an integer! Did you swap voltage and channel number?') if int($channel) != $channel;
+	if ($channel < 0) { Lab::Exception::CorruptParameter->throw('Channel must not be negative! Did you swap voltage and channel number?' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__)); }
+	if (int($channel)) != $channel { Lab::Exception::CorruptParameter->throw('Channel must be an integer! Did you swap voltage and channel number?' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__)); }
 
     my $voltpersec=abs($self->DeviceConfig()->{gp_max_volt_per_second});
     my $voltperstep=abs($self->DeviceConfig()->{gp_max_volt_per_step});
@@ -331,8 +337,8 @@ sub sweep_to_voltage {
     my $channel=shift;
 
     $channel = $self->DefaultChannel() unless defined($channel);
-	Lab::Exception::CorruptParameter->throw('Channel must not be negative! Did you swap voltage and channel number?') if $channel < 0;
-	Lab::Exception::CorruptParameter->throw('Channel must be an integer! Did you swap voltage and channel number?') if int($channel) != $channel;
+	if ($channel < 0) { Lab::Exception::CorruptParameter->throw('Channel must not be negative! Did you swap voltage and channel number?' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__)); }
+	if (int($channel)) != $channel { Lab::Exception::CorruptParameter->throw('Channel must be an integer! Did you swap voltage and channel number?' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__)); }
 
     my $last;
     my $cont=1;
@@ -353,8 +359,8 @@ sub _set_voltage {
     my $channel=shift;
 
     $channel = $self->DefaultChannel() unless defined($channel);
-	Lab::Exception::CorruptParameter->throw('Channel must not be negative! Did you swap voltage and channel number?') if $channel < 0;
-	Lab::Exception::CorruptParameter->throw('Channel must be an integer! Did you swap voltage and channel number?') if int($channel) != $channel;
+	if ($channel < 0) { Lab::Exception::CorruptParameter->throw('Channel must not be negative! Did you swap voltage and channel number?' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__)); }
+	if (int($channel)) != $channel { Lab::Exception::CorruptParameter->throw('Channel must be an integer! Did you swap voltage and channel number?' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__)); }
 
     if ($self->ParentSource()) {
         return $self->ParentSource()->_set_voltage($voltage, $channel);
@@ -369,8 +375,8 @@ sub _set_voltage_auto {
     my $channel=shift;
 
     $channel = $self->DefaultChannel() unless defined($channel);
-	Lab::Exception::CorruptParameter->throw('Channel must not be negative! Did you swap voltage and channel number?') if $channel < 0;
-	Lab::Exception::CorruptParameter->throw('Channel must be an integer! Did you swap voltage and channel number?') if int($channel) != $channel;
+	if ($channel < 0) { Lab::Exception::CorruptParameter->throw('Channel must not be negative! Did you swap voltage and channel number?' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__)); }
+	if (int($channel)) != $channel { Lab::Exception::CorruptParameter->throw('Channel must be an integer! Did you swap voltage and channel number?' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__)); }
 
     if ($self->ParentSource()) {
         return $self->ParentSource()->_set_voltage_auto($voltage, $channel);
@@ -384,8 +390,8 @@ sub get_voltage {
     my $channel=shift;
 
     $channel = $self->DefaultChannel() unless defined($channel);
-	Lab::Exception::CorruptParameter->throw('Channel must not be negative! Did you swap voltage and channel number?') if $channel < 0;
-	Lab::Exception::CorruptParameter->throw('Channel must be an integer! Did you swap voltage and channel number?') if int($channel) != $channel;
+	if ($channel < 0) { Lab::Exception::CorruptParameter->throw('Channel must not be negative! Did you swap voltage and channel number?' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__)); }
+	if (int($channel)) != $channel { Lab::Exception::CorruptParameter->throw('Channel must be an integer! Did you swap voltage and channel number?' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__)); }
 
     my $voltage=$self->_get_voltage($channel);
     $self->gpData()->{$channel}->{LastVoltage}=$voltage;
@@ -397,8 +403,8 @@ sub _get_voltage {
     my $channel=shift;
 
     $channel = $self->DefaultChannel() unless defined($channel);
-	Lab::Exception::CorruptParameter->throw('Channel must not be negative! Did you swap voltage and channel number?') if $channel < 0;
-	Lab::Exception::CorruptParameter->throw('Channel must be an integer! Did you swap voltage and channel number?') if int($channel) != $channel;
+	if ($channel < 0) { Lab::Exception::CorruptParameter->throw('Channel must not be negative! Did you swap voltage and channel number?' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__)); }
+	if (int($channel)) != $channel { Lab::Exception::CorruptParameter->throw('Channel must be an integer! Did you swap voltage and channel number?' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__)); }
 
     if ($self->ParentSource()) {
         return $self->ParentSource()->_get_voltage($channel);
@@ -412,8 +418,8 @@ sub get_range() {
     my $channel=shift;
 
     $channel = $self->DefaultChannel() unless defined($channel);
-	Lab::Exception::CorruptParameter->throw('Channel must not be negative! Did you swap voltage and channel number?') if $channel < 0;
-	Lab::Exception::CorruptParameter->throw('Channel must be an integer! Did you swap voltage and channel number?') if int($channel) != $channel;
+	if ($channel < 0) { Lab::Exception::CorruptParameter->throw('Channel must not be negative! Did you swap voltage and channel number?' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__)); }
+	if (int($channel)) != $channel { Lab::Exception::CorruptParameter->throw('Channel must be an integer! Did you swap voltage and channel number?' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__)); }
 
     if ($self->ParentSource()) {
         return $self->ParentSource()->get_range($channel);
@@ -428,8 +434,8 @@ sub set_range() {
     my $channel=shift;
 
     $channel = $self->DefaultChannel() unless defined($channel);
-	Lab::Exception::CorruptParameter->throw('Channel must not be negative! Did you swap voltage and channel number?') if $channel < 0;
-	Lab::Exception::CorruptParameter->throw('Channel must be an integer! Did you swap voltage and channel number?') if int($channel) != $channel;
+	if ($channel < 0) { Lab::Exception::CorruptParameter->throw('Channel must not be negative! Did you swap voltage and channel number?' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__)); }
+	if (int($channel)) != $channel { Lab::Exception::CorruptParameter->throw('Channel must be an integer! Did you swap voltage and channel number?' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__)); }
 
     if ($self->ParentSource()) {
         return $self->ParentSource()->set_range($range, $channel);
