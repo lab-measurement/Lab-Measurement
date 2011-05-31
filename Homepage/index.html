@@ -2,7 +2,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de">
 <head>
-<title>Lab::VISA - measurement control in Perl</title>
+<title>Lab::Measurement - measurement control in Perl</title>
 <link rel="stylesheet" type="text/css" href="doku.css" />
 </head>
 <body>
@@ -11,120 +11,121 @@
     <h1>Links</h1><!-- wählen -->
     <h2>Documentation and Support</h2>
     <ul>
-        <li><a href="docs-1.x/index.html">Lab::VISA documentation</a></li>
-        <li><a href="docs-1.x/Tutorial.html">Tutorial on Lab::VISA</a></li>
-        <li><a href="docs-1.x/installation.html">Installation Guide</a></li>
-        <li><a href="Lab-VISA-talk.pdf">Presentation slides</a></li>
+        <li><a href="index.html">Homepage</a></li>
+        <li><a href="backends.html">Back-ends</a></li>
+        <li><a href="docs/index.html">API documentation</a></li>
+        <li><a href="docs/Tutorial.html">Tutorial on Lab::VISA (old)</a></li>
+        <li><a href="docs/installation.html">Installation guide</a></li>
+        <li><a href="Lab-VISA-talk.pdf">Presentation slides (old)</a></li>
         <li><a href="https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-visa-users">Mailing list</a></li>
-        <li><a href="https://rt.cpan.org/Public/Dist/Display.html?Name=Lab-VISA">Bugtracker</a></li>
-    </ul>
-    <h2>NI-VISA resources</h2>
-    <ul>
-        <li><a href="http://sine.ni.com/psp/app/doc/p/id/psp-411">NI-VISA Homepage</a></li>
-        <li><a href="http://www.ni.com/pdf/manuals/370423a.pdf">User Manual</a></li>
-        <li><a href="http://www.ni.com/pdf/manuals/370132c.pdf">Programmer Reference Manual</a></li>
-        <li><a href="http://zone.ni.com/reference/en-XX/help/371361B-01/lvinstio/visa_resource_name_generic/">VISA resource names</a></li>
-        <li><a href="http://zone.ni.com/reference/en-XX/help/371361B-01/lverror/visa_error_codes/">VISA error codes</a></li>
     </ul>
     <h2>Download Lab::VISA</h2>
     <ul>
         <li><a href="http://search.cpan.org/dist/Lab-VISA/">Lab::VISA</a></li>
+        <li><a href="http://search.cpan.org/dist/Lab-VISA/">Lab::Connection</a></li>
         <li><a href="http://search.cpan.org/dist/Lab-Instrument/">Lab::Instrument</a></li>
         <li><a href="http://search.cpan.org/dist/Lab-Tools/">Lab::Tools</a></li>
     </ul>
 </div>
 
-<p>Lab::VISA allows to perform test and measurement tasks with Perl
-scripts. It provides an interface to National Instruments' <a
-    href="http://sine.ni.com/psp/app/doc/p/id/psp-411">NI-VISA
-library</a>, making the standard VISA calls available to Perl programs.
+<p><b>Note: this page is work in progress, as is the software described here. We are at
+the moment preparing for a very first beta version of Lab::Measurement. The old, "stable" 
+relase (called Lab::VISA) can be found at <a href="http://www.labvisa.de/">http://www.labvisa.de/</a>.</b></p>
+
+<p>Lab::Measurement allows to perform test and measurement tasks with Perl
+scripts. It provides an interface to several instrumentation control backends,
+as e.g. <a href="http://linux-gpib.sourceforge.net/">Linux-GPIB</a> or National Instruments' <a
+href="http://sine.ni.com/psp/app/doc/p/id/psp-411">NI-VISA library</a>.
 Dedicated instrument driver classes relieve the user from taking care
-for internal details and make data aquisition as easy as</p>
-
+for internal details and make data aquisition as easy as
 <pre class="titleclaim">$voltage = $multimeter-&gt;read_voltage();</pre>
+</p>
 
-<p>The Lab::VISA software stack comprises three parts that are built
+<p>The Lab::Measurement software stack comprises four parts that are built
 on top of each other and provide increasing comfort. Measurement scripts
 can be based on any of these stages.</p>
 
-<p>The lowest level is Lab::VISA. It makes the NI-VISA library
-accessible from Perl and thus allows to make any standard VISA call.
+<p>The lowest level is the device driver library or Perl binding. Lab::VISA, 
+distributed here, makes the NI-VISA library accessible from Perl and thus allows 
+to make any standard VISA call. This way, a wide variety of devices can be addressed. 
+Installation of NI-VISA is straightforward on Windows but can be VERY cumbersome on recent 
+Linux variants. Therefore, other independently developed drivers such as Linux-GPIB, 
+the de-facto standard for addressing GPIB devices under Linux, can also be used;
+support for more backends is being developed.
+</p>
+
+<p>
+As the backends vary in API details, each of these is encapsulated into a perl module 
+of type Lab::Connection. Imagine a Connection as a bus, or a GPIB cable. All measurement 
+devices on one cable share a Connection, passing commands and data to and from the computer. 
+If your measurement script works under Linux with Lab::Connection::GPIB, 
+it will also work with Lab::Connection::VISA by just instantiating a different Connection 
+object.
+</p>
+
+<p>
 The modules in the Lab::Instrument package make communication
 with instruments easier by silently handling the protocol overhead.
-Package Lab::Tools is the highest abstraction layer and is
+Drivers for specific devices are included; more can easily be added to 
+provide high-level functions. Package Lab::Tools is the highest abstraction layer and is
 intended to support writing better measurement scripts. The modules in
 this package offer means to log and plot data and its related meta
-information.</p>
+information.
+</p>
 
-<p>These packages together are referred to as the Lab::VISA system.
-Encapsulating the complexity of VISA calls into a straightforward to use
-library, the Lab::VISA system is designed to make data aquisition fun.</p>
-
-<p><i>Currently a major reorganization of the underlying code is being done.
-Unless you are interested in helping us hack the gory details, we suggest that
-you stick to the "stable branch", and this is also where nearly all the links 
-on this page lead. For information on the development version, see the end of 
-this page.</i></p>
+<p>These packages together are referred to as the Lab::Measurement system.
+Designed to make data aquisition fun!</p>
 
 <h2>How to obtain</h2>
 <p>The packages are free software and can be downloaded from CPAN.
-Follow these links for</p>
+Follow these links for
 <ul>
     <li><a href="http://search.cpan.org/dist/Lab-VISA/">Lab::VISA</a>,</li>
+    <li><a href="http://search.cpan.org/dist/Lab-Connection/">Lab::Connection</a>,</li>
     <li><a href="http://search.cpan.org/dist/Lab-Instrument/">Lab::Instrument</a>,
     and</li>
     <li><a href="http://search.cpan.org/dist/Lab-Tools/">Lab::Tools</a>.</li>
 </ul>
+The <a href="https://www.gitorious.org/lab-measurement/">source code archive is 
+hosted at Gitorious</a>, where you can also obtain the newest pre-release code and 
+browse the version history. If you would like to contribute, just send us your patches, 
+merge requests, ... :)
+</p>
 
 <h2>Documentation</h2>
-<p>Quite some <a href="docs-1.x/index.html">documentation of Lab::VISA</a>
-(<a href="docs-1.x/documentation.pdf">PDF format</a>) is available. This
-documentation includes a <a href="docs-1.x/Tutorial.html">tutorial on
-using Lab::VISA</a>. Detailed <a href="docs-1.x/installation.html">installation
-instructions</a> are provided as well.</p>
-
-<p>These <a href="Lab-VISA-talk.pdf">presentation slides on
-Lab::VISA</a> introduce the system and discuss a number of <a
-    href="http://cpansearch.perl.org/src/SCHROEER/Lab-VISA-2.05/Tutorial/Talk">examples</a>,
-which are contained in the Lab::VISA package.</p>
-
+<p>Quite some <a href="docs/index.html">documentation of Lab::Measurement</a>
+(<a href="docs/documentation.pdf">PDF format</a>) is available. This
+documentation includes a <a href="docs/Tutorial.html">tutorial on
+using Lab::VISA</a> (outdated). Detailed <a href="docs/installation.html">installation
+instructions</a> are provided as well. In addition, there's also a collection
+of <a href="backends.html">back-end specific documentation and links</a>.
+</p>
 <p>There is a <a
     href="https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-visa-users">mailing
 list (lab-visa-users)</a> set up for Lab::VISA. This mailing list is the
 right place to give feedback and ask for help.</p>
-
-<p><a href="http://sine.ni.com/psp/app/doc/p/id/psp-411">National
-Instruments</a> offers excellent documentation. We especially recommend the
-<a href="http://www.ni.com/pdf/manuals/370423a.pdf">NI-VISA User
-Manual</a>, the <a href="http://www.ni.com/pdf/manuals/370132c.pdf">NI-VISA
-Programmer Reference Manual</a> and these references of <a
-    href="http://zone.ni.com/reference/en-XX/help/371361B-01/lvinstio/visa_resource_name_generic/">VISA
-resource names</a> and <a
-    href="http://zone.ni.com/reference/en-XX/help/371361B-01/lverror/visa_error_codes/">VISA
-error codes</a>.</p>
 
 <h2>Status</h2>
 <p>Although this software has been used for years in real world
 measurements by its developers, it remains work in progress. Please bear
 with us while we constantly improve code and documentation.</p>
 
-<p>Lab::VISA is currently developed and employed at <a
+<p>Lab::Measurement is currently developed and employed at <a
     href="http://www.nano.physik.uni-muenchen.de/">nanophysics
 group, LMU M&uuml;nchen</a> and <a
     href="http://www.physik.uni-regensburg.de/forschung/strunk/">mesoscopic
 physics group, Uni Regensburg</a>. Users have reported further applications
 in academic and industrial r&amp;d environments.</p>
 
-<h2>Development version</h2>
-<p>You can have a look <a href="docs/">here</a>, but most likely you'll at the moment 
-only encounter broken links.</p>
-
-<h2>Authors</h2>
+<h2>Authors and history</h2>
 <p>The Lab::VISA system was originally developed by <a
     href="http://search.cpan.org/~schroeer/">Daniel Schr&ouml;er</a> and
-is now continued by <a href="http://www.akhuettel.de/">Andreas K.
+continued by <a href="http://www.akhuettel.de/">Andreas K.
 H&uuml;ttel</a>, Daniela Taubert, and Daniel Schr&ouml;er. Most of the documentation was
-written by Daniel Schr&ouml;er.</p>
+written by Daniel Schr&ouml;er. In 2011, the code was refactored mostly by Florian Olbrich
+to include the Connection layer; subsequently the name of the entire package collection
+was changed to Lab::Measurement.
+</p>
 
 </body>
 </html>
