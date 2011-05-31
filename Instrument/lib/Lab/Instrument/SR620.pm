@@ -5,7 +5,6 @@ use Lab::Instrument;
 use Lab::VISA;
 use Time::HiRes qw (usleep);
 
-our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
 
 sub new {
     my $proto = shift;
@@ -13,7 +12,7 @@ sub new {
     my $self = {};
     bless ($self, $class);
     $self->{vi}=new Lab::Instrument(@_);
-    print "The SR620 driver is heavily work in progress and does not work yet. :(";
+	print "The SR620 driver is heavily work in progress and does not work yet. :(";
     return $self
 }
 
@@ -161,24 +160,30 @@ sub read_measure {
 # leider funktionniert auch das nicht... Zudem müssen die ausgegebenen binary data
 # umgewandelt werden wie auf S. 34 des Handbuchs beschrieben.
 
-#sub read_bdmp {
-# 
-#    my $self = shift;
-#    $self->{vi}->Write(sprintf("LOCL%d\n",1));
-#    my $numhisto=shift;
-#    my @temp;
-#  for(my $j=0;$j<=$numhisto-1;$j++){ 
-#    #print "Treiber:binary dump $j: \n";
-#    
-#        #$self->{vi}->Query(sprintf("BDMP%d\n",$numhisto));     # number of measurements
-#        my $temp[$j]=$self->{vi}->Query(sprintf("BDMP%d\n",$numhisto));
-#    #    print "komme bis $j von $numhisto \n";
-#  }
-#    return @temp;
-#    print "Treiber: bdmp fertig \n";
-#
-#}
+sub read_bdmp {
+ 
+    my $self = shift;
+    $self->{vi}->Write(sprintf("LOCL%d\n",1));
+    my @result;
+    my $numhisto=shift;
+        $self->{vi}->Write(sprintf("BDMP%d\n",$numhisto));     # number of measurements
+	for (my $j=0;$j<$numhisto;$j++){
+	my $tmp0=$self->{vi}->BrutalRead(8);
+	#print "\n$tmp0\n";
+	my @tmp=unpack("b8b8",$tmp0);#b*
+	my $tmp2= bin2dec($tmp[1]);
+	print "\ntmp2=$tmp2\n";
+	push(@result,@tmp);
+	print "\n@tmp\n";
+  }
+    return @result;
+    print "Treiber: bdmp fertig \n";
 
+}
+
+sub bin2dec {
+    return unpack("N", pack("B32", substr("0" x 32 . shift, -32)));
+}
 
 sub remoteend {
     my $self=shift;
@@ -200,7 +205,7 @@ This driver is heavily work in progress and does not work yet. :(
 
 This is $Id$
 
-Copyright 2009 Tom Geiger and Andreas K. H�ttel (L<http://www.akhuettel.de/>)
+Copyright 2009 Tom Geiger and Andreas K. Hüttel (L<http://www.akhuettel.de/>)
 
 This library is free software; you can redistribute it and/or modify it under the same
 terms as Perl itself.
