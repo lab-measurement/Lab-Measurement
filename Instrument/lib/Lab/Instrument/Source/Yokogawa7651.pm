@@ -11,11 +11,10 @@ our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
 our @ISA=('Lab::Instrument::Source');
 
 my %fields = (
-	# SupportedConnections => [ 'GPIB', 'RS232' ], # RS232 not implemented yet
-	SupportedConnections => [ 'GPIB', 'VISA', 'DEBUG' ],
-	InstrumentHandle => undef,
+	# supported_connections => [ 'GPIB', 'RS232' ], # RS232 not implemented yet
+	supported_connections => [ 'GPIB', 'VISA', 'DEBUG' ],
 
-	DeviceDefaultConfig => {
+	channel_defaultconfig => {
 		gate_protect            => 1,
 		gp_equal_level          => 1e-5,
 		gp_max_volt_per_second  => 0.002,
@@ -23,8 +22,8 @@ my %fields = (
 		gp_max_step_per_second  => 2,
 	},
 
-	MAX_SWEEP_TIME=>3600,
-	MIN_SWEEP_TIME=>0.1,
+	max_sweep_time=>3600,
+	min_sweep_time=>0.1,
 );
 
 sub new {
@@ -34,7 +33,7 @@ sub new {
 	$self->_construct(__PACKAGE__, \%fields); 	# this sets up all the object fields out of the inheritance tree.
 												# also, it does generic connection setup.
 
-	# already called in Lab::Instrument::Source, but call it again to respect default values in local DeviceDefaultConfig
+	# already called in Lab::Instrument::Source, but call it again to respect default values in local channel_defaultconfig
 	$self->configure($self->config());
     
     return $self;
@@ -87,19 +86,19 @@ sub set_time {
     my $self=shift;
     my $sweep_time=shift; #sec.
     my $interval_time=shift;
-    if ($sweep_time<$self->MIN_SWEEP_TIME()) {
-        warn "Warning Sweep Time: $sweep_time smaller than ${\$self->MIN_SWEEP_TIME()} sec!\n Sweep time set to ${\$self->MIN_SWEEP_TIME()} sec";
-        $sweep_time=$self->MIN_SWEEP_TIME()}
-    elsif ($sweep_time>$self->MAX_SWEEP_TIME()) {
-        warn "Warning Sweep Time: $sweep_time> ${\$self->MAX_SWEEP_TIME()} sec!\n Sweep time set to ${\$self->MAX_SWEEP_TIME()} sec";
-        $sweep_time=$self->MAX_SWEEP_TIME()
+    if ($sweep_time<$self->min_sweep_time()) {
+        warn "Warning Sweep Time: $sweep_time smaller than ${\$self->min_sweep_time()} sec!\n Sweep time set to ${\$self->min_sweep_time()} sec";
+        $sweep_time=$self->min_sweep_time()}
+    elsif ($sweep_time>$self->max_sweep_time()) {
+        warn "Warning Sweep Time: $sweep_time> ${\$self->max_sweep_time()} sec!\n Sweep time set to ${\$self->max_sweep_time()} sec";
+        $sweep_time=$self->max_sweep_time()
     };
-    if ($interval_time<$self->MIN_SWEEP_TIME()) {
-        warn "Warning Interval Time: $interval_time smaller than ${\$self->MIN_SWEEP_TIME()} sec!\n Interval time set to ${\$self->MIN_SWEEP_TIME()} sec";
-        $interval_time=$self->MIN_SWEEP_TIME()}
-    elsif ($interval_time>$self->MAX_SWEEP_TIME()) {
-        warn "Warning Interval Time: $interval_time> ${\$self->MAX_SWEEP_TIME()} sec!\n Interval time set to ${\$self->MAX_SWEEP_TIME()} sec";
-        $interval_time=$self->MAX_SWEEP_TIME()
+    if ($interval_time<$self->min_sweep_time()) {
+        warn "Warning Interval Time: $interval_time smaller than ${\$self->min_sweep_time()} sec!\n Interval time set to ${\$self->min_sweep_time()} sec";
+        $interval_time=$self->min_sweep_time()}
+    elsif ($interval_time>$self->max_sweep_time()) {
+        warn "Warning Interval Time: $interval_time> ${\$self->max_sweep_time()} sec!\n Interval time set to ${\$self->max_sweep_time()} sec";
+        $interval_time=$self->max_sweep_time()
     };
     my $cmd=sprintf("PI%.1f",$interval_time);
 	$self->Write( command  => $cmd );
@@ -151,14 +150,14 @@ sub sweep {
     $self->end_program();
 
     my $time=abs($output_now -$stop)/$rate;
-    if ($time<$self->MIN_SWEEP_TIME()) {
-        warn "Warning Sweep Time: $time smaller than ${\$self->MIN_SWEEP_TIME()} sec!\n Sweep time set to ${\$self->MIN_SWEEP_TIME()} sec";
-        $time=$self->MIN_SWEEP_TIME();
+    if ($time<$self->min_sweep_time()) {
+        warn "Warning Sweep Time: $time smaller than ${\$self->min_sweep_time()} sec!\n Sweep time set to ${\$self->min_sweep_time()} sec";
+        $time=$self->min_sweep_time();
         $return_rate=abs($output_now -$stop)/$time;
     }
-    elsif ($time>$self->MAX_SWEEP_TIME()) {
-        warn "Warning Interval Time: $time> ${\$self->MAX_SWEEP_TIME()} sec!\n Sweep time set to ${\$self->MAX_SWEEP_TIME()} sec";
-        $time=$self->MAX_SWEEP_TIME();
+    elsif ($time>$self->max_sweep_time()) {
+        warn "Warning Interval Time: $time> ${\$self->max_sweep_time()} sec!\n Sweep time set to ${\$self->max_sweep_time()} sec";
+        $time=$self->max_sweep_time();
         $return_rate=abs($output_now -$stop)/$time;
     }
     $self->set_time($time,$time);
