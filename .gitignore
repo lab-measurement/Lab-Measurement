@@ -1,0 +1,59 @@
+
+# /
+/.settings
+/.project
+
+# /Connection/
+/Connection/blib
+/Connection/_build
+/Connection/Build
+/Connection/Build.bat
+/Connection/pod2htmd.tmp
+/Connection/pod2htmi.tmp
+/Connection/MYMETA.yml
+
+# /Documentation/
+/Documentation/html
+/Documentation/index.html
+/Documentation/documentation.pdf
+/Documentation/toc.html
+
+# /Exception/
+/Exception/Build
+/Exception/Build.bat
+/Exception/_build
+/Exception/blib
+
+# /Homepage/
+/Homepage/index.php
+/Homepage/docs
+/Homepage/docs-1.x
+/Homepage/temp
+
+# /Instrument/
+/Instrument/*.bak
+/Instrument/Build
+/Instrument/Build.bat
+/Instrument/MYMETA.yml
+/Instrument/_build
+/Instrument/blib
+/Instrument/pod2htmd.tmp
+/Instrument/pod2htmi.tmp
+
+# /Tools/
+/Tools/_build
+/Tools/Build
+/Tools/blib
+/Tools/MYMETA.yml
+
+
+
+# /VISA/
+/VISA/*.obj
+/VISA/Makefile
+/VISA/Makefile.old
+/VISA/VISA.bs
+/VISA/VISA.def
+/VISA/blib
+/VISA/pm_to_blib
+/VISA/vc90.pdb
