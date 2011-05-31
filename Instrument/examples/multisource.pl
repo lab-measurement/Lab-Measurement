@@ -4,6 +4,7 @@ use Lab::Instrument::Dummysource;
 
 
 my $src=new Lab::Instrument::Dummysource({
+    fast_set                => 1,
     gate_protect            => 1,
     gp_max_volt_per_step    => 0.1,
     gp_max_step_per_second  => 1,
