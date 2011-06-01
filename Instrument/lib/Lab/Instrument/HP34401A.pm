@@ -428,7 +428,7 @@ probably many
 
 =head1 AUTHOR/COPYRIGHT
 
-Copyright 2004-2006 Daniel Schröer (<schroeer@cpan.org>), 2009-2010 Daniela Taubert, 2011 Florian Olbrich
+Copyright 2004-2006 Daniel SchrÃ¶er (<schroeer@cpan.org>), 2009-2010 Daniela Taubert, 2011 Florian Olbrich
 
 This library is free software; you can redistribute it and/or modify it under the same
 terms as Perl itself.

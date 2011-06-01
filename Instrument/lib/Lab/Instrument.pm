@@ -488,9 +488,9 @@ Probably many, with all the porting. This will get better.
 
 This is $Id$
 
- Copyright 2004-2006 Daniel Schröer <schroeer@cpan.org>, 
-           2009-2010 Daniel Schröer, Andreas K. Hüttel (L<http://www.akhuettel.de/>) and David Kalok,
-           2010      Matthias Völker <mvoelker@cpan.org>
+ Copyright 2004-2006 Daniel SchrÃ¶er <schroeer@cpan.org>, 
+           2009-2010 Daniel SchrÃ¶er, Andreas K. HÃ¼ttel (L<http://www.akhuettel.de/>) and David Kalok,
+           2010      Matthias VÃ¶lker <mvoelker@cpan.org>
            2011      Florian Olbrich
 
 This library is free software; you can redistribute it and/or modify it under the same
