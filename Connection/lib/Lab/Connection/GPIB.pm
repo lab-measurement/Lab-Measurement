@@ -64,7 +64,7 @@ sub InstrumentNew { # { gpib_address => primary address }
 
 	if(!defined $args->{'gpib_address'} || $args->{'gpib_address'} !~ /^[0-9]*$/ ) {
 		Lab::Exception::CorruptParameter->throw (
-			error => "No valid gpib address given to " . __PACKAGE__ . "::InstrumentNew()\n",
+			error => "No valid gpib address given to " . __PACKAGE__ . "::InstrumentNew()\n" . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__),
 		);
 	}
 
@@ -115,7 +115,7 @@ sub InstrumentRead { # @_ = ( $instrument_handle, $args = { read_length, brutal 
 
 	if( $ib_bits->{'ERR'} && !$ib_bits->{'TIMO'} ) {	# if the error is a timeout, we still evaluate the result and see what to do with the error later
 		Lab::Exception::GPIBError->throw(
-			error => sprintf("ibrd failed with ibstatus %x", $ibstatus),
+			error => sprintf("ibrd failed with ibstatus %x\n", $ibstatus) . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__),
 			ibsta => $ibstatus,
 			ibsta_hash => $ib_bits,
 		);
@@ -134,7 +134,7 @@ sub InstrumentRead { # @_ = ( $instrument_handle, $args = { read_length, brutal 
 	#
 	if( $ib_bits->{'ERR'} && $ib_bits->{'TIMO'} && !$brutal ) {
 		Lab::Exception::GPIBTimeout->throw(
-			error => sprintf("ibrd failed with a timeout, ibstatus %x\n", $ibstatus),
+			error => sprintf("ibrd failed with a timeout, ibstatus %x\n", $ibstatus) . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__),
 			ibsta => $ibstatus,
 			ibsta_hash => $ib_bits,
 			data => $result
@@ -194,7 +194,7 @@ sub InstrumentWrite { # @_ = ( $instrument_handle, $args = { command, wait_statu
 
 	if(!defined $command) {
 		Lab::Exception::CorruptParameter->throw(
-			error => "No command given to " . __PACKAGE__ . "::InstrumentWrite().\n",
+			error => "No command given to " . __PACKAGE__ . "::InstrumentWrite().\n" . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__),
 		);
 	}
 	else {
@@ -209,14 +209,34 @@ sub InstrumentWrite { # @_ = ( $instrument_handle, $args = { command, wait_statu
 
 	# Todo: better Error checking
 	if($ib_bits->{'ERR'}==1) {
-		Lab::Exception::GPIBError->throw(
-			error => sprintf("Error in " . __PACKAGE__ . "::InstrumentWrite() while executing $command: ibwrite failed with status %x", $ibstatus),
-			ibsta => $ibstatus,
-			ibsta_hash => $ibsta_verbose,
-		);
+		if($ib_bits->{'TIMO'} == 1) {
+			Lab::Exception::GPIBTimeout->throw(
+				error => sprintf("Timeout in " . __PACKAGE__ . "::InstrumentWrite() while executing $command: ibwrite failed with status %x\n", $ibstatus) . Dumper($ib_bits) . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__),
+				ibsta => $ibstatus,
+				ibsta_hash => $ib_bits,
+			);
+		}
+		else {
+			Lab::Exception::GPIBError->throw(
+				error => sprintf("Error in " . __PACKAGE__ . "::InstrumentWrite() while executing $command: ibwrite failed with status %x\n", $ibstatus) . Dumper($ib_bits) . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__),
+				ibsta => $ibstatus,
+				ibsta_hash => $ib_bits,
+			);
+		}
 	}
 
 	return 1;
+}
+
+
+#
+# calls ibclear() on the instrument - how to do on VISA?
+#
+sub InstrumentClear {
+	my $self = shift;
+	my $instrument_handle=shift;
+
+	ibclr($instrument_handle->{'gpib_handle'});
 }
 
 
@@ -226,7 +246,7 @@ sub ParseIbstatus { # Ibstatus http://linux-gpib.sourceforge.net/doc_html/r634.h
 	my @ibbits = ();
 
 	if( $ibstatus !~ /[0-9]*/ || $ibstatus < 0 || $ibstatus > 0xFFFF ) {	# should be a 16 bit integer
-		Lab::Exception::CorruptParameter->throw( error => 'Lab::Connection::GPIB::VerboseIbstatus() got an invalid ibstatus.' , InvalidParameter => $ibstatus );
+		Lab::Exception::CorruptParameter->throw( error => 'Lab::Connection::GPIB::VerboseIbstatus() got an invalid ibstatus.'  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__), InvalidParameter => $ibstatus );
 	}
 
 	for (my $i=0; $i<16; $i++) {
@@ -249,7 +269,7 @@ sub VerboseIbstatus {
 		$ibstatus = $self->ParseIbstatus($ibstatus);
 	}
 	elsif(ref($ibstatus) !~ /HASH/) {
-		Lab::Exception::CorruptParameter->throw( error => 'Lab::Connection::GPIB::VerboseIbstatus() got an invalid ibstatus.' , InvalidParameter => $ibstatus );
+		Lab::Exception::CorruptParameter->throw( error => 'Lab::Connection::GPIB::VerboseIbstatus() got an invalid ibstatus.'  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__), InvalidParameter => $ibstatus );
 	}
 
 	while( my ($k, $v) = each %$ibstatus ) {

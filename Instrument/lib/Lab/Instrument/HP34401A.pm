@@ -134,7 +134,9 @@ sub get_error {
 
 sub reset {
     my $self=shift;
+    $self->Write( command => "*CLS");
     $self->Write( command => "*RST");
+#	$self->connection()->InstrumentClear($self->instrument_handle());
 }
 
 
