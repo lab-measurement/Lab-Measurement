@@ -16,9 +16,9 @@ our $VERSION = sprintf("0.%04d", q$Revision: 720 $ =~ / (\d+) /);
 our @ISA = ("Lab::Instrument");
 
 my %fields = (
-	SupportedConnections => [ 'MODBUS_RS232' ],
-	InstrumentHandle => undef,
-	SlaveAddress => undef,
+	supported_connections => [ 'MODBUS_RS232' ],
+	instrument_handle => undef,
+	slave_address => undef,
 
 	MemTable => {
 		Measurement => 			0x0200,		# measured value
@@ -64,28 +64,28 @@ my %fields = (
 		dIF =>					0x2858,		# digital input function
 
 		# O1 group (parameteres relative to output 1)
-		O1F =>					0x2814,		# Functioning of output 1 (0=OFF, 1=1.rEg, 2=2.rEg, 3=Alno, 4=ALnc)
+		O1F =>					0x2814,		# functioning of output 1 (0=OFF, 1=1.rEg, 2=2.rEg, 3=Alno, 4=ALnc)
 		Aor1 =>					0x2859,		# Beginning of analogue output 1 scale (0=0, 1=no_0)
-		Ao1F =>					0x285A,		# Functioning of analogue output 1 (0=OFF, 1=inp, 2=err, 3=r.SP, 4=r.SEr)
+		Ao1F =>					0x285A,		# functioning of analogue output 1 (0=OFF, 1=inp, 2=err, 3=r.SP, 4=r.SEr)
 		Ao1L =>					0x285B,		# Minimum reference for analogical output 1 for signal transmission (with dP, -1999..9999)
 		A01H =>					0x285C,		# Maximum reference for analogical output 1 for signal transmission (with dP, A01L..9999)
 
 		# O2 group (parameteres relative to output 2)
-		O2F =>					0x2815,		# Functioning of output 2 (0=OFF, 1=1.rEg, 2=2.rEg, 3=Alno, 4=ALnc)
+		O2F =>					0x2815,		# functioning of output 2 (0=OFF, 1=1.rEg, 2=2.rEg, 3=Alno, 4=ALnc)
 		Aor2 =>					0x285D,		# Beginning of analogue output 2 scale (0=0, 1=no_0)
-		Ao2F =>					0x285E,		# Functioning of analogue output 2 (0=OFF, 1=inp, 2=err, 3=r.SP, 4=r.SEr)
+		Ao2F =>					0x285E,		# functioning of analogue output 2 (0=OFF, 1=inp, 2=err, 3=r.SP, 4=r.SEr)
 		Ao2L =>					0x285F,		# Minimum reference for analogical output 2 for signal transmission (with dP, -1999..9999)
 		A02H =>					0x2860,		# Maximum reference for analogical output 2 for signal transmission (with dP, A02L..9999)
 
 		# O3 group (parameteres relative to output 3)
-		O3F =>					0x2816,		# Functioning of output 3 (0=OFF, 1=1.rEg, 2=2.rEg, 3=Alno, 4=ALnc)
+		O3F =>					0x2816,		# functioning of output 3 (0=OFF, 1=1.rEg, 2=2.rEg, 3=Alno, 4=ALnc)
 		Aor3 =>					0x2861,		# Beginning of analogue output 3 scale (0=0, 1=no_0)
-		Ao3F =>					0x2862,		# Functioning of analogue output 3 (0=OFF, 1=inp, 2=err, 3=r.SP, 4=r.SEr)
+		Ao3F =>					0x2862,		# functioning of analogue output 3 (0=OFF, 1=inp, 2=err, 3=r.SP, 4=r.SEr)
 		Ao3L =>					0x2863,		# Minimum reference for analogical output 3 for signal transmission (with dP, -1999..9999)
 		A03H =>					0x2864,		# Maximum reference for analogical output 3 for signal transmission (with dP, A03L..9999)
 
 		# O4 group (parameters relative to output 4)
-		O4F =>					0x2817,		# Functioning of output 4 (0=OFF, 1=1.rEg, 2=2.rEg, 3=Alno, 4=ALnc)
+		O4F =>					0x2817,		# functioning of output 4 (0=OFF, 1=1.rEg, 2=2.rEg, 3=Alno, 4=ALnc)
 
 		# Al1 group (parameteres relative to alarm 1
 		OAL1 =>					0x2818,		# Output where alarm AL1 is addressed (0=OFF, 1=Out1, 2=Out2, 3=Out3, 4=Out4)
@@ -101,7 +101,7 @@ my %fields = (
 
 		# rEG group (parameters relative to controller
 		Cont =>					0x283B,		# Control type (0=PID, 1=On.Fa, 2=On.FS, 3=nr, 4=3Pt)
-		Func =>					0x283C,		# Functioning mode output 1rEg (0=Heat, 1=Cool)
+		Func =>					0x283C,		# functioning mode output 1rEg (0=Heat, 1=Cool)
 		Auto =>					0x283D,		# Autotuning Fast enable
 		SELF =>					0x283E,		# Selftuning enable (0=No, 1=Yes)
 		HSEt =>					0x283F,		# Hysteresis of ON/OFF Control (9999 ... -1999)
@@ -144,17 +144,17 @@ my %fields = (
 sub new {
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
-	my $self = $class->SUPER::new(@_);	# sets $self->Config, configures parent class
+	my $self = $class->SUPER::new(@_);	# sets $self->config, configures parent class
 	foreach my $element (keys %fields) {
 		$self->{_permitted}->{$element} = $fields{$element};
 	}
 	@{$self}{keys %fields} = values %fields;
 
-	return undef unless $self->SlaveAddress($self->Config()->{'SlaveAddress'});
+	return undef unless $self->slave_address($self->config()->{'slave_address'});
 	# check the configuration hash for a valid connection object or connection type, and set the connection
-	if( defined($self->Config()->{'Connection'}) ) {
-		if($self->_checkconnection($self->Config()->{'Connection'})) {
-			$self->Connection($self->Config()->{'Connection'});
+	if( defined($self->config()->{'Connection'}) ) {
+		if($self->_checkconnection($self->config()->{'Connection'})) {
+			$self->Connection($self->config()->{'Connection'});
 		}
 		else { 
 			warn('Given Connection not supported');
@@ -162,15 +162,15 @@ sub new {
 		}
 	}
 	else {
-		if($self->_checkconnection($self->Config()->{'ConnType'})) {
-			my $ConnType = $self->Config()->{'ConnType'};
-			my $Port = $self->Config()->{'Port'};
-			my $SlaveAddress = $self->Config()->{'SlaveAddress'};
+		if($self->_checkconnection($self->config()->{'ConnType'})) {
+			my $ConnType = $self->config()->{'ConnType'};
+			my $Port = $self->config()->{'Port'};
+			my $slave_address = $self->config()->{'slave_address'};
 			my $Interface = "";
 			if($ConnType eq 'MODBUS_RS232') {
-				$self->Config()->{'Interface'} = 'RS232';
-				$self->Connection(new Lab::Connection::MODBUS_RS232( $self->Config() )) || croak('Failed to create connection');
-				#$self->Connection(eval("new Lab::Connection::$ConnType( $self->Config() )")) || croak('Failed to create connection');
+				$self->config()->{'Interface'} = 'RS232';
+				$self->Connection(new Lab::Connection::MODBUS_RS232( $self->config() )) || croak('Failed to create connection');
+				#$self->Connection(eval("new Lab::Connection::$ConnType( $self->config() )")) || croak('Failed to create connection');
 			}
 			else {
 				warn('Only RS232 connection type supported for now!\n');
@@ -183,7 +183,7 @@ sub new {
 		}
 	}
 
-	$self->InstrumentHandle( $self->Connection()->InstrumentNew(SlaveAddress => $self->SlaveAddress()) );
+	$self->instrument_handle( $self->Connection()->InstrumentNew(slave_address => $self->slave_address()) );
 	return $self;
 }
 
@@ -194,8 +194,8 @@ sub read_temperature {
 	my @Result = ();
 	my $Temp = undef;
 	my $dP = 0;
-	#return undef unless defined($dP = $self->read_int_cached({ MemAddress => 'dP' }));
-	if(!defined($dP = $self->read_int_cached({ MemAddress => 'dP' }))) {
+	#return undef unless defined($dP = $self->read_int_cached({ mem_address => 'dP' }));
+	if(!defined($dP = $self->read_int_cached({ mem_address => 'dP' }))) {
 		print "Error in cached read of dP\n";
 		return undef;
 	}
@@ -225,35 +225,35 @@ sub read_temperature {
 }
 
 
-sub read_int_cached { # { MemAddress => $MemAddress, ForceRead => (1,0) }
+sub read_int_cached { # { mem_address => $mem_address, ForceRead => (1,0) }
 	my $self = shift;
 	my $args = shift;
-	my $MemAddress = $args->{'MemAddress'} || undef;
+	my $mem_address = $args->{'mem_address'} || undef;
 	my $ForceRead = $args->{'ForceRead'};
-	if($MemAddress !~ /^[0-9]*$/) {
-		$MemAddress = $self->MemTable()->{$MemAddress} || undef;
+	if($mem_address !~ /^[0-9]*$/) {
+		$mem_address = $self->MemTable()->{$mem_address} || undef;
 	}
 
-	if( !$ForceRead && exists($self->MemCache()->{$MemAddress}) && defined($self->MemCache()->{$MemAddress}) ) {
-		return $self->MemCache()->{$MemAddress};
+	if( !$ForceRead && exists($self->MemCache()->{$mem_address}) && defined($self->MemCache()->{$mem_address}) ) {
+		return $self->MemCache()->{$mem_address};
 	}
 	else {
-		return undef unless defined($self->MemCache()->{$MemAddress} = $self->read_address_int($MemAddress));
-		return $self->MemCache()->{$MemAddress};
+		return undef unless defined($self->MemCache()->{$mem_address} = $self->read_address_int($mem_address));
+		return $self->MemCache()->{$mem_address};
 	}
 }
 
-sub write_int_cached {	# { MemAddress => $MemAddress, MemValue => $Value }  stores MemValue as number (int)
+sub write_int_cached {	# { mem_address => $mem_address, mem_value => $Value }  stores mem_value as number (int)
 	my $self = shift;
 	my $args = shift;
-	my $MemAddress = $args->{MemAddress} || undef;
-	my $MemValue = int($args->{MemValue}) || undef;
-	if($MemAddress !~ /^[0-9]*$/) {
-		$MemAddress = $self->MemTable()->{$MemAddress} || undef;
+	my $mem_address = $args->{mem_address} || undef;
+	my $mem_value = int($args->{mem_value}) || undef;
+	if($mem_address !~ /^[0-9]*$/) {
+		$mem_address = $self->MemTable()->{$mem_address} || undef;
 	}
 
-	return undef unless $self->write_address({ MemAddress => $MemAddress, MemValue => $MemValue });
-	return( ($self->MemCache()->{$MemAddress} = $MemValue) );
+	return undef unless $self->write_address({ mem_address => $mem_address, mem_value => $mem_value });
+	return( ($self->MemCache()->{$mem_address} = $mem_value) );
 }
 
 
@@ -275,7 +275,7 @@ sub set_setpoint { # { Slot => (1..4), Value => Int }
 		$TargetTemp = sprintf("%.${dP}f",$TargetTemp) * 10**$dP;	# rounding, shifting decimal places
 		return undef if ($TargetTemp > 32767 || $TargetTemp < -32768);	# still fitting in a signed 16bit int?
 		#$TargetTemp = ( $TargetTemp + 2**16  ) if $TargetTemp < 0;
-		return $self->write_address({ MemAddress => $self->MemTable()->{'Setpoint'}+$Slot-1, MemValue => $TargetTemp });
+		return $self->write_address({ mem_address => $self->MemTable()->{'Setpoint'}+$Slot-1, mem_value => $TargetTemp });
 	}
 }
 
@@ -285,13 +285,13 @@ sub set_active_setpoint { # $value
 	my $TargetTemp = shift;
 	my $Slot = 1;
 	my $dP = 0;
-	return undef unless defined($Slot = $self->read_int_cached({ MemAddress => 'SPAt' }));
-	return undef unless defined($dP = $self->read_int_cached({ MemAddress => 'dP' }));
+	return undef unless defined($Slot = $self->read_int_cached({ mem_address => 'SPAt' }));
+	return undef unless defined($dP = $self->read_int_cached({ mem_address => 'dP' }));
 
 	$TargetTemp = sprintf("%.${dP}f",$TargetTemp) * 10**$dP;	# rounding, shifting decimal places
 	return undef if ($TargetTemp > 32767 || $TargetTemp < -32768);	# still fitting in a signed 16bit int?
 	#$TargetTemp = ( $TargetTemp + 2**16  ) if $TargetTemp < 0;
-	return $self->write_address({ MemAddress => $self->MemTable()->{'SP1'}+$Slot-1, MemValue => $TargetTemp });
+	return $self->write_address({ mem_address => $self->MemTable()->{'SP1'}+$Slot-1, mem_value => $TargetTemp });
 }
 
 
@@ -306,7 +306,7 @@ sub set_setpoint_slot { # { Slot => (1..4) }
 		return undef;
 	}
 	else {
-		return $self->write_address({ MemAddress => $self->MemTable()->{'SPAt'}, MemValue => $Slot });
+		return $self->write_address({ mem_address => $self->MemTable()->{'SPAt'}, mem_value => $Slot });
 	}
 }
 
@@ -316,25 +316,25 @@ sub set_Precision {	# $Precision
 	my $precision = int(shift);
 
 	return undef if ($precision < 0 || $precision > 3);
-	return $self->write_address({ MemAddress => $self->MemTable()->{'sP'}, MemValue => $precision });
+	return $self->write_address({ mem_address => $self->MemTable()->{'sP'}, mem_value => $precision });
 }
 
 
-sub read_range { # { MemAddress => Address (16bit), MemCount => Count (8bit, (1..4), default 1)
+sub read_range { # { mem_address => Address (16bit), MemCount => Count (8bit, (1..4), default 1)
 	my $self = shift;
 	my $args = shift;
-	my $MemAddress = $args->{MemAddress} || undef;
+	my $mem_address = $args->{mem_address} || undef;
 	my $MemCount = $args->{MemCount} || 1;
 	$MemCount = int($MemCount);
-	if($MemAddress !~ /^[0-9]*$/) {
-		$MemAddress = $self->MemTable()->{$MemAddress} || undef;
+	if($mem_address !~ /^[0-9]*$/) {
+		$mem_address = $self->MemTable()->{$mem_address} || undef;
 	}
 
-	if(!$MemAddress || !$MemCount || $MemAddress > 0xFFFF || $MemAddress < 0x0200 || $MemCount > 4 || $MemCount <= 0) {
+	if(!$mem_address || !$MemCount || $mem_address > 0xFFFF || $mem_address < 0x0200 || $MemCount > 4 || $MemCount <= 0) {
 		return undef;
 	}
 	else {
-		return $self->Connection()->InstrumentRead($self->InstrumentHandle(), {Function => 3, MemAddress => $MemAddress, MemCount => $MemCount});
+		return $self->Read( function => 3, mem_address => $mem_address, MemCount => $MemCount );
 	}
 }
 
@@ -343,17 +343,17 @@ sub read_address_int { # $Address
 	my $self = shift;
 	my @Result = ();
 	my $SignedValue = 0;
-	my $MemAddress = shift || undef;
-	if($MemAddress !~ /^[0-9]*$/) {
-		$MemAddress = $self->MemTable()->{$MemAddress} || undef;
+	my $mem_address = shift || undef;
+	if($mem_address !~ /^[0-9]*$/) {
+		$mem_address = $self->MemTable()->{$mem_address} || undef;
 	}
 
-	if(!$MemAddress || $MemAddress > 0xFFFF || $MemAddress < 0x0200) {
+	if(!$mem_address || $mem_address > 0xFFFF || $mem_address < 0x0200) {
 		print "Address invalid\n";
 		return undef;
 	}
 	else {
-		@Result = $self->Connection()->InstrumentRead($self->InstrumentHandle(), {Function => 3, MemAddress => $MemAddress, MemCount => 1});
+		@Result = $self->Read( function => 3, mem_address => $mem_address, MemCount => 1 );
 		if(scalar(@Result)==2) { # correct answer has to be two bytes long
 			$SignedValue = unpack('n!', join('', @Result));
 		}
@@ -365,21 +365,21 @@ sub read_address_int { # $Address
 }
 
 
-sub write_address {	# { MemAddress => Address (16bit), MemValue => Value (16 bit word) }
+sub write_address {	# { mem_address => Address (16bit), mem_value => Value (16 bit word) }
 	my $self = shift;
 	my $args = shift;
-	my $MemAddress = $args->{MemAddress} || undef;
-	my $MemValue = int($args->{MemValue}) || undef;
+	my $mem_address = $args->{mem_address} || undef;
+	my $mem_value = int($args->{mem_value}) || undef;
 	
-	if($MemAddress !~ /^[0-9]*$/) {
-		$MemAddress = $self->MemTable()->{$MemAddress} || undef;
+	if($mem_address !~ /^[0-9]*$/) {
+		$mem_address = $self->MemTable()->{$mem_address} || undef;
 	}
 
-	if( !$MemAddress || (!$MemValue && $MemValue != 0) || $MemAddress > 0xFFFF || $MemAddress < 0x0200 || $MemValue > 0xFFFF || $MemValue < 0) {
+	if( !$mem_address || (!$mem_value && $mem_value != 0) || $mem_address > 0xFFFF || $mem_address < 0x0200 || $mem_value > 0xFFFF || $mem_value < 0) {
 		return undef;
 	}
 	else {
-		return $self->Connection()->InstrumentWrite($self->InstrumentHandle(), {Function => 6, MemAddress => $MemAddress, MemValue => $MemValue} );
+		return $self->Write( function => 6, mem_address => $mem_address, mem_value => $mem_value );
 	}
 }
 
@@ -404,11 +404,11 @@ Lab::Instrument::TLK43 - Electronic process controller TLKA41/42/43 (SIKA GmbH)
 
     use Lab::Instrument::TLK43;
     
-    my $tlk=new Lab::Instrument::TLK43({ Port => '/dev/ttyS0', SlaveAddress => 1, Baudrate => 19200, Parity => 'none', Databits => 8, Stopbits => 1, Handshake => 'none'  });
+    my $tlk=new Lab::Instrument::TLK43({ Port => '/dev/ttyS0', slave_address => 1, Baudrate => 19200, Parity => 'none', Databits => 8, Stopbits => 1, Handshake => 'none'  });
 
 	or
 
-	my $Connection = new Lab::Connection::MODBUS({ Port => '/dev/ttyS0', Interface => 'RS232', SlaveAddress => 1, Baudrate => 19200, Parity => 'none', Databits => 8, Stopbits => 1, Handshake => 'none' });
+	my $Connection = new Lab::Connection::MODBUS({ Port => '/dev/ttyS0', Interface => 'RS232', slave_address => 1, Baudrate => 19200, Parity => 'none', Databits => 8, Stopbits => 1, Handshake => 'none' });
 	my $tlk=new Lab::Instrument::TLK43({ Connection => $Connection });
 
     print $tlk->read_temperature();
@@ -479,18 +479,18 @@ set_setpoint() will cut off the decimal values according to the value of the "dP
 
 =head2 read_range
 
-    $value=$tlk->read_range({ MemAddresss => (0x0200..0xFFFF || Name), MemCount => (1..4) })
+    $value=$tlk->read_range({ mem_addresss => (0x0200..0xFFFF || Name), MemCount => (1..4) })
 
-Read the values of $MemCount memory slots from $MemAddress on. The Address may be specified as a 16bit Integer in the valid range,
+Read the values of $MemCount memory slots from $mem_address on. The Address may be specified as a 16bit Integer in the valid range,
 or as an address name (see TLK43.pm, %fields{'MemTable'}). $MemCount may be in the range 1..4.
 Returns the memory as an array (one byte per field)
 
 
 =head2 read_address_int
 
-    $value=$tlk->read_range({ MemAddresss => (0x0200..0xFFFF || Name), MemCount => (1..4) })
+    $value=$tlk->read_range({ mem_addresss => (0x0200..0xFFFF || Name), MemCount => (1..4) })
 
-Read the value of the 16bit word at $MemAddress on. The Address may be specified as a 16bit Integer in the valid range,
+Read the value of the 16bit word at $mem_address on. The Address may be specified as a 16bit Integer in the valid range,
 or as an address name (see TLK43.pm, %fields{'MemTable'}).
 Returns the value as unsigned integer (internally (byte1 << 8) + byte2)
 
@@ -498,7 +498,7 @@ Returns the value as unsigned integer (internally (byte1 << 8) + byte2)
 
 =head2 write_address
 
-    $success=$tlk->write_address({ MemAddress => (0x0200...0xFFFF || Name), MemValue => Value (16 bit word) });
+    $success=$tlk->write_address({ mem_address => (0x0200...0xFFFF || Name), mem_value => Value (16 bit word) });
 
 Write $Value to the given address. The Address may be specified as a 16bit Integer in the valid range,
 or as an address name (see TLK43.pm, %fields{'MemTable'}).
