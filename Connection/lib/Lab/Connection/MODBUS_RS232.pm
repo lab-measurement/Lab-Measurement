@@ -30,9 +30,10 @@ my @crctab = ();
 my $ConnSemaphore = Thread::Semaphore->new();	# a semaphore to prevent simultaneous use of the connection by multiple threads
 
 my %fields = (
+	type => 'RS232',
 	crc_init => 0xFFFF,
  	crc_poly => 0xA001,
-	MaxCrcErrors => 3,
+	max_crc_errors => 3,
 );
 
 sub new {
@@ -45,14 +46,15 @@ sub new {
 
 	# search for twin in %Lab::Connection::ConnectionList. If there's none, place $self there and weaken it.
 	# note to self: put this in base class/_construct if possible
+	# note to self2: think about how to block access to this RS232 port for a plain Lab::Connection::RS232 connection.
 	if( $class eq __PACKAGE__ ) { # careful - do only if this is not a parent class constructor
 		if($twin = $self->_search_twin()) {
 			undef $self;
 			return $twin;	# ...and that's it.
 		}
 		else {
-			$Lab::Connection::ConnectionList{$self->type()}->{$self->gpib_board()} = $self;
-			weaken($Lab::Connection::ConnectionList{$self->type()}->{$self->gpib_board()});
+			$Lab::Connection::ConnectionList{$self->type()}->{$self->port()} = $self;
+			weaken($Lab::Connection::ConnectionList{$self->type()}->{$self->port()});
 		}
 	}
 
@@ -62,75 +64,44 @@ sub new {
 }
 
 
-sub new {
-	my $proto = shift;
-	my $class = ref($proto) || $proto;
-	my $twin = undef;
-	my $self = $class->SUPER::new(@_); # getting fields and _permitted from parent class
-	$self->_construct(__PACKAGE__, \%fields);
 
-	# one board - one connection - one connection object
-	if ( exists $self->config()->{'gpib_board'} ) {
-		$self->gpib_board($self->config()->{'gpib_board'}); 
-	} # ... or the default
-
-	# search for twin in %Lab::Connection::ConnectionList. If there's none, place $self there and weaken it.
-	if( $class eq __PACKAGE__ ) { # careful - do only if this is not a parent class constructor
-		if($twin = $self->_search_twin()) {
-			undef $self;
-			return $twin;	# ...and that's it.
-		}
-		else {
-			$Lab::Connection::ConnectionList{$self->type()}->{$self->gpib_board()} = $self;
-			weaken($Lab::Connection::ConnectionList{$self->type()}->{$self->gpib_board()});
-		}
-	}
-
-	return $self;
-}
-
-
-
-sub InstrumentNew { # $self=Connection, { SlaveAddress => Device address (1byte) }
+sub InstrumentNew {
 	my $self = shift;
-	# get arguments
-	my %args = @_;
-	my $SlaveAddress;
+	my $instrument_handle=shift;
+	my $args = undef;
+	if (ref $_[0] eq 'HASH') { $args=shift } # try to be flexible about options as hash/hashref
+	else { $args={@_} }
 
-	if ( exists $args{'SlaveAddress'} && $args{'SlaveAddress'} =~ /[0-9]*/ && $args{'SlaveAddress'} > 0 && $args{'SlaveAddress'} < 255 ) {
-		$SlaveAddress = $args{'SlaveAddress'};
+	my $slave_address;
+	if ( exists $args{'slave_address'} && $args{'slave_address'} =~ /[0-9]*/ && $args{'slave_address'} > 0 && $args{'slave_address'} < 255 ) {
+		$slave_address = $args{'slave_address'};
 	}
-	else { croak('No or invalid MODBUS Slave Address given. I can\'t work like this!'); }
+	else {
+		Lab::Exception::CorruptParameter->throw( error => 'No or invalid MODBUS Slave Address given. I can\'t work like this!' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__), );
+	}
 
-	my $Instrument=  { valid => 1, type => "MODBUS", SlaveAddress => $SlaveAddress };  
+	my $Instrument=  { valid => 1, type => "MODBUS_RS232", slave_address => $slave_address };  
 	return $Instrument;
 }
 
 
-sub _ordlist { # @list of chars
-	my $self=shift;
-	my @list = @_;
-	for (@list) { $_=ord }
-	return @list;
-}
-
-sub _chrlist { # @list of integers
-	my $self=shift;
-	my @list = @_;
-	for (@list) { $_=chr }
-	return @list; 
-}
-
-
+#
 # returns the read values as an array of bytes (characters!)
-sub InstrumentRead { # $self=Connection, \%InstrumentHandle, \%Options = { Function, MemAddress, MemCount }
-	use bytes;
+# don't be fooled, these are integers
+# note to self: think this through again
+#
+sub InstrumentRead { # @_ = ( $instrument_handle, $args = { function, mem_address, mem_count }
 	my $self = shift;
-	my $Instrument=shift;
-	my $Options = shift;
-	my $Function = int($Options->{'Function'}) || undef;
-	my $MemAddress = int($Options->{'MemAddress'}) || undef;
-	my $MemCount = int($Options->{'MemCount'}) || 1;
+	my $instrument_handle=shift;
+	my $args = undef;
+	if (ref $_[0] eq 'HASH') { $args=shift } # try to be flexible about options as hash/hashref
+	else { $args={@_} }
+
+	use bytes; # important! no unicode below, just plain 8-bit-encoding. We are receiving bytestrings via RS232, too much smart can blow us to hell.
+
+	my $function = int($args->{'function'}) || undef;
+	my $mem_address = int($args->{'mem_address'}) || undef;
+	my $mem_count = int($args->{'mem_count'}) || 1;
 	my @Result = ();
 	my $Success = 0;
 	my $ErrCount = 0;
@@ -139,19 +110,19 @@ sub InstrumentRead { # $self=Connection, \%InstrumentHandle, \%Options = { Funct
 	my @AnswerArr = ();
 	my @TmpArr = ();
 
-	if( !defined $Function || $Function != 3 )									{ warn('Undefined or unimplemented Function'); return undef; }
-	if( !defined $MemAddress || $MemAddress < 0 || $MemAddress > 0xFFFF )		{ warn('Invalid Memory Address'); return undef; }
-	if( $MemCount < 1 )															{ warn('Invalid count of registers to be read'); return undef; }
+	if( !defined $function || $function != 3 ) { Lab::Exception::CorruptParameter->throw( error => 'Undefined or unimplemented function code' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__), ); }
+	if( !defined $mem_address || $mem_address < 0 || $mem_address > 0xFFFF ) { Lab::Exception::CorruptParameter->throw( error => 'Invalid memory address' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__), ); }
+	if( $mem_count < 1 ) { Lab::Exception::CorruptParameter->throw( error => 'Invalid count of registers to be read' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__), ); }
 
-	@MessageArr = $self->_MB_CRC( pack('C',$Instrument->{SlaveAddress}),pack('C',$Function), pack('n',$MemAddress), pack('n',$MemCount) );
+	@MessageArr = $self->_MB_CRC( pack('C',$instrument_handle->{slave_address}),pack('C',$function), pack('n',$mem_address), pack('n',$mem_count) );
 	$Message = join('',$self->_chrlist(@MessageArr));
 	
 	$Success=0;
 	$ErrCount=0;
 	$ConnSemaphore->down();
 	do {
-		$self->WriteRaw($Message);
-		@AnswerArr = split(//, $self->ReadRaw('all'));
+		$class->SUPER::Write($Message);
+		@AnswerArr = split(//, $class->SUPER::Read('all'));
 		if(scalar(@AnswerArr) == 0) {
 			warn "Error, no answer received - retrying\n";
 			$ErrCount++;
@@ -160,16 +131,16 @@ sub InstrumentRead { # $self=Connection, \%InstrumentHandle, \%Options = { Funct
 			@TmpArr = $self->_MB_CRC(@AnswerArr);
 			if ($TmpArr[-2] != 0 || $TmpArr[-1] != 0) {	# CRC over the message including its correct CRC results in a "CRC" of zero.
 				$ErrCount++;
-				$ErrCount < $self->MaxCrcErrors() ? warn "Error in MODBUS response - retrying\n" : warn "Error in MODBUS response\n";
+				$ErrCount < $self->max_crc_errors() ? warn "Error in MODBUS response - retrying\n" : warn "Error in MODBUS response\n";
 			}
 			else {
 				warn "...Success\n" if $ErrCount > 0;
 				$Success=1;
 			}
 		}
-	} until($Success==1 || $ErrCount >= $self->MaxCrcErrors());
+	} until($Success==1 || $ErrCount >= $self->max_crc_errors());
 	$ConnSemaphore->up();
-	warn "Too many CRC errors, giving up after ${\$self->MaxCrcErrors()} times.\n" unless $Success;
+	warn "Too many CRC errors, giving up after ${\$self->max_crc_errors()} times.\n" unless $Success;
 	return undef unless $Success;
 
 	# formally correct - check response
@@ -194,15 +165,17 @@ sub InstrumentRead { # $self=Connection, \%InstrumentHandle, \%Options = { Funct
 }
 
 
-sub InstrumentWrite { # $self=Connection, \%InstrumentHandle, \%Options = { Function, MemAddress, (int)MemValue }
-	use bytes;
+sub InstrumentWrite { # @_ = ( $instrument_handle, $args = { function, mem_address, (int_16)mem_value }
 	my $self = shift;
-	my $Instrument=shift;
-	my $Options = shift;
-	my $Function = int($Options->{'Function'}) || undef;
-	my $MemAddress = int($Options->{'MemAddress'}) || undef;
-	my $MemValue = int($Options->{'MemValue'});
-	my $SendValue = pack('n!',$MemValue);
+	my $instrument_handle=shift;
+	my $args = undef;
+	if (ref $_[0] eq 'HASH') { $args=shift } # try to be flexible about options as hash/hashref
+	else { $args={@_} }
+
+	my $function = int($args->{'function'}) || undef;
+	my $mem_address = int($args->{'mem_address'}) || undef;
+	my $mem_value = int($args->{'mem_value'});
+	my $SendValue = pack('n!',$mem_value);
 	my $Result = undef;
 	my $Message = "";
 	my @MessageArr = ();
@@ -211,19 +184,20 @@ sub InstrumentWrite { # $self=Connection, \%InstrumentHandle, \%Options = { Func
 	my @TmpArr = ();
 	my $ErrCount=3;
 
-	if(!defined $Function || $Function != 6) 								{ warn("Undefined or unimplemented MODBUS Function"); return undef; }
-	if(!defined $MemAddress || $MemAddress < 0 || $MemAddress > 0xFFFF ) 	{ warn("Invalid Memory Address $MemAddress"); return undef; }
-	if(unpack('n!',$SendValue) != $MemValue) 								{ warn("Invalid Memory Value $MemValue"); return undef; }
 
-	@MessageArr = $self->_MB_CRC( pack('C',$Instrument->{SlaveAddress}), pack('C',$Function), pack('n',$MemAddress), $SendValue);
+	if( !defined $function || $function != 6 ) { Lab::Exception::CorruptParameter->throw( error => 'Undefined or unimplemented function code' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__), ); }
+	if( !defined $mem_address || $mem_address < 0 || $mem_address > 0xFFFF ) { Lab::Exception::CorruptParameter->throw( error => 'Invalid memory address' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__), ); }
+	if(unpack('n!',$SendValue) != $mem_value) { Lab::Exception::CorruptParameter->throw( error => "Invalid Memory Value $mem_value" . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__), ); }
+
+	@MessageArr = $self->_MB_CRC( pack('C',$Instrument->{slave_address}), pack('C',$function), pack('n',$mem_address), $SendValue);
 	$Message = join('',$self->_chrlist(@MessageArr));
 
 	$Success=0;
 	$ErrCount=0;
 	$ConnSemaphore->down();
 	do {
-		$self->WriteRaw($Message);
-		@AnswerArr = split(//, $self->ReadRaw('all'));
+		$class->SUPER::Write($Message);
+		@AnswerArr = split(//, $class->SUPER::Read('all'));
 		if(scalar(@AnswerArr) == 0) {
 			warn "Error, no answer received - retrying\n";
 			$ErrCount++;
@@ -232,16 +206,16 @@ sub InstrumentWrite { # $self=Connection, \%InstrumentHandle, \%Options = { Func
 			@TmpArr = $self->_MB_CRC(@AnswerArr);
 			if ($TmpArr[-2] != 0 || $TmpArr[-1] != 0) {	# CRC over the message including its correct CRC results in a "CRC" of zero
 				$ErrCount++;
-				$ErrCount < $self->MaxCrcErrors() ? warn "Error in MODBUS response - retrying\n" : warn "Error in MODBUS response\n";
+				$ErrCount < $self->max_crc_errors() ? warn "Error in MODBUS response - retrying\n" : warn "Error in MODBUS response\n";
 			}
 			else {
 				warn "...Success\n" if $ErrCount > 0;
 				$Success=1;
 			}
 		}
-	} until($Success==1 || $ErrCount >= $self->MaxCrcErrors());
+	} until($Success==1 || $ErrCount >= $self->max_crc_errors());
 	$ConnSemaphore->up();
-	warn "Too many CRC errors, giving up after ${\$self->MaxCrcErrors()} times.\n" unless $Success;
+	warn "Too many CRC errors, giving up after ${\$self->max_crc_errors()} times.\n" unless $Success;
 	return undef unless $Success;
 
 	# formally correct - check response;
@@ -265,6 +239,25 @@ sub InstrumentWrite { # $self=Connection, \%InstrumentHandle, \%Options = { Func
 }
 
 
+
+
+#
+# MODBUS RTU infrastructure below.
+#
+
+sub _ordlist { # @list of chars
+	my $self=shift;
+	my @list = @_;
+	for (@list) { $_=ord }
+	return @list;
+}
+
+sub _chrlist { # @list of integers
+	my $self=shift;
+	my @list = @_;
+	for (@list) { $_=chr }
+	return @list; 
+}
 
 sub _crc_inittab () {
 	my $self = shift;
@@ -331,7 +324,7 @@ Lab::Connection::MODBUS_RS232 - Perl extension for interfacing with instruments 
 	my $h = Lab::Connection::MODBUS_RS232->new({
 		Interface => 'RS232',
 		Port => 'COM1|/dev/ttyUSB1'
-		SlaveAddress => '1'
+		slave_address => '1'
 	});
 
 	COM1 is the Windows notation, /dev/ttyUSB1 the Linux equivalent.
@@ -361,20 +354,20 @@ Used by C<Lab::Instrument>. Not for direct use!!!
 =head2 InstrumentRead
 
 Reads data. Arguments:
-Function (0x01,0x02,0x03,0x04 - "Read Coils", "Read Discrete Inputs", "Read Holding Registers", "Read Input Registers")
-SlaveAddress (0xFF)
-MemAddress ( 0xFFFF, Address of first word )
-MemCount ( 0xFFFF, Count of words to read )
+function (0x01,0x02,0x03,0x04 - "Read Coils", "Read Discrete Inputs", "Read Holding Registers", "Read Input Registers")
+slave_address (0xFF)
+mem_address ( 0xFFFF, Address of first word )
+mem_count ( 0xFFFF, Count of words to read )
 
 
 =head2 InstrumentWrite
 
 Send data to instrument. Arguments: 
-Function (0x05,0x06,0x0F,0x10 - "Write Single Coil", "Write Single Register", "Write Multiple Coils", "Write Multiple Registers")
+function (0x05,0x06,0x0F,0x10 - "Write Single Coil", "Write Single Register", "Write Multiple Coils", "Write Multiple Registers")
 Currently only 0x06 is implemented.
-SlaveAddress (0xFF)
-MemAddress ( 0xFFFF, Address of word )
-Value ( 0xFFFF, value to write to MemAddress )
+slave_address (0xFF)
+mem_address ( 0xFFFF, Address of word )
+Value ( 0xFFFF, value to write to mem_address )
 
 
 =head1 CAVEATS/BUGS
