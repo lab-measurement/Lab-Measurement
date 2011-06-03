@@ -107,9 +107,32 @@ use Exception::Class (
 
 	Lab::Exception::VISATimeout => {
 		isa			=> 'Lab::Exception::VISAError',
-		description	=> 'A timeout occured while reading/wrting through NI VISA / Lab::VISA',
+		description	=> 'A timeout occured while reading/writing through NI VISA / Lab::VISA',
 		fields		=> [
 							'status', # the status returned from Lab::VISA, if any
+							'command', # the command that led to the timeout
+							'data', # the data read up to the abort
+		]
+	},
+
+
+	#
+	# errors and warnings specific to VISA / Lab::VISA
+	#
+
+	Lab::Exception::RS232Error => {
+		isa			=> 'Lab::Exception::Error',
+		description	=> 'An error occured with the native RS232 interface',
+		fields		=> [
+							'status', # the returned status
+		]
+	},
+
+	Lab::Exception::RS232Timeout => {
+		isa			=> 'Lab::Exception::RS232Error',
+		description	=> 'A timeout occured while reading/writing through native RS232 interface',
+		fields		=> [
+							'status', # the status returned
 							'command', # the command that led to the timeout
 							'data', # the data read up to the abort
 		]

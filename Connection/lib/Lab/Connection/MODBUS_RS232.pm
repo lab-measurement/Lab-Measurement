@@ -38,15 +38,53 @@ my %fields = (
 sub new {
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
-	#my %args = @_;
-	my $args = shift;
-	my $self = $class->SUPER::new($args); # getting fields and _permitted from parent class
-	foreach my $element (keys %fields) {
-		$self->{_permitted}->{$element} = $fields{$element};
-	}
-	@{$self}{keys %fields} = values %fields;
+	my $twin = undef;
+	my $self = $class->SUPER::new(@_); # getting fields and _permitted from parent class
+	$self->_construct(__PACKAGE__, \%fields);
 
-	$self->_crc_inittab(); #Precalculations for checksum generation
+
+	# search for twin in %Lab::Connection::ConnectionList. If there's none, place $self there and weaken it.
+	# note to self: put this in base class/_construct if possible
+	if( $class eq __PACKAGE__ ) { # careful - do only if this is not a parent class constructor
+		if($twin = $self->_search_twin()) {
+			undef $self;
+			return $twin;	# ...and that's it.
+		}
+		else {
+			$Lab::Connection::ConnectionList{$self->type()}->{$self->gpib_board()} = $self;
+			weaken($Lab::Connection::ConnectionList{$self->type()}->{$self->gpib_board()});
+		}
+	}
+
+	$self->_crc_inittab(); # Precalculations for checksum generation
+
+	return $self;
+}
+
+
+sub new {
+	my $proto = shift;
+	my $class = ref($proto) || $proto;
+	my $twin = undef;
+	my $self = $class->SUPER::new(@_); # getting fields and _permitted from parent class
+	$self->_construct(__PACKAGE__, \%fields);
+
+	# one board - one connection - one connection object
+	if ( exists $self->config()->{'gpib_board'} ) {
+		$self->gpib_board($self->config()->{'gpib_board'}); 
+	} # ... or the default
+
+	# search for twin in %Lab::Connection::ConnectionList. If there's none, place $self there and weaken it.
+	if( $class eq __PACKAGE__ ) { # careful - do only if this is not a parent class constructor
+		if($twin = $self->_search_twin()) {
+			undef $self;
+			return $twin;	# ...and that's it.
+		}
+		else {
+			$Lab::Connection::ConnectionList{$self->type()}->{$self->gpib_board()} = $self;
+			weaken($Lab::Connection::ConnectionList{$self->type()}->{$self->gpib_board()});
+		}
+	}
 
 	return $self;
 }
