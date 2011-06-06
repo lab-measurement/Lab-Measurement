@@ -8,7 +8,7 @@ package Lab::Instrument;
 use strict;
 
 use Lab::Exception;
-use Lab::Connection;
+use Lab::Connector;
 use Carp;
 use Data::Dumper;
 
@@ -20,13 +20,13 @@ our @ISA = ();
 
 our $AUTOLOAD;
 
-our $VERSION = sprintf("1.%04d", q$Revision$ =~ / (\d+) /);
+# our $VERSION = sprintf("1.%04d", q$Revision$ =~ / (\d+) /);
 
 
 our %fields = (
-	connection => undef,
-	connection_type => "GPIB", # default
-	supported_connections => [ ],
+	connector => undef,
+	connector_type => "GPIB", # default
+	supported_connectors => [ ],
 	config => {},
 	instrument_handle => undef,
 	wait_status => 10, # usec
@@ -68,12 +68,12 @@ sub _construct {	# _construct(__PACKAGE__);
 	@{$self}{keys %{$fields}} = values %{$fields};
 
 	#
-	# Check the connection data OR the connection object in $self->config(), but only if 
+	# Check the connector data OR the connector object in $self->config(), but only if 
 	# _construct() has been called from the instantiated class (and not from somewhere up the heritance hierarchy)
-	# That's because child classes can add new entrys to $self->supported_connections(), so delay checking to the top class.
+	# That's because child classes can add new entrys to $self->supported_connectors(), so delay checking to the top class.
 	#
 	if( $class eq $package ) {
-		$self->_setconnection();
+		$self->_setconnector();
 	}
 }
 
@@ -85,14 +85,14 @@ sub _checkconfig {
 	return 1;
 }
 
-sub _checkconnection { # Connection object or ConnType string
+sub _checkconnector { # Connector object or ConnType string
 	my $self=shift;
-	my $connection=shift || "";
+	my $connector=shift || "";
 	my $conn_type = "";
 
-	$conn_type = ( split( '::',  ref($connection) || $connection ))[-1];
+	$conn_type = ( split( '::',  ref($connector) || $connector ))[-1];
 
- 	if (defined $conn_type && 1 != grep( /^$conn_type$/, @{$self->supported_connections()} )) {
+ 	if (defined $conn_type && 1 != grep( /^$conn_type$/, @{$self->supported_connectors()} )) {
  		return 0;
  	}
 	else {
@@ -101,37 +101,37 @@ sub _checkconnection { # Connection object or ConnType string
 }
 
 #
-# Method to handle connection creation generically. This is called by _construct().
+# Method to handle connector creation generically. This is called by _construct().
 # If the following (rather simple code) doesn't suit your child class, or your need to
 # introduce more thorough parameter checking and/or conversion, overwrite it - _construct()
 # calls it only if it is called by the topmost class in the inheritance hierarchy itself.
 #
-sub _setconnection { # $self->setconnection() create new or use existing connection
+sub _setconnector { # $self->setconnector() create new or use existing connector
 	my $self=shift;
-	# check the configuration hash for a valid connection object or connection type, and set the connection
-	if( defined($self->config('connection')) ) {
-		if($self->_checkconnection($self->config('connection')) ) {
-			$self->connection($self->config('connection'));
+	# check the configuration hash for a valid connector object or connector type, and set the connector
+	if( defined($self->config('connector')) ) {
+		if($self->_checkconnector($self->config('connector')) ) {
+			$self->connector($self->config('connector'));
 		}
-		else { Lab::Exception::CorruptParameter->throw( error => 'Received invalid connection object!\n' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__) ); }
+		else { Lab::Exception::CorruptParameter->throw( error => 'Received invalid connector object!\n' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__) ); }
 	}
 # 	else {
-# 		Lab::Exception::CorruptParameter->throw( error => 'Received no connection object!\n' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__) );
+# 		Lab::Exception::CorruptParameter->throw( error => 'Received no connector object!\n' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__) );
 # 	}
 	else {
-		my $connection_type = $self->config('connection_type') || $self->supported_connections()->[0];
-		warn "No connection and no connection type given - trying to create default connection $connection_type.\n" if !$self->config('connection_type');
-		if($self->_checkconnection($self->config('connection_type'))) {
-			# yep - pass all the parameters on to the connection, it will take the ones it needs.
-			# This way connection setup can be handled generically. Conflicting parameter names? Let's try it.
-			warn ("new Lab::Connection::${connection_type}(\$self->config())");
-			$self->connection(eval("require Lab::Connection::${connection_type}; new Lab::Connection::${connection_type}(\$self->config())")) || croak('Failed to create connection');
+		my $connector_type = $self->config('connector_type') || $self->supported_connectors()->[0];
+		warn "No connector and no connector type given - trying to create default connector $connector_type.\n" if !$self->config('connector_type');
+		if($self->_checkconnector($self->config('connector_type'))) {
+			# yep - pass all the parameters on to the connector, it will take the ones it needs.
+			# This way connector setup can be handled generically. Conflicting parameter names? Let's try it.
+			warn ("new Lab::Connector::${connector_type}(\$self->config())");
+			$self->connector(eval("require Lab::Connector::${connector_type}; new Lab::Connector::${connector_type}(\$self->config())")) || croak('Failed to create connector');
 		}
-		else { croak('Given Connection Type not supported'); }
+		else { croak('Given Connector Type not supported'); }
 	}
 
 	# again, pass it all.
-	$self->instrument_handle( $self->connection()->InstrumentNew( $self->config() ));
+	$self->instrument_handle( $self->connector()->InstrumentNew( $self->config() ));
 }
 
 
@@ -139,9 +139,9 @@ sub _setconnection { # $self->setconnection() create new or use existing connect
 sub Clear {
 	my $self=shift;
 	
-	return $self->connection()->InstrumentClear($self->instrument_handle()) if ($self->connection()->can('Clear'));
+	return $self->connector()->InstrumentClear($self->instrument_handle()) if ($self->connector()->can('Clear'));
 	# error message
-	die "Clear function is not implemented in the connection ".ref($self->connection())."\n";
+	die "Clear function is not implemented in the connector ".ref($self->connector())."\n";
 }
 
 
@@ -151,7 +151,7 @@ sub Write {
 	if (ref $_[0] eq 'HASH') { $options=shift }
 	else { $options={@_} }
 	
-	return $self->connection()->InstrumentWrite($self->instrument_handle(), $options);
+	return $self->connector()->InstrumentWrite($self->instrument_handle(), $options);
 }
 
 
@@ -163,7 +163,7 @@ sub Read {
 	if (ref $_[0] eq 'HASH') { $options=shift }
 	else { $options={@_} }
 
-	return $self->connection()->InstrumentRead($self->instrument_handle(), $options);
+	return $self->connector()->InstrumentRead($self->instrument_handle(), $options);
 }
 
 
@@ -262,7 +262,7 @@ sub AUTOLOAD {
 # needed so AUTOLOAD doesn't try to call DESTROY on cleanup and prevent the inherited DESTROY
 sub DESTROY {
         my $self = shift;
-	#$self->connection()->DESTROY();
+	#$self->connector()->DESTROY();
         $self -> SUPER::DESTROY if $self -> can ("SUPER::DESTROY");
 }
 
@@ -324,7 +324,7 @@ Every inheriting class' constructors should start as follows:
     my $proto = shift;
     my $class = ref($proto) || $proto;
     my $self = $class->SUPER::new(@_);
-    $self->_construct(__PACKAGE__);  # check for supported connections, initialize fields etc.
+    $self->_construct(__PACKAGE__);  # check for supported connectors, initialize fields etc.
     ...
   }
 
@@ -332,15 +332,15 @@ Every inheriting class' constructors should start as follows:
 
 C<Lab::Instrument> is the base class for Instruments. It doesn't do anything by itself, but
 is meant to be inherited in specific instrument drivers.
-It provides general C<Read>, C<Write> and C<Query> methods and basic connection handling (internal, C<_set_connection>, C<_check_connection>).
+It provides general C<Read>, C<Write> and C<Query> methods and basic connector handling (internal, C<_set_connector>, C<_check_connector>).
 
-The connection object can be obtained by calling C<connection()>.
+The connector object can be obtained by calling C<connector()>.
 
 Also, fields common to all instrument classes are created and set to default values where applicable:
 
-  connection => undef,
-  ConnectionType => "",
-  SupportedConnections => [ ],
+  connector => undef,
+  ConnectorType => "",
+  SupportedConnectors => [ ],
   Config => undef,
   InstrumentHandle => undef,
   WaitQuery => 100,
@@ -373,11 +373,11 @@ Sends the command C<$command> to the instrument.
 Reads a result of C<ReadLength> from the instrument and returns it.
 Returns an exception on error.
 
-If the parameter C<Brutal> is set, a timeout in the connection will not result in an Exception thrown,
+If the parameter C<Brutal> is set, a timeout in the connector will not result in an Exception thrown,
 but will return the data obtained until the timeout without further comment.
 Be aware that this data is also contained in the the timeout exception object (see C<Lab::Exception>).
 
-Generally, all options are passed to the connection, so additional options may be supported based on the connection.
+Generally, all options are passed to the connector, so additional options may be supported based on the connector.
 
 =head2 BrutalRead
 
@@ -391,7 +391,7 @@ Equivalent to
 
 Sends the command C<$command> to the instrument and reads a result from the
 instrument and returns it. The length of the read buffer is set to C<ReadLength> or to the
-default set in the connection.
+default set in the connector.
 
 Waits for C<WaitQuery> microseconds before trying to read the answer.
 
@@ -400,7 +400,7 @@ WaitStatus not implemented yet - needed?
 The default value of 'wait_query' can be overwritten
 by defining the corresponding object key.
 
-Generally, all options are passed to the connection, so additional options may be supported based on the connection.
+Generally, all options are passed to the connector, so additional options may be supported based on the connector.
 
 =head2 LongQuery
 
@@ -423,12 +423,12 @@ By the way: you can get to this data without the 'Brutal' option through the tim
 
 Sends a clear command to the instrument if implemented for the interface.
 
-=head2 Connection
+=head2 Connector
 
- $connection=$instrument->connection();
+ $connector=$instrument->connector();
 
-Returns the connection object used by this instrument. It can then be passed on to another object on the
-same connection, or be used to change connection parameters.
+Returns the connector object used by this instrument. It can then be passed on to another object on the
+same connector, or be used to change connector parameters.
 
 =head2 WriteConfig
 

@@ -13,7 +13,7 @@ our $maxchannels = 16;
 our @ISA=('Lab::Instrument');
 
 my %fields = (
-	SupportedConnections => [],
+	SupportedConnectors => [],
 	InstrumentHandle => undef,
 	ParentSource => undef,
 	ChildSources => [],
@@ -48,7 +48,7 @@ sub new {
 	my $class = ref($proto) || $proto;
 	my $self = $class->SUPER::new(@_);	# sets $self->config
 	$self->_construct(__PACKAGE__, \%fields); 	# this sets up all the object fields out of the inheritance tree.
-												# also, it does generic connection setup.
+												# also, it does generic connector setup.
 
 	#
 	# Parameter parsing
@@ -146,7 +146,7 @@ sub GetSubSource { #{ Channel=>2, config1=>fasl, config2=>foo };
 	my $self=shift;
 	my $class = ref($self);
 	my $constructor = "${class}::new";
-	my $subsource = &$constructor({ Connection=>$self->Connection(), ParentSource=>$self, gpData=>$self->gpData(), %{$self->DefaultConfig()} });
+	my $subsource = &$constructor({ Connector=>$self->Connector(), ParentSource=>$self, gpData=>$self->gpData(), %{$self->DefaultConfig()} });
 	$self->ChildSources([ @{$self->ChildSources}, $subsource ]);
 	return $subsource;
 }

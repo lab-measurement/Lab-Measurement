@@ -10,7 +10,7 @@ our $VERSION = sprintf("0.%04d", q$Revision: 720 $ =~ / (\d+) /);
 our @ISA = ("Lab::Instrument");
 
 my %fields = (
-	supported_connections => [ 'GPIB', 'VISA', 'DEBUG' ],
+	supported_connectors => [ 'GPIB', 'VISA', 'DEBUG' ],
 );
 
 sub new {
@@ -18,10 +18,10 @@ sub new {
 	my $class = ref($proto) || $proto;
 	my $self = $class->SUPER::new(@_);
 	$self->_construct(__PACKAGE__, \%fields); 	# this sets up all the object fields out of the inheritance tree.
-												# also, it does generic connection setup.
+												# also, it does generic connector setup.
 
 
-	$self->InstrumentHandle( $self->Connection()->InstrumentNew(GPIB_Paddr => $self->config('GPIB_Paddress')) );
+	$self->InstrumentHandle( $self->Connector()->InstrumentNew(GPIB_Paddr => $self->config('GPIB_Paddress')) );
 	return $self;
 }
 

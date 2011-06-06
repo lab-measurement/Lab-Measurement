@@ -11,8 +11,8 @@ our $VERSION = sprintf("0.%04d", q$Revision: 720 $ =~ / (\d+) /);
 our @ISA = ("Lab::Instrument");
 
 our %fields = (
-	# SupportedConnections => [ 'GPIB', 'RS232' ],	# in principle RS232, too, but not implemented (yet)
-	supported_connections => [ 'GPIB', 'VISA', 'DEBUG' ],
+	# SupportedConnectors => [ 'GPIB', 'RS232' ],	# in principle RS232, too, but not implemented (yet)
+	supported_connectors => [ 'GPIB', 'VISA', 'DEBUG' ],
 );
 
 
@@ -21,7 +21,7 @@ sub new {
 	my $class = ref($proto) || $proto;
 	my $self = $class->SUPER::new(@_);	# sets $self->config
 	$self->_construct(__PACKAGE__, \%fields); 	# this sets up all the object fields out of the inheritance tree.
-												# also, it does generic connection setup.
+												# also, it does generic connector setup.
 
 
 	return $self;
@@ -136,7 +136,7 @@ sub reset {
     my $self=shift;
     $self->Write( command => "*CLS");
     $self->Write( command => "*RST");
-#	$self->connection()->InstrumentClear($self->instrument_handle());
+#	$self->connector()->InstrumentClear($self->instrument_handle());
 }
 
 
@@ -259,24 +259,24 @@ Lab::Instrument::HP34401A - HP/Agilent 34401A digital multimeter
   use Lab::Instrument::HP34401A;
 
   my $Agi = new Lab::Instrument::HP34401A({
-    connection => new Lab::Connection::GPIB(),
+    connector => new Lab::Connector::GPIB(),
     GPIB_Paddress => 14,
   }
 
-This omits the connection option "GPIB_Board => 0" (default). More elaborate:
+This omits the connector option "GPIB_Board => 0" (default). More elaborate:
 
   my $Agi = new Lab::Instrument::HP34401A({
-    connection => new Lab::Connection::GPIB({
+    connector => new Lab::Connector::GPIB({
 		GPIB_Board => 0,
 	}),
     GPIB_Paddress => 14,
   } 
 
 
-Beware that if you give more detailed connection parameters, (only!) the ones from the first connection setup will be used.
-The second setup will automagically reuse the existing connection.
-If you know what you're doing or you have an exotic scenario you can use the connection parameter "IgnoreTwin => 1", but this
-is discouraged - it will kill connection management and you might run into hardware/resource sharing issues.
+Beware that if you give more detailed connector parameters, (only!) the ones from the first connector setup will be used.
+The second setup will automagically reuse the existing connector.
+If you know what you're doing or you have an exotic scenario you can use the connector parameter "IgnoreTwin => 1", but this
+is discouraged - it will kill connector management and you might run into hardware/resource sharing issues.
 
 
 =head1 DESCRIPTION

@@ -11,8 +11,8 @@ our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
 our @ISA=('Lab::Instrument::Source');
 
 my %fields = (
-	# supported_connections => [ 'GPIB', 'RS232' ], # RS232 not implemented yet
-	supported_connections => [ 'GPIB', 'VISA', 'DEBUG' ],
+	# supported_connectors => [ 'GPIB', 'RS232' ], # RS232 not implemented yet
+	supported_connectors => [ 'GPIB', 'VISA', 'DEBUG' ],
 
 	channel_defaultconfig => {
 		gate_protect            => 1,
@@ -31,7 +31,7 @@ sub new {
 	my $class = ref($proto) || $proto;
 	my $self = $class->SUPER::new(@_);
 	$self->_construct(__PACKAGE__, \%fields); 	# this sets up all the object fields out of the inheritance tree.
-												# also, it does generic connection setup.
+												# also, it does generic connector setup.
 
 	# already called in Lab::Instrument::Source, but call it again to respect default values in local channel_defaultconfig
 	$self->configure($self->config());
