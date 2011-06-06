@@ -1,5 +1,9 @@
-History of Lab::Connection
+History of Lab::Connector
 ==========================
+
+
+Lab::Connector 0.1
+  * renamed from Lab::Connection
 
 Lab::Connection 0.1
   
