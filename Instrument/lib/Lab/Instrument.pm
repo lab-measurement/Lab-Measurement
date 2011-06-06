@@ -95,14 +95,7 @@ sub _checkconnection { # Connection object or ConnType string
 }
 
 
-#
-# Method to handle connection creation generically. This is called by _construct().
-# If the following (rather simple code) doesn't suit your child class, or your need to
-# introduce more thorough parameter checking and/or conversion, overwrite it - _construct()
-# calls it only if it is called by the topmost class in the inheritance hierarchy itself.
-#
-# set $self->connection_handle
-#
+
 sub _setconnection { # $self->setconnection() create new or use existing connection
 	my $self=shift;
 	# check the configuration hash for a valid connection object or connection type, and set the connection
@@ -138,6 +131,15 @@ sub _checkconfig {
 
 
 
+
+
+
+
+
+
+#
+# infrastructure stuff below
+#
 
 
 

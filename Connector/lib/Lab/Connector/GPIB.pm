@@ -1,7 +1,56 @@
-	#!/usr/bin/perl -w
+#!/usr/bin/perl -w
 
 
+
+
+package Lab::Connection::GPIB;
 use strict;
+use Scalar::Util qw(weaken);
+use Time::HiRes qw (usleep sleep);
+use Lab::Connection;
+use LinuxGpib ':all';
+use Data::Dumper;
+use Carp;
+
+our @ISA = ("Lab::Connection");
+
+
+our %fields = (
+	connector_class => "Lab::Connector::GPIB",
+	gpib_address	=> 0,
+	gpib_saddress => undef, # secondary address
+	type => 'GPIB',
+	brutal => 0,	# brutal as default?
+	wait_status=>0, # usec;
+	wait_query=>10, # usec;
+	read_length=>1000, # bytes
+	query_length=>300, # bytes
+	query_long_length=>10240, #bytes
+);
+
+
+sub new {
+	my $proto = shift;
+	my $class = ref($proto) || $proto;
+	my $twin = undef;
+	my $self = $class->SUPER::new(@_); # getting fields and _permitted from parent class
+	$self->_construct(__PACKAGE__, \%fields);
+
+	return $self;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 package Lab::Connector::GPIB;
 use strict;

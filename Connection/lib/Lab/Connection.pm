@@ -19,8 +19,6 @@ our $AUTOLOAD;
 
 our @ISA = ();
 
-#our $VERSION = sprintf("1.%04d", q$Revision$ =~ / (\d+) /);
-
 
 our %fields = (
 	connection_handle => undef,
@@ -49,46 +47,6 @@ sub new {
 	$self->ignore_twins($self->config('ignore_twins'));
 
 	return $self;
-}
-
-
-#
-# Call this in inheriting class's constructors to conveniently initialize the %fields object data
-#
-sub _construct {	# _construct(__PACKAGE__, %fields);
-	(my $self, my $package, my $fields) = (shift, shift, shift);
-	my $class = ref($self);
-	my $twin = undef;
-
-	foreach my $element (keys %{$fields}) {
-		$self->{_permitted}->{$element} = $fields->{$element};
-	}
-	@{$self}{keys %{$fields}} = values %{$fields};
-
-	if( $class eq $package ) {
-		$self->_setconnector();
-	}
-}
-
-
-#
-# Method to handle connector creation generically. This is called by _construct().
-# If the following (rather simple code) doesn't suit your child class, or your need to
-# introduce more thorough parameter checking and/or conversion, overwrite it - _construct()
-# calls it only if it is called by the topmost class in the inheritance hierarchy itself.
-#
-# set $self->connection_handle
-#
-sub _setconnector { # $self->setconnector() create new or use existing connector
-	my $self=shift;
-	my $connector_class = $self->connector_class();
-
-	warn ("new Lab::Connector::${connector_class}(\$self->config())\n");
-	#eval("use $connector_class;");
-	$self->connector(eval("use $connector_class; new $connector_class(\$self->config());")) || Lab::Exception::Error->throw( error => "Failed to create connector $connector_class in " . __PACKAGE__ . "::_setconnector.\n"  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__));
-
-	# again, pass it all.
-	$self->connection_handle( $self->connector()->connection_new( $self->config() ));
 }
 
 
@@ -178,6 +136,53 @@ sub BrutalQuery {
 
 
 
+
+
+
+#
+# infrastructure stuff below
+#
+
+
+
+#
+# Call this in inheriting class's constructors to conveniently initialize the %fields object data
+#
+sub _construct {	# _construct(__PACKAGE__, %fields);
+	(my $self, my $package, my $fields) = (shift, shift, shift);
+	my $class = ref($self);
+	my $twin = undef;
+
+	foreach my $element (keys %{$fields}) {
+		$self->{_permitted}->{$element} = $fields->{$element};
+	}
+	@{$self}{keys %{$fields}} = values %{$fields};
+
+	if( $class eq $package ) {
+		$self->_setconnector();
+	}
+}
+
+
+#
+# Method to handle connector creation generically. This is called by _construct().
+# If the following (rather simple code) doesn't suit your child class, or your need to
+# introduce more thorough parameter checking and/or conversion, overwrite it - _construct()
+# calls it only if it is called by the topmost class in the inheritance hierarchy itself.
+#
+# set $self->connection_handle
+#
+sub _setconnector { # $self->setconnector() create new or use existing connector
+	my $self=shift;
+	my $connector_class = $self->connector_class();
+
+	warn ("new Lab::Connector::${connector_class}(\$self->config())\n");
+	#eval("use $connector_class;");
+	$self->connector(eval("use $connector_class; new $connector_class(\$self->config());")) || Lab::Exception::Error->throw( error => "Failed to create connector $connector_class in " . __PACKAGE__ . "::_setconnector.\n"  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__));
+
+	# again, pass it all.
+	$self->connection_handle( $self->connector()->connection_new( $self->config() ));
+}
 
 
 #
