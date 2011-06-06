@@ -41,6 +41,8 @@ use Lab::Connector;
 use Data::Dumper;
 use Carp;
 
+use Lab::Exception
+
 our @ISA = ("Lab::Connector");
 
 our $thr = undef;
@@ -87,25 +89,25 @@ sub new {
 }
 
 
-sub InstrumentNew { # @_ = ({ resource_name => $resource_name })
+sub connection_new { # @_ = ({ resource_name => $resource_name })
 	my $self = shift;
 	my $args = undef;
 	my $status = undef;
-	my $instrument_handle=undef;
+	my $connection_handle=undef;
 	if (ref $_[0] eq 'HASH') { $args=shift } # try to be flexible about options as hash/hashref
 	else { $args={@_} }
 
-	$instrument_handle = { debug_instr_index => $self->instrument_index() };
+	$connection_handle = { debug_instr_index => $self->instrument_index() };
 
 	$self->instrument_index($self->instrument_index() + 1 );
 
-	return $instrument_handle;   
+	return $connection_handle;   
 }
 
 
-sub InstrumentRead { # @_ = ( $instrument_handle, $args = { read_length, brutal }
+sub connection_read { # @_ = ( $connection_handle, $args = { read_length, brutal }
 	my $self = shift;
-	my $instrument_handle=shift;
+	my $connection_handle=shift;
 	my $args = undef;
 	if (ref $_[0] eq 'HASH') { $args=shift } # try to be flexible about options as hash/hashref
 	else { $args={@_} }
@@ -125,7 +127,7 @@ sub InstrumentRead { # @_ = ( $instrument_handle, $args = { read_length, brutal 
 
 
 		  DEBUG connector
-		  InstrumentRead called on Instrument No. $instrument_handle->{'debug_instr_index'}
+		  connection_read called on Instrument No. $connection_handle->{'debug_instr_index'}
 		  Brutal:      $brutal_txt
 		  Read length: $read_length
 
@@ -140,14 +142,14 @@ ENDMSG
 	if( $result =~ /^(T!).*/) {
 		$result = substr($result, 2);
 		Lab::Exception::Timeout->throw(
-			error => "Timeout in " . __PACKAGE__ . "::InstrumentRead().\n",
+			error => "Timeout in " . __PACKAGE__ . "::connection_read().\n",
 			data => $result,
 		);
 	}
 	elsif( $result =~ /^(E!).*/) {
 		$result = substr($result, 2);
 		Lab::Exception::Error->throw(
-			error => "Error in " . __PACKAGE__ . "::InstrumentRead().\n",
+			error => "Error in " . __PACKAGE__ . "::connection_read().\n",
 		);
 	}
 
@@ -158,14 +160,15 @@ ENDMSG
 
 
 
-sub InstrumentWrite { # @_ = ( $instrument_handle, $args = { command, wait_status }
+sub connection_write { # @_ = ( $connection_handle, $args = { command, wait_status }
 	my $self = shift;
-	my $instrument_handle=shift;
+	my $connection_handle=shift;
 	my $args = undef;
 	if (ref $_[0] eq 'HASH') { $args=shift } # try to be flexible about options as hash/hashref
 	else { $args={@_} }
 
 	my $command = $args->{'command'} || undef;
+	if (!defined $command) { Lab::Exception::CorruptParameter->throw( error => "No command given to " . __PACKAGE__ . "::connection_write\n"  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__)); }
 	my $brutal = $args->{'brutal'} || $self->brutal();
 	my $read_length = $args->{'read_length'} || $self->read_length();
 	my $wait_status = $args->{'wait_status'} || $self->wait_status();
@@ -181,7 +184,7 @@ sub InstrumentWrite { # @_ = ( $instrument_handle, $args = { command, wait_statu
 
 
 		  DEBUG connector
-		  InstrumentWrite called on Instrument No. $instrument_handle->{'debug_instr_index'}
+		  connection_write called on Instrument No. $connection_handle->{'debug_instr_index'}
 		  Command:     $command
 		  Brutal:      $brutal_txt
 		  Read length: $read_length
@@ -196,14 +199,14 @@ ENDMSG
 
 	if(!defined $command) {
 		Lab::Exception::CorruptParameter->throw(
-			error => "No command given to " . __PACKAGE__ . "::InstrumentWrite().\n",
+			error => "No command given to " . __PACKAGE__ . "::connection_write().\n",
 		);
 	}
 	else {
 
 		if ( $user_return eq 'E' ) {
 			Lab::Exception::Error->throw(
-				error => "Error in " . __PACKAGE__ . "::InstrumentWrite() while executing $command.",
+				error => "Error in " . __PACKAGE__ . "::connection_write() while executing $command.",
 			);
 		}
 
@@ -214,9 +217,9 @@ ENDMSG
 
 
 
-sub InstrumentQuery { # @_ = ( $instrument_handle, $args = { command, read_length, wait_status, wait_query, brutal }
+sub InstrumentQuery { # @_ = ( $connection_handle, $args = { command, read_length, wait_status, wait_query, brutal }
 	my $self = shift;
-	my $instrument_handle=shift;
+	my $connection_handle=shift;
 	my $args = undef;
 	if (ref $_[0] eq 'HASH') { $args=shift } # try to be flexible about options as hash/hashref
 	else { $args={@_} }
@@ -233,11 +236,11 @@ sub InstrumentQuery { # @_ = ( $instrument_handle, $args = { command, read_lengt
 	my $read_cnt = undef;
 
 
-    $write_cnt=$self->InstrumentWrite($args);
+    $write_cnt=$self->connection_write($args);
 
     print "\nwait_query: $wait_query usec\n";
 
-    $result=$self->InstrumentRead($args);
+    $result=$self->connection_read($args);
     return $result;
 }
 

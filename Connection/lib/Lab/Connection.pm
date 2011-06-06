@@ -17,17 +17,13 @@ our $AUTOLOAD;
 
 our @ISA = ();
 
-our $VERSION = sprintf("1.%04d", q$Revision$ =~ / (\d+) /);
+#our $VERSION = sprintf("1.%04d", q$Revision$ =~ / (\d+) /);
 
-# this holds a list of references to all the connection objects that are floating around in memory,
-# to enable transparent connection reuse, so the user doesn't have to handle (or even know about,
-# to that end) connection objects. weaken() is used so the reference in this list does not prevent destruction
-# of the object when the last "real" reference is gone.
-our %ConnectionList = (
-	# ConnectionType => $ConnectionReference,
-);
 
 our %fields = (
+	connection_handle => undef,
+	supported_connectors => [],
+	connector => undef, # set default here in child classes, e.g. connector => "GPIB"
 	config => undef,
 	type => undef,	# e.g. 'GPIB'
 	ignore_twins => 0, # 
@@ -69,28 +65,143 @@ sub _construct {	# _construct(__PACKAGE__, %fields);
 }
 
 
-#
-# this is a stub. In child classes, this should search %Lab::Connection::ConnectionList for a reusable
-# instance (and be called in the constructor).
-#
-# e.g.
-# return $self->_search_twin() || $self;
-#
-sub _search_twin {
-	return 0;
+sub _checkconnector { # Connector object or ConnType string
+	my $self=shift;
+	my $connector=shift || "";
+	my $conn_type = "";
+
+	$conn_type = ( split( '::',  ref($connector) || $connector ))[-1];
+
+ 	if (defined $conn_type && 1 != grep( /^$conn_type$/, @{$self->supported_connectors()} )) {
+ 		return 0;
+ 	}
+	else {
+		return 1;
+	}
 }
 
-sub InstrumentRead {
-	return 0;
+
+#
+# Method to handle connector creation generically. This is called by _construct().
+# If the following (rather simple code) doesn't suit your child class, or your need to
+# introduce more thorough parameter checking and/or conversion, overwrite it - _construct()
+# calls it only if it is called by the topmost class in the inheritance hierarchy itself.
+#
+# set $self->connection_handle
+#
+sub _setconnector { # $self->setconnector() create new or use existing connector
+	my $self=shift;
+	# check the configuration hash for a valid connector object or connector type, and set the connector
+	if( defined($self->config('connector')) ) {
+		if($self->_checkconnector($self->config('connector')) ) {
+			$self->connector($self->config('connector'));
+		}
+		else { Lab::Exception::CorruptParameter->throw( error => 'Received invalid connector object!\n' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__) ); }
+	}
+# 	else {
+# 		Lab::Exception::CorruptParameter->throw( error => 'Received no connector object!\n' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__) );
+# 	}
+	else {
+		my $connector_type = $self->config('connector_type') || $self->supported_connectors()->[0];
+		warn "No connector and no connector type given - trying to create default connector $connector_type.\n" if !$self->config('connector_type');
+		if($self->_checkconnector($self->config('connector_type'))) {
+			# yep - pass all the parameters on to the connector, it will take the ones it needs.
+			# This way connector setup can be handled generically. Conflicting parameter names? Let's try it.
+			warn ("new Lab::Connector::${connector_type}(\$self->config())");
+			$self->connector(eval("require Lab::Connector::${connector_type}; new Lab::Connector::${connector_type}(\$self->config())")) || croak('Failed to create connector');
+		}
+		else { croak('Given Connector Type not supported'); }
+	}
+
+	# again, pass it all.
+	$self->connection_handle( $self->connector()->connection_new( $self->config() ));
 }
 
-sub InsrumentWrite {
-	return 0;
+
+
+
+#
+# generic methods - interface definition
+#
+
+
+sub Clear {
+	my $self=shift;
+	
+	return $self->connector()->ConnClear($self->connection_handle()) if ($self->connector()->can('connection_clear'));
+	# error message
+	warn "Clear function is not implemented in the connector ".ref($self->connector())."\n"  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__));
 }
 
-sub InstrumentNew {
-	return 0;
+
+sub Write {
+	my $self=shift;
+	my $options=undef;
+	if (ref $_[0] eq 'HASH') { $options=shift }
+	else { $options={@_} }
+	
+	return $self->connector()->connection_write($self->connection_handle(), $options);
 }
+
+
+sub Read {
+	my $self=shift;
+	my $options=undef;
+	if (ref $_[0] eq 'HASH') { $options=shift }
+	else { $options={@_} }
+
+	return $self->connector()->connection_read($self->connection_handle(), $options);
+}
+
+
+sub BrutalRead {
+	my $self=shift;
+	my $options=undef;
+	if (ref $_[0] eq 'HASH') { $options=shift }
+	else { $options={@_} }
+	$options->{'Brutal'} = 1;
+	
+	return $self->Read($options);
+}
+
+
+
+sub Query {
+	my $self=shift;
+	my $options=undef;
+	if (ref $_[0] eq 'HASH') { $options=shift }
+	else { $options={@_} }
+
+	my $wait_query=$options->{'wait_query'} || $self->wait_query();
+
+	$self->Write( $options );
+	usleep($wait_query);
+	return $self->Read($options);
+}
+
+
+
+sub LongQuery {
+	my $self=shift;
+	my $options=undef;
+	if (ref $_[0] eq 'HASH') { $options=shift }
+	else { $options={@_} }
+
+	$options->{read_length} = 10240;
+	return $self->Query($options);
+}
+
+
+sub BrutalQuery {
+	my $self=shift;
+	my $options=undef;
+	if (ref $_[0] eq 'HASH') { $options=shift }
+	else { $options={@_} }
+
+	$options->{brutal} = 1;
+	return $self->Query($options);
+}
+
 
 
 

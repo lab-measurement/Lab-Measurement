@@ -70,9 +70,12 @@ sub _construct {	# _construct(__PACKAGE__, %fields);
 
 
 #
-# this is a stub. In child classes, this should search %Lab::Connector::ConnectorList for a reusable
-# instance (and be called in the constructor).
+# these are stubs to be overwritten in child classes
 #
+
+#
+# In child classes, this should search %Lab::Connector::ConnectorList for a reusable
+# instance (and be called in the constructor).
 # e.g.
 # return $self->_search_twin() || $self;
 #
@@ -80,15 +83,18 @@ sub _search_twin {
 	return 0;
 }
 
-sub InstrumentRead {
+sub connection_read { # @_ = ( $connection_handle, \%args )
 	return 0;
 }
 
-sub InsrumentWrite {
+sub connection_write { # @_ = ( $connection_handle, \%args )
 	return 0;
 }
 
-sub InstrumentNew {
+#
+# generates and returns a connection handle;
+#
+sub connection_new {
 	return 0;
 }
 
