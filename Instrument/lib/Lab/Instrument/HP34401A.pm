@@ -7,7 +7,7 @@ use Lab::Instrument;
 use Carp;
 use Data::Dumper;
 
-our $VERSION = sprintf("0.%04d", q$Revision: 720 $ =~ / (\d+) /);
+
 our @ISA = ("Lab::Instrument");
 
 our %fields = (
@@ -22,7 +22,6 @@ sub new {
 	my $self = $class->SUPER::new(@_);	# sets $self->config
 	$self->_construct(__PACKAGE__, \%fields); 	# this sets up all the object fields out of the inheritance tree.
 												# also, it does generic connection setup.
-
 
 	return $self;
 }
@@ -262,24 +261,27 @@ Lab::Instrument::HP34401A - HP/Agilent 34401A digital multimeter
   use Lab::Instrument::HP34401A;
 
   my $Agi = new Lab::Instrument::HP34401A({
-    connection => new Lab::Connection::GPIB(),
-    GPIB_Paddress => 14,
+    connection => new Lab::Connection::GPIB(
+		gpib_address => 14,
+	),
   }
 
 This omits the connection option "GPIB_Board => 0" (default). More elaborate:
 
   my $Agi = new Lab::Instrument::HP34401A({
-    connection => new Lab::Connection::GPIB({
-		GPIB_Board => 0,
-	}),
-    GPIB_Paddress => 14,
-  } 
+    connection => new Lab::Connection::GPIB(
+		gpib_board => 0,
+		gpib_address => 14,
+	),
+  }
 
 
-Beware that if you give more detailed connection parameters, (only!) the ones from the first connection setup will be used.
-The second setup will automagically reuse the existing connection.
+Beware that only the first set of parameters specific to an individual GPIB board (or any bus hardware, really) gets used.
+Settings for EOI assertion for example. Right now, this doesn't really matter because the options aren't there (or documented) yet.
+Just keep it in mind.
+
 If you know what you're doing or you have an exotic scenario you can use the connection parameter "IgnoreTwin => 1", but this
-is discouraged - it will kill connection management and you might run into hardware/resource sharing issues.
+is discouraged - it will kill connector management and you might run into hardware/resource sharing issues.
 
 
 =head1 DESCRIPTION
