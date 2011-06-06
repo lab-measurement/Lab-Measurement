@@ -10,8 +10,10 @@ use strict;
 use Time::HiRes qw (usleep sleep);
 use POSIX; # added for int() function
 
-use Carp;
+use Carp qw(cluck croak);
 use Data::Dumper;
+use Lab::Connector::GPIB;
+use Lab::Connector::DEBUG;
 our $AUTOLOAD;
 
 
@@ -22,8 +24,8 @@ our @ISA = ();
 
 our %fields = (
 	connection_handle => undef,
-	supported_connectors => [],
 	connector => undef, # set default here in child classes, e.g. connector => "GPIB"
+	connector_class => "",
 	config => undef,
 	type => undef,	# e.g. 'GPIB'
 	ignore_twins => 0, # 
@@ -62,21 +64,9 @@ sub _construct {	# _construct(__PACKAGE__, %fields);
 		$self->{_permitted}->{$element} = $fields->{$element};
 	}
 	@{$self}{keys %{$fields}} = values %{$fields};
-}
 
-
-sub _checkconnector { # Connector object or ConnType string
-	my $self=shift;
-	my $connector=shift || "";
-	my $conn_type = "";
-
-	$conn_type = ( split( '::',  ref($connector) || $connector ))[-1];
-
- 	if (defined $conn_type && 1 != grep( /^$conn_type$/, @{$self->supported_connectors()} )) {
- 		return 0;
- 	}
-	else {
-		return 1;
+	if( $class eq $package ) {
+		$self->_setconnector();
 	}
 }
 
@@ -91,32 +81,15 @@ sub _checkconnector { # Connector object or ConnType string
 #
 sub _setconnector { # $self->setconnector() create new or use existing connector
 	my $self=shift;
-	# check the configuration hash for a valid connector object or connector type, and set the connector
-	if( defined($self->config('connector')) ) {
-		if($self->_checkconnector($self->config('connector')) ) {
-			$self->connector($self->config('connector'));
-		}
-		else { Lab::Exception::CorruptParameter->throw( error => 'Received invalid connector object!\n' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__) ); }
-	}
-# 	else {
-# 		Lab::Exception::CorruptParameter->throw( error => 'Received no connector object!\n' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__) );
-# 	}
-	else {
-		my $connector_type = $self->config('connector_type') || $self->supported_connectors()->[0];
-		warn "No connector and no connector type given - trying to create default connector $connector_type.\n" if !$self->config('connector_type');
-		if($self->_checkconnector($self->config('connector_type'))) {
-			# yep - pass all the parameters on to the connector, it will take the ones it needs.
-			# This way connector setup can be handled generically. Conflicting parameter names? Let's try it.
-			warn ("new Lab::Connector::${connector_type}(\$self->config())");
-			$self->connector(eval("require Lab::Connector::${connector_type}; new Lab::Connector::${connector_type}(\$self->config())")) || croak('Failed to create connector');
-		}
-		else { croak('Given Connector Type not supported'); }
-	}
+	my $connector_class = $self->connector_class();
+
+	warn ("new Lab::Connector::${connector_class}(\$self->config())\n");
+	#eval("use $connector_class;");
+	$self->connector(eval("use $connector_class; new $connector_class(\$self->config());")) || Lab::Exception::Error->throw( error => "Failed to create connector $connector_class in " . __PACKAGE__ . "::_setconnector.\n"  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__));
 
 	# again, pass it all.
 	$self->connection_handle( $self->connector()->connection_new( $self->config() ));
 }
-
 
 
 
@@ -130,7 +103,7 @@ sub Clear {
 	
 	return $self->connector()->ConnClear($self->connection_handle()) if ($self->connector()->can('connection_clear'));
 	# error message
-	warn "Clear function is not implemented in the connector ".ref($self->connector())."\n"  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__));
+	warn "Clear function is not implemented in the connector ".ref($self->connector())."\n"  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__);
 }
 
 
@@ -235,6 +208,7 @@ sub AUTOLOAD {
 	$name =~ s/.*://; # strip fully qualified portion
 
 	unless (exists $self->{_permitted}->{$name} ) {
+		cluck ("waaa");
 		Lab::Exception::Error->throw( error => "AUTOLOAD in " . __PACKAGE__ . " couldn't access field '${name}'.\n"  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__));
 	}
 

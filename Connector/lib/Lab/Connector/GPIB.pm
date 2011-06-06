@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+	#!/usr/bin/perl -w
 
 
 use strict;
@@ -10,7 +10,7 @@ use Time::HiRes qw (usleep sleep);
 use Lab::Connector;
 use LinuxGpib ':all';
 use Data::Dumper;
-use Carp;
+use Carp qw(croak cluck);
 
 our @ISA = ("Lab::Connector");
 
@@ -56,7 +56,7 @@ sub new {
 
 
 
-sub InstrumentNew { # { gpib_address => primary address }
+sub connection_new { # { gpib_address => primary address }
 	my $self = shift;
 	my $args = undef;
 	if (ref $_[0] eq 'HASH') { $args=shift } # try to be flexible about options as hash/hashref
@@ -64,7 +64,7 @@ sub InstrumentNew { # { gpib_address => primary address }
 
 	if(!defined $args->{'gpib_address'} || $args->{'gpib_address'} !~ /^[0-9]*$/ ) {
 		Lab::Exception::CorruptParameter->throw (
-			error => "No valid gpib address given to " . __PACKAGE__ . "::InstrumentNew()\n" . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__),
+			error => "No valid gpib address given to " . __PACKAGE__ . "::connection_new()\n" . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__),
 		);
 	}
 
@@ -91,7 +91,7 @@ sub InstrumentNew { # { gpib_address => primary address }
 #
 # Todo: Evaluate $ibstatus: http://linux-gpib.sourceforge.net/doc_html/r634.html
 #
-sub InstrumentRead { # @_ = ( $instrument_handle, $args = { read_length, brutal }
+sub connection_read { # @_ = ( $instrument_handle, $args = { read_length, brutal }
 	my $self = shift;
 	my $instrument_handle=shift;
 	my $args = undef;
@@ -161,18 +161,18 @@ sub InstrumentQuery { # @_ = ( $instrument_handle, $args = { command, read_lengt
 	my $result = undef;
 
 
-    $self->InstrumentWrite($args);
+    $self->connection_write($args);
 
     usleep($wait_query); #<---ensures that asked data presented from the device
 
-    $result=$self->InstrumentRead($args);
+    $result=$self->connection_read($args);
     return $result;
 }
 
 
 
 
-sub InstrumentWrite { # @_ = ( $instrument_handle, $args = { command, wait_status }
+sub connection_write { # @_ = ( $instrument_handle, $args = { command, wait_status }
 	my $self = shift;
 	my $instrument_handle=shift;
 	my $args = undef;
@@ -194,7 +194,7 @@ sub InstrumentWrite { # @_ = ( $instrument_handle, $args = { command, wait_statu
 
 	if(!defined $command) {
 		Lab::Exception::CorruptParameter->throw(
-			error => "No command given to " . __PACKAGE__ . "::InstrumentWrite().\n" . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__),
+			error => "No command given to " . __PACKAGE__ . "::connection_write().\n" . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__),
 		);
 	}
 	else {
@@ -211,14 +211,14 @@ sub InstrumentWrite { # @_ = ( $instrument_handle, $args = { command, wait_statu
 	if($ib_bits->{'ERR'}==1) {
 		if($ib_bits->{'TIMO'} == 1) {
 			Lab::Exception::GPIBTimeout->throw(
-				error => sprintf("Timeout in " . __PACKAGE__ . "::InstrumentWrite() while executing $command: ibwrite failed with status %x\n", $ibstatus) . Dumper($ib_bits) . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__),
+				error => sprintf("Timeout in " . __PACKAGE__ . "::connection_write() while executing $command: ibwrite failed with status %x\n", $ibstatus) . Dumper($ib_bits) . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__),
 				ibsta => $ibstatus,
 				ibsta_hash => $ib_bits,
 			);
 		}
 		else {
 			Lab::Exception::GPIBError->throw(
-				error => sprintf("Error in " . __PACKAGE__ . "::InstrumentWrite() while executing $command: ibwrite failed with status %x\n", $ibstatus) . Dumper($ib_bits) . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__),
+				error => sprintf("Error in " . __PACKAGE__ . "::connection_write() while executing $command: ibwrite failed with status %x\n", $ibstatus) . Dumper($ib_bits) . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__),
 				ibsta => $ibstatus,
 				ibsta_hash => $ib_bits,
 			);
@@ -232,7 +232,7 @@ sub InstrumentWrite { # @_ = ( $instrument_handle, $args = { command, wait_statu
 #
 # calls ibclear() on the instrument - how to do on VISA?
 #
-sub InstrumentClear {
+sub connection_clear {
 	my $self = shift;
 	my $instrument_handle=shift;
 
@@ -355,32 +355,32 @@ Lab::Connector::GPIB throws
 
 =head1 METHODS
 
-=head2 InstrumentNew
+=head2 connection_new
 
-  $GPIB->InstrumentNew({ GPIB_Paddr => $paddr });
+  $GPIB->connection_new({ GPIB_Paddr => $paddr });
 
 Creates a new instrument handle for this connector. The argument is a hash, which contents depend on the connector type.
 For GPIB at least 'GPIB_Paddr' is needed.
 
-The handle is usually stored in an instrument object and given to InstrumentRead, InstrumentWrite etc.
+The handle is usually stored in an instrument object and given to connection_read, connection_write etc.
 to identify and handle the calling instrument:
 
-  $InstrumentHandle = $GPIB->InstrumentNew({ GPIB_Paddr => 13 });
-  $result = $GPIB->InstrumentRead($self->InstrumentHandle(), { options });
+  $InstrumentHandle = $GPIB->connection_new({ GPIB_Paddr => 13 });
+  $result = $GPIB->connection_read($self->InstrumentHandle(), { options });
 
 See C<Lab::Instrument::Read()>.
 
 
-=head2 InstrumentWrite
+=head2 connection_write
 
-  $GPIB->InstrumentWrite( $InstrumentHandle, { Cmd => $Command } );
+  $GPIB->connection_write( $InstrumentHandle, { Cmd => $Command } );
 
 Sends $Command to the instrument specified by the handle.
 
 
-=head2 InstrumentRead
+=head2 connection_read
 
-  $GPIB->InstrumentRead( $InstrumentHandle, { Cmd => $Command, ReadLength => $readlength, Brutal => 0/1 } );
+  $GPIB->connection_read( $InstrumentHandle, { Cmd => $Command, ReadLength => $readlength, Brutal => 0/1 } );
 
 Sends $Command to the instrument specified by the handle. Reads back a maximum of $readlength bytes. If a timeout or
 an error occurs, Lab::Exception::GPIBError or Lab::Exception::GPIBTimeout are thrown, respectively. The Timeout object
@@ -421,9 +421,9 @@ View. Also, not a lot to be done here.
 
 This is $Id: Connector.pm 749 2011-02-15 12:55:20Z olbrich $
 
- Copyright 2004-2006 Daniel Schröer <schroeer@cpan.org>, 
-           2009-2010 Daniel Schröer, Andreas K. Hüttel (L<http://www.akhuettel.de/>) and David Kalok,
-         2010      Matthias Völker <mvoelker@cpan.org>
+ Copyright 2004-2006 Daniel SchrÃ¶er <schroeer@cpan.org>, 
+           2009-2010 Daniel SchrÃ¶er, Andreas K. HÃ¼ttel (L<http://www.akhuettel.de/>) and David Kalok,
+         2010      Matthias VÃ¶lker <mvoelker@cpan.org>
            2011      Florian Olbrich
 
 This library is free software; you can redistribute it and/or modify it under the same

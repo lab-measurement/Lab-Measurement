@@ -16,7 +16,8 @@ our @ISA = ("Lab::Connection");
 
 
 our %fields = (
-	gpib_board	=> 0,
+	gpib_address	=> 0,
+	gpib_saddress => undef, # secondary address
 	type => 'GPIB',
 	brutal => 0,	# brutal as default?
 	wait_status=>0, # usec;
@@ -34,265 +35,11 @@ sub new {
 	my $self = $class->SUPER::new(@_); # getting fields and _permitted from parent class
 	$self->_construct(__PACKAGE__, \%fields);
 
-	# one board - one connection - one connection object
-	if ( exists $self->config()->{'gpib_board'} ) {
-		$self->gpib_board($self->config()->{'gpib_board'}); 
-	} # ... or the default
-
-	# search for twin in %Lab::Connection::ConnectionList. If there's none, place $self there and weaken it.
-	if( $class eq __PACKAGE__ ) { # careful - do only if this is not a parent class constructor
-		if($twin = $self->_search_twin()) {
-			undef $self;
-			return $twin;	# ...and that's it.
-		}
-		else {
-			$Lab::Connection::ConnectionList{$self->type()}->{$self->gpib_board()} = $self;
-			weaken($Lab::Connection::ConnectionList{$self->type()}->{$self->gpib_board()});
-		}
-	}
-
 	return $self;
 }
 
 
 
-sub InstrumentNew { # { gpib_address => primary address }
-	my $self = shift;
-	my $args = undef;
-	if (ref $_[0] eq 'HASH') { $args=shift } # try to be flexible about options as hash/hashref
-	else { $args={@_} }
-
-	if(!defined $args->{'gpib_address'} || $args->{'gpib_address'} !~ /^[0-9]*$/ ) {
-		Lab::Exception::CorruptParameter->throw (
-			error => "No valid gpib address given to " . __PACKAGE__ . "::InstrumentNew()\n" . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__),
-		);
-	}
-
-	my $gpib_address = $args->{'gpib_address'};
-	my $instrument_handle = undef;
-	my $gpib_handle = undef;
-
-	# open device
-	# see: http://linux-gpib.sourceforge.net/doc_html/r1297.html
-	# for timeout constant table: http://linux-gpib.sourceforge.net/doc_html/r2137.html
-	# ibdev arguments: board index, primary address, secondary address, timeout (constants, see link), send_eoi, eos (end-of-string character)
-	print "Opening device: " . $gpib_address . "\n";
-	$gpib_handle = ibdev(0, $gpib_address, 0, 12, 1, 0);
-
-	# clear
-	#my $ibstatus = ibclr($GPIBInstrument);
-	#printf("Instrument cleared, ibstatus %x\n", $ibstatus);
-		
-	$instrument_handle =  { valid => 1, type => "GPIB", gpib_handle => $gpib_handle };  
-	return $instrument_handle;
-}
-
-
-#
-# Todo: Evaluate $ibstatus: http://linux-gpib.sourceforge.net/doc_html/r634.html
-#
-sub InstrumentRead { # @_ = ( $instrument_handle, $args = { read_length, brutal }
-	my $self = shift;
-	my $instrument_handle=shift;
-	my $args = undef;
-	if (ref $_[0] eq 'HASH') { $args=shift } # try to be flexible about options as hash/hashref
-	else { $args={@_} }
-
-	my $command = $args->{'command'} || undef;
-	my $brutal = $args->{'brutal'} || $self->brutal();
-	my $read_length = $args->{'read_length'} || $self->read_length();
-	my $wait_status = $args->{'wait_status'} || $self->wait_status();
-
-	my $result = undef;
-	my $raw = "";
-	my $ib_bits=undef;	# hash ref
-	my $ibstatus = undef;
-	my $ibsta_verbose = "";
-	my $decimal = 0;
-
-	$ibstatus = ibrd($instrument_handle->{'gpib_handle'}, $result, $read_length);
-	$ib_bits=$self->ParseIbstatus($ibstatus);
-
-	if( $ib_bits->{'ERR'} && !$ib_bits->{'TIMO'} ) {	# if the error is a timeout, we still evaluate the result and see what to do with the error later
-		Lab::Exception::GPIBError->throw(
-			error => sprintf("ibrd failed with ibstatus %x\n", $ibstatus) . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__),
-			ibsta => $ibstatus,
-			ibsta_hash => $ib_bits,
-		);
-	}
-
-	# strip spaces and null byte
-	# note to self: find a way to access the ibcnt variable through the perl binding to use
-	# $result = substr($result, 0, $ibcnt)
-	$raw = $result;
-	$result =~ /^\s*([+-][0-9]*\.[0-9]*)([eE]([+-]?[0-9]*))?\s*\x00*$/;
-	$result = $1;
-
-	#
-	# timeout occured - throw exception, but include the received data
-	# if the "Brutal" option is present, ignore the timeout and just return the data
-	#
-	if( $ib_bits->{'ERR'} && $ib_bits->{'TIMO'} && !$brutal ) {
-		Lab::Exception::GPIBTimeout->throw(
-			error => sprintf("ibrd failed with a timeout, ibstatus %x\n", $ibstatus) . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__),
-			ibsta => $ibstatus,
-			ibsta_hash => $ib_bits,
-			data => $result
-		);
-	}
-	# no timeout, regular return
-	return $result;
-}
-
-
-
-sub InstrumentQuery { # @_ = ( $instrument_handle, $args = { command, read_length, wait_status, wait_query, brutal }
-	my $self = shift;
-	my $instrument_handle=shift;
-	my $args = undef;
-	if (ref $_[0] eq 'HASH') { $args=shift } # try to be flexible about options as hash/hashref
-	else { $args={@_} }
-
-	my $command = $args->{'command'} || undef;
-	my $brutal = $args->{'brutal'} || $self->brutal();
-	my $read_length = $args->{'read_length'} || $self->read_length();
-	my $wait_status = $args->{'wait_status'} || $self->wait_status();
-	my $wait_query = $args->{'wait_query'} || $self->wait_query();
-	my $result = undef;
-
-
-    $self->InstrumentWrite($args);
-
-    usleep($wait_query); #<---ensures that asked data presented from the device
-
-    $result=$self->InstrumentRead($args);
-    return $result;
-}
-
-
-
-
-sub InstrumentWrite { # @_ = ( $instrument_handle, $args = { command, wait_status }
-	my $self = shift;
-	my $instrument_handle=shift;
-	my $args = undef;
-	if (ref $_[0] eq 'HASH') { $args=shift } # try to be flexible about options as hash/hashref
-	else { $args={@_} }
-
-	my $command = $args->{'command'} || undef;
-	my $brutal = $args->{'brutal'} || $self->brutal();
-	my $read_length = $args->{'read_length'} || $self->read_length();
-	my $wait_status = $args->{'wait_status'} || $self->wait_status();
-
-	my $result = undef;
-	my $raw = "";
-	my $ib_bits=undef;	# hash ref
-	my $ibstatus = undef;
-	my $ibsta_verbose = "";
-	my $decimal = 0;
-
-
-	if(!defined $command) {
-		Lab::Exception::CorruptParameter->throw(
-			error => "No command given to " . __PACKAGE__ . "::InstrumentWrite().\n" . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__),
-		);
-	}
-	else {
-		$ibstatus=ibwrt($instrument_handle->{'gpib_handle'}, $command, length($command));
-        usleep($wait_status);
-	}
-
-	$ib_bits=$self->ParseIbstatus($ibstatus);
-# 	foreach my $key ( keys %IbBits ) {
-# 		print "$key: $ib_bits{$key}\n";
-# 	}
-
-	# Todo: better Error checking
-	if($ib_bits->{'ERR'}==1) {
-		if($ib_bits->{'TIMO'} == 1) {
-			Lab::Exception::GPIBTimeout->throw(
-				error => sprintf("Timeout in " . __PACKAGE__ . "::InstrumentWrite() while executing $command: ibwrite failed with status %x\n", $ibstatus) . Dumper($ib_bits) . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__),
-				ibsta => $ibstatus,
-				ibsta_hash => $ib_bits,
-			);
-		}
-		else {
-			Lab::Exception::GPIBError->throw(
-				error => sprintf("Error in " . __PACKAGE__ . "::InstrumentWrite() while executing $command: ibwrite failed with status %x\n", $ibstatus) . Dumper($ib_bits) . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__),
-				ibsta => $ibstatus,
-				ibsta_hash => $ib_bits,
-			);
-		}
-	}
-
-	return 1;
-}
-
-
-#
-# calls ibclear() on the instrument - how to do on VISA?
-#
-sub InstrumentClear {
-	my $self = shift;
-	my $instrument_handle=shift;
-
-	ibclr($instrument_handle->{'gpib_handle'});
-}
-
-
-sub ParseIbstatus { # Ibstatus http://linux-gpib.sourceforge.net/doc_html/r634.html
-	my $self = shift;
-	my $ibstatus = shift;	# 16 Bit int
-	my @ibbits = ();
-
-	if( $ibstatus !~ /[0-9]*/ || $ibstatus < 0 || $ibstatus > 0xFFFF ) {	# should be a 16 bit integer
-		Lab::Exception::CorruptParameter->throw( error => 'Lab::Connection::GPIB::VerboseIbstatus() got an invalid ibstatus.'  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__), InvalidParameter => $ibstatus );
-	}
-
-	for (my $i=0; $i<16; $i++) {
-		$ibbits[$i] = 0x0001 & ($ibstatus >> $i);
-	}
-
-	my %Ib = ();
-	( $Ib{'DCAS'}, $Ib{'DTAS'}, $Ib{'LACS'}, $Ib{'TACS'}, $Ib{'ATN'}, $Ib{'CIC'}, $Ib{'REM'}, $Ib{'LOK'}, $Ib{'CMPL'}, $Ib{'EVENT'}, $Ib{'SPOLL'}, $Ib{'RQS'}, $Ib{'SRQI'}, $Ib{'END'}, $Ib{'TIMO'}, $Ib{'ERR'} ) = @ibbits;
-
-	return \%Ib;
-
-} # return: ($ERR, $TIMO, $END, $SRQI, $RQS, $SPOLL, $EVENT, $CMPL, $LOK, $REM, $CIC, $ATN, $TACS, $LACS, $DTAS, $DCAS)
-
-sub VerboseIbstatus {
-	my $self = shift;
-	my $ibstatus = shift;
-	my $ibstatus_verbose = "";
-
-	if(ref(\$ibstatus) =~ /SCALAR/) {
-		$ibstatus = $self->ParseIbstatus($ibstatus);
-	}
-	elsif(ref($ibstatus) !~ /HASH/) {
-		Lab::Exception::CorruptParameter->throw( error => 'Lab::Connection::GPIB::VerboseIbstatus() got an invalid ibstatus.'  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__), InvalidParameter => $ibstatus );
-	}
-
-	while( my ($k, $v) = each %$ibstatus ) {
-        $ibstatus_verbose .= "$k: $v\n";
-    }
-
-	return $ibstatus_verbose;
-}
-
-
-#
-# search and return an instance of the same type in %Lab::Connection::ConnectionList
-#
-sub _search_twin {
-	my $self=shift;
-
-	if(!$self->ignore_twins()) {
-		for my $conn ( values %{$Lab::Connection::ConnectionList{$self->type()}} ) {
-			return $conn if $conn->gpib_board() == $self->gpib_board();
-		}
-	}
-	return undef;
-}
 
 
 =head1 NAME
@@ -355,32 +102,32 @@ Lab::Connection::GPIB throws
 
 =head1 METHODS
 
-=head2 InstrumentNew
+=head2 connection_new
 
-  $GPIB->InstrumentNew({ GPIB_Paddr => $paddr });
+  $GPIB->connection_new({ GPIB_Paddr => $paddr });
 
 Creates a new instrument handle for this connection. The argument is a hash, which contents depend on the connection type.
 For GPIB at least 'GPIB_Paddr' is needed.
 
-The handle is usually stored in an instrument object and given to InstrumentRead, InstrumentWrite etc.
+The handle is usually stored in an instrument object and given to connection_read, connection_write etc.
 to identify and handle the calling instrument:
 
-  $InstrumentHandle = $GPIB->InstrumentNew({ GPIB_Paddr => 13 });
-  $result = $GPIB->InstrumentRead($self->InstrumentHandle(), { options });
+  $InstrumentHandle = $GPIB->connection_new({ GPIB_Paddr => 13 });
+  $result = $GPIB->connection_read($self->InstrumentHandle(), { options });
 
 See C<Lab::Instrument::Read()>.
 
 
-=head2 InstrumentWrite
+=head2 connection_write
 
-  $GPIB->InstrumentWrite( $InstrumentHandle, { Cmd => $Command } );
+  $GPIB->connection_write( $InstrumentHandle, { Cmd => $Command } );
 
 Sends $Command to the instrument specified by the handle.
 
 
-=head2 InstrumentRead
+=head2 connection_read
 
-  $GPIB->InstrumentRead( $InstrumentHandle, { Cmd => $Command, ReadLength => $readlength, Brutal => 0/1 } );
+  $GPIB->connection_read( $InstrumentHandle, { Cmd => $Command, ReadLength => $readlength, Brutal => 0/1 } );
 
 Sends $Command to the instrument specified by the handle. Reads back a maximum of $readlength bytes. If a timeout or
 an error occurs, Lab::Exception::GPIBError or Lab::Exception::GPIBTimeout are thrown, respectively. The Timeout object

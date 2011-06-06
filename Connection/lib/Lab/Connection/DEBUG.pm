@@ -12,6 +12,7 @@ our @ISA = ("Lab::Connection");
 
 our %fields = (
 	brutal => 0,	# brutal as default?
+	connector_class => "Lab::Connector::DEBUG",
 	type => 'DEBUG',
 	wait_status=>10, # usec;
 	wait_query=>10, # usec;

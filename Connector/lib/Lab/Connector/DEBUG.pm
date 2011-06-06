@@ -217,7 +217,7 @@ ENDMSG
 
 
 
-sub InstrumentQuery { # @_ = ( $connection_handle, $args = { command, read_length, wait_status, wait_query, brutal }
+sub connection_query { # @_ = ( $connection_handle, $args = { command, read_length, wait_status, wait_query, brutal }
 	my $self = shift;
 	my $connection_handle=shift;
 	my $args = undef;

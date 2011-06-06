@@ -11,8 +11,8 @@ our $VERSION = sprintf("0.%04d", q$Revision: 720 $ =~ / (\d+) /);
 our @ISA = ("Lab::Instrument");
 
 our %fields = (
-	# SupportedConnectors => [ 'GPIB', 'RS232' ],	# in principle RS232, too, but not implemented (yet)
-	supported_connectors => [ 'GPIB', 'VISA', 'DEBUG' ],
+	# SupportedConnections => [ 'GPIB', 'RS232' ],	# in principle RS232, too, but not implemented (yet)
+	supported_connections => [ 'GPIB', 'VISA', 'DEBUG' ],
 );
 
 
@@ -21,7 +21,7 @@ sub new {
 	my $class = ref($proto) || $proto;
 	my $self = $class->SUPER::new(@_);	# sets $self->config
 	$self->_construct(__PACKAGE__, \%fields); 	# this sets up all the object fields out of the inheritance tree.
-												# also, it does generic connector setup.
+												# also, it does generic connection setup.
 
 
 	return $self;
@@ -29,6 +29,9 @@ sub new {
 
 
 
+#
+# utility methods
+#
 
 sub read_resistance {
     my $self=shift;
@@ -38,7 +41,7 @@ sub read_resistance {
     $resolution="DEF" unless (defined $resolution);
     
 	my $cmd=sprintf("MEASure:SCALar:RESIStance? %s,%s",$range,$resolution);
-	my $value = $self->Query( command => $cmd );
+	my $value = $self->connection()->Query( command => $cmd );
     return $value;
 }
 
@@ -51,7 +54,7 @@ sub read_voltage_dc {
     $resolution="DEF" unless (defined $resolution);
     
     my $cmd=sprintf("MEASure:VOLTage:DC? %s,%s",$range,$resolution);
-    my $value = $self->Query( command => $cmd );
+    my $value = $self->connection()->Query( command => $cmd );
     return $value;
 }
 
@@ -63,7 +66,7 @@ sub read_voltage_ac {
     $resolution="DEF" unless (defined $resolution);
     
     my $cmd=sprintf("MEASure:VOLTage:AC? %s,%s",$range,$resolution);
-    my $value = $self->Query( command => $cmd );
+    my $value = $self->connection()->Query( command => $cmd );
     return $value;
 }
 
@@ -75,7 +78,7 @@ sub read_current_dc {
     $resolution="DEF" unless (defined $resolution);
     
     my $cmd=sprintf("MEASure:CURRent:DC? %s,%s",$range,$resolution);
-    my $value = $self->Query( command => $cmd );
+    my $value = $self->connection()->Query( command => $cmd );
     return $value;
 }
 
@@ -87,7 +90,7 @@ sub read_current_ac {
     $resolution="DEF" unless (defined $resolution);
     
     my $cmd=sprintf("MEASure:CURRent:AC? %s,%s",$range,$resolution);
-    my $value = $self->Query( command => $cmd );
+    my $value = $self->connection()->Query( command => $cmd );
     return $value;
 }
 
@@ -96,9 +99,9 @@ sub display_text {
     my $text=shift;
     
     if ($text) {
-        $self->Write( command => qq(DISPlay:TEXT "$text"));
+        $self->connection()->Write( command => qq(DISPlay:TEXT "$text"));
     } else {
-        chomp($text=$self->Query( command => qq(DISPlay:TEXT?) ));
+        chomp($text=$self->connection()->Query( command => qq(DISPlay:TEXT?) ));
         $text=~s/\"//g;
     }
     return $text;
@@ -106,27 +109,27 @@ sub display_text {
 
 sub display_on {
     my $self=shift;
-    $self->Write( command => "DISPlay ON" );
+    $self->connection()->Write( command => "DISPlay ON" );
 }
 
 sub display_off {
     my $self=shift;
-    $self->Write( command => "DISPlay OFF" );
+    $self->connection()->Write( command => "DISPlay OFF" );
 }
 
 sub display_clear {
     my $self=shift;
-    $self->Write( command => "DISPlay:TEXT:CLEar");
+    $self->connection()->Write( command => "DISPlay:TEXT:CLEar");
 }
 
 sub beep {
     my $self=shift;
-    $self->Write( command => "SYSTem:BEEPer");
+    $self->connection()->Write( command => "SYSTem:BEEPer");
 }
 
 sub get_error {
     my $self=shift;
-    chomp(my $err=$self->Query( command => "SYSTem:ERRor?"));
+    chomp(my $err=$self->connection()->Query( command => "SYSTem:ERRor?"));
     my ($err_num,$err_msg)=split ",",$err;
     $err_msg=~s/\"//g;
     return ($err_num,$err_msg);
@@ -134,9 +137,9 @@ sub get_error {
 
 sub reset {
     my $self=shift;
-    $self->Write( command => "*CLS");
-    $self->Write( command => "*RST");
-#	$self->connector()->InstrumentClear($self->instrument_handle());
+    $self->connection()->Write( command => "*CLS");
+    $self->connection()->Write( command => "*RST");
+#	$self->connection()->InstrumentClear($self->instrument_handle());
 }
 
 
@@ -145,7 +148,7 @@ sub config_voltage {
     my ($digits, $range, $counts)=@_;
 
     #set input resistance to >10 GOhm for the three highest resolution values 
-    $self->Write( command => "INPut:IMPedance:AUTO ON");
+    $self->connection()->Write( command => "INPut:IMPedance:AUTO ON");
 
     $digits = int($digits);
     $digits = 4 if $digits < 4;
@@ -168,7 +171,7 @@ sub config_voltage {
     }
 
     my $resolution = (10**(-$digits))*$range;
-    $self->Write( command => "CONF:VOLT:DC $range,$resolution");
+    $self->connection()->Write( command => "CONF:VOLT:DC $range,$resolution");
 
 
     # calculate integration time, set it and prepare for output
@@ -177,26 +180,26 @@ sub config_voltage {
 
     if ($digits ==4) {
       $inttime = 0.4;
-      $self->Write( command => "VOLT:NPLC 0.02");
+      $self->connection()->Write( command => "VOLT:NPLC 0.02");
     }
     elsif ($digits ==5) {
       $inttime = 4;
-      $self->Write( command => "VOLT:NPLC 0.2");
+      $self->connection()->Write( command => "VOLT:NPLC 0.2");
     }
     elsif ($digits ==6) {
       $inttime = 200;
-      $self->Write( command => "VOLT:NPLC 10");
-      $self->Write( command => "ZERO:AUTO OFF");
+      $self->connection()->Write( command => "VOLT:NPLC 10");
+      $self->connection()->Write( command => "ZERO:AUTO OFF");
     }
 
     my $retval = $inttime." ms";
 
 
     # triggering
-    $self->Write( command => "TRIGger:SOURce BUS");
-    $self->Write( command => "SAMPle:COUNt $counts");
-    $self->Write( command => "TRIGger:DELay MIN");
-    $self->Write( command => "TRIGger:DELay:AUTO OFF");
+    $self->connection()->Write( command => "TRIGger:SOURce BUS");
+    $self->connection()->Write( command => "SAMPle:COUNt $counts");
+    $self->connection()->Write( command => "TRIGger:DELay MIN");
+    $self->connection()->Write( command => "TRIGger:DELay:AUTO OFF");
 
     return $retval;
 }
@@ -204,9 +207,9 @@ sub config_voltage {
 sub read_with_trigger_voltage_dc {
     my $self=shift;
 
-    $self->Write( command => "INIT");
-    $self->Write( command => "*TRG");
-    my $value = $self->Query( command => "FETCh?");
+    $self->connection()->Write( command => "INIT");
+    $self->connection()->Write( command => "*TRG");
+    my $value = $self->connection()->Query( command => "FETCh?");
 
     chomp $value;
 
@@ -229,12 +232,12 @@ sub scroll_message {
 
 sub id {
     my $self=shift;
-    $self->Query( command => '*IDN?');
+    $self->connection()->Query( command => '*IDN?');
 }
 
 sub read_value {
     my $self=shift;
-    my $value=$self->Query( command => 'READ?');
+    my $value=$self->connection()->Query( command => 'READ?');
     chomp $value;
     return $value;
 }
@@ -259,24 +262,24 @@ Lab::Instrument::HP34401A - HP/Agilent 34401A digital multimeter
   use Lab::Instrument::HP34401A;
 
   my $Agi = new Lab::Instrument::HP34401A({
-    connector => new Lab::Connector::GPIB(),
+    connection => new Lab::Connection::GPIB(),
     GPIB_Paddress => 14,
   }
 
-This omits the connector option "GPIB_Board => 0" (default). More elaborate:
+This omits the connection option "GPIB_Board => 0" (default). More elaborate:
 
   my $Agi = new Lab::Instrument::HP34401A({
-    connector => new Lab::Connector::GPIB({
+    connection => new Lab::Connection::GPIB({
 		GPIB_Board => 0,
 	}),
     GPIB_Paddress => 14,
   } 
 
 
-Beware that if you give more detailed connector parameters, (only!) the ones from the first connector setup will be used.
-The second setup will automagically reuse the existing connector.
-If you know what you're doing or you have an exotic scenario you can use the connector parameter "IgnoreTwin => 1", but this
-is discouraged - it will kill connector management and you might run into hardware/resource sharing issues.
+Beware that if you give more detailed connection parameters, (only!) the ones from the first connection setup will be used.
+The second setup will automagically reuse the existing connection.
+If you know what you're doing or you have an exotic scenario you can use the connection parameter "IgnoreTwin => 1", but this
+is discouraged - it will kill connection management and you might run into hardware/resource sharing issues.
 
 
 =head1 DESCRIPTION
