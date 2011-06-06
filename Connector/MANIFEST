@@ -1,10 +1,10 @@
 Build.PL
 Changes
-lib/Lab/Connection.pm
-lib/Lab/Connection/DEBUG.pm
-lib/Lab/Connection/GPIB.pm
-lib/Lab/Connection/MODBUS_RS232.pm
-lib/Lab/Connection/RS232.pm
-lib/Lab/Connection/VISA.pm
+lib/Lab/Connector.pm
+lib/Lab/Connector/DEBUG.pm
+lib/Lab/Connector/GPIB.pm
+lib/Lab/Connector/MODBUS_RS232.pm
+lib/Lab/Connector/RS232.pm
+lib/Lab/Connector/VISA.pm
 META.yml
 README
