@@ -2,8 +2,6 @@
 
 
 
-
-
 package Lab::Connection::DEBUG;
 use strict;
 use Time::HiRes qw (usleep sleep);
@@ -50,8 +48,6 @@ Lab::Connection::DEBUG - debug connection
 Connection to the DEBUG connector.
 
 =cut
-
-
 
 
 

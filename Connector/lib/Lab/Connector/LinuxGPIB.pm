@@ -2,30 +2,23 @@
 
 
 
-
-package Lab::Connection::GPIB;
+#
+# GPIB Connection class for Lab::Connector::LinuxGPIB
+#
+package Lab::Connection::LinuxGPIB;
 use strict;
 use Scalar::Util qw(weaken);
 use Time::HiRes qw (usleep sleep);
-use Lab::Connection;
-use LinuxGpib ':all';
-use Data::Dumper;
-use Carp;
+use Lab::Connection::GPIB;
+use Lab::Exception;
 
-our @ISA = ("Lab::Connection");
-
+our @ISA = ("Lab::Connection::GPIB");
 
 our %fields = (
-	connector_class => "Lab::Connector::GPIB",
-	gpib_address	=> 0,
-	gpib_saddress => undef, # secondary address
-	type => 'GPIB',
-	brutal => 0,	# brutal as default?
+	connector_class => 'Lab::Connector::LinuxGPIB',
 	wait_status=>0, # usec;
 	wait_query=>10, # usec;
 	read_length=>1000, # bytes
-	query_length=>300, # bytes
-	query_long_length=>10240, #bytes
 );
 
 
@@ -40,6 +33,9 @@ sub new {
 }
 
 
+#
+# Nothing to do, Read, Write, Query from Lab::Connection are sufficient.
+#
 
 
 
@@ -50,16 +46,17 @@ sub new {
 
 
 
+#=======================================================================================
 
 
-package Lab::Connector::GPIB;
+package Lab::Connector::LinuxGPIB;
 use strict;
 use Scalar::Util qw(weaken);
 use Time::HiRes qw (usleep sleep);
 use Lab::Connector;
 use LinuxGpib ':all';
 use Data::Dumper;
-use Carp qw(croak cluck);
+use Carp;
 
 our @ISA = ("Lab::Connector");
 
@@ -118,7 +115,7 @@ sub connection_new { # { gpib_address => primary address }
 	}
 
 	my $gpib_address = $args->{'gpib_address'};
-	my $instrument_handle = undef;
+	my $connection_handle = undef;
 	my $gpib_handle = undef;
 
 	# open device
@@ -132,17 +129,17 @@ sub connection_new { # { gpib_address => primary address }
 	#my $ibstatus = ibclr($GPIBInstrument);
 	#printf("Instrument cleared, ibstatus %x\n", $ibstatus);
 		
-	$instrument_handle =  { valid => 1, type => "GPIB", gpib_handle => $gpib_handle };  
-	return $instrument_handle;
+	$connection_handle =  { valid => 1, type => "GPIB", gpib_handle => $gpib_handle };  
+	return $connection_handle;
 }
 
 
 #
 # Todo: Evaluate $ibstatus: http://linux-gpib.sourceforge.net/doc_html/r634.html
 #
-sub connection_read { # @_ = ( $instrument_handle, $args = { read_length, brutal }
+sub connection_read { # @_ = ( $connection_handle, $args = { read_length, brutal }
 	my $self = shift;
-	my $instrument_handle=shift;
+	my $connection_handle=shift;
 	my $args = undef;
 	if (ref $_[0] eq 'HASH') { $args=shift } # try to be flexible about options as hash/hashref
 	else { $args={@_} }
@@ -150,7 +147,6 @@ sub connection_read { # @_ = ( $instrument_handle, $args = { read_length, brutal
 	my $command = $args->{'command'} || undef;
 	my $brutal = $args->{'brutal'} || $self->brutal();
 	my $read_length = $args->{'read_length'} || $self->read_length();
-	my $wait_status = $args->{'wait_status'} || $self->wait_status();
 
 	my $result = undef;
 	my $raw = "";
@@ -159,7 +155,7 @@ sub connection_read { # @_ = ( $instrument_handle, $args = { read_length, brutal
 	my $ibsta_verbose = "";
 	my $decimal = 0;
 
-	$ibstatus = ibrd($instrument_handle->{'gpib_handle'}, $result, $read_length);
+	$ibstatus = ibrd($connection_handle->{'gpib_handle'}, $result, $read_length);
 	$ib_bits=$self->ParseIbstatus($ibstatus);
 
 	if( $ib_bits->{'ERR'} && !$ib_bits->{'TIMO'} ) {	# if the error is a timeout, we still evaluate the result and see what to do with the error later
@@ -195,9 +191,9 @@ sub connection_read { # @_ = ( $instrument_handle, $args = { read_length, brutal
 
 
 
-sub InstrumentQuery { # @_ = ( $instrument_handle, $args = { command, read_length, wait_status, wait_query, brutal }
+sub connection_query { # @_ = ( $connection_handle, $args = { command, read_length, wait_status, wait_query, brutal }
 	my $self = shift;
-	my $instrument_handle=shift;
+	my $connection_handle=shift;
 	my $args = undef;
 	if (ref $_[0] eq 'HASH') { $args=shift } # try to be flexible about options as hash/hashref
 	else { $args={@_} }
@@ -221,9 +217,9 @@ sub InstrumentQuery { # @_ = ( $instrument_handle, $args = { command, read_lengt
 
 
 
-sub connection_write { # @_ = ( $instrument_handle, $args = { command, wait_status }
+sub connection_write { # @_ = ( $connection_handle, $args = { command, wait_status }
 	my $self = shift;
-	my $instrument_handle=shift;
+	my $connection_handle=shift;
 	my $args = undef;
 	if (ref $_[0] eq 'HASH') { $args=shift } # try to be flexible about options as hash/hashref
 	else { $args={@_} }
@@ -247,7 +243,7 @@ sub connection_write { # @_ = ( $instrument_handle, $args = { command, wait_stat
 		);
 	}
 	else {
-		$ibstatus=ibwrt($instrument_handle->{'gpib_handle'}, $command, length($command));
+		$ibstatus=ibwrt($connection_handle->{'gpib_handle'}, $command, length($command));
         usleep($wait_status);
 	}
 
@@ -283,9 +279,9 @@ sub connection_write { # @_ = ( $instrument_handle, $args = { command, wait_stat
 #
 sub connection_clear {
 	my $self = shift;
-	my $instrument_handle=shift;
+	my $connection_handle=shift;
 
-	ibclr($instrument_handle->{'gpib_handle'});
+	ibclr($connection_handle->{'gpib_handle'});
 }
 
 

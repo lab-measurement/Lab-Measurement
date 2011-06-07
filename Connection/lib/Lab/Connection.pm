@@ -1,7 +1,4 @@
 #!/usr/bin/perl -w
-# POD
-
-#$Id$
 
 package Lab::Connection;
 
@@ -10,10 +7,8 @@ use strict;
 use Time::HiRes qw (usleep sleep);
 use POSIX; # added for int() function
 
-use Carp qw(cluck croak);
+use Carp;
 use Data::Dumper;
-use Lab::Connector::GPIB;
-use Lab::Connector::DEBUG;
 our $AUTOLOAD;
 
 
@@ -59,7 +54,7 @@ sub new {
 sub Clear {
 	my $self=shift;
 	
-	return $self->connector()->ConnClear($self->connection_handle()) if ($self->connector()->can('connection_clear'));
+	return $self->connector()->connection_clear($self->connection_handle()) if ($self->connector()->can('connection_clear'));
 	# error message
 	warn "Clear function is not implemented in the connector ".ref($self->connector())."\n"  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__);
 }
@@ -177,8 +172,7 @@ sub _setconnector { # $self->setconnector() create new or use existing connector
 	my $connector_class = $self->connector_class();
 
 	warn ("new Lab::Connector::${connector_class}(\$self->config())\n");
-	#eval("use $connector_class;");
-	$self->connector(eval("use $connector_class; new $connector_class(\$self->config());")) || Lab::Exception::Error->throw( error => "Failed to create connector $connector_class in " . __PACKAGE__ . "::_setconnector.\n"  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__));
+	$self->connector(eval("require $connector_class; new $connector_class(\$self->config());")) || Lab::Exception::Error->throw( error => "Failed to create connector $connector_class in " . __PACKAGE__ . "::_setconnector.\n"  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__));
 
 	# again, pass it all.
 	$self->connection_handle( $self->connector()->connection_new( $self->config() ));
@@ -323,10 +317,7 @@ Probably view. Mostly because there's not a lot to be done here.
 
 This is $Id$
 
- Copyright 2004-2006 Daniel Schröer <schroeer@cpan.org>, 
-           2009-2010 Daniel Schröer, Andreas K. Hüttel (L<http://www.akhuettel.de/>) and David Kalok,
-	       2010      Matthias Völker <mvoelker@cpan.org>
-           2011      Florian Olbrich
+ Copyright 2011      Florian Olbrich
 
 This library is free software; you can redistribute it and/or modify it under the same
 terms as Perl itself.

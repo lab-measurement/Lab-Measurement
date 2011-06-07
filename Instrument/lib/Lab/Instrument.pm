@@ -81,17 +81,17 @@ sub _construct {	# _construct(__PACKAGE__);
 
 sub _checkconnection { # Connection object or ConnType string
 	my $self=shift;
-	my $connection=shift || "";
-	my $conn_type = "";
+	my $connection=shift || undef;
+	my $found = 0;
 
-	$conn_type = ( split( '::',  ref($connection) || $connection ))[-1];
+	return 0 if ! defined $connection;
 
- 	if (defined $conn_type && 1 != grep( /^$conn_type$/, @{$self->supported_connections()} )) {
- 		return 0;
- 	}
-	else {
-		return 1;
+	no strict 'refs';
+	for my $conn_supp ( @{$self->supported_connections()} ) {
+		return $conn_supp if( $connection->isa('Lab::Connection::'.$conn_supp));
 	}
+
+	return undef;
 }
 
 

@@ -1,7 +1,86 @@
 #!/usr/bin/perl -w
 
 
+
+#
+# GPIB Connection class for Lab::Connector::VISA
+#
+package Lab::Connector::VISA;
 use strict;
+use Scalar::Util qw(weaken);
+use Time::HiRes qw (usleep sleep);
+use Lab::Connector::VISA;
+use Lab::Exception;
+
+
+our @ISA = ("Lab::Connection::GPIB");
+
+our %fields = (
+	connector_class => 'Lab::Connector::VISA',
+	resource_name => undef,
+	wait_status=>0, # usec;
+	wait_query=>10, # usec;
+	read_length=>1000, # bytes
+);
+
+
+sub new {
+	my $proto = shift;
+	my $class = ref($proto) || $proto;
+	my $twin = undef;
+	my $self = $class->SUPER::new(@_); # getting fields and _permitted from parent class, parameter checks
+	$self->_construct(__PACKAGE__, \%fields);
+
+	return $self;
+}
+
+
+
+
+#
+# Translating from plain GPIB-driverish to VISAslang
+#
+
+
+#
+# adapting connector setup to VISA
+#
+sub _setconnector {
+	my $self=shift;
+	my $connector_class = $self->connector_class();
+
+	warn ("new ${connector_class}(\$self->config())\n");
+	no strict 'refs';
+	$self->connector($connector_class->new($self->config())) || Lab::Exception::Error->throw( error => "Failed to create connector $connector_class in " . __PACKAGE__ . "::_setconnector.\n"  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__));
+	use strict;
+
+	#
+	# build VISA resource name
+	#
+	my $resource_name = 'GPIB'.$self->gpib_board().'::'.$self->gpib_address();
+	$resource_name .= '::'.$self->gpib_saddress() if defined $self->gpib_saddress();
+	$resource_name .= '::INSTR';
+	$self->resource_name($resource_name);
+	$self->config('resource_name') = $resource_name;
+
+	# again, pass it all.
+	$self->connection_handle( $self->connector()->connection_new( $self->config() ));
+
+	return $self->connector();
+}
+
+
+#
+# Read,Write,Query are OK in the version from Lab::Connection
+#
+
+
+
+
+
+
+#=======================================================================================
+
 
 package Lab::Connector::VISA;
 use strict;
@@ -70,29 +149,29 @@ sub _check_resource_name { # @_ = ( $resource_name )
 }
 
 
-sub InstrumentNew { # @_ = ({ resource_name => $resource_name })
+sub connection_new { # @_ = ({ resource_name => $resource_name })
 	my $self = shift;
 	my $args = undef;
 	my $status = undef;
-	my $instrument_handle=undef;
+	my $connection_handle=undef;
 	if (ref $_[0] eq 'HASH') { $args=shift } # try to be flexible about options as hash/hashref
 	else { $args={@_} }
 
 	my $resource_name = $args->{'resource_name'};
 
-	Lab::Exception::CorruptParameter->throw( error => 'No resource name given to Lab::Connector::VISA::InstrumentNew().\n' ) if(!exists $args->{'resource_name'});
-	Lab::Exception::CorruptParameter->throw( error => 'Invalid resource name given to Lab::Connector::VISA::InstrumentNew().\n' ) if(!$self->_check_resource_name($args->{'resource_name'}));
+	Lab::Exception::CorruptParameter->throw( error => 'No resource name given to Lab::Connector::VISA::connection_new().\n' ) if(!exists $args->{'resource_name'});
+	Lab::Exception::CorruptParameter->throw( error => 'Invalid resource name given to Lab::Connector::VISA::connection_new().\n' ) if(!$self->_check_resource_name($args->{'resource_name'}));
 
-	( $status, $instrument_handle ) = Lab::VISA::viOpen( $self->default_rm(), $args->{'resource_name'}, $Lab::VISA::VI_NULL, $Lab::VISA::VI_NULL);
+	( $status, $connection_handle ) = Lab::VISA::viOpen( $self->default_rm(), $args->{'resource_name'}, $Lab::VISA::VI_NULL, $Lab::VISA::VI_NULL);
 	if ($status != $Lab::VISA::VI_SUCCESS) { Lab::Exception::VISAError->throw( error => "Cannot open VISA instrument \"$resource_name\". Status: $status", status => $status ); };
 
-	return $instrument_handle;
+	return $connection_handle;
 }
 
 
-sub InstrumentRead { # @_ = ( $instrument_handle, $args = { read_length, brutal }
+sub connection_read { # @_ = ( $connection_handle, $args = { read_length, brutal }
 	my $self = shift;
-	my $instrument_handle=shift;
+	my $connection_handle=shift;
 	my $args = undef;
 	if (ref $_[0] eq 'HASH') { $args=shift } # try to be flexible about options as hash/hashref
 	else { $args={@_} }
@@ -108,17 +187,17 @@ sub InstrumentRead { # @_ = ( $instrument_handle, $args = { read_length, brutal 
 
 
 
-	($status,$result,$read_cnt)=Lab::VISA::viRead($instrument_handle,$read_length);
+	($status,$result,$read_cnt)=Lab::VISA::viRead($connection_handle,$read_length);
 
 	if ( ! ( $status ==  $Lab::VISA::VI_SUCCESS || $status == $Lab::VISA::VI_SUCCESS_TERM_CHAR || $status == $Lab::VISA::VI_ERROR_TMO ) ) {
 		Lab::Exception::VISAError->throw(
-			error => "Error in Lab::Connector::VISA::InstrumentRead() while executing $command, Status $status",
+			error => "Error in Lab::Connector::VISA::connection_read() while executing $command, Status $status",
 			status => $status,
 		);
 	}
 	elsif ( $status == $Lab::VISA::VI_ERROR_TMO && !$brutal ) {
 		Lab::Exception::VISATimeout->throw(
-			error => "Timeout in Lab::Connector::VISA::InstrumentRead() while executing $command\n",
+			error => "Timeout in Lab::Connector::VISA::connection_read() while executing $command\n",
 			status => $status,
 			command => $command,
 			data => $result,
@@ -147,9 +226,9 @@ sub InstrumentRead { # @_ = ( $instrument_handle, $args = { read_length, brutal 
 
 
 
-sub InstrumentWrite { # @_ = ( $instrument_handle, $args = { command, wait_status }
+sub connection_write { # @_ = ( $connection_handle, $args = { command, wait_status }
 	my $self = shift;
-	my $instrument_handle=shift;
+	my $connection_handle=shift;
 	my $args = undef;
 	if (ref $_[0] eq 'HASH') { $args=shift } # try to be flexible about options as hash/hashref
 	else { $args={@_} }
@@ -166,12 +245,12 @@ sub InstrumentWrite { # @_ = ( $instrument_handle, $args = { command, wait_statu
 
 	if(!defined $command) {
 		Lab::Exception::CorruptParameter->throw(
-			error => "No command given to " . __PACKAGE__ . "::InstrumentWrite().\n",
+			error => "No command given to " . __PACKAGE__ . "::connection_write().\n",
 		);
 	}
 	else {
         ($status, $write_cnt)=Lab::VISA::viWrite(
-            $instrument_handle,
+            $connection_handle,
             $command,
             length($command)
         );
@@ -180,7 +259,7 @@ sub InstrumentWrite { # @_ = ( $instrument_handle, $args = { command, wait_statu
 
 		if ( $status != $Lab::VISA::VI_SUCCESS ) {
 			Lab::Exception::VISAError->throw(
-				error => "Error in Lab::Connector::VISA::InstrumentWrite() while executing $command, Status $status",
+				error => "Error in Lab::Connector::VISA::connection_write() while executing $command, Status $status",
 				status => $status,
 			);
 		}
@@ -191,9 +270,9 @@ sub InstrumentWrite { # @_ = ( $instrument_handle, $args = { command, wait_statu
 
 
 
-sub InstrumentQuery { # @_ = ( $instrument_handle, $args = { command, read_length, wait_status, wait_query, brutal }
+sub connection_query { # @_ = ( $connection_handle, $args = { command, read_length, wait_status, wait_query, brutal }
 	my $self = shift;
-	my $instrument_handle=shift;
+	my $connection_handle=shift;
 	my $args = undef;
 	if (ref $_[0] eq 'HASH') { $args=shift } # try to be flexible about options as hash/hashref
 	else { $args={@_} }
@@ -210,11 +289,11 @@ sub InstrumentQuery { # @_ = ( $instrument_handle, $args = { command, read_lengt
 	my $read_cnt = undef;
 
 
-    $write_cnt=$self->InstrumentWrite($args);
+    $write_cnt=$self->connection_write($args);
 
     usleep($wait_query); #<---ensures that asked data presented from the device
 
-    $result=$self->InstrumentRead($args);
+    $result=$self->connection_read($args);
     return $result;
 }
 
@@ -285,31 +364,31 @@ Lab::Connector::VISA throws
 
 =head1 METHODS
 
-=head2 InstrumentNew
+=head2 connection_new
 
-  $visa->InstrumentNew({ resource_name => "GPIB0::14::INSTR" });
+  $visa->connection_new({ resource_name => "GPIB0::14::INSTR" });
 
 Creates a new instrument handle for this connector.
 
-The handle is usually stored in an instrument object and given to InstrumentRead, InstrumentWrite etc.
+The handle is usually stored in an instrument object and given to connection_read, connection_write etc.
 to identify and handle the calling instrument:
 
-  $InstrumentHandle = $visa->InstrumentNew({ resource_name => "GPIB0::14::INSTR" });
-  $result = $visa->InstrumentRead($self->InstrumentHandle(), { options });
+  $InstrumentHandle = $visa->connection_new({ resource_name => "GPIB0::14::INSTR" });
+  $result = $visa->connection_read($self->InstrumentHandle(), { options });
 
 See C<Lab::Instrument::Read()>.
 
 
-=head2 InstrumentWrite
+=head2 connection_write
 
-  $visa->InstrumentWrite( $InstrumentHandle, { command => $command, wait_status => $wait_status } );
+  $visa->connection_write( $InstrumentHandle, { command => $command, wait_status => $wait_status } );
 
 Sends $command to the instrument specified by the handle, and waits $wait_status microseconds before evaluating the status.
 
 
-=head2 InstrumentRead
+=head2 connection_read
 
-  $visa->InstrumentRead( $InstrumentHandle, { command => $command, read_length => $read_length, brutal => 0/1 } );
+  $visa->connection_read( $InstrumentHandle, { command => $command, read_length => $read_length, brutal => 0/1 } );
 
 Sends $Command to the instrument specified by the handle. Reads back a maximum of $readlength bytes. If a timeout or
 an error occurs, Lab::Exception::VISAError or Lab::Exception::VISATimeout are thrown, respectively. The Timeout object
@@ -318,11 +397,11 @@ carries the data received up to the timeout event, accessible through $Exception
 Setting C<Brutal> to a true value will result in timeouts being ignored, and the gathered data returned without error.
 
 
-=head2 InstrumentQuery
+=head2 connection_query
 
-  $visa->InstrumentQuery( $InstrumentHandle, { command => $command, read_length => $read_length, wait_status => $wait_status, wait_query => $wait_query, brutal => 0/1 } );
+  $visa->connection_query( $InstrumentHandle, { command => $command, read_length => $read_length, wait_status => $wait_status, wait_query => $wait_query, brutal => 0/1 } );
 
-Performs an InstrumentWrite followed by an InstrumentRead, each given the supplied parameters. Waits $wait_query microseconds
+Performs an connection_write followed by an connection_read, each given the supplied parameters. Waits $wait_query microseconds
 betweeen Write and Read.
 
 
@@ -347,9 +426,9 @@ View. Also, not a lot to be done here.
 
 This is $Id: Connector.pm 749 2011-02-15 12:55:20Z olbrich $
 
- Copyright 2004-2006 Daniel Schröer <schroeer@cpan.org>, 
-           2009-2010 Daniel Schröer, Andreas K. Hüttel (L<http://www.akhuettel.de/>) and David Kalok,
-         2010      Matthias Völker <mvoelker@cpan.org>
+ Copyright 2004-2006 Daniel SchrÃ¶er <schroeer@cpan.org>, 
+           2009-2010 Daniel SchrÃ¶er, Andreas K. HÃ¼ttel (L<http://www.akhuettel.de/>) and David Kalok,
+         2010      Matthias VÃ¶lker <mvoelker@cpan.org>
            2011      Florian Olbrich
 
 This library is free software; you can redistribute it and/or modify it under the same
