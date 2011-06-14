@@ -39,7 +39,7 @@ our @ISA = ("Lab::Connection");
 
 
 our %fields = (
-	connector_class => "Lab::Connector::DEBUG",
+	bus_class => "Lab::Bus::DEBUG",
 	brutal => 0,	# brutal as default?
 	type => 'DEBUG',
 	wait_status=>10, # usec;
@@ -72,7 +72,7 @@ Lab::Connection::DEBUG - debug connection
 
 =head1 DESCRIPTION
 
-Connection to the DEBUG connector.
+Connection to the DEBUG bus.
 
 =cut
 
@@ -88,7 +88,7 @@ Connection to the DEBUG connector.
 
 
 
-package Lab::Connector::DEBUG::HumanInstrument;
+package Lab::Bus::DEBUG::HumanInstrument;
 
 use strict;
 use base "Wx::App";
@@ -118,20 +118,20 @@ sub OnInit {
 
 
 
-package Lab::Connector::DEBUG;
+package Lab::Bus::DEBUG;
 use strict;
 use threads;
 use threads::shared;
 use Thread::Semaphore;
 use Scalar::Util qw(weaken);
 use Time::HiRes qw (usleep sleep);
-use Lab::Connector;
+use Lab::Bus;
 use Data::Dumper;
 use Carp;
 
 use Lab::Exception
 
-our @ISA = ("Lab::Connector");
+our @ISA = ("Lab::Bus");
 
 our $thr = undef;
 
@@ -159,15 +159,15 @@ sub new {
 	# no twin search - just register
 	if( $class eq __PACKAGE__ ) { # careful - do only if this is not a parent class constructor
 		my $i = 0;
-		while(defined $Lab::Connector::ConnectorList{$self->type()}->{$i}) { $i++; }
-		$Lab::Connector::ConnectorList{$self->type()}->{$i} = $self;
-		weaken($Lab::Connector::ConnectorList{$self->type()}->{$i});
+		while(defined $Lab::Bus::BusList{$self->type()}->{$i}) { $i++; }
+		$Lab::Bus::BusList{$self->type()}->{$i} = $self;
+		weaken($Lab::Bus::BusList{$self->type()}->{$i});
 	}
 
 	# This is not and will be no gui application, so start the gui main loop in a thread.
 	# A little process communication will soon follow...
 	print "Starting 'human instrument' console.\n";
-	my $human_console = new Lab::Connector::DEBUG::HumanInstrument();
+	my $human_console = new Lab::Bus::DEBUG::HumanInstrument();
 	$thr = threads->create( sub { $human_console->MainLoop(); print "NOOOOO!"; } );
 
 
@@ -214,7 +214,7 @@ sub connection_read { # @_ = ( $connection_handle, $args = { read_length, brutal
 	( $message = <<ENDMSG ) =~ s/^\t+//gm;
 
 
-		  DEBUG connector
+		  DEBUG bus
 		  connection_read called on Instrument No. $connection_handle->{'debug_instr_index'}
 		  Brutal:      $brutal_txt
 		  Read length: $read_length
@@ -271,7 +271,7 @@ sub connection_write { # @_ = ( $connection_handle, $args = { command, wait_stat
 	( $message = <<ENDMSG ) =~ s/^\t+//gm;
 
 
-		  DEBUG connector
+		  DEBUG bus
 		  connection_write called on Instrument No. $connection_handle->{'debug_instr_index'}
 		  Command:     $command
 		  Brutal:      $brutal_txt
@@ -343,12 +343,12 @@ sub _search_twin {
 
 =head1 NAME
 
-Lab::Connector::DEBUG - debug connector
+Lab::Bus::DEBUG - debug bus
 
 
 =head1 DESCRIPTION
 
-This will be an interactive debug connector, which lets you enter responses to your skript.
+This will be an interactive debug bus, which lets you enter responses to your skript.
 
 
 

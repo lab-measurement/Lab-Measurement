@@ -1,12 +1,12 @@
 #!/usr/bin/perl -w
 
 #
-# general VISA Connection class for Lab::Connector::VISA
+# general VISA Connection class for Lab::Bus::VISA
 # This one digests VISA resource names
 #
 package Lab::Connection::VISA_GPIB;
 use strict;
-use Lab::Connector::VISA;
+use Lab::Bus::VISA;
 use Lab::Connection;
 use Lab::Exception;
 
@@ -14,7 +14,7 @@ use Lab::Exception;
 our @ISA = ("Lab::Connection");
 
 our %fields = (
-	connector_class => 'Lab::Connector::VISA',
+	bus_class => 'Lab::Bus::VISA',
 	resource_name => undef,
 	wait_status=>0, # usec;
 	wait_query=>10, # usec;
@@ -43,14 +43,14 @@ sub new {
 #=======================================================================================
 
 #
-# GPIB Connection class for Lab::Connector::VISA
+# GPIB Connection class for Lab::Bus::VISA
 # This one implements a GPIB-Standard connection on top of VISA (translates 
 # GPIB parameters to VISA resource names, mostly, to be exchangeable with other GPIB
 # connections.
 #
 package Lab::Connection::VISA_GPIB;
 use strict;
-use Lab::Connector::VISA;
+use Lab::Bus::VISA;
 use Lab::Connection::GPIB;
 use Lab::Exception;
 
@@ -58,7 +58,7 @@ use Lab::Exception;
 our @ISA = ("Lab::Connection::GPIB");
 
 our %fields = (
-	connector_class => 'Lab::Connector::VISA',
+	bus_class => 'Lab::Bus::VISA',
 	resource_name => undef,
 	wait_status=>0, # usec;
 	wait_query=>10, # usec;
@@ -85,14 +85,14 @@ sub new {
 
 
 #
-# adapting connector setup to VISA
+# adapting bus setup to VISA
 #
-sub _setconnector {
+sub _setbus {
 	my $self=shift;
-	my $connector_class = $self->connector_class();
+	my $bus_class = $self->bus_class();
 
 	no strict 'refs';
-	$self->connector($connector_class->new($self->config())) || Lab::Exception::Error->throw( error => "Failed to create connector $connector_class in " . __PACKAGE__ . "::_setconnector.\n"  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__));
+	$self->bus($bus_class->new($self->config())) || Lab::Exception::Error->throw( error => "Failed to create bus $bus_class in " . __PACKAGE__ . "::_setbus.\n"  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__));
 	use strict;
 
 	#
@@ -105,9 +105,9 @@ sub _setconnector {
 	$self->config()->{'resource_name') = $resource_name;
 	
 	# again, pass it all.
-	$self->connection_handle( $self->connector()->connection_new( $self->config() ));
+	$self->connection_handle( $self->bus()->connection_new( $self->config() ));
 
-	return $self->connector();
+	return $self->bus();
 }
 
 
@@ -123,16 +123,16 @@ sub _setconnector {
 #=======================================================================================
 
 
-package Lab::Connector::VISA;
+package Lab::Bus::VISA;
 use strict;
 use Lab::VISA;
 use Scalar::Util qw(weaken);
 use Time::HiRes qw (usleep sleep);
-use Lab::Connector;
+use Lab::Bus;
 use Data::Dumper;
 use Carp;
 
-our @ISA = ("Lab::Connector");
+our @ISA = ("Lab::Bus");
 
 
 our %fields = (
@@ -154,7 +154,7 @@ sub new {
 	my $self = $class->SUPER::new(@_); # getting fields and _permitted from parent class
 	$self->_construct(__PACKAGE__, \%fields);
 
-	# search for twin in %Lab::Connector::ConnectorList. If there's none, place $self there and weaken it.
+	# search for twin in %Lab::Bus::BusList. If there's none, place $self there and weaken it.
 	if( $class eq __PACKAGE__ ) { # careful - do only if this is not a parent class constructor
 		if($twin = $self->_search_twin()) {
 			undef $self;
@@ -162,8 +162,8 @@ sub new {
 		}
 		else {
 			# no distinction between VISA resource managers yet - need more than one?
-			$Lab::Connector::ConnectorList{$self->type()}->{'default'} = $self;
-			weaken($Lab::Connector::ConnectorList{$self->type()}->{'default'});
+			$Lab::Bus::BusList{$self->type()}->{'default'} = $self;
+			weaken($Lab::Bus::BusList{$self->type()}->{'default'});
 		}
 	}
 
@@ -200,8 +200,8 @@ sub connection_new { # @_ = ({ resource_name => $resource_name })
 
 	my $resource_name = $args->{'resource_name'};
 
-	Lab::Exception::CorruptParameter->throw( error => 'No resource name given to Lab::Connector::VISA::connection_new().\n' ) if(!exists $args->{'resource_name'});
-	Lab::Exception::CorruptParameter->throw( error => 'Invalid resource name given to Lab::Connector::VISA::connection_new().\n' ) if(!$self->_check_resource_name($args->{'resource_name'}));
+	Lab::Exception::CorruptParameter->throw( error => 'No resource name given to Lab::Bus::VISA::connection_new().\n' ) if(!exists $args->{'resource_name'});
+	Lab::Exception::CorruptParameter->throw( error => 'Invalid resource name given to Lab::Bus::VISA::connection_new().\n' ) if(!$self->_check_resource_name($args->{'resource_name'}));
 
 	( $status, $connection_handle ) = Lab::VISA::viOpen( $self->default_rm(), $args->{'resource_name'}, $Lab::VISA::VI_NULL, $Lab::VISA::VI_NULL);
 	if ($status != $Lab::VISA::VI_SUCCESS) { Lab::Exception::VISAError->throw( error => "Cannot open VISA instrument \"$resource_name\". Status: $status", status => $status ); };
@@ -232,13 +232,13 @@ sub connection_read { # @_ = ( $connection_handle, $args = { read_length, brutal
 
 	if ( ! ( $status ==  $Lab::VISA::VI_SUCCESS || $status == $Lab::VISA::VI_SUCCESS_TERM_CHAR || $status == $Lab::VISA::VI_ERROR_TMO ) ) {
 		Lab::Exception::VISAError->throw(
-			error => "Error in Lab::Connector::VISA::connection_read() while executing $command, Status $status",
+			error => "Error in Lab::Bus::VISA::connection_read() while executing $command, Status $status",
 			status => $status,
 		);
 	}
 	elsif ( $status == $Lab::VISA::VI_ERROR_TMO && !$brutal ) {
 		Lab::Exception::VISATimeout->throw(
-			error => "Timeout in Lab::Connector::VISA::connection_read() while executing $command\n",
+			error => "Timeout in Lab::Bus::VISA::connection_read() while executing $command\n",
 			status => $status,
 			command => $command,
 			data => $result,
@@ -300,7 +300,7 @@ sub connection_write { # @_ = ( $connection_handle, $args = { command, wait_stat
 
 		if ( $status != $Lab::VISA::VI_SUCCESS ) {
 			Lab::Exception::VISAError->throw(
-				error => "Error in Lab::Connector::VISA::connection_write() while executing $command, Status $status",
+				error => "Error in Lab::Bus::VISA::connection_write() while executing $command, Status $status",
 				status => $status,
 			);
 		}
@@ -340,15 +340,15 @@ sub connection_query { # @_ = ( $connection_handle, $args = { command, read_leng
 
 
 #
-# search and return an instance of the same type in %Lab::Connector::ConnectorList
+# search and return an instance of the same type in %Lab::Bus::BusList
 #
 sub _search_twin {
 	my $self=shift;
 
-	# Only one VISA connector for the moment, stored as "default"
+	# Only one VISA bus for the moment, stored as "default"
 	if(!$self->ignore_twins()) {
-		if(defined $Lab::Connector::ConnectorList{$self->type()}->{'default'}) {
-			return $Lab::Connector::ConnectorList{$self->type()}->{'default'};
+		if(defined $Lab::Bus::BusList{$self->type()}->{'default'}) {
+			return $Lab::Bus::BusList{$self->type()}->{'default'};
 		}
 	}
 
@@ -358,18 +358,18 @@ sub _search_twin {
 
 =head1 NAME
 
-Lab::Connector::VISA - VISA connector
+Lab::Bus::VISA - VISA bus
 
 =head1 SYNOPSIS
 
-This is the VISA connector class for the NI VISA library.
+This is the VISA bus class for the NI VISA library.
 
-  my $visa = new Lab::Connector::VISA();
+  my $visa = new Lab::Bus::VISA();
 
 or implicit through instrument creation:
 
   my $instrument = new Lab::Instrument::HP34401A({
-    ConnectorType => 'VISA',
+    BusType => 'VISA',
   }
 
 =head1 DESCRIPTION
@@ -381,7 +381,7 @@ soon
 
 =head2 new
 
- my $connector = Lab::Connector::VISA({
+ my $bus = Lab::Bus::VISA({
   });
 
 Return blessed $self, with @_ accessible through $self->config().
@@ -392,7 +392,7 @@ none
 
 =head1 Thrown Exceptions
 
-Lab::Connector::VISA throws
+Lab::Bus::VISA throws
 
   Lab::Exception::VISAError
     fields:
@@ -409,7 +409,7 @@ Lab::Connector::VISA throws
 
   $visa->connection_new({ resource_name => "GPIB0::14::INSTR" });
 
-Creates a new instrument handle for this connector.
+Creates a new instrument handle for this bus.
 
 The handle is usually stored in an instrument object and given to connection_read, connection_write etc.
 to identify and handle the calling instrument:
@@ -455,9 +455,9 @@ View. Also, not a lot to be done here.
 
 =over 4
 
-=item L<Lab::Connector::GPIB>
+=item L<Lab::Bus::GPIB>
 
-=item L<Lab::Connector::MODBUS>
+=item L<Lab::Bus::MODBUS>
 
 =item and many more...
 
@@ -465,7 +465,7 @@ View. Also, not a lot to be done here.
 
 =head1 AUTHOR/COPYRIGHT
 
-This is $Id: Connector.pm 749 2011-02-15 12:55:20Z olbrich $
+This is $Id: Bus.pm 749 2011-02-15 12:55:20Z olbrich $
 
  Copyright 2004-2006 Daniel Schröer <schroeer@cpan.org>, 
            2009-2010 Daniel Schröer, Andreas K. Hüttel (L<http://www.akhuettel.de/>) and David Kalok,

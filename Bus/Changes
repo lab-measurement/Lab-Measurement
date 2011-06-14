@@ -1,6 +1,9 @@
-History of Lab::Connector
+History of Lab::Bus
 ==========================
 
+Lab::Bus 0.1
+  * renamed from Lab::Connector
+    => improve linguistic contrast to "Lab::Connection"
 
 Lab::Connector 0.1
   * renamed from Lab::Connection

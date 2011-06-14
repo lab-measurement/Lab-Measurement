@@ -7,7 +7,7 @@ package Lab::Instrument::TLK43;
 
 use strict;
 use Lab::Instrument;
-use Lab::Connector::MODBUS_RS232;
+use Lab::Bus::MODBUS_RS232;
 use feature "switch";
 use Data::Dumper;
 use Carp;
@@ -16,7 +16,7 @@ our $VERSION = sprintf("0.%04d", q$Revision: 720 $ =~ / (\d+) /);
 our @ISA = ("Lab::Instrument");
 
 my %fields = (
-	supported_connectors => [ 'MODBUS_RS232' ],
+	supported_buses => [ 'MODBUS_RS232' ],
 	instrument_handle => undef,
 	slave_address => undef,
 
@@ -151,39 +151,39 @@ sub new {
 	@{$self}{keys %fields} = values %fields;
 
 	return undef unless $self->slave_address($self->config()->{'slave_address'});
-	# check the configuration hash for a valid connector object or connector type, and set the connector
-	if( defined($self->config()->{'Connector'}) ) {
-		if($self->_checkconnector($self->config()->{'Connector'})) {
-			$self->Connector($self->config()->{'Connector'});
+	# check the configuration hash for a valid bus object or bus type, and set the bus
+	if( defined($self->config()->{'Bus'}) ) {
+		if($self->_checkbus($self->config()->{'Bus'})) {
+			$self->Bus($self->config()->{'Bus'});
 		}
 		else { 
-			warn('Given Connector not supported');
+			warn('Given Bus not supported');
 			return undef;
 		}
 	}
 	else {
-		if($self->_checkconnector($self->config()->{'ConnType'})) {
+		if($self->_checkbus($self->config()->{'ConnType'})) {
 			my $ConnType = $self->config()->{'ConnType'};
 			my $Port = $self->config()->{'Port'};
 			my $slave_address = $self->config()->{'slave_address'};
 			my $Interface = "";
 			if($ConnType eq 'MODBUS_RS232') {
 				$self->config()->{'Interface'} = 'RS232';
-				$self->Connector(new Lab::Connector::MODBUS_RS232( $self->config() )) || croak('Failed to create connector');
-				#$self->Connector(eval("new Lab::Connector::$ConnType( $self->config() )")) || croak('Failed to create connector');
+				$self->Bus(new Lab::Bus::MODBUS_RS232( $self->config() )) || croak('Failed to create bus');
+				#$self->Bus(eval("new Lab::Bus::$ConnType( $self->config() )")) || croak('Failed to create bus');
 			}
 			else {
-				warn('Only RS232 connector type supported for now!\n');
+				warn('Only RS232 bus type supported for now!\n');
 				return undef;
 			 }
 		}
 		else {
-			warn('Given Connector Type not supported');
+			warn('Given Bus Type not supported');
 			return undef;
 		}
 	}
 
-	$self->instrument_handle( $self->Connector()->InstrumentNew(slave_address => $self->slave_address()) );
+	$self->instrument_handle( $self->Bus()->InstrumentNew(slave_address => $self->slave_address()) );
 	return $self;
 }
 
@@ -358,7 +358,7 @@ sub read_address_int { # $Address
 			$SignedValue = unpack('n!', join('', @Result));
 		}
 		else {
-			warn "Error on connector level\n";
+			warn "Error on bus level\n";
 			return undef;
 		}
 	}
@@ -408,8 +408,8 @@ Lab::Instrument::TLK43 - Electronic process controller TLKA41/42/43 (SIKA GmbH)
 
 	or
 
-	my $Connector = new Lab::Connector::MODBUS({ Port => '/dev/ttyS0', Interface => 'RS232', slave_address => 1, Baudrate => 19200, Parity => 'none', Databits => 8, Stopbits => 1, Handshake => 'none' });
-	my $tlk=new Lab::Instrument::TLK43({ Connector => $Connector });
+	my $Bus = new Lab::Bus::MODBUS({ Port => '/dev/ttyS0', Interface => 'RS232', slave_address => 1, Baudrate => 19200, Parity => 'none', Databits => 8, Stopbits => 1, Handshake => 'none' });
+	my $tlk=new Lab::Instrument::TLK43({ Bus => $Bus });
 
     print $tlk->read_temperature();
 	$tlk->set_setpoint(200);

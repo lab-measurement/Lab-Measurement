@@ -17,8 +17,8 @@ our @ISA = ();
 
 our %fields = (
 	connection_handle => undef,
-	connector => undef, # set default here in child classes, e.g. connector => "GPIB"
-	connector_class => undef,
+	bus => undef, # set default here in child classes, e.g. bus => "GPIB"
+	bus_class => undef,
 	config => undef,
 	type => undef,	# e.g. 'GPIB'
 	ignore_twins => 0, # 
@@ -54,9 +54,9 @@ sub new {
 sub Clear {
 	my $self=shift;
 	
-	return $self->connector()->connection_clear($self->connection_handle()) if ($self->connector()->can('connection_clear'));
+	return $self->bus()->connection_clear($self->connection_handle()) if ($self->bus()->can('connection_clear'));
 	# error message
-	warn "Clear function is not implemented in the connector ".ref($self->connector())."\n"  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__);
+	warn "Clear function is not implemented in the bus ".ref($self->bus())."\n"  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__);
 }
 
 
@@ -66,7 +66,7 @@ sub Write {
 	if (ref $_[0] eq 'HASH') { $options=shift }
 	else { $options={@_} }
 	
-	return $self->connector()->connection_write($self->connection_handle(), $options);
+	return $self->bus()->connection_write($self->connection_handle(), $options);
 }
 
 
@@ -76,7 +76,7 @@ sub Read {
 	if (ref $_[0] eq 'HASH') { $options=shift }
 	else { $options={@_} }
 
-	return $self->connector()->connection_read($self->connection_handle(), $options);
+	return $self->bus()->connection_read($self->connection_handle(), $options);
 }
 
 
@@ -154,27 +154,27 @@ sub _construct {	# _construct(__PACKAGE__, %fields);
 	@{$self}{keys %{$fields}} = values %{$fields};
 
 	if( $class eq $package ) {
-		$self->_setconnector();
+		$self->_setbus();
 	}
 }
 
 
 #
-# Method to handle connector creation generically. This is called by _construct().
+# Method to handle bus creation generically. This is called by _construct().
 # If the following (rather simple code) doesn't suit your child class, or your need to
 # introduce more thorough parameter checking and/or conversion, overwrite it - _construct()
 # calls it only if it is called by the topmost class in the inheritance hierarchy itself.
 #
 # set $self->connection_handle
 #
-sub _setconnector { # $self->setconnector() create new or use existing connector
+sub _setbus { # $self->setbus() create new or use existing bus
 	my $self=shift;
-	my $connector_class = $self->connector_class();
+	my $bus_class = $self->bus_class();
 
-	$self->connector(eval("require $connector_class; new $connector_class(\$self->config());")) || Lab::Exception::Error->throw( error => "Failed to create connector $connector_class in " . __PACKAGE__ . "::_setconnector.\n"  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__));
+	$self->bus(eval("require $bus_class; new $bus_class(\$self->config());")) || Lab::Exception::Error->throw( error => "Failed to create bus $bus_class in " . __PACKAGE__ . "::_setbus.\n"  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__));
 
 	# again, pass it all.
-	$self->connection_handle( $self->connector()->connection_new( $self->config() ));
+	$self->connection_handle( $self->bus()->connection_new( $self->config() ));
 }
 
 

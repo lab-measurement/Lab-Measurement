@@ -1,18 +1,18 @@
 #!/usr/bin/perl -w
 
 #
-# MODBUS connector driver.
+# MODBUS bus driver.
 # The MODBUS standard defines a protocol to access the memory of connected devices,
 # possible interfaces are RS485/RS232 and Ethernet.
-# For now this driver uses Lab::Connector::RS232 as backend. It's main use is to
+# For now this driver uses Lab::Bus::RS232 as backend. It's main use is to
 # generate the checksums used by MODBUS RTU. The memory addresses are device specific and
 # have to be stored in the according Instrument packages.
 #
 
 use strict;
 
-package Lab::Connector::MODBUS_RS232;
-use Lab::Connector::RS232;
+package Lab::Bus::MODBUS_RS232;
+use Lab::Bus::RS232;
 use Carp;
 use Data::Dumper;
 
@@ -21,13 +21,13 @@ use Thread::Semaphore;
 
 
 # setup this variable to add inherited functions later
-our @ISA = ("Lab::Connector::RS232");
+our @ISA = ("Lab::Bus::RS232");
 
 our $INS_DEBUG=0; # do we need additional output?
 
 my @crctab = ();
 
-my $ConnSemaphore = Thread::Semaphore->new();	# a semaphore to prevent simultaneous use of the connector by multiple threads
+my $ConnSemaphore = Thread::Semaphore->new();	# a semaphore to prevent simultaneous use of the bus by multiple threads
 
 my %fields = (
 	type => 'RS232',
@@ -44,17 +44,17 @@ sub new {
 	$self->_construct(__PACKAGE__, \%fields);
 
 
-	# search for twin in %Lab::Connector::ConnectorList. If there's none, place $self there and weaken it.
+	# search for twin in %Lab::Bus::BusList. If there's none, place $self there and weaken it.
 	# note to self: put this in base class/_construct if possible
-	# note to self2: think about how to block access to this RS232 port for a plain Lab::Connector::RS232 connector.
+	# note to self2: think about how to block access to this RS232 port for a plain Lab::Bus::RS232 bus.
 	if( $class eq __PACKAGE__ ) { # careful - do only if this is not a parent class constructor
 		if($twin = $self->_search_twin()) {
 			undef $self;
 			return $twin;	# ...and that's it.
 		}
 		else {
-			$Lab::Connector::ConnectorList{$self->type()}->{$self->port()} = $self;
-			weaken($Lab::Connector::ConnectorList{$self->type()}->{$self->port()});
+			$Lab::Bus::BusList{$self->type()}->{$self->port()} = $self;
+			weaken($Lab::Bus::BusList{$self->type()}->{$self->port()});
 		}
 	}
 
@@ -316,12 +316,12 @@ sub _MB_CRC { # @Message as character array, e.g. ( chr(1), pack('C',$address), 
 
 =head1 NAME
 
-Lab::Connector::MODBUS_RS232 - Perl extension for interfacing with instruments via RS232/RS485 using the MODBUS RTU protocol
+Lab::Bus::MODBUS_RS232 - Perl extension for interfacing with instruments via RS232/RS485 using the MODBUS RTU protocol
 
 =head1 SYNOPSIS
 
-	use Lab::Connector::MODBUS_RS232;
-	my $h = Lab::Connector::MODBUS_RS232->new({
+	use Lab::Bus::MODBUS_RS232;
+	my $h = Lab::Bus::MODBUS_RS232->new({
 		Interface => 'RS232',
 		Port => 'COM1|/dev/ttyUSB1'
 		slave_address => '1'
@@ -334,7 +334,7 @@ Lab::Connector::MODBUS_RS232 - Perl extension for interfacing with instruments v
 =head1 DESCRIPTION
 
 This is an interface package for Lab::Instruments to communicate via RS232/RS485 with a MODBUS RTU enabled device.
-It uses Lab::Connector::RS232 (RS485 can be done using a RS232<->RS485 converter for now). It's main use is to calculate the
+It uses Lab::Bus::RS232 (RS485 can be done using a RS232<->RS485 converter for now). It's main use is to calculate the
 checksums needed by MODBUS RTU.
 
 Refer to your device for the correct port configuration.
@@ -343,7 +343,7 @@ Refer to your device for the correct port configuration.
 
 =head2 new
 
-All parameters are used as by C<Device::SerialPort> respectively C<Lab::Connector::RS232>.
+All parameters are used as by C<Device::SerialPort> respectively C<Lab::Bus::RS232>.
 'Port' is needed in every case. Default value for timeout is 500ms and can be set by the parameter "Timeout".
 Other options you probably have to set: Handshake, Baudrate, Databits, Stopbits and Parity.
 
@@ -378,9 +378,9 @@ This is a prototype...
 
 =over 4
 
-=item L<Lab::Connector>
+=item L<Lab::Bus>
 
-=item L<Lab::Connector::RS232>
+=item L<Lab::Bus::RS232>
 
 =item L<Lab::Instrument>
 

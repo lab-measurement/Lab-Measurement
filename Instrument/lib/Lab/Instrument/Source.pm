@@ -41,7 +41,7 @@ sub new {
 	my $class = ref($proto) || $proto;
 	my $self = $class->SUPER::new(@_);	# sets $self->config
 	$self->_construct(__PACKAGE__, \%fields); 	# this sets up all the object fields out of the inheritance tree.
-												# also, it does generic connector setup.
+												# also, it does generic bus setup.
 
 	#
 	# Parameter parsing
@@ -139,7 +139,7 @@ sub GetSubSource { #{ Channel=>2, config1=>fasl, config2=>foo };
 	my $self=shift;
 	my $class = ref($self);
 	my $constructor = "${class}::new";
-	my $subsource = &$constructor({ Connector=>$self->Connector(), parent_source=>$self, gpData=>$self->gpData(), %{$self->default_device_config()} });
+	my $subsource = &$constructor({ Bus=>$self->Bus(), parent_source=>$self, gpData=>$self->gpData(), %{$self->default_device_config()} });
 	$self->child_sources([ @{$self->child_sources}, $subsource ]);
 	return $subsource;
 }

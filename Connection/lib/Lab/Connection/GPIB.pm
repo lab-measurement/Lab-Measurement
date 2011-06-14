@@ -5,8 +5,8 @@
 # connections implementing the GPIB protocol.
 #
 # In your scripts, use the implementing classes (e.g. Lab::Connection::LinuxGPIB).
-# They are distributed with their connector (Lab::Connection::LinuxGPIB is implemented
-# in Lab/Connector/GPIB.pm)
+# They are distributed with their bus (Lab::Connection::LinuxGPIB is implemented
+# in Lab/Bus/GPIB.pm)
 #
 # Instruments using a GPIB connection will check the inheritance tree of the provided connection
 # for this class.
@@ -19,7 +19,7 @@ our @ISA = ("Lab::Connection");
 
 
 our %fields = (
-	connector_class => undef, # 'Lab::Connector::LinuxGPIB', 'Lab::Connector::VISA', ...
+	bus_class => undef, # 'Lab::Bus::LinuxGPIB', 'Lab::Bus::VISA', ...
 	gpib_address	=> 0,
 	gpib_saddress => undef, # secondary address, if needed
 	brutal => 0,	# brutal as default?

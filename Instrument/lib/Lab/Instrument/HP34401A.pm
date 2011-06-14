@@ -281,7 +281,7 @@ Settings for EOI assertion for example. Right now, this doesn't really matter be
 Just keep it in mind.
 
 If you know what you're doing or you have an exotic scenario you can use the connection parameter "IgnoreTwin => 1", but this
-is discouraged - it will kill connector management and you might run into hardware/resource sharing issues.
+is discouraged - it will kill bus management and you might run into hardware/resource sharing issues.
 
 
 =head1 DESCRIPTION

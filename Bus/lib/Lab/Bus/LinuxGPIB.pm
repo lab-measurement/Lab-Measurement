@@ -3,7 +3,7 @@
 
 
 #
-# GPIB Connection class for Lab::Connector::LinuxGPIB
+# GPIB Connection class for Lab::Bus::LinuxGPIB
 #
 package Lab::Connection::LinuxGPIB;
 use strict;
@@ -15,7 +15,7 @@ use Lab::Exception;
 our @ISA = ("Lab::Connection::GPIB");
 
 our %fields = (
-	connector_class => 'Lab::Connector::LinuxGPIB',
+	bus_class => 'Lab::Bus::LinuxGPIB',
 	wait_status=>0, # usec;
 	wait_query=>10, # usec;
 	read_length=>1000, # bytes
@@ -49,16 +49,16 @@ sub new {
 #=======================================================================================
 
 
-package Lab::Connector::LinuxGPIB;
+package Lab::Bus::LinuxGPIB;
 use strict;
 use Scalar::Util qw(weaken);
 use Time::HiRes qw (usleep sleep);
-use Lab::Connector;
+use Lab::Bus;
 use LinuxGpib ':all';
 use Data::Dumper;
 use Carp;
 
-our @ISA = ("Lab::Connector");
+our @ISA = ("Lab::Bus");
 
 
 our %fields = (
@@ -80,20 +80,20 @@ sub new {
 	my $self = $class->SUPER::new(@_); # getting fields and _permitted from parent class
 	$self->_construct(__PACKAGE__, \%fields);
 
-	# one board - one connector - one connector object
+	# one board - one bus - one bus object
 	if ( exists $self->config()->{'gpib_board'} ) {
 		$self->gpib_board($self->config()->{'gpib_board'}); 
 	} # ... or the default
 
-	# search for twin in %Lab::Connector::ConnectorList. If there's none, place $self there and weaken it.
+	# search for twin in %Lab::Bus::BusList. If there's none, place $self there and weaken it.
 	if( $class eq __PACKAGE__ ) { # careful - do only if this is not a parent class constructor
 		if($twin = $self->_search_twin()) {
 			undef $self;
 			return $twin;	# ...and that's it.
 		}
 		else {
-			$Lab::Connector::ConnectorList{$self->type()}->{$self->gpib_board()} = $self;
-			weaken($Lab::Connector::ConnectorList{$self->type()}->{$self->gpib_board()});
+			$Lab::Bus::BusList{$self->type()}->{$self->gpib_board()} = $self;
+			weaken($Lab::Bus::BusList{$self->type()}->{$self->gpib_board()});
 		}
 	}
 
@@ -291,7 +291,7 @@ sub ParseIbstatus { # Ibstatus http://linux-gpib.sourceforge.net/doc_html/r634.h
 	my @ibbits = ();
 
 	if( $ibstatus !~ /[0-9]*/ || $ibstatus < 0 || $ibstatus > 0xFFFF ) {	# should be a 16 bit integer
-		Lab::Exception::CorruptParameter->throw( error => 'Lab::Connector::GPIB::VerboseIbstatus() got an invalid ibstatus.'  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__), InvalidParameter => $ibstatus );
+		Lab::Exception::CorruptParameter->throw( error => 'Lab::Bus::GPIB::VerboseIbstatus() got an invalid ibstatus.'  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__), InvalidParameter => $ibstatus );
 	}
 
 	for (my $i=0; $i<16; $i++) {
@@ -314,7 +314,7 @@ sub VerboseIbstatus {
 		$ibstatus = $self->ParseIbstatus($ibstatus);
 	}
 	elsif(ref($ibstatus) !~ /HASH/) {
-		Lab::Exception::CorruptParameter->throw( error => 'Lab::Connector::GPIB::VerboseIbstatus() got an invalid ibstatus.'  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__), InvalidParameter => $ibstatus );
+		Lab::Exception::CorruptParameter->throw( error => 'Lab::Bus::GPIB::VerboseIbstatus() got an invalid ibstatus.'  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__), InvalidParameter => $ibstatus );
 	}
 
 	while( my ($k, $v) = each %$ibstatus ) {
@@ -326,13 +326,13 @@ sub VerboseIbstatus {
 
 
 #
-# search and return an instance of the same type in %Lab::Connector::ConnectorList
+# search and return an instance of the same type in %Lab::Bus::BusList
 #
 sub _search_twin {
 	my $self=shift;
 
 	if(!$self->ignore_twins()) {
-		for my $conn ( values %{$Lab::Connector::ConnectorList{$self->type()}} ) {
+		for my $conn ( values %{$Lab::Bus::BusList{$self->type()}} ) {
 			return $conn if $conn->gpib_board() == $self->gpib_board();
 		}
 	}
@@ -342,18 +342,18 @@ sub _search_twin {
 
 =head1 NAME
 
-Lab::Connector::GPIB - GPIB connector base
+Lab::Bus::GPIB - GPIB bus base
 
 =head1 SYNOPSIS
 
-This is the GPIB connector class for the GPIB library C<linux-gpib> (aka C<libgpib0> in the debian world).
+This is the GPIB bus class for the GPIB library C<linux-gpib> (aka C<libgpib0> in the debian world).
 
-  my $GPIB = new Lab::Connector::GPIB({ gpib_board => 0 });
+  my $GPIB = new Lab::Bus::GPIB({ gpib_board => 0 });
 
 or implicit through instrument creation:
 
   my $instrument = new Lab::Instrument::HP34401A({
-    ConnectorType => 'GPIB',
+    BusType => 'GPIB',
     gpib_board => 0,
     GPIB_Paddress=>14,
   }
@@ -361,12 +361,12 @@ or implicit through instrument creation:
 =head1 DESCRIPTION
 
 See http://linux-gpib.sourceforge.net/.
-This will work for Linux systems only. On Windows, please use C<Lab::Connector::VISA>. The interfaces are (errr, will be) identical.
+This will work for Linux systems only. On Windows, please use C<Lab::Bus::VISA>. The interfaces are (errr, will be) identical.
 
-Note: you don't need to explicitly handle connector objects. The Instruments will create them themselves, and existing connector will
+Note: you don't need to explicitly handle bus objects. The Instruments will create them themselves, and existing bus will
 be automagically reused.
 
-In GPIB, instantiating two connector with identical parameter "gpib_board" will logically lead to the reuse of the first one.
+In GPIB, instantiating two bus with identical parameter "gpib_board" will logically lead to the reuse of the first one.
 To override this, use the parameter "ignore_twins".
 
 
@@ -374,7 +374,7 @@ To override this, use the parameter "ignore_twins".
 
 =head2 new
 
- my $connector = Lab::Connector::GPIB({
+ my $bus = Lab::Bus::GPIB({
     gpib_board => $board_num
   });
 
@@ -386,12 +386,12 @@ C<gpib_board>: Index of board to use. Can be omitted, 0 is the default.
 
 =head1 Thrown Exceptions
 
-Lab::Connector::GPIB throws
+Lab::Bus::GPIB throws
 
   Lab::Exception::GPIBError
     fields:
     'ibsta', the raw ibsta status byte received from linux-gpib
-    'ibsta_hash', the ibsta bit values in a named, easy-to-read hash ( 'DCAS' => $val, 'DTAS' => $val, ... ). Use Lab::Connector::GPIB::VerboseIbstatus() to get a nice string representation
+    'ibsta_hash', the ibsta bit values in a named, easy-to-read hash ( 'DCAS' => $val, 'DTAS' => $val, ... ). Use Lab::Bus::GPIB::VerboseIbstatus() to get a nice string representation
 
   Lab::Exception::GPIBTimeout
     fields:
@@ -404,7 +404,7 @@ Lab::Connector::GPIB throws
 
   $GPIB->connection_new({ GPIB_Paddr => $paddr });
 
-Creates a new instrument handle for this connector. The argument is a hash, which contents depend on the connector type.
+Creates a new instrument handle for this bus. The argument is a hash, which contents depend on the bus type.
 For GPIB at least 'GPIB_Paddr' is needed.
 
 The handle is usually stored in an instrument object and given to connection_read, connection_write etc.
@@ -443,8 +443,8 @@ E.g.
 
 Without arguments, returns a reference to the complete $self->config aka @_ of the constructor.
 
- $config = $connector->config();
- $GPIB_PAddress = $connector->config()->{'GPIB_PAddress'};
+ $config = $bus->config();
+ $GPIB_PAddress = $bus->config()->{'GPIB_PAddress'};
 
 =head1 CAVEATS/BUGS
 
@@ -454,9 +454,9 @@ View. Also, not a lot to be done here.
 
 =over 4
 
-=item L<Lab::Connector::GPIB>
+=item L<Lab::Bus::GPIB>
 
-=item L<Lab::Connector::MODBUS>
+=item L<Lab::Bus::MODBUS>
 
 =item and many more...
 
@@ -464,7 +464,7 @@ View. Also, not a lot to be done here.
 
 =head1 AUTHOR/COPYRIGHT
 
-This is $Id: Connector.pm 749 2011-02-15 12:55:20Z olbrich $
+This is $Id: Bus.pm 749 2011-02-15 12:55:20Z olbrich $
 
  Copyright 2004-2006 Daniel Schröer <schroeer@cpan.org>, 
            2009-2010 Daniel Schröer, Andreas K. Hüttel (L<http://www.akhuettel.de/>) and David Kalok,

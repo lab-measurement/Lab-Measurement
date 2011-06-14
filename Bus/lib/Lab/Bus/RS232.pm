@@ -1,15 +1,15 @@
 #!/usr/bin/perl -w
 # POD
 
-package Lab::Connector::RS232;
+package Lab::Bus::RS232;
 
 use strict;
 use warnings;
 
-use Lab::Connector;
+use Lab::Bus;
 use Data::Dumper;
 
-our @ISA = ("Lab::Connector");
+our @ISA = ("Lab::Bus");
 
 # load serial driver
 use vars qw( $OS_win);
@@ -55,7 +55,7 @@ sub new {
 
 	# parameter parsing
 	$self->port($self->config('port')) if defined $self->config('port');
-	warn ("No port supplied to RS232 connector. Assuming default port " . $self->config('port') . "\n") if(!defined $self->config('port')) 
+	warn ("No port supplied to RS232 bus. Assuming default port " . $self->config('port') . "\n") if(!defined $self->config('port')) 
 	$self->port($self->config('baudrate')) if defined $self->config('baudrate');
 	$self->parity($self->config('parity')) if defined $self->config('parity');
 	$self->databits($self->config('databits')) if defined $self->config('databits');
@@ -65,15 +65,15 @@ sub new {
 
 
 
-	# search for twin in %Lab::Connector::ConnectorList. If there's none, place $self there and weaken it.
+	# search for twin in %Lab::Bus::BusList. If there's none, place $self there and weaken it.
 	if( $class eq __PACKAGE__ ) { # careful - do only if this is not a parent class constructor
 		if($twin = $self->_search_twin()) {
 			undef $self;
 			return $twin;	# ...and that's it.
 		}
 		else {
-			$Lab::Connector::ConnectorList{$self->type()}->{} = $self;
-			weaken($Lab::Connector::ConnectorList{$self->type()}->{$self->port()});
+			$Lab::Bus::BusList{$self->type()}->{} = $self;
+			weaken($Lab::Bus::BusList{$self->type()}->{$self->port()});
 
 
 			# clear new port
@@ -224,13 +224,13 @@ sub InstrumentClear {
 
 
 #
-# search and return an instance of the same type in %Lab::Connector::ConnectorList
+# search and return an instance of the same type in %Lab::Bus::BusList
 #
 sub _search_twin {
 	my $self=shift;
 
 	if(!$self->ignore_twins()) {
-		for my $conn ( values %{$Lab::Connector::ConnectorList{$self->type()}} ) {
+		for my $conn ( values %{$Lab::Bus::BusList{$self->type()}} ) {
 			return $conn if $conn->port() == $self->port();
 		}
 	}

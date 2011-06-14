@@ -9,31 +9,31 @@ license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
   version: 1.4
-name: Lab-Connector
+name: Lab-Bus
 provides:
-  Lab::Connector:
-    file: lib/Lab/Connector.pm
+  Lab::Bus:
+    file: lib/Lab/Bus.pm
     version: 1.0793
-  Lab::Connector::DEBUG:
-    file: lib/Lab/Connector/DEBUG.pm
-  Lab::Connector::DEBUG::HumanInstrument:
-    file: lib/Lab/Connector/DEBUG.pm
-  Lab::Connector::GPIB:
-    file: lib/Lab/Connector/GPIB.pm
-  Lab::Connector::MODBUS_RS232:
-    file: lib/Lab/Connector/MODBUS_RS232.pm
-  Lab::Connector::RS232:
-    file: lib/Lab/Connector/RS232.pm
+  Lab::Bus::DEBUG:
+    file: lib/Lab/Bus/DEBUG.pm
+  Lab::Bus::DEBUG::HumanInstrument:
+    file: lib/Lab/Bus/DEBUG.pm
+  Lab::Bus::GPIB:
+    file: lib/Lab/Bus/GPIB.pm
+  Lab::Bus::MODBUS_RS232:
+    file: lib/Lab/Bus/MODBUS_RS232.pm
+  Lab::Bus::RS232:
+    file: lib/Lab/Bus/RS232.pm
     version: 1.0757
-  Lab::Connector::VISA:
-    file: lib/Lab/Connector/VISA.pm
+  Lab::Bus::VISA:
+    file: lib/Lab/Bus/VISA.pm
 requires:
   Lab::Exception: 0.1
   Lab::VISA: 0.1
   Time::HiRes: 0
 resources:
   MailingList: https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-visa-users
-  bugtracker: http://rt.cpan.org/NoAuth/Bugs.html?Dist=Lab-Connector
+  bugtracker: http://rt.cpan.org/NoAuth/Bugs.html?Dist=Lab-Bus
   homepage: http://labvisa.de
   license: http://dev.perl.org/licenses/
 version: 0.9
