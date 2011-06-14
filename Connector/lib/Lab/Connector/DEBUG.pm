@@ -2,6 +2,32 @@
 
 
 
+package Lab::Connection::gDEBUG;
+use strict;
+
+use Data::Dumper;
+use Carp;
+
+our @ISA = ('Lab::Connection::DEBUG');
+
+our %fields = (
+	ihaveone => 'too',
+);
+
+sub new {
+	my $proto = shift;
+	my $class = ref($proto) || $proto;
+	my $twin = undef;
+	warn "I am " . __PACKAGE__ . " and am calling my SUPER now.\n";
+	my $self = $class->SUPER::new(@_); # getting fields and _permitted from parent class
+	$self->_construct(__PACKAGE__, \%fields);
+
+	return $self;
+}
+
+
+
+
 package Lab::Connection::DEBUG;
 use strict;
 use Time::HiRes qw (usleep sleep);
@@ -30,6 +56,7 @@ sub new {
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
 	my $twin = undef;
+	warn "I am " . __PACKAGE__ . " and am calling my SUPER now.\n";
 	my $self = $class->SUPER::new(@_); # getting fields and _permitted from parent class
 	$self->_construct(__PACKAGE__, \%fields);
 

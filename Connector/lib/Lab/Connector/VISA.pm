@@ -5,11 +5,12 @@
 #
 # GPIB Connection class for Lab::Connector::VISA
 #
-package Lab::Connector::VISA;
+package Lab::Connection::VISA;
 use strict;
 use Scalar::Util qw(weaken);
 use Time::HiRes qw (usleep sleep);
 use Lab::Connector::VISA;
+use Lab::Connection::GPIB;
 use Lab::Exception;
 
 
@@ -21,6 +22,8 @@ our %fields = (
 	wait_status=>0, # usec;
 	wait_query=>10, # usec;
 	read_length=>1000, # bytes
+	gpib_board=>0,
+	gpib_address=>1,
 );
 
 
@@ -49,7 +52,6 @@ sub _setconnector {
 	my $self=shift;
 	my $connector_class = $self->connector_class();
 
-	warn ("new ${connector_class}(\$self->config())\n");
 	no strict 'refs';
 	$self->connector($connector_class->new($self->config())) || Lab::Exception::Error->throw( error => "Failed to create connector $connector_class in " . __PACKAGE__ . "::_setconnector.\n"  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__));
 	use strict;
@@ -61,7 +63,8 @@ sub _setconnector {
 	$resource_name .= '::'.$self->gpib_saddress() if defined $self->gpib_saddress();
 	$resource_name .= '::INSTR';
 	$self->resource_name($resource_name);
-	$self->config('resource_name') = $resource_name;
+	# note to self: do this better
+	$self->config->{'resource_name'} = $resource_name;
 
 	# again, pass it all.
 	$self->connection_handle( $self->connector()->connection_new( $self->config() ));

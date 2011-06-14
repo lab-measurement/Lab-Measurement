@@ -18,7 +18,7 @@ our @ISA = ();
 our %fields = (
 	connection_handle => undef,
 	connector => undef, # set default here in child classes, e.g. connector => "GPIB"
-	connector_class => "",
+	connector_class => undef,
 	config => undef,
 	type => undef,	# e.g. 'GPIB'
 	ignore_twins => 0, # 
@@ -171,7 +171,6 @@ sub _setconnector { # $self->setconnector() create new or use existing connector
 	my $self=shift;
 	my $connector_class = $self->connector_class();
 
-	warn ("new Lab::Connector::${connector_class}(\$self->config())\n");
 	$self->connector(eval("require $connector_class; new $connector_class(\$self->config());")) || Lab::Exception::Error->throw( error => "Failed to create connector $connector_class in " . __PACKAGE__ . "::_setconnector.\n"  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__));
 
 	# again, pass it all.
@@ -207,7 +206,6 @@ sub AUTOLOAD {
 	$name =~ s/.*://; # strip fully qualified portion
 
 	unless (exists $self->{_permitted}->{$name} ) {
-		cluck ("waaa");
 		Lab::Exception::Error->throw( error => "AUTOLOAD in " . __PACKAGE__ . " couldn't access field '${name}'.\n"  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__));
 	}
 
