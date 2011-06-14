@@ -1,14 +1,55 @@
 #!/usr/bin/perl -w
 
-
-
 #
-# GPIB Connection class for Lab::Connector::VISA
+# general VISA Connection class for Lab::Connector::VISA
+# This one digests VISA resource names
 #
 package Lab::Connection::VISA_GPIB;
 use strict;
-use Scalar::Util qw(weaken);
-use Time::HiRes qw (usleep sleep);
+use Lab::Connector::VISA;
+use Lab::Connection;
+use Lab::Exception;
+
+
+our @ISA = ("Lab::Connection");
+
+our %fields = (
+	connector_class => 'Lab::Connector::VISA',
+	resource_name => undef,
+	wait_status=>0, # usec;
+	wait_query=>10, # usec;
+	read_length=>1000, # bytes
+);
+
+
+sub new {
+	my $proto = shift;
+	my $class = ref($proto) || $proto;
+	my $twin = undef;
+	my $self = $class->SUPER::new(@_); # getting fields and _permitted from parent class, parameter checks
+	$self->_construct(__PACKAGE__, \%fields);
+
+	return $self;
+}
+
+#
+# That's all, all that was needed was the additional field "resource_name".
+#
+
+
+
+
+
+#=======================================================================================
+
+#
+# GPIB Connection class for Lab::Connector::VISA
+# This one implements a GPIB-Standard connection on top of VISA (translates 
+# GPIB parameters to VISA resource names, mostly, to be exchangeable with other GPIB
+# connections.
+#
+package Lab::Connection::VISA_GPIB;
+use strict;
 use Lab::Connector::VISA;
 use Lab::Connection::GPIB;
 use Lab::Exception;
@@ -36,8 +77,6 @@ sub new {
 
 	return $self;
 }
-
-
 
 
 #
