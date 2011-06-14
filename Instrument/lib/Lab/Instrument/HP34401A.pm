@@ -12,7 +12,7 @@ our @ISA = ("Lab::Instrument");
 
 our %fields = (
 	# SupportedConnections => [ 'GPIB', 'RS232' ],	# in principle RS232, too, but not implemented (yet)
-	supported_connections => [ 'GPIB', 'VISA', 'DEBUG' ],
+	supported_connections => [ 'GPIB', 'VISA_GPIB', 'DEBUG' ],
 );
 
 

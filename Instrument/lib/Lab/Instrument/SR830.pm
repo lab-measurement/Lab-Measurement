@@ -6,11 +6,10 @@ use Data::Dumper;
 use Carp;
 use Time::HiRes qw (usleep);
 
-our $VERSION = sprintf("0.%04d", q$Revision: 720 $ =~ / (\d+) /);
 our @ISA = ("Lab::Instrument");
 
 my %fields = (
-	supported_connectors => [ 'GPIB', 'VISA', 'DEBUG' ],
+	supported_connections => [ 'GPIB', 'VISA_GPIB', 'DEBUG' ],
 );
 
 sub new {
@@ -20,11 +19,13 @@ sub new {
 	$self->_construct(__PACKAGE__, \%fields); 	# this sets up all the object fields out of the inheritance tree.
 												# also, it does generic connector setup.
 
-
-	$self->InstrumentHandle( $self->Connector()->InstrumentNew(GPIB_Paddr => $self->config('GPIB_Paddress')) );
 	return $self;
 }
 
+
+#
+# utility methods
+#
 
 sub empty_buffer{
     my $self=shift;

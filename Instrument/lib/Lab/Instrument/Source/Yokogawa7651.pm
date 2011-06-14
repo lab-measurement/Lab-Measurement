@@ -1,18 +1,14 @@
-#$Id$
-
 package Lab::Instrument::Source::Yokogawa7651;
 use strict;
 use Switch;
 use Lab::Instrument;
 use Lab::Instrument::Source;
 
-our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
 
 our @ISA=('Lab::Instrument::Source');
 
 my %fields = (
-	# supported_connectors => [ 'GPIB', 'RS232' ], # RS232 not implemented yet
-	supported_connectors => [ 'GPIB', 'VISA', 'DEBUG' ],
+	supported_connections => [ 'GPIB', 'VISA', 'DEBUG' ],
 
 	channel_defaultconfig => {
 		gate_protect            => 1,
@@ -419,9 +415,9 @@ The value for each key is either 0 or 1, indicating the status of the instrument
 
 =head2 DC voltage
 
-The stability (24h) is the value at 23 +- 1°C. The stability (90days),
-accuracy (90days) and accuracy (1year) are values at 23 +- 5°C.
-The temperature coefficient is the value at 5 to 18°C and 28 to 40°C.
+The stability (24h) is the value at 23 +- 1ï¿½C. The stability (90days),
+accuracy (90days) and accuracy (1year) are values at 23 +- 5ï¿½C.
+The temperature coefficient is the value at 5 to 18ï¿½C and 28 to 40ï¿½C.
 
 
  Range  Maximum     Resolution  Stability 24h   Stability 90d   
@@ -439,7 +435,7 @@ The temperature coefficient is the value at 5 to 18°C and 28 to 40°C.
  Range  Accuracy 90d    Accuracy 1yr    Temperature
         +-(% of setting +-(% of setting Coefficient
         +muV)           +muV)           +-(% of setting
-                                        +muV)/°C
+                                        +muV)/ï¿½C
  -----------------------------------------------------
  10mV   0.018 + 4       0.025 + 5       0.0018 + 0.7
  100mV  0.018 + 10      0.025 + 10      0.0018 + 0.7
@@ -478,7 +474,7 @@ Common mode rejection:
  Range   Accuracy (90 days)  Accuracy (1 year)   Temperature  
          +-(% of setting     +-(% of setting     Coefficient     
          + muA)              + muA)              +-(% of setting  
-                                                 + muA)/°C        
+                                                 + muA)/ï¿½C        
  -----   ------------------------------------------------------  
  1mA     0.02 + 0.1          0.03 + 0.1          0.0015 + 0.01   
  10mA    0.02 + 0.5          0.03 + 0.5          0.0015 + 0.1    
@@ -521,8 +517,9 @@ The Yokogawa7651 class is a Source (L<Lab::Instrument::Source>)
 
 This is $Id$
 
- (c) 2004-2006 Daniel Schröer
- (c) 2007-2010 Daniel Schröer, Daniela Taubert, Andreas Hüttel, and others
+ (c) 2004-2006 Daniel SchrÃ¶er
+ (c) 2007-2010 Daniel SchrÃ¶er, Daniela Taubert, Andreas HÃ¼ttel, and others
+ (c) 2011 Florian Olbrich
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 
