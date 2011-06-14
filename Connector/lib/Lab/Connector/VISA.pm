@@ -5,7 +5,7 @@
 #
 # GPIB Connection class for Lab::Connector::VISA
 #
-package Lab::Connection::VISA;
+package Lab::Connection::VISA_GPIB;
 use strict;
 use Scalar::Util qw(weaken);
 use Time::HiRes qw (usleep sleep);
@@ -63,9 +63,8 @@ sub _setconnector {
 	$resource_name .= '::'.$self->gpib_saddress() if defined $self->gpib_saddress();
 	$resource_name .= '::INSTR';
 	$self->resource_name($resource_name);
-	# note to self: do this better
-	$self->config->{'resource_name'} = $resource_name;
-
+	$self->config()->{'resource_name') = $resource_name;
+	
 	# again, pass it all.
 	$self->connection_handle( $self->connector()->connection_new( $self->config() ));
 
