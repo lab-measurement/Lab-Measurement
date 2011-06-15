@@ -207,7 +207,7 @@ sub read_channels {
 
 sub id {
     my $self=shift;
-    $self->connection()->Read( command => '*IDN?');
+    return $self->connection()->Query( command => '*IDN?', read_length => 300);
 }
 
 sub send_commands {
