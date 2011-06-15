@@ -170,8 +170,9 @@ sub connection_read { # @_ = ( $connection_handle, $args = { read_length, brutal
 	# note to self: find a way to access the ibcnt variable through the perl binding to use
 	# $result = substr($result, 0, $ibcnt)
 	$raw = $result;
-	$result =~ /^\s*([+-][0-9]*\.[0-9]*)([eE]([+-]?[0-9]*))?\s*\x00*$/;
-	$result = $1;
+	#$result =~ /^\s*([+-][0-9]*\.[0-9]*)([eE]([+-]?[0-9]*))?\s*\x00*$/;
+	#$result = $1;
+	$result =~ s/[\n\r\x00]*$//;
 
 	#
 	# timeout occured - throw exception, but include the received data
