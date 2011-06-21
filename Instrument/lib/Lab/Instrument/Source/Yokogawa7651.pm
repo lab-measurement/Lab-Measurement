@@ -10,7 +10,7 @@ our @ISA=('Lab::Instrument::Source');
 my %fields = (
 	supported_connections => [ 'GPIB', 'VISA', 'DEBUG' ],
 
-	channel_defaultconfig => {
+	device_settings => {
 		gate_protect            => 1,
 		gp_equal_level          => 1e-5,
 		gp_max_volt_per_second  => 0.002,

@@ -24,15 +24,27 @@ our $AUTOLOAD;
 
 
 our %fields = (
-	connection => undef,
-	connection_type => "GPIB", # default
-	supported_connections => [ ],
-	config => {},
-	wait_status => 10, # usec
-	wait_query => 100, # usec
-	query_length => 300, # bytes
-	query_long_length => 10240, # bytes
+
+	device_name => undef,
+	device_comment => undef,
+
 	ins_debug => 0, # do we need additional output?
+
+	connection => undef,
+	supported_connections => [ ],
+	# for connection default settings/user supplied settings. see accessor method.
+	connection_settings => {
+	},
+
+	# default device settings/user supplied settings. see accessor method.
+	device_settings => {
+		wait_status => 10, # usec
+		wait_query => 100, # usec
+		query_length => 300, # bytes
+		query_long_length => 10240, # bytes
+	},
+
+	config => {},
 );
 
 
@@ -51,6 +63,10 @@ sub new {
 
 	$self->config($config);
 
+	# digest parameters
+	$self->device_name($self->config('device_name')) if defined $self->config('device_name');
+	$self->device_comment($self->config('device_comment')) if defined $self->config('device_comment');
+
 	return $self;
 }
 
@@ -64,6 +80,10 @@ sub _construct {	# _construct(__PACKAGE__);
 	my $class = ref($self);
 
 	foreach my $element (keys %{$fields}) {
+		# handle special subarrays
+		$self->device_settings($element) if( $element eq 'device_settings' );
+
+		# handle the normal fields
 		$self->{_permitted}->{$element} = $fields->{$element};
 	}
 	@{$self}{keys %{$fields}} = values %{$fields};
@@ -140,6 +160,40 @@ sub _checkconfig {
 #
 # infrastructure stuff below
 #
+
+
+
+#
+# accessor for device_settings
+#
+sub device_settings {
+	my $self = shift;
+	my $value = undef;
+
+	if( scalar(@_) == 0 ) {  # empty parameters - return whole device_settings hash
+		return $self->{'device_settings'};
+	}
+	elsif( scalar(@_) == 1 ) {  # one parm - either a scalar (key) or a hashref (try to merge)
+		$value = shift;
+	}
+	elsif( scalar(@_) > 1 && scalar(@_)%2 == 0 ) { # even sized list - assume it's keys and values and try to merge it
+		$value = {@_};
+	}
+	else {  # uneven sized list - don't know what to do with that one
+		Lab::Exception::CorruptParameter->throw( error => "Corrupt parameters given to " . __PACKAGE__ . "::device_settings().\n"  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__) );
+	}
+
+	if(ref($value) =~ /HASH/) {  # it's a hash - merge into current settings
+		for my $ext_key ( keys %{$value} ) {
+			$self->{'device_settings'}->{$ext_key} = $value->{$ext_key} if( defined($self->{'device_settings'}->{$ext_key};
+		}
+		return $self->{'device_settings'};
+	}
+	else {  # it's a key - return the corresponding value
+		return $self->{'device_settings'}->{$key};
+	}
+}
+
 
 
 
