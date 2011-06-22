@@ -269,6 +269,9 @@ sub config {	# $value = self->config($key);
 	}
 }
 
+#
+# provides generic accessor methods to the fields defined in %fields and to the elements of $self->device_settings
+#
 sub AUTOLOAD {
 
 	my $self = shift;
@@ -277,14 +280,23 @@ sub AUTOLOAD {
 	my $name = $AUTOLOAD;
 	$name =~ s/.*://; # strip fully qualified portion
 
-	unless (exists $self->{_permitted}->{$name} ) {
-		Lab::Exception::Error->throw( error => "AUTOLOAD in " . __PACKAGE__ . " couldn't access field '${name}'.\n" );
-	}
 
-	if (@_) {
-		return $self->{$name} = shift;
-	} else {
-		return $self->{$name};
+	if( exists $self->{_permitted}->{$name} ) {
+		if (@_) {
+			return $self->{$name} = shift;
+		} else {
+			return $self->{$name};
+		}
+	}
+	elsif( exists $self->{'device_settings'}->{$name} ) {
+		if (@_) {
+			return $self->{'device_settings'}->{$name} = shift;
+		} else {
+			return $self->{'device_settings'}->{$name};
+		}
+	}
+	else {
+		Lab::Exception::Warning->throw( error => "AUTOLOAD in " . __PACKAGE__ . " couldn't access field '${name}'.\n" . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__) );
 	}
 }
 
