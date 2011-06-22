@@ -12,6 +12,7 @@
 # for this class.
 #
 package Lab::Connection::GPIB;
+use Lab::Connection;
 use strict;
 use Lab::Exception;
 

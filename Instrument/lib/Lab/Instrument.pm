@@ -34,6 +34,7 @@ our %fields = (
 	supported_connections => [ ],
 	# for connection default settings/user supplied settings. see accessor method.
 	connection_settings => {
+		connection_type => 'LinuxGPIB',	
 	},
 
 	# default device settings/user supplied settings. see accessor method.
@@ -82,6 +83,7 @@ sub _construct {	# _construct(__PACKAGE__);
 	foreach my $element (keys %{$fields}) {
 		# handle special subarrays
 		$self->device_settings($element) if( $element eq 'device_settings' );
+		$self->connection_settings($element) if( $element eq 'connection_settings' );
 
 		# handle the normal fields
 		$self->{_permitted}->{$element} = $fields->{$element};
@@ -104,6 +106,8 @@ sub _checkconnection { # Connection object or ConnType string
 	my $connection=shift || undef;
 	my $found = 0;
 
+	$connection = ref($connection) || $connection;
+
 	return 0 if ! defined $connection;
 
 	no strict 'refs';
@@ -118,6 +122,16 @@ sub _checkconnection { # Connection object or ConnType string
 
 sub _setconnection { # $self->setconnection() create new or use existing connection
 	my $self=shift;
+
+	# merge default settings
+	my $config = $self->config();
+	my $connection_type = undef;
+	my $full_connection = undef;
+
+	for my $setting_key ( keys %{$self->connection_settings()} ) {
+		$config->{$setting_key} = $self->connection_settings($setting_key) if ! defined $config->{$setting_key};
+	}
+
 	# check the configuration hash for a valid connection object or connection type, and set the connection
 	if( defined($self->config('connection')) ) {
 		if($self->_checkconnection($self->config('connection')) ) {
@@ -125,20 +139,27 @@ sub _setconnection { # $self->setconnection() create new or use existing connect
 		}
 		else { Lab::Exception::CorruptParameter->throw( error => "Received invalid connection object!\n" . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__) ); }
 	}
-# 	else {
-# 		Lab::Exception::CorruptParameter->throw( error => 'Received no connection object!\n' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__) );
-# 	}
-# 	else {
-# 		my $connection_type = $self->config('connection_type') || $self->supported_connections()->[0];
-# 		warn "No connection and no connection type given - trying to create default connection $connection_type.\n" if !$self->config('connection_type');
-# 		if($self->_checkconnection($self->config('connection_type'))) {
-# 			# yep - pass all the parameters on to the connection, it will take the ones it needs.
-# 			# This way connection setup can be handled generically. Conflicting parameter names? Let's try it.
-# 			warn ("new Lab::Connection::${connection_type}(\$self->config())");
-# 			$self->connection(eval("require Lab::Connection::${connection_type}; new Lab::Connection::${connection_type}(\$self->config())")) || croak('Failed to create connection');
-# 		}
-# 		else { croak('Given Connection Type not supported'); }
-# 	}
+#	else {
+#		Lab::Exception::CorruptParameter->throw( error => 'Received no connection object!\n' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__) );
+#	}
+	else {
+		$connection_type = $self->config('connection_type') || Lab::Exception::CorruptParameter->throw( error => "No Connection specified!\n" . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__));
+		if($self->_checkconnection("Lab::Connection::" . $self->config('connection_type'))) {
+
+			$full_connection = "Lab::Connection::" . $connection_type;
+			warn ("new ${full_connection}(\$self->config())");
+
+			# let's get creative
+			no strict 'refs';
+
+			# yep - pass all the parameters on to the connection, it will take the ones it needs.
+			# This way connection setup can be handled generically. Conflicting parameter names? Let's try it.
+			$self->connection( $full_connection->new ($config) ) || Lab::Exception::Error->throw( error => "Failed to create connection $full_connection!\n" . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__) );
+
+			use strict;
+		}
+		else { Lab::Exception::CorruptParameter->throw( error => "Given Connection not supported!\n" . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__)); }
+	}
 }
 
 
@@ -185,16 +206,48 @@ sub device_settings {
 
 	if(ref($value) =~ /HASH/) {  # it's a hash - merge into current settings
 		for my $ext_key ( keys %{$value} ) {
-			$self->{'device_settings'}->{$ext_key} = $value->{$ext_key} if( defined($self->{'device_settings'}->{$ext_key};
+			$self->{'device_settings'}->{$ext_key} = $value->{$ext_key} if( defined($self->{'device_settings'}->{$ext_key}) );
+			warn "merge: set $ext_key to " . $value->{$ext_key} . "\n";
 		}
 		return $self->{'device_settings'};
 	}
 	else {  # it's a key - return the corresponding value
-		return $self->{'device_settings'}->{$key};
+		return $self->{'device_settings'}->{$value};
 	}
 }
 
 
+#
+# accessor for connection_settings
+#
+sub connection_settings {
+	my $self = shift;
+	my $value = undef;
+
+	if( scalar(@_) == 0 ) {  # empty parameters - return whole device_settings hash
+		return $self->{'connection_settings'};
+	}
+	elsif( scalar(@_) == 1 ) {  # one parm - either a scalar (key) or a hashref (try to merge)
+		$value = shift;
+	}
+	elsif( scalar(@_) > 1 && scalar(@_)%2 == 0 ) { # even sized list - assume it's keys and values and try to merge it
+		$value = {@_};
+	}
+	else {  # uneven sized list - don't know what to do with that one
+		Lab::Exception::CorruptParameter->throw( error => "Corrupt parameters given to " . __PACKAGE__ . "::connection_settings().\n"  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__) );
+	}
+
+	if(ref($value) =~ /HASH/) {  # it's a hash - merge into current settings
+		for my $ext_key ( keys %{$value} ) {
+			$self->{'connection_settings'}->{$ext_key} = $value->{$ext_key} if( defined($self->{'connection_settings'}->{$ext_key}) );
+			warn "merge: set $ext_key to " . $value->{$ext_key} . "\n";
+		}
+		return $self->{'connection_settings'};
+	}
+	else {  # it's a key - return the corresponding value
+		return $self->{'connection_settings'}->{$value};
+	}
+}
 
 
 #
