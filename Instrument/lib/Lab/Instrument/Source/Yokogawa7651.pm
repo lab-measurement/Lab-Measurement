@@ -216,12 +216,6 @@ sub set_range {
 
 sub get_info {
     my $self=shift;
-    my $result=$self->connection()->Read( command  => "OS" );
-    return $result;
-}
-
-sub get_OS {
-    my $self=shift;
     $self->connection()->Write( command  => "OS" );
     my @info;
     for (my $i=0;$i<=10;$i++){
@@ -344,7 +338,10 @@ Lab::Instrument::Yokogawa7651 - Yokogawa 7651 DC source
 
     use Lab::Instrument::Yokogawa7651;
     
-    my $gate14=new Lab::Instrument::Yokogawa7651(0,11);
+    my $gate14=new Lab::Instrument::Yokogawa7651(
+      connection_type => 'LinuxGPIB',
+      gpib_address => 22,
+    );
     $gate14->set_range(5);
     $gate14->set_voltage(0.745);
     print $gate14->get_voltage();
