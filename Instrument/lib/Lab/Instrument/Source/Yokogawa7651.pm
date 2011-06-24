@@ -14,7 +14,7 @@ my %fields = (
 	connection_settings => {
 		gpib_board => 0,
 		gpib_address => 22,
-	}
+	},
 
 	device_settings => {
 		gate_protect            => 1,
@@ -22,10 +22,10 @@ my %fields = (
 		gp_max_volt_per_second  => 0.002,
 		gp_max_volt_per_step    => 0.001,
 		gp_max_step_per_second  => 2,
-	},
 
-	max_sweep_time=>3600,
-	min_sweep_time=>0.1,
+		max_sweep_time=>3600,
+		min_sweep_time=>0.1,
+	},
 );
 
 sub new {
@@ -63,61 +63,61 @@ sub _set {
     my $self=shift;
     my $value=shift;
     my $cmd=sprintf("S%e",$value);
-	$self->Write( command  => $cmd );
+	$self->connection()->Write( command  => $cmd );
     $cmd="E";
-	$self->Write( command  => $cmd );
+	$self->connection()->Write( command  => $cmd );
 }
 
 sub _set_auto {
     my $self=shift;
     my $value=shift;
     my $cmd=sprintf("SA%e",$value);
-	$self->Write( command  => $cmd );
+	$self->connection()->Write( command  => $cmd );
     $cmd="E";
-	$self->Write( command  => $cmd );
+	$self->connection()->Write( command  => $cmd );
 }
 
 sub set_setpoint {
     my $self=shift;
     my $value=shift;
     my $cmd=sprintf("S%+.4e",$value);
-	$self->Write( command  => $cmd );
+	$self->connection()->Write( command  => $cmd );
 }
 
 sub set_time {
     my $self=shift;
     my $sweep_time=shift; #sec.
     my $interval_time=shift;
-    if ($sweep_time<$self->min_sweep_time()) {
-        warn "Warning Sweep Time: $sweep_time smaller than ${\$self->min_sweep_time()} sec!\n Sweep time set to ${\$self->min_sweep_time()} sec";
-        $sweep_time=$self->min_sweep_time()}
-    elsif ($sweep_time>$self->max_sweep_time()) {
-        warn "Warning Sweep Time: $sweep_time> ${\$self->max_sweep_time()} sec!\n Sweep time set to ${\$self->max_sweep_time()} sec";
-        $sweep_time=$self->max_sweep_time()
+    if ($sweep_time<$self->device_settings('min_sweep_time')) {
+        warn "Warning Sweep Time: $sweep_time smaller than ${\$self->device_settings('min_sweep_time')} sec!\n Sweep time set to ${\$self->device_settings('min_sweep_time')} sec";
+        $sweep_time=$self->device_settings('min_sweep_time')}
+    elsif ($sweep_time>$self->device_settings('max_sweep_time')) {
+        warn "Warning Sweep Time: $sweep_time> ${\$self->device_settings('max_sweep_time')} sec!\n Sweep time set to ${\$self->device_settings('max_sweep_time')} sec";
+        $sweep_time=$self->device_settings('max_sweep_time')
     };
-    if ($interval_time<$self->min_sweep_time()) {
-        warn "Warning Interval Time: $interval_time smaller than ${\$self->min_sweep_time()} sec!\n Interval time set to ${\$self->min_sweep_time()} sec";
-        $interval_time=$self->min_sweep_time()}
-    elsif ($interval_time>$self->max_sweep_time()) {
-        warn "Warning Interval Time: $interval_time> ${\$self->max_sweep_time()} sec!\n Interval time set to ${\$self->max_sweep_time()} sec";
-        $interval_time=$self->max_sweep_time()
+    if ($interval_time<$self->device_settings('min_sweep_time')) {
+        warn "Warning Interval Time: $interval_time smaller than ${\$self->device_settings('min_sweep_time')} sec!\n Interval time set to ${\$self->device_settings('min_sweep_time')} sec";
+        $interval_time=$self->device_settings('min_sweep_time')}
+    elsif ($interval_time>$self->device_settings('max_sweep_time')) {
+        warn "Warning Interval Time: $interval_time> ${\$self->device_settings('max_sweep_time')} sec!\n Interval time set to ${\$self->device_settings('max_sweep_time')} sec";
+        $interval_time=$self->device_settings('max_sweep_time')
     };
     my $cmd=sprintf("PI%.1f",$interval_time);
-	$self->Write( command  => $cmd );
+	$self->connection()->Write( command  => $cmd );
     $cmd=sprintf("SW%.1f",$sweep_time);
-	$self->Write( command  => $cmd );
+	$self->connection()->Write( command  => $cmd );
 }
 
 sub start_program {
     my $self=shift;
     my $cmd=sprintf("PRS");
-	$self->Write( command  => $cmd );
+	$self->connection()->Write( command  => $cmd );
 }
 
 sub end_program {
     my $self=shift;
     my $cmd=sprintf("PRE");
-	$self->Write( command  => $cmd );
+	$self->connection()->Write( command  => $cmd );
 }
 sub execute_program {
     # 0 HALT
@@ -127,7 +127,7 @@ sub execute_program {
     my $self=shift;
     my $value=shift;
     my $cmd=sprintf("RU%d",$value);
-	$self->Write( command  => $cmd );
+	$self->connection()->Write( command  => $cmd );
     
 }
 
@@ -152,14 +152,14 @@ sub sweep {
     $self->end_program();
 
     my $time=abs($output_now -$stop)/$rate;
-    if ($time<$self->min_sweep_time()) {
-        warn "Warning Sweep Time: $time smaller than ${\$self->min_sweep_time()} sec!\n Sweep time set to ${\$self->min_sweep_time()} sec";
-        $time=$self->min_sweep_time();
+    if ($time<$self->device_settings('min_sweep_time')) {
+        warn "Warning Sweep Time: $time smaller than ${\$self->device_settings('min_sweep_time')} sec!\n Sweep time set to ${\$self->device_settings('min_sweep_time')} sec";
+        $time=$self->device_settings('min_sweep_time');
         $return_rate=abs($output_now -$stop)/$time;
     }
-    elsif ($time>$self->max_sweep_time()) {
-        warn "Warning Interval Time: $time> ${\$self->max_sweep_time()} sec!\n Sweep time set to ${\$self->max_sweep_time()} sec";
-        $time=$self->max_sweep_time();
+    elsif ($time>$self->device_settings('max_sweep_time')) {
+        warn "Warning Interval Time: $time> ${\$self->device_settings('max_sweep_time')} sec!\n Sweep time set to ${\$self->device_settings('max_sweep_time')} sec";
+        $time=$self->device_settings('max_sweep_time');
         $return_rate=abs($output_now -$stop)/$time;
     }
     $self->set_time($time,$time);
@@ -180,7 +180,7 @@ sub get_current {
 sub _get {
     my $self=shift;
     my $cmd="OD";
-    my $result=$self->Read( command  => $cmd );
+    my $result=$self->connection()->Query( command  => $cmd );
     $result=~/....([\+\-\d\.E]*)/;
     return $1;
 }
@@ -188,13 +188,13 @@ sub _get {
 sub set_current_mode {
     my $self=shift;
     my $cmd="F5";
-    $self->Write( command  => $cmd );
+    $self->connection()->Write( command  => $cmd );
 }
 
 sub set_voltage_mode {
     my $self=shift;
     my $cmd="F1";
-    $self->Write( command  => $cmd );
+    $self->connection()->Write( command  => $cmd );
 }
 
 sub set_range {
@@ -211,21 +211,21 @@ sub set_range {
       # 4   1mA
       # 5   10mA
       # 6   100mA
-    $self->Write( command  => $cmd );
+    $self->connection()->Write( command  => $cmd );
 }
 
 sub get_info {
     my $self=shift;
-    my $result=$self->Read( command  => "OS"});
+    my $result=$self->connection()->Read( command  => "OS" );
     return $result;
 }
 
 sub get_OS {
     my $self=shift;
-    $self->Write( command  => "OS"});
+    $self->connection()->Write( command  => "OS" );
     my @info;
     for (my $i=0;$i<=10;$i++){
-        my $line=$self->Read( read_length => 300 );
+        my $line=$self->connection()->Read( read_length => 300 );
         if ($line=~/END/){last};
         chomp $line;
         $line=~s/\r//;
@@ -277,19 +277,19 @@ sub set_run_mode {
     my $value=shift;
     if ($value!=0 and $value!=1) { Lab::Exception::CorruptParameter->throw( error=>"Run Mode $value not defined\n" . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__) ); }
     my $cmd=sprintf("M%u",$value);
-    $self->Write( command  => $cmd );
+    $self->connection()->Write( command  => $cmd );
 }
 
 sub output_on {
     my $self=shift;
-    $self->Write( command  => 'O1'});
-    $self->Write( command  => 'E'});
+    $self->connection()->Write( command  => 'O1' );
+    $self->connection()->Write( command  => 'E' );
 }
     
 sub output_off {
     my $self=shift;
-    $self->Write( command  => 'O0'});
-    $self->Write( command  => 'E'});
+    $self->connection()->Write( command  => 'O0' );
+    $self->connection()->Write( command  => 'E' );
 }
 
 sub get_output {
@@ -300,26 +300,26 @@ sub get_output {
 
 sub initialize {
     my $self=shift;
-    $self->Write( command  => 'RC'});
+    $self->connection()->Write( command  => 'RC' );
 }
 
 sub set_voltage_limit {
     my $self=shift;
     my $value=shift;
     my $cmd=sprintf("LV%e",$value);
-    $self->Write( command  => $cmd );
+    $self->connection()->Write( command  => $cmd );
 }
 
 sub set_current_limit {
     my $self=shift;
     my $value=shift;
     my $cmd=sprintf("LA%e",$value);
-    $self->Write( command  => 'RC'});
+    $self->connection()->Write( command  => 'RC' );
 }
 
 sub get_status {
     my $self=shift;
-    my $status=$self->Write( command  => 'OC'});
+    my $status=$self->connection()->Write( command  => 'OC' );
     
     $status=~/STS1=(\d*)/;
     $status=$1;

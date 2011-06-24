@@ -276,16 +276,28 @@ sub AUTOLOAD {
 
 	my $self = shift;
 	my $type = ref($self) or croak "$self is not an object";
+	my $value = undef;
 
 	my $name = $AUTOLOAD;
 	$name =~ s/.*://; # strip fully qualified portion
-
 
 	if( exists $self->{_permitted}->{$name} ) {
 		if (@_) {
 			return $self->{$name} = shift;
 		} else {
 			return $self->{$name};
+		}
+	}
+	elsif( $name =~ qr/^(get_|set_)(.*)$/ && exists $self->device_settings()->{$2} ) {
+		if( $1 eq 'set_' ) {
+			$value = shift;
+			if( !defined $value || ref($value) ne "" ) { Lab::Exception::CorruptParameter->throw( error => "No or no scalar value given to generic set function $AUTOLOAD in " . __PACKAGE__ . "::AUTOLOAD().\n"  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__) ); }
+			if( @_ > 0 ) { Lab::Exception::CorruptParameter->throw( error => "Too many values given to generic set function $AUTOLOAD " . __PACKAGE__ . "::AUTOLOAD().\n"  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__) ); }
+			return $self->device_settings()->{$2} = $value;
+		}
+		else {
+			if( @_ > 0 ) { Lab::Exception::CorruptParameter->throw( error => "Too many values given to generic get function $AUTOLOAD " . __PACKAGE__ . "::AUTOLOAD().\n"  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__) ); }
+			return $self->device_settings($2);
 		}
 	}
 	elsif( exists $self->{'device_settings'}->{$name} ) {
