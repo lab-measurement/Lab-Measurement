@@ -230,7 +230,7 @@ sub connection_write { # @_ = ( $connection_handle, $args = { command, wait_stat
 	else { $args={@_} }
 
 	my $command = $args->{'command'} || undef;
-	if (!defined $command) { Lab::Exception::CorruptParameter->throw( error => "No command given to " . __PACKAGE__ . "::connection_write\n"  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__)); }
+	if (!defined $command) { Lab::Exception::CorruptParameter->throw( error => "No command given to " . __PACKAGE__ . "::connection_write\n"  . Lab::Exception::Base::Appendix()); }
 	my $brutal = $args->{'brutal'} || $self->brutal();
 	my $read_length = $args->{'read_length'} || $self->read_length();
 	my $wait_status = $args->{'wait_status'} || $self->wait_status();

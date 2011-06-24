@@ -94,7 +94,7 @@ sub new {
 				$self->client()->stopbits($self->config('stopbits')) if (exists $self->config('stopbits'));
 			}
 			else {
-				Lab::Exception::Error->throw( error => "Error initializing the serial interface\n" . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__) ); }
+				Lab::Exception::Error->throw( error => "Error initializing the serial interface\n" . Lab::Exception::Base::Appendix() ); }
 			}
 
 			return $self;
@@ -191,7 +191,7 @@ sub InstrumentWrite { # @_ = ( $instrument_handle, $args = { command, brutal }
 
 	if(!defined $command) {
 		Lab::Exception::CorruptParameter->throw(
-			error => "No command given to " . __PACKAGE__ . "::InstrumentWrite().\n" . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__),
+			error => "No command given to " . __PACKAGE__ . "::InstrumentWrite().\n" . Lab::Exception::Base::Appendix(),
 		);
 	}
 	else {
@@ -201,12 +201,12 @@ sub InstrumentWrite { # @_ = ( $instrument_handle, $args = { command, brutal }
 
 	if(!$status && !$brutal) {
 		Lab::Exception::RS232Error->throw(
-			error => "Error in " . __PACKAGE__ . "::InstrumentWrite() while executing $command: write failed.\n" . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__),
+			error => "Error in " . __PACKAGE__ . "::InstrumentWrite() while executing $command: write failed.\n" . Lab::Exception::Base::Appendix(),
 			status => $status,
 		);
 	}
 	elsif($brutal) {
-		warn "(brutal=>Ignored) error in " . __PACKAGE__ . "::InstrumentWrite() while executing $command: write failed.\n" . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__);
+		warn "(brutal=>Ignored) error in " . __PACKAGE__ . "::InstrumentWrite() while executing $command: write failed.\n" . Lab::Exception::Base::Appendix();
 	}
 
 	return 1;

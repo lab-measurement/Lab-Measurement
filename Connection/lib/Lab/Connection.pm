@@ -56,7 +56,7 @@ sub Clear {
 	
 	return $self->bus()->connection_clear($self->connection_handle()) if ($self->bus()->can('connection_clear'));
 	# error message
-	warn "Clear function is not implemented in the bus ".ref($self->bus())."\n"  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__);
+	warn "Clear function is not implemented in the bus ".ref($self->bus())."\n"  . Lab::Exception::Base::Appendix();
 }
 
 
@@ -171,7 +171,7 @@ sub _setbus { # $self->setbus() create new or use existing bus
 	my $self=shift;
 	my $bus_class = $self->bus_class();
 
-	$self->bus(eval("require $bus_class; new $bus_class(\$self->config());")) || Lab::Exception::Error->throw( error => "Failed to create bus $bus_class in " . __PACKAGE__ . "::_setbus.\n"  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__));
+	$self->bus(eval("require $bus_class; new $bus_class(\$self->config());")) || Lab::Exception::Error->throw( error => "Failed to create bus $bus_class in " . __PACKAGE__ . "::_setbus.\n"  . Lab::Exception::Base::Appendix());
 
 	# again, pass it all.
 	$self->connection_handle( $self->bus()->connection_new( $self->config() ));
@@ -206,7 +206,7 @@ sub AUTOLOAD {
 	$name =~ s/.*://; # strip fully qualified portion
 
 	unless (exists $self->{_permitted}->{$name} ) {
-		Lab::Exception::Error->throw( error => "AUTOLOAD in " . __PACKAGE__ . " couldn't access field '${name}'.\n"  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__));
+		Lab::Exception::Error->throw( error => "AUTOLOAD in " . __PACKAGE__ . " couldn't access field '${name}'.\n"  . Lab::Exception::Base::Appendix());
 	}
 
 	if (@_) {

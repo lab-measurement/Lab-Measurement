@@ -110,7 +110,7 @@ sub connection_new { # { gpib_address => primary address }
 
 	if(!defined $args->{'gpib_address'} || $args->{'gpib_address'} !~ /^[0-9]*$/ ) {
 		Lab::Exception::CorruptParameter->throw (
-			error => "No valid gpib address given to " . __PACKAGE__ . "::connection_new()\n" . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__),
+			error => "No valid gpib address given to " . __PACKAGE__ . "::connection_new()\n" . Lab::Exception::Base::Appendix(),
 		);
 	}
 
@@ -160,7 +160,7 @@ sub connection_read { # @_ = ( $connection_handle, $args = { read_length, brutal
 
 	if( $ib_bits->{'ERR'} && !$ib_bits->{'TIMO'} ) {	# if the error is a timeout, we still evaluate the result and see what to do with the error later
 		Lab::Exception::GPIBError->throw(
-			error => sprintf("ibrd failed with ibstatus %x\n", $ibstatus) . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__),
+			error => sprintf("ibrd failed with ibstatus %x\n", $ibstatus) . Lab::Exception::Base::Appendix(),
 			ibsta => $ibstatus,
 			ibsta_hash => $ib_bits,
 		);
@@ -180,7 +180,7 @@ sub connection_read { # @_ = ( $connection_handle, $args = { read_length, brutal
 	#
 	if( $ib_bits->{'ERR'} && $ib_bits->{'TIMO'} && !$brutal ) {
 		Lab::Exception::GPIBTimeout->throw(
-			error => sprintf("ibrd failed with a timeout, ibstatus %x\n", $ibstatus) . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__),
+			error => sprintf("ibrd failed with a timeout, ibstatus %x\n", $ibstatus) . Lab::Exception::Base::Appendix(),
 			ibsta => $ibstatus,
 			ibsta_hash => $ib_bits,
 			data => $result
@@ -240,7 +240,7 @@ sub connection_write { # @_ = ( $connection_handle, $args = { command, wait_stat
 
 	if(!defined $command) {
 		Lab::Exception::CorruptParameter->throw(
-			error => "No command given to " . __PACKAGE__ . "::connection_write().\n" . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__),
+			error => "No command given to " . __PACKAGE__ . "::connection_write().\n" . Lab::Exception::Base::Appendix(),
 		);
 	}
 	else {
@@ -257,14 +257,14 @@ sub connection_write { # @_ = ( $connection_handle, $args = { command, wait_stat
 	if($ib_bits->{'ERR'}==1) {
 		if($ib_bits->{'TIMO'} == 1) {
 			Lab::Exception::GPIBTimeout->throw(
-				error => sprintf("Timeout in " . __PACKAGE__ . "::connection_write() while executing $command: ibwrite failed with status %x\n", $ibstatus) . Dumper($ib_bits) . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__),
+				error => sprintf("Timeout in " . __PACKAGE__ . "::connection_write() while executing $command: ibwrite failed with status %x\n", $ibstatus) . Dumper($ib_bits) . Lab::Exception::Base::Appendix(),
 				ibsta => $ibstatus,
 				ibsta_hash => $ib_bits,
 			);
 		}
 		else {
 			Lab::Exception::GPIBError->throw(
-				error => sprintf("Error in " . __PACKAGE__ . "::connection_write() while executing $command: ibwrite failed with status %x\n", $ibstatus) . Dumper($ib_bits) . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__),
+				error => sprintf("Error in " . __PACKAGE__ . "::connection_write() while executing $command: ibwrite failed with status %x\n", $ibstatus) . Dumper($ib_bits) . Lab::Exception::Base::Appendix(),
 				ibsta => $ibstatus,
 				ibsta_hash => $ib_bits,
 			);
@@ -292,7 +292,7 @@ sub ParseIbstatus { # Ibstatus http://linux-gpib.sourceforge.net/doc_html/r634.h
 	my @ibbits = ();
 
 	if( $ibstatus !~ /[0-9]*/ || $ibstatus < 0 || $ibstatus > 0xFFFF ) {	# should be a 16 bit integer
-		Lab::Exception::CorruptParameter->throw( error => 'Lab::Bus::GPIB::VerboseIbstatus() got an invalid ibstatus.'  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__), InvalidParameter => $ibstatus );
+		Lab::Exception::CorruptParameter->throw( error => 'Lab::Bus::GPIB::VerboseIbstatus() got an invalid ibstatus.'  . Lab::Exception::Base::Appendix(), InvalidParameter => $ibstatus );
 	}
 
 	for (my $i=0; $i<16; $i++) {
@@ -315,7 +315,7 @@ sub VerboseIbstatus {
 		$ibstatus = $self->ParseIbstatus($ibstatus);
 	}
 	elsif(ref($ibstatus) !~ /HASH/) {
-		Lab::Exception::CorruptParameter->throw( error => 'Lab::Bus::GPIB::VerboseIbstatus() got an invalid ibstatus.'  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__), InvalidParameter => $ibstatus );
+		Lab::Exception::CorruptParameter->throw( error => 'Lab::Bus::GPIB::VerboseIbstatus() got an invalid ibstatus.'  . Lab::Exception::Base::Appendix(), InvalidParameter => $ibstatus );
 	}
 
 	while( my ($k, $v) = each %$ibstatus ) {

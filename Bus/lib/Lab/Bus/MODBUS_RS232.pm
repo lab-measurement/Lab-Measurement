@@ -77,7 +77,7 @@ sub InstrumentNew {
 		$slave_address = $args{'slave_address'};
 	}
 	else {
-		Lab::Exception::CorruptParameter->throw( error => 'No or invalid MODBUS Slave Address given. I can\'t work like this!' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__), );
+		Lab::Exception::CorruptParameter->throw( error => 'No or invalid MODBUS Slave Address given. I can\'t work like this!' . Lab::Exception::Base::Appendix(), );
 	}
 
 	my $Instrument=  { valid => 1, type => "MODBUS_RS232", slave_address => $slave_address };  
@@ -110,9 +110,9 @@ sub InstrumentRead { # @_ = ( $instrument_handle, $args = { function, mem_addres
 	my @AnswerArr = ();
 	my @TmpArr = ();
 
-	if( !defined $function || $function != 3 ) { Lab::Exception::CorruptParameter->throw( error => 'Undefined or unimplemented function code' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__), ); }
-	if( !defined $mem_address || $mem_address < 0 || $mem_address > 0xFFFF ) { Lab::Exception::CorruptParameter->throw( error => 'Invalid memory address' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__), ); }
-	if( $mem_count < 1 ) { Lab::Exception::CorruptParameter->throw( error => 'Invalid count of registers to be read' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__), ); }
+	if( !defined $function || $function != 3 ) { Lab::Exception::CorruptParameter->throw( error => 'Undefined or unimplemented function code' . Lab::Exception::Base::Appendix(), ); }
+	if( !defined $mem_address || $mem_address < 0 || $mem_address > 0xFFFF ) { Lab::Exception::CorruptParameter->throw( error => 'Invalid memory address' . Lab::Exception::Base::Appendix(), ); }
+	if( $mem_count < 1 ) { Lab::Exception::CorruptParameter->throw( error => 'Invalid count of registers to be read' . Lab::Exception::Base::Appendix(), ); }
 
 	@MessageArr = $self->_MB_CRC( pack('C',$instrument_handle->{slave_address}),pack('C',$function), pack('n',$mem_address), pack('n',$mem_count) );
 	$Message = join('',$self->_chrlist(@MessageArr));
@@ -185,9 +185,9 @@ sub InstrumentWrite { # @_ = ( $instrument_handle, $args = { function, mem_addre
 	my $ErrCount=3;
 
 
-	if( !defined $function || $function != 6 ) { Lab::Exception::CorruptParameter->throw( error => 'Undefined or unimplemented function code' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__), ); }
-	if( !defined $mem_address || $mem_address < 0 || $mem_address > 0xFFFF ) { Lab::Exception::CorruptParameter->throw( error => 'Invalid memory address' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__), ); }
-	if(unpack('n!',$SendValue) != $mem_value) { Lab::Exception::CorruptParameter->throw( error => "Invalid Memory Value $mem_value" . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__), ); }
+	if( !defined $function || $function != 6 ) { Lab::Exception::CorruptParameter->throw( error => 'Undefined or unimplemented function code' . Lab::Exception::Base::Appendix(), ); }
+	if( !defined $mem_address || $mem_address < 0 || $mem_address > 0xFFFF ) { Lab::Exception::CorruptParameter->throw( error => 'Invalid memory address' . Lab::Exception::Base::Appendix(), ); }
+	if(unpack('n!',$SendValue) != $mem_value) { Lab::Exception::CorruptParameter->throw( error => "Invalid Memory Value $mem_value" . Lab::Exception::Base::Appendix(), ); }
 
 	@MessageArr = $self->_MB_CRC( pack('C',$Instrument->{slave_address}), pack('C',$function), pack('n',$mem_address), $SendValue);
 	$Message = join('',$self->_chrlist(@MessageArr));

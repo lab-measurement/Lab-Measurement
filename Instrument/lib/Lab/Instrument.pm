@@ -137,13 +137,13 @@ sub _setconnection { # $self->setconnection() create new or use existing connect
 		if($self->_checkconnection($self->config('connection')) ) {
 			$self->connection($self->config('connection'));
 		}
-		else { Lab::Exception::CorruptParameter->throw( error => "Received invalid connection object!\n" . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__) ); }
+		else { Lab::Exception::CorruptParameter->throw( error => "Received invalid connection object!\n" . Lab::Exception::Base::Appendix() ); }
 	}
 #	else {
-#		Lab::Exception::CorruptParameter->throw( error => 'Received no connection object!\n' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__) );
+#		Lab::Exception::CorruptParameter->throw( error => 'Received no connection object!\n' . Lab::Exception::Base::Appendix() );
 #	}
 	else {
-		$connection_type = $self->config('connection_type') || Lab::Exception::CorruptParameter->throw( error => "No Connection specified!\n" . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__));
+		$connection_type = $self->config('connection_type') || Lab::Exception::CorruptParameter->throw( error => "No Connection specified!\n" . Lab::Exception::Base::Appendix());
 		if($self->_checkconnection("Lab::Connection::" . $self->config('connection_type'))) {
 
 			$full_connection = "Lab::Connection::" . $connection_type;
@@ -154,11 +154,11 @@ sub _setconnection { # $self->setconnection() create new or use existing connect
 
 			# yep - pass all the parameters on to the connection, it will take the ones it needs.
 			# This way connection setup can be handled generically. Conflicting parameter names? Let's try it.
-			$self->connection( $full_connection->new ($config) ) || Lab::Exception::Error->throw( error => "Failed to create connection $full_connection!\n" . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__) );
+			$self->connection( $full_connection->new ($config) ) || Lab::Exception::Error->throw( error => "Failed to create connection $full_connection!\n" . Lab::Exception::Base::Appendix() );
 
 			use strict;
 		}
-		else { Lab::Exception::CorruptParameter->throw( error => "Given Connection not supported!\n" . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__)); }
+		else { Lab::Exception::CorruptParameter->throw( error => "Given Connection not supported!\n" . Lab::Exception::Base::Appendix()); }
 	}
 }
 
@@ -201,7 +201,7 @@ sub device_settings {
 		$value = {@_};
 	}
 	else {  # uneven sized list - don't know what to do with that one
-		Lab::Exception::CorruptParameter->throw( error => "Corrupt parameters given to " . __PACKAGE__ . "::device_settings().\n"  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__) );
+		Lab::Exception::CorruptParameter->throw( error => "Corrupt parameters given to " . __PACKAGE__ . "::device_settings().\n"  . Lab::Exception::Base::Appendix() );
 	}
 
 	if(ref($value) =~ /HASH/) {  # it's a hash - merge into current settings
@@ -234,7 +234,7 @@ sub connection_settings {
 		$value = {@_};
 	}
 	else {  # uneven sized list - don't know what to do with that one
-		Lab::Exception::CorruptParameter->throw( error => "Corrupt parameters given to " . __PACKAGE__ . "::connection_settings().\n"  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__) );
+		Lab::Exception::CorruptParameter->throw( error => "Corrupt parameters given to " . __PACKAGE__ . "::connection_settings().\n"  . Lab::Exception::Base::Appendix() );
 	}
 
 	if(ref($value) =~ /HASH/) {  # it's a hash - merge into current settings
@@ -291,12 +291,12 @@ sub AUTOLOAD {
 	elsif( $name =~ qr/^(get_|set_)(.*)$/ && exists $self->device_settings()->{$2} ) {
 		if( $1 eq 'set_' ) {
 			$value = shift;
-			if( !defined $value || ref($value) ne "" ) { Lab::Exception::CorruptParameter->throw( error => "No or no scalar value given to generic set function $AUTOLOAD in " . __PACKAGE__ . "::AUTOLOAD().\n"  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__) ); }
-			if( @_ > 0 ) { Lab::Exception::CorruptParameter->throw( error => "Too many values given to generic set function $AUTOLOAD " . __PACKAGE__ . "::AUTOLOAD().\n"  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__) ); }
+			if( !defined $value || ref($value) ne "" ) { Lab::Exception::CorruptParameter->throw( error => "No or no scalar value given to generic set function $AUTOLOAD in " . __PACKAGE__ . "::AUTOLOAD().\n"  . Lab::Exception::Base::Appendix() ); }
+			if( @_ > 0 ) { Lab::Exception::CorruptParameter->throw( error => "Too many values given to generic set function $AUTOLOAD " . __PACKAGE__ . "::AUTOLOAD().\n"  . Lab::Exception::Base::Appendix() ); }
 			return $self->device_settings()->{$2} = $value;
 		}
 		else {
-			if( @_ > 0 ) { Lab::Exception::CorruptParameter->throw( error => "Too many values given to generic get function $AUTOLOAD " . __PACKAGE__ . "::AUTOLOAD().\n"  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__) ); }
+			if( @_ > 0 ) { Lab::Exception::CorruptParameter->throw( error => "Too many values given to generic get function $AUTOLOAD " . __PACKAGE__ . "::AUTOLOAD().\n"  . Lab::Exception::Base::Appendix() ); }
 			return $self->device_settings($2);
 		}
 	}
@@ -308,7 +308,7 @@ sub AUTOLOAD {
 		}
 	}
 	else {
-		Lab::Exception::Warning->throw( error => "AUTOLOAD in " . __PACKAGE__ . " couldn't access field '${name}'.\n" . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__) );
+		Lab::Exception::Warning->throw( error => "AUTOLOAD in " . __PACKAGE__ . " couldn't access field '${name}'.\n" . Lab::Exception::Base::Appendix() );
 	}
 }
 

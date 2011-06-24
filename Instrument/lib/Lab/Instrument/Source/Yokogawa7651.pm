@@ -249,7 +249,7 @@ sub get_range{
             case 4 {$range=1} #1V
             case 5 {$range=10} #10V
             case 6 {$range=30} #30V
-            else { Lab::Exception::CorruptParameter->throw( error=>"Range $range_nr not defined\n" . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__) ); }
+            else { Lab::Exception::CorruptParameter->throw( error=>"Range $range_nr not defined\n" . Lab::Exception::Base::Appendix() ); }
         }
     }
     elsif ($func_nr==5){
@@ -257,10 +257,10 @@ sub get_range{
             case 4 {$range=1e-3} #1mA
             case 5 {$range=10e-3} #10mA
             case 6 {$range=100e-3} #100mA
-            else { Lab::Exception::CorruptParameter->throw( error=>"Range $range_nr not defined\n" . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__) ); }
+            else { Lab::Exception::CorruptParameter->throw( error=>"Range $range_nr not defined\n" . Lab::Exception::Base::Appendix() ); }
         }
     }
-    else { Lab::Exception::CorruptParameter->throw( error=>"Function not defined: $func_nr\n" . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__) ); }
+    else { Lab::Exception::CorruptParameter->throw( error=>"Function not defined: $func_nr\n" . Lab::Exception::Base::Appendix() ); }
     #printf "$range\n";
     return $range
     
@@ -269,7 +269,7 @@ sub get_range{
 sub set_run_mode {
     my $self=shift;
     my $value=shift;
-    if ($value!=0 and $value!=1) { Lab::Exception::CorruptParameter->throw( error=>"Run Mode $value not defined\n" . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__) ); }
+    if ($value!=0 and $value!=1) { Lab::Exception::CorruptParameter->throw( error=>"Run Mode $value not defined\n" . Lab::Exception::Base::Appendix() ); }
     my $cmd=sprintf("M%u",$value);
     $self->connection()->Write( command  => $cmd );
 }
@@ -378,7 +378,8 @@ L<Lab::Instrument::Source> and provides all functionality described there.
 
 =head2 get_info()
 
-Returns the information provided by the instrument's 'OS' command.
+Returns the information provided by the instrument's 'OS' command, in the form of an array
+with one entry per line. For display, use join(',',$yoko->get_info()); or similar.
 
 =head2 output_on()
 

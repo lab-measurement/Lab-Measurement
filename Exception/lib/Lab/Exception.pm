@@ -11,6 +11,7 @@ package Lab::Exception::Base;
 our @ISA = ("Exception::Class::Base");
 
 #use Carp;
+use Data::Dumper;
 
 sub new {
 	my $proto = shift;
@@ -20,19 +21,32 @@ sub new {
 }
 
 #
-# convenience routine - receives __LINE__, __PACKAGE__, __FILE__ (typically) and returns a uniform appendix made up from this information
+# convenience routine - receives __LINE__, __PACKAGE__, __FILE__, subroutine (typically) and returns a uniform appendix made up from this information
 #
 sub Appendix {	# $line, $file, $package
 	shift if( ref($_[0]) eq 'HASH' ); # omit $self
-	my ($line, $package, $file) = ( shift, shift, shift);
+	my $line=undef;
+	my $package=undef;
+	my $file=undef;
+	my $subroutine=undef;
+	if(scalar(@_) > 0) {
+		($line, $package, $file, $subroutine) = ( shift, shift, shift, shift);
+	}
+	else {
+		# looks like the "line"-feedback of caller($i) is the line where the function of level $i is called
+		# so to get the line where the exception occured, query the line of caller(0)
+		($line, $package, $file, $subroutine) = ( (caller(0))[2], (caller(1))[0,1,3] );
+	}
 
 	my $appendix = "";
-	$appendix .= "Line:    $line\n" if defined($line);
-	$appendix .= "Package: $package\n" if defined($package);
-	$appendix .= "File:    $file\n" if defined($file);
+	$appendix .= "   Subroutine:    $subroutine\n" if defined($subroutine);
+	$appendix .= "   Line:    $line\n" if defined($line);
+	$appendix .= "   File:    $file\n" if defined($file);
+	$appendix = "\n" . $appendix if($appendix ne "");
 
 	return $appendix;
 }
+
 
 
 
