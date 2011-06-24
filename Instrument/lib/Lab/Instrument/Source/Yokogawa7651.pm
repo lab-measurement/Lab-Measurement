@@ -10,6 +10,12 @@ our @ISA=('Lab::Instrument::Source');
 my %fields = (
 	supported_connections => [ 'GPIB', 'VISA', 'DEBUG' ],
 
+	# default settings for the supported connections
+	connection_settings => {
+		gpib_board => 0,
+		gpib_address => 22,
+	}
+
 	device_settings => {
 		gate_protect            => 1,
 		gp_equal_level          => 1e-5,
