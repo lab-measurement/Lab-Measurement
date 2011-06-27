@@ -72,6 +72,9 @@ sub new {
 		Lab::Exception::CorruptParameter->throw( error=>'Default channel number is not within the available channels.' . Lab::Exception::Base::Appendix());
 	}
 
+	#
+	# This will parse in all the settings given to the constructor (gate protect, custom default_device_settings etc.)
+	#
 	$self->configure($self->config());
 
 	$self->default_channel($self->config('default_channel')) if defined($self->config('default_channel'));
@@ -87,6 +90,9 @@ sub new {
 	
 		$self->parent_source($self->config('parent_source'));
 		$self->gpData($self->config('gpData'));
+
+		# shared connection *should* be okay, but keep this in mind
+		$self->connection($self->parent_source()->connection());
 	}
 	else {
 		# fill gpData
@@ -117,10 +123,12 @@ sub configure {
 	#   ...
 	#   equivalent: $source->configure({ gate_protect=>1, gp_max_volt_per_second=>0.1, ...)
 	my $config=shift;
-	if( ref($config) !~ /HASH/ ) {
+	if( ref($config) ne 'HASH' ) {
 		Lab::Exception::CorruptParameter->throw( error=>'Given Configuration is not a hash.' . Lab::Exception::Base::Appendix());
 	}
 	else {
+		$self->default_device_settings($config->{'default_device_settings'}) if ( defined($config->{'default_device_settings'}) && ref($config->{'default_device_settings'}) eq 'HASH' );
+
 		for my $conf_name (keys %{$self->device_settings()}) {
 			#print "Key: $conf_name, default: ",$self->{default_config}->{$conf_name},", old config: ",$self->{config}->{$conf_name},", new config: ",$config->{$conf_name},"\n";
 			if( defined($config->{$conf_name}) ) {		# in given config? => set value
@@ -140,7 +148,7 @@ sub GetSubSource { #{ Channel=>2, config1=>fasl, config2=>foo };
 	my $self=shift;
 	my $class = ref($self);
 	my $constructor = "${class}::new";
-	my $subsource = &$constructor({ Bus=>$self->Bus(), parent_source=>$self, gpData=>$self->gpData(), %{$self->default_device_settings()} });
+	my $subsource = &$constructor({ parent_source=>$self, gpData=>$self->gpData(), %{$self->default_device_settings()} });
 	$self->child_sources([ @{$self->child_sources}, $subsource ]);
 	return $subsource;
 }
@@ -561,21 +569,12 @@ Additionally, this class provides a safety mechanism called C<gate_protect>
 to protect delicate samples. It includes automatic limitations of sweep rates,
 voltage step sizes, minimal and maximal voltages.
 
-The only user application of this class is to define a voltage source object
-which represents a single channel of a multi-channel voltage source. 
-Otherwise, you will always have to instantiate classes derived from Lab::Instrument::Source. 
+There's no direct user application of this class. To derive a separate object for a channel of a multi-channel source,
+use the GetSubSource() method.
 
 =head1 CONSTRUCTOR
 
-  $self=new Lab::Instrument::Source({ MultiSource=><SourceObject>, Channel=><int>, ...configuration parameters, see below... });
-
-This constructor can be used to create a source object which represents
-channel C<$channel> of the multi-channel voltage source C<$multisource>.
-The default configuration of this source is the configuration of C<$multisource>;
-it can be partially or entirely overridden by just adding the changed config parameters.
-
-
-  $self=new Lab::Instrument::Source(\%default_config,\%config);
+  $self=new Lab::Instrument::Source(\%config);
 
 This constructor will only be used by instrument drivers that inherit this class,
 not by the user. It accepts an additional configuration hash. The first hash contains the parameters
