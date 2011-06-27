@@ -147,8 +147,9 @@ sub configure {
 sub GetSubSource { #{ Channel=>2, config1=>fasl, config2=>foo };
 	my $self=shift;
 	my $class = ref($self);
-	my $constructor = "${class}::new";
-	my $subsource = &$constructor({ parent_source=>$self, gpData=>$self->gpData(), %{$self->default_device_settings()} });
+	no strict 'refs';
+	my $subsource = new $class ({ parent_source=>$self, gpData=>$self->gpData(), %{$self->default_device_settings()} });
+	use strict;
 	$self->child_sources([ @{$self->child_sources}, $subsource ]);
 	return $subsource;
 }
@@ -577,8 +578,8 @@ use the GetSubSource() method.
   $self=new Lab::Instrument::Source(\%config);
 
 This constructor will only be used by instrument drivers that inherit this class,
-not by the user. It accepts an additional configuration hash. The first hash contains the parameters
-used by default for this device and its subchannels, if any. The second hash can be used to override
+not by the user. It accepts an additional configuration hash as parameter 'default_device_settings'.
+The first hash contains the parameters used by default for this device and its subchannels, if any. The second hash can be used to override
 options for this instance while still using the defaults for derived objects. If \%config is missing,
 \%default_config is used.
 
