@@ -1,4 +1,4 @@
-package Lab::Instrument::Source::Yokogawa7651;
+package Lab::Instrument::Yokogawa7651;
 use strict;
 use Switch;
 use Lab::Instrument;
