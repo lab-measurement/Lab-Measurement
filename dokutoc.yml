@@ -24,7 +24,7 @@ toc:
           - Instrument/lib/Lab/Instrument/HP34401A.pm
       - Voltage Sources:
           - Instrument/lib/Lab/Instrument/Source.pm
-          - Instrument/lib/Lab/Instrument/Source/Yokogawa7651.pm
+          - Instrument/lib/Lab/Instrument/Yokogawa7651.pm
   - The Lab::Tools package:
       - Tools/lib/Lab/Data/Writer.pm
       - Tools/lib/Lab/Measurement.pm
