@@ -15,8 +15,8 @@ toc:
       - Connection classes:
           - Connection/lib/Lab/Connection/DEBUG.pm
           - Connection/lib/Lab/Connection/GPIB.pm
-          - Connection/lib/Lab/Connection/MODBUS_RS232.pm
-          - Connection/lib/Lab/Connection/RS232.pm
+#          - Connection/lib/Lab/Connection/MODBUS_RS232.pm
+#          - Connection/lib/Lab/Connection/RS232.pm
           - Connection/lib/Lab/Connection/VISA.pm
   - The Lab::Instrument package:
       - Instrument/lib/Lab/Instrument.pm
@@ -25,6 +25,8 @@ toc:
       - Voltage Sources:
           - Instrument/lib/Lab/Instrument/Source.pm
           - Instrument/lib/Lab/Instrument/Yokogawa7651.pm
+      - Amplifiers:
+          - Instrument/lib/Lab/Instrument/SR830.pm
   - The Lab::Tools package:
       - Tools/lib/Lab/Data/Writer.pm
       - Tools/lib/Lab/Measurement.pm

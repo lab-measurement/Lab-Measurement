@@ -33,7 +33,6 @@ our %fields = (
 sub new {
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
-	my $twin = undef;
 	my $self = $class->SUPER::new(@_); # getting fields and _permitted from parent class
 	$self->_construct(__PACKAGE__, \%fields);
 
@@ -67,4 +66,97 @@ sub new {
 
 
 1;
+
+=head1 NAME
+
+Lab::Connection::GPIB - base class for GPIB connections
+
+=head1 SYNOPSIS
+
+This is the base class for all connections providing a GPIB interface.
+Every inheriting classes constructors should start as follows:
+
+	sub new {
+		my $proto = shift;
+		my $class = ref($proto) || $proto;
+		my $self = $class->SUPER::new(@_);
+		$self->_construct(__PACKAGE__); #initialize fields etc.
+		...
+	}
+
+=head1 DESCRIPTION
+
+C<Lab::Connection::GPIB> is the base class for all connections providing a GPIB interface. It is not usable on its own.
+It inherits from C<Lab::Connection>.
+
+Its main use so far is to define the data fields common to all GPIB interfaces.
+
+=head1 CONSTRUCTOR
+
+=head2 new
+
+Generally called in child class constructor:
+
+ my $self = $class->SUPER::new(@_);
+
+Return blessed $self, with @_ accessible through $self->Config().
+
+=head1 METHODS
+
+This just calls back on the methods inherited from Lab::Connection.
+
+If you inherit this class in your own connection however, you have to provide the following methods.
+Take a look at e.g. L<Lab::Connection::VISA_GPIB> and at the basic implementations in L<Lab::Connection> (they may even suffice).
+
+=head3 Write()
+
+  Takes a config hash, has to at least pass the key 'command' correctly to the underlying bus.
+
+=head3 Read()
+
+  Takes a config hash, reads back a message from the device.
+
+
+=head3 Clear()
+  Clears the instrument.
+
+
+=head2 config
+
+Provides unified access to the fields in initial @_ to all the cild classes.
+E.g.
+
+ $GPIB_PAddress=$instrument->Config(GPIB_PAddress);
+
+Without arguments, returns a reference to the complete $self->Config aka @_ of the constructor.
+
+ $Config = $connection->Config();
+ $GPIB_PAddress = $connection->Config()->{'GPIB_PAddress'};
+ 
+=head1 CAVEATS/BUGS
+
+Probably view. Mostly because there's not a lot to be done here. Please report.
+
+=head1 SEE ALSO
+
+=over 4
+
+=item L<Lab::Connection>
+
+=item L<Lab::Connection::LinuxGPIB>
+
+=item L<Lab::Connection::VISA_GPIB>
+
+=back
+
+=head1 AUTHOR/COPYRIGHT
+
+This is $Id$
+
+ Copyright 2011      Florian Olbrich
+
+This library is free software; you can redistribute it and/or modify it under the same
+terms as Perl itself.
+
+=cut
 

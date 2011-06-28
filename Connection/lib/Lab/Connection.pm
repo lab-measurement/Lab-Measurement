@@ -85,7 +85,7 @@ sub BrutalRead {
 	my $options=undef;
 	if (ref $_[0] eq 'HASH') { $options=shift }
 	else { $options={@_} }
-	$options->{'Brutal'} = 1;
+	$options->{'brutal'} = 1;
 	
 	return $self->Read($options);
 }
@@ -234,7 +234,7 @@ Lab::Connection - connection base class
 
 =head1 SYNOPSIS
 
-This is meant to be used as a base class for inheriting instruments only.
+This is the base class for all connections.
 Every inheriting classes constructors should start as follows:
 
 	sub new {
@@ -247,28 +247,17 @@ Every inheriting classes constructors should start as follows:
 
 =head1 DESCRIPTION
 
-C<Lab::Connection> is a base class for individual connections. It doesn't do anything on its own.
-For more detailed information on the use of connection objects, take a look on a child class, e.g.
-C<Lab::Connection::GPIB>.
+C<Lab::Connection> is the base class for all connections and implements a generic set of access methods. It doesn't do anything on its own.
 
-In C<%Lab::Connection::ConnectionList> resides a hash which contains references to all the active connections in your program.
-They are put there by the constructor of the individual connection C<Lab::Connection::new()> and have two levels: Package name and
-a unique connection ID (GPIB board index offers itself for GPIB). This is to transparently (to the use interface) reuse connection objects,
-as there may only be one connection object for every (hardware) connection. weaken() is used on every reference stored in this hash, so
-it doesn't prevent object destruction when the last "real" reference is lost.
-Yes, this breaks object orientation a little, but it comes so handy!
+A connection in general is an object which is created by an instrument and provides it with a generic set of methods to talk
+to its hardware counterpart.
+For example Lab::Instrument::HP34401A can work with any connection of the type GPIB, that is, connections derived from Lab::Connection::GPIB.
 
-our %Lab::Connection::ConnectionList = [
+That would be, for example
+  Lab::Connection::LinuxGPIB
+  Lab::Connection::VISA_GPIB
 
-	$Package => {
-		$UniqueID => $Object,
-	}
-
-	'Lab::Connection::GPIB' => {
-		'0' => $Object,		"0" is the gpib board index, here
-	}
-
-Place your twin searching code in $self->_search_twin(). Make sure it evaluates $self->IgnoreTwin(). Look at Lab::Connection::GPIB.
+Towards the instrument, these look the same, but they work with different drivers/backends.
 
 
 =head1 CONSTRUCTOR
@@ -283,7 +272,71 @@ Return blessed $self, with @_ accessible through $self->Config().
 
 =head1 METHODS
 
-=head2 Config
+=head2 Clear
+
+Try to clear the connection, if the bus supports it.
+
+=head2 Read
+
+  my $result = $connection->Read();
+  my $result = $connection->Read( timeout => 30 );
+
+  configuration hash options:
+   brutal => <1/0>   # suppress timeout errors if set to 1
+   read_length => <int>   # how many bytes/characters to read
+   ...see bus documentation
+
+Reads a string from the connected device. In this basic form, its merely a wrapper to the
+method connection_read() of the used bus.
+You can give a configuration hash, which options are passed on to the bus.
+This hash is also meant for options to Read itself, if need be.
+
+=head2 Write
+
+  $connection->Write( command => '*CLS' );
+
+  configuration hash options:
+   command => <command string>
+   ...more (see bus documentation)
+
+Write a command string to the connected device. In this basic form, its merely a wrapper to the
+method connection_write() of the used bus.
+You need to supply a configuration hash, with at least the key 'command' set.
+This hash is also meant for options to Read itself, if need be.
+
+=head2 Query
+
+  my $result = $connection->Query( command => '*IDN?' );
+
+  configuration hash options:
+   command => <command string>
+   wait_query => <wait time between read and write in usec>   # overwrites the connection default
+   brutal => <1/0>   # suppress timeout errors if set to true
+   read_length => <int>   # how many bytes/characters to read
+   ...more (see bus documentation)
+
+Write a command string to the connected device, and immediately read the response.
+
+You need to supply a configuration hash with at least the 'command' key set.
+The wait_query key sets the time to wait between read and write in usecs.
+The hash is also passed along to the used bus methods.
+
+=head2 BrutalRead
+
+The same as read with the 'brutal' option set to 1.
+
+=head2 BrutalQuery
+
+The same as Query with the 'brutal' option set to 1.
+
+=head2 LongQuery
+
+The same as Query with 'read_length' set to 10240.
+
+
+
+
+=head2 config
 
 Provides unified access to the fields in initial @_ to all the cild classes.
 E.g.
@@ -297,17 +350,18 @@ Without arguments, returns a reference to the complete $self->Config aka @_ of t
  
 =head1 CAVEATS/BUGS
 
-Probably view. Mostly because there's not a lot to be done here.
+Probably view. Mostly because there's not a lot to be done here. Please report.
 
 =head1 SEE ALSO
 
 =over 4
 
 =item L<Lab::Connection::GPIB>
+=item L<Lab::Connection::VISA_GPIB>
 
 =item L<Lab::Connection::MODBUS>
 
-=item and many more...
+=item and all the others...
 
 =back
 
