@@ -1,10 +1,70 @@
 #!/usr/bin/perl -w
 
 
+
+
+package Lab::Connection::DEBUG;
 use strict;
+use Time::HiRes qw (usleep sleep);
+use Lab::Connection;
+use Data::Dumper;
+use Carp;
 
-package Lab::Connection::DEBUG::HumanInstrument;
+our @ISA = ("Lab::Connection");
 
+
+our %fields = (
+	bus_class => "Lab::Bus::DEBUG",
+	brutal => 0,	# brutal as default?
+	type => 'DEBUG',
+	wait_status=>10, # usec;
+	wait_query=>10, # usec;
+	query_length=>300, # bytes
+	query_long_length=>10240, #bytes
+	read_length => 1000, # bytesx
+
+	instrument_index => 0,
+);
+
+
+sub new {
+	my $proto = shift;
+	my $class = ref($proto) || $proto;
+	my $twin = undef;
+	my $self = $class->SUPER::new(@_); # getting fields and _permitted from parent class
+	$self->_construct(__PACKAGE__, \%fields);
+
+	return $self;
+}
+
+
+
+=head1 NAME
+
+Lab::Connection::DEBUG - debug connection
+
+
+=head1 DESCRIPTION
+
+Connection to the DEBUG bus.
+
+=cut
+
+
+
+
+
+
+
+
+
+
+
+
+
+package Lab::Bus::DEBUG::HumanInstrument;
+
+use strict;
 use base "Wx::App";
 use Wx qw(wxTE_MULTILINE wxDefaultPosition);
 
@@ -30,18 +90,22 @@ sub OnInit {
 
 
 
-package Lab::Connection::DEBUG;
+
+
+package Lab::Bus::DEBUG;
 use strict;
 use threads;
 use threads::shared;
 use Thread::Semaphore;
 use Scalar::Util qw(weaken);
 use Time::HiRes qw (usleep sleep);
-use Lab::Connection;
+use Lab::Bus;
 use Data::Dumper;
 use Carp;
 
-our @ISA = ("Lab::Connection");
+use Lab::Exception
+
+our @ISA = ("Lab::Bus");
 
 our $thr = undef;
 
@@ -69,15 +133,15 @@ sub new {
 	# no twin search - just register
 	if( $class eq __PACKAGE__ ) { # careful - do only if this is not a parent class constructor
 		my $i = 0;
-		while(defined $Lab::Connection::ConnectionList{$self->type()}->{$i}) { $i++; }
-		$Lab::Connection::ConnectionList{$self->type()}->{$i} = $self;
-		weaken($Lab::Connection::ConnectionList{$self->type()}->{$i});
+		while(defined $Lab::Bus::BusList{$self->type()}->{$i}) { $i++; }
+		$Lab::Bus::BusList{$self->type()}->{$i} = $self;
+		weaken($Lab::Bus::BusList{$self->type()}->{$i});
 	}
 
 	# This is not and will be no gui application, so start the gui main loop in a thread.
 	# A little process communication will soon follow...
 	print "Starting 'human instrument' console.\n";
-	my $human_console = new Lab::Connection::DEBUG::HumanInstrument();
+	my $human_console = new Lab::Bus::DEBUG::HumanInstrument();
 	$thr = threads->create( sub { $human_console->MainLoop(); print "NOOOOO!"; } );
 
 
@@ -87,25 +151,25 @@ sub new {
 }
 
 
-sub InstrumentNew { # @_ = ({ resource_name => $resource_name })
+sub connection_new { # @_ = ({ resource_name => $resource_name })
 	my $self = shift;
 	my $args = undef;
 	my $status = undef;
-	my $instrument_handle=undef;
+	my $connection_handle=undef;
 	if (ref $_[0] eq 'HASH') { $args=shift } # try to be flexible about options as hash/hashref
 	else { $args={@_} }
 
-	$instrument_handle = { debug_instr_index => $self->instrument_index() };
+	$connection_handle = { debug_instr_index => $self->instrument_index() };
 
 	$self->instrument_index($self->instrument_index() + 1 );
 
-	return $instrument_handle;   
+	return $connection_handle;   
 }
 
 
-sub InstrumentRead { # @_ = ( $instrument_handle, $args = { read_length, brutal }
+sub connection_read { # @_ = ( $connection_handle, $args = { read_length, brutal }
 	my $self = shift;
-	my $instrument_handle=shift;
+	my $connection_handle=shift;
 	my $args = undef;
 	if (ref $_[0] eq 'HASH') { $args=shift } # try to be flexible about options as hash/hashref
 	else { $args={@_} }
@@ -124,8 +188,8 @@ sub InstrumentRead { # @_ = ( $instrument_handle, $args = { read_length, brutal 
 	( $message = <<ENDMSG ) =~ s/^\t+//gm;
 
 
-		  DEBUG connection
-		  InstrumentRead called on Instrument No. $instrument_handle->{'debug_instr_index'}
+		  DEBUG bus
+		  connection_read called on Instrument No. $connection_handle->{'debug_instr_index'}
 		  Brutal:      $brutal_txt
 		  Read length: $read_length
 
@@ -140,14 +204,14 @@ ENDMSG
 	if( $result =~ /^(T!).*/) {
 		$result = substr($result, 2);
 		Lab::Exception::Timeout->throw(
-			error => "Timeout in " . __PACKAGE__ . "::InstrumentRead().\n",
+			error => "Timeout in " . __PACKAGE__ . "::connection_read().\n",
 			data => $result,
 		);
 	}
 	elsif( $result =~ /^(E!).*/) {
 		$result = substr($result, 2);
 		Lab::Exception::Error->throw(
-			error => "Error in " . __PACKAGE__ . "::InstrumentRead().\n",
+			error => "Error in " . __PACKAGE__ . "::connection_read().\n",
 		);
 	}
 
@@ -158,14 +222,15 @@ ENDMSG
 
 
 
-sub InstrumentWrite { # @_ = ( $instrument_handle, $args = { command, wait_status }
+sub connection_write { # @_ = ( $connection_handle, $args = { command, wait_status }
 	my $self = shift;
-	my $instrument_handle=shift;
+	my $connection_handle=shift;
 	my $args = undef;
 	if (ref $_[0] eq 'HASH') { $args=shift } # try to be flexible about options as hash/hashref
 	else { $args={@_} }
 
 	my $command = $args->{'command'} || undef;
+	if (!defined $command) { Lab::Exception::CorruptParameter->throw( error => "No command given to " . __PACKAGE__ . "::connection_write\n"  . Lab::Exception::Base::Appendix()); }
 	my $brutal = $args->{'brutal'} || $self->brutal();
 	my $read_length = $args->{'read_length'} || $self->read_length();
 	my $wait_status = $args->{'wait_status'} || $self->wait_status();
@@ -180,8 +245,8 @@ sub InstrumentWrite { # @_ = ( $instrument_handle, $args = { command, wait_statu
 	( $message = <<ENDMSG ) =~ s/^\t+//gm;
 
 
-		  DEBUG connection
-		  InstrumentWrite called on Instrument No. $instrument_handle->{'debug_instr_index'}
+		  DEBUG bus
+		  connection_write called on Instrument No. $connection_handle->{'debug_instr_index'}
 		  Command:     $command
 		  Brutal:      $brutal_txt
 		  Read length: $read_length
@@ -196,14 +261,14 @@ ENDMSG
 
 	if(!defined $command) {
 		Lab::Exception::CorruptParameter->throw(
-			error => "No command given to " . __PACKAGE__ . "::InstrumentWrite().\n",
+			error => "No command given to " . __PACKAGE__ . "::connection_write().\n",
 		);
 	}
 	else {
 
 		if ( $user_return eq 'E' ) {
 			Lab::Exception::Error->throw(
-				error => "Error in " . __PACKAGE__ . "::InstrumentWrite() while executing $command.",
+				error => "Error in " . __PACKAGE__ . "::connection_write() while executing $command.",
 			);
 		}
 
@@ -214,9 +279,9 @@ ENDMSG
 
 
 
-sub InstrumentQuery { # @_ = ( $instrument_handle, $args = { command, read_length, wait_status, wait_query, brutal }
+sub connection_query { # @_ = ( $connection_handle, $args = { command, read_length, wait_status, wait_query, brutal }
 	my $self = shift;
-	my $instrument_handle=shift;
+	my $connection_handle=shift;
 	my $args = undef;
 	if (ref $_[0] eq 'HASH') { $args=shift } # try to be flexible about options as hash/hashref
 	else { $args={@_} }
@@ -233,11 +298,11 @@ sub InstrumentQuery { # @_ = ( $instrument_handle, $args = { command, read_lengt
 	my $read_cnt = undef;
 
 
-    $write_cnt=$self->InstrumentWrite($args);
+    $write_cnt=$self->connection_write($args);
 
     print "\nwait_query: $wait_query usec\n";
 
-    $result=$self->InstrumentRead($args);
+    $result=$self->connection_read($args);
     return $result;
 }
 
@@ -252,12 +317,12 @@ sub _search_twin {
 
 =head1 NAME
 
-Lab::Connection::DEBUG - debug connection
+Lab::Bus::DEBUG - debug bus
 
 
 =head1 DESCRIPTION
 
-This will be an interactive debug connection, which lets you enter responses to your skript.
+This will be an interactive debug bus, which lets you enter responses to your skript.
 
 
 

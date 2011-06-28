@@ -11,18 +11,7 @@ use Data::Dumper;
 our @ISA = ("Lab::Instrument");
 
 our %fields = (
-	# SupportedConnections => [ 'GPIB', 'RS232' ],	# in principle RS232, too, but not implemented (yet)
-	supported_connections => [ 'GPIB', 'DEBUG' ],
-
-	# default settings for the supported connections
-	connection_settings => {
-		gpib_board => 0,
-		gpib_address => undef,
-	},
-
-	device_settings => {
-	},
-
+	supported_connections => [ 'RS232', 'DEBUG'	],
 );
 
 

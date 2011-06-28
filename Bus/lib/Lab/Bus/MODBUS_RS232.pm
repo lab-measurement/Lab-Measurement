@@ -1,18 +1,18 @@
 #!/usr/bin/perl -w
 
 #
-# MODBUS connection driver.
+# MODBUS bus driver.
 # The MODBUS standard defines a protocol to access the memory of connected devices,
 # possible interfaces are RS485/RS232 and Ethernet.
-# For now this driver uses Lab::Connection::RS232 as backend. It's main use is to
+# For now this driver uses Lab::Bus::RS232 as backend. It's main use is to
 # generate the checksums used by MODBUS RTU. The memory addresses are device specific and
 # have to be stored in the according Instrument packages.
 #
 
 use strict;
 
-package Lab::Connection::MODBUS_RS232;
-use Lab::Connection::RS232;
+package Lab::Bus::MODBUS_RS232;
+use Lab::Bus::RS232;
 use Carp;
 use Data::Dumper;
 
@@ -21,13 +21,13 @@ use Thread::Semaphore;
 
 
 # setup this variable to add inherited functions later
-our @ISA = ("Lab::Connection::RS232");
+our @ISA = ("Lab::Bus::RS232");
 
 our $INS_DEBUG=0; # do we need additional output?
 
 my @crctab = ();
 
-my $ConnSemaphore = Thread::Semaphore->new();	# a semaphore to prevent simultaneous use of the connection by multiple threads
+my $ConnSemaphore = Thread::Semaphore->new();	# a semaphore to prevent simultaneous use of the bus by multiple threads
 
 my %fields = (
 	type => 'RS232',
@@ -44,17 +44,17 @@ sub new {
 	$self->_construct(__PACKAGE__, \%fields);
 
 
-	# search for twin in %Lab::Connection::ConnectionList. If there's none, place $self there and weaken it.
+	# search for twin in %Lab::Bus::BusList. If there's none, place $self there and weaken it.
 	# note to self: put this in base class/_construct if possible
-	# note to self2: think about how to block access to this RS232 port for a plain Lab::Connection::RS232 connection.
+	# note to self2: think about how to block access to this RS232 port for a plain Lab::Bus::RS232 bus.
 	if( $class eq __PACKAGE__ ) { # careful - do only if this is not a parent class constructor
 		if($twin = $self->_search_twin()) {
 			undef $self;
 			return $twin;	# ...and that's it.
 		}
 		else {
-			$Lab::Connection::ConnectionList{$self->type()}->{$self->port()} = $self;
-			weaken($Lab::Connection::ConnectionList{$self->type()}->{$self->port()});
+			$Lab::Bus::BusList{$self->type()}->{$self->port()} = $self;
+			weaken($Lab::Bus::BusList{$self->type()}->{$self->port()});
 		}
 	}
 
@@ -77,7 +77,7 @@ sub InstrumentNew {
 		$slave_address = $args{'slave_address'};
 	}
 	else {
-		Lab::Exception::CorruptParameter->throw( error => 'No or invalid MODBUS Slave Address given. I can\'t work like this!' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__), );
+		Lab::Exception::CorruptParameter->throw( error => 'No or invalid MODBUS Slave Address given. I can\'t work like this!' . Lab::Exception::Base::Appendix(), );
 	}
 
 	my $Instrument=  { valid => 1, type => "MODBUS_RS232", slave_address => $slave_address };  
@@ -110,9 +110,9 @@ sub InstrumentRead { # @_ = ( $instrument_handle, $args = { function, mem_addres
 	my @AnswerArr = ();
 	my @TmpArr = ();
 
-	if( !defined $function || $function != 3 ) { Lab::Exception::CorruptParameter->throw( error => 'Undefined or unimplemented function code' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__), ); }
-	if( !defined $mem_address || $mem_address < 0 || $mem_address > 0xFFFF ) { Lab::Exception::CorruptParameter->throw( error => 'Invalid memory address' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__), ); }
-	if( $mem_count < 1 ) { Lab::Exception::CorruptParameter->throw( error => 'Invalid count of registers to be read' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__), ); }
+	if( !defined $function || $function != 3 ) { Lab::Exception::CorruptParameter->throw( error => 'Undefined or unimplemented function code' . Lab::Exception::Base::Appendix(), ); }
+	if( !defined $mem_address || $mem_address < 0 || $mem_address > 0xFFFF ) { Lab::Exception::CorruptParameter->throw( error => 'Invalid memory address' . Lab::Exception::Base::Appendix(), ); }
+	if( $mem_count < 1 ) { Lab::Exception::CorruptParameter->throw( error => 'Invalid count of registers to be read' . Lab::Exception::Base::Appendix(), ); }
 
 	@MessageArr = $self->_MB_CRC( pack('C',$instrument_handle->{slave_address}),pack('C',$function), pack('n',$mem_address), pack('n',$mem_count) );
 	$Message = join('',$self->_chrlist(@MessageArr));
@@ -185,9 +185,9 @@ sub InstrumentWrite { # @_ = ( $instrument_handle, $args = { function, mem_addre
 	my $ErrCount=3;
 
 
-	if( !defined $function || $function != 6 ) { Lab::Exception::CorruptParameter->throw( error => 'Undefined or unimplemented function code' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__), ); }
-	if( !defined $mem_address || $mem_address < 0 || $mem_address > 0xFFFF ) { Lab::Exception::CorruptParameter->throw( error => 'Invalid memory address' . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__), ); }
-	if(unpack('n!',$SendValue) != $mem_value) { Lab::Exception::CorruptParameter->throw( error => "Invalid Memory Value $mem_value" . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__), ); }
+	if( !defined $function || $function != 6 ) { Lab::Exception::CorruptParameter->throw( error => 'Undefined or unimplemented function code' . Lab::Exception::Base::Appendix(), ); }
+	if( !defined $mem_address || $mem_address < 0 || $mem_address > 0xFFFF ) { Lab::Exception::CorruptParameter->throw( error => 'Invalid memory address' . Lab::Exception::Base::Appendix(), ); }
+	if(unpack('n!',$SendValue) != $mem_value) { Lab::Exception::CorruptParameter->throw( error => "Invalid Memory Value $mem_value" . Lab::Exception::Base::Appendix(), ); }
 
 	@MessageArr = $self->_MB_CRC( pack('C',$Instrument->{slave_address}), pack('C',$function), pack('n',$mem_address), $SendValue);
 	$Message = join('',$self->_chrlist(@MessageArr));
@@ -316,12 +316,12 @@ sub _MB_CRC { # @Message as character array, e.g. ( chr(1), pack('C',$address), 
 
 =head1 NAME
 
-Lab::Connection::MODBUS_RS232 - Perl extension for interfacing with instruments via RS232/RS485 using the MODBUS RTU protocol
+Lab::Bus::MODBUS_RS232 - Perl extension for interfacing with instruments via RS232/RS485 using the MODBUS RTU protocol
 
 =head1 SYNOPSIS
 
-	use Lab::Connection::MODBUS_RS232;
-	my $h = Lab::Connection::MODBUS_RS232->new({
+	use Lab::Bus::MODBUS_RS232;
+	my $h = Lab::Bus::MODBUS_RS232->new({
 		Interface => 'RS232',
 		Port => 'COM1|/dev/ttyUSB1'
 		slave_address => '1'
@@ -334,7 +334,7 @@ Lab::Connection::MODBUS_RS232 - Perl extension for interfacing with instruments 
 =head1 DESCRIPTION
 
 This is an interface package for Lab::Instruments to communicate via RS232/RS485 with a MODBUS RTU enabled device.
-It uses Lab::Connection::RS232 (RS485 can be done using a RS232<->RS485 converter for now). It's main use is to calculate the
+It uses Lab::Bus::RS232 (RS485 can be done using a RS232<->RS485 converter for now). It's main use is to calculate the
 checksums needed by MODBUS RTU.
 
 Refer to your device for the correct port configuration.
@@ -343,7 +343,7 @@ Refer to your device for the correct port configuration.
 
 =head2 new
 
-All parameters are used as by C<Device::SerialPort> respectively C<Lab::Connection::RS232>.
+All parameters are used as by C<Device::SerialPort> respectively C<Lab::Bus::RS232>.
 'Port' is needed in every case. Default value for timeout is 500ms and can be set by the parameter "Timeout".
 Other options you probably have to set: Handshake, Baudrate, Databits, Stopbits and Parity.
 
@@ -378,9 +378,9 @@ This is a prototype...
 
 =over 4
 
-=item L<Lab::Connection>
+=item L<Lab::Bus>
 
-=item L<Lab::Connection::RS232>
+=item L<Lab::Bus::RS232>
 
 =item L<Lab::Instrument>
 

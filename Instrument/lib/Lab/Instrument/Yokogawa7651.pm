@@ -1,29 +1,31 @@
-#$Id$
-
-package Lab::Instrument::Source::Yokogawa7651;
+package Lab::Instrument::Yokogawa7651;
 use strict;
 use Switch;
 use Lab::Instrument;
 use Lab::Instrument::Source;
 
-our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
 
 our @ISA=('Lab::Instrument::Source');
 
 my %fields = (
-	# supported_connectors => [ 'GPIB', 'RS232' ], # RS232 not implemented yet
-	supported_connectors => [ 'GPIB', 'VISA', 'DEBUG' ],
+	supported_connections => [ 'GPIB', 'VISA', 'DEBUG' ],
 
-	channel_defaultconfig => {
+	# default settings for the supported connections
+	connection_settings => {
+		gpib_board => 0,
+		gpib_address => 22,
+	},
+
+	device_settings => {
 		gate_protect            => 1,
 		gp_equal_level          => 1e-5,
 		gp_max_volt_per_second  => 0.002,
 		gp_max_volt_per_step    => 0.001,
 		gp_max_step_per_second  => 2,
-	},
 
-	max_sweep_time=>3600,
-	min_sweep_time=>0.1,
+		max_sweep_time=>3600,
+		min_sweep_time=>0.1,
+	},
 );
 
 sub new {
@@ -31,7 +33,7 @@ sub new {
 	my $class = ref($proto) || $proto;
 	my $self = $class->SUPER::new(@_);
 	$self->_construct(__PACKAGE__, \%fields); 	# this sets up all the object fields out of the inheritance tree.
-												# also, it does generic connector setup.
+												# also, it does generic bus setup.
 
 	# already called in Lab::Instrument::Source, but call it again to respect default values in local channel_defaultconfig
 	$self->configure($self->config());
@@ -61,61 +63,61 @@ sub _set {
     my $self=shift;
     my $value=shift;
     my $cmd=sprintf("S%e",$value);
-	$self->Write( command  => $cmd );
+	$self->connection()->Write( command  => $cmd );
     $cmd="E";
-	$self->Write( command  => $cmd );
+	$self->connection()->Write( command  => $cmd );
 }
 
 sub _set_auto {
     my $self=shift;
     my $value=shift;
     my $cmd=sprintf("SA%e",$value);
-	$self->Write( command  => $cmd );
+	$self->connection()->Write( command  => $cmd );
     $cmd="E";
-	$self->Write( command  => $cmd );
+	$self->connection()->Write( command  => $cmd );
 }
 
 sub set_setpoint {
     my $self=shift;
     my $value=shift;
     my $cmd=sprintf("S%+.4e",$value);
-	$self->Write( command  => $cmd );
+	$self->connection()->Write( command  => $cmd );
 }
 
 sub set_time {
     my $self=shift;
     my $sweep_time=shift; #sec.
     my $interval_time=shift;
-    if ($sweep_time<$self->min_sweep_time()) {
-        warn "Warning Sweep Time: $sweep_time smaller than ${\$self->min_sweep_time()} sec!\n Sweep time set to ${\$self->min_sweep_time()} sec";
-        $sweep_time=$self->min_sweep_time()}
-    elsif ($sweep_time>$self->max_sweep_time()) {
-        warn "Warning Sweep Time: $sweep_time> ${\$self->max_sweep_time()} sec!\n Sweep time set to ${\$self->max_sweep_time()} sec";
-        $sweep_time=$self->max_sweep_time()
+    if ($sweep_time<$self->device_settings('min_sweep_time')) {
+        warn "Warning Sweep Time: $sweep_time smaller than ${\$self->device_settings('min_sweep_time')} sec!\n Sweep time set to ${\$self->device_settings('min_sweep_time')} sec";
+        $sweep_time=$self->device_settings('min_sweep_time')}
+    elsif ($sweep_time>$self->device_settings('max_sweep_time')) {
+        warn "Warning Sweep Time: $sweep_time> ${\$self->device_settings('max_sweep_time')} sec!\n Sweep time set to ${\$self->device_settings('max_sweep_time')} sec";
+        $sweep_time=$self->device_settings('max_sweep_time')
     };
-    if ($interval_time<$self->min_sweep_time()) {
-        warn "Warning Interval Time: $interval_time smaller than ${\$self->min_sweep_time()} sec!\n Interval time set to ${\$self->min_sweep_time()} sec";
-        $interval_time=$self->min_sweep_time()}
-    elsif ($interval_time>$self->max_sweep_time()) {
-        warn "Warning Interval Time: $interval_time> ${\$self->max_sweep_time()} sec!\n Interval time set to ${\$self->max_sweep_time()} sec";
-        $interval_time=$self->max_sweep_time()
+    if ($interval_time<$self->device_settings('min_sweep_time')) {
+        warn "Warning Interval Time: $interval_time smaller than ${\$self->device_settings('min_sweep_time')} sec!\n Interval time set to ${\$self->device_settings('min_sweep_time')} sec";
+        $interval_time=$self->device_settings('min_sweep_time')}
+    elsif ($interval_time>$self->device_settings('max_sweep_time')) {
+        warn "Warning Interval Time: $interval_time> ${\$self->device_settings('max_sweep_time')} sec!\n Interval time set to ${\$self->device_settings('max_sweep_time')} sec";
+        $interval_time=$self->device_settings('max_sweep_time')
     };
     my $cmd=sprintf("PI%.1f",$interval_time);
-	$self->Write( command  => $cmd );
+	$self->connection()->Write( command  => $cmd );
     $cmd=sprintf("SW%.1f",$sweep_time);
-	$self->Write( command  => $cmd );
+	$self->connection()->Write( command  => $cmd );
 }
 
 sub start_program {
     my $self=shift;
     my $cmd=sprintf("PRS");
-	$self->Write( command  => $cmd );
+	$self->connection()->Write( command  => $cmd );
 }
 
 sub end_program {
     my $self=shift;
     my $cmd=sprintf("PRE");
-	$self->Write( command  => $cmd );
+	$self->connection()->Write( command  => $cmd );
 }
 sub execute_program {
     # 0 HALT
@@ -125,7 +127,7 @@ sub execute_program {
     my $self=shift;
     my $value=shift;
     my $cmd=sprintf("RU%d",$value);
-	$self->Write( command  => $cmd );
+	$self->connection()->Write( command  => $cmd );
     
 }
 
@@ -150,14 +152,14 @@ sub sweep {
     $self->end_program();
 
     my $time=abs($output_now -$stop)/$rate;
-    if ($time<$self->min_sweep_time()) {
-        warn "Warning Sweep Time: $time smaller than ${\$self->min_sweep_time()} sec!\n Sweep time set to ${\$self->min_sweep_time()} sec";
-        $time=$self->min_sweep_time();
+    if ($time<$self->device_settings('min_sweep_time')) {
+        warn "Warning Sweep Time: $time smaller than ${\$self->device_settings('min_sweep_time')} sec!\n Sweep time set to ${\$self->device_settings('min_sweep_time')} sec";
+        $time=$self->device_settings('min_sweep_time');
         $return_rate=abs($output_now -$stop)/$time;
     }
-    elsif ($time>$self->max_sweep_time()) {
-        warn "Warning Interval Time: $time> ${\$self->max_sweep_time()} sec!\n Sweep time set to ${\$self->max_sweep_time()} sec";
-        $time=$self->max_sweep_time();
+    elsif ($time>$self->device_settings('max_sweep_time')) {
+        warn "Warning Interval Time: $time> ${\$self->device_settings('max_sweep_time')} sec!\n Sweep time set to ${\$self->device_settings('max_sweep_time')} sec";
+        $time=$self->device_settings('max_sweep_time');
         $return_rate=abs($output_now -$stop)/$time;
     }
     $self->set_time($time,$time);
@@ -178,7 +180,7 @@ sub get_current {
 sub _get {
     my $self=shift;
     my $cmd="OD";
-    my $result=$self->Read( command  => $cmd );
+    my $result=$self->connection()->Query( command  => $cmd );
     $result=~/....([\+\-\d\.E]*)/;
     return $1;
 }
@@ -186,13 +188,13 @@ sub _get {
 sub set_current_mode {
     my $self=shift;
     my $cmd="F5";
-    $self->Write( command  => $cmd );
+    $self->connection()->Write( command  => $cmd );
 }
 
 sub set_voltage_mode {
     my $self=shift;
     my $cmd="F1";
-    $self->Write( command  => $cmd );
+    $self->connection()->Write( command  => $cmd );
 }
 
 sub set_range {
@@ -209,21 +211,15 @@ sub set_range {
       # 4   1mA
       # 5   10mA
       # 6   100mA
-    $self->Write( command  => $cmd );
+    $self->connection()->Write( command  => $cmd );
 }
 
 sub get_info {
     my $self=shift;
-    my $result=$self->Read( command  => "OS"});
-    return $result;
-}
-
-sub get_OS {
-    my $self=shift;
-    $self->Write( command  => "OS"});
+    $self->connection()->Write( command  => "OS" );
     my @info;
     for (my $i=0;$i<=10;$i++){
-        my $line=$self->Read( read_length => 300 );
+        my $line=$self->connection()->Read( read_length => 300 );
         if ($line=~/END/){last};
         chomp $line;
         $line=~s/\r//;
@@ -253,7 +249,7 @@ sub get_range{
             case 4 {$range=1} #1V
             case 5 {$range=10} #10V
             case 6 {$range=30} #30V
-            else { Lab::Exception::CorruptParameter->throw( error=>"Range $range_nr not defined\n" . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__) ); }
+            else { Lab::Exception::CorruptParameter->throw( error=>"Range $range_nr not defined\n" . Lab::Exception::Base::Appendix() ); }
         }
     }
     elsif ($func_nr==5){
@@ -261,10 +257,10 @@ sub get_range{
             case 4 {$range=1e-3} #1mA
             case 5 {$range=10e-3} #10mA
             case 6 {$range=100e-3} #100mA
-            else { Lab::Exception::CorruptParameter->throw( error=>"Range $range_nr not defined\n" . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__) ); }
+            else { Lab::Exception::CorruptParameter->throw( error=>"Range $range_nr not defined\n" . Lab::Exception::Base::Appendix() ); }
         }
     }
-    else { Lab::Exception::CorruptParameter->throw( error=>"Function not defined: $func_nr\n" . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__) ); }
+    else { Lab::Exception::CorruptParameter->throw( error=>"Function not defined: $func_nr\n" . Lab::Exception::Base::Appendix() ); }
     #printf "$range\n";
     return $range
     
@@ -273,21 +269,21 @@ sub get_range{
 sub set_run_mode {
     my $self=shift;
     my $value=shift;
-    if ($value!=0 and $value!=1) { Lab::Exception::CorruptParameter->throw( error=>"Run Mode $value not defined\n" . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__) ); }
+    if ($value!=0 and $value!=1) { Lab::Exception::CorruptParameter->throw( error=>"Run Mode $value not defined\n" . Lab::Exception::Base::Appendix() ); }
     my $cmd=sprintf("M%u",$value);
-    $self->Write( command  => $cmd );
+    $self->connection()->Write( command  => $cmd );
 }
 
 sub output_on {
     my $self=shift;
-    $self->Write( command  => 'O1'});
-    $self->Write( command  => 'E'});
+    $self->connection()->Write( command  => 'O1' );
+    $self->connection()->Write( command  => 'E' );
 }
     
 sub output_off {
     my $self=shift;
-    $self->Write( command  => 'O0'});
-    $self->Write( command  => 'E'});
+    $self->connection()->Write( command  => 'O0' );
+    $self->connection()->Write( command  => 'E' );
 }
 
 sub get_output {
@@ -298,26 +294,26 @@ sub get_output {
 
 sub initialize {
     my $self=shift;
-    $self->Write( command  => 'RC'});
+    $self->connection()->Write( command  => 'RC' );
 }
 
 sub set_voltage_limit {
     my $self=shift;
     my $value=shift;
     my $cmd=sprintf("LV%e",$value);
-    $self->Write( command  => $cmd );
+    $self->connection()->Write( command  => $cmd );
 }
 
 sub set_current_limit {
     my $self=shift;
     my $value=shift;
     my $cmd=sprintf("LA%e",$value);
-    $self->Write( command  => 'RC'});
+    $self->connection()->Write( command  => 'RC' );
 }
 
 sub get_status {
     my $self=shift;
-    my $status=$self->Write( command  => 'OC'});
+    my $status=$self->connection()->Write( command  => 'OC' );
     
     $status=~/STS1=(\d*)/;
     $status=$1;
@@ -342,7 +338,10 @@ Lab::Instrument::Yokogawa7651 - Yokogawa 7651 DC source
 
     use Lab::Instrument::Yokogawa7651;
     
-    my $gate14=new Lab::Instrument::Yokogawa7651(0,11);
+    my $gate14=new Lab::Instrument::Yokogawa7651(
+      connection_type => 'LinuxGPIB',
+      gpib_address => 22,
+    );
     $gate14->set_range(5);
     $gate14->set_voltage(0.745);
     print $gate14->get_voltage();
@@ -379,7 +378,8 @@ L<Lab::Instrument::Source> and provides all functionality described there.
 
 =head2 get_info()
 
-Returns the information provided by the instrument's 'OS' command.
+Returns the information provided by the instrument's 'OS' command, in the form of an array
+with one entry per line. For display, use join(',',$yoko->get_info()); or similar.
 
 =head2 output_on()
 
@@ -419,9 +419,9 @@ The value for each key is either 0 or 1, indicating the status of the instrument
 
 =head2 DC voltage
 
-The stability (24h) is the value at 23 +- 1°C. The stability (90days),
-accuracy (90days) and accuracy (1year) are values at 23 +- 5°C.
-The temperature coefficient is the value at 5 to 18°C and 28 to 40°C.
+The stability (24h) is the value at 23 +- 1ï¿½C. The stability (90days),
+accuracy (90days) and accuracy (1year) are values at 23 +- 5ï¿½C.
+The temperature coefficient is the value at 5 to 18ï¿½C and 28 to 40ï¿½C.
 
 
  Range  Maximum     Resolution  Stability 24h   Stability 90d   
@@ -439,7 +439,7 @@ The temperature coefficient is the value at 5 to 18°C and 28 to 40°C.
  Range  Accuracy 90d    Accuracy 1yr    Temperature
         +-(% of setting +-(% of setting Coefficient
         +muV)           +muV)           +-(% of setting
-                                        +muV)/°C
+                                        +muV)/ï¿½C
  -----------------------------------------------------
  10mV   0.018 + 4       0.025 + 5       0.0018 + 0.7
  100mV  0.018 + 10      0.025 + 10      0.0018 + 0.7
@@ -478,7 +478,7 @@ Common mode rejection:
  Range   Accuracy (90 days)  Accuracy (1 year)   Temperature  
          +-(% of setting     +-(% of setting     Coefficient     
          + muA)              + muA)              +-(% of setting  
-                                                 + muA)/°C        
+                                                 + muA)/ï¿½C        
  -----   ------------------------------------------------------  
  1mA     0.02 + 0.1          0.03 + 0.1          0.0015 + 0.01   
  10mA    0.02 + 0.5          0.03 + 0.5          0.0015 + 0.1    
@@ -521,8 +521,9 @@ The Yokogawa7651 class is a Source (L<Lab::Instrument::Source>)
 
 This is $Id$
 
- (c) 2004-2006 Daniel Schröer
- (c) 2007-2010 Daniel Schröer, Daniela Taubert, Andreas Hüttel, and others
+ (c) 2004-2006 Daniel SchrÃ¶er
+ (c) 2007-2010 Daniel SchrÃ¶er, Daniela Taubert, Andreas HÃ¼ttel, and others
+ (c) 2011 Florian Olbrich
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 

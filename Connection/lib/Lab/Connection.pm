@@ -1,7 +1,4 @@
 #!/usr/bin/perl -w
-# POD
-
-#$Id$
 
 package Lab::Connection;
 
@@ -17,17 +14,11 @@ our $AUTOLOAD;
 
 our @ISA = ();
 
-our $VERSION = sprintf("1.%04d", q$Revision$ =~ / (\d+) /);
-
-# this holds a list of references to all the connection objects that are floating around in memory,
-# to enable transparent connection reuse, so the user doesn't have to handle (or even know about,
-# to that end) connection objects. weaken() is used so the reference in this list does not prevent destruction
-# of the object when the last "real" reference is gone.
-our %ConnectionList = (
-	# ConnectionType => $ConnectionReference,
-);
 
 our %fields = (
+	connection_handle => undef,
+	bus => undef, # set default here in child classes, e.g. bus => "GPIB"
+	bus_class => undef,
 	config => undef,
 	type => undef,	# e.g. 'GPIB'
 	ignore_twins => 0, # 
@@ -54,6 +45,101 @@ sub new {
 }
 
 
+
+#
+# generic methods - interface definition
+#
+
+
+sub Clear {
+	my $self=shift;
+	
+	return $self->bus()->connection_clear($self->connection_handle()) if ($self->bus()->can('connection_clear'));
+	# error message
+	warn "Clear function is not implemented in the bus ".ref($self->bus())."\n"  . Lab::Exception::Base::Appendix();
+}
+
+
+sub Write {
+	my $self=shift;
+	my $options=undef;
+	if (ref $_[0] eq 'HASH') { $options=shift }
+	else { $options={@_} }
+	
+	return $self->bus()->connection_write($self->connection_handle(), $options);
+}
+
+
+sub Read {
+	my $self=shift;
+	my $options=undef;
+	if (ref $_[0] eq 'HASH') { $options=shift }
+	else { $options={@_} }
+
+	return $self->bus()->connection_read($self->connection_handle(), $options);
+}
+
+
+sub BrutalRead {
+	my $self=shift;
+	my $options=undef;
+	if (ref $_[0] eq 'HASH') { $options=shift }
+	else { $options={@_} }
+	$options->{'Brutal'} = 1;
+	
+	return $self->Read($options);
+}
+
+
+
+sub Query {
+	my $self=shift;
+	my $options=undef;
+	if (ref $_[0] eq 'HASH') { $options=shift }
+	else { $options={@_} }
+
+	my $wait_query=$options->{'wait_query'} || $self->wait_query();
+
+	$self->Write( $options );
+	usleep($wait_query);
+	return $self->Read($options);
+}
+
+
+
+sub LongQuery {
+	my $self=shift;
+	my $options=undef;
+	if (ref $_[0] eq 'HASH') { $options=shift }
+	else { $options={@_} }
+
+	$options->{read_length} = 10240;
+	return $self->Query($options);
+}
+
+
+sub BrutalQuery {
+	my $self=shift;
+	my $options=undef;
+	if (ref $_[0] eq 'HASH') { $options=shift }
+	else { $options={@_} }
+
+	$options->{brutal} = 1;
+	return $self->Query($options);
+}
+
+
+
+
+
+
+
+#
+# infrastructure stuff below
+#
+
+
+
 #
 # Call this in inheriting class's constructors to conveniently initialize the %fields object data
 #
@@ -66,34 +152,30 @@ sub _construct {	# _construct(__PACKAGE__, %fields);
 		$self->{_permitted}->{$element} = $fields->{$element};
 	}
 	@{$self}{keys %{$fields}} = values %{$fields};
+
+	if( $class eq $package ) {
+		$self->_setbus();
+	}
 }
 
 
 #
-# this is a stub. In child classes, this should search %Lab::Connection::ConnectionList for a reusable
-# instance (and be called in the constructor).
+# Method to handle bus creation generically. This is called by _construct().
+# If the following (rather simple code) doesn't suit your child class, or your need to
+# introduce more thorough parameter checking and/or conversion, overwrite it - _construct()
+# calls it only if it is called by the topmost class in the inheritance hierarchy itself.
 #
-# e.g.
-# return $self->_search_twin() || $self;
+# set $self->connection_handle
 #
-sub _search_twin {
-	return 0;
+sub _setbus { # $self->setbus() create new or use existing bus
+	my $self=shift;
+	my $bus_class = $self->bus_class();
+
+	$self->bus(eval("require $bus_class; new $bus_class(\$self->config());")) || Lab::Exception::Error->throw( error => "Failed to create bus $bus_class in " . __PACKAGE__ . "::_setbus.\n"  . Lab::Exception::Base::Appendix());
+
+	# again, pass it all.
+	$self->connection_handle( $self->bus()->connection_new( $self->config() ));
 }
-
-sub InstrumentRead {
-	return 0;
-}
-
-sub InsrumentWrite {
-	return 0;
-}
-
-sub InstrumentNew {
-	return 0;
-}
-
-
-
 
 
 #
@@ -124,7 +206,7 @@ sub AUTOLOAD {
 	$name =~ s/.*://; # strip fully qualified portion
 
 	unless (exists $self->{_permitted}->{$name} ) {
-		Lab::Exception::Error->throw( error => "AUTOLOAD in " . __PACKAGE__ . " couldn't access field '${name}'.\n"  . Lab::Exception::Base::Appendix(__LINE__, __PACKAGE__, __FILE__));
+		Lab::Exception::Error->throw( error => "AUTOLOAD in " . __PACKAGE__ . " couldn't access field '${name}'.\n"  . Lab::Exception::Base::Appendix());
 	}
 
 	if (@_) {
@@ -233,10 +315,7 @@ Probably view. Mostly because there's not a lot to be done here.
 
 This is $Id$
 
- Copyright 2004-2006 Daniel Schröer <schroeer@cpan.org>, 
-           2009-2010 Daniel Schröer, Andreas K. Hüttel (L<http://www.akhuettel.de/>) and David Kalok,
-	       2010      Matthias Völker <mvoelker@cpan.org>
-           2011      Florian Olbrich
+ Copyright 2011      Florian Olbrich
 
 This library is free software; you can redistribute it and/or modify it under the same
 terms as Perl itself.

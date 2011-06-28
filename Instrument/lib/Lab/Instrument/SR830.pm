@@ -6,11 +6,10 @@ use Data::Dumper;
 use Carp;
 use Time::HiRes qw (usleep);
 
-our $VERSION = sprintf("0.%04d", q$Revision: 720 $ =~ / (\d+) /);
 our @ISA = ("Lab::Instrument");
 
 my %fields = (
-	supported_connectors => [ 'GPIB', 'VISA', 'DEBUG' ],
+	supported_connections => [ 'GPIB', 'VISA_GPIB', 'DEBUG' ],
 );
 
 sub new {
@@ -18,45 +17,47 @@ sub new {
 	my $class = ref($proto) || $proto;
 	my $self = $class->SUPER::new(@_);
 	$self->_construct(__PACKAGE__, \%fields); 	# this sets up all the object fields out of the inheritance tree.
-												# also, it does generic connector setup.
+												# also, it does generic bus setup.
 
-
-	$self->InstrumentHandle( $self->Connector()->InstrumentNew(GPIB_Paddr => $self->config('GPIB_Paddress')) );
 	return $self;
 }
 
+
+#
+# utility methods
+#
 
 sub empty_buffer{
     my $self=shift;
     my $times=shift;
     for (my $i=0;$i<$times;$i++) {
-		eval { $self->Read( brutal => 1 ) };
+		eval { $self->connection()->Read( brutal => 1 ) };
     }
 }
 
 sub set_frequency {
     my ($self,$freq)=@_;
-    $self->Write(Cmd => "FREQ $freq");
+    $self->connection()->Write(command => "FREQ $freq");
 }
 
 sub get_frequency {
     my $self = shift;
-    my $freq=$self->Read( command => "FREQ?");
+    my $freq=$self->connection()->Read( command => "FREQ?");
     chomp $freq;
     return "$freq Hz";
 }
 
 sub set_amplitude {
     my ($self,$ampl)=@_;
-    $self->Write( command => "SLVL $ampl");
-    my $realampl=$self->Read( command => "SLVL?");
+    $self->connection()->Write( command => "SLVL $ampl");
+    my $realampl=$self->connection()->Read( command => "SLVL?");
     chomp $realampl;
     return "$realampl V";
 }
 
 sub get_amplitude {
     my $self = shift;
-    my $ampl=$self->Read( command => "SLVL?");
+    my $ampl=$self->connection()->Read( command => "SLVL?");
     chomp $ampl;
     return "$ampl V";
 }
@@ -93,7 +94,7 @@ sub set_sens {
     elsif ($sens <= 2E-1 ) { $nr = 24; }
     elsif ($sens <= 5E-1 ) { $nr = 25; }
 
-    $self->Write( command => "SENS $nr");
+    $self->connection()->Write( command => "SENS $nr");
 
     my $realsens = $self->{vi}->Query("SENS?");
     my @senses = ("2 nV", "5 nV", "10 nV", "20 nV", "50 nV", "100 nV", "200 nV", "500 nV", "1 µV", "2 µV", "5 µV", "10 µV", "20 µV", "50 µV", "100 nV", "200 nV", "500 µV", "1 mV", "2 mV", "5 mV", "10 mV", "20 mV", "50 mV", "100 mV", "200 mV", "500 mV", "1V");
@@ -104,7 +105,7 @@ sub get_sens {
 
     my @senses = ("2 nV", "5 nV", "10 nV", "20 nV", "50 nV", "100 nV", "200 nV", "500 nV", "1 µV", "2 µV", "5 µV", "10 µV", "20 µV", "50 µV", "100 µV", "200 µV", "500 µV", "1 mV", "2 mV", "5 mV", "10 mV", "20 mV", "50 mV", "100 mV", "200 mV", "500 mV", "1V");
     my $self = shift;
-    my $nr=$self->Read( command => "SENS?");
+    my $nr=$self->connection()->Read( command => "SENS?");
     return $senses[$nr];
 }
 
@@ -150,10 +151,10 @@ sub set_tc {
     elsif ($tc < 3000 ) { $nr = 17; }
     elsif ($tc < 10000 ) { $nr = 18; }
 
-    $self->Write( command => "OFLT $nr");
+    $self->connection()->Write( command => "OFLT $nr");
 
     my @tc = ("10 µs", "30µs", "100 µs", "300 µs", "1 ms", "3 ms", "10 ms", "30 ms", "100 ms", "300 ms", "1 s", "3 s", "10 s", "30 s", "100 s", "300 s", "1000 s", "3000 s", "10000 s", "30000 s");
-    my $realtc=$self->Read( command => "OFLT?");
+    my $realtc=$self->connection()->Read( command => "OFLT?");
     return $tc[$realtc];
 
 
@@ -164,7 +165,7 @@ sub get_tc {
     my @tc = ("10 µs", "30µs", "100 µs", "300 µs", "1 ms", "3 ms", "10 ms", "30 ms", "100 ms", "300 ms", "1 s", "3 s", "10 s", "30 s", "100 s", "300 s", "1000 s", "3000 s", "10000 s", "30000 s");
 
     my $self = shift;
-    my $nr=$self->Read( command => "OFLT?");
+    my $nr=$self->connection()->Read( command => "OFLT?");
     return $tc[$nr];
 }
 
@@ -172,7 +173,7 @@ sub read_xy {
 
     # get value of X and Y channel (recorded simultaneously) as array
     my $self = shift;
-    my $tmp=$self->Read( command => "SNAP?1,2");
+    my $tmp=$self->connection()->Read( command => "SNAP?1,2");
     chomp $tmp;
     my @arr = split(/,/,$tmp);
     return @arr;
@@ -182,7 +183,7 @@ sub read_rphi {
 
     # get value of amplitude and phase (recorded simultaneously) as array
     my $self = shift;
-    my $tmp=$self->Read( command => "SNAP?3,4");
+    my $tmp=$self->connection()->Read( command => "SNAP?3,4");
     chomp $tmp;
     my @arr = split(/,/,$tmp);
     return @arr;
@@ -193,10 +194,10 @@ sub read_channels {
     # get value of channel1 and channel2 as array
     my $self = shift;
 
-    $self->Read( command => "OUTR?1");
-    $self->Read( command => "OUTR?2");
-    my $x=$self->Read( command => "OUTR?1");
-    my $y=$self->Read( command => "OUTR?2" );
+    $self->connection()->Read( command => "OUTR?1");
+    $self->connection()->Read( command => "OUTR?2");
+    my $x=$self->connection()->Read( command => "OUTR?1");
+    my $y=$self->connection()->Read( command => "OUTR?2" );
     chomp $x;
     chomp $y;
     my @arr = ($x,$y);
@@ -206,13 +207,13 @@ sub read_channels {
 
 sub id {
     my $self=shift;
-    $self->Read( command => '*IDN?');
+    return $self->connection()->Query( command => '*IDN?', read_length => 300);
 }
 
 sub send_commands {
     my ($self,@commands)=@_;
     for (@commands) {
-        $self->Write( command => $_);
+        $self->connection()->Write( command => $_);
     }
 }
 
