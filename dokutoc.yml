@@ -13,11 +13,12 @@ toc:
   - The Lab::Connection package:
       - Connection/lib/Lab/Connection.pm
       - Connection classes:
-          - Connection/lib/Lab/Connection/DEBUG.pm
+#          - Connection/lib/Lab/Connection/DEBUG.pm
           - Connection/lib/Lab/Connection/GPIB.pm
 #          - Connection/lib/Lab/Connection/MODBUS_RS232.pm
 #          - Connection/lib/Lab/Connection/RS232.pm
           - Connection/lib/Lab/Connection/VISA.pm
+          - Connection/lib/Lab/Connection/VISA_GPIB.pm
   - The Lab::Instrument package:
       - Instrument/lib/Lab/Instrument.pm
       - Multimeters:
@@ -34,5 +35,5 @@ toc:
       - Tools/lib/Lab/Data/XMLtree.pm
       - Tools/lib/Lab/Data/Plotter.pm
       - Tools/scripts/plotter.pl
-  - Cookbook example scripts:
-      - Cookbook/Lock-In-Messung-mit-Temperaturregelung-SR830-und-TLK43.pl
+#  - Cookbook example scripts:
+#      - Cookbook/Lock-In-Messung-mit-Temperaturregelung-SR830-und-TLK43.pl
