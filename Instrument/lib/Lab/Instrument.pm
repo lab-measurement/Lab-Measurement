@@ -142,11 +142,16 @@ sub _setconnection { # $self->setconnection() create new or use existing connect
 #	else {
 #		Lab::Exception::CorruptParameter->throw( error => 'Received no connection object!\n' . Lab::Exception::Base::Appendix() );
 #	}
-	else {
-		$connection_type = $self->config('connection_type') || Lab::Exception::CorruptParameter->throw( error => "No Connection specified!\n" . Lab::Exception::Base::Appendix());
-		if($self->_checkconnection("Lab::Connection::" . $self->config('connection_type'))) {
+	elsif( defined $self->config('connection_type') ) {
+		$connection_type = $self->config('connection_type');
 
-			$full_connection = "Lab::Connection::" . $connection_type;
+		if( $connection_type !~ /^[A-Za-z0-9_\-\:]*$/ ) { Lab::Exception::CorruptParameter->throw( error => "Given connection type is does not look like a valid module name.\n" . Lab::Exception::Base::Appendix()); };
+
+		$full_connection = "Lab::Connection::" . $connection_type;
+		eval("require ${full_connection};") || Lab::Exception::Error->throw( error => "Sorry, I was not able to load the connection ${full_connection}. Is it installed?\n" . Lab::Exception::Base::Appendix() );
+
+		if($self->_checkconnection("Lab::Connection::" . $connection_type)) {
+
 			warn ("new ${full_connection}(\$self->config())");
 
 			# let's get creative
@@ -160,6 +165,8 @@ sub _setconnection { # $self->setconnection() create new or use existing connect
 		}
 		else { Lab::Exception::CorruptParameter->throw( error => "Given Connection not supported!\n" . Lab::Exception::Base::Appendix()); }
 	}
+	else {
+		Lab::Exception::CorruptParameter->throw( error => "Neither a connection nor a connection type was supplied.\n" . Lab::Exception::Base::Appendix());	}
 }
 
 
