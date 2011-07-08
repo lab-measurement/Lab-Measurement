@@ -1,5 +1,5 @@
 ---
-abstract: 'Interface drivers for Lab::Instrument'
+abstract: 'Interface drivers for Lab::Measurement'
 author:
   - 'Daniel Schröer <schroeer@cpan.org>'
 configure_requires:
@@ -36,4 +36,4 @@ resources:
   bugtracker: http://rt.cpan.org/NoAuth/Bugs.html?Dist=Lab-Bus
   homepage: http://labvisa.de
   license: http://dev.perl.org/licenses/
-version: 0.9
+version: 0.5

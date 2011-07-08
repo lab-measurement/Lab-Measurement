@@ -3,6 +3,7 @@ Changes
 lib/Lab/Bus.pm
 lib/Lab/Bus/DEBUG.pm
 lib/Lab/Bus/GPIB.pm
+lib/Lab/Bus/LinuxGPIB.pm
 lib/Lab/Bus/MODBUS_RS232.pm
 lib/Lab/Bus/RS232.pm
 lib/Lab/Bus/VISA.pm

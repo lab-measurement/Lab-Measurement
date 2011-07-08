@@ -1,4 +1,5 @@
 Build.PL
 Changes
 lib/Lab/Exception.pm
+META.yml
 README

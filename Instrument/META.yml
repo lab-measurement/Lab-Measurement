@@ -1,5 +1,5 @@
 ---
-abstract: 'Lab instrument drivers'
+abstract: 'Instrument drivers for Lab::Measurement'
 author:
   - 'Daniel Schröer <schroeer@cpan.org>'
 configure_requires:
@@ -13,28 +13,31 @@ name: Lab-Instrument
 provides:
   Lab::Instrument:
     file: lib/Lab/Instrument.pm
-    version: 1.0793
+    version: 0.9
   Lab::Instrument::HP34401A:
     file: lib/Lab/Instrument/HP34401A.pm
-    version: 0.0720
+    version: 0.95
   Lab::Instrument::SCPI::Agilent33220A:
     file: lib/Lab/Instrument/SCPI/Agilent33220A.pm
-    version: 1.0699
+    version: 0.1
   Lab::Instrument::SCPI::AgilentMSO:
     file: lib/Lab/Instrument/SCPI/AgilentMSO.pm
-    version: 1.0699
+    version: 0.1
   Lab::Instrument::SR830:
     file: lib/Lab/Instrument/SR830.pm
-    version: 0.0720
+    version: 0.4
   Lab::Instrument::Source:
     file: lib/Lab/Instrument/Source.pm
-    version: 1.0777
+    version: 0.9
   Lab::Instrument::Source::Yokogawa7651:
-    file: lib/Lab/Instrument/Source/Yokogawa7651.pm
-    version: 0.0777
+    file: lib/Lab/Instrument/Yokogawa7651.pm
+    version: 0.9
+  Lab::Instrument::Source::YokogawaGS200:
+    file: lib/Lab/Instrument/YokogawaGS200.pm
+    version: 0.2
   Lab::Instrument::TLK43:
     file: lib/Lab/Instrument/TemperatureControl/TLK43.pm
-    version: 0.0720
+    version: 0.2
 requires:
   Lab::Connection: 0.1
   Lab::Exception: 0.1
@@ -44,4 +47,4 @@ resources:
   bugtracker: http://rt.cpan.org/NoAuth/Bugs.html?Dist=Lab-Instrument
   homepage: http://labvisa.de
   license: http://dev.perl.org/licenses/
-version: 2.90
+version: 0.5
