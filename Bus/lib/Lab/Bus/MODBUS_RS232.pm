@@ -6,7 +6,7 @@
 # possible interfaces are RS485/RS232 and Ethernet.
 # For now this driver uses Lab::Bus::RS232 as backend. It's main use is to
 # generate the checksums used by MODBUS RTU. The memory addresses are device specific and
-# have to be stored in the according Instrument packages.
+# have to be stored in the according connection packages.
 #
 
 use strict;
@@ -15,6 +15,8 @@ package Lab::Bus::MODBUS_RS232;
 use Lab::Bus::RS232;
 use Carp;
 use Data::Dumper;
+
+use Scalar::Util qw(weaken);
 
 use threads;
 use Thread::Semaphore;
@@ -65,23 +67,25 @@ sub new {
 
 
 
-sub InstrumentNew {
+sub connection_new {
 	my $self = shift;
-	my $instrument_handle=shift;
 	my $args = undef;
 	if (ref $_[0] eq 'HASH') { $args=shift } # try to be flexible about options as hash/hashref
 	else { $args={@_} }
 
-	my $slave_address;
-	if ( exists $args{'slave_address'} && $args{'slave_address'} =~ /[0-9]*/ && $args{'slave_address'} > 0 && $args{'slave_address'} < 255 ) {
-		$slave_address = $args{'slave_address'};
+	my $connection_handle=undef;
+	my $slave_address=undef;
+
+	if ( exists $args->{'slave_address'} && $args->{'slave_address'} =~ /[0-9]*/ && $args->{'slave_address'} > 0 && $args->{'slave_address'} < 255 ) {
+		$slave_address = $args->{'slave_address'};
 	}
 	else {
 		Lab::Exception::CorruptParameter->throw( error => 'No or invalid MODBUS Slave Address given. I can\'t work like this!' . Lab::Exception::Base::Appendix(), );
 	}
 
-	my $Instrument=  { valid => 1, type => "MODBUS_RS232", slave_address => $slave_address };  
-	return $Instrument;
+	$connection_handle = { valid => 1, type => "MODBUS_RS232", slave_address => $slave_address };
+
+	return $connection_handle;
 }
 
 
@@ -90,9 +94,9 @@ sub InstrumentNew {
 # don't be fooled, these are integers
 # note to self: think this through again
 #
-sub InstrumentRead { # @_ = ( $instrument_handle, $args = { function, mem_address, mem_count }
+sub connection_read { # @_ = ( $connection_handle, $args = { function, mem_address, mem_count }
 	my $self = shift;
-	my $instrument_handle=shift;
+	my $connection_handle=shift;
 	my $args = undef;
 	if (ref $_[0] eq 'HASH') { $args=shift } # try to be flexible about options as hash/hashref
 	else { $args={@_} }
@@ -101,7 +105,7 @@ sub InstrumentRead { # @_ = ( $instrument_handle, $args = { function, mem_addres
 
 	my $function = int($args->{'function'}) || undef;
 	my $mem_address = int($args->{'mem_address'}) || undef;
-	my $mem_count = int($args->{'mem_count'}) || 1;
+	my $mem_count = int($args->{'mem_count'} || 1);
 	my @Result = ();
 	my $Success = 0;
 	my $ErrCount = 0;
@@ -114,15 +118,15 @@ sub InstrumentRead { # @_ = ( $instrument_handle, $args = { function, mem_addres
 	if( !defined $mem_address || $mem_address < 0 || $mem_address > 0xFFFF ) { Lab::Exception::CorruptParameter->throw( error => 'Invalid memory address' . Lab::Exception::Base::Appendix(), ); }
 	if( $mem_count < 1 ) { Lab::Exception::CorruptParameter->throw( error => 'Invalid count of registers to be read' . Lab::Exception::Base::Appendix(), ); }
 
-	@MessageArr = $self->_MB_CRC( pack('C',$instrument_handle->{slave_address}),pack('C',$function), pack('n',$mem_address), pack('n',$mem_count) );
+	@MessageArr = $self->_MB_CRC( pack('C',$connection_handle->{slave_address}),pack('C',$function), pack('n',$mem_address), pack('n',$mem_count) );
 	$Message = join('',$self->_chrlist(@MessageArr));
 	
 	$Success=0;
 	$ErrCount=0;
 	$ConnSemaphore->down();
 	do {
-		$class->SUPER::Write($Message);
-		@AnswerArr = split(//, $class->SUPER::Read('all'));
+		$self->SUPER::_direct_write(command => $Message);
+		@AnswerArr = split(//, $self->SUPER::_direct_read(read_length => 'all'));
 		if(scalar(@AnswerArr) == 0) {
 			warn "Error, no answer received - retrying\n";
 			$ErrCount++;
@@ -165,9 +169,9 @@ sub InstrumentRead { # @_ = ( $instrument_handle, $args = { function, mem_addres
 }
 
 
-sub InstrumentWrite { # @_ = ( $instrument_handle, $args = { function, mem_address, (int_16)mem_value }
+sub connection_write { # @_ = ( $connection_handle, $args = { function, mem_address, (int_16)mem_value }
 	my $self = shift;
-	my $instrument_handle=shift;
+	my $connection_handle=shift;
 	my $args = undef;
 	if (ref $_[0] eq 'HASH') { $args=shift } # try to be flexible about options as hash/hashref
 	else { $args={@_} }
@@ -189,15 +193,15 @@ sub InstrumentWrite { # @_ = ( $instrument_handle, $args = { function, mem_addre
 	if( !defined $mem_address || $mem_address < 0 || $mem_address > 0xFFFF ) { Lab::Exception::CorruptParameter->throw( error => 'Invalid memory address' . Lab::Exception::Base::Appendix(), ); }
 	if(unpack('n!',$SendValue) != $mem_value) { Lab::Exception::CorruptParameter->throw( error => "Invalid Memory Value $mem_value" . Lab::Exception::Base::Appendix(), ); }
 
-	@MessageArr = $self->_MB_CRC( pack('C',$Instrument->{slave_address}), pack('C',$function), pack('n',$mem_address), $SendValue);
+	@MessageArr = $self->_MB_CRC( pack('C',$connection_handle->{slave_address}), pack('C',$function), pack('n',$mem_address), $SendValue);
 	$Message = join('',$self->_chrlist(@MessageArr));
 
 	$Success=0;
 	$ErrCount=0;
 	$ConnSemaphore->down();
 	do {
-		$class->SUPER::Write($Message);
-		@AnswerArr = split(//, $class->SUPER::Read('all'));
+		$self->SUPER::_direct_read(command => $Message);
+		@AnswerArr = split(//, $self->SUPER::_direct_read(read_length => 'all'));
 		if(scalar(@AnswerArr) == 0) {
 			warn "Error, no answer received - retrying\n";
 			$ErrCount++;
@@ -333,7 +337,7 @@ Lab::Bus::MODBUS_RS232 - Perl extension for interfacing with instruments via RS2
 
 =head1 DESCRIPTION
 
-This is an interface package for Lab::Instruments to communicate via RS232/RS485 with a MODBUS RTU enabled device.
+This is an interface package for Lab::Connections to communicate via RS232/RS485 with a MODBUS RTU enabled device.
 It uses Lab::Bus::RS232 (RS485 can be done using a RS232<->RS485 converter for now). It's main use is to calculate the
 checksums needed by MODBUS RTU.
 
@@ -349,9 +353,9 @@ Other options you probably have to set: Handshake, Baudrate, Databits, Stopbits 
 
 =head1 METHODS
 
-Used by C<Lab::Instrument>. Not for direct use!!!
+Used by C<Lab::Connection>. Not for direct use!!!
 
-=head2 InstrumentRead
+=head2 connectionRead
 
 Reads data. Arguments:
 function (0x01,0x02,0x03,0x04 - "Read Coils", "Read Discrete Inputs", "Read Holding Registers", "Read Input Registers")
@@ -360,7 +364,7 @@ mem_address ( 0xFFFF, Address of first word )
 mem_count ( 0xFFFF, Count of words to read )
 
 
-=head2 InstrumentWrite
+=head2 connectionWrite
 
 Send data to instrument. Arguments: 
 function (0x05,0x06,0x0F,0x10 - "Write Single Coil", "Write Single Register", "Write Multiple Coils", "Write Multiple Registers")
@@ -382,7 +386,7 @@ This is a prototype...
 
 =item L<Lab::Bus::RS232>
 
-=item L<Lab::Instrument>
+=item L<Lab::Connection>
 
 =item L<Win32::SerialPort>
 

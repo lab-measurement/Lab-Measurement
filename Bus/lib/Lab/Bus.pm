@@ -10,7 +10,9 @@ use strict;
 use Time::HiRes qw (usleep sleep);
 use POSIX; # added for int() function
 
-use Carp;
+use Scalar::Util qw(weaken);
+
+use Carp qw(croak cluck);
 use Data::Dumper;
 our $AUTOLOAD;
 
@@ -130,6 +132,7 @@ sub AUTOLOAD {
 	$name =~ s/.*://; # strip fully qualified portion
 
 	unless (exists $self->{_permitted}->{$name} ) {
+		cluck("AUTOLOAD in " . __PACKAGE__ . " couldn't access field '${name}'.\n");
 		Lab::Exception::Error->throw( error => "AUTOLOAD in " . __PACKAGE__ . " couldn't access field '${name}'.\n"  . Lab::Exception::Base::Appendix());
 	}
 

@@ -21,7 +21,6 @@ our %fields = (
 	bus_class => undef,
 	config => undef,
 	type => undef,	# e.g. 'GPIB'
-	ignore_twins => 0, # 
 	ins_debug=>0,  # do we need additional output?
 );
 
@@ -37,9 +36,6 @@ sub new {
 	$self->_construct(__PACKAGE__, \%fields);
 
 	$self->config($config);
-
-	# Object data setup
-	$self->ignore_twins($self->config('ignore_twins'));
 
 	return $self;
 }

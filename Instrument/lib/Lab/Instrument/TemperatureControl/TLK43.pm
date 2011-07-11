@@ -3,7 +3,7 @@
 # (over RS232)
 #
 
-package Lab::Instrument::TLK43;
+package Lab::Instrument::TemperatureControl::TLK43;
 
 use strict;
 use Lab::Instrument;
@@ -16,9 +16,9 @@ our $VERSION = sprintf("0.%04d", q$Revision: 720 $ =~ / (\d+) /);
 our @ISA = ("Lab::Instrument");
 
 my %fields = (
-	supported_buses => [ 'MODBUS_RS232' ],
-	instrument_handle => undef,
+	supported_connections => [ 'MODBUS_RS232' ],
 	slave_address => undef,
+	connection => undef,
 
 	MemTable => {
 		Measurement => 			0x0200,		# measured value
@@ -144,46 +144,10 @@ my %fields = (
 sub new {
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
-	my $self = $class->SUPER::new(@_);	# sets $self->config, configures parent class
-	foreach my $element (keys %fields) {
-		$self->{_permitted}->{$element} = $fields{$element};
-	}
-	@{$self}{keys %fields} = values %fields;
+	my $self = $class->SUPER::new(@_);	# sets $self->config
+	$self->_construct(__PACKAGE__, \%fields); 	# this sets up all the object fields out of the inheritance tree.
+												# also, it does generic connection setup.
 
-	return undef unless $self->slave_address($self->config()->{'slave_address'});
-	# check the configuration hash for a valid bus object or bus type, and set the bus
-	if( defined($self->config()->{'Bus'}) ) {
-		if($self->_checkbus($self->config()->{'Bus'})) {
-			$self->Bus($self->config()->{'Bus'});
-		}
-		else { 
-			warn('Given Bus not supported');
-			return undef;
-		}
-	}
-	else {
-		if($self->_checkbus($self->config()->{'ConnType'})) {
-			my $ConnType = $self->config()->{'ConnType'};
-			my $Port = $self->config()->{'Port'};
-			my $slave_address = $self->config()->{'slave_address'};
-			my $Interface = "";
-			if($ConnType eq 'MODBUS_RS232') {
-				$self->config()->{'Interface'} = 'RS232';
-				$self->Bus(new Lab::Bus::MODBUS_RS232( $self->config() )) || croak('Failed to create bus');
-				#$self->Bus(eval("new Lab::Bus::$ConnType( $self->config() )")) || croak('Failed to create bus');
-			}
-			else {
-				warn('Only RS232 bus type supported for now!\n');
-				return undef;
-			 }
-		}
-		else {
-			warn('Given Bus Type not supported');
-			return undef;
-		}
-	}
-
-	$self->instrument_handle( $self->Bus()->InstrumentNew(slave_address => $self->slave_address()) );
 	return $self;
 }
 
@@ -334,7 +298,7 @@ sub read_range { # { mem_address => Address (16bit), MemCount => Count (8bit, (1
 		return undef;
 	}
 	else {
-		return $self->Read( function => 3, mem_address => $mem_address, MemCount => $MemCount );
+		return $self->connection()->Read( function => 3, mem_address => $mem_address, MemCount => $MemCount );
 	}
 }
 
@@ -353,7 +317,7 @@ sub read_address_int { # $Address
 		return undef;
 	}
 	else {
-		@Result = $self->Read( function => 3, mem_address => $mem_address, MemCount => 1 );
+		@Result = $self->connection()->Read( function => 3, mem_address => $mem_address, MemCount => 1 );
 		if(scalar(@Result)==2) { # correct answer has to be two bytes long
 			$SignedValue = unpack('n!', join('', @Result));
 		}
@@ -379,7 +343,7 @@ sub write_address {	# { mem_address => Address (16bit), mem_value => Value (16 b
 		return undef;
 	}
 	else {
-		return $self->Write( function => 6, mem_address => $mem_address, mem_value => $mem_value );
+		return $self->connection()->Write( function => 6, mem_address => $mem_address, mem_value => $mem_value );
 	}
 }
 

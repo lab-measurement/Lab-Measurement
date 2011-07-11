@@ -32,10 +32,7 @@ sub new {
 	my $self = $class->SUPER::new(@_); # getting fields and _permitted from parent class
 	$self->_construct(__PACKAGE__, \%fields);
 
-	# one board - one bus - one bus object
-	if ( exists $self->config()->{'gpib_board'} ) {
-		$self->gpib_board($self->config()->{'gpib_board'}); 
-	} # ... or the default
+	$self->gpib_board($self->config()->{'gpib_board'}) if( exists $self->config()->{'gpib_board'} );
 
 	# search for twin in %Lab::Bus::BusList. If there's none, place $self there and weaken it.
 	if( $class eq __PACKAGE__ ) { # careful - do only if this is not a parent class constructor

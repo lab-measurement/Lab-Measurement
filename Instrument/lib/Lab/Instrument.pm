@@ -152,8 +152,6 @@ sub _setconnection { # $self->setconnection() create new or use existing connect
 
 		if($self->_checkconnection("Lab::Connection::" . $connection_type)) {
 
-			warn ("new ${full_connection}(\$self->config())");
-
 			# let's get creative
 			no strict 'refs';
 

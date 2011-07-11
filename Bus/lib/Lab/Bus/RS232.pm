@@ -9,6 +9,8 @@ use warnings;
 use Lab::Bus;
 use Data::Dumper;
 
+use Scalar::Util qw(weaken);
+
 our @ISA = ("Lab::Bus");
 
 # load serial driver
@@ -17,17 +19,16 @@ BEGIN {
    $OS_win = ($^O eq "MSWin32") ? 1 : 0;
 
    if ($OS_win) {
-     eval "use Win32::Serialport";
+     eval "use Win32::SerialPort";
      die "$@\n" if ($@);
    }
    else {
-     eval "use Device::Serialport";
+     eval "use Device::SerialPort";
      die "$@\n" if ($@);
    }
 } # End BEGIN
 
 our $RS232_DEBUG = 0;
-our $VERSION = sprintf("1.%04d", q$Revision$ =~ / (\d+) /);
 our $WIN32 = ($^O eq "MSWin32") ? 1 : 0;
 
 my %fields = (
@@ -55,7 +56,7 @@ sub new {
 
 	# parameter parsing
 	$self->port($self->config('port')) if defined $self->config('port');
-	warn ("No port supplied to RS232 bus. Assuming default port " . $self->config('port') . "\n") if(!defined $self->config('port')) 
+	warn ("No port supplied to RS232 bus. Assuming default port " . $self->config('port') . "\n") if(!defined $self->config('port'));
 	$self->port($self->config('baudrate')) if defined $self->config('baudrate');
 	$self->parity($self->config('parity')) if defined $self->config('parity');
 	$self->databits($self->config('databits')) if defined $self->config('databits');
@@ -69,37 +70,37 @@ sub new {
 	if( $class eq __PACKAGE__ ) { # careful - do only if this is not a parent class constructor
 		if($twin = $self->_search_twin()) {
 			undef $self;
+			warn "Existing Bus object of type " . $self->type() . " for port " . $self->port() . " found. Reusing.\n"; 
 			return $twin;	# ...and that's it.
 		}
 		else {
-			$Lab::Bus::BusList{$self->type()}->{} = $self;
+			$Lab::Bus::BusList{$self->type()}->{$self->port()} = $self;
 			weaken($Lab::Bus::BusList{$self->type()}->{$self->port()});
-
-
-			# clear new port
-			if ($WIN32) {
-				$self->client( new Win32::Serialport($self->config('port')) or warn "Could not open serial port\n" );
-			} else {
-				$self->client( new Device::Serialport($self->config('port')) or warn "Could not open serial port\n" );
-			}
-			# config port if needed 
-
-			if(defined $self->client) {
-				$self->client()->purge_all;
-				$self->client()->read_const_time($self->timeout());
-				$self->client()->handshake($self->config('handshake')) if (exists $self->config('handshake'));
-				$self->client()->baudrate($self->config('baudrate')) if (exists $self->config('baudrate'));
-				$self->client()->parity($self->config('parity')) if (exists $self->config('parity'));
-				$self->client()->databits($self->config('databits')) if (exists $self->config('databits'));
-				$self->client()->stopbits($self->config('stopbits')) if (exists $self->config('stopbits'));
-			}
-			else {
-				Lab::Exception::Error->throw( error => "Error initializing the serial interface\n" . Lab::Exception::Base::Appendix() ); }
-			}
-
-			return $self;
 		}
 	}
+
+	# clear new port
+	if ($WIN32) {
+		$self->client( new Win32::SerialPort($self->config('port')) or warn "Could not open serial port\n" );
+	} else {
+		$self->client( new Device::SerialPort($self->config('port')) or warn "Could not open serial port\n" );
+	}
+	# config port if needed 
+
+	if(defined $self->client) {
+		$self->client()->purge_all;
+		$self->client()->read_const_time($self->timeout());
+		$self->client()->handshake($self->config('handshake')) if (defined $self->config('handshake'));
+		$self->client()->baudrate($self->config('baudrate')) if (defined $self->config('baudrate'));
+		$self->client()->parity($self->config('parity')) if (defined $self->config('parity'));
+		$self->client()->databits($self->config('databits')) if (defined $self->config('databits'));
+		$self->client()->stopbits($self->config('stopbits')) if (defined $self->config('stopbits'));
+	}
+	else {
+		Lab::Exception::Error->throw( error => "Error initializing the serial interface\n" . Lab::Exception::Base::Appendix() );
+	}
+
+	return $self;
 }
 
 
@@ -110,7 +111,7 @@ sub new {
 #
 # This will be short.
 #
-sub InstrumentNew {
+sub connection_new {
 	my $self = shift;
 	my $args = undef;
 	if (ref $_[0] eq 'HASH') { $args=shift } # try to be flexible about options as hash/hashref
@@ -121,14 +122,23 @@ sub InstrumentNew {
 
 
 
-sub InstrumentRead { # @_ = ( $instrument_handle, $args = { read_length, brutal }
+sub connection_read { # @_ = ( $connection_handle, $args = { read_length, brutal }
 	my $self = shift;
-	my $instrument_handle=shift;
+	my $connection_handle=shift;
 	my $args = undef;
 	if (ref $_[0] eq 'HASH') { $args=shift } # try to be flexible about options as hash/hashref
 	else { $args={@_} }
 
-	my $command = $args->{'command'} || undef;
+	return $self->_direct_read($args);
+}
+
+
+sub _direct_read { # _direct_read()   this is for inheriting buses like MODBUS_RS232 for direct access # @_ = ( $connection_handle, $args = { read_length, brutal }
+	my $self = shift;
+	my $args = undef;
+	if (ref $_[0] eq 'HASH') { $args=shift } # try to be flexible about options as hash/hashref
+	else { $args={@_} }
+
 	my $brutal = $args->{'brutal'} || $self->brutal();
 	my $read_length = $args->{'read_length'} || $self->read_length();
 
@@ -136,14 +146,14 @@ sub InstrumentRead { # @_ = ( $instrument_handle, $args = { read_length, brutal 
 	my $buf = "";
 	my $raw = "";
 
-	if($length eq 'all') {
+	if($read_length eq 'all') {
 		do {
 			$buf = $self->client()->read(4096);
 			$result .= $buf;
 		} while(length($buf) == 4096);
 	}
 	else {
-		$result = $self->client()->read($length); # note: taken from older code - is 4096 some strong limit? If yes, this needs more work.
+		$result = $self->client()->read($read_length); # note: taken from older code - is 4096 some strong limit? If yes, this needs more work.
 	}
 
 	return $result;
@@ -151,9 +161,61 @@ sub InstrumentRead { # @_ = ( $instrument_handle, $args = { read_length, brutal 
 
 
 
-sub InstrumentQuery { # @_ = ( $instrument_handle, $args = { command, read_length, wait_query, brutal }
+
+sub connection_write { # @_ = ( $connection_handle, $args = { command, brutal }
 	my $self = shift;
-	my $instrument_handle=shift;
+	my $connection_handle=shift;
+	my $args = undef;
+	if (ref $_[0] eq 'HASH') { $args=shift } # try to be flexible about options as hash/hashref
+	else { $args={@_} }
+
+	return $self->_direct_write($args);
+}
+
+
+sub _direct_write { # _direct_write( command => $cmd )   this is for inheriting buses like MODBUS_RS232 for direct access
+	my $self = shift;
+	my $args = undef;
+	if (ref $_[0] eq 'HASH') { $args=shift }
+	else { $args={@_} }
+
+	my $command = $args->{'command'} || undef;
+	my $brutal = $args->{'brutal'} || $self->brutal();
+
+	my $status = undef;
+
+
+	if(!defined $command) {
+		Lab::Exception::CorruptParameter->throw(
+			error => "No command given to " . __PACKAGE__ . "::connection_write().\n" . Lab::Exception::Base::Appendix(),
+		);
+	}
+	else {
+		$status = $self->client()->write($command);
+	}
+
+
+	if(!$status && !$brutal) {
+		Lab::Exception::RS232Error->throw(
+			error => "Error in " . __PACKAGE__ . "::connection_write() while executing $command: write failed.\n" . Lab::Exception::Base::Appendix(),
+			status => $status,
+		);
+	}
+	elsif($brutal) {
+		warn "(brutal=>Ignored) error in " . __PACKAGE__ . "::connection_write() while executing $command: write failed.\n" . Lab::Exception::Base::Appendix();
+	}
+
+	return 1;
+}
+
+
+
+
+
+
+sub connection_query { # @_ = ( $connection_handle, $args = { command, read_length, wait_query, brutal }
+	my $self = shift;
+	my $connection_handle=shift;
 	my $args = undef;
 	if (ref $_[0] eq 'HASH') { $args=shift } # try to be flexible about options as hash/hashref
 	else { $args={@_} }
@@ -165,58 +227,21 @@ sub InstrumentQuery { # @_ = ( $instrument_handle, $args = { command, read_lengt
 	my $wait_query = $args->{'wait_query'} || $self->wait_query();
 	my $result = undef;
 
-    $self->InstrumentWrite($args);
+    $self->connection_write($connection_handle, $args);
 
     usleep($wait_query); #<---ensures that asked data presented from the device
 
-    $result=$self->InstrumentRead($args);
+    $result=$self->connection_read($connection_handle, $args);
     return $result;
 }
 
 
 
-
-sub InstrumentWrite { # @_ = ( $instrument_handle, $args = { command, brutal }
+sub connection_clear {
 	my $self = shift;
-	my $instrument_handle=shift;
-	my $args = undef;
-	if (ref $_[0] eq 'HASH') { $args=shift } # try to be flexible about options as hash/hashref
-	else { $args={@_} }
+	my $connection_handle=shift;
 
-	my $command = $args->{'command'} || undef;
-	my $brutal = $args->{'brutal'} || $self->brutal();
-
-	my $status = undef;
-
-
-	if(!defined $command) {
-		Lab::Exception::CorruptParameter->throw(
-			error => "No command given to " . __PACKAGE__ . "::InstrumentWrite().\n" . Lab::Exception::Base::Appendix(),
-		);
-	}
-	else {
-		$status = $self->client()->write($command);
-	}
-
-
-	if(!$status && !$brutal) {
-		Lab::Exception::RS232Error->throw(
-			error => "Error in " . __PACKAGE__ . "::InstrumentWrite() while executing $command: write failed.\n" . Lab::Exception::Base::Appendix(),
-			status => $status,
-		);
-	}
-	elsif($brutal) {
-		warn "(brutal=>Ignored) error in " . __PACKAGE__ . "::InstrumentWrite() while executing $command: write failed.\n" . Lab::Exception::Base::Appendix();
-	}
-
-	return 1;
-}
-
-
-
-sub InstrumentClear {
-	my $self = shift;
-	my $instrument_handle=shift;
+	$self->connection_read($connection_handle, read_length=>'all'); # clear buffer
 
 	return 1;
 }
@@ -266,9 +291,9 @@ FTDI devices.
 
 =head2 new
 
-All parameters are used as by C<Device::Serialport>. port is needed in every case. An additional parameter C<reuse> 
+All parameters are used as by C<Device::SerialPort>. port is needed in every case. An additional parameter C<reuse> 
 is avaliable if two instruments use the same port. This is mainly implemented for USBprologix gateway. 
-C<reuse> can be a Serialport object or a C<Lab::Instrument...> package. Default value for timeout is 500ms and
+C<reuse> can be a SerialPort object or a C<Lab::Instrument...> package. Default value for timeout is 500ms and
 can be set by the parameter "timeout". Other options: handshake, baudrate, databits, stopbits and parity
 
 =head1 METHODS
@@ -297,9 +322,9 @@ Probably many. So far BrutalRead and Clear are not implemented because not neede
 
 =item L<Lab::Instrument>
 
-=item L<Win32::Serialport>
+=item L<Win32::SerialPort>
 
-=item L<Device::Serialport>
+=item L<Device::SerialPort>
 
 =back
 
