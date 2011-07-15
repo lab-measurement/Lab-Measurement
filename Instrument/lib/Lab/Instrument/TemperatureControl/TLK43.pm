@@ -283,6 +283,34 @@ sub set_Precision {	# $Precision
 	return $self->write_address({ mem_address => $self->MemTable()->{'sP'}, mem_value => $precision });
 }
 
+sub set_speed {	# set speed of temperature increase and decrease, in deg/minute. set "off" to disable (infinite speed)
+	my $self = shift;
+	my $speed = shift;
+
+	$speed=100 if($speed =~ /off/i);
+
+	return $self->write_address({ mem_address => $self->MemTable()->{'SLoF'}, mem_value => $speed });
+	return $self->write_address({ mem_address => $self->MemTable()->{'SLor'}, mem_value => $speed });
+}
+
+sub set_speed_rising {	# set speed of temperature increase, in deg/minute. set "off" to disable (infinite speed)
+	my $self = shift;
+	my $speed = shift;
+
+	$speed=100 if($speed =~ /off/i);
+
+	return $self->write_address({ mem_address => $self->MemTable()->{'SLor'}, mem_value => $speed });
+}
+
+sub set_speed_falling {	# set speed of temperature decrease, in deg/minute. set "off" to disable (infinite speed)
+	my $self = shift;
+	my $speed = shift;
+
+	$speed=100 if($speed =~ /off/i);
+
+	return $self->write_address({ mem_address => $self->MemTable()->{'SLoF'}, mem_value => $speed });
+}
+
 
 sub read_range { # { mem_address => Address (16bit), MemCount => Count (8bit, (1..4), default 1)
 	my $self = shift;
