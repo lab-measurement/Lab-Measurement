@@ -134,6 +134,7 @@ sub connection_read { # @_ = ( $connection_handle, $args = { read_length, brutal
 
 
 sub _direct_read { # _direct_read()   this is for inheriting buses like MODBUS_RS232 for direct access # @_ = ( $connection_handle, $args = { read_length, brutal }
+	use bytes;
 	my $self = shift;
 	my $args = undef;
 	if (ref $_[0] eq 'HASH') { $args=shift } # try to be flexible about options as hash/hashref
@@ -174,6 +175,7 @@ sub connection_write { # @_ = ( $connection_handle, $args = { command, brutal }
 
 
 sub _direct_write { # _direct_write( command => $cmd )   this is for inheriting buses like MODBUS_RS232 for direct access
+	use bytes;
 	my $self = shift;
 	my $args = undef;
 	if (ref $_[0] eq 'HASH') { $args=shift }

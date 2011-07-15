@@ -148,7 +148,7 @@ sub GetSubSource { #{ Channel=>2, config1=>fasl, config2=>foo };
 	my $self=shift;
 	my $class = ref($self);
 	no strict 'refs';
-	my $subsource = new $class ({ parent_source=>$self, gpData=>$self->gpData(), %{$self->default_device_settings()} });
+	my $subsource = $class->new ({ parent_source=>$self, gpData=>$self->gpData(), %{$self->default_device_settings()} });
 	use strict;
 	$self->child_sources([ @{$self->child_sources}, $subsource ]);
 	return $subsource;

@@ -37,6 +37,7 @@ sub new {
 
 	# already called in Lab::Instrument::Source, but call it again to respect default values in local channel_defaultconfig
 	$self->configure($self->config());
+	$self->device_settings($self->config('device_settings')) if defined $self->config('device_settings') && ref($self->config('device_settings')) eq 'HASH';
     
     return $self;
 }

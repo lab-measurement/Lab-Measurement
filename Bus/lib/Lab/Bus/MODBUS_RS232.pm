@@ -173,7 +173,7 @@ sub connection_write { # @_ = ( $connection_handle, $args = { function, mem_addr
 	my $self = shift;
 	my $connection_handle=shift;
 	my $args = undef;
-	if (ref $_[0] eq 'HASH') { $args=shift } # try to be flexible about options as hash/hashref
+	if (ref $_[0] eq 'HASH') { $args=shift }
 	else { $args={@_} }
 
 	my $function = int($args->{'function'}) || undef;
@@ -200,7 +200,7 @@ sub connection_write { # @_ = ( $connection_handle, $args = { function, mem_addr
 	$ErrCount=0;
 	$ConnSemaphore->down();
 	do {
-		$self->SUPER::_direct_read(command => $Message);
+		$self->SUPER::_direct_write(command => $Message);
 		@AnswerArr = split(//, $self->SUPER::_direct_read(read_length => 'all'));
 		if(scalar(@AnswerArr) == 0) {
 			warn "Error, no answer received - retrying\n";
@@ -238,6 +238,7 @@ sub connection_write { # @_ = ( $connection_handle, $args = { function, mem_addr
 			}
 		}
 	}
+
 
 	return $Success;
 }
