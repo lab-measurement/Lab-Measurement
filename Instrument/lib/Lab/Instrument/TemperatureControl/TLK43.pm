@@ -288,9 +288,11 @@ sub set_speed {	# set speed of temperature increase and decrease, in deg/minute.
 	my $speed = shift;
 
 	$speed=100 if($speed =~ /off/i);
+	$speed=sprintf("%.2f", $speed) * 100; # 2 decimal places hardwired, transferred as int
 
-	return $self->write_address({ mem_address => $self->MemTable()->{'SLoF'}, mem_value => $speed });
-	return $self->write_address({ mem_address => $self->MemTable()->{'SLor'}, mem_value => $speed });
+	$self->write_address({ mem_address => $self->MemTable()->{'SLoF'}, mem_value => $speed });
+	$self->write_address({ mem_address => $self->MemTable()->{'SLor'}, mem_value => $speed });
+	return 1;
 }
 
 sub set_speed_rising {	# set speed of temperature increase, in deg/minute. set "off" to disable (infinite speed)
@@ -298,6 +300,7 @@ sub set_speed_rising {	# set speed of temperature increase, in deg/minute. set "
 	my $speed = shift;
 
 	$speed=100 if($speed =~ /off/i);
+	$speed=sprintf("%.2f", $speed) * 100; # 2 decimal places hardwired, transferred as int
 
 	return $self->write_address({ mem_address => $self->MemTable()->{'SLor'}, mem_value => $speed });
 }
@@ -307,6 +310,7 @@ sub set_speed_falling {	# set speed of temperature decrease, in deg/minute. set 
 	my $speed = shift;
 
 	$speed=100 if($speed =~ /off/i);
+	$speed=sprintf("%.2f", $speed) * 100; # 2 decimal places hardwired, transferred as int
 
 	return $self->write_address({ mem_address => $self->MemTable()->{'SLoF'}, mem_value => $speed });
 }
