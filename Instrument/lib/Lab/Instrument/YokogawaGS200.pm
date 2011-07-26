@@ -62,18 +62,14 @@ sub set_current {
 sub _set {
     my $self=shift;
     my $value=shift;
-    my $cmd=sprintf("S%e",$value);
-	$self->connection()->Write( command  => $cmd );
-    $cmd="E";
+    my $cmd=sprintf(":SOURce:LEVel %e",$value);
 	$self->connection()->Write( command  => $cmd );
 }
 
 sub _set_auto {
     my $self=shift;
     my $value=shift;
-    my $cmd=sprintf("SA%e",$value);
-	$self->connection()->Write( command  => $cmd );
-    $cmd="E";
+    my $cmd=sprintf(":SOURce:LEVel:AUTO %e",$value);
 	$self->connection()->Write( command  => $cmd );
 }
 
@@ -179,7 +175,7 @@ sub get_current {
 
 sub _get {
     my $self=shift;
-    my $cmd="OD";
+    my $cmd=":SOURce:LEVel?";
     my $result=$self->connection()->Query( command  => $cmd );
     $result=~/....([\+\-\d\.E]*)/;
     return $1;

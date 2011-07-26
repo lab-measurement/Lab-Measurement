@@ -60,7 +60,7 @@ sub _setbus {
 	$resource_name .= '::'.$self->gpib_saddress() if defined $self->gpib_saddress();
 	$resource_name .= '::INSTR';
 	$self->resource_name($resource_name);
-	$self->config()->{'resource_name') = $resource_name;
+	$self->config()->{'resource_name'} = $resource_name;
 	
 	# again, pass it all.
 	$self->connection_handle( $self->bus()->connection_new( $self->config() ));
