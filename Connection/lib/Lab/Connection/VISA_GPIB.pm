@@ -82,7 +82,7 @@ Lab::Connection::VISA_GPIB - GPIB-type connection class which uses L<Lab::Bus::V
 
 =head1 SYNOPSIS
 
-This is not called directly. To make a GPIB suppporting instrument use Lab::Connection::VISA_GPIB, set
+This class is not called directly. To make a GPIB suppporting instrument use Lab::Connection::VISA_GPIB, set
 the connection_type parameter accordingly:
 
 $instrument = new HP34401A(
