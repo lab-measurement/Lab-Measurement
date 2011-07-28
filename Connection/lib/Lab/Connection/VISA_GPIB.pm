@@ -101,7 +101,7 @@ The main feature is to assemble the standard gpib connection options
   gpib_board
   gpib_address
   gpib_saddress
-into a valid NI VISA resource name (see L<Lab::Connection::VISA).
+into a valid NI VISA resource name (see L<Lab::Connection::VISA>).
 
 =head1 CONSTRUCTOR
 
