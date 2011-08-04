@@ -29,7 +29,6 @@ provides:
     file: lib/Lab/Bus/VISA.pm
 requires:
   Lab::Exception: 0.1
-  Lab::VISA: 0.1
   Time::HiRes: 0
 resources:
   MailingList: https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-visa-users
