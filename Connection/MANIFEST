@@ -3,8 +3,9 @@ Changes
 lib/Lab/Connection.pm
 lib/Lab/Connection/DEBUG.pm
 lib/Lab/Connection/GPIB.pm
-lib/Lab/Connection/LinuxGPIB
+lib/Lab/Connection/LinuxGPIB.pm
+lib/Lab/Connection/MODBUS_RS232.pm
 lib/Lab/Connection/VISA.pm
-lib/Lab/Connection/VISA_GPIB
+lib/Lab/Connection/VISA_GPIB.pm
 META.yml
 README

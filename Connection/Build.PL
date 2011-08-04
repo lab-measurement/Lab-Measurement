@@ -11,7 +11,7 @@ my $build = Module::Build->new(
     license           => 'perl',
     requires          => {
         'Lab::Exception' => '0.1',
-        'Lab::VISA' => '0.1',
+        'Lab::Bus' => '0.5',
         'Time::HiRes'   => 0,
     },
     test_files        => [],
