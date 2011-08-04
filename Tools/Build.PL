@@ -6,7 +6,7 @@ use Module::Build;
 my $build = Module::Build->new(
     module_name   => 'Lab::Tools',
     dist_version  => '1.4',
-    dist_abstract => 'Tools to obtain and handle data with Lab::VISA',
+    dist_abstract => 'Tools to obtain and handle data with Lab::Measurement',
     license       => 'perl',
     requires      => {
         'XML::DOM'           => 0,
@@ -32,7 +32,7 @@ my $build = Module::Build->new(
     dist_author   => 'Daniel Schröer <schroeer@cpan.org>',
     meta_merge    => {
         resources => {
-            homepage    => 'http://labvisa.de',
+            homepage    => 'http://www.labmeasurement.de/',
             bugtracker  => 'http://rt.cpan.org/NoAuth/Bugs.html?Dist=Lab-Tools',
             MailingList => 'https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-visa-users',
         }
