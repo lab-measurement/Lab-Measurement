@@ -18,8 +18,6 @@ provides:
     file: lib/Lab/Bus/DEBUG.pm
   Lab::Bus::DEBUG::HumanInstrument:
     file: lib/Lab/Bus/DEBUG.pm
-  Lab::Bus::GPIB:
-    file: lib/Lab/Bus/GPIB.pm
   Lab::Bus::MODBUS_RS232:
     file: lib/Lab/Bus/MODBUS_RS232.pm
   Lab::Bus::RS232:
