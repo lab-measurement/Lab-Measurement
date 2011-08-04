@@ -4,6 +4,7 @@ author:
   - 'Daniel Schröer <schroeer@cpan.org>'
 configure_requires:
   Module::Build: 0.36
+dynamic_config: 0
 generated_by: 'Module::Build version 0.3607'
 license: perl
 meta-spec:
@@ -39,8 +40,9 @@ provides:
     file: lib/Lab/Instrument/TemperatureControl/TLK43.pm
     version: 0.2
 requires:
-  Lab::Connection: 0.1
-  Lab::Exception: 0.1
+  Lab::Bus: 0.3
+  Lab::Connection: 0.3
+  Lab::Exception: 0.3
   Time::HiRes: 0
 resources:
   MailingList: https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-visa-users

@@ -5,6 +5,8 @@
 
 package Lab::Instrument;
 
+$Lab::Instrument::VERSION='2.90';
+
 use strict;
 
 use Lab::Exception;
