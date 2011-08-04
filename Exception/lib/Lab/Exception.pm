@@ -166,4 +166,6 @@ use Exception::Class (
 	},
 );
 
+
+$Lab::Exception::VERSION='0.31';
 1;

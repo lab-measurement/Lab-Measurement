@@ -1,5 +1,4 @@
 #!/usr/bin/perl
-#$Id: Build.PL 712 2010-11-11 12:08:46Z huettel $
 
 use strict;
 use Module::Build;
@@ -7,7 +6,6 @@ use Module::Build;
 my $build = Module::Build->new(
     module_name       => 'Lab::Exception',
     dist_abstract     => 'Exception handling for Lab::Instrument',
-    dist_version      => '0.3',
     license           => 'perl',
     requires          => {
         'Exception::Class' => '1.0',
