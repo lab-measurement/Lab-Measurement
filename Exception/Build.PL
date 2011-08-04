@@ -7,7 +7,7 @@ use Module::Build;
 my $build = Module::Build->new(
     module_name       => 'Lab::Exception',
     dist_abstract     => 'Exception handling for Lab::Instrument',
-    dist_version_from => 'README',
+    dist_version      => '0.3',
     license           => 'perl',
     requires          => {
         'Exception::Class' => '1.0',
