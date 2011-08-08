@@ -5,8 +5,6 @@
 
 package Lab::Instrument;
 
-$Lab::Instrument::VERSION='2.90';
-
 use strict;
 
 use Lab::Exception;
@@ -369,7 +367,11 @@ sub DESTROY {
 # }
 
 
+
+$Lab::Instrument::VERSION='2.90';
 1;
+
+
 
 =head1 NAME
 
