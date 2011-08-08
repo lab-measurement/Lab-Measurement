@@ -221,8 +221,11 @@ sub DESTROY {
 
 
 
-
+$Lab::Connection::VERSION='2.90';
 1;
+
+
+
 
 =head1 NAME
 

@@ -1,17 +1,15 @@
 #!/usr/bin/perl
-#$Id$
 
 use strict;
 use Module::Build;
 
 my $build = Module::Build->new(
-    module_name       => 'Lab::Connector',
-    dist_abstract     => 'Interface drivers for Lab::Instrument',
-    dist_version_from => 'README',
+    module_name       => 'Lab::Connection',
+    dist_abstract     => 'Instrument connection drivers for Lab::Measurement',
     license           => 'perl',
     requires          => {
-        'Lab::Exception' => '0.1',
-        'Lab::Bus' => '0.5',
+        'Lab::Exception' => '2.90',
+        'Lab::Bus' => '2.90',
         'Time::HiRes'   => 0,
     },
     test_files        => [],
@@ -21,7 +19,7 @@ my $build = Module::Build->new(
     meta_merge        => {
         resources       => {
             homepage      => 'http://labvisa.de',
-            bugtracker    => 'http://rt.cpan.org/NoAuth/Bugs.html?Dist=Lab-Connector',
+            bugtracker    => 'http://rt.cpan.org/NoAuth/Bugs.html?Dist=Lab-Connection',
             MailingList   => 'https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-visa-users',
         }
     },

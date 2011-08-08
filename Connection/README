@@ -1,5 +1,4 @@
 README for Lab::Connection
-$VERSION = '0.5'
 -----------------------------------------------------------------------
 
 
@@ -15,7 +14,8 @@ DEPENDENCIES
 
 This package requires these other modules and libraries:
 
-  Lab::VISA
+  Lab::Bus
+  Lab::Exception
   Module::Build
   Time::HiRes
 
