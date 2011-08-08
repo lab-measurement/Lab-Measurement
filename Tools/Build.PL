@@ -5,8 +5,8 @@ use Module::Build;
 
 my $build = Module::Build->new(
     module_name   => 'Lab::Tools',
-    dist_version  => '1.4',
     dist_abstract => 'Tools to obtain and handle data with Lab::Measurement',
+    dist_version => '2.90',
     license       => 'perl',
     requires      => {
         'XML::DOM'           => 0,
@@ -21,8 +21,8 @@ my $build = Module::Build->new(
         'encoding::warnings' => 0,
     },
     recommends   => {
-        'Lab::VISA'          => '2.03',
-        'Lab::Instrument'    => '2.00',
+        'Lab::VISA'          => '2.90',
+        'Lab::Instrument'    => '2.90',
     },
     script_files => [qw(
         scripts/yoko_goto.pl    scripts/knick_goto.pl   scripts/hp_read.pl

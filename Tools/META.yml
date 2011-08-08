@@ -28,8 +28,8 @@ provides:
     file: lib/Lab/Measurement.pm
     version: 0.0000
 recommends:
-  Lab::Instrument: 2.00
-  Lab::VISA: 2.03
+  Lab::Instrument: 2.90
+  Lab::VISA: 2.90
 requires:
   Cwd: 0
   Data::Dumper: 0
@@ -46,4 +46,4 @@ resources:
   bugtracker: http://rt.cpan.org/NoAuth/Bugs.html?Dist=Lab-Tools
   homepage: http://www.labmeasurement.de/
   license: http://dev.perl.org/licenses/
-version: 1.4
+version: 2.90
