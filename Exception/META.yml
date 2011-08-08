@@ -1,5 +1,5 @@
 ---
-abstract: 'Exception package for Lab::Measurement'
+abstract: 'Exception handling for Lab::Instrument'
 author:
   - 'Daniel Schröer <schroeer@cpan.org>'
 configure_requires:
@@ -10,16 +10,18 @@ license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
   version: 1.4
-name: Lab-Bus
+name: Lab-Exception
 provides:
   Lab::Exception:
     file: lib/Lab/Exception.pm
-    version: 0.3
+    version: 2.90
+  Lab::Exception::Base:
+    file: lib/Lab/Exception.pm
 requires:
   Exception::Class: 1.0
 resources:
   MailingList: https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-visa-users
-  bugtracker: http://rt.cpan.org/NoAuth/Bugs.html?Dist=Lab-Bus
+  bugtracker: http://rt.cpan.org/NoAuth/Bugs.html?Dist=Lab-Exception
   homepage: http://labvisa.de
   license: http://dev.perl.org/licenses/
-version: 0.3
+version: 2.90

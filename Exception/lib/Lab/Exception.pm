@@ -167,5 +167,5 @@ use Exception::Class (
 );
 
 
-$Lab::Exception::VERSION='0.31';
+$Lab::Exception::VERSION='2.90';
 1;
