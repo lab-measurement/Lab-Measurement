@@ -1,7 +1,5 @@
 README for Lab::Bus
-$VERSION = '0.5'
 -----------------------------------------------------------------------
-
 
 INSTALLATION
 
@@ -15,13 +13,13 @@ DEPENDENCIES
 
 This package requires these other modules and libraries:
 
-  Lab::VISA
+  Lab::Exception
   Module::Build
   Time::HiRes
 
 COPYRIGHT AND LICENCE
 
-Copyright (C) 2004-2008 by Daniel Schröer, 2009-2010 Daniel Schröer, Andreas K. Hüttel, Daniela Taubert, David Kalok, and others.
+Copyright (C) 2004-2008 by Daniel Schröer, 2009-2010 Daniel Schröer, Andreas K. Hüttel, Daniela Taubert, David Kalok, Florian Olbrich, and others.
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.3 or,

@@ -1,9 +1,10 @@
 ---
-abstract: 'Interface drivers for Lab::Measurement'
+abstract: 'Bus drivers for Lab::Instrument'
 author:
   - 'Daniel Schröer <schroeer@cpan.org>'
 configure_requires:
   Module::Build: 0.36
+dynamic_config: 0
 generated_by: 'Module::Build version 0.3607'
 license: perl
 meta-spec:
@@ -13,24 +14,25 @@ name: Lab-Bus
 provides:
   Lab::Bus:
     file: lib/Lab/Bus.pm
-    version: 1.0793
+    version: 2.90
   Lab::Bus::DEBUG:
     file: lib/Lab/Bus/DEBUG.pm
   Lab::Bus::DEBUG::HumanInstrument:
     file: lib/Lab/Bus/DEBUG.pm
+  Lab::Bus::LinuxGPIB:
+    file: lib/Lab/Bus/LinuxGPIB.pm
   Lab::Bus::MODBUS_RS232:
     file: lib/Lab/Bus/MODBUS_RS232.pm
   Lab::Bus::RS232:
     file: lib/Lab/Bus/RS232.pm
-    version: 1.0757
   Lab::Bus::VISA:
     file: lib/Lab/Bus/VISA.pm
 requires:
-  Lab::Exception: 0.1
+  Lab::Exception: 2.90
   Time::HiRes: 0
 resources:
   MailingList: https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-visa-users
   bugtracker: http://rt.cpan.org/NoAuth/Bugs.html?Dist=Lab-Bus
   homepage: http://labvisa.de
   license: http://dev.perl.org/licenses/
-version: 0.5
+version: 2.90

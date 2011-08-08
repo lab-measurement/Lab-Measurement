@@ -252,5 +252,5 @@ terms as Perl itself.
 
 =cut
 
-
+$Lab::Bus::VERSION='2.90';
 1;
