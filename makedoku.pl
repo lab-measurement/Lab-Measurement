@@ -3,12 +3,8 @@
 use strict;
 use Documentation::LaTeX;
 use Documentation::HTML;
-use Documentation::Web;
-#use File::Copy;
 use Getopt::Long;
 use Pod::Usage;
-
-# the autoupdater calls with parameter "web"
 
 my %options = (
     toc     => "dokutoc.yml",
