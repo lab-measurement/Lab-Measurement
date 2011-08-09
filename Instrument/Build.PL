@@ -14,7 +14,11 @@ my $build = Module::Build->new(
     test_files        => [ 't/3_source.t', 't/4_dummysource.t' ],
     script_files      => [],
     create_readme     => 0,
-    dist_author       => 'Daniel Schröer <schroeer@cpan.org>',
+    dist_author       => ['Daniel Schröer <schroeer@cpan.org>',
+                          'Andreas K. Huettel <mail@akhuettel.de>',
+                          'Daniela Taubert', 
+                          'Florian Olbrich'
+                         ],
     meta_merge        => {
         resources       => {
             homepage      => 'http://www.labmeasurement.de/',
