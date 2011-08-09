@@ -1,7 +1,7 @@
 ---
 abstract: 'Instrument and bus drivers for Lab::Measurement'
 author:
-  - 'Daniel Schröer <schroeer@cpan.org>'
+  - 'Daniel SchrÃ¶er <schroeer@cpan.org>'
   - 'Andreas K. Huettel <mail@akhuettel.de>'
   - 'Daniela Taubert'
   - 'Florian Olbrich'

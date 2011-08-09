@@ -740,10 +740,8 @@ This class inherits the gate protection mechanism.
 
 =head1 AUTHOR/COPYRIGHT
 
-This is $Id$
-
- Copyright 2004-2008 Daniel Schr�er (<schroeer@cpan.org>)
-		   2009-2010 Daniel Schr�er, Andreas K. H�ttel (L<http://www.akhuettel.de/>) and Daniela Taubert
+ Copyright 2004-2008 Daniel Schröer (<schroeer@cpan.org>)
+		   2009-2010 Daniel Schröer, Andreas K. Hüttel (L<http://www.akhuettel.de/>) and Daniela Taubert
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 
