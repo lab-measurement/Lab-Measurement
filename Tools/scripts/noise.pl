@@ -30,7 +30,7 @@ my $sample="S5c (81059)";
 my $title="Triple - QPC";
 my $comment=<<COMMENT;
 Strom und Transconductance von 14 nach 12; Auf Gate hf3 gelockt mit ca. $v_gate_ac V bei 33Hz. V_{SD,DC}=$v_sd V; Ca. 30mK.
-Lock-In: Sensitivity $lock_in_sensitivity V, 0.3s, Normal, Bandpaß Q=50.
+Lock-In: Sensitivity $lock_in_sensitivity V, 0.3s, Normal, BandpaÃŸ Q=50.
 Ithaco amp $amp, supr 10e-10 off, rise 0.3ms; ca. 25mK.
 G11=-0.385 (Manus1); G15=-0.430 (Manus2); G06=-0.455 (Manus3); Ghf1=-0.145 (Manus04); Ghf2=-0.155 (Manus05); 02,04,10 auf GND
 G01=-0.380 (Yoko01); Ghf4=-0.180 (Yoko04); Ghf3=-0.300 (Yoko09); G03=-0.450 (Yoko02); G13=-0.584 (Knick14); G09=-0.584 (Yoko10);

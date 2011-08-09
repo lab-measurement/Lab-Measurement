@@ -9,7 +9,7 @@ sub DATA_to_cols {
     # filename von datenfile als argument
     # gibt spalten als einzelne listen
     # also matrix, die genauso aussieht, wie das file
-    # blöcke nicht aufgelöst
+    # blÃ¶cke nicht aufgelÃ¶st
     my @cols=rcols shift;
     my $piddle=cat @cols;
     return $piddle;
@@ -28,7 +28,7 @@ sub DATA_to_matrix {
     #   0 - nicht gestartet: leerzeilen ignorieren, dann 1
     #   1 - gestartet: ersten block lesen (1 zeilenname, alle yvalues), dann 2
     #   2 - neuer block gestartet: 1 zeilenname lesen; spaltenname vergleichen, dann 3
-    #   3 - innerhalb block größer erstem: spalten- und zeilenname vergleichen
+    #   3 - innerhalb block grÃ¶ÃŸer erstem: spalten- und zeilenname vergleichen
     while (<IN>) {
         chomp;
         if (/^\s*$/) {

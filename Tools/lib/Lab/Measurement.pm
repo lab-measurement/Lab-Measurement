@@ -49,7 +49,7 @@ sub new {
     $desc_add =~ s/_/\\\\_/g;
     $params{description}.=$desc_add;
 
-    # Writer erzeugen, Log öffnen
+    # Writer erzeugen, Log Ã¶ffnen
     my $writer=new Lab::Data::Writer($params{filename},$params{writer_config});
     # header schreiben
     $writer->log_comment("Sample $params{sample}");
@@ -140,9 +140,9 @@ sub log {
     
     if ((defined $self->{magic_log}->{column}->[$column]->{status})
         && ($self->{magic_log}->{column}->[$column]->{status} eq 'fresh')) {
-        #spalte enthält wert, der noch nicht geloggt worden ist
+        #spalte enthÃ¤lt wert, der noch nicht geloggt worden ist
         unless ($self->{magic_log}->{started}) {
-            #header müssen erst noch erzeugt werden
+            #header mÃ¼ssen erst noch erzeugt werden
             $self->{magic_log}->{started}=1;
             my $cc=$self->{config}->{comment_char};
             my $nl=$self->{config}->{line_sep};
@@ -342,7 +342,7 @@ magic log. deprecated.
 
 This is $Id$
 
-Copyright 2004-2006 Daniel Schröer (L<http://www.danielschroeer.de>)
+Copyright 2004-2006 Daniel SchrÃ¶er (L<http://www.danielschroeer.de>)
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. 

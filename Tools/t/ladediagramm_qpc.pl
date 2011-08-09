@@ -22,7 +22,7 @@ my $constants     = [
 #wenn messprogramm beim start alle quellen abfragt
 my $bias_voltage = -300e-3/$divider_dc;
 
-#enth‰lt komplette liste
+#enth√§lt komplette liste
 #kann ausgelagert werden
 my %quellen = (
     'hf3' = {
@@ -95,9 +95,9 @@ my $filename_base = 'rauscheck_mit_bias';
 my $sample        = "S5c (81059)";
 my $title         = "Tripeldot, gemessen mit QPC links unten";
 my $comment       = <<COMMENT;
-Rauscheck mit anderen Einstellungen und Bias ¸ber Quantenpunkten
+Rauscheck mit anderen Einstellungen und Bias √ºber Quantenpunkten
 Transconductance von 12 nach 14; Auf Gate hf3 gelockt mit ca. $v_gate_ac V bei 33Hz. V_{SD,DC}=$v_sd_dc V; Ca. 25mK.
-Lock-In: Sensitivity $lock_in_sensitivity V, 0.3s, Normal, Bandpaﬂ Q=50.
+Lock-In: Sensitivity $lock_in_sensitivity V, 0.3s, Normal, Bandpa√ü Q=50.
 Ithaco: Amplification $ithaco_amp, Supression 10e-10 off, Rise Time 0.3ms.
 G11=-0.385 (Manus1); G15=-0.410 (Manus2); G06=-0.455 (Manus3); Ghf1=-0.125 (Manus04); Ghf2=-0.125 (Manus05);
 G01=-0.394 (Yoko01); G03=-0.450 (Yoko02); G13=-0.604 (Knick14); G09=-0.604 (Yoko10); 10,02,04 auf GND

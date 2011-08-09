@@ -4,7 +4,7 @@
 #bei den ganzen rekursiven functionen
 #rauslaufen.
 #diese werden dann die methoden der
-#unteren Lab::XMLtrees bemühen, anstatt sich
+#unteren Lab::XMLtrees bemÃ¼hen, anstatt sich
 #selbst.
 
 #allerdings bietet objektorientierter ansatz auch nachteile
@@ -22,8 +22,8 @@
 #
 #xml und yaml einlesen erzeugen ungeblesste trees, die dann gemerget werden
 ##anmerkung 040901: overloading geht wohl nicht.
-##neue daten müssen mit merge eingefügt werden.
-##man kann aber z.b. auch regelmässig die datenstruktur durchbrowsen und
+##neue daten mÃ¼ssen mit merge eingefÃ¼gt werden.
+##man kann aber z.b. auch regelmÃ¤ssig die datenstruktur durchbrowsen und
 ##checken, ob alles geblessed ist
 
 ##mit tie gehts.
@@ -144,7 +144,7 @@ sub save_yaml {
     my $filename=shift;
     my $data=shift;
     my $rootname=shift;
-    my $save_hash;#pseudo-geprüftes save
+    my $save_hash;#pseudo-geprÃ¼ftes save
     for my $defnode_name (keys %{$self->{___declaration}}) {
         $save_hash->{$defnode_name}=$data->{$defnode_name} if ($data->{$defnode_name});
     }
@@ -330,7 +330,7 @@ sub _getset_node_list_from_string {
                     undef;
             } else {
                 #wants to get/set this node
-                #sollte bei ref(rückgabewert) !~ /SCALAR/ vielleicht eher eine liste von keys zurückgeben (hash) oder anzahl (array)
+                #sollte bei ref(rÃ¼ckgabewert) !~ /SCALAR/ vielleicht eher eine liste von keys zurÃ¼ckgeben (hash) oder anzahl (array)
                 if (@parms) {
                     my $param=shift @parms;
                     if ((ref $param) =~ /HASH/) {
@@ -342,7 +342,7 @@ sub _getset_node_list_from_string {
                     } elsif ((ref $param) =~ /ARRAY/) {
                         if ($type =~/P?ARRAY/) {
                             #set mit arrayref
-                            #z.b. alle blöcke
+                            #z.b. alle blÃ¶cke
                             return @{$perlnode_list->{$node_name}}=@$param;
                         }
                     } elsif (!(ref $param)) {
@@ -360,7 +360,7 @@ sub _getset_node_list_from_string {
                                     }
                                 } else {
                                     if (!(ref $param)) {
-                                        #skalaren wert für element ohne children setzen
+                                        #skalaren wert fÃ¼r element ohne children setzen
                                         return $perlnode_list->{$node_name}->{$param}=$nextparam;
                                     }
                                 }
@@ -386,7 +386,7 @@ sub _getset_node_list_from_string {
                                     }
                                 } else {
                                     if (!(ref $param)) {
-                                        #skalaren wert für element ohne children setzen
+                                        #skalaren wert fÃ¼r element ohne children setzen
                                         return $perlnode_list->{$node_name}->[$param]=$nextparam;
                                     }
                                 }
@@ -696,7 +696,7 @@ Lab::XMLtree can use YAML (L<YAML>) for data storage.
 
 This is $Id$
 
-Copyright 2004-2006 Daniel Schröer (L<http://www.danielschroeer.de>)
+Copyright 2004-2006 Daniel SchrÃ¶er (L<http://www.danielschroeer.de>)
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 

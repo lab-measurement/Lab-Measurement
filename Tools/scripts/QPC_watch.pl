@@ -14,7 +14,7 @@ my $v_sd=0.78/1563;
 my $v_gate=-0.6594;
 my $ithaco_amp=1e-7;
 
-my $U_Kontakt=1.709;    #die Spannung, die Stromverstärker bei V_Gate=0 anzeigt
+my $U_Kontakt=1.709;    #die Spannung, die StromverstÃ¤rker bei V_Gate=0 anzeigt
 
 my $title="S5a-II (81059) QPC links oben";
 my $comment=<<COMMENT;

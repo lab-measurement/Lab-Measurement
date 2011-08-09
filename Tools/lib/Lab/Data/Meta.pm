@@ -34,7 +34,7 @@ my $declaration = {
         'ARRAY',
         'id',
         {
-            original_filename   => ['SCALAR'],  # nur von GPplus-Import unterstützt
+            original_filename   => ['SCALAR'],  # nur von GPplus-Import unterstÃ¼tzt
             timestamp           => ['SCALAR'],  # Format %Y/%m/%d-%H:%M:%S
             description         => ['SCALAR'],
             label               => ['SCALAR'],
@@ -47,7 +47,7 @@ my $declaration = {
             unit                => ['SCALAR'],
             label               => ['SCALAR'],  # evtl. weg
             description         => ['SCALAR'],  # evtl. weg
-            min                 => ['SCALAR'],  # unnütz, aber von GPplus-Import unterstützt
+            min                 => ['SCALAR'],  # unnÃ¼tz, aber von GPplus-Import unterstÃ¼tzt
             max                 => ['SCALAR'],  # dito
         }
     ],
@@ -77,7 +77,7 @@ my $declaration = {
             cbaxis              => ['SCALAR'],
             cbformat            => ['SCALAR'],
             logscale            => ['SCALAR'],  # z.b: 'x' oder 'yzxcb'
-            time                => ['SCALAR'],  # ??? (was: wie oben (anders als in GnuPlot) (Achsen müssen %s-Format haben))
+            time                => ['SCALAR'],  # ??? (was: wie oben (anders als in GnuPlot) (Achsen mÃ¼ssen %s-Format haben))
             grid                => ['SCALAR'],  # z.B. 'ytics' oder 'xtics ytics'
             palette             => ['SCALAR'],
             label               => [
@@ -194,7 +194,7 @@ Currently, C<Lab::Data::Meta> supports the following bits of meta information:
         'ARRAY',
         'id',
         {
-            original_filename   => ['SCALAR'],  # nur von GPplus-Import unterstützt
+            original_filename   => ['SCALAR'],  # nur von GPplus-Import unterstÃ¼tzt
             timestamp           => ['SCALAR'],  # Format %Y/%m/%d-%H:%M:%S
             description         => ['SCALAR'],
             label               => ['SCALAR'],
@@ -207,7 +207,7 @@ Currently, C<Lab::Data::Meta> supports the following bits of meta information:
             unit                => ['SCALAR'],
             label               => ['SCALAR'],  # evtl. weg
             description         => ['SCALAR'],  # evtl. weg
-            min                 => ['SCALAR'],  # unnütz, aber von GPplus-Import unterstützt
+            min                 => ['SCALAR'],  # unnÃ¼tz, aber von GPplus-Import unterstÃ¼tzt
             max                 => ['SCALAR'],  # dito
         }
     ],
@@ -237,7 +237,7 @@ Currently, C<Lab::Data::Meta> supports the following bits of meta information:
             cbaxis              => ['SCALAR'],
             cbformat            => ['SCALAR'],
             logscale            => ['SCALAR'],  # z.b: 'x' oder 'yzxcb'
-            time                => ['SCALAR'],  # ??? (was: wie oben (anders als in GnuPlot) (Achsen müssen %s-Format haben))
+            time                => ['SCALAR'],  # ??? (was: wie oben (anders als in GnuPlot) (Achsen mÃ¼ssen %s-Format haben))
             grid                => ['SCALAR'],  # z.B. 'ytics' oder 'xtics ytics'
             palette             => ['SCALAR'],
             label               => [
@@ -278,7 +278,7 @@ Currently, C<Lab::Data::Meta> supports the following bits of meta information:
 
 This is $Id$
 
-Copyright 2004-2006 Daniel Schröer (L<http://www.danielschroeer.de>)
+Copyright 2004-2006 Daniel SchrÃ¶er (L<http://www.danielschroeer.de>)
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 

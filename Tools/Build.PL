@@ -29,7 +29,7 @@ my $build = Module::Build->new(
         scripts/plotter.pl      scripts/metainfo.pl
     )],
     create_readme => 0,
-    dist_author   => 'Daniel Schröer <schroeer@cpan.org>',
+    dist_author   => 'Daniel SchrÃ¶er <schroeer@cpan.org>',
     meta_merge    => {
         resources => {
             homepage    => 'http://www.labmeasurement.de/',

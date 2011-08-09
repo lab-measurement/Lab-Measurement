@@ -95,7 +95,7 @@ This information is printed.
 
 This is $Id$.
 
-Copyright 2004 Daniel Schröer.
+Copyright 2004 Daniel SchrÃ¶er.
 
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

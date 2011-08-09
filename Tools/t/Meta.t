@@ -59,7 +59,7 @@ isnt($meta2->jibbet_nisch(),'nono','meta2: only allowed elements exist (XMLtree 
 
 my $testdescription=<<ENDE;
 Dies ist die erste Zeile der Description.
-Die zweite Zeile enthält Sonderzeichen: äöüß¤.
+Die zweite Zeile enthÃ¤lt Sonderzeichen: Ã¤Ã¶Ã¼ÃŸÂ¤.
 
 Nach einer Leerzeile hier nun Zeile 4.
 In Zeile 5 droht Gefahr: <strong>Gefahr</strong>

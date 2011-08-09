@@ -6,7 +6,7 @@
   <data_complete><![CDATA[1]]></data_complete>
   <dataset_description><![CDATA[Nochmal das Rauscheck: Quer (in hf3-Richtung) gemessen, sehr langsam gefahren. Nicht gemittelt.
 Transconductance von 14 nach 12; Auf Gate hf3 gelockt mit ca. 0.00066 V bei 33Hz. V_{SD,DC}=-0.0003 V; Ca. 30mK.
-Lock-In: Sensitivity 0.005 V, 0.3s, Normal, Bandpaß Q=50.
+Lock-In: Sensitivity 0.005 V, 0.3s, Normal, BandpaÃŸ Q=50.
 Ithaco: Amplification 1e-09, Supression 10e-10 off, Rise Time 0.3ms.
 G11=-0.385 (Manus1); G15=-0.430 (Manus2); G06=-0.455 (Manus3); Ghf1=-0.145 (Manus04); Ghf2=-0.155 (Manus05);
 G01=-0.370 (Yoko01); G03=-0.450 (Yoko02); G13=-0.582 (Knick14); G09=-0.582 (Yoko10); 10,02,04 auf GND

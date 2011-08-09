@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Eine Spannungsquelle fahren, Leitf‰higkeit (ohne Lock-In) messen
+# Eine Spannungsquelle fahren, Leitf√§higkeit (ohne Lock-In) messen
 
 #$Id$
 
@@ -28,7 +28,7 @@ my $U_Kontakt=2.24;
 my $sample="S5c (81059)";
 my $title="QPC links unten";
 my $comment=<<COMMENT;
-Strom von 12 nach 14; V_{SD,DC}=$v_sd V; L¸ftung an; Ca. 25mK.
+Strom von 12 nach 14; V_{SD,DC}=$v_sd V; L√ºftung an; Ca. 25mK.
 Ithaco: Amplification $amp, Supression 10e-10 off, Rise Time 0.3ms.
 G11=-0.385 (Manus1); G15=-0.410 (Manus2); G06=-0.440 (Manus3); Ghf1=-0.110 (Manus04); Ghf2=-0.110 (Manus05);
 Ghf3=-0.100 (Yoko09); Ghf4=-0.120 (Yoko04); G01=-0.405 (Yoko01); G03=-0.450 (Yoko02); G13=-0.612 (Knick14); G09=-0.612 (Yoko10);

@@ -52,8 +52,8 @@ my $filename_base = 'taschensuche_transport';
 my $sample        = "S5c (81059)";
 my $title         = "Alle drei Quantenpunkte";
 my $comment       = <<COMMENT;
-Differentielle Leitfähigkeit von 12 nach 10; ; Lüftung an; Ca. 25mK.
-Lock-In: Sensitivity $lock_in_sensitivity V, V_{SD,AC}=$v_sd_ac V bei 33Hz, 300ms, Normal, Bandpaß 50.
+Differentielle LeitfÃ¤higkeit von 12 nach 10; ; LÃ¼ftung an; Ca. 25mK.
+Lock-In: Sensitivity $lock_in_sensitivity V, V_{SD,AC}=$v_sd_ac V bei 33Hz, 300ms, Normal, BandpaÃŸ 50.
 Ithaco: Amplification $ithaco_amp, Supression 10e-10 off, Rise Time 0.3ms.
 G11=-0.385 (Manus1); G15=-0.410 (Manus2); G06=-0.455 (Manus3); Ghf1=-0.125 (Manus04); Ghf2=-0.125 (Manus05);
 G01=-0.394 (Yoko01); G03=-0.450 (Yoko02); G13=-0.609 (Knick14); G09=-0.609 (Yoko10); 14 offen, 02,04 auf GND

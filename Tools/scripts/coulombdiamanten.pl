@@ -44,7 +44,7 @@ my $filename_base = 'coulombdiamant';
 my $sample        = "S5c (81059)";
 my $title         = "rechter Quantenpunkt";
 my $comment       = <<COMMENT;
-Differentielle Leitfähigkeit von 12 nach 10. Ca. 20mK.
+Differentielle LeitfÃ¤higkeit von 12 nach 10. Ca. 20mK.
 Lock-In: Sensitivity $lock_in_sensitivity V, V_{SD,AC}=$v_sd_ac V bei 13Hz, 300ms, Normal, Flat.
 Ithaco: Amplification $ithaco_amp, Supression 10e-10, Rise Time 0.3ms.
 G01=0 (Yoko04;Kabel5); G11=-0.385 (Yoko02;Kabel4); G06=-0.460 (Yoko10;Kabel1); Ghf2=-0.140 (Yoko01;Kabel11); andere GND

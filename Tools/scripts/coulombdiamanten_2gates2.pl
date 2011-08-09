@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
-# Coulombdiamanten entlang Trace schräg durchs Ladediagramm messen
-# diese Variante fährt innen Biasspannung
+# Coulombdiamanten entlang Trace schrÃ¤g durchs Ladediagramm messen
+# diese Variante fÃ¤hrt innen Biasspannung
 
 #$Id$
 
@@ -58,9 +58,9 @@ my $filename_base = 'diamanten_012-224';
 my $sample        = "S5c (81059)";
 my $title         = "Tripeldot, gemessen mit QPC links unten";
 my $comment       = <<COMMENT;
-Coulombdiamanten von 0,1,2 über 1,1,3 und 1,2,3 nach 2,2,4.
-Differentielle Leitfähigkeit von 12 nach 10; V_{SD,AC}=$v_sd_ac V bei 33Hz. Ca. 30mK.
-Lock-In: Sensitivity $lock_in_sensitivity V, 0.3s, Normal, Bandpaß Q=50, Phase 25.4°.
+Coulombdiamanten von 0,1,2 Ã¼ber 1,1,3 und 1,2,3 nach 2,2,4.
+Differentielle LeitfÃ¤higkeit von 12 nach 10; V_{SD,AC}=$v_sd_ac V bei 33Hz. Ca. 30mK.
+Lock-In: Sensitivity $lock_in_sensitivity V, 0.3s, Normal, BandpaÃŸ Q=50, Phase 25.4Â°.
 Ithaco: Amplification $ithaco_amp, Supression 10e-10 off, Rise Time 0.3ms.
 G11=-0.385 (Manus1); G15=-0.410 (Manus2); G06=-0.455 (Manus3); Ghf1=-0.125 (Manus04); Ghf2=-0.125 (Manus05);
 G01=-0.394 (Yoko01); G03=-0.450 (Yoko02); G13=-0.615 (Knick14); G09=-0.615 (Yoko10); 14 offen; 02,04 auf GND
