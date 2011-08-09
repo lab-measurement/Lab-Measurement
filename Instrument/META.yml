@@ -5,7 +5,7 @@ author:
 configure_requires:
   Module::Build: 0.36
 dynamic_config: 0
-generated_by: 'Module::Build version 0.3603'
+generated_by: 'Module::Build version 0.3607'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -70,6 +70,7 @@ provides:
   Lab::Instrument::YokogawaGS200:
     file: lib/Lab/Instrument/YokogawaGS200.pm
 requires:
+  Exception::Class: 1.0
   Time::HiRes: 0
 resources:
   MailingList: https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-visa-users

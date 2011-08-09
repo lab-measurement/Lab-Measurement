@@ -8,6 +8,7 @@ my $build = Module::Build->new(
     dist_abstract     => 'Instrument and bus drivers for Lab::Measurement',
     license           => 'perl',
     requires          => {
+	'Exception::Class' => '1.0',
         'Time::HiRes'   => 0,
     },
     test_files        => [ 't/3_source.t', 't/4_dummysource.t' ],
