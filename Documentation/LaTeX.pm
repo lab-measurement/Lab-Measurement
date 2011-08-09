@@ -63,7 +63,7 @@ sub _get_preamble {
     my ($self, $title, $authors) = @_;
     return '\documentclass[twoside,BCOR4mm,openright,pointlessnumbers,headexclude,a4paper,11pt,final]{scrreprt}   %bzw. twoside,openright,pointednumbers
 \pagestyle{headings}
-\usepackage[latin1]{inputenc}
+\usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
 \usepackage{textcomp}

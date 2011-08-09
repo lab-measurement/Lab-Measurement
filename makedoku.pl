@@ -21,7 +21,6 @@ my @jobs;
 for (@ARGV) {
     push @jobs, "LaTeX" if /pdf|all/i;
     push @jobs, "HTML"  if /html|web|all/i;
-#    push @jobs, "Web"   if /web/i;
 }
 
 pod2usage(
@@ -98,7 +97,7 @@ Directory to create temporary trash in. Will be deleted after execution. Default
 
 This is $Id$.
 
-Copyright 2010 Daniel Schröer (schroeer@cpan.org).
+Copyright 2010 Daniel SchrÃ¶er (schroeer@cpan.org).
 
 =cut
 
