@@ -5,12 +5,9 @@ use Module::Build;
 
 my $build = Module::Build->new(
     module_name       => 'Lab::Instrument',
-    dist_abstract     => 'High-level instrument drivers for Lab::Measurement',
+    dist_abstract     => 'Instrument and bus drivers for Lab::Measurement',
     license           => 'perl',
     requires          => {
-        'Lab::Bus' => '2.90',
-        'Lab::Connection' => '2.90',
-        'Lab::Exception' => '2.90',
         'Time::HiRes'   => 0,
     },
     test_files        => [ 't/3_source.t', 't/4_dummysource.t' ],

@@ -1,17 +1,52 @@
 ---
-abstract: 'High-level instrument drivers for Lab::Measurement'
+abstract: 'Instrument and bus drivers for Lab::Measurement'
 author:
   - 'Daniel Schröer <schroeer@cpan.org>'
 configure_requires:
   Module::Build: 0.36
 dynamic_config: 0
-generated_by: 'Module::Build version 0.3607'
+generated_by: 'Module::Build version 0.3603'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
   version: 1.4
 name: Lab-Instrument
 provides:
+  Lab::Bus:
+    file: lib/Lab/Bus.pm
+    version: 2.90
+  Lab::Bus::DEBUG:
+    file: lib/Lab/Bus/DEBUG.pm
+  Lab::Bus::DEBUG::HumanInstrument:
+    file: lib/Lab/Bus/DEBUG.pm
+  Lab::Bus::LinuxGPIB:
+    file: lib/Lab/Bus/LinuxGPIB.pm
+  Lab::Bus::MODBUS_RS232:
+    file: lib/Lab/Bus/MODBUS_RS232.pm
+  Lab::Bus::RS232:
+    file: lib/Lab/Bus/RS232.pm
+  Lab::Bus::VISA:
+    file: lib/Lab/Bus/VISA.pm
+  Lab::Connection:
+    file: lib/Lab/Connection.pm
+    version: 2.90
+  Lab::Connection::DEBUG:
+    file: lib/Lab/Connection/DEBUG.pm
+  Lab::Connection::GPIB:
+    file: lib/Lab/Connection/GPIB.pm
+  Lab::Connection::LinuxGPIB:
+    file: lib/Lab/Connection/LinuxGPIB.pm
+  Lab::Connection::MODBUS_RS232:
+    file: lib/Lab/Connection/MODBUS_RS232.pm
+  Lab::Connection::VISA:
+    file: lib/Lab/Connection/VISA.pm
+  Lab::Connection::VISA_GPIB:
+    file: lib/Lab/Connection/VISA_GPIB.pm
+  Lab::Exception:
+    file: lib/Lab/Exception.pm
+    version: 2.90
+  Lab::Exception::Base:
+    file: lib/Lab/Exception.pm
   Lab::Instrument:
     file: lib/Lab/Instrument.pm
     version: 2.90
@@ -35,9 +70,6 @@ provides:
   Lab::Instrument::YokogawaGS200:
     file: lib/Lab/Instrument/YokogawaGS200.pm
 requires:
-  Lab::Bus: 2.90
-  Lab::Connection: 2.90
-  Lab::Exception: 2.90
   Time::HiRes: 0
 resources:
   MailingList: https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-visa-users
