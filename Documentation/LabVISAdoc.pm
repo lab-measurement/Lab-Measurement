@@ -9,11 +9,11 @@ use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
 sub new {
-    my ($proto, $docdir, $tempdir) = @_;
+    my ($proto, $docdir, $tempdir, $keeptemp) = @_;
     my $self = bless {
         docdir      => $docdir,
         tempdir     => $tempdir,
-        
+        keeptemp    => $keeptemp,
     }, ref($proto) || $proto;
     
     unless (-d $$self{docdir}) {
@@ -40,11 +40,14 @@ sub process {
     $self->finish();
     
     my $basedir = getcwd();
-    if (chdir $self->{tempdir}) {
-        unlink(<*>);
-        chdir $basedir;
-    }
-    rmdir $self->{tempdir} or warn sprintf("Cannot delete temp directory %s: %s\n", $self->{tempdir}, $!);
+
+    unless ($self->{keeptemp}) {
+      if (chdir $self->{tempdir}) {
+          unlink(<*>);
+          chdir $basedir;
+      }
+      rmdir $self->{tempdir} or warn sprintf("Cannot delete temp directory %s: %s\n", $self->{tempdir}, $!);
+    } 
 }
 
 sub walk_one_section {

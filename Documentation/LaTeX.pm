@@ -56,7 +56,7 @@ sub finish {
     }
     chdir $basedir;
     
-    rename("$$self{tempdir}/documentation.pdf","$$self{docdir}/documentation.pdf") or warn "umbenennen geht nicht: $!";
+    rename("$$self{tempdir}/documentation.pdf","$$self{docdir}/documentation.pdf") or warn "umbenennen von $$self{tempdir}/documentation.pdf geht nicht: $!";
 }
 
 sub _get_preamble {
@@ -69,7 +69,7 @@ sub _get_preamble {
 \usepackage{textcomp}
 \usepackage{listings}
 \usepackage{graphicx}
-\usepackage[linktocpage,colorlinks=true,citecolor=blue,pagecolor=magenta,pdftitle={Lab::VISA documentation},pdfauthor={Daniel Schröer},pdfsubject=Manual]{hyperref}
+\usepackage[linktocpage,colorlinks=true,citecolor=blue,pagecolor=magenta,pdftitle={Lab::VISA documentation},pdfauthor={The Lab::Measurement team},pdfsubject=Manual]{hyperref}
 \lstset{language=Perl,basicstyle=\footnotesize\ttfamily,breaklines=true,
         commentstyle=\rmfamily,
         keywordstyle=\color{red}\bfseries,stringstyle=\sffamily,
@@ -94,7 +94,7 @@ sub _get_preamble {
 \includegraphics[width=12cm]{../dokutitle.pdf}
 \end{center}
 \vfill
-\today\ ($ $Revision: 595 $ $)
+\today
 
 \end{flushleft}
 \end{titlepage}

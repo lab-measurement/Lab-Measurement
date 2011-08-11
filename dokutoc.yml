@@ -1,6 +1,6 @@
 ---
-title: Lab:: Documentation
-authors: Daniel Schröer, Florian Olbrich, Andreas K. Hüttel, and others
+title: Lab::Measurement documentation
+authors: Daniel SchrÃ¶er, Florian Olbrich, Andreas K. HÃ¼ttel, and others
 toc:
   - Using Lab::
       - VISA/lib/Lab/VISA/Installation.pod:

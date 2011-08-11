@@ -10,8 +10,9 @@ my %options = (
     toc     => "dokutoc.yml",
     docdir  => "Homepage/docs",
     tempdir => "Homepage/temp",
+    keeptemp=> "",
 );
-GetOptions( \%options, "docdir=s", "tempdir=s", 'help|?' );
+GetOptions( \%options, "docdir=s", "tempdir=s", "keeptemp", 'help|?' );
 
 my @jobs;
 for (@ARGV) {
@@ -26,7 +27,7 @@ pod2usage(
   if ( $options{help} || !@jobs );
 
 for ( map "Documentation::$_", @jobs ) {
-    my $processor = new { $_ }( $options{docdir}, $options{tempdir} );
+    my $processor = new { $_ }( $options{docdir}, $options{tempdir}, $options{keeptemp} );
     $processor->process( $options{toc} );
 }
 
@@ -59,10 +60,6 @@ Create documentation in HTML format.
 
 Create documentation in PDF format.
 
-=item web
-
-Create some PHP.
-
 =item all
 
 Create documentation in html and pdf.
@@ -91,9 +88,7 @@ Directory to create temporary trash in. Will be deleted after execution. Default
 
 =head1 AUTHOR/COPYRIGHT
 
-This is $Id$.
-
-Copyright 2010 Daniel Schröer (schroeer@cpan.org).
+Copyright 2010 Daniel Schröer (schroeer@cpan.org), 2011 Andreas K. Hüttel (mail@akhuettel.de)
 
 =cut
 
