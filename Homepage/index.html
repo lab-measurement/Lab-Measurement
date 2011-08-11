@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="iso-8859-1" ?>
+<?xml version="1.0" encoding="utf8" ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de">
 <head>
@@ -8,7 +8,7 @@
 <body>
 <div id="header"><img id="logo" src="header.png" alt="Lab::VISA"/></div>
 <div id="toc">
-    <h1>Links</h1><!-- wählen -->
+    <h1>Links</h1><!-- wÃ¤hlen -->
     <h2>Documentation and Support</h2>
     <ul>
         <li><a href="index.html">Homepage</a></li>
@@ -22,7 +22,6 @@
     <h2>Download Lab::VISA</h2>
     <ul>
         <li><a href="http://search.cpan.org/dist/Lab-VISA/">Lab::VISA</a></li>
-        <li><a href="http://search.cpan.org/dist/Lab-VISA/">Lab::Connection</a></li>
         <li><a href="http://search.cpan.org/dist/Lab-Instrument/">Lab::Instrument</a></li>
         <li><a href="http://search.cpan.org/dist/Lab-Tools/">Lab::Tools</a></li>
     </ul>
@@ -30,7 +29,7 @@
 
 <p><b>Note: this page is work in progress, as is the software described here. We are at
 the moment preparing for a very first beta version of Lab::Measurement. The old, "stable" 
-relase (called Lab::VISA) can be found at <a href="http://www.labvisa.de/">http://www.labvisa.de/</a>.</b></p>
+code (called Lab::VISA) can be found at <a href="http://www.labvisa.de/">http://www.labvisa.de/</a>.</b></p>
 
 <p>Lab::Measurement allows to perform test and measurement tasks with Perl
 scripts. It provides an interface to several instrumentation control backends,
@@ -41,36 +40,42 @@ for internal details and make data aquisition as easy as
 <pre class="titleclaim">$voltage = $multimeter-&gt;read_voltage();</pre>
 </p>
 
-<p>The Lab::Measurement software stack comprises four parts that are built
+<p>The Lab::Measurement software stack comprises several parts that are built
 on top of each other and provide increasing comfort. Measurement scripts
 can be based on any of these stages.</p>
 
-<p>The lowest level is the device driver library or Perl binding. Lab::VISA, 
+<p>The lowest level is the <i>device driver</i> library or Perl binding. <i>Lab::VISA</i>, 
 distributed here, makes the NI-VISA library accessible from Perl and thus allows 
 to make any standard VISA call. This way, a wide variety of devices can be addressed. 
 Installation of NI-VISA is straightforward on Windows but can be VERY cumbersome on recent 
-Linux variants. Therefore, other independently developed drivers such as Linux-GPIB, 
+Linux variants. Therefore, other independently developed drivers such as <i>Linux-GPIB</i>, 
 the de-facto standard for addressing GPIB devices under Linux, can also be used;
 support for more backends is being developed.
 </p>
 
 <p>
-As the backends vary in API details, each of these is encapsulated into a perl module 
-of type Lab::Connection. Imagine a Connection as a bus, or a GPIB cable. All measurement 
-devices on one cable share a Connection, passing commands and data to and from the computer. 
-If your measurement script works under Linux with Lab::Connection::GPIB, 
-it will also work with Lab::Connection::VISA by just instantiating a different Connection 
-object.
+As the backends vary in API details, each of these is encapsulated into perl modules
+of types Lab::Bus and Lab::Connection. Imagine a Bus as a cable. All measurement 
+devices on one cable share a Bus, passing commands and data to and from the computer 
+using one Connection per instrument. If your measurement script works under Linux 
+with Lab::Connection::LinuxGPIB, it will also work with Lab::Connection::VISA by 
+just instantiating a different Connection object. Normally you won't have to care much
+about this; at most, your Instrument object (see below) gets different initialization
+parameters.
 </p>
 
 <p>
-The modules in the Lab::Instrument package make communication
-with instruments easier by silently handling the protocol overhead.
-Drivers for specific devices are included; more can easily be added to 
-provide high-level functions. Package Lab::Tools is the highest abstraction layer and is
-intended to support writing better measurement scripts. The modules in
-this package offer means to log and plot data and its related meta
-information.
+The modules in the <i>Lab::Instrument</i> package make communication with instruments easier 
+by silently handling all the protocol overhead. You can just Write commands to an instrument
+and Read the result. Drivers for specific devices are included, implementing their command
+syntax (e.g. set_voltage(...)); more can easily be added to provide additional high-level functions. 
+</p>
+
+
+<p>
+Package Lab::Tools is the highest abstraction layer and is intended to support writing 
+better measurement scripts. The modules in this package offer means to log and plot data 
+and its related metadata.
 </p>
 
 <p>These packages together are referred to as the Lab::Measurement system.
@@ -81,7 +86,6 @@ Designed to make data aquisition fun!</p>
 Follow these links for
 <ul>
     <li><a href="http://search.cpan.org/dist/Lab-VISA/">Lab::VISA</a>,</li>
-    <li><a href="http://search.cpan.org/dist/Lab-Connection/">Lab::Connection</a>,</li>
     <li><a href="http://search.cpan.org/dist/Lab-Instrument/">Lab::Instrument</a>,
     and</li>
     <li><a href="http://search.cpan.org/dist/Lab-Tools/">Lab::Tools</a>.</li>
@@ -123,7 +127,7 @@ in academic and industrial r&amp;d environments.</p>
 continued by <a href="http://www.akhuettel.de/">Andreas K.
 H&uuml;ttel</a>, Daniela Taubert, and Daniel Schr&ouml;er. Most of the documentation was
 written by Daniel Schr&ouml;er. In 2011, the code was refactored mostly by Florian Olbrich
-to include the Connection layer; subsequently the name of the entire package collection
+to include the Bus and Connection layers; subsequently the name of the entire package collection
 was changed to Lab::Measurement.
 </p>
 
