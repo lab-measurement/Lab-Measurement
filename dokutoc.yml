@@ -10,26 +10,26 @@ toc:
           pdf: 1
   - The Lab::VISA package:
       - VISA/VISA.pod
-  - The Lab::Bus package:
-      - Instrument/lib/Lab/Bus.pm
-  - The Lab::Connection package:
-      - Instrument/lib/Lab/Connection.pm
+  - The Lab::Instrument package:
+      - Bus classes:
+          - Instrument/lib/Lab/Bus.pm
       - Connection classes:
+          - Instrument/lib/Lab/Connection.pm
 #          - Instrument/lib/Lab/Connection/DEBUG.pm
           - Instrument/lib/Lab/Connection/GPIB.pm
 #          - Instrument/lib/Lab/Connection/MODBUS_RS232.pm
 #          - Instrument/lib/Lab/Connection/RS232.pm
           - Instrument/lib/Lab/Connection/VISA.pm
           - Instrument/lib/Lab/Connection/VISA_GPIB.pm
-  - The Lab::Instrument package:
-      - Instrument/lib/Lab/Instrument.pm
-      - Multimeters:
-          - Instrument/lib/Lab/Instrument/HP34401A.pm
-      - Voltage Sources:
-          - Instrument/lib/Lab/Instrument/Source.pm
-          - Instrument/lib/Lab/Instrument/Yokogawa7651.pm
-      - Amplifiers:
-          - Instrument/lib/Lab/Instrument/SR830.pm
+      - Instrument classes:
+          - Instrument/lib/Lab/Instrument.pm
+          - Multimeters:
+              - Instrument/lib/Lab/Instrument/HP34401A.pm
+          - Voltage Sources:
+              - Instrument/lib/Lab/Instrument/Source.pm
+              - Instrument/lib/Lab/Instrument/Yokogawa7651.pm
+          - Amplifiers:
+              - Instrument/lib/Lab/Instrument/SR830.pm
   - The Lab::Tools package:
       - Tools/lib/Lab/Data/Writer.pm
       - Tools/lib/Lab/Measurement.pm
