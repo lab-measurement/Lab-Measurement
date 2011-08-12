@@ -30,20 +30,8 @@
 
 \blib/Lab/Data/PDL.pm$
 \blib/Lab/Measurement/Ladediagramm.pm$
-\bscripts/coulomb
-\bscripts/gate_leck.pl
-\bscripts/Kondo
-\bscripts/lade
-\bscripts/lecktester.pl
-\bscripts/noise.pl
-\bscripts/pdl
-\bscripts/pressure.pl
-\bscripts/QPC
-\bscripts/raw_tools
-\bscripts/test_measurement.pl
-\bscripts/triple
-\bscripts/TSK
 
+# Avoid test files
 \bt/Dataset.t
 \bt/XMLtree.t
 \bt/Generator.t
@@ -52,5 +40,6 @@
 \bt/xml-generator-test.pl
 \bt/rauscheck_langsam_001
 
+# dist files
 .tar.gz$
 

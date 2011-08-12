@@ -11,22 +11,6 @@ meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
   version: 1.4
 name: Lab-Tools
-provides:
-  Lab::Data::Meta:
-    file: lib/Lab/Data/Meta.pm
-    version: 1.0000
-  Lab::Data::Plotter:
-    file: lib/Lab/Data/Plotter.pm
-    version: 1.0000
-  Lab::Data::Writer:
-    file: lib/Lab/Data/Writer.pm
-    version: 0.0000
-  Lab::Data::XMLtree:
-    file: lib/Lab/Data/XMLtree.pm
-    version: 1.0000
-  Lab::Measurement:
-    file: lib/Lab/Measurement.pm
-    version: 0.0000
 recommends:
   Lab::Instrument: 2.90
   Lab::VISA: 2.90

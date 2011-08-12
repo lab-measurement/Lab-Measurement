@@ -24,10 +24,7 @@ my $build = Module::Build->new(
         'Lab::VISA'          => '2.90',
         'Lab::Instrument'    => '2.90',
     },
-    script_files => [qw(
-        scripts/yoko_goto.pl    scripts/knick_goto.pl   scripts/hp_read.pl
-        scripts/plotter.pl      scripts/metainfo.pl
-    )],
+    script_files => 'scripts',
     create_readme => 0,
     dist_author   => 'Daniel Schröer <schroeer@cpan.org>',
     meta_merge    => {
