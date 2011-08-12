@@ -25,8 +25,14 @@ my $build = Module::Build->new(
         'Lab::Instrument'    => '2.90',
     },
     script_files => 'scripts',
+    share_dir => {
+        dist => [ 'examples' ],
+    },
     create_readme => 0,
-    dist_author   => 'Daniel Schröer <schroeer@cpan.org>',
+    dist_author   => [ 
+        'Daniel Schröer <schroeer@cpan.org>',
+        'Andreas K. Hüttel <mail@akhuettel.de>' 
+    ],
     meta_merge    => {
         resources => {
             homepage    => 'http://www.labmeasurement.de/',

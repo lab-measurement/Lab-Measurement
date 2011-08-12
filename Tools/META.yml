@@ -2,6 +2,7 @@
 abstract: 'Tools to obtain and handle data with Lab::Measurement'
 author:
   - 'Daniel Schröer <schroeer@cpan.org>'
+  - 'Andreas K. Hüttel <mail@akhuettel.de>'
 configure_requires:
   Module::Build: 0.36
 dynamic_config: 0
@@ -20,6 +21,7 @@ requires:
   Encode: 0
   File::Basename: 0
   File::Copy: 0
+  File::ShareDir: 1.00
   Time::HiRes: 0
   XML::DOM: 0
   XML::Generator: 0
