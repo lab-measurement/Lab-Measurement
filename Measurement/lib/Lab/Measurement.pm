@@ -2,6 +2,8 @@
 
 package Lab::Measurement;
 
+$Lab::Measurement::VERSION='2.91';
+
 use strict;
 use warnings;
 #use encoding::warnings;
@@ -339,8 +341,6 @@ magic log. deprecated.
 =back
 
 =head1 AUTHOR/COPYRIGHT
-
-This is $Id$
 
 Copyright 2004-2006 Daniel Schröer (L<http://www.danielschroeer.de>)
 

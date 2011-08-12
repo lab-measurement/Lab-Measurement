@@ -3,6 +3,15 @@
 /.settings
 /.project
 
+# /Measurement/
+/Measurement/blib
+/Measurement/_build
+/Measurement/Build
+/Measurement/Build.bat
+/Measurement/pod2htmd.tmp
+/Measurement/pod2htmi.tmp
+/Measurement/MYMETA.yml
+
 # /Bus/
 /Bus/blib
 /Bus/_build
