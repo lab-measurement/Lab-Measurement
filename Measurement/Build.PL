@@ -25,7 +25,6 @@ my $build = Module::Build->new(
     share_dir => {
         dist => [ 'examples' ],
     },
-    test_files        => [ 't/3_source.t', 't/4_dummysource.t' ],
     create_readme     => 0,
     dist_author       => ['Daniel Schröer <schroeer@cpan.org>',
                           'Andreas K. Huettel <mail@akhuettel.de>',
