@@ -69,7 +69,7 @@ sub _get_preamble {
 \usepackage{textcomp}
 \usepackage{listings}
 \usepackage{graphicx}
-\usepackage[linktocpage,colorlinks=true,citecolor=blue,pagecolor=magenta,pdftitle={Lab::VISA documentation},pdfauthor={The Lab::Measurement team},pdfsubject=Manual]{hyperref}
+\usepackage[linktocpage,colorlinks=true,citecolor=blue,pagecolor=magenta,pdftitle={Lab::Measurement documentation},pdfauthor={The Lab::Measurement team},pdfsubject=Manual]{hyperref}
 \lstset{language=Perl,basicstyle=\footnotesize\ttfamily,breaklines=true,
         commentstyle=\rmfamily,
         keywordstyle=\color{red}\bfseries,stringstyle=\sffamily,

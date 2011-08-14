@@ -12,59 +12,10 @@
 /Measurement/pod2htmi.tmp
 /Measurement/MYMETA.yml
 
-# /Bus/
-/Bus/blib
-/Bus/_build
-/Bus/Build
-/Bus/Build.bat
-/Bus/pod2htmd.tmp
-/Bus/pod2htmi.tmp
-/Bus/MYMETA.yml
-
-# /Connection/
-/Connection/blib
-/Connection/_build
-/Connection/Build
-/Connection/Build.bat
-/Connection/pod2htmd.tmp
-/Connection/pod2htmi.tmp
-/Connection/MYMETA.yml
-
-# /Documentation/
-/Documentation/html
-/Documentation/index.html
-/Documentation/documentation.pdf
-/Documentation/toc.html
-
-# /Exception/
-/Exception/Build
-/Exception/Build.bat
-/Exception/_build
-/Exception/blib
-
 # /Homepage/
-/Homepage/index.php
 /Homepage/docs
 /Homepage/docs-1.x
 /Homepage/temp
-
-# /Instrument/
-/Instrument/*.bak
-/Instrument/Build
-/Instrument/Build.bat
-/Instrument/MYMETA.yml
-/Instrument/_build
-/Instrument/blib
-/Instrument/pod2htmd.tmp
-/Instrument/pod2htmi.tmp
-
-# /Tools/
-/Tools/_build
-/Tools/Build
-/Tools/blib
-/Tools/MYMETA.yml
-
-
 
 # /VISA/
 /VISA/*.obj

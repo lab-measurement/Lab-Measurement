@@ -2,23 +2,14 @@
 title: Lab::Measurement documentation
 authors: Daniel Schröer, Florian Olbrich, Andreas K. Hüttel, and others
 toc:
-  - Using Lab::
-      - VISA/lib/Lab/VISA/Installation.pod:
-          pdf: 0
-      - VISA/lib/Lab/VISA/Tutorial.pod:
-          index: 1
-          pdf: 1
-  - The Lab::VISA package:
-      - VISA/VISA.pod
   - The Lab::Measurement package:
+      - Measurement/lib/Lab/Measurement/Installation.pod
+      - Measurement/lib/Lab/Measurement/Tutorial.pod
       - Bus classes:
           - Measurement/lib/Lab/Bus.pm
       - Connection classes:
           - Measurement/lib/Lab/Connection.pm
-#          - Measurement/lib/Lab/Connection/DEBUG.pm
           - Measurement/lib/Lab/Connection/GPIB.pm
-#          - Measurement/lib/Lab/Connection/MODBUS_RS232.pm
-#          - Measurement/lib/Lab/Connection/RS232.pm
           - Measurement/lib/Lab/Connection/VISA.pm
           - Measurement/lib/Lab/Connection/VISA_GPIB.pm
       - Instrument classes:
@@ -30,10 +21,14 @@ toc:
               - Measurement/lib/Lab/Instrument/Yokogawa7651.pm
           - Amplifiers:
               - Measurement/lib/Lab/Instrument/SR830.pm
-  - The Lab::Tools package:
-      - Measurement/lib/Lab/Data/Writer.pm
-      - Measurement/lib/Lab/Measurement.pm
-      - Measurement/lib/Lab/Data/Meta.pm
-      - Measurement/lib/Lab/Data/XMLtree.pm
-      - Measurement/lib/Lab/Data/Plotter.pm
-      - Measurement/scripts/plotter.pl
+      - High-level tool classes:
+          - Measurement/lib/Lab/Data/Writer.pm
+          - Measurement/lib/Lab/Measurement.pm
+          - Measurement/lib/Lab/Data/Meta.pm
+          - Measurement/lib/Lab/Data/XMLtree.pm
+          - Measurement/lib/Lab/Data/Plotter.pm
+      - Ready-made scripts:
+          - Measurement/scripts/plotter.pl
+  - The Lab::VISA package:
+      - VISA/lib/Lab/VISA/Installation.pod
+      - VISA/VISA.pod

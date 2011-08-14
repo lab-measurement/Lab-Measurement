@@ -18,7 +18,7 @@ sub start {
     
     print {$self->{index_fh}} $self->_get_header($title);
     print {$self->{index_fh}} qq{
-        <h1><a href="../index.html">Lab::VISA</a> Documentation</h1>
+        <h1><a href="../index.html">Lab::Measurement</a> Documentation</h1>
         <p>$authors</p>
     };
 }
