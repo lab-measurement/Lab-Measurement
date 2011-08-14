@@ -14,16 +14,14 @@
         <li><a href="index.html">Homepage</a></li>
         <li><a href="backends.html">Back-ends</a></li>
         <li><a href="docs/index.html">API documentation</a></li>
-        <li><a href="docs/Tutorial.html">Tutorial on Lab::VISA (old)</a></li>
+        <li><a href="docs/Tutorial.html">Tutorial (outdated)</a></li>
         <li><a href="docs/installation.html">Installation guide</a></li>
-        <li><a href="Lab-VISA-talk.pdf">Presentation slides (old)</a></li>
+        <li><a href="Lab-VISA-talk.pdf">Presentation slides (outdated)</a></li>
         <li><a href="https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-visa-users">Mailing list</a></li>
     </ul>
-    <h2>Download Lab::VISA</h2>
+    <h2>Download Lab::Measurement</h2>
     <ul>
-        <li><a href="http://search.cpan.org/dist/Lab-VISA/">Lab::VISA</a></li>
-        <li><a href="http://search.cpan.org/dist/Lab-Instrument/">Lab::Instrument</a></li>
-        <li><a href="http://search.cpan.org/dist/Lab-Tools/">Lab::Tools</a></li>
+        <li><a href="http://search.cpan.org/dist/Lab-Measurement/">Lab::Measurement</a></li>
     </ul>
 </div>
 
@@ -41,22 +39,13 @@ for internal details and make data aquisition as easy as
 </p>
 
 <p>The Lab::Measurement software stack comprises several parts that are built
-on top of each other and provide increasing comfort. Measurement scripts
-can be based on any of these stages.</p>
-
-<p>The lowest level is the <i>device driver</i> library or Perl binding. <i>Lab::VISA</i>, 
-distributed here, makes the NI-VISA library accessible from Perl and thus allows 
-to make any standard VISA call. This way, a wide variety of devices can be addressed. 
-Installation of NI-VISA is straightforward on Windows but can be VERY cumbersome on recent 
-Linux variants. Therefore, other independently developed drivers such as <i>Linux-GPIB</i>, 
-the de-facto standard for addressing GPIB devices under Linux, can also be used;
-support for more backends is being developed.
-</p>
+on top of each other. This modularization allows support for a wide range of hardware
+on different operating systems.</p>
 
 <p>
-As the backends vary in API details, each of these is encapsulated into perl modules
-of types Lab::Bus and Lab::Connection. Imagine a Bus as a cable. All measurement 
-devices on one cable share a Bus, passing commands and data to and from the computer 
+As hardware drivers vary in API details, each supported one is encapsulated into perl modules
+of types <i>Lab::Bus</i> and <i>Lab::Connection</i>. Imagine a Bus as a cable. All measurement 
+devices on one cable share a Bus object, passing commands and data to and from the computer 
 using one Connection per instrument. If your measurement script works under Linux 
 with Lab::Connection::LinuxGPIB, it will also work with Lab::Connection::VISA by 
 just instantiating a different Connection object. Normally you won't have to care much
@@ -65,32 +54,22 @@ parameters.
 </p>
 
 <p>
-The modules in the <i>Lab::Instrument</i> package make communication with instruments easier 
-by silently handling all the protocol overhead. You can just Write commands to an instrument
-and Read the result. Drivers for specific devices are included, implementing their command
+A typical measurement script does not care much about these details, but is based on the 
+high-level interface provided by the modules <i>Lab::Instrument</i> and <i>Lab::Measurement</i>. 
+The former silently handles all the protocol overhead. You can just write commands to an instrument
+and read the result. Drivers for specific devices are included, implementing their command
 syntax (e.g. set_voltage(...)); more can easily be added to provide additional high-level functions. 
+The latter includes tools for metadata handling (what was that amplifier setting in the measurement
+again?!), plotting and similar.
 </p>
 
-
-<p>
-Package Lab::Tools is the highest abstraction layer and is intended to support writing 
-better measurement scripts. The modules in this package offer means to log and plot data 
-and its related metadata.
-</p>
-
-<p>These packages together are referred to as the Lab::Measurement system.
+<p>These classes together are distributet as the Lab::Measurement system.
 Designed to make data aquisition fun!</p>
 
 <h2>How to obtain</h2>
-<p>The packages are free software and can be downloaded from CPAN.
-Follow these links for
-<ul>
-    <li><a href="http://search.cpan.org/dist/Lab-VISA/">Lab::VISA</a>,</li>
-    <li><a href="http://search.cpan.org/dist/Lab-Instrument/">Lab::Instrument</a>,
-    and</li>
-    <li><a href="http://search.cpan.org/dist/Lab-Tools/">Lab::Tools</a>.</li>
-</ul>
-The <a href="https://www.gitorious.org/lab-measurement/">source code archive is 
+<p>
+Lab::Measurement is free software and can be <a href="http://search.cpan.org/dist/Lab-Measurement/">downloaded 
+from CPAN</a>. The <a href="https://www.gitorious.org/lab-measurement/">source code archive is 
 hosted at Gitorious</a>, where you can also obtain the newest pre-release code and 
 browse the version history. If you would like to contribute, just send us your patches, 
 merge requests, ... :)
@@ -100,13 +79,13 @@ merge requests, ... :)
 <p>Quite some <a href="docs/index.html">documentation of Lab::Measurement</a>
 (<a href="docs/documentation.pdf">PDF format</a>) is available. This
 documentation includes a <a href="docs/Tutorial.html">tutorial on
-using Lab::VISA</a> (outdated). Detailed <a href="docs/installation.html">installation
+using Lab::Measurement</a> (outdated). Detailed <a href="docs/installation.html">installation
 instructions</a> are provided as well. In addition, there's also a collection
 of <a href="backends.html">back-end specific documentation and links</a>.
 </p>
 <p>There is a <a
     href="https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-visa-users">mailing
-list (lab-visa-users)</a> set up for Lab::VISA. This mailing list is the
+list (lab-visa-users)</a> set up for Lab::VISA and Lab::Measurement. This mailing list is the
 right place to give feedback and ask for help.</p>
 
 <h2>Status</h2>
