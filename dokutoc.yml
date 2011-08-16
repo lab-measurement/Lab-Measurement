@@ -21,6 +21,8 @@ toc:
               - Measurement/lib/Lab/Instrument/Yokogawa7651.pm
           - Amplifiers:
               - Measurement/lib/Lab/Instrument/SR830.pm
+          - Generic:
+              - Measurement/lib/Lab/Instrument/Generic_String.pm
       - High-level tool classes:
           - Measurement/lib/Lab/Data/Writer.pm
           - Measurement/lib/Lab/Measurement.pm

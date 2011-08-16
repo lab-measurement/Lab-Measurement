@@ -98,8 +98,8 @@ Lab::Instrument::Generic_String - generic instrument driver for devices driven b
 
 =head1 SYNOPSIS
 
-  Lab::Instrument::Generic_String will accept all connection types and try to write and read strings to/from them.
-  Usage:
+Lab::Instrument::Generic_String will accept all connection types and try to write and read strings to/from them.
+Usage:
 
   use Lab::Instrument::Generic_String;
 

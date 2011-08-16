@@ -101,7 +101,7 @@ sub _construct {	# _construct(__PACKAGE__);
 }
 
 
-sub _checkconnection { # Connection object or ConnType string
+sub _checkconnection { # Connection object or connection_type string (as in Lab::Connections::<connection_type>)
 	my $self=shift;
 	my $connection=shift || undef;
 	my $found = 0;
@@ -111,8 +111,13 @@ sub _checkconnection { # Connection object or ConnType string
 	return 0 if ! defined $connection;
 
 	no strict 'refs';
-	for my $conn_supp ( @{$self->supported_connections()} ) {
-		return $conn_supp if( $connection->isa('Lab::Connection::'.$conn_supp));
+	if( grep(/^ALL$/, @{$self->supported_connections()}) == 1 ) {
+		return $connection;
+	}
+	else {
+		for my $conn_supp ( @{$self->supported_connections()} ) {
+			return $conn_supp if( $connection->isa('Lab::Connection::'.$conn_supp));
+		}
 	}
 
 	return undef;
