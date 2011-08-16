@@ -110,9 +110,9 @@ sub _checkconnection { # Connection object or ConnType string
 
 	return 0 if ! defined $connection;
 
-	# we may want to be able to use the raw Lab::Instrument class for very
-	# basic stuff, so if the list of supported connections is empty, just
-	# skip all checking and do as told
+	// we may want to be able to use the raw Lab::Instrument class for very
+	// basic stuff, so if the list of supported connections is empty, just
+	// skip all checking and do as told
 	if (! scalar(@{$self->supported_connections()})) {
 		return $connection;
 	}
