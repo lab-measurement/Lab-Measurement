@@ -21,7 +21,8 @@
     </ul>
     <h2>Download Lab::Measurement</h2>
     <ul>
-        <li><a href="http://search.cpan.org/dist/Lab-Measurement/">Lab::Measurement</a></li>
+        <li><a href="http://search.cpan.org/dist/Lab-Measurement/">CPAN releases</a></li>
+        <li><a href="https://www.gitorious.org/lab-measurement/">Gitorious</a></li>
     </ul>
 </div>
 
@@ -48,22 +49,22 @@ of types <i>Lab::Bus</i> and <i>Lab::Connection</i>. Imagine a Bus as a cable. A
 devices on one cable share a Bus object, passing commands and data to and from the computer 
 using one Connection per instrument. If your measurement script works under Linux 
 with Lab::Connection::LinuxGPIB, it will also work with Lab::Connection::VISA by 
-just instantiating a different Connection object. Normally you won't have to care much
+just instantiating a different Connection object. Normally you won't have to care
 about this; at most, your Instrument object (see below) gets different initialization
 parameters.
 </p>
 
 <p>
-A typical measurement script does not care much about these details, but is based on the 
+A typical measurement script is based on the 
 high-level interface provided by the modules <i>Lab::Instrument</i> and <i>Lab::Measurement</i>. 
 The former silently handles all the protocol overhead. You can just write commands to an instrument
 and read the result. Drivers for specific devices are included, implementing their command
 syntax (e.g. set_voltage(...)); more can easily be added to provide additional high-level functions. 
 The latter includes tools for metadata handling (what was that amplifier setting in the measurement
-again?!), plotting and similar.
+again?!), plotting, and similar.
 </p>
 
-<p>These classes together are distributet as the Lab::Measurement system.
+<p>These classes together are distributed as the Lab::Measurement system.
 Designed to make data aquisition fun!</p>
 
 <h2>How to obtain</h2>
