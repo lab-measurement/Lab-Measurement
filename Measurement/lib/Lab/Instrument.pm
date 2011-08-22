@@ -64,6 +64,11 @@ sub new {
 
 	$self->config($config);
 
+	# _setconnection after providing $config - needed for direct instantiation of Lab::Instrument
+	if( $class eq __PACKAGE__ ) {
+		$self->_setconnection();
+	}
+
 	# digest parameters
 	$self->device_name($self->config('device_name')) if defined $self->config('device_name');
 	$self->device_comment($self->config('device_comment')) if defined $self->config('device_comment');
@@ -95,7 +100,7 @@ sub _construct {	# _construct(__PACKAGE__);
 	# _construct() has been called from the instantiated class (and not from somewhere up the heritance hierarchy)
 	# That's because child classes can add new entrys to $self->supported_connections(), so delay checking to the top class.
 	#
-	if( $class eq $package ) {
+	if( $class eq $package && $class ne 'Lab::Instrument' ) {
 		$self->_setconnection();
 	}
 }
