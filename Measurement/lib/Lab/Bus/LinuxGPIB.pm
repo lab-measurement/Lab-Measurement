@@ -71,7 +71,7 @@ sub connection_new { # { gpib_address => primary address }
 	# see: http://linux-gpib.sourceforge.net/doc_html/r1297.html
 	# for timeout constant table: http://linux-gpib.sourceforge.net/doc_html/r2137.html
 	# ibdev arguments: board index, primary address, secondary address, timeout (constants, see link), send_eoi, eos (end-of-string character)
-	print "Opening device: " . $gpib_address . "\n";
+	# print "Opening device: " . $gpib_address . "\n";
 	$gpib_handle = ibdev(0, $gpib_address, 0, 12, 1, 0);
 
 	# clear
