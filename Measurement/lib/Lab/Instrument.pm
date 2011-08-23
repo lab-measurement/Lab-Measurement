@@ -446,9 +446,10 @@ Every inheriting class' constructors should start as follows:
 
 =head1 DESCRIPTION
 
-C<Lab::Instrument> is the base class for Instruments. It doesn't do anything by itself, but
+C<Lab::Instrument> is the base class for Instruments. It doesn't do much by itself, but
 is meant to be inherited in specific instrument drivers.
-It provides general C<Read>, C<Write> and C<Query> methods and basic connection handling (internal, C<_set_connection>, C<_check_connection>).
+It provides general C<read>, C<write> and C<query> methods and basic connection handling 
+(internal, C<_set_connection>, C<_check_connection>).
 
 The connection object can be obtained by calling C<connection()>.
 
@@ -476,15 +477,15 @@ Arguments: just the configuration hash passed along from child classes' construc
 
 =head1 METHODS
 
-=head2 Write
+=head2 write
 
- $instrument->Write($command);
+ $instrument->write($command);
  
 Sends the command C<$command> to the instrument.
 
-=head2 Read
+=head2 read
 
- $result=$instrument->Read({ ReadLength => <max length>, Cmd => <command>, Brutal => <1/0>);
+ $result=$instrument->read({ ReadLength => <max length>, Cmd => <command>, Brutal => <1/0>);
 
 Reads a result of C<ReadLength> from the instrument and returns it.
 Returns an exception on error.
@@ -499,11 +500,11 @@ Generally, all options are passed to the connection, so additional options may b
 
 Equivalent to
 
- $result=$instrument->Read({ Brutal =>  1 });
+ $result=$instrument->read({ Brutal =>  1 });
 
-=head2 Query
+=head2 query
 
- $result=$instrument->Query({ Cmd => $command, WaitQuery => $wait_query, ReadLength => $max length, WaitStatus => $wait_status);
+ $result=$instrument->query({ Cmd => $command, WaitQuery => $wait_query, ReadLength => $max length, WaitStatus => $wait_status);
 
 Sends the command C<$command> to the instrument and reads a result from the
 instrument and returns it. The length of the read buffer is set to C<ReadLength> or to the
