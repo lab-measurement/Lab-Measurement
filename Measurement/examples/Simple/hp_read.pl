@@ -1,7 +1,5 @@
 #!/usr/bin/perl
 
-#$Id$
-
 use strict;
 use Lab::Instrument::HP34401A;
 
@@ -14,8 +12,14 @@ unless (@ARGV > 0) {
 
 my $hp_gpib=$ARGV[0];
 
-my $hp=new Lab::Instrument::HP34401A(0,$hp_gpib);
+print "Reading voltage from HP34401A at GPIB address $hp_gpib\n";
+
+my $hp=new Lab::Instrument::HP34401A(
+	connection_type=>'LinuxGPIB',
+	gpib_address => $hp_gpib,
+	gpib_board=>0,
+);
 
 my $read_volt=$hp->read_voltage_dc(10,0.00001);
 
-print "$read_volt\n";
+print "Result: $read_volt V\n";
