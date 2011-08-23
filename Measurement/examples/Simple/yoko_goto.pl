@@ -11,10 +11,18 @@ unless (@ARGV > 0) {
 
 my ($gpib,$goto)=@ARGV;
 
-my $source=new Lab::Instrument::Yokogawa7651(0,$gpib);
+my $source=new Lab::Instrument::Yokogawa7651(
+        connection_type=>'LinuxGPIB',
+        gpib_address => $gpib,
+        gpib_board=>0,
+	gate_protect=>1,
+	gp_max_volt_per_second=>0.05,
+	gp_max_step_per_second=>10,
+	gp_max_volt_per_step=>0.005
+);
 
 if (defined $goto) {
-    $source->sweep_to_voltage($goto);
+    $source->set_voltage($goto);
 } else {
     print $source->get_voltage();
 }
