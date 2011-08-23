@@ -132,11 +132,11 @@ sub configure {
 		for my $conf_name (keys %{$self->device_settings()}) {
 			#print "Key: $conf_name, default: ",$self->{default_config}->{$conf_name},", old config: ",$self->{config}->{$conf_name},", new config: ",$config->{$conf_name},"\n";
 			if( defined($config->{$conf_name}) ) {		# in given config? => set value
-				print "Setting $conf_name to $config->{$conf_name}\n";
+				# print "Setting $conf_name to $config->{$conf_name}\n";
 				$self->device_settings()->{$conf_name} = $config->{$conf_name};
 			}
 			elsif( defined($self->default_device_settings()->{$conf_name}) ) {	# or in default config? => set value
-				print "Setting $conf_name to " . $self->default_device_settings()->{$conf_name} ."\n";
+				# print "Setting $conf_name to " . $self->default_device_settings()->{$conf_name} ."\n";
 				$self->device_settings()->{$conf_name} = $self->default_device_settings()->{$conf_name};
 			}
 		}
