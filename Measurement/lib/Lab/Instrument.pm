@@ -186,6 +186,50 @@ sub _checkconfig {
 }
 
 
+#
+# Generic utility methods for string based connections (most common, SCPI etc.).
+# For connections not based on command strings these should probably be overwritten/disabled!
+#
+
+#
+# passing through generic Write, Read and Query from the connection.
+#
+
+sub write {
+	my $self=shift;
+	my $command=shift;
+	my $options=undef;
+	if (ref $_[0] eq 'HASH') { $options=shift }
+	else { $options={@_} }
+
+	$options->{'command'} = $command;
+	
+	return $self->connection()->Write($options);
+}
+
+
+sub read {
+	my $self=shift;
+	my $options=undef;
+	if (ref $_[0] eq 'HASH') { $options=shift }
+	else { $options={@_} }
+
+	return $self->connection()->Read($options);
+}
+
+
+sub query {
+	my $self=shift;
+	my $command=shift;
+	my $options=undef;
+	if (ref $_[0] eq 'HASH') { $options=shift }
+	else { $options={@_} }
+
+	$options->{'command'} = $command;
+
+	return $self->connection()->Query($options);
+}
+
 
 
 
