@@ -31,7 +31,7 @@ our %fields = (
 	ins_debug => 0, # do we need additional output?
 
 	connection => undef,
-	supported_connections => [ ],
+	supported_connections => [ 'ALL' ],
 	# for connection default settings/user supplied settings. see accessor method.
 	connection_settings => {
 		connection_type => 'LinuxGPIB',	
