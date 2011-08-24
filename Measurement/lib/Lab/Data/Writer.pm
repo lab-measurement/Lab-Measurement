@@ -12,8 +12,8 @@ use Lab::Data::Meta;
 our $VERSION = sprintf( "0.%04d", q$Revision$ =~ / (\d+) / );
 
 my $default_config = {
-    output_data_ext     => "DATA",
-    output_meta_ext     => "META",
+    output_data_ext     => "dat",
+    output_meta_ext     => "meta",
 
     output_col_sep      => "\t",
     output_line_sep     => "\n",
@@ -281,8 +281,8 @@ See L<configure> below for available configuration options.
 
 Available options and default values are
 
-    output_data_ext     => "DATA",
-    output_meta_ext     => "META",
+    output_data_ext     => "dat",
+    output_meta_ext     => "meta",
 
     output_col_sep      => "\t",
     output_line_sep     => "\n",
