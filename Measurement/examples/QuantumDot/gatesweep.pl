@@ -13,9 +13,9 @@ use Lab::Measurement;
 
 #---gate settings---
 
-my $Vgatestart = 0;			# all gate voltages in V
+my $Vgatestart= 0;			# all gate voltages in V
 my $Vgatestop = 0.1;
-my $stepgate = 0.001;
+my $Vgatestep = 0.001;
 
 my $gateprotect = 1;			# 0=off 1=on
 my $Vgatemax = 7;			# for gateprotect
@@ -26,11 +26,11 @@ my $sample="DB_3224";
 
 #---about the setup---
 
-my $bias=-15;				# bias voltage in mV
-my $ampI=1.0e10;				# amplification ( V / A )
+my $Vbias=-15;				# bias voltage in mV
+my $preampVpI=1.0e10;			# preamplification ( V/A )
 
 my $gpib_yoko_backgate = 3;
-my $gpib_hp2 = 12;
+my $gpib_hp = 12;
 
 ########## end configuration block ############
 
@@ -51,7 +51,7 @@ my $YokGate=new Lab::Instrument::Yokogawa7651({
     'gate_protect'  => $gateprotect,
     'gp_max_volt_per_second' => 0.05,
     'gp_max_step_per_second' => 10,
-    'gp_max_volt_per_step' => 0.01,
+    'gp_max_volt_per_step' => 0.005,
     'gp_min_volt' => -$Vgatemax,
     'gp_max_volt'  => $Vgatemax,
 });
@@ -59,17 +59,17 @@ my $YokGate=new Lab::Instrument::Yokogawa7651({
 $YokGate->set_voltage($Vgatestart);
 
 # current measurement multimeter (measures voltage at output of preamp)
-my $hp2=new Lab::Instrument::HP34401A(
+my $HP=new Lab::Instrument::HP34401A(
     'connection_type' => 'LinuxGPIB',
-    'gpib_address'  => $gpib_hp2,
+    'gpib_address'  => $gpib_hp,
 );
 
 # the comment text for the metadata
 my $comment=<<COMMENT;
 Sample $sample
-Gate sweep from $Vgatestart to $Vgatestop step $stepgate
-Bias $bias mV
-Preamplifier setting $ampI V/A
+Gate sweep from $Vgatestart to $Vgatestop step $Vgatestep
+Bias $Vbias mV
+Preamplifier setting $preampVpI V/A
 $startstring
 COMMENT
 
@@ -85,7 +85,7 @@ my $measurement=new Lab::Measurement(
     constants       => [
         {
             'name'          => 'ampI',
-            'value'         => $ampI,
+            'value'         => $preampVpI,
         },
     ],
     columns         => [
@@ -133,10 +133,10 @@ my $measurement=new Lab::Measurement(
 
 # we have to make sure that the step size has the correct sign to 
 # go from start to stop 
-if (($Vgatestop-$Vgatestart)/$stepgate<0) { $stepgate=-$stepgate; };
+if (($Vgatestop-$Vgatestart)/$Vgatestep<0) { $Vgatestep=-$Vgatestep; };
 
 # which way are we going?
-my $stepsign_gate=$stepgate/abs($stepgate);
+my $stepsign_gate=$Vgatestep/abs($Vgatestep);
 
 # every "trace" in a measurement has to start with this
 $measurement->start_block();
@@ -144,19 +144,19 @@ $measurement->start_block();
 # the measurement loop
 for (my $Vgate=$Vgatestart;
      $stepsign_gate*$Vgate<=$stepsign_gate*$Vgatestop; 
-     $Vgate+=$stepgate) {
+     $Vgate+=$Vgatestep) {
 
 	# set gate voltage
 	$YokGate->set_voltage($Vgate);
 
 	# read out multimeter
-	my $measVpreamp =$hp2->query("READ?");
+	my $measVpreamp =$HP->query("READ?");
 
 	# make sure the result does not contain any linefeeds anymore
 	chomp $measVpreamp;
 
 	# write into datafile
-	$measurement->log_line($Vgate, $measVpreamp/$ampI);
+	$measurement->log_line($Vgate, $measVpreamp/$preampVpI);
 }
 
 # and we're done
