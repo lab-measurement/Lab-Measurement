@@ -11,8 +11,16 @@ use Data::Dumper;
 use Lab::Data::Writer;
 use Lab::Data::Meta;
 use Lab::Data::Plotter;
+use Term::ReadKey;
 
 our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
+
+
+sub safe_exit {
+  ReadMode('normal');
+  exit(@_);
+}
+
 
 sub new {
     my $proto = shift;
@@ -36,8 +44,21 @@ sub new {
         #live_plot      => '',
         #live_refresh   => '',
         #live_latest    => '',
+
+	#no_termcontrol =>0,
         
         #writer_config  => {},
+
+    # initialize terminal if requested
+    $self->{termctl}=0;
+    if (! $params{no_termcontrol}) {
+        $SIG{'INT'} = \&safe_exit;
+        $SIG{'QUIT'} = \&safe_exit;
+        $SIG{__DIE__} = \&safe_exit;
+        END { safe_exit(); }
+        ReadMode( 'raw' );
+        $self->{termctl}=1;
+    }
 
     # Filenamen finden
     if ($params{filename_base}) {
@@ -101,6 +122,16 @@ sub log_line {
     my $self=shift;
     $self->{writer}->log_line(@_);
     
+    if ($self->{termctl}) {
+      if ( defined ( my $key = ReadKey( -1 ) ) ) {
+         # input waiting; it's in $key
+         if ($key eq 'q') { 
+           print "Terminating on keyboard request\n";
+           exit; 
+         };
+      }
+    }
+
     if ($self->{live_plotter}) {
         $self->{live_plotter}->update_live_plot();
     }
