@@ -21,7 +21,7 @@ our @ISA = ("Lab::Connection");
 
 our %fields = (
 	bus_class => undef, # 'Lab::Bus::LinuxGPIB', 'Lab::Bus::VISA', ...
-	gpib_address	=> 0,
+	gpib_address	=> undef,
 	gpib_saddress => undef, # secondary address, if needed
 	brutal => 0,	# brutal as default?
 	wait_status=>0, # usec;
@@ -35,6 +35,11 @@ sub new {
 	my $class = ref($proto) || $proto;
 	my $self = $class->SUPER::new(@_); # getting fields and _permitted from parent class
 	$self->_construct(__PACKAGE__, \%fields);
+
+	# Parameter checking
+	if( $self->config('gpib_address') !~ /^[0-9]*$/ ) {
+		Lab::Exception::CorruptParameter->throw( error => "No GPIB address specified! I can't work like this.\n" );
+	}
 
 	return $self;
 }
