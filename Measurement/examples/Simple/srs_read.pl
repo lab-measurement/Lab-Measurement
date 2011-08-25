@@ -21,7 +21,11 @@ my $sr=new Lab::Instrument::SR830(
 );
 
 
+my $amp=$sr->get_amplitude();
+print "Reference amplitude: $amp V\n";
 
+my $freq=$sr->get_frequency();
+print "Reference frequency: $freq Hz\n";
 
-my ($r,$phi)=$sr->$get_rphi(10,0.00001);
-print "Result:   r=$r V   phi=$phi\n";
+my ($r,$phi)=$sr->get_rphi();
+print "Signal             : r=$r V   phi=$phi\n";

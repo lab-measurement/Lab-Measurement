@@ -37,29 +37,29 @@ sub empty_buffer{
 
 sub set_frequency {
     my ($self,$freq)=@_;
-    $self->connection()->Write(command => "FREQ $freq");
+    $self->write("FREQ $freq");
 }
 
 sub get_frequency {
     my $self = shift;
-    my $freq=$self->connection()->Read( command => "FREQ?");
+    my $freq=$self->query("FREQ?");
     chomp $freq;
-    return "$freq Hz";
+    return $freq; # frequency in Hz
 }
 
 sub set_amplitude {
     my ($self,$ampl)=@_;
-    $self->connection()->Write( command => "SLVL $ampl");
-    my $realampl=$self->connection()->Read( command => "SLVL?");
+    $self->write("SLVL $ampl");
+    my $realampl=$self->query("SLVL?");
     chomp $realampl;
-    return "$realampl V";
+    return $realampl; # amplitude in V
 }
 
 sub get_amplitude {
     my $self = shift;
-    my $ampl=$self->connection()->Read( command => "SLVL?");
+    my $ampl=$self->query("SLVL?");
     chomp $ampl;
-    return "$ampl V";
+    return $ampl; # amplitude in V
 }
 
 sub set_sens {
@@ -97,16 +97,19 @@ sub set_sens {
     $self->connection()->Write( command => "SENS $nr");
 
     my $realsens = $self->{vi}->Query("SENS?");
-    my @senses = ("2 nV", "5 nV", "10 nV", "20 nV", "50 nV", "100 nV", "200 nV", "500 nV", "1 µV", "2 µV", "5 µV", "10 µV", "20 µV", "50 µV", "100 nV", "200 nV", "500 µV", "1 mV", "2 mV", "5 mV", "10 mV", "20 mV", "50 mV", "100 mV", "200 mV", "500 mV", "1V");
-    return $senses[$realsens];
+    my @senses = ("2e-9", "5e-9", "10e-9", "20e-9", "50e-9", "100e-9", "200e-9", "500e-9", "1e-6", "2e-6", "5e-6", 
+                  "10e-6", "20e-6", "50e-6", "100e-6", "200e-6", "500e-6", "1e-3", "2e-3", "5e-3", "10e-3", "20e-3", 
+                  "50e-3", "100e-3", "200e-3", "500e-3", "1");
+    return $senses[$realsens]; # in V
 }
 
 sub get_sens {
-
-    my @senses = ("2 nV", "5 nV", "10 nV", "20 nV", "50 nV", "100 nV", "200 nV", "500 nV", "1 µV", "2 µV", "5 µV", "10 µV", "20 µV", "50 µV", "100 µV", "200 µV", "500 µV", "1 mV", "2 mV", "5 mV", "10 mV", "20 mV", "50 mV", "100 mV", "200 mV", "500 mV", "1V");
+    my @senses = ("2e-9", "5e-9", "10e-9", "20e-9", "50e-9", "100e-9", "200e-9", "500e-9", "1e-6", "2e-6", "5e-6", 
+                  "10e-6", "20e-6", "50e-6", "100e-6", "200e-6", "500e-6", "1e-3", "2e-3", "5e-3", "10e-3", "20e-3", 
+                  "50e-3", "100e-3", "200e-3", "500e-3", "1");
     my $self = shift;
     my $nr=$self->connection()->Read( command => "SENS?");
-    return $senses[$nr];
+    return $senses[$nr]; # in V
 }
 
 sub set_sens_auto{
@@ -153,37 +156,36 @@ sub set_tc {
 
     $self->connection()->Write( command => "OFLT $nr");
 
-    my @tc = ("10 µs", "30µs", "100 µs", "300 µs", "1 ms", "3 ms", "10 ms", "30 ms", "100 ms", "300 ms", "1 s", "3 s", "10 s", "30 s", "100 s", "300 s", "1000 s", "3000 s", "10000 s", "30000 s");
+    my @tc = ("10e-6", "30e-6", "100e-6", "300e-6", "1e-3", "3e-3", "10e-3", "30e-3", "100e-3", 
+              "300e-3", "1", "3", "10", "30", "100", "300", "1e3", "3e3", "10e3", "30e3");
     my $realtc=$self->connection()->Read( command => "OFLT?");
-    return $tc[$realtc];
+    return $tc[$realtc]; # in sec
 
 
 }
 
 sub get_tc {
-
-    my @tc = ("10 µs", "30µs", "100 µs", "300 µs", "1 ms", "3 ms", "10 ms", "30 ms", "100 ms", "300 ms", "1 s", "3 s", "10 s", "30 s", "100 s", "300 s", "1000 s", "3000 s", "10000 s", "30000 s");
+    my @tc = ("10e-6", "30e-6", "100e-6", "300e-6", "1e-3", "3e-3", "10e-3", "30e-3", "100e-3", 
+              "300e-3", "1", "3", "10", "30", "100", "300", "1e3", "3e3", "10e3", "30e3");
 
     my $self = shift;
     my $nr=$self->connection()->Read( command => "OFLT?");
-    return $tc[$nr];
+    return $tc[$nr]; # in sec
 }
 
 sub get_xy {
-
     # get value of X and Y channel (recorded simultaneously) as array
     my $self = shift;
-    my $tmp=$self->connection()->Read( command => "SNAP?1,2");
+    my $tmp=$self->query("SNAP?1,2");
     chomp $tmp;
     my @arr = split(/,/,$tmp);
     return @arr;
 }
 
 sub get_rphi {
-
     # get value of amplitude and phase (recorded simultaneously) as array
     my $self = shift;
-    my $tmp=$self->connection()->Read( command => "SNAP?3,4");
+    my $tmp=$self->query("SNAP?3,4");
     chomp $tmp;
     my @arr = split(/,/,$tmp);
     return @arr;
@@ -202,20 +204,13 @@ sub get_channels {
     chomp $y;
     my @arr = ($x,$y);
     return @arr;
-
 }
 
 sub id {
     my $self=shift;
-    return $self->connection()->Query( command => '*IDN?', read_length => 300);
+    return $self->query('*IDN?');
 }
 
-sub send_commands {
-    my ($self,@commands)=@_;
-    for (@commands) {
-        $self->connection()->Write( command => $_);
-    }
-}
 
               
 1;
@@ -267,13 +262,13 @@ Sets sensitivity (value given in V); possible values are:
 2 nV, 5 nV, 10 nV, 20 nV, 50 nV, 100 nV, ..., 100 mV, 200 mV, 500 mV, 1V
 If the argument is not in this list, the next higher value will be chosen.
 
-Returns the value of the sensitivity that was actually set as string.
+Returns the value of the sensitivity that was actually set, as number in Volt.
 
 =head2 get_sens
 
   $sens = $sr830->get_sens();
 
-Returns sensitivity (as string, e.g. "50 nV").
+Returns the value of the sensitivity, as number in Volt.
 
 =head2 set_tc
 
@@ -283,13 +278,13 @@ Sets time constant (value given in seconds); possible values are:
 10 us, 30us, 100 us, 300 us, ..., 10000 s, 30000 s
 If the argument is not in this list, the next higher value will be chosen.
 
-Returns the value of the time constant that was actually set as string.
+Returns the value of the time constant that was actually set, as number in seconds.
 
 =head2 get_tc
 
   $tc = $sr830->get_tc();
 
-Returns the time constant (as string, e.g. "3 ms").
+Returns the time constant, as number in seconds.
 
 =head2 set_frequency
  
@@ -301,7 +296,7 @@ Sets reference frequency; value given in Hz. Values between 0.001 Hz and 102 kHz
 
   $freq=$sr830->get_frequency();
 
-Returns reference frequency (value given in Hz).
+Returns reference frequency in Hz.
 
 =head2 set_amplitude
 
@@ -338,7 +333,7 @@ command to change a property like amplitude or time constant might have to be ex
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 
-(c) 2011 Andreas Hüttel
+(c) 2005-2010 Daniel Schröer, 2011 Andreas Hüttel
 
 
 =cut
