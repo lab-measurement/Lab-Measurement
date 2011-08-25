@@ -169,7 +169,7 @@ sub get_tc {
     return $tc[$nr];
 }
 
-sub read_xy {
+sub get_xy {
 
     # get value of X and Y channel (recorded simultaneously) as array
     my $self = shift;
@@ -179,7 +179,7 @@ sub read_xy {
     return @arr;
 }
 
-sub read_rphi {
+sub get_rphi {
 
     # get value of amplitude and phase (recorded simultaneously) as array
     my $self = shift;
@@ -189,7 +189,7 @@ sub read_rphi {
     return @arr;
 }
 
-sub read_channels {
+sub get_channels {
 
     # get value of channel1 and channel2 as array
     my $self = shift;
@@ -228,10 +228,13 @@ Lab::Instrument::SR830 - Stanford Research SR830 Lock-In Amplifier
 
     use Lab::Instrument::SR830;
     
-    my $sr830=new Lab::Instrument::SR830(0,10);
+    my $sr=new Lab::Instrument::SR830(
+       connection_type=>'LinuxGPIB',
+       gpib_address=>12,
+    );
 
-    ($x,$y) = $sr780->read_xy();
-    ($r,$phi) = $sr780->read_rphi();
+    ($x,$y) = $sr->get_xy();
+    ($r,$phi) = $sr->get_rphi();
     
 =head1 DESCRIPTION
 
@@ -244,15 +247,15 @@ Stanford Research SR830 Lock-In Amplifier.
 
 =head1 METHODS
 
-=head2 read_xy
+=head2 get_xy
 
-  ($x,$y)= $sr830->read_xy();
+  ($x,$y)= $sr830->get_xy();
 
 Reads channels x and y simultaneously; returns an array.
 
-=head2 read_rphi
+=head2 get_rphi
 
-  ($r,$phi)= $sr830->read_rphi();
+  ($r,$phi)= $sr830->get_rphi();
 
 Reads amplitude and phase simultaneously; returns an array.
 
@@ -333,8 +336,9 @@ command to change a property like amplitude or time constant might have to be ex
 
 =head1 AUTHOR/COPYRIGHT
 
-This is $Id: SR830.pm 697 2010-09-06 21:42:51Z huettel $
-
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
+
+(c) 2011 Andreas Hüttel
+
 
 =cut
