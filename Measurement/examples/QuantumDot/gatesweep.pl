@@ -150,7 +150,7 @@ for (my $Vgate=$Vgatestart;
 	$YokGate->set_voltage($Vgate);
 
 	# read out multimeter
-	my $measVpreamp =$HP->query("READ?");
+	my $measVpreamp =$HP->get_value();
 
 	# make sure the result does not contain any linefeeds anymore
 	chomp $measVpreamp;

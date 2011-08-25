@@ -20,6 +20,6 @@ my $hp=new Lab::Instrument::HP34401A(
 	gpib_board=>0,
 );
 
-my $read_volt=$hp->read_voltage_dc(10,0.00001);
+my $volt=$hp->$get_voltage_dc(10,0.00001);
 
-print "Result: $read_volt V\n";
+print "Result: $volt V\n";

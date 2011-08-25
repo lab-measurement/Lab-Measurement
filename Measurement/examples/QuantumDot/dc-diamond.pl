@@ -213,7 +213,7 @@ for (my $Vgate=$Vgatestart;
 		$YokBias->set_voltage($Vbias);
 
 		# read out multimeter
-		my $measVpreamp =$HP->query("READ?");
+		my $measVpreamp =$HP->get_value();
 
 		# make sure the result does not contain any linefeeds
 		chomp $measVpreamp;

@@ -11,7 +11,6 @@ use Data::Dumper;
 our @ISA = ("Lab::Instrument");
 
 our %fields = (
-	# SupportedConnections => [ 'GPIB', 'RS232' ],	# in principle RS232, too, but not implemented (yet)
 	supported_connections => [ 'GPIB', 'DEBUG' ],
 
 	# default settings for the supported connections
@@ -31,7 +30,6 @@ sub new {
 	my $class = ref($proto) || $proto;
 	my $self = $class->SUPER::new(@_);	# sets $self->config
 	$self->_construct(__PACKAGE__, \%fields); 	# this sets up all the object fields out of the inheritance tree.
-												# also, it does generic connection setup.
 
 	return $self;
 }
@@ -42,7 +40,7 @@ sub new {
 # utility methods
 #
 
-sub read_resistance {
+sub get_resistance {
     my $self=shift;
     my ($range,$resolution)=@_;
     
@@ -55,7 +53,7 @@ sub read_resistance {
 }
 
 
-sub read_voltage_dc {
+sub get_voltage_dc {
     my $self=shift;
     my ($range,$resolution)=@_;
     
@@ -67,7 +65,7 @@ sub read_voltage_dc {
     return $value;
 }
 
-sub read_voltage_ac {
+sub get_voltage_ac {
     my $self=shift;
     my ($range,$resolution)=@_;
     
@@ -79,7 +77,7 @@ sub read_voltage_ac {
     return $value;
 }
 
-sub read_current_dc {
+sub get_current_dc {
     my $self=shift;
     my ($range,$resolution)=@_;
     
@@ -91,7 +89,7 @@ sub read_current_dc {
     return $value;
 }
 
-sub read_current_ac {
+sub get_current_ac {
     my $self=shift;
     my ($range,$resolution)=@_;
     
@@ -213,7 +211,7 @@ sub config_voltage {
     return $retval;
 }
 
-sub read_with_trigger_voltage_dc {
+sub get_with_trigger_voltage_dc {
     my $self=shift;
 
     $self->connection()->Write( command => "INIT");
@@ -231,7 +229,7 @@ sub read_with_trigger_voltage_dc {
 sub scroll_message {
     use Time::HiRes (qw/usleep/);
     my $self=shift;
-    my $message=shift || "            This perl instrument driver is copyright 2004/2005 by Daniel Schroeer.            ";
+    my $message=shift || "            Lab::Measurement - designed to make measuring fun!            ";
     for my $i (0..(length($message)-12)) {
         $self->display_text(sprintf "%12.12s",substr($message,$i));
         usleep(100000);
@@ -244,7 +242,7 @@ sub id {
     $self->connection()->Query( command => '*IDN?');
 }
 
-sub read_value {
+sub get_value {
     my $self=shift;
     my $value=$self->connection()->Query( command => 'READ?');
     chomp $value;
@@ -252,7 +250,6 @@ sub read_value {
 }
 
 1;
-
 
 
 
@@ -306,15 +303,15 @@ but doesn't include new functions. Use the Lab::Instrument::HP34411A class for f
 
 =head1 METHODS
 
-=head2 read_resistance
+=head2 get_resistance
 
-    $resistance=$Agi->read_resistance($range,$resolution);
+    $resistance=$Agi->get_resistance($range,$resolution);
 
 Preset and measure resistance with specified range and resolution.
 
-=head2 read_voltage_dc
+=head2 get_voltage_dc
 
-    $datum=$Agi->read_voltage_dc($range,$resolution);
+    $datum=$Agi->get_voltage_dc($range,$resolution);
 
 Preset and make a dc voltage measurement with the specified range
 and resolution.
@@ -333,24 +330,24 @@ The best resolution is 100nV: C<$range=0.1>; C<$resolution=0.000001>.
 
 =back
 
-=head2 read_voltage_ac
+=head2 get_voltage_ac
 
-    $datum=$Agi->read_voltage_ac($range,$resolution);
+    $datum=$Agi->get_voltage_ac($range,$resolution);
 
 Preset and make an ac voltage measurement with the specified range
 and resolution. For ac measurements, resolution is actually fixed
 at 6 1/2 digits. The resolution parameter only affects the front-panel display.
 
-=head2 read_current_dc
+=head2 get_current_dc
 
-    $datum=$Agi->read_current_dc($range,$resolution);
+    $datum=$Agi->get_current_dc($range,$resolution);
 
 Preset and make a dc current measurement with the specified range
 and resolution.
 
-=head2 read_current_ac
+=head2 get_current_ac
 
-    $datum=$Agi->read_current_ac($range,$resolution);
+    $datum=$Agi->get_current_ac($range,$resolution);
 
 Preset and make an ac current measurement with the specified range
 and resolution. For ac measurements, resolution is actually fixed
@@ -365,9 +362,9 @@ points. Afterwards, data can be taken by triggering the multimeter, resulting in
 read_voltage_xx.
 Returns string with integration time resulting from number of digits.
 
-=head2 read_with_trigger_voltage_dc
+=head2 get_with_trigger_voltage_dc
 
-    @array = $Agi->read_with_trigger_voltage_dc()
+    @array = $Agi->get_with_trigger_voltage_dc()
 
 Take data points as configured with config_voltage(). returns an array.
 
@@ -443,7 +440,8 @@ probably many
 
 =head1 AUTHOR/COPYRIGHT
 
-Copyright 2004-2006 Daniel Schröer (<schroeer@cpan.org>), 2009-2010 Daniela Taubert, 2011 Florian Olbrich
+Copyright 2004-2006 Daniel Schröer (<schroeer@cpan.org>), 2009-2010 Daniela Taubert, 
+          2011 Florian Olbrich, Andreas Hüttel
 
 This library is free software; you can redistribute it and/or modify it under the same
 terms as Perl itself.
