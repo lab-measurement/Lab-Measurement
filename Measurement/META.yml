@@ -1,7 +1,7 @@
 ---
 abstract: 'Bus drivers, Instrument drivers, and measurement scripts'
 author:
-  - 'Daniel Schröer <schroeer@cpan.org>'
+  - 'Daniel SchrÃ¶er <schroeer@cpan.org>'
   - 'Andreas K. Huettel <mail@akhuettel.de>'
   - 'Daniela Taubert <daniela.taubert@physik.uni-muenchen.de>'
   - 'Florian Olbrich <florian.olbrich@physik.uni-r.de>'

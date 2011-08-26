@@ -85,7 +85,6 @@ lib/Lab/Measurement.pm
 lib/Lab/Measurement/Installation.pod
 lib/Lab/Measurement/Ladediagramm.pm
 lib/Lab/Measurement/Tutorial.pod
-META.yml
 README
 scripts/metainfo.pl
 scripts/plotter.pl
