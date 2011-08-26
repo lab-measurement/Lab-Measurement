@@ -57,7 +57,6 @@ use Data::Dumper;
 use XML::Twig;
 use Encode;
 use vars qw($VERSION);
-$VERSION = sprintf("1.%04d", q$Revision$ =~ / (\d+) /);
 
 our $AUTOLOAD;
 
@@ -694,9 +693,7 @@ Lab::XMLtree can use YAML (L<YAML>) for data storage.
 
 =head1 AUTHOR/COPYRIGHT
 
-This is $Id$
-
-Copyright 2004-2006 Daniel Schröer (L<http://www.danielschroeer.de>)
+Copyright 2004-2006 Daniel Schröer (L<http://www.danielschroeer.de>), 2011 Andreas K. Hüttel
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 

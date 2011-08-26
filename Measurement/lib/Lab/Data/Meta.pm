@@ -1,7 +1,5 @@
 #!/usr/bin/perl -w
 
-#$Id$
-
 package Lab::Data::Meta;
 
 use strict;
@@ -13,8 +11,6 @@ use Data::Dumper;
 require Exporter;
 
 our @ISA = qw(Exporter Lab::Data::XMLtree);
-
-our $VERSION = sprintf("1.%04d", q$Revision$ =~ / (\d+) /);
 
 our $AUTOLOAD;
 
@@ -276,9 +272,7 @@ Currently, C<Lab::Data::Meta> supports the following bits of meta information:
 
 =head1 AUTHOR/COPYRIGHT
 
-This is $Id$
-
-Copyright 2004-2006 Daniel Schröer (L<http://www.danielschroeer.de>)
+Copyright 2004-2006 Daniel Schröer (L<http://www.danielschroeer.de>), 2011 Andreas K. Hüttel
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 

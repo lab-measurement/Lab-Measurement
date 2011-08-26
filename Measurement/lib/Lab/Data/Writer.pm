@@ -9,8 +9,6 @@ use File::Basename;
 use File::Copy;
 use Lab::Data::Meta;
 
-our $VERSION = sprintf( "0.%04d", q$Revision$ =~ / (\d+) / );
-
 my $default_config = {
     output_data_ext     => "dat",
     output_meta_ext     => "meta",
@@ -331,8 +329,6 @@ exist there.
 
 =head1 AUTHOR/COPYRIGHT
 
-This is $Id$
-
-Copyright 2004-2006 Daniel Schröer (L<http://www.danielschroeer.de>)
+Copyright 2004-2006 Daniel Schröer (L<http://www.danielschroeer.de>), 2011 Andreas K. Hüttel
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.

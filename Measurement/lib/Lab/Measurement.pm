@@ -1,4 +1,3 @@
-#$Id$
 
 package Lab::Measurement;
 
@@ -12,8 +11,6 @@ use Lab::Data::Writer;
 use Lab::Data::Meta;
 use Lab::Data::Plotter;
 use Term::ReadKey;
-
-our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
 
 
 sub safe_exit {
@@ -78,7 +75,7 @@ sub new {
     $writer->log_comment("Sample $params{sample}");
     $writer->log_comment($params{title});
     $writer->log_comment($params{description});
-    $writer->log_comment('Recorded with $Id$');
+    $writer->log_comment('Recorded with Lab::Measurement $Lab::Measurement::VERSION');
         
     # Meta erzeugen
     my $meta=new Lab::Data::Meta({

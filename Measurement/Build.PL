@@ -21,6 +21,7 @@ my $build = Module::Build->new(
         'File::Copy'         => 0,
         'encoding::warnings' => 0,
         'Term::ReadKey'      => 0,
+        'Switch'             => 0,
     },
     script_files => 'scripts',
     share_dir => {
