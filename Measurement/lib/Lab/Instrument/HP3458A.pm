@@ -26,6 +26,7 @@ sub new {
 	my $class = ref($proto) || $proto;
 	my $self = $class->SUPER::new(@_);
 	$self->_construct(__PACKAGE__, \%fields);
+	$self->write("END 1");
 	return $self;
 }
 
