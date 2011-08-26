@@ -69,8 +69,12 @@ sub get_filename {
 sub log_comment {
     my ($self, $comment) = @_;
     my $fh = $self->{filehandle};
-    for ( split /\n|(\n\r)/, $comment ) {
-        print $fh $self->configure('output_comment_char'), $_, "\n";
+    if ($comment) {
+      for ( split /\n|(\n\r)/, $comment ) {
+          print $fh $self->configure('output_comment_char'), $_, "\n";
+      }
+    } else {
+      print $fh $self->configure('output_comment_char'), "\n";
     }
 }
 
