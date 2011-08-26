@@ -192,7 +192,14 @@ sub _start_plot {
     }
 
     $gp.="#\n# Title and labels\n";
-    $gp.=qq(set title ").$self->{meta}->dataset_title()." (".$self->{meta}->sample().")\"\n";
+    $gp.=qq(set title ");
+    if ($self->{meta}->dataset_title()) {
+      $gp.=$self->{meta}->dataset_title();
+    }
+    if ($self->{meta}->sample()) {
+      $gp.=" ".$self->{meta}->sample();
+    }
+    $gp.="\"\n";
     if ($self->{options}->{fulllabels}) {
         my $h=0.95;my $screen=0.99;
         my @lines=split "\n",$self->{meta}->dataset_description();

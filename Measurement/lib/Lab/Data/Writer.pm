@@ -71,7 +71,11 @@ sub log_comment {
     my $fh = $self->{filehandle};
     if ($comment) {
       for ( split /\n|(\n\r)/, $comment ) {
-          print $fh $self->configure('output_comment_char'), $_, "\n";
+          if ($_) {
+            print $fh $self->configure('output_comment_char'), $_,"\n";
+	  } else {
+	    print $fh $self->configure('output_comment_char'), "\n";
+          }
       }
     } else {
       print $fh $self->configure('output_comment_char'), "\n";
