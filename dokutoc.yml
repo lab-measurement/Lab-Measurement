@@ -16,13 +16,13 @@ toc:
           - Measurement/lib/Lab/Instrument.pm
           - Multimeters:
               - Measurement/lib/Lab/Instrument/HP34401A.pm
+              - Measurement/lib/Lab/Instrument/HP3458A.pm
           - Voltage Sources:
               - Measurement/lib/Lab/Instrument/Source.pm
               - Measurement/lib/Lab/Instrument/Yokogawa7651.pm
+              - Measurement/lib/Lab/Instrument/YokogawaGS200.pm
           - Amplifiers:
               - Measurement/lib/Lab/Instrument/SR830.pm
-          - Generic:
-              - Measurement/lib/Lab/Instrument/Generic_String.pm
       - High-level tool classes:
           - Measurement/lib/Lab/Data/Writer.pm
           - Measurement/lib/Lab/Measurement.pm
