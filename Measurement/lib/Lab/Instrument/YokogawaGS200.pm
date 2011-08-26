@@ -19,9 +19,9 @@ my %fields = (
 	device_settings => {
 		gate_protect            => 1,
 		gp_equal_level          => 1e-5,
-		gp_max_volt_per_second  => 0.002,
-		gp_max_volt_per_step    => 0.001,
-		gp_max_step_per_second  => 2,
+		gp_max_volt_per_second  => 0.05,
+		gp_max_volt_per_step    => 0.005,
+		gp_max_step_per_second  => 10,
 
 		max_sweep_time=>3600,
 		min_sweep_time=>0.1,
@@ -326,24 +326,23 @@ sub get_status {
 
 =head1 NAME
 
-Lab::Instrument::Yokogawa7651 - Yokogawa 7651 DC source
+Lab::Instrument::YokogawaGS200 - Yokogawa GS200 DC source
 
 =head1 SYNOPSIS
 
-    use Lab::Instrument::Yokogawa7651;
+    use Lab::Instrument::YokogawaGS200;
     
-    my $gate14=new Lab::Instrument::Yokogawa7651(
+    my $gate14=new Lab::Instrument::YokogawaGS200(
       connection_type => 'LinuxGPIB',
       gpib_address => 22,
     );
-    $gate14->set_range(5);
     $gate14->set_voltage(0.745);
     print $gate14->get_voltage();
 
 =head1 DESCRIPTION
 
-The Lab::Instrument::Yokogawa7651 class implements an interface to the
-discontinued voltage and current source 7651 by Yokogawa. This class derives from
+The Lab::Instrument::YokogawaGS200 class implements an interface to the
+discontinued voltage and current source GS200 by Yokogawa. This class derives from
 L<Lab::Instrument::Source> and provides all functionality described there.
 
 =head1 CONSTRUCTORS
@@ -409,86 +408,6 @@ Returns a hash with the following keys:
 
 The value for each key is either 0 or 1, indicating the status of the instrument.
 
-=head1 INSTRUMENT SPECIFICATIONS
-
-=head2 DC voltage
-
-The stability (24h) is the value at 23 +- 1�C. The stability (90days),
-accuracy (90days) and accuracy (1year) are values at 23 +- 5�C.
-The temperature coefficient is the value at 5 to 18�C and 28 to 40�C.
-
-
- Range  Maximum     Resolution  Stability 24h   Stability 90d   
-        Output                  +-(% of setting +-(% of setting  
-                                +muV)           +muV)            
- ------------------------------------------------------------- 
- 10mV   +-12.0000mV 100nV       0.002 + 3       0.014 + 4       
- 100mV  +-120.000mV 1muV        0.003 + 3       0.014 + 5       
- 1V     +-1.20000V  10muV       0.001 + 10      0.008 + 50      
- 10V    +-12.0000V  100muV      0.001 + 20      0.008 + 100     
- 30V    +-32.000V   1mV         0.001 + 50      0.008 + 200     
-
-
-
- Range  Accuracy 90d    Accuracy 1yr    Temperature
-        +-(% of setting +-(% of setting Coefficient
-        +muV)           +muV)           +-(% of setting
-                                        +muV)/�C
- -----------------------------------------------------
- 10mV   0.018 + 4       0.025 + 5       0.0018 + 0.7
- 100mV  0.018 + 10      0.025 + 10      0.0018 + 0.7
- 1V     0.01 + 100      0.016 + 120     0.0009 + 7
- 10V    0.01 + 200      0.016 + 240     0.0008 + 10
- 30V    0.01 + 500      0.016 + 600     0.0008 + 30
-
-
-
- Range   Maximum Output              Output Noise
-         Output  Resistance          DC to 10Hz  DC to 10kHz
-                                     (typical data)
- ----------------------------------------------------------
- 10mV    -       approx. 2Ohm        3muVp-p      30muVp-p
- 100mV   -       approx. 2Ohm        5muVp-p      30muVp-p
- 1V      +-120mA less than 2mOhm     15muVp-p     60muVp-p
- 10V     +-120mA less than 2mOhm     50muVp-p     100muVp-p
- 30V     +-120mA less than 2mOhm     150muVp-p    200muVp-p
-
-
-Common mode rejection:
-120dB or more (DC, 50/60Hz). (However, it is 100dB or more in the
-30V range.)
-
-=head2 DC current
-
- Range   Maximum     Resolution  Stability (24 h)    Stability (90 days) 
-         Output                  +-(% of setting     +-(% of setting      
-                                 + muA)              + muA)               
- -----------------------------------------------------------------------
- 1mA     +-1.20000mA 10nA        0.0015 + 0.03       0.016 + 0.1         
- 10mA    +-12.0000mA 100nA       0.0015 + 0.3        0.016 + 0.5         
- 100mA   +-120.000mA 1muA        0.004  + 3          0.016 + 5           
-
-
- Range   Accuracy (90 days)  Accuracy (1 year)   Temperature  
-         +-(% of setting     +-(% of setting     Coefficient     
-         + muA)              + muA)              +-(% of setting  
-                                                 + muA)/�C        
- -----   ------------------------------------------------------  
- 1mA     0.02 + 0.1          0.03 + 0.1          0.0015 + 0.01   
- 10mA    0.02 + 0.5          0.03 + 0.5          0.0015 + 0.1    
- 100mA   0.02 + 5            0.03 + 5            0.002  + 1
-
-
- Range  Maximum     Output                   Output Noise
-        Output      Resistance          DC to 10Hz  DC to 10kHz
-                                                    (typical data)
- -----------------------------------------------------------------
- 1mA    +-30 V      more than 100MOhm   0.02muAp-p  0.1muAp-p
- 10mA   +-30 V      more than 100MOhm   0.2muAp-p   0.3muAp-p
- 100mA  +-30 V      more than 10MOhm    2muAp-p     3muAp-p
-
-Common mode rejection: 100nA/V or more (DC, 50/60Hz).
-
 =head1 CAVEATS
 
 probably many
@@ -497,17 +416,14 @@ probably many
 
 =over 4
 
-=item Lab::VISA
-
-The Yokogawa7651 class uses the Lab::VISA module (L<Lab::VISA>).
 
 =item Lab::Instrument
 
-The Yokogawa7651 class is a Lab::Instrument (L<Lab::Instrument>).
+The YokogawaGP200 class is a Lab::Instrument (L<Lab::Instrument>).
 
 =item Lab::Instrument::Source
 
-The Yokogawa7651 class is a Source (L<Lab::Instrument::Source>)
+The YokogawaGP200 class is a Source (L<Lab::Instrument::Source>)
 
 =back
 
@@ -517,7 +433,7 @@ This is $Id$
 
  (c) 2004-2006 Daniel Schröer
  (c) 2007-2010 Daniel Schröer, Daniela Taubert, Andreas Hüttel, and others
- (c) 2011 Florian Olbrich
+ (c) 2011 Florian Olbrich, Andreas Hüttel
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 

@@ -343,7 +343,6 @@ Lab::Instrument::Yokogawa7651 - Yokogawa 7651 DC source
       connection_type => 'LinuxGPIB',
       gpib_address => 22,
     );
-    $gate14->set_range(5);
     $gate14->set_voltage(0.745);
     print $gate14->get_voltage();
 
@@ -420,9 +419,9 @@ The value for each key is either 0 or 1, indicating the status of the instrument
 
 =head2 DC voltage
 
-The stability (24h) is the value at 23 +- 1�C. The stability (90days),
-accuracy (90days) and accuracy (1year) are values at 23 +- 5�C.
-The temperature coefficient is the value at 5 to 18�C and 28 to 40�C.
+The stability (24h) is the value at 23 +- 1°C. The stability (90days),
+accuracy (90days) and accuracy (1year) are values at 23 +- 5°C.
+The temperature coefficient is the value at 5 to 18°C and 28 to 40°C.
 
 
  Range  Maximum     Resolution  Stability 24h   Stability 90d   
@@ -504,10 +503,6 @@ probably many
 
 =over 4
 
-=item Lab::VISA
-
-The Yokogawa7651 class uses the Lab::VISA module (L<Lab::VISA>).
-
 =item Lab::Instrument
 
 The Yokogawa7651 class is a Lab::Instrument (L<Lab::Instrument>).
@@ -524,7 +519,7 @@ This is $Id$
 
  (c) 2004-2006 Daniel Schröer
  (c) 2007-2010 Daniel Schröer, Daniela Taubert, Andreas Hüttel, and others
- (c) 2011 Florian Olbrich
+ (c) 2011 Florian Olbrich, Andreas Hüttel
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 
