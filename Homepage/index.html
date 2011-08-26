@@ -45,12 +45,9 @@ on different operating systems.</p>
 
 <p>
 As hardware drivers vary in API details, each supported one is encapsulated into perl modules
-of types <i>Lab::Bus</i> and <i>Lab::Connection</i>. Imagine a Bus as a cable. All measurement 
-devices on one cable share a Bus object, passing commands and data to and from the computer 
-using one Connection per instrument. If your measurement script works under Linux 
-with Lab::Connection::LinuxGPIB, it will also work with Lab::Connection::VISA by 
-just instantiating a different Connection object. Normally you won't have to care
-about this; at most, your Instrument object (see below) gets different initialization
+of types <i>Lab::Bus</i> and <i>Lab::Connection</i>. If your measurement script works under Linux 
+with Lab::Connection::LinuxGPIB, it will also work with Lab::Connection::VISA. Normally you won't 
+have to care about this; at most, your Instrument object (see below) gets different initialization
 parameters.
 </p>
 
