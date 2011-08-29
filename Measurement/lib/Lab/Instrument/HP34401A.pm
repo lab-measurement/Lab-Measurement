@@ -6,6 +6,7 @@ use Scalar::Util qw(weaken);
 use Lab::Instrument;
 use Carp;
 use Data::Dumper;
+use Lab::Instrument::Multimeter;
 
 
 our @ISA = ("Lab::Instrument::Multimeter");

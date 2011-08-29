@@ -2,10 +2,7 @@
 package Lab::Instrument::Multimeter;
 
 use strict;
-use Scalar::Util qw(weaken);
 use Lab::Instrument;
-use Carp;
-use Data::Dumper;
 
 
 our @ISA = ("Lab::Instrument");

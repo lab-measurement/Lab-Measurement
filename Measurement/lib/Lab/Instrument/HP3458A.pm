@@ -3,6 +3,7 @@ package Lab::Instrument::HP3458A;
 
 use strict;
 use Lab::Instrument;
+use Lab::Instrument::Multimeter;
 
 
 our @ISA = ("Lab::Instrument::Multimeter");
