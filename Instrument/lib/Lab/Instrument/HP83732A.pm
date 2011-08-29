@@ -45,7 +45,35 @@ sub power_off {
     my $self=shift;
     $self->{vi}->Write('OUTP:STATe OFF');
 }
-              
+
+sub selftest {
+    my $self=shift;
+    return $self->{vi}->Query("*TST?");
+}
+
+sub display_on {
+    my $self=shift;
+    $self->{vi}->Write("DISPlay ON");
+}
+
+sub display_off {
+    my $self=shift;
+    $self->{vi}->Write("DISPlay OFF");
+}
+
+sub enable_external_am {
+    my $self=shift;
+    $self->{vi}->Write("AM:DEPTh MAX");
+    $self->{vi}->Write("AM:SENSitivity 70PCT/VOLT");
+    $self->{vi}->Write("AM:TYPE LINear");
+    $self->{vi}->Write("AM:STATe ON");
+}
+
+sub disable_external_am {
+    my $self=shift;
+    $self->{vi}->Write("AM:STATe OFF");
+}
+
 1;
 
 =head1 NAME
