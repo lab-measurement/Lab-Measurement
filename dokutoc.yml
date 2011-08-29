@@ -18,12 +18,14 @@ toc:
               - Measurement/lib/Lab/Instrument/Multimeter.pm
               - Measurement/lib/Lab/Instrument/HP34401A.pm
               - Measurement/lib/Lab/Instrument/HP3458A.pm
-          - Voltage Sources:
+          - Voltage sources:
               - Measurement/lib/Lab/Instrument/Source.pm
               - Measurement/lib/Lab/Instrument/Yokogawa7651.pm
               - Measurement/lib/Lab/Instrument/YokogawaGS200.pm
-          - Amplifiers:
+          - Lock-in amplifiers:
               - Measurement/lib/Lab/Instrument/SR830.pm
+          - RF generators:
+              - Measurement/lib/Lab/Instrument/HP83732A.pm
       - High-level tool classes:
           - Measurement/lib/Lab/Data/Writer.pm
           - Measurement/lib/Lab/Measurement.pm
