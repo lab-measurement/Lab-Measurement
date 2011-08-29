@@ -5,7 +5,7 @@ use strict;
 use Lab::Instrument;
 
 
-our @ISA = ("Lab::Instrument");
+our @ISA = ("Lab::Instrument::Multimeter");
 
 our %fields = (
 	supported_connections => [ 'GPIB', 'DEBUG' ],
@@ -59,24 +59,24 @@ sub reset {
 }
 
 
-sub display_text {
+sub _display_text {
     my $self=shift;
     my $text=shift;
     
     $self->write("DISP MSG,\"$text\"");
 }
 
-sub display_on {
+sub _display_on {
     my $self=shift;
     $self->write("DISP ON");
 }
 
-sub display_off {
+sub _display_off {
     my $self=shift;
     $self->write("DISP OFF");
 }
 
-sub display_clear {
+sub _display_clear {
     my $self=shift;
     $self->write("DISP CLR");
 }
@@ -106,16 +106,16 @@ sub preset {
     $self->write($cmd);
 }
 
-sub id {
+sub _id {
     my $self=shift;
-    $self->connection()->Query( command => '*IDN?');
+    return $self->query('*IDN?');
 }
 
 
-sub get_value {
+sub _get_value {
     # Triggers one Measurement and Reads it
     my $self=shift;
-    my $val= $self->query("TRIG SGL");
+    my $val=$self->query("TRIG SGL");
     chomp $val;
     return $val;
 }

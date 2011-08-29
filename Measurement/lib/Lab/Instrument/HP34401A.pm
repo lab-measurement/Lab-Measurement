@@ -100,7 +100,7 @@ sub get_current_ac {
     return $value;
 }
 
-sub display_text {
+sub _display_text {
     my $self=shift;
     my $text=shift;
     
@@ -113,17 +113,17 @@ sub display_text {
     return $text;
 }
 
-sub display_on {
+sub _display_on {
     my $self=shift;
     $self->connection()->Write( command => "DISPlay ON" );
 }
 
-sub display_off {
+sub _display_off {
     my $self=shift;
     $self->connection()->Write( command => "DISPlay OFF" );
 }
 
-sub display_clear {
+sub _display_clear {
     my $self=shift;
     $self->connection()->Write( command => "DISPlay:TEXT:CLEar");
 }

@@ -50,6 +50,74 @@ sub _get_value{
     die "get_value not implemented for this instrument\n";
 }
 
+
+sub display_on {
+    my $self=shift;
+    $self->_display_on();
+}
+
+sub _display_on{
+    die "display_on not implemented for this instrument\n";
+}
+
+
+sub display_off {
+    my $self=shift;
+    $self->_display_off();
+}
+
+sub _display_off{
+    die "display_off not implemented for this instrument\n";
+}
+
+
+sub display_clear {
+    my $self=shift;
+    $self->_display_clear();
+}
+
+sub _display_clear{
+    die "display_clear not implemented for this instrument\n";
+}
+
+
+sub display_text {
+    my $self=shift;
+    my $text=shift;
+    $self->_display_text($text);
+}
+
+sub _display_text{
+    die "display_text not implemented for this instrument\n";
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 1;
 
 
@@ -90,6 +158,32 @@ queue. Errors are retrieved in first-in-first out (FIFO) order.
     $id=$Agi->id();
 
 Returns the instruments ID string.
+
+=head2 display_on
+
+    $hp->display_on();
+
+Turn the front-panel display on.
+
+=head2 display_off
+
+    $hp->display_off();
+
+Turn the front-panel display off.
+
+=head2 display_text
+
+    $hp->display_text($text);
+    print $hp->display_text();
+
+Display a message on the front panel. 
+
+=head2 display_clear
+
+    $hp->display_clear();
+
+Clear the message displayed on the front panel.
+
 
 =head1 CAVEATS/BUGS
 
