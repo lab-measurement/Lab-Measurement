@@ -89,9 +89,31 @@ sub _display_text{
 }
 
 
+sub selftest {
+    my $self=shift;
+    $self->_selftest();
+}
+
+sub _selftest{
+    die "selftest not implemented for this instrument\n";
+}
 
 
 
+
+
+
+
+sub configure_voltage_measurement{
+    my $self=shift;
+    my $range=shift; # in V, or "AUTO"
+    my $tint=shift;  # in sec
+    $self->_configure_voltage_measurement($range,$tint);
+}
+
+sub _configure_voltage_measurement{
+    die "configure_voltage_measurement not implemented for this instrument\n";
+}
 
 
 

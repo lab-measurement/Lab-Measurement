@@ -32,6 +32,16 @@ sub new {
 }
 
 
+
+
+sub _configure_voltage_measurement{
+    my $self=shift;
+    my $range=shift; # in V, or "AUTO"
+    my $tint=shift;  # in sec
+    die "configure_voltage_measurement not implemented for this instrument\n";
+}
+
+
 sub get_voltage_dc {
     my $self=shift;
     return $self->query("DCV");
@@ -43,7 +53,7 @@ sub set_nplc {
     $self->write("NPLC $n");
 }
 
-sub selftest {
+sub _selftest {
     my $self=shift;
     $self->write("TEST");
 }
