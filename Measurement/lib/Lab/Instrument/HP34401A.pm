@@ -8,7 +8,7 @@ use Carp;
 use Data::Dumper;
 
 
-our @ISA = ("Lab::Instrument");
+our @ISA = ("Lab::Instrument::Multimeter");
 
 our %fields = (
 	supported_connections => [ 'GPIB', 'DEBUG' ],
@@ -28,9 +28,8 @@ our %fields = (
 sub new {
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
-	my $self = $class->SUPER::new(@_);	# sets $self->config
-	$self->_construct(__PACKAGE__, \%fields); 	# this sets up all the object fields out of the inheritance tree.
-
+	my $self = $class->SUPER::new(@_);
+	$self->_construct(__PACKAGE__, \%fields);
 	return $self;
 }
 
@@ -237,14 +236,14 @@ sub scroll_message {
     $self->display_clear();
 }
 
-sub id {
+sub _id {
     my $self=shift;
-    $self->connection()->Query( command => '*IDN?');
+    return $self->query('*IDN?');
 }
 
-sub get_value {
+sub _get_value {
     my $self=shift;
-    my $value=$self->connection()->Query( command => 'READ?');
+    my $value=$self->query('READ?');
     chomp $value;
     return $value;
 }
