@@ -66,6 +66,7 @@ sub new {
 
 	# _setconnection after providing $config - needed for direct instantiation of Lab::Instrument
 	if( $class eq __PACKAGE__ ) {
+		$self->configure($self->config());
 		$self->_setconnection();
 	}
 
@@ -101,9 +102,33 @@ sub _construct {	# _construct(__PACKAGE__);
 	# That's because child classes can add new entrys to $self->supported_connections(), so delay checking to the top class.
 	#
 	if( $class eq $package && $class ne 'Lab::Instrument' ) {
+		$self->configure($self->config());
 		$self->_setconnection();
 	}
 }
+
+#
+# Fill $self->device_settings() from config parameters
+#
+sub configure {
+	my $self=shift;
+	my $config=shift;
+
+	if( ref($config) ne 'HASH' ) {
+		Lab::Exception::CorruptParameter->throw( error=>'Given Configuration is not a hash.' . Lab::Exception::Base::Appendix());
+	}
+	else {
+		for my $conf_name (keys %{$self->device_settings()}) {
+			#print "Key: $conf_name, default: ",$self->{default_config}->{$conf_name},", old config: ",$self->{config}->{$conf_name},", new config: ",$config->{$conf_name},"\n";
+			if( defined($config->{$conf_name}) ) {		# in given config? => set value
+				# print "Setting $conf_name to $config->{$conf_name}\n";
+				$self->device_settings()->{$conf_name} = $config->{$conf_name};
+			}
+		}
+	}
+	return $self; # what for? let's not break something...
+}
+
 
 
 sub _checkconnection { # Connection object or connection_type string (as in Lab::Connections::<connection_type>)
