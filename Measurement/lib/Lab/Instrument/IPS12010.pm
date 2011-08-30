@@ -8,37 +8,41 @@ use Time::HiRes qw (usleep);
 
 our @ISA=('Lab::Instrument::MagnetSupply');
 
-my $default_config={
-    use_persistentmode          => 0,
-    can_reverse                 => 1,
-    can_use_negative_current    => 1,
-};
+
+our %fields = (
+	supported_connections => [ 'GPIB', 'DEBUG' ],
+
+	# default settings for the supported connections
+	connection_settings => {
+		gpib_board => 0,
+		gpib_address => undef,
+	},
+
+	device_settings => {
+	    use_persistentmode          => 0,
+	    can_reverse                 => 1,
+	    can_use_negative_current    => 1,
+	},
+);
 
 sub new {
-    my $proto = shift;
-    my @args=@_;
-    my $class = ref($proto) || $proto;
-    my $self = $class->SUPER::new($default_config,@args);
-    bless ($self, $class);
+	my $proto = shift;
+	my $class = ref($proto) || $proto;
+	my $self = $class->SUPER::new(@_);
+	$self->_construct(__PACKAGE__, \%fields);
+	print "IPS12010 superconducting magnet supply code is highly experimental. You have been warned.\n";
 
-    print "IPS12010 superconducting magnet supply code is experimental. You have been warned.\n";
-    
-    $self->{vi}=new Lab::Instrument(@args);
-    
-    my $xstatus=Lab::VISA::viSetAttribute($self->{vi}->{instr}, $Lab::VISA::VI_ATTR_TERMCHAR, 0xD);
-    if ($xstatus != $Lab::VISA::VI_SUCCESS) { die "Error while setting read termination character: $xstatus";}
+#    my $xstatus=Lab::VISA::viSetAttribute($self->{vi}->{instr}, $Lab::VISA::VI_ATTR_TERMCHAR, 0xD);
+#    if ($xstatus != $Lab::VISA::VI_SUCCESS) { die "Error while setting read termination character: $xstatus";}
 
-    $xstatus=Lab::VISA::viSetAttribute($self->{vi}->{instr}, $Lab::VISA::VI_ATTR_TERMCHAR_EN, $Lab::VISA::VI_TRUE);
-    if ($xstatus != $Lab::VISA::VI_SUCCESS) { die "Error while enabling read termination character: $xstatus";}
+#    $xstatus=Lab::VISA::viSetAttribute($self->{vi}->{instr}, $Lab::VISA::VI_ATTR_TERMCHAR_EN, $Lab::VISA::VI_TRUE);
+#    if ($xstatus != $Lab::VISA::VI_SUCCESS) { die "Error while enabling read termination character: $xstatus";}
 
-#    $self->{vi}->Clear();
-   
-    $self->ips_set_communications_protocol(4);  # set to extended resolution
- 
-    $self->ips_set_control(3);  # set to remote & unlocked
-
-    return $self
+	$self->ips_set_communications_protocol(4);  # set to extended resolution
+	$self->ips_set_control(3);  # set to remote & unlocked
+	return $self;
 }
+
 
 
 sub ips_set_control {
@@ -48,8 +52,9 @@ sub ips_set_control {
 # 3 Remote & Unlocked
     my $self=shift;
     my $mode=shift;
-    $self->{vi}->Query("C$mode\r");
+    $self->query("C$mode\r");
 }
+
 
 sub ips_set_communications_protocol {
 # 0 "Normal" (default)
@@ -58,8 +63,9 @@ sub ips_set_communications_protocol {
 # 6 Extended Resolution. Sends <LF> after each <CR>.
     my $self=shift;
     my $mode=shift;
-    $self->{vi}->Write("Q$mode\r");
+    $self->write("Q$mode\r");
 }
+
 
 sub ips_read_parameter {
 # 0 Demand current (output current)     amp
@@ -85,8 +91,7 @@ sub ips_read_parameter {
 #24 Magnet inductance                   henry
     my $self=shift;
     my $parameter=shift;
-    #$self->{vi}->Clear();
-    my $result=$self->{vi}->Query("R$parameter\r");
+    my $result=$self->query("R$parameter\r");
     chomp $result;
     $result =~ s/^R//;
     $result =~ s/\r//;
@@ -94,13 +99,12 @@ sub ips_read_parameter {
 }
 
 
-# Hier spezialisierte read-Methoden einfuehren (read_set_point())
-
-sub ips_get_status {  # freezes magnet (David: not my comment)
+sub ips_get_status {  # freezes magnet???
     my $self=shift;
-    my $result=$self->{vi}->Query("X\r");
+    my $result=$self->query("X\r");
     return $result;
 }
+
 
 # returns:
 # 0 == Hold
@@ -114,6 +118,7 @@ sub ips_get_hold {
     $result = $1;
     return $result;
 }
+
 
 # returns:
 # 0: Off, Magnet at Zero (switch closed)
@@ -137,8 +142,9 @@ sub ips_set_activity {
 # 4 Clamp (clamp the power supply output)
     my $self=shift;
     my $mode=shift;
-    $self->{vi}->Query("A$mode\r");
+    $self->query("A$mode\r");
 }   
+
 
 sub ips_set_switch_heater {
 # 0 Heater Off                  (close switch)
@@ -148,20 +154,20 @@ sub ips_set_switch_heater {
 # 2 Heater On, no Checks        (open switch)
     my $self=shift;
     my $mode=shift;
-    $self->{vi}->Query("H$mode\r");
+    $self->query("H$mode\r");
     sleep(15);  # wait for heater to open the switch    
 }
 
 sub ips_set_target_current {
     my $self=shift;
     my $current=shift;
-    $self->{vi}->Query("I$current\r");
+    $self->query("I$current\r");
 }
 
 sub ips_set_target_field {
     my $self=shift;
     my $field=shift;
-    $self->{vi}->Query("J$field\r");
+    $self->query("J$field\r");
 }
 
 sub ips_set_mode {
@@ -174,7 +180,7 @@ sub ips_set_mode {
 # 9     Tesla       Unaffected
     my $self=shift;
     my $mode=shift;
-    $self->{vi}->Query("M$mode\r");
+    $self->query("M$mode\r");
 }
 
 sub ips_set_polarity {
@@ -184,21 +190,21 @@ sub ips_set_polarity {
 # 3 Swap polarity
     my $self=shift;
     my $mode=shift;
-    $self->{vi}->Query("P$mode\r");
+    $self->query("P$mode\r");
 }
 
 sub ips_set_current_sweep_rate {
 # amps/min
     my $self=shift;
     my $rate=shift;
-    $self->{vi}->Query("S$rate\r");
+    $self->query("S$rate\r");
 }
 
 sub ips_set_field_sweep_rate {
 # amps/min
     my $self=shift;
     my $rate=shift;
-    $self->{vi}->Query("T$rate\r");
+    $self->query("T$rate\r");
 }
 
 
@@ -207,30 +213,25 @@ sub ips_set_field_sweep_rate {
 ###########################
 
 
-# _set_heater(0) turns the heater OFF
-# _set_heater(1) turns the heater ON if PSU=Magnet (open switch)
-#   (only perform operation
-#   if recorded magnet current==present power supply output current)
-# _set_heater(2) Heater On, no Checks        (open switch)
-# returns the heater status as returned by _get_heater()
 sub _set_heater {
     my $self=shift;
     my $mode=shift;
+    if ($mode==99) { $mode=2; };
     $self->ips_set_switch_heater($mode);
     return $self->_get_heater();
 }
 
-# returns
-# 0: Off, Magnet at Zero (switch closed)
-# 1: On (switch open)
-# 2: Off, Magnet at Field (switch closed)
-# 5: Heater Fault (heater is on but current is low)
-# 8: No Switch Fitted
+
 sub _get_heater {
     my $self=shift;
-    my $heater_status = my $result=$self->ips_get_heater();
-    return $heater_status;
+    my $hs = my $result=$self->ips_get_heater();
+
+    if (($hs==0) || ($hs==2)) { return 0; };
+    if ($hs==1) { return 1; };
+    if ($hs==8) { die "IPS12010 heater status requested but no heater present!\n"; };
+    die "IPS12010 heater error!\n";
 }
+
 
 sub _get_current {
     my $self=shift;
@@ -238,30 +239,21 @@ sub _get_current {
     return($res);
 }
 
+
 sub _set_sweep_target_current {
     my $self=shift;
     my $current=shift;
     $self->ips_set_target_current($current);
 }
 
-# parameter: $current in AMPS
-sub _sweep_to_current {
-    my $self=shift;
-    my $target_current =shift;
-    $self->ips_set_target_current($target_current);
-    $self->_set_hold(0);    # pause OFF, so sweeping begins
-    while (abs($self->_get_current() - $target_current) > 0.05) {
-       sleep(10);
-    };      
-}
 
 sub _set_hold {
     my $self=shift;
     my $hold=shift;
     
-    if ($hold) {    # enter if $hold != 0
+    if ($hold) {
         $self->ips_set_activity(0); # 0 == hold
-    } else {    # enter if $hold == 0
+    } else {
         $self->ips_set_activity(1); # 1 == to set point
     };
 }

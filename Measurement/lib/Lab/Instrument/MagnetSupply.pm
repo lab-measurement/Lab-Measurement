@@ -2,6 +2,16 @@
 package Lab::Instrument::MagnetSupply;
 use strict;
 
+# about the coding and calling conventions
+
+# convention is, all control of magnet power supplies is done via current values
+# if a field constant can be obtained from the instrument, it will be read out and used
+# if not, it has to be set on initialization, otherwise the program aborts if it needs it
+
+# persistent mode is not handled yet, i.e. the heater is left untouched
+
+# all values are given in si base units, i.e. AMPS, TESLA, SECONDS
+
 
 our @ISA=('Lab::Instrument');
 
@@ -10,14 +20,16 @@ my %fields = (
 
 	# supported config options
 	device_settings => {
-		gate_protect => undef,
-		gp_max_volt_per_second => undef,
-		gp_max_volt_per_step => undef,
-		gp_max_step_per_second => undef,
-		gp_min_volt => undef,
-		gp_max_volt => undef,
-		gp_equal_level => undef,
-		fast_set => undef,
+		soft_fieldconstant => undef,        # T / A
+		max_current => undef,               # A
+		max_current_deviation => 0.1,       # A
+		max_sweeprate => undef,             # A / sec
+		max_sweeprate_persistent => undef,  # A / sec
+		has_heater => undef,                # 0 or 1
+		heater_delaytime => undef,          # sec
+		can_reverse => undef,               # 0 or 1
+		can_use_negative_current => undef,  # 0 or 1
+		use_persistentmode => undef,        # 0 or 1
 	},
 
 	# Config hash passed to subchannel objects or $self->configure()
@@ -29,116 +41,45 @@ sub new {
 	my $class = ref($proto) || $proto;
 	my $self = $class->SUPER::new(@_);
 	$self->_construct(__PACKAGE__, \%fields);
-	$self->configure($self->config());
-	$self->device_settings($self->config('device_settings')) if defined
-$self->config('device_settings') && ref($self->config('device_settings'))
-eq 'HASH';
-    
-    return $self;
+	print "Magnet power supply support is experimental. You have been warned.\n";
+	return $self;
+}
+
+sub get_fieldconstant {
+	my $self=shift;
+
+	my $sw=$self->get_soft_fieldconstant();
+	my $hw;
+
+	if ($sw) {
+	  return $sw;
+	} else {
+	  # no value for the field constant stored in the software
+	  # read value from the hardware
+	  $hw=$self->_get_fieldconstant();
+          if ($hw) {
+            $self->set_soft_fieldconstant($hw);
+            return $hw;
+	  } else {
+            die "Field constant required but not set\n!";
+	  };
+        };
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-sub new {
-    my $proto = shift;
-    my $class = ref($proto) || $proto;
-
-    my $self = bless {}, $class;
-
-    %{$self->{default_config}}=%{shift @_}; # ? David: fills the new hash %default_config with the first argument from @_ (e.g. "ASRL1" => undef ???)
-    %{$self->{config}}=%{$self->{default_config}};  # ? David: copy the hash %default_config to %config
-
-    $self->{config}->{field_constant}=0;
-    $self->{config}->{max_current}=1;
-    $self->{config}->{max_sweeprate}=0.001;
-    $self->{config}->{max_sweeprate_persistent}=0.001;  # David: NOT USED!
-    $self->{config}->{has_heater}=1;
-    $self->{config}->{heater_delaytime}=20; # David: NOT USED!
-    $self->{config}->{can_reverse}=0;
-    $self->{config}->{can_use_negative_current}=0;
-    $self->{config}->{use_persistentmode}=0;    # David: NOT USED!
-
-    $self->configure(@_);   # uses the remaining argument list to configure itself
-
-    print "Magnet power supply support is experimental. You have been warned.\n";
-    return $self;
-}
-
-# usage:
-# my $source=new Lab::Instrument::IPS12010new({ ... })
-# $source->{config}{"field_constant"}=1;
-sub configure {
-    my $self=shift;
-    #supported config options are (so far)
-    #   field_constant (T/A)
-    #   max_current (A)
-    #   max_sweeprate (A/min)
-    #   max_sweeprate_persistent (A/min)
-    #   has_heater (0/1)
-    #   heater_delaytime (s)
-    #   can_reverse (0/1)
-    #   can_use_negative_current (0/1)
-    #   use_persistentmode (0/1)
-    #   
-    my $config=shift;
-    if ((ref $config) =~ /HASH/) {
-        for my $conf_name (keys %{$self->{default_config}}) {
-            # print "Key: $conf_name, default: ",$self->{default_config}->{$conf_name},", old config: ",$self->{config}->{$conf_name},", new config: ",$config->{$conf_name},"\n";
-            unless ((defined($self->{config}->{$conf_name})) || (defined($config->{$conf_name}))) {
-                $self->{config}->{$conf_name}=$self->{default_config}->{$conf_name};
-            } elsif (defined($config->{$conf_name})) {
-                $self->{config}->{$conf_name}=$config->{$conf_name};
-            }
-        }
-        return $self;
-    } elsif($config) {
-        return $self->{config}->{$config};
-    } else {
-        return $self->{config};
-    }
-}
-
-# converts the argument in AMPS to TESLA, if field_constant != 0
+# converts the argument in AMPS to TESLA
 sub ItoB {
     my $self=shift;
     my $current=shift;
-
-    my $fconst = $self->{config}->{field_constant};
-
-    if ($fconst==0) { 
-      die "MagnetSupply.pm: Field constant not defined!!!\n";
-    };
-    
-    return($fconst*$current);
+    return($self->get_fieldconstant()*$current);
 }
 
 
-# converts the argument in TESLA to AMPS, if field_constant != 0
+# converts the argument in TESLA to AMPS
 sub BtoI {
     my $self=shift;
     my $field=shift;
-
-    my $fconst = $self->{config}->{field_constant};
-
-    if ($fconst==0) { 
-        die "MagnetSupply.pm: Field constant not defined!!!\n";
-    };
-    
-    return($field/$fconst);
+    return($field/$self->get_fieldconstant());
 }
 
 
@@ -146,59 +87,42 @@ sub BtoI {
 sub set_field {
     my $self=shift;
     my $field=shift;
-    
     my $current = $self->BtoI($field);
-
     $field = $self->ItoB($self->set_current($current));
     return $field;
 }
 
 
 # current in AMPS
+# any value can be supplied, zero transition is handled automatically
 sub set_current {
     my $self=shift;
-    my $current=shift;
+    my $targetcurrent=shift;
 
-    if ($current > $self->{config}->{max_current}) {
-        $current = $self->{config}->{max_current};
-    };
+    my $max=$self->get_max_current();
+
+    if ($targetcurrent > $max) { $targetcurrent=$max; };
+    if ($targetcurrent < -$max) { $targetcurrent=-$max; };
     
-    if ($current < 0) {
-        if ($self->{config}->{can_reverse}) {
-
-            if ($self->{config}->{can_use_negative_current}) {
-
-                if ($current < -$self->{config}->{max_current}) {
-                    $current = -$self->{config}->{max_current};
-                };
-
-                # HERE TODO: sweep to negative current
-                die "MagnetSupply.pm: negative current supported, but not yet implemented!";
-                return $self->get_current();
-                
-            } else {
-                   die "MagnetSupply.pm: negative current not supported\n";
-            };
-            
-        } else {
-               die "MagnetSupply.pm: reverse current not supported\n";
-        }
-    
+    if (($targetcurrent < 0) && (! $self->get_can_reverse() )) {
+       die "Reverse magnetic field direction not supported by instrument\n";
     };
 
-    $self->_set_sweeprate($self->{config}->{max_sweeprate});
-    
-    # TODO: why another test for can_use_negative_current, and why not continue if the test fails?
-    # if ($self->{config}->{can_use_negative_current}) {
-        # $self->_set_sweep_target_current($current);
-    # } else {
-    # die "not supported yet\n";
-    # }
-    
+    if ($self->get_can_use_negative_current()) {
+	# in this case we dont have to care about anything, just feed the power supply with the 
+	# target value and wait
 
-    $self->_sweep_to_current($current); # sweeps and waits until finished
+	$self->start_sweep_to_current($current);
+	do {
+	  sleep(5);
+	} while (abs($targetcurrent-$self->get_current()) > $self->get_max_current_deviation());
+	sleep(5);
+        return $self->get_current();
+
+    } else {
+       die "fixme: not programmed yet\n";
+    };
 }
-
 
 
 sub start_sweep_to_field {
@@ -208,56 +132,32 @@ sub start_sweep_to_field {
 }
 
 
-# DANGER!
-# does only work for IPS12010new.pm!, undefined behaviour!
-# identical to set_current, only diff: does NOT wait until sweeping is finished
+# this does not do any special zero handling, just error checking
 sub start_sweep_to_current {
     my $self=shift;
-    my $current=shift;
+    my $targetcurrent=shift;
 
-    if ($current > $self->{config}->{max_current}) {
-        $current = $self->{config}->{max_current};
-    };
-    
-    if ($current < 0) {
-        if ($self->{config}->{can_reverse}) {
+    my $max=$self->get_max_current();
+    my $now=$self->get_current();
 
-            if ($self->{config}->{can_use_negative_current}) {
+    if ($targetcurrent > $max) { $targetcurrent=$max; };
+    if ($targetcurrent < -$max) { $targetcurrent=-$max; };
 
-                if ($current < -$self->{config}->{max_current}) {
-                    $current = -$self->{config}->{max_current};
-                };
-
-                # HERE TODO: sweep to negative current
-                die "MagnetSupply.pm: negative current supported, but not yet implemented!";
-                return $self->get_current();
-                
-            } else {
-                   die "MagnetSupply.pm: negative current not supported\n";
-            };
-            
-        } else {
-               die "MagnetSupply.pm: reverse current not supported\n";
-        }
-    
+    if (($targetcurrent < 0) && (! $self->get_can_reverse() )) {
+       die "Reverse magnetic field direction not supported by instrument\n";
     };
 
-    $self->_set_sweeprate($self->{config}->{max_sweeprate});
+    if (($targetcurrent*$now < 0) && (! $self->get_can_use_negative_current()){
+       # current value and target have different sign
+       die "You're trying to sweep across zero and it is not supported by the device!\n";
+    };
     
-    # TODO: why another test for can_use_negative_current, and why not continue if the test fails?
-    # if ($self->{config}->{can_use_negative_current}) {
-        # $self->_set_sweep_target_current($current);
-    # } else {
-    # die "not supported yet\n";
-    # }
-    
-    $self->_set_sweep_target_current($current);
-    
-    $self->_set_hold(0);    # pause OFF, so sweeping begins
-    
+    $self->_set_sweep_target_current($targetcurrent);
+    $self->_set_hold(0);
+
+    # pause OFF, so sweeping begins
     # now return, while sweeping continues
 }
-
 
 
 # returns the field in TESLA
@@ -272,76 +172,93 @@ sub get_current {
     return $self->_get_current();
 }
 
-# returns:
-# 0 == off, Magnet at Zero (switch closed)
-# 1 == On (switch open)
-# 2 == Off, Magnet at Field (switch closed)
-sub get_heater() {
-    my $self=shift;
-    my $value = $self->_get_heater();
-    return $value;
+sub _get_current {
+    die 'get_current not implemented for this instrument';
 }
 
+
+# returns:
+# 0 == Off (switch closed)
+# 1 == On (switch open)
+sub get_heater() {
+    my $self=shift;
+    return $self->_get_heater();
+}
+
+sub _get_heater {
+    die 'get_heater not implemented for this instrument';
+}
+
+
 # parameter:
-# 0 == off
-# 1 == on iff PSU=Magnet
-# 2 == on (no checks)
+# 0  == off
+# 1  == on iff PSU=Magnet
+# 99 == on (no checks)
 sub set_heater() {
     my $self=shift;
     my $value=shift;
     return $self->_set_heater($value);
 }
 
-# returns sweeprate in AMPS/MINUTE, or in TESLA/MINUTE if device supports TESLA mode and IS in TESLA mode
+sub _set_heater {
+    die 'set_heater not implemented for this instrument';
+}
+
+
+# returns sweeprate in AMPS/SEC
 sub get_sweeprate() {
     my $self=shift;
     return $self->_get_sweeprate();
 }
 
-# $rate in AMPS/MINUTE, or in TESLA/MINUTE if device supports TESLA mode and IS in TESLA mode
+sub _get_sweeprate {
+    die 'get_sweeprate not implemented for this instrument';
+}
+
+
+# rate in AMPS/MINUTE
 sub set_sweeprate() {
     my $self=shift;
     my $rate=shift;
-    $self->{config}->{max_sweeprate} = $rate;
+    if ($rate > $self->get_max_sweeprate()) { $rate=$self->get_max_sweeprate(); };
     return $self->_set_sweeprate($rate);
 }
 
-
-# David: this is the interface needed to be implemented
-# David: these are probably the fallbacks if a sub is not implemented in e.g. IPS12010new.pm, or Cryogenic.pm
-
-
-sub _get_current {
-    die '_get_current not implemented for this instrument';
+sub _set_sweeprate {
+    die 'set_sweeprate not implemented for this instrument';
 }
 
-sub _set_sweep_target_current {
-    die '_set_sweep_target_current not implemented for this instrument';
+
+sub set_hold {
+    my $self=shift;
+    my $value=shift;
+    return $self->_set_hold($value);
 }
 
 sub _set_hold {
     die '_set_hold not implemented for this instrument';
 }
 
+
+sub get_hold {
+    my $self=shift;
+    return $self->_get_hold();
+}
+
 sub _get_hold {
     die '_get_hold not implemented for this instrument';
 }
 
-sub _set_heater {
-    die '_set_heater not implemented for this instrument';
+
+sub _set_sweep_target_current {
+    die '_set_sweep_target_current not implemented for this instrument';
 }
 
-sub _get_heater {
-    die '_get_heater not implemented for this instrument';
+
+sub _get_fieldconstant {
+    return UNDEF;
 }
 
-sub _set_sweeprate {
-    die '_set_sweeprate not implemented for this instrument';
-}
-
-sub _get_sweeprate {
-    die '_get_sweeprate not implemented for this instrument';
-}
 
 
 1;
@@ -352,6 +269,6 @@ sub _get_sweeprate {
 
 Lab::Instrument::MagnetSupply - Base class for magnet power supply instruments
 
-David Borowsky
+(c) 2010 David Borowsky, Andreas K. Hüttel; 2011 Andreas K. Hüttel
 =cut
 
