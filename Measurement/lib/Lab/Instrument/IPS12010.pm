@@ -213,12 +213,10 @@ sub ips_set_field_sweep_rate {
 ###########################
 
 
-sub _set_heater {
+sub _get_current {
     my $self=shift;
-    my $mode=shift;
-    if ($mode==99) { $mode=2; };
-    $self->ips_set_switch_heater($mode);
-    return $self->_get_heater();
+    my $res=$self->ips_read_parameter(0);
+    return($res);
 }
 
 
@@ -233,17 +231,28 @@ sub _get_heater {
 }
 
 
-sub _get_current {
+sub _set_heater {
     my $self=shift;
-    my $res=$self->ips_read_parameter(0);
-    return($res);
+    my $mode=shift;
+    if ($mode==99) { $mode=2; };
+    $self->ips_set_switch_heater($mode);
+    return $self->_get_heater();
 }
 
 
-sub _set_sweep_target_current {
+sub _get_sweeprate {
     my $self=shift;
-    my $current=shift;
-    $self->ips_set_target_current($current);
+    # the ips returns AMPS/MIN
+    return(($self->ips_read_parameter(6))/60.0);
+}
+
+
+sub _set_sweeprate {
+    my $self=shift;
+    my $rate=shift;
+    $rate=$rate/60.0; # we need for the ips APS/MIN
+    $self->ips_set_current_sweep_rate($rate);
+    return($self->_get_sweeprate());
 }
 
 
@@ -260,80 +269,35 @@ sub _set_hold {
 
 sub _get_hold {
     my $self=shift;
-    my $result=$self->ips_get_hold();
-    return $result;
+    my $r=$self->ips_get_hold();
+    if ($r==0) { return 1; };
+    if (($r==1) || ($r==2)) { return 0; };
+    if ($r==3) { die "magnet is clamped\n"; };
+    die "get_hold error\n";
 }
     
 
-
-# parameter is in AMPS/MINUTE
-sub _set_sweeprate {
+sub _set_sweep_target_current {
     my $self=shift;
-    my $rate=shift;
-    $rate=$rate;
-    # print "setting sweep rate to $rate\n";
-    $self->ips_set_current_sweep_rate($rate);   # David: uncommented
-    return($self->_get_sweeprate());
+    my $current=shift;
+    $self->ips_set_target_current($current);
 }
 
-# returns sweep rate in AMPS/MINUTE
-sub _get_sweeprate {
-    my $self=shift;
-    return(($self->ips_read_parameter(6)));
-}
-
-#sub _active_sweep { doesnt work
-#   my $self=shift;
-#   my $status=$self->ips_get_status();
-#   my $mode=substr($status,11,1);
-#   if ($mode!=0){
-#       return(1); #sweeping 1 ,2 ,3
-#   }else{ 
-#       return(0) # 0 At Rest 
-#   }
-#}
 
 
-# returns current sweep rate in AMPS/MINUTE
-sub _init_magnet {
-    my $self=shift;#
-    print "Set Communication Protocol to Extended Resolution...";
-    #$self->ips_set_activity (0);
-    $self->ips_set_communications_protocol(4);
-    print "done!\n";
-    print "Set Magnet to Remote and Unlocked...";
-    $self->ips_set_control (3);
-    print "done!\n";
-    
-    print "Unclamp Magnet and Set to Hold...";
-    $self->ips_set_activity(0);
-    print "done!\n";
-    
-    # Don't use Heater in Init since the previous user could have used persitent mode and could turn off Power Supply!
-    #print "Switch On Heater\n";
-        #$self->ips_set_switch_heater(1);
-    #print "done!\n";
-    
-    return(($self->ips_read_parameter(6)));
-}
-
-# returns the AMPS at which the heater was switched off
-# or "" if heater is ON
-sub _get_persistent_magnet_current {
-    my $self=shift;
-    my $heater_status = $self->_get_heater();
-    if ($heater_status == 1) {  # 1 == On (switch open)
-        return "";
-    }
-    return(($self->ips_read_parameter(16)));
-}
-
-=head1 NAME
-
-Lab::Instrument::IPS12010new - IPS 120-10 superconducting magnet supply
-
-=cut
 
 
 1;
+
+
+
+
+
+=head1 NAME
+
+Lab::Instrument::IPS12010 - Oxford Instruments IPS 120-10 superconducting magnet supply
+
+(c) 2010, 2011 Andreas K. Hüttel
+
+=cut
 

@@ -270,5 +270,6 @@ sub _get_fieldconstant {
 Lab::Instrument::MagnetSupply - Base class for magnet power supply instruments
 
 (c) 2010 David Borowsky, Andreas K. Hüttel; 2011 Andreas K. Hüttel
+
 =cut
 
