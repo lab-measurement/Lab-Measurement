@@ -26,6 +26,9 @@ toc:
               - Measurement/lib/Lab/Instrument/SR830.pm
           - RF generators:
               - Measurement/lib/Lab/Instrument/HP83732A.pm
+          - Superconducting magnet power supplies:
+              - Measurement/lib/Lab/Instrument/MagnetSupply.pm
+              - Measurement/lib/Lab/Instrument/IPS12010.pm
       - High-level tool classes:
           - Measurement/lib/Lab/Data/Writer.pm
           - Measurement/lib/Lab/Measurement.pm
