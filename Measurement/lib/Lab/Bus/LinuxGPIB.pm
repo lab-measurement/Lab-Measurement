@@ -74,10 +74,6 @@ sub connection_new { # { gpib_address => primary address }
 	# print "Opening device: " . $gpib_address . "\n";
 	$gpib_handle = ibdev(0, $gpib_address, 0, 12, 1, 0);
 
-	# clear
-	#my $ibstatus = ibclr($GPIBInstrument);
-	#printf("Instrument cleared, ibstatus %x\n", $ibstatus);
-		
 	$connection_handle =  { valid => 1, type => "GPIB", gpib_handle => $gpib_handle };  
 	return $connection_handle;
 }
@@ -290,34 +286,41 @@ sub _search_twin {
 }
 
 
+1;
+
+=pod
+
+=encoding utf-8
+
 =head1 NAME
 
-Lab::Bus::GPIB - GPIB bus base
+Lab::Bus::LinuxGPIB - LinuxGPIB bus
 
 =head1 SYNOPSIS
 
 This is the GPIB bus class for the GPIB library C<linux-gpib> (aka C<libgpib0> in the debian world).
 
-  my $GPIB = new Lab::Bus::GPIB({ gpib_board => 0 });
+  my $GPIB = new Lab::Bus::LinuxGPIB({ gpib_board => 0 });
 
-or implicit through instrument creation:
+or implicit through instrument and connection creation:
 
   my $instrument = new Lab::Instrument::HP34401A({
-    BusType => 'GPIB',
+    connection_type => 'LinuxGPIB',
     gpib_board => 0,
-    GPIB_Paddress=>14,
+    gpib_address=>14,
   }
 
 =head1 DESCRIPTION
 
-See http://linux-gpib.sourceforge.net/.
-This will work for Linux systems only. On Windows, please use C<Lab::Bus::VISA>. The interfaces are (errr, will be) identical.
+See L<http://linux-gpib.sourceforge.net/> for details on the LinuxGPIB package. The
+package provides both kernel drivers and Perl bindings. Obviously, this will work for Linux systems only. 
+On Windows, please use L<Lab::Bus::VISA>. The interfaces are (errr, will be) identical.
 
 Note: you don't need to explicitly handle bus objects. The Instruments will create them themselves, and existing bus will
 be automagically reused.
 
 In GPIB, instantiating two bus with identical parameter "gpib_board" will logically lead to the reuse of the first one.
-To override this, use the parameter "ignore_twins".
+To override this, use the parameter "ignore_twins" at your own risk.
 
 
 =head1 CONSTRUCTOR
@@ -330,7 +333,6 @@ To override this, use the parameter "ignore_twins".
 
 Return blessed $self, with @_ accessible through $self->config().
 
-Options:
 C<gpib_board>: Index of board to use. Can be omitted, 0 is the default.
 
 
@@ -341,7 +343,8 @@ Lab::Bus::GPIB throws
   Lab::Exception::GPIBError
     fields:
     'ibsta', the raw ibsta status byte received from linux-gpib
-    'ibsta_hash', the ibsta bit values in a named, easy-to-read hash ( 'DCAS' => $val, 'DTAS' => $val, ... ). Use Lab::Bus::GPIB::VerboseIbstatus() to get a nice string representation
+    'ibsta_hash', the ibsta bit values in a named hash ( 'DCAS' => $val, 'DTAS' => $val, ... ). 
+                  Use Lab::Bus::GPIB::VerboseIbstatus() to get a nice string representation
 
   Lab::Exception::GPIBTimeout
     fields:
@@ -352,18 +355,20 @@ Lab::Bus::GPIB throws
 
 =head2 connection_new
 
-  $GPIB->connection_new({ GPIB_Paddr => $paddr });
+  $GPIB->connection_new({ gpib_address => $paddr });
 
-Creates a new instrument handle for this bus. The argument is a hash, which contents depend on the bus type.
-For GPIB at least 'GPIB_Paddr' is needed.
+Creates a new connection ("instrument handle") for this bus. The argument is a hash, whose contents depend on the bus type.
+For GPIB at least 'gpib_address' is needed.
 
 The handle is usually stored in an instrument object and given to connection_read, connection_write etc.
 to identify and handle the calling instrument:
 
-  $InstrumentHandle = $GPIB->connection_new({ GPIB_Paddr => 13 });
+  $InstrumentHandle = $GPIB->connection_new({ gpib_address => 13 });
   $result = $GPIB->connection_read($self->InstrumentHandle(), { options });
 
 See C<Lab::Instrument::Read()>.
+
+TODO: this is probably not correct anymore
 
 
 =head2 connection_write
@@ -386,27 +391,31 @@ Setting C<Brutal> to a true value will result in timeouts being ignored, and the
 
 =head2 config
 
-Provides unified access to the fields in initial @_ to all the cild classes.
+Provides unified access to the fields in initial @_ to all the child classes.
 E.g.
 
- $GPIB_PAddress=$instrument->config(GPIB_PAddress);
+ $GPIB_Address=$instrument->config(gpib_address);
 
 Without arguments, returns a reference to the complete $self->config aka @_ of the constructor.
 
  $config = $bus->config();
- $GPIB_PAddress = $bus->config()->{'GPIB_PAddress'};
+ $GPIB_PAddress = $bus->config()->{'gpib_address'};
 
 =head1 CAVEATS/BUGS
 
-View. Also, not a lot to be done here.
+Few. Also, not a lot to be done here.
 
 =head1 SEE ALSO
 
 =over 4
 
-=item L<Lab::Bus::GPIB>
+=item 
 
-=item L<Lab::Bus::MODBUS>
+L<Lab::Bus>
+
+=item 
+
+L<Lab::Bus::MODBUS>
 
 =item and many more...
 
@@ -414,12 +423,10 @@ View. Also, not a lot to be done here.
 
 =head1 AUTHOR/COPYRIGHT
 
-This is $Id: Bus.pm 749 2011-02-15 12:55:20Z olbrich $
-
  Copyright 2004-2006 Daniel Schröer <schroeer@cpan.org>, 
            2009-2010 Daniel Schröer, Andreas K. Hüttel (L<http://www.akhuettel.de/>) and David Kalok,
-         2010      Matthias Völker <mvoelker@cpan.org>
-           2011      Florian Olbrich
+           2010      Matthias Völker <mvoelker@cpan.org>
+           2011      Florian Olbrich, Andreas K. Hüttel
 
 This library is free software; you can redistribute it and/or modify it under the same
 terms as Perl itself.

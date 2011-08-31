@@ -1,7 +1,4 @@
 #!/usr/bin/perl -w
-# POD
-
-#$Id$
 
 package Lab::Bus;
 
@@ -155,47 +152,42 @@ sub DESTROY {
 
 1;
 
+=pod
+
+=encoding utf-8
+
 =head1 NAME
 
 Lab::Bus - bus base class
 
 =head1 SYNOPSIS
 
-This is meant to be used as a base class for inheriting instruments only.
-Every inheriting classes constructors should start as follows:
-
-	sub new {
-		my $proto = shift;
-		my $class = ref($proto) || $proto;
-		my $self = $class->SUPER::new(@_);
-		$self->_construct(__PACKAGE__); #initialize fields etc.
-		...
-	}
+This is a base class for inheriting bus types.
 
 =head1 DESCRIPTION
 
-C<Lab::Bus> is a base class for individual buses. It doesn't do anything on its own.
+C<Lab::Bus> is a base class for individual buses. It does not do anything on its own.
 For more detailed information on the use of bus objects, take a look on a child class, e.g.
-C<Lab::Bus::GPIB>.
+L<Lab::Bus::LinuxGPIB>.
 
-In C<%Lab::Bus::BusList> resides a hash which contains references to all the active buses in your program.
-They are put there by the constructor of the individual bus C<Lab::Bus::new()> and have two levels: Package name and
-a unique bus ID (GPIB board index offers itself for GPIB). This is to transparently (to the use interface) reuse bus objects,
-as there may only be one bus object for every (hardware) bus. weaken() is used on every reference stored in this hash, so
+C<Lab::Bus::BusList> contains a hash with references to all the active buses in your program.
+They are put there by the constructor of the individual bus C<Lab::Bus::new()> and have two 
+levels: Package name and a unique bus ID (GPIB board index offers itself for GPIB). This is 
+to transparently (to the use interface) reuse bus objects, as there may only be one bus object 
+for every (hardware) bus. weaken() is used on every reference stored in this hash, so
 it doesn't prevent object destruction when the last "real" reference is lost.
 Yes, this breaks object orientation a little, but it comes so handy!
 
-our %Lab::Bus::BusList = [
-
+  our %Lab::Bus::BusList = [
 	$Package => {
 		$UniqueID => $Object,
 	}
-
 	'Lab::Bus::GPIB' => {
-		'0' => $Object,		"0" is the gpib board index, here
+		'0' => $Object,		"0" is the gpib board index
 	}
 
-Place your twin searching code in $self->_search_twin(). Make sure it evaluates $self->IgnoreTwin(). Look at Lab::Bus::GPIB.
+Place your twin searching code in C<$self->_search_twin()>. Make sure it evaluates 
+C<$self->IgnoreTwin()>. Look at L<Lab::Bus::LinuxGPIB>.
 
 
 =head1 CONSTRUCTOR
@@ -212,45 +204,39 @@ Return blessed $self, with @_ accessible through $self->Config().
 
 =head2 Config
 
-Provides unified access to the fields in initial @_ to all the cild classes.
-E.g.
-
- $GPIB_PAddress=$instrument->Config(GPIB_PAddress);
-
-Without arguments, returns a reference to the complete $self->Config aka @_ of the constructor.
-
- $Config = $bus->Config();
- $GPIB_PAddress = $bus->Config()->{'GPIB_PAddress'};
+Provides unified access to the fields in initial @_ to all the child classes.
  
 =head1 CAVEATS/BUGS
 
-Probably view. Mostly because there's not a lot to be done here.
+Probably few. Mostly because there's not so much done here.
 
 =head1 SEE ALSO
 
 =over 4
 
-=item L<Lab::Bus::GPIB>
+=item 
 
-=item L<Lab::Bus::MODBUS>
+L<Lab::Bus::GPIB>
 
-=item and many more...
+=item 
+
+L<Lab::Bus::MODBUS>
+
+=item 
+
+and many more...
 
 =back
 
 =head1 AUTHOR/COPYRIGHT
 
-This is $Id$
-
  Copyright 2004-2006 Daniel Schröer <schroeer@cpan.org>, 
            2009-2010 Daniel Schröer, Andreas K. Hüttel (L<http://www.akhuettel.de/>) and David Kalok,
-	       2010      Matthias Völker <mvoelker@cpan.org>
-           2011      Florian Olbrich
+           2010      Matthias Völker <mvoelker@cpan.org>
+           2011      Florian Olbrich, Andreas K. Hüttel
 
 This library is free software; you can redistribute it and/or modify it under the same
 terms as Perl itself.
 
 =cut
 
-$Lab::Bus::VERSION='2.90';
-1;

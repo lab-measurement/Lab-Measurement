@@ -7,6 +7,7 @@ toc:
       - Measurement/lib/Lab/Measurement/Tutorial.pod
       - Bus classes:
           - Measurement/lib/Lab/Bus.pm
+          - Measurement/lib/Lab/Bus/LinuxGPIB.pm
       - Connection classes:
           - Measurement/lib/Lab/Connection.pm
           - Measurement/lib/Lab/Connection/GPIB.pm

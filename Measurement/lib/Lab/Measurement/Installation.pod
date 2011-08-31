@@ -1,5 +1,7 @@
 =pod
 
+=encoding utf-8
+
 =head1 NAME
 
 Lab::Measurement::Installation - Installation guide for Lab::Measurement
@@ -8,7 +10,8 @@ Lab::Measurement::Installation - Installation guide for Lab::Measurement
 
 Since Lab::Measurement does not contain any device driver code itself, its installation is 
 pretty straightforward. However, before you can actually use it, you will have to install
-a driver binding back-end, such as Lab::VISA or Linux-GPIB, plus its dependencies.
+a driver binding back-end, such as Lab::VISA or Linux-GPIB, plus its dependencies. Please 
+see the documentation of these packages for more details.
 
 =head1 Installation on Windows XP with ActiveState Perl 
 
@@ -57,11 +60,11 @@ My Computer => Properties => Advanced => Environment Variables
 
 =item
 
-Install dependencies of our perl modules. Depending on how familiar you are
+Install the dependencies of our perl modules. Depending on how familiar you are
 with the perl infrastructure, the easiest might be to use PPM, the Perl Package Manager
 included with ActivePerl.
 
-Lab::Tools needs
+Lab::Measurement needs
 
  XML::Generator (PPM would write it as XML-Generator)
  XML::DOM
@@ -109,16 +112,20 @@ executed on the commandline.
 =head1 Installation on Linux
 
 As a Linux user you will probably be able to figure out most things yourself. 
-You will need the dependencies; best you'll use your distribution package management
-to install these:
 
- XML::Generator (PPM would write it as XML-Generator)
+=over
+
+=item
+
+Install the dependencies
+
+Best you'll use your distribution package management. You need
+
+ XML::Generator
  XML::DOM
  XML::Twig
  YAML
- ... and GnuPlot.
-
-=over
+ ... and GnuPlot
 
 =item
 
@@ -144,9 +151,11 @@ Run the following commands in the source directory
 
 Have fun!
 
+=back
+
 =head1 COPYRIGHT AND LICENCE
 
-(c) 2010,2011 Daniel Schröer, Andreas Hüttel, Daniela Taubert, and others.
+(c) 2010,2011 Daniel SchrÃ¶er, Andreas HÃ¼ttel, Daniela Taubert, and others.
 
 =cut
 

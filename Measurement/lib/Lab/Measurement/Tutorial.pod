@@ -1,8 +1,12 @@
 =pod
 
+=encoding utf-8
+
 =head1 NAME
 
 Lab::VISA::Tutorial - Tutorial on using Lab::VISA and related packages
+
+This document needs a complete rewrite...
 
 =head1 Introduction
 
@@ -528,7 +532,7 @@ script that takes advantage of the meta data system introduced above...
     
     # example6.pl
     
-    # Eine Spannungsquelle fahren, Leitf‰higkeit (ohne Lock-In) messen
+    # Eine Spannungsquelle fahren, Leitf√§higkeit (ohne Lock-In) messen
     
     use strict;
     use Lab::Instrument::KnickS252;
@@ -553,7 +557,7 @@ script that takes advantage of the meta data system introduced above...
     my $sample          ="S5c (81059)";
     my $title           ="QPC links unten";
     my $comment         =<<COMMENT;
-    Strom von 12 nach 14; V_{SD,DC}=$v_sd V; L¸ftung an; Ca. 25mK.
+    Strom von 12 nach 14; V_{SD,DC}=$v_sd V; L√ºftung an; Ca. 25mK.
     Ithaco: Amplification $amp, Supression 10e-10 off, Rise Time 0.3ms.
     Fahre Ghf4 (Yoko04)
     COMMENT
@@ -697,6 +701,6 @@ TODO: more examples
 
 This is $Id$
 
-Copyright 2006 by Daniel Schrˆer.
+Copyright 2006 by Daniel Schr√∂er.
 
 =cut
