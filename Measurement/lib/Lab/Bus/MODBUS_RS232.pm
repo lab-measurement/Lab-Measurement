@@ -318,10 +318,14 @@ sub _MB_CRC { # @Message as character array, e.g. ( chr(1), pack('C',$address), 
 
 1;
 
+=pod
+
+=encoding utf-8
 
 =head1 NAME
 
-Lab::Bus::MODBUS_RS232 - Perl extension for interfacing with instruments via RS232/RS485 using the MODBUS RTU protocol
+Lab::Bus::MODBUS_RS232 - Perl extension for interfacing with instruments via RS232/RS485
+using the MODBUS RTU protocol
 
 =head1 SYNOPSIS
 
@@ -332,15 +336,15 @@ Lab::Bus::MODBUS_RS232 - Perl extension for interfacing with instruments via RS2
 		slave_address => '1'
 	});
 
-	COM1 is the Windows notation, /dev/ttyUSB1 the Linux equivalent.
-	Use as needed.
+C<COM1> is the Windows notation, C</dev/ttyUSB1> the Linux equivalent. Use as needed.
 
 
 =head1 DESCRIPTION
 
-This is an interface package for Lab::Connections to communicate via RS232/RS485 with a MODBUS RTU enabled device.
-It uses Lab::Bus::RS232 (RS485 can be done using a RS232<->RS485 converter for now). It's main use is to calculate the
-checksums needed by MODBUS RTU.
+This is an interface package for Lab::Measurement to communicate via RS232/RS485 with a 
+MODBUS RTU enabled device. It uses Lab::Bus::RS232 (RS485 can be done using a 
+RS232<->RS485 converter for now). It's main use is to calculate the checksums needed by 
+MODBUS RTU.
 
 Refer to your device for the correct port configuration.
 
@@ -349,8 +353,8 @@ Refer to your device for the correct port configuration.
 =head2 new
 
 All parameters are used as by C<Device::SerialPort> respectively C<Lab::Bus::RS232>.
-'Port' is needed in every case. Default value for timeout is 500ms and can be set by the parameter "Timeout".
-Other options you probably have to set: Handshake, Baudrate, Databits, Stopbits and Parity.
+'port' is needed in every case. Default value for timeout is 500ms and can be set by the 
+parameter "Timeout". Other options you probably have to set: Handshake, Baudrate, Databits, Stopbits and Parity.
 
 =head1 METHODS
 
@@ -368,11 +372,16 @@ mem_count ( 0xFFFF, Count of words to read )
 =head2 connectionWrite
 
 Send data to instrument. Arguments: 
-function (0x05,0x06,0x0F,0x10 - "Write Single Coil", "Write Single Register", "Write Multiple Coils", "Write Multiple Registers")
+
+ function (0x05,0x06,0x0F,0x10 - "Write Single Coil", "Write Single Register", "Write Multiple Coils", "Write Multiple Registers")
+
 Currently only 0x06 is implemented.
-slave_address (0xFF)
-mem_address ( 0xFFFF, Address of word )
-Value ( 0xFFFF, value to write to mem_address )
+
+ slave_address (0xFF)
+
+ mem_address ( 0xFFFF, Address of word )
+ 
+ Value ( 0xFFFF, value to write to mem_address )
 
 
 =head1 CAVEATS/BUGS
@@ -383,21 +392,21 @@ This is a prototype...
 
 =over 4
 
-=item L<Lab::Bus>
+=item * L<Lab::Bus>
 
-=item L<Lab::Bus::RS232>
+=item * L<Lab::Bus::RS232>
 
-=item L<Lab::Connection>
+=item * L<Lab::Connection>
 
-=item L<Win32::SerialPort>
+=item * L<Win32::SerialPort>
 
-=item L<Device::SerialPort>
+=item * L<Device::SerialPort>
 
 =back
 
 =head1 AUTHOR/COPYRIGHT
 
-Florian Olbrich 2010
+ (c) Florian Olbrich 2010
 
 This library is free software; you can redistribute it and/or modify it under the same
 terms as Perl itself.

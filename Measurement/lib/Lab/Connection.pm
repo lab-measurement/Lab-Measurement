@@ -219,12 +219,12 @@ sub DESTROY {
 }
 
 
-
-
-$Lab::Connection::VERSION='2.90';
 1;
 
 
+=pod
+
+=encoding utf-8
 
 
 =head1 NAME
@@ -246,11 +246,13 @@ Every inheriting classes constructors should start as follows:
 
 =head1 DESCRIPTION
 
-C<Lab::Connection> is the base class for all connections and implements a generic set of access methods. It doesn't do anything on its own.
+C<Lab::Connection> is the base class for all connections and implements a generic set of 
+access methods. It doesn't do anything on its own.
 
-A connection in general is an object which is created by an instrument and provides it with a generic set of methods to talk
-to its hardware counterpart.
-For example Lab::Instrument::HP34401A can work with any connection of the type GPIB, that is, connections derived from Lab::Connection::GPIB.
+A connection in general is an object which is created by an instrument and provides it 
+with a generic set of methods to talk to its hardware counterpart.
+For example L<Lab::Instrument::HP34401A> can work with any connection of the type GPIB, 
+that is, connections derived from Lab::Connection::GPIB.
 
 That would be, for example
   Lab::Connection::LinuxGPIB
@@ -333,40 +335,37 @@ The same as Query with the 'brutal' option set to 1.
 The same as Query with 'read_length' set to 10240.
 
 
-
-
 =head2 config
 
 Provides unified access to the fields in initial @_ to all the cild classes.
 E.g.
 
- $GPIB_PAddress=$instrument->Config(GPIB_PAddress);
+ $GPIB_Address=$instrument->Config(gpib_address);
 
 Without arguments, returns a reference to the complete $self->Config aka @_ of the constructor.
 
  $Config = $connection->Config();
- $GPIB_PAddress = $connection->Config()->{'GPIB_PAddress'};
+ $GPIB_Address = $connection->Config()->{'gpib_address'};
  
 =head1 CAVEATS/BUGS
 
-Probably view. Mostly because there's not a lot to be done here. Please report.
+Probably few. Mostly because there's not a lot to be done here. Please report.
 
 =head1 SEE ALSO
 
 =over 4
 
-=item L<Lab::Connection::GPIB>
-=item L<Lab::Connection::VISA_GPIB>
+=item * L<Lab::Connection::GPIB>
 
-=item L<Lab::Connection::MODBUS>
+=item * L<Lab::Connection::VISA_GPIB>
+
+=item * L<Lab::Connection::MODBUS>
 
 =item and all the others...
 
 =back
 
 =head1 AUTHOR/COPYRIGHT
-
-This is $Id$
 
  Copyright 2011      Florian Olbrich
 

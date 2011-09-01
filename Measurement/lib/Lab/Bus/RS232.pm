@@ -1,5 +1,4 @@
 #!/usr/bin/perl -w
-# POD
 
 package Lab::Bus::RS232;
 
@@ -268,35 +267,42 @@ sub _search_twin {
 # BrutalRead and Clear not implemented
 
 1;
-__END__
+
+
+=pod
+
+=encoding utf-8
 
 =head1 NAME
 
-Lab::Instrument::RS232 - Perl extension for interfaceing with instruments via RS232 or Virtual Comm ports
+Lab::Bus::RS232 - Bus for RS232 or Virtual Comm ports
 
 =head1 SYNOPSIS
 
-  use Lab::Instrument;
-  my $h = Lab::Instrument->new( Interface => 'RS232',
-				                port      => 'COM1|/dev/ttyUSB1');
-  
-  # or
-  my $h2 = Lab::Instrument->new( Interface => 'RS232',
-				                 reuse     => $h);  # opens a second Instrument on the same port
+ my $bus = Lab::Bus::RS232({
+    port => '/dev/ttyACM0'
+  });
+
+Return blessed $self, with @_ accessible through $self->config().
+
+C<port>: Device name to use (e.g. C<COM1> under Windows or C</dev/ttyUSB1> under Linux)
+
+TODO: check this!!!
 
 =head1 DESCRIPTION
 
-This is an interface package for Lab::Instruments to communicate via RS232 or Virtual Comm port e.g. for
+This is a bus for Lab::Measurement to communicate via RS232 or Virtual Comm port e.g. for
 FTDI devices.
 
 =head1 CONSTRUCTOR
 
 =head2 new
 
-All parameters are used as by C<Device::SerialPort>. port is needed in every case. An additional parameter C<reuse> 
-is avaliable if two instruments use the same port. This is mainly implemented for USBprologix gateway. 
-C<reuse> can be a SerialPort object or a C<Lab::Instrument...> package. Default value for timeout is 500ms and
-can be set by the parameter "timeout". Other options: handshake, baudrate, databits, stopbits and parity
+All parameters are used as by C<Device::SerialPort>. port is needed in every case. 
+An additional parameter C<reuse> is avaliable if two instruments use the same port. This 
+is mainly implemented for USBprologix gateway. C<reuse> can be a SerialPort object or 
+a C<Lab::Instrument...> package. Default value for timeout is 500ms and can be set by the 
+parameter "timeout". Other options: handshake, baudrate, databits, stopbits and parity
 
 =head1 METHODS
 
@@ -332,9 +338,8 @@ Probably many. So far BrutalRead and Clear are not implemented because not neede
 
 =head1 AUTHOR/COPYRIGHT
 
-This is $Id$
-
- Copyright 2010      Matthias Voelker <mvoelker@cpan.org>     
+ Copyright 2010      Matthias Voelker <mvoelker@cpan.org>
+           2011      Florian Olbrich, Andreas K. Hüttel
 
 This library is free software; you can redistribute it and/or modify it under the same
 terms as Perl itself.

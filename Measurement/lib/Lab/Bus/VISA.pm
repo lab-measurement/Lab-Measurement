@@ -125,22 +125,6 @@ sub connection_read { # @_ = ( $connection_handle, $args = { read_length, brutal
 
 
 	return substr($result,0,$read_cnt);
-
-# 	$Raw = $Result;
-# 	#printf("Raw: %s\n", $Result);
-# 	# check for number and convert. secure builtin way? maybe sprintf?
-# 	if($Result =~ /^\s*([+-][0-9]*\.[0-9]*)([eE]([+-]?[0-9]*))?\s*\x00*/) {
-# 		$Result = $1;
-# 		$Result .= "e$3" if defined $3;
-# 		$ResultConv = $1;
-# 		$ResultConv *= 10 ** ( $3 )  if defined $3;
-# 	}
-# 	else {
-# 		# not recognized - well upstream will hopefully be happy, anyway
-# 		#croak('Non-numeric answer received');
-# 		$Result = $Raw
-# 	}
-
 }
 
 
@@ -233,6 +217,11 @@ sub _search_twin {
 	return undef;
 }
 
+1;
+
+=pod
+
+=encoding utf-8
 
 =head1 NAME
 
@@ -327,37 +316,31 @@ betweeen Write and Read.
 
 =head1 CAVEATS/BUGS
 
-View. Also, not a lot to be done here.
+Few. Not a lot to be done here.
 
 =head1 SEE ALSO
 
 =over 4
 
-=item L<Lab::Bus::GPIB>
+=item * L<Lab::Bus::LinuxGPIB>
 
-=item L<Lab::Bus::MODBUS>
+=item * L<Lab::Bus::MODBUS_RS232>
 
-=item and many more...
+=item * and many more...
 
 =back
 
 =head1 AUTHOR/COPYRIGHT
 
-This is $Id: Bus.pm 749 2011-02-15 12:55:20Z olbrich $
-
  Copyright 2004-2006 Daniel Schröer <schroeer@cpan.org>, 
            2009-2010 Daniel Schröer, Andreas K. Hüttel (L<http://www.akhuettel.de/>) and David Kalok,
-         2010      Matthias Völker <mvoelker@cpan.org>
-           2011      Florian Olbrich
+           2010      Matthias Völker <mvoelker@cpan.org>
+           2011      Florian Olbrich, Andreas K. Hüttel
 
 This library is free software; you can redistribute it and/or modify it under the same
 terms as Perl itself.
 
 =cut
-
-
-
-
 
 
 

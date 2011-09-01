@@ -252,6 +252,12 @@ sub _search_twin {
 	return undef;
 }
 
+1;
+
+
+=pod
+
+=encoding utf-8
 
 =head1 NAME
 
@@ -260,14 +266,20 @@ Lab::Bus::DEBUG - debug bus
 
 =head1 DESCRIPTION
 
-This will be an interactive debug bus, which lets you enter responses to your skript.
+This will be an interactive debug bus, which prints out the commands sent by the 
+measurement script, and lets you manually enter the instrument responses.
+
+Unfinished, needs testing. 
 
 
 
+=head1 AUTHOR/COPYRIGHT
 
+ (c) Florian Olbrich 2011
 
+This library is free software; you can redistribute it and/or modify it under the same
+terms as Perl itself.
 
+=cut
 
-
-1;
 
