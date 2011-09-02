@@ -3,7 +3,11 @@
 #
 # GPIB Connection class for Lab::Bus::LinuxGPIB
 #
+
+# TODO: Access to GPIB attributes, device clear, ...
+
 package Lab::Connection::LinuxGPIB;
+
 use strict;
 use Scalar::Util qw(weaken);
 use Time::HiRes qw (usleep sleep);
@@ -35,10 +39,13 @@ sub new {
 # Nothing to do, Read, Write, Query from Lab::Connection are sufficient.
 #
 
+=pod
+
+=encoding utf-8
 
 =head1 NAME
 
-Lab::Connection::LinuxGPIB - connection class which uses linux-gpib (libgpib0) as a backend.
+Lab::Connection::LinuxGPIB - connection class which uses LinuxGPIB (libgpib0) as a backend.
 
 =head1 SYNOPSIS
 
@@ -53,7 +60,8 @@ $instrument = new HP34401A(
 
 =head1 DESCRIPTION
 
-C<Lab::Connection::LinuxGPIB> provides a GPIB-type connection with L<Lab::Bus::LinuxGPIB> using L<Linux GPIB (aka libgpib0 in debian)|http://linux-gpib.sourceforge.net/> as backend.
+C<Lab::Connection::LinuxGPIB> provides a GPIB-type connection with the bus L<Lab::Bus::LinuxGPIB>,
+using L<Linux GPIB (aka libgpib0 in debian)|http://linux-gpib.sourceforge.net/> as backend.
 
 It inherits from L<Lab::Connection::GPIB> and subsequently from L<Lab::Connection>.
 
@@ -74,38 +82,36 @@ For L<Lab::Bus::LinuxGPIB>, the generic methods of L<Lab::Connection> suffice, s
 
 =head1 METHODS
 
-This just calls back on the methods inherited from L<Lab::Connection>.
+This just falls back on the methods inherited from L<Lab::Connection>.
 
 
 =head2 config
 
-Provides unified access to the fields in initial @_ to all the cild classes.
+Provides unified access to the fields in initial @_ to all the child classes.
 E.g.
 
- $GPIB_PAddress=$instrument->Config(GPIB_PAddress);
+ $GPIB_Address=$instrument->Config(gpib_address);
 
 Without arguments, returns a reference to the complete $self->Config aka @_ of the constructor.
 
  $Config = $connection->Config();
- $GPIB_PAddress = $connection->Config()->{'GPIB_PAddress'};
+ $GPIB_Address = $connection->Config()->{'gpib_address'};
  
 =head1 CAVEATS/BUGS
 
-Probably view. Mostly because there's not a lot to be done here. Please report.
+Probably few. Mostly because there's not a lot to be done here. Please report.
 
 =head1 SEE ALSO
 
 =over 4
 
-=item L<Lab::Connection>
+=item * L<Lab::Connection>
 
-=item L<Lab::Connection::GPIB>
+=item * L<Lab::Connection::GPIB>
 
 =back
 
 =head1 AUTHOR/COPYRIGHT
-
-This is $Id$
 
  Copyright 2011      Florian Olbrich
 

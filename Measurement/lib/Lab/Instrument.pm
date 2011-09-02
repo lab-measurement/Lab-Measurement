@@ -1,7 +1,4 @@
 #!/usr/bin/perl -w
-# POD
-
-#$Id$
 
 package Lab::Instrument;
 
@@ -19,8 +16,6 @@ use POSIX; # added for int() function
 our @ISA = ();
 
 our $AUTOLOAD;
-
-# our $VERSION = sprintf("1.%04d", q$Revision$ =~ / (\d+) /);
 
 
 our %fields = (
@@ -445,12 +440,13 @@ sub DESTROY {
 # 
 # }
 
-
-
-$Lab::Instrument::VERSION='2.90';
 1;
 
 
+
+=pod
+
+=encoding utf-8
 
 =head1 NAME
 
@@ -458,8 +454,9 @@ Lab::Instrument - General instrument package
 
 =head1 SYNOPSIS
 
-This is meant to be used as a base class for inheriting instruments only.
-Every inheriting class' constructors should start as follows:
+Lab::Instrument is meant to be used as a base class for inheriting instruments. For very simple 
+applications it can also be used directly.
+Every inheriting class constructor should start as follows:
 
   sub new {
     my $proto = shift;
@@ -468,6 +465,17 @@ Every inheriting class' constructors should start as follows:
     $self->_construct(__PACKAGE__);  # check for supported connections, initialize fields etc.
     ...
   }
+
+Beware that only the first set of parameters specific to an individual GPIB board 
+or any other bus hardware gets used. Settings for EOI assertion for example. 
+Right now, this doesn't really matter because the options aren't there yet, you 
+just can't set anything. :) Just keep it in mind.
+
+If you know what you're doing or you have an exotic scenario you can use the connection 
+parameter "IgnoreTwin => 1", but this is discouraged - it will kill bus management 
+and you might run into hardware/resource sharing issues.
+
+
 
 =head1 DESCRIPTION
 
@@ -478,17 +486,12 @@ It provides general C<read>, C<write> and C<query> methods and basic connection 
 
 The connection object can be obtained by calling C<connection()>.
 
-Also, fields common to all instrument classes are created and set to default values where applicable:
+Also, fields common to all instrument classes are created and set to default values where applicable, e.g.:
 
   connection => undef,
-  ConnectionType => "",
-  SupportedConnections => [ ],
-  Config => undef,
-  InstrumentHandle => undef,
-  WaitQuery => 100,
-
-Opposing prior versions, it can't be used directly by the programmer anymore. To work with an instrument
-that doesn't have its own perl class, probably a Lab::Instrument::Generic driver or similar will be introduced.
+  connection_type => "",
+  supported_connections => [ ],
+  config => {},
 
 =head1 CONSTRUCTOR
 
@@ -498,7 +501,7 @@ This blesses $self (don't do it in an inheriting class!), initializes the basic 
 via AUTOLOAD and puts the configuration hash in $self->Config to be accessed in methods and inherited
 classes.
 
-Arguments: just the configuration hash passed along from child classes' constructor.
+Arguments: just the configuration hash passed along from a child class constructor.
 
 =head1 METHODS
 
@@ -506,11 +509,12 @@ Arguments: just the configuration hash passed along from child classes' construc
 
  $instrument->write($command);
  
-Sends the command C<$command> to the instrument.
+Sends the command C<$command> to the instrument. An option hash can be supplied as second or also as only argument.
+Generally, all options are passed to the connection, so additional options may be supported based on the connection.
 
 =head2 read
 
- $result=$instrument->read({ ReadLength => <max length>, Cmd => <command>, Brutal => <1/0>);
+ $result=$instrument->read({ ReadLength => <max length>, Brutal => <1/0>);
 
 Reads a result of C<ReadLength> from the instrument and returns it.
 Returns an exception on error.
@@ -521,15 +525,10 @@ Be aware that this data is also contained in the the timeout exception object (s
 
 Generally, all options are passed to the connection, so additional options may be supported based on the connection.
 
-=head2 BrutalRead
-
-Equivalent to
-
- $result=$instrument->read({ Brutal =>  1 });
-
 =head2 query
 
- $result=$instrument->query({ Cmd => $command, WaitQuery => $wait_query, ReadLength => $max length, WaitStatus => $wait_status);
+ $result=$instrument->query({ Cmd => $command, WaitQuery => $wait_query, ReadLength => $max length, 
+                              WaitStatus => $wait_status);
 
 Sends the command C<$command> to the instrument and reads a result from the
 instrument and returns it. The length of the read buffer is set to C<ReadLength> or to the
@@ -544,28 +543,7 @@ by defining the corresponding object key.
 
 Generally, all options are passed to the connection, so additional options may be supported based on the connection.
 
-=head2 LongQuery
-
-Equivalent to
-
- $result=$instrument->Query({ Cmd => $command, ReadLength => 10240, ... });
-
-=head2 BrutalQuery
-
-Equivalent to
-
- $result=$instrument->Query({ Cmd => $command, Brutal=>1, ... });
-
-This won't complain about a timeout error and quietly return the data it received until abort.
-By the way: you can get to this data without the 'Brutal' option through the timeout exception object if you catch it!
-
-=head2 Clear
-
- $instrument->Clear();
-
-Sends a clear command to the instrument if implemented for the interface.
-
-=head2 Connection
+=head2 connection
 
  $connection=$instrument->connection();
 
@@ -574,7 +552,7 @@ same connection, or be used to change connection parameters.
 
 =head2 WriteConfig
 
- # this is not implemented in this base class at present
+this is NOT YET IMPLEMENTED in this base class so far
 
  $instrument->WriteConfig( 'TRIGGER' => { 'SOURCE' => 'CHANNEL1',
   			  	                          'EDGE'   => 'RISE' },
@@ -600,40 +578,28 @@ Probably many, with all the porting. This will get better.
 
 =over 4
 
-=item L<Lab::VISA>
+=item * L<Lab::Bus>
 
-=item L<Lab::Instrument::HP34401A>
+=item * L<Lab::Connection>
 
-=item L<Lab::Instrument::HP34970A>
+=item * L<Lab::Instrument::HP34401A>
 
-=item L<Lab::Instrument::Source>
+=item * L<Lab::Instrument::HP34970A>
 
-=item L<Lab::Instrument::KnickS252>
+=item * L<Lab::Instrument::Source>
 
-=item L<Lab::Instrument::Yokogawa7651>
+=item * L<Lab::Instrument::Yokogawa7651>
 
-=item L<Lab::Instrument::SR780>
-
-=item L<Lab::Instrument::ILM>
-
-=item L<Lab::Instrument::TCPIP>
-
-=item L<Lab::Instrument::TCPIP::Prologix>
-
-=item L<Lab::Instrument::VISA>
-
-=item and many more...
+=item * and many more...
 
 =back
 
 =head1 AUTHOR/COPYRIGHT
 
-This is $Id$
-
  Copyright 2004-2006 Daniel Schröer <schroeer@cpan.org>, 
            2009-2010 Daniel Schröer, Andreas K. Hüttel (L<http://www.akhuettel.de/>) and David Kalok,
            2010      Matthias Völker <mvoelker@cpan.org>
-           2011      Florian Olbrich
+           2011      Florian Olbrich, Andreas K. Hüttel
 
 This library is free software; you can redistribute it and/or modify it under the same
 terms as Perl itself.

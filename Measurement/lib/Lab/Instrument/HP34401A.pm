@@ -35,93 +35,15 @@ sub new {
 }
 
 
+# 
+# first, all internal stuff
+# 
+
+
+
 #
-# all about voltage measurement
+# all methods that fill in general Multimeter methods
 #
-
-sub _configure_voltage_measurement{
-    my $self=shift;
-    my $range=shift; # in V, or "AUTO"
-    my $tint=shift;  # in sec
-    
-    # supported by this dmm:
-    # range:  AUTO, 100 mV, 1 V, 10 V, 100 V, 1000 V
-    # integration time:  0.02, 0.2, 1, 10, or 100 power line cycles
-    #   we assume 50Hz as used in decent countries -> 1 plc = 0.02 sec
-    #   -> 0.4ms, 4ms, 20ms 0.2s, 2s
-    
-    $tint/=0.02;
-    
-    
-    die "configure_voltage_measurement not implemented for this instrument\n";
-}
-
-
-
-
-
-
-
-sub get_resistance {
-    my $self=shift;
-    my ($range,$resolution)=@_;
-    
-    $range="DEF" unless (defined $range);
-    $resolution="DEF" unless (defined $resolution);
-    
-	my $cmd=sprintf("MEASure:SCALar:RESIStance? %s,%s",$range,$resolution);
-	my $value = $self->connection()->Query( command => $cmd );
-    return $value;
-}
-
-
-sub get_voltage_dc {
-    my $self=shift;
-    my ($range,$resolution)=@_;
-    
-    $range="DEF" unless (defined $range);
-    $resolution="DEF" unless (defined $resolution);
-    
-    my $cmd=sprintf("MEASure:VOLTage:DC? %s,%s",$range,$resolution);
-    my $value = $self->connection()->Query( command => $cmd );
-    return $value;
-}
-
-sub get_voltage_ac {
-    my $self=shift;
-    my ($range,$resolution)=@_;
-    
-    $range="DEF" unless (defined $range);
-    $resolution="DEF" unless (defined $resolution);
-    
-    my $cmd=sprintf("MEASure:VOLTage:AC? %s,%s",$range,$resolution);
-    my $value = $self->connection()->Query( command => $cmd );
-    return $value;
-}
-
-sub get_current_dc {
-    my $self=shift;
-    my ($range,$resolution)=@_;
-    
-    $range="DEF" unless (defined $range);
-    $resolution="DEF" unless (defined $resolution);
-    
-    my $cmd=sprintf("MEASure:CURRent:DC? %s,%s",$range,$resolution);
-    my $value = $self->connection()->Query( command => $cmd );
-    return $value;
-}
-
-sub get_current_ac {
-    my $self=shift;
-    my ($range,$resolution)=@_;
-    
-    $range="DEF" unless (defined $range);
-    $resolution="DEF" unless (defined $resolution);
-    
-    my $cmd=sprintf("MEASure:CURRent:AC? %s,%s",$range,$resolution);
-    my $value = $self->connection()->Query( command => $cmd );
-    return $value;
-}
 
 sub _display_text {
     my $self=shift;
@@ -151,9 +73,109 @@ sub _display_clear {
     $self->connection()->Write( command => "DISPlay:TEXT:CLEar");
 }
 
+sub _id {
+    my $self=shift;
+    return $self->query('*IDN?');
+}
+
+sub _get_value {
+    my $self=shift;
+    my $value=$self->query('READ?');
+    chomp $value;
+    return $value;
+}
+
+sub _configure_voltage_measurement{
+    my $self=shift;
+    my $range=shift; # in V, or "AUTO"
+    my $tint=shift;  # in sec
+    
+    # supported by this dmm:
+    # range:  AUTO, 100 mV, 1 V, 10 V, 100 V, 1000 V
+    # integration time:  0.02, 0.2, 1, 10, or 100 power line cycles
+    #   we assume 50Hz as used in decent countries -> 1 plc = 0.02 sec
+    #   -> 0.4ms, 4ms, 20ms 0.2s, 2s
+    
+    $tint/=0.02;
+
+    # unfinished :)
+    die "configure_voltage_measurement not yet implemented for this instrument\n";
+}
+
+
+
+#
+# all methods that are called directly
+#
+
+
+sub get_resistance {
+    my $self=shift;
+    my ($range,$resolution)=@_;
+    
+    $range="DEF" unless (defined $range);
+    $resolution="DEF" unless (defined $resolution);
+    
+	my $cmd=sprintf("MEASure:SCALar:RESIStance? %s,%s",$range,$resolution);
+	my $value = $self->query($cmd);
+    return $value;
+}
+
+
+sub get_voltage_dc {
+    my $self=shift;
+    my ($range,$resolution)=@_;
+    
+    $range="DEF" unless (defined $range);
+    $resolution="DEF" unless (defined $resolution);
+    
+    my $cmd=sprintf("MEASure:VOLTage:DC? %s,%s",$range,$resolution);
+    my $value = $self->query($cmd);
+    return $value;
+}
+
+
+sub get_voltage_ac {
+    my $self=shift;
+    my ($range,$resolution)=@_;
+    
+    $range="DEF" unless (defined $range);
+    $resolution="DEF" unless (defined $resolution);
+    
+    my $cmd=sprintf("MEASure:VOLTage:AC? %s,%s",$range,$resolution);
+    my $value = $self->query($cmd);
+    return $value;
+}
+
+
+sub get_current_dc {
+    my $self=shift;
+    my ($range,$resolution)=@_;
+    
+    $range="DEF" unless (defined $range);
+    $resolution="DEF" unless (defined $resolution);
+    
+    my $cmd=sprintf("MEASure:CURRent:DC? %s,%s",$range,$resolution);
+    my $value = $self->query($cmd);
+    return $value;
+}
+
+
+sub get_current_ac {
+    my $self=shift;
+    my ($range,$resolution)=@_;
+    
+    $range="DEF" unless (defined $range);
+    $resolution="DEF" unless (defined $resolution);
+    
+    my $cmd=sprintf("MEASure:CURRent:AC? %s,%s",$range,$resolution);
+    my $value = $self->query($cmd);
+    return $value;
+}
+
 sub beep {
     my $self=shift;
-    $self->connection()->Write( command => "SYSTem:BEEPer");
+    $self->write("SYSTem:BEEPer");
 }
 
 sub get_error {
@@ -259,27 +281,13 @@ sub scroll_message {
     $self->display_clear();
 }
 
-sub _id {
-    my $self=shift;
-    return $self->query('*IDN?');
-}
-
-sub _get_value {
-    my $self=shift;
-    my $value=$self->query('READ?');
-    chomp $value;
-    return $value;
-}
-
 1;
 
 
 
+=pod
 
-
-
-
-
+=encoding utf-8
 
 =head1 NAME
 
@@ -288,15 +296,7 @@ Lab::Instrument::HP34401A - HP/Agilent 34401A digital multimeter
 =head1 SYNOPSIS
 
   use Lab::Instrument::HP34401A;
-
-  my $Agi = new Lab::Instrument::HP34401A({
-    connection => new Lab::Connection::GPIB(
-		gpib_address => 14,
-	),
-  }
-
-This omits the connection option "GPIB_Board => 0" (default). More elaborate:
-
+  
   my $Agi = new Lab::Instrument::HP34401A({
     connection => new Lab::Connection::GPIB(
 		gpib_board => 0,
@@ -305,25 +305,62 @@ This omits the connection option "GPIB_Board => 0" (default). More elaborate:
   }
 
 
-Beware that only the first set of parameters specific to an individual GPIB board (or any bus hardware, really) gets used.
-Settings for EOI assertion for example. Right now, this doesn't really matter because the options aren't there (or documented) yet.
-Just keep it in mind.
-
-If you know what you're doing or you have an exotic scenario you can use the connection parameter "IgnoreTwin => 1", but this
-is discouraged - it will kill bus management and you might run into hardware/resource sharing issues.
-
-
 =head1 DESCRIPTION
 
-The Lab::Instrument::HP34401A class implements an interface to the 34401A digital multimeter by
-Agilent (formerly HP). This module can also be used to address the newer 34410A and 34411A multimeters,
-but doesn't include new functions. Use the Lab::Instrument::HP34411A class for full functionality.
+The Lab::Instrument::HP34401A class implements an interface to the 34401A digital 
+multimeter by Agilent (formerly HP). This module can also be used to address the newer 
+34410A and 34411A multimeters, but doesn't include new functions. Use the 
+L<Lab::Instrument::HP34411A> class for full functionality (not ported yet).
 
 =head1 CONSTRUCTOR
 
     my $Agi=new(\%options);
 
 =head1 METHODS
+
+=head2 display_text
+
+    $Agi->display_text($text);
+    print $Agi->display_text();
+
+Display a message on the front panel. The multimeter will display up to 12
+characters in a message; any additional characters are truncated.
+Without parameter the displayed message is returned.
+Inherited from L<Lab::Instrument::Multimeter>
+
+=head2 display_on
+
+    $Agi->display_on();
+
+Turn the front-panel display on.
+Inherited from L<Lab::Instrument::Multimeter>
+
+=head2 display_off
+
+    $Agi->display_off();
+
+Turn the front-panel display off.
+Inherited from L<Lab::Instrument::Multimeter>
+
+=head2 display_clear
+
+    $Agi->display_clear();
+
+Clear the message displayed on the front panel.
+Inherited from L<Lab::Instrument::Multimeter>
+
+=head2 id
+
+    $id=$Agi->id();
+
+Returns the instrument ID string.
+Inherited from L<Lab::Instrument::Multimeter>
+
+=head2 get_value
+
+Inherited from L<Lab::Instrument::Multimeter>
+
+
 
 =head2 get_resistance
 
@@ -375,6 +412,12 @@ Preset and make an ac current measurement with the specified range
 and resolution. For ac measurements, resolution is actually fixed
 at 6 1/2 digits. The resolution parameter only affects the front-panel display.
 
+=head2 beep
+
+=head2 get_error
+
+=head2 reset
+
 =head2 config_voltage
 
     $inttime=$Agi->config_voltage($digits,$range,$count);
@@ -389,33 +432,6 @@ Returns string with integration time resulting from number of digits.
     @array = $Agi->get_with_trigger_voltage_dc()
 
 Take data points as configured with config_voltage(). returns an array.
-
-=head2 display_on
-
-    $Agi->display_on();
-
-Turn the front-panel display on.
-
-=head2 display_off
-
-    $Agi->display_off();
-
-Turn the front-panel display off.
-
-=head2 display_text
-
-    $Agi->display_text($text);
-    print $Agi->display_text();
-
-Display a message on the front panel. The multimeter will display up to 12
-characters in a message; any additional characters are truncated.
-Without parameter the displayed message is returned.
-
-=head2 display_clear
-
-    $Agi->display_clear();
-
-Clear the message displayed on the front panel.
 
 =head2 scroll_message
 
@@ -442,12 +458,6 @@ queue. Errors are retrieved in first-in-first out (FIFO) order.
 
 Reset the multimeter to its power-on configuration.
 
-=head2 id
-
-    $id=$Agi->id();
-
-Returns the instruments ID string.
-
 =head1 CAVEATS/BUGS
 
 probably many
@@ -456,14 +466,18 @@ probably many
 
 =over 4
 
-=item L<Lab::Instrument>
+=item * L<Lab::Instrument>
+
+=item * L<Lab::Instrument::Multimeter>
+
+=item * L<Lab::Instrument::HP3458A>
 
 =back
 
 =head1 AUTHOR/COPYRIGHT
 
-Copyright 2004-2006 Daniel Schröer (<schroeer@cpan.org>), 2009-2010 Daniela Taubert, 
-          2011 Florian Olbrich, Andreas Hüttel
+  Copyright 2004-2006 Daniel Schröer (<schroeer@cpan.org>), 2009-2010 Daniela Taubert, 
+            2011 Florian Olbrich, Andreas Hüttel
 
 This library is free software; you can redistribute it and/or modify it under the same
 terms as Perl itself.

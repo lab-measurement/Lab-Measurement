@@ -5,13 +5,15 @@
 # connections implementing the GPIB protocol.
 #
 # In your scripts, use the implementing classes (e.g. Lab::Connection::LinuxGPIB).
-# They are distributed with their bus (Lab::Connection::LinuxGPIB is implemented
-# in Lab/Bus/GPIB.pm)
 #
 # Instruments using a GPIB connection will check the inheritance tree of the provided connection
 # for this class.
 #
+
+# TODO: Access to GPIB attributes, device clear, ...
+
 package Lab::Connection::GPIB;
+
 use Lab::Connection;
 use strict;
 use Lab::Exception;
@@ -72,6 +74,10 @@ sub new {
 
 1;
 
+=pod
+
+=encoding utf-8
+
 =head1 NAME
 
 Lab::Connection::GPIB - base class for GPIB connections
@@ -79,7 +85,7 @@ Lab::Connection::GPIB - base class for GPIB connections
 =head1 SYNOPSIS
 
 This is the base class for all connections providing a GPIB interface.
-Every inheriting classes constructors should start as follows:
+Every inheriting class constructor should start as follows:
 
 	sub new {
 		my $proto = shift;
@@ -91,8 +97,8 @@ Every inheriting classes constructors should start as follows:
 
 =head1 DESCRIPTION
 
-C<Lab::Connection::GPIB> is the base class for all connections providing a GPIB interface. It is not usable on its own.
-It inherits from C<Lab::Connection>.
+C<Lab::Connection::GPIB> is the base class for all connections providing a GPIB interface. 
+It is not usable on its own. It inherits from L<Lab::Connection>.
 
 Its main use so far is to define the data fields common to all GPIB interfaces.
 
@@ -111,24 +117,26 @@ Return blessed $self, with @_ accessible through $self->Config().
 This just calls back on the methods inherited from Lab::Connection.
 
 If you inherit this class in your own connection however, you have to provide the following methods.
-Take a look at e.g. L<Lab::Connection::VISA_GPIB> and at the basic implementations in L<Lab::Connection> (they may even suffice).
+Take a look at e.g. L<Lab::Connection::VISA_GPIB> and at the basic implementations 
+in L<Lab::Connection> (they may even suffice).
 
 =head3 Write()
 
-  Takes a config hash, has to at least pass the key 'command' correctly to the underlying bus.
+Takes a config hash, has to at least pass the key 'command' correctly to the underlying bus.
 
 =head3 Read()
 
-  Takes a config hash, reads back a message from the device.
+Takes a config hash, reads back a message from the device.
 
 
 =head3 Clear()
-  Clears the instrument.
+
+Clears the instrument.
 
 
 =head2 config
 
-Provides unified access to the fields in initial @_ to all the cild classes.
+Provides unified access to the fields in initial @_ to all the child classes.
 E.g.
 
  $GPIB_PAddress=$instrument->Config(GPIB_PAddress);
@@ -140,23 +148,21 @@ Without arguments, returns a reference to the complete $self->Config aka @_ of t
  
 =head1 CAVEATS/BUGS
 
-Probably view. Mostly because there's not a lot to be done here. Please report.
+Probably few. Mostly because there's not a lot to be done here. Please report.
 
 =head1 SEE ALSO
 
 =over 4
 
-=item L<Lab::Connection>
+=item * L<Lab::Connection>
 
-=item L<Lab::Connection::LinuxGPIB>
+=item * L<Lab::Connection::LinuxGPIB>
 
-=item L<Lab::Connection::VISA_GPIB>
+=item * L<Lab::Connection::VISA_GPIB>
 
 =back
 
 =head1 AUTHOR/COPYRIGHT
-
-This is $Id$
 
  Copyright 2011      Florian Olbrich
 
@@ -165,3 +171,4 @@ terms as Perl itself.
 
 =cut
 
+1;

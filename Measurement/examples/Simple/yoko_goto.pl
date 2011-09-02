@@ -1,11 +1,10 @@
 #!/usr/bin/perl
-#$Id$
 
 use strict;
 use Lab::Instrument::Yokogawa7651;
 
 unless (@ARGV > 0) {
-    print "Usage: $0 GPIB-address [goto_voltage]\n";
+    print "Usage: $0 GPIB-address [Target-voltage]\n";
     exit;
 }
 
@@ -26,3 +25,26 @@ if (defined $goto) {
 } else {
     print $source->get_voltage();
 }
+
+1;
+
+=pod
+
+=encoding utf-8
+
+=head1 yoko-goto.pl
+
+Sweeps a Yokogawa 7651 dc voltage source to a value given on the command line. 
+
+=head2 Usage example
+
+  $ perl yoko_goto.pl 12 0.8
+
+Sweeeps the Yokogawa 7651 dc voltage source with GPIB address 12 (on GPIB adaptor 0) to 0.8V, 
+using a maximum step size of 50mV and at most 10 steps per second.
+
+=head2 Author / Copyright
+
+  (c) Andreas K. Hüttel 2011
+
+=cut

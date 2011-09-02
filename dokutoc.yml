@@ -5,20 +5,17 @@ toc:
   - The Lab::Measurement package:
       - Measurement/lib/Lab/Measurement/Installation.pod
       - Measurement/lib/Lab/Measurement/Tutorial.pod
-      - Bus classes:
-          - Measurement/lib/Lab/Bus.pm
-          - Measurement/lib/Lab/Bus/DEBUG.pm
-          - Measurement/lib/Lab/Bus/LinuxGPIB.pm
-          - Measurement/lib/Lab/Bus/RS232.pm
-          - Measurement/lib/Lab/Bus/MODBUS_RS232.pm
-          - Measurement/lib/Lab/Bus/VISA.pm
-      - Connection classes:
-          - Measurement/lib/Lab/Connection.pm
-          - Measurement/lib/Lab/Connection/DEBUG.pm
-          - Measurement/lib/Lab/Connection/GPIB.pm
-          - Measurement/lib/Lab/Connection/VISA.pm
-          - Measurement/lib/Lab/Connection/VISA_GPIB.pm
-      - Instrument classes:
+      - Example scripts:
+          - Measurement/examples/Simple/yoko_goto.pl
+      - Utility scripts:
+          - Measurement/scripts/plotter.pl
+      - High-level tool classes:
+          - Measurement/lib/Lab/Data/Writer.pm
+          - Measurement/lib/Lab/Measurement.pm
+          - Measurement/lib/Lab/Data/Meta.pm
+          - Measurement/lib/Lab/Data/XMLtree.pm
+          - Measurement/lib/Lab/Data/Plotter.pm
+      - Instrument control classes:
           - Measurement/lib/Lab/Instrument.pm
           - Multimeters:
               - Measurement/lib/Lab/Instrument/Multimeter.pm
@@ -35,14 +32,21 @@ toc:
           - Superconducting magnet power supplies:
               - Measurement/lib/Lab/Instrument/MagnetSupply.pm
               - Measurement/lib/Lab/Instrument/IPS12010.pm
-      - High-level tool classes:
-          - Measurement/lib/Lab/Data/Writer.pm
-          - Measurement/lib/Lab/Measurement.pm
-          - Measurement/lib/Lab/Data/Meta.pm
-          - Measurement/lib/Lab/Data/XMLtree.pm
-          - Measurement/lib/Lab/Data/Plotter.pm
-      - Ready-made scripts:
-          - Measurement/scripts/plotter.pl
+      - Connection classes:
+          - Measurement/lib/Lab/Connection.pm
+          - Measurement/lib/Lab/Connection/DEBUG.pm
+          - Measurement/lib/Lab/Connection/GPIB.pm
+          - Measurement/lib/Lab/Connection/LinuxGPIB.pm
+          - Measurement/lib/Lab/Connection/MODBUS_RS232.pm
+          - Measurement/lib/Lab/Connection/VISA.pm
+          - Measurement/lib/Lab/Connection/VISA_GPIB.pm
+      - Bus classes:
+          - Measurement/lib/Lab/Bus.pm
+          - Measurement/lib/Lab/Bus/DEBUG.pm
+          - Measurement/lib/Lab/Bus/LinuxGPIB.pm
+          - Measurement/lib/Lab/Bus/RS232.pm
+          - Measurement/lib/Lab/Bus/MODBUS_RS232.pm
+          - Measurement/lib/Lab/Bus/VISA.pm
   - The Lab::VISA package:
       - VISA/lib/Lab/VISA/Installation.pod
       - VISA/VISA.pod

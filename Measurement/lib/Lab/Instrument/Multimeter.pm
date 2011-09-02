@@ -15,6 +15,7 @@ our %fields = (
 
 );
 
+
 sub new {
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
@@ -24,7 +25,7 @@ sub new {
 }
 
 
-
+# template functions for inheriting classes
 
 sub id {
     my $self=shift;
@@ -100,10 +101,6 @@ sub _selftest{
 
 
 
-
-
-
-
 sub configure_voltage_measurement{
     my $self=shift;
     my $range=shift; # in V, or "AUTO"
@@ -116,36 +113,12 @@ sub _configure_voltage_measurement{
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 1;
 
 
+=pod
 
-
-
-
-
-
+=encoding utf-8
 
 =head1 NAME
 
@@ -155,26 +128,25 @@ Lab::Instrument::Multimeter - Generic digital multimeter interface
 
 The Lab::Instrument::Multmeter class implements a generic interface to
 digital all-purpose multimeters. It is intended to be inherited by other
-classes, not to be called directly.
+classes, not to be called directly, and provides a set of generic functions.
+The class
 
 =head1 CONSTRUCTOR
 
-    my $Agi=new(\%options);
+    my $hp=new(\%options);
 
 =head1 METHODS
 
 =head2 get_value
 
-    $value=$Agi->get_value();
+    $value=$hp->get_value();
 
 Read out the current measurement value, for whatever type of measurement
 the multimeter is currently configured.
-Query the multimeter's error queue. Up to 20 errors can be stored in the
-queue. Errors are retrieved in first-in-first out (FIFO) order.
 
 =head2 id
 
-    $id=$Agi->id();
+    $id=$hp->id();
 
 Returns the instruments ID string.
 
@@ -193,7 +165,6 @@ Turn the front-panel display off.
 =head2 display_text
 
     $hp->display_text($text);
-    print $hp->display_text();
 
 Display a message on the front panel. 
 
@@ -206,20 +177,23 @@ Clear the message displayed on the front panel.
 
 =head1 CAVEATS/BUGS
 
-probably many
+none known so far :)
 
 =head1 SEE ALSO
 
 =over 4
 
-=item L<Lab::Instrument>
-=item L<Lab::Instrument:HP34401A>
+=item * L<Lab::Instrument>
+
+=item * L<Lab::Instrument:HP34401A>
+
+=item * L<Lab::Instrument:HP3458A>
 
 =back
 
 =head1 AUTHOR/COPYRIGHT
 
-Copyright 2011 Andreas K. Hüttel
+  Copyright 2011 Andreas K. Hüttel
 
 This library is free software; you can redistribute it and/or modify it 
 under the same terms as Perl itself.
