@@ -32,8 +32,7 @@ sub new {
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
 	my $self = $class->SUPER::new(@_);
-	$self->_construct(__PACKAGE__, \%fields); 	# this sets up all the object fields out of the inheritance tree.
-												# also, it does generic bus setup.
+	$self->_construct(__PACKAGE__, \%fields);
 
 	# already called in Lab::Instrument::Source, but call it again to respect default values in local channel_defaultconfig
 	$self->configure($self->config());
@@ -324,6 +323,10 @@ sub get_status {
 
 1;
 
+=pod
+
+=encoding utf-8
+
 =head1 NAME
 
 Lab::Instrument::YokogawaGS200 - Yokogawa GS200 DC source
@@ -417,11 +420,11 @@ probably many
 =over 4
 
 
-=item Lab::Instrument
+=item * Lab::Instrument
 
 The YokogawaGP200 class is a Lab::Instrument (L<Lab::Instrument>).
 
-=item Lab::Instrument::Source
+=item * Lab::Instrument::Source
 
 The YokogawaGP200 class is a Source (L<Lab::Instrument::Source>)
 
@@ -429,11 +432,9 @@ The YokogawaGP200 class is a Source (L<Lab::Instrument::Source>)
 
 =head1 AUTHOR/COPYRIGHT
 
-This is $Id$
-
  (c) 2004-2006 Daniel Schröer
- (c) 2007-2010 Daniel Schröer, Daniela Taubert, Andreas Hüttel, and others
- (c) 2011 Florian Olbrich, Andreas Hüttel
+ (c) 2007-2010 Daniel Schröer, Daniela Taubert, Andreas K. Hüttel, and others
+ (c) 2011 Florian Olbrich, Andreas K. Hüttel
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 

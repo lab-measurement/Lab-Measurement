@@ -134,6 +134,10 @@ sub _get_value {
 
 1;
 
+=pod
+
+=encoding utf-8
+
 =head1 NAME
 
 Lab::Instrument::HP3458A - Agilent 3458A Multimeter
@@ -150,10 +154,8 @@ Lab::Instrument::HP3458A - Agilent 3458A Multimeter
 
 =head1 DESCRIPTION
 
-The Lab::Instrument::HP3458A class implements an interface to the Agilent / HP 3458A 
-digital multimeter. The Agilent 3458A Multimeter, recognized the world over as the
-standard in high performance DMMs, provides both speed and accuracy in the R&D lab,
-on the production test floor, and in the calibration lab.
+The Lab::Instrument::HP3458A class implements an interface to the Agilent / HP 
+3458A digital multimeter. 
 
 =head1 CONSTRUCTOR
 
@@ -245,15 +247,16 @@ probably many
 
 =over 4
 
-=item L<Lab::Instrument>
+=item * L<Lab::Instrument>
+
+=item * L<Lab::Instrument::Multimeter>
 
 =back
 
 =head1 AUTHOR/COPYRIGHT
 
-This is $Id$
-
-Copyright 2009-2011 David Kalok, Andreas K. Huettel
+  Copyright 2009-2011 David Kalok, Andreas K. Hüttel
+            2011 Andreas K. Hüttel
 
 This library is free software; you can redistribute it and/or modify it 
 under the same terms as Perl itself.

@@ -91,6 +91,10 @@ sub disable_external_am {
 
 1;
 
+=pod
+
+=encoding utf-8
+
 =head1 NAME
 
 Lab::Instrument::HP83732A - HP 83732A Series Synthesized Signal Generator
@@ -111,13 +115,14 @@ probably many
 
 =over 4
 
-=item Lab::Instrument
+=item * Lab::Instrument
 
 =back
 
 =head1 AUTHOR/COPYRIGHT
 
-Copyright 2005 Daniel Schröer (<schroeer@cpan.org>), 2011 Andreas K. Hüttel
+  Copyright 2005 Daniel SchrÃ¶er (<schroeer@cpan.org>)
+            2011 Andreas K. HÃ¼ttel
 
 This library is free software; you can redistribute it and/or modify it 
 under the same terms as Perl itself.

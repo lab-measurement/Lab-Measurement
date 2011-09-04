@@ -3,14 +3,19 @@ package Lab::Instrument::MagnetSupply;
 use strict;
 
 # about the coding and calling conventions
-
-# convention is, all control of magnet power supplies is done via current values
-# if a field constant can be obtained from the instrument, it will be read out and used
-# if not, it has to be set on initialization, otherwise the program aborts if it needs it
-
-# persistent mode is not handled yet, i.e. the heater is left untouched
-
-# all values are given in si base units, i.e. AMPS, TESLA, SECONDS
+#
+# convention is, all control of magnet power supplies is done via current values,
+# never via field values. (we dont know where exactly the sample is anyway!)
+#
+# if a field constant can be obtained from the instrument, it will be read out 
+# and used by default.
+# if not, it has to be set on initialization, otherwise the program aborts if 
+# it needs it
+#
+# persistent mode is not handled yet, i.e. the heater is left completely untouched
+#
+# all values are given in si base units, i.e. AMPS, TESLA, SECONDS, and their
+# derivatives. I.e., a sweep rate is given in AMPS/SECOND.
 
 
 our @ISA=('Lab::Instrument');
@@ -132,8 +137,10 @@ sub start_sweep_to_field {
 }
 
 
-# this does not do any special zero handling, just error checking
 sub start_sweep_to_current {
+    # this does not do any special zero handling, just error checking
+    # if the impossible is requested, it just dies...
+
     my $self=shift;
     my $targetcurrent=shift;
 
@@ -160,14 +167,14 @@ sub start_sweep_to_current {
 }
 
 
-# returns the field in TESLA
 sub get_field {
+    # returns the field in TESLA
     my $self=shift;
     return $self->ItoB($self->_get_current());
 }
 
-# returns the current in AMPS
 sub get_current {
+    # returns the current in AMPS
     my $self=shift;
     return $self->_get_current();
 }
@@ -269,7 +276,8 @@ sub _get_fieldconstant {
 
 Lab::Instrument::MagnetSupply - Base class for magnet power supply instruments
 
-(c) 2010 David Borowsky, Andreas K. Hüttel; 2011 Andreas K. Hüttel
+  (c) 2010 David Borowsky, Andreas K. Hüttel
+      2011 Andreas K. Hüttel
 
 =cut
 

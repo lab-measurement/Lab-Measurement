@@ -16,8 +16,7 @@ sub new {
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
 	my $self = $class->SUPER::new(@_);
-	$self->_construct(__PACKAGE__, \%fields); 	# this sets up all the object fields out of the inheritance tree.
-												# also, it does generic bus setup.
+	$self->_construct(__PACKAGE__, \%fields); 
 
 	return $self;
 }
@@ -210,10 +209,13 @@ sub id {
     my $self=shift;
     return $self->query('*IDN?');
 }
-
-
               
 1;
+
+
+=pod
+
+=encoding utf-8
 
 =head1 NAME
 
@@ -333,7 +335,8 @@ command to change a property like amplitude or time constant might have to be ex
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 
-(c) 2005-2010 Daniel Schröer, 2011 Andreas Hüttel
+  (c) 2005-2010 Daniel Schröer
+      2011 Andreas K. Hüttel
 
 
 =cut

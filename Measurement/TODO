@@ -1,0 +1,15 @@
+
+* Test multisource behaviour
+
+* Implement GPIB control functions (EOI, TermChar, ...) in a way common for all
+  GPIB connections
+
+* Connection for IsoBus (via VISA, GPIB, RS232)
+
+* Move more functions into Multimeter class
+
+* Document interfaces of Bus, Connection, Instrument
+
+* Complete documentation everywhere
+
+* Fix UTF-8 behaviour of pdf documentation

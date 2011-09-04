@@ -40,9 +40,8 @@ my %fields = (
 sub new {
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
-	my $self = $class->SUPER::new(@_);	# sets $self->config
-	$self->_construct(__PACKAGE__, \%fields); 	# this sets up all the object fields out of the inheritance tree.
-												# also, it does generic bus setup.
+	my $self = $class->SUPER::new(@_);
+	$self->_construct(__PACKAGE__, \%fields);
 
 	#
 	# Parameter parsing
@@ -551,6 +550,10 @@ sub set_range() {
 
 1;
 
+=pod
+
+=encoding utf-8
+
 =head1 NAME
 
 Lab::Instrument::Source - Base class for voltage source instruments
@@ -559,36 +562,37 @@ Lab::Instrument::Source - Base class for voltage source instruments
 
 =head1 DESCRIPTION
 
-This class implements a general voltage source, if necessary with several channels. 
-It is meant to be inherited by instrument classes (virtual instruments) that implement
-real voltage sources (e.g. the L<Lab::Instrument::Source::Yokogawa7651|Lab::Instrument::Source::Yokogawa7651> class).
+This class implements a general voltage source, if necessary with several 
+channels. It is meant to be inherited by instrument classes that implement
+real voltage sources (e.g. the L<Lab::Instrument::Yokogawa7651> class).
 
-The class provides a unified user interface for those virtual voltage sources
+The class provides a unified user interface for those voltage sources
 to support the exchangeability of instruments.
 
 Additionally, this class provides a safety mechanism called C<gate_protect>
 to protect delicate samples. It includes automatic limitations of sweep rates,
 voltage step sizes, minimal and maximal voltages.
 
-There's no direct user application of this class. To derive a separate object for a channel of a multi-channel source,
-use the GetSubSource() method.
+There's no direct user application of this class.
 
 =head1 CONSTRUCTOR
 
   $self=new Lab::Instrument::Source(\%config);
 
 This constructor will only be used by instrument drivers that inherit this class,
-not by the user. It accepts an additional configuration hash as parameter 'default_device_settings'.
-The first hash contains the parameters used by default for this device and its subchannels, if any. The second hash can be used to override
-options for this instance while still using the defaults for derived objects. If \%config is missing,
-\%default_config is used.
+not by the user. It accepts an additional configuration hash as parameter 
+'default_device_settings'. The first hash contains the parameters used by 
+default for this device and its subchannels, if any. The second hash can be used 
+to override options for this instance while still using the defaults for derived 
+objects. If \%config is missing, \%default_config is used.
 
-The instrument driver (e.g. L<Lab::Instrument::Source::Yokogawa7651|Lab::Instrument::Source::Yokogawa7651>)
-has a constructor like this:
+The instrument driver (e.g. L<Lab::Instrument::Yokogawa7651>)
+has e.g. a constructor like this:
 
-  $yoko=new Lab::Instrument::Source::Yokogawa7651({
-	GPIB_board      => $board,
-	GPIB_address    => $address,
+  $yoko=new Lab::Instrument::Yokogawa7651({
+	connection_type => 'LinuxGPIB',
+	gpib_board      => $board,
+	gpib_address    => $address,
 	
 	gate_protect    => $gp,
 	[...]
@@ -602,16 +606,15 @@ has a constructor like this:
 
 Supported configure options:
 
-In general, all parameters which can be changed by access methods of the class/object can be used.
-In fact this is what happens, and the config hash given to configure() ist just a shorthand for this.
-The following are equivalent:
+In general, all parameters which can be changed by access methods of the 
+class/object can be used. In fact this is what happens, and the config hash 
+given to configure() ist just a shorthand for this. The following are equivalent:
 
-  $source->gate_protect(1);
-  $source->gp_max_volt_per_second(0.1);
+  $source->set_gate_protect(1);
+  $source->set_gp_max_volt_per_second(0.1);
   ...
 
   $source->configure({ gate_protect=>1, gp_max_volt_per_second=>0.1, ...)
-
 
 Options in detail:
 
@@ -660,7 +663,7 @@ The smallest allowed output voltage.
 
 The largest allowed output voltage.
 
-=item qp_equal_level
+=item gp_equal_level
 
 Voltages with a difference less than this value are considered equal.
 
@@ -741,7 +744,8 @@ This class inherits the gate protection mechanism.
 =head1 AUTHOR/COPYRIGHT
 
  Copyright 2004-2008 Daniel Schröer (<schroeer@cpan.org>)
-		   2009-2010 Daniel Schröer, Andreas K. Hüttel (L<http://www.akhuettel.de/>) and Daniela Taubert
+           2009-2010 Daniel Schröer, Andreas K. Hüttel (L<http://www.akhuettel.de/>) and Daniela Taubert
+           2011      Florian Olbrich and Andreas K. Hüttel
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 

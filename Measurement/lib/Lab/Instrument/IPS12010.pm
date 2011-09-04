@@ -30,7 +30,7 @@ sub new {
 	my $class = ref($proto) || $proto;
 	my $self = $class->SUPER::new(@_);
 	$self->_construct(__PACKAGE__, \%fields);
-	print "IPS12010 superconducting magnet supply code is highly experimental. You have been warned.\n";
+	print "IPS12010 superconducting magnet supply code is highly experimental and untested. You have been warned.\n";
 
 #    my $xstatus=Lab::VISA::viSetAttribute($self->{vi}->{instr}, $Lab::VISA::VI_ATTR_TERMCHAR, 0xD);
 #    if ($xstatus != $Lab::VISA::VI_SUCCESS) { die "Error while setting read termination character: $xstatus";}
@@ -290,14 +290,15 @@ sub _set_sweep_target_current {
 1;
 
 
+=pod
 
-
+=encoding utf-8
 
 =head1 NAME
 
 Lab::Instrument::IPS12010 - Oxford Instruments IPS 120-10 superconducting magnet supply
 
-(c) 2010, 2011 Andreas K. Hüttel
+  (c) 2010, 2011 Andreas K. Hüttel
 
 =cut
 
