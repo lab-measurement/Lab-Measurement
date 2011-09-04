@@ -44,3 +44,5 @@
 # this is very much under construction - Andreas
 lib/Lab/Instrument/TemperatureControl.pm
 
+# dont distribute the old examples
+^examples/Old

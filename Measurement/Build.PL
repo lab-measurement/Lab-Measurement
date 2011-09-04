@@ -28,9 +28,6 @@ my $build = Module::Build->new(
         'Lab::Tools'         => '< 2.91',
     },
     script_files => 'scripts',
-    share_dir => {
-        dist => [ 'examples' ],
-    },
     create_readme     => 0,
     dist_author       => ['Daniel Schröer <schroeer@cpan.org>',
                           'Andreas K. Huettel <mail@akhuettel.de>',

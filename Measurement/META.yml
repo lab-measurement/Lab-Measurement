@@ -7,6 +7,9 @@ author:
   - 'Florian Olbrich <florian.olbrich@physik.uni-r.de>'
 configure_requires:
   Module::Build: 0.36
+conflicts:
+  Lab::Instrument: '< 2.91'
+  Lab::Tools: '< 2.91'
 dynamic_config: 0
 generated_by: 'Module::Build version 0.3607'
 license: perl
@@ -21,7 +24,6 @@ requires:
   Exception::Class: 1.0
   File::Basename: 0
   File::Copy: 0
-  File::ShareDir: 1.00
   Switch: 0
   Term::ReadKey: 0
   Time::HiRes: 0
