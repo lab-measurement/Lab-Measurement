@@ -28,7 +28,13 @@ sub process_element {
         # skip
     }
     else {
-        my $basename = fileparse($podfile,qr{\.(pod|pm)});
+        my $basename = $podfile; 
+        $basename =~ s!^.*/lib/Lab/!!g ;
+        $basename =~ s!\.(pod|pm)!!g ;
+        $basename =~ s!^.*Measurement/scripts/!!g ;
+        $basename =~ s!/!_!g ;
+        $basename =~ s!VISA-VISA!VISA!g ;
+
         my $parser = MyPod2LaTeX->new();
         $parser->AddPreamble(0);
         $parser->AddPostamble(0);
