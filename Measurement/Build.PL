@@ -23,6 +23,10 @@ my $build = Module::Build->new(
         'Term::ReadKey'      => 0,
         'Switch'             => 0,
     },
+    conflicts         => {
+        'Lab::Instrument'    => '< 2.91',
+        'Lab::Tools'         => '< 2.91',
+    },
     script_files => 'scripts',
     share_dir => {
         dist => [ 'examples' ],
