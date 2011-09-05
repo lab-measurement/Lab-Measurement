@@ -1,4 +1,6 @@
 package Lab::Instrument::YokogawaGS200;
+our $VERSION = '2.91';
+
 use strict;
 use Switch;
 use Lab::Instrument;

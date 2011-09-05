@@ -2,6 +2,8 @@
 
 
 package Lab::Bus::LinuxGPIB;
+our $VERSION = '2.91';
+
 use strict;
 use Scalar::Util qw(weaken);
 use Time::HiRes qw (usleep sleep);

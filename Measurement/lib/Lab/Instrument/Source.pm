@@ -1,4 +1,6 @@
 package Lab::Instrument::Source;
+our $VERSION = '2.91';
+
 use strict;
 use Time::HiRes qw(usleep gettimeofday);
 use Lab::Exception;

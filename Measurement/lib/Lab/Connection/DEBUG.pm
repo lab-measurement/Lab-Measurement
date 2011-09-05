@@ -1,6 +1,8 @@
 #!/usr/bin/perl -w
 
 package Lab::Connection::DEBUG;
+our $VERSION = '2.91';
+
 use strict;
 use Time::HiRes qw (usleep sleep);
 use Lab::Connection;

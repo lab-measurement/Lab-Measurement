@@ -1,6 +1,7 @@
 #!/usr/bin/perl -w
 
 package Lab::Bus;
+our $VERSION = '2.91';
 
 use strict;
 
@@ -16,7 +17,6 @@ our $AUTOLOAD;
 
 our @ISA = ();
 
-# our $VERSION = sprintf("1.%04d", q$Revision$ =~ / (\d+) /);
 
 # this holds a list of references to all the bus objects that are floating around in memory,
 # to enable transparent bus reuse, so the user doesn't have to handle (or even know about,

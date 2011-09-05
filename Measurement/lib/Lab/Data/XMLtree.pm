@@ -1,5 +1,3 @@
-#$Id$
-
 #wird wohl auf die selbe architektur wie
 #bei den ganzen rekursiven functionen
 #rauslaufen.
@@ -41,6 +39,7 @@
 ##damit es richtig verwirrend wird
 
 package Lab::Data::XMLtree;
+our $VERSION = '2.91';
 
 use strict;
 use warnings;

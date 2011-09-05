@@ -1,4 +1,6 @@
 package Lab::Measurement::Ladediagramm;
+our $VERSION = '2.91';
+
 use strict;
 use Lab::Measurement;
 

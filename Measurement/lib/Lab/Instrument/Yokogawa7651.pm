@@ -1,4 +1,6 @@
 package Lab::Instrument::Yokogawa7651;
+our $VERSION = '2.91';
+
 use strict;
 use Switch;
 use Lab::Instrument;
