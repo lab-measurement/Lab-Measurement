@@ -30,7 +30,7 @@ my $build = Module::Build->new(
     script_files => 'scripts',
     create_readme     => 0,
     dist_author       => ['Daniel Schröer <schroeer@cpan.org>',
-                          'Andreas K. Huettel <mail@akhuettel.de>',
+                          'Andreas K. Hüttel <mail@akhuettel.de>',
                           'Daniela Taubert <daniela.taubert@physik.uni-muenchen.de>', 
                           'Florian Olbrich <florian.olbrich@physik.uni-r.de>'
                          ],
