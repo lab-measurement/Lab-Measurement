@@ -203,6 +203,19 @@ sub connection_query { # @_ = ( $connection_handle, $args = { command, read_leng
 }
 
 
+
+#
+# calls ibclear() on the instrument - how to do on VISA?
+#
+#sub connection_clear {
+#	my $self = shift;
+#	my $connection_handle=shift;
+#
+#	ibclr($connection_handle->{'gpib_handle'});
+#}
+
+
+
 #
 # search and return an instance of the same type in %Lab::Bus::BusList
 #

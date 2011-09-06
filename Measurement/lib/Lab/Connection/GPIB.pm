@@ -71,6 +71,44 @@ sub new {
 # 	return 0; # result
 # }
 
+#
+# In addition we should support the following basic GPIB functions:
+#
+# ibeot -- assert EOI with last data byte (board or device) (write)
+# ibeos -- set end-of-string mode (board or device) (read)
+# ibask -- query configuration (board or device)
+#
+# So, let us define useful external and internal interfaces
+# The following stubs only call functions in inheriting classes
+
+sub AssertEOIonWrite {
+  my $self=shift;
+  my $v=shift;
+  $self->_AssertEOIonWrite($v);
+}
+
+sub _AssertEOIonWrite {
+  die "AssertEOIonWrite cannot be used with a generic GPIB connection\n";
+}
+
+sub UnsetTermChar {
+  my $self=shift;
+  $self->_UnsetTermChar();
+}
+
+sub _UnsetTermChar {
+  die "UnsetTermChar cannot be used with a generic GPIB connection\n";
+}
+
+sub SetTermChar {
+  my $self=shift;
+  my $c=shift;
+  $self->_SetTermChar();
+}
+
+sub _SetTermChar {
+  die "SetTermChar cannot be used with a generic GPIB connection\n";
+}
 
 
 1;
