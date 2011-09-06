@@ -12,6 +12,8 @@
 use strict;
 
 package Lab::Bus::MODBUS_RS232;
+our $VERSION = '2.91';
+
 use Lab::Bus::RS232;
 use Carp;
 use Data::Dumper;

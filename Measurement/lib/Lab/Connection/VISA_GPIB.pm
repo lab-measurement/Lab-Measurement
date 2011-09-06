@@ -11,6 +11,8 @@
 
 
 package Lab::Connection::VISA_GPIB;
+our $VERSION = '2.91';
+
 use strict;
 use Lab::Bus::VISA;
 use Lab::Connection::GPIB;

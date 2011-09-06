@@ -1,5 +1,7 @@
 
 package Lab::Instrument::MagnetSupply;
+our $VERSION = '2.91';
+
 use strict;
 
 # about the coding and calling conventions

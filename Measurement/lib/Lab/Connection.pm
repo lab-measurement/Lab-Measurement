@@ -1,6 +1,7 @@
 #!/usr/bin/perl -w
 
 package Lab::Connection;
+our $VERSION = '2.91';
 
 use strict;
 

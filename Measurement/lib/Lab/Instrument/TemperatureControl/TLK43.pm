@@ -4,6 +4,7 @@
 #
 
 package Lab::Instrument::TemperatureControl::TLK43;
+our $VERSION = '2.91';
 
 use strict;
 use Lab::Instrument;
@@ -12,7 +13,6 @@ use feature "switch";
 use Data::Dumper;
 use Carp;
 
-our $VERSION = sprintf("0.%04d", q$Revision: 720 $ =~ / (\d+) /);
 our @ISA = ("Lab::Instrument");
 
 my %fields = (
