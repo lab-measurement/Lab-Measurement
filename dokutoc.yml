@@ -32,6 +32,9 @@ toc:
           - Superconducting magnet power supplies:
               - Measurement/lib/Lab/Instrument/MagnetSupply.pm
               - Measurement/lib/Lab/Instrument/IPS12010.pm
+          - Cryostat handling devices:
+              - Measurement/lib/Lab/Instrument/ILM210.pm
+              - Measurement/lib/Lab/Instrument/ITC503.pm
       - Connection classes:
           - Measurement/lib/Lab/Connection.pm
           - Measurement/lib/Lab/Connection/DEBUG.pm
@@ -40,6 +43,7 @@ toc:
           - Measurement/lib/Lab/Connection/MODBUS_RS232.pm
           - Measurement/lib/Lab/Connection/VISA.pm
           - Measurement/lib/Lab/Connection/VISA_GPIB.pm
+          - Measurement/lib/Lab/Connection/IsoBus.pm
       - Bus classes:
           - Measurement/lib/Lab/Bus.pm
           - Measurement/lib/Lab/Bus/DEBUG.pm
@@ -47,6 +51,7 @@ toc:
           - Measurement/lib/Lab/Bus/RS232.pm
           - Measurement/lib/Lab/Bus/MODBUS_RS232.pm
           - Measurement/lib/Lab/Bus/VISA.pm
+          - Measurement/lib/Lab/Bus/IsoBus.pm
   - The Lab::VISA package:
       - VISA/lib/Lab/VISA/Installation.pod
       - VISA/VISA.pod

@@ -2,7 +2,7 @@
 abstract: 'Bus drivers, Instrument drivers, and measurement scripts'
 author:
   - 'Daniel Schröer <schroeer@cpan.org>'
-  - 'Andreas K. Huettel <mail@akhuettel.de>'
+  - 'Andreas K. Hüttel <mail@akhuettel.de>'
   - 'Daniela Taubert <daniela.taubert@physik.uni-muenchen.de>'
   - 'Florian Olbrich <florian.olbrich@physik.uni-r.de>'
 configure_requires:
@@ -26,6 +26,9 @@ provides:
   Lab::Bus::DEBUG::HumanInstrument:
     file: lib/Lab/Bus/DEBUG.pm
     version: 2.91
+  Lab::Bus::IsoBus:
+    file: lib/Lab/Bus/IsoBus.pm
+    version: 2.91
   Lab::Bus::LinuxGPIB:
     file: lib/Lab/Bus/LinuxGPIB.pm
     version: 2.91
@@ -46,6 +49,9 @@ provides:
     version: 2.91
   Lab::Connection::GPIB:
     file: lib/Lab/Connection/GPIB.pm
+    version: 2.91
+  Lab::Connection::IsoBus:
+    file: lib/Lab/Connection/IsoBus.pm
     version: 2.91
   Lab::Connection::LinuxGPIB:
     file: lib/Lab/Connection/LinuxGPIB.pm
@@ -92,8 +98,14 @@ provides:
   Lab::Instrument::HP83732A:
     file: lib/Lab/Instrument/HP83732A.pm
     version: 2.91
+  Lab::Instrument::ILM:
+    file: lib/Lab/Instrument/ILM210.pm
+    version: 2.91
   Lab::Instrument::IPS12010:
     file: lib/Lab/Instrument/IPS12010.pm
+    version: 2.91
+  Lab::Instrument::ITC503:
+    file: lib/Lab/Instrument/ITC503.pm
     version: 2.91
   Lab::Instrument::MagnetSupply:
     file: lib/Lab/Instrument/MagnetSupply.pm
