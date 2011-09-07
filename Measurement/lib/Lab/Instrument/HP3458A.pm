@@ -40,7 +40,36 @@ sub _configure_voltage_measurement{
     my $self=shift;
     my $range=shift; # in V, or "AUTO"
     my $tint=shift;  # in sec
-    die "configure_voltage_measurement not implemented for this instrument\n";
+    my $cmd="";
+
+	# check range for positive numerical value or "AUTO"
+	if($range !~ /^[0-9]*\.[0-9]*$/ && $range !~ /^[0-9]*[eE][+-]?[0-9]*$/ && $range ne "AUTO") {
+		Lab::Exception::CorruptParameter->throw (
+			error => "No valid rage address given to " . __PACKAGE__ . "::_configure_voltage_measurement()\n" . Lab::Exception::Base::Appendix(),
+		);
+	}
+
+    if($range ne "AUTO") {
+		if($range <= 0.1)    { $range=0.1 }
+		elsif($range <= 1)   { $range=1 }
+		elsif($range <= 10)  { $range=10 }
+		elsif($range <= 100) { $range=100 }
+		else                 { $range=1000 }
+    }
+
+    #die "configure_voltage_measurement not implemented for this instrument\n";
+
+    if($range eq "AUTO") {
+        $cmd="DCV AUTO";
+    }
+    else {
+        $cmd=sprintf("DCV %.1f",$range);
+    }
+    $self->write($cmd); 
+
+    if(defined $tint) {
+        $cmd = sprintf("APER%f",$tint);
+    }
 }
 
 
