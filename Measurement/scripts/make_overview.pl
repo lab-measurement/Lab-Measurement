@@ -59,12 +59,12 @@ while (<LIST>) {
     my ($plotname,$file)=split /\t/,$a;
     my $newname=$file;
     $newname=~s/[^a-zA-Z0-9_\-]/_/g;
-    $newname.="$plotname.eps";
+    $newname.="$plotname.jpg";
     my $meta=Lab::Data::Meta->new_from_file($file);
     unless (-e ".autoplot-$newname") {
         my $plotter=new Lab::Data::Plotter($meta,{
             fulllabels  => 0,
-            eps         => ".autoplot-$newname"
+            jpg         => ".autoplot-$newname"
         });
         $plotter->plot($plotname);
     }

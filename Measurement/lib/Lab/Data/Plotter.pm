@@ -92,11 +92,16 @@ sub _start_plot {
     my $gp="";
     $gp.="# Encoding of this file\n";
     $gp.="set encoding iso_8859_1\n";
+    # grrr ^^^
     
     if ($self->{options}->{eps}) {
         $gp.="#\n# Output to file\n";
         $gp.="set terminal postscript color enhanced 10\n";
         $gp.=qq(set output ").$self->{options}->{eps}.qq("\n);
+    } elsif ($self->{options}->{jpg}) {
+        $gp.="#\n# Output to file, jpeg format\n";
+        $gp.="set terminal jpeg font \"Times,13\" enhanced size 1024,768 crop\n";
+        $gp.=qq(set output ").$self->{options}->{jpg}.qq("\n);
     }
     
     if ($self->{meta}->plot_type($plot) eq 'pm3d') {
@@ -347,7 +352,9 @@ sub get_gnuplot_pipe {
 
 1;
 
-__END__
+=pod
+
+=encoding utf-8
 
 =head1 NAME
 
@@ -389,6 +396,8 @@ Available options are
 
 =item eps
 
+=item jpg
+
 =item fulllabels
 
 =item last_live
@@ -419,9 +428,8 @@ Available options are
 
 =head1 AUTHOR/COPYRIGHT
 
-This is $Id$
-
-Copyright 2004-2006 Daniel Schröer (L<http://www.danielschroeer.de>)
+  Copyright 2004-2006 Daniel Schröer (L<http://www.danielschroeer.de>)
+            2011 Andreas K. Hüttel
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 
