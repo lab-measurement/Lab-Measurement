@@ -100,7 +100,7 @@ sub _start_plot {
         $gp.=qq(set output ").$self->{options}->{eps}.qq("\n);
     } elsif ($self->{options}->{jpg}) {
         $gp.="#\n# Output to file, jpeg format\n";
-        $gp.="set terminal jpeg font \"Times,13\" enhanced size 1024,768 crop\n";
+        $gp.="set terminal jpeg giant enhanced size 1024,768 crop\n";
         $gp.=qq(set output ").$self->{options}->{jpg}.qq("\n);
     }
     
