@@ -19,7 +19,6 @@ my $starttex=<<TEXINTRO;
 \\usepackage{ae}
 \\usepackage{graphicx}
 \\usepackage{verbatim}
-\\usepackage{lscape}
 
 \\begin{document}
 
@@ -61,10 +60,10 @@ while (<LIST>) {
     $newname=~s/[^a-zA-Z0-9_\-]/_/g;
     $newname.="$plotname.jpg";
     my $meta=Lab::Data::Meta->new_from_file($file);
-    unless (-e ".autoplot-$newname") {
+    unless (-e "autoplot-$newname") {
         my $plotter=new Lab::Data::Plotter($meta,{
             fulllabels  => 0,
-            jpg         => ".autoplot-$newname"
+            jpg         => "autoplot-$newname"
         });
         $plotter->plot($plotname);
     }
@@ -81,12 +80,15 @@ while (<LIST>) {
     $description="\\begin{itemize}".join(" ",@ul)."\\end{itemize}";
     
     my $tex=<<INCFIGURE;
-\\begin{minipage}[t]{0.6\\textwidth}
-\\includegraphics[width=0.7\\textwidth,angle=270]{.autoplot-$newname}
-\\end{minipage}
+\\begin{tabular}{cc}
+\\parbox{0.5\\textwidth}{
+\\includegraphics[width=0.5\\textwidth,height=0.375\\textwidth]{autoplot-$newname}
+}
+&
 \\begin{minipage}[t]{0.5\\textwidth}
 \\footnotesize{$description}
 \\end{minipage}
+\\end{tabular}
 
 \\vspace*{3mm}
 \\rule{\\textwidth}{1pt}
