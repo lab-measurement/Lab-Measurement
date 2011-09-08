@@ -58,7 +58,11 @@ for (sort keys %plots) {
     print "(",$num++,") $_: $ylabel vs. $xlabel\n";
 }
 
-__END__
+1;
+
+=pod
+
+=encoding utf-8
 
 =head1 NAME
 
@@ -93,9 +97,7 @@ This information is printed.
 
 =head1 AUTHOR/COPYRIGHT
 
-This is $Id$.
-
-Copyright 2004 Daniel Schröer.
+  Copyright 2004 Daniel Schröer.
 
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

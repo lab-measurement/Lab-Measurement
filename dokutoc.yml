@@ -10,6 +10,7 @@ toc:
       - Utility scripts:
           - Measurement/scripts/plotter.pl
           - Measurement/scripts/metainfo.pl
+          - Measurement/scripts/make_filelist.pl
           - Measurement/scripts/make_overview.pl
       - High-level tool classes:
           - Measurement/lib/Lab/Data/Writer.pm
