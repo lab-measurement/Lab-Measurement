@@ -9,6 +9,8 @@ toc:
           - Measurement/examples/Simple/yoko_goto.pl
       - Utility scripts:
           - Measurement/scripts/plotter.pl
+          - Measurement/scripts/metainfo.pl
+          - Measurement/scripts/make_overview.pl
       - High-level tool classes:
           - Measurement/lib/Lab/Data/Writer.pm
           - Measurement/lib/Lab/Measurement.pm

@@ -51,5 +51,6 @@ lib/Lab/Measurement/Tutorial.pod
 README
 scripts/metainfo.pl
 scripts/plotter.pl
+scripts/make_overview.pl
 TODO
 META.yml
