@@ -56,6 +56,12 @@ but values in SI base units
 The default file suffixes have been changed from "DATA" and "META" to "dat" 
 and "meta".
 
+=item *
+You can not abort the scripts using Lab::Measurement with "CTRL-C" anymore. Instead, just
+press "q", and the script will cleanly terminate at the next measurement point. 
+The background for this is that some device drivers cannot handle an interruption, 
+leading to undefined hardware behaviour.
+
 =back
 
 =head1 COPYRIGHT AND LICENCE
