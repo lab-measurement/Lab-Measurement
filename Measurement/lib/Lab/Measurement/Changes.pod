@@ -1,0 +1,65 @@
+=pod
+
+=encoding utf-8
+
+=head1 NAME
+
+Change log for the Lab::Measurement distribution
+
+=head1 Initial release of Lab::Measurement
+
+This section gives an overview of the most important points when you port
+a measurement script from the old C<Lab::Instrument> and C<Lab::Tools> distribution 
+to C<Lab::Measurement>.
+
+=head2 Lab::Instrument classes
+
+=over
+
+=item * 
+The abbreviated way of specifying a GPIB board and address in the constructor
+is not supported anymore. Instead of the old
+
+  my $hp=new Lab::Measurement::HP34401A($board, $address);
+
+you now have to explicitly provide
+
+  my $hp=new Lab::Measurement::HP34401A({
+	connection_type => 'LinuxGPIB', 
+        gpib_board      => $board,
+        gpib_address    => $address,
+  });
+
+=item *
+The configuration parameters "gpib_board" and "gpib_address" are now for
+consistency spelled all in lowercase. Your script will fail if you use the 
+uppercase "GPIB" variant.
+
+=item * 
+Every device now needs a configuration parameter "connection_type" (see above).
+
+=item *
+In general, functions that read out device values are all prefixed with "get_" now, 
+instead of "read_".
+
+=item * 
+SR830 functions like get_range and get_tc do not return strings anymore, 
+but values in SI base units
+
+=back
+
+=head2 Lab::Measurement class
+
+=over
+
+=item *
+The default file suffixes have been changed from "DATA" and "META" to "dat" 
+and "meta".
+
+=back
+
+=head1 COPYRIGHT AND LICENCE
+
+ (c) 2011 Andreas K. Hüttel
+
+=cut
