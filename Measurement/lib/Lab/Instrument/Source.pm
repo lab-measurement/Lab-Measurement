@@ -45,6 +45,7 @@ sub new {
 	my $self = $class->SUPER::new(@_);
 	$self->_construct(__PACKAGE__, \%fields);
 
+
 	#
 	# Parameter parsing
 	#
@@ -128,16 +129,16 @@ sub configure {
 		Lab::Exception::CorruptParameter->throw( error=>'Given Configuration is not a hash.' . Lab::Exception::Base::Appendix());
 	}
 	else {
-		$self->default_device_settings($config->{'default_device_settings'}) if ( defined($config->{'default_device_settings'}) && ref($config->{'default_device_settings'}) eq 'HASH' );
+		$self->default_device_settings($config->{'default_device_settings'}) if ( exists($config->{'default_device_settings'}) && ref($config->{'default_device_settings'}) eq 'HASH' );
 
 		for my $conf_name (keys %{$self->device_settings()}) {
-			#print "Key: $conf_name, default: ",$self->{default_config}->{$conf_name},", old config: ",$self->{config}->{$conf_name},", new config: ",$config->{$conf_name},"\n";
-			if( defined($config->{$conf_name}) ) {		# in given config? => set value
-				# print "Setting $conf_name to $config->{$conf_name}\n";
+			#warn "Key: $conf_name, default: ",$self->{default_config}->{$conf_name},", old config: ",$self->{config}->{$conf_name},", new config: ",$config->{$conf_name},"\n";
+			if( exists($config->{$conf_name}) ) {		# in given config? => set value
+				 print "Setting $conf_name to $config->{$conf_name}\n";
 				$self->device_settings()->{$conf_name} = $config->{$conf_name};
 			}
-			elsif( defined($self->default_device_settings()->{$conf_name}) ) {	# or in default config? => set value
-				# print "Setting $conf_name to " . $self->default_device_settings()->{$conf_name} ."\n";
+			elsif( exists($self->default_device_settings()->{$conf_name}) ) {	# or in default config? => set value
+				 print "Setting $conf_name to " . $self->default_device_settings()->{$conf_name} ."\n";
 				$self->device_settings()->{$conf_name} = $self->default_device_settings()->{$conf_name};
 			}
 		}

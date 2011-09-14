@@ -148,6 +148,7 @@ requires:
   XML::Generator: 0
   XML::Twig: 0
   encoding::warnings: 0
+  Clone: 0.31
 resources:
   MailingList: https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-visa-users
   bugtracker: http://rt.cpan.org/NoAuth/Bugs.html?Dist=Lab-Measurement

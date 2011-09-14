@@ -7,9 +7,9 @@ use strict;
 
 use Lab::Exception;
 use Lab::Connection;
-use Carp;
+use Carp qw(cluck croak);
 use Data::Dumper;
-use Clone;
+use Clone qw(clone);
 
 use Time::HiRes qw (usleep sleep);
 use POSIX; # added for int() function
@@ -61,8 +61,10 @@ sub new {
 
 	$self->config($config);
 
+	# $self->configure($self->config()); # This calls Lab::Instrument::Source::configure() !!! work arount, rethink
 	# _setconnection after providing $config - needed for direct instantiation of Lab::Instrument
 	if( $class eq __PACKAGE__ ) {
+		warn "ins configure\n";
 		$self->configure($self->config());
 		$self->_setconnection();
 	}
@@ -70,6 +72,8 @@ sub new {
 	# digest parameters
 	$self->device_name($self->config('device_name')) if defined $self->config('device_name');
 	$self->device_comment($self->config('device_comment')) if defined $self->config('device_comment');
+
+	warn "Yoko erstellt!\n";
 
 	return $self;
 }
@@ -86,10 +90,21 @@ sub _construct {	# _construct(__PACKAGE__);
 	foreach my $element (keys %{$fields}) {
 		# handle special subarrays
 		if( $element eq 'device_settings' ) {
-			$self->device_settings($element);
+			# don't overwrite filled hash from ancestor
+			# warn "Setting device settings:\n" . Dumper(clone($fields->{device_settings})) . "\n\n";
+			$self->{device_settings} = clone($fields->{device_settings}) if ! exists($self->{device_settings});
+			for my $s_key ( keys %{$fields->{'device_settings'}} ) {
+				warn "Setze Feld " . $s_key . "\n";
+				$self->{$element}->{$s_key} = $fields->{device_settings}->{$s_key};
+			}
+			# warn "Jetzt schauts so aus:\n" . Dumper($self->{$element}) . "\n";
 		}
 		elsif( $element eq 'connection_settings' ) {
-			$self->connection_settings($element);
+			# don't overwrite filled hash from ancestor
+			$self->{$element} = clone($fields->{$element}) if ! exists($self->{$element});
+			for my $s_key ( keys %{$fields->{connection_settings}} ) {
+				$self->{$element}->{$s_key} = $fields->{connection_settings}->{$s_key};
+			}
 		}
 		else {
 			# handle the normal fields - can also be hash refs etc, so use clone to get a deep copy
@@ -105,6 +120,7 @@ sub _construct {	# _construct(__PACKAGE__);
 	# That's because child classes can add new entrys to $self->supported_connections(), so delay checking to the top class.
 	#
 	if( $class eq $package && $class ne 'Lab::Instrument' ) {
+		warn "Doing the configure\n";
 		$self->configure($self->config());
 		$self->_setconnection();
 	}
@@ -121,13 +137,14 @@ sub configure {
 		Lab::Exception::CorruptParameter->throw( error=>'Given Configuration is not a hash.' . Lab::Exception::Base::Appendix());
 	}
 	else {
-		for my $conf_name (keys %{$self->device_settings()}) {
-			#print "Key: $conf_name, default: ",$self->{default_config}->{$conf_name},", old config: ",$self->{config}->{$conf_name},", new config: ",$config->{$conf_name},"\n";
-			if( defined($config->{$conf_name}) ) {		# in given config? => set value
-				# print "Setting $conf_name to $config->{$conf_name}\n";
-				$self->device_settings()->{$conf_name} = $config->{$conf_name};
-			}
-		}
+		$self->device_settings($config);
+# 		for my $conf_name (keys %{$self->device_settings()}) {
+# 			# print "Key: $conf_name, default: ",$self->{default_config}->{$conf_name},", old config: ",$self->{config}->{$conf_name},", new config: ",$config->{$conf_name},"\n";
+# 			if( exists($config->{$conf_name}) ) {		# in given config? => set value
+# 				 print "Setting $conf_name to $config->{$conf_name}\n";
+# 				$self->device_settings()->{$conf_name} = $config->{$conf_name};
+# 			}
+# 		}
 	}
 	return $self; # what for? let's not break something...
 }
@@ -224,6 +241,7 @@ sub _checkconfig {
 #
 
 sub write {
+			# don't overwrite filled hash from ancestor
 	my $self=shift;
 	my $command=shift;
 	my $options=undef;
@@ -277,6 +295,8 @@ sub query {
 sub device_settings {
 	my $self = shift;
 	my $value = undef;
+		
+	#warn "device_settings got this:\n" . Dumper(@_) . "\n";
 
 	if( scalar(@_) == 0 ) {  # empty parameters - return whole device_settings hash
 		return $self->{'device_settings'};
@@ -291,10 +311,12 @@ sub device_settings {
 		Lab::Exception::CorruptParameter->throw( error => "Corrupt parameters given to " . __PACKAGE__ . "::device_settings().\n"  . Lab::Exception::Base::Appendix() );
 	}
 
+	#warn "Keys present: \n" . Dumper($self->{device_settings}) . "\n";
+
 	if(ref($value) =~ /HASH/) {  # it's a hash - merge into current settings
 		for my $ext_key ( keys %{$value} ) {
-			$self->{'device_settings'}->{$ext_key} = $value->{$ext_key} if( defined($self->{'device_settings'}->{$ext_key}) );
-			# warn "merge: set $ext_key to " . $value->{$ext_key} . "\n";
+			$self->{'device_settings'}->{$ext_key} = $value->{$ext_key} if( exists($self->device_settings()->{$ext_key}) );
+			# warn "merge: set $ext_key to " . $value->{$ext_key} . "\n" if( exists($self->device_settings()->{$ext_key}) );
 		}
 		return $self->{'device_settings'};
 	}
@@ -326,7 +348,7 @@ sub connection_settings {
 
 	if(ref($value) =~ /HASH/) {  # it's a hash - merge into current settings
 		for my $ext_key ( keys %{$value} ) {
-			$self->{'connection_settings'}->{$ext_key} = $value->{$ext_key} if( defined($self->{'connection_settings'}->{$ext_key}) );
+			$self->{'connection_settings'}->{$ext_key} = $value->{$ext_key} if( exists($self->{'connection_settings'}->{$ext_key}) );
 			# warn "merge: set $ext_key to " . $value->{$ext_key} . "\n";
 		}
 		return $self->{'connection_settings'};
@@ -362,7 +384,7 @@ sub config {	# $value = self->config($key);
 sub AUTOLOAD {
 
 	my $self = shift;
-	my $type = ref($self) or croak "$self is not an object";
+	my $type = ref($self) or croak "\$self is not an object";
 	my $value = undef;
 
 	my $name = $AUTOLOAD;
@@ -395,6 +417,7 @@ sub AUTOLOAD {
 		}
 	}
 	else {
+		cluck ("this is it");
 		Lab::Exception::Warning->throw( error => "AUTOLOAD in " . __PACKAGE__ . " couldn't access field '${name}'.\n" . Lab::Exception::Base::Appendix() );
 	}
 }
