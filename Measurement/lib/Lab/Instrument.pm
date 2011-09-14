@@ -9,6 +9,7 @@ use Lab::Exception;
 use Lab::Connection;
 use Carp;
 use Data::Dumper;
+use Clone;
 
 use Time::HiRes qw (usleep sleep);
 use POSIX; # added for int() function
@@ -84,13 +85,19 @@ sub _construct {	# _construct(__PACKAGE__);
 
 	foreach my $element (keys %{$fields}) {
 		# handle special subarrays
-		$self->device_settings($element) if( $element eq 'device_settings' );
-		$self->connection_settings($element) if( $element eq 'connection_settings' );
-
-		# handle the normal fields
+		if( $element eq 'device_settings' ) {
+			$self->device_settings($element);
+		}
+		elsif( $element eq 'connection_settings' ) {
+			$self->connection_settings($element);
+		}
+		else {
+			# handle the normal fields - can also be hash refs etc, so use clone to get a deep copy
+			$self->{$element} = clone($fields->{$element});
+		}
 		$self->{_permitted}->{$element} = $fields->{$element};
 	}
-	@{$self}{keys %{$fields}} = values %{$fields};
+	# @{$self}{keys %{$fields}} = values %{$fields};
 
 	#
 	# Check the connection data OR the connection object in $self->config(), but only if 
@@ -287,7 +294,7 @@ sub device_settings {
 	if(ref($value) =~ /HASH/) {  # it's a hash - merge into current settings
 		for my $ext_key ( keys %{$value} ) {
 			$self->{'device_settings'}->{$ext_key} = $value->{$ext_key} if( defined($self->{'device_settings'}->{$ext_key}) );
-			warn "merge: set $ext_key to " . $value->{$ext_key} . "\n";
+			# warn "merge: set $ext_key to " . $value->{$ext_key} . "\n";
 		}
 		return $self->{'device_settings'};
 	}
@@ -320,7 +327,7 @@ sub connection_settings {
 	if(ref($value) =~ /HASH/) {  # it's a hash - merge into current settings
 		for my $ext_key ( keys %{$value} ) {
 			$self->{'connection_settings'}->{$ext_key} = $value->{$ext_key} if( defined($self->{'connection_settings'}->{$ext_key}) );
-			warn "merge: set $ext_key to " . $value->{$ext_key} . "\n";
+			# warn "merge: set $ext_key to " . $value->{$ext_key} . "\n";
 		}
 		return $self->{'connection_settings'};
 	}
