@@ -1,5 +1,4 @@
 Build.PL
-Changes
 examples/QuantumDot/dc-diamond.pl
 examples/QuantumDot/gatesweep-lia.pl
 examples/QuantumDot/gatesweep.pl
@@ -31,6 +30,7 @@ lib/Lab/Data/Writer.pm
 lib/Lab/Data/XMLtree.pm
 lib/Lab/Exception.pm
 lib/Lab/Instrument.pm
+lib/Lab/Instrument/DummySource.pm
 lib/Lab/Instrument/HP34401A.pm
 lib/Lab/Instrument/HP3458A.pm
 lib/Lab/Instrument/HP83732A.pm
@@ -45,13 +45,15 @@ lib/Lab/Instrument/TemperatureControl/TLK43.pm
 lib/Lab/Instrument/Yokogawa7651.pm
 lib/Lab/Instrument/YokogawaGS200.pm
 lib/Lab/Measurement.pm
+lib/Lab/Measurement/Changes.pod
 lib/Lab/Measurement/Installation.pod
 lib/Lab/Measurement/Ladediagramm.pm
 lib/Lab/Measurement/Tutorial.pod
 README
+scripts/make_filelist.pl
+scripts/make_makefile.pl
+scripts/make_overview.pl
 scripts/metainfo.pl
 scripts/plotter.pl
-scripts/make_filelist.pl
-scripts/make_overview.pl
 TODO
 META.yml

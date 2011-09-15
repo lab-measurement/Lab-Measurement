@@ -202,6 +202,9 @@ sub _setconnection { # $self->setconnection() create new or use existing connect
 
 		if( $connection_type !~ /^[A-Za-z0-9_\-\:]*$/ ) { Lab::Exception::CorruptParameter->throw( error => "Given connection type is does not look like a valid module name.\n" . Lab::Exception::Base::Appendix()); };
 
+		if( $connection_type == 'none' ) { return; };
+		# todo: allow this only iff the device supports connection_type none
+
 		$full_connection = "Lab::Connection::" . $connection_type;
 		eval("require ${full_connection};") || Lab::Exception::Error->throw( error => "Sorry, I was not able to load the connection ${full_connection}. Is it installed?\n" . Lab::Exception::Base::Appendix() );
 

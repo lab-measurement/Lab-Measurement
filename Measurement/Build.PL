@@ -22,6 +22,7 @@ my $build = Module::Build->new(
         'encoding::warnings' => 0,
         'Term::ReadKey'      => 0,
         'Switch'             => 0,
+        'Clone'              => '0.31',
     },
     conflicts         => {
         'Lab::Instrument'    => '< 2.91',
