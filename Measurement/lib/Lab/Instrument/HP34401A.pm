@@ -124,6 +124,19 @@ sub get_resistance {
 }
 
 
+sub get_4wresistance {
+    my $self=shift;
+    my ($range,$resolution)=@_;
+    
+    $range="DEF" unless (defined $range);
+    $resolution="DEF" unless (defined $resolution);
+    
+	my $cmd=sprintf("MEASure:SCALar:FRESIStance? %s,%s",$range,$resolution);
+	my $value = $self->query($cmd);
+    return $value;
+}
+
+
 sub get_voltage_dc {
     my $self=shift;
     my ($range,$resolution)=@_;
