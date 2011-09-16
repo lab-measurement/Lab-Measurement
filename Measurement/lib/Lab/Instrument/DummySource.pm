@@ -4,10 +4,8 @@ our $VERSION = '2.91';
 use strict;
 use Lab::Instrument::Source;
 
-
 our @ISA=('Lab::Instrument::Source');
 our $maxchannels=16;
-
 
 my %fields = (
 	supported_connections => [ 'none' ],
@@ -36,7 +34,7 @@ sub new {
 	$self->device_settings($self->config('device_settings')) if defined $self->config('device_settings') && ref($self->config('device_settings')) eq 'HASH';
 
     print "DS: Created dummy instrument with config\n";
-    while (my ($k,$v)=each %{$self->configure()}) {
+    while (my ($k,$v)=each %{$self->device_settings}) {
         print "DS:   $k -> $v\n";
     }
     for (my $i=1; $i<=$maxchannels; $i++) {
@@ -51,15 +49,20 @@ sub new {
 sub _set_voltage {
     my $self=shift;
     my $voltage=shift;
-    my $channel=shift;
+    my $args={@_};
+    my $channel = $args->{'channel'} || $self->default_channel();
+
     my $tmp="last_volt_$channel";
     $self->{$tmp}=$voltage;
     print "DS: _setting virtual voltage $channel to $voltage\n";
+    return $voltage;
 }
 
 sub _get_voltage {
     my $self=shift;
-    my $channel=shift;
+    my $args={@_};
+    my $channel = $args->{'channel'} || $self->default_channel();
+
     my $tmp="last_volt_$channel";
     print "DS: _getting virtual voltage $channel: $$self{$tmp}\n";
     return $self->{$tmp};
@@ -68,7 +71,9 @@ sub _get_voltage {
 sub set_range {
     my $self=shift;
     my $range=shift;
-    my $channel=shift;
+    my $args={@_};
+    my $channel = $args->{'channel'} || $self->default_channel();
+
     my $tmp="last_range_$channel";
     $self->{$tmp}=$range;
     print "DS: setting virtual range of channel $channel to $range\n";
@@ -76,7 +81,9 @@ sub set_range {
 
 sub get_range {
     my $self=shift;
-    my $channel=shift;
+    my $args={@_};
+    my $channel = $args->{'channel'} || $self->default_channel();
+
     my $tmp="last_range_$channel";
     print "DS: getting virtual range: $$self{$tmp}\n";
     return $self->{$tmp};
