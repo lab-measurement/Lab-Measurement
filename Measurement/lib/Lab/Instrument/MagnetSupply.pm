@@ -172,13 +172,15 @@ sub start_sweep_to_current {
 sub get_field {
     # returns the field in TESLA
     my $self=shift;
-    return $self->ItoB($self->_get_current());
+    my $field=$self->ItoB($self->_get_current());
+    return $field;
 }
 
 sub get_current {
     # returns the current in AMPS
     my $self=shift;
-    return $self->_get_current();
+    my $current=$self->_get_current();
+    return $current;
 }
 
 sub _get_current {
@@ -191,7 +193,8 @@ sub _get_current {
 # 1 == On (switch open)
 sub get_heater() {
     my $self=shift;
-    return $self->_get_heater();
+    my $heater=$self->_get_heater();
+    return $heater;
 }
 
 sub _get_heater {
@@ -217,7 +220,8 @@ sub _set_heater {
 # returns sweeprate in AMPS/SEC
 sub get_sweeprate() {
     my $self=shift;
-    return $self->_get_sweeprate();
+    my $rate=$self->_get_sweeprate();
+    return $rate;
 }
 
 sub _get_sweeprate {
@@ -230,7 +234,8 @@ sub set_sweeprate() {
     my $self=shift;
     my $rate=shift;
     if ($rate > $self->get_max_sweeprate()) { $rate=$self->get_max_sweeprate(); };
-    return $self->_set_sweeprate($rate);
+    my $newrate=$self->_set_sweeprate($rate);
+    return $newrate;
 }
 
 sub _set_sweeprate {
@@ -241,7 +246,8 @@ sub _set_sweeprate {
 sub set_hold {
     my $self=shift;
     my $value=shift;
-    return $self->_set_hold($value);
+    my $newvalue=$self->_set_hold($value)
+    return $newvalue;
 }
 
 sub _set_hold {
@@ -251,7 +257,8 @@ sub _set_hold {
 
 sub get_hold {
     my $self=shift;
-    return $self->_get_hold();
+    my $hold=$self->_get_hold();
+    return $hold;
 }
 
 sub _get_hold {
