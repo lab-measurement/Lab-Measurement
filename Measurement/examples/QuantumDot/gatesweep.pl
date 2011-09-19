@@ -1,7 +1,5 @@
 #!/usr/bin/perl -w
 
-# (c) Daniel Schmid, Markus Gaass, David Kalok, Andreas Hüttel 2011
- 
 use strict;
 use Lab::Instrument::Yokogawa7651;
 use Lab::Instrument::HP34401A;
@@ -96,7 +94,7 @@ my $measurement=new Lab::Measurement(
         },
     	{
             'unit'          => 'A',
-            'label'         => 'meas dc current $sample',
+            'label'         => 'dc current',
             'description'   => "meausred current through $sample",
         }
     ],
@@ -162,3 +160,28 @@ for (my $Vgate=$Vgatestart;
 # and we're done
 my $meta=$measurement->finish_measurement();
 
+
+1;
+
+=pod
+
+=encoding utf-8
+
+=head1 gatesweep.pl
+
+Script to record a trace I(Vg), i.e. dc current as function of gate voltage, in a 
+Coulomb blockade measurement.
+
+=head2 Measurement setup
+
+=head2 Script: configuration section
+
+=head2 Script: metadata section
+
+=head2 Script: actual measurement loop
+
+=head2 Author / Copyright
+
+  (c) Daniel Schmid, Markus Gaass, David Kalok, Andreas K. Hüttel 2011
+
+=cut

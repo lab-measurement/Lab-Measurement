@@ -41,7 +41,7 @@ Sweeps a Yokogawa 7651 dc voltage source to a value given on the command line.
   $ perl yoko_goto.pl 12 0.8
 
 Sweeeps the Yokogawa 7651 dc voltage source with GPIB address 12 (on GPIB adaptor 0) to 0.8V, 
-using a maximum step size of 50mV and at most 10 steps per second.
+using a maximum step size of 5mV and at most 10 steps per second.
 
 =head2 Author / Copyright
 
