@@ -119,7 +119,7 @@ sub set_current {
 	# in this case we dont have to care about anything, just feed the power supply with the 
 	# target value and wait
 
-	$self->start_sweep_to_current($current);
+	$self->start_sweep_to_current($targetcurrent);
 	do {
 	  sleep(5);
 	} while (abs($targetcurrent-$self->get_current()) > $self->get_max_current_deviation());
@@ -156,7 +156,7 @@ sub start_sweep_to_current {
        die "Reverse magnetic field direction not supported by instrument\n";
     };
 
-    if (($targetcurrent*$now < 0) && (! $self->get_can_use_negative_current()){
+    if (($targetcurrent*$now < 0) && (! $self->get_can_use_negative_current())){
        # current value and target have different sign
        die "You're trying to sweep across zero and it is not supported by the device!\n";
     };
@@ -246,7 +246,7 @@ sub _set_sweeprate {
 sub set_hold {
     my $self=shift;
     my $value=shift;
-    my $newvalue=$self->_set_hold($value)
+    my $newvalue=$self->_set_hold($value);
     return $newvalue;
 }
 
@@ -272,7 +272,7 @@ sub _set_sweep_target_current {
 
 
 sub _get_fieldconstant {
-    return UNDEF;
+    return 0;
 }
 
 
