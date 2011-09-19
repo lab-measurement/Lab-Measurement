@@ -222,6 +222,100 @@ sub connection_write { # @_ = ( $connection_handle, $args = { command, wait_stat
 }
 
 
+# some gpib status helper functions
+
+sub get_eot{ # eoi asserted with last written byte?
+	my $handle=shift;
+	return ibask($handle,4);
+}
+
+sub get_eosrd{ # read terminates at eos char?
+	my $handle=shift;
+	return ibask($handle,12);
+}
+
+sub get_eoswrt{ # eoi asserted with written eos char?
+	my $handle=shift;
+	return ibask($handle,13);
+}
+
+sub get_eoscmp{ # binary comparison of eos?
+	my $handle=shift;
+	return ibask($handle,14);
+}
+
+sub get_eoschar{ # eos character?
+	my $handle=shift;
+	return ibask($handle,15);
+}
+
+
+
+sub connection_settermchar { # @_ = ( $connection_handle, $termchar
+	my $self = shift;
+	my $connection_handle=shift;
+	my $termchar =shift; # string termination character as string
+
+	my $ib_bits=undef;	# hash ref
+	my $ibstatus = undef;
+
+        my $h=$connection_handle->{'gpib_handle'};
+
+        my $arg=ord($termchar);
+
+        if ($get_eosrd($h)) { $arg+=1024; };
+        if ($get_eoswrt($h)) { $arg+=2048; };
+        if ($get_eosbin($h)) { $arg+=4096; };
+
+	$ibstatus=ibeos($connection_handle->{'gpib_handle'}, $arg);
+
+	$ib_bits=$self->ParseIbstatus($ibstatus);
+
+	if($ib_bits->{'ERR'}==1) {
+		Lab::Exception::GPIBError->throw(
+			error => sprintf("Error in " . __PACKAGE__ . "::connection_write() while executing $command: ibwrite failed with status %x\n", $ibstatus) . Dumper($ib_bits) . Lab::Exception::Base::Appendix(),
+			ibsta => $ibstatus,
+			ibsta_hash => $ib_bits,
+		);
+	}
+
+	return 1;
+}
+
+sub connection_enabletermchar { # @_ = ( $connection_handle, 0/1 off/on
+	my $self = shift;
+	my $connection_handle=shift;
+	my $enable=shift;
+
+	my $ib_bits=undef;	# hash ref
+	my $ibstatus = undef;
+
+        my $h=$connection_handle->{'gpib_handle'};
+
+	my $arg=$get_eoschar($h);
+        if ($enable) { $arg+=1024; };
+        if ($get_eoswrt($h)) { $arg+=2048; };
+        if ($get_eosbin($h)) { $arg+=4096; };
+
+	$ibstatus=ibeos($connection_handle->{'gpib_handle'}, $arg);
+
+	$ib_bits=$self->ParseIbstatus($ibstatus);
+
+	if($ib_bits->{'ERR'}==1) {
+		Lab::Exception::GPIBError->throw(
+			error => sprintf("Error in " . __PACKAGE__ . "::connection_write() while executing $command: ibwrite failed with status %x\n", $ibstatus) . Dumper($ib_bits) . Lab::Exception::Base::Appendix(),
+			ibsta => $ibstatus,
+			ibsta_hash => $ib_bits,
+		);
+	}
+
+	return 1;
+}
+
+
+
+
+
 #
 # calls ibclear() on the instrument - how to do on VISA?
 #

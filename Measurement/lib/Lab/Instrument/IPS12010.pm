@@ -33,17 +33,13 @@ sub new {
 	$self->_construct(__PACKAGE__, \%fields);
 	print "IPS12010 superconducting magnet supply code is highly experimental and untested. You have been warned.\n";
 
-#    my $xstatus=Lab::VISA::viSetAttribute($self->{vi}->{instr}, $Lab::VISA::VI_ATTR_TERMCHAR, 0xD);
-#    if ($xstatus != $Lab::VISA::VI_SUCCESS) { die "Error while setting read termination character: $xstatus";}
-
-#    $xstatus=Lab::VISA::viSetAttribute($self->{vi}->{instr}, $Lab::VISA::VI_ATTR_TERMCHAR_EN, $Lab::VISA::VI_TRUE);
-#    if ($xstatus != $Lab::VISA::VI_SUCCESS) { die "Error while enabling read termination character: $xstatus";}
+	$self->connection()->SetTermChar(chr(13));
+	$self->connection()->EnableTermChar(1);
 
 	$self->ips_set_communications_protocol(4);  # set to extended resolution
 	$self->ips_set_control(3);  # set to remote & unlocked
 	return $self;
 }
-
 
 
 sub ips_set_control {
