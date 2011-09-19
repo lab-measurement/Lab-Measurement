@@ -68,7 +68,6 @@ sub process_element {
         my $source = $self->{highlighter}->doFile(
             file      => $podfile,
             tab_width => 4,
-            encode    => 'UTF-8'
         );
         my $title = "$sections[0]: $bnt";
         open SRCFILE, ">", "$$self{docdir}/$basename\_source.html" or die;
@@ -102,11 +101,11 @@ sub finish {
 sub _get_header {
     my ($self, $title) = @_;
     return <<HEADER;
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="utf8" ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
     <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf8">
         <link rel="stylesheet" type="text/css" href="../doku.css"/>
         <title>$title</title>
     </head>
