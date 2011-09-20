@@ -263,9 +263,9 @@ sub connection_settermchar { # @_ = ( $connection_handle, $termchar
 
         my $arg=ord($termchar);
 
-        if ($get_eosrd($h)) { $arg+=1024; };
-        if ($get_eoswrt($h)) { $arg+=2048; };
-        if ($get_eosbin($h)) { $arg+=4096; };
+        if (get_eosrd($h)) { $arg+=1024; };
+        if (get_eoswrt($h)) { $arg+=2048; };
+        if (get_eosbin($h)) { $arg+=4096; };
 
 	$ibstatus=ibeos($connection_handle->{'gpib_handle'}, $arg);
 
@@ -294,8 +294,8 @@ sub connection_enabletermchar { # @_ = ( $connection_handle, 0/1 off/on
 
 	my $arg=$get_eoschar($h);
         if ($enable) { $arg+=1024; };
-        if ($get_eoswrt($h)) { $arg+=2048; };
-        if ($get_eosbin($h)) { $arg+=4096; };
+        if (get_eoswrt($h)) { $arg+=2048; };
+        if (get_eosbin($h)) { $arg+=4096; };
 
 	$ibstatus=ibeos($connection_handle->{'gpib_handle'}, $arg);
 
