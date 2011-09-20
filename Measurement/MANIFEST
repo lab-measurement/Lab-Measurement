@@ -1,4 +1,5 @@
 Build.PL
+examples/QuantumDot/biasfield.pl
 examples/QuantumDot/dc-diamond.pl
 examples/QuantumDot/gatesweep-lia.pl
 examples/QuantumDot/gatesweep.pl
@@ -8,6 +9,8 @@ examples/Simple/hp_demo.pl
 examples/Simple/query_id.pl
 examples/Simple/srs_read.pl
 examples/Simple/yoko_goto.pl
+examples/VoltageSource/dummysource.pl
+examples/VoltageSource/multisource.pl
 lib/Lab/Bus.pm
 lib/Lab/Bus/DEBUG.pm
 lib/Lab/Bus/IsoBus.pm
@@ -49,11 +52,11 @@ lib/Lab/Measurement/Changes.pod
 lib/Lab/Measurement/Installation.pod
 lib/Lab/Measurement/Ladediagramm.pm
 lib/Lab/Measurement/Tutorial.pod
-README
-scripts/make_filelist.pl
-scripts/make_makefile.pl
-scripts/make_overview.pl
-scripts/metainfo.pl
-scripts/plotter.pl
-TODO
 META.yml
+README
+scripts/lab-makefilelist.pl
+scripts/lab-makemakefile.pl
+scripts/lab-makeoverview.pl
+scripts/lab-metainfo.pl
+scripts/lab-plotter.pl
+TODO
