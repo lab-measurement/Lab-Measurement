@@ -29,3 +29,25 @@ print "Reference frequency: $freq Hz\n";
 
 my ($r,$phi)=$sr->get_rphi();
 print "Signal             : r=$r V   phi=$phi\n";
+
+1;
+
+=pod
+
+=encoding utf-8
+
+=head1 srs_read.pl
+
+Reads out reference amplitude, reference frequency, and current r and phi values
+of a Stanford Research SR830 lock-in amplifier. The only command line parameter is the
+GPIB address.
+
+=head2 Usage example
+
+  $ perl srs_read.pl 8
+
+=head2 Author / Copyright
+
+  (c) Andreas K. Hüttel 2011
+
+=cut

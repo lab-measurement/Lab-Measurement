@@ -23,3 +23,24 @@ my $i=new Lab::Instrument(
 my $id=$i->query('*IDN?');
 
 print "Query result: \"$id\"\n";
+
+1;
+
+=pod
+
+=encoding utf-8
+
+=head1 query_id.pl
+
+Queries and prints the instrumet ID of a GPIB instrument; the GPIB address is the only
+command line parameter.
+
+=head2 Usage example
+
+  $ perl query_id.pl 3
+  
+=head2 Author / Copyright
+
+  (c) Andreas K. Hüttel 2011
+
+=cut

@@ -8,6 +8,9 @@ toc:
       - Measurement/lib/Lab/Measurement/Tutorial.pod
       - Example scripts:
           - Measurement/examples/Simple/yoko_goto.pl
+          - Measurement/examples/Simple/query_id.pl
+          - Measurement/examples/Simple/srs_read.pl
+          - Measurement/examples/QuantumDot/gatesweep.pl
       - Utility scripts:
           - Measurement/scripts/plotter.pl
           - Measurement/scripts/metainfo.pl
