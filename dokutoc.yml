@@ -11,6 +11,7 @@ toc:
           - Measurement/examples/Simple/query_id.pl
           - Measurement/examples/Simple/srs_read.pl
           - Measurement/examples/QuantumDot/gatesweep.pl
+          - Measurement/examples/QuantumDot/biasfield.pl
       - Utility scripts:
           - Measurement/scripts/plotter.pl
           - Measurement/scripts/metainfo.pl
