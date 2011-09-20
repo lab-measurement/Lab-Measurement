@@ -273,7 +273,7 @@ sub connection_settermchar { # @_ = ( $connection_handle, $termchar
 
 	if($ib_bits->{'ERR'}==1) {
 		Lab::Exception::GPIBError->throw(
-			error => sprintf("Error in " . __PACKAGE__ . "::connection_write() while executing $command: ibwrite failed with status %x\n", $ibstatus) . Dumper($ib_bits) . Lab::Exception::Base::Appendix(),
+			error => sprintf("Error in " . __PACKAGE__ . "::connection_settermchar(): ibeos failed with status %x\n", $ibstatus) . Dumper($ib_bits) . Lab::Exception::Base::Appendix(),
 			ibsta => $ibstatus,
 			ibsta_hash => $ib_bits,
 		);
@@ -303,7 +303,7 @@ sub connection_enabletermchar { # @_ = ( $connection_handle, 0/1 off/on
 
 	if($ib_bits->{'ERR'}==1) {
 		Lab::Exception::GPIBError->throw(
-			error => sprintf("Error in " . __PACKAGE__ . "::connection_write() while executing $command: ibwrite failed with status %x\n", $ibstatus) . Dumper($ib_bits) . Lab::Exception::Base::Appendix(),
+			error => sprintf("Error in " . __PACKAGE__ . "::connection_enabletermchar(): ibeos failed with status %x\n", $ibstatus) . Dumper($ib_bits) . Lab::Exception::Base::Appendix(),
 			ibsta => $ibstatus,
 			ibsta_hash => $ib_bits,
 		);
