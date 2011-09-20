@@ -26,8 +26,9 @@
     </ul>
 </div>
 
-<p>NEWS: Lab::Measurement 2.91 a.k.a. 3.00 beta1 released
-</p>
+<p><i>News flash: Lab::Measurement 2.91 a.k.a. 3.00 beta1 released...</i>
+Lab::Measurement 2.91 is the very first beta version of a full code rewrite. 
+It's likely still full of bugs and may not even compile, so please treat it with care...</p>
 
 <p>Lab::Measurement allows to perform test and measurement tasks with Perl
 scripts. It provides an interface to several instrumentation control backends,
@@ -40,34 +41,21 @@ for internal details and make data aquisition as easy as
 
 <p>The Lab::Measurement software stack comprises several parts that are built
 on top of each other. This modularization allows support for a wide range of hardware
-on different operating systems.</p>
+on different operating systems. As hardware drivers vary in API details, each 
+supported one is encapsulated into perl modules of types <i>Lab::Bus</i> and 
+<i>Lab::Connection</i>. Normally you won't have to care about this; at most, 
+your Instrument object (see below) gets different initialization parameters.</p>
 
-<p>
-As hardware drivers vary in API details, each supported one is encapsulated into perl modules
-of types <i>Lab::Bus</i> and <i>Lab::Connection</i>. If your measurement script works under Linux 
-with LinuxGPIB, it will also work with NI-VISA. Normally you won't have to care about this; at most, 
-your Instrument object (see below) gets different initialization parameters.
-</p>
-
-<p>
-A typical measurement script is based on the high-level interface provided by the modules 
+<p>A typical measurement script is based on the high-level interface provided by the modules 
 <i>Lab::Instrument</i> and <i>Lab::Measurement</i>. The former silently handles all the 
-protocol overhead. You can just write commands to an instrument and read the result. Drivers 
-for specific devices are included, implementing their specificcommand
-syntax; more can easily be added to provide additional high-level functions. 
-The latter includes tools for metadata handling (what was that amplifier setting in the measurement
-again?!), plotting, and similar.
-</p>
+protocol overhead. You can write commands to an instrument and read the result. Drivers 
+for specific devices are included, implementing their specific command syntax; more can 
+easily be added to provide high-level functions. The latter includes tools for metadata 
+handling (what was that amplifier setting in the measurement again?!), data plotting, and 
+similar.</p>
 
 <p>These classes together are distributed as the Lab::Measurement system.
 Designed to make data aquisition fun!</p>
-
-<p><b>
-Note: this software is still work in progress. Lab::Measurement
-2.91 is the first beta version of the full code rewrite. The old, "stable" code (called Lab::VISA) 
-can be found at <a href="http://www.labvisa.de/">http://www.labvisa.de/</a>. As Lab::VISA 
-had version numbers up to 2.1, the first Lab::Measurement release will be Lab::Measurement 3.00.
-</b></p>
 
 
 <h2>How to obtain</h2>
@@ -94,11 +82,12 @@ list (lab-visa-users)</a> set up for Lab::VISA and Lab::Measurement. This mailin
 right place to give feedback and ask for help.</p>
 
 <h2>Status</h2>
-<p>Although this software has been used for years in real world
-measurements by its developers, it remains work in progress. Please bear
-with us while we constantly improve code and documentation.</p>
+<p>Lab::Measurement is a the result of a full restructuring of the code of its predecessor
+<a href="http://www.labvisa.de/">Lab::VISA</a>. Right now we're using Lab::Measurement in 
+a first real measurement, but the ride is still a bit bumpy. If you're willing to hack, 
+feel free to try- otherwise we recommend you use the stable <a href="http://www.labvisa.de/">Lab::VISA code</a> for now.</p>
 
-<p>Lab::Measurement is currently developed and employed at <a
+<p>Lab::Measurement and its predecessor Lab::VISA are currently developed and employed at <a
     href="http://www.nano.physik.uni-muenchen.de/">nanophysics
 group, LMU M&uuml;nchen</a> and <a
     href="http://www.physik.uni-regensburg.de/forschung/strunk/">mesoscopic
