@@ -29,7 +29,7 @@ my %fields = (
 	device_settings => {
 		soft_fieldconstant => undef,        # T / A
 		max_current => undef,               # A
-		max_current_deviation => 0.1,       # A
+		max_current_deviation => 0.01,      # A
 		max_sweeprate => undef,             # A / sec
 		max_sweeprate_persistent => undef,  # A / sec
 		has_heater => undef,                # 0 or 1
@@ -95,6 +95,7 @@ sub set_field {
     my $self=shift;
     my $field=shift;
     my $current = $self->BtoI($field);
+    # print "set_field: target field $field T, target current $current A \n";
     $field = $self->ItoB($self->set_current($current));
     return $field;
 }
