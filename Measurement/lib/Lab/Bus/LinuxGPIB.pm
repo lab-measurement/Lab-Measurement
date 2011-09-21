@@ -222,44 +222,6 @@ sub connection_write { # @_ = ( $connection_handle, $args = { command, wait_stat
 }
 
 
-# some gpib status helper functions
-
-sub get_eot{ # eoi asserted with last written byte?
-	my $handle=shift;
-	my $result;
-	ibask($handle,4,$result);
-	return $result;
-}
-
-sub get_eosrd{ # read terminates at eos char?
-	my $handle=shift;
-	my $result;
-	ibask($handle,12,$result);
-	return $result;
-}
-
-sub get_eoswrt{ # eoi asserted with written eos char?
-	my $handle=shift;
-	my $result;
-	ibask($handle,13,$result);
-	return $result;
-}
-
-sub get_eoscmp{ # binary comparison of eos?
-	my $handle=shift;
-	my $result;
-	ibask($handle,14,$result);
-	return $result;
-}
-
-sub get_eoschar{ # eos character?
-	my $handle=shift;
-	my $result;
-	ibask($handle,15,$result);
-	return $result;
-}
-
-
 
 sub connection_settermchar { # @_ = ( $connection_handle, $termchar
 	my $self = shift;
@@ -272,10 +234,6 @@ sub connection_settermchar { # @_ = ( $connection_handle, $termchar
         my $h=$connection_handle->{'gpib_handle'};
 
         my $arg=ord($termchar);
-
-        #if (get_eosrd($h)) { $arg+=1024; };
-        #if (get_eoswrt($h)) { $arg+=2048; };
-        #if (get_eosbin($h)) { $arg+=4096; };
 
 	$ibstatus=ibconfig($connection_handle->{'gpib_handle'}, 15, $arg);
 
@@ -301,11 +259,6 @@ sub connection_enabletermchar { # @_ = ( $connection_handle, 0/1 off/on
 	my $ibstatus = undef;
 
         my $h=$connection_handle->{'gpib_handle'};
-
-	#my $arg=get_eoschar($h);
-        #if ($enable) { $arg+=1024; };
-        #if (get_eoswrt($h)) { $arg+=2048; };
-        #if (get_eosbin($h)) { $arg+=4096; };
 
 	$ibstatus=ibconfig($connection_handle->{'gpib_handle'}, 12, $arg);
 
