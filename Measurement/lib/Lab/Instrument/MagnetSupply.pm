@@ -48,8 +48,13 @@ sub new {
 	my $class = ref($proto) || $proto;
 	my $self = $class->SUPER::new(@_);
 	$self->_construct(__PACKAGE__, \%fields);
-	print "Magnet power supply support is experimental. You have been warned.\n";
-	return $self;
+
+        if ($self->get_max_current()) {
+	  print "Magnet power supply support is experimental. You have been warned.\n";
+	  return $self;
+	} else {
+          die "MagnetSupply.pm: You have to set max_current for safety reasons. Aborting.\n";
+	};
 }
 
 sub get_fieldconstant {
