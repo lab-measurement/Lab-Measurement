@@ -226,27 +226,37 @@ sub connection_write { # @_ = ( $connection_handle, $args = { command, wait_stat
 
 sub get_eot{ # eoi asserted with last written byte?
 	my $handle=shift;
-	return ibask($handle,4);
+	my $result;
+	ibask($handle,4,$result);
+	return $result;
 }
 
 sub get_eosrd{ # read terminates at eos char?
 	my $handle=shift;
-	return ibask($handle,12);
+	my $result;
+	ibask($handle,12,$result);
+	return $result;
 }
 
 sub get_eoswrt{ # eoi asserted with written eos char?
 	my $handle=shift;
-	return ibask($handle,13);
+	my $result;
+	ibask($handle,13,$result);
+	return $result;
 }
 
 sub get_eoscmp{ # binary comparison of eos?
 	my $handle=shift;
-	return ibask($handle,14);
+	my $result;
+	ibask($handle,14,$result);
+	return $result;
 }
 
 sub get_eoschar{ # eos character?
 	my $handle=shift;
-	return ibask($handle,15);
+	my $result;
+	ibask($handle,15,$result);
+	return $result;
 }
 
 
@@ -263,11 +273,11 @@ sub connection_settermchar { # @_ = ( $connection_handle, $termchar
 
         my $arg=ord($termchar);
 
-        if (get_eosrd($h)) { $arg+=1024; };
-        if (get_eoswrt($h)) { $arg+=2048; };
-        if (get_eosbin($h)) { $arg+=4096; };
+        #if (get_eosrd($h)) { $arg+=1024; };
+        #if (get_eoswrt($h)) { $arg+=2048; };
+        #if (get_eosbin($h)) { $arg+=4096; };
 
-	$ibstatus=ibeos($connection_handle->{'gpib_handle'}, $arg);
+	$ibstatus=ibconfig($connection_handle->{'gpib_handle'}, 15, $arg);
 
 	$ib_bits=$self->ParseIbstatus($ibstatus);
 
@@ -285,19 +295,19 @@ sub connection_settermchar { # @_ = ( $connection_handle, $termchar
 sub connection_enabletermchar { # @_ = ( $connection_handle, 0/1 off/on
 	my $self = shift;
 	my $connection_handle=shift;
-	my $enable=shift;
+	my $arg=shift;
 
 	my $ib_bits=undef;	# hash ref
 	my $ibstatus = undef;
 
         my $h=$connection_handle->{'gpib_handle'};
 
-	my $arg=get_eoschar($h);
-        if ($enable) { $arg+=1024; };
-        if (get_eoswrt($h)) { $arg+=2048; };
-        if (get_eosbin($h)) { $arg+=4096; };
+	#my $arg=get_eoschar($h);
+        #if ($enable) { $arg+=1024; };
+        #if (get_eoswrt($h)) { $arg+=2048; };
+        #if (get_eosbin($h)) { $arg+=4096; };
 
-	$ibstatus=ibeos($connection_handle->{'gpib_handle'}, $arg);
+	$ibstatus=ibconfig($connection_handle->{'gpib_handle'}, 12, $arg);
 
 	$ib_bits=$self->ParseIbstatus($ibstatus);
 
