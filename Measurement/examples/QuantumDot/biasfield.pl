@@ -72,7 +72,7 @@ my $YokGate=new Lab::Instrument::Yokogawa7651({
     'connection_type'=> 'LinuxGPIB',
     'gpib_board'    => 0,
     'gpib_address'  => $gpib_yoko_Vgate,
-    'gate_protect'  => $gateprotect,
+    'gate_protect'  => $Vgateprotect,
     'gp_max_volt_per_second' => 0.05,
     'gp_max_step_per_second' => 10,
     'gp_max_volt_per_step' => 0.005,
@@ -114,7 +114,7 @@ print " done.\n";
 print "Setting up magnet...";
 
 my $magnet=new Lab::Instrument::IPS12010({
-    'connection_type' => 'DEBUG';
+    'connection_type' => 'DEBUG',
     'gpib_board'    => 0,    
     'gpib_address'  => $gpib_magnet,
 });
@@ -127,10 +127,14 @@ printf "Current sweep rate: $cur_sweeprate T/min\n";
 my $cur_B=$magnet->get_field();
 printf "Current field     : $cur_B T\n";
 
+
+exit 1;
+
+
 ##-----------------Setting up Starting Field------------------
 
 print "Ramping magnet to starting field... ";
-$magnet->set_field($B_start);
+$magnet->set_field($Bstart);
 print " done!\n";
 
 
@@ -145,7 +149,7 @@ Bias voltage from $Vbiasstart to $Vbiasstop step size $Vbiasstep
 Temperature: $temperature mK;
 
 Gate source -> gate
-Bias source -> addbox with voltage divider $biasdivider
+Bias source -> addbox with voltage divider $Vbiasdivider
 Lock-in ac source -> addbox with voltage divider 0.0001
 Addbox -> Source
 Drain -> Ithaco, amplification $currentamp A/V, rise time $currenttc s
@@ -314,19 +318,19 @@ for (my $B=$Bstart;$Bstepsign*$B<=$Bstepsign*$Bstop;$B+=$Bstep)	{
 		$Vbiasstepsign*$Vbias<=$Vbiasstepsign*$Vbiasstop;
 		$Vbias+=$Vbiasstep) {
 
-	     my $Vbiasreal = ($YokBias->set_voltage($Vbias/$biasdivider))*$biasdivider;
+	     my $Vbiasreal = ($YokBias->set_voltage($Vbias/$Vbiasdivider))*$Vbiasdivider;
 		
 	     my $t = gettimeofday();
 
 	     # read dc signal from hp multimeter
-             my $Vdc = $hp -> read_value();
+             my $Vdc = $HP->read_value();
 	     chomp $Vdc;
  
 	     # we multiply with (-1)*$currentamp, it's an inverting amplifier
 	     my $Idc = -$Vdc*$currentamp;
 
 	     # read the ac signal from the lock-in
-             my ($Vacx,$Vacy)=$liIAC->read_xy();
+             my ($Vacx,$Vacy)=$SRS->read_xy();
 	     my $Vacr=sqrt($Vacx*$Vacx+$Vacy*$Vacy);
 
              # we multiply with (-1)*$currentamp, it's an inverting amplifier
