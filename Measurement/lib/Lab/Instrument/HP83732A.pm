@@ -1,5 +1,5 @@
 package Lab::Instrument::HP83732A;
-our $VERSION = '2.91';
+our $VERSION = '2.92';
 
 use strict;
 use Lab::Instrument;

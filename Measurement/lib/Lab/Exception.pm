@@ -2,7 +2,6 @@
 
 
 package Lab::Exception::Base;
-our $VERSION = '2.91';
 
 #
 # This is for comfy optional adding of custom methods via our own exception base class later
@@ -54,7 +53,7 @@ sub Appendix {	# $line, $file, $package
 
 
 package Lab::Exception;
-our $VERSION = '2.91';
+our $VERSION = '2.92';
 
 
 #

@@ -1,7 +1,6 @@
 #!/usr/bin/perl -w
 
 package Lab::Bus::DEBUG::HumanInstrument;
-our $VERSION = '2.91';
 
 use strict;
 use base "Wx::App";
@@ -32,7 +31,7 @@ sub OnInit {
 
 
 package Lab::Bus::DEBUG;
-our $VERSION = '2.91';
+our $VERSION = '2.92';
 
 use strict;
 use threads;

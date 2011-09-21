@@ -39,7 +39,7 @@
 ##damit es richtig verwirrend wird
 
 package Lab::Data::XMLtree;
-our $VERSION = '2.91';
+our $VERSION = '2.92';
 
 use strict;
 use warnings;

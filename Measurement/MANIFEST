@@ -52,7 +52,6 @@ lib/Lab/Measurement/Changes.pod
 lib/Lab/Measurement/Installation.pod
 lib/Lab/Measurement/Ladediagramm.pm
 lib/Lab/Measurement/Tutorial.pod
-META.yml
 README
 scripts/lab-makefilelist.pl
 scripts/lab-makemakefile.pl
@@ -60,3 +59,4 @@ scripts/lab-makeoverview.pl
 scripts/lab-metainfo.pl
 scripts/lab-plotter.pl
 TODO
+META.yml
