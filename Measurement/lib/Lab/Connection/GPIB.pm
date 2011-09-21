@@ -77,13 +77,15 @@ sub new {
 sub EnableTermChar { # 0/1 off/on
   my $self=shift;
   my $enable=shift;
-  return $self->bus()->connection_enabletermchar($self->connection_handle(), $enable);
+  my $result=$self->bus()->connection_enabletermchar($self->connection_handle(), $enable);
+  return $result;
 }
 
 sub SetTermChar { # the character as string
   my $self=shift;
   my $termchar=shift;
-  return $self->bus()->connection_settermchar($self->connection_handle(), $termchar);
+  my $result=$self->bus()->connection_settermchar($self->connection_handle(), $termchar);
+  return $result;
 }
 
 
