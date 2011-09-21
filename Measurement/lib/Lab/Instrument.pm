@@ -73,7 +73,7 @@ sub new {
 	$self->device_name($self->config('device_name')) if defined $self->config('device_name');
 	$self->device_comment($self->config('device_comment')) if defined $self->config('device_comment');
 
-	warn "Yoko erstellt!\n";
+	#warn "Instantiated instrument\n";
 
 	return $self;
 }
@@ -94,7 +94,7 @@ sub _construct {	# _construct(__PACKAGE__);
 			# warn "Setting device settings:\n" . Dumper(clone($fields->{device_settings})) . "\n\n";
 			$self->{device_settings} = clone($fields->{device_settings}) if ! exists($self->{device_settings});
 			for my $s_key ( keys %{$fields->{'device_settings'}} ) {
-				warn "Setze Feld " . $s_key . "\n";
+				# warn "Setze Feld " . $s_key . "\n";
 				$self->{$element}->{$s_key} = $fields->{device_settings}->{$s_key};
 			}
 			# warn "Jetzt schauts so aus:\n" . Dumper($self->{$element}) . "\n";
@@ -120,7 +120,7 @@ sub _construct {	# _construct(__PACKAGE__);
 	# That's because child classes can add new entrys to $self->supported_connections(), so delay checking to the top class.
 	#
 	if( $class eq $package && $class ne 'Lab::Instrument' ) {
-		warn "Doing the configure\n";
+		# warn "Doing the configure\n";
 		$self->configure($self->config());
 		$self->_setconnection();
 	}
