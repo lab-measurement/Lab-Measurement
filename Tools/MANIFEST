@@ -11,4 +11,4 @@ scripts/knick_goto.pl
 scripts/metainfo.pl
 scripts/plotter.pl
 scripts/yoko_goto.pl
-t/Meta.t
+META.yml

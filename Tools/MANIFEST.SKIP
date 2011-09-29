@@ -44,6 +44,8 @@
 \bscripts/triple
 \bscripts/TSK
 
+\bt/
+
 \bt/Dataset.t
 \bt/XMLtree.t
 \bt/Generator.t

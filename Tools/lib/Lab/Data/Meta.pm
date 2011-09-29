@@ -14,7 +14,7 @@ require Exporter;
 
 our @ISA = qw(Exporter Lab::Data::XMLtree);
 
-our $VERSION="1.21";
+our $VERSION="1.41";
 
 our $AUTOLOAD;
 
