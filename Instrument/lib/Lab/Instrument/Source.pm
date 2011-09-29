@@ -3,7 +3,7 @@ package Lab::Instrument::Source;
 use strict;
 use Time::HiRes qw(usleep gettimeofday);
 
-our $VERSION = sprintf("1.%04d", q$Revision$ =~ / (\d+) /);
+our $VERSION="1.21";
 our $maxchannels = 16;
 
 sub new {

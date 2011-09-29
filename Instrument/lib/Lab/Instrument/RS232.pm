@@ -7,7 +7,7 @@ use Lab::Instrument;
 use Time::HiRes qw (usleep sleep);
 use Lab::VISA;
 
-our $VERSION = sprintf("0.%04d", q$Revision: 613 $ =~ / (\d+) /);
+our $VERSION="1.21";
 
 sub new {
 	my $proto = shift;

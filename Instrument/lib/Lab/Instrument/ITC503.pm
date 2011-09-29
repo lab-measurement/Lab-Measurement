@@ -6,7 +6,7 @@ use strict;
 use Lab::VISA;
 use Lab::Instrument;
 
-our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
+our $VERSION="1.21";
 
 
 my $RuO2_Cernox=1.45; #K Sensor 3

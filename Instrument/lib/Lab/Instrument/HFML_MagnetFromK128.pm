@@ -12,7 +12,7 @@ use IO::File;
 use Lab::Instrument::K2182;
 use Time::HiRes qw/usleep/;
 use Time::HiRes qw/sleep/;
-our $VERSION = sprintf("0.%04d", q$Revision: 301 $ =~ / (\d+) /);
+our $VERSION="1.21";
 
 my $WAIT=0.3; #sec. waiting time for each reading;
 #my $mounted=0;  # Ist sie schon mal angemeldet

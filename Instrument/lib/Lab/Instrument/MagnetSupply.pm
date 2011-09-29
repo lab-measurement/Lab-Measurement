@@ -11,7 +11,7 @@
 package Lab::Instrument::MagnetSupply;
 use strict;
 
-our $VERSION = sprintf("1.%04d", q$Revision$ =~ / (\d+) /);
+our $VERSION="1.21";
 
 sub new {
     my $proto = shift;
