@@ -136,6 +136,28 @@ sub BrutalQuery {
 #
 
 
+#
+# Fill $self->device_settings() from config parameters
+#
+sub configure {
+	my $self=shift;
+	my $config=shift;
+
+	if( ref($config) ne 'HASH' ) {
+		Lab::Exception::CorruptParameter->throw( error=>'Given Configuration is not a hash.' . Lab::Exception::Base::Appendix());
+	}
+	else {
+		#
+		# fill matching fields definded in %fields from the configuration hash ($self->config )
+		#
+		for my $fields_key ( keys %fields ) {
+			{	# restrict scope of "no strict"
+				no strict 'refs';
+				$self->$fields_key($config->{$fields_key}) if exists $config->{$fields_key};
+			}
+		}
+	}
+
 
 #
 # Call this in inheriting class's constructors to conveniently initialize the %fields object data
@@ -151,9 +173,11 @@ sub _construct {	# _construct(__PACKAGE__, %fields);
 	@{$self}{keys %{$fields}} = values %{$fields};
 
 	if( $class eq $package ) {
+		$self->configure($self->config());
 		$self->_setbus();
 	}
 }
+
 
 
 #
