@@ -120,7 +120,6 @@ sub _construct {	# _construct(__PACKAGE__);
 	# That's because child classes can add new entrys to $self->supported_connections(), so delay checking to the top class.
 	#
 	if( $class eq $package && $class ne 'Lab::Instrument' ) {
-		# warn "Doing the configure\n";
 		$self->configure($self->config());
 		$self->_setconnection();
 	}
@@ -137,7 +136,23 @@ sub configure {
 		Lab::Exception::CorruptParameter->throw( error=>'Given Configuration is not a hash.' . Lab::Exception::Base::Appendix());
 	}
 	else {
+		#
+		# fill matching fields definded in %fields from the configuration hash ($self->config )
+		# this will also catch an explicitly given device_settings or connection_settings hash ( overwritten default config )
+		#
+		for my $fields_key ( keys %fields ) {
+			{	# restrict scope of "no strict"
+				no strict 'refs';
+				$self->$fields_key($config->{$fields_key}) if exists $config->{$fields_key};
+			}
+		}
+
+		#
+		# fill fields $self->device_settings from entries given in configuration hash (this is usually the same as $self->config )
+		#
 		$self->device_settings($config);
+	}
+
 # 		for my $conf_name (keys %{$self->device_settings()}) {
 # 			# print "Key: $conf_name, default: ",$self->{default_config}->{$conf_name},", old config: ",$self->{config}->{$conf_name},", new config: ",$config->{$conf_name},"\n";
 # 			if( exists($config->{$conf_name}) ) {		# in given config? => set value
@@ -178,7 +193,9 @@ sub _checkconnection { # Connection object or connection_type string (as in Lab:
 sub _setconnection { # $self->setconnection() create new or use existing connection
 	my $self=shift;
 
-	# merge default settings
+	#
+	# fill in unset connection parameters with the defaults from $self->connections_settings to $self->config
+	#
 	my $config = $self->config();
 	my $connection_type = undef;
 	my $full_connection = undef;
