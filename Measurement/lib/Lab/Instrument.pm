@@ -160,7 +160,7 @@ sub configure {
 # 				$self->device_settings()->{$conf_name} = $config->{$conf_name};
 # 			}
 # 		}
-	}
+#	}
 	return $self; # what for? let's not break something...
 }
 

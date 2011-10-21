@@ -150,13 +150,14 @@ sub configure {
 		#
 		# fill matching fields definded in %fields from the configuration hash ($self->config )
 		#
-		for my $fields_key ( keys %fields ) {
+		for my $fields_key ( keys %{$self->{_permitted}} ) {
 			{	# restrict scope of "no strict"
 				no strict 'refs';
 				$self->$fields_key($config->{$fields_key}) if exists $config->{$fields_key};
 			}
 		}
 	}
+}
 
 
 #
@@ -165,7 +166,6 @@ sub configure {
 sub _construct {	# _construct(__PACKAGE__, %fields);
 	(my $self, my $package, my $fields) = (shift, shift, shift);
 	my $class = ref($self);
-	my $twin = undef;
 
 	foreach my $element (keys %{$fields}) {
 		$self->{_permitted}->{$element} = $fields->{$element};
