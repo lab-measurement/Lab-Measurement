@@ -41,9 +41,12 @@ toc:
           - Superconducting magnet power supplies:
               - Measurement/lib/Lab/Instrument/MagnetSupply.pm
               - Measurement/lib/Lab/Instrument/IPS12010.pm
+          - Temperature control devices:
+              - Measurement/lib/Lab/Instrument/TemperatureControl.pm
+              - Measurement/lib/Lab/Instrument/TRMC2.pm
+              - Measurement/lib/Lab/Instrument/ITC503.pm
           - Cryostat handling devices:
               - Measurement/lib/Lab/Instrument/ILM210.pm
-              - Measurement/lib/Lab/Instrument/ITC503.pm
       - Connection classes:
           - Measurement/lib/Lab/Connection.pm
           - Measurement/lib/Lab/Connection/DEBUG.pm
