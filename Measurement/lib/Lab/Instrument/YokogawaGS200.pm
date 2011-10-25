@@ -1,5 +1,5 @@
 package Lab::Instrument::YokogawaGS200;
-our $VERSION = '2.92';
+our $VERSION = '2.93';
 
 use strict;
 use Switch;

@@ -1,5 +1,5 @@
 package Lab::Data::Writer;
-our $VERSION = '2.92';
+our $VERSION = '2.93';
 
 use strict;
 use encoding::warnings;

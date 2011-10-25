@@ -53,7 +53,7 @@ sub Appendix {	# $line, $file, $package
 
 
 package Lab::Exception;
-our $VERSION = '2.92';
+our $VERSION = '2.93';
 
 
 #
