@@ -45,6 +45,7 @@ lib/Lab/Instrument/Multimeter.pm
 lib/Lab/Instrument/Source.pm
 lib/Lab/Instrument/SR830.pm
 lib/Lab/Instrument/TemperatureControl/TLK43.pm
+lib/Lab/Instrument/TRMC2.pm
 lib/Lab/Instrument/Yokogawa7651.pm
 lib/Lab/Instrument/YokogawaGS200.pm
 lib/Lab/Measurement.pm
