@@ -61,11 +61,9 @@ sub new {
 
 	$self->config($config);
 
-	# $self->configure($self->config()); # This calls Lab::Instrument::Source::configure() !!! work arount, rethink
-	# _setconnection after providing $config - needed for direct instantiation of Lab::Instrument
+	$self->${\(__PACKAGE__.'::configure')}($self->config()); # use local configure, not possibly overwritten one
 	if( $class eq __PACKAGE__ ) {
-		warn "ins configure\n";
-		$self->configure($self->config());
+		# _setconnection after providing $config - needed for direct instantiation of Lab::Instrument
 		$self->_setconnection();
 	}
 
@@ -91,13 +89,10 @@ sub _construct {	# _construct(__PACKAGE__);
 		# handle special subarrays
 		if( $element eq 'device_settings' ) {
 			# don't overwrite filled hash from ancestor
-			# warn "Setting device settings:\n" . Dumper(clone($fields->{device_settings})) . "\n\n";
 			$self->{device_settings} = clone($fields->{device_settings}) if ! exists($self->{device_settings});
 			for my $s_key ( keys %{$fields->{'device_settings'}} ) {
-				# warn "Setze Feld " . $s_key . "\n";
 				$self->{$element}->{$s_key} = $fields->{device_settings}->{$s_key};
 			}
-			# warn "Jetzt schauts so aus:\n" . Dumper($self->{$element}) . "\n";
 		}
 		elsif( $element eq 'connection_settings' ) {
 			# don't overwrite filled hash from ancestor
