@@ -25,7 +25,7 @@ sub new {
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
 	my $self = $class->SUPER::new(@_); # getting fields and _permitted from parent class
-	$self->_construct(__PACKAGE__, \%fields);
+	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__, \%fields);
 
 	return $self;
 }

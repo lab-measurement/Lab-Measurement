@@ -34,7 +34,7 @@ sub new {
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
 	my $self = $class->SUPER::new(@_);
-	$self->_construct(__PACKAGE__, \%fields);
+	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__, \%fields);
 
 	# already called in Lab::Instrument::Source, but call it again to respect default values in local channel_defaultconfig
 	$self->configure($self->config());

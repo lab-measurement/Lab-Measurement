@@ -37,7 +37,7 @@ sub new {
 	my $class = ref($proto) || $proto;
 	my $twin = undef;
 	my $self = $class->SUPER::new(@_); # getting fields and _permitted from parent class, parameter checks
-	$self->_construct(__PACKAGE__, \%fields);
+	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__, \%fields);
 
 	return $self;
 }

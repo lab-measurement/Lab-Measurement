@@ -28,7 +28,7 @@ sub new {
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
 	my $self = $class->SUPER::new(@_);
-	$self->_construct(__PACKAGE__, \%fields);
+	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__, \%fields);
 	$self->write("END 1");
 	return $self;
 }

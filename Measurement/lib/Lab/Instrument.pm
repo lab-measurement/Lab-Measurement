@@ -57,7 +57,7 @@ sub new {
 	my $self={};
 	bless ($self, $class);
 
-	$self->_construct(__PACKAGE__, \%fields);
+	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__, \%fields);
 
 	$self->config($config);
 

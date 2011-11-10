@@ -68,7 +68,7 @@ sub new {
 	my $class = ref($proto) || $proto;
 	my $twin = undef;
 	my $self = $class->SUPER::new(@_); # getting fields and _permitted from parent class
-	$self->_construct(__PACKAGE__, \%fields);
+	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__, \%fields);
 
 	# no twin search - just register
 	if( $class eq __PACKAGE__ ) { # careful - do only if this is not a parent class constructor
