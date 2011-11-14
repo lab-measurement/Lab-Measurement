@@ -9,7 +9,7 @@ use Lab::Instrument::Source;
 
 our @ISA=('Lab::Instrument::Source');
 
-my %fields = (
+our %fields = (
 	supported_connections => [ 'GPIB', 'VISA', 'DEBUG' ],
 
 	# default settings for the supported connections
@@ -34,7 +34,7 @@ sub new {
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
 	my $self = $class->SUPER::new(@_);
-	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__, \%fields);
+	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
 
 	# already called in Lab::Instrument::Source, but call it again to respect default values in local channel_defaultconfig
 	$self->configure($self->config());

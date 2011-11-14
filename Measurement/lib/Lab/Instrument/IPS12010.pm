@@ -30,7 +30,7 @@ sub new {
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
 	my $self = $class->SUPER::new(@_);
-	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__, \%fields);
+	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
 	print "IPS12010 superconducting magnet supply code is highly experimental and untested. You have been warned.\n";
 
 	$self->connection()->SetTermChar(chr(13));

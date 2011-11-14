@@ -34,7 +34,7 @@ sub new {
 	else { $config={@_} }
 	my $self={};
 	bless ($self, $class);
-	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__, \%fields);
+	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
 
 	$self->config($config);
 
@@ -163,9 +163,14 @@ sub configure {
 #
 # Call this in inheriting class's constructors to conveniently initialize the %fields object data
 #
-sub _construct {	# _construct(__PACKAGE__, %fields);
-	(my $self, my $package, my $fields) = (shift, shift, shift);
+sub _construct {	# _construct(__PACKAGE__);
+	(my $self, my $package) = (shift, shift);
 	my $class = ref($self);
+	my $fields = undef;
+	{
+		no strict 'refs';
+		$fields = *${\($package.'::fields')}{HASH};
+	}	
 
 	foreach my $element (keys %{$fields}) {
 		$self->{_permitted}->{$element} = $fields->{$element};

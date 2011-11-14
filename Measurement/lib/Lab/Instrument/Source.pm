@@ -12,7 +12,7 @@ our $maxchannels = 16;
 
 our @ISA=('Lab::Instrument');
 
-my %fields = (
+our %fields = (
 	supported_connections => [],
 
 	parent_source => undef,
@@ -43,7 +43,7 @@ sub new {
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
 	my $self = $class->SUPER::new(@_);
-	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__, \%fields);
+	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
 
 
 	#

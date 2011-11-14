@@ -57,10 +57,13 @@ sub new {
 	my $self={};
 	bless ($self, $class);
 
-	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__, \%fields);
+	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
 
 	$self->config($config);
 
+	#
+	# In all inherited classes, configure() is run through _construct()
+	#
 	$self->${\(__PACKAGE__.'::configure')}($self->config()); # use local configure, not possibly overwritten one
 	if( $class eq __PACKAGE__ ) {
 		# _setconnection after providing $config - needed for direct instantiation of Lab::Instrument
@@ -82,8 +85,14 @@ sub new {
 # Call this in inheriting class's constructors to conveniently initialize the %fields object data.
 #
 sub _construct {	# _construct(__PACKAGE__);
-	(my $self, my $package, my $fields) = (shift, shift, shift);
+	(my $self, my $package) = (shift, shift);
 	my $class = ref($self);
+	my $fields = undef;
+	{
+		no strict 'refs';
+		$fields = *${\($package.'::fields')}{HASH};
+	}	
+
 
 	foreach my $element (keys %{$fields}) {
 		# handle special subarrays
@@ -105,7 +114,7 @@ sub _construct {	# _construct(__PACKAGE__);
 			# handle the normal fields - can also be hash refs etc, so use clone to get a deep copy
 			$self->{$element} = clone($fields->{$element});
 		}
-		$self->{_permitted}->{$element} = $fields->{$element};
+		$self->{_permitted}->{$element} = 1;
 	}
 	# @{$self}{keys %{$fields}} = values %{$fields};
 
@@ -132,7 +141,7 @@ sub configure {
 	}
 	else {
 		#
-		# fill matching fields definded in %fields from the configuration hash ($self->config )
+		# fill matching fields defined in %fields from the configuration hash ($self->config )
 		# this will also catch an explicitly given device_settings or connection_settings hash ( overwritten default config )
 		#
 		for my $fields_key ( keys %fields ) {
@@ -156,7 +165,6 @@ sub configure {
 # 			}
 # 		}
 #	}
-	return $self; # what for? let's not break something...
 }
 
 
@@ -331,7 +339,6 @@ sub device_settings {
 	if(ref($value) =~ /HASH/) {  # it's a hash - merge into current settings
 		for my $ext_key ( keys %{$value} ) {
 			$self->{'device_settings'}->{$ext_key} = $value->{$ext_key} if( exists($self->device_settings()->{$ext_key}) );
-			# warn "merge: set $ext_key to " . $value->{$ext_key} . "\n" if( exists($self->device_settings()->{$ext_key}) );
 		}
 		return $self->{'device_settings'};
 	}
