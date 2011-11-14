@@ -350,6 +350,10 @@ MODBUS RTU.
 
 Refer to your device for the correct port configuration.
 
+As of yet, this driver does NOT fully implement all MODBUS RTU functions. Only the function
+codes 3 and 6 are provided.
+
+
 =head1 CONSTRUCTOR
 
 =head2 new
