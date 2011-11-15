@@ -7,14 +7,17 @@ use Lab::Instrument;
 our @ISA = ("Lab::Instrument");
 
 my %fields = (
-	supported_connections => [ 'IsoBus' ],
+	supported_connections => [ 'IsoBus', 'LinuxGPIB' ],
 );
 
 sub new {
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
 	my $self = $class->SUPER::new(@_);
-	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__); 
+	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
+
+	$self->connection()->SetTermChar(chr(13));
+	$self->connection()->EnableTermChar(1);
 
 	printf "The ITC driver is work in progress. You have been warned.\n";
     
@@ -68,7 +71,7 @@ sub itc_read_parameter {
     my $cmd=sprintf("R%d\r",$parameter);
     my $result=$self->query($cmd);
     chomp $result;
-    $result =~ s/^R//;
+    $result =~ s/^\s*R//;
     return sprintf("%e",$result);
 }
 

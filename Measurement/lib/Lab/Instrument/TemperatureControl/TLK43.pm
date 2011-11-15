@@ -15,7 +15,7 @@ use Carp;
 
 our @ISA = ("Lab::Instrument");
 
-my %fields = (
+our %fields = (
 	supported_connections => [ 'MODBUS_RS232' ],
 	slave_address => undef,
 	connection => undef,

@@ -31,7 +31,7 @@ BEGIN {
 our $RS232_DEBUG = 0;
 our $WIN32 = ($^O eq "MSWin32") ? 1 : 0;
 
-my %fields = (
+our %fields = (
 	client => undef,
 	type => 'RS232',
 	port => '/dev/ttyS0',

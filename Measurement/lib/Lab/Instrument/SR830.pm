@@ -10,7 +10,7 @@ use Time::HiRes qw (usleep);
 
 our @ISA = ("Lab::Instrument");
 
-my %fields = (
+our %fields = (
 	supported_connections => [ 'GPIB', 'VISA_GPIB', 'DEBUG' ],
 );
 

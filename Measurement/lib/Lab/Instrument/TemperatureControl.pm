@@ -6,7 +6,7 @@ use strict;
 
 our @ISA=('Lab::Instrument');
 
-my %fields = (
+our %fields = (
 	supported_connections => [],
 
 	# supported config options

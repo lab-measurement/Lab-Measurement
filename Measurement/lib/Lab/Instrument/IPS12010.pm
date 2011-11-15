@@ -90,7 +90,7 @@ sub ips_read_parameter {
     my $parameter=shift;
     my $result=$self->query("R$parameter\r");
     chomp $result;
-    $result =~ s/^R//;
+    $result =~ s/^\s*R//;
     $result =~ s/\r//;
     return $result;
 }

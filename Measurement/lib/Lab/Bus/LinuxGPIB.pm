@@ -47,7 +47,7 @@ sub new {
 			weaken($Lab::Bus::BusList{$self->type()}->{$self->gpib_board()});
 		}
 	}
-
+	
 	return $self;
 }
 
@@ -75,6 +75,8 @@ sub connection_new { # { gpib_address => primary address }
 	# ibdev arguments: board index, primary address, secondary address, timeout (constants, see link), send_eoi, eos (end-of-string character)
 	# print "Opening device: " . $gpib_address . "\n";
 	$gpib_handle = ibdev(0, $gpib_address, 0, 12, 1, 0);
+	
+	#ibconfig($gpib_handle, 'IbcEOSrd', 1);
 
 	$connection_handle =  { valid => 1, type => "GPIB", gpib_handle => $gpib_handle };  
 	return $connection_handle;

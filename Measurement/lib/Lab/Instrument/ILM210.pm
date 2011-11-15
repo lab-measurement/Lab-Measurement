@@ -5,7 +5,7 @@ use Lab::Instrument;
 
 our @ISA = ("Lab::Instrument");
 
-my %fields = (
+our %fields = (
 	supported_connections => [ 'IsoBus' ],
 );
 

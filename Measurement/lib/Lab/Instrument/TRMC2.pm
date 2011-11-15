@@ -11,7 +11,7 @@ use Time::HiRes qw/sleep/;
 
 our @ISA = ("Lab::Instrument::TemperatureControl");
 
-my %fields = (
+our %fields = (
 	supported_connections => [ 'none' ],
 );
 

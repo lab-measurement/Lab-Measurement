@@ -33,7 +33,7 @@ my @crctab = ();
 
 my $ConnSemaphore = Thread::Semaphore->new();	# a semaphore to prevent simultaneous use of the bus by multiple threads
 
-my %fields = (
+our %fields = (
 	type => 'RS232',
 	crc_init => 0xFFFF,
  	crc_poly => 0xA001,

@@ -7,7 +7,7 @@ use Lab::Instrument::Source;
 our @ISA=('Lab::Instrument::Source');
 our $maxchannels=16;
 
-my %fields = (
+our %fields = (
 	supported_connections => [ 'none' ],
 
 	device_settings => {
