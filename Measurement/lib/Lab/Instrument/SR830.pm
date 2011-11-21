@@ -32,7 +32,7 @@ sub empty_buffer{
     my $self=shift;
     my $times=shift;
     for (my $i=0;$i<$times;$i++) {
-		eval { $self->connection()->Read( brutal => 1 ) };
+		eval { $self->read( brutal => 1 ) };
     }
 }
 
@@ -95,12 +95,12 @@ sub set_sens {
     elsif ($sens <= 2E-1 ) { $nr = 24; }
     elsif ($sens <= 5E-1 ) { $nr = 25; }
 
-    $self->connection()->Write( command => "SENS $nr");
+    $self->write( "SENS $nr" );
 
-    my $realsens = $self->{vi}->Query("SENS?");
-    my @senses = ("2e-9", "5e-9", "10e-9", "20e-9", "50e-9", "100e-9", "200e-9", "500e-9", "1e-6", "2e-6", "5e-6", 
-                  "10e-6", "20e-6", "50e-6", "100e-6", "200e-6", "500e-6", "1e-3", "2e-3", "5e-3", "10e-3", "20e-3", 
-                  "50e-3", "100e-3", "200e-3", "500e-3", "1");
+	my $realsens = $self->query("SENS?");
+  	my @senses =	("2e-9", "5e-9", "10e-9", "20e-9", "50e-9", "100e-9", "200e-9", "500e-9", "1e-6", "2e-6", "5e-6", 
+   					 "10e-6", "20e-6", "50e-6", "100e-6", "200e-6", "500e-6", "1e-3", "2e-3", "5e-3", "10e-3", "20e-3", 
+					 "50e-3", "100e-3", "200e-3", "500e-3", "1");
     return $senses[$realsens]; # in V
 }
 
@@ -109,23 +109,28 @@ sub get_sens {
                   "10e-6", "20e-6", "50e-6", "100e-6", "200e-6", "500e-6", "1e-3", "2e-3", "5e-3", "10e-3", "20e-3", 
                   "50e-3", "100e-3", "200e-3", "500e-3", "1");
     my $self = shift;
-    my $nr=$self->connection()->Read( command => "SENS?");
+    my $nr=$self->query("SENS?");
     return $senses[$nr]; # in V
 }
 
+
+#
+# Set sensitivity to 2x the current amplitude (or $minimum_sensitivity, if given) 
+# set_sens_auto( $minimum_sensitivity );
+#
 sub set_sens_auto{
     my $self=shift;
-    my $V=shift;
-    my $minsens=shift;
+    my $minsens=shift || 0;
+    my $V=get_amplitude();
     #print "V=$V\tminsens=$minsens\n";
     #my ($lix, $liy) = $self->read_xy();
     if (abs($V)>=$minsens/2 ){
         $self->set_sens(abs($V*2.));  
-        my ($lix, $liy) = $self->read_xy();
+        my ($lix, $liy) = $self->get_xy();
     }
     else{
         $self->set_sens(abs($minsens));
-        my ($lix, $liy) = $self->read_xy();
+        my ($lix, $liy) = $self->get_xy();
     }  
 }
 
@@ -155,11 +160,11 @@ sub set_tc {
     elsif ($tc < 3000 ) { $nr = 17; }
     elsif ($tc < 10000 ) { $nr = 18; }
 
-    $self->connection()->Write( command => "OFLT $nr");
+    $self->write("OFLT $nr");
 
     my @tc = ("10e-6", "30e-6", "100e-6", "300e-6", "1e-3", "3e-3", "10e-3", "30e-3", "100e-3", 
               "300e-3", "1", "3", "10", "30", "100", "300", "1e3", "3e3", "10e3", "30e3");
-    my $realtc=$self->connection()->Read( command => "OFLT?");
+    my $realtc=$self->query( "OFLT?");
     return $tc[$realtc]; # in sec
 
 
@@ -170,7 +175,7 @@ sub get_tc {
               "300e-3", "1", "3", "10", "30", "100", "300", "1e3", "3e3", "10e3", "30e3");
 
     my $self = shift;
-    my $nr=$self->connection()->Read( command => "OFLT?");
+    my $nr=$self->query( "OFLT?");
     return $tc[$nr]; # in sec
 }
 
@@ -197,10 +202,10 @@ sub get_channels {
     # get value of channel1 and channel2 as array
     my $self = shift;
 
-    $self->connection()->Read( command => "OUTR?1");
-    $self->connection()->Read( command => "OUTR?2");
-    my $x=$self->connection()->Read( command => "OUTR?1");
-    my $y=$self->connection()->Read( command => "OUTR?2" );
+    $self->query( "OUTR?1");
+    $self->query( "OUTR?2");
+    my $x=$self->query( "OUTR?1");
+    my $y=$self->query( "OUTR?2" );
     chomp $x;
     chomp $y;
     my @arr = ($x,$y);
