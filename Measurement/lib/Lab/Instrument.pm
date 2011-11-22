@@ -119,12 +119,19 @@ sub _construct {	# _construct(__PACKAGE__);
 	# @{$self}{keys %{$fields}} = values %{$fields};
 
 	#
-	# Check the connection data OR the connection object in $self->config(), but only if 
+	# run configure() of the calling package on the supplied config hash.
+	# this parses the whole config hash on every heritance level (and with every version of configure())
+	#
+	$self->${\($package.'::configure')}($self->config()) if $class ne 'Lab::Instrument'; # use configure() of calling package, not possibly overwritten one
+
+	#
+	# Check and parse the connection data OR the connection object in $self->config(), but only if 
 	# _construct() has been called from the instantiated class (and not from somewhere up the heritance hierarchy)
 	# That's because child classes can add new entrys to $self->supported_connections(), so delay checking to the top class.
 	#
+	# Also, other stuff that should only happen in the top level class instantiation can go here.
+	#
 	if( $class eq $package && $class ne 'Lab::Instrument' ) {
-		$self->configure($self->config());
 		$self->_setconnection();
 	}
 }
@@ -142,9 +149,9 @@ sub configure {
 	else {
 		#
 		# fill matching fields defined in %fields from the configuration hash ($self->config )
-		# this will also catch an explicitly given device_settings or connection_settings hash ( overwritten default config )
+		# this will also catch an explicitly given device_settings, default_device_settings (see Source.pm) or connection_settings hash ( overwritten default config )
 		#
-		for my $fields_key ( keys %fields ) {
+		for my $fields_key ( keys %{$self->{_permitted}} ) {
 			{	# restrict scope of "no strict"
 				no strict 'refs';
 				$self->$fields_key($config->{$fields_key}) if exists $config->{$fields_key};
@@ -156,15 +163,6 @@ sub configure {
 		#
 		$self->device_settings($config);
 	}
-
-# 		for my $conf_name (keys %{$self->device_settings()}) {
-# 			# print "Key: $conf_name, default: ",$self->{default_config}->{$conf_name},", old config: ",$self->{config}->{$conf_name},", new config: ",$config->{$conf_name},"\n";
-# 			if( exists($config->{$conf_name}) ) {		# in given config? => set value
-# 				 print "Setting $conf_name to $config->{$conf_name}\n";
-# 				$self->device_settings()->{$conf_name} = $config->{$conf_name};
-# 			}
-# 		}
-#	}
 }
 
 

@@ -50,17 +50,6 @@ sub new {
 	# Parameter parsing
 	#
 
-	# checking and saving the default config hash, if any
-	if(defined($self->config('default_device_settings'))) {
-		if( ref($self->config('default_device_settings')) !~ /HASH/ ) {
-			Lab::Exception::CorruptParameter->throw( error=>'Given default config is not a hash.' . Lab::Exception::Base::Appendix());
-		}
-		$self->default_device_settings($self->config('default_device_settings'));
-	}
-	else {
-		$self->default_device_settings($self->config());
-	}
-
 	# check max channels
 	if(defined($self->config('max_channels'))) {
 		if( $self->config('max_channels') !~ /^[0-9]*$/ ) {
@@ -74,24 +63,14 @@ sub new {
 		Lab::Exception::CorruptParameter->throw( error=>'Default channel number is not within the available channels.' . Lab::Exception::Base::Appendix());
 	}
 
-	#
-	# This will parse in all the settings given to the constructor (gate protect, custom default_device_settings etc.)
-	#
-	$self->configure($self->config());
-
-	$self->default_channel($self->config('default_channel')) if defined($self->config('default_channel'));
-
 	if(defined($self->config('parent_source'))) {
 		if( !UNIVERSAL::isa($self->config('parent_source'),"Lab::Instrument::Source" ) ) {
 			Lab::Exception::CorruptParameter->throw( error=>'Given parent_source object is not a valid Lab::Instrument::Source.' . Lab::Exception::Base::Appendix());
 		}
-		# instead of maintaining our own one, use a reference to the gpData from the parent object
+		# instead of maintaining our own one, check if a valid reference to the gpData from the parent object was given
 		if( !defined($self->config('gpData')) || ! ref($self->config('gpData')) =~ /HASH/ )  {
 			Lab::Exception::CorruptParameter->throw( error=>'Given gpData from parent_source is invalid.' . Lab::Exception::Base::Appendix());
 		}
-	
-		$self->parent_source($self->config('parent_source'));
-		$self->gpData($self->config('gpData'));
 
 		# shared connection *should* be okay, but keep this in mind
 		$self->connection($self->parent_source()->connection());
@@ -108,40 +87,24 @@ sub new {
 
 sub configure {
 	my $self=shift;
-	#supported config options are (so far)
-	#   gate_protect
-	#   gp_max_volt_per_second
-	#   gp_max_volt_per_step
-	#   gp_max_step_per_second
-	#   gp_min_volt
-	#   gp_max_volt
-	#   qp_equal_level
-	#   fast_set
-	#
-	#   ... and, in general, all parameters which can be changed by access methods of the objects
-	#   (in fact this is what happens, and the config hash given to configure() ist just a shorthand for e.g.
-	#   $source->gate_protect(1);
-	#   $source->gp_max_volt_per_second(0.1);
-	#   ...
-	#   equivalent: $source->configure({ gate_protect=>1, gp_max_volt_per_second=>0.1, ...)
+
 	my $config=shift;
 	if( ref($config) ne 'HASH' ) {
 		Lab::Exception::CorruptParameter->throw( error=>'Given Configuration is not a hash.' . Lab::Exception::Base::Appendix());
 	}
 	else {
-		$self->default_device_settings($config->{'default_device_settings'}) if ( exists($config->{'default_device_settings'}) && ref($config->{'default_device_settings'}) eq 'HASH' );
-
+		#		
+		# first do the standard Instrument::configure() on $config
+		#
+		$self->SUPER::configure($config);
+		
+		#
+		# now parse in default_device_settings
+		#
 		for my $conf_name (keys %{$self->device_settings()}) {
-			#warn "Key: $conf_name, default: ",$self->{default_config}->{$conf_name},", old config: ",$self->{config}->{$conf_name},", new config: ",$config->{$conf_name},"\n";
-			if( exists($config->{$conf_name}) ) {		# in given config? => set value
-				$self->device_settings()->{$conf_name} = $config->{$conf_name};
-			}
-			elsif( exists($self->default_device_settings()->{$conf_name}) ) {	# or in default config? => set value
-				$self->device_settings()->{$conf_name} = $self->default_device_settings()->{$conf_name};
-			}
+			$self->device_settings()->{$conf_name} = $self->default_device_settings()->{$conf_name} if exists($self->default_device_settings()->{$conf_name});
 		}
 	}
-	return $self; # what for? let's not break something...
 }
 
 sub GetSubSource { #{ Channel=>2, config1=>fasl, config2=>foo };
