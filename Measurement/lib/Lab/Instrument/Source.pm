@@ -5,10 +5,8 @@ use strict;
 use Time::HiRes qw(usleep gettimeofday);
 use Lab::Exception;
 use Lab::Instrument;
-use Data::Dumper;
+use Clone qw(clone);
 #use diagnostics;
-
-our $maxchannels = 16;
 
 our @ISA=('Lab::Instrument');
 
@@ -26,7 +24,7 @@ our %fields = (
 		gp_max_step_per_second => undef,
 		gp_min_volt => undef,
 		gp_max_volt => undef,
-		gp_equal_level => undef,
+		gp_equal_level => 0,
 		fast_set => undef,
 	},
 
@@ -42,6 +40,25 @@ our %fields = (
 sub new {
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
+	
+	#
+	# The following is for compatibility with the old syntax for subchannel object derivation.
+	# If we get some Instrument::Source object along with an integer (channel number), use it to derive a subchannel and return this. 
+	#
+	# Is it an object at all? Is it a Source object? 
+	if ( ref($_[0]) && UNIVERSAL::can($_[0],'can') && UNIVERSAL::isa($_[0],"Lab::Instrument::Source" ) ) {
+		Lab::Exception::CorruptParameter->throw(
+			error=>"Got a valid Source object, but an invalid channel number: $_[1]. Can't create subchannel, sorry." . Lab::Exception::Base::Appendix()
+		) if !defined $_[1] || $_[1] !~ /^[0-9]*$/;
+		
+		# Use the given parent object to derive a subchannel and return it
+		my ($parent, $channel) = (shift, shift);
+		my %conf=();
+		if (ref $_[0] eq 'HASH') { %conf=%{;shift} }
+		else { %conf=(@_) }
+		return $parent->create_subsource(channel=>$channel, %conf);
+	}
+	# compatibility mode stop, continue normally (phew)
 	my $self = $class->SUPER::new(@_);
 	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
 
@@ -49,6 +66,21 @@ sub new {
 	#
 	# Parameter parsing
 	#
+
+	# checking if a valid default_device_settings hash was set by _construct.
+	# if not, initialize it with $self->device_settings
+	if(defined($self->default_device_settings())) {
+		if( ref($self->default_device_settings()) !~ /HASH/ ) {
+			Lab::Exception::CorruptParameter->throw( error=>'Given default config is not a hash.' . Lab::Exception::Base::Appendix());
+		}
+		elsif( scalar keys %{$self->default_device_settings()} == 0 ) { # poor thing's empty
+			$self->default_device_settings(clone($self->device_settings()));
+		}
+	}
+	else {
+		$self->default_device_settings(clone($self->device_settings()));
+	}
+	
 
 	# check max channels
 	if(defined($self->config('max_channels'))) {
@@ -59,16 +91,16 @@ sub new {
 	}
 
 	# checking default channel number
-	if( defined($self->config('default_channel')) && ( $self->config('default_channel') > $self->max_channels() || $self->config('default_channel') < 1 )) {
+	if( defined($self->default_channel()) && ( $self->default_channel() > $self->max_channels() || $self->default_channel() < 1 )) {
 		Lab::Exception::CorruptParameter->throw( error=>'Default channel number is not within the available channels.' . Lab::Exception::Base::Appendix());
 	}
 
-	if(defined($self->config('parent_source'))) {
-		if( !UNIVERSAL::isa($self->config('parent_source'),"Lab::Instrument::Source" ) ) {
+	if(defined($self->parent_source())) {
+		if( !UNIVERSAL::isa($self->parent_source(),"Lab::Instrument::Source" ) ) {
 			Lab::Exception::CorruptParameter->throw( error=>'Given parent_source object is not a valid Lab::Instrument::Source.' . Lab::Exception::Base::Appendix());
 		}
 		# instead of maintaining our own one, check if a valid reference to the gpData from the parent object was given
-		if( !defined($self->config('gpData')) || ! ref($self->config('gpData')) =~ /HASH/ )  {
+		if( !defined($self->gpData()) || ! ref($self->gpData()) =~ /HASH/ )  {
 			Lab::Exception::CorruptParameter->throw( error=>'Given gpData from parent_source is invalid.' . Lab::Exception::Base::Appendix());
 		}
 
@@ -107,13 +139,33 @@ sub configure {
 	}
 }
 
-sub GetSubSource { #{ Channel=>2, config1=>fasl, config2=>foo };
+
+
+sub create_subsource { # create_subsource( channel => $channel_nr, more=>options );
 	my $self=shift;
 	my $class = ref($self);
+	my $args=undef;
+	if (ref $_[0] eq 'HASH') { $args=shift }
+	else { $args={@_} }
+	
+	# we may be a subsource ourselfes, here - in this case, use our parent source instead of $self
+	my $parent_to_be = $self->parent_source() || $self;
+	
+	Lab::Exception::CorruptParameter->throw(
+		error=>'No channel number specified! You have to set the channel=>$number parameter.' . Lab::Exception::Base::Appendix()
+	) if (!exists($args->{'channel'}));
+	Lab::Exception::CorruptParameter->throw(
+		error=>"Invalid channel number: " . $args->{'channel'} . ". Integer expected." . Lab::Exception::Base::Appendix()
+	) if ( $args->{'channel'} !~ /^[0-9]*/ );
+	
+	my %default_device_settings = %{$parent_to_be->default_device_settings()};
+	delete local $default_device_settings{'channel'};
+	@default_device_settings{keys %{$args}} = values %{$args};	 
+		
 	no strict 'refs';
-	my $subsource = $class->new ({ parent_source=>$self, gpData=>$self->gpData(), %{$self->default_device_settings()} });
+	my $subsource = $class->new ({ parent_source=>$parent_to_be, gpData=>$parent_to_be->gpData(), %default_device_settings });
 	use strict;
-	$self->child_sources([ @{$self->child_sources}, $subsource ]);
+	$parent_to_be->child_sources([ @{$parent_to_be->child_sources()}, $subsource ]);
 	return $subsource;
 }
 
@@ -211,9 +263,9 @@ sub step_to_voltage {
 	if ($channel < 0) { Lab::Exception::CorruptParameter->throw( error=>'Channel must not be negative! Did you swap voltage and channel number?' . Lab::Exception::Base::Appendix()); }
 	if (int($channel) != $channel) { Lab::Exception::CorruptParameter->throw( error=>'Channel must be an integer! Did you swap voltage and channel number?' . Lab::Exception::Base::Appendix()); }
 
-	my $voltpersec=abs($self->device_settings()->{gp_max_volt_per_second});
-	my $voltperstep=abs($self->device_settings()->{gp_max_volt_per_step});
-	my $steppersec=abs($self->device_settings()->{gp_max_step_per_second});
+	my $voltpersec = defined($self->device_settings()->{gp_max_volt_per_second}) ? abs($self->device_settings()->{gp_max_volt_per_second}) : undef;
+	my $voltperstep = defined($self->device_settings()->{gp_max_volt_per_step}) ? abs($self->device_settings()->{gp_max_volt_per_step}) : undef;
+	my $steppersec = defined($self->device_settings()->{gp_max_step_per_second}) ? abs($self->device_settings()->{gp_max_step_per_second}) : undef;
 
 	#read output voltage from instrument (only at the beginning)
 
@@ -238,10 +290,10 @@ sub step_to_voltage {
 		$self->_set_voltage($voltage,{channel=>$channel});
 		$self->gpData()->{$channel}->{LastVoltage}=$voltage;
 	   return $voltage;       
-	}    
+	}
 
 	#do the magic step calculation
-	my $wait = ($voltpersec < $voltperstep * $steppersec) ?
+	my $wait = (defined($voltpersec) && $voltpersec < $voltperstep * $steppersec) ?  # if $voltpersec is undefined, $steppersec HAS to be
 		$voltperstep/$voltpersec : # ignore $steppersec
 		1/$steppersec;             # ignore $voltpersec
 	my $step=$voltperstep * ($voltage <=> $last_v);
@@ -362,7 +414,7 @@ sub sweep_to_voltage {
 	while($cont) {
 		$cont=0;
 		my $this=$self->step_to_voltage($voltage, { channel => $channel} );
-		unless ((defined $last) && (abs($last-$this) < $self->device_settings()->{gp_equal_level})) {
+		unless ((defined $last) && (abs($last-$this) <= $self->device_settings()->{gp_equal_level})) {
 			$last=$this;
 			$cont++;
 		}
@@ -682,6 +734,15 @@ to the C<gp_max_volt>, C<gp_min_volt> settings.
   $new_volt=$self->get_voltage($channel);
 
 Returns the voltage currently set.
+
+=head2 create_subsource
+
+  $bigsource_c2 = $bigsource->create_subsource( channel=>2, gp_max_volt_per_second=>0.01 );
+
+  Returns a new instrument object with its default channel set to channel $channel_nr of the parent multi-channel source.
+  The device_settings given to the parent at instantiation (or the default_device_settings if present) will be used as default
+  values, which can be overwritten by parameters to create_subsource().  
+
 
 =head1 CAVEATS/BUGS
 

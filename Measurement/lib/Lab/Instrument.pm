@@ -262,7 +262,7 @@ sub _checkconfig {
 #
 
 sub write {
-			# don't overwrite filled hash from ancestor
+	# don't overwrite filled hash from ancestor
 	my $self=shift;
 	my $command=shift;
 	my $options=undef;

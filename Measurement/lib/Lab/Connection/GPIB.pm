@@ -40,7 +40,7 @@ sub new {
 	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
 
 	# Parameter checking
-	if( $self->config('gpib_address') !~ /^[0-9]*$/ ) {
+	if( !defined $self->config('gpib_address') || $self->config('gpib_address') !~ /^[0-9]*$/ ) {
 		Lab::Exception::CorruptParameter->throw( error => "No GPIB address specified! I can't work like this.\n" );
 	}
 

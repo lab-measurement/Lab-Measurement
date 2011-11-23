@@ -52,6 +52,7 @@ sub _set_voltage_auto {
 }
 
 # huh? something is strange here
+# yes.
 sub set_current {
     my $self=shift;
     my $voltage=shift;
