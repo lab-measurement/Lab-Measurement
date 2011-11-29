@@ -26,6 +26,7 @@ our %fields = (
 		gp_max_volt => undef,
 		gp_equal_level => 0,
 		fast_set => undef,
+		autorange => 0, 	# silently ignored by instruments (or drivers) which don't support autorange
 	},
 
 	# Config hash passed to subchannel objects, or to $self->configure()
@@ -208,41 +209,6 @@ sub set_voltage {
 	return $result;
 }
 
-sub set_voltage_auto {
-	my $self=shift;
-	my $voltage=shift;
-	my $channel=undef;
-	my $args=undef;
-	if(!defined $voltage || ref($voltage) eq 'HASH') {
-		Lab::Exception::CorruptParameter->throw( error=>'No voltage given.' . Lab::Exception::Base::Appendix());
-	}
-	if (ref $_[0] eq 'HASH' && scalar(@_)==1) { $args=shift }
-	elsif ( scalar(@_)%2==0 ) { $args={@_}; }
-	else {
-		Lab::Exception::CorruptParameter->throw(error => "Sorry, I'm unclear about my parameters. See documentation.\nParameters: " . join(", ", ($voltage, @_)) . "\n" . Lab::Exception::Base::Appendix());
-	}
-	$channel = $args->{'channel'} || $self->default_channel();
-
-	if ($channel < 0) { Lab::Exception::CorruptParameter->throw( error=>'Channel must not be negative! Did you swap voltage and channel number?' . Lab::Exception::Base::Appendix()); }
-	if (int($channel) != $channel ) { Lab::Exception::CorruptParameter->throw( error=>'Channel must be an integer! Did you swap voltage and channel number?' . Lab::Exception::Base::Appendix()); }
-
-	if ($self->device_settings()->{gate_protect}) {
-		$voltage=$self->sweep_to_voltage_auto($voltage,{channel=>$channel});
-	} else {
-		$self->_set_voltage_auto($voltage,{channel=>$channel});
-	}
-	
-	my $result;
-	if ($self->device_settings()->{fast_set}) {
-		$result=$voltage;
-	} else {
-		$result=$self->get_voltage({channel=>$channel});
-	}
-
-	$self->gpData()->{$channel}->{LastVoltage}=$result;
-	return $result;
-}
-
 
 sub step_to_voltage {
 	my $self=shift;
@@ -342,74 +308,6 @@ sub step_to_voltage {
 	return $voltage;
 }
 
-sub step_to_voltage_auto {
-	my $self=shift;
-	my $voltage=shift;
-	my $channel=undef;
-	my $args=undef;
-	if(!defined $voltage || ref($voltage) eq 'HASH') {
-		Lab::Exception::CorruptParameter->throw( error=>'No voltage given.' . Lab::Exception::Base::Appendix());
-	}
-	if (ref $_[0] eq 'HASH' && scalar(@_)==1) { $args=shift }
-	elsif ( scalar(@_)%2==0 ) { $args={@_}; }
-	else {
-		Lab::Exception::CorruptParameter->throw(error => "Sorry, I'm unclear about my parameters. See documentation.\nParameters: " . join(", ", ($voltage, @_)) . "\n" . Lab::Exception::Base::Appendix());
-	}
-	$channel = $args->{'channel'} || $self->default_channel();
-
-	if ($channel < 0) { Lab::Exception::CorruptParameter->throw( error=>'Channel must not be negative! Did you swap voltage and channel number?' . Lab::Exception::Base::Appendix()); }
-	if (int($channel) != $channel) { Lab::Exception::CorruptParameter->throw( error=>'Channel must be an integer! Did you swap voltage and channel number?' . Lab::Exception::Base::Appendix()); }
-
-	my $voltpersec=abs($self->device_settings()->{gp_max_volt_per_second});
-	my $voltperstep=abs($self->device_settings()->{gp_max_volt_per_step});
-	my $steppersec=abs($self->device_settings()->{gp_max_step_per_second});
-
-	my $last_v=$self->gpData()->{$channel}->{LastVoltage};
-	unless (defined $last_v) {
-		$last_v=$self->get_voltage({channel=>$channel});
-		$self->gpData()->{$channel}->{LastVoltage}=$last_v;
-	}
-
-	if (defined($self->device_settings()->{gp_max_volt}) && ($voltage > $self->device_settings()->{gp_max_volt})) {
-		$voltage = $self->device_settings()->{gp_max_volt};
-	}
-	if (defined($self->device_settings()->{gp_min_volt}) && ($voltage < $self->device_settings()->{gp_min_volt})) {
-		$voltage = $self->device_settings()->{gp_min_volt};
-	}
-
-	#already there
-	return $voltage if (abs($voltage - $last_v) < $self->device_settings()->{gp_equal_level});
-
-	#do the magic step calculation
-	my $wait = ($voltpersec < $voltperstep * $steppersec) ?
-		$voltperstep/$voltpersec : # ignore $steppersec
-		1/$steppersec;             # ignore $voltpersec
-	my $step=$voltperstep * ($voltage <=> $last_v);
-	
-	#wait if necessary
-	my ($ns,$nmu)=gettimeofday();
-	my $now=$ns*1e6+$nmu;
-
-	unless (defined (my $last_t=$self->gpData()->{$channel}->{LastSettimeMus})) {
-		$self->gpData()->{$channel}->{LastSettimeMus}=$now;
-	} elsif ( $now-$last_t < 1e6*$wait ) {
-		usleep ( ( 1e6*$wait+$last_t-$now ) );
-		($ns,$nmu)=gettimeofday();
-		$now=$ns*1e6+$nmu;
-	} 
-	$self->gpData()->{$channel}->{LastSettimeMus}=$now;
-	
-	#do one step
-	if (abs($voltage-$last_v) > abs($step)) {
-		$voltage=$last_v+$step;
-	}
-	$voltage=0+sprintf("%.10f",$voltage);
-	
-	$self->_set_voltage_auto($voltage,{channel=>$channel});
-	$self->gpData()->{$channel}->{LastVoltage}=$voltage;
-	return $voltage;
-}
-
 
 sub sweep_to_voltage {
 	my $self=shift;
@@ -466,32 +364,6 @@ sub _set_voltage {
 		return $self->parent_source()->_set_voltage($voltage, {channel=>$channel});
 	} else {
 	warn '_set_voltage not implemented for this instrument';
-	};
-}
-
-sub _set_voltage_auto {
-	my $self=shift;
-	my $voltage=shift;
-	my $channel=undef;
-	my $args=undef;
-
-	if(!defined $voltage || ref($voltage) eq 'HASH') {
-		Lab::Exception::CorruptParameter->throw( error=>'No voltage given.' . Lab::Exception::Base::Appendix());
-	}
-	if (ref $_[0] eq 'HASH' && scalar(@_)==1) { $args=shift }
-	elsif ( scalar(@_)%2==0 ) { $args={@_}; }
-	else {
-		Lab::Exception::CorruptParameter->throw(error => "Sorry, I'm unclear about my parameters. See documentation.\nParameters: " . join(", ", ($voltage, @_)) . "\n" . Lab::Exception::Base::Appendix());
-	}
-	$channel = $args->{'channel'} || $self->default_channel();
-
-	if ($channel < 0) { Lab::Exception::CorruptParameter->throw( error=>'Channel must not be negative! Did you swap voltage and channel number?' . Lab::Exception::Base::Appendix()); }
-	if (int($channel) != $channel) { Lab::Exception::CorruptParameter->throw( error=>'Channel must be an integer! Did you swap voltage and channel number?' . Lab::Exception::Base::Appendix()); }
-
-	if ($self->parent_source()) {
-		return $self->parent_source()->_set_voltage_auto($voltage, {channel=>$channel});
-	} else {
-	warn '_set_voltage_auto not implemented for this instrument';
 	};
 }
 
@@ -584,6 +456,10 @@ sub set_range() {
 	warn 'set_range not implemented for this instrument';
 	};
 }
+
+
+
+
 
 1;
 

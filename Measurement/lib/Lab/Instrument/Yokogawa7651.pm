@@ -62,16 +62,13 @@ sub set_current {
 sub _set {
     my $self=shift;
     my $value=shift;
-    my $cmd=sprintf("S%e",$value);
-    $self->write( $cmd );
-    $cmd="E";
-    $self->write( $cmd );
-}
-
-sub _set_auto {
-    my $self=shift;
-    my $value=shift;
-    my $cmd=sprintf("SA%e",$value);
+    my $cmd="";
+    if($self->autorange()) {
+    	$cmd=sprintf("SA%e",$value);
+    }
+    else {
+    	$cmd=sprintf("S%e",$value);
+    }
     $self->write( $cmd );
     $cmd="E";
     $self->write( $cmd );
@@ -325,6 +322,28 @@ sub get_status {
         $status<<=1;
     }
     return %result;
+}
+
+#
+# Accessor implementations
+#
+
+sub autorange() {
+	my $self = shift;
+	
+	return $self->{'autorange'} if scalar(@_)==0;
+	my $value = shift;
+	
+	if($value==0) {
+		$self->{'autorange'} = 0;
+	}
+	elsif($value==1) {
+		warn("Warning: Autoranging can give you some nice voltage spikes on the Yokogawa7651. You've been warned!\n");
+		$self->{'autorange'} = 1;
+	}
+	else {
+		Lab::Exception::CorruptParameter->throw( error=>"Illegal value for autorange(), only 1 or 0 accepted.\n" . Lab::Exception::Base::Appendix() );
+	}
 }
 
 1;
