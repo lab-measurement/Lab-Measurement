@@ -437,7 +437,6 @@ sub AUTOLOAD {
 		}
 	}
 	else {
-		cluck ("this is it");
 		Lab::Exception::Warning->throw( error => "AUTOLOAD in " . __PACKAGE__ . " couldn't access field '${name}'.\n" . Lab::Exception::Base::Appendix() );
 	}
 }

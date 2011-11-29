@@ -63,6 +63,7 @@ sub new {
 	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
 
 
+
 	#
 	# Parameter parsing
 	#
@@ -259,13 +260,33 @@ sub step_to_voltage {
 	}
 	$channel = $args->{'channel'} || $self->default_channel();
 
+	#
+	# Parameter parsing
+	#
 
 	if ($channel < 0) { Lab::Exception::CorruptParameter->throw( error=>'Channel must not be negative! Did you swap voltage and channel number?' . Lab::Exception::Base::Appendix()); }
 	if (int($channel) != $channel) { Lab::Exception::CorruptParameter->throw( error=>'Channel must be an integer! Did you swap voltage and channel number?' . Lab::Exception::Base::Appendix()); }
 
-	my $voltpersec = defined($self->device_settings()->{gp_max_volt_per_second}) ? abs($self->device_settings()->{gp_max_volt_per_second}) : undef;
-	my $voltperstep = defined($self->device_settings()->{gp_max_volt_per_step}) ? abs($self->device_settings()->{gp_max_volt_per_step}) : undef;
-	my $steppersec = defined($self->device_settings()->{gp_max_step_per_second}) ? abs($self->device_settings()->{gp_max_step_per_second}) : undef;
+
+	my $voltpersec = defined($self->device_settings()->{gp_max_volt_per_second}) ? $self->device_settings()->{gp_max_volt_per_second} : undef;
+	my $voltperstep = defined($self->device_settings()->{gp_max_volt_per_step}) ? $self->device_settings()->{gp_max_volt_per_step} : undef;
+	my $steppersec = defined($self->device_settings()->{gp_max_step_per_second}) ? $self->device_settings()->{gp_max_step_per_second} : undef;
+
+	# Make sure this will work - gate protection is critical	
+	if ( (!defined($voltpersec) || $voltpersec <= 0) && (!defined($steppersec) || $steppersec <= 0) ) {
+		my $vpsec_print = $voltpersec || "undef";
+		my $stepsec_print = $steppersec || "undef";
+		Lab::Exception::CorruptParameter->throw(error=>"To use gate protection, you have to at least set one of set gp_max_volt_per_second (now: $vpsec_print) or gp_max_step_per_second (now: $stepsec_print) to a positive, non-zero value." . Lab::Exception::Base::Appendix()); 
+	}
+	if( (!defined($voltperstep) || $voltperstep<=0 ) ) {
+		my $vpstep_print = $voltperstep || "undef";
+		Lab::Exception::CorruptParameter->throw(error=>"To use gate protection, you have to gp_max_volt_per_step (now: $vpstep_print) to a positive, non-zero value." . Lab::Exception::Base::Appendix());
+	}
+
+
+	#
+	# Do the work
+	#
 
 	#read output voltage from instrument (only at the beginning)
 
@@ -293,7 +314,7 @@ sub step_to_voltage {
 	}
 
 	#do the magic step calculation
-	my $wait = (defined($voltpersec) && $voltpersec < $voltperstep * $steppersec) ?  # if $voltpersec is undefined, $steppersec HAS to be
+	my $wait = ( defined($voltpersec) && ( !defined($steppersec) || $voltpersec < $voltperstep * $steppersec) ) ?  # if $voltpersec is undefined, $steppersec HAS to be
 		$voltperstep/$voltpersec : # ignore $steppersec
 		1/$steppersec;             # ignore $voltpersec
 	my $step=$voltperstep * ($voltage <=> $last_v);
