@@ -14,7 +14,9 @@ use Scalar::Util qw(weaken);
 use Time::HiRes qw (usleep sleep);
 use Lab::Connection::GPIB;
 use Lab::Exception;
-use LinuxGpib ':all';
+
+eval { require LinuxGpib; LinuxGpib->import(); };
+die("Failed to load LinuxGpib in Lab::Connection::LinuxGPIB!\n$@") if ($@);
 
 our @ISA = ("Lab::Connection::GPIB");
 

@@ -224,7 +224,14 @@ sub _setconnection { # $self->setconnection() create new or use existing connect
 		# todo: allow this only iff the device supports connection_type none
 
 		$full_connection = "Lab::Connection::" . $connection_type;
-		eval("require ${full_connection};") || Lab::Exception::Error->throw( error => "Sorry, I was not able to load the connection ${full_connection}. Is it installed?\n" . Lab::Exception::Base::Appendix() );
+		eval("require ${full_connection};");
+		if ($@) {
+			Lab::Exception::Error->throw(
+				error => 	"Sorry, I was not able to load the connection ${full_connection}.\n" .
+							"The error received from the connections was\n===\n$@\n===\n" .
+							Lab::Exception::Base::Appendix()
+			);
+		}
 
 		if($self->_checkconnection("Lab::Connection::" . $connection_type)) {
 
