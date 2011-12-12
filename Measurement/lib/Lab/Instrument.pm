@@ -62,7 +62,7 @@ sub new {
 	$self->config($config);
 
 	#
-	# In all inherited classes, configure() is run through _construct()
+	# In most inherited classes, configure() is run through _construct()
 	#
 	$self->${\(__PACKAGE__.'::configure')}($self->config()); # use local configure, not possibly overwritten one
 	if( $class eq __PACKAGE__ ) {
@@ -73,8 +73,6 @@ sub new {
 	# digest parameters
 	$self->device_name($self->config('device_name')) if defined $self->config('device_name');
 	$self->device_comment($self->config('device_comment')) if defined $self->config('device_comment');
-
-	#warn "Instantiated instrument\n";
 
 	return $self;
 }
@@ -221,7 +219,7 @@ sub _setconnection { # $self->setconnection() create new or use existing connect
 		if( $connection_type !~ /^[A-Za-z0-9_\-\:]*$/ ) { Lab::Exception::CorruptParameter->throw( error => "Given connection type is does not look like a valid module name.\n" . Lab::Exception::Base::Appendix()); };
 
 		if( $connection_type eq 'none' ) { return; };
-		# todo: allow this only iff the device supports connection_type none
+		# todo: allow this only if the device supports connection_type none
 
 		$full_connection = "Lab::Connection::" . $connection_type;
 		eval("require ${full_connection};");
@@ -265,11 +263,10 @@ sub _checkconfig {
 #
 
 #
-# passing through generic Write, Read and Query from the connection.
+# passing through generic write, read and query from the connection.
 #
 
 sub write {
-	# don't overwrite filled hash from ancestor
 	my $self=shift;
 	my $command=shift;
 	my $options=undef;
@@ -511,26 +508,28 @@ Lab::Instrument - General instrument package
 
 =head1 SYNOPSIS
 
-Lab::Instrument is meant to be used as a base class for inheriting instruments. For very simple 
-applications it can also be used directly.
+Lab::Instrument is meant to be used as a base class for inheriting instruments.
+For very simple applications it can also be used directly, like
+
+  $generic_instrument = new Lab::Instrument ( connection_type => VISA_GPIB, gpib_address => 14 );
+  my $idn = $generic_instrument->query('*IDN?');
+
 Every inheriting class constructor should start as follows:
 
   sub new {
     my $proto = shift;
     my $class = ref($proto) || $proto;
     my $self = $class->SUPER::new(@_);
-    $self->_construct(__PACKAGE__);  # check for supported connections, initialize fields etc.
+    $self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);  # check for supported connections, initialize fields etc.
     ...
   }
 
 Beware that only the first set of parameters specific to an individual GPIB board 
-or any other bus hardware gets used. Settings for EOI assertion for example. 
-Right now, this doesn't really matter because the options aren't there yet, you 
-just can't set anything. :) Just keep it in mind.
+or any other bus hardware gets used. Settings for EOI assertion for example.
 
 If you know what you're doing or you have an exotic scenario you can use the connection 
-parameter "IgnoreTwin => 1", but this is discouraged - it will kill bus management 
-and you might run into hardware/resource sharing issues.
+parameter "ignore_twins => 1" to force the creation of a new bus object, but this is discouraged
+- it will kill bus management and you might run into hardware/resource sharing issues.
 
 
 
@@ -541,71 +540,56 @@ is meant to be inherited in specific instrument drivers.
 It provides general C<read>, C<write> and C<query> methods and basic connection handling 
 (internal, C<_set_connection>, C<_check_connection>).
 
-The connection object can be obtained by calling C<connection()>.
-
-Also, fields common to all instrument classes are created and set to default values where applicable, e.g.:
-
-  connection => undef,
-  connection_type => "",
-  supported_connections => [ ],
-  config => {},
 
 =head1 CONSTRUCTOR
 
 =head2 new
 
-This blesses $self (don't do it in an inheriting class!), initializes the basic "fields" to be accessed
-via AUTOLOAD and puts the configuration hash in $self->Config to be accessed in methods and inherited
+This blesses $self (don't do it yourself in an inheriting class!), initializes the basic "fields" to be accessed
+via AUTOLOAD and puts the configuration hash in $self->config to be accessed in methods and inherited
 classes.
 
-Arguments: just the configuration hash passed along from a child class constructor.
+Arguments: just the configuration hash (or even-sized list) passed along from a child class constructor.
 
 =head1 METHODS
 
 =head2 write
 
- $instrument->write($command);
+ $instrument->write($command <, {optional hashref/hash}> );
  
 Sends the command C<$command> to the instrument. An option hash can be supplied as second or also as only argument.
-Generally, all options are passed to the connection, so additional options may be supported based on the connection.
+Generally, all options are passed to the connection/bus, so additional named options may be supported based on the connection and bus
+and can be passed as a hashref or hash. See L<Lab::Connection>.
 
 =head2 read
 
- $result=$instrument->read({ ReadLength => <max length>, Brutal => <1/0>);
+ $result=$instrument->read({ read_length => <max length>, brutal => <1/0>);
 
 Reads a result of C<ReadLength> from the instrument and returns it.
 Returns an exception on error.
 
-If the parameter C<Brutal> is set, a timeout in the connection will not result in an Exception thrown,
+If the parameter C<brutal> is set, a timeout in the connection will not result in an Exception thrown,
 but will return the data obtained until the timeout without further comment.
 Be aware that this data is also contained in the the timeout exception object (see C<Lab::Exception>).
 
-Generally, all options are passed to the connection, so additional options may be supported based on the connection.
+Generally, all options are passed to the connection/bus, so additional named options may be supported based on the connection and bus
+and can be passed as a hashref or hash. See L<Lab::Connection>.
 
 =head2 query
 
- $result=$instrument->query({ Cmd => $command, WaitQuery => $wait_query, ReadLength => $max length, 
-                              WaitStatus => $wait_status);
+ $result=$instrument->query({ command => $command,
+ 	                          wait_query => $wait_query,
+                              read_length => $read_length);
 
 Sends the command C<$command> to the instrument and reads a result from the
-instrument and returns it. The length of the read buffer is set to C<ReadLength> or to the
+instrument and returns it. The length of the read buffer is set to C<read_length> or to the
 default set in the connection.
 
-Waits for C<WaitQuery> microseconds before trying to read the answer.
+Waits for C<wait_query> microseconds before trying to read the answer.
 
-WaitStatus not implemented yet - needed?
+Generally, all options are passed to the connection/bus, so additional named options may be supported based on the connection and bus
+and can be passed as a hashref or hash. See L<Lab::Connection>.
 
-The default value of 'wait_query' can be overwritten
-by defining the corresponding object key.
-
-Generally, all options are passed to the connection, so additional options may be supported based on the connection.
-
-=head2 connection
-
- $connection=$instrument->connection();
-
-Returns the connection object used by this instrument. It can then be passed on to another object on the
-same connection, or be used to change connection parameters.
 
 =head2 WriteConfig
 

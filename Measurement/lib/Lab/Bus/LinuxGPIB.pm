@@ -19,7 +19,6 @@ our %fields = (
 	gpib_board	=> 0,
 	type => 'GPIB',
 	brutal => 0,	# brutal as default?
-	wait_status=>0, # usec;
 	wait_query=>10, # usec;
 	read_length=>1000, # bytes
 	query_length=>300, # bytes
@@ -151,7 +150,6 @@ sub connection_query { # @_ = ( $connection_handle, $args = { command, read_leng
 	my $command = $args->{'command'} || undef;
 	my $brutal = $args->{'brutal'} || $self->brutal();
 	my $read_length = $args->{'read_length'} || $self->read_length();
-	my $wait_status = $args->{'wait_status'} || $self->wait_status();
 	my $wait_query = $args->{'wait_query'} || $self->wait_query();
 	my $result = undef;
 
@@ -177,7 +175,6 @@ sub connection_write { # @_ = ( $connection_handle, $args = { command, wait_stat
 	my $command = $args->{'command'} || undef;
 	my $brutal = $args->{'brutal'} || $self->brutal();
 	my $read_length = $args->{'read_length'} || $self->read_length();
-	my $wait_status = $args->{'wait_status'} || $self->wait_status();
 
 	my $result = undef;
 	my $raw = "";
@@ -194,7 +191,6 @@ sub connection_write { # @_ = ( $connection_handle, $args = { command, wait_stat
 	}
 	else {
 		$ibstatus=ibwrt($connection_handle->{'gpib_handle'}, $command, length($command));
-        usleep($wait_status);
 	}
 
 	$ib_bits=$self->ParseIbstatus($ibstatus);
