@@ -101,16 +101,33 @@ sub _selftest{
 }
 
 
-
-sub configure_voltage_measurement{
+sub configure_voltage_dc{
     my $self=shift;
-    my $range=shift; # in V, or "AUTO"
-    my $tint=shift;  # in sec
-    $self->_configure_voltage_measurement($range,$tint);
+    $self->_configure_voltage_dc(@_);
 }
 
-sub _configure_voltage_measurement{
-    die "configure_voltage_measurement not implemented for this instrument\n";
+sub _configure_voltage_dc {
+    die "configure_voltage_dc not implemented for this instrument\n";
+}
+
+
+sub configure_voltage_dc_trigger{
+    my $self=shift;
+    $self->_configure_voltage_dc_trigger(@_);
+}
+
+sub _configure_voltage_dc_trigger {
+    die "configure_voltage_dc_trigger not implemented for this instrument\n";
+}
+
+
+sub triggered_read{
+    my $self=shift;
+    $self->_triggered_read(@_);
+}
+
+sub _triggered_read {
+    die "triggered_read not implemented for this instrument\n";
 }
 
 

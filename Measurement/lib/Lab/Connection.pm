@@ -23,6 +23,7 @@ our %fields = (
 	config => undef,
 	type => undef,	# e.g. 'GPIB'
 	ins_debug=>0,  # do we need additional output?
+	timeout=>1, # in seconds
 );
 
 
@@ -37,6 +38,8 @@ sub new {
 	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
 
 	$self->config($config);
+	
+	
 
 	return $self;
 }
@@ -126,8 +129,16 @@ sub BrutalQuery {
 }
 
 
-
-
+sub timeout {
+	my $self=shift;
+	my $timo=shift;
+	
+	return $self->{'timeout'} if(!defined $timo);
+	
+	$self->{'timeout'} = $timo;
+	$self->bus()->timeout($self->connection_handle(), $timo) if defined($self->bus()); # this can be called by $self->configure() before the bus is created.
+	warn "I've set the timeout to $timo\n" if defined($self->bus());
+}
 
 
 
@@ -178,8 +189,9 @@ sub _construct {	# _construct(__PACKAGE__);
 	@{$self}{keys %{$fields}} = values %{$fields};
 
 	if( $class eq $package ) {
-		$self->configure($self->config());
+		$self->configure($self->config()); # so that _setbus has access to all the fields
 		$self->_setbus();
+		$self->configure($self->config()); # for configuration that needs the bus to be set (timeout())
 	}
 }
 

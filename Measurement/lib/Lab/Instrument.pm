@@ -119,6 +119,7 @@ sub _construct {	# _construct(__PACKAGE__);
 	#
 	# run configure() of the calling package on the supplied config hash.
 	# this parses the whole config hash on every heritance level (and with every version of configure())
+	# For Lab::Instrument itself it does not make sense, as $self->config() is not set yet. Instead it's run from the new() method, see there.
 	#
 	$self->${\($package.'::configure')}($self->config()) if $class ne 'Lab::Instrument'; # use configure() of calling package, not possibly overwritten one
 
@@ -126,6 +127,8 @@ sub _construct {	# _construct(__PACKAGE__);
 	# Check and parse the connection data OR the connection object in $self->config(), but only if 
 	# _construct() has been called from the instantiated class (and not from somewhere up the heritance hierarchy)
 	# That's because child classes can add new entrys to $self->supported_connections(), so delay checking to the top class.
+	# Also, don't run _setconnection() for Lab::Instrument, as in this case the needed fields in $self->config() are not set yet.
+	# It's run in Lab::Instrument::new() instead if needed.
 	#
 	# Also, other stuff that should only happen in the top level class instantiation can go here.
 	#

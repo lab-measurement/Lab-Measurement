@@ -97,6 +97,7 @@ sub connection_read { # @_ = ( $connection_handle, $args = { read_length, brutal
 	my $read_length = $args->{'read_length'} || $self->read_length();
 
 	my $result = undef;
+	my $fragment = undef;
 	my $raw = "";
 	my $ib_bits=undef;	# hash ref
 	my $ibstatus = undef;
@@ -105,7 +106,13 @@ sub connection_read { # @_ = ( $connection_handle, $args = { read_length, brutal
 
 	$ibstatus = ibrd($connection_handle->{'gpib_handle'}, $result, $read_length);
 	$ib_bits=$self->ParseIbstatus($ibstatus);
-
+	
+	while(!$ib_bits->{'ERR'} && !$ib_bits->{'TIMO'} && !$ib_bits->{'END'}) {  # read on until the END status is set (and the whole string received)
+		$ibstatus = ibrd($connection_handle->{'gpib_handle'}, $fragment, $read_length);
+		$ib_bits=$self->ParseIbstatus($ibstatus);
+		$result .= $fragment;
+	}
+	
 	if( $ib_bits->{'ERR'} && !$ib_bits->{'TIMO'} ) {	# if the error is a timeout, we still evaluate the result and see what to do with the error later
 		Lab::Exception::GPIBError->throw(
 			error => sprintf("ibrd failed with ibstatus %x\n", $ibstatus) . Lab::Exception::Base::Appendix(),
@@ -277,14 +284,52 @@ sub connection_enabletermchar { # @_ = ( $connection_handle, 0/1 off/on
 
 
 
-#
-# calls ibclear() on the instrument - how to do on VISA?
-#
 sub connection_clear {
 	my $self = shift;
 	my $connection_handle=shift;
 
 	ibclr($connection_handle->{'gpib_handle'});
+}
+
+sub timeout {
+	my $self=shift;
+	my $connection_handle=shift;
+	my $timo=shift;
+	my $timoval=undef;
+	
+	Lab::Exception::CorruptParameter->throw( error => "The timeout value has to be a positive decimal number of seconds, ranging 0-1000.\n" . Lab::Exception::Base::Appendix() )
+    	if($timo !~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/ || $timo <0 || $timo>1000);
+    
+    if($timo == 0)			{ $timoval=0} # never time out
+    if($timo <= 1e-5)		{ $timoval=1 }
+    elsif($timo <= 3e-5)	{ $timoval=2 }
+    elsif($timo <= 1e-4)	{ $timoval=3 }
+    elsif($timo <= 3e-4)	{ $timoval=4 }
+    elsif($timo <= 1e-3)	{ $timoval=5 }
+    elsif($timo <= 3e-3)	{ $timoval=6 }
+    elsif($timo <= 1e-2)	{ $timoval=7 }
+    elsif($timo <= 3e-2)	{ $timoval=8 }
+    elsif($timo <= 1e-1)	{ $timoval=9 }
+    elsif($timo <= 3e-1)	{ $timoval=10 }
+    elsif($timo <= 1)		{ $timoval=11 }
+    elsif($timo <= 3)		{ $timoval=12 }
+    elsif($timo <= 10)		{ $timoval=13 }
+    elsif($timo <= 30)		{ $timoval=14 }
+    elsif($timo <= 100)		{ $timoval=15 }
+    elsif($timo <= 300)		{ $timoval=16 }
+    elsif($timo <= 1000)	{ $timoval=17 }
+    
+	my $ibstatus=ibtmo($connection_handle->{'gpib_handle'}, $timoval);
+	
+	my $ib_bits=$self->ParseIbstatus($ibstatus);
+
+	if($ib_bits->{'ERR'}==1) {
+		Lab::Exception::GPIBError->throw(
+			error => sprintf("Error in " . __PACKAGE__ . "::timeout(): ibtmo failed with status %x\n", $ibstatus) . Dumper($ib_bits) . Lab::Exception::Base::Appendix(),
+			ibsta => $ibstatus,
+			ibsta_hash => $ib_bits,
+		);
+	}
 }
 
 
@@ -445,6 +490,11 @@ carries the data received up to the timeout event, accessible through $Exception
 
 Setting C<Brutal> to a true value will result in timeouts being ignored, and the gathered data returned without error.
 
+=head2 timeout
+
+  $GPIB->timeout( $connection_handle, $timeout );
+
+Sets the timeout in seconds for GPIB operations on the device/connection specified by $connection_handle.
 
 =head2 config
 

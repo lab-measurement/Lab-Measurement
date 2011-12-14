@@ -5,11 +5,10 @@ our $VERSION = '2.93';
 
 use strict;
 
+use Lab::Exception;
 use Time::HiRes qw (usleep sleep);
 use POSIX; # added for int() function
-
 use Scalar::Util qw(weaken);
-
 use Carp qw(croak cluck);
 use Data::Dumper;
 our $AUTOLOAD;

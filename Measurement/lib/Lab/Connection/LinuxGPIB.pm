@@ -25,6 +25,7 @@ our %fields = (
 	wait_status=>0, # usec;
 	wait_query=>10, # usec;
 	read_length=>1000, # bytes
+	timeout=>1, # seconds
 );
 
 
@@ -38,8 +39,33 @@ sub new {
 	return $self;
 }
 
+sub Write {
+	my $self=shift;
+	my $options=undef;
+	if (ref $_[0] eq 'HASH') { $options=shift }
+	else { $options={@_} }
+	
+	my $timeout = $options->{'timeout'} || $self->timeout();
+	$self->bus()->timeout($self->connection_handle(), $timeout);
+	
+	return $self->bus()->connection_write($self->connection_handle(), $options);
+}
+
+
+sub Read {
+	my $self=shift;
+	my $options=undef;
+	if (ref $_[0] eq 'HASH') { $options=shift }
+	else { $options={@_} }
+	
+	my $timeout = $options->{'timeout'} || $self->timeout();
+	$self->bus()->timeout($self->connection_handle(), $timeout);
+
+	return $self->bus()->connection_read($self->connection_handle(), $options);
+}
+
 #
-# Read, Write, Query from Lab::Connection are sufficient.
+# Query from Lab::Connection is sufficient
 # EnableTermChar, SetTermChar from Lab::Connection::GPIB are sufficient.
 #
 

@@ -153,6 +153,20 @@ use Exception::Class (
 							'data', # the data read up to the abort
 		]
 	},
+	
+	#
+	# errors and warnings sent by devices
+	#
+
+	Lab::Exception::DeviceError => {
+		isa			=> 'Lab::Exception::Error',
+		description	=> 'An error was sent by a device.',
+		fields		=> [
+							'code', # an error code, if applicable
+							'message', # an error message, if present
+							'command', # the command that produced the error
+		]
+	},
 
 
 	#

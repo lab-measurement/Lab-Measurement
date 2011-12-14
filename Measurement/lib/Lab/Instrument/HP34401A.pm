@@ -22,7 +22,8 @@ our %fields = (
 		gpib_address => undef,
 	},
 
-	device_settings => {
+	device_settings => { 
+		plc_freq => 50,
 	},
 
 );
@@ -99,6 +100,8 @@ sub _configure_voltage_measurement{
     #   -> 0.4ms, 4ms, 20ms 0.2s, 2s
     
     $tint/=0.02;
+    
+    
 
     # unfinished :)
     die "configure_voltage_measurement not yet implemented for this instrument\n";
@@ -208,74 +211,128 @@ sub reset {
 #	$self->connection()->InstrumentClear($self->instrument_handle());
 }
 
-
-sub config_voltage {
-    my $self=shift;
-    my ($digits, $range, $counts)=@_;
-
-    #set input resistance to >10 GOhm for the three highest resolution values 
-    $self->connection()->Write( command => "INPut:IMPedance:AUTO ON");
-
-    $digits = int($digits);
-    $digits = 4 if $digits < 4;
-    $digits = 6 if $digits > 6;
- 
-    if ($range < 0.1) {
-      $range = 0.1;
-    }
-    elsif ($range < 1) {
-      $range = 1;
-    }
-    elsif ($range < 10) {
-      $range = 10;
-    }
-    elsif ($range < 100) {
-      $range = 100;
-    }
-    else{
-      $range = 1000;
-    }
-
-    my $resolution = (10**(-$digits))*$range;
-    $self->connection()->Write( command => "CONF:VOLT:DC $range,$resolution");
-
-
-    # calculate integration time, set it and prepare for output
- 
-    my $inttime = 0;
-
-    if ($digits ==4) {
-      $inttime = 0.4;
-      $self->connection()->Write( command => "VOLT:NPLC 0.02");
-    }
-    elsif ($digits ==5) {
-      $inttime = 4;
-      $self->connection()->Write( command => "VOLT:NPLC 0.2");
-    }
-    elsif ($digits ==6) {
-      $inttime = 200;
-      $self->connection()->Write( command => "VOLT:NPLC 10");
-      $self->connection()->Write( command => "ZERO:AUTO OFF");
-    }
-
-    my $retval = $inttime." ms";
-
-
-    # triggering
-    $self->connection()->Write( command => "TRIGger:SOURce BUS");
-    $self->connection()->Write( command => "SAMPle:COUNt $counts");
-    $self->connection()->Write( command => "TRIGger:DELay MIN");
-    $self->connection()->Write( command => "TRIGger:DELay:AUTO OFF");
-
-    return $retval;
+sub autozero {
+	my $self=shift;
+	my $enable=shift;
+	my $az_status=undef;
+	my $command = "";
+	
+	if(!defined $enable) {
+		# read autozero setting
+		$command = "ZERO:AUTO?";
+		$az_status=$self->query( command => $command );
+	}
+	else {
+		if ($enable =~ /^ONCE$/i) {
+			$command = "ZERO:AUTO ONCE";
+		}
+		elsif($enable =~ /^(ON|1)$/i) {
+			$command = "ZERO:AUTO ONCE";
+		}
+		elsif($enable =~ /^(OFF|0)$/i) {
+			$command = "ZERO:AUTO OFF";
+		}
+		else {
+			Lab::Exception::CorruptParameter->throw( error => "HP34401A::autozero() can be set to 'ON'/1, 'OFF'/0 or 'ONCE'. Received '${enable}'\n" . Lab::Exception::Base::Appendix() );
+		}
+		$self->write( command => $command );
+	}	
+	
+	# look for errors
+	my ($errcode, $errmsg) = $self->_check_device_error();
+	if($errcode) {
+		Lab::Exception::DeviceError->throw(
+			error => "Error from device in HP34401A::autozero(), the received error is '${errcode},${errmsg}'\n" . Lab::Exception::Base::Appendix(),
+			code => $errcode,
+			message => $errmsg,
+			command => $command
+		)
+	}
+	
+	return $az_status;
 }
 
-sub get_with_trigger_voltage_dc {
-    my $self=shift;
+sub _configure_voltage_dc {
+	my $self=shift;
+    my $range=shift; # in V, or "AUTO", "MIN", "MAX"
+    my $tint=shift;  # integration time in sec, "DEFAULT", "MIN", "MAX"
+    my $res_cmd='';
+    
+    if($range eq 'AUTO' || !defined($range)) {
+    	$range='DEF';
+    }
+    elsif($range =~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/) {
+	    #$range = sprintf("%e",abs($range));
+    }
+    elsif($range !~ /^(MIN|MAX)$/) {
+    	Lab::Exception::CorruptParameter->throw( error => "Range has to be set to a decimal value or 'AUTO', 'MIN' or 'MAX' in HP34401A::configure_voltage_dc()\n" . Lab::Exception::Base::Appendix() );	
+    }
+    
+    if($tint eq 'DEFAULT' || !defined($tint)) {
+    	$res_cmd=',DEF';
+    }
+    elsif($tint =~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/) {
+    	# Convert seconds to PLC (power line cycles)
+    	$tint*=$self->plc_freq(); 
+    }
+    elsif($tint !~ /^(MIN|MAX)$/) {
+		Lab::Exception::CorruptParameter->throw( error => "Integration time has to be set to a positive value or 'AUTO', 'MIN' or 'MAX' in HP34401A::configure_voltage_dc()\n" . Lab::Exception::Base::Appendix() )    	
+    }
+    
+	# do it
+	$self->write( "CONF:VOLT:DC ${range} ${res_cmd}" );
+	$self->write( "VOLT:DC:NPLC ${tint}" ) if $res_cmd eq ''; # integration time implicitly set through resolution
+	
+	# look for errors
+	my ($errcode, $errmsg) = $self->_check_device_error();
+	if($errcode) {
+		my $command = "CONF:VOLT:DC ${range} ${res_cmd}";
+		$command .= "\nVOLT:DC:NPLC ${tint}" if $res_cmd eq '';
+		Lab::Exception::DeviceError->throw(
+			error => "Error from device in HP34401A::configure_voltage_dc(), the received error is '${errcode},${errmsg}'\n" . Lab::Exception::Base::Appendix(),
+			code => $errcode,
+			message => $errmsg,
+			command => $command
+		)
+	}
+}
 
-    $self->connection()->Write( command => "INIT");
-    $self->connection()->Write( command => "*TRG");
-    my $value = $self->connection()->Query( command => "FETCh?");
+sub _configure_voltage_dc_trigger {
+	my $self=shift;
+    my $range=shift; # in V, or "AUTO", "MIN", "MAX"
+    my $tint=shift;  # integration time in sec, "DEFAULT", "MIN", "MAX"
+    my $count=shift;
+    my $delay=shift; # in seconds, 'MIN'
+    
+    $count=1 if !defined($count);
+    Lab::Exception::CorruptParameter->throw( error => "Sample count has to be an integer between 1 and 512\n" . Lab::Exception::Base::Appendix() )
+    	if($count !~ /^[0-9]*$/ || $count < 1 || $count > 512); 
+
+	$delay=0 if !defined($delay);
+    Lab::Exception::CorruptParameter->throw( error => "Trigger delay has to be a positive decimal value\n" . Lab::Exception::Base::Appendix() )
+    	if($count !~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/);
+        
+
+    $self->_configure_voltage_dc($range, $tint);
+        
+    $self->write( "TRIG:SOURce BUS" );
+    $self->write( "SAMPle:COUNt $count");
+    $self->write( "TRIG:DELay $delay");
+    $self->write( "TRIG:DELay:AUTO OFF");
+}
+	
+
+sub _triggered_read {
+    my $self=shift;
+	my $args=undef;
+	if (ref $_[0] eq 'HASH') { $args=shift }
+	else { $args={@_} }
+	
+	$args->{'timeout'} = $args->{'timeout'} || $self->timeout();
+
+    $self->write( "INIT" );
+    $self->write( "*TRG");
+    my $value = $self->query( "FETCh?", $args);
 
     chomp $value;
 
@@ -296,6 +353,27 @@ sub scroll_message {
     $self->display_clear();
 }
 
+
+#
+# Check the error status of the device. Read the (first) error and return the code and message;
+#
+sub _check_device_error {
+	my $self=shift;
+	my $error = $self->query( "SYST:ERR?" );
+	if($error !~ /\+0,/) {
+		if ($error =~ /^(\+[0-9]*)\,(.*)$/) {
+			return ($1, $2); # ($code, $message)
+		}
+		else {
+			Lab::Exception::DeviceError->throw(
+				error => "Reading the error status of the device failed in Instrument::HP34401A::_check_device_error(). Something's going wrong here.\n" . Lab::Exception::Base::Appendix(),
+			)	
+		}
+	}
+	else {
+		return undef;
+	}
+}
 1;
 
 
@@ -332,6 +410,39 @@ L<Lab::Instrument::HP34411A> class for full functionality (not ported yet).
     my $Agi=new(\%options);
 
 =head1 METHODS
+
+=head2 autozero
+
+    $hp->autozero($setting);
+
+$setting can be 1/'ON', 0/'OFF' or 'ONCE'.
+
+When set to "ON", the device takes a zero reading after every measurement.
+"ONCE" perform one zero reading and disables the automatic zero reading.
+"OFF" does... you get it.
+
+=head2 configure_voltage_dc
+
+    $hp->configure_voltage_dc($range, $integration_time);
+
+Configures all the details of the device's DC voltage measurement function.
+
+$range is a positive numeric value (the largest expected value to be measured) or one of 'MIN', 'MAX', 'AUTO'.
+It specifies the largest value to be measured. You can set any value, but the HP/Agilent 34401A effectively uses
+one of the values 0.1, 1, 10, 100 and 1000V.
+
+$integration_time is the integration time in seconds. This implicitly sets the provided resolution.
+
+
+=head2 pl_freq
+Parameter: pl_freq
+
+	$hp->pl_freq($new_freq);
+	$npl_freq = $hp->pl_freq();
+	
+Get/set the power line frequency at your location (50 Hz for most countries, which is the default). This
+is the basis of the integration time setting (which is internally specified as a count of power
+line cycles, or PLCs). The integration time will be set incorrectly if this parameter is set incorrectly.
 
 =head2 display_text
 
