@@ -220,7 +220,7 @@ sub autozero {
 	if(!defined $enable) {
 		# read autozero setting
 		$command = "ZERO:AUTO?";
-		$az_status=$self->query( command => $command );
+		$az_status=$self->query( $command );
 	}
 	else {
 		if ($enable =~ /^ONCE$/i) {
@@ -235,7 +235,7 @@ sub autozero {
 		else {
 			Lab::Exception::CorruptParameter->throw( error => "HP34401A::autozero() can be set to 'ON'/1, 'OFF'/0 or 'ONCE'. Received '${enable}'\n" . Lab::Exception::Base::Appendix() );
 		}
-		$self->write( command => $command );
+		$self->write( $command );
 	}	
 	
 	# look for errors

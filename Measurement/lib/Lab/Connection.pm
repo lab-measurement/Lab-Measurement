@@ -136,8 +136,7 @@ sub timeout {
 	return $self->{'timeout'} if(!defined $timo);
 	
 	$self->{'timeout'} = $timo;
-	$self->bus()->timeout($self->connection_handle(), $timo) if defined($self->bus()); # this can be called by $self->configure() before the bus is created.
-	warn "I've set the timeout to $timo\n" if defined($self->bus());
+	$self->bus()->timeout($self->connection_handle(), $timo) if defined($self->bus()); # if called by $self->configure() before the bus is created.
 }
 
 
