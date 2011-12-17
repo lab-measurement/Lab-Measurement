@@ -130,6 +130,10 @@ sub _triggered_read {
     die "triggered_read not implemented for this instrument\n";
 }
 
+sub get_error {
+	die "get_error not implemented for this instrument\n";
+}
+
 
 1;
 

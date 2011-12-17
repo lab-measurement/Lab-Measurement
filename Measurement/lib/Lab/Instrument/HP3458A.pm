@@ -6,6 +6,7 @@ our $VERSION = '2.93';
 use strict;
 use Lab::Instrument;
 use Lab::Instrument::Multimeter;
+use Data::Dumper;
 
 
 our @ISA = ("Lab::Instrument::Multimeter");
@@ -20,6 +21,7 @@ our %fields = (
 	},
 
 	device_settings => {
+		pl_freq => 50,
 	},
 
 );
@@ -30,46 +32,201 @@ sub new {
 	my $self = $class->SUPER::new(@_);
 	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
 	$self->write("END 1");
+	
+	#$self->connection()->SetTermChar("\r\n");
+	#$self->connection()->EnableTermChar(1);
+	
 	return $self;
 }
 
 
 
 
-sub _configure_voltage_measurement{
-    my $self=shift;
-    my $range=shift; # in V, or "AUTO"
-    my $tint=shift;  # in sec
-    my $cmd="";
-
-	# check range for positive numerical value or "AUTO"
-	if($range !~ /^[0-9]*\.[0-9]*$/ && $range !~ /^[0-9]*[eE][+-]?[0-9]*$/ && $range ne "AUTO") {
-		Lab::Exception::CorruptParameter->throw (
-			error => "No valid rage address given to " . __PACKAGE__ . "::_configure_voltage_measurement()\n" . Lab::Exception::Base::Appendix(),
-		);
+sub _configure_voltage_dc {
+	my $self=shift;
+    my $range=shift; # in V, or "AUTO", "MIN", "MAX"
+    my $tint=shift;  # integration time in sec, "DEFAULT", "MIN", "MAX"
+    
+    if($range eq 'AUTO' || !defined($range)) {
+    	$range='DEF';
+    }
+    elsif($range =~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/) {
+	    #$range = sprintf("%e",abs($range));
+    }
+    elsif($range !~ /^(MIN|MAX)$/) {
+    	Lab::Exception::CorruptParameter->throw( error => "Range has to be set to a decimal value or 'AUTO', 'MIN' or 'MAX' in " . (caller(0))[3] . "\n" . Lab::Exception::Base::Appendix() );	
+    }
+    
+    if($tint eq 'DEFAULT' || !defined($tint)) {
+    	$tint=10;
+    }
+    elsif($tint =~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/ && ( ($tint>=0 && $tint<=1000) || $tint==-1 ) ) {
+    	# Convert seconds to PLC (power line cycles)
+    	$tint*=$self->pl_freq(); 
+    }
+    elsif($tint =~ /^MIN$/) {
+    	$tint = 0;
+    }
+    elsif($tint =~ /^MAX$/) {
+    	$tint = 1000;
+    }
+    elsif($tint !~ /^(MIN|MAX)$/) {
+		Lab::Exception::CorruptParameter->throw( error => "Integration time has to be set to a positive value or 'AUTO', 'MIN' or 'MAX' in " . (caller(0))[3] . "\n" . Lab::Exception::Base::Appendix() )    	
+    }
+    
+	# do it
+	$self->write( "FUNC DCV ${range}" );
+	$self->write( "NPLC ${tint}" );
+	
+	# look for errors
+	my ($errcode, $errmsg) = $self->get_error();
+	if($errcode) {
+		my $command = "FUNC DCV ${range}\nNPLC ${tint}";
+		Lab::Exception::DeviceError->throw(
+			error => "Error from device in " . (caller(0))[3] . ", the received error is '${errcode},${errmsg}'\n" . Lab::Exception::Base::Appendix(),
+			code => $errcode,
+			message => $errmsg,
+			command => $command
+		)
 	}
+}
 
-    if($range ne "AUTO") {
-		if($range <= 0.1)    { $range=0.1 }
-		elsif($range <= 1)   { $range=1 }
-		elsif($range <= 10)  { $range=10 }
-		elsif($range <= 100) { $range=100 }
-		else                 { $range=1000 }
-    }
+sub _configure_voltage_dc_trigger {
+	my $self=shift;
+    my $range=shift; # in V, or "AUTO", "MIN", "MAX"
+    my $tint=shift;  # integration time in sec, "DEFAULT", "MIN", "MAX"
+    my $count=shift;
+    my $delay=shift; # in seconds, 'MIN'
+    
+    $count=1 if !defined($count);
+    Lab::Exception::CorruptParameter->throw( error => "Sample count has to be an integer between 1 and 512\n" . Lab::Exception::Base::Appendix() )
+    	if($count !~ /^[0-9]*$/ || $count < 1 || $count > 16777215); 
 
-    #die "configure_voltage_measurement not implemented for this instrument\n";
+	$delay=0 if !defined($delay);
+    Lab::Exception::CorruptParameter->throw( error => "Trigger delay has to be a positive decimal value\n" . Lab::Exception::Base::Appendix() )
+    	if($count !~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/);
+        
 
-    if($range eq "AUTO") {
-        $cmd="DCV AUTO";
-    }
-    else {
-        $cmd=sprintf("DCV %.1f",$range);
-    }
-    $self->write($cmd); 
+    $self->_configure_voltage_dc($range, $tint);
 
-    if(defined $tint) {
-        $cmd = sprintf("APER%f",$tint);
-    }
+	#$self->write( "PRESET NORM" );
+	$self->write( "INBUF ON" );
+    $self->write( "TARM AUTO" );
+    $self->write( "TRIG HOLD" );
+    $self->write( "NRDGS $count, AUTO" );
+    $self->write( "TIMER $delay");
+    #$self->write( "TRIG:DELay:AUTO OFF");
+	
+	# look for errors
+	my ($errcode, $errmsg) = $self->get_error();
+	if($errcode) {
+		my $command = "FUNC DCV ${range}\nNPLC ${tint}";
+		Lab::Exception::DeviceError->throw(
+			error => "Error from device in " . (caller(0))[3] . ", the received error is '${errcode},${errmsg}'\n" . Lab::Exception::Base::Appendix(),
+			code => $errcode,
+			message => $errmsg,
+			command => $command
+		)
+	}
+}
+
+sub configure_voltage_dc_trigger_highspeed {
+	my $self=shift;
+    my $range=shift; # in V, or "AUTO", "MIN", "MAX"
+    my $tint=shift || 1.4e-6;  # integration time in sec, "DEFAULT", "MIN", "MAX"
+    my $count=shift || 10000;
+    my $delay=shift; # in seconds, 'MIN'
+    
+    $count=1 if !defined($count);
+    Lab::Exception::CorruptParameter->throw( error => "Sample count has to be an integer between 1 and 512\n" . Lab::Exception::Base::Appendix() )
+    	if($count !~ /^[0-9]*$/ || $count < 1 || $count > 16777215); 
+
+	$delay=0 if !defined($delay);
+    Lab::Exception::CorruptParameter->throw( error => "Trigger delay has to be a positive decimal value\n" . Lab::Exception::Base::Appendix() )
+    	if($count !~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/);
+        
+	$self->write( "PRESET FAST" );
+	$self->write( "APER ".$tint );
+	warn "APER ".$tint."\n";
+    $self->write( "MFORMAT SINT" );
+    $self->write( "OFORMAT SINT" );
+    $self->write( "MEM FIFO" );
+    $self->write( "NRDGS $count, AUTO" );
+    $self->write( "TARM HOLD");
+    $self->write( "TIMER $delay") if defined($delay);
+	
+
+}
+	
+
+sub _triggered_read {
+    my $self=shift;
+	my $args=undef;
+	if (ref $_[0] eq 'HASH') { $args=shift }
+	else { $args={@_} }
+	
+	$args->{'timeout'} = $args->{'timeout'} || $self->timeout();
+
+    my $value = $self->query( "TARM SGL");
+
+    chomp $value;
+
+    my @valarray = split("\n",$value);
+
+    return @valarray;
+}
+
+sub triggered_read_raw {
+    my $self=shift;
+	my $args=undef;
+	if (ref $_[0] eq 'HASH') { $args=shift }
+	else { $args={@_} }
+
+    my $value = $self->query( "TARM SGL", $args);
+
+    return $value;
+}
+
+
+sub autozero {
+	my $self=shift;
+	my $enable=shift;
+	my $az_status=undef;
+	my $command = "";
+	
+	if(!defined $enable) {
+		# read autozero setting
+		$command = "AZERO?";
+		$az_status=$self->query( $command );
+	}
+	else {
+		if ($enable =~ /^ONCE$/i) {
+			$command = "AZERO ONCE";
+		}
+		elsif($enable =~ /^(ON|1)$/i) {
+			$command = "AZERO ON";
+		}
+		elsif($enable =~ /^(OFF|0)$/i) {
+			$command = "AZERO OFF";
+		}
+		else {
+			Lab::Exception::CorruptParameter->throw( error => (caller(0))[3] . " can be set to 'ON'/1, 'OFF'/0 or 'ONCE'. Received '${enable}'\n" . Lab::Exception::Base::Appendix() );
+		}
+		$self->write( $command );
+	}	
+	
+	# look for errors
+	my ($errcode, $errmsg) = $self->get_error();
+	if($errcode) {
+		Lab::Exception::DeviceError->throw(
+			error => "Error from device in " . (caller(0))[3] . ", the received error is '${errcode},${errmsg}'\n" . Lab::Exception::Base::Appendix(),
+			code => $errcode,
+			message => $errmsg,
+			command => $command
+		)
+	}
+	
+	return $az_status;
 }
 
 
@@ -130,11 +287,21 @@ sub beep {
 }
 
 sub get_error {
-    my $self=shift;
-    chomp(my $err=$self->query("SYSTem:ERRor?"));
-    my ($err_num,$err_msg)=split ",",$err;
-    $err_msg=~s/\"//g;
-    return ($err_num,$err_msg);
+	my $self=shift;
+	my $error = $self->query( "ERRSTR?", brutal => 1 ); # brutal is a workaround for the moment - somehow ERRSTR? timeouts  	
+	if($error !~ /\+0,/) {
+		if ($error =~ /^\+?([0-9]*)\,\"?(.*)\"?$/m) {
+			return ($1, $2); # ($code, $message)
+		}
+		else {
+			Lab::Exception::DeviceError->throw(
+				error => "Reading the error status of the device failed in " . (caller(0))[3] . ". Something's going wrong here.\n" . Lab::Exception::Base::Appendix(),
+			)	
+		}
+	}
+	else {
+		return undef;
+	}
 }
 
 sub preset {
@@ -193,6 +360,16 @@ The Lab::Instrument::HP3458A class implements an interface to the Agilent / HP
     my $hp=new(\%options);
 
 =head1 METHODS
+
+=head2 pl_freq
+Parameter: pl_freq
+
+	$hp->pl_freq($new_freq);
+	$npl_freq = $hp->pl_freq();
+	
+Get/set the power line frequency at your location (50 Hz for most countries, which is the default). This
+is the basis of the integration time setting (which is internally specified as a count of power
+line cycles, or PLCs). The integration time will be set incorrectly if this parameter is set incorrectly.
 
 =head2 read_voltage_dc
 

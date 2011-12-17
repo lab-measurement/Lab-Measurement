@@ -23,7 +23,7 @@ our %fields = (
 	},
 
 	device_settings => { 
-		plc_freq => 50,
+		pl_freq => 50,
 	},
 
 );
@@ -196,12 +196,23 @@ sub beep {
     $self->write("SYSTem:BEEPer");
 }
 
+
 sub get_error {
-    my $self=shift;
-    chomp(my $err=$self->connection()->Query( command => "SYSTem:ERRor?"));
-    my ($err_num,$err_msg)=split ",",$err;
-    $err_msg=~s/\"//g;
-    return ($err_num,$err_msg);
+	my $self=shift;
+	my $error = $self->query( "SYST:ERR?" );
+	if($error !~ /\+0,/) {
+		if ($error =~ /^(\+[0-9]*)\,\"?(.*)\"?$/) {
+			return ($1, $2); # ($code, $message)
+		}
+		else {
+			Lab::Exception::DeviceError->throw(
+				error => "Reading the error status of the device failed in Instrument::HP34401A::get_error(). Something's going wrong here.\n" . Lab::Exception::Base::Appendix(),
+			)	
+		}
+	}
+	else {
+		return undef;
+	}
 }
 
 sub reset {
@@ -239,7 +250,7 @@ sub autozero {
 	}	
 	
 	# look for errors
-	my ($errcode, $errmsg) = $self->_check_device_error();
+	my ($errcode, $errmsg) = $self->get_error();
 	if($errcode) {
 		Lab::Exception::DeviceError->throw(
 			error => "Error from device in HP34401A::autozero(), the received error is '${errcode},${errmsg}'\n" . Lab::Exception::Base::Appendix(),
@@ -273,7 +284,7 @@ sub _configure_voltage_dc {
     }
     elsif($tint =~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/) {
     	# Convert seconds to PLC (power line cycles)
-    	$tint*=$self->plc_freq(); 
+    	$tint*=$self->pl_freq(); 
     }
     elsif($tint !~ /^(MIN|MAX)$/) {
 		Lab::Exception::CorruptParameter->throw( error => "Integration time has to be set to a positive value or 'AUTO', 'MIN' or 'MAX' in HP34401A::configure_voltage_dc()\n" . Lab::Exception::Base::Appendix() )    	
@@ -284,7 +295,7 @@ sub _configure_voltage_dc {
 	$self->write( "VOLT:DC:NPLC ${tint}" ) if $res_cmd eq ''; # integration time implicitly set through resolution
 	
 	# look for errors
-	my ($errcode, $errmsg) = $self->_check_device_error();
+	my ($errcode, $errmsg) = $self->get_error();
 	if($errcode) {
 		my $command = "CONF:VOLT:DC ${range} ${res_cmd}";
 		$command .= "\nVOLT:DC:NPLC ${tint}" if $res_cmd eq '';
@@ -353,27 +364,6 @@ sub scroll_message {
     $self->display_clear();
 }
 
-
-#
-# Check the error status of the device. Read the (first) error and return the code and message;
-#
-sub _check_device_error {
-	my $self=shift;
-	my $error = $self->query( "SYST:ERR?" );
-	if($error !~ /\+0,/) {
-		if ($error =~ /^(\+[0-9]*)\,(.*)$/) {
-			return ($1, $2); # ($code, $message)
-		}
-		else {
-			Lab::Exception::DeviceError->throw(
-				error => "Reading the error status of the device failed in Instrument::HP34401A::_check_device_error(). Something's going wrong here.\n" . Lab::Exception::Base::Appendix(),
-			)	
-		}
-	}
-	else {
-		return undef;
-	}
-}
 1;
 
 

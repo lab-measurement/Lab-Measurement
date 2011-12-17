@@ -64,6 +64,22 @@ sub Read {
 	return $self->bus()->connection_read($self->connection_handle(), $options);
 }
 
+sub Query {
+	my $self=shift;
+	my $options=undef;
+	if (ref $_[0] eq 'HASH') { $options=shift }
+	else { $options={@_} }
+
+	my $wait_query=$options->{'wait_query'} || $self->wait_query();
+	my $timeout = $options->{'timeout'} || $self->timeout();
+	$self->bus()->timeout($self->connection_handle(), $timeout);
+
+	$self->Write( $options );
+	usleep($wait_query);
+	return $self->Read($options);
+}
+
+
 #
 # Query from Lab::Connection is sufficient
 # EnableTermChar, SetTermChar from Lab::Connection::GPIB are sufficient.
