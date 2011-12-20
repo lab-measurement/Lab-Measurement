@@ -88,25 +88,6 @@ sub _get_value {
     return $value;
 }
 
-sub _configure_voltage_measurement{
-    my $self=shift;
-    my $range=shift; # in V, or "AUTO"
-    my $tint=shift;  # in sec
-    
-    # supported by this dmm:
-    # range:  AUTO, 100 mV, 1 V, 10 V, 100 V, 1000 V
-    # integration time:  0.02, 0.2, 1, 10, or 100 power line cycles
-    #   we assume 50Hz as used in decent countries -> 1 plc = 0.02 sec
-    #   -> 0.4ms, 4ms, 20ms 0.2s, 2s
-    
-    $tint/=0.02;
-    
-    
-
-    # unfinished :)
-    die "configure_voltage_measurement not yet implemented for this instrument\n";
-}
-
 
 
 #

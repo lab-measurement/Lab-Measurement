@@ -6,7 +6,7 @@ our $VERSION = '2.93';
 use strict;
 use Lab::Instrument;
 use Lab::Instrument::Multimeter;
-use Data::Dumper;
+use Time::HiRes qw (usleep sleep);
 
 
 our @ISA = ("Lab::Instrument::Multimeter");
@@ -31,7 +31,7 @@ sub new {
 	my $class = ref($proto) || $proto;
 	my $self = $class->SUPER::new(@_);
 	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
-	$self->write("END 1");
+	$self->write("END 2"); # or ERRSTR? and other queries will time out, unless using a line/message end character
 	
 	#$self->connection()->SetTermChar("\r\n");
 	#$self->connection()->EnableTermChar(1);
@@ -48,7 +48,7 @@ sub _configure_voltage_dc {
     my $tint=shift;  # integration time in sec, "DEFAULT", "MIN", "MAX"
     
     if($range eq 'AUTO' || !defined($range)) {
-    	$range='DEF';
+    	$range='AUTO';
     }
     elsif($range =~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/) {
 	    #$range = sprintf("%e",abs($range));
@@ -132,11 +132,38 @@ sub _configure_voltage_dc_trigger {
 
 sub configure_voltage_dc_trigger_highspeed {
 	my $self=shift;
-    my $range=shift; # in V, or "AUTO", "MIN", "MAX"
-    my $tint=shift || 1.4e-6;  # integration time in sec, "DEFAULT", "MIN", "MAX"
+    my $range=shift || 10; # in V, or "AUTO", "MIN", "MAX"
+    my $tint=shift || 1.4e-6;  # integration time in sec, "DEFAULT", "MIN", "MAX". Default of 1.4e-6 is the highest possible value for 100kHz sampling.
     my $count=shift || 10000;
     my $delay=shift; # in seconds, 'MIN'
+
+    if($range eq 'AUTO' || !defined($range)) {
+    	$range='AUTO';
+    }
+    elsif($range =~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/) {
+	    #$range = sprintf("%e",abs($range));
+    }
+    elsif($range !~ /^(MIN|MAX)$/) {
+    	Lab::Exception::CorruptParameter->throw( error => "Range has to be set to a decimal value or 'AUTO', 'MIN' or 'MAX' in " . (caller(0))[3] . "\n" . Lab::Exception::Base::Appendix() );	
+    }
     
+    if($tint eq 'DEFAULT' || !defined($tint)) {
+    	$tint=1.4e-6;
+    }
+    elsif($tint =~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/ && ( ($tint>=0 && $tint<=1000) || $tint==-1 ) ) {
+    	# Convert seconds to PLC (power line cycles)
+    	#$tint*=$self->pl_freq(); 
+    }
+    elsif($tint =~ /^MIN$/) {
+    	$tint = 0;
+    }
+    elsif($tint =~ /^MAX$/) {
+    	$tint = 1000;
+    }
+    elsif($tint !~ /^(MIN|MAX)$/) {
+		Lab::Exception::CorruptParameter->throw( error => "Integration time has to be set to a positive value or 'AUTO', 'MIN' or 'MAX' in " . (caller(0))[3] . "\n" . Lab::Exception::Base::Appendix() )    	
+    }
+
     $count=1 if !defined($count);
     Lab::Exception::CorruptParameter->throw( error => "Sample count has to be an integer between 1 and 512\n" . Lab::Exception::Base::Appendix() )
     	if($count !~ /^[0-9]*$/ || $count < 1 || $count > 16777215); 
@@ -144,17 +171,15 @@ sub configure_voltage_dc_trigger_highspeed {
 	$delay=0 if !defined($delay);
     Lab::Exception::CorruptParameter->throw( error => "Trigger delay has to be a positive decimal value\n" . Lab::Exception::Base::Appendix() )
     	if($count !~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/);
-        
+
 	$self->write( "PRESET FAST" );
+    $self->write( "TARM HOLD");
 	$self->write( "APER ".$tint );
-	warn "APER ".$tint."\n";
     $self->write( "MFORMAT SINT" );
     $self->write( "OFORMAT SINT" );
     $self->write( "MEM FIFO" );
     $self->write( "NRDGS $count, AUTO" );
-    $self->write( "TARM HOLD");
-    $self->write( "TIMER $delay") if defined($delay);
-	
+    #$self->write( "TIMER $delay") if defined($delay);	
 
 }
 	
@@ -181,10 +206,56 @@ sub triggered_read_raw {
 	my $args=undef;
 	if (ref $_[0] eq 'HASH') { $args=shift }
 	else { $args={@_} }
-
-    my $value = $self->query( "TARM SGL", $args);
-
+	
+	my $read_until_length=$args->{'read_until_length'};
+	my $value='';
+	my $fragment=undef;
+	
+	{
+		use bytes;
+		$value=$self->query( "TARM SGL", $args);
+		my $tmp=length($value);
+		while(defined $read_until_length && length($value)<$read_until_length) {
+			$value .= $self->read($args);
+		}
+	}
+	
     return $value;
+}
+
+sub decode_SINT {
+	use bytes;
+    my $self=shift;
+	my $args=undef;
+	my $bytestring=shift;
+	my $iscale=shift || $self->query('ISCALE?');
+	if (ref $_[0] eq 'HASH') { $args=shift }
+	else { $args={@_} }
+	
+	my @values = split( //, $bytestring);
+	my $ival=0;
+	my $val_revb=0;
+	my $tbyte=0;
+	my $value=0;
+	my @result_list=();
+	my $i=0;
+	for(my $v=0; $v<$#values;$v+=2) {
+		$ival = unpack('S',join('',$values[$v],$values[$v+1]));
+
+		$val_revb = 0;
+		for ($i=0; $i<2; $i++) {
+			$val_revb = $val_revb | (($ival>>$i*8 & 0x000000FF)<<((1-$i)*8));
+		}
+
+		my $decval=0;
+		my $msb = ( $val_revb>>15 ) & 0x0001;
+		$decval = $msb==0 ? 0 : -1*($msb**15);
+		for($i=14;$i>=0;$i--) {
+			$decval += ((($val_revb>>$i)&0x0001)*2)**$i;
+		}
+		push(@result_list,$decval*$iscale);
+	}
+	return @result_list;
 }
 
 
