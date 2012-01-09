@@ -97,7 +97,7 @@ sub new {
 		$self->client()->stopbits($self->config('stopbits')) if (defined $self->config('stopbits'));
 	}
 	else {
-		Lab::Exception::Error->throw( error => "Error initializing the serial interface\n" . Lab::Exception::Base::Appendix() );
+		Lab::Exception::Error->throw( error => "Error initializing the serial interface\n" );
 	}
 
 	return $self;
@@ -189,7 +189,7 @@ sub _direct_write { # _direct_write( command => $cmd )   this is for inheriting 
 
 	if(!defined $command) {
 		Lab::Exception::CorruptParameter->throw(
-			error => "No command given to " . __PACKAGE__ . "::connection_write().\n" . Lab::Exception::Base::Appendix(),
+			error => "No command given to " . __PACKAGE__ . "::connection_write().\n",
 		);
 	}
 	else {
@@ -199,12 +199,12 @@ sub _direct_write { # _direct_write( command => $cmd )   this is for inheriting 
 
 	if(!$status && !$brutal) {
 		Lab::Exception::RS232Error->throw(
-			error => "Error in " . __PACKAGE__ . "::connection_write() while executing $command: write failed.\n" . Lab::Exception::Base::Appendix(),
+			error => "Error in " . __PACKAGE__ . "::connection_write() while executing $command: write failed.\n",
 			status => $status,
 		);
 	}
 	elsif($brutal) {
-		warn "(brutal=>Ignored) error in " . __PACKAGE__ . "::connection_write() while executing $command: write failed.\n" . Lab::Exception::Base::Appendix();
+		warn "(brutal=>Ignored) error in " . __PACKAGE__ . "::connection_write() while executing $command: write failed.\n";
 	}
 
 	return 1;

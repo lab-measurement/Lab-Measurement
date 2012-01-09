@@ -60,7 +60,7 @@ sub connection_new { # { gpib_address => primary address }
 
 	if(!defined $args->{'gpib_address'} || $args->{'gpib_address'} !~ /^[0-9]*$/ ) {
 		Lab::Exception::CorruptParameter->throw (
-			error => "No valid gpib address given to " . __PACKAGE__ . "::connection_new()\n" . Lab::Exception::Base::Appendix(),
+			error => "No valid gpib address given to " . __PACKAGE__ . "::connection_new()\n",
 		);
 	}
 
@@ -115,7 +115,7 @@ sub connection_read { # @_ = ( $connection_handle, $args = { read_length, brutal
 	
 	if( $ib_bits->{'ERR'} && !$ib_bits->{'TIMO'} ) {	# if the error is a timeout, we still evaluate the result and see what to do with the error later
 		Lab::Exception::GPIBError->throw(
-			error => sprintf("ibrd failed with ibstatus %x\n", $ibstatus) . Lab::Exception::Base::Appendix(),
+			error => sprintf("ibrd failed with ibstatus %x\n", $ibstatus),
 			ibsta => $ibstatus,
 			ibsta_hash => $ib_bits,
 		);
@@ -135,7 +135,7 @@ sub connection_read { # @_ = ( $connection_handle, $args = { read_length, brutal
 	#
 	if( $ib_bits->{'ERR'} && $ib_bits->{'TIMO'} && !$brutal ) {
 		Lab::Exception::GPIBTimeout->throw(
-			error => sprintf("ibrd failed with a timeout, ibstatus %x\n", $ibstatus) . Lab::Exception::Base::Appendix(),
+			error => sprintf("ibrd failed with a timeout, ibstatus %x\n", $ibstatus),
 			ibsta => $ibstatus,
 			ibsta_hash => $ib_bits,
 			data => $result
@@ -193,7 +193,7 @@ sub connection_write { # @_ = ( $connection_handle, $args = { command, wait_stat
 
 	if(!defined $command) {
 		Lab::Exception::CorruptParameter->throw(
-			error => "No command given to " . __PACKAGE__ . "::connection_write().\n" . Lab::Exception::Base::Appendix(),
+			error => "No command given to " . __PACKAGE__ . "::connection_write().\n",
 		);
 	}
 	else {
@@ -209,14 +209,14 @@ sub connection_write { # @_ = ( $connection_handle, $args = { command, wait_stat
 	if($ib_bits->{'ERR'}==1) {
 		if($ib_bits->{'TIMO'} == 1) {
 			Lab::Exception::GPIBTimeout->throw(
-				error => sprintf("Timeout in " . __PACKAGE__ . "::connection_write() while executing $command: ibwrite failed with status %x\n", $ibstatus) . Dumper($ib_bits) . Lab::Exception::Base::Appendix(),
+				error => sprintf("Timeout in " . __PACKAGE__ . "::connection_write() while executing $command: ibwrite failed with status %x\n", $ibstatus) . Dumper($ib_bits),
 				ibsta => $ibstatus,
 				ibsta_hash => $ib_bits,
 			);
 		}
 		else {
 			Lab::Exception::GPIBError->throw(
-				error => sprintf("Error in " . __PACKAGE__ . "::connection_write() while executing $command: ibwrite failed with status %x\n", $ibstatus) . Dumper($ib_bits) . Lab::Exception::Base::Appendix(),
+				error => sprintf("Error in " . __PACKAGE__ . "::connection_write() while executing $command: ibwrite failed with status %x\n", $ibstatus) . Dumper($ib_bits),
 				ibsta => $ibstatus,
 				ibsta_hash => $ib_bits,
 			);
@@ -246,7 +246,7 @@ sub connection_settermchar { # @_ = ( $connection_handle, $termchar
 
 	if($ib_bits->{'ERR'}==1) {
 		Lab::Exception::GPIBError->throw(
-			error => sprintf("Error in " . __PACKAGE__ . "::connection_settermchar(): ibeos failed with status %x\n", $ibstatus) . Dumper($ib_bits) . Lab::Exception::Base::Appendix(),
+			error => sprintf("Error in " . __PACKAGE__ . "::connection_settermchar(): ibeos failed with status %x\n", $ibstatus) . Dumper($ib_bits),
 			ibsta => $ibstatus,
 			ibsta_hash => $ib_bits,
 		);
@@ -271,7 +271,7 @@ sub connection_enabletermchar { # @_ = ( $connection_handle, 0/1 off/on
 
 	if($ib_bits->{'ERR'}==1) {
 		Lab::Exception::GPIBError->throw(
-			error => sprintf("Error in " . __PACKAGE__ . "::connection_enabletermchar(): ibeos failed with status %x\n", $ibstatus) . Dumper($ib_bits) . Lab::Exception::Base::Appendix(),
+			error => sprintf("Error in " . __PACKAGE__ . "::connection_enabletermchar(): ibeos failed with status %x\n", $ibstatus) . Dumper($ib_bits),
 			ibsta => $ibstatus,
 			ibsta_hash => $ib_bits,
 		);
@@ -297,7 +297,7 @@ sub timeout {
 	my $timo=shift;
 	my $timoval=undef;
 	
-	Lab::Exception::CorruptParameter->throw( error => "The timeout value has to be a positive decimal number of seconds, ranging 0-1000.\n" . Lab::Exception::Base::Appendix() )
+	Lab::Exception::CorruptParameter->throw( error => "The timeout value has to be a positive decimal number of seconds, ranging 0-1000.\n" )
     	if($timo !~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/ || $timo <0 || $timo>1000);
     
     if($timo == 0)			{ $timoval=0} # never time out
@@ -325,7 +325,7 @@ sub timeout {
 
 	if($ib_bits->{'ERR'}==1) {
 		Lab::Exception::GPIBError->throw(
-			error => sprintf("Error in " . __PACKAGE__ . "::timeout(): ibtmo failed with status %x\n", $ibstatus) . Dumper($ib_bits) . Lab::Exception::Base::Appendix(),
+			error => sprintf("Error in " . __PACKAGE__ . "::timeout(): ibtmo failed with status %x\n", $ibstatus) . Dumper($ib_bits),
 			ibsta => $ibstatus,
 			ibsta_hash => $ib_bits,
 		);
@@ -339,7 +339,7 @@ sub ParseIbstatus { # Ibstatus http://linux-gpib.sourceforge.net/doc_html/r634.h
 	my @ibbits = ();
 
 	if( $ibstatus !~ /[0-9]*/ || $ibstatus < 0 || $ibstatus > 0xFFFF ) {	# should be a 16 bit integer
-		Lab::Exception::CorruptParameter->throw( error => 'Lab::Bus::GPIB::VerboseIbstatus() got an invalid ibstatus.'  . Lab::Exception::Base::Appendix(), InvalidParameter => $ibstatus );
+		Lab::Exception::CorruptParameter->throw( error => 'Lab::Bus::GPIB::VerboseIbstatus() got an invalid ibstatus.', InvalidParameter => $ibstatus );
 	}
 
 	for (my $i=0; $i<16; $i++) {
@@ -362,7 +362,7 @@ sub VerboseIbstatus {
 		$ibstatus = $self->ParseIbstatus($ibstatus);
 	}
 	elsif(ref($ibstatus) !~ /HASH/) {
-		Lab::Exception::CorruptParameter->throw( error => 'Lab::Bus::GPIB::VerboseIbstatus() got an invalid ibstatus.'  . Lab::Exception::Base::Appendix(), InvalidParameter => $ibstatus );
+		Lab::Exception::CorruptParameter->throw( error => 'Lab::Bus::GPIB::VerboseIbstatus() got an invalid ibstatus.', InvalidParameter => $ibstatus );
 	}
 
 	while( my ($k, $v) = each %$ibstatus ) {

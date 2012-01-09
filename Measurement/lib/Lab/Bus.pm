@@ -134,7 +134,7 @@ sub AUTOLOAD {
 
 	unless (exists $self->{_permitted}->{$name} ) {
 		cluck("AUTOLOAD in " . __PACKAGE__ . " couldn't access field '${name}'.\n");
-		Lab::Exception::Error->throw( error => "AUTOLOAD in " . __PACKAGE__ . " couldn't access field '${name}'.\n"  . Lab::Exception::Base::Appendix());
+		Lab::Exception::Error->throw( error => "AUTOLOAD in " . __PACKAGE__ . " couldn't access field '${name}'.\n");
 	}
 
 	if (@_) {

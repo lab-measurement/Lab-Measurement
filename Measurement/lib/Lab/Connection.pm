@@ -56,7 +56,7 @@ sub Clear {
 	
 	return $self->bus()->connection_clear($self->connection_handle()) if ($self->bus()->can('connection_clear'));
 	# error message
-	warn "Clear function is not implemented in the bus ".ref($self->bus())."\n"  . Lab::Exception::Base::Appendix();
+	warn "Clear function is not implemented in the bus ".ref($self->bus())."\n";
 }
 
 
@@ -154,7 +154,7 @@ sub configure {
 	my $config=shift;
 
 	if( ref($config) ne 'HASH' ) {
-		Lab::Exception::CorruptParameter->throw( error=>'Given Configuration is not a hash.' . Lab::Exception::Base::Appendix());
+		Lab::Exception::CorruptParameter->throw( error=>'Given Configuration is not a hash.');
 	}
 	else {
 		#
@@ -208,7 +208,7 @@ sub _setbus { # $self->setbus() create new or use existing bus
 	my $self=shift;
 	my $bus_class = $self->bus_class();
 
-	$self->bus(eval("require $bus_class; new $bus_class(\$self->config());")) || Lab::Exception::Error->throw( error => "Failed to create bus $bus_class in " . __PACKAGE__ . "::_setbus.\n"  . Lab::Exception::Base::Appendix());
+	$self->bus(eval("require $bus_class; new $bus_class(\$self->config());")) || Lab::Exception::Error->throw( error => "Failed to create bus $bus_class in " . __PACKAGE__ . "::_setbus.\n");
 
 	# again, pass it all.
 	$self->connection_handle( $self->bus()->connection_new( $self->config() ));
@@ -243,7 +243,7 @@ sub AUTOLOAD {
 	$name =~ s/.*://; # strip fully qualified portion
 
 	unless (exists $self->{_permitted}->{$name} ) {
-		Lab::Exception::Error->throw( error => "AUTOLOAD in " . __PACKAGE__ . " couldn't access field '${name}'.\n"  . Lab::Exception::Base::Appendix());
+		Lab::Exception::Error->throw( error => "AUTOLOAD in " . __PACKAGE__ . " couldn't access field '${name}'.\n");
 	}
 
 	if (@_) {

@@ -82,7 +82,7 @@ sub connection_new {
 		$slave_address = $args->{'slave_address'};
 	}
 	else {
-		Lab::Exception::CorruptParameter->throw( error => 'No or invalid MODBUS Slave Address given. I can\'t work like this!' . Lab::Exception::Base::Appendix(), );
+		Lab::Exception::CorruptParameter->throw( error => 'No or invalid MODBUS Slave Address given. I can\'t work like this!', );
 	}
 
 	$connection_handle = { valid => 1, type => "MODBUS_RS232", slave_address => $slave_address };
@@ -116,9 +116,9 @@ sub connection_read { # @_ = ( $connection_handle, $args = { function, mem_addre
 	my @AnswerArr = ();
 	my @TmpArr = ();
 
-	if( !defined $function || $function != 3 ) { Lab::Exception::CorruptParameter->throw( error => 'Undefined or unimplemented function code' . Lab::Exception::Base::Appendix(), ); }
-	if( !defined $mem_address || $mem_address < 0 || $mem_address > 0xFFFF ) { Lab::Exception::CorruptParameter->throw( error => 'Invalid memory address' . Lab::Exception::Base::Appendix(), ); }
-	if( $mem_count < 1 ) { Lab::Exception::CorruptParameter->throw( error => 'Invalid count of registers to be read' . Lab::Exception::Base::Appendix(), ); }
+	if( !defined $function || $function != 3 ) { Lab::Exception::CorruptParameter->throw( error => 'Undefined or unimplemented function code', ); }
+	if( !defined $mem_address || $mem_address < 0 || $mem_address > 0xFFFF ) { Lab::Exception::CorruptParameter->throw( error => 'Invalid memory address', ); }
+	if( $mem_count < 1 ) { Lab::Exception::CorruptParameter->throw( error => 'Invalid count of registers to be read', ); }
 
 	@MessageArr = $self->_MB_CRC( pack('C',$connection_handle->{slave_address}),pack('C',$function), pack('n',$mem_address), pack('n',$mem_count) );
 	$Message = join('',$self->_chrlist(@MessageArr));
@@ -191,9 +191,9 @@ sub connection_write { # @_ = ( $connection_handle, $args = { function, mem_addr
 	my $ErrCount=3;
 
 
-	if( !defined $function || $function != 6 ) { Lab::Exception::CorruptParameter->throw( error => 'Undefined or unimplemented function code' . Lab::Exception::Base::Appendix(), ); }
-	if( !defined $mem_address || $mem_address < 0 || $mem_address > 0xFFFF ) { Lab::Exception::CorruptParameter->throw( error => 'Invalid memory address' . Lab::Exception::Base::Appendix(), ); }
-	if(unpack('n!',$SendValue) != $mem_value) { Lab::Exception::CorruptParameter->throw( error => "Invalid Memory Value $mem_value" . Lab::Exception::Base::Appendix(), ); }
+	if( !defined $function || $function != 6 ) { Lab::Exception::CorruptParameter->throw( error => 'Undefined or unimplemented function code', ); }
+	if( !defined $mem_address || $mem_address < 0 || $mem_address > 0xFFFF ) { Lab::Exception::CorruptParameter->throw( error => 'Invalid memory address', ); }
+	if(unpack('n!',$SendValue) != $mem_value) { Lab::Exception::CorruptParameter->throw( error => "Invalid Memory Value $mem_value", ); }
 
 	@MessageArr = $self->_MB_CRC( pack('C',$connection_handle->{slave_address}), pack('C',$function), pack('n',$mem_address), $SendValue);
 	$Message = join('',$self->_chrlist(@MessageArr));

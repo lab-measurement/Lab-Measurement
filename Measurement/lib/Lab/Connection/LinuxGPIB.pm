@@ -73,7 +73,7 @@ sub Query {
 	my $wait_query=$options->{'wait_query'} || $self->wait_query();
 	my $timeout = $options->{'timeout'} || $self->timeout();
 	$self->bus()->timeout($self->connection_handle(), $timeout);
-
+	
 	$self->Write( $options );
 	usleep($wait_query);
 	return $self->Read($options);

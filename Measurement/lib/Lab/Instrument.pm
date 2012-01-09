@@ -145,7 +145,7 @@ sub configure {
 	my $config=shift;
 
 	if( ref($config) ne 'HASH' ) {
-		Lab::Exception::CorruptParameter->throw( error=>'Given Configuration is not a hash.' . Lab::Exception::Base::Appendix());
+		Lab::Exception::CorruptParameter->throw( error=>'Given Configuration is not a hash.');
 	}
 	else {
 		#
@@ -211,15 +211,15 @@ sub _setconnection { # $self->setconnection() create new or use existing connect
 		if($self->_checkconnection($self->config('connection')) ) {
 			$self->connection($self->config('connection'));
 		}
-		else { Lab::Exception::CorruptParameter->throw( error => "Received invalid connection object!\n" . Lab::Exception::Base::Appendix() ); }
+		else { Lab::Exception::CorruptParameter->throw( error => "Received invalid connection object!\n" ); }
 	}
 #	else {
-#		Lab::Exception::CorruptParameter->throw( error => 'Received no connection object!\n' . Lab::Exception::Base::Appendix() );
+#		Lab::Exception::CorruptParameter->throw( error => 'Received no connection object!\n' );
 #	}
 	elsif( defined $self->config('connection_type') ) {
 		$connection_type = $self->config('connection_type');
 
-		if( $connection_type !~ /^[A-Za-z0-9_\-\:]*$/ ) { Lab::Exception::CorruptParameter->throw( error => "Given connection type is does not look like a valid module name.\n" . Lab::Exception::Base::Appendix()); };
+		if( $connection_type !~ /^[A-Za-z0-9_\-\:]*$/ ) { Lab::Exception::CorruptParameter->throw( error => "Given connection type is does not look like a valid module name.\n"); };
 
 		if( $connection_type eq 'none' ) { return; };
 		# todo: allow this only if the device supports connection_type none
@@ -241,14 +241,14 @@ sub _setconnection { # $self->setconnection() create new or use existing connect
 
 			# yep - pass all the parameters on to the connection, it will take the ones it needs.
 			# This way connection setup can be handled generically. Conflicting parameter names? Let's try it.
-			$self->connection( $full_connection->new ($config) ) || Lab::Exception::Error->throw( error => "Failed to create connection $full_connection!\n" . Lab::Exception::Base::Appendix() );
+			$self->connection( $full_connection->new ($config) ) || Lab::Exception::Error->throw( error => "Failed to create connection $full_connection!\n" );
 
 			use strict;
 		}
-		else { Lab::Exception::CorruptParameter->throw( error => "Given Connection not supported!\n" . Lab::Exception::Base::Appendix()); }
+		else { Lab::Exception::CorruptParameter->throw( error => "Given Connection not supported!\n"); }
 	}
 	else {
-		Lab::Exception::CorruptParameter->throw( error => "Neither a connection nor a connection type was supplied.\n" . Lab::Exception::Base::Appendix());	}
+		Lab::Exception::CorruptParameter->throw( error => "Neither a connection nor a connection type was supplied.\n");	}
 }
 
 
@@ -336,7 +336,7 @@ sub device_settings {
 		$value = {@_};
 	}
 	else {  # uneven sized list - don't know what to do with that one
-		Lab::Exception::CorruptParameter->throw( error => "Corrupt parameters given to " . __PACKAGE__ . "::device_settings().\n"  . Lab::Exception::Base::Appendix() );
+		Lab::Exception::CorruptParameter->throw( error => "Corrupt parameters given to " . __PACKAGE__ . "::device_settings().\n" );
 	}
 
 	#warn "Keys present: \n" . Dumper($self->{device_settings}) . "\n";
@@ -370,7 +370,7 @@ sub connection_settings {
 		$value = {@_};
 	}
 	else {  # uneven sized list - don't know what to do with that one
-		Lab::Exception::CorruptParameter->throw( error => "Corrupt parameters given to " . __PACKAGE__ . "::connection_settings().\n"  . Lab::Exception::Base::Appendix() );
+		Lab::Exception::CorruptParameter->throw( error => "Corrupt parameters given to " . __PACKAGE__ . "::connection_settings().\n" );
 	}
 
 	if(ref($value) =~ /HASH/) {  # it's a hash - merge into current settings
@@ -427,12 +427,12 @@ sub AUTOLOAD {
 	elsif( $name =~ qr/^(get_|set_)(.*)$/ && exists $self->device_settings()->{$2} ) {
 		if( $1 eq 'set_' ) {
 			$value = shift;
-			if( !defined $value || ref($value) ne "" ) { Lab::Exception::CorruptParameter->throw( error => "No or no scalar value given to generic set function $AUTOLOAD in " . __PACKAGE__ . "::AUTOLOAD().\n"  . Lab::Exception::Base::Appendix() ); }
-			if( @_ > 0 ) { Lab::Exception::CorruptParameter->throw( error => "Too many values given to generic set function $AUTOLOAD " . __PACKAGE__ . "::AUTOLOAD().\n"  . Lab::Exception::Base::Appendix() ); }
+			if( !defined $value || ref($value) ne "" ) { Lab::Exception::CorruptParameter->throw( error => "No or no scalar value given to generic set function $AUTOLOAD in " . __PACKAGE__ . "::AUTOLOAD().\n" ); }
+			if( @_ > 0 ) { Lab::Exception::CorruptParameter->throw( error => "Too many values given to generic set function $AUTOLOAD " . __PACKAGE__ . "::AUTOLOAD().\n" ); }
 			return $self->device_settings()->{$2} = $value;
 		}
 		else {
-			if( @_ > 0 ) { Lab::Exception::CorruptParameter->throw( error => "Too many values given to generic get function $AUTOLOAD " . __PACKAGE__ . "::AUTOLOAD().\n"  . Lab::Exception::Base::Appendix() ); }
+			if( @_ > 0 ) { Lab::Exception::CorruptParameter->throw( error => "Too many values given to generic get function $AUTOLOAD " . __PACKAGE__ . "::AUTOLOAD().\n" ); }
 			return $self->device_settings($2);
 		}
 	}
@@ -444,7 +444,7 @@ sub AUTOLOAD {
 		}
 	}
 	else {
-		Lab::Exception::Warning->throw( error => "AUTOLOAD in " . __PACKAGE__ . " couldn't access field '${name}'.\n" . Lab::Exception::Base::Appendix() );
+		Lab::Exception::Warning->throw( error => "AUTOLOAD in " . __PACKAGE__ . " couldn't access field '${name}'.\n" );
 	}
 }
 

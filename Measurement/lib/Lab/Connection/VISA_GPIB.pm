@@ -56,7 +56,7 @@ sub _setbus {
 	my $bus_class = $self->bus_class();
 
 	no strict 'refs';
-	$self->bus($bus_class->new($self->config())) || Lab::Exception::Error->throw( error => "Failed to create bus $bus_class in " . __PACKAGE__ . "::_setbus.\n"  . Lab::Exception::Base::Appendix());
+	$self->bus($bus_class->new($self->config())) || Lab::Exception::Error->throw( error => "Failed to create bus $bus_class in " . __PACKAGE__ . "::_setbus.\n");
 	use strict;
 
 	#

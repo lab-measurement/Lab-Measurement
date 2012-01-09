@@ -187,7 +187,7 @@ sub get_error {
 		}
 		else {
 			Lab::Exception::DeviceError->throw(
-				error => "Reading the error status of the device failed in Instrument::HP34401A::get_error(). Something's going wrong here.\n" . Lab::Exception::Base::Appendix(),
+				error => "Reading the error status of the device failed in Instrument::HP34401A::get_error(). Something's going wrong here.\n",
 			)	
 		}
 	}
@@ -225,7 +225,7 @@ sub autozero {
 			$command = "ZERO:AUTO OFF";
 		}
 		else {
-			Lab::Exception::CorruptParameter->throw( error => "HP34401A::autozero() can be set to 'ON'/1, 'OFF'/0 or 'ONCE'. Received '${enable}'\n" . Lab::Exception::Base::Appendix() );
+			Lab::Exception::CorruptParameter->throw( error => "HP34401A::autozero() can be set to 'ON'/1, 'OFF'/0 or 'ONCE'. Received '${enable}'\n" );
 		}
 		$self->write( $command );
 	}	
@@ -234,7 +234,7 @@ sub autozero {
 	my ($errcode, $errmsg) = $self->get_error();
 	if($errcode) {
 		Lab::Exception::DeviceError->throw(
-			error => "Error from device in HP34401A::autozero(), the received error is '${errcode},${errmsg}'\n" . Lab::Exception::Base::Appendix(),
+			error => "Error from device in HP34401A::autozero(), the received error is '${errcode},${errmsg}'\n",
 			code => $errcode,
 			message => $errmsg,
 			command => $command
@@ -257,7 +257,7 @@ sub _configure_voltage_dc {
 	    #$range = sprintf("%e",abs($range));
     }
     elsif($range !~ /^(MIN|MAX)$/) {
-    	Lab::Exception::CorruptParameter->throw( error => "Range has to be set to a decimal value or 'AUTO', 'MIN' or 'MAX' in HP34401A::configure_voltage_dc()\n" . Lab::Exception::Base::Appendix() );	
+    	Lab::Exception::CorruptParameter->throw( error => "Range has to be set to a decimal value or 'AUTO', 'MIN' or 'MAX' in HP34401A::configure_voltage_dc()\n" );	
     }
     
     if($tint eq 'DEFAULT' || !defined($tint)) {
@@ -268,7 +268,7 @@ sub _configure_voltage_dc {
     	$tint*=$self->pl_freq(); 
     }
     elsif($tint !~ /^(MIN|MAX)$/) {
-		Lab::Exception::CorruptParameter->throw( error => "Integration time has to be set to a positive value or 'AUTO', 'MIN' or 'MAX' in HP34401A::configure_voltage_dc()\n" . Lab::Exception::Base::Appendix() )    	
+		Lab::Exception::CorruptParameter->throw( error => "Integration time has to be set to a positive value or 'AUTO', 'MIN' or 'MAX' in HP34401A::configure_voltage_dc()\n" )    	
     }
     
 	# do it
@@ -281,7 +281,7 @@ sub _configure_voltage_dc {
 		my $command = "CONF:VOLT:DC ${range} ${res_cmd}";
 		$command .= "\nVOLT:DC:NPLC ${tint}" if $res_cmd eq '';
 		Lab::Exception::DeviceError->throw(
-			error => "Error from device in HP34401A::configure_voltage_dc(), the received error is '${errcode},${errmsg}'\n" . Lab::Exception::Base::Appendix(),
+			error => "Error from device in HP34401A::configure_voltage_dc(), the received error is '${errcode},${errmsg}'\n",
 			code => $errcode,
 			message => $errmsg,
 			command => $command
@@ -297,11 +297,11 @@ sub _configure_voltage_dc_trigger {
     my $delay=shift; # in seconds, 'MIN'
     
     $count=1 if !defined($count);
-    Lab::Exception::CorruptParameter->throw( error => "Sample count has to be an integer between 1 and 512\n" . Lab::Exception::Base::Appendix() )
+    Lab::Exception::CorruptParameter->throw( error => "Sample count has to be an integer between 1 and 512\n" )
     	if($count !~ /^[0-9]*$/ || $count < 1 || $count > 512); 
 
 	$delay=0 if !defined($delay);
-    Lab::Exception::CorruptParameter->throw( error => "Trigger delay has to be a positive decimal value\n" . Lab::Exception::Base::Appendix() )
+    Lab::Exception::CorruptParameter->throw( error => "Trigger delay has to be a positive decimal value\n" )
     	if($count !~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/);
         
 

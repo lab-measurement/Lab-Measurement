@@ -54,7 +54,7 @@ sub _configure_voltage_dc {
 	    #$range = sprintf("%e",abs($range));
     }
     elsif($range !~ /^(MIN|MAX)$/) {
-    	Lab::Exception::CorruptParameter->throw( error => "Range has to be set to a decimal value or 'AUTO', 'MIN' or 'MAX' in " . (caller(0))[3] . "\n" . Lab::Exception::Base::Appendix() );	
+    	Lab::Exception::CorruptParameter->throw( error => "Range has to be set to a decimal value or 'AUTO', 'MIN' or 'MAX' in " . (caller(0))[3] . "\n" );	
     }
     
     if($tint eq 'DEFAULT' || !defined($tint)) {
@@ -71,7 +71,7 @@ sub _configure_voltage_dc {
     	$tint = 1000;
     }
     elsif($tint !~ /^(MIN|MAX)$/) {
-		Lab::Exception::CorruptParameter->throw( error => "Integration time has to be set to a positive value or 'AUTO', 'MIN' or 'MAX' in " . (caller(0))[3] . "\n" . Lab::Exception::Base::Appendix() )    	
+		Lab::Exception::CorruptParameter->throw( error => "Integration time has to be set to a positive value or 'AUTO', 'MIN' or 'MAX' in " . (caller(0))[3] . "\n" )    	
     }
     
 	# do it
@@ -83,7 +83,7 @@ sub _configure_voltage_dc {
 	if($errcode) {
 		my $command = "FUNC DCV ${range}\nNPLC ${tint}";
 		Lab::Exception::DeviceError->throw(
-			error => "Error from device in " . (caller(0))[3] . ", the received error is '${errcode},${errmsg}'\n" . Lab::Exception::Base::Appendix(),
+			error => "Error from device in " . (caller(0))[3] . ", the received error is '${errcode},${errmsg}'\n",
 			code => $errcode,
 			message => $errmsg,
 			command => $command
@@ -99,11 +99,11 @@ sub _configure_voltage_dc_trigger {
     my $delay=shift; # in seconds, 'MIN'
     
     $count=1 if !defined($count);
-    Lab::Exception::CorruptParameter->throw( error => "Sample count has to be an integer between 1 and 512\n" . Lab::Exception::Base::Appendix() )
+    Lab::Exception::CorruptParameter->throw( error => "Sample count has to be an integer between 1 and 512\n" )
     	if($count !~ /^[0-9]*$/ || $count < 1 || $count > 16777215); 
 
 	$delay=0 if !defined($delay);
-    Lab::Exception::CorruptParameter->throw( error => "Trigger delay has to be a positive decimal value\n" . Lab::Exception::Base::Appendix() )
+    Lab::Exception::CorruptParameter->throw( error => "Trigger delay has to be a positive decimal value\n" )
     	if($count !~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/);
         
 
@@ -122,7 +122,7 @@ sub _configure_voltage_dc_trigger {
 	if($errcode) {
 		my $command = "FUNC DCV ${range}\nNPLC ${tint}";
 		Lab::Exception::DeviceError->throw(
-			error => "Error from device in " . (caller(0))[3] . ", the received error is '${errcode},${errmsg}'\n" . Lab::Exception::Base::Appendix(),
+			error => "Error from device in " . (caller(0))[3] . ", the received error is '${errcode},${errmsg}'\n",
 			code => $errcode,
 			message => $errmsg,
 			command => $command
@@ -144,7 +144,7 @@ sub configure_voltage_dc_trigger_highspeed {
 	    #$range = sprintf("%e",abs($range));
     }
     elsif($range !~ /^(MIN|MAX)$/) {
-    	Lab::Exception::CorruptParameter->throw( error => "Range has to be set to a decimal value or 'AUTO', 'MIN' or 'MAX' in " . (caller(0))[3] . "\n" . Lab::Exception::Base::Appendix() );	
+    	Lab::Exception::CorruptParameter->throw( error => "Range has to be set to a decimal value or 'AUTO', 'MIN' or 'MAX' in " . (caller(0))[3] . "\n" );	
     }
     
     if($tint eq 'DEFAULT' || !defined($tint)) {
@@ -161,15 +161,15 @@ sub configure_voltage_dc_trigger_highspeed {
     	$tint = 1000;
     }
     elsif($tint !~ /^(MIN|MAX)$/) {
-		Lab::Exception::CorruptParameter->throw( error => "Integration time has to be set to a positive value or 'AUTO', 'MIN' or 'MAX' in " . (caller(0))[3] . "\n" . Lab::Exception::Base::Appendix() )    	
+		Lab::Exception::CorruptParameter->throw( error => "Integration time has to be set to a positive value or 'AUTO', 'MIN' or 'MAX' in " . (caller(0))[3] . "\n" )    	
     }
 
     $count=1 if !defined($count);
-    Lab::Exception::CorruptParameter->throw( error => "Sample count has to be an integer between 1 and 512\n" . Lab::Exception::Base::Appendix() )
+    Lab::Exception::CorruptParameter->throw( error => "Sample count has to be an integer between 1 and 512\n" )
     	if($count !~ /^[0-9]*$/ || $count < 1 || $count > 16777215); 
 
 	$delay=0 if !defined($delay);
-    Lab::Exception::CorruptParameter->throw( error => "Trigger delay has to be a positive decimal value\n" . Lab::Exception::Base::Appendix() )
+    Lab::Exception::CorruptParameter->throw( error => "Trigger delay has to be a positive decimal value\n" )
     	if($count !~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/);
 
 	$self->write( "PRESET FAST" );
@@ -281,7 +281,7 @@ sub autozero {
 			$command = "AZERO OFF";
 		}
 		else {
-			Lab::Exception::CorruptParameter->throw( error => (caller(0))[3] . " can be set to 'ON'/1, 'OFF'/0 or 'ONCE'. Received '${enable}'\n" . Lab::Exception::Base::Appendix() );
+			Lab::Exception::CorruptParameter->throw( error => (caller(0))[3] . " can be set to 'ON'/1, 'OFF'/0 or 'ONCE'. Received '${enable}'\n" );
 		}
 		$self->write( $command );
 	}	
@@ -290,7 +290,7 @@ sub autozero {
 	my ($errcode, $errmsg) = $self->get_error();
 	if($errcode) {
 		Lab::Exception::DeviceError->throw(
-			error => "Error from device in " . (caller(0))[3] . ", the received error is '${errcode},${errmsg}'\n" . Lab::Exception::Base::Appendix(),
+			error => "Error from device in " . (caller(0))[3] . ", the received error is '${errcode},${errmsg}'\n",
 			code => $errcode,
 			message => $errmsg,
 			command => $command
@@ -366,7 +366,7 @@ sub get_error {
 		}
 		else {
 			Lab::Exception::DeviceError->throw(
-				error => "Reading the error status of the device failed in " . (caller(0))[3] . ". Something's going wrong here.\n" . Lab::Exception::Base::Appendix(),
+				error => "Reading the error status of the device failed in " . (caller(0))[3] . ". Something's going wrong here.\n",
 			)	
 		}
 	}
