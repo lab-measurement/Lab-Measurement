@@ -41,6 +41,8 @@ our %fields = (
 		query_length => 300, # bytes
 		query_long_length => 10240, # bytes
 	},
+	
+	device_cache => {},
 
 	config => {},
 );
@@ -135,6 +137,14 @@ sub _construct {	# _construct(__PACKAGE__);
 	if( $class eq $package && $class ne 'Lab::Instrument' ) {
 		$self->_setconnection();
 	}
+	
+	# Match the device hash with the device
+	
+	if( exists $self->{'device_cache'}){
+		foreach my $key (keys %{$self->{'device_cache'}} ){
+			$self->${\('set_'.$key)}($self->{'device_cache'}->{$key});
+		}
+	}
 }
 
 #
@@ -160,9 +170,10 @@ sub configure {
 		}
 
 		#
-		# fill fields $self->device_settings from entries given in configuration hash (this is usually the same as $self->config )
+		# fill fields $self->device_settings and $self->device_cache from entries given in configuration hash (this is usually the same as $self->config )
 		#
 		$self->device_settings($config);
+		$self->device_cache($config);
 	}
 }
 
@@ -352,6 +363,42 @@ sub device_settings {
 	}
 }
 
+#
+# Accessor for device_cache settings
+#
+
+sub device_cache {
+	my $self = shift;
+	my $value = undef;
+		
+	#warn "device_cache got this:\n" . Dumper(@_) . "\n";
+
+	if( scalar(@_) == 0 ) {  # empty parameters - return whole device_settings hash
+		return $self->{'device_cache'};
+	}
+	elsif( scalar(@_) == 1 ) {  # one parm - either a scalar (key) or a hashref (try to merge)
+		$value = shift;
+	}
+	elsif( scalar(@_) > 1 && scalar(@_)%2 == 0 ) { # even sized list - assume it's keys and values and try to merge it
+		$value = {@_};
+	}
+	else {  # uneven sized list - don't know what to do with that one
+		Lab::Exception::CorruptParameter->throw( error => "Corrupt parameters given to " . __PACKAGE__ . "::device_cache().\n" );
+	}
+
+	#warn "Keys present: \n" . Dumper($self->{device_settings}) . "\n";
+
+	if(ref($value) =~ /HASH/) {  # it's a hash - merge into current settings
+		for my $ext_key ( keys %{$value} ) {
+			$self->{'device_cache'}->{$ext_key} = $value->{$ext_key} if( exists($self->device_cache()->{$ext_key}) );
+		}
+		return $self->{'device_cache'};
+	}
+	else {  # it's a key - return the corresponding value
+		return $self->{'device_cache'}->{$value};
+	}
+}
+
 
 #
 # accessor for connection_settings
@@ -424,16 +471,15 @@ sub AUTOLOAD {
 			return $self->{$name};
 		}
 	}
-	elsif( $name =~ qr/^(get_|set_)(.*)$/ && exists $self->device_settings()->{$2} ) {
-		if( $1 eq 'set_' ) {
-			$value = shift;
-			if( !defined $value || ref($value) ne "" ) { Lab::Exception::CorruptParameter->throw( error => "No or no scalar value given to generic set function $AUTOLOAD in " . __PACKAGE__ . "::AUTOLOAD().\n" ); }
-			if( @_ > 0 ) { Lab::Exception::CorruptParameter->throw( error => "Too many values given to generic set function $AUTOLOAD " . __PACKAGE__ . "::AUTOLOAD().\n" ); }
-			return $self->device_settings()->{$2} = $value;
+	elsif( $name =~ qr/^(get_|set_)(.*)$/ ) {
+		if(exists $self->device_settings()->{$2}){
+			return $self->getset($1,$2,"device_settings",@_);
 		}
-		else {
-			if( @_ > 0 ) { Lab::Exception::CorruptParameter->throw( error => "Too many values given to generic get function $AUTOLOAD " . __PACKAGE__ . "::AUTOLOAD().\n" ); }
-			return $self->device_settings($2);
+		elsif(exists $self->device_cache()->{$2}){
+			return $self->getset($1,$2,"device_cache",@_);
+		}
+		else{
+			Lab::Exception::Warning->throw( error => "AUTOLOAD could not find var for getter/setter: $name \n");
 		}
 	}
 	elsif( exists $self->{'device_settings'}->{$name} ) {
@@ -453,6 +499,23 @@ sub DESTROY {
         my $self = shift;
 	#$self->connection()->DESTROY();
         $self -> SUPER::DESTROY if $self -> can ("SUPER::DESTROY");
+}
+
+sub getset{
+	my $self = shift;
+	my $gs = shift;
+	my $varname = shift;
+	my $subfield = shift;
+	if( $gs eq 'set_' ) {
+				my $value = shift;
+				if( !defined $value || ref($value) ne "" ) { Lab::Exception::CorruptParameter->throw( error => "No or no scalar value given to generic set function $AUTOLOAD in " . __PACKAGE__ . "::AUTOLOAD().\n" ); }
+				if( @_ > 0 ) { Lab::Exception::CorruptParameter->throw( error => "Too many values given to generic set function $AUTOLOAD " . __PACKAGE__ . "::AUTOLOAD().\n" ); }
+				return $self->{$subfield}->{$varname} = $value;
+			}
+			else {
+				if( @_ > 0 ) { Lab::Exception::CorruptParameter->throw( error => "Too many values given to generic get function $AUTOLOAD " . __PACKAGE__ . "::AUTOLOAD().\n" ); }
+				return $self->{$subfield}->{$varname};
+			}
 }
 
 
