@@ -96,16 +96,16 @@ sub _construct {	# _construct(__PACKAGE__);
 		# handle special subarrays
 		if( $element eq 'device_settings' ) {
 			# don't overwrite filled hash from ancestor
-			$self->{device_settings} = clone($fields->{device_settings}) if ! exists($self->{device_settings});
+			$self->{device_settings} = {} if ! exists($self->{device_settings});
 			for my $s_key ( keys %{$fields->{'device_settings'}} ) {
-				$self->{$element}->{$s_key} = $fields->{device_settings}->{$s_key};
+				$self->{$element}->{$s_key} = clone($fields->{device_settings}->{$s_key});
 			}
 		}
 		elsif( $element eq 'connection_settings' ) {
 			# don't overwrite filled hash from ancestor
-			$self->{$element} = clone($fields->{$element}) if ! exists($self->{$element});
+			$self->{$element} = {} if ! exists($self->{$element});
 			for my $s_key ( keys %{$fields->{connection_settings}} ) {
-				$self->{$element}->{$s_key} = $fields->{connection_settings}->{$s_key};
+				$self->{$element}->{$s_key} = clone($fields->{connection_settings}->{$s_key});
 			}
 		}
 		else {
