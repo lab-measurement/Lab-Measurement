@@ -98,14 +98,14 @@ sub _construct {	# _construct(__PACKAGE__);
 			# don't overwrite filled hash from ancestor
 			$self->{device_settings} = {} if ! exists($self->{device_settings});
 			for my $s_key ( keys %{$fields->{'device_settings'}} ) {
-				$self->{$element}->{$s_key} = clone($fields->{device_settings}->{$s_key});
+				$self->{device_settings}->{$s_key} = clone($fields->{device_settings}->{$s_key});
 			}
 		}
 		elsif( $element eq 'connection_settings' ) {
 			# don't overwrite filled hash from ancestor
-			$self->{$element} = {} if ! exists($self->{$element});
+			$self->{connection_settings} = {} if ! exists($self->{connection_settings});
 			for my $s_key ( keys %{$fields->{connection_settings}} ) {
-				$self->{$element}->{$s_key} = clone($fields->{connection_settings}->{$s_key});
+				$self->{connection_settings}->{$s_key} = clone($fields->{connection_settings}->{$s_key});
 			}
 		}
 		else {
@@ -272,36 +272,33 @@ sub _checkconfig {
 sub write {
 	my $self=shift;
 	my $command=shift;
-	my $options=undef;
-	if (ref $_[0] eq 'HASH') { $options=shift }
-	else { $options={@_} }
+	my $args = scalar(@_)%2==0 ? {@_} : ( ref($_[0]) eq 'HASH' ? $_[0] : undef );
+	Lab::Exception::CorruptParameter->throw( "Illegal parameter hash given!\n" ) if !defined($args);
 
-	$options->{'command'} = $command;
+	$args->{'command'} = $command;
 	
-	return $self->connection()->Write($options);
+	return $self->connection()->Write($args);
 }
 
 
 sub read {
 	my $self=shift;
-	my $options=undef;
-	if (ref $_[0] eq 'HASH') { $options=shift }
-	else { $options={@_} }
+	my $args = scalar(@_)%2==0 ? {@_} : ( ref($_[0]) eq 'HASH' ? $_[0] : undef );
+	Lab::Exception::CorruptParameter->throw( "Illegal parameter hash given!\n" ) if !defined($args);
 
-	return $self->connection()->Read($options);
+	return $self->connection()->Read($args);
 }
 
 
 sub query {
 	my $self=shift;
 	my $command=shift;
-	my $options=undef;
-	if (ref $_[0] eq 'HASH') { $options=shift }
-	else { $options={@_} }
+	my $args = scalar(@_)%2==0 ? {@_} : ( ref($_[0]) eq 'HASH' ? $_[0] : undef );
+	Lab::Exception::CorruptParameter->throw( "Illegal parameter hash given!\n" ) if !defined($args);
 
-	$options->{'command'} = $command;
+	$args->{'command'} = $command;
 
-	return $self->connection()->Query($options);
+	return $self->connection()->Query($args);
 }
 
 
