@@ -42,7 +42,7 @@ sub new {
 
 
 
-sub _configure_voltage_dc {
+sub configure_voltage_dc {
 	my $self=shift;
     my $range=shift; # in V, or "AUTO", "MIN", "MAX"
     my $tint=shift;  # integration time in sec, "DEFAULT", "MIN", "MAX"
@@ -91,7 +91,7 @@ sub _configure_voltage_dc {
 	}
 }
 
-sub _configure_voltage_dc_trigger {
+sub configure_voltage_dc_trigger {
 	my $self=shift;
     my $range=shift; # in V, or "AUTO", "MIN", "MAX"
     my $tint=shift;  # integration time in sec, "DEFAULT", "MIN", "MAX"
@@ -120,7 +120,7 @@ sub _configure_voltage_dc_trigger {
 	# look for errors
 	my ($errcode, $errmsg) = $self->get_error();
 	if($errcode) {
-		my $command = "FUNC DCV ${range}\nNPLC ${tint}";
+		my $command = "";
 		Lab::Exception::DeviceError->throw(
 			error => "Error from device in " . (caller(0))[3] . ", the received error is '${errcode},${errmsg}'\n",
 			code => $errcode,
@@ -184,7 +184,7 @@ sub configure_voltage_dc_trigger_highspeed {
 }
 	
 
-sub _triggered_read {
+sub triggered_read {
     my $self=shift;
 	my $args=undef;
 	if (ref $_[0] eq 'HASH') { $args=shift }
@@ -200,6 +200,7 @@ sub _triggered_read {
 
     return @valarray;
 }
+
 
 sub triggered_read_raw {
     my $self=shift;
@@ -312,15 +313,20 @@ sub set_nplc {
     $self->write("NPLC $n");
 }
 
-sub _selftest {
+sub selftest {
     my $self=shift;
     $self->write("TEST");
 }
 
 sub autocalibration {
-    # Warning... this procedure takes 11 minutes!
     my $self=shift;
-    $self->write("ACAL ALL");
+    my $mode=shift;
+    
+    if($mode !~ /^(ALL|0|DCV|1|DIG|2|OHMS|4)$/i) {
+    	Lab::Exception::CorruptParameter->throw("preset(): Illegal preset mode given: $mode\n");
+    }    
+    
+    $self->write("ACAL \U$mode\E");
 }
 
 sub reset {
@@ -328,27 +334,32 @@ sub reset {
     $self->write("PRESET NORM");
 }
 
-
-sub _display_text {
+sub set_display_state {
     my $self=shift;
-    my $text=shift;
-    
-    $self->write("DISP MSG,\"$text\"");
+    my $value=shift;
+    if($value==1 || $value =~ /on/i ) {
+    	$self->write("DISP ON");
+    }
+    elsif($value==0 || $value =~ /off/i ) {
+    	$self->write("DISP OFF");
+    }
+    else {
+    	Lab::Exception::CorruptParameter->throw( "set_display_state(): Illegal parameter.\n" );
+    }
 }
 
-sub _display_on {
-    my $self=shift;
-    $self->write("DISP ON");
-}
-
-sub _display_off {
-    my $self=shift;
-    $self->write("DISP OFF");
-}
-
-sub _display_clear {
+sub display_clear {
     my $self=shift;
     $self->write("DISP CLR");
+}
+
+sub set_display_text {
+    my $self=shift;
+    my $text=shift;
+    if( $text !~ /^[A-Za-z0-9\ \!\#\$\%\&\'\(\)\^\\\/\@\;\:\[\]\,\.\+\-\=\<\>\?\_]*$/ ) { # characters allowed by the 3458A
+    	Lab::Exception::CorruptParameter->throw( "set_display_text(): Illegal characters in given text.\n" );
+    }
+    $self->write("DISP MSG,\"$text\"");
 }
 
 sub beep {
@@ -365,9 +376,7 @@ sub get_error {
 			return ($1, $2); # ($code, $message)
 		}
 		else {
-			Lab::Exception::DeviceError->throw(
-				error => "Reading the error status of the device failed in " . (caller(0))[3] . ". Something's going wrong here.\n",
-			)	
+			Lab::Exception::DeviceError->throw("Reading the error status of the device failed in " . (caller(0))[3] . ". Something's going wrong here.\n");
 		}
 	}
 	else {
@@ -382,17 +391,20 @@ sub preset {
     # 2 DIG 
     my $self=shift;
     my $preset=shift;
-    my $cmd=sprintf("PRESET %u",$preset);
-    $self->write($cmd);
+    if($preset !~ /^(FAST|0|NORM|1|DIG|2)$/i) {
+    	Lab::Exception::CorruptParameter->throw("preset(): Illegal preset mode given: $preset\n");
+    }
+    
+    $self->write("PRESET \U$preset\E");
 }
 
-sub _id {
+sub get_id {
     my $self=shift;
     return $self->query('*IDN?');
 }
 
 
-sub _get_value {
+sub get_value {
     # Triggers one Measurement and Reads it
     my $self=shift;
     my $val=$self->query("TRIG SGL");
@@ -419,7 +431,7 @@ Lab::Instrument::HP3458A - Agilent 3458A Multimeter
         gpib_board   => 0,
         gpib_address => 11,
     });
-    print $dmm->read_voltage_dc();
+    print $dmm->get_voltage_dc();
 
 =head1 DESCRIPTION
 
@@ -428,7 +440,7 @@ The Lab::Instrument::HP3458A class implements an interface to the Agilent / HP
 
 =head1 CONSTRUCTOR
 
-    my $hp=new(\%options);
+    my $hp=new(%parameters);
 
 =head1 METHODS
 
@@ -442,28 +454,57 @@ Get/set the power line frequency at your location (50 Hz for most countries, whi
 is the basis of the integration time setting (which is internally specified as a count of power
 line cycles, or PLCs). The integration time will be set incorrectly if this parameter is set incorrectly.
 
-=head2 read_voltage_dc
+=head2 get_voltage_dc
 
-    $datum=$hp->read_voltage_dc();
+    $voltage=$hp->get_voltage_dc();
 
 Make a dc voltage measurement.
 
-=head2 display_on
+=head2 configure_voltage_dc
 
-    $hp->display_on();
+	$hp->configure_voltage_dc($range, $integration_time);
+	
+Configure range and integration time for the following DCV measurements.
 
-Turn the front-panel display on.
+$range is a voltage or one of "AUTO", "MIN" or "MAX".
+$integration_time is given in seconds or one of "DEFAULT", "MIN" or "MAX".
 
-=head2 display_off
+=head2 configure_voltage_dc_trigger
 
-    $hp->display_off();
+	$hp->configure_voltage_dc_trigger($range, $integration_time, $count, $delay);
 
-Turn the front-panel display off.
+Configures range, integration time, sample count and delay (between samples) for triggered
+readings.
 
-=head2 display_text
+$range, $integration_time: see configure_voltage_dc().
+$count is the sample count per trigger (integer).
+$delay is the delay between the samples in seconds.
 
-    $hp->display_text($text);
-    print $hp->display_text();
+=head2 configure_voltage_dc_trigger_highspeed
+
+	$hp->configure_voltage_dc_trigger_highspeed($range, $integration_time, $count, $delay);
+
+Same as configure_voltage_dc_trigger, but configures the device for maximum measurement speed.
+Values are transferred in SINT format and can be fetched and decoded using triggered_read_raw()
+and decode_SINT().
+This mode allows measurements of up to about 100 kSamples/second.
+
+$range: see configure_voltage_dc().
+$integration_time: integration time in seconds. The default is 1.4e-6.
+$count is the sample count per trigger (integer).
+$delay is the delay between the samples in seconds.
+
+=head2 set_display_state
+Parameter: display_state
+
+    $hp->set_display_state(1/'on'/0/'off');
+
+Turn the front-panel display on/off (1/0)
+
+=head2 set_display_text
+Parameter: display_text
+
+    $hp->set_display_text($text);
 
 Display a message on the front panel. The multimeter will display up to 12
 characters in a message; any additional characters are truncated.
@@ -491,17 +532,22 @@ queue. Errors are retrieved in first-in-first out (FIFO) order.
 
     $hp->set_nlcp($number);
 
-Sets the integration time in power line cycles.
+Sets the integration time in units of power line cycles.
 
 =head2 reset
 
     $hp->reset();
 
-Reset the multimeter to its power-on configuration.
+Reset the multimeter to its power-on configuration. Same as preset('NORM').
 
 =head2 preset
 
     $hp->preset($config);
+
+$config can be
+  'FAST'  / 0
+  'NORM'  / 1
+  'DIG'   / 2 
 
 Choose one of several configuration presets (0: fast, 1: norm, 2: DIG).
 
@@ -513,9 +559,16 @@ Starts the internal self-test routine.
 
 =head2 autocalibration
 
-    $hp->autocalibration();
+    $hp->autocalibration($mode);
 
-Starts the internal autocalibration. Warning... this procedure takes 11 minutes!
+Starts the internal autocalibration. Warning... this procedure takes 11 minutes with the 'ALL' mode!
+
+$mode can be
+  'ALL'  / 0
+  'DCV'  / 1
+  'AC'   / 2
+  'OHMS' / 4
+each meaning the obvious. 
 
 
 =head1 CAVEATS/BUGS

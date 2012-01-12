@@ -29,104 +29,51 @@ sub new {
 # template functions for inheriting classes
 
 sub id {
-    my $self=shift;
-    return $self->_id();
-}
-
-sub _id {
     die "id not implemented for this instrument\n";
 }
 
 
 sub get_value {
-    my $self=shift;
-    my $value=$self->_get_value();
-    chomp $value;
-    return $value;
-}
-
-sub _get_value{
     die "get_value not implemented for this instrument\n";
 }
 
 
 sub display_on {
-    my $self=shift;
-    $self->_display_on();
-}
-
-sub _display_on{
     die "display_on not implemented for this instrument\n";
 }
 
 
 sub display_off {
-    my $self=shift;
-    $self->_display_off();
-}
-
-sub _display_off{
     die "display_off not implemented for this instrument\n";
 }
 
 
 sub display_clear {
-    my $self=shift;
-    $self->_display_clear();
-}
-
-sub _display_clear{
     die "display_clear not implemented for this instrument\n";
 }
 
 
 sub display_text {
-    my $self=shift;
-    my $text=shift;
-    $self->_display_text($text);
-}
-
-sub _display_text{
     die "display_text not implemented for this instrument\n";
 }
 
 
 sub selftest {
-    my $self=shift;
-    $self->_selftest();
-}
-
-sub _selftest{
     die "selftest not implemented for this instrument\n";
 }
 
 
 sub configure_voltage_dc{
-    my $self=shift;
-    $self->_configure_voltage_dc(@_);
-}
-
-sub _configure_voltage_dc {
     die "configure_voltage_dc not implemented for this instrument\n";
 }
 
 
 sub configure_voltage_dc_trigger{
-    my $self=shift;
-    $self->_configure_voltage_dc_trigger(@_);
-}
-
-sub _configure_voltage_dc_trigger {
     die "configure_voltage_dc_trigger not implemented for this instrument\n";
 }
 
 
 sub triggered_read{
-    my $self=shift;
-    $self->_triggered_read(@_);
-}
-
-sub _triggered_read {
     die "triggered_read not implemented for this instrument\n";
 }
 
