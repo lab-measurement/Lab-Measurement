@@ -23,6 +23,10 @@ our %fields = (
 	device_settings => {
 		pl_freq => 50,
 	},
+	
+	device_cache => {
+		autozero => undef,
+	},
 
 );
 
@@ -31,15 +35,26 @@ sub new {
 	my $class = ref($proto) || $proto;
 	my $self = $class->SUPER::new(@_);
 	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
-	$self->write("END 2"); # or ERRSTR? and other queries will time out, unless using a line/message end character
 	
 	#$self->connection()->SetTermChar("\r\n");
 	#$self->connection()->EnableTermChar(1);
 	
+	# disable continuous readings
+	$self->write('TARM HOLD');
+	
 	return $self;
 }
 
+sub _device_init {
+	my $self = shift;
+	
+	$self->write("END 2"); # or ERRSTR? and other queries will time out, unless using a line/message end character
+}
 
+
+#
+# utility methods
+#
 
 
 sub configure_voltage_dc {
@@ -57,7 +72,7 @@ sub configure_voltage_dc {
     	Lab::Exception::CorruptParameter->throw( error => "Range has to be set to a decimal value or 'AUTO', 'MIN' or 'MAX' in " . (caller(0))[3] . "\n" );	
     }
     
-    if($tint eq 'DEFAULT' || !defined($tint)) {
+    if(!defined($tint) || $tint eq 'DEFAULT') {
     	$tint=10;
     }
     elsif($tint =~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/ && ( ($tint>=0 && $tint<=1000) || $tint==-1 ) ) {
@@ -186,13 +201,12 @@ sub configure_voltage_dc_trigger_highspeed {
 
 sub triggered_read {
     my $self=shift;
-	my $args=undef;
-	if (ref $_[0] eq 'HASH') { $args=shift }
-	else { $args={@_} }
+	my $args = scalar(@_)%2==0 ? {@_} : ( ref($_[0]) eq 'HASH' ? $_[0] : undef );
+	Lab::Exception::CorruptParameter->throw( "Illegal parameter hash given!\n" ) if !defined($args);
 	
 	$args->{'timeout'} = $args->{'timeout'} || $self->timeout();
 
-    my $value = $self->query( "TARM SGL");
+    my $value = $self->query( "TARM SGL", $args);
 
     chomp $value;
 
@@ -204,9 +218,8 @@ sub triggered_read {
 
 sub triggered_read_raw {
     my $self=shift;
-	my $args=undef;
-	if (ref $_[0] eq 'HASH') { $args=shift }
-	else { $args={@_} }
+	my $args = scalar(@_)%2==0 ? {@_} : ( ref($_[0]) eq 'HASH' ? $_[0] : undef );
+	Lab::Exception::CorruptParameter->throw( "Illegal parameter hash given!\n" ) if !defined($args);
 	
 	my $read_until_length=$args->{'read_until_length'};
 	my $value='';
@@ -227,11 +240,8 @@ sub triggered_read_raw {
 sub decode_SINT {
 	use bytes;
     my $self=shift;
-	my $args=undef;
 	my $bytestring=shift;
 	my $iscale=shift || $self->query('ISCALE?');
-	if (ref $_[0] eq 'HASH') { $args=shift }
-	else { $args={@_} }
 	
 	my @values = split( //, $bytestring);
 	my $ival=0;
@@ -260,32 +270,37 @@ sub decode_SINT {
 }
 
 
-sub autozero {
+
+sub get_autozero {
+	my $self = shift;
+	
+	return $self->device_cache()->{autozero} = $self->query('AZERO?', @_, wait_query=>1e6);
+}
+
+sub set_autozero {
 	my $self=shift;
 	my $enable=shift;
-	my $az_status=undef;
-	my $command = "";
 	
-	if(!defined $enable) {
-		# read autozero setting
-		$command = "AZERO?";
-		$az_status=$self->query( $command );
+	my $command = "";
+	my $cval = undef;
+	
+	if ($enable =~ /^ONCE$/i) {
+		$command = "AZERO ONCE";
+		$cval = 0;
+	}
+	elsif($enable =~ /^(ON|1)$/i) {
+		$command = "AZERO ON";
+		$cval = 1;
+	}
+	elsif($enable =~ /^(OFF|0)$/i) {
+		$command = "AZERO OFF";
+		$cval = 0;
 	}
 	else {
-		if ($enable =~ /^ONCE$/i) {
-			$command = "AZERO ONCE";
-		}
-		elsif($enable =~ /^(ON|1)$/i) {
-			$command = "AZERO ON";
-		}
-		elsif($enable =~ /^(OFF|0)$/i) {
-			$command = "AZERO OFF";
-		}
-		else {
-			Lab::Exception::CorruptParameter->throw( error => (caller(0))[3] . " can be set to 'ON'/1, 'OFF'/0 or 'ONCE'. Received '${enable}'\n" );
-		}
-		$self->write( $command );
-	}	
+		Lab::Exception::CorruptParameter->throw( error => (caller(0))[3] . " can be set to 'ON'/1, 'OFF'/0 or 'ONCE'. Received '${enable}'\n" );
+	}
+	$self->write( $command, @_ );
+	
 	
 	# look for errors
 	my ($errcode, $errmsg) = $self->get_error();
@@ -298,24 +313,28 @@ sub autozero {
 		)
 	}
 	
-	return $az_status;
+	$self->device_cache()->{autozero} = $cval;
 }
-
 
 sub get_voltage_dc {
     my $self=shift;
-    return $self->query("DCV");
+	
+	$self->write("DCV AUTO", @_);
+	$self->write("TARM SGL",@_);
+    return $self->read(@_);
 }
 
 sub set_nplc {
     my $self=shift;
     my $n=shift;   
-    $self->write("NPLC $n");
+	
+    $self->write("NPLC $n", @_);
 }
 
 sub selftest {
     my $self=shift;
-    $self->write("TEST");
+	
+    $self->write("TEST", @_);
 }
 
 sub autocalibration {
@@ -326,22 +345,24 @@ sub autocalibration {
     	Lab::Exception::CorruptParameter->throw("preset(): Illegal preset mode given: $mode\n");
     }    
     
-    $self->write("ACAL \U$mode\E");
+    $self->write("ACAL \U$mode\E", @_);
 }
 
 sub reset {
     my $self=shift;
-    $self->write("PRESET NORM");
+	
+    $self->write("PRESET NORM", @_);
 }
 
 sub set_display_state {
     my $self=shift;
     my $value=shift;
+	
     if($value==1 || $value =~ /on/i ) {
-    	$self->write("DISP ON");
+    	$self->write("DISP ON", @_);
     }
     elsif($value==0 || $value =~ /off/i ) {
-    	$self->write("DISP OFF");
+    	$self->write("DISP OFF", @_);
     }
     else {
     	Lab::Exception::CorruptParameter->throw( "set_display_state(): Illegal parameter.\n" );
@@ -350,7 +371,8 @@ sub set_display_state {
 
 sub display_clear {
     my $self=shift;
-    $self->write("DISP CLR");
+	
+    $self->write("DISP CLR", @_);
 }
 
 sub set_display_text {
@@ -365,12 +387,12 @@ sub set_display_text {
 sub beep {
     # It beeps!
     my $self=shift;
-    $self->write("BEEP");
+    $self->write("BEEP", @_);
 }
 
 sub get_error {
 	my $self=shift;
-	my $error = $self->query( "ERRSTR?", brutal => 1 ); # brutal is a workaround for the moment - somehow ERRSTR? timeouts  	
+	my $error = $self->query( "ERRSTR?", brutal => 1, @_ );  	
 	if($error !~ /\+0,/) {
 		if ($error =~ /^\+?([0-9]*)\,\"?(.*)\"?$/m) {
 			return ($1, $2); # ($code, $message)
@@ -395,19 +417,19 @@ sub preset {
     	Lab::Exception::CorruptParameter->throw("preset(): Illegal preset mode given: $preset\n");
     }
     
-    $self->write("PRESET \U$preset\E");
+    $self->write("PRESET \U$preset\E", @_);
 }
 
 sub get_id {
     my $self=shift;
-    return $self->query('*IDN?');
+    return $self->query('*IDN?', @_);
 }
 
 
 sub get_value {
     # Triggers one Measurement and Reads it
     my $self=shift;
-    my $val=$self->query("TRIG SGL");
+    my $val=$self->query("TRIG SGL", @_);
     chomp $val;
     return $val;
 }
@@ -458,7 +480,24 @@ line cycles, or PLCs). The integration time will be set incorrectly if this para
 
     $voltage=$hp->get_voltage_dc();
 
-Make a dc voltage measurement.
+Make a dc voltage measurement. This also enables autoranging. For finer control, use configure_voltage_dc() and
+triggered_read.
+
+_head2 triggered_read
+
+	@values = $hp->triggered_read();
+	$value = $hp->triggered_read();
+	
+Trigger and read value(s) using the current device setup. This expects and digests a list of values in ASCII format,
+as set up by configure_voltage_dc().
+
+=head2 triggered_read_raw
+
+	$result = $hp->triggered_read_raw( read_until_length => $length );
+	
+Trigger and read using the current device setup. This won't do any parsing and just return the answer from the device.
+If $read_until_length (integer) is specified, it will try to continuously read until it has gathered this amount of bytes.
+
 
 =head2 configure_voltage_dc
 
