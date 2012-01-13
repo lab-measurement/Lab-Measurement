@@ -1,10 +1,12 @@
 #!/usr/bin/perl
 
 use strict;
+use utf8;
 use warnings;
 use Lab::Data::Plotter;
 use Lab::Data::Meta;
 use File::Basename;
+use TeX::Encode;
 use Encode;
 use Cwd;
 
@@ -14,7 +16,7 @@ my $directory = cwd();
 
 my $starttex=<<TEXINTRO;
 \\documentclass[a4paper,10pt]{article}
-\\usepackage[latin1]{inputenc}
+\\usepackage[utf8]{inputenc}
 \\usepackage[T1]{fontenc}
 \\usepackage{ae}
 \\usepackage{graphicx}
@@ -67,11 +69,20 @@ while (<LIST>) {
         });
         $plotter->plot($plotname);
     }
-    my $description= $meta->dataset_description();
-    $description= decode("UTF-8", $description) if ($^O =~ /Win/);
     
-    $description=~s/_/\\_/g;
-    $description=~s/\\\\\\_/\\_/g;
+    my $plotsize=(stat("autoplot-$newname"))[7];
+    if ($plotsize==0) {
+	print "Empty plot file, skipping\n";
+	next;
+    };
+    
+    my $description= $meta->dataset_description();
+    $description= decode('utf8', $description);
+    $description=~s/\x{2D}/\x{2014}/g;    
+    $description= encode('latex', $description);
+    
+   # $description=~s/_/\\_/g;
+   # $description=~s/\\\\\\_/\\_/g;
     
     my @ul;
 
@@ -80,20 +91,11 @@ while (<LIST>) {
     $description="\\begin{itemize}".join(" ",@ul)."\\end{itemize}";
     
     my $tex=<<INCFIGURE;
-\\begin{tabular}{cc}
-\\parbox{0.5\\textwidth}{
-\\includegraphics[width=0.5\\textwidth,height=0.375\\textwidth]{autoplot-$newname}
-}
-&
-\\begin{minipage}[t]{0.5\\textwidth}
-\\footnotesize{$description}
-\\end{minipage}
-\\end{tabular}
-
-\\vspace*{3mm}
-\\rule{\\textwidth}{1pt}
-\\vspace*{3mm}
-
+\\begin{center}
+\\includegraphics[width=\\textwidth]{autoplot-$newname}
+\\end{center}
+{$description}
+\\clearpage
 INCFIGURE
     print LATEX $tex;
 }
@@ -102,7 +104,7 @@ print LATEX <<FOOTER;
 \\appendix
 \\clearpage
 \\section{File list}
-    {\\small\\verbatiminput{filelist.txt}}
+    {\\footnotesize\\verbatiminput{filelist.txt}}
 \\end{document}
 FOOTER
 
