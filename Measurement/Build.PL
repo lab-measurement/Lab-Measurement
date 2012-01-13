@@ -25,6 +25,7 @@ my $build = Module::Build->new(
         'Term::ReadKey'      => 0,
         'Switch'             => 0,
         'Clone'              => '0.31',
+	'Module::Build'      => '0.38',
     },
     conflicts         => {
         'Lab::Instrument'    => '< 2.91',
@@ -42,6 +43,7 @@ my $build = Module::Build->new(
             homepage      => 'http://www.labmeasurement.de/',
             bugtracker    => 'http://rt.cpan.org/NoAuth/Bugs.html?Dist=Lab-Measurement',
             MailingList   => 'https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-visa-users',
+            repository    => 'git://gitorious.org/lab-measurement/lab.git',
         }
     },
 );

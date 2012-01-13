@@ -35,7 +35,9 @@
             "Exception::Class" : "1.0",
             "File::Basename" : 0,
             "File::Copy" : 0,
+            "Module::Build" : "0.38",
             "Switch" : 0,
+            "TeX::Encode" : 0,
             "Term::ReadKey" : 0,
             "Time::HiRes" : 0,
             "XML::DOM" : 0,
@@ -220,6 +222,9 @@
       "license" : [
          "http://dev.perl.org/licenses/"
       ],
+      "repository" : {
+         "url" : "git://gitorious.org/lab-measurement/lab.git"
+      },
       "x_MailingList" : "https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-visa-users"
    },
    "version" : "2.94"
