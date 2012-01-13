@@ -11,7 +11,9 @@
 /Measurement/pod2htmd.tmp
 /Measurement/pod2htmi.tmp
 /Measurement/MYMETA.yml
+/Measurement/MYMETA.json
 /Measurement/MANIFEST.bak
+/Measurement/Lab-Measurement-*.tar.gz
 
 # /Homepage/
 /Homepage/docs

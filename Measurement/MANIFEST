@@ -61,3 +61,4 @@ scripts/lab-metainfo.pl
 scripts/lab-plotter.pl
 TODO
 META.yml
+META.json
