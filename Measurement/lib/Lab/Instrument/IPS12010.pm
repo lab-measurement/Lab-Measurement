@@ -1,6 +1,6 @@
 
 package Lab::Instrument::IPS12010;
-our $VERSION = '2.93';
+our $VERSION = '2.94';
 
 use strict;
 use Lab::Instrument;

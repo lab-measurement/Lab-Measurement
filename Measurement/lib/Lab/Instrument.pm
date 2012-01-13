@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 package Lab::Instrument;
-our $VERSION = '2.93';
+our $VERSION = '2.94';
 
 use strict;
 

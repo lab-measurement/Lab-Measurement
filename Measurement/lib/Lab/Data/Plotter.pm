@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 package Lab::Data::Plotter;
-our $VERSION = '2.93';
+our $VERSION = '2.94';
 
 use strict;
 use Lab::Data::Meta;

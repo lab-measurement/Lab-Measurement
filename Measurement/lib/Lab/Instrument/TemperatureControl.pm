@@ -1,6 +1,6 @@
 
 package Lab::Instrument::TemperatureControl;
-our $VERSION = '2.93';
+our $VERSION = '2.94';
 
 use strict;
 
