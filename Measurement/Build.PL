@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 
 use strict;
+use utf8;
 use Module::Build;
 
 my $build = Module::Build->new(
