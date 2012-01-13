@@ -16,6 +16,7 @@ my $build = Module::Build->new(
         'XML::Twig'          => 0,
         'Data::Dumper'       => 0,
         'Encode'             => 0,
+        'TeX::Encode'        => 0,
         'Cwd'                => 0,
         'Time::HiRes'        => 0,
         'File::Basename'     => 0,
