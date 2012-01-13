@@ -136,14 +136,46 @@ sub _construct {	# _construct(__PACKAGE__);
 	#
 	if( $class eq $package && $class ne 'Lab::Instrument' ) {
 		$self->_setconnection();
+		
+		# Match the device hash with the device
+		# The cache carries the default values set above and was possibly modified with user
+		# defined values through configure() before the connection was set. These settings are now transferred
+		# to the device.
+		$self->_device_init(); # enable device communication if necessary
+		$self->_cache_init();  # transfer configuration to/from device
 	}
-	
-	# Match the device hash with the device
-	
-	$self->device_sync('driver');
-	
-	
 }
+
+
+#
+# Sync the field set in $self->device_cache with the device.
+# Undefined fields are filled in from the device, existing values in device_cache are written to the device.
+# Without parameter, parses the whole $self->device_cache. Else, the parameter list is parsed as a list of
+# field names. Contained fields for which have no corresponding getter/setter/device_cache entry exists will result in an exception thrown.
+#
+sub _cache_init {
+	my $self = shift;
+	my $subname = shift;
+	my @ckeys = scalar(@_) > 0 ? @_ : keys %{$self->device_cache()}; 
+	
+	if( $self->{'device_cache'} && $self->connection() ) {
+		for my $ckey ( @ckeys ) {
+			Lab::Exception::CorruptParameter->throw( "No field with name $ckey in device_cache!\n" ) if !exists $self->device_cache()->{$ckey};
+			if( !defined $self->device_cache()->{$ckey}  ) {
+				$subname = 'get_' . $ckey;
+				Lab::Exception::CorruptParameter->throw("No get method defined for device_cache field $ckey!\n") if !$self->can($subname);
+				$self->device_cache()->{$ckey} = $self->$subname();
+			}
+			else {
+				$subname = 'set_' . $ckey;
+				Lab::Exception::CorruptParameter->throw("No set method defined for device_cache field $ckey!\n") if !$self->can($subname);
+				$self->$subname($self->device_cache()->{$ckey});
+			}
+		}
+	}
+}
+
+
 
 #
 # Sync the device cache with the device. 
@@ -560,6 +592,17 @@ sub getset{
 				return $self->{$subfield}->{$varname};
 			}
 }
+
+#
+# This is a hook which is called after connection initialization and before the device cache is synced (see _construct).
+# Necessary for some devices to put them into e.g. remote control mode or otherwise enable communication.
+# Overwrite this if needed.
+#
+sub _device_init {
+} 
+
+
+
 
 
 # sub WriteConfig {
