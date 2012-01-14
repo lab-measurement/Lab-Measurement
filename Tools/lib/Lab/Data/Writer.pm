@@ -9,7 +9,7 @@ use File::Basename;
 use File::Copy;
 use Lab::Data::Meta;
 
-our $VERSION="1.41";
+our $VERSION="1.21";
 
 my $default_config = {
     output_data_ext     => "dat",

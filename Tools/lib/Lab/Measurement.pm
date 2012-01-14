@@ -10,7 +10,7 @@ use Lab::Data::Writer;
 use Lab::Data::Meta;
 use Lab::Data::Plotter;
 
-our $VERSION="1.41";
+our $VERSION="1.21";
 
 sub new {
     my $proto = shift;

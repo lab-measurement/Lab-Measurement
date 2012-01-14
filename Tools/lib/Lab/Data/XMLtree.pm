@@ -57,7 +57,7 @@ use Data::Dumper;
 use XML::Twig;
 use Encode;
 use vars qw($VERSION);
-$VERSION="1.41";
+$VERSION="1.21";
 
 our $AUTOLOAD;
 
