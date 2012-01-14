@@ -86,7 +86,6 @@ sub set_sens {
     $self->{vi}->Write("SENS $nr");
 
     my $realsens = $self->{vi}->Query("SENS?");
-    chomp $realsens;
     my @senses = ("2 nV", "5 nV", "10 nV", "20 nV", "50 nV", "100 nV", "200 nV", "500 nV", "1 µV", "2 µV", "5 µV", "10 µV", "20 µV", "50 µV", "100 nV", "200 nV", "500 µV", "1 mV", "2 mV", "5 mV", "10 mV", "20 mV", "50 mV", "100 mV", "200 mV", "500 mV", "1V");
     return $senses[$realsens];
 }
@@ -96,7 +95,6 @@ sub get_sens {
     my @senses = ("2 nV", "5 nV", "10 nV", "20 nV", "50 nV", "100 nV", "200 nV", "500 nV", "1 µV", "2 µV", "5 µV", "10 µV", "20 µV", "50 µV", "100 µV", "200 µV", "500 µV", "1 mV", "2 mV", "5 mV", "10 mV", "20 mV", "50 mV", "100 mV", "200 mV", "500 mV", "1V");
     my $self = shift;
     my $nr=$self->{vi}->Query("SENS?");
-    chomp $nr;
     return $senses[$nr];
 }
 
