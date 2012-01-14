@@ -7,7 +7,7 @@ use Lab::Instrument::TemperatureDiodes;
 use Time::HiRes qw (usleep);
 
 
-our $VERSION="1.21";
+our $VERSION = sprintf("0.%04d", q$Revision: 650 $ =~ / (\d+) /);
 
 # ---------------------- Init DMM --------------------------------------------------------
 

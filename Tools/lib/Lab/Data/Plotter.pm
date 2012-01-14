@@ -7,7 +7,7 @@ use Lab::Data::Meta;
 use Data::Dumper;
 use Time::HiRes qw/gettimeofday tv_interval/;
 
-our $VERSION="1.21";
+our $VERSION = sprintf("1.%04d", q$Revision$ =~ / (\d+) /);
 
 sub new {
     my $proto = shift;

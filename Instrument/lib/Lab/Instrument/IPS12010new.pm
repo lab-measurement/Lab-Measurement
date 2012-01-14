@@ -8,7 +8,7 @@ use Lab::Instrument;
 use Lab::Instrument::MagnetSupply;
 use Time::HiRes qw (usleep);
 
-our $VERSION="1.21";
+our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
 
 our @ISA=('Lab::Instrument::MagnetSupply');
 

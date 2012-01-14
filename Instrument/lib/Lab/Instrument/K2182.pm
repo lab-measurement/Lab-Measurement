@@ -8,7 +8,7 @@ use warnings;
 use Lab::Instrument;
 use Time::HiRes qw/usleep/;
 use Time::HiRes qw/sleep/;
-our $VERSION="1.21";
+our $VERSION = sprintf("0.%04d", q$Revision: 301 $ =~ / (\d+) /);
 
 
 

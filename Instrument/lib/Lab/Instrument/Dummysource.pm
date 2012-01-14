@@ -4,7 +4,7 @@ package Lab::Instrument::Dummysource;
 use strict;
 use Lab::Instrument::Source;
 
-our $VERSION="1.21";
+our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
 
 our @ISA=('Lab::Instrument::Source');
 our $maxchannels=16;

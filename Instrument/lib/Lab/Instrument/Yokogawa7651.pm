@@ -6,7 +6,7 @@ use Switch;
 use Lab::Instrument;
 use Lab::Instrument::Source;
 
-our $VERSION="1.21";
+our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
 
 our @ISA=('Lab::Instrument::Source');
 

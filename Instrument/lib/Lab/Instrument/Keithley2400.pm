@@ -9,7 +9,7 @@ use Lab::VISA;
 use Time::HiRes qw/usleep/, qw/time/;
 
 
-our $VERSION="1.21";
+our $VERSION = sprintf("0.%04d", q$Revision: 650 $ =~ / (\d+) /);
 our @ISA=('Lab::Instrument::Source');
 
 

@@ -7,7 +7,7 @@ use Lab::VISA;
 use Lab::Instrument::IsoBus;
 use Lab::Instrument::RS232;
 use Time::HiRes qw (usleep sleep);
-our $VERSION="1.21";
+our $VERSION = sprintf("1.%04d", q$Revision$ =~ / (\d+) /);
 
 our $WAIT_STATUS=10;#usec;
 our $WAIT_QUERY=10;#usec;

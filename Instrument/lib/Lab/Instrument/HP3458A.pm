@@ -5,7 +5,7 @@ package Lab::Instrument::HP3458A;
 use strict;
 use Lab::Instrument;
 
-our $VERSION="1.21";
+our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
 
 sub new {
     my $proto = shift;

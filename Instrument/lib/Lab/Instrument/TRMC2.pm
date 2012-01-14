@@ -8,7 +8,7 @@ use Lab::Instrument;
 use IO::File;
 use Time::HiRes qw/usleep/;
 use Time::HiRes qw/sleep/;
-our $VERSION="1.21";
+our $VERSION = sprintf("0.%04d", q$Revision$ =~ / (\d+) /);
 
 my $WAIT=0.3; #sec. waiting time for each reading;
 my $mounted=0;  # Ist sie schon mal angemeldet
