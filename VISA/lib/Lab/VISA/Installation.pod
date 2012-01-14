@@ -93,13 +93,6 @@ Install dependencies of our perl modules. Depending on how familiar you are
 with the perl infrastructure, the easiest might be to use PPM, the Perl Package Manager
 included with ActivePerl.
 
-Lab::Tools needs
-
- XML::Generator (PPM would write it as XML-Generator)
- XML::DOM
- XML::Twig
- YAML
-
 =item
 
 Install Lab::VISA
@@ -128,26 +121,6 @@ Run the following commands in the source directory
     perl Makefile.PL
     nmake
     nmake install
-
-=back
-
-=item
-
-Install Lab::Instrument and Lab::Tools
-
-=over
-
-=item *
-
-Unzip/copy sources
-
-=item *
-
-Run the following commands in the source directory
-
-    perl Build.PL
-    perl Build
-    perl Build install
 
 =back
 
@@ -319,9 +292,7 @@ Here is a quick test program that you can run with perl -Mblib test.pl:
 
 =head1 COPYRIGHT AND LICENCE
 
-This is $Id$
-
-(c) 2010 Daniel Schröer, Andreas Hüttel, Daniela Taubert, and others.
+(c) 2010,2011 Daniel Schröer, Andreas Hüttel, Daniela Taubert, and others.
 
 =cut
 

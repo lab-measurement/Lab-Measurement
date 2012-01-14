@@ -1,0 +1,49 @@
+# Avoid version control files.
+\bRCS\b
+\bCVS\b
+,v$
+\B\.svn\b
+
+# Avoid Makemaker generated and utility files.
+\bMakefile$
+\bblib
+\bMakeMaker-\d
+\bpm_to_blib$
+\bblibdirs$
+^MANIFEST\.SKIP$
+^MANIFEST$
+^MYMETA.yml$
+^MYMETA\.json$
+
+# Avoid Module::Build generated and utility files.
+\bBuild$
+\bBuild.bat$
+\b_build
+.tar.gz$
+
+# Avoid temp and backup files.
+~$
+\.tmp$
+\.old$
+\.bak$
+\#$
+\b\.#
+
+# coding documentation not for distribution
+\bdoc\b
+
+# need to take care of the tests later
+\bt
+
+
+# drivers and modules that are not ready yet for release
+
+# this driver does not contain anything actually useful so far - Andreas
+# In my opinion it can serve as an example - Daniel
+# lib/Lab/Instrument/Agilent81134A.pm
+
+# this is very much under construction - Andreas
+lib/Lab/Instrument/TemperatureControl.pm
+
+# dont distribute the old examples
+^examples/Old

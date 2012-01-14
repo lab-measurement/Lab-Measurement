@@ -12,7 +12,7 @@ div#header {
 	margin: 0 0 3ex 0;
 	border-style: solid;
 	border-width: 1px 0;
-	border-color: #c91c1c;
+	border-color: #1c1cc9;
 	text-align: center;
 }
 
@@ -25,7 +25,7 @@ div#toc {
 	margin: 0 0 0 2em;
 	border-width: 0px;
 	border-style: solid;
-	border-color: #c91c1c;
+	border-color: #1c1cc9;
 }
 
 div#toc h1 {
@@ -35,7 +35,7 @@ div#toc h1 {
   text-align: center;
   border-style: solid;
   border-width: 0 0 1px 0;
-  border-color: #c91c1c;
+  border-color: #1c1cc9;
   margin: 0 0 2ex 0;
 }
 
@@ -78,7 +78,7 @@ h1 {
 }
 
 h1 .basename {
-  color: #aa0000;
+  color: #0000aa;
 }
 
 h2      {
@@ -106,13 +106,13 @@ h4      {
 
 a {
   text-decoration: none;
-  color: #aa0000;
+  color: #0000aa;
 }
 a:visited {
-  color: #aa0000;
+  color: #0000aa;
 }
 a:hover {
-  color: #aa0000;
+  color: #0000aa;
   text-decoration: underline;
 }
 
@@ -124,7 +124,7 @@ h1 a:visited {
   color: #5c5c5c;
 }
 h1 a:hover {
-  color: #aa0000;
+  color: #0000aa;
   text-decoration: none;
 }
 
@@ -132,19 +132,19 @@ h2 a { text-decoration: none; }
 h3 a { text-decoration: none; }
 h4 a { text-decoration: none; }
 
-span.keyword {color: #00f}
+span.keyword {color: #f00}
 span.keyword2 {color: #808}
-span.number {color: #f00}
-span.identifier {color: #a66}
-span.function {color: #bb5500}
-span.method {color: #bb5500}
-span.variable {color: #990000}
-span.statement {color: #00f}
+span.number {color: #00f}
+span.identifier {color: #66a}
+span.function {color: #0055bb}
+span.method {color: #0055bb}
+span.variable {color: #000099}
+span.statement {color: #f00}
 span.comment {color: #080}
 span.perlpod {color: #080}
-span.quote {color: #a66}
-span.wquote {color: #600}
-span.value {color: #a66}
+span.quote {color: #66a}
+span.wquote {color: #006}
+span.value {color: #66a}
 span.regexp_statement {color: #5c5c5c}
-span.tag {color: #00f}
-span.url {color: #00f; text-decoration: underline}
+span.tag {color: #f00}
+span.url {color: #f00; text-decoration: underline}

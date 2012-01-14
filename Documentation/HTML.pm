@@ -18,7 +18,7 @@ sub start {
     
     print {$self->{index_fh}} $self->_get_header($title);
     print {$self->{index_fh}} qq{
-        <h1><a href="../index.html">Lab::VISA</a> Documentation</h1>
+        <h1><a href="../index.html">Lab::Measurement</a> Documentation</h1>
         <p>$authors</p>
     };
 }
@@ -34,18 +34,30 @@ sub start_section {
 
 sub process_element {
     my ($self, $podfile, $params, @sections) = @_;
-    my $basename = fileparse($podfile,qr{\.(pod|pm)});
+    # my $basename = fileparse($podfile,qr{\.(pod|pm)});
+
+    my $basename = $podfile; 
+    $basename =~ s!^.*/lib/Lab/!!g ;
+    $basename =~ s!\.(pod|pm)!!g ;
+    $basename =~ s!^.*Measurement/scripts/!!g ;
+    $basename =~ s!/!-!g ;
+    $basename =~ s!VISA-VISA!VISA!g ;
+
     my $hascode = ($podfile =~ /\.(pl|pm)$/);
-    
+    print "pod $podfile base $basename\n";    
+
+    my $bnt=$basename;
+    $bnt =~ s!-!::!g ;
+
     # pod page
     my $parser = MyPodXHTML->new();
-    my $title = "$sections[0]: $basename";
+    my $title = "$sections[0]: $bnt";
     my $html;
     $parser->output_string(\$html);
     $parser->parse_file($podfile);
     open OUTFILE, ">", "$$self{docdir}/$basename.html" or die;
         print OUTFILE $self->_get_header($title);
-        print OUTFILE qq(<h1><a href="index.html">$sections[0]</a>: <span class="basename">$basename</span></h1>\n);
+        print OUTFILE qq(<h1><a href="index.html">$sections[0]</a>: <span class="basename">$bnt</span></h1>\n);
         print OUTFILE $hascode ? qq{<p>(<a href="$basename\_source.html">Source code</a>)</p>} : "";
         print OUTFILE $html;
         print OUTFILE $self->_get_footer();
@@ -56,12 +68,11 @@ sub process_element {
         my $source = $self->{highlighter}->doFile(
             file      => $podfile,
             tab_width => 4,
-            encode    => 'iso-8859-1'
         );
-        my $title = "$sections[0]: $basename";
+        my $title = "$sections[0]: $bnt";
         open SRCFILE, ">", "$$self{docdir}/$basename\_source.html" or die;
             print SRCFILE $self->_get_header($title);
-            print SRCFILE qq(<h1><a href="index.html">$sections[0]</a>: <span class="basename">$basename</span></h1>\n);
+            print SRCFILE qq(<h1><a href="index.html">$sections[0]</a>: <span class="basename">$bnt</span></h1>\n);
             print SRCFILE qq{<p>(<a href="$basename.html">Documentation</a>)</p>};
             print SRCFILE "<pre>$source</pre>\n";
             print SRCFILE $self->_get_footer();
@@ -90,10 +101,11 @@ sub finish {
 sub _get_header {
     my ($self, $title) = @_;
     return <<HEADER;
-<?xml version="1.0" encoding="iso-8859-1" ?>
+<?xml version="1.0" encoding="utf8" ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
     <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf8">
         <link rel="stylesheet" type="text/css" href="../doku.css"/>
         <title>$title</title>
     </head>
@@ -127,7 +139,10 @@ sub resolve_pod_page_link {
     my ($self, $to, $section) = @_;
     return undef unless defined $to || defined $section;
     if ($to =~ /^Lab/) {
-        return (split '::', $to)[-1].".html";
+        my $tg=$to;
+        $tg =~ s!^Lab::!!g ;
+	$tg =~ s!::!-!g ;
+        return "$tg.html";
     }
     if (defined $section) {
         $section = '#' . $self->idify($section, 1);

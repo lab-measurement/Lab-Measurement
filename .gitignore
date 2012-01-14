@@ -1,0 +1,33 @@
+
+# /
+/.settings
+/.project
+
+# /Measurement/
+/Measurement/blib
+/Measurement/_build
+/Measurement/Build
+/Measurement/Build.bat
+/Measurement/pod2htmd.tmp
+/Measurement/pod2htmi.tmp
+/Measurement/MYMETA.yml
+/Measurement/MYMETA.json
+/Measurement/MANIFEST.bak
+/Measurement/Lab-Measurement-*.tar.gz
+
+# /Homepage/
+/Homepage/docs
+/Homepage/docs-1.x
+/Homepage/temp
+
+# /VISA/
+/VISA/*.obj
+/VISA/Makefile
+/VISA/Makefile.old
+/VISA/VISA.bs
+/VISA/VISA.def
+/VISA/blib
+/VISA/pm_to_blib
+/VISA/vc90.pdb
+
+*~

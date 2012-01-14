@@ -1,9 +1,0 @@
-#!/bin/bash
-
-for i in $(grep -l -P '\t' `find -name '*.p?'`);
-do
-    echo "Bearbeite $i";
-    mv $i temp;
-    expand -t 4 temp > $i;
-    rm temp;
-done;

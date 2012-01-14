@@ -28,7 +28,13 @@ sub process_element {
         # skip
     }
     else {
-        my $basename = fileparse($podfile,qr{\.(pod|pm)});
+        my $basename = $podfile; 
+        $basename =~ s!^.*/lib/Lab/!!g ;
+        $basename =~ s!\.(pod|pm)!!g ;
+        $basename =~ s!^.*Measurement/scripts/!!g ;
+        $basename =~ s!/!_!g ;
+        $basename =~ s!VISA-VISA!VISA!g ;
+
         my $parser = MyPod2LaTeX->new();
         $parser->AddPreamble(0);
         $parser->AddPostamble(0);
@@ -56,20 +62,20 @@ sub finish {
     }
     chdir $basedir;
     
-    rename("$$self{tempdir}/documentation.pdf","$$self{docdir}/documentation.pdf") or warn "umbenennen geht nicht: $!";
+    rename("$$self{tempdir}/documentation.pdf","$$self{docdir}/documentation.pdf") or warn "umbenennen von $$self{tempdir}/documentation.pdf geht nicht: $!";
 }
 
 sub _get_preamble {
     my ($self, $title, $authors) = @_;
     return '\documentclass[twoside,BCOR4mm,openright,pointlessnumbers,headexclude,a4paper,11pt,final]{scrreprt}   %bzw. twoside,openright,pointednumbers
 \pagestyle{headings}
-\usepackage[latin1]{inputenc}
+\usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
 \usepackage{textcomp}
 \usepackage{listings}
 \usepackage{graphicx}
-\usepackage[linktocpage,colorlinks=true,citecolor=blue,pagecolor=magenta,pdftitle={Lab::VISA documentation},pdfauthor={Daniel Schröer},pdfsubject=Manual]{hyperref}
+\usepackage[linktocpage,colorlinks=true,citecolor=blue,pagecolor=magenta,pdftitle={Lab::Measurement documentation},pdfauthor={The Lab::Measurement team},pdfsubject=Manual]{hyperref}
 \lstset{language=Perl,basicstyle=\footnotesize\ttfamily,breaklines=true,
         commentstyle=\rmfamily,
         keywordstyle=\color{red}\bfseries,stringstyle=\sffamily,
@@ -94,7 +100,7 @@ sub _get_preamble {
 \includegraphics[width=12cm]{../dokutitle.pdf}
 \end{center}
 \vfill
-\today\ ($ $Revision: 595 $ $)
+\today
 
 \end{flushleft}
 \end{titlepage}

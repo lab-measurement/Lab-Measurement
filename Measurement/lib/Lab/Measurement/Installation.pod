@@ -1,0 +1,161 @@
+=pod
+
+=encoding utf-8
+
+=head1 NAME
+
+Lab::Measurement::Installation - Installation guide for Lab::Measurement
+
+=head1 Introduction
+
+Since Lab::Measurement does not contain any device driver code itself, its installation is 
+pretty straightforward. However, before you can actually use it, you will have to install
+a driver binding back-end, such as Lab::VISA or Linux-GPIB, plus its dependencies. Please 
+see the documentation of these packages for more details.
+
+=head1 Installation on Windows XP with ActiveState Perl 
+
+=over
+
+=item
+
+Install Perl.
+
+=over
+
+=item *
+
+Tested with ActivePerl from L<http://www.activestate.com/Products/activeperl/index.mhtml>
+
+=item *
+
+Make sure to include Perl Package Manager.
+
+=item *
+
+Make sure to activate the check box to include perl directory in PATH variable.
+
+=back
+
+=item
+
+Install gnuplot (not mandatory)
+
+=over
+
+=item *
+
+Download from L<http://sourceforge.net/project/showfiles.php?group_id=2055> (gp425win32.zip)
+
+=item *
+
+Extract and put it somewhere
+
+=item *
+
+Add directory containing C<pgnuplot.exe> to path:
+My Computer => Properties => Advanced => Environment Variables
+
+=back
+
+=item
+
+Install the dependencies of our perl modules. Depending on how familiar you are
+with the perl infrastructure, the easiest might be to use PPM, the Perl Package Manager
+included with ActivePerl.
+
+Lab::Measurement needs
+
+ XML::Generator (PPM would write it as XML-Generator)
+ XML::DOM
+ XML::Twig
+ YAML
+
+=item
+
+Install Lab::Measurement
+
+=over
+
+=item *
+
+Unzip/copy sources
+
+=item *
+
+Run the following commands in the source directory
+
+    perl Build.PL
+    perl Build
+    perl Build install
+
+=back
+
+=item
+
+Have fun!
+
+=back
+
+=head1 Installation on Windows XP with Strawberry Perl
+
+Strawberry Perl is a Perl distribution for Windows that most closely
+mimics a Perl installation under Linux. It comes with gcc compiler, dmake
+and the other relevant tools included.
+
+Lab::Measurement should in principle install out of the box with just the command
+
+	cpan Lab::Measurement
+
+executed on the commandline.
+
+=head1 Installation on Linux
+
+As a Linux user you will probably be able to figure out most things yourself. 
+
+=over
+
+=item
+
+Install the dependencies
+
+Best you'll use your distribution package management. You need
+
+ XML::Generator
+ XML::DOM
+ XML::Twig
+ YAML
+ ... and GnuPlot
+
+=item
+
+Install Lab::Measurement
+
+=over
+
+=item *
+
+Unzip/copy sources
+
+=item *
+
+Run the following commands in the source directory
+
+    perl Build.PL
+    perl Build
+    perl Build install
+
+=back
+
+=item
+
+Have fun!
+
+=back
+
+=head1 COPYRIGHT AND LICENCE
+
+(c) 2010,2011 Daniel Schröer, Andreas Hüttel, Daniela Taubert, and others.
+
+=cut
+
