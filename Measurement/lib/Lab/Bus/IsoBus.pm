@@ -197,7 +197,7 @@ sub _search_twin {
 
 =head1 NAME
 
-Lab::Bus::IsoBus - Oxford Instruments IsoBus
+Lab::Bus::IsoBus - Oxford Instruments IsoBus bus
 
 =head1 SYNOPSIS
 

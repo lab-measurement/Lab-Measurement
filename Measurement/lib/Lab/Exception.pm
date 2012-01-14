@@ -161,5 +161,24 @@ use Exception::Class (
 	},
 );
 
-
 1;
+
+
+
+=pod
+
+=encoding utf-8
+
+=head1 NAME
+
+Lab::Exception - exception handling classes
+
+=head1 AUTHOR/COPYRIGHT
+
+ Copyright     2011      Florian Olbrich
+
+This library is free software; you can redistribute it and/or modify it under the same
+terms as Perl itself.
+
+=cut
+

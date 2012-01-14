@@ -67,7 +67,7 @@ sub _get_temperature() {
 
 =head1 NAME
 
-Lab::Instrument::TemperatureControl - Base class for temperature control instruments
+Lab::Instrument::TemperatureControl - base class for temperature control instruments
 
   (c) 2011 Andreas K. Hüttel
 

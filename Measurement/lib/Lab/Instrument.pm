@@ -656,7 +656,7 @@ sub _device_init {
 
 =head1 NAME
 
-Lab::Instrument - General instrument package
+Lab::Instrument - instrument base class
 
 =head1 SYNOPSIS
 

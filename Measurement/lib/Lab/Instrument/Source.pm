@@ -469,7 +469,7 @@ sub set_range() {
 
 =head1 NAME
 
-Lab::Instrument::Source - Base class for voltage source instruments
+Lab::Instrument::Source - base class for voltage source instruments
 
 =head1 SYNOPSIS
 

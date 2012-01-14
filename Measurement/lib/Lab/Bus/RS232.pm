@@ -276,7 +276,7 @@ sub _search_twin {
 
 =head1 NAME
 
-Lab::Bus::RS232 - Bus for RS232 or Virtual Comm ports
+Lab::Bus::RS232 - RS232 or Virtual Comm port bus
 
 =head1 SYNOPSIS
 

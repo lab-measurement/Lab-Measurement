@@ -240,7 +240,7 @@ sub _search_twin {
 
 =head1 NAME
 
-Lab::Bus::VISA - VISA bus
+Lab::Bus::VISA - National Instruments VISA bus
 
 =head1 SYNOPSIS
 
