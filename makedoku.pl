@@ -12,7 +12,7 @@ use Pod::Usage;
 
 my %options = (
     toc     => "dokutoc.yml",
-    docdir  => "Homepage/docs-1.x",
+    docdir  => "Homepage/docs",
     tempdir => "Homepage/temp",
 );
 GetOptions( \%options, "docdir=s", "tempdir=s", 'help|?' );
