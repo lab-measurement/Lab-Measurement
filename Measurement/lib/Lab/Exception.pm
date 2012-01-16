@@ -136,15 +136,15 @@ use Exception::Class (
 	#
 	# errors and warnings sent by devices
 	#
-
+	
 	Lab::Exception::DeviceError => {
-		isa			=> 'Lab::Exception::Error',
-		description	=> 'An error was sent by a device.',
+		isa 		=> 'Lab::Exception::Error',
+		description	=> "A device has reported one or more errors.",
 		fields		=> [
-							'code', # an error code, if applicable
-							'message', # an error message, if present
-							'command', # the command that produced the error
-		]
+							'device_class',	# driver class of the device
+							'command',		# last command as (and if) given by the script
+							'error_list',	# list of errors, of the format [ [$errcode1, $errmsg1], [$errcode2, $errmsg2]. ... ]
+		],
 	},
 
 

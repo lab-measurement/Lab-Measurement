@@ -212,7 +212,7 @@ sub autozero {
 	if(!defined $enable) {
 		# read autozero setting
 		$command = "ZERO:AUTO?";
-		$az_status=$self->query( $command );
+		$az_status=$self->query( $command, error_check => 1 );
 	}
 	else {
 		if ($enable =~ /^ONCE$/i) {
@@ -227,19 +227,8 @@ sub autozero {
 		else {
 			Lab::Exception::CorruptParameter->throw( error => "HP34401A::autozero() can be set to 'ON'/1, 'OFF'/0 or 'ONCE'. Received '${enable}'\n" );
 		}
-		$self->write( $command );
+		$self->write( $command, error_check => 1 );
 	}	
-	
-	# look for errors
-	my ($errcode, $errmsg) = $self->get_error();
-	if($errcode) {
-		Lab::Exception::DeviceError->throw(
-			error => "Error from device in HP34401A::autozero(), the received error is '${errcode},${errmsg}'\n",
-			code => $errcode,
-			message => $errmsg,
-			command => $command
-		)
-	}
 	
 	return $az_status;
 }
@@ -272,21 +261,8 @@ sub _configure_voltage_dc {
     }
     
 	# do it
-	$self->write( "CONF:VOLT:DC ${range} ${res_cmd}" );
-	$self->write( "VOLT:DC:NPLC ${tint}" ) if $res_cmd eq ''; # integration time implicitly set through resolution
-	
-	# look for errors
-	my ($errcode, $errmsg) = $self->get_error();
-	if($errcode) {
-		my $command = "CONF:VOLT:DC ${range} ${res_cmd}";
-		$command .= "\nVOLT:DC:NPLC ${tint}" if $res_cmd eq '';
-		Lab::Exception::DeviceError->throw(
-			error => "Error from device in HP34401A::configure_voltage_dc(), the received error is '${errcode},${errmsg}'\n",
-			code => $errcode,
-			message => $errmsg,
-			command => $command
-		)
-	}
+	$self->write( "CONF:VOLT:DC ${range} ${res_cmd}", error_check => 1 );
+	$self->write( "VOLT:DC:NPLC ${tint}", error_check => 1 ) if $res_cmd eq ''; # integration time implicitly set through resolution
 }
 
 sub _configure_voltage_dc_trigger {

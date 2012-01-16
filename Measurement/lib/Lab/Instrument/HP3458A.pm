@@ -36,19 +36,16 @@ sub new {
 	my $self = $class->SUPER::new(@_);
 	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
 	
-	#$self->connection()->SetTermChar("\r\n");
-	#$self->connection()->EnableTermChar(1);
-	
-	# disable continuous readings
-	$self->write('TARM HOLD');
-	
 	return $self;
 }
 
 sub _device_init {
 	my $self = shift;
 	
+	#$self->connection()->SetTermChar("\r\n");
+	#$self->connection()->EnableTermChar(1);
 	$self->write("END 2"); # or ERRSTR? and other queries will time out, unless using a line/message end character
+	$self->write('TARM HOLD');	# disable continuous readings
 }
 
 
@@ -91,19 +88,7 @@ sub configure_voltage_dc {
     
 	# do it
 	$self->write( "FUNC DCV ${range}" );
-	$self->write( "NPLC ${tint}" );
-	
-	# look for errors
-	my ($errcode, $errmsg) = $self->get_error();
-	if($errcode) {
-		my $command = "FUNC DCV ${range}\nNPLC ${tint}";
-		Lab::Exception::DeviceError->throw(
-			error => "Error from device in " . (caller(0))[3] . ", the received error is '${errcode},${errmsg}'\n",
-			code => $errcode,
-			message => $errmsg,
-			command => $command
-		)
-	}
+	$self->write( "NPLC ${tint}", error_check=>1 );	
 }
 
 sub configure_voltage_dc_trigger {
@@ -125,24 +110,12 @@ sub configure_voltage_dc_trigger {
     $self->_configure_voltage_dc($range, $tint);
 
 	#$self->write( "PRESET NORM" );
-	$self->write( "INBUF ON" );
-    $self->write( "TARM AUTO" );
-    $self->write( "TRIG HOLD" );
-    $self->write( "NRDGS $count, AUTO" );
-    $self->write( "TIMER $delay");
+	$self->write( "INBUF ON", error_check => 1);
+    $self->write( "TARM AUTO", error_check => 1 );
+    $self->write( "TRIG HOLD", error_check => 1 );
+    $self->write( "NRDGS $count, AUTO", error_check => 1 );
+    $self->write( "TIMER $delay", error_check => 1 );
     #$self->write( "TRIG:DELay:AUTO OFF");
-	
-	# look for errors
-	my ($errcode, $errmsg) = $self->get_error();
-	if($errcode) {
-		my $command = "";
-		Lab::Exception::DeviceError->throw(
-			error => "Error from device in " . (caller(0))[3] . ", the received error is '${errcode},${errmsg}'\n",
-			code => $errcode,
-			message => $errmsg,
-			command => $command
-		)
-	}
 }
 
 sub configure_voltage_dc_trigger_highspeed {
@@ -270,11 +243,37 @@ sub decode_SINT {
 }
 
 
+sub set_oformat {
+	my $self=shift;
+	my $format=shift;
+	
+	if( $format !~ /^\s*(ASCII|1|SINT|2|DINT|3|SREAD|4|DREAL|5)\s*$/ ) {
+		Lab::Exception::CorruptParameter->throw( "Invalid OFORMAT specified." );
+	}
+	$format = $1;
+	
+	$self->write("OFORMAT $1");
+	
+	$self->check_errors();
+}
+
+sub get_oformat {
+	my $self=shift;
+	my $args = scalar(@_)%2==0 ? {@_} : ( ref($_[0]) eq 'HASH' ? $_[0] : undef );
+	Lab::Exception::CorruptParameter->throw( "Illegal parameter hash given!\n" ) if !defined($args);
+
+	if($args->{direct_read} || !defined $self->device_cache()->{oformat}) {
+		return $self->device_cache()->{oformat} = $self->query('OFORMAT?', $args);
+	}
+	else {
+		return $self->device_cache()->{oformat};		
+	}
+}
 
 sub get_autozero {
 	my $self = shift;
 	
-	return $self->device_cache()->{autozero} = $self->query('AZERO?', @_, wait_query=>1e6);
+	return $self->device_cache()->{autozero} = $self->query('AZERO?', @_, error_check => 1);
 }
 
 sub set_autozero {
@@ -299,20 +298,8 @@ sub set_autozero {
 	else {
 		Lab::Exception::CorruptParameter->throw( error => (caller(0))[3] . " can be set to 'ON'/1, 'OFF'/0 or 'ONCE'. Received '${enable}'\n" );
 	}
-	$self->write( $command, @_ );
-	
-	
-	# look for errors
-	my ($errcode, $errmsg) = $self->get_error();
-	if($errcode) {
-		Lab::Exception::DeviceError->throw(
-			error => "Error from device in " . (caller(0))[3] . ", the received error is '${errcode},${errmsg}'\n",
-			code => $errcode,
-			message => $errmsg,
-			command => $command
-		)
-	}
-	
+	$self->write( $command, error_check=>1, @_ );
+			
 	$self->device_cache()->{autozero} = $cval;
 }
 
@@ -382,6 +369,8 @@ sub set_display_text {
     	Lab::Exception::CorruptParameter->throw( "set_display_text(): Illegal characters in given text.\n" );
     }
     $self->write("DISP MSG,\"$text\"");
+    
+    $self->check_errors();
 }
 
 sub beep {
@@ -392,9 +381,9 @@ sub beep {
 
 sub get_error {
 	my $self=shift;
-	my $error = $self->query( "ERRSTR?", brutal => 1, @_ );  	
-	if($error !~ /\+0,/) {
-		if ($error =~ /^\+?([0-9]*)\,\"?(.*)\"?$/m) {
+	my $error = $self->query( "ERRSTR?", brutal => 1, @_ );
+	if($error !~ /0,\"NO ERROR\"/) {
+		if ($error =~ /^\+?([0-9]*)\,\"?([^\"].*[^\"])\"?$/m) {
 			return ($1, $2); # ($code, $message)
 		}
 		else {
@@ -402,7 +391,7 @@ sub get_error {
 		}
 	}
 	else {
-		return undef;
+		return (0);
 	}
 }
 
@@ -560,12 +549,35 @@ Clear the message displayed on the front panel.
 
 Issue a single beep immediately.
 
+
 =head2 get_error
 
     ($err_num,$err_msg)=$hp->get_error();
 
 Query the multimeter's error queue. Up to 20 errors can be stored in the
 queue. Errors are retrieved in first-in-first out (FIFO) order.
+
+=head2 check_errors
+
+	$instrument->check_errors($last_command);
+	
+	# try
+	eval { $instrument->check_errors($last_command) };
+	# catch
+	if ( my $e = Exception::Class->caught('Lab::Exception::DeviceError')) {
+		warn "Errors from device!";
+		@errors = $e->error_list();
+		@devtype = $e->device_class();
+		$command = $e->command();		
+	}
+	else {
+		$e = Exception::Class->caught();
+		ref $e ? $e->rethrow; die $e;
+	}
+
+Uses get_error() to check the device for occured errors. Reads all present error and throws a
+Lab::Exception::DeviceError. The list of errors, the device class and the last issued command(s)
+(if the script provided them) are enclosed.
 
 =head2 set_nlpc
 
@@ -607,7 +619,15 @@ $mode can be
   'DCV'  / 1
   'AC'   / 2
   'OHMS' / 4
-each meaning the obvious. 
+each meaning the obvious.
+
+=head2 decode_SINT
+
+	@values = $hp->decode_SINT( $SINT_data, <$iscale> );
+
+Takes a data blob with SINT values and decodes them into a numeric list. The used $iscale parameter is
+read from the device by default if omitted. Make sure the device still has the same settings as used to
+obtain $SINT_data, or iscale will be off which leads to invalid data decoding.
 
 
 =head1 CAVEATS/BUGS
