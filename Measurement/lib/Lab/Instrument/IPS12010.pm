@@ -32,15 +32,17 @@ sub new {
 	my $self = $class->SUPER::new(@_);
 	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
 	print "IPS12010 superconducting magnet supply code is highly experimental and untested. You have been warned.\n";
-
-	$self->connection()->SetTermChar(chr(13));
-	$self->connection()->EnableTermChar(1);
-
-	$self->ips_set_communications_protocol(4);  # set to extended resolution
-	$self->ips_set_control(3);  # set to remote & unlocked
 	return $self;
 }
 
+sub _device_init {
+	my $self=shift;
+	
+	$self->connection()->SetTermChar(chr(13));
+	$self->connection()->EnableTermChar(1);
+	$self->ips_set_communications_protocol(4);  # set to extended resolution
+	$self->ips_set_control(3);  # set to remote & unlocked
+}
 
 sub ips_set_control {
 # 0 Local & Locked
