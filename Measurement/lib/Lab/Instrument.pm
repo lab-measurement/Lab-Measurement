@@ -350,6 +350,39 @@ sub _checkconfig {
 
 
 #
+# To be overwritten...
+# Returned $errcode has to be 0 for "no error"
+#
+sub get_error {
+	my $self=shift;
+	
+	# overwrite with device specific error retrieval...
+	
+	return (0, undef); # ( $errcode, $message )
+}
+
+sub check_errors {
+	my $self=shift;
+	my $command=shift;
+	my @errors=();
+	
+	my ( $code, $message )  = $self->get_error();	
+	while( $code != 0 ) {
+		push @errors, [$code, $message];
+		warn "\nReceived device error with code $code\nMessage: $message\n";
+		( $code, $message )  = $self->get_error();
+	}
+
+	if(@errors) {
+		Lab::Exception::DeviceError->throw (
+			device_class => ref $self,
+			command => $command,
+			error_list => \@errors,
+		)
+	}
+}
+
+#
 # Generic utility methods for string based connections (most common, SCPI etc.).
 # For connections not based on command strings these should probably be overwritten/disabled!
 #
@@ -360,13 +393,14 @@ sub _checkconfig {
 
 sub write {
 	my $self=shift;
-	my $command=shift;
+	my $command= scalar(@_)%2 == 0 && ref $_[1] ne 'HASH' ? undef : shift;  # even sized parameter list and second parm no hashref? => Assume parameter hash
 	my $args = scalar(@_)%2==0 ? {@_} : ( ref($_[0]) eq 'HASH' ? $_[0] : undef );
 	Lab::Exception::CorruptParameter->throw( "Illegal parameter hash given!\n" ) if !defined($args);
 
-	$args->{'command'} = $command;
+	$args->{'command'} = $command if defined $command;
 	
-	return $self->connection()->Write($args);
+	$self->connection()->Write($args);
+	$self->check_errors($args->{'command'}) if $args->{error_check};
 }
 
 
@@ -375,19 +409,23 @@ sub read {
 	my $args = scalar(@_)%2==0 ? {@_} : ( ref($_[0]) eq 'HASH' ? $_[0] : undef );
 	Lab::Exception::CorruptParameter->throw( "Illegal parameter hash given!\n" ) if !defined($args);
 
-	return $self->connection()->Read($args);
+	my $result = $self->connection()->Read($args);
+	$self->check_errors('Just a plain and simple read.') if $args->{error_check};
+	return $result;
 }
 
 
 sub query {
 	my $self=shift;
-	my $command=shift;
+	my $command= scalar(@_)%2 == 0 && ref $_[1] ne 'HASH' ? undef : shift;  # even sized parameter list and second parm no hashref? => Assume parameter hash
 	my $args = scalar(@_)%2==0 ? {@_} : ( ref($_[0]) eq 'HASH' ? $_[0] : undef );
 	Lab::Exception::CorruptParameter->throw( "Illegal parameter hash given!\n" ) if !defined($args);
 
-	$args->{'command'} = $command;
+	$args->{'command'} = $command if defined $command;
 
-	return $self->connection()->Query($args);
+	my $result = $self->connection()->Query($args);
+	$self->check_errors($args->{'command'}) if $args->{error_check};
+	return $result;
 }
 
 
@@ -712,6 +750,9 @@ Arguments: just the configuration hash (or even-sized list) passed along from a 
 Sends the command C<$command> to the instrument. An option hash can be supplied as second or also as only argument.
 Generally, all options are passed to the connection/bus, so additional named options may be supported based on the connection and bus
 and can be passed as a hashref or hash. See L<Lab::Connection>.
+ 
+Optional named parameters for hash:
+error_check => 1/0	Invoke $instrument->check_errors after write. Default off.
 
 =head2 read
 
@@ -762,6 +803,31 @@ $instrument->{'CommandRules'} = {
     		  'betweenCmdAndData' => ' ',
     		  'postData'          => '' # empty entries can be skipped
     		};
+
+=head2 get_error
+
+	($errcode, $errmsg) = $instrument->get_error();
+
+Method stub to be overwritten. Implementations read one error (and message, if available) from
+the device.
+
+=head2 check_errors
+
+	$instrument->check_errors($last_command);
+	
+	# try
+	eval { $instrument->check_errors($last_command) };
+	# catch
+	if ( my $e = Exception::Class->caught('Lab::Exception::DeviceError')) {
+		warn "Errors from device!";
+		@errors = $e->error_list();
+		@devtype = $e->device_class();
+		$command = $e->command();		
+	}
+
+Uses get_error() to check the device for occured errors. Reads all present error and throws a
+Lab::Exception::DeviceError. The list of errors, the device class and the last issued command(s)
+(if the script provided them) are enclosed.
 
 =head1 CAVEATS/BUGS
 
