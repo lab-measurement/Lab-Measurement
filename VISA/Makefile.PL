@@ -11,7 +11,7 @@ use ExtUtils::MakeMaker;
 # to delete the swig-generated files when doing 'make clean'.
 # TODO: should just check if swig is in the path
 
-system("swig -perl5 -module Lab::VISA visa.i");
+# system("swig -perl5 -module Lab::VISA visa.i");
 
 WriteMakefile(
 #   'clean'             => {
