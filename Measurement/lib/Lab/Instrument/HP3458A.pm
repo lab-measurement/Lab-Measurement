@@ -160,13 +160,13 @@ sub configure_voltage_dc_trigger_highspeed {
     Lab::Exception::CorruptParameter->throw( error => "Trigger delay has to be a positive decimal value\n" )
     	if($count !~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/);
 
-	$self->write( "PRESET FAST" );
-    $self->write( "TARM HOLD");
-	$self->write( "APER ".$tint );
-    $self->write( "MFORMAT SINT" );
-    $self->write( "OFORMAT SINT" );
-    $self->write( "MEM FIFO" );
-    $self->write( "NRDGS $count, AUTO" );
+	$self->write( "PRESET FAST", error_check => 1 );
+    $self->write( "TARM HOLD", error_check => 1);
+	$self->write( "APER ".$tint, error_check => 1 );
+    $self->write( "MFORMAT SINT", error_check => 1 );
+    $self->write( "OFORMAT SINT", error_check => 1 );
+    $self->write( "MEM FIFO", error_check => 1 );
+    $self->write( "NRDGS $count, AUTO", error_check => 1 );
     #$self->write( "TIMER $delay") if defined($delay);	
 
 }

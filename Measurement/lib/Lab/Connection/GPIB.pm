@@ -104,6 +104,7 @@ sub serial_poll {
 	( $stat{'1'}, $stat{'2'}, $stat{'3'}, $stat{'MAV'}, $stat{'ESB'}, $stat{'RQS'}, $stat{'7'}, $stat{'8'} ) = @statbits;
 
 	return \%stat;
+
 }
 
 
