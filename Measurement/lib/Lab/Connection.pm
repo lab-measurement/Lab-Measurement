@@ -101,7 +101,7 @@ sub Query {
 	my $wait_query=$options->{'wait_query'} || $self->wait_query();
 
 	$self->Write( $options );
-	usleep($wait_query);
+	sleep($wait_query);
 	return $self->Read($options);
 }
 
@@ -352,7 +352,7 @@ This hash is also meant for options to Read itself, if need be.
 
   configuration hash options:
    command => <command string>
-   wait_query => <wait time between read and write in usec>   # overwrites the connection default
+   wait_query => <wait time between read and write in seconds>   # overwrites the connection default
    brutal => <1/0>   # suppress timeout errors if set to true
    read_length => <int>   # how many bytes/characters to read
    ...more (see bus documentation)
