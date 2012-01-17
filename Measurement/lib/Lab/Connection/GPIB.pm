@@ -88,6 +88,24 @@ sub SetTermChar { # the character as string
   return $result;
 }
 
+#
+# perform a serial poll on the bus and return the status byte
+#
+sub serial_poll {
+	my $self=shift;
+	my @statbits = ();
+	my $statbyte = $self->bus()->serial_poll($self->connection_handle());
+	my %stat = ();
+	
+	for (my $i=0; $i<8; $i++) {
+		$statbits[$i] = 0x01 & ($statbyte >> $i);
+	}
+
+	( $stat{'1'}, $stat{'2'}, $stat{'3'}, $stat{'MAV'}, $stat{'ESB'}, $stat{'RQS'}, $stat{'7'}, $stat{'8'} ) = @statbits;
+
+	return \%stat;
+}
+
 
 1;
 

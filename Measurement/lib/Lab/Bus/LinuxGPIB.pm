@@ -280,9 +280,25 @@ sub connection_enabletermchar { # @_ = ( $connection_handle, 0/1 off/on
 	return 1;
 }
 
+sub serial_poll {
+	my $self = shift;
+	my $connection_handle = shift;
+	my $sbyte = undef;
+	
+	my $ibstatus = ibrsp($connection_handle->{'gpib_handle'}, $sbyte);
+	
+	my $ib_bits=$self->ParseIbstatus($ibstatus);
 
-
-
+	if($ib_bits->{'ERR'}==1) {
+		Lab::Exception::GPIBError->throw(
+			error => sprintf("ibrsp (serial poll) failed with status %x\n", $ibstatus) . Dumper($ib_bits),
+			ibsta => $ibstatus,
+			ibsta_hash => $ib_bits,
+		);
+	}
+	
+	return $sbyte;
+}
 
 sub connection_clear {
 	my $self = shift;
