@@ -49,6 +49,17 @@ sub new {
 
 
 #
+# perform a serial poll on the bus and return the status byte
+#
+sub serial_poll {
+	my $self=shift;
+	
+	# Soon to be implemented
+	return 0;
+}
+
+
+#
 # adapting bus setup to VISA
 #
 sub _setbus {
