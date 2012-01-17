@@ -15,19 +15,17 @@ sub new {
 	my $class = ref($proto) || $proto;
 	my $self = $class->SUPER::new(@_);
 	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
-
-	$self->connection()->SetTermChar(chr(13));
-	$self->connection()->EnableTermChar(1);
-
 	printf "The ITC driver is work in progress. You have been warned.\n";
     
-#     my $xstatus=Lab::VISA::viSetAttribute($self->{vi}->{instr}, $Lab::VISA::VI_ATTR_TERMCHAR, 0xD);
-#     if ($xstatus != $Lab::VISA::VI_SUCCESS) { die "Error while setting read termination character: $xstatus";}
-# 
-#     $xstatus=Lab::VISA::viSetAttribute($self->{vi}->{instr}, $Lab::VISA::VI_ATTR_TERMCHAR_EN, $Lab::VISA::VI_TRUE);
-#     if ($xstatus != $Lab::VISA::VI_SUCCESS) { die "Error while enabling read termination character: $xstatus";}
-    
     return $self;
+}
+
+sub _device_init {
+	my $self=shift;
+	
+	$self->connection()->SetTermChar(chr(13));
+	$self->connection()->EnableTermChar(1);
+	$self->itc_set_control(3);	# Talk to me
 }
 
 sub itc_set_control { # don't use it if you get an error message during reading out sensors:"Cading Sensor";
@@ -37,9 +35,26 @@ sub itc_set_control { # don't use it if you get an error message during reading 
 # 3 Remote & Unlocked
     my $self=shift;
     my $mode=shift;
-    my $cmd=sprintf("C%d\r",$mode);
-    $self->query($cmd);
+    my $cmd=sprintf("\$C%d\r",$mode);
+    $self->write($cmd); # ugly and in the works
     sleep(1);
+    $self->write($cmd);
+    sleep(1);
+}
+
+sub query {
+	my $self=shift;
+	my $command= scalar(@_)%2 == 0 && ref $_[1] ne 'HASH' ? undef : shift;  # even sized parameter list and second parm no hashref? => Assume parameter hash
+	my $args = scalar(@_)%2==0 ? {@_} : ( ref($_[0]) eq 'HASH' ? $_[0] : undef );
+	Lab::Exception::CorruptParameter->throw( "Illegal parameter hash given!\n" ) if !defined($args);
+
+	$args->{'command'} = $command if defined $command;
+
+	my $result = $self->connection()->Write($args);
+	
+	
+	$self->check_errors($args->{'command'}) if $args->{error_check};
+	return $result;
 }
 
 sub itc_set_communications_protocol {
