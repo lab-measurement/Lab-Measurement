@@ -1,6 +1,9 @@
 History of Lab::VISA
 ====================
 
+Lab::VISA 2.95
+  * add support for viReadSTB 
+
 Lab::VISA 2.90
   * Regenerate wrapper code with swig-2
   * Unify version number with other lab packages

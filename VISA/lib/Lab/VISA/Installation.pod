@@ -1,5 +1,7 @@
 =pod
 
+=encoding utf8
+
 =head1 NAME
 
 Lab::VISA::Installation - Installation guide for Lab::VISA
@@ -292,7 +294,8 @@ Here is a quick test program that you can run with perl -Mblib test.pl:
 
 =head1 COPYRIGHT AND LICENCE
 
-(c) 2010,2011 Daniel Schröer, Andreas Hüttel, Daniela Taubert, and others.
+(c) 2010,2011 Daniel SchrÃ¶er, Andreas K. HÃ¼ttel, Daniela Taubert, and others.
+    2012      Andreas K. HÃ¼ttel
 
 =cut
 
