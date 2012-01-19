@@ -8,6 +8,9 @@ our @ISA = ("Lab::Instrument");
 
 my %fields = (
 	supported_connections => [ 'IsoBus', 'LinuxGPIB' ],
+
+	device_settings => {
+	}
 );
 
 sub new {
@@ -16,17 +19,21 @@ sub new {
 	my $self = $class->SUPER::new(@_);
 	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
 	printf "The ITC driver is work in progress. You have been warned.\n";
-    
-    return $self;
+
+	return $self;
 }
+
+
 
 sub _device_init {
 	my $self=shift;
 	
 	$self->connection()->SetTermChar(chr(13));
 	$self->connection()->EnableTermChar(1);
-	$self->itc_set_control(3);	# Talk to me
+	sleep 1;
+	$self->itc_set_control(3); # Talk to me
 }
+
 
 sub itc_set_control { # don't use it if you get an error message during reading out sensors:"Cading Sensor";
 # 0 Local & Locked
@@ -35,27 +42,15 @@ sub itc_set_control { # don't use it if you get an error message during reading 
 # 3 Remote & Unlocked
     my $self=shift;
     my $mode=shift;
-    my $cmd=sprintf("\$C%d\r",$mode);
-    $self->write($cmd); # ugly and in the works
-    sleep(1);
-    $self->write($cmd);
-    sleep(1);
+    my $cmd="C$mode\r";
+    $self->query($cmd);
 }
 
-sub query {
+sub set_control {
 	my $self=shift;
-	my $command= scalar(@_)%2 == 0 && ref $_[1] ne 'HASH' ? undef : shift;  # even sized parameter list and second parm no hashref? => Assume parameter hash
-	my $args = scalar(@_)%2==0 ? {@_} : ( ref($_[0]) eq 'HASH' ? $_[0] : undef );
-	Lab::Exception::CorruptParameter->throw( "Illegal parameter hash given!\n" ) if !defined($args);
-
-	$args->{'command'} = $command if defined $command;
-
-	my $result = $self->connection()->Write($args);
-	
-	
-	$self->check_errors($args->{'command'}) if $args->{error_check};
-	return $result;
+	$self->itc_set_control(@_);
 }
+	
 
 sub itc_set_communications_protocol {
 # 0 "Normal" (default)
@@ -83,8 +78,8 @@ sub itc_read_parameter {
 
     my $self=shift;
     my $parameter=shift;
-    my $cmd=sprintf("R%d\r",$parameter);
-    my $result=$self->query($cmd);
+    my $cmd="R$parameter\r";
+    my $result=$self->query($cmd,@_);
     chomp $result;
     $result =~ s/^\s*R//;
     return sprintf("%e",$result);
@@ -113,7 +108,7 @@ sub itc_set_heater_auto {
     my $self=shift;
     my $mode=shift;
     $mode=sprintf("%d",$mode);
-    $self->query("A$mode\r");
+    return $self->query("A$mode\r");
 }
 
 sub itc_set_proportional_value {
@@ -145,7 +140,7 @@ sub itc_set_heater_sensor {
     my $value=shift;
     #$self->itc_set_heater_auto(0);
     $value=sprintf("%d",$value);
-    $self->query("H$value\r");
+    return $self->query("H$value\r");
 }
 
 sub itc_set_PID_auto {
@@ -180,7 +175,7 @@ sub itc_T_set_point {
     my $self=shift;
     my $value=shift;
     $value=sprintf("%.3f",$value);
-    $self->query("T$value\r");
+    return $self->query("T$value\r");
 }
 sub itc_sweep {
 # 0 Stop Sweep 
