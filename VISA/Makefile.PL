@@ -2,6 +2,7 @@
 
 use 5.008;
 use strict;
+use utf8;
 use ExtUtils::MakeMaker;
 
 # If you have Swig installed, un-comment the next line 
@@ -10,7 +11,7 @@ use ExtUtils::MakeMaker;
 # to delete the swig-generated files when doing 'make clean'.
 # TODO: should just check if swig is in the path
 
-#system("swig -perl5 -module Lab::VISA visa.i");
+# system("swig -perl5 -module Lab::VISA visa.i");
 
 WriteMakefile(
 #   'clean'             => {
@@ -36,7 +37,7 @@ WriteMakefile(
     'OBJECT'            => q/$(O_FILES)/,
     'META_MERGE'        => {
         resources => {
-            homepage    =>      'http://labvisa.de',
+            homepage    =>      'http://www.labmeasurement.de/',
             bugtracker  =>      'http://rt.cpan.org/NoAuth/Bugs.html?Dist=Lab-VISA',
             MailingList =>      'lab-visa-users@mailman.uni-regensburg.de',
         },
@@ -44,6 +45,6 @@ WriteMakefile(
 
     (($] >= 5.005)
     ?   (ABSTRACT_FROM  => 'VISA.pod',
-         AUTHOR         => 'Daniel Schroeer <schroeer@cpan.org>') : ()),
+         AUTHOR         => 'Daniel Schröer <schroeer@cpan.org>') : ()),
 
 );

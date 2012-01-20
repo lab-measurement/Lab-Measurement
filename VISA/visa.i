@@ -1,7 +1,7 @@
 /*$Id$*/
 
 %perlcode %{
-$Lab::VISA::VERSION="2.90";
+$Lab::VISA::VERSION="2.95";
 %}
 
 %module "Lab::VISA"
@@ -62,6 +62,8 @@ extern ViStatus _VI_FUNC viOpen(ViSession sesn, ViRsrc name, ViAccessMode mode, 
 
 extern ViStatus _VI_FUNC viSetAttribute(ViObject vi, ViAttr attrName, ViAttrState attrValue);
 extern ViStatus _VI_FUNC viGetAttribute(ViObject vi, ViAttr attrName, void *OUTPUT);
+
+extern ViStatus _VI_FUNC viReadSTB (ViSession vi, ViPUInt16 *OUTPUT);
 
 %apply char* { ViBuf };
 extern ViStatus _VI_FUNC viWrite (ViSession vi, ViBuf buf, ViUInt32 cnt, ViUInt32 *OUTPUT);
