@@ -200,6 +200,7 @@ sub device_sync{
 				my $count = 0;
 				foreach my $key (keys %{$self->{'device_cache'}} ){
 					$self->${\('set_'.$key)}($self->{'device_cache'}->{$key});
+					$count += 1;
 				}				
 				return $count;
 			}
@@ -207,11 +208,13 @@ sub device_sync{
 		else{
 			if($_[0]){
 				$self->{'device_cache'}->{$_[0]} = $self->${\('get_'.$_[0])}( device_cache => 1 );
+				return 1;
 			}
 			else{
 				my $count = 0;
 				foreach my $key (keys %{$self->{'device_cache'}} ){
 					$self->{'device_cache'}->{$key} = $self->${\('get_'.$key)}( device_cache => 1 );
+					$count += 1;
 				}				
 				return $count;
 			}
