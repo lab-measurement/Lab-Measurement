@@ -64,6 +64,17 @@ use Exception::Class (
 							'data',	# this is meant to contain the data that (maybe) has been read/obtained/generated despite and up to the timeout.
 		],
 	},
+	
+	
+	#
+	# Driver level errors
+	#
+	Lab::Exception::DriverError => {
+		isa			=> 'Lab::Exception::Error',
+		description	=> 'Something went wrong in the Instrument driver regime.',
+		fields		=> [
+		],
+	},
 
 
 	#
@@ -143,6 +154,7 @@ use Exception::Class (
 		fields		=> [
 							'device_class',	# driver class of the device
 							'command',		# last command as (and if) given by the script
+							'raw_message',	# raw received error response (if useful)
 							'error_list',	# list of errors, of the format [ [$errcode1, $errmsg1], [$errcode2, $errmsg2]. ... ]
 		],
 	},

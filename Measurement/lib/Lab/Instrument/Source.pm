@@ -343,28 +343,8 @@ sub sweep_to_voltage {
 
 sub _set_voltage {
 	my $self=shift;
-	my $voltage=shift;
-	my $channel=undef;
-	my $args=undef;
-
-	if(!defined $voltage || ref($voltage) eq 'HASH') {
-		Lab::Exception::CorruptParameter->throw( error=>'No voltage given.');
-	}
-	if (ref $_[0] eq 'HASH' && scalar(@_)==1) { $args=shift }
-	elsif ( scalar(@_)%2==0 ) { $args={@_}; }
-	else {
-		Lab::Exception::CorruptParameter->throw(error => "Sorry, I'm unclear about my parameters. See documentation.\nParameters: " . join(", ", ($voltage, @_)) . "\n");
-	}
-	$channel = $args->{'channel'} || $self->default_channel();
-
-	if ($channel < 0) { Lab::Exception::CorruptParameter->throw( error=>'Channel must not be negative! Did you swap voltage and channel number?'); }
-	if (int($channel) != $channel) { Lab::Exception::CorruptParameter->throw( error=>'Channel must be an integer! Did you swap voltage and channel number?'); }
-
-	if ($self->parent_source()) {
-		return $self->parent_source()->_set_voltage($voltage, {channel=>$channel});
-	} else {
-	warn '_set_voltage not implemented for this instrument';
-	};
+	
+	Lab::Exception::DriverError->throw( "The unimplemented method stub ".__PACKAGE__."::_set_voltage() has been called. I can't work like this.\n" );
 }
 
 sub get_voltage {
