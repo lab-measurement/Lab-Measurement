@@ -260,6 +260,7 @@ sub configure {
 
 
 
+
 sub _checkconnection { # Connection object or connection_type string (as in Lab::Connections::<connection_type>)
 	my $self=shift;
 	my $connection=shift || undef;

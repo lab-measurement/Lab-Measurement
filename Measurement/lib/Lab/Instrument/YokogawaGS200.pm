@@ -51,7 +51,7 @@ sub new {
     return $self;
 }
 
-sub set_voltage {
+sub _set_voltage {
     my $self=shift;
     my $voltage=shift;
     
@@ -63,10 +63,10 @@ sub set_voltage {
     }
     
     
-    return $self->set_source_level($voltage);
+    return $self->_set_source_level($voltage);
 }
 
-sub set_voltage_auto {
+sub _set_voltage_auto {
     my $self=shift;
     my $voltage=shift;
     
@@ -82,10 +82,10 @@ sub set_voltage_auto {
     	error=>"Source is not capable of voltage level > 32V. Can't set voltage level.");
     }
     
-    $self->set_source_level_auto($voltage);
+    $self->_set_source_level_auto($voltage);
 }
 
-sub set_current_auto {
+sub _set_current_auto {
     my $self=shift;
     my $current=shift;
     
@@ -101,10 +101,10 @@ sub set_current_auto {
     	error=>"Source is not capable of current level > 200mA. Can't set current level.");
     }
     
-    $self->set_source_level_auto($current);
+    $self->_set_source_level_auto($current);
 }
 
-sub set_current {
+sub _set_current {
     my $self=shift;
     my $current=shift;
 
@@ -115,10 +115,10 @@ sub set_current {
     	error=>"Source is in mode $source_function. Can't set current level.");
     }
 
-    $self->set_source_level($current);
+    $self->_set_source_level($current);
 }
 
-sub set_source_level {
+sub _set_source_level {
     my $self=shift;
     my $value=shift;
     my $srcrange = $self->get_source_range();
@@ -141,7 +141,7 @@ sub set_source_level {
 	
 }
 
-sub set_source_level_auto {
+sub _set_source_level_auto {
     my $self=shift;
     my $value=shift;
     
@@ -206,40 +206,63 @@ sub halt_program{
 	$self->connection()->writ("$cmd");
 }
 
-sub sweep {
+sub sweep_to_voltage {
     my $self=shift;
-    my $stop=shift;
-    my $rate=shift;
-    my $return_rate=$rate;
-    $self->pause_program();
-    my $output_now=$self->get_source_level();
-    #Test if $stop in range
-    my $range=$self->get_range();
-    #Start Programming-----
-    $self->start_program();
-    if ($stop>$range){
-        $stop=$range;
+    my $target=shift;
+    my $time=shift;
+    
+    my $vpsec = undef;
+    my $vpstep = undef;
+    my $spsec = undef;
+    
+    my $current = $self->get_voltage();
+    
+    if($source_function ne 'VOLT'){
+    	Lab::Exception::CorruptParameter->throw(
+    	error=>"Source is in mode $source_function. Can't set voltage level.");
     }
-    elsif ($stop< -$range) {
-        $stop=-$range;
+    
+    if( $target && $time){
+    	$vpsec= (abs($target-$current))/$time;
+    	
+    	if($self->{'device_settings'}->{'gate_protect'}){
+    		$self->_check_gate_protect();
+    		$vpsec = $self->{'device_settings'}->{'gp_max_volt_per_second'} ? ($vpsec > $self->{'device_settings'}->{'gp_max_volt_per_second'}): $vpstep;
+    		    		
+    	}	 
     }
-    $self->set_setpoint($stop);
-    $self->end_program();
-
-    my $time=abs($output_now -$stop)/$rate;
-    if ($time<$self->get_min_sweep_time()) {
-        warn "Warning Sweep Time: $time smaller than ${\$self->device_settings('min_sweep_time')} sec!\n Sweep time set to ${\$self->device_settings('min_sweep_time')} sec";
-        $time=$self->get_min_sweep_time();
-        $return_rate=abs($output_now -$stop)/$time;
+    else{
+    
+    # if we use gate_protect, we make sure that the rates are oke.
+    
+    	$self->_check_gate_protect();
+	
+		$vpsec = $self->device_settings()->{gp_max_amps_per_second};
+		$vpstep = $self->device_settings()->{gp_max_amps_per_step});
+		$spsec = $self->device_settings()->{gp_max_step_per_second};
+    
+	
     }
-    elsif ($time>$self->device_settings('max_sweep_time')) {
-        warn "Warning Interval Time: $time> ${\$self->device_settings('max_sweep_time')} sec!\n Sweep time set to ${\$self->device_settings('max_sweep_time')} sec";
-        $time=$self->device_settings('max_sweep_time');
-        $return_rate=abs($output_now -$stop)/$time;
+    
+    $self->connection()->write(":PROG:SLOP $time");
+    $self->connection()->write(":PROG:INT $time");
+    $self->connection()->write(":PROG:EDIT:START");
+    $self->connection()->write(":SOUR:LEV $target");
+    $self->connection()->write(":PROG:EDIT:END");
+    $self->connection()->write(":STAT:ENAB 64");
+    
+    while( ! $self->connection()->serial_poll()->{'2'}){
+    	wait;
     }
-    $self->set_time($time,$time);
-    $self->execute_program(2);
-    return $return_rate;
+    
+    if( $self->get_source_level( device_cache => 1) ne $target){
+    	Lab::Exception::CorruptParameter->throw(
+    	"Sweep failed.")
+    }
+    
+    $self->{'device_cache'}->{'source_level'} = $target;
+    
+    return $target;
 }
 
 sub get_voltage {

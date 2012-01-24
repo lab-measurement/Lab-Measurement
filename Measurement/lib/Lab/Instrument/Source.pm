@@ -24,6 +24,10 @@ our %fields = (
 		gp_max_step_per_second => undef,
 		gp_min_volt => undef,
 		gp_max_volt => undef,
+		gp_max_amps_per_second => undef,
+		gp_max_amps_per_step => undef,
+		gp_min_amps => undef,
+		gp_max_amps => undef,
 		gp_equal_level => 0,
 		fast_set => undef,
 		autorange => 0, 	# silently ignored by instruments (or drivers) which don't support autorange
@@ -112,7 +116,7 @@ sub new {
 	else {
 		# fill gpData
 		for (my $i=1; $i<=$self->max_channels(); $i++) {
-			$self->gpData()->{$i} = { LastVoltage => undef, LastSettimeMus => undef };
+			$self->gpData()->{$i} = { LastSettimeMus => undef };
 		}
 	}
 
@@ -205,7 +209,41 @@ sub set_voltage {
 		$result=$self->get_voltage(channel=>$channel);
 	}
 
-	$self->gpData()->{$channel}->{LastVoltage}=$result;
+	return $result;
+}
+
+sub set_current {
+	my $self=shift;
+	my $current=shift;
+	my $channel=undef;
+	my $args=undef;
+	if(!defined $current || ref($current) eq 'HASH') {
+		Lab::Exception::CorruptParameter->throw( error=>'No current given.');
+	}
+	if (ref $_[0] eq 'HASH' && scalar(@_)==1) { $args=shift }
+	elsif ( scalar(@_)%2==0 ) { $args={@_}; }
+	else {
+		Lab::Exception::CorruptParameter->throw(error => "Sorry, I'm unclear about my parameters. See documentation.\nParameters: " . join(", ", ($current, @_)) . "\n");
+	}
+	$channel = $args->{'channel'} || $self->default_channel();
+
+	if ($channel < 0) { Lab::Exception::CorruptParameter->throw( error=>'Channel must not be negative! Did you swap current and channel number?'); }
+	if (int($channel) != $channel) { Lab::Exception::CorruptParameter->throw( error=>'Channel must be an integer! Did you swap current and channel number?'); }
+
+	if ($self->device_settings()->{gate_protect}) {
+		$current=$self->sweep_to_current($current,{ channel=>$channel });
+	} else {
+		$self->_set_current($current,{channel=>$channel});
+	}
+ 
+	my $result;
+	if ($self->device_settings()->{fast_set}) {
+		$result=$current;
+	} else {
+		$result=$self->get_current(channel=>$channel);
+	}
+
+	
 	return $result;
 }
 
@@ -309,6 +347,144 @@ sub step_to_voltage {
 }
 
 
+sub sweep_to_current {
+	my $self = shift;
+	my $target = shift;
+	my $channel = undef;
+	my $args =undef;
+	
+	if(!defined $target || ref($target) eq 'HASH') {
+		Lab::Exception::CorruptParameter->throw( error=>'No voltage given.');
+	}
+	if (ref $_[0] eq 'HASH' && scalar(@_)==1) { $args=shift }
+	elsif ( scalar(@_)%2==0 ) { $args={@_}; }
+	else {
+		Lab::Exception::CorruptParameter->throw(error => "Sorry, I'm unclear about my parameters. See documentation.\nParameters: " . join(", ", ($target, @_)) . "\n");
+	}
+	$channel = $args->{'channel'} || $self->default_channel();
+	
+	# Check correct channel setup
+		
+	$self->is_me_channel($channel);
+	
+	$self->_check_gate_protect();
+	my $apsec = $self->device_settings()->{gp_max_amps_per_second};
+	my $apstep = $self->device_settings()->{gp_max_amps_per_step};
+	my $spsec = $self->device_settings()->{gp_max_step_per_second};
+	
+		
+	# sweep to current
+	
+	my $current = $self->get_current( channel => $channel );
+
+	unless( $current ne $target){
+		if( abs($target-$current) <= $apstep ){
+			$self->_set_voltage($target, channel => $channel);
+		}
+		my $next = _set_voltage( $target+$apstep, channel => $channel) ? ($target - $current > 0) : my $next = _set_voltage($target-$apstep, channel => $channel);
+		if( abs($target-$next) < abs($target-$current) ){
+			$current = $next;
+		}
+		else{
+			Lab::Exception::DriverError->throw(
+			"The method ".__PACKAGE__."::_set_voltage() is not correctly implemented.");
+		}
+		
+	}
+	
+	return $current;
+}
+
+sub is_me_channel{
+	my $self = shift;
+	my $channel = shift;
+	if ($channel < 0) { 
+		Lab::Exception::CorruptParameter->throw( 
+		error=>'Channel must not be negative! Did you swap voltage and channel number?'); }
+	if (int($channel) != $channel) {
+		Lab::Exception::CorruptParameter->throw(
+		error=>'Channel must be an integer! Did you swap voltage and channel number?'); }
+	
+}
+
+
+# Check if all gate protect variables are set correctly. And if not, calculate the missing values. Error if
+# volt_per_step
+# or volt_per_sec / steps_per_sec is not given
+
+sub _check_gate_protect{
+	my $self =shift;
+	my $mode = shift;
+	
+	if( $self->device_settings()->{'gate_protect'}){
+	# Check if one of gp_max_amps_per_second or gp_max_step_per_second is given
+	
+		if( $mode eq "AMPS" ){
+	
+			my $apsec = $self->device_settings()->{gp_max_amps_per_second};
+			my $apstep = $self->device_settings()->{gp_max_amps_per_step});
+			my $spsec = $self->device_settings()->{gp_max_step_per_second};
+	
+			# Make sure the gate protect vars are correctly set and consistent	
+			
+			if( (!defined($apstep) || $apstep<=0 ) ) {
+				Lab::Exception::CorruptParameter->throw(error=>"To use gate protection, you have to gp_max_amps_per_step (now: $apstep) to a positive, non-zero value.");
+			}
+				
+				
+			if ( (defined($apsec) && $apsec > 0) && (!defined($spsec) || $spsec < 0 )){
+				$spsec = $apsec/$apstep; 
+			}
+			elsif( (defined($spsec) && $spsec >0) && (!defined($apsec) || $apsec < 0 ) ){
+				$apsec = $spsec*$apstep;
+			}
+			elsif($spsec ne $apsec/$apstep){
+				Lab::Exception::CorruptParameter->throw(
+				"The gate protect values are not consistent.");
+			}
+			else{
+				Lab::Exception::CorruptParameter->throw(
+				"To use gate protection, you have to at least set one of set gp_max_amps_per_second (now: $apsec) or gp_max_step_per_second (now: $spsec) to a positive, non-zero value.");
+			}
+		}
+		elsif($mode eq "VOLT"){
+			my $vpsec = abs($self->device_settings()->{gp_max_amps_per_second});
+			my $vpstep = abs($self->device_settings()->{gp_max_amps_per_step}));
+			my $spsec = abs($self->device_settings()->{gp_max_step_per_second});
+	
+			# Make sure the gate protect vars are correctly set and consistent	
+			
+			if( (!defined($vpstep) || $vpstep<=0 ) ) {
+				Lab::Exception::CorruptParameter->throw(error=>"To use gate protection, you have to gp_max_volt_per_step (now: $vpstep) to a positive, non-zero value.");
+			}
+				
+				
+			if ( (defined($vpsec) && $vpsec > 0) && (!defined($spsec) || $spsec < 0 )){
+				$spsec = ($vpsec/$vpstep); 
+				$self->{'device_settings'}->{'gp_max_step_per_second'} = $spsec;
+			}
+			elsif( (defined($spsec) && $spsec >0) && (!defined($vpsec) || $vpsec < 0 ) ){
+				$vpsec = ($spsec*$vpstep);
+				$self->{'device_settings'}->{'gp_max_volt_per_second'} = $vpsec;
+			}
+			elsif($spsec ne $vpsec/$vpstep){
+				Lab::Exception::CorruptParameter->throw(
+				"The gate protect values are not consistent.");
+			}
+			else{
+				Lab::Exception::CorruptParameter->throw(
+				"To use gate protection, you have to at least set one of set gp_max_volt_per_second (now: $vpsec) or gp_max_step_per_second (now: $spsec) to a positive, non-zero value.");
+			}
+		}
+		else{
+			Lab::Exceptions::DriverError->throw("Method call _check_gate_protect not valid");
+		}
+	}
+	
+}
+
+
+
 sub sweep_to_voltage {
 	my $self=shift;
 	my $voltage=shift;
@@ -325,9 +501,8 @@ sub sweep_to_voltage {
 	}
 	$channel = $args->{'channel'} || $self->default_channel();
 
-	if ($channel < 0) { Lab::Exception::CorruptParameter->throw( error=>'Channel must not be negative! Did you swap voltage and channel number?'); }
-	if (int($channel) != $channel) { Lab::Exception::CorruptParameter->throw( error=>'Channel must be an integer! Did you swap voltage and channel number?'); }
-
+	$self->is_me_channel($channel);
+	
 	my $last;
 	my $cont=1;
 	while($cont) {
@@ -345,6 +520,12 @@ sub _set_voltage {
 	my $self=shift;
 	
 	Lab::Exception::DriverError->throw( "The unimplemented method stub ".__PACKAGE__."::_set_voltage() has been called. I can't work like this.\n" );
+}
+
+sub _set_current {
+	my $self=shift;
+	
+	Lab::Exception::DriverError->throw( "The unimplemented method stub ".__PACKAGE__."::_set_current() has been called. I can't work like this.\n" );
 }
 
 sub get_voltage {
