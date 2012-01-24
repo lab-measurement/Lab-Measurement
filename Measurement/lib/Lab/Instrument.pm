@@ -164,7 +164,7 @@ sub _cache_init {
 			if( !defined $self->device_cache()->{$ckey}  ) {
 				$subname = 'get_' . $ckey;
 				Lab::Exception::CorruptParameter->throw("No get method defined for device_cache field $ckey!\n") if !$self->can($subname);
-				$self->device_cache()->{$ckey} = $self->$subname();
+				$self->device_cache()->{$ckey} = $self->$subname( "device_cache" => 1 );
 			}
 			else {
 				$subname = 'set_' . $ckey;

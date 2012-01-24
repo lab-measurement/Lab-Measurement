@@ -88,20 +88,26 @@ sub SetTermChar { # the character as string
   return $result;
 }
 
+sub dec2bin {
+    my $str = unpack("B32", pack("N", shift));
+    $str =~ s/^0+(?=\d)//;   # otherwise you'll get leading zeros
+    return $str;
+}
+
 #
 # perform a serial poll on the bus and return the status byte
 #
 sub serial_poll {
 	my $self=shift;
-	my @statbits = ();
+	my @statbits = ((0) x 8);
 	my $statbyte = $self->bus()->serial_poll($self->connection_handle());
 	my %stat = ();
 	
-	for (my $i=0; $i<8; $i++) {
-		$statbits[$i] = 0x01 & ($statbyte >> $i);
-	}
+	my @tmp = split(//,reverse(dec2bin($statbyte)));
+	
+	@statbits[0 .. scalar(@tmp)-1] = @tmp;
 
-	( $stat{'1'}, $stat{'2'}, $stat{'3'}, $stat{'MAV'}, $stat{'ESB'}, $stat{'RQS'}, $stat{'7'}, $stat{'8'} ) = @statbits;
+	( $stat{'0'}, $stat{'1'}, $stat{'2'}, $stat{'MAV'}, $stat{'ESB'}, $stat{'RQS'}, $stat{'6'}, $stat{'7'} ) = @statbits;
 
 	return \%stat;
 

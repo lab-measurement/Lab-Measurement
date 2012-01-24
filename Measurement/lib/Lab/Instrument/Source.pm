@@ -367,7 +367,7 @@ sub sweep_to_current {
 		
 	$self->is_me_channel($channel);
 	
-	$self->_check_gate_protect();
+	$self->_check_gate_protect("AMPS");
 	my $apsec = $self->device_settings()->{gp_max_amps_per_second};
 	my $apstep = $self->device_settings()->{gp_max_amps_per_step};
 	my $spsec = $self->device_settings()->{gp_max_step_per_second};
@@ -381,7 +381,8 @@ sub sweep_to_current {
 		if( abs($target-$current) <= $apstep ){
 			$self->_set_voltage($target, channel => $channel);
 		}
-		my $next = _set_voltage( $target+$apstep, channel => $channel) ? ($target - $current > 0) : my $next = _set_voltage($target-$apstep, channel => $channel);
+		my $next = undef;
+		($target - $current > 0) ? $next = $self->_set_current( eval($target+$apstep), "channel" => $channel) : $next = $self->_set_current(eval($target-$apstep), "channel" => $channel);
 		if( abs($target-$next) < abs($target-$current) ){
 			$current = $next;
 		}
@@ -422,7 +423,7 @@ sub _check_gate_protect{
 		if( $mode eq "AMPS" ){
 	
 			my $apsec = $self->device_settings()->{gp_max_amps_per_second};
-			my $apstep = $self->device_settings()->{gp_max_amps_per_step});
+			my $apstep = $self->device_settings()->{gp_max_amps_per_step};
 			my $spsec = $self->device_settings()->{gp_max_step_per_second};
 	
 			# Make sure the gate protect vars are correctly set and consistent	
@@ -449,7 +450,7 @@ sub _check_gate_protect{
 		}
 		elsif($mode eq "VOLT"){
 			my $vpsec = abs($self->device_settings()->{gp_max_amps_per_second});
-			my $vpstep = abs($self->device_settings()->{gp_max_amps_per_step}));
+			my $vpstep = abs($self->device_settings()->{gp_max_amps_per_step});
 			my $spsec = abs($self->device_settings()->{gp_max_step_per_second});
 	
 			# Make sure the gate protect vars are correctly set and consistent	

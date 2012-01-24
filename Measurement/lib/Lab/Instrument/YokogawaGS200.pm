@@ -216,6 +216,7 @@ sub sweep_to_voltage {
     my $spsec = undef;
     
     my $current = $self->get_voltage();
+    my $source_function = $self->{'device_cache'}->{'source_function'};
     
     if($source_function ne 'VOLT'){
     	Lab::Exception::CorruptParameter->throw(
@@ -238,20 +239,22 @@ sub sweep_to_voltage {
     	$self->_check_gate_protect();
 	
 		$vpsec = $self->device_settings()->{gp_max_amps_per_second};
-		$vpstep = $self->device_settings()->{gp_max_amps_per_step});
+		$vpstep = $self->device_settings()->{gp_max_amps_per_step};
 		$spsec = $self->device_settings()->{gp_max_step_per_second};
     
 	
     }
     
-    $self->connection()->write(":PROG:SLOP $time");
-    $self->connection()->write(":PROG:INT $time");
-    $self->connection()->write(":PROG:EDIT:START");
-    $self->connection()->write(":SOUR:LEV $target");
-    $self->connection()->write(":PROG:EDIT:END");
-    $self->connection()->write(":STAT:ENAB 64");
+    $self->write("*CLS");
+    $self->write(":PROG:SLOP $time");
+    $self->write(":PROG:INT $time");
+    $self->write(":PROG:EDIT:START");
+    $self->write(":SOUR:LEV $target");
+    $self->write(":PROG:EDIT:END");
+    $self->write(":STAT:ENAB 64");
+    $self->write("PROG:RUN");
     
-    while( ! $self->connection()->serial_poll()->{'2'}){
+    while( $self->connection()->serial_poll()->{'2'} ne 1){
     	wait;
     }
     
@@ -270,12 +273,12 @@ sub get_voltage {
 
 	my $source_function = $self->get_source_function();
 
-    if(!$self->get_source_function eq 'V'){
+    if(! $self->get_source_function eq 'VOLT'){
     	Lab::Exception::CorruptParameter->throw(
     	error=>"Source is in mode $source_function. Can't get voltage level.");
     }
 
-    return $self->{'device_cache'}->get_source_level(@_);
+    return $self->get_source_level(@_);
 }
 
 sub get_current {
@@ -283,12 +286,12 @@ sub get_current {
     
     my $source_function = $self->get_source_function();
     
-    if(!$self->get_source_function() eq 'C'){
+    if(!$self->get_source_function() eq 'CURR'){
     	Lab::Exception::CorruptParameter->throw(
     	error=>"Source is in mode $source_function. Can't get current level.");
     }
    	
-    return $self->{'device_cache'}->get_source_level(@_);
+    return $self->get_source_level(@_);
 }
 
 sub get_source_level {
