@@ -103,6 +103,7 @@ sub serial_poll {
 	my $statbyte = $self->bus()->serial_poll($self->connection_handle());
 	my %stat = ();
 	
+		
 	my @tmp = split(//,reverse(dec2bin($statbyte)));
 	
 	@statbits[0 .. scalar(@tmp)-1] = @tmp;

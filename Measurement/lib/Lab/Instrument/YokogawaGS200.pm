@@ -27,6 +27,8 @@ our %fields = (
 		gp_max_volt_per_second  => 0.05,
 		gp_max_volt_per_step    => 0.005,
 		gp_max_step_per_second  => 10,
+		gp_max_amps_per_second  => 0.05,
+		gp_max_amps_per_step    => 0.005,
 
 		max_sweep_time=>3600,
 		min_sweep_time=>0.1,
@@ -157,53 +159,34 @@ sub _set_source_level_auto {
 
 
 
-sub set_time {
-    my $self=shift;
-    my $sweep_time=shift; #sec.
-    my $interval_time=shift;
-    if ($sweep_time<$self->device_settings('min_sweep_time')) {
-        warn "Warning Sweep Time: $sweep_time smaller than ${\$self->device_settings('min_sweep_time')} sec!\n Sweep time set to ${\$self->device_settings('min_sweep_time')} sec";
-        $sweep_time=$self->device_settings('min_sweep_time')}
-    elsif ($sweep_time>$self->device_settings('max_sweep_time')) {
-        warn "Warning Sweep Time: $sweep_time> ${\$self->device_settings('max_sweep_time')} sec!\n Sweep time set to ${\$self->device_settings('max_sweep_time')} sec";
-        $sweep_time=$self->device_settings('max_sweep_time')
-    };
-    if ($interval_time<$self->device_settings('min_sweep_time')) {
-        warn "Warning Interval Time: $interval_time smaller than ${\$self->device_settings('min_sweep_time')} sec!\n Interval time set to ${\$self->device_settings('min_sweep_time')} sec";
-        $interval_time=$self->device_settings('min_sweep_time')}
-    elsif ($interval_time>$self->device_settings('max_sweep_time')) {
-        warn "Warning Interval Time: $interval_time> ${\$self->device_settings('max_sweep_time')} sec!\n Interval time set to ${\$self->device_settings('max_sweep_time')} sec";
-        $interval_time=$self->device_settings('max_sweep_time')
-    };
-    my $cmd=sprintf(":PROGram:INTerval %.1f",$interval_time);
-	$self->connection()->write( "$cmd" );
-    $cmd=sprintf(":PROGram:SLOPe %.1f",$sweep_time);
-	$self->connection()->write( "$cmd" );
-}
-
 sub run_program {
     my $self=shift;
-    my $cmd=sprintf(":PROGram:RUN");
-	$self->connection()->write( "$cmd" );
+    my $cmd = shift;
+    
+    $self->write( ":PROG:LOAD $cmd" ) if $cmd;
+    
+    $self->write(":PROG:RUN");
+    
 }
 
 sub pause_program {
-    my $self=shift;
+    my $self=shift;   
+    
     my $cmd=sprintf(":PROGram:PAUSe");
-	$self->connection()->write( "$cmd" );
+	$self->write( "$cmd" );
 }
 sub continue_program {
     my $self=shift;
     my $value=shift;
     my $cmd=sprintf(":PROGram:CONTinue");
-	$self->connection()->write( "$cmd" );
+	$self->write( "$cmd" );
     
 }
 
 sub halt_program{
 	my $self=shift;
 	my $cmd=":PROGram:HALT";
-	$self->connection()->writ("$cmd");
+	$self->write("$cmd");
 }
 
 sub sweep_to_voltage {
@@ -236,29 +219,33 @@ sub sweep_to_voltage {
     
     # if we use gate_protect, we make sure that the rates are oke.
     
-    	$self->_check_gate_protect();
+   	$self->_check_gate_protect();
 	
-		$vpsec = $self->device_settings()->{gp_max_amps_per_second};
-		$vpstep = $self->device_settings()->{gp_max_amps_per_step};
-		$spsec = $self->device_settings()->{gp_max_step_per_second};
+	$vpsec = $self->device_settings()->{gp_max_amps_per_second};
+	$vpstep = $self->device_settings()->{gp_max_amps_per_step};
+	$spsec = $self->device_settings()->{gp_max_step_per_second};
     
 	
     }
     
     $self->write("*CLS");
+    $self->write(":PROG:REP 0");
     $self->write(":PROG:SLOP $time");
     $self->write(":PROG:INT $time");
     $self->write(":PROG:EDIT:START");
     $self->write(":SOUR:LEV $target");
     $self->write(":PROG:EDIT:END");
     $self->write(":STAT:ENAB 64");
-    $self->write("PROG:RUN");
+    $self->write(":PROG:RUN");
     
-    while( $self->connection()->serial_poll()->{'2'} ne 1){
-    	wait;
+    print $self->connection()->serial_poll()->{'1'} . "\n";
+    
+    while ($self->connection()->serial_poll()->{'1'} ne "1"){
+    	print $self->connection()->serial_poll()->{'1'} ."\n";
+    	sleep 1;
     }
     
-    if( $self->get_source_level( device_cache => 1) ne $target){
+    if( ! $self->get_source_level( device_cache => 1) == $target){
     	Lab::Exception::CorruptParameter->throw(
     	"Sweep failed.")
     }
@@ -300,7 +287,9 @@ sub get_source_level {
 	if (ref $_[0] eq 'HASH') { $options=shift }	else { $options={@_} }
 	
     if( $options->{'device_cache'}){
-     	return $self->query( ":SOURce:LEVel?" );
+     	$self->query( ":SOURce:LEVel?" );
+     	s/(\d+\.\d+)E\d+/\1/g;
+     	return;
     }
     else{
 		return $self->device_cache()->{'source_level'};
@@ -389,49 +378,31 @@ sub set_source_range {
 
 }
 
-sub get_info {
-    my $self=shift;
-    $self->connection()->Write( command  => "OS" );
-    my @info;
-    for (my $i=0;$i<=10;$i++){
-        my $line=$self->connection()->Read( read_length => 300 );
-        if ($line=~/END/){last};
-        chomp $line;
-        $line=~s/\r//;
-        push(@info,sprintf($line));
-    };
-    return @info;
-}
-
-
-sub set_run_mode {
-    my $self=shift;
-    my $value=shift;
-    if ($value!=0 and $value!=1) { Lab::Exception::CorruptParameter->throw( error=>"Run Mode $value not defined\n" ); }
-    my $cmd=sprintf("M%u",$value);
-    $self->connection()->Write( command  => $cmd );
-}
 
 sub output_on {
     my $self=shift;
-    $self->connection()->Write( command  => ':OUTP 1' );
+    return $self->{"device_cache"}->{"output"} = $self->write( ':OUTP 1' );
 }
     
 sub output_off {
     my $self=shift;
-    $self->connection()->Write( command  => ':OUTP 0' );
+    return $self->{"device_cache"}->{"output"} = $self->write( ':OUTP 0' );
 }
 
 sub get_output {
     my $self=shift;
-    my %res=$self->get_status();
-    return $res{output};
+    
+    my $options = undef;
+	if (ref $_[0] eq 'HASH') { $options=shift }	else { $options={@_} }
+	
+    if( $options->{'device_cache'}){
+     	$self->query( ":OUTP?" );
+     	return;
+    }
+    
+    return $self->{"device_cache"}->{"output"};
 }
 
-sub initialize {
-    my $self=shift;
-    $self->connection()->Write( command  => 'RC' );
-}
 
 sub set_voltage_limit {
     my $self=shift;
@@ -490,6 +461,7 @@ Lab::Instrument::YokogawaGS200 - Yokogawa GS200 DC source
       connection_type => 'LinuxGPIB',
       gpib_address => 22,
       source_function => 'VOLT',
+      source_level => 0.4,
     );
     $gate14->set_voltage(0.745);
     print $gate14->get_voltage();
@@ -502,13 +474,79 @@ L<Lab::Instrument::Source> and provides all functionality described there.
 
 =head1 CONSTRUCTORS
 
-=head2 new($gpib_board,$gpib_addr)
+=head2 new( %configuration_HASH )
+
+HASH is a list of tuples given in the format
+
+key => value,
+
+please supply at least the configuration for the connection:
+		connection_type 		=> "LinxGPIB"
+		gpib_address =>
+
+you might also want to have gate protect from the start (the default values are given):
+
+		gate_protect => 1,
+
+		gp_equal_level          => 1e-5,
+		gp_max_volt_per_second  => 0.05,
+		gp_max_volt_per_step    => 0.005,
+		gp_max_step_per_second  => 10,
+		gp_max_amps_per_second  => 0.05,
+		gp_max_amps_per_step    => 0.005,
+
+		max_sweep_time=>3600,
+		min_sweep_time=>0.1,
+	
+Additinally there is support to set parameters for the device "on init":		
+	
+		source_function			=> undef, # 'VOLT' - voltage, 'CURR' - current
+		source_range			=> undef,
+		source_level			=> undef,
+		output					=> undef,
+
+If those values are not specified, they are read from the device.
 
 =head1 METHODS
 
+=head2 sweep_to_voltage($voltage,$time)
+
+Sweeps to $voltage in $time seconds.
+For this function to work, the source has to be in output mode.
+
+Returns the newly set voltage. 
+This function is also called internally to set the voltage when gate protect is used.
+
+=head2 run_program($program)
+
+Runs a program stored on the YokogawaGS200. If no prgram name is given, the currently loaded program is executed.
+
+=head2 pause_program
+
+Pauses the currently running program.
+
+=head2 continue_program
+
+Continues the paused program.
+
 =head2 set_voltage($voltage)
 
-=head2 get_voltage()
+Sets the output voltage. The driver checks whether you stay inside the currently selected range. 
+Returns the newly set voltage.
+
+=head2 set_voltage_auto($voltage)
+
+Sets the output voltage. The range is chosen automatically.
+Does not work with gate protect on.
+Returns the newly set voltage.
+
+=head2 set_current($current)
+
+See set_voltage
+
+=head2 set_current_auto($current)
+
+See set_current_auto
 
 =head2 set_range($range)
 
@@ -520,48 +558,58 @@ L<Lab::Instrument::Source> and provides all functionality described there.
     30E+0    30V
 
     Fixed current mode
-    4   1mA
-    5   10mA
-    6   100mA
+    1E-3   		1mA
+    10E-3   	10mA
+    100E-3   	100mA
+    200E-3		200mA
+    
+    Please use the format on the left for the range command.
 
-=head2 get_info()
+=head2 set_source_function($function)
 
-Returns the information provided by the instrument's 'OS' command, in the form of an array
-with one entry per line. For display, use join(',',$yoko->get_info()); or similar.
+Sets the source function. The Yokogawa supports the values 
+
+"CURR" for current mode and
+"VOLT" for voltage mode.
+
+Returns the newly set source function.
+
+=head2 set_voltage_limit($limit)
+
+Sets a voltage limit to protect the device.
+Returns the new voltage limit.
+
+=head2 set_current_limit($limit)
+
+See set_voltage_limit.
 
 =head2 output_on()
 
-Sets the output switch to on.
+Sets the output switch to on and returns the new value of the output status.
 
 =head2 output_off()
 
 Sets the output switch to off. The instrument outputs no voltage
-or current then, no matter what voltage you set.
+or current then, no matter what voltage you set. Returns the new value of the output status.
+
+
+=head2 get_error()
+
+Queries the error code from the device. This is a very useful thing to do when you are working remote and the source is not responding.
+
+
+=head2 get_voltage()
+
+
+=head2 get_current()
+
 
 =head2 get_output()
 
-Returns the status of the output switch (0 or 1).
 
-=head2 initialize()
+=head2 get_source_range()
 
-=head2 set_voltage_limit($limit)
 
-=head2 set_current_limit($limit)
-
-=head2 get_status()
-
-Returns a hash with the following keys:
-
-    CAL_switch
-    memory_card
-    calibration_mode
-    output
-    unstable
-    error
-    execution
-    setting
-
-The value for each key is either 0 or 1, indicating the status of the instrument.
 
 =head1 CAVEATS
 
@@ -587,6 +635,7 @@ The YokogawaGP200 class is a Source (L<Lab::Instrument::Source>)
  (c) 2004-2006 Daniel Schröer
  (c) 2007-2010 Daniel Schröer, Daniela Taubert, Andreas K. Hüttel, and others
  (c) 2011 Florian Olbrich, Andreas K. Hüttel
+ (c) 2012 Alois Dirnaichner
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 
