@@ -1,9 +1,11 @@
 package Lab::Instrument::Source;
 our $VERSION = '2.94';
 
+use Lab::Exception;
+
 use strict;
 use Time::HiRes qw(usleep gettimeofday);
-use Lab::Exception;
+
 use Lab::Instrument;
 use Clone qw(clone);
 #use diagnostics;
@@ -140,7 +142,7 @@ sub configure {
 		# now parse in default_device_settings
 		#
 		for my $conf_name (keys %{$self->device_settings()}) {
-			$self->device_settings()->{$conf_name} = $self->default_device_settings()->{$conf_name} if exists($self->default_device_settings()->{$conf_name});
+			$self->device_settings()->{$conf_name} = $self->default_device_settings()->{$conf_name} if exists($self->default_device_settings()->{$conf_name}) && !defined($self->device_settings($conf_name));
 		}
 	}
 }
@@ -448,15 +450,15 @@ sub _check_gate_protect{
 				"To use gate protection, you have to at least set one of set gp_max_amps_per_second (now: $apsec) or gp_max_step_per_second (now: $spsec) to a positive, non-zero value.");
 			}
 		}
-		elsif($mode eq "VOLT"){
-			my $vpsec = abs($self->device_settings()->{gp_max_amps_per_second});
-			my $vpstep = abs($self->device_settings()->{gp_max_amps_per_step});
-			my $spsec = abs($self->device_settings()->{gp_max_step_per_second});
+		elsif( $mode eq "VOLT" ){
+			my $vpsec = abs($self->device_settings()->{"gp_max_volt_per_second"});
+			my $vpstep = abs($self->device_settings()->{"gp_max_volt_per_step"});
+			my $spsec = abs($self->device_settings()->{"gp_max_step_per_second"});
 	
 			# Make sure the gate protect vars are correctly set and consistent	
 			
 			if( (!defined($vpstep) || $vpstep<=0 ) ) {
-				Lab::Exception::CorruptParameter->throw(error=>"To use gate protection, you have to gp_max_volt_per_step (now: $vpstep) to a positive, non-zero value.");
+				Lab::Exception::CorruptParameter->throw(error=>"To use gate protection, you have to supply gp_max_volt_per_step (now: $vpstep) to a positive, non-zero value.");
 			}
 				
 				
