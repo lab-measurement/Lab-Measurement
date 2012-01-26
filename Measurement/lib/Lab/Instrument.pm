@@ -419,11 +419,16 @@ sub read {
 }
 
 
+# query( $command, { channel => 1 })
+# query( $command, channel => 1 )
+# query({ command => $cmd, channel => 1 })
+# query( command => $cmd, channel => 1 )
+
+# $time, $true_scalar
+
 sub query {
 	my $self=shift;
-	my $command= scalar(@_)%2 == 0 && ref $_[1] ne 'HASH' ? undef : shift;  # even sized parameter list and second parm no hashref? => Assume parameter hash
-	my $args = scalar(@_)%2==0 ? {@_} : ( ref($_[0]) eq 'HASH' ? $_[0] : undef );
-	Lab::Exception::CorruptParameter->throw( "Illegal parameter hash given!\n" ) if !defined($args);
+	my ($command, $args) = $self->parse_optional;
 
 	$args->{'command'} = $command if defined $command;
 
@@ -442,6 +447,20 @@ sub query {
 #
 # infrastructure stuff below
 #
+
+#
+# tool function to safely handle an optional scalar parameter in presence with a parameter hash/list
+# only one optional scalar parameter can be handled, and its value must not be a hashref!
+#
+sub parse_optional {
+	my $self = shift;
+
+	my $optional= scalar(@_)%2 == 0 && ref $_[1] ne 'HASH' ? undef : shift;  # even sized parameter list and second parm no hashref? => Assume parameter hash
+	my $args = scalar(@_)%2==0 ? {@_} : ( ref($_[0]) eq 'HASH' ? $_[0] : undef );
+	Lab::Exception::CorruptParameter->throw( "Illegal parameter hash given!\n" ) if !defined($args);
+	
+	return $optional, $args;
+}
 
 
 
