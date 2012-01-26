@@ -308,12 +308,6 @@ sub sweep_to_source_level {
 	my($time, $args) = $self->parse_optional(@_);
 	
 	
-	# Handling of optional parameter: $time
-	my $time = scalar(@_)%2 == 0 && ref $_[1] ne 'HASH' ? undef : shift;  # even sized parameter list and second parm no hashref? => Assume parameter hash
-	my $args = scalar(@_)%2==0 ? {@_} : ( ref($_[0]) eq 'HASH' ? $_[0] : undef );
-	Lab::Exception::CorruptParameter->throw( "Illegal parameter hash given!\n" ) if !defined($args);
-
-	
 	if(!defined $target || ref($target) eq 'HASH') {
 		Lab::Exception::CorruptParameter->throw( error=>'No voltage given.');
 	}
@@ -324,9 +318,20 @@ sub sweep_to_source_level {
 	$self->is_me_channel($channel);
 	
 	$self->_check_gate_protect();
-	my $apsec = $self->device_settings()->{gp_max_units_per_second};
-	my $apstep = $self->device_settings()->{gp_max_units_per_step};
-	my $spsec = $self->device_settings()->{gp_max_step_per_second};
+	
+	# Make sure stepsize is within gate_protect boundaries. 
+	
+	my $stepsize = $args->{stepsize} || $self->get_stepsize();
+	my $upstep = $self->get_gp_max_units_per_step();
+	$upstep = $stepsize if $stepsize < $upstep;
+	
+	if(!defined $stepsize){
+		Lab::Exception::CorruptParameter->throw( 'No stepsize given. Please specify either stepsize or gp_max_units_per_step.');
+	}
+	
+	my $apsec = $self->get_gp_max_units_per_second();
+	
+	my $spsec = $self->get_gp_max_step_per_second();
 	
 	my $current = $self->get_source_level( from_device => 1 );
 	
@@ -334,34 +339,37 @@ sub sweep_to_source_level {
 		$time = ( abs($target - $current)/$time < $apsec ) ? $time : abs($target-$current)/$apsec;
 	}	
 	elsif(!defined($time)){
-		
+		$time = abs($target-$current)/$apsec;
 	}	
 	# sweep to current
 	
 	
 	
 	if(UNIVERSAL::can(_sweep_to_voltage)) {
-		$self->_sweep_to_voltage($target,$time);
+		return $self->_sweep_to_voltage($target,$time);
 	}
-	else {
-	
+	else{
+			
+		my $steptime = $time / ( abs($current - $target)/$upstep );
+		
 		unless( $current != $target){
-			if( abs($target-$current) <= $apstep ){
+			if( abs($target-$current) <= $upstep ){
 				$self->_set_voltage($target, channel => $channel);
 			}
-			my $next = undef;
-			($target - $current > 0) ? $next = $self->_set_current( eval($target+$apstep), "channel" => $channel) : $next = $self->_set_current(eval($target-$apstep), "channel" => $channel);
-			if( abs($target-$next) < abs($target-$current) ){
-				$current = $next;
-			}
-			else{
-				Lab::Exception::DriverError->throw(
-				"The method ".__PACKAGE__."::_set_voltage() is not correctly implemented.");
-			}
-		
+			my $next = ($target - $current > 0) 
+				? $next = $self->_set_current( $target+$upstep, "channel" => $channel) 
+				: $next = $self->_set_current( $target-$upstep, "channel" => $channel);
+			sleep($steptime);
+			
+			$current = $next;		
+		}
+		return $current;			
+	}
+	else{
+		Lab::Exception::DriverError->throw(
+				"The method ".__PACKAGE__."::sweep_to_source_voltage().");
 	}
 	
-	return $current;
 }
 
 sub is_me_channel{

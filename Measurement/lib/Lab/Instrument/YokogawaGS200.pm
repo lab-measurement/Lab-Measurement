@@ -29,6 +29,8 @@ our %fields = (
 		gp_max_units_per_second  => 0.05,
 		gp_max_units_per_step    => 0.005,
 		gp_max_step_per_second  => 10,
+		
+		stepsize		=> 0.01,  # default stepsize for sweep without gate protect
 	
 	 
 		max_sweep_time=>3600,
