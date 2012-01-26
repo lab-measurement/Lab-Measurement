@@ -21,21 +21,23 @@ our %fields = (
 		gpib_address => 22,
 	},
 
+
 	device_settings => {
+	
 		gate_protect            => 1,
 		gp_equal_level          => 1e-5,
-		gp_max_volt_per_second  => 0.05,
-		gp_max_volt_per_step    => 0.005,
+		gp_max_units_per_second  => 0.05,
+		gp_max_units_per_step    => 0.005,
 		gp_max_step_per_second  => 10,
-		gp_max_amps_per_second  => 0.05,
-		gp_max_amps_per_step    => 0.005,
-
+	
+	 
 		max_sweep_time=>3600,
 		min_sweep_time=>0.1,
 	},
+	
 	# If class does not provide set_$var for those, AUTOLOAD will take care.
 	device_cache => {
-		source_function			=> undef, # 'VOLT' - voltage, 'CURR' - current
+		source_function			=> "VOLT", # 'VOLT' - voltage, 'CURR' - current
 		source_range			=> undef,
 		source_level			=> undef,
 	},
@@ -53,7 +55,7 @@ sub new {
     return $self;
 }
 
-sub _set_voltage {
+sub set_voltage {
     my $self=shift;
     my $voltage=shift;
     
@@ -65,10 +67,10 @@ sub _set_voltage {
     }
     
     
-    return $self->_set_source_level($voltage);
+    return $self->set_source_level($voltage);
 }
 
-sub _set_voltage_auto {
+sub set_voltage_auto {
     my $self=shift;
     my $voltage=shift;
     
@@ -84,10 +86,10 @@ sub _set_voltage_auto {
     	error=>"Source is not capable of voltage level > 32V. Can't set voltage level.");
     }
     
-    $self->_set_source_level_auto($voltage);
+    $self->set_source_level_auto($voltage);
 }
 
-sub _set_current_auto {
+sub set_current_auto {
     my $self=shift;
     my $current=shift;
     
@@ -103,10 +105,10 @@ sub _set_current_auto {
     	error=>"Source is not capable of current level > 200mA. Can't set current level.");
     }
     
-    $self->_set_source_level_auto($current);
+    $self->set_source_level_auto($current);
 }
 
-sub _set_current {
+sub set_current {
     my $self=shift;
     my $current=shift;
 
@@ -117,7 +119,7 @@ sub _set_current {
     	error=>"Source is in mode $source_function. Can't set current level.");
     }
 
-    $self->_set_source_level($current);
+    $self->set_source_level($current);
 }
 
 sub _set_source_level {
@@ -143,7 +145,7 @@ sub _set_source_level {
 	
 }
 
-sub _set_source_level_auto {
+sub set_source_level_auto {
     my $self=shift;
     my $value=shift;
     
@@ -189,44 +191,11 @@ sub halt_program{
 	$self->write("$cmd");
 }
 
-sub sweep_to_voltage {
+sub _sweep_to_source_level {
     my $self=shift;
     my $target=shift;
     my $time=shift;
     
-    my $vpsec = undef;
-    my $vpstep = undef;
-    my $spsec = undef;
-    
-    my $current = $self->get_voltage();
-    my $source_function = $self->{'device_cache'}->{'source_function'};
-    
-    if($source_function ne 'VOLT'){
-    	Lab::Exception::CorruptParameter->throw(
-    	error=>"Source is in mode $source_function. Can't set voltage level.");
-    }
-    
-    if( $target && $time){
-    	$vpsec= (abs($target-$current))/$time;
-    	
-    	if($self->{'device_settings'}->{'gate_protect'}){
-    		$self->_check_gate_protect();
-    		$vpsec = $self->{'device_settings'}->{'gp_max_volt_per_second'} ? ($vpsec > $self->{'device_settings'}->{'gp_max_volt_per_second'}): $vpstep;
-    		    		
-    	}	 
-    }
-    else{
-    
-    # if we use gate_protect, we make sure that the rates are oke.
-    
-   	$self->_check_gate_protect();
-	
-	$vpsec = $self->device_settings()->{gp_max_amps_per_second};
-	$vpstep = $self->device_settings()->{gp_max_amps_per_step};
-	$spsec = $self->device_settings()->{gp_max_step_per_second};
-    
-	
-    }
     
     $self->write("*CLS");
     $self->write(":PROG:REP 0");
@@ -286,10 +255,9 @@ sub get_source_level {
     my $options = undef;
 	if (ref $_[0] eq 'HASH') { $options=shift }	else { $options={@_} }
 	
-    if( $options->{'device_cache'}){
-     	$self->query( ":SOURce:LEVel?" );
-     	s/(\d+\.\d+)E\d+/\1/g;
-     	return;
+    if( $options->{'from_device'}){
+     	my $lvl = $self->query( ":SOURce:LEVel?" );
+     	return $lvl;
     }
     else{
 		return $self->device_cache()->{'source_level'};
@@ -301,7 +269,7 @@ sub get_source_function{
 	my $options = undef;
 	if (ref $_[0] eq 'HASH') { $options=shift }	else { $options={@_} }
 	
-    if( $options->{'device_cache'}){
+    if( $options->{'from_device'}){
     	my $cmd=":SOURce:FUNCtion?";
     	return $self->query( $cmd );
     }
@@ -316,7 +284,7 @@ sub get_source_range{
 	my $options = undef;
 	if (ref $_[0] eq 'HASH') { $options=shift }	else { $options={@_} }
 	
-    if( $options->{'device_cache'}){
+    if( $options->{'from_device'}){
     	my $cmd=":SOURce:RANGe?";
     	return $self->query( $cmd );
     }
@@ -325,13 +293,15 @@ sub get_source_range{
     }
 }
 
+
+
 sub set_source_function {
     my $self=shift;
     my $func=shift;
     
     
-    if( $func =~ m/(^VOLT|^CURR)/ ){
-    	my $cmd=":SOURce:FUNCtion $func";
+    if( $func =~ /^(CURR|VOLT)$/ ){
+    	my $cmd=":SOURce:FUNCtion ".$func;
     	#print "$cmd\n";
     	$self->write( $cmd );
     	return $self->{'device_cache'}->{'source_function'} = $func;	
@@ -395,7 +365,7 @@ sub get_output {
     my $options = undef;
 	if (ref $_[0] eq 'HASH') { $options=shift }	else { $options={@_} }
 	
-    if( $options->{'device_cache'}){
+    if( $options->{'from_device'}){
      	$self->query( ":OUTP?" );
      	return;
     }
@@ -489,11 +459,11 @@ you might also want to have gate protect from the start (the default values are 
 		gate_protect => 1,
 
 		gp_equal_level          => 1e-5,
-		gp_max_volt_per_second  => 0.05,
-		gp_max_volt_per_step    => 0.005,
+		gp_max_units_per_second  => 0.05,
+		gp_max_units_per_step    => 0.005,
 		gp_max_step_per_second  => 10,
-		gp_max_amps_per_second  => 0.05,
-		gp_max_amps_per_step    => 0.005,
+		gp_max_units_per_second  => 0.05,
+		gp_max_units_per_step    => 0.005,
 
 		max_sweep_time=>3600,
 		min_sweep_time=>0.1,

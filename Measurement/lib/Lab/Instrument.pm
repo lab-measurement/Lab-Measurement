@@ -163,12 +163,12 @@ sub _cache_init {
 			Lab::Exception::CorruptParameter->throw( "No field with name $ckey in device_cache!\n" ) if !exists $self->device_cache()->{$ckey};
 			if( !defined $self->device_cache()->{$ckey}  ) {
 				$subname = 'get_' . $ckey;
-				Lab::Exception::CorruptParameter->throw("No get method defined for device_cache field $ckey!\n") if !$self->can($subname);
-				$self->device_cache()->{$ckey} = $self->$subname( "device_cache" => 1 );
+				Lab::Exception::CorruptParameter->throw("No get method defined for device_cache field $ckey! \n") if ! $self->can($subname);
+				$self->device_cache()->{$ckey} = $self->$subname( from_device => 1 );
 			}
 			else {
 				$subname = 'set_' . $ckey;
-				Lab::Exception::CorruptParameter->throw("No set method defined for device_cache field $ckey!\n") if !$self->can($subname);
+				Lab::Exception::CorruptParameter->throw("No set method defined for device_cache field $ckey!\n") if ! $self->can($subname);
 				$self->$subname($self->device_cache()->{$ckey});
 			}
 		}
@@ -644,6 +644,14 @@ sub _device_init {
 } 
 
 
+#
+# This tool just returns the index of the element in the provided list
+#
+
+sub function_list_index{
+ 1 while $_[0] ne pop; 
+ $#_;
+}
 
 
 

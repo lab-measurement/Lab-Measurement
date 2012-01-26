@@ -108,7 +108,7 @@ use Exception::Class (
 		description	=> 'An error occured with NI VISA or the Lab::VISA interface',
 		fields		=> [
 							'status', # the status returned from Lab::VISA, if any
-		]
+		],
 	},
 
 	Lab::Exception::VISATimeout => {
@@ -118,7 +118,7 @@ use Exception::Class (
 							'status', # the status returned from Lab::VISA, if any
 							'command', # the command that led to the timeout
 							'data', # the data read up to the abort
-		]
+		],
 	},
 
 
@@ -131,7 +131,7 @@ use Exception::Class (
 		description	=> 'An error occured with the native RS232 interface',
 		fields		=> [
 							'status', # the returned status
-		]
+		],
 	},
 
 	Lab::Exception::RS232Timeout => {
@@ -141,7 +141,7 @@ use Exception::Class (
 							'status', # the status returned
 							'command', # the command that led to the timeout
 							'data', # the data read up to the abort
-		]
+		],
 	},
 	
 	#
