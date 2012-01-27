@@ -209,6 +209,7 @@ sub _sweep_to_source_level {
     $self->write(":STAT:ENAB 64");
     $self->write(":PROG:RUN");
     
+    
     print $self->connection()->serial_poll()->{'1'} . "\n";
     
     while ($self->connection()->serial_poll()->{'1'} ne "1"){

@@ -428,7 +428,7 @@ sub read {
 
 sub query {
 	my $self=shift;
-	my ($command, $args) = $self->parse_optional;
+	my ($command, $args) = $self->parse_optional(@_);
 
 	$args->{'command'} = $command if defined $command;
 

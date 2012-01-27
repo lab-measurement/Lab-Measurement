@@ -193,7 +193,7 @@ sub set_source_level {
 	if ($self->device_settings()->{'gate_protect'}) {
 		return $voltage=$self->sweep_to_source_level($voltage,@_);
 	} else {
-		return $self->_set_source_level($voltage,@_});
+		return $self->_set_source_level($voltage,{@_});
 	}
  
 }
@@ -315,7 +315,6 @@ sub sweep_to_source_level {
 	
 	# Check correct channel setup
 		
-	$self->is_me_channel($channel);
 	
 	$self->_check_gate_protect();
 	
@@ -345,8 +344,8 @@ sub sweep_to_source_level {
 	
 	
 	
-	if(UNIVERSAL::can(_sweep_to_voltage)) {
-		return $self->_sweep_to_voltage($target,$time);
+	if($self->can("_sweep_to_source_level")) {
+		return $self->_sweep_to_source_level($target,$time,$args);
 	}
 	else{
 			
@@ -354,20 +353,16 @@ sub sweep_to_source_level {
 		
 		unless( $current != $target){
 			if( abs($target-$current) <= $upstep ){
-				$self->_set_voltage($target, channel => $channel);
+				$self->_set_source_level($target, $args);
 			}
 			my $next = ($target - $current > 0) 
-				? $next = $self->_set_current( $target+$upstep, "channel" => $channel) 
-				: $next = $self->_set_current( $target-$upstep, "channel" => $channel);
+				? $self->_set_source_level( $target+$upstep, $args) 
+				: $self->_set_source_level( $target-$upstep, $args);
 			sleep($steptime);
 			
 			$current = $next;		
 		}
 		return $current;			
-	}
-	else{
-		Lab::Exception::DriverError->throw(
-				"The method ".__PACKAGE__."::sweep_to_source_voltage().");
 	}
 	
 }
