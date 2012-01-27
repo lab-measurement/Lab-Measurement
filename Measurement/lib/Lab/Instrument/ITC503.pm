@@ -2,6 +2,7 @@ package Lab::Instrument::ITC503;
 our $VERSION = '2.94';
 
 use strict;
+use feature "switch";
 use Lab::Instrument;
 
 our @ISA = ("Lab::Instrument");
@@ -30,25 +31,84 @@ sub _device_init {
 	
 	$self->connection()->SetTermChar(chr(13));
 	$self->connection()->EnableTermChar(1);
-	sleep 1;
-	$self->itc_set_control(3); # Talk to me
+	$self->itc_set_control(3); # Enable remote control, but leave the front panel unlocked
+}
+
+#
+# evaluate a command response for error conditions (leading '?', check for correct command character if supplied)
+#
+sub parse_error {
+	my $self=shift;
+	my $device_msg = shift;
+	my $cmd = shift;
+	my $cmd_char = defined $cmd ? substr( $cmd, 0, 1 ) : undef;
+	
+	my $status_char = substr($device_msg, 0, 1);
+	given ($status_char) {
+		when( $_ eq '?' ) {
+			Lab::Exception::DeviceError->throw(
+				error => "ITC503 returned error '$device_msg' on command '$cmd'\n",
+				device_class => ref $self,
+				command => $cmd,
+				raw_message => $device_msg );
+		}
+		when( defined $cmd_char && $_ ne $cmd_char ) {
+			Lab::Exception::DeviceError->throw(
+				error => "Received an unexpected answer from ITC503. Expected '$cmd_char' prefix, received '$status_char' on command '$cmd'\n",
+				device_class => ref $self,
+				command => $cmd,
+				raw_message => $device_msg );
+		}
+	}
 }
 
 
-sub itc_set_control { # don't use it if you get an error message during reading out sensors:"Cading Sensor";
-# 0 Local & Locked
-# 1 Remote & Locked
-# 2 Local & Unlocked
-# 3 Remote & Unlocked
-    my $self=shift;
-    my $mode=shift;
-    my $cmd="C$mode\r";
-    $self->query($cmd);
+#
+# query wrapper with error checking for the ITC
+#
+sub query {
+	my $self=shift;
+	my $cmd=shift;
+	
+	# ITC query answers always start with the command character if successful with a question mark and the command char on failure
+	my $cmd_char = substr( $cmd, 0, 1 );
+	
+	my $result = $self->SUPER::query($cmd, @_);
+	
+	$self->parse_error($result);
+	
+	return substr(chomp($result));
 }
 
+
+# old remark, relevance?
+# don't use it if you get an error message during reading out sensors:"Cading Sensor"
+# device modes:
+# 0 Local & Locked front panel
+# 1 Remote & Locked panel
+# 2 Local & Unlocked panel
+# 3 Remote & Unlocked panel
 sub set_control {
 	my $self=shift;
-	$self->itc_set_control(@_);
+	my $mode=shift;
+	given ($mode) {
+		when (/^\s*(0|1|2|3)\s*$/) {
+			$mode=$1;
+		}
+		when (/^\s*(locked)\s*$/) {
+			$mode=1;
+		}
+		when (/^\s*(unlocked)\s*$/) {
+			$mode=3;
+		}
+		default {
+			Lab::Exception::CorruptParameter->throw( "Invalid control mode specified." );
+		}
+	}
+	
+	my $result=$self->query("C${mode}\r",@_);
+		
+	$self->check_errors();
 }
 	
 
