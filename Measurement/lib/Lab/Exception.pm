@@ -66,6 +66,10 @@ use Exception::Class (
 	},
 	
 	
+	Lab::Exception::Unimplemented => {
+		description => 'An unimplemented method has been called.',
+	},
+	
 	#
 	# Driver level errors
 	#
