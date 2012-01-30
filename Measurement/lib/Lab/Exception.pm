@@ -64,6 +64,21 @@ use Exception::Class (
 							'data',	# this is meant to contain the data that (maybe) has been read/obtained/generated despite and up to the timeout.
 		],
 	},
+	
+	
+	Lab::Exception::Unimplemented => {
+		description => 'An unimplemented method has been called.',
+	},
+	
+	#
+	# Driver level errors
+	#
+	Lab::Exception::DriverError => {
+		isa			=> 'Lab::Exception::Error',
+		description	=> 'Something went wrong in the Instrument driver regime.',
+		fields		=> [
+		],
+	},
 
 
 	#
@@ -97,7 +112,7 @@ use Exception::Class (
 		description	=> 'An error occured with NI VISA or the Lab::VISA interface',
 		fields		=> [
 							'status', # the status returned from Lab::VISA, if any
-		]
+		],
 	},
 
 	Lab::Exception::VISATimeout => {
@@ -107,7 +122,7 @@ use Exception::Class (
 							'status', # the status returned from Lab::VISA, if any
 							'command', # the command that led to the timeout
 							'data', # the data read up to the abort
-		]
+		],
 	},
 
 
@@ -120,7 +135,7 @@ use Exception::Class (
 		description	=> 'An error occured with the native RS232 interface',
 		fields		=> [
 							'status', # the returned status
-		]
+		],
 	},
 
 	Lab::Exception::RS232Timeout => {
@@ -130,7 +145,7 @@ use Exception::Class (
 							'status', # the status returned
 							'command', # the command that led to the timeout
 							'data', # the data read up to the abort
-		]
+		],
 	},
 	
 	#
@@ -143,6 +158,7 @@ use Exception::Class (
 		fields		=> [
 							'device_class',	# driver class of the device
 							'command',		# last command as (and if) given by the script
+							'raw_message',	# raw received error response (if useful)
 							'error_list',	# list of errors, of the format [ [$errcode1, $errmsg1], [$errcode2, $errmsg2]. ... ]
 		],
 	},

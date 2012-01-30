@@ -90,21 +90,18 @@ sub SetTermChar { # the character as string
 
 #
 # perform a serial poll on the bus and return the status byte
+# Returns an array with index 0=>LSB, 8=>MSB of the status byte
 #
 sub serial_poll {
 	my $self=shift;
-	my @statbits = ();
 	my $statbyte = $self->bus()->serial_poll($self->connection_handle());
-	my %stat = ();
+	my @stat = ();
 	
 	for (my $i=0; $i<8; $i++) {
-		$statbits[$i] = 0x01 & ($statbyte >> $i);
+		$stat[$i] = 0x01 & ($statbyte >> $i);
 	}
-
-	( $stat{'1'}, $stat{'2'}, $stat{'3'}, $stat{'MAV'}, $stat{'ESB'}, $stat{'RQS'}, $stat{'7'}, $stat{'8'} ) = @statbits;
-
-	return \%stat;
-
+	return @stat;
+	#return (split(//, unpack('b*', pack('N',$self->bus()->serial_poll($self->connection_handle())))))[-8..-1];
 }
 
 

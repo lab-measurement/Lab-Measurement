@@ -163,12 +163,12 @@ sub _cache_init {
 			Lab::Exception::CorruptParameter->throw( "No field with name $ckey in device_cache!\n" ) if !exists $self->device_cache()->{$ckey};
 			if( !defined $self->device_cache()->{$ckey}  ) {
 				$subname = 'get_' . $ckey;
-				Lab::Exception::CorruptParameter->throw("No get method defined for device_cache field $ckey!\n") if !$self->can($subname);
-				$self->device_cache()->{$ckey} = $self->$subname();
+				Lab::Exception::CorruptParameter->throw("No get method defined for device_cache field $ckey! \n") if ! $self->can($subname);
+				$self->device_cache()->{$ckey} = $self->$subname( from_device => 1 );
 			}
 			else {
 				$subname = 'set_' . $ckey;
-				Lab::Exception::CorruptParameter->throw("No set method defined for device_cache field $ckey!\n") if !$self->can($subname);
+				Lab::Exception::CorruptParameter->throw("No set method defined for device_cache field $ckey!\n") if ! $self->can($subname);
 				$self->$subname($self->device_cache()->{$ckey});
 			}
 		}
@@ -200,6 +200,7 @@ sub device_sync{
 				my $count = 0;
 				foreach my $key (keys %{$self->{'device_cache'}} ){
 					$self->${\('set_'.$key)}($self->{'device_cache'}->{$key});
+					$count += 1;
 				}				
 				return $count;
 			}
@@ -207,11 +208,13 @@ sub device_sync{
 		else{
 			if($_[0]){
 				$self->{'device_cache'}->{$_[0]} = $self->${\('get_'.$_[0])}( device_cache => 1 );
+				return 1;
 			}
 			else{
 				my $count = 0;
 				foreach my $key (keys %{$self->{'device_cache'}} ){
 					$self->{'device_cache'}->{$key} = $self->${\('get_'.$key)}( device_cache => 1 );
+					$count += 1;
 				}				
 				return $count;
 			}
@@ -254,6 +257,7 @@ sub configure {
 		$self->device_cache($config);
 	}
 }
+
 
 
 
@@ -361,6 +365,16 @@ sub get_error {
 	return (0, undef); # ( $errcode, $message )
 }
 
+#
+# Optionally implement this to return a hash with device specific named status bits for this device, e.g. from the status byte/serial poll for GPIB
+# return { ERROR => 1, READY => 1, DATA => 0, ... }
+#
+sub get_status {
+	my $self=shift;
+	Lab::Exception::Unimplemented->throw( "get_status() not implemented for " . ref($self) . ".\n" );
+	return undef;
+}
+
 sub check_errors {
 	my $self=shift;
 	my $command=shift;
@@ -375,6 +389,7 @@ sub check_errors {
 
 	if(@errors) {
 		Lab::Exception::DeviceError->throw (
+			error => 'An Error occured in the device.',
 			device_class => ref $self,
 			command => $command,
 			error_list => \@errors,
@@ -415,11 +430,16 @@ sub read {
 }
 
 
+# query( $command, { channel => 1 })
+# query( $command, channel => 1 )
+# query({ command => $cmd, channel => 1 })
+# query( command => $cmd, channel => 1 )
+
+# $time, $true_scalar
+
 sub query {
 	my $self=shift;
-	my $command= scalar(@_)%2 == 0 && ref $_[1] ne 'HASH' ? undef : shift;  # even sized parameter list and second parm no hashref? => Assume parameter hash
-	my $args = scalar(@_)%2==0 ? {@_} : ( ref($_[0]) eq 'HASH' ? $_[0] : undef );
-	Lab::Exception::CorruptParameter->throw( "Illegal parameter hash given!\n" ) if !defined($args);
+	my ($command, $args) = $self->parse_optional(@_);
 
 	$args->{'command'} = $command if defined $command;
 
@@ -438,6 +458,20 @@ sub query {
 #
 # infrastructure stuff below
 #
+
+#
+# tool function to safely handle an optional scalar parameter in presence with a parameter hash/list
+# only one optional scalar parameter can be handled, and its value must not be a hashref!
+#
+sub parse_optional {
+	my $self = shift;
+
+	my $optional= scalar(@_)%2 == 0 && ref $_[1] ne 'HASH' ? undef : shift;  # even sized parameter list and second parm no hashref? => Assume parameter hash
+	my $args = scalar(@_)%2==0 ? {@_} : ( ref($_[0]) eq 'HASH' ? $_[0] : undef );
+	Lab::Exception::CorruptParameter->throw( "Illegal parameter hash given!\n" ) if !defined($args);
+	
+	return $optional, $args;
+}
 
 
 
@@ -640,6 +674,14 @@ sub _device_init {
 } 
 
 
+#
+# This tool just returns the index of the element in the provided list
+#
+
+sub function_list_index{
+ 1 while $_[0] ne pop; 
+ $#_;
+}
 
 
 

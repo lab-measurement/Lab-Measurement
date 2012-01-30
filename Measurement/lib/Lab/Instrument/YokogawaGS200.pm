@@ -1,8 +1,9 @@
+
 package Lab::Instrument::YokogawaGS200;
 use strict;
 use warnings;
 
-our $VERSION = '2.94';
+our $VERSION = '2.93';
 
 use feature "switch";
 use Lab::Instrument;
@@ -20,21 +21,27 @@ our %fields = (
 		gpib_address => 22,
 	},
 
+
 	device_settings => {
+	
 		gate_protect            => 1,
 		gp_equal_level          => 1e-5,
-		gp_max_volt_per_second  => 0.05,
-		gp_max_volt_per_step    => 0.005,
+		gp_max_units_per_second  => 0.05,
+		gp_max_units_per_step    => 0.005,
 		gp_max_step_per_second  => 10,
-
+		
+		stepsize		=> 0.01,  # default stepsize for sweep without gate protect
+	
+	 
 		max_sweep_time=>3600,
 		min_sweep_time=>0.1,
 	},
+	
 	# If class does not provide set_$var for those, AUTOLOAD will take care.
 	device_cache => {
-		source_function			=> 'VOLT', # 'VOLT' - voltage, 'CURR' - current
-		source_range			=> '1E+0',
-		source_level			=> '0',
+		source_function			=> "VOLT", # 'VOLT' - voltage, 'CURR' - current
+		source_range			=> undef,
+		source_level			=> undef,
 	},
 );
 
@@ -65,10 +72,42 @@ sub set_voltage {
     return $self->set_source_level($voltage);
 }
 
-sub _set_voltage_auto {
+sub set_voltage_auto {
     my $self=shift;
     my $voltage=shift;
-    $self->_set_auto($voltage);
+    
+    my $source_function = $self->get_source_function();
+
+    if($source_function ne 'VOLT'){
+    	Lab::Exception::CorruptParameter->throw(
+    	error=>"Source is in mode $source_function. Can't set voltage level.");
+    }
+    
+    if( abs($voltage) > 32.){
+    	Lab::Exception::CorruptParameter->throw(
+    	error=>"Source is not capable of voltage level > 32V. Can't set voltage level.");
+    }
+    
+    $self->set_source_level_auto($voltage);
+}
+
+sub set_current_auto {
+    my $self=shift;
+    my $current=shift;
+    
+    my $source_function = $self->get_source_function();
+
+    if($source_function ne 'CURR'){
+    	Lab::Exception::CorruptParameter->throw(
+    	error=>"Source is in mode $source_function. Can't set current level.");
+    }
+    
+    if( abs($current) > 0.200){
+    	Lab::Exception::CorruptParameter->throw(
+    	error=>"Source is not capable of current level > 200mA. Can't set current level.");
+    }
+    
+    $self->set_source_level_auto($current);
 }
 
 sub set_current {
@@ -85,7 +124,7 @@ sub set_current {
     $self->set_source_level($current);
 }
 
-sub set_source_level {
+sub _set_source_level {
     my $self=shift;
     my $value=shift;
     my $srcrange = $self->get_source_range();
@@ -108,101 +147,83 @@ sub set_source_level {
 	
 }
 
-sub _set_auto {
+sub set_source_level_auto {
     my $self=shift;
     my $value=shift;
+    
     my $cmd=sprintf(":SOURce:LEVel:AUTO %e",$value);
+	
 	$self->write( $cmd );
+	
+	$self->{'device_cache'}->{'source_range'} = $self->get_source_range( device_cache => 1 );
+
+    return $self->{'device_cache'}->{'source_level'} = $value;
+	
 }
 
-sub set_setpoint {
-    my $self=shift;
-    my $value=shift;
-    my $cmd=sprintf("S%+.4e",$value);
-	$self->connection()->Write( command  => $cmd );
-}
 
-sub set_time {
-    my $self=shift;
-    my $sweep_time=shift; #sec.
-    my $interval_time=shift;
-    if ($sweep_time<$self->device_settings('min_sweep_time')) {
-        warn "Warning Sweep Time: $sweep_time smaller than ${\$self->device_settings('min_sweep_time')} sec!\n Sweep time set to ${\$self->device_settings('min_sweep_time')} sec";
-        $sweep_time=$self->device_settings('min_sweep_time')}
-    elsif ($sweep_time>$self->device_settings('max_sweep_time')) {
-        warn "Warning Sweep Time: $sweep_time> ${\$self->device_settings('max_sweep_time')} sec!\n Sweep time set to ${\$self->device_settings('max_sweep_time')} sec";
-        $sweep_time=$self->device_settings('max_sweep_time')
-    };
-    if ($interval_time<$self->device_settings('min_sweep_time')) {
-        warn "Warning Interval Time: $interval_time smaller than ${\$self->device_settings('min_sweep_time')} sec!\n Interval time set to ${\$self->device_settings('min_sweep_time')} sec";
-        $interval_time=$self->device_settings('min_sweep_time')}
-    elsif ($interval_time>$self->device_settings('max_sweep_time')) {
-        warn "Warning Interval Time: $interval_time> ${\$self->device_settings('max_sweep_time')} sec!\n Interval time set to ${\$self->device_settings('max_sweep_time')} sec";
-        $interval_time=$self->device_settings('max_sweep_time')
-    };
-    my $cmd=sprintf("PI%.1f",$interval_time);
-	$self->connection()->Write( command  => $cmd );
-    $cmd=sprintf("SW%.1f",$sweep_time);
-	$self->connection()->Write( command  => $cmd );
-}
 
-sub start_program {
+sub run_program {
     my $self=shift;
-    my $cmd=sprintf("PRS");
-	$self->connection()->Write( command  => $cmd );
-}
-
-sub end_program {
-    my $self=shift;
-    my $cmd=sprintf("PRE");
-	$self->connection()->Write( command  => $cmd );
-}
-sub execute_program {
-    # 0 HALT
-    # 1 STEP
-    # 2 RUN
-    #3 Continue
-    my $self=shift;
-    my $value=shift;
-    my $cmd=sprintf("RU%d",$value);
-	$self->connection()->Write( command  => $cmd );
+    my $cmd = shift;
+    
+    $self->write( ":PROG:LOAD $cmd" ) if $cmd;
+    
+    $self->write(":PROG:RUN");
     
 }
 
-sub sweep {
+sub pause_program {
+    my $self=shift;   
+    
+    my $cmd=sprintf(":PROGram:PAUSe");
+	$self->write( "$cmd" );
+}
+sub continue_program {
     my $self=shift;
-    my $stop=shift;
-    my $rate=shift;
-    my $return_rate=$rate;
-    $self->execute_program(0);
-    my $output_now=$self->_get();
-    #Test if $stop in range
-    my $range=$self->get_range();
-    #Start Programming-----
-    $self->start_program();
-    if ($stop>$range){
-        $stop=$range;
-    }
-    elsif ($stop< -$range) {
-        $stop=-$range;
-    }
-    $self->set_setpoint($stop);
-    $self->end_program();
+    my $value=shift;
+    my $cmd=sprintf(":PROGram:CONTinue");
+	$self->write( "$cmd" );
+    
+}
 
-    my $time=abs($output_now -$stop)/$rate;
-    if ($time<$self->get_min_sweep_time()) {
-        warn "Warning Sweep Time: $time smaller than ${\$self->device_settings('min_sweep_time')} sec!\n Sweep time set to ${\$self->device_settings('min_sweep_time')} sec";
-        $time=$self->get_min_sweep_time();
-        $return_rate=abs($output_now -$stop)/$time;
+sub halt_program{
+	my $self=shift;
+	my $cmd=":PROGram:HALT";
+	$self->write("$cmd");
+}
+
+sub _sweep_to_source_level {
+    my $self=shift;
+    my $target=shift;
+    my $time=shift;
+    
+    
+    $self->write("*CLS");
+    $self->write(":PROG:REP 0");
+    $self->write(":PROG:SLOP $time");
+    $self->write(":PROG:INT $time");
+    $self->write(":PROG:EDIT:START");
+    $self->write(":SOUR:LEV $target");
+    $self->write(":PROG:EDIT:END");
+    $self->write(":STAT:ENAB 64");
+    $self->write(":PROG:RUN");
+    
+    print ( ($self->connection()->serial_poll())[1] . "\n" );
+    
+    while (($self->connection()->serial_poll())[1] ne "1"){
+    	print ( ($self->connection()->serial_poll())[1] ."\n" );
+    	sleep 1;
     }
-    elsif ($time>$self->device_settings('max_sweep_time')) {
-        warn "Warning Interval Time: $time> ${\$self->device_settings('max_sweep_time')} sec!\n Sweep time set to ${\$self->device_settings('max_sweep_time')} sec";
-        $time=$self->device_settings('max_sweep_time');
-        $return_rate=abs($output_now -$stop)/$time;
+    
+    if( ! $self->get_source_level( device_cache => 1) == $target){
+    	Lab::Exception::CorruptParameter->throw(
+    	"Sweep failed.")
     }
-    $self->set_time($time,$time);
-    $self->execute_program(2);
-    return $return_rate;
+    
+    $self->{'device_cache'}->{'source_level'} = $target;
+    
+    return $target;
 }
 
 sub get_voltage {
@@ -210,12 +231,12 @@ sub get_voltage {
 
 	my $source_function = $self->get_source_function();
 
-    if(!$self->get_source_function eq 'V'){
+    if(! $self->get_source_function eq 'VOLT'){
     	Lab::Exception::CorruptParameter->throw(
     	error=>"Source is in mode $source_function. Can't get voltage level.");
     }
 
-    return $self->{'device_cache'}->get_source_level(@_);
+    return $self->get_source_level(@_);
 }
 
 sub get_current {
@@ -223,12 +244,12 @@ sub get_current {
     
     my $source_function = $self->get_source_function();
     
-    if(!$self->get_source_function() eq 'C'){
+    if(!$self->get_source_function() eq 'CURR'){
     	Lab::Exception::CorruptParameter->throw(
     	error=>"Source is in mode $source_function. Can't get current level.");
     }
    	
-    return $self->{'device_cache'}->get_source_level(@_);
+    return $self->get_source_level(@_);
 }
 
 sub get_source_level {
@@ -236,8 +257,9 @@ sub get_source_level {
     my $options = undef;
 	if (ref $_[0] eq 'HASH') { $options=shift }	else { $options={@_} }
 	
-    if( $options->{'device_cache'}){
-     	return $self->query( ":SOURce:LEVel?" );
+    if( $options->{'from_device'}){
+     	my $lvl = $self->query( ":SOURce:LEVel?" );
+     	return $lvl;
     }
     else{
 		return $self->device_cache()->{'source_level'};
@@ -249,7 +271,7 @@ sub get_source_function{
 	my $options = undef;
 	if (ref $_[0] eq 'HASH') { $options=shift }	else { $options={@_} }
 	
-    if( $options->{'device_cache'}){
+    if( $options->{'from_device'}){
     	my $cmd=":SOURce:FUNCtion?";
     	return $self->query( $cmd );
     }
@@ -264,7 +286,7 @@ sub get_source_range{
 	my $options = undef;
 	if (ref $_[0] eq 'HASH') { $options=shift }	else { $options={@_} }
 	
-    if( $options->{'device_cache'}){
+    if( $options->{'from_device'}){
     	my $cmd=":SOURce:RANGe?";
     	return $self->query( $cmd );
     }
@@ -273,13 +295,15 @@ sub get_source_range{
     }
 }
 
+
+
 sub set_source_function {
     my $self=shift;
     my $func=shift;
     
     
-    if( $func =~ m/(^VOLT|^CURR)/ ){
-    	my $cmd=":SOURce:FUNCtion $func";
+    if( $func =~ /^(CURR|VOLT)$/ ){
+    	my $cmd=":SOURce:FUNCtion ".$func;
     	#print "$cmd\n";
     	$self->write( $cmd );
     	return $self->{'device_cache'}->{'source_function'} = $func;	
@@ -326,79 +350,69 @@ sub set_source_range {
 
 }
 
-sub get_info {
-    my $self=shift;
-    $self->connection()->Write( command  => "OS" );
-    my @info;
-    for (my $i=0;$i<=10;$i++){
-        my $line=$self->connection()->Read( read_length => 300 );
-        if ($line=~/END/){last};
-        chomp $line;
-        $line=~s/\r//;
-        push(@info,sprintf($line));
-    };
-    return @info;
-}
-
-
-sub set_run_mode {
-    my $self=shift;
-    my $value=shift;
-    if ($value!=0 and $value!=1) { Lab::Exception::CorruptParameter->throw( error=>"Run Mode $value not defined\n" ); }
-    my $cmd=sprintf("M%u",$value);
-    $self->connection()->Write( command  => $cmd );
-}
 
 sub output_on {
     my $self=shift;
-    $self->connection()->Write( command  => ':OUTP 1' );
+    return $self->{"device_cache"}->{"output"} = $self->write( ':OUTP 1' );
 }
     
 sub output_off {
     my $self=shift;
-    $self->connection()->Write( command  => ':OUTP 0' );
+    return $self->{"device_cache"}->{"output"} = $self->write( ':OUTP 0' );
 }
 
 sub get_output {
     my $self=shift;
-    my %res=$self->get_status();
-    return $res{output};
+    
+    my $options = undef;
+	if (ref $_[0] eq 'HASH') { $options=shift }	else { $options={@_} }
+	
+    if( $options->{'from_device'}){
+     	$self->query( ":OUTP?" );
+     	return;
+    }
+    
+    return $self->{"device_cache"}->{"output"};
 }
 
-sub initialize {
-    my $self=shift;
-    $self->connection()->Write( command  => 'RC' );
-}
 
 sub set_voltage_limit {
     my $self=shift;
     my $value=shift;
-    my $cmd=sprintf("LV%e",$value);
-    $self->connection()->Write( command  => $cmd );
+    my $cmd = ":SOURce:PROTection:VOLTage $value";
+    
+    if($value > 30. || $value < 1. ){
+    	Lab::Exception::CorruptParameter->throw( error=>"The voltage limit $value is not within the allowed range.\n" );
+    }
+    
+    $self->connection()->write( $cmd );
+    
+    return $self->device_cache()->{'voltage_limit'} = $value;
+    
 }
 
 sub set_current_limit {
     my $self=shift;
     my $value=shift;
-    my $cmd=sprintf("LA%e",$value);
-    $self->connection()->Write( command  => 'RC' );
+    my $cmd = ":SOURce:PROTection:CURRent $value";
+    
+    if($value > 0.2 || $value < 0.001 ){
+    	Lab::Exception::CorruptParameter->throw( error=>"The current limit $value is not within the allowed range.\n" );
+    }
+    
+    $self->connection()->write( $cmd );
+    
+    return $self->device_cache()->{'current_limit'} = $value;
+    
 }
 
-sub get_status {
-    my $self=shift;
-    my $status=$self->connection()->Write( command  => 'OC' );
-    
-    $status=~/STS1=(\d*)/;
-    $status=$1;
-    my @flags=qw/
-        CAL_switch  memory_card calibration_mode    output
-        unstable    error   execution   setting/;
-    my %result;
-    for (0..7) {
-        $result{$flags[$_]}=$status&128;
-        $status<<=1;
-    }
-    return %result;
+
+sub get_error{
+	my $self=shift;
+	
+	my $cmd = ":SYSTem:ERRor?";
+	
+	return $self->connection()->query( $cmd );
 }
 
 1;
@@ -418,6 +432,8 @@ Lab::Instrument::YokogawaGS200 - Yokogawa GS200 DC source
     my $gate14=new Lab::Instrument::YokogawaGS200(
       connection_type => 'LinuxGPIB',
       gpib_address => 22,
+      source_function => 'VOLT',
+      source_level => 0.4,
     );
     $gate14->set_voltage(0.745);
     print $gate14->get_voltage();
@@ -430,66 +446,142 @@ L<Lab::Instrument::Source> and provides all functionality described there.
 
 =head1 CONSTRUCTORS
 
-=head2 new($gpib_board,$gpib_addr)
+=head2 new( %configuration_HASH )
+
+HASH is a list of tuples given in the format
+
+key => value,
+
+please supply at least the configuration for the connection:
+		connection_type 		=> "LinxGPIB"
+		gpib_address =>
+
+you might also want to have gate protect from the start (the default values are given):
+
+		gate_protect => 1,
+
+		gp_equal_level          => 1e-5,
+		gp_max_units_per_second  => 0.05,
+		gp_max_units_per_step    => 0.005,
+		gp_max_step_per_second  => 10,
+		gp_max_units_per_second  => 0.05,
+		gp_max_units_per_step    => 0.005,
+
+		max_sweep_time=>3600,
+		min_sweep_time=>0.1,
+	
+Additinally there is support to set parameters for the device "on init":		
+	
+		source_function			=> undef, # 'VOLT' - voltage, 'CURR' - current
+		source_range			=> undef,
+		source_level			=> undef,
+		output					=> undef,
+
+If those values are not specified, they are read from the device.
 
 =head1 METHODS
 
+=head2 sweep_to_voltage($voltage,$time)
+
+Sweeps to $voltage in $time seconds.
+For this function to work, the source has to be in output mode.
+
+Returns the newly set voltage. 
+This function is also called internally to set the voltage when gate protect is used.
+
+=head2 run_program($program)
+
+Runs a program stored on the YokogawaGS200. If no prgram name is given, the currently loaded program is executed.
+
+=head2 pause_program
+
+Pauses the currently running program.
+
+=head2 continue_program
+
+Continues the paused program.
+
 =head2 set_voltage($voltage)
 
-=head2 get_voltage()
+Sets the output voltage. The driver checks whether you stay inside the currently selected range. 
+Returns the newly set voltage.
+
+=head2 set_voltage_auto($voltage)
+
+Sets the output voltage. The range is chosen automatically.
+Does not work with gate protect on.
+Returns the newly set voltage.
+
+=head2 set_current($current)
+
+See set_voltage
+
+=head2 set_current_auto($current)
+
+See set_current_auto
 
 =head2 set_range($range)
 
     Fixed voltage mode
-    2   10mV
-    3   100mV
-    4   1V
-    5   10V
-    6   30V
+    10E-3    10mV
+    100E-3   100mV
+    1E+0     1V
+    10E+0    10V
+    30E+0    30V
 
     Fixed current mode
-    4   1mA
-    5   10mA
-    6   100mA
+    1E-3   		1mA
+    10E-3   	10mA
+    100E-3   	100mA
+    200E-3		200mA
+    
+    Please use the format on the left for the range command.
 
-=head2 get_info()
+=head2 set_source_function($function)
 
-Returns the information provided by the instrument's 'OS' command, in the form of an array
-with one entry per line. For display, use join(',',$yoko->get_info()); or similar.
+Sets the source function. The Yokogawa supports the values 
+
+"CURR" for current mode and
+"VOLT" for voltage mode.
+
+Returns the newly set source function.
+
+=head2 set_voltage_limit($limit)
+
+Sets a voltage limit to protect the device.
+Returns the new voltage limit.
+
+=head2 set_current_limit($limit)
+
+See set_voltage_limit.
 
 =head2 output_on()
 
-Sets the output switch to on.
+Sets the output switch to on and returns the new value of the output status.
 
 =head2 output_off()
 
 Sets the output switch to off. The instrument outputs no voltage
-or current then, no matter what voltage you set.
+or current then, no matter what voltage you set. Returns the new value of the output status.
+
+
+=head2 get_error()
+
+Queries the error code from the device. This is a very useful thing to do when you are working remote and the source is not responding.
+
+
+=head2 get_voltage()
+
+
+=head2 get_current()
+
 
 =head2 get_output()
 
-Returns the status of the output switch (0 or 1).
 
-=head2 initialize()
+=head2 get_source_range()
 
-=head2 set_voltage_limit($limit)
 
-=head2 set_current_limit($limit)
-
-=head2 get_status()
-
-Returns a hash with the following keys:
-
-    CAL_switch
-    memory_card
-    calibration_mode
-    output
-    unstable
-    error
-    execution
-    setting
-
-The value for each key is either 0 or 1, indicating the status of the instrument.
 
 =head1 CAVEATS
 
@@ -515,6 +607,7 @@ The YokogawaGP200 class is a Source (L<Lab::Instrument::Source>)
  (c) 2004-2006 Daniel Schröer
  (c) 2007-2010 Daniel Schröer, Daniela Taubert, Andreas K. Hüttel, and others
  (c) 2011 Florian Olbrich, Andreas K. Hüttel
+ (c) 2012 Alois Dirnaichner
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 

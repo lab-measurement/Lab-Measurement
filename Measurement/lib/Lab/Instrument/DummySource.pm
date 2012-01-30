@@ -18,8 +18,8 @@ our %fields = (
 	device_settings => {
 		gate_protect            => 1,
 		gp_equal_level          => 1e-5,
-		gp_max_volt_per_second  => 0.002,
-		gp_max_volt_per_step    => 0.001,
+		gp_max_units_per_second  => 0.002,
+		gp_max_units_per_step    => 0.001,
 		gp_max_step_per_second  => 2,
 
 		max_sweep_time=>3600,
