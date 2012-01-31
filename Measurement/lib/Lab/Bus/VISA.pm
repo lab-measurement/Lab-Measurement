@@ -211,15 +211,18 @@ sub serial_poll {
 	
 	my $ibstatus = Lab::VISA::viReadSTB( $connection_handle, $sbyte );
 	
-	my $ib_bits=$self->ParseIbstatus($ibstatus);
-
-	if($ib_bits->{'ERR'}==1) {
-		Lab::Exception::GPIBError->throw(
-			error => sprintf("ibrsp (serial poll) failed with status %x\n", $ibstatus) . Dumper($ib_bits),
-			ibsta => $ibstatus,
-			ibsta_hash => $ib_bits,
-		);
-	}
+	#
+	# TODO: VISA status evaluation
+	#
+	# my $ib_bits=$self->ParseIbstatus($ibstatus);
+	#
+	# if($ib_bits->{'ERR'}==1) {
+	# 	Lab::Exception::GPIBError->throw(
+	#		error => sprintf("ibrsp (serial poll) failed with status %x\n", $ibstatus) . Dumper($ib_bits),
+	#		ibsta => $ibstatus,
+	#		ibsta_hash => $ib_bits,
+	#	);
+	# }
 	
 	return $sbyte;
 }
