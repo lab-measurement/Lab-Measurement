@@ -93,6 +93,7 @@ sub SetTermChar { # the character as string
 # Returns an array with index 0=>LSB, 8=>MSB of the status byte
 #
 sub serial_poll {
+	use bytes;
 	my $self=shift;
 	my $statbyte = $self->bus()->serial_poll($self->connection_handle());
 	my @stat = ();
