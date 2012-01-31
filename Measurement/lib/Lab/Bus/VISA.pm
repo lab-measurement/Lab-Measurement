@@ -209,7 +209,7 @@ sub serial_poll {
 	my $connection_handle = shift;
 	my $sbyte = undef;
 	
-	my $ibstatus = Lab::VISA::viReadSTB( $connection_handle );
+	my $ibstatus = Lab::VISA::viReadSTB( $connection_handle, $sbyte );
 	
 	my $ib_bits=$self->ParseIbstatus($ibstatus);
 
