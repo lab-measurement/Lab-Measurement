@@ -35,8 +35,8 @@ our %fields = (
 
 	# default device settings/user supplied settings. see accessor method.
 	device_settings => {
-		wait_status => 10, # usec
-		wait_query => 100, # usec
+		wait_status => 10e-6, # sec
+		wait_query => 10e-6, # sec
 		query_length => 300, # bytes
 		query_long_length => 10240, # bytes
 	},

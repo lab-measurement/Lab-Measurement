@@ -15,8 +15,8 @@ our @ISA = ("Lab::Connection");
 
 our %fields = (
 	bus_class => 'Lab::Bus::MODBUS_RS232',
-	wait_status=>0, # usec;
-	wait_query=>10, # usec;
+	wait_status=>0, # sec;
+	wait_query=>10e-6, # sec;
 	read_length=>1000, # bytes
 );
 

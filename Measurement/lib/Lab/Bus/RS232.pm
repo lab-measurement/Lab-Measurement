@@ -43,7 +43,7 @@ our %fields = (
 	timeout => 500,
 	read_length => 'all',
 	brutal => 0,
-	wait_query => 10,
+	wait_query => 10e-6, #sec
 );
 
 sub new {

@@ -19,7 +19,7 @@ our %fields = (
 	gpib_board	=> 0,
 	type => 'GPIB',
 	brutal => 0,	# brutal as default?
-	wait_query=>10, # usec;
+	wait_query=>10e-6, # sec;
 	read_length=>1000, # bytes
 	query_length=>300, # bytes
 	query_long_length=>10240, #bytes
@@ -163,7 +163,7 @@ sub connection_query { # @_ = ( $connection_handle, $args = { command, read_leng
 
     $self->connection_write($args);
 
-    usleep($wait_query); #<---ensures that asked data presented from the device
+    sleep($wait_query); #<---ensures that asked data presented from the device
 
     $result=$self->connection_read($args);
     return $result;

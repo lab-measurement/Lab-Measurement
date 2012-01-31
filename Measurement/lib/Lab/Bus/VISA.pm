@@ -19,8 +19,8 @@ our %fields = (
 	default_rm => undef,
 	type => 'VISA',
 	brutal => 0,	# brutal as default?
-	wait_status=>10, # usec;
-	wait_query=>10, # usec;
+	wait_status=>10e-6, # sec;
+	wait_query=>10e-6, # sec;
 	query_length=>300, # bytes
 	query_long_length=>10240, #bytes
 	read_length => 1000, # bytes
@@ -160,7 +160,7 @@ sub connection_write { # @_ = ( $connection_handle, $args = { command, wait_stat
             length($command)
         );
 
-        usleep($wait_status);
+        sleep($wait_status);
 
 		if ( $status != $Lab::VISA::VI_SUCCESS ) {
 			Lab::Exception::VISAError->throw(
