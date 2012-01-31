@@ -204,6 +204,28 @@ sub connection_query { # @_ = ( $connection_handle, $args = { command, read_leng
 
 
 
+sub serial_poll {
+	my $self = shift;
+	my $connection_handle = shift;
+	my $sbyte = undef;
+	
+	my $ibstatus = Lab::VISA::viReadSTB( $connection_handle );
+	
+	my $ib_bits=$self->ParseIbstatus($ibstatus);
+
+	if($ib_bits->{'ERR'}==1) {
+		Lab::Exception::GPIBError->throw(
+			error => sprintf("ibrsp (serial poll) failed with status %x\n", $ibstatus) . Dumper($ib_bits),
+			ibsta => $ibstatus,
+			ibsta_hash => $ib_bits,
+		);
+	}
+	
+	return $sbyte;
+}
+
+
+
 #
 # calls ibclear() on the instrument - how to do on VISA?
 #
