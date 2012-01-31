@@ -332,7 +332,11 @@ sub sweep_to_source_level {
 	
 	my $spsec = $self->get_gp_max_step_per_second();
 	
-	my $current = $self->get_source_level( from_device => 1 );
+	my $current = $self->get_source_level( from_device => 1 )+ 0.;
+	
+	if( $target == $current ){
+		return $target;
+	}
 	
 	if( $self->device_settings()->{"gate_protect"} && $time ){
 		$time = ( abs($target - $current)/$time < $apsec ) ? $time : abs($target-$current)/$apsec;
@@ -340,6 +344,8 @@ sub sweep_to_source_level {
 	elsif(!defined($time)){
 		$time = abs($target-$current)/$apsec;
 	}	
+	
+
 	# sweep to current
 	
 	
@@ -413,7 +419,12 @@ sub _check_gate_protect{
 			"Please supply one of either gp_max_units_per_second or gp_max_steps_per_second.");
 		}
 		else{
-			$apsec <= $spsec*$apstep ? $spsec = $apsec/$apstep : $apsec	= $spsec*$apstep;
+			if($apsec <= $spsec*$apstep){
+				$spsec = $apsec/$apstep;
+			}
+			else{
+				$apsec	= $spsec*$apstep;
+			}
 		}
 	
 	$self->device_settings()->{gp_max_units_per_second} = $apsec;

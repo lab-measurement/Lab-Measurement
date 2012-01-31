@@ -209,6 +209,8 @@ sub _sweep_to_source_level {
     $self->write(":STAT:ENAB 64");
     $self->write(":PROG:RUN");
     
+    $self->check_errors();
+    
     
     print $self->connection()->serial_poll()->{'1'} . "\n";
     
@@ -413,7 +415,7 @@ sub get_error{
 	
 	my $cmd = ":SYSTem:ERRor?";
 	
-	return $self->connection()->query( $cmd );
+	return $self->query( $cmd );
 }
 
 1;
