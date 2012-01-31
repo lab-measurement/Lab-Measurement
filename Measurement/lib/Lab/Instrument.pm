@@ -14,7 +14,6 @@ use Clone qw(clone);
 use Time::HiRes qw (usleep sleep);
 use POSIX; # added for int() function
 
-# setup this variable to add inherited functions later
 our @ISA = ();
 
 our $AUTOLOAD;
@@ -380,20 +379,23 @@ sub check_errors {
 	my $command=shift;
 	my @errors=();
 	
-	my ( $code, $message )  = $self->get_error();	
-	while( $code != 0 ) {
-		push @errors, [$code, $message];
-		warn "\nReceived device error with code $code\nMessage: $message\n";
-		( $code, $message )  = $self->get_error();
-	}
+	if($self->get_status('ERROR')) {
+	
+		my ( $code, $message )  = $self->get_error();	
+		while( $code != 0 ) {
+			push @errors, [$code, $message];
+			warn "\nReceived device error with code $code\nMessage: $message\n";
+			( $code, $message )  = $self->get_error();
+		}
 
-	if(@errors) {
-		Lab::Exception::DeviceError->throw (
-			error => 'An Error occured in the device.',
-			device_class => ref $self,
-			command => $command,
-			error_list => \@errors,
-		)
+		if(@errors) {
+			Lab::Exception::DeviceError->throw (
+				error => 'An Error occured in the device.',
+				device_class => ref $self,
+				command => $command,
+				error_list => \@errors,
+			)
+		}
 	}
 }
 
@@ -853,6 +855,30 @@ $instrument->{'CommandRules'} = {
 Method stub to be overwritten. Implementations read one error (and message, if available) from
 the device.
 
+=head2 get_status
+
+	$status = $instrument->get_status();
+	if( $instrument->get_status('ERROR') ) {...}
+	
+Method stub to be overwritten.
+This returns the status reported by the device (e.g. the status byte retrieved via serial poll from
+GPIB devices). When implementing, use only information which can be retrieved very fast from the device,
+as this may be used often. 
+
+Without parameters, has to return a hashref with named status bits, e.g.
+
+$status => {
+	ERROR => 1,
+	DATA => 0,
+	READY => 1
+}
+
+If present, the first argument is interpreted as a key and the corresponding value of the hash above is
+returned directly.
+
+The 'ERROR'-key has to be implemented in every device driver!
+
+
 =head2 check_errors
 
 	$instrument->check_errors($last_command);
@@ -867,7 +893,7 @@ the device.
 		$command = $e->command();		
 	}
 
-Uses get_error() to check the device for occured errors. Reads all present error and throws a
+Uses get_error() to check the device for occured errors. Reads all present errors and throws a
 Lab::Exception::DeviceError. The list of errors, the device class and the last issued command(s)
 (if the script provided them) are enclosed.
 
