@@ -365,6 +365,16 @@ sub get_error {
 	return (0, undef); # ( $errcode, $message )
 }
 
+#
+# Optionally implement this to return a hash with device specific named status bits for this device, e.g. from the status byte/serial poll for GPIB
+# return { ERROR => 1, READY => 1, DATA => 0, ... }
+#
+sub get_status {
+	my $self=shift;
+	Lab::Exception::Unimplemented->throw( "get_status() not implemented for " . ref($self) . ".\n" );
+	return undef;
+}
+
 sub check_errors {
 	my $self=shift;
 	my $command=shift;
@@ -379,6 +389,7 @@ sub check_errors {
 
 	if(@errors) {
 		Lab::Exception::DeviceError->throw (
+			error => 'An Error occured in the device.',
 			device_class => ref $self,
 			command => $command,
 			error_list => \@errors,

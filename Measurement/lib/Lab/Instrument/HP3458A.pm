@@ -379,6 +379,13 @@ sub beep {
     $self->write("BEEP", @_);
 }
 
+sub get_status {
+	my $self=shift;
+	my %status = ();
+	($status{PRG_COMPLETE}, $status{LIMIT_EXCEEDED}, $status{SRQ_EXECUTED}, $status{POWER_ON}, $status{READY}, $status{ERROR}, $status{SRQ}, $status{DATA} ) = $self->connection()->serial_poll();
+	return %status;	
+}
+
 sub get_error {
 	my $self=shift;
 	my $error = $self->query( "ERRSTR?", brutal => 1, @_ );
