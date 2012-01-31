@@ -1,9 +1,9 @@
 #!/usr/bin/perl -w
-
 package Lab::Instrument;
-our $VERSION = '2.94';
-
 use strict;
+use warnings;
+
+our $VERSION = '2.94';
 
 use Lab::Exception;
 use Lab::Connection;

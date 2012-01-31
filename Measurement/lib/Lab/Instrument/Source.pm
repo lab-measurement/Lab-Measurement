@@ -1,9 +1,11 @@
 package Lab::Instrument::Source;
+use strict;
+use warnings;
+
 our $VERSION = '2.94';
 
 use Lab::Exception;
 
-use strict;
 use Time::HiRes qw(usleep gettimeofday);
 
 use Lab::Instrument;
@@ -200,104 +202,6 @@ sub set_source_level {
 
 
 
-#sub step_to_voltage {
-#	my $self=shift;
-#	my $voltage=shift;
-#	my $channel=undef;
-#	my $args=undef;
-#
-#	if(!defined $voltage || ref($voltage) eq 'HASH') {
-#		Lab::Exception::CorruptParameter->throw( error=>'No voltage given.');
-#	}
-#	if (ref $_[0] eq 'HASH' && scalar(@_)==1) { $args=shift }
-#	elsif ( scalar(@_)%2==0 ) { $args={@_}; }
-#	else {
-#		Lab::Exception::CorruptParameter->throw(error => "Sorry, I'm unclear about my parameters. See documentation.\nParameters: " . join(", ", ($voltage, @_)) . "\n");
-#	}
-#	$channel = $args->{'channel'} || $self->default_channel();
-#
-#	#
-#	# Parameter parsing
-#	#
-#
-#	if ($channel < 0) { Lab::Exception::CorruptParameter->throw( error=>'Channel must not be negative! Did you swap voltage and channel number?'); }
-#	if (int($channel) != $channel) { Lab::Exception::CorruptParameter->throw( error=>'Channel must be an integer! Did you swap voltage and channel number?'); }
-#
-#
-#	my $voltpersec = defined($self->device_settings()->{gp_max_units_per_second}) ? $self->device_settings()->{gp_max_units_per_second} : undef;
-#	my $voltperstep = defined($self->device_settings()->{gp_max_units_per_step}) ? $self->device_settings()->{gp_max_units_per_step} : undef;
-#	my $steppersec = defined($self->device_settings()->{gp_max_step_per_second}) ? $self->device_settings()->{gp_max_step_per_second} : undef;
-#
-#	# Make sure this will work - gate protection is critical	
-#	if ( (!defined($voltpersec) || $voltpersec <= 0) && (!defined($steppersec) || $steppersec <= 0) ) {
-#		my $vpsec_print = $voltpersec || "undef";
-#		my $stepsec_print = $steppersec || "undef";
-#		Lab::Exception::CorruptParameter->throw(error=>"To use gate protection, you have to at least set one of set gp_max_units_per_second (now: $vpsec_print) or gp_max_step_per_second (now: $stepsec_print) to a positive, non-zero value."); 
-#	}
-#	if( (!defined($voltperstep) || $voltperstep<=0 ) ) {
-#		my $vpstep_print = $voltperstep || "undef";
-#		Lab::Exception::CorruptParameter->throw(error=>"To use gate protection, you have to gp_max_units_per_step (now: $vpstep_print) to a positive, non-zero value.");
-#	}
-#
-#
-#	#
-#	# Do the work
-#	#
-#
-#	#read output voltage from instrument (only at the beginning)
-#
-#	my $last_v=$self->gpData()->{$channel}->{LastVoltage};
-#	unless (defined $last_v) {
-#		$last_v=$self->get_voltage({channel=>$channel});
-#		$self->gpData()->{$channel}->{LastVoltage}=$last_v;
-#	}
-#
-#	if (defined($self->device_settings()->{gp_max_units}) && ($voltage > $self->device_settings()->{gp_max_units})) {
-#		$voltage = $self->device_settings()->{gp_max_units};
-#	}
-#	if (defined($self->device_settings()->{gp_min_units}) && ($voltage < $self->device_settings()->{gp_min_units})) {
-#		$voltage = $self->device_settings()->{gp_min_units};
-#	}
-#
-#	#already there
-#	return $voltage if (abs($voltage - $last_v) < $self->device_settings()->{gp_equal_level});
-#
-#	#are we already close enough? if so, screw the waiting time...
-#	if ((defined $voltperstep) && (abs($voltage - $last_v) < $voltperstep)) {
-#		$self->_set_voltage($voltage,{channel=>$channel});
-#		$self->gpData()->{$channel}->{LastVoltage}=$voltage;
-#	   return $voltage;       
-#	}
-#
-#	#do the magic step calculation
-#	my $wait = ( defined($voltpersec) && ( !defined($steppersec) || $voltpersec < $voltperstep * $steppersec) ) ?  # if $voltpersec is undefined, $steppersec HAS to be
-#		$voltperstep/$voltpersec : # ignore $steppersec
-#		1/$steppersec;             # ignore $voltpersec
-#	my $step=$voltperstep * ($voltage <=> $last_v);
-#	#wait if necessary
-#	my ($ns,$nmu)=gettimeofday();
-#	my $now=$ns*1e6+$nmu;
-#
-#	unless (defined (my $last_t=$self->gpData()->{$channel}->{LastSettimeMus})) {
-#		$self->gpData()->{$channel}->{LastSettimeMus}=$now;
-#	} elsif ( $now-$last_t < 1e6*$wait ) {
-#		usleep ( ( 1e6*$wait+$last_t-$now ) );
-#		($ns,$nmu)=gettimeofday();
-#		$now=$ns*1e6+$nmu;
-#	} 
-#	$self->gpData()->{$channel}->{LastSettimeMus}=$now;
-#	
-#	#do one step
-#	if (abs($voltage-$last_v) > abs($step)) {
-#		$voltage=$last_v+$step;
-#	}
-#	$voltage=0+sprintf("%.10f",$voltage);
-#	
-#	$self->_set_voltage($voltage,{channel=>$channel});
-#	$self->gpData()->{$channel}->{LastVoltage}=$voltage;
-#	return $voltage;
-#}
-
 
 
 
@@ -332,7 +236,11 @@ sub sweep_to_source_level {
 	
 	my $spsec = $self->get_gp_max_step_per_second();
 	
-	my $current = $self->get_source_level( from_device => 1 );
+	my $current = $self->get_source_level( from_device => 1 )+ 0.;
+	
+	if( $target == $current ){
+		return $target;
+	}
 	
 	if( $self->device_settings()->{"gate_protect"} && $time ){
 		$time = ( abs($target - $current)/$time < $apsec ) ? $time : abs($target-$current)/$apsec;
@@ -340,6 +248,8 @@ sub sweep_to_source_level {
 	elsif(!defined($time)){
 		$time = abs($target-$current)/$apsec;
 	}	
+	
+
 	# sweep to current
 	
 	
@@ -413,7 +323,12 @@ sub _check_gate_protect{
 			"Please supply one of either gp_max_units_per_second or gp_max_steps_per_second.");
 		}
 		else{
-			$apsec <= $spsec*$apstep ? $spsec = $apsec/$apstep : $apsec	= $spsec*$apstep;
+			if($apsec <= $spsec*$apstep){
+				$spsec = $apsec/$apstep;
+			}
+			else{
+				$apsec	= $spsec*$apstep;
+			}
 		}
 	
 	$self->device_settings()->{gp_max_units_per_second} = $apsec;
@@ -428,138 +343,31 @@ sub _check_gate_protect{
 }
 
 
-
-#sub sweep_to_voltage {
-#	my $self=shift;
-#	my $voltage=shift;
-#	my $channel=undef;
-#	my $args=undef;
-#
-#	if(!defined $voltage || ref($voltage) eq 'HASH') {
-#		Lab::Exception::CorruptParameter->throw( error=>'No voltage given.');
-#	}
-#	if (ref $_[0] eq 'HASH' && scalar(@_)==1) { $args=shift }
-#	elsif ( scalar(@_)%2==0 ) { $args={@_}; }
-#	else {
-#		Lab::Exception::CorruptParameter->throw(error => "Sorry, I'm unclear about my parameters. See documentation.\nParameters: " . join(", ", ($voltage, @_)) . "\n");
-#	}
-#	$channel = $args->{'channel'} || $self->default_channel();
-#
-#	$self->is_me_channel($channel);
-#	
-#	my $last;
-#	my $cont=1;
-#	while($cont) {
-#		$cont=0;
-#		my $this=$self->step_to_voltage($voltage, { channel => $channel} );
-#		unless ((defined $last) && (abs($last-$this) <= $self->device_settings()->{gp_equal_level})) {
-#			$last=$this;
-#			$cont++;
-#		}
-#	}; #ugly
-#	return $voltage;
-#}
-
-sub _set_voltage {
+sub _set_source_level {
 	my $self=shift;
 	
-	Lab::Exception::DriverError->throw( "The unimplemented method stub ".__PACKAGE__."::_set_voltage() has been called. I can't work like this.\n" );
+	Lab::Exception::DriverError->throw( "The unimplemented method stub ".__PACKAGE__."::_set_source_level() has been called. I can't work like this.\n" );
 }
 
-sub _set_current {
+sub get_source_level {
 	my $self=shift;
 	
-	Lab::Exception::DriverError->throw( "The unimplemented method stub ".__PACKAGE__."::_set_current() has been called. I can't work like this.\n" );
+	Lab::Exception::DriverError->throw( "The unimplemented method stub ".__PACKAGE__."::get_source_level() has been called. I can't work like this.\n" );
+	
 }
 
-sub get_voltage {
+
+sub get_source_range() {
 	my $self=shift;
-	my $channel=undef;
-	my $args=undef;
-
-	if (ref $_[0] eq 'HASH' && scalar(@_)==1) { $args=shift }
-	elsif ( scalar(@_)%2==0 ) { $args={@_}; }
-	else {
-		Lab::Exception::CorruptParameter->throw(error => "Sorry, I'm unclear about my parameters. See documentation.\nParameters: " . join(", ", @_) . "\n");
-	}
-	$channel = $args->{'channel'} || $self->default_channel();
-
-	if ($channel < 0) { Lab::Exception::CorruptParameter->throw( error=>'Channel must not be negative! Did you swap voltage and channel number?'); }
-	if (int($channel) != $channel) { Lab::Exception::CorruptParameter->throw( error=>'Channel must be an integer! Did you swap voltage and channel number?'); }
-
-	my $voltage=$self->_get_voltage({channel=>$channel});
-	$self->gpData()->{$channel}->{LastVoltage}=$voltage;
-	return $voltage;
+	
+	Lab::Exception::DriverError->throw( "The unimplemented method stub ".__PACKAGE__."::get_source_range() has been called. I can't work like this.\n" );
 }
 
-sub _get_voltage {
+sub set_source_range() {
 	my $self=shift;
-	my $channel=undef;
-	my $args=undef;
-
-	if (ref $_[0] eq 'HASH' && scalar(@_)==1) { $args=shift }
-	elsif ( scalar(@_)%2==0 ) { $args={@_}; }
-	else {
-		Lab::Exception::CorruptParameter->throw(error => "Sorry, I'm unclear about my parameters. See documentation.\nParameters: " . join(", ", @_) . "\n");
-	}
-	$channel = $args->{'channel'} || $self->default_channel();
-
-	if ($channel < 0) { Lab::Exception::CorruptParameter->throw( error=>'Channel must not be negative! Did you swap voltage and channel number?'); }
-	if (int($channel) != $channel) { Lab::Exception::CorruptParameter->throw( error=>'Channel must be an integer! Did you swap voltage and channel number?'); }
-
-	if ($self->parent_source()) {
-		return $self->parent_source()->_get_voltage({channel=>$channel});
-	} else {
-	warn '_get_voltage not implemented for this instrument';
-	};
-}
-
-sub get_range() {
-	my $self=shift;
-	my $channel=undef;
-	my $args=undef;
-
-	if (ref $_[0] eq 'HASH' && scalar(@_)==1) { $args=shift }
-	elsif ( scalar(@_)%2==0 ) { $args={@_}; }
-	else {
-		Lab::Exception::CorruptParameter->throw(error => "Sorry, I'm unclear about my parameters. See documentation.\nParameters: " . join(", ", @_) . "\n");
-	}
-	$channel = $args->{'channel'} || $self->default_channel();
-
-	if ($channel < 0) { Lab::Exception::CorruptParameter->throw( error=>'Channel must not be negative! Did you swap voltage and channel number?'); }
-	if (int($channel) != $channel) { Lab::Exception::CorruptParameter->throw( error=>'Channel must be an integer! Did you swap voltage and channel number?'); }
-
-	if ($self->parent_source()) {
-		return $self->parent_source()->get_range({channel=>$channel});
-	} else {
-	warn 'get_range not implemented for this instrument';
-	};
-}
-
-sub set_range() {
-	my $self=shift;
-	my $range=shift;
-	my $channel=undef;
-	my $args=undef;
-
-	if(!defined $range || ref($range) eq 'HASH') {
-		Lab::Exception::CorruptParameter->throw( error=>'No range given.');
-	}
-	if (ref $_[0] eq 'HASH' && scalar(@_)==1) { $args=shift }
-	elsif ( scalar(@_)%2==0 ) { $args={@_}; }
-	else {
-		Lab::Exception::CorruptParameter->throw(error => "Sorry, I'm unclear about my parameters. See documentation.\nParameters: " . join(", ", ($range, @_)) . "\n");
-	}
-	$channel = $args->{'channel'} || $self->default_channel();
-
-	if ($channel < 0) { Lab::Exception::CorruptParameter->throw( error=>'Channel must not be negative! Did you swap voltage and channel number?'); }
-	if (int($channel) != $channel) { Lab::Exception::CorruptParameter->throw( error=>'Channel must be an integer! Did you swap voltage and channel number?'); }
-
-	if ($self->parent_source()) {
-		return $self->parent_source()->set_range($range, {channel=>$channel});
-	} else {
-	warn 'set_range not implemented for this instrument';
-	};
+	
+	Lab::Exception::DriverError->throw( "The unimplemented method stub ".__PACKAGE__."::set_source_range() has been called. I can't work like this.\n" );
+	
 }
 
 
@@ -687,55 +495,71 @@ Voltages with a difference less than this value are considered equal.
 
 =back
 
-=head2 set_voltage
+=head2 set_source_level
 
-  $new_volt=$self->set_voltage($voltage);
+  $new_volt=$self->set_source_level($srclvl);
 
-Sets the output to C<$voltage> (in Volts). If the configure option C<gate_protect> is set
+Sets the output to C<$srclvl> (in Volts or Ampere). If the configure option C<gate_protect> is set
 to a true value, the safety mechanism takes into account the C<gp_max_units_per_step>,
-C<gp_max_units_per_second> etc. settings, by employing the C<sweep_to_voltage> method.
+C<gp_max_units_per_second> etc. settings, by employing the C<sweep_to_source_level> method.
 
-Returns for C<fast_set> off the actually set output voltage. This can be different 
-from C<$voltage>, due to the C<gp_max_units>, C<gp_min_units> settings. For C<fast_set> on,
-C<set_voltage> returns always C<$voltage>.
+Returns for C<fast_set> off the actually set output source level. This can be different 
+from C<$srclvl>, due to the C<gp_max_units>, C<gp_min_units> settings. For C<fast_set> on,
+C<set_source_level> returns always C<$source_level>.
 
 For a multi-channel device, add the channel number as a parameter:
 
   $new_volt=$self->set_voltage($voltage,$channel);
+  
+=head2 _set_source_level($targetlvl)
+
+Function Stub. Has to be overwritten by device driver.
+
+The function should set the source level to $targetlvl on the device.
+Should return the newly set source level.
+
+=head2 get_source_level()
+
+Function Stub. Has to be overwritten by device driver.
+
+The function should return the source level from the device cache.
+If called with the option C< from_device =E<gt> 1 >, the value should be fetched from the device.
+Should return the current source level.
 
 
-=head2 step_to_voltage
+=head2 get_source_range()
 
-  $new_volt=$self->step_to_voltage($voltage);
-  $new_volt=$self->step_to_voltage($voltage,$channel);
+Function Stub. Has to be overwritten by device driver.
 
-Makes one safe step in direction to C<$voltage>. The output voltage is not changed by more
-than C<gp_max_units_per_step>. Before the voltage is changed, the methods waits if not
-enough times has passed since the last voltage change. For step voltage and waiting time
-calculation, the larger of C<gp_max_units_per_second> or C<gp_max_step_per_second> is ignored
-(see code).
+The function should return the source range from the device cache.
+If called with the option C< from_device =E<gt> 1 >, the value should be fetched from the device.
+Should return the current source range.
 
-Returns the actually set output voltage. This can be different from C<$voltage>, due
+=head2 set_source_range()
+
+Function Stub. Has to be overwritten by device driver.
+
+The function should set the source range on the device.
+Should return the newly set source range.
+
+
+=head2 sweep_to_source_level
+
+  $new_volt=$self->sweep_to_source_level($srclvl);
+  $new_volt=$self->sweep_to_source_level($srclvl,$channel);
+
+This method sweeps the output source level to the desired value and only returns then.
+If the specific Instrument implemented _sweep_to_source_level, this version is preferred.
+
+Returns the actually set output source level. This can be different from C<$srclvl>, due
 to the C<gp_max_units>, C<gp_min_units> settings.
 
-=head2 sweep_to_voltage
+=head2 get_source_level
 
-  $new_volt=$self->sweep_to_voltage($voltage);
-  $new_volt=$self->sweep_to_voltage($voltage,$channel);
+  $new_volt=$self->get_source_level();
+  $new_volt=$self->get_source_level($channel);
 
-This method sweeps the output voltage to the desired value and only returns then.
-Uses the L</step_to_voltage> method internally, so all discussions of config options
-from there apply too.
-
-Returns the actually set output voltage. This can be different from C<$voltage>, due
-to the C<gp_max_units>, C<gp_min_units> settings.
-
-=head2 get_voltage
-
-  $new_volt=$self->get_voltage();
-  $new_volt=$self->get_voltage($channel);
-
-Returns the voltage currently set.
+Returns the source level currently set.
 
 =head2 create_subsource
 
