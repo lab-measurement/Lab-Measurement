@@ -1,9 +1,11 @@
 package Lab::Instrument::Source;
+use strict;
+use warnings;
+
 our $VERSION = '2.94';
 
 use Lab::Exception;
 
-use strict;
 use Time::HiRes qw(usleep gettimeofday);
 
 use Lab::Instrument;
@@ -508,6 +510,37 @@ C<set_source_level> returns always C<$source_level>.
 For a multi-channel device, add the channel number as a parameter:
 
   $new_volt=$self->set_voltage($voltage,$channel);
+  
+=head2 _set_source_level($targetlvl)
+
+Function Stub. Has to be overwritten by device driver.
+
+The function should set the source level to $targetlvl on the device.
+Should return the newly set source level.
+
+=head2 get_source_level()
+
+Function Stub. Has to be overwritten by device driver.
+
+The function should return the source level from the device cache.
+If called with the option C< from_device =E<gt> 1 >, the value should be fetched from the device.
+Should return the current source level.
+
+
+=head2 get_source_range()
+
+Function Stub. Has to be overwritten by device driver.
+
+The function should return the source range from the device cache.
+If called with the option C< from_device =E<gt> 1 >, the value should be fetched from the device.
+Should return the current source range.
+
+=head2 set_source_range()
+
+Function Stub. Has to be overwritten by device driver.
+
+The function should set the source range on the device.
+Should return the newly set source range.
 
 
 =head2 sweep_to_source_level
