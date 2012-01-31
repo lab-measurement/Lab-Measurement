@@ -42,6 +42,7 @@ our %fields = (
 		source_function			=> "VOLT", # 'VOLT' - voltage, 'CURR' - current
 		source_range			=> undef,
 		source_level			=> undef,
+		output					=> undef,
 	},
 );
 
@@ -163,7 +164,7 @@ sub set_source_level_auto {
 
 
 
-sub run_program {
+sub program_run {
     my $self=shift;
     my $cmd = shift;
     
@@ -173,13 +174,13 @@ sub run_program {
     
 }
 
-sub pause_program {
+sub program_pause {
     my $self=shift;   
     
     my $cmd=sprintf(":PROGram:PAUSe");
 	$self->write( "$cmd" );
 }
-sub continue_program {
+sub program_continue {
     my $self=shift;
     my $value=shift;
     my $cmd=sprintf(":PROGram:CONTinue");
@@ -187,7 +188,7 @@ sub continue_program {
     
 }
 
-sub halt_program{
+sub program_halt{
 	my $self=shift;
 	my $cmd=":PROGram:HALT";
 	$self->write("$cmd");
@@ -242,6 +243,17 @@ sub get_voltage {
     }
 
     return $self->get_source_level(@_);
+}
+
+sub get_status{
+	my $self=shift;
+	
+	my $request = shift;
+	my $status = {};
+	(undef, $status->{EXT_EVT_SUM}, $status->{ERROR}, undef, $status->{MSG_AVAIL}, $status->{EVT_SUMM}, undef, undef ) = $self->connection()->serial_poll();
+	return $status->{$request} if defined $request;
+	return $status;
+	
 }
 
 sub get_current {
@@ -356,14 +368,23 @@ sub set_source_range {
 }
 
 
-sub output_on {
-    my $self=shift;
-    return $self->{"device_cache"}->{"output"} = $self->write( ':OUTP 1' );
-}
     
-sub output_off {
+sub set_output {
     my $self=shift;
-    return $self->{"device_cache"}->{"output"} = $self->write( ':OUTP 0' );
+    my $value = shift;
+    
+    if( $value =~ /(on|1)/i){
+    	$value = 1 ;
+    }
+    elsif( $value =~ /(off|0)/i){
+    	$value = 0;
+    }
+    else{
+    	Lab::Exception::CorruptParameter->throw(
+    			error=>"set_output accepts only on or off (case non-sensitive) and 1 or 0. $value is not valid.");
+    }
+    
+    return $self->{"device_cache"}->{"output"} = $self->write( ":OUTP $value" );
 }
 
 sub get_output {
@@ -494,15 +515,15 @@ For this function to work, the source has to be in output mode.
 Returns the newly set voltage. 
 This function is also called internally to set the voltage when gate protect is used.
 
-=head2 run_program($program)
+=head2 program_run($program)
 
 Runs a program stored on the YokogawaGS200. If no prgram name is given, the currently loaded program is executed.
 
-=head2 pause_program
+=head2 program_pause
 
 Pauses the currently running program.
 
-=head2 continue_program
+=head2 program_continue
 
 Continues the paused program.
 
