@@ -179,7 +179,7 @@ sub create_subsource { # create_subsource( channel => $channel_nr, more=>options
 
 
 
-sub set_source_level {
+sub set_level {
 	my $self=shift;
 	my $voltage=shift;
 	my $args=undef;
@@ -193,9 +193,9 @@ sub set_source_level {
 	}
 
 	if ($self->device_settings()->{'gate_protect'}) {
-		return $voltage=$self->sweep_to_source_level($voltage,@_);
+		return $voltage=$self->sweep_to_level($voltage,@_);
 	} else {
-		return $self->_set_source_level($voltage,{@_});
+		return $self->_set_level($voltage,{@_});
 	}
  
 }
@@ -205,7 +205,7 @@ sub set_source_level {
 
 
 
-sub sweep_to_source_level {
+sub sweep_to_level {
 	my $self = shift;
 	my $target = shift;
 	
@@ -236,7 +236,7 @@ sub sweep_to_source_level {
 	
 	my $spsec = $self->get_gp_max_step_per_second();
 	
-	my $current = $self->get_source_level( from_device => 1 )+ 0.;
+	my $current = $self->get_level( from_device => 1 )+ 0.;
 	
 	if( $target == $current ){
 		return $target;
@@ -254,8 +254,8 @@ sub sweep_to_source_level {
 	
 	
 	
-	if($self->can("_sweep_to_source_level")) {
-		return $self->_sweep_to_source_level($target,$time,$args);
+	if($self->can("_sweep_to_level")) {
+		return $self->_sweep_to_level($target,$time,$args);
 	}
 	else{
 			
@@ -263,11 +263,11 @@ sub sweep_to_source_level {
 		
 		unless( $current != $target){
 			if( abs($target-$current) <= $upstep ){
-				$self->_set_source_level($target, $args);
+				$self->_set_level($target, $args);
 			}
 			my $next = ($target - $current > 0) 
-				? $self->_set_source_level( $target+$upstep, $args) 
-				: $self->_set_source_level( $target-$upstep, $args);
+				? $self->_set_level( $target+$upstep, $args) 
+				: $self->_set_level( $target-$upstep, $args);
 			sleep($steptime);
 			
 			$current = $next;		
@@ -343,30 +343,30 @@ sub _check_gate_protect{
 }
 
 
-sub _set_source_level {
+sub _set_level {
 	my $self=shift;
 	
-	Lab::Exception::DriverError->throw( "The unimplemented method stub ".__PACKAGE__."::_set_source_level() has been called. I can't work like this.\n" );
+	Lab::Exception::DriverError->throw( "The unimplemented method stub ".__PACKAGE__."::_set_level() has been called. I can't work like this.\n" );
 }
 
-sub get_source_level {
+sub get_level {
 	my $self=shift;
 	
-	Lab::Exception::DriverError->throw( "The unimplemented method stub ".__PACKAGE__."::get_source_level() has been called. I can't work like this.\n" );
+	Lab::Exception::DriverError->throw( "The unimplemented method stub ".__PACKAGE__."::get_level() has been called. I can't work like this.\n" );
 	
 }
 
 
-sub get_source_range() {
+sub get_range() {
 	my $self=shift;
 	
-	Lab::Exception::DriverError->throw( "The unimplemented method stub ".__PACKAGE__."::get_source_range() has been called. I can't work like this.\n" );
+	Lab::Exception::DriverError->throw( "The unimplemented method stub ".__PACKAGE__."::get_range() has been called. I can't work like this.\n" );
 }
 
-sub set_source_range() {
+sub set_range() {
 	my $self=shift;
 	
-	Lab::Exception::DriverError->throw( "The unimplemented method stub ".__PACKAGE__."::set_source_range() has been called. I can't work like this.\n" );
+	Lab::Exception::DriverError->throw( "The unimplemented method stub ".__PACKAGE__."::set_range() has been called. I can't work like this.\n" );
 	
 }
 
@@ -495,30 +495,30 @@ Voltages with a difference less than this value are considered equal.
 
 =back
 
-=head2 set_source_level
+=head2 set_level
 
-  $new_volt=$self->set_source_level($srclvl);
+  $new_volt=$self->set_level($srclvl);
 
 Sets the output to C<$srclvl> (in Volts or Ampere). If the configure option C<gate_protect> is set
 to a true value, the safety mechanism takes into account the C<gp_max_units_per_step>,
-C<gp_max_units_per_second> etc. settings, by employing the C<sweep_to_source_level> method.
+C<gp_max_units_per_second> etc. settings, by employing the C<sweep_to_level> method.
 
 Returns for C<fast_set> off the actually set output source level. This can be different 
 from C<$srclvl>, due to the C<gp_max_units>, C<gp_min_units> settings. For C<fast_set> on,
-C<set_source_level> returns always C<$source_level>.
+C<set_level> returns always C<$level>.
 
 For a multi-channel device, add the channel number as a parameter:
 
   $new_volt=$self->set_voltage($voltage,$channel);
   
-=head2 _set_source_level($targetlvl)
+=head2 _set_level($targetlvl)
 
 Function Stub. Has to be overwritten by device driver.
 
 The function should set the source level to $targetlvl on the device.
 Should return the newly set source level.
 
-=head2 get_source_level()
+=head2 get_level()
 
 Function Stub. Has to be overwritten by device driver.
 
@@ -527,7 +527,7 @@ If called with the option C< from_device =E<gt> 1 >, the value should be fetched
 Should return the current source level.
 
 
-=head2 get_source_range()
+=head2 get_range()
 
 Function Stub. Has to be overwritten by device driver.
 
@@ -535,7 +535,7 @@ The function should return the source range from the device cache.
 If called with the option C< from_device =E<gt> 1 >, the value should be fetched from the device.
 Should return the current source range.
 
-=head2 set_source_range()
+=head2 set_range()
 
 Function Stub. Has to be overwritten by device driver.
 
@@ -543,27 +543,27 @@ The function should set the source range on the device.
 Should return the newly set source range.
 
 
-=head2 sweep_to_source_level
+=head2 sweep_to_level
 
-  $new_volt=$self->sweep_to_source_level($srclvl);
-  $new_volt=$self->sweep_to_source_level($srclvl,$channel);
+  $new_volt=$self->sweep_to_level($srclvl);
+  $new_volt=$self->sweep_to_level($srclvl,$channel);
 
 This method sweeps the output source level to the desired value and only returns then.
-If the specific Instrument implemented _sweep_to_source_level, this version is preferred.
+If the specific Instrument implemented _sweep_to_level, this version is preferred.
 
 Returns the actually set output source level. This can be different from C<$srclvl>, due
 to the C<gp_max_units>, C<gp_min_units> settings.
 
-=head2 get_source_level
+=head2 get_level
 
-  $new_volt=$self->get_source_level();
-  $new_volt=$self->get_source_level($channel);
+  $new_volt=$self->get_level();
+  $new_volt=$self->get_level($channel);
 
 Returns the source level currently set.
 
 =head2 create_subsource
 
-  $bigsource_c2 = $bigsource->create_subsource( channel=>2, gp_max_units_per_second=>0.01 );
+  $bigc2 = $bigsource->create_subsource( channel=>2, gp_max_units_per_second=>0.01 );
 
   Returns a new instrument object with its default channel set to channel $channel_nr of the parent multi-channel source.
   The device_settings given to the parent at instantiation (or the default_device_settings if present) will be used as default

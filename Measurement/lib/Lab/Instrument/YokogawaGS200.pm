@@ -39,9 +39,9 @@ our %fields = (
 	
 	# If class does not provide set_$var for those, AUTOLOAD will take care.
 	device_cache => {
-		source_function			=> "VOLT", # 'VOLT' - voltage, 'CURR' - current
-		source_range			=> undef,
-		source_level			=> undef,
+		function			=> "VOLT", # 'VOLT' - voltage, 'CURR' - current
+		range			=> undef,
+		level			=> undef,
 		output					=> undef,
 	},
 );
@@ -62,26 +62,26 @@ sub set_voltage {
     my $self=shift;
     my $voltage=shift;
     
-    my $source_function = $self->get_source_function();
+    my $function = $self->get_function();
 
-    if($source_function ne 'VOLT'){
+    if($function ne 'VOLT'){
     	Lab::Exception::CorruptParameter->throw(
-    	error=>"Source is in mode $source_function. Can't set voltage level.");
+    	error=>"Source is in mode $function. Can't set voltage level.");
     }
     
     
-    return $self->set_source_level($voltage);
+    return $self->set_level($voltage, @_);
 }
 
 sub set_voltage_auto {
     my $self=shift;
     my $voltage=shift;
     
-    my $source_function = $self->get_source_function();
+    my $function = $self->get_function();
 
-    if($source_function ne 'VOLT'){
+    if($function ne 'VOLT'){
     	Lab::Exception::CorruptParameter->throw(
-    	error=>"Source is in mode $source_function. Can't set voltage level.");
+    	error=>"Source is in mode $function. Can't set voltage level.");
     }
     
     if( abs($voltage) > 32.){
@@ -89,18 +89,18 @@ sub set_voltage_auto {
     	error=>"Source is not capable of voltage level > 32V. Can't set voltage level.");
     }
     
-    $self->set_source_level_auto($voltage);
+    $self->set_level_auto($voltage, @_);
 }
 
 sub set_current_auto {
     my $self=shift;
     my $current=shift;
     
-    my $source_function = $self->get_source_function();
+    my $function = $self->get_function();
 
-    if($source_function ne 'CURR'){
+    if($function ne 'CURR'){
     	Lab::Exception::CorruptParameter->throw(
-    	error=>"Source is in mode $source_function. Can't set current level.");
+    	error=>"Source is in mode $function. Can't set current level.");
     }
     
     if( abs($current) > 0.200){
@@ -108,27 +108,27 @@ sub set_current_auto {
     	error=>"Source is not capable of current level > 200mA. Can't set current level.");
     }
     
-    $self->set_source_level_auto($current);
+    $self->set_level_auto($current, @_);
 }
 
 sub set_current {
     my $self=shift;
     my $current=shift;
 
-	my $source_function = $self->get_source_function();
+	my $function = $self->get_function();
 
-    if($self->get_source_function ne 'CURR'){
+    if($self->get_function() ne 'CURR'){
     	Lab::Exception::CorruptParameter->throw(
-    	error=>"Source is in mode $source_function. Can't set current level.");
+    	error=>"Source is in mode $function. Can't set current level.");
     }
 
-    $self->set_source_level($current);
+    $self->set_level($current, @_);
 }
 
-sub _set_source_level {
+sub _set_level {
     my $self=shift;
     my $value=shift;
-    my $srcrange = $self->get_source_range();
+    my $srcrange = $self->get_range();
     
     (my $dec, my $exp) = ($srcrange =~ m/(^\d+)E([-\+]\d+)$/);
         
@@ -138,7 +138,7 @@ sub _set_source_level {
     	my $cmd=sprintf(":SOURce:LEVel %f",$value);
     	#print $cmd;
 		$self->write( $cmd );
-		return $self->{'device_cache'}->{'source_level'} = $value;
+		return $self->{'device_cache'}->{'level'} = $value;
     }
     else{
     	Lab::Exception::CorruptParameter->throw(
@@ -148,7 +148,7 @@ sub _set_source_level {
 	
 }
 
-sub set_source_level_auto {
+sub set_level_auto {
     my $self=shift;
     my $value=shift;
     
@@ -156,9 +156,9 @@ sub set_source_level_auto {
 	
 	$self->write( $cmd );
 	
-	$self->{'device_cache'}->{'source_range'} = $self->get_source_range( device_cache => 1 );
+	$self->{'device_cache'}->{'range'} = $self->get_range( device_cache => 1 );
 
-    return $self->{'device_cache'}->{'source_level'} = $value;
+    return $self->{'device_cache'}->{'level'} = $value;
 	
 }
 
@@ -194,7 +194,7 @@ sub program_halt{
 	$self->write("$cmd");
 }
 
-sub _sweep_to_source_level {
+sub _sweep_to_level {
     my $self=shift;
     my $target=shift;
     my $time=shift;
@@ -222,12 +222,12 @@ sub _sweep_to_source_level {
     	sleep 1;
     }
     
-    if( ! $self->get_source_level( device_cache => 1) == $target){
+    if( ! $self->get_level( device_cache => 1) == $target){
     	Lab::Exception::CorruptParameter->throw(
     	"Sweep failed.")
     }
     
-    $self->{'device_cache'}->{'source_level'} = $target;
+    $self->{'device_cache'}->{'level'} = $target;
     
     return $target;
 }
@@ -235,14 +235,14 @@ sub _sweep_to_source_level {
 sub get_voltage {
     my $self=shift;
 
-	my $source_function = $self->get_source_function();
+	my $function = $self->get_function();
 
-    if(! $self->get_source_function eq 'VOLT'){
+    if(! $function eq 'VOLT'){
     	Lab::Exception::CorruptParameter->throw(
-    	error=>"Source is in mode $source_function. Can't get voltage level.");
+    	error=>"Source is in mode $function. Can't get voltage level.");
     }
 
-    return $self->get_source_level(@_);
+    return $self->get_level(@_);
 }
 
 sub get_status{
@@ -259,17 +259,17 @@ sub get_status{
 sub get_current {
     my $self=shift;
     
-    my $source_function = $self->get_source_function();
+    my $function = $self->get_function();
     
-    if(!$self->get_source_function() eq 'CURR'){
+    if(!$self->get_function() eq 'CURR'){
     	Lab::Exception::CorruptParameter->throw(
-    	error=>"Source is in mode $source_function. Can't get current level.");
+    	error=>"Source is in mode $function. Can't get current level.");
     }
    	
-    return $self->get_source_level(@_);
+    return $self->get_level(@_);
 }
 
-sub get_source_level {
+sub get_level {
     my $self=shift;
     my $options = undef;
 	if (ref $_[0] eq 'HASH') { $options=shift }	else { $options={@_} }
@@ -279,11 +279,11 @@ sub get_source_level {
      	return $lvl;
     }
     else{
-		return $self->device_cache()->{'source_level'};
+		return $self->device_cache()->{'level'};
     }
 }
 
-sub get_source_function{
+sub get_function{
 	my $self=shift;	
 	my $options = undef;
 	if (ref $_[0] eq 'HASH') { $options=shift }	else { $options={@_} }
@@ -293,12 +293,12 @@ sub get_source_function{
     	return $self->query( $cmd );
     }
     else{
-		return $self->device_cache()->{'source_function'};
+		return $self->device_cache()->{'function'};
     }
 		
 }
 
-sub get_source_range{
+sub get_range{
 	my $self=shift;
 	my $options = undef;
 	if (ref $_[0] eq 'HASH') { $options=shift }	else { $options={@_} }
@@ -308,13 +308,13 @@ sub get_source_range{
     	return $self->query( $cmd );
     }
     else{
-		return $self->device_cache()->{'source_range'};
+		return $self->device_cache()->{'range'};
     }
 }
 
 
 
-sub set_source_function {
+sub set_function {
     my $self=shift;
     my $func=shift;
     
@@ -323,7 +323,7 @@ sub set_source_function {
     	my $cmd=":SOURce:FUNCtion ".$func;
     	#print "$cmd\n";
     	$self->write( $cmd );
-    	return $self->{'device_cache'}->{'source_function'} = $func;	
+    	return $self->{'device_cache'}->{'function'} = $func;	
     }
     else{
     	Lab::Exception::CorruptParameter->throw( error=>"source function $func not defined for this device.\n" ); 
@@ -332,17 +332,17 @@ sub set_source_function {
 }
 
 
-sub set_source_range {
+sub set_range {
     my $self=shift;
     my $range=shift;
 
     
-    my $srcf = $self->get_source_function();
+    my $srcf = $self->get_function();
     
     if( $srcf eq 'VOLT'  ){    	
     	if( $range =~ m/(^10E-3|^100E-3|^1E\+0|^1E\+1|^3E\+1)/){
     		$self->write("SOURce:RANGe $range");
-    		return $self->{'device_cache'}->{'source_range'} = $range;
+    		return $self->{'device_cache'}->{'range'} = $range;
     		
     	}
     	else{
@@ -353,7 +353,7 @@ sub set_source_range {
     elsif( $srcf eq 'CURR' ){
     		if( $range =~ m/(^1E-3|^10E-3|^100E-3|^200E-3)/ ){
     			$self->write( "SOURce:RANGe $range" );
-    			return $self->{'device_cache'}->{'source_range'} = $range;
+    			return $self->{'device_cache'}->{'range'} = $range;
     			 }
     		else{
     	  		Lab::Exception::CorruptParameter->throw(
@@ -458,8 +458,8 @@ Lab::Instrument::YokogawaGS200 - Yokogawa GS200 DC source
     my $gate14=new Lab::Instrument::YokogawaGS200(
       connection_type => 'LinuxGPIB',
       gpib_address => 22,
-      source_function => 'VOLT',
-      source_level => 0.4,
+      function => 'VOLT',
+      level => 0.4,
     );
     $gate14->set_voltage(0.745);
     print $gate14->get_voltage();
@@ -498,9 +498,9 @@ you might also want to have gate protect from the start (the default values are 
 	
 Additinally there is support to set parameters for the device "on init":		
 	
-		source_function			=> undef, # 'VOLT' - voltage, 'CURR' - current
-		source_range			=> undef,
-		source_level			=> undef,
+		function			=> undef, # 'VOLT' - voltage, 'CURR' - current
+		range			=> undef,
+		level			=> undef,
 		output					=> undef,
 
 If those values are not specified, they are read from the device.
@@ -563,7 +563,7 @@ See set_current_auto
     
     Please use the format on the left for the range command.
 
-=head2 set_source_function($function)
+=head2 set_function($function)
 
 Sets the source function. The Yokogawa supports the values 
 
@@ -605,7 +605,7 @@ Queries the error code from the device. This is a very useful thing to do when y
 =head2 get_output()
 
 
-=head2 get_source_range()
+=head2 get_range()
 
 
 

@@ -28,6 +28,13 @@ our %fields = (
 		max_sweep_time=>3600,
 		min_sweep_time=>0.1,
 	},
+	
+	device_cache => {
+		function			=> "1", # '1' - voltage, '5' - current
+		range			=> undef,
+		level			=> undef,
+		output					=> undef,
+	},
 );
 
 sub new {
@@ -39,39 +46,85 @@ sub new {
     return $self;
 }
 
-sub _set_voltage {
+
+sub set_voltage {
     my $self=shift;
     my $voltage=shift;
-    $self->_set($voltage);
+    
+    my $function = $self->get_function();
+
+    if($function ne '1'){
+    	Lab::Exception::CorruptParameter->throw(
+    	error=>"Source is in mode $function. Can't set voltage level.");
+    }
+    
+    
+    return $self->set_level($voltage, @_);
 }
 
-sub _set_voltage_auto {
+sub set_voltage_auto {
     my $self=shift;
     my $voltage=shift;
-    $self->_set_auto($voltage);
+    
+    my $function = $self->get_function();
+
+    if($function ne '1'){
+    	Lab::Exception::CorruptParameter->throw(
+    	error=>"Source is in mode $function. Can't set voltage level.");
+    }
+    
+    if( abs($voltage) > 32.){
+    	Lab::Exception::CorruptParameter->throw(
+    	error=>"Source is not capable of voltage level > 32V. Can't set voltage level.");
+    }
+    
+    $self->set_level_auto($voltage, @_);
 }
 
-# huh? something is strange here
-# yes.
+sub set_current_auto {
+    my $self=shift;
+    my $current=shift;
+    
+    my $function = $self->get_function();
+
+    if($function ne '5'){
+    	Lab::Exception::CorruptParameter->throw(
+    	error=>"Source is in mode $function. Can't set current level.");
+    }
+    
+    if( abs($current) > 0.200){
+    	Lab::Exception::CorruptParameter->throw(
+    	error=>"Source is not capable of current level > 200mA. Can't set current level.");
+    }
+    
+    $self->set_level_auto($current, @_);
+}
+
 sub set_current {
     my $self=shift;
-    my $voltage=shift;
-    $self->_set($voltage);
+    my $current=shift;
+
+	my $function = $self->get_function();
+
+    if($self->get_function() ne '5'){
+    	Lab::Exception::CorruptParameter->throw(
+    	error=>"Source is in mode $function. Can't set current level.");
+    }
+
+    $self->set_level($current, @_);
 }
 
-sub _set {
+sub _set_level {
     my $self=shift;
     my $value=shift;
     my $cmd="";
-    if($self->autorange()) {
-    	$cmd=sprintf("SA%e",$value);
-    }
-    else {
-    	$cmd=sprintf("S%e",$value);
-    }
+        
+    $cmd=sprintf("S%e",$value);
+    
     $self->write( $cmd );
-    $cmd="E";
-    $self->write( $cmd );
+    
+    return $self->{'device_cache'}->{'level'} = $value;
+    
 }
 
 sub set_setpoint {
@@ -128,13 +181,13 @@ sub execute_program {
     $self->write( $cmd );
 }
 
-sub sweep {
+sub _sweep_to_level {
     my $self=shift;
-    my $stop=shift;
-    my $rate=shift;
-    my $return_rate=$rate;
+    my $target = shift;
+    my $time = shift;
+    
     $self->execute_program(0);
-    my $output_now=$self->_get();
+    my $output_now=$self->get_level();
     #Test if $stop in range
     my $range=$self->get_range();
     #Start Programming-----
@@ -164,10 +217,6 @@ sub sweep {
     return $return_rate;
 }
 
-sub _get_voltage {
-    my $self=shift;
-    return $self->_get();
-}
 
 sub get_current {
     my $self=shift;
@@ -184,20 +233,62 @@ sub _get {
 
 sub set_current_mode {
     my $self=shift;
-    my $cmd="F5";
-    $self->write($cmd);
+    
+    $self->set_mode( '5' );
 }
 
 sub set_voltage_mode {
     my $self=shift;
-    my $cmd="F1";
-    $self->write($cmd);
+    
+    $self->set_mode( '1' );
+}
+
+sub set_mode {
+    my $self = shift;
+    my $mode = shift;
+    
+    if(! $mode =~ /(1|5)/ ){
+    	Lab::Exception::CorruptParameter->throw( "$mode is not a valid source mode. Choose 1 or 5 for current and voltage mode respectively.\n" );
+    }
+    
+    my $cmd="F$mode";
+    
+    $self->write( $cmd );
+    return $self->{'device_cache'}->{'mode'} = $mode;
+    
 }
 
 sub set_range {
     my $self=shift;
-    my $range=shift;
-    my $cmd="R$range";
+    my $my_range=shift;
+    my $range = 0;
+    
+    my $mode = $self->get_mode();
+    if($mode == 1){
+    	given($my_range){
+    		when( 0.01 ){ $range = 2; }
+    		when( 0.1 ){ $range = 3; }
+    		when( 1 ){ $range = 4; }
+    		when( 10 ){ $range = 5; }
+    		when( 30 ){ $range = 6; }
+    		default {
+    			Lab::Exception::CorruptParameter->throw( "$range is not a valid voltage range. Read the documentation for a list of allowed ranges in mode $mode.\n"
+    		}
+    	}
+    }
+    elsif($mode == 5){
+    	given($my_range){
+    		when( 0.001 ){ $range = 4; }
+    		when( 0.01 ){ $range = 5; }
+    		when( 0.1 ){ $range = 6; }
+    		default {
+    			Lab::Exception::CorruptParameter->throw( "$range is not a valid current range. Read the documentation for a list of allowed ranges in mode $mode.\n"
+    		}
+    	}
+    }
+    else{
+    	Lab::Exception::CorruptParameter->throw( "$range is not a valid source range. Read the documentation for a list of allowed ranges in mode $mode.\n" );
+    }
       #fixed voltage mode
       # 2   10mV
       # 3   100mV
@@ -208,7 +299,11 @@ sub set_range {
       # 4   1mA
       # 5   10mA
       # 6   100mA
+      
+    my $cmd = "R$range";
+    
     $self->write($cmd);
+    return $self->{'device_cache'}->{'range'} = $my_range;
 }
 
 sub get_info {
@@ -227,39 +322,51 @@ sub get_info {
 
 sub get_range{
     my $self=shift;
-    my @info=$self->get_info();
-    my $result=$info[1];
-    my $func_nr=0;
-    my $range_nr=0;
-    my $range=0;
-    #printf "$result\n";
-    if ($result=~/F(\d)R(\d)/){
-    $func_nr=$1;
-    #printf "funcnr=$func_nr\n";
-    $range_nr=$2;
-    #    printf "rangenr=$range_nr\n";
+    
+    my $options = undef;
+	if (ref $_[0] eq 'HASH') { $options=shift }	else { $options={@_} }
+	
+    if(! $options->{'from_device'}){
+     	return $self->{'device_cache'}->{'range'};
+    }    
+    
+    
+    my $range=$self->get_info()[1];
+    my $mode = $self->get_mode();
+    
+    
+    if ($range =~ /F(\d)R(\d)/){
+	    $range=$2;
+	    #    printf "rangenr=$range_nr\n";
     }
-    if ($func_nr==1){ # DC V
-        switch ($range_nr) {
-            case 2 {$range=10e-3} #10mV
-            case 3 {$range=100e-3} #100mV
-            case 4 {$range=1} #1V
-            case 5 {$range=10} #10V
-            case 6 {$range=30} #30V
-            else { Lab::Exception::CorruptParameter->throw( error=>"Range $range_nr not defined\n" ); }
-        }
+    
+    if($mode == 1){
+    	given($range){
+    		when( /2/ ){ $range = 0.01; }
+    		when( /3/ ){ $range = 0.1; }
+    		when( /4/ ){ $range = 1; }
+    		when( /5/ ){ $range = 10; }
+    		when( /6/ ){ $range = 30; }
+    		default {
+    			Lab::Exception::CorruptParameter->throw( "$range is not a valid voltage range. Read the documentation for a list of allowed ranges in mode $mode.\n"
+    		}
+    	}
     }
-    elsif ($func_nr==5){
-        switch ($range_nr) {
-            case 4 {$range=1e-3} #1mA
-            case 5 {$range=10e-3} #10mA
-            case 6 {$range=100e-3} #100mA
-            else { Lab::Exception::CorruptParameter->throw( error=>"Range $range_nr not defined\n" ); }
-        }
+    elsif($mode == 5){
+    	given($range){
+    		when( /4/ ){ $range = 0.001; }
+    		when( /5/ ){ $range = 0.01; }
+    		when( /6/ ){ $range = 0.1; }
+    		default {
+    			Lab::Exception::CorruptParameter->throw( "$range is not a valid current range. Read the documentation for a list of allowed ranges in mode $mode.\n"
+    		}
+    	}
     }
-    else { Lab::Exception::CorruptParameter->throw( error=>"Function not defined: $func_nr\n" ); }
-    #printf "$range\n";
-    return $range
+    else{
+    	Lab::Exception::CorruptParameter->throw( "$range is not a valid source range. Read the documentation for a list of allowed ranges in mode $mode.\n" );
+    }
+        
+    return $range;
 }
 
 sub set_run_mode {
@@ -270,20 +377,30 @@ sub set_run_mode {
     $self->write($cmd);
 }
 
-sub output_on {
-    my $self=shift;
-    $self->write('O1');
+sub set_output {
+    my $self = shift;
+    my $output = shift;
+    
+    if(! $output =~ /(0|1)/){
+    	Lab::Exception::CorruptParameter->throw( "Device does not support output $output \n" );
+    }
+    $self->write("O$output");
     $self->write('E');
+    
+    return $self->{'device_cache'}->{'output'} = $output;
 }
     
-sub output_off {
-    my $self=shift;
-    $self->write('O0');
-    $self->write('E');
-}
 
 sub get_output {
     my $self=shift;
+    
+    my $options = undef;
+	if (ref $_[0] eq 'HASH') { $options=shift }	else { $options={@_} }
+	
+    if(! $options->{'from_device'}){
+     	return $self->{'device_cache'}->{'output'};
+    }    
+    
     my %res=$self->get_status();
     return $res{output};
 }
