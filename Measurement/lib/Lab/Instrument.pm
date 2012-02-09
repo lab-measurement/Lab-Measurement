@@ -321,8 +321,7 @@ sub _setconnection { # $self->setconnection() create new or use existing connect
 		if ($@) {
 			Lab::Exception::Error->throw(
 				error => 	"Sorry, I was not able to load the connection ${full_connection}.\n" .
-							"The error received from the connections was\n===\n$@\n===\n" .
-							Lab::Exception::Base::Appendix()
+							"The error received from the connections was\n===\n$@\n===\n"
 			);
 		}
 
