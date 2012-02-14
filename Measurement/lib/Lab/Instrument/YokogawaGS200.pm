@@ -218,7 +218,7 @@ sub _sweep_to_level {
 
     
     while (($self->connection()->serial_poll())[1] ne "1"){
-    	print ( ($self->connection()->serial_poll())[1] ."\n" );
+    	#print ( ($self->connection()->serial_poll())[1] ."\n" );
     	sleep 1;
     }
     

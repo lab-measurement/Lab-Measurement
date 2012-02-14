@@ -1,8 +1,12 @@
 package Lab::Instrument::Yokogawa7651;
-our $VERSION = '2.94';
 
+use warnings;
 use strict;
-use Switch;
+
+our $VERSION = '2.94';
+use 5.010;
+
+
 use Lab::Instrument;
 use Lab::Instrument::Source;
 
@@ -27,10 +31,12 @@ our %fields = (
 
 		max_sweep_time=>3600,
 		min_sweep_time=>0.1,
+		
+		stepsize		=> 0.01,
 	},
 	
 	device_cache => {
-		function			=> "1", # '1' - voltage, '5' - current
+		function			=> "Voltage", 
 		range			=> undef,
 		level			=> undef,
 		output					=> undef,
@@ -53,7 +59,7 @@ sub set_voltage {
     
     my $function = $self->get_function();
 
-    if($function ne '1'){
+    if( $function !~ /voltage/i ){
     	Lab::Exception::CorruptParameter->throw(
     	error=>"Source is in mode $function. Can't set voltage level.");
     }
@@ -106,7 +112,7 @@ sub set_current {
 
 	my $function = $self->get_function();
 
-    if($self->get_function() ne '5'){
+    if( $function !~ /current/i ){
     	Lab::Exception::CorruptParameter->throw(
     	error=>"Source is in mode $function. Can't set current level.");
     }
@@ -117,9 +123,8 @@ sub set_current {
 sub _set_level {
     my $self=shift;
     my $value=shift;
-    my $cmd="";
         
-    $cmd=sprintf("S%e",$value);
+    my $cmd=sprintf("S%ee",$value);
     
     $self->write( $cmd );
     
@@ -138,24 +143,8 @@ sub set_time {
     my $self=shift;
     my $sweep_time=shift; #sec.
     my $interval_time=shift;
-    if ($sweep_time<$self->device_settings('min_sweep_time')) {
-        warn "Warning Sweep Time: $sweep_time smaller than ${\$self->device_settings('min_sweep_time')} sec!\n Sweep time set to ${\$self->device_settings('min_sweep_time')} sec";
-        $sweep_time=$self->device_settings('min_sweep_time')}
-    elsif ($sweep_time>$self->device_settings('max_sweep_time')) {
-        warn "Warning Sweep Time: $sweep_time> ${\$self->device_settings('max_sweep_time')} sec!\n Sweep time set to ${\$self->device_settings('max_sweep_time')} sec";
-        $sweep_time=$self->device_settings('max_sweep_time')
-    };
-    if ($interval_time<$self->device_settings('min_sweep_time')) {
-        warn "Warning Interval Time: $interval_time smaller than ${\$self->device_settings('min_sweep_time')} sec!\n Interval time set to ${\$self->device_settings('min_sweep_time')} sec";
-        $interval_time=$self->device_settings('min_sweep_time')}
-    elsif ($interval_time>$self->device_settings('max_sweep_time')) {
-        warn "Warning Interval Time: $interval_time> ${\$self->device_settings('max_sweep_time')} sec!\n Interval time set to ${\$self->device_settings('max_sweep_time')} sec";
-        $interval_time=$self->device_settings('max_sweep_time')
-    };
-    my $cmd=sprintf("PI%.1f",$interval_time);
-    $self->write( $cmd );
-    $cmd=sprintf("SW%.1f",$sweep_time);
-    $self->write( $cmd );
+    
+    
 }
 
 sub start_program {
@@ -186,108 +175,159 @@ sub _sweep_to_level {
     my $target = shift;
     my $time = shift;
     
-    $self->execute_program(0);
+    
     my $output_now=$self->get_level();
     #Test if $stop in range
     my $range=$self->get_range();
+    
+    if ( $target > $range || $target < -$range ){
+        Lab::Exception->throw("The desired source level $target is not within the source range $range \n");
+    }
+    
+    my $cmd=sprintf("PI%.1fe",$time);
+    $self->write( $cmd );
+    $cmd=sprintf("SW%.1fe",$time);
+    $self->write( $cmd );
+    
+    $self->write("M1");
+    
+    # Set Status byte mask to "end program"
+    $self->write("MS16");
+    
     #Start Programming-----
+    $self->execute_program(0);
     $self->start_program();
-    if ($stop>$range){
-        $stop=$range;
-    }
-    elsif ($stop< -$range) {
-        $stop=-$range;
-    }
-    $self->set_setpoint($stop);
+    
+    
+    $self->set_setpoint($target);
     $self->end_program();
 
-    my $time=abs($output_now -$stop)/$rate;
-    if ($time<$self->device_settings('min_sweep_time')) {
-        warn "Warning Sweep Time: $time smaller than ${\$self->device_settings('min_sweep_time')} sec!\n Sweep time set to ${\$self->device_settings('min_sweep_time')} sec";
-        $time=$self->device_settings('min_sweep_time');
-        $return_rate=abs($output_now -$stop)/$time;
-    }
-    elsif ($time>$self->device_settings('max_sweep_time')) {
-        warn "Warning Interval Time: $time> ${\$self->device_settings('max_sweep_time')} sec!\n Sweep time set to ${\$self->device_settings('max_sweep_time')} sec";
-        $time=$self->device_settings('max_sweep_time');
-        $return_rate=abs($output_now -$stop)/$time;
-    }
-    $self->set_time($time,$time);
     $self->execute_program(2);
-    return $return_rate;
+    
+    while (($self->query("OC") =~ /^STS1=(\d+)/g )&& $1 & 2 ){
+    	#print $self->query("OC");
+    	#print $self->connection()->serial_poll()."\n";
+    	sleep 1;
+    }
+    
+    if( ! $self->get_level( device_cache => 1) == $target){
+    	Lab::Exception::CorruptParameter->throw(
+    	"Sweep failed.")
+    }
+    
+    return $self->device_cache()->{'level'} = $target;
+}
+
+sub get_function{
+	my $self = shift;
+	
+	my $options = undef;
+	if (ref $_[0] eq 'HASH') { $options=shift }	else { $options={@_} }
+	
+    if(! $options->{'from_device'}){
+     	return $self->{'device_cache'}->{'function'};
+    }    
+    
+    my $cmd="OD";
+    my $result=$self->query($cmd);
+    if($result=~/^...(V|A)/){
+    	return ( $result eq "V" ) ? "Voltage" : "Current";
+    }
+    else{
+    	Lab::Exception::CorruptParameter->throw( "Output of command OD is not valid. \n" );
+    }
+    
 }
 
 
-sub get_current {
+sub get_level {
     my $self=shift;
-    return $self->_get();
-}
-
-sub _get {
-    my $self=shift;
+    
+    my $options = undef;
+	if (ref $_[0] eq 'HASH') { $options=shift }	else { $options={@_} }
+	
+    if(! $options->{'from_device'}){
+     	return $self->{'device_cache'}->{'level'};
+    }    
+    
     my $cmd="OD";
     my $result=$self->query($cmd);
     $result=~/....([\+\-\d\.E]*)/;
     return $1;
 }
 
-sub set_current_mode {
-    my $self=shift;
-    
-    $self->set_mode( '5' );
+sub get_voltage{
+	my $self=shift;
+	
+	my $function = $self->get_function();
+
+    if( $function !~ /voltage/i){
+    	Lab::Exception::CorruptParameter->throw(
+    	error=>"Source is in mode $function. Can't get voltage level.");
+    }
+
+    return $self->get_level(@_);
 }
 
-sub set_voltage_mode {
-    my $self=shift;
-    
-    $self->set_mode( '1' );
+sub get_current{
+	my $self=shift;
+	
+	my $function = $self->get_function();
+
+    if( $function !~ /current/i){
+    	Lab::Exception::CorruptParameter->throw(
+    	error=>"Source is in mode $function. Can't get current level.");
+    }
+
+    return $self->get_level(@_);
 }
 
-sub set_mode {
+sub set_function {
     my $self = shift;
-    my $mode = shift;
+    my $function = shift;
     
-    if(! $mode =~ /(1|5)/ ){
-    	Lab::Exception::CorruptParameter->throw( "$mode is not a valid source mode. Choose 1 or 5 for current and voltage mode respectively.\n" );
+    
+    if( $function !~ /(current|voltage)/i ){
+    	Lab::Exception::CorruptParameter->throw( "$function is not a valid source mode. Choose 1 or 5 for current and voltage mode respectively. \n" );
     }
     
-    my $cmd="F$mode";
+    my $my_function = ($function =~ /current/i) ? 5 : 1;
+    
+    my $cmd=sprintf("F%de",$my_function);
     
     $self->write( $cmd );
-    return $self->{'device_cache'}->{'mode'} = $mode;
+    return $self->{'device_cache'}->{'function'} = $function;
     
 }
 
 sub set_range {
     my $self=shift;
-    my $my_range=shift;
+    my $my_range = shift;
     my $range = 0;
     
-    my $mode = $self->get_mode();
-    if($mode == 1){
+    my $function = $self->get_function();
+    if( $function =~ /voltage/i ){
     	given($my_range){
-    		when( 0.01 ){ $range = 2; }
-    		when( 0.1 ){ $range = 3; }
-    		when( 1 ){ $range = 4; }
-    		when( 10 ){ $range = 5; }
-    		when( 30 ){ $range = 6; }
-    		default {
-    			Lab::Exception::CorruptParameter->throw( "$range is not a valid voltage range. Read the documentation for a list of allowed ranges in mode $mode.\n"
+    		when( 0.01 ){ $range = 2 }
+    		when( 0.1 ){ $range = 3 }
+    		when( 1 ){ $range = 4 }
+    		when( 10 ){ $range = 5 }
+    		when( 30 ){ $range = 6 }
+    		default { 
+    			Lab::Exception::CorruptParameter->throw( "$range is not a valid voltage range. Read the documentation for a list of allowed ranges in mode $function. \n" )
     		}
     	}
     }
-    elsif($mode == 5){
+    elsif($function =~ /current/i){
     	given($my_range){
-    		when( 0.001 ){ $range = 4; }
-    		when( 0.01 ){ $range = 5; }
-    		when( 0.1 ){ $range = 6; }
-    		default {
-    			Lab::Exception::CorruptParameter->throw( "$range is not a valid current range. Read the documentation for a list of allowed ranges in mode $mode.\n"
-    		}
+    		when( 0.001 ){ $range = 4 }
+    		when( 0.01 ){ $range = 5 }
+    		when( 0.1 ){ $range = 6 }
+    		default { Lab::Exception::CorruptParameter->throw( "$range is not a valid current range. Read the documentation for a list of allowed ranges in mode $function.\n" )}
     	}
     }
     else{
-    	Lab::Exception::CorruptParameter->throw( "$range is not a valid source range. Read the documentation for a list of allowed ranges in mode $mode.\n" );
+    	Lab::Exception::CorruptParameter->throw( "$range is not a valid source range. Read the documentation for a list of allowed ranges in mode $function.\n" );
     }
       #fixed voltage mode
       # 2   10mV
@@ -300,7 +340,7 @@ sub set_range {
       # 5   10mA
       # 6   100mA
       
-    my $cmd = "R$range";
+    my $cmd = sprintf("R%ue",$range);
     
     $self->write($cmd);
     return $self->{'device_cache'}->{'range'} = $my_range;
@@ -316,7 +356,7 @@ sub get_info {
         chomp $line;
         $line=~s/\r//;
         push(@info,sprintf($line));
-    };
+    }
     return @info;
 }
 
@@ -331,8 +371,8 @@ sub get_range{
     }    
     
     
-    my $range=$self->get_info()[1];
-    my $mode = $self->get_mode();
+    my $range=($self->get_info())[1];
+    my $function = $self->get_function();
     
     
     if ($range =~ /F(\d)R(\d)/){
@@ -340,30 +380,30 @@ sub get_range{
 	    #    printf "rangenr=$range_nr\n";
     }
     
-    if($mode == 1){
-    	given($range){
+    if($function =~ /voltage/i){
+    	given ($range) {
     		when( /2/ ){ $range = 0.01; }
     		when( /3/ ){ $range = 0.1; }
     		when( /4/ ){ $range = 1; }
     		when( /5/ ){ $range = 10; }
     		when( /6/ ){ $range = 30; }
     		default {
-    			Lab::Exception::CorruptParameter->throw( "$range is not a valid voltage range. Read the documentation for a list of allowed ranges in mode $mode.\n"
+    			Lab::Exception::CorruptParameter->throw( "$range is not a valid voltage range. Read the documentation for a list of allowed ranges in mode $function.\n")
     		}
     	}
     }
-    elsif($mode == 5){
+    elsif($function =~ /current/i){
     	given($range){
     		when( /4/ ){ $range = 0.001; }
     		when( /5/ ){ $range = 0.01; }
     		when( /6/ ){ $range = 0.1; }
     		default {
-    			Lab::Exception::CorruptParameter->throw( "$range is not a valid current range. Read the documentation for a list of allowed ranges in mode $mode.\n"
+    			Lab::Exception::CorruptParameter->throw( "$range is not a valid current range. Read the documentation for a list of allowed ranges in mode $function.\n" )
     		}
     	}
     }
     else{
-    	Lab::Exception::CorruptParameter->throw( "$range is not a valid source range. Read the documentation for a list of allowed ranges in mode $mode.\n" );
+    	Lab::Exception::CorruptParameter->throw( "$range is not a valid source range. Read the documentation for a list of allowed ranges in mode $function.\n" );
     }
         
     return $range;
@@ -381,10 +421,12 @@ sub set_output {
     my $self = shift;
     my $output = shift;
     
-    if(! $output =~ /(0|1)/){
+    if( $output !~ /(0|1)/){
     	Lab::Exception::CorruptParameter->throw( "Device does not support output $output \n" );
     }
-    $self->write("O$output");
+    my $cmd = sprintf("O%e",$output);
+    
+    $self->write($cmd);
     $self->write('E');
     
     return $self->{'device_cache'}->{'output'} = $output;
@@ -426,7 +468,7 @@ sub set_current_limit {
 
 sub get_status {
     my $self=shift;
-    my $status=$self->write('OC');
+    my $status=$self->query('OC');
     
     $status=~/STS1=(\d*)/;
     $status=$1;
@@ -435,7 +477,7 @@ sub get_status {
         unstable    error   execution   setting/;
     my %result;
     for (0..7) {
-        $result{$flags[$_]}=$status&128;
+        $result{$flags[$_]}=$status & 128;
         $status<<=1;
     }
     return %result;
@@ -480,6 +522,8 @@ Lab::Instrument::Yokogawa7651 - Yokogawa 7651 DC source
     my $gate14=new Lab::Instrument::Yokogawa7651(
       connection_type => 'LinuxGPIB',
       gpib_address => 22,
+      gate_protecet => 1,
+      level => 0.5,
     );
     $gate14->set_voltage(0.745);
     print $gate14->get_voltage();
@@ -492,41 +536,84 @@ L<Lab::Instrument::Source> and provides all functionality described there.
 
 =head1 CONSTRUCTORS
 
-=head2 new($gpib_board,$gpib_addr)
+=head2 new( %configuration_HASH )
+
+HASH is a list of tuples given in the format
+
+key => value,
+
+please supply at least the configuration for the connection:
+		connection_type 		=> "LinxGPIB"
+		gpib_address =>
+
+you might also want to have gate protect from the start (the default values are given):
+
+		gate_protect => 1,
+
+		gp_equal_level          => 1e-5,
+		gp_max_units_per_second  => 0.05,
+		gp_max_units_per_step    => 0.005,
+		gp_max_step_per_second  => 10,
+		gp_max_units_per_second  => 0.05,
+		gp_max_units_per_step    => 0.005,
+
+		max_sweep_time=>3600,
+		min_sweep_time=>0.1,
+	
+Additinally there is support to set parameters for the device "on init":		
+If those values are not specified, defaults are supplied by the driver.
+	
+		function			=> Voltage, # specify "Voltage" or "Current" mode, string is case insensitive
+		range			=> undef,
+		level			=> undef,
+		output					=> undef,
+
+If those values are not specified, the current device configuration is left unaltered.
+
+
 
 =head1 METHODS
 
 =head2 set_voltage($voltage)
 
+Sets the output voltage to $voltage.
+Returns the newly set voltage.
+
 =head2 get_voltage()
+
+Returns the currently set $voltage. The value is read from the driver cache by default. Provide the option
+
+device_cache => 1
+
+to read directly from the device.
+
+=head2 set_current($current)
+
+Sets the output current to $current.
+Returns the newly set current.
+
+=head2 get_current()
+
+Returns the currently set $current. The value is read from the driver cache by default. Provide the option
+
+device_cache => 1
+
+to read directly from the device.
 
 =head2 set_range($range)
 
-    Fixed voltage mode
-    2   10mV
-    3   100mV
-    4   1V
-    5   10V
-    6   30V
-
-    Fixed current mode
-    4   1mA
-    5   10mA
-    6   100mA
+Set the output range for the device. $range should be either in decimal or scientific notation.
+Returns the newly set range.
 
 =head2 get_info()
 
 Returns the information provided by the instrument's 'OS' command, in the form of an array
 with one entry per line. For display, use join(',',$yoko->get_info()); or similar.
 
-=head2 output_on()
+=head2 set_output( $onoff )
 
-Sets the output switch to on.
-
-=head2 output_off()
-
-Sets the output switch to off. The instrument outputs no voltage
-or current then, no matter what voltage you set.
+Sets the output switch to "1" (on) or "0" (off).
+Returns the new output state;
 
 =head2 get_output()
 
