@@ -112,6 +112,8 @@ sub _construct {	# _construct(__PACKAGE__);
 		else {
 			# handle the normal fields - can also be hash refs etc, so use clone to get a deep copy
 			$self->{$element} = clone($fields->{$element});
+			#warn "here comes\n" if($element eq 'device_cache');
+			#warn Dumper($Lab::Instrument::DummySource::fields) if($element eq 'device_cache');
 		}
 		$self->{_permitted}->{$element} = 1;
 	}
@@ -146,6 +148,24 @@ sub _construct {	# _construct(__PACKAGE__);
 }
 
 
+sub _getset_key{
+	my $self = shift;
+	my $ckey = shift;
+	
+	Lab::Exception::CorruptParameter->throw( "No field with name $ckey in device_cache!\n" ) if !exists $self->device_cache()->{$ckey};
+	if( !defined $self->device_cache()->{$ckey}  ) {
+		my $subname = 'get_' . $ckey;
+		Lab::Exception::CorruptParameter->throw("No get method defined for device_cache field $ckey! \n") if ! $self->can($subname);
+		$self->device_cache()->{$ckey} = $self->$subname( from_device => 1 );
+		}
+	else {
+		my $subname = 'set_' . $ckey;
+		Lab::Exception::CorruptParameter->throw("No set method defined for device_cache field $ckey!\n") if ! $self->can($subname);
+		$self->$subname($self->device_cache()->{$ckey});
+	}
+	
+}
+
 #
 # Sync the field set in $self->device_cache with the device.
 # Undefined fields are filled in from the device, existing values in device_cache are written to the device.
@@ -155,20 +175,31 @@ sub _construct {	# _construct(__PACKAGE__);
 sub _cache_init {
 	my $self = shift;
 	my $subname = shift;
-	my @ckeys = scalar(@_) > 0 ? @_ : keys %{$self->device_cache()}; 
+	my @ckeys = scalar(@_) > 0 ? @_ : keys %{$self->device_cache()};
+	
+	# a key hash, to search for given keys quickly
+	my %ckeyhash;
+	my %orderhash;
+	@ckeyhash{@ckeys}=();
+	
+	my @order = @{$self->{'device_cache_order'}};
 	
 	if( $self->{'device_cache'} && $self->connection() ) {
-		for my $ckey ( @ckeys ) {
-			Lab::Exception::CorruptParameter->throw( "No field with name $ckey in device_cache!\n" ) if !exists $self->device_cache()->{$ckey};
-			if( !defined $self->device_cache()->{$ckey}  ) {
-				$subname = 'get_' . $ckey;
-				Lab::Exception::CorruptParameter->throw("No get method defined for device_cache field $ckey! \n") if ! $self->can($subname);
-				$self->device_cache()->{$ckey} = $self->$subname( from_device => 1 );
+		# do we have a preferred order for device cache settings?
+		if( @order ){
+			@orderhash{@order} = ();
+			for my $ckey (@order){
+				$self->_getset_key($ckey) if exists $ckeyhash{$ckey};			
 			}
-			else {
-				$subname = 'set_' . $ckey;
-				Lab::Exception::CorruptParameter->throw("No set method defined for device_cache field $ckey!\n") if ! $self->can($subname);
-				$self->$subname($self->device_cache()->{$ckey});
+			# initialize all values not in device_cache_order
+			for my $ckey (@ckeys){
+				$self->_getset_key($ckey) if not exists $orderhash{$ckey};
+			}
+		}
+		# no ordering required
+		else{
+			for my $ckey ( @ckeys ) {
+				$self->_getset_key($ckey);	
 			}
 		}
 	}

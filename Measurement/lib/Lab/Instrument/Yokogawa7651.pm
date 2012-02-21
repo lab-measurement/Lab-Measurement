@@ -41,6 +41,8 @@ our %fields = (
 		level			=> undef,
 		output					=> undef,
 	},
+	
+	device_cache_order => ['function','range'],
 );
 
 sub new {
@@ -195,7 +197,7 @@ sub _sweep_to_level {
     $self->write("MS16");
     
     #Start Programming-----
-    $self->execute_program(0);
+    #$self->execute_program(0);
     $self->start_program();
     
     
@@ -468,18 +470,21 @@ sub set_current_limit {
 
 sub get_status {
     my $self=shift;
+    my $request = shift;
+    
     my $status=$self->query('OC');
     
     $status=~/STS1=(\d*)/;
     $status=$1;
     my @flags=qw/
         CAL_switch  memory_card calibration_mode    output
-        unstable    error   execution   setting/;
+        unstable    ERROR   execution   setting/;
     my %result;
     for (0..7) {
         $result{$flags[$_]}=$status & 128;
         $status<<=1;
     }
+    return $result->{$request} if defined $request;
     return %result;
 }
 

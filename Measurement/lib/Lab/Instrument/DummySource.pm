@@ -9,7 +9,7 @@ our @ISA=('Lab::Instrument::Source');
 our $maxchannels=16;
 
 our %fields = (
-	supported_connections => [ 'none' ],
+	supported_connections => [ 'LinuxGPIB' ],
 	
 	connection_settings => {
 		connection_type => 'none',
@@ -25,6 +25,15 @@ our %fields = (
 		max_sweep_time=>3600,
 		min_sweep_time=>0.1,
 	},
+	
+	device_cache => {
+		function			=> "Voltage", 
+		range			=> undef,
+		level			=> undef,
+		output					=> undef,
+	},
+	
+	device_cache_order => ['function','range'],
 );
 
 
