@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 package Lab::Connection::DEBUG;
-our $VERSION = '2.94';
+our $VERSION = '2.95';
 
 use strict;
 use Time::HiRes qw (usleep sleep);

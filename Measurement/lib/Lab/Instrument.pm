@@ -3,7 +3,7 @@ package Lab::Instrument;
 use strict;
 use warnings;
 
-our $VERSION = '2.94';
+our $VERSION = '2.95';
 
 use Lab::Exception;
 use Lab::Connection;

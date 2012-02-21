@@ -6,7 +6,7 @@ use Module::Build;
 
 my $build = Module::Build->new(
     module_name       => 'Lab::Measurement',
-    dist_abstract     => 'Bus drivers, Instrument drivers, and measurement scripts',
+    dist_abstract     => 'Test and measure with Perl',
     license           => 'perl',
     requires          => {
 	'Exception::Class'   => '1.0',
@@ -36,7 +36,8 @@ my $build = Module::Build->new(
     dist_author       => ['Daniel Schröer <schroeer@cpan.org>',
                           'Andreas K. Hüttel <mail@akhuettel.de>',
                           'Daniela Taubert <daniela.taubert@physik.uni-muenchen.de>', 
-                          'Florian Olbrich <florian.olbrich@physik.uni-r.de>'
+                          'Florian Olbrich <florian.olbrich@devtek.de>',
+                          'Alois Dirnaichner <alois.dirnaichner@physik.uni-r.de>'
                          ],
     meta_merge        => {
         resources       => {
