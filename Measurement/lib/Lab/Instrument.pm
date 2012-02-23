@@ -390,8 +390,9 @@ sub get_error {
 	my $self=shift;
 	
 	# overwrite with device specific error retrieval...
+	warn("There was an error on the device, but the driver is not able supply more details.\n");
 	
-	return (0, undef); # ( $errcode, $message )
+	return (-1, undef); # ( $errcode, $message )
 }
 
 #
@@ -412,21 +413,22 @@ sub check_errors {
 	if($self->get_status('ERROR')) {
 	
 		my ( $code, $message )  = $self->get_error();	
-		while( $code != 0 ) {
+		while( $code != 0 && $code != -1 ) {
 			push @errors, [$code, $message];
 			warn "\nReceived device error with code $code\nMessage: $message\n";
 			( $code, $message )  = $self->get_error();
 		}
 
-		if(@errors) {
+		if(@errors || $code == -1) {
 			Lab::Exception::DeviceError->throw (
-				error => 'An Error occured in the device.',
+				error => "An Error occured in the device while executing the command: $command \n",
 				device_class => ref $self,
 				command => $command,
 				error_list => \@errors,
 			)
 		}
 	}
+	return 0;
 }
 
 #
@@ -447,6 +449,7 @@ sub write {
 	$args->{'command'} = $command if defined $command;
 	
 	$self->connection()->Write($args);
+	
 	$self->check_errors($args->{'command'}) if $args->{error_check};
 }
 
