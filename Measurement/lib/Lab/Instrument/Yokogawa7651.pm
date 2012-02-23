@@ -41,6 +41,8 @@ our %fields = (
 		level			=> undef,
 		output					=> undef,
 	},
+	
+	device_cache_order => ['function','range'],
 );
 
 sub new {
@@ -120,24 +122,31 @@ sub set_current {
     $self->set_level($current, @_);
 }
 
+sub set_setpoint {
+    my $self=shift;
+    my $value=shift;
+    my $cmd=sprintf("S%+.4e",$value);
+    $self->write($cmd,error_check=>1);
+}
+
 sub _set_level {
     my $self=shift;
     my $value=shift;
+    
+    my $range=$self->get_range();
+    
+    if ( $value > $range || $value < -$range ){
+        Lab::Exception::CorruptParameter->throw("The desired source level $target is not within the source range $range \n");
+    }
         
     my $cmd=sprintf("S%ee",$value);
     
-    $self->write( $cmd );
+    $self->write( $cmd, error_check => 1 );
     
     return $self->{'device_cache'}->{'level'} = $value;
     
 }
 
-sub set_setpoint {
-    my $self=shift;
-    my $value=shift;
-    my $cmd=sprintf("S%+.4e",$value);
-    $self->write($cmd);
-}
 
 sub set_time {
     my $self=shift;
@@ -181,25 +190,28 @@ sub _sweep_to_level {
     my $range=$self->get_range();
     
     if ( $target > $range || $target < -$range ){
-        Lab::Exception->throw("The desired source level $target is not within the source range $range \n");
+        Lab::Exception::CorruptParameter->throw("The desired source level $target is not within the source range $range \n");
     }
     
+    # Set interval time
     my $cmd=sprintf("PI%.1fe",$time);
-    $self->write( $cmd );
-    $cmd=sprintf("SW%.1fe",$time);
-    $self->write( $cmd );
+    $self->write( $cmd, error_check => 1 );
     
+    # Set sweep time
+    $cmd=sprintf("SW%.1fe",$time);
+    $self->write( $cmd, error_check => 1 );
+    
+    # Select single mode
     $self->write("M1");
     
-    # Set Status byte mask to "end program"
-    $self->write("MS16");
     
     #Start Programming-----
-    $self->execute_program(0);
+
     $self->start_program();
     
-    
+    # We call internal sub to set level directly
     $self->set_setpoint($target);
+    
     $self->end_program();
 
     $self->execute_program(2);
@@ -468,18 +480,21 @@ sub set_current_limit {
 
 sub get_status {
     my $self=shift;
+    my $request = shift;
+    
     my $status=$self->query('OC');
     
     $status=~/STS1=(\d*)/;
     $status=$1;
     my @flags=qw/
         CAL_switch  memory_card calibration_mode    output
-        unstable    error   execution   setting/;
+        unstable    ERROR   execution   setting/;
     my %result;
     for (0..7) {
         $result{$flags[$_]}=$status & 128;
         $status<<=1;
     }
+    return $result{$request} if defined $request;
     return %result;
 }
 
