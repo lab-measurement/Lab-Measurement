@@ -7,121 +7,19 @@
 </head>
 <body>
 <div id="header"><img id="logo" src="header.png" alt="Lab::VISA"/></div>
-<div id="toc">
-    <h1>Links</h1><!-- wählen -->
-    <h2>Documentation and Support</h2>
-    <ul>
-        <li><a href="docs-1.x/index.html">Lab::VISA documentation</a></li>
-        <li><a href="docs-1.x/Tutorial.html">Tutorial on Lab::VISA</a></li>
-        <li><a href="docs-1.x/Installation.html">Installation Guide</a></li>
-        <li><a href="Lab-VISA-talk.pdf">Presentation slides</a></li>
-        <li><a href="https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-visa-users">Mailing list</a></li>
-        <li><a href="https://rt.cpan.org/Public/Dist/Display.html?Name=Lab-VISA">Bugtracker</a></li>
-    </ul>
-    <h2>NI-VISA resources</h2>
-    <ul>
-        <li><a href="http://sine.ni.com/psp/app/doc/p/id/psp-411">NI-VISA Homepage</a></li>
-        <li><a href="http://www.ni.com/pdf/manuals/370423a.pdf">User Manual</a></li>
-        <li><a href="http://www.ni.com/pdf/manuals/370132c.pdf">Programmer Reference Manual</a></li>
-        <li><a href="http://zone.ni.com/reference/en-XX/help/371361B-01/lvinstio/visa_resource_name_generic/">VISA resource names</a></li>
-        <li><a href="http://zone.ni.com/reference/en-XX/help/371361B-01/lverror/visa_error_codes/">VISA error codes</a></li>
-    </ul>
-    <h2>Download Lab::VISA</h2>
-    <ul>
-        <li><a href="http://search.cpan.org/dist/Lab-VISA/">Lab::VISA</a></li>
-        <li><a href="http://search.cpan.org/dist/Lab-Instrument/">Lab::Instrument</a></li>
-        <li><a href="http://search.cpan.org/dist/Lab-Tools/">Lab::Tools</a></li>
-    </ul>
-</div>
 
 <p><i>Development on this version of Lab::VISA has stopped, mainly because
 of a certain frustration with NI-VISA Linux support. The replacement and
 successor is called <a href="http://www.labmeasurement.de/">Lab::Measurement</a>
 and has a <a href="http://www.labmeasurement.de/">new separate homepage</a>. 
-It is currently in early beta stage (but already being tested in real measurement
-setups).</i></p>
-
-<p>Lab::VISA allows to perform test and measurement tasks with Perl
-scripts. It provides an interface to National Instruments' <a
-    href="http://sine.ni.com/psp/app/doc/p/id/psp-411">NI-VISA
-library</a>, making the standard VISA calls available to Perl programs.
-Dedicated instrument driver classes relieve the user from taking care
-for internal details and make data aquisition as easy as</p>
-
-<pre class="titleclaim">$voltage = $multimeter-&gt;read_voltage();</pre>
-
-<p>The Lab::VISA software stack comprises three parts that are built
-on top of each other and provide increasing comfort. Measurement scripts
-can be based on any of these stages.</p>
-
-<p>The lowest level is Lab::VISA. It makes the NI-VISA library
-accessible from Perl and thus allows to make any standard VISA call.
-The modules in the Lab::Instrument package make communication
-with instruments easier by silently handling the protocol overhead.
-Package Lab::Tools is the highest abstraction layer and is
-intended to support writing better measurement scripts. The modules in
-this package offer means to log and plot data and its related meta
-information.</p>
-
-<p>These packages together are referred to as the Lab::VISA system.
-Encapsulating the complexity of VISA calls into a straightforward to use
-library, the Lab::VISA system is designed to make data aquisition fun.</p>
-
-<h2>How to obtain</h2>
-<p>The packages are free software and can be downloaded from CPAN.
-Follow these links for</p>
-<ul>
-    <li><a href="http://search.cpan.org/dist/Lab-VISA/">Lab::VISA</a>,</li>
-    <li><a href="http://search.cpan.org/dist/Lab-Instrument/">Lab::Instrument</a>,
-    and</li>
-    <li><a href="http://search.cpan.org/dist/Lab-Tools/">Lab::Tools</a>.</li>
-</ul>
-
-<h2>Documentation</h2>
-<p>Quite some <a href="docs-1.x/index.html">documentation of Lab::VISA</a>
-(<a href="docs-1.x/documentation.pdf">PDF format</a>) is available. This
-documentation includes a <a href="docs-1.x/Tutorial.html">tutorial on
-using Lab::VISA</a>. Detailed <a href="docs-1.x/installation.html">installation
-instructions</a> are provided as well.</p>
-
-<p>These <a href="Lab-VISA-talk.pdf">presentation slides on
-Lab::VISA</a> introduce the system and discuss a number of <a
-    href="http://cpansearch.perl.org/src/SCHROEER/Lab-VISA-2.05/Tutorial/Talk">examples</a>,
-which are contained in the Lab::VISA package.</p>
-
-<p>There is a <a
-    href="https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-visa-users">mailing
-list (lab-visa-users)</a> set up for Lab::VISA. This mailing list is the
-right place to give feedback and ask for help.</p>
-
-<p><a href="http://sine.ni.com/psp/app/doc/p/id/psp-411">National
-Instruments</a> offers excellent documentation. We especially recommend the
-<a href="http://www.ni.com/pdf/manuals/370423a.pdf">NI-VISA User
-Manual</a>, the <a href="http://www.ni.com/pdf/manuals/370132c.pdf">NI-VISA
-Programmer Reference Manual</a> and these references of <a
-    href="http://zone.ni.com/reference/en-XX/help/371361B-01/lvinstio/visa_resource_name_generic/">VISA
-resource names</a> and <a
-    href="http://zone.ni.com/reference/en-XX/help/371361B-01/lverror/visa_error_codes/">VISA
-error codes</a>.</p>
-
-<h2>Status</h2>
-<p>Although this software has been used for years in real world
-measurements by its developers, it remains work in progress. Please bear
-with us while we constantly improve code and documentation.</p>
-
-<p>Lab::VISA is currently developed and employed at <a
-    href="http://www.nano.physik.uni-muenchen.de/">nanophysics
-group, LMU M&uuml;nchen</a> and <a
-    href="http://www.physik.uni-regensburg.de/forschung/strunk/">mesoscopic
-physics group, Uni Regensburg</a>. Users have reported further applications
-in academic and industrial r&amp;d environments.</p>
+Although it is at the moment still in beta stage, we already use it in 
+the lab in real measurement applications.</i></p>
 
 <h2>Authors</h2>
 <p>The Lab::VISA system was originally developed by <a
-    href="http://search.cpan.org/~schroeer/">Daniel Schr&ouml;er</a> and
-is now continued by <a href="http://www.akhuettel.de/">Andreas K.
-H&uuml;ttel</a>, Daniela Taubert, and Daniel Schr&ouml;er. Most of the documentation was
-written by Daniel Schr&ouml;er.</p>
-
+   href="http://search.cpan.org/~schroeer/">Daniel Schr&ouml;er</a> and then
+   continued by <a href="http://www.akhuettel.de/">Andreas K.
+   H&uuml;ttel</a>, Daniela Taubert, and Daniel Schr&ouml;er. Most of the documentation was
+   written by Daniel Schr&ouml;er.</p>
 </body>
 </html>
