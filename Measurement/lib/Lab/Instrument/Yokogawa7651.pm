@@ -574,6 +574,10 @@ you might also want to have gate protect from the start (the default values are 
 
 		max_sweep_time=>3600,
 		min_sweep_time=>0.1,
+
+If you want to use the sweep function without using gate protect, you should specify
+
+		stepsize=>0.01
 	
 Additinally there is support to set parameters for the device "on init":		
 If those values are not specified, defaults are supplied by the driver.

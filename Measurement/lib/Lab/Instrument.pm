@@ -390,7 +390,7 @@ sub get_error {
 	my $self=shift;
 	
 	# overwrite with device specific error retrieval...
-	warn("There was an error on the device, but the driver is not able supply more details.\n");
+	warn("There was an error on the device, but the driver is not able to supply more details.\n");
 	
 	return (-1, undef); # ( $errcode, $message )
 }
@@ -410,7 +410,7 @@ sub check_errors {
 	my $command=shift;
 	my @errors=();
 	
-	if($self->get_status('ERROR')) {
+	if($self->get_status()->{'ERROR'}) {
 	
 		my ( $code, $message )  = $self->get_error();	
 		while( $code != 0 && $code != -1 ) {
