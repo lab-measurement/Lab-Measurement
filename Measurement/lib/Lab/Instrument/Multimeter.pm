@@ -32,30 +32,25 @@ sub id {
     die "id not implemented for this instrument\n";
 }
 
+sub get_range{
+	my $self = shift;
+	
+	Lab::Exception::DriverError->throw( "The unimplemented method stub ".__PACKAGE__."::get_range() has been called. I can't work like this.\n" );
+}
 
-sub get_value {
-    die "get_value not implemented for this instrument\n";
+sub set_range{
+	my $self = shift;
+	
+	Lab::Exception::DriverError->throw( "The unimplemented method stub ".__PACKAGE__."::set_range() has been called. I can't work like this.\n" );
 }
 
 
-sub display_on {
-    die "display_on not implemented for this instrument\n";
+sub get_level {
+    my $self = shift;
+	
+	Lab::Exception::DriverError->throw( "The unimplemented method stub ".__PACKAGE__."::set_level() has been called. I can't work like this.\n" );
 }
 
-
-sub display_off {
-    die "display_off not implemented for this instrument\n";
-}
-
-
-sub display_clear {
-    die "display_clear not implemented for this instrument\n";
-}
-
-
-sub display_text {
-    die "display_text not implemented for this instrument\n";
-}
 
 
 sub selftest {

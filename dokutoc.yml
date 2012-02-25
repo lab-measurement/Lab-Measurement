@@ -6,6 +6,7 @@ toc:
       - Measurement/lib/Lab/Measurement/Changes.pod
       - Measurement/lib/Lab/Measurement/Installation.pod
       - Measurement/lib/Lab/Measurement/Tutorial.pod
+      - Measurement/lib/Lab/Measurement/Developer/Write-A-Source-Driver.pod
       - Example scripts:
           - Measurement/examples/Simple/yoko_goto.pl
           - Measurement/examples/Simple/query_id.pl
