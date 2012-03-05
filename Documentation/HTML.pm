@@ -110,7 +110,8 @@ sub _get_header {
         <title>$title</title>
     </head>
     <body>
-<!--    <div id="header"><img id="logo" src="../header.png" alt=""/></div> -->
+    <!--#include virtual="/defhead.html" -->
+    <!--#include virtual="/docstoc.html" -->
 HEADER
 }
 
