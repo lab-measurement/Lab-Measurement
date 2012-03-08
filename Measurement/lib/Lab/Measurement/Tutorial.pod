@@ -90,12 +90,6 @@ similar.
 A schematic view of the various software layers between your perl
 measurement script and the instrument hardware looks like this:
 
-=begin latex
-
-\clearpage
-
-=end latex
-
  +-------------------------+ +---------------+ +------------------+
  |Lab::Instrument::HP34401A| |L::I::KnickS252| |L::I::Yokogawa7651|
  +-----------------------+-+ +----+----------+ +----+-------------+
