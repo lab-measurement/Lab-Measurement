@@ -25,6 +25,11 @@ our %fields = (
 	device_settings => { 
 		pl_freq => 50,
 	},
+	
+	device_cache =>{
+		range => undef,
+		resolution => undef,
+	}
 
 );
 
@@ -194,6 +199,18 @@ sub get_error {
 	else {
 		return undef;
 	}
+}
+
+sub get_status{
+	my $self = shift;
+	
+	# This is to be implemented with code that queries the status bit
+}
+
+sub set_range{
+	my $self = shift;
+	
+	# This is the range set function, to be implemented.
 }
 
 sub reset {

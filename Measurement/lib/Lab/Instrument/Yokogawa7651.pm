@@ -136,7 +136,7 @@ sub _set_level {
     my $range=$self->get_range();
     
     if ( $value > $range || $value < -$range ){
-        Lab::Exception::CorruptParameter->throw("The desired source level $target is not within the source range $range \n");
+        Lab::Exception::CorruptParameter->throw("The desired source level $value is not within the source range $range \n");
     }
         
     my $cmd=sprintf("S%ee",$value);
