@@ -43,6 +43,8 @@ our %fields = (
 	
 	device_cache => {},
 
+	device_cache_order = [],
+
 	config => {},
 );
 
@@ -182,7 +184,7 @@ sub _cache_init {
 	my %orderhash;
 	@ckeyhash{@ckeys}=();
 	
-	my @order = @{$self->{'device_cache_order'}};
+	my @order = @{$self->device_cache_order()};
 	
 	if( $self->{'device_cache'} && $self->connection() ) {
 		# do we have a preferred order for device cache settings?
