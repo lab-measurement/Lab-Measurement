@@ -53,28 +53,8 @@ sub new {
 # all methods that fill in general Multimeter methods
 #
 
-sub _display_text {
-    my $self=shift;
-    my $text=shift;
-    
-    if ($text) {
-        $self->connection()->Write( command => qq(DISPlay:TEXT "$text"));
-    } else {
-        chomp($text=$self->connection()->Query( command => qq(DISPlay:TEXT?) ));
-        $text=~s/\"//g;
-    }
-    return $text;
-}
 
-sub _display_on {
-    my $self=shift;
-    $self->connection()->Write( command => "DISPlay ON" );
-}
 
-sub _display_off {
-    my $self=shift;
-    $self->connection()->Write( command => "DISPlay OFF" );
-}
 
 sub _display_clear {
     my $self=shift;
@@ -206,6 +186,35 @@ sub get_status{
 	
 	# This is to be implemented with code that queries the status bit
 }
+
+
+sub set_display_state {
+    my $self=shift;
+    my $value=shift;
+	
+    if($value==1 || $value =~ /on/i ) {
+    	$self->write("DISP ON", @_);
+    }
+    elsif($value==0 || $value =~ /off/i ) {
+    	$self->write("DISP OFF", @_);
+    }
+    else {
+    	Lab::Exception::CorruptParameter->throw( "set_display_state(): Illegal parameter.\n" );
+    }
+}
+
+sub set_display_text {
+    my $self=shift;
+    my $text=shift;
+    if( $text !~ /^[A-Za-z0-9\ \!\#\$\%\&\'\(\)\^\\\/\@\;\:\[\]\,\.\+\-\=\<\>\?\_]*$/ ) { # characters allowed by the 3458A
+    	Lab::Exception::CorruptParameter->throw( "set_display_text(): Illegal characters in given text.\n" );
+    }
+    $self->write("DISP:TEXT $text");
+    
+    $self->check_errors();
+}
+
+
 
 sub set_range{
 	my $self = shift;

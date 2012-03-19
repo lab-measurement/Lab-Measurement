@@ -242,8 +242,8 @@ sub get_function{
     
     my $cmd="OD";
     my $result=$self->query($cmd);
-    if($result=~/^...(V|A)/){
-    	return ( $result eq "V" ) ? "Voltage" : "Current";
+    if($result=~/^...([VA])/){
+    	return ( $1 eq "V" ) ? "Voltage" : "Current";
     }
     else{
     	Lab::Exception::CorruptParameter->throw( "Output of command OD is not valid. \n" );
@@ -489,13 +489,13 @@ sub get_status {
     my @flags=qw/
         CAL_switch  memory_card calibration_mode    output
         unstable    ERROR   execution   setting/;
-    my %result;
+    my $result = {};
     for (0..7) {
-        $result{$flags[$_]}=$status & 128;
+        $result->{$flags[$_]}=$status & 128;
         $status<<=1;
     }
-    return $result{$request} if defined $request;
-    return %result;
+    return $result->{$request} if defined $request;
+    return $result;
 }
 
 #
