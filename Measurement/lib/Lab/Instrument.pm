@@ -43,7 +43,7 @@ our %fields = (
 	
 	device_cache => {},
 
-	device_cache_order = [],
+	device_cache_order => [],
 
 	config => {},
 );
