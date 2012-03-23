@@ -185,6 +185,13 @@ sub get_status{
 	my $self = shift;
 	
 	# This is to be implemented with code that queries the status bit
+	
+	my $self=shift;
+	my $request = shift;
+	my $status = {};
+	($status->{NOT_USED1}, $status->{NOT_USED2}, $status->{NOT_USED3}, $status->{CORR_DATA}, $status->{MSG_AVAIL}, $status->{ERROR}, $status->{SRQ}, $status->{NOT_USED4} ) = $self->connection()->serial_poll();
+	return $status->{$request} if defined $request;
+	return $status;
 }
 
 
