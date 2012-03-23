@@ -162,6 +162,7 @@ sub _getset_key{
 		}
 	else {
 		my $subname = 'set_' . $ckey;
+		
 		Lab::Exception::CorruptParameter->throw("No set method defined for device_cache field $ckey!\n") if ! $self->can($subname);
 		$self->$subname($self->device_cache()->{$ckey});
 	}
@@ -392,7 +393,7 @@ sub get_error {
 	my $self=shift;
 	
 	# overwrite with device specific error retrieval...
-	warn("There was an error on the device, but the driver is not able to supply more details.\n");
+	warn("There was an error on the device ".ref($self).", but the driver is not able to supply more details.\n");
 	
 	return (-1, undef); # ( $errcode, $message )
 }
