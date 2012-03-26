@@ -7,6 +7,7 @@ use Data::Dumper;
 use File::Basename;
 use File::Copy;
 use Lab::Data::Meta;
+use List::MoreUtils qw( each_array );
 
 my $default_config = {
     output_data_ext     => "dat",
@@ -85,6 +86,19 @@ sub log_line {
     my ($self, @data) = @_;
     my $fh = $self->{filehandle};
     print $fh ( join $self->configure('output_col_sep'), @data ), $self->configure('output_line_sep');
+}
+
+
+# Log array accepts array refs for x and y data
+sub log_array {
+    my ($self, $xdata, $ydata) = @_;
+    my $fh = $self->{filehandle};
+    
+    my $it = each_array( @$xdata, @$ydata );
+		while ( my ($x, $y) = $it->() ) {
+			print $fh ($x, $self->configure('output_col_sep'), $y , $self->configure('output_line_sep'));    	
+		}
+    
 }
 
 sub log_start_block {

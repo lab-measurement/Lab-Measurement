@@ -116,7 +116,19 @@ sub DESTROY {
 
 sub log_line {
     my $self=shift;
-    $self->{writer}->log_line(@_);
+    
+    my ($x,$y) = @_;
+    
+    #decide wether the given parameter are two array refs or two scalars.
+    
+    if( ref($x) ne 'ARRAY'){
+    	$self->{writer}->log_line([$x],[$y]);
+    }
+    else
+    {
+    	$self->{writer}->log_array($x,$y);
+    }
+    
     
     if ($self->{termctl}) {
       if ( defined ( my $key = ReadKey( -1 ) ) ) {
@@ -132,6 +144,8 @@ sub log_line {
         $self->{live_plotter}->update_live_plot();
     }
 }
+
+
 
 sub start_block {
     my ($self,$label)=@_;
