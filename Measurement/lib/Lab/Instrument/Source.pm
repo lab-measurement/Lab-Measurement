@@ -191,6 +191,8 @@ sub set_level {
 	else {
 		Lab::Exception::CorruptParameter->throw(error => "Sorry, I'm unclear about my parameters. See documentation.\nParameters: " . join(", ", ($voltage, @_)) . "\n");
 	}
+	
+	return $voltage if $voltage == $self->get_level();
 
 	if ($self->device_settings()->{'gate_protect'}) {
 		return $voltage=$self->sweep_to_level($voltage,@_);
@@ -210,6 +212,7 @@ sub sweep_to_level {
 	my $target = shift;
 	
 	my($time, $args) = $self->parse_optional(@_);
+	
 	
 	
 	if(!defined $target || ref($target) eq 'HASH') {

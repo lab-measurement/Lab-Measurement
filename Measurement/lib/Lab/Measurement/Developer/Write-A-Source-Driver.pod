@@ -58,15 +58,15 @@ For a new driver, the hash can just be copy/pasted.
 =head2 The C<device_cache> hash
 
 The C<device_cache> hash contains all device parameters, i.e., parameters that can be set and read to and from the device, which should be stored 
-on the software side. It is your decision what variables you add to the list, but make sure you implement
+on the software side. It is your decision what variables you add to the list, but make sure you 
 
 =over 8
 
 =item 1. 
-getter and setter for all these variables except the Current/Voltage level.
+implement getter and setter for all these variables except the Current/Voltage level.
 
 =item 2. 
-use C<undef> as default if it is likely that this parameter is given on init. If it is not given, it will then be read from the device.
+use C<undef> as default if it is likely that this parameter is given on init. If it is not given, it will be read from the device.
 
 =back
 
@@ -146,4 +146,23 @@ It should return C<$target>.
 should read out the device's error stack. It should return ONE error at once in a single array with 
 
   [$errorcode,$errormessage]
+  
+=head2 The error checking framework
+
+It is possible to wrap every C<write($cmd)> call by an error checking routine. This can be invoked by providing the option C<error_check>.
+For example:
+
+  $self->write($cmd,'error_check' => 1)
+  
+After sending the command in C<$cmd> to the device, the framework will use C<get_status()> to read out the B<ERROR> status bit. If it is set, 
+C<get_error()> will be used to fetch the error from the device.
+
+=head2 General remarks on device driver developement
+
+=head3 Allow pass-through of commands in set & get
+
+The advanced user should be given the possibility to do dirty workarounds when using the driver. To do this, he can provide options in the C<write()> call,
+that are interpreted on connection level. This should in general also be possible when using C<set_level> or any command that involves a C<write()> call.
+
+  
   

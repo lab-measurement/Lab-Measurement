@@ -134,9 +134,10 @@ sub _set_level {
     my $value=shift;
     
     my $range=$self->get_range();
+	
     
     if ( $value > $range || $value < -$range ){
-        Lab::Exception::CorruptParameter->throw("The desired source level $target is not within the source range $range \n");
+        Lab::Exception::CorruptParameter->throw("The desired source level $value is not within the source range $range \n");
     }
         
     my $cmd=sprintf("S%ee",$value);
@@ -183,6 +184,7 @@ sub _sweep_to_level {
     my $self=shift;
     my $target = shift;
     my $time = shift;
+	
     
     
     my $output_now=$self->get_level();
@@ -242,8 +244,8 @@ sub get_function{
     
     my $cmd="OD";
     my $result=$self->query($cmd);
-    if($result=~/^...(V|A)/){
-    	return ( $result eq "V" ) ? "Voltage" : "Current";
+    if($result=~/^...([VA])/){
+    	return ( $1 eq "V" ) ? "Voltage" : "Current";
     }
     else{
     	Lab::Exception::CorruptParameter->throw( "Output of command OD is not valid. \n" );
@@ -316,15 +318,17 @@ sub set_range {
     my $self=shift;
     my $my_range = shift;
     my $range = 0;
-    
+	
     my $function = $self->get_function();
+	
+	
     if( $function =~ /voltage/i ){
     	given($my_range){
-    		when( 0.01 ){ $range = 2 }
-    		when( 0.1 ){ $range = 3 }
-    		when( 1 ){ $range = 4 }
-    		when( 10 ){ $range = 5 }
-    		when( 30 ){ $range = 6 }
+    		when( $_ == 0.01 ){ $range = 2 }
+    		when( $_ == 0.1 ){ $range = 3 }
+    		when( $_ == 1 ){ $range = 4 }
+    		when( $_ == 10 ){ $range = 5 }
+    		when( $_ == 30 ){ $range = 6 }
     		default { 
     			Lab::Exception::CorruptParameter->throw( "$range is not a valid voltage range. Read the documentation for a list of allowed ranges in mode $function. \n" )
     		}
@@ -455,8 +459,8 @@ sub get_output {
      	return $self->{'device_cache'}->{'output'};
     }    
     
-    my %res=$self->get_status();
-    return $res{output};
+    my $res = $self->get_status();
+    return $res->{'output'};
 }
 
 sub initialize {
@@ -489,13 +493,13 @@ sub get_status {
     my @flags=qw/
         CAL_switch  memory_card calibration_mode    output
         unstable    ERROR   execution   setting/;
-    my %result;
+    my $result = {};
     for (0..7) {
-        $result{$flags[$_]}=$status & 128;
+        $result->{$flags[$_]}=$status & 128;
         $status<<=1;
     }
-    return $result{$request} if defined $request;
-    return %result;
+    return $result->{$request} if defined $request;
+    return $result;
 }
 
 #

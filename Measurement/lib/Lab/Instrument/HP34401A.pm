@@ -25,6 +25,11 @@ our %fields = (
 	device_settings => { 
 		pl_freq => 50,
 	},
+	
+	device_cache =>{
+		#range => undef,
+		#resolution => undef,
+	}
 
 );
 
@@ -48,28 +53,8 @@ sub new {
 # all methods that fill in general Multimeter methods
 #
 
-sub _display_text {
-    my $self=shift;
-    my $text=shift;
-    
-    if ($text) {
-        $self->connection()->Write( command => qq(DISPlay:TEXT "$text"));
-    } else {
-        chomp($text=$self->connection()->Query( command => qq(DISPlay:TEXT?) ));
-        $text=~s/\"//g;
-    }
-    return $text;
-}
 
-sub _display_on {
-    my $self=shift;
-    $self->connection()->Write( command => "DISPlay ON" );
-}
 
-sub _display_off {
-    my $self=shift;
-    $self->connection()->Write( command => "DISPlay OFF" );
-}
 
 sub _display_clear {
     my $self=shift;
@@ -196,6 +181,47 @@ sub get_error {
 	}
 }
 
+sub get_status{
+	my $self = shift;
+	
+	# This is to be implemented with code that queries the status bit
+}
+
+
+sub set_display_state {
+    my $self=shift;
+    my $value=shift;
+	
+    if($value==1 || $value =~ /on/i ) {
+    	$self->write("DISP ON", @_);
+    }
+    elsif($value==0 || $value =~ /off/i ) {
+    	$self->write("DISP OFF", @_);
+    }
+    else {
+    	Lab::Exception::CorruptParameter->throw( "set_display_state(): Illegal parameter.\n" );
+    }
+}
+
+sub set_display_text {
+    my $self=shift;
+    my $text=shift;
+    if( $text !~ /^[A-Za-z0-9\ \!\#\$\%\&\'\(\)\^\\\/\@\;\:\[\]\,\.\+\-\=\<\>\?\_]*$/ ) { # characters allowed by the 3458A
+    	Lab::Exception::CorruptParameter->throw( "set_display_text(): Illegal characters in given text.\n" );
+    }
+    $self->write("DISP:TEXT $text");
+    
+    $self->check_errors();
+}
+
+
+
+sub set_range{
+	my $self = shift;
+	
+	# This is the range set function, to be implemented.
+}
+
 sub reset {
     my $self=shift;
     $self->connection()->Write( command => "*CLS");
@@ -265,7 +291,7 @@ sub _configure_voltage_dc {
 	$self->write( "VOLT:DC:NPLC ${tint}", error_check => 1 ) if $res_cmd eq ''; # integration time implicitly set through resolution
 }
 
-sub _configure_voltage_dc_trigger {
+sub configure_voltage_dc_trigger {
 	my $self=shift;
     my $range=shift; # in V, or "AUTO", "MIN", "MAX"
     my $tint=shift;  # integration time in sec, "DEFAULT", "MIN", "MAX"
@@ -287,20 +313,25 @@ sub _configure_voltage_dc_trigger {
     $self->write( "SAMPle:COUNt $count");
     $self->write( "TRIG:DELay $delay");
     $self->write( "TRIG:DELay:AUTO OFF");
+
 }
 	
 
-sub _triggered_read {
+sub triggered_read {
     my $self=shift;
 	my $args=undef;
 	if (ref $_[0] eq 'HASH') { $args=shift }
 	else { $args={@_} }
 	
-	$args->{'timeout'} = $args->{'timeout'} || $self->timeout();
+	
+	
+	#$args->{'timeout'} = $args->{'timeout'} || $self->timeout();
 
     $self->write( "INIT" );
     $self->write( "*TRG");
     my $value = $self->query( "FETCh?", $args);
+	
+
 
     chomp $value;
 
