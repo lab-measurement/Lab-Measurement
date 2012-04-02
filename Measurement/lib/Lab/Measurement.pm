@@ -122,7 +122,7 @@ sub log_line {
     #decide wether the given parameter are two array refs or two scalars.
     
     if( ref($x) ne 'ARRAY'){
-    	$self->{writer}->log_line([$x],[$y]);
+    	$self->{writer}->log_line($x,$y);
     }
     else
     {
