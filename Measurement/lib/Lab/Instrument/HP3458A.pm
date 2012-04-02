@@ -212,7 +212,7 @@ sub triggered_read_raw {
 
 sub decode_SINT {
 	use bytes;
-    my $self=shift;
+	my $self=shift;
 	my $bytestring=shift;
 	my $iscale=shift || $self->query('ISCALE?');
 	
@@ -226,6 +226,7 @@ sub decode_SINT {
 	for(my $v=0; $v<$#values;$v+=2) {
 		$ival = unpack('S',join('',$values[$v],$values[$v+1]));
 
+		# flipping the bytes to MSB,...,LSB
 		$val_revb = 0;
 		for ($i=0; $i<2; $i++) {
 			$val_revb = $val_revb | (($ival>>$i*8 & 0x000000FF)<<((1-$i)*8));
@@ -233,7 +234,7 @@ sub decode_SINT {
 
 		my $decval=0;
 		my $msb = ( $val_revb>>15 ) & 0x0001;
-		$decval = $msb==0 ? 0 : -1*($msb**15);
+		$decval = $msb==0 ? 0 : -1*(2**15);
 		for($i=14;$i>=0;$i--) {
 			$decval += ((($val_revb>>$i)&0x0001)*2)**$i;
 		}
