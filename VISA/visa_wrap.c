@@ -1506,15 +1506,14 @@ SWIG_Perl_SetModule(swig_module_info *module) {
 #define SWIGTYPE_p_long swig_types[3]
 #define SWIGTYPE_p_p_char swig_types[4]
 #define SWIGTYPE_p_p_unsigned_char swig_types[5]
-#define SWIGTYPE_p_p_unsigned_short swig_types[6]
-#define SWIGTYPE_p_short swig_types[7]
-#define SWIGTYPE_p_signed_char swig_types[8]
-#define SWIGTYPE_p_unsigned_char swig_types[9]
-#define SWIGTYPE_p_unsigned_long swig_types[10]
-#define SWIGTYPE_p_unsigned_short swig_types[11]
-#define SWIGTYPE_p_va_list swig_types[12]
-static swig_type_info *swig_types[14];
-static swig_module_info swig_module = {swig_types, 13, 0, 0, 0, 0};
+#define SWIGTYPE_p_short swig_types[6]
+#define SWIGTYPE_p_signed_char swig_types[7]
+#define SWIGTYPE_p_unsigned_char swig_types[8]
+#define SWIGTYPE_p_unsigned_long swig_types[9]
+#define SWIGTYPE_p_unsigned_short swig_types[10]
+#define SWIGTYPE_p_va_list swig_types[11]
+static swig_type_info *swig_types[13];
+static swig_module_info swig_module = {swig_types, 12, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -1805,6 +1804,13 @@ SWIG_AsCharPtrAndSize(SV *obj, char** cptr, size_t* psize, int *alloc)
 
 
 
+
+SWIGINTERNINLINE SV *
+SWIG_From_unsigned_SS_short  SWIG_PERL_DECL_ARGS_1(unsigned short value)
+{    
+  return SWIG_From_unsigned_SS_long  SWIG_PERL_CALL_ARGS_1(value);
+}
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -2080,30 +2086,32 @@ XS(_wrap_viGetAttribute) {
 XS(_wrap_viReadSTB) {
   {
     ViSession arg1 ;
-    ViPUInt16 *arg2 = (ViPUInt16 *) 0 ;
+    ViPUInt16 arg2 = (ViPUInt16) 0 ;
     unsigned long val1 ;
     int ecode1 = 0 ;
-    void *argp2 = 0 ;
-    int res2 = 0 ;
+    unsigned short temp2 ;
+    int res2 = SWIG_TMPOBJ ;
     int argvi = 0;
     ViStatus result;
     dXSARGS;
     
-    if ((items < 2) || (items > 2)) {
-      SWIG_croak("Usage: viReadSTB(vi,OUTPUT);");
+    arg2 = &temp2;
+    if ((items < 1) || (items > 1)) {
+      SWIG_croak("Usage: viReadSTB(vi);");
     }
     ecode1 = SWIG_AsVal_unsigned_SS_long SWIG_PERL_CALL_ARGS_2(ST(0), &val1);
     if (!SWIG_IsOK(ecode1)) {
       SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "viReadSTB" "', argument " "1"" of type '" "ViSession""'");
     } 
     arg1 = (ViSession)(val1);
-    res2 = SWIG_ConvertPtr(ST(1), &argp2,SWIGTYPE_p_p_unsigned_short, 0 |  0 );
-    if (!SWIG_IsOK(res2)) {
-      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "viReadSTB" "', argument " "2"" of type '" "ViPUInt16 *""'"); 
-    }
-    arg2 = (ViPUInt16 *)(argp2);
     result = (ViStatus)viReadSTB(arg1,arg2);
     ST(argvi) = SWIG_From_long  SWIG_PERL_CALL_ARGS_1((long)(result)); argvi++ ;
+    if (SWIG_IsTmpObj(res2)) {
+      if (argvi >= items) EXTEND(sp,1);  ST(argvi) = SWIG_From_unsigned_SS_short  SWIG_PERL_CALL_ARGS_1((*arg2)); argvi++  ;
+    } else {
+      int new_flags = SWIG_IsNewObj(res2) ? (SWIG_POINTER_OWN | 0) : 0;
+      if (argvi >= items) EXTEND(sp,1);  ST(argvi) = SWIG_NewPointerObj((void*)(arg2), SWIGTYPE_p_unsigned_short, new_flags); argvi++  ;
+    }
     
     
     XSRETURN(argvi);
@@ -2422,12 +2430,11 @@ static swig_type_info _swigt__p_float = {"_p_float", "float *|ViReal32 *", 0, 0,
 static swig_type_info _swigt__p_long = {"_p_long", "ViInt32 *|long *|ViStatus *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_p_char = {"_p_p_char", "char **|ViPRsrc *|ViPString *|ViString *|ViRsrc *|ViKeyId *|ViPKeyId *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_p_unsigned_char = {"_p_p_unsigned_char", "unsigned char **|ViPBuf *|ViBuf *", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_p_unsigned_short = {"_p_p_unsigned_short", "ViPUInt16 *|unsigned short **", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_short = {"_p_short", "ViInt16 *|short *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_signed_char = {"_p_signed_char", "signed char *|ViInt8 *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_unsigned_char = {"_p_unsigned_char", "ViPBuf|unsigned char *|ViUInt8 *|ViByte *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_unsigned_long = {"_p_unsigned_long", "ViAttr *|ViEventType *|ViFindList *|ViAccessMode *|ViVersion *|ViUInt32 *|ViObject *|ViSession *|ViAttrState *|ViEventFilter *|ViBusAddress *|ViJobId *|unsigned long *|ViEvent *|ViBusSize *", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_unsigned_short = {"_p_unsigned_short", "ViUInt16 *|unsigned short *|ViBoolean *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_unsigned_short = {"_p_unsigned_short", "ViUInt16 *|ViPUInt16|unsigned short *|ViBoolean *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_va_list = {"_p_va_list", "va_list *|ViVAList *", 0, 0, (void*)0, 0};
 
 static swig_type_info *swig_type_initial[] = {
@@ -2437,7 +2444,6 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_long,
   &_swigt__p_p_char,
   &_swigt__p_p_unsigned_char,
-  &_swigt__p_p_unsigned_short,
   &_swigt__p_short,
   &_swigt__p_signed_char,
   &_swigt__p_unsigned_char,
@@ -2452,7 +2458,6 @@ static swig_cast_info _swigc__p_float[] = {  {&_swigt__p_float, 0, 0, 0},{0, 0, 
 static swig_cast_info _swigc__p_long[] = {  {&_swigt__p_long, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_p_char[] = {  {&_swigt__p_p_char, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_p_unsigned_char[] = {  {&_swigt__p_p_unsigned_char, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_p_unsigned_short[] = {  {&_swigt__p_p_unsigned_short, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_short[] = {  {&_swigt__p_short, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_signed_char[] = {  {&_swigt__p_signed_char, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_unsigned_char[] = {  {&_swigt__p_unsigned_char, 0, 0, 0},{0, 0, 0, 0}};
@@ -2467,7 +2472,6 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_long,
   _swigc__p_p_char,
   _swigc__p_p_unsigned_char,
-  _swigc__p_p_unsigned_short,
   _swigc__p_short,
   _swigc__p_signed_char,
   _swigc__p_unsigned_char,
