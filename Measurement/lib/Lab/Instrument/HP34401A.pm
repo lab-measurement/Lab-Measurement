@@ -73,7 +73,12 @@ sub _get_value {
     return $value;
 }
 
-
+sub _device_init{
+	my $self = shift;
+	
+	
+	
+}
 
 #
 # all methods that are called directly
@@ -185,6 +190,13 @@ sub get_status{
 	my $self = shift;
 	
 	# This is to be implemented with code that queries the status bit
+
+	my $request = shift;
+	my $status = {};
+	
+	($status->{NOT_USED1}, $status->{NOT_USED2}, $status->{NOT_USED3}, $status->{CORR_DATA}, $status->{MSG_AVAIL}, $status->{EVNT}, $status->{SRQ}, $status->{NOT_USED4} ) = $self->connection()->serial_poll();
+	return $status->{$request} if defined $request;
+	return $status;
 }
 
 
@@ -229,6 +241,19 @@ sub reset {
 #	$self->connection()->InstrumentClear($self->instrument_handle());
 }
 
+
+sub wait_done{
+	my $self = shift;
+	
+	# wait until currently running program is finished.
+	
+	while (! $self->get_status()->{"EVNT"}){
+    	sleep 1;
+    }
+	
+	
+}
+
 sub autozero {
 	my $self=shift;
 	my $enable=shift;
@@ -263,7 +288,7 @@ sub _configure_voltage_dc {
 	my $self=shift;
     my $range=shift; # in V, or "AUTO", "MIN", "MAX"
     my $tint=shift;  # integration time in sec, "DEFAULT", "MIN", "MAX"
-    my $res_cmd='';
+    my $res_cmd=shift;
     
     if($range eq 'AUTO' || !defined($range)) {
     	$range='DEF';
@@ -275,14 +300,15 @@ sub _configure_voltage_dc {
     	Lab::Exception::CorruptParameter->throw( error => "Range has to be set to a decimal value or 'AUTO', 'MIN' or 'MAX' in HP34401A::configure_voltage_dc()\n" );	
     }
     
-    if($tint eq 'DEFAULT' || !defined($tint)) {
-    	$res_cmd=',DEF';
+    if(!defined($res_cmd)) {
+    	$res_cmd='';
     }
-    elsif($tint =~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/) {
+ 
+    if($tint =~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/) {
     	# Convert seconds to PLC (power line cycles)
     	$tint*=$self->pl_freq(); 
     }
-    elsif($tint !~ /^(MIN|MAX)$/) {
+    elsif($tint !~ /^(MIN|MAX|DEFAULT)$/) {
 		Lab::Exception::CorruptParameter->throw( error => "Integration time has to be set to a positive value or 'AUTO', 'MIN' or 'MAX' in HP34401A::configure_voltage_dc()\n" )    	
     }
     
@@ -297,6 +323,7 @@ sub configure_voltage_dc_trigger {
     my $tint=shift;  # integration time in sec, "DEFAULT", "MIN", "MAX"
     my $count=shift;
     my $delay=shift; # in seconds, 'MIN'
+    my $res_cmd = shift;
     
     $count=1 if !defined($count);
     Lab::Exception::CorruptParameter->throw( error => "Sample count has to be an integer between 1 and 512\n" )
@@ -307,13 +334,40 @@ sub configure_voltage_dc_trigger {
     	if($count !~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/);
         
 
-    $self->_configure_voltage_dc($range, $tint);
+    $self->_configure_voltage_dc($range, $tint,$res_cmd);
+    
+    $self->write("*ESE 1");
+    $self->write("*CLS");
         
     $self->write( "TRIG:SOURce BUS" );
     $self->write( "SAMPle:COUNt $count");
     $self->write( "TRIG:DELay $delay");
-    $self->write( "TRIG:DELay:AUTO OFF");
 
+    $self->write( "INIT" );    
+    
+}
+
+sub read_trig{
+	my $self=shift;
+	
+
+    $self->write( "*TRG");
+    $self->write("*OPC");
+	
+}
+
+sub fetch{
+	my $self = shift;
+	
+	my $value = $self->query( "FETCh?");
+	
+
+
+    chomp $value;
+
+    my @valarray = split(",",$value);
+
+    return @valarray;
 }
 	
 

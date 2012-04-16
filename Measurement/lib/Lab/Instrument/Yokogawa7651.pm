@@ -180,8 +180,9 @@ sub execute_program {
     $self->write( $cmd );
 }
 
-sub _sweep_to_level {
-    my $self=shift;
+
+sub configure_sweep{
+	my $self=shift;
     my $target = shift;
     my $time = shift;
 	
@@ -215,14 +216,35 @@ sub _sweep_to_level {
     $self->set_setpoint($target);
     
     $self->end_program();
+	
+}
 
-    $self->execute_program(2);
-    
-    while (($self->query("OC") =~ /^STS1=(\d+)/g )&& $1 & 2 ){
+
+sub wait_done{
+	my $self = shift;
+	
+	# wait until currently running program is finished.
+	
+	while (($self->query("OC") =~ /^STS1=(\d+)/g )&& $1 & 2 ){
     	#print $self->query("OC");
     	#print $self->connection()->serial_poll()."\n";
     	sleep 1;
     }
+	
+	
+}
+
+sub _sweep_to_level {
+    
+    my $self = shift;
+    my $target = shift;
+    my $time = shift;
+    
+    $self->configure_sweep($target,$time);
+
+    $self->execute_program(2);
+    
+    $self->wait_done();
     
     if( ! $self->get_level( device_cache => 1) == $target){
     	Lab::Exception::CorruptParameter->throw(
