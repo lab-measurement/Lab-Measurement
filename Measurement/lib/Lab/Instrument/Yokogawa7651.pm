@@ -36,7 +36,7 @@ our %fields = (
 	},
 	
 	device_cache => {
-		function			=> "Voltage", 
+		function			=> undef, 
 		range			=> undef,
 		level			=> undef,
 		output					=> undef,
