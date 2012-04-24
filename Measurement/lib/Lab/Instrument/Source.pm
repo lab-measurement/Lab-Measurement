@@ -192,9 +192,11 @@ sub set_level {
 		Lab::Exception::CorruptParameter->throw(error => "Sorry, I'm unclear about my parameters. See documentation.\nParameters: " . join(", ", ($voltage, @_)) . "\n");
 	}
 	
-	return $voltage if $voltage == $self->get_level();
+	my $current = $self->get_level();
+	
+	return $voltage if $voltage == $current;
 
-	if ($self->device_settings()->{'gate_protect'}) {
+	if ($self->device_settings()->{'gate_protect'} && $self->device_settings()->{'gp_max_units_per_step'} < abs($voltage-$current)) {
 		return $voltage=$self->sweep_to_level($voltage,@_);
 	} else {
 		return $self->_set_level($voltage,{@_});

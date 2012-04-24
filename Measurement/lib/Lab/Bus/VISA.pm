@@ -207,9 +207,8 @@ sub connection_query { # @_ = ( $connection_handle, $args = { command, read_leng
 sub serial_poll {
 	my $self = shift;
 	my $connection_handle = shift;
-	my $sbyte = undef;
 	
-	my $ibstatus = Lab::VISA::viReadSTB( $connection_handle, $sbyte );
+	my ($ibstatus,$sbyte) = Lab::VISA::viReadSTB( $connection_handle );
 	
 	#
 	# TODO: VISA status evaluation
