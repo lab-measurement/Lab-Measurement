@@ -10,6 +10,8 @@
 ^Makefile$
 ^blib/
 ^MakeMaker-\d
+^MYMETA.yml$
+^MYMETA\.json$
 
 # Temp, old and emacs backup files.
 ~$
@@ -20,3 +22,6 @@
 #
 cvs2svn.txt
 ^doc/
+
+.tar.gz$
+
