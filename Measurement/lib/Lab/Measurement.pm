@@ -1,6 +1,6 @@
 
 package Lab::Measurement;
-our $VERSION = '2.95';
+our $VERSION = '2.96';
 
 use strict;
 use warnings;

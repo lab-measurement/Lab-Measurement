@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 package Lab::Instrument::HP3458A;
-our $VERSION = '2.95';
+our $VERSION = '2.96';
 
 use strict;
 use Lab::Instrument;

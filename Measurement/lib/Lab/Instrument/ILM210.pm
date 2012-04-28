@@ -1,5 +1,5 @@
 package Lab::Instrument::ILM;
-our $VERSION = '2.95';
+our $VERSION = '2.96';
 use strict;
 use Lab::Instrument;
 
