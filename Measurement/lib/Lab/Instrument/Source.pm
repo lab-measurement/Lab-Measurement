@@ -215,15 +215,11 @@ sub sweep_to_level {
 	
 	my($time, $args) = $self->parse_optional(@_);
 	
-	
-	
 	if(!defined $target || ref($target) eq 'HASH') {
 		Lab::Exception::CorruptParameter->throw( error=>'No voltage given.');
 	}
 	
-	
 	# Check correct channel setup
-		
 	
 	$self->_check_gate_protect();
 	
@@ -251,14 +247,11 @@ sub sweep_to_level {
 		$time = ( abs($target - $current)/$time < $apsec ) ? $time : abs($target-$current)/$apsec;
 	}	
 	elsif(!defined($time)){
-		$time = abs($target-$current)/$apsec;
+		$time = (abs($target-$current)+0.)/$apsec;
 	}	
 	
-
 	# sweep to current
-	
-	
-	
+
 	if($self->can("_sweep_to_level")) {
 		return $self->_sweep_to_level($target,$time,$args);
 	}
