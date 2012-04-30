@@ -246,9 +246,11 @@ sub _sweep_to_level {
     
     $self->wait_done();
     
-    if( ! $self->get_level( device_cache => 1) == $target){
+	my $current = $self->get_level( from_device => 1);
+	
+    if( $current != $target){
     	Lab::Exception::CorruptParameter->throw(
-    	"Sweep failed.")
+    	"Sweep failed: $target not equal to $current. \n")
     }
     
     return $self->device_cache()->{'level'} = $target;

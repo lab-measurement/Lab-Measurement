@@ -44,6 +44,7 @@ sub _device_init {
 	
 	#$self->connection()->SetTermChar("\r\n");
 	#$self->connection()->EnableTermChar(1);
+	#print "hallo\n";
 	$self->write("END 2"); # or ERRSTR? and other queries will time out, unless using a line/message end character
 	$self->write('TARM HOLD');	# disable continuous readings
 }
@@ -274,7 +275,7 @@ sub get_oformat {
 sub get_autozero {
 	my $self = shift;
 	
-	return $self->device_cache()->{autozero} = $self->query('AZERO?', @_, error_check => 1);
+	return $self->device_cache()->{autozero} = $self->query('AZERO?', @_, error_check => 0);
 }
 
 sub set_autozero {

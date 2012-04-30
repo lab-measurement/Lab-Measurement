@@ -85,7 +85,7 @@ sub log_comment {
 sub log_line {
     my ($self, @data) = @_;
     my $fh = $self->{filehandle};
-    print $fh ( join $self->configure('output_col_sep'), @data ), $self->configure('output_line_sep');
+    print $fh ( join ($self->configure('output_col_sep'), @data ), $self->configure('output_line_sep'));
 }
 
 

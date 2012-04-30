@@ -117,17 +117,10 @@ sub DESTROY {
 sub log_line {
     my $self=shift;
     
-    my ($x,$y) = @_;
-    
     #decide wether the given parameter are two array refs or two scalars.
+   
+    $self->{writer}->log_line(@_);
     
-    if( ref($x) ne 'ARRAY'){
-    	$self->{writer}->log_line($x,$y);
-    }
-    else
-    {
-    	$self->{writer}->log_array($x,$y);
-    }
     
     
     if ($self->{termctl}) {
