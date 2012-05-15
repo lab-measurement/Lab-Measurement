@@ -46,7 +46,9 @@ sub _device_init {
 	#$self->connection()->EnableTermChar(1);
 	#print "hallo\n";
 	$self->write("END 2"); # or ERRSTR? and other queries will time out, unless using a line/message end character
-	$self->write('TARM HOLD');	# disable continuous readings
+	$self->write('TARM AUTO'); # keep measuring
+	$self->write('TRIG AUTO'); # keep measuring
+	$self->write('NRDGS 1,AUTO'); # keep measuring
 }
 
 
@@ -429,7 +431,8 @@ sub get_id {
 sub get_value {
     # Triggers one Measurement and Reads it
     my $self=shift;
-    my $val=$self->query("TRIG SGL", @_);
+    #my $val=$self->query("TRIG SGL", @_);
+    my $val=$self->read(@_);
     chomp $val;
     return $val;
 }

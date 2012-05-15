@@ -66,7 +66,7 @@ sub _id {
     return $self->query('*IDN?');
 }
 
-sub _get_value {
+sub get_value {
     my $self=shift;
     my $value=$self->query('READ?');
     chomp $value;
