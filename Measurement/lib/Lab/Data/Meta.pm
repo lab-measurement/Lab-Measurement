@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 package Lab::Data::Meta;
-our $VERSION = '2.95';
+our $VERSION = '2.96';
 
 use strict;
 use Carp;

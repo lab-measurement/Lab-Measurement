@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 package Lab::Instrument::HP3458A;
-our $VERSION = '2.95';
+our $VERSION = '2.96';
 
 use strict;
 use Lab::Instrument;
@@ -44,8 +44,11 @@ sub _device_init {
 	
 	#$self->connection()->SetTermChar("\r\n");
 	#$self->connection()->EnableTermChar(1);
+	#print "hallo\n";
 	$self->write("END 2"); # or ERRSTR? and other queries will time out, unless using a line/message end character
-	$self->write('TARM HOLD');	# disable continuous readings
+	$self->write('TARM AUTO'); # keep measuring
+	$self->write('TRIG AUTO'); # keep measuring
+	$self->write('NRDGS 1,AUTO'); # keep measuring
 }
 
 
@@ -274,7 +277,7 @@ sub get_oformat {
 sub get_autozero {
 	my $self = shift;
 	
-	return $self->device_cache()->{autozero} = $self->query('AZERO?', @_, error_check => 1);
+	return $self->device_cache()->{autozero} = $self->query('AZERO?', @_, error_check => 0);
 }
 
 sub set_autozero {
@@ -428,7 +431,8 @@ sub get_id {
 sub get_value {
     # Triggers one Measurement and Reads it
     my $self=shift;
-    my $val=$self->query("TRIG SGL", @_);
+    #my $val=$self->query("TRIG SGL", @_);
+    my $val=$self->read(@_);
     chomp $val;
     return $val;
 }
