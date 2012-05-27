@@ -1,4 +1,4 @@
- =pod
+=pod
 
 =encoding utf-8
 
@@ -8,30 +8,30 @@ Lab::Measurement::Tutorial - Tutorial on using the Lab::Measurement package stac
 
 =head1 Introduction
 
-L<Lab::VISA> and its related packages allow to perform test and measurement
-tasks with Perl scripts. It provides an interface to National Instruments'
-NI-VISA library,  making the standard VISA calls available from within Perl
-programs. Dedicated instrument driver classes relieve the user from taking
+The Lab::Measurement package stack allows to perform test and measurement
+tasks with Perl scripts. It provides an interface several hardware driver
+backends. Dedicated instrument driver classes relieve the user from taking
 care for internal details and make measurements as easy as
 
-  $voltage=$multimeter->read_voltage().
+  $voltage=$multimeter->get_voltage().
 
-The Lab::... software is divided into three parts. They are built on top of
-each other and provide increasing comfort. Your measurement scripts can
-be based on each of these stages.
+The Lab::Measurement software stack comprises several parts that are built on
+top of each other. This modularization allows support for a wide range of
+hardware on different operating systems. As hardware drivers vary in API
+details, each supported one is encapsulated into perl modules of types Lab::Bus
+and Lab::Connection. Normally you won't have to care about this; at most, your
+Instrument object (see below) gets different initialization parameters. 
 
-The lowest level is L<Lab::VISA>. It makes the NI-VISA library accessible
-from perl and therefor allows to make any standard VISA call.
+A typical measurement script is based on the high-level interface provided by
+the modules Lab::Instrument and Lab::Measurement. The former silently handles
+all the protocol overhead. You can write commands to an instrument and read the
+result. Drivers for specific devices are included, implementing their specific
+command syntax; more can easily be added to provide high-level functions. The
+latter includes tools for metadata handling (what was that amplifier setting in
+the measurement again?!), data plotting, and similar. 
 
-The modules in the L<Lab::Instrument> package make communication with
-instruments easier by silently handling the protocol involved.
-
-Package L<Lab::Tools> is the highest abstraction layer. These modules
-provide support for writing good measurement scripts. They offer means
-of saving data and related meta information to disk, plotting data etc.
-
-This tutorial will explain how to write measurement scripts that build on
-any of these stages. However, this tutorial does not intend to teach the
+This tutorial will explain how to write measurement scripts. However, this 
+tutorial does not intend to teach the
 Perl language itself. Some introduction into VISA and GPIB terminology
 is given, but then some familarity also with these concepts is assumed. Not
 much is required. If you feel the need for more information on Perl
@@ -86,47 +86,29 @@ similar.
 =head1 Architecture
 
 A schematic view of the various software layers between your perl
-measurement script and the instrument hardware looks like this:
+measurement script and the instrument hardware is depicted in the graphics
+L<http://www.labmeasurement.de/structure.png>.
 
- +-------------------------+ +---------------+ +------------------+
- |Lab::Instrument::HP34401A| |L::I::KnickS252| |L::I::Yokogawa7651|
- +-----------------------+-+ +----+----------+ +----+-------------+
-                         |        |                 |
-                         |     +--+-----------------+--+
-                         |     |Lab::Instrument::Source|
-                         |     +---+-------------------+
-                         |         |
-                      +--+---------+--+
-                      |Lab::Instrument|
-                      +-------+-------+
-                              |
-                         +----+----+
-                         |Lab::VISA|
-                         +----+----+
-                              |
-                      +-------+-------+
-                      |NI-VISA Library|
-                      +---+-------+---+
-                          |       |
-               +----------+-+   +-+----+
-               |GPIB Library|   |  OS  |
-               +----------+-+   +-+----+
-                          |       |
-                          |       |Serial connection
-           GPIB connection|       |TCP/IP connection
-                          |       |USB connection
-                          |       |
-                 +--------+-+   +-+--------+
-                 |Instrument|   |Instrument|
-                 +----------+   +----------+
+The lowermost layer is provided by the hardware driver library and its Perl
+binding. One option for this is under Linux the package LinuxGPIB, which comes
+wth its own Perl bindings module. Alternatively, National Instruments NI-VISA
+can be used. In that case, the module L<Lab::VISA> is required to access the
+library functions from Perl; it makes the standard VISA calls available
+from within Perl programs. This layer is not part of the Lab::Measurement
+distribution, but must be installed separately. 
 
-The L<Lab::VISA> module provides a perl binding for National
-Instruments' NI-VISA library. It makes the standard VISA calls available
-from within Perl programs.
+Each hardware backend is encapsulated into a class of the L<Lab::Bus> type.
+A Bus can be imagined as a cable, connecting your control computer with several
+measurement hardware components. On top of the Bus classes, classes of type
+L<Lab::Connection> operate. Each connection, well, connects one measurement
+instrument with your script. Usually, the handling of Bus and Connection is
+transparent; as long as you dont want to add more backends or enhance the
+functionality, you will never have any need to directly address these levels.
 
-The L<Lab::Instrument> module builds on top of Lab::VISA
-and simplifies the routine tasks of opening VISA resources, sending and
-receiving messages.
+The L<Lab::Instrument> classes build on top and simplify the routine tasks of
+opening a connection to an instrument, sending and receiving messages.
+
+TODO: Rewritten up to here
 
 The instrument classes like 
 L<Lab::Instrument::KnickS252> are specialized
@@ -691,8 +673,7 @@ TODO: more examples
 
 =head1 AUTHOR/COPYRIGHT
 
-This is $Id$
-
-Copyright 2006 by Daniel Schröer.
+ Copyright 2006 Daniel Schröer, 
+           2012 Andreas K. Hüttel
 
 =cut
