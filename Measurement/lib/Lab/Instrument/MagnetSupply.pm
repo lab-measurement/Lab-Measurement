@@ -1,6 +1,6 @@
 
 package Lab::Instrument::MagnetSupply;
-our $VERSION = '2.96';
+our $VERSION = '3.00';
 
 use strict;
 

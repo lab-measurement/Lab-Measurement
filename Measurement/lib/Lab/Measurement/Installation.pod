@@ -155,7 +155,8 @@ Have fun!
 
 =head1 COPYRIGHT AND LICENCE
 
-(c) 2010,2011 Daniel Schröer, Andreas Hüttel, Daniela Taubert, and others.
+ (c) 2010, 2011 Daniel Schröer, Andreas K. Hüttel, Daniela Taubert, and others.
+     2012       Andreas K. Hüttel
 
 =cut
 
