@@ -107,213 +107,63 @@ functionality, you will never have any need to directly address these levels.
 
 The L<Lab::Instrument> classes build on top and simplify the routine tasks of
 opening a connection to an instrument, sending and receiving messages.
+This is the level where usually customized measurement scripts access the
+protocol stack. Classes derived from L<Lab::Instrument> as e.g.
+L<Lab::Instrument::KnickS252> are specialized modules for certain instruments.
+Most other measurement software packages would call this a virtual instruments
+or an instrument drivers. Each such class provides methods that are specific for
+one instrument. The
+L<Lab::Instrument::IPS120_10> class for example class is dedicated to a certain
+magnet power supply and therefore provides methods like C<set_target_field>.
+Similar instruments (e.g. various voltage sources) can share common interfaces
+(e.g. L<Lab::Instrument::Source>) to make interchangeability of similar
+instruments possible.
 
-TODO: Rewritten up to here
+The highest abstraction layer is provided by the L<Lab::Measurement> class,
+which contains methods for data and metadata handling, plotting and rudimentary
+keyboard control.
 
-The instrument classes like 
-L<Lab::Instrument::KnickS252> are specialized
-modules for certain instruments. Most other measurement software packages
-would call this a virtual instruments or an instrument drivers. Each such
-class provides methods that are specific for one instrument. The
-L<Lab::Instrument::IPS120_10> class for example
-class is dedicated to a certain magnet power supply and therefore provides
-methods like C<set_target_field>. Similar instruments (e.g. various voltage
-sources) however share common interfaces (e.g.
-L<Lab::Instrument::Source>) to make
-interchangeability of similar instruments possible.
-
-=head1 Using pure VISA calls
-
-First we will see how to use the plain VISA interface and communicate with
-an instrument with standard VISA C<viRead> and C<viWrite> calls. It will
-show that this method is rather laborious. Later we will learn how C<Lab::Instrument>
-makes life easier.
-
-All the examples in the following sections can be found in the Tutorials
-directory of the L<Lab::VISA> package.
-
-  #!/usr/bin/perl
-  
-  # example1.pl
-  
-  use strict;
-  use Lab::VISA;
-  
-  # Initialize VISA system and
-  # Open default resource manager
-  my ($status,$default_rm)=Lab::VISA::viOpenDefaultRM();
-  if ($status != $Lab::VISA::VI_SUCCESS) {
-      die "Cannot open resource manager: $status";
-  }
-  
-  # Open one resource (an instrument)
-  my $gpib=24;            # we want to open the instrument
-  my $board=0;            # with GPIB address 24
-                          # connected to GPIB board 0 in our computer
-  my $resource_name=sprintf("GPIB%u::%u::INSTR",$board,$gpib);
-  
-  ($status, my $instr)=Lab::VISA::viOpen(
-      $default_rm,        # the resource manager session
-      $resource_name,     # a string describing the 
-      $Lab::VISA::VI_NULL,# access mode (no special mode)
-      $Lab::VISA::VI_NULL # time out for open (no time out)
-  );
-  if ($status != $Lab::VISA::VI_SUCCESS) {
-      die "Cannot open instrument $resource_name. status: $status";
-  }
-  
-  # We set a time out for communication with this instrument
-  $status=Lab::VISA::viSetAttribute(
-      $instr,             # the session identifier
-      $Lab::VISA::VI_ATTR_TMO_VALUE,  # which attribute to modify
-      3000                # the new value
-  );
-  if ($status != $Lab::VISA::VI_SUCCESS) {
-      die "Error while setting timeout value: $status";
-  }
-  
-  # Clear the instrument
-  my $status=Lab::VISA::viClear($instr);
-  if ($status != $Lab::VISA::VI_SUCCESS) {
-      die "Error while clearing instrument: $status";
-  }
-  
-  # Now we are going to send one command and read the result.
-  
-  # We send the simple SCPI command "*IDN?" which asks the instrument
-  # to identify itself. Of course the instrument must support this
-  # command, in order to make this example work.
-  my $cmd="*IDN?";
-  ($status, my $write_cnt)=Lab::VISA::viWrite(
-      $instr,             # the session identifier 
-      $cmd,               # the command to send
-      length($cmd)        # the length of the command in bytes
-  );
-  if ($status != $Lab::VISA::VI_SUCCESS) {
-      die "Error while writing: $status";
-  }
-  
-  # Now we will read the instruments reply
-  ($status,               # indicates if the operation was successful
-   my $result,            # the answer string
-   my $read_cnt)=         # the length of the answer in bytes
-  Lab::VISA::viRead(
-      $instr,             # the session identifier
-      300                 # read 300 bytes
-  );
-  if ($status != $Lab::VISA::VI_SUCCESS) {
-      die "Error while reading: $status";
-  }
-  # The result string will be 300 bytes long, but only $read_cnt
-  # bytes are part of the answer. We cut away the rest.
-  $result=substr($result,0,$read_cnt);
-  
-  print "$result\n";
-  
-  # As good citizens we'll cleanup now.
-  # Close the instrument
-  $status=Lab::VISA::viClose($instr);
-  # And the resource manager
-  $status=Lab::VISA::viClose($default_rm);
-  
-  __END__
-
-First we have to open a resource manager. This manager can then provide us with a
-handle to one instrument. We try to open an instrument that is connected
-via GPIB to the GPIB board 0 in our computer and uses the GPIB address 24.
-This is specified by the resource name. We then ask the instrument for its
-identification string, read the answer and print it. We do so by sending
-the C<*IDN?> command. This is a standard SCPI command, that all instruments
-that support the SCPI language, will understand. Agilent instruments do so
-for example.
-
-We see that there is a lot of protocol overhead involved, that makes this
-very simple example a bit lengthy and ugly. These things should be factored
-out. The Lab::Instrument class can do all this dirty work for us, as we will
-learn in the next section.
 
 =head1 Using the Lab::Instrument class
 
-The L<Lab::Instrument> class can do for us the routine work of connecting to certain
-instrument.
+The L<Lab::Instrument> class can do for us the routine work of connecting to
+an instrument.
 
   #!/usr/bin/perl
-  
-  # example2.pl
   
   use strict;
   use Lab::Instrument;
   
-  my $gpib=24;            # we want to open the instrument
-  my $board=0;            # with GPIB address 24
-                          # connected to GPIB board 0 in our computer
+  ################################
   
-  # Create an instrument object
-  my $instr=new Lab::Instrument($board,$gpib);
-  
-  my $cmd="*IDN?";
-  
-  # Query the instrument
-  # Query is a combined Write and Read
-  my $result=$instr->Query($cmd);
-  
-  print $result;
-  
-  __END__
-
-This program achieves exactly the same as C<example1.pl>, but with only two
-lines of code: one to open the instrument, one to query it. We don't have
-to care about resource managers and string lengths and cleaning up.
-Lab::Instrument does it for us. Now that's already quite nice, eh?
-
-Let's see another example. This time we will send a great bunch of commands
-to an Agilent 81134A pulse generator, to set it up for pulse mode.
-
-  #!/usr/bin/perl
-  
-  # example3.pl
-  
-  use strict;
-  use Lab::Instrument;
-  
-  # Open instrument
-  # We use the other form of the constructor here.
-  my $instr=new Lab::Instrument({
-      GPIB_board      => 0,
-      GPIB_address    => 10
-  });
-  
-  # Send a bunch of commands to configure instrument
-  for ((
-  # Protect the DUT
-      ':OUTP:CENT OFF',       #disconnect channels
-  
-  # Set up the Instrument
-      ':FUNC PATT',           #set mode to Pulse/Pattern
-      ':PER 20 ns',           #set period to 20 ns
-  
-  # Set up Channel 1
-      ':FUNC:MODE1 PULSE',    #set pattern mode to Pulse
-      ':WIDT1 5 ns',          #set width to 5 ns
-      ':VOLT1:AMPL 2.000 V',  #set ampl to 2 V
-      ':VOLT1:OFFSET 1.5 V',  #set offset to 1.5 V
-      ':OUTP1:POS ON',        #enable output channel 1
-  
-  # Generate the Signals
-      ':OUTP:CENT ON',        #reconnect the channels
-      ':OUTP0:SOUR PER',      #use trigger mode Pulse
-      ':OUTP0 ON',            #enable trigger output
-  )) {
-      $self->{vi}->Write($_);
+  unless (@ARGV > 0) {
+  	print "Usage: $0 GPIB-address\n";
+  	exit;
   }
   
-  __END__
+  my $gpib=$ARGV[0];
+  
+  print "Querying ID of instrument at GPIB address $gpib\n";
+  
+  my $i=new Lab::Instrument(
+  	connection_type=>'LinuxGPIB',
+  	gpib_address => $gpib,
+  	gpib_board=>0,
+  );
+  
+  my $id=$i->query('*IDN?');
+  
+  print "Query result: \"$id\"\n";
 
-This example shows that Perl's great list handling makes it the ideal
-language for instrument control and data aquisistion tasks.
+This program opens a GPIB instrument for communication, sends the command *IDN?
+and reads out its response, the identification string of the instrument. All
+handling of GPIB boards, resource managers etc. is done within the
+Lab::Instrument class; we don't have to care about string lengths and cleaning
+up. Lab::Instrument does it for us. Now that's already quite nice, eh?
 
 By only using L<Lab::Instrument> you should already be able to do about
-everything that can be done the instruments in your lab.
+everything that can be done with the instruments in your lab.
+
 
 =head1 Using Lab::Instrument::xxx virtual instruments
 
@@ -332,65 +182,83 @@ L<Lab::Instrument::Source> module for details.
 
   #!/usr/bin/perl
   
-  # example4.pl
-  
   use strict;
   use Lab::Instrument::HP34401A;
   
-  my $gpib=24;            # we want to open the instrument
-  my $board=0;            # with GPIB address 24
-                          # connected to GPIB board 0 in our computer
+  ################################
   
-  # Create an instrument object
-  my $hp=new Lab::Instrument::HP34401A($board,$gpib);
+  unless (@ARGV > 0) {
+  	print "Usage: $0 GPIB-address\n";
+  	exit;
+  }
   
-  # Use the id method to query the instruments ID string
-  my $result=$hp->id();
+  my $hp_gpib=$ARGV[0];
   
-  print $result;
+  print "Reading voltage from HP34401A at GPIB address $hp_gpib\n";
   
-  __END__
+  my $hp=new Lab::Instrument::HP34401A(
+  	connection_type=>'LinuxGPIB',
+  	gpib_address => $hp_gpib,
+  	gpib_board=>0,
+  );
+  
+  my $volt=$hp->$get_voltage_dc(10,0.00001);
+  
+  print "Result: $volt V\n";
 
 This example show the usage of a dedicated virtual instrument class, namely
 L<Lab::Instrument::HP34401A>, the driver for a
 Hewlett-Packard/Agilent 34401A digital multimeter. An instance of this class
 is created that is connected to one certain instrument. We use the
-C<id()> method that returns the instrument's id string again.
+C<get_voltage_dc()> method that configures the multimeter for dc voltage
+measurement in the range given by the parameters, triggers one measurement, and
+returns the measured voltage value.
 
-Next we see an example on how to use the safety mechanism of L<Lab::Instrument::Source>
-that is inherited by voltage sources like L<Lab::Instrument::Yokogawa7651>.
+Next we show an example on how to use the safety mechanism of
+L<Lab::Instrument::Source> that is inherited by voltage sources like
+L<Lab::Instrument::Yokogawa7651>.
 
   #!/usr/bin/perl
   
-  # example5.pl
-
   use strict;
   use Lab::Instrument::Yokogawa7651;
   
   unless (@ARGV > 0) {
-      print "Usage: $0 GPIB-address [goto_voltage]\n";
-      exit;
+  	print "Usage: $0 GPIB-address [Target-voltage]\n";
+  	exit;
   }
   
   my ($gpib,$goto)=@ARGV;
   
-  my $source=new Lab::Instrument::Yokogawa7651(0,$gpib);
+  my $source=new Lab::Instrument::Yokogawa7651(
+  	connection_type=>'LinuxGPIB',
+  	gpib_address => $gpib,
+  	gpib_board=>0,
+  	gate_protect=>1,
+  	gp_max_unit_per_second=>0.05,
+  	gp_max_unit_per_step=>0.005
+  	gp_max_step_per_second=>10,
+  );
   
   if (defined $goto) {
-      $source->sweep_to_voltage($goto);
+  	$source->set_voltage($goto);
   } else {
-      print $source->get_voltage();
+  	print $source->get_voltage();
   }
-  
-  __END__
 
-=head1 Using Lab::Tools
+Here the gate_protect mechanism limits the step size of the voltage source to
+0.005mV, and the sweep speed to at most 10 such steps per second. This is
+implemented automatically within the C<set_voltage($goto)> command; after we
+have set the parameters in the initialization phase, we do not have to take
+care of it anymore.
+  
+=head1 Using the high-level Lab::Measurement and related classes
 
 With the tools introduced so far you should be able to easily write short
 individual scripts for your measurement tasks. These scripts will probably
 serve as well as all other home grown solutions using LabView or whatever.
-The modules in the C<Lab::Tools> package now provide additional tools to
-write better measurement scripts.
+The C<Lab::Measurement> class together with the related C<Lab::Data:...> classes
+now provide additional tools to write better measurement scripts.
 
 One main goal is to provide means to keep additional information stored
 along with the raw measured data. Additional information means all the notes
@@ -401,15 +269,12 @@ else that might be of importance for a later interpretation of the data. In
 my experience, having to write these things in a book by hand is tedious and
 error-prone. It's the kind of job that computers were made for.
 
-Another goal is to free the laborant from having to repeat himself all the
+Another goal is to free the experimenter from having to repeat himself all the
 time when the data is used for analysis or presentation. Let us assume that,
-for example, you are measuring
-a very small current with the help of a current amplifier. This current amplifier
-will output a voltage that is proportional to the original current, so in
-fact you will be measuring a voltage that can be converted to the original
-current by multiplying it with a certain factor. The last paragraph
-has shown that the L<Lab::Tools> modules will help you to keep track of this
-additional information I<current amplifier constant of proportionality>. But
+for example, you are measuring a very small current with the help of a current
+amplifier. This current amplifier will output a voltage that is proportional to
+the original current, so in fact you will be measuring a voltage that can be
+converted to the original current by multiplying it with a certain factor. But
 as long as the precise formula for this transformation is not stored
 together with the data, you will still find yourself repeatedly typing in
 the same expressions, whenever you work with the data. This is where the I<axis>
@@ -419,19 +284,18 @@ the current from the voltage. From there you work with the current-axis and will
 never have to care about the conversion again. And of course you can define many
 different axes. Read on!
 
-=head2 The Meta data
+=head2 The metadata
 
 The general concept is that a I<dataset> is composed out of I<data> and
 I<metadata>, i.e. additional information about the I<data>. This I<metadata>
 is maintained by the L<Lab::Data::Meta> class and is usually
-stored in a file C<dataset_filename.META>, while the I<data> is saved in
-C<dataset_filename.DATA>.
+stored in a file C<dataset_filename.meta>, while the I<data> is saved in
+C<dataset_filename.dat>.
 
 The I<meta> file is stored in YAML or XML format and contains a number of
-elements which are defined in L<Lab::Data::Meta>. The most
-important ones are I<column>, I<block>, I<axis> and I<plot>. For the
-following discussion of these fields, let's assume a I<data> file that looks
-like this:
+elements which are defined in L<Lab::Data::Meta>. The most important ones are
+I<column>, I<block>, I<axis> and I<plot>. For the following discussion of these
+fields, let's assume a I<data> file that looks like this:
 
  0.01   2.0   3
  0.01   2.1   3.4
@@ -459,194 +323,228 @@ available fields is given in the L<Lab::Data::Meta> manpage.
 =head3 block
 
 The example data above was aquired in two traces or scans or sweeps, which are
-separated by an empty line in the I<data> file now. L<Lab::Data::Meta>
-adopts the Gnuplot[7] terminology and calls these I<blocks>. Along with
-every block, additional information like the time the trace was started can
-be saved. Most of this is done automatically. See the 
-L<Lab::Data::Meta> and L<Lab::Measurement>
+separated by an empty line in the I<data> file now. L<Lab::Data::Meta> adopts
+the Gnuplot[7] terminology and calls these I<blocks>. Along with every block,
+additional information like the time the trace was started can be saved. Most of
+this is done automatically. See the L<Lab::Data::Meta> and L<Lab::Measurement>
 manpages.
 
 =head3 axis
 
-Usually you will not want to work with the raw data as it is stored in the columns of
-the file. For example you could want to plot the sum of two columns. Also you might
-want to display the data using another unit. Therefor you can define a new axis,
-that is defined as the sum of these two columns times any factor (which can be saved
-as a constant, see below) for the right unit. The expression C<amp * ($C1 + 10 * $C2)>
-defines an axis as the sum of two columns multiplied with a constant C<amp>.
-Additionally, axes have labels, ranges and such.
+Usually you will not want to work with the raw data as it is stored in the
+columns of the file. For example you could want to plot the sum of two columns.
+Also you might want to display the data using another unit. Therefor you can
+define a new axis, that is defined as the sum of these two columns times any
+factor (which can be saved as a constant, see below) for the right unit. The
+expression C<amp * ($C1 + 10 * $C2)> defines an axis as the sum of two columns
+multiplied with a constant C<amp>. Additionally, axes have labels, ranges and
+such.
 
 =head3 plot
 
-With the plot element, default views on the data be defined. These views can then be
-plotted with a single command, using the L<Lab::Data::Plotter> module
+With the plot element, default views on the data be defined. These views can
+then be plotted with a single command, using the L<Lab::Data::Plotter> module
 and the script C<plotter.pl>. Because all the necessary information is stored in
-the I<meta> file, these plots will automatically contain the right axes, ranges, labels,
-units and any other information you wish! Plots can already be defined at the time the
-measurement script is written, and can also be added later. If you use the
-L<Lab::Measurement> module, you can display any of these plots live,
-while the data is being aquired. Since this entire system can run on Linux, you can
-X-forward this graph to your remote desktop at the beach. Imagine the possibilities.
+the I<meta> file, these plots will automatically contain the right axes, ranges,
+labels, units and any other information you wish! Plots can already be defined
+at the time the measurement script is written, and can also be added later. If
+you use the L<Lab::Measurement> module, you can display any of these plots live,
+while the data is being aquired. Since this entire system can run on Linux, you
+can X-forward this graph to your remote desktop at the beach. Imagine the
+possibilities.
 
 =head3 constant
 
-This section of meta data can be used to store additional values that are important
-for the later interpretation of the raw data. Examples for such values could be
-amplification factors, voltage dividers etc. Constants have names that can be used
-in expressions of C<axis> definitions.
+This section of meta data can be used to store additional values that are
+important for the later interpretation of the raw data. Examples for such values
+could be amplification factors, voltage dividers etc. Constants have names that
+can be used in expressions of C<axis> definitions.
 
 =head2 The Lab::Measurement class
 
-The L<Lab::Measurement> class makes it easy to write a measurement
-script that takes advantage of the meta data system introduced above...
+The L<Lab::Measurement> class makes it easy to write a measurement script that
+takes advantage of the meta data system introduced above...
 
 =head2 Examples
 
-    #!/usr/bin/perl
-    
-    # example6.pl
-    
-    # Eine Spannungsquelle fahren, Leitfähigkeit (ohne Lock-In) messen
-    
-    use strict;
-    use Lab::Instrument::KnickS252;
-    use Lab::Instrument::HP34401A;
-    use Time::HiRes qw/usleep/;
-    use Lab::Measurement;
-    
-    ################################
-    
-    my $start_voltage   =-0.05;
-    my $end_voltage     =-0.25;
-    my $step            =-1e-3;
-    
-    my $knick_gpib      =4;
-    my $hp_gpib         =24;
-    
-    my $v_sd            =-300e-3/1000;
-    my $amp             =1e-9;    # Ithaco amplification
-    
-    my $R_Kontakt       =1089;
-    
-    my $sample          ="S5c (81059)";
-    my $title           ="QPC links unten";
-    my $comment         =<<COMMENT;
-    Strom von 12 nach 14; V_{SD,DC}=$v_sd V; Lüftung an; Ca. 25mK.
-    Ithaco: Amplification $amp, Supression 10e-10 off, Rise Time 0.3ms.
-    Fahre Ghf4 (Yoko04)
-    COMMENT
-    
-    ################################
-    
-    my $knick=new Lab::Instrument::KnickS252({
-        'GPIB_board'    => 0,
-        'GPIB_address'  => $knick_gpib,
-        'gate_protect'  => 1,
-    
-        'gp_max_volt_per_second' => 0.002,
-    });
-    
-    my $hp=new Lab::Instrument::HP34401A(0,$hp_gpib);
-    
-    my $measurement=new Lab::Measurement(
-        sample          => $sample,
-        title           => $title,
-        filename_base   => 'qpctest',
-        description     => $comment,
-    
-        live_plot       => 'QPC current',
-        
-        constants       => [
-            {
-                'name'          => 'G0',
-                'value'         => '7.748091733e-5',
-            },
-            {
-                'name'          => 'RKontakt',
-                'value'         => $R_Kontakt,
-            },
-            {
-                'name'          => 'V_SD',
-                'value'         => $v_sd,
-            },
-            {
-                'name'          => 'AMP',
-                'value'         => $amp,
-            },
-        ],
-        columns         => [
-            {
-                'unit'          => 'V',
-                'label'         => 'Gate voltage',
-                'description'   => 'Applied to gates via low path filter.',
-            },
-            {
-                'unit'          => 'V',
-                'label'         => 'Amplifier output',
-                'description'   => "Voltage output by current amplifier set to $amp.",
-            }
-        ],
-        axes            => [
-            {
-                'unit'          => 'V',
-                'expression'    => '$C0',
-                'label'         => 'V_{Gate}',
-                'min'           => ($start_voltage < $end_voltage)
-                                   ? $start_voltage
-                                   : $end_voltage,
-                'max'           => ($start_voltage < $end_voltage)
-                                   ? $end_voltage
-                                   : $start_voltage,
-                'description'   => 'Gate voltage',
-            },
-            {
-                'unit'          => 'A',
-                'expression'    => "abs(\$C1)*AMP",
-                'label'         => 'I_{QPC}',
-                'description'   => 'QPC current',
-            },
-            {
-                'unit'          => '2e^2/h',
-                'expression'    => "(1/(V_SD/(-\$C2*AMP)-RKontakt))/G0",
-                'label'         => "G_{QPC}",
-                'description'   => "QPC conductance",
-                'min'           => -0.1,
-                'max'           => 7
-            },
-            
-        ],
-        plots           => {
-            'QPC current'    => {
-                'type'          => 'line',
-                'xaxis'         => 0,
-                'yaxis'         => 1,
-                'grid'          => 'xtics ytics',
-            },
-            'QPC conductance'=> {
-                'type'          => 'line',
-                'xaxis'         => 0,
-                'yaxis'         => 3,
-                'grid'          => 'ytics',
-            }
-        },
-    );
-    
-    $measurement->start_block();
-    
-    my $stepsign=$step/abs($step);
-    for (my $volt=$start_voltage;
-         $stepsign*$volt<=$stepsign*$end_voltage;
-         $volt+=$step) {
-        $knick->set_voltage($volt);
-        usleep(500000);
-        my $meas=$hp->read_voltage_dc(10,0.0001);
-        $measurement->log_line($volt,$meas);
-    }
-    
-    my $meta=$measurement->finish_measurement();
-    
-
-TODO: more examples
+  use strict;
+  use Lab::Instrument::Yokogawa7651;
+  use Lab::Instrument::IPS12010;
+  use Lab::Instrument::HP34401A;
+  use Lab::Instrument::SR830;
+  use Lab::Measurement;
+  
+  # measurement range and resolution
+  my $Vbiasstart = -0.0036;	# V, after divider
+  my $Vbiasstop = 0.0036;	# V, after divider
+  my $Vbiasstep = 0.00002;	# V, after divider
+  my $Bstart=0.1;		# T
+  my $Bstop=0;			# T
+  my $Bstep=0.01;		# T
+  
+  # general measurement settings and constants
+  my $Vbiasdivider = 0.01;	# <1, voltage divider value
+  my $currentamp = 1e-9;	# A/V
+  my $sample = "nanotube";
+  my @starttime = localtime(time);
+  my $startstring=sprintf("%04u-%02u-%02u_%02u-%02u-%02u",
+  		$starttime[5]+1900, $starttime[4]+1, $starttime[3],
+  			$starttime[2], $starttime[1], $starttime[0]);
+  my $title = "Bias versus magnetic field";
+  my $filename = $startstring."_biasfield";
+  
+  # the bias voltage source
+  my $YokBias=new Lab::Instrument::Yokogawa7651({
+  	'connection_type'=> 'LinuxGPIB',
+  	'gpib_board'    => 0,   'gpib_address'  => 3,
+  	'gate_protect'  => $Vbiasprotect,
+  	'gp_max_unit_per_second' => 0.05/$Vbiasdivider,
+  	'gp_max_step_per_second' => 10,
+  	'gp_max_unit_per_step' => 0.005/$Vbiasdivider,
+  	'fast_set' => 1,
+  });
+  
+  # the lock-in: ac measurement         
+  my $SRS = new Lab::Instrument::SR830({
+  	'connection_type'=> 'LinuxGPIB',
+  	'gpib_board'    => 0,   'gpib_address'  => 8,
+  });
+  	
+  # the multimeter: dc measurement
+  my $HP = new Lab::Instrument::HP34401A({
+  	'connection_type'=> 'LinuxGPIB',
+  	'gpib_board'    => 0,   'gpib_address'  => 12,
+  });
+  
+  # the superconducting magnet control
+  my $magnet=new Lab::Instrument::IPS12010({
+  	'connection_type' => 'LinuxGPIB',
+  	'gpib_board'    => 0,   'gpib_address'  => 24,
+  });
+  
+  # general comments for the log 
+  my $comment=<<COMMENT;
+  Bias sweeps versus magnetic field; gate voltage -3.74 V
+  B from $Bstart to $Bstop step size $Bstep
+  Bias voltage from $Vbiasstart to $Vbiasstop step size $Vbiasstep
+  Current preamp $currentamp A/V
+  SRS lock-in: integrate 100ms, freq 117.25Hz, sensit. 10mV
+  COMMENT
+  
+  # the "measurement": things like filename, live plot, etc, 
+  # plus all the metadata (data file columns, axes, plots, ...)
+  my $measurement=new Lab::Measurement(
+  sample          => $sample,        title           => $title,
+  filename_base   => $filename,      description     => $comment,
+  live_plot       => 'currentacx',   live_refresh    => '200',
+  constants       => [
+  	{   'name'          => 'currentamp',
+  	'value'         => $currentamp,
+  	},
+  ],
+  columns         => [ # documentation of the data file columns
+  	{   'unit'          => 'T',   'label'         => 'B',
+  	'description'   => 'magnetic field perpendicular to nanotube',
+  	},
+  	{   'unit'          => 'V',   'label'         => 'Vbias',
+  	'description'   => "dc bias voltage",
+  	},
+  	{   'unit'          => 'A',   'label'         => 'Idc',
+  	'description'   => "measured dc current",
+  	},
+  	{   'unit'          => 'A',   'label'         => 'Iac,x',
+  	'description'   => "measured ac current, x component",
+  	},
+  	{   'unit'          => 'A',   'label'         => 'Iac,y',
+  	'description'   => "measured ac current, y component",
+  	},
+  ],
+  axes            => [ # possible axes for plotting, and their data columns
+  	{   'unit'          => 'T',   'label'         => 'B',
+  	'expression'    => '$C0',
+  	'description'   => 'magnetic field perpendicular to nanotube',
+  	},
+  	{   'unit'          => 'V',   'label'         => 'Vbias',
+  	'expression'    => '$C1',
+  	'description'   => 'dc bias voltage',
+  	},
+  	{   'unit'          => 'A',   'label'         => 'Idc',
+  	'expression'    => '$C2',
+  	'description'   => 'measured dc current',
+  	},
+  	{   'unit'          => 'I',   'label'         => 'Iac,x',
+  	'expression'    => '$C3',
+  	'description'   => 'measured ac current, x component',
+  	},
+  	{   'unit'          => 'I',   'label'         => 'Iac,y',
+  	'expression'    => '$C4',
+  	'description'   => 'measured ac current, y component',
+  	},
+  ],
+  plots           => { # plots that can be made using the axes above
+  	'currentdc'    => {
+  	'type'          => 'pm3d',
+  	'xaxis'         => 0,   'yaxis'         => 1,
+  	'cbaxis'        => 2,   'grid'          => 'xtics ytics',
+  	},
+  	'currentacx'    => {
+  	'type'          => 'pm3d',
+  	'xaxis'         => 0,   'yaxis'         => 1,
+  	'cbaxis'        => 3,   'grid'          => 'xtics ytics',
+  	},
+  },
+  );
+  
+  # correct the sign of the step sizes if required
+  unless (($Bstop-$Bstart)/$Bstep > 0) { $Bstep = -$Bstep; }
+  unless (($Vbiasstop-$Vbiasstart)/$Vbiasstep > 0) { $Vbiasstep=-$Vbiasstep; }
+  my $Bstepsign=$Bstep/abs($Bstep);
+  my $Vbiasstepsign=$Vbiasstep/abs($Vbiasstep);
+  
+  ## ENOUGH PREPARATION, NOW THE MEASUREMENT STARTS :) 
+  
+  # go to start field
+  print "Ramping magnet to starting field... ";
+  $magnet->set_field($Bstart);
+  print " done!\n";
+  
+  # here you could eg. check the temperature
+  
+  # the outer measurement loop: magnetic field
+  for (my $B=$Bstart;$Bstepsign*$B<=$Bstepsign*$Bstop;$B+=$Bstep)	{
+  
+  	$measurement->start_block();
+  	
+  	# set the field 
+  	$magnet->set_field($B);
+  	
+  	# the inner measurement loop: bias voltage
+  	for (my $Vbias=$Vbiasstart; 
+  		$Vbiasstepsign*$Vbias<=$Vbiasstepsign*$Vbiasstop;
+  		$Vbias+=$Vbiasstep) {
+  
+  	# set the bias voltage
+  	$YokBias->set_voltage($Vbias/$Vbiasdivider);
+  
+  	# read dc signal from multimeter
+  	my $Vdc = $HP->get_value();
+  
+  	# read the ac signal from the lock-in
+  	my ($Vacx,$Vacy)=$SRS->get_xy();
+  
+  	# we multiply with (-1)*$currentamp (inverting amplifier)
+  	my $Idc = -$Vdc*$currentamp;
+  	my $Iacx=-$Vacx*$currentamp;
+  	my $Iacy=-$Vacy*$currentamp;
+  
+  	# write the values into the data file
+  	$measurement->log_line($B, $Vbias, $Idc, $Iacx, $Iacy);
+  	}
+  };
+  
+  	# all done
+  	$measurement->finish_measurement();
+  	print "End of Measurement!\n";
 
 =head1 References
 
