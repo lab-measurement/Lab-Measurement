@@ -18,10 +18,10 @@
     </ul>
 </div>
 
-<p><i>News flash: Lab::Measurement 2.95 a.k.a. 3.00 beta5 released...</i> This still
+<p><i>News flash: Lab::Measurement 2.96 a.k.a. 3.00 beta6 released...</i> This still
 is a beta version of a full code rewrite. We've been using it successfully
-in measurements on Linux with LinuxGPIB and on Windows with NI VISA. Things seem to work
-ok, so version 3.00 slowly comes closer, but there may still be bugs of course...</p>
+in measurements on Linux with LinuxGPIB and on Windows with NI VISA. Version 3.00 definitely 
+comes closer, but there may still be bugs of course...</p>
 
 <p><i>We're presenting a <a href="poster-dpg2012.pdf">poster on Lab::Measurement</a> at the DPG meeting in Berlin...</i></p>
 
@@ -31,7 +31,7 @@ as e.g. <a href="http://linux-gpib.sourceforge.net/">Linux-GPIB</a> or National 
 href="http://sine.ni.com/psp/app/doc/p/id/psp-411">NI-VISA library</a>.
 Dedicated instrument driver classes relieve the user from taking care
 for internal details and make data aquisition as easy as
-<pre class="titleclaim">$voltage = $multimeter-&gt;read_voltage();</pre>
+<pre class="titleclaim">$voltage = $multimeter-&gt;get_voltage();</pre>
 </p>
 
 <p>The Lab::Measurement software stack comprises several parts that are built
@@ -78,16 +78,15 @@ right place to give feedback and ask for help.</p>
 
 <h2>Status</h2>
 <p>Lab::Measurement is a the result of a full restructuring of the code of its predecessor
-<a href="http://www.labvisa.de/">Lab::VISA</a>. Right now we're using Lab::Measurement in 
-a first real measurement, but the ride is still a bit bumpy. If you're willing to hack, 
-feel free to try- otherwise we recommend you use the stable <a href="http://www.labvisa.de/">Lab::VISA code</a> for now.</p>
+Lab::VISA. By now it has reached a sufficient stability, and we recommend everyone to upgrade.
+Some high-level drivers from Lab::VISA have not been ported yet, but that will be addressed 
+soon...<p>
 
 <p>Lab::Measurement and its predecessor Lab::VISA are currently developed and employed at <a
-    href="http://www.nano.physik.uni-muenchen.de/">nanophysics
-group, LMU M&uuml;nchen</a> and <a
-    href="http://www.physik.uni-regensburg.de/forschung/strunk/">mesoscopic
-physics group, Uni Regensburg</a>. Users have reported further applications
-in academic and industrial r&amp;d environments.</p>
+href="http://www.nano.physik.uni-muenchen.de/">nanophysics group, LMU M&uuml;nchen</a> and <a
+href="http://www.physik.uni-regensburg.de/forschung/strunk/">mesoscopic physics group, Uni 
+Regensburg</a>. Users have reported further applications in academic and industrial r&amp;d 
+environments. Feel free to try it, to hack, and to send us your improvements and bugfixes.</p>
 
 <h2>Authors and history</h2>
 <p>The Lab::VISA system was originally developed by <a
@@ -96,7 +95,7 @@ continued by <a href="http://www.akhuettel.de/">Andreas K.
 H&uuml;ttel</a>, Daniela Taubert, and Daniel Schr&ouml;er. Most of the documentation was
 written by Daniel Schr&ouml;er. In 2011, the code was refactored mostly by Florian Olbrich
 to include the Bus and Connection layers; subsequently the name of the entire package collection
-was changed to Lab::Measurement.
+was changed to Lab::Measurement. Current lead developer is Alois Dirnaichner.
 </p>
 
 </body>
