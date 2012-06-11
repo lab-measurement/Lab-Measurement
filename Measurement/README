@@ -40,6 +40,7 @@ at the moment
 
   Lab::VISA
   LinuxGpib
+  usbtmc linux kernel driver
 
 
 ADDITIONAL INFORMATION
