@@ -64,6 +64,7 @@ sub connection_new { # { tmc_address => primary address }
 
 	open($tmc_handle, "+<", "/dev/usbtmc$tmc_address") || Lab::Exception::CorruptParameter->throw(error => $!."\n");
 	binmode($tmc_handle); #TODO: Binary?
+	$tmc_handle->autoflush;
 	
 	$connection_handle =  { valid => 1, type => "USBtmc", tmc_handle => $tmc_handle };  
 	return $connection_handle;
@@ -84,7 +85,7 @@ sub connection_read { # @_ = ( $connection_handle, $args = { read_length, brutal
 	my $fragment = undef;
 	
 	my $tmc_handle = $connection_handle->{'tmc_handle'};
-	read(tmc_handle, $result, $read_length);
+	sysread($tmc_handle, $result, $read_length);
 
 	# strip spaces and null byte
 	# note to self: find a way to access the ibcnt variable through the perl binding to use
@@ -311,7 +312,7 @@ sub timeout {
 # 			ibsta_hash => $ib_bits,
 # 		);
 # 	}
-    print "timeout(): not implemented!\n";
+#    print "timeout(): not implemented!\n";
 }
 
 
