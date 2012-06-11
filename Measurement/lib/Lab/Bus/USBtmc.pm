@@ -14,7 +14,7 @@ our @ISA = ("Lab::Bus");
 
 
 our %fields = (
-	type => 'USBtmc'
+	type => 'USBtmc',
 	brutal => 0,
     read_length=>1000, # bytes
     wait_query=>10e-6, # sec;
@@ -122,7 +122,7 @@ sub connection_query { # @_ = ( $connection_handle, $args = { command, read_leng
 # 	my $command = $args->{'command'} || undef;
 # 	my $brutal = $args->{'brutal'} || $self->brutal();
 # 	my $read_length = $args->{'read_length'} || $self->read_length();
-# 	my $wait_query = $args->{'wait_query'} || $self->wait_query();
+	my $wait_query = $args->{'wait_query'} || $self->wait_query();
 	my $result = undef;
 
 	$self->connection_write($args);
@@ -161,7 +161,7 @@ sub connection_write { # @_ = ( $connection_handle, $args = { command, wait_stat
 		);
 	}
 	
-    print {$connection_handle->{'tmc_handle'}} $command
+    print { $connection_handle->{'tmc_handle'} } $command;
 #     $ibstatus=ibwrt($connection_handle->{'gpib_handle'}, $command, length($command));
 
 
