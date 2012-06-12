@@ -4,6 +4,18 @@
 package Lab::Bus::USBtmc;
 our $VERSION = '2.96';
 
+require "sys/ioctl.ph";
+
+# Created using h2ph
+eval 'sub USBTMC_IOC_NR () {91;}' unless defined(&USBTMC_IOC_NR);
+eval 'sub USBTMC_IOCTL_INDICATOR_PULSE () { &_IO( &USBTMC_IOC_NR, 1);}' unless defined(&USBTMC_IOCTL_INDICATOR_PULSE);
+eval 'sub USBTMC_IOCTL_CLEAR () { &_IO( &USBTMC_IOC_NR, 2);}' unless defined(&USBTMC_IOCTL_CLEAR);
+eval 'sub USBTMC_IOCTL_ABORT_BULK_OUT () { &_IO( &USBTMC_IOC_NR, 3);}' unless defined(&USBTMC_IOCTL_ABORT_BULK_OUT);
+eval 'sub USBTMC_IOCTL_ABORT_BULK_IN () { &_IO( &USBTMC_IOC_NR, 4);}' unless defined(&USBTMC_IOCTL_ABORT_BULK_IN);
+eval 'sub USBTMC_IOCTL_CLEAR_OUT_HALT () { &_IO( &USBTMC_IOC_NR, 6);}' unless defined(&USBTMC_IOCTL_CLEAR_OUT_HALT);
+eval 'sub USBTMC_IOCTL_CLEAR_IN_HALT () { &_IO( &USBTMC_IOC_NR, 7);}' unless defined(&USBTMC_IOCTL_CLEAR_IN_HALT);
+
+
 use strict;
 use Scalar::Util qw(weaken);
 use Time::HiRes qw (usleep sleep);
@@ -271,6 +283,16 @@ sub connection_clear {
 	my $connection_handle=shift;
 
 	close($connection_handle->{'tmc_handle'});
+}
+
+sub connection_device_clear
+{
+	my $self = shift;
+	my $connection_handle=shift;
+	
+	my $unused = 0;
+
+	ioctl($connection_handle->{'tmc_handle'}, USBTMC_IOCTL_CLEAR(), $unused);
 }
 
 sub timeout {

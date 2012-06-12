@@ -76,6 +76,12 @@ sub Query {
 	return $self->Read($options);
 }
 
+sub Clear {
+	my $self=shift;
+	my $options=undef;
+	return $self->bus()->connection_device_clear($self->connection_handle());
+}
+
 
 #
 # Query from Lab::Connection is sufficient
