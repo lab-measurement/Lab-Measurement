@@ -6,3 +6,10 @@ Tools/Lab-Tools-*.tar.gz
 Tools/MYMETA.yml
 Tools/_build
 Tools/blib
+
+VISA/MANIFEST.bak
+VISA/MYMETA.json
+VISA/MYMETA.yml
+VISA/Makefile
+VISA/Makefile.old
+
