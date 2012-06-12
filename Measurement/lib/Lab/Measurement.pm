@@ -1,6 +1,6 @@
 
 package Lab::Measurement;
-our $VERSION = '2.95';
+our $VERSION = '3.00';
 
 use strict;
 use warnings;
@@ -9,13 +9,8 @@ use Data::Dumper;
 use Lab::Data::Writer;
 use Lab::Data::Meta;
 use Lab::Data::Plotter;
-use Term::ReadKey;
+use Lab::Measurement::KeyboardHandling;
 
-
-sub safe_exit {
-  ReadMode('normal');
-  exit(@_);
-}
 
 
 sub new {
@@ -48,12 +43,8 @@ sub new {
     # initialize terminal if requested
     $self->{termctl}=0;
     if (! $params{no_termcontrol}) {
-        $SIG{'INT'} = \&safe_exit;
-        $SIG{'QUIT'} = \&safe_exit;
-        $SIG{__DIE__} = \&safe_exit;
-        END { safe_exit(); }
-        ReadMode( 'raw' );
-        $self->{termctl}=1;
+        labkey_init();
+	$self->{termctl}=1;
     }
 
     # Filenamen finden
@@ -117,35 +108,18 @@ sub DESTROY {
 sub log_line {
     my $self=shift;
     
-    my ($x,$y) = @_;
-    
     #decide wether the given parameter are two array refs or two scalars.
-    
-    if( ref($x) ne 'ARRAY'){
-    	$self->{writer}->log_line($x,$y);
-    }
-    else
-    {
-    	$self->{writer}->log_array($x,$y);
-    }
-    
-    
+   
+    $self->{writer}->log_line(@_);
+ 
     if ($self->{termctl}) {
-      if ( defined ( my $key = ReadKey( -1 ) ) ) {
-         # input waiting; it's in $key
-         if ($key eq 'q') { 
-           print "Terminating on keyboard request\n";
-           exit; 
-         };
-      }
+       labkey_check();
     }
 
     if ($self->{live_plotter}) {
         $self->{live_plotter}->update_live_plot();
     }
 }
-
-
 
 sub start_block {
     my ($self,$label)=@_;

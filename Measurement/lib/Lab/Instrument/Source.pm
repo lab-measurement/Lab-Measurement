@@ -2,7 +2,7 @@ package Lab::Instrument::Source;
 use strict;
 use warnings;
 
-our $VERSION = '2.95';
+our $VERSION = '3.00';
 
 use Lab::Exception;
 
@@ -192,9 +192,11 @@ sub set_level {
 		Lab::Exception::CorruptParameter->throw(error => "Sorry, I'm unclear about my parameters. See documentation.\nParameters: " . join(", ", ($voltage, @_)) . "\n");
 	}
 	
-	return $voltage if $voltage == $self->get_level();
+	my $current = $self->get_level();
+	
+	return $voltage if $voltage == $current;
 
-	if ($self->device_settings()->{'gate_protect'}) {
+	if ($self->device_settings()->{'gate_protect'} && $self->device_settings()->{'gp_max_units_per_step'} < abs($voltage-$current)) {
 		return $voltage=$self->sweep_to_level($voltage,@_);
 	} else {
 		return $self->_set_level($voltage,{@_});
@@ -213,15 +215,11 @@ sub sweep_to_level {
 	
 	my($time, $args) = $self->parse_optional(@_);
 	
-	
-	
 	if(!defined $target || ref($target) eq 'HASH') {
 		Lab::Exception::CorruptParameter->throw( error=>'No voltage given.');
 	}
 	
-	
 	# Check correct channel setup
-		
 	
 	$self->_check_gate_protect();
 	
@@ -249,14 +247,11 @@ sub sweep_to_level {
 		$time = ( abs($target - $current)/$time < $apsec ) ? $time : abs($target-$current)/$apsec;
 	}	
 	elsif(!defined($time)){
-		$time = abs($target-$current)/$apsec;
+		$time = (abs($target-$current)+0.)/$apsec;
 	}	
 	
-
 	# sweep to current
-	
-	
-	
+
 	if($self->can("_sweep_to_level")) {
 		return $self->_sweep_to_level($target,$time,$args);
 	}

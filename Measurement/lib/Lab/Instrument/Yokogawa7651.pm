@@ -3,7 +3,7 @@ package Lab::Instrument::Yokogawa7651;
 use warnings;
 use strict;
 
-our $VERSION = '2.95';
+our $VERSION = '3.00';
 use 5.010;
 
 
@@ -196,6 +196,11 @@ sub configure_sweep{
         Lab::Exception::CorruptParameter->throw("The desired source level $target is not within the source range $range \n");
     }
     
+	if ( $time < 0.1 ) {
+		$time=0.1;
+		print " Yokogawa7651.pm warning: correcting too short sweep time\n";
+	}
+	
     # Set interval time
     my $cmd=sprintf("PI%.1fe",$time);
     $self->write( $cmd, error_check => 1 );
@@ -235,22 +240,35 @@ sub wait_done{
 }
 
 sub _sweep_to_level {
-    
     my $self = shift;
     my $target = shift;
     my $time = shift;
-    
+    	
+	# print "Yokogawa7651.pm: configuring sweep $target $time\n";
     $self->configure_sweep($target,$time);
 
+	# print "Yokogawa7651.pm: executing program\n";
     $self->execute_program(2);
     
+	# print "Yokogawa7651.pm: waiting until done\n";
     $self->wait_done();
     
-    if( ! $self->get_level( device_cache => 1) == $target){
+	# print "Yokogawa7651.pm: reading out source level\n";
+	my $current = $self->get_level( from_device => 1);
+	# print "Yokogawa7651.pm: source level is $current\n";
+	
+	my $eql=$self->get_gp_equal_level();
+
+	# my $difference=$current-$target;
+	# print "Yokogawa7651.pm: c $current t $target d $difference e $eql\n";
+	
+	if( abs($current-$target) > $eql ){
+		print "Yokogawa7651.pm: error current neq target\n";
     	Lab::Exception::CorruptParameter->throw(
-    	"Sweep failed.")
+    	"Sweep failed: $target not equal to $current. \n")
     }
     
+	# print "Yokogawa7651.pm: reaching return from _sweep_to_level\n";
     return $self->device_cache()->{'level'} = $target;
 }
 

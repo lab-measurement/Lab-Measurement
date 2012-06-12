@@ -4,7 +4,7 @@
 # Connection class for Lab::Bus::MODBUS_RS232
 #
 package Lab::Connection::MODBUS_RS232;
-our $VERSION = '2.95';
+our $VERSION = '3.00';
 
 use strict;
 use Scalar::Util qw(weaken);

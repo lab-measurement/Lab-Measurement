@@ -2,15 +2,11 @@
 
 =encoding utf-8
 
-=head1 NAME
-
-Change log for the Lab::Measurement distribution
-
 =head1 Initial release of Lab::Measurement
 
 This section gives an overview of the most important points when you port
-a measurement script from the old C<Lab::Instrument> and C<Lab::Tools> distribution 
-to C<Lab::Measurement>.
+a measurement script from the old (i.e., pre-2.9 or distributed under the name Lab::VISA)
+C<Lab::Instrument> and C<Lab::Tools> distribution to C<Lab::Measurement>.
 
 =head2 Lab::Instrument classes
 
@@ -41,6 +37,12 @@ Every device now needs a configuration parameter "connection_type" (see above).
 =item *
 In general, functions that read out device values are all prefixed with "get_" now, 
 instead of "read_".
+
+=item *
+Since the Lab::Instrument::Source class has been extended to cover current and voltage
+sources, the parameters for influencing gate protect have been renamed. Instead of 
+"gp_max_voltage" you now have to use "gp_max_units", and analogously for all other 
+gateprotect parameters.
 
 =item * 
 SR830 functions like get_range and get_tc do not return strings anymore, 

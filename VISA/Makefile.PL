@@ -45,6 +45,6 @@ WriteMakefile(
 
     (($] >= 5.005)
     ?   (ABSTRACT_FROM  => 'VISA.pod',
-         AUTHOR         => 'Daniel Schröer <schroeer@cpan.org>') : ()),
+         AUTHOR         => ['Daniel Schröer <schroeer@cpan.org>', 'Andreas K. Hüttel <mail@akhuettel.de>'] ) : ()),
 
 );
