@@ -313,7 +313,7 @@ sub _configure_voltage_dc {
 	$self->write( "VOLT:DC:NPLC ${tint}", error_check => 1 ) if $res_cmd eq ''; # integration time implicitly set through resolution
 }
 
-sub trigger_mode {
+sub configure_voltage_dc_trigger {
 	my $self=shift;
     my $tint=shift;  # integration time in sec, Default is 10PLC*pl_freq(), "MIN" = 0.02PLC , "MAX" = 200PLC
     my $range=shift; # in V, or "DEF"(Default), "MIN", "MAX"
@@ -571,9 +571,9 @@ Preset and make an ac current measurement with the specified range
 and resolution. For ac measurements, resolution is actually fixed
 at 6 1/2 digits. The resolution parameter only affects the front-panel display.
 
-=head2 trigger_mode
+=head2 configure_voltage_dc_trigger
 
-	$device->trigger_mode($intt, $range, $count, $delay, $resolution)
+	$device->configure_voltage_dc_trigger($intt, $range, $count, $delay, $resolution)
 	
 Configure the multimeter for a triggered reading. 
 
