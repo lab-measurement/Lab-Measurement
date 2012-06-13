@@ -1,5 +1,7 @@
 package Lab::Instrument::U2000;
 our $VERSION = '2.96';
+#TODO: Error handling. Neither timeouts nor errors are handled correctly.
+# Error reporting from the kernel driver is bad.
 
 use strict;
 use Lab::Instrument;
@@ -29,6 +31,8 @@ sub new {
     $self->connection()->Clear();
     #TODO: Device clear
     $self->write("SYST:PRES"); # Load presets 
+    $self->{trigger_mode} = "AUTO";
+    $self->{average_on} = "1";
     return $self;
 }
 
@@ -46,16 +50,10 @@ sub selftest {
     return $self->query("*TST");
 }
 
-sub get_value {
-    my $self=shift;
-    my $value=$self->query('READ?');
-    chomp $value;
-    return $value;
-}
-
+#TODO: EXT mode not tested
 sub set_trigger {
     my $self=shift;
-    my $type=shift; #AUTO, BUS, INT, EXT, IMM
+    my $type=shift || "AUTO"; #AUTO, BUS, INT, EXT, IMM
     my $args;
     if (ref $_[0] eq 'HASH') { $args=shift } else { $args={@_} }
     my $delay=$args->{'delay'}; #AUTO, MIN, MAX, DEF, -0.15s to +0.15s
@@ -69,9 +67,19 @@ sub set_trigger {
     } else {
         $self->write("INIT:CONT OFF");
     }
-    if ($type eq "BUS" || $type eq "INT" || $type eq "EXT" || $type eq "IMM")
+    
+    if ($self->{average_on} && ($type eq "INT" || $type eq "EXT")) {
+        Lab::Exception::CorruptParameter->throw( error => "Can't switch to internal or external trigger while average mode is on. Change mode using set_mode(\"NORM\"). Error in U2000::set_trigger(). \n" );
+    }
+    if ($type eq "INT" || $type eq "EXT" || $type eq "IMM")
     {
         $self->write("TRIG:SOUR $type");
+        $self->{trigger_mode} = $type;
+    } elsif ($type eq "BUS")
+    {
+        Lab::Exception::CorruptParameter->throw( error => "'BUS' trigger mode is not supported by this library in U2000::set_trigger()\n" );
+    } elsif ($type ne "AUTO") {
+        Lab::Exception::CorruptParameter->throw( error => "Unknown trigger mode in HP34401A::set_trigger()\n" );
     }
     
     
@@ -106,21 +114,84 @@ sub set_trigger {
     }
 }
 
-sub power_unit
+sub set_power_unit
 {
     my $self = shift;
-    my $unit = shift; #DBM, W
+    my $unit = shift || "DBM"; #DBM, W
     $self->write("UNIT:POW $unit");
 }
 
-#TODO: Currently this is an untriggered read
-sub triggered_read
+sub set_average
 {
     my $self = shift;
-#    $self->write("CONF");
-    $self->write("INIT:CONT ON");
-#    $self->write("INIT");
-    return $self->query("FETC?");
+    my $count = shift || "AUTO"; #OFF, AUTO, DEF, MIN, MAX, 1 to 1024
+    
+    if ($count eq "OFF")
+    {
+        $self->write("AVER OFF");
+        $self->set_mode("NORM");
+        return;
+    } else {
+        $self->write("AVER ON");
+        $self->set_mode("AVER");
+    }
+    
+    if ($count eq "AUTO") 
+    {
+        $self->write("AVER:COUN:AUTO ON");
+    } else {
+        #Automatic averaging is disabled by this command
+        $self->write("AVER:COUN $count");
+    }
+}
+
+sub set_mode
+{
+    my $self = shift;
+    my $mode = shift || "AVER";
+    
+    if ($mode eq "AVER")
+    {
+        $self->{trigger_mode} = "AUTO";
+    } elsif ($mode eq "NORM")
+    {
+        if ($self->{trigger_mode} eq "IMM") 
+        {
+            $self->{trigger_mode} = "INT";
+        }
+    } else {
+        Lab::Exception::CorruptParameter->throw( error => "Unknown  mode in HP34401A::set_mode()\n" );
+    }
+    $self->{average_on} = $mode eq "AVER";
+    $self->write("DET:FUNC $mode");
+}
+
+
+
+sub set_step_detect
+{
+    my $self = shift;
+    my $state = shift || "ON"; # ON, OFF
+    $self->write("AVER:SDET $state");
+}
+
+#TODO: Device hangs after a read has timed out and a new read was
+# issued during which the trigger condition is satisifed.
+# (in INT trigger mode and possibly others as well)
+sub read
+{
+    my $self = shift;
+    if ($self->{trigger_mode} eq "AUTO")
+    {
+        #No trigger needed for AUTO MODE
+        return $self->query("FETC?");
+    } elsif ($self->{trigger_mode} eq "IMM") 
+    {
+        #Automatically send trigger for immediate mode
+        return $self->query("READ?");
+    }
+    #TODO: Check other modes
+    return $self->query("READ?");
     
 }
 

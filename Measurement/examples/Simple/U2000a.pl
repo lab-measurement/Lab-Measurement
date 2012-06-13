@@ -6,23 +6,32 @@ use Lab::Bus::USBtmc;
 use Time::HiRes;
 
 ################################
-
+$|++;
 
 my $powermeter=new Lab::Instrument::U2000(
 	connection_type=>'USBtmc',
 	tmc_address => 0,
 );
 
-print "Error: ".$powermeter->get_error();
-print "\nID: " . $powermeter->id();
+my $error = $powermeter->get_error();
+if ($error)
+{
+    print "Device reported error: $error\nPress Enter to continue";
+    <STDIN>
+}
+print "ID: " . $powermeter->id();
+$powermeter->set_power_unit("dBm");
+$powermeter->set_average("OFF");
+$powermeter->set_trigger("INT", {level=>-8});
 
+<STDIN>;
 my $start = Time::HiRes::gettimeofday();
 for (my $i=0; ; $i++)
 {
     my $start2 = Time::HiRes::gettimeofday();
-    my $power = $powermeter->triggered_read();
+    my $power = $powermeter->read();
     my $end = Time::HiRes::gettimeofday();
-    printf("\nRead: %.2fdBm Measurements per second: %.2f/%.2f", $power, $i/($start-$end), 1/($start2-$end));
+    printf("\nRead: %+9.5fdBm Measurements per second: %.1f/%.1f", $power, $i/($end-$start), 1/($end - $start2));
 }
 1;
 
