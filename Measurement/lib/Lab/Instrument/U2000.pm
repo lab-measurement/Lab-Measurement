@@ -55,26 +55,54 @@ sub get_value {
 
 sub set_trigger {
     my $self=shift;
-    my $type=shift;
-    my $delay=shift;
+    my $type=shift; #AUTO, BUS, INT, EXT, IMM
+    my $args;
+    if (ref $_[0] eq 'HASH') { $args=shift } else { $args={@_} }
+    my $delay=$args->{'delay'}; #AUTO, MIN, MAX, DEF, -0.15s to +0.15s
+    my $level=$args->{'level'}; #DEF, MIN, MAX, sensor dependent range in dB
+    my $hysteresis=$args->{'hysteresis'}; #DEF, MIN, MAX, 0 to 3dB
+    my $holdoff=$args->{'holdoff'}; #DEF, MIN, MAX, 1µs to 400ms
+    my $slope=$args->{'edge'}; #POS, NEG
     if ($type eq "AUTO")
     {
         $self->write("INIT:CONT ON");
     } else {
         $self->write("INIT:CONT OFF");
     }
+    if ($type eq "BUS" || $type eq "INT" || $type eq "EXT" || $type eq "IMM")
+    {
+        $self->write("TRIG:SOUR $type");
+    }
+    
+    
     if (defined($delay)) 
     {
         if ($delay eq "AUTO") {
             $self->write("TRIG:DEL:AUTO ON");
         } else {
             $self->write("TRIG:DEL:AUTO OFF");
+            $self->write("TRIG:DEL $delay");
         }
-            
     }
-    if ($type eq "BUS" || $type eq "INT" || $type eq "EXT" || $type eq "IMM")
+
+    if (defined($holdoff))
     {
-        $self->write("TRIG:SOUR $type");
+        $self->write("TRIG:HOLD $holdoff");
+    }
+    
+    if (defined($level))
+    {
+        $self->write("TRIG:LEV $level");
+    }
+    
+    if (defined($hysteresis))
+    {
+        $self->write("TRIG:HYST $hysteresis");
+    }
+    
+    if (defined($slope))
+    {
+        $self->write("TRIG:SLOP $slope");
     }
 }
 
