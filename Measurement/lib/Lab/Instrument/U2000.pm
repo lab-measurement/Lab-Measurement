@@ -106,6 +106,13 @@ sub set_trigger {
     }
 }
 
+sub power_unit
+{
+    my $self = shift;
+    my $unit = shift; #DBM, W
+    $self->write("UNIT:POW $unit");
+}
+
 #TODO: Currently this is an untriggered read
 sub triggered_read
 {
