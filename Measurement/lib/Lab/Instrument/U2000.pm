@@ -175,6 +175,14 @@ sub set_step_detect
     $self->write("AVER:SDET $state");
 }
 
+sub set_frequency
+{
+    my $self = shift;
+    my $freq = shift || "DEF"; # DEF, MIN, MAX, 1kHz to 1000GHz
+    $self->write("FREQ $freq");
+}
+
+
 #TODO: Device hangs after a read has timed out and a new read was
 # issued during which the trigger condition is satisifed.
 # (in INT trigger mode and possibly others as well)
