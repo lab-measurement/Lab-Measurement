@@ -75,7 +75,7 @@ sub connection_new { # { tmc_address => primary address }
 	
 
 	open($tmc_handle, "+<", "/dev/usbtmc$tmc_address") || Lab::Exception::CorruptParameter->throw(error => $!."\n");
-	binmode($tmc_handle); #TODO: Binary?
+	binmode($tmc_handle);
 	$tmc_handle->autoflush;
 	
 	$connection_handle =  { valid => 1, type => "USBtmc", tmc_handle => $tmc_handle };  
@@ -100,11 +100,6 @@ sub connection_read { # @_ = ( $connection_handle, $args = { read_length, brutal
 	sysread($tmc_handle, $result, $read_length);
 
 	# strip spaces and null byte
-	# note to self: find a way to access the ibcnt variable through the perl binding to use
-	# $result = substr($result, 0, $ibcnt)
-#	$raw = $result;
-# 	#$result =~ /^\s*([+-][0-9]*\.[0-9]*)([eE]([+-]?[0-9]*))?\s*\x00*$/;
-	#$result = $1;
 	$result =~ s/[\n\r\x00]*$//;
 
 	#
@@ -132,9 +127,6 @@ sub connection_query { # @_ = ( $connection_handle, $args = { command, read_leng
 	if (ref $_[0] eq 'HASH') { $args=shift } # try to be flexible about options as hash/hashref
 	else { $args={@_} }
 
-# 	my $command = $args->{'command'} || undef;
-# 	my $brutal = $args->{'brutal'} || $self->brutal();
-# 	my $read_length = $args->{'read_length'} || $self->read_length();
 	my $wait_query = $args->{'wait_query'} || $self->wait_query();
 	my $result = undef;
 
@@ -292,7 +284,11 @@ sub connection_device_clear
 	
 	my $unused = 0;
 
-	ioctl($connection_handle->{'tmc_handle'}, USBTMC_IOCTL_CLEAR(), $unused);
+    ioctl($connection_handle->{'tmc_handle'}, USBTMC_IOCTL_ABORT_BULK_OUT(), $unused);
+    ioctl($connection_handle->{'tmc_handle'}, USBTMC_IOCTL_ABORT_BULK_IN(), $unused);
+    ioctl($connection_handle->{'tmc_handle'}, USBTMC_IOCTL_CLEAR_OUT_HALT(), $unused);
+    ioctl($connection_handle->{'tmc_handle'}, USBTMC_IOCTL_CLEAR_IN_HALT(), $unused);
+    ioctl($connection_handle->{'tmc_handle'}, USBTMC_IOCTL_CLEAR(), $unused);
 }
 
 sub timeout {
