@@ -182,6 +182,25 @@ sub set_frequency
     $self->write("FREQ $freq");
 }
 
+sub set_sample_rate
+{
+    my $self = shift;
+    my $rate = shift || "NORM"; # MIN, MAX, NORM, DOUBLE, FAST, 1-110
+    if ($rate =~ /(NORM,DOUB, FAST)/) {
+        $self->write("MRAT $rate");
+    } elsif ($rate eq "MIN" || $rate <= 20)
+    {
+        $self->write("MRAT NORM");
+    } elsif ($rate <= 40)
+    {
+        $self->write("MRAT DOUB");
+    } elsif ($rate eq "MAX" || $rate <= 110)
+    {
+        $self->write("MRAT FAST");
+    } else {
+        Lab::Exception::CorruptParameter->throw( error => "Unsuppoerted sample rate in HP34401A::set_sample_rate()\n" );
+    }
+}
 
 #TODO: Device hangs after a read has timed out and a new read was
 # issued during which the trigger condition is satisifed.
