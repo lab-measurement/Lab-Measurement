@@ -6,7 +6,6 @@ use Lab::Bus::USBtmc;
 use Time::HiRes;
 
 ################################
-$|++;
 
 my $powermeter=new Lab::Instrument::U2000(
 	connection_type=>'USBtmc',
@@ -21,10 +20,12 @@ if ($error)
 }
 print "ID: " . $powermeter->id();
 $powermeter->set_power_unit("dBm");
-$powermeter->set_average("OFF");
-$powermeter->set_trigger("INT", {level=>-8});
-
-<STDIN>;
+$powermeter->set_trigger("IMM");
+# $powermeter->set_trigger("INT", {level=>-8});
+$powermeter->set_average("AUTO");
+$powermeter->set_step_detect("ON");
+$powermeter->set_frequency("250MHz");
+$powermeter->set_sample_rate("20");
 my $start = Time::HiRes::gettimeofday();
 for (my $i=0; ; $i++)
 {
@@ -41,7 +42,7 @@ for (my $i=0; ; $i++)
 
 =head1 U2000a.pl
 
-Continuously eads out a power values from U2000A power meter.
+Continuously reads out a power values from U2000A power meter.
 
 =head2 Usage example
 
