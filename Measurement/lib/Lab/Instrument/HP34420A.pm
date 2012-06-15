@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
-package Lab::Instrument::HP34401A;
-our $VERSION = '3.00';
+package Lab::Instrument::HP34420A;
+our $VERSION = '2.95';
 
 use strict;
 use Scalar::Util qw(weaken);
@@ -26,7 +26,7 @@ our %fields = (
 		pl_freq => 50,
 	},
 	
-	device_cache =>{			
+	device_cache =>{
 		# TO DO: add range and resolution + get/setter
 	}
 
@@ -65,7 +65,7 @@ sub _id {
     return $self->query('*IDN?');
 }
 
-sub get_value {
+sub _get_value {
     my $self=shift;
     my $value=$self->query('READ?');
     chomp $value;
@@ -227,11 +227,6 @@ sub set_display_text {
 
 
 
-sub set_range{
-	my $self = shift;
-	
-	# This is the range set function, to be implemented.
-}
 
 sub reset {
     my $self=shift;
@@ -283,7 +278,7 @@ sub autozero {
 	return $az_status;
 }
 
-sub configure_voltage_dc {
+sub _configure_voltage_dc {
 	my $self=shift;
     my $range=shift; # in V, or "AUTO", "MIN", "MAX"
     my $tint=shift;  # integration time in sec, "DEFAULT", "MIN", "MAX"
@@ -320,7 +315,7 @@ sub configure_voltage_dc {
 
 sub configure_voltage_dc_trigger {
 	my $self=shift;
-    my $tint=shift;  # integration time in sec, Default is 10PLC , "MIN" = 0.02 PLC, "MAX" = 100 PLC
+    my $tint=shift;  # integration time in sec, Default is 10PLC*pl_freq(), "MIN" = 0.02PLC , "MAX" = 200PLC
     my $range=shift; # in V, or "DEF"(Default), "MIN", "MAX"
     my $count=shift; # Measurment count, Default = 1
     my $delay=shift; # in seconds, Default = 'MIN'
@@ -336,23 +331,21 @@ sub configure_voltage_dc_trigger {
     Lab::Exception::CorruptParameter->throw( error => "Trigger delay has to be a positive decimal value\n" )
     	if($count !~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/);
     	
-    	
     if(!defined($tint)){
-    	$tint = "DEF";
+    	$tint = 10;
     }	
     elsif($tint =~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/) {
     	# Convert seconds to PLC (power line cycles)
     	$tint*=$self->pl_freq(); 
-    	if( $tint > 100 || $tint < 0.02){
+    	if( $tint > 200 || $tint < 0.02){
     		Lab::Exception::CorruptParameter->throw( error => "Integration time out of bounds (int. time = $tint) in HP34401A::configure_voltage_dc()\n" )
     	}
     }
-    elsif($tint !~ /^(MIN|MAX|DEF)$/ ) {
-		Lab::Exception::CorruptParameter->throw( error => "Integration time has to be set to a positive value, 'DEFAULT', 'MIN' or 'MAX' in HP34401A::configure_voltage_dc()\n" )    	
+    elsif($tint !~ /^(MIN|MAX)$/ ) {
+		Lab::Exception::CorruptParameter->throw( error => "Integration time has to be set to a positive value, 'MIN' or 'MAX' in HP34401A::configure_voltage_dc()\n" )    	
     }
     
-    
-    if($range eq 'AUTO' || !defined($range)) {
+    if(!defined($range)) {
     	$range='DEF';
     }
     elsif($range =~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/) {
@@ -367,7 +360,7 @@ sub configure_voltage_dc_trigger {
     }
 
     $self->write( "CONF:VOLT:DC ${range} ${res_cmd}", error_check => 1 );
-	$self->write( "VOLT:DC:NPLC ${tint}", error_check => 1 ) if $res_cmd eq ''; # integration time implicitly set if resolution not given
+	$self->write( "VOLT:DC:NPLC ${tint}", error_check => 1 ) if $res_cmd eq ''; # integration time implicitly set if resolution given
     
     $self->write("*ESE 1");
     $self->write("*CLS");
@@ -376,25 +369,22 @@ sub configure_voltage_dc_trigger {
     $self->write( "SAMPle:COUNt $count");
     $self->write( "TRIG:DELay $delay");
 
-    $self->write( "INIT" );    
     
 }
 
-sub read_trig{
+sub trigger{
 	my $self=shift;
-	
+	$self->write( "INIT" );
 
     $self->write( "*TRG");
     $self->write("*OPC");
-	
+    	
 }
 
 sub fetch{
 	my $self = shift;
 	
 	my $value = $self->query( "FETCh?");
-	
-
 
     chomp $value;
 
@@ -404,7 +394,7 @@ sub fetch{
 }
 	
 
-sub triggered_read {
+sub trigger_read {
     my $self=shift;
 	my $args=undef;
 	if (ref $_[0] eq 'HASH') { $args=shift }
@@ -449,13 +439,13 @@ sub scroll_message {
 
 =head1 NAME
 
-Lab::Instrument::HP34401A - HP/Agilent 34401A digital multimeter
+Lab::Instrument::HP34420A - HP/Agilent 34420A digital multimeter
 
 =head1 SYNOPSIS
 
-  use Lab::Instrument::HP34401A;
+  use Lab::Instrument::HP34420A;
   
-  my $Agi = new Lab::Instrument::HP34401A({
+  my $Agi = new Lab::Instrument::HP34420A({
     connection => new Lab::Connection::GPIB(
 		gpib_board => 0,
 		gpib_address => 14,
@@ -465,10 +455,9 @@ Lab::Instrument::HP34401A - HP/Agilent 34401A digital multimeter
 
 =head1 DESCRIPTION
 
-The Lab::Instrument::HP34401A class implements an interface to the 34401A digital 
-multimeter by Agilent (formerly HP). This module can also be used to address the newer 
-34410A and 34411A multimeters, but doesn't include new functions. Use the 
-L<Lab::Instrument::HP34411A> class for full functionality (not ported yet).
+The Lab::Instrument::HP34420A class implements an interface to the 34420A digital 
+multimeter by Agilent (formerly HP). This module is in big parts equal to the 
+34410A and 34411A multimeter drivers.
 
 =head1 CONSTRUCTOR
 
@@ -584,7 +573,7 @@ at 6 1/2 digits. The resolution parameter only affects the front-panel display.
 
 =head2 configure_voltage_dc_trigger
 
-	$device->trigger_mode($intt, $range, $count, $delay, $resolution)
+	$device->configure_voltage_dc_trigger($intt, $range, $count, $delay, $resolution)
 	
 Configure the multimeter for a triggered reading. 
 
@@ -669,7 +658,6 @@ probably many
 
   Copyright 2004-2006 Daniel Schröer (<schroeer@cpan.org>), 2009-2010 Daniela Taubert, 
             2011 Florian Olbrich, Andreas Hüttel
-            2012 Alois Dirnaichner
 
 This library is free software; you can redistribute it and/or modify it under the same
 terms as Perl itself.
