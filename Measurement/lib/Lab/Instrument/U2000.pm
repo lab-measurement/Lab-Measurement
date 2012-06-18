@@ -232,7 +232,7 @@ sub get_error
     while ($max_errors--) {
         $current_error = $self->query('SYST:ERR?');
         if ($current_error eq "")  {$all_errors .= "Could not read error message!\n"; last; }
-        if ($current_error =~ m/^\+0/) { last; }
+        if ($current_error =~ m/^\+?0,/) { last; }
         $all_errors .= $current_error."\n";
     }
     if (!$max_errors) { $all_errors .= "Maximum Error count reached!\n"; }
