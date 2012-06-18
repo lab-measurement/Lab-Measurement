@@ -106,6 +106,7 @@ sub connection_new { # { tmc_address => primary address }
                 last;
             }
         }
+        close(SYS_FS_HANDLE);
     }
     
     if (!defined $fn) 
