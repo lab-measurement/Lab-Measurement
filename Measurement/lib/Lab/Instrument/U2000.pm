@@ -12,7 +12,8 @@ our %fields = (
     supported_connections => [ 'USBtmc' ],
 
     connection_settings => {
-        tmc_address => 0
+        usb_vendor => "0957",
+        usb_product => "2a18"
     },
 
     device_settings => {
