@@ -62,19 +62,64 @@ sub connection_new { # { tmc_address => primary address }
 	my $args = undef;
 	if (ref $_[0] eq 'HASH') { $args=shift } # try to be flexible about options as hash/hashref
 	else { $args={@_} }
+	
+	my $fn;
+	my $usb_vendor;
+	my $usb_product;
+	my $usb_serial; #TODO: Unsupported
 
-	if(!defined $args->{'tmc_address'} || $args->{'tmc_address'} !~ /^[0-9]*$/ ) {
-		Lab::Exception::CorruptParameter->throw (
-			error => "No valid USB TMC address given to " . __PACKAGE__ . "::connection_new()\n",
-		);
+	if(defined $args->{'tmc_address'} && $args->{'tmc_address'} =~ /^[0-9]*$/ ) 
+	{
+	    $fn = "/dev/usbtmc".$args->{'tmc_address'};
+	} else {
+	    if (defined $args->{'visa_name'} && 
+	       ($args->{'visa_name'} =~ /USB::0x([0-9A-Fa-f]{4})::0x([0-9A-Fa-f]{4})::[^:]*::INSTR/))
+	    {
+	        $usb_vendor = hex($1);
+	        $usb_product = hex($2);
+	        $usb_serial = $3;
+	    } else 
+	    {
+	        $usb_vendor = hex($args->{'usb_vendor'});
+            $usb_product = hex($args->{'usb_product'});
+	    }
 	}
+	
+	if (!defined $fn && (!defined $usb_vendor || !defined $usb_product)) 
+    {
+        Lab::Exception::CorruptParameter->throw (
+            error => "No valid USB TMC address given to " . __PACKAGE__ . "::connection_new()\n",
+        );
+    }
+	
+    foreach my $file (glob("/dev/usbtmc*"))
+    {
+        if (defined $fn) {last;}
+        $file =~ /\/dev\/(.*)/;
+        open(SYS_FS_HANDLE, "<", "/sys/class/usb/$1/device/uevent");
+        while (<SYS_FS_HANDLE>)
+        {
+            if (/PRODUCT=([0-9A-Fa-f]+)\/([0-9A-Fa-f]+)\// &&
+                hex($1) == $usb_vendor && hex($2) == $usb_product)
+            {
+                $fn = $file;
+                last;
+            }
+        }
+    }
+    
+    if (!defined $fn) 
+    {
+        Lab::Exception::CorruptParameter->throw (
+            error => "Could not find specified device in " . __PACKAGE__ . "::connection_new()\n",
+        );
+    }
 
-	my $tmc_address = $args->{'tmc_address'};
+
 	my $connection_handle = undef;
 	my $tmc_handle = undef;
 	
-
-	open($tmc_handle, "+<", "/dev/usbtmc$tmc_address") || Lab::Exception::CorruptParameter->throw(error => $!."\n");
+	open($tmc_handle, "+<", $fn) || Lab::Exception::CorruptParameter->throw(error => $!.": '$fn'\n");
 	binmode($tmc_handle);
 	$tmc_handle->autoflush;
 	
