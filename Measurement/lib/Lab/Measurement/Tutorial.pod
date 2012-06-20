@@ -15,7 +15,7 @@ care for internal details and make measurements as easy as
 
   $voltage=$multimeter->get_voltage().
 
-The Lab::Measurement software stack comprises several parts that are built on
+The Lab::Measurement software stack consists of several parts that are built on
 top of each other. This modularization allows support for a wide range of
 hardware on different operating systems. As hardware drivers vary in API
 details, each supported one is encapsulated into perl modules of types Lab::Bus
@@ -31,54 +31,52 @@ latter includes tools for metadata handling (what was that amplifier setting in
 the measurement again?!), data plotting, and similar. 
 
 This tutorial will explain how to write measurement scripts. However, this 
-tutorial does not intend to teach the
-Perl language itself. Some introduction into VISA and GPIB terminology
-is given, but then some familarity also with these concepts is assumed. Not
-much is required. If you feel the need for more information on Perl
-or VISA/GPIB, please see the L</References> section[1-6].
+tutorial does not intend to teach the Perl language itself. Some introduction
+into VISA and GPIB terminology is given, but then some familarity also with
+these concepts is assumed. If you feel the need for more information on Perl
+or VISA/GPIB, please see the L</References> section [1-6].
 
 =head1 Measurement automation basics
 
-This section provides a very brief introduction to the terms VISA and GPIB.
-For a more detailed explanation of the VISA and GPIB standards, the
-involved communication principles and the available commands for your
-specific instruments, please refer to the literature[1-3]. Usage of the higher
-level modules from the L<Lab::Instrument> package requires almost no knowledge
-about VISA and GPIB at all.
+This section provides a very brief introduction to the terms VISA and GPIB. For
+a more detailed explanation of the VISA and GPIB standards, the involved
+communication principles and the available commands for your specific
+instruments, please refer to the literature [1-3]. Usage of the higher level
+modules from the L<Lab::Instrument> package requires almost no knowledge about
+VISA and GPIB at all. 
 
 =head2 VISA
 
-Traditionally, test and measurement instruments can be connected and
-controlled via various standards and protocols. VISA, the Virtual
-Instrument Software Architecture[1,2], is an effort to provide a single
-standarised interface to communicate with instruments via several
-protocols. It was developed by the VXIplug&play Systems Alliance[4] and is
-currently maintained by the IVI foundation[5]. VISA can control VXI, GPIB,
-serial, or computer-based instruments and makes the appropriate driver
-calls depending on the type of instrument used. Hence, VISA is located in
-the application layer. The National Instruments NI-VISA library is one
-implementation of the VISA standard.
+Traditionally, test and measurement instruments can be connected and controlled
+via various standards and protocols. VISA, the Virtual Instrument Software
+Architecture [1,2], is an effort to provide a single standarised interface to
+communicate with instruments via several protocols. It was developed by the
+VXIplug&play Systems Alliance[4] and is currently maintained by the IVI
+foundation [5]. VISA can control VXI, GPIB, serial, or computer-based
+instruments and makes the appropriate driver calls depending on the type of
+instrument used. Hence, VISA is located in the application layer. The National
+Instruments NI-VISA library is one implementation of the VISA standard.
 
-In one word: VISA tries to make it unimportant, how an instrument is
-connected physically.
+In one word: VISA tries to make it unimportant, how an instrument is connected
+physically.
 
 =head2 GPIB
 
 GPIB (IEEE488)[3] is a lower lying standard invented by Hewlett-Packard. It
 describes a way of connecting instruments. The standard is divided into the
-physical layer IEEE488.1 that defines cables and signals and the command
-layer IEEE488.2 that describes a syntax for messages between communicating
+physical layer IEEE488.1 that defines cables and signals and the command layer
+IEEE488.2 that describes a syntax for messages between communicating
 instruments. SCPI (Standard Commands for Programmable Instruments) is an
-extension of IEEE488.2 and refines the available commands further, with the
-goal of obtaining a language that is independent of the exact model of the
-instruments in use. This could be very useful, as, in theory, it would
-allow you to exchange one instrument in your setup with a similar one from
-another manufacturer, without having to change your measurement software.
-In practise however, not many instruments support this standard, and even
-if, small differences make things a pain. As described below, the
-Lab::Instrument package follows another route to achieve interchangeability
-by providing common interfaces for similar instruments at a much higher
-level (e.g. the L<Lab::Instrument::Source> interface).
+extension of IEEE488.2 and refines the available commands further, with the goal
+of obtaining a language that is independent of the exact model of the
+instruments in use. This could be very useful, as, in theory, it would allow you
+to exchange one instrument in your setup with a similar one from another
+manufacturer, without having to change your measurement software. In practise
+however, not many instruments support this standard, and even if, small
+differences make things a pain. As described below, the Lab::Instrument package
+follows another route to achieve interchangeability by providing common
+interfaces for similar instruments at a much higher level (e.g. the
+L<Lab::Instrument::Source> interface).
 
 In one word: GPIB tries to make communication with various instruments more
 similar.
@@ -511,7 +509,7 @@ takes advantage of the meta data system introduced above...
   # here you could eg. check the temperature
   
   # the outer measurement loop: magnetic field
-  for (my $B=$Bstart;$Bstepsign*$B<=$Bstepsign*$Bstop;$B+=$Bstep)	{
+  for (my $B=$Bstart; $Bstepsign*$B <= $Bstepsign*$Bstop; $B+=$Bstep)	{
   
   	$measurement->start_block();
   	

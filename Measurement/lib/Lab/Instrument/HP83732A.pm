@@ -30,7 +30,10 @@ sub new {
 }
 
 
-
+sub id {
+    my $self=shift;
+    return $self->query('*IDN?');
+}
 
 
 sub reset {
