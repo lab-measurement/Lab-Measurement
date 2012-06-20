@@ -57,7 +57,15 @@ sub update_live_plot {
     $self->{live_plot}->{last}=[gettimeofday];
 
     $self->_plot($self->{live_plot}->{pipe},$self->{live_plot}->{plot});
-}        
+}
+
+sub force_update
+{
+    my $self=shift;
+    return unless (defined $self->{live_plot});
+    $self->{live_plot}->{last}=[gettimeofday];
+    $self->_plot($self->{live_plot}->{pipe},$self->{live_plot}->{plot});
+}
 
 sub stop_live_plot {
     my $self=shift;
