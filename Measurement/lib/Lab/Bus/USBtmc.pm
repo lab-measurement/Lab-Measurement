@@ -112,7 +112,7 @@ sub connection_new { # { tmc_address => primary address }
     if (!defined $fn) 
     {
         Lab::Exception::CorruptParameter->throw (
-            error => "Could not find specified device in " . __PACKAGE__ . "::connection_new()\n",
+            error => sprintf("Could not find specified device 0x%04x/0x%04x in " . __PACKAGE__ . "::connection_new()\n", $usb_vendor, $usb_product),
         );
     }
 
