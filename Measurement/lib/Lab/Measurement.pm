@@ -138,7 +138,13 @@ sub log_line {
     }
 }
 
-
+sub force_update_live_plot
+{
+    my $self=shift;
+    if ($self->{live_plotter}) {
+        $self->{live_plotter}->force_update();
+    }
+}
 
 sub start_block {
     my ($self,$label)=@_;
