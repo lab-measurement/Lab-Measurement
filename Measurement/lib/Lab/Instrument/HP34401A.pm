@@ -284,7 +284,7 @@ sub autozero {
 	return $az_status;
 }
 
-sub _configure_voltage_dc {
+sub configure_voltage_dc {
 	my $self=shift;
     my $range=shift; # in V, or "AUTO", "MIN", "MAX"
     my $tint=shift;  # integration time in sec, "DEFAULT", "MIN", "MAX"
@@ -334,7 +334,7 @@ sub configure_voltage_dc_trigger {
     	if($count !~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/);
         
 
-    $self->_configure_voltage_dc($range, $tint,$res_cmd);
+    $self->configure_voltage_dc($range, $tint,$res_cmd);
     
     $self->write("*ESE 1");
     $self->write("*CLS");
@@ -369,7 +369,12 @@ sub fetch{
 
     return @valarray;
 }
-	
+
+
+sub init{
+	my $self=shift;
+	$self->write("INIT");
+}	
 
 sub triggered_read {
     my $self=shift;
@@ -381,8 +386,9 @@ sub triggered_read {
 	
 	#$args->{'timeout'} = $args->{'timeout'} || $self->timeout();
 
-    $self->write( "INIT" );
-    $self->write( "*TRG");
+    $self->init();
+    $self->read_trig();
+    $self->wait_done();
     my $value = $self->query( "FETCh?", $args);
 	
 
@@ -455,7 +461,7 @@ When set to "ON", the device takes a zero reading after every measurement.
 
 =head2 configure_voltage_dc
 
-    $hp->configure_voltage_dc($range, $integration_time);
+    $hp->configure_voltage_dc($range, $integration_time, $resolution);
 
 Configures all the details of the device's DC voltage measurement function.
 
@@ -463,7 +469,89 @@ $range is a positive numeric value (the largest expected value to be measured) o
 It specifies the largest value to be measured. You can set any value, but the HP/Agilent 34401A effectively uses
 one of the values 0.1, 1, 10, 100 and 1000V.
 
-$integration_time is the integration time in seconds. This implicitly sets the provided resolution.
+$integration_time is the integration time in seconds or MIN MAX DEF. This implicitly sets the provided resolution.
+
+$resolution sets the resolution of the measurment. If set, $integration_time is overwritten.
+
+=head2 configure_voltage_dc_trigger
+
+	$hp->configure_voltage_dc_trigger($range, $integration_time, $count, $delay, $resolution)
+	
+The first three parameters are just passed to configure_voltage_dc.
+
+$count is an integer for the number of successive readings that follow one single trigger event.
+
+$delay is the delay in seconds between these readings.
+
+=head2 triggered_read
+
+	@data = $hp->triggered_read();
+	
+Sends a trigger pulse and fetches the values from the instrument buffer once the reading is finished.
+
+=head2 read_trig()
+
+Sends a read trigger to the device. It does not initialize the trigger facility.
+
+=head2 init()
+
+Initializes the trigger facility. The device is then in the state "waiting for trigger".
+
+=head2 get_value
+
+	$data = hp->get_value();
+
+Inherited from L<Lab::Instrument::Multimeter>. Performs a single reading in the current configuration.
+
+
+=head2 get_voltage_dc
+
+    $datum=$Agi->get_voltage_dc($range,$resolution);
+
+Preset and make a dc voltage measurement with the specified range
+and resolution.
+
+=head2 get_voltage_ac
+
+    $datum=$Agi->get_voltage_ac($range,$resolution);
+
+Preset and make a ac voltage measurement with the specified range
+and resolution.
+
+
+=head2 get_current_dc
+
+	$datum = $hp->get_current_dc($range,$resolution);
+
+Preset and make a dc current measurement with the specified range
+and resolution.
+
+=head2 get_current_ac
+
+	$datum = $hp->get_current_ac($range,$resolution);
+
+Preset and make a ac current measurement with the specified range
+and resolution.
+
+=head2 get_resistance
+
+    $resistance=$Agi->get_resistance($range,$resolution);
+
+Preset and measure resistance with specified range and resolution.
+
+=head2 get_4wresistance
+
+    $resistance=$Agi->get_4wresistance($range,$resolution);
+
+Preset and measure the four way resistance with specified range and resolution.
+
+=head2 get_status()
+
+Returns a status string from the device.
+
+=head2 get_error()
+
+Returns the error string from the device.
 
 
 =head2 pl_freq
@@ -514,24 +602,8 @@ Inherited from L<Lab::Instrument::Multimeter>
 Returns the instrument ID string.
 Inherited from L<Lab::Instrument::Multimeter>
 
-=head2 get_value
-
-Inherited from L<Lab::Instrument::Multimeter>
 
 
-
-=head2 get_resistance
-
-    $resistance=$Agi->get_resistance($range,$resolution);
-
-Preset and measure resistance with specified range and resolution.
-
-=head2 get_voltage_dc
-
-    $datum=$Agi->get_voltage_dc($range,$resolution);
-
-Preset and make a dc voltage measurement with the specified range
-and resolution.
 
 =over 4
 
@@ -575,21 +647,6 @@ at 6 1/2 digits. The resolution parameter only affects the front-panel display.
 =head2 get_error
 
 =head2 reset
-
-=head2 config_voltage
-
-    $inttime=$Agi->config_voltage($digits,$range,$count);
-
-Configures device for measurement with specified number of digits (4 to 6), voltage range and number of data
-points. Afterwards, data can be taken by triggering the multimeter, resulting in faster measurements than using
-read_voltage_xx.
-Returns string with integration time resulting from number of digits.
-
-=head2 get_with_trigger_voltage_dc
-
-    @array = $Agi->get_with_trigger_voltage_dc()
-
-Take data points as configured with config_voltage(). returns an array.
 
 =head2 scroll_message
 
