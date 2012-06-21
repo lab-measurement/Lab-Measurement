@@ -507,44 +507,57 @@ If those values are not specified, they are read from the device.
 
 =head1 METHODS
 
-=head2 sweep_to_voltage($voltage,$time)
+=head2 sweep_to_level
 
-Sweeps to $voltage in $time seconds.
-For this function to work, the source has to be in output mode.
+	$src->sweep_to_level($lvl,$time)
+	
+Sweep to the level $lvl in $time seconds.
 
+=head2 set_voltage
+
+	$src->set_voltage($voltage)
+
+Sets the output voltage to $voltage.
 Returns the newly set voltage. 
-This function is also called internally to set the voltage when gate protect is used.
 
-=head2 program_run($program)
+=head2 get_voltage
 
-Runs a program stored on the YokogawaGS200. If no prgram name is given, the currently loaded program is executed.
+Returns the currently set $voltage. The value is read from the driver cache by default. Provide the option
 
-=head2 program_pause
+	device_cache => 1
 
-Pauses the currently running program.
+to read directly from the device. 
 
-=head2 program_continue
+=head2 set_current
 
-Continues the paused program.
+	$src->set_current($current)
 
-=head2 set_voltage($voltage)
+Sets the output current to $current.
+Returns the newly set current. 
 
-Sets the output voltage. The driver checks whether you stay inside the currently selected range. 
-Returns the newly set voltage.
+=head2 get_current
 
-=head2 set_voltage_auto($voltage)
+Returns the currently set $current. The value is read from the driver cache by default. Provide the option
 
-Sets the output voltage. The range is chosen automatically.
-Does not work with gate protect on.
-Returns the newly set voltage.
+	device_cache => 1
 
-=head2 set_current($current)
+to read directly from the device.
 
-See set_voltage
+=head2 set_level
+	
+	$src->set_level($lvl)
+	
+Sets the level $lvl in the current operation mode.
 
-=head2 set_current_auto($current)
+=head2 get_level
 
-See set_current_auto
+	$lvl = $src->get_level()
+	
+Returns the currently set level. Use 
+
+	device_cache => 1
+	
+to enforce a reading directly from the device. 
 
 =head2 set_range($range)
 
@@ -562,6 +575,20 @@ See set_current_auto
     200E-3		200mA
     
     Please use the format on the left for the range command.
+
+
+=head2 program_run($program)
+
+Runs a program stored on the YokogawaGS200. If no prgram name is given, the currently loaded program is executed.
+
+=head2 program_pause
+
+Pauses the currently running program.
+
+=head2 program_continue
+
+Continues the paused program.
+
 
 =head2 set_function($function)
 
@@ -594,12 +621,6 @@ or current then, no matter what voltage you set. Returns the new value of the ou
 =head2 get_error()
 
 Queries the error code from the device. This is a very useful thing to do when you are working remote and the source is not responding.
-
-
-=head2 get_voltage()
-
-
-=head2 get_current()
 
 
 =head2 get_output()

@@ -176,9 +176,7 @@ sub get_error {
 			return ($1, $2); # ($code, $message)
 		}
 		else {
-			Lab::Exception::DeviceError->throw(
-				error => "Reading the error status of the device failed in Instrument::HP34401A::get_error(). Something's going wrong here.\n",
-			)	
+			return $error;
 		}
 	}
 	else {
@@ -343,7 +341,6 @@ sub configure_voltage_dc_trigger {
     $self->write( "SAMPle:COUNt $count");
     $self->write( "TRIG:DELay $delay");
 
-    $self->write( "INIT" );    
     
 }
 
@@ -477,6 +474,8 @@ $resolution sets the resolution of the measurment. If set, $integration_time is 
 
 	$hp->configure_voltage_dc_trigger($range, $integration_time, $count, $delay, $resolution)
 	
+Configures the device for successive triggered reading events. Does not initiate the trigger facility.
+Reading can then be performed calling triggered_read().
 The first three parameters are just passed to configure_voltage_dc.
 
 $count is an integer for the number of successive readings that follow one single trigger event.
