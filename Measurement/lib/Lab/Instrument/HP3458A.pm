@@ -593,9 +593,9 @@ Uses get_error() to check the device for occured errors. Reads all present error
 Lab::Exception::DeviceError. The list of errors, the device class and the last issued command(s)
 (if the script provided them) are enclosed.
 
-=head2 set_nlpc
+=head2 set_nplc
 
-    $hp->set_nlcp($number);
+    $hp->set_nplc($number);
 
 Sets the integration time in units of power line cycles.
 
