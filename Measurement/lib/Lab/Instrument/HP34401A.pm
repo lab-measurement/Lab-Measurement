@@ -175,9 +175,7 @@ sub get_error {
 			return ($1, $2); # ($code, $message)
 		}
 		else {
-			Lab::Exception::DeviceError->throw(
-				error => "Reading the error status of the device failed in Instrument::HP34401A::get_error(). Something's going wrong here.\n",
-			)	
+			return $error;
 		}
 	}
 	else {
@@ -367,7 +365,7 @@ sub configure_voltage_dc_trigger {
     }
 
     $self->write( "CONF:VOLT:DC ${range} ${res_cmd}", error_check => 1 );
-	$self->write( "VOLT:DC:NPLC ${tint}", error_check => 1 ) if $res_cmd eq ''; # integration time implicitly set if resolution not given
+    $self->write( "VOLT:DC:NPLC ${tint}", error_check => 1 ) if $res_cmd eq ''; # integration time implicitly set if resolution not given
     
     $self->write("*ESE 1");
     $self->write("*CLS");
@@ -376,7 +374,6 @@ sub configure_voltage_dc_trigger {
     $self->write( "SAMPle:COUNt $count");
     $self->write( "TRIG:DELay $delay");
 
-    $self->write( "INIT" );    
     
 }
 
@@ -402,7 +399,12 @@ sub fetch{
 
     return @valarray;
 }
-	
+
+
+sub init{
+	my $self=shift;
+	$self->write("INIT");
+}	
 
 sub triggered_read {
     my $self=shift;
@@ -414,8 +416,9 @@ sub triggered_read {
 	
 	#$args->{'timeout'} = $args->{'timeout'} || $self->timeout();
 
-    $self->write( "INIT" );
-    $self->write( "*TRG");
+    $self->init();
+    $self->read_trig();
+    $self->wait_done();
     my $value = $self->query( "FETCh?", $args);
 	
 
@@ -494,7 +497,7 @@ When set to "ON", the device takes a zero reading after every measurement.
 
 =head2 configure_voltage_dc
 
-    $hp->configure_voltage_dc($range, $integration_time);
+    $hp->configure_voltage_dc($range, $integration_time, $resolution);
 
 Configures all the details of the device's DC voltage measurement function.
 
@@ -502,7 +505,91 @@ $range is a positive numeric value (the largest expected value to be measured) o
 It specifies the largest value to be measured. You can set any value, but the HP/Agilent 34401A effectively uses
 one of the values 0.1, 1, 10, 100 and 1000V.
 
-$integration_time is the integration time in seconds. This implicitly sets the provided resolution.
+$integration_time is the integration time in seconds or MIN MAX DEF. This implicitly sets the provided resolution.
+
+$resolution sets the resolution of the measurment. If set, $integration_time is overwritten.
+
+=head2 configure_voltage_dc_trigger
+
+	$hp->configure_voltage_dc_trigger($range, $integration_time, $count, $delay, $resolution)
+	
+Configures the device for successive triggered reading events. Does not initiate the trigger facility.
+Reading can then be performed calling triggered_read().
+The first three parameters are just passed to configure_voltage_dc.
+
+$count is an integer for the number of successive readings that follow one single trigger event.
+
+$delay is the delay in seconds between these readings.
+
+=head2 triggered_read
+
+	@data = $hp->triggered_read();
+	
+Sends a trigger pulse and fetches the values from the instrument buffer once the reading is finished.
+
+=head2 read_trig()
+
+Sends a read trigger to the device. It does not initialize the trigger facility.
+
+=head2 init()
+
+Initializes the trigger facility. The device is then in the state "waiting for trigger".
+
+=head2 get_value
+
+	$data = hp->get_value();
+
+Inherited from L<Lab::Instrument::Multimeter>. Performs a single reading in the current configuration.
+
+
+=head2 get_voltage_dc
+
+    $datum=$Agi->get_voltage_dc($range,$resolution);
+
+Preset and make a dc voltage measurement with the specified range
+and resolution.
+
+=head2 get_voltage_ac
+
+    $datum=$Agi->get_voltage_ac($range,$resolution);
+
+Preset and make a ac voltage measurement with the specified range
+and resolution.
+
+
+=head2 get_current_dc
+
+	$datum = $hp->get_current_dc($range,$resolution);
+
+Preset and make a dc current measurement with the specified range
+and resolution.
+
+=head2 get_current_ac
+
+	$datum = $hp->get_current_ac($range,$resolution);
+
+Preset and make a ac current measurement with the specified range
+and resolution.
+
+=head2 get_resistance
+
+    $resistance=$Agi->get_resistance($range,$resolution);
+
+Preset and measure resistance with specified range and resolution.
+
+=head2 get_4wresistance
+
+    $resistance=$Agi->get_4wresistance($range,$resolution);
+
+Preset and measure the four way resistance with specified range and resolution.
+
+=head2 get_status()
+
+Returns a status string from the device.
+
+=head2 get_error()
+
+Returns the error string from the device.
 
 
 =head2 pl_freq
@@ -530,20 +617,6 @@ Inherited from L<Lab::Instrument::Multimeter>
     $Agi->set_display_state($state);
 
 Turn the front-panel display on ($state = "ON") or off ($state = "OFF").
-
-
-=head2 get_resistance
-
-    $resistance=$Agi->get_resistance($range,$resolution);
-
-Preset and measure resistance with specified range and resolution.
-
-=head2 get_voltage_dc
-
-    $datum=$Agi->get_voltage_dc($range,$resolution);
-
-Preset and make a dc voltage measurement with the specified range
-and resolution.
 
 =over 4
 
@@ -629,6 +702,12 @@ Sends a trigger signal to the device.
 	$data = $device->fetch()
 
 Fetches the data which is currently in the output buffer of the device.
+
+=head2 scroll_message
+
+    $Agi->scroll_message($message);
+  
+Scrolls the message C<$message> on the display of the HP.
 
 =head2 beep
 

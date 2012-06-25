@@ -624,7 +624,6 @@ If you want to use the sweep function without using gate protect, you should spe
 		stepsize=>0.01
 	
 Additinally there is support to set parameters for the device "on init":		
-If those values are not specified, defaults are supplied by the driver.
 	
 		function			=> Voltage, # specify "Voltage" or "Current" mode, string is case insensitive
 		range			=> undef,
@@ -637,52 +636,81 @@ If those values are not specified, the current device configuration is left unal
 
 =head1 METHODS
 
-=head2 set_voltage($voltage)
+=head2 set_voltage
+
+	$src->set_voltage($voltage)
 
 Sets the output voltage to $voltage.
-Returns the newly set voltage.
+Returns the newly set voltage. 
 
-=head2 get_voltage()
+=head2 get_voltage
 
 Returns the currently set $voltage. The value is read from the driver cache by default. Provide the option
 
-device_cache => 1
+	device_cache => 1
 
-to read directly from the device.
+to read directly from the device. 
 
-=head2 set_current($current)
+=head2 set_current
+
+	$src->set_current($current)
 
 Sets the output current to $current.
-Returns the newly set current.
+Returns the newly set current. 
 
-=head2 get_current()
+=head2 get_current
 
 Returns the currently set $current. The value is read from the driver cache by default. Provide the option
 
-device_cache => 1
+	device_cache => 1
 
 to read directly from the device.
 
-=head2 set_range($range)
+=head2 set_level
+	
+	$src->set_level($lvl)
+	
+Sets the level $lvl in the current operation mode.
+
+=head2 get_level
+
+	$lvl = $src->get_level()
+	
+Returns the currently set level. Use 
+
+	device_cache => 1
+	
+to enforce a reading directly from the device. 
+
+=head2 sweep_to_level
+
+	$src->sweep_to_level($lvl,$time)
+	
+Sweep to the level $lvl in $time seconds.
+
+=head2 set_range
+
+	$src->set_range($range)
 
 Set the output range for the device. $range should be either in decimal or scientific notation.
 Returns the newly set range.
 
-=head2 get_info()
+=head2 get_info
 
 Returns the information provided by the instrument's 'OS' command, in the form of an array
 with one entry per line. For display, use join(',',$yoko->get_info()); or similar.
 
-=head2 set_output( $onoff )
+=head2 set_output
+
+	$src->set_output( $onoff )
 
 Sets the output switch to "1" (on) or "0" (off).
 Returns the new output state;
 
-=head2 get_output()
+=head2 get_output
 
 Returns the status of the output switch (0 or 1).
 
-=head2 initialize()
 
 =head2 set_voltage_limit($limit)
 
