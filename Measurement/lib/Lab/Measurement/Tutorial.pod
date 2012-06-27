@@ -38,12 +38,11 @@ or VISA/GPIB, please see the L</References> section [1-6].
 
 =head1 Measurement automation basics
 
-This section provides a very brief introduction to the terms VISA and GPIB. For
-a more detailed explanation of the VISA and GPIB standards, the involved
-communication principles and the available commands for your specific
-instruments, please refer to the literature [1-3]. Usage of the higher level
-modules from the L<Lab::Instrument> package requires almost no knowledge about
-VISA and GPIB at all. 
+This section provides a very brief introduction to various ways of connecting
+measurement instruments to your control PC. We focus on the methods not so
+well-known to average PC users, i.e. VISA and GPIB programming. Usage of the
+higher level modules from the L<Lab::Instrument> package requires almost no
+knowledge about VISA and GPIB at all, though.
 
 =head2 VISA
 
@@ -80,6 +79,12 @@ L<Lab::Instrument::Source> interface).
 
 In one word: GPIB tries to make communication with various instruments more
 similar.
+
+=head2 RS232
+
+RS232 is the abbreviation for the serial port that used to be built into each
+PC. It provides a point-to-point connection to one instrument.
+
 
 =head1 Architecture
 
