@@ -25,6 +25,7 @@ our %BusList = (
 	# BusType => $BusReference,
 );
 
+
 our %fields = (
 	config => undef,
 	type => undef,	# e.g. 'GPIB'
@@ -170,15 +171,16 @@ This is a base class for inheriting bus types.
 
 =head1 DESCRIPTION
 
-C<Lab::Bus> is a base class for individual buses. It does not do anything on its own.
-For more detailed information on the use of bus objects, take a look on a child class, e.g.
-L<Lab::Bus::LinuxGPIB>.
+C<Lab::Bus> is a base class for individual buses. It does not do anything on its
+own. For more detailed information on the use of bus objects, take a look on a
+child class, e.g. L<Lab::Bus::LinuxGPIB>.
 
-C<Lab::Bus::BusList> contains a hash with references to all the active buses in your program.
-They are put there by the constructor of the individual bus C<Lab::Bus::new()> and have two 
-levels: Package name and a unique bus ID (GPIB board index offers itself for GPIB). This is 
-to transparently (to the use interface) reuse bus objects, as there may only be one bus object 
-for every (hardware) bus. weaken() is used on every reference stored in this hash, so
+C<Lab::Bus::BusList> contains a hash with references to all the active buses in
+your program. They are put there by the constructor of the individual bus
+C<Lab::Bus::new()> and have two levels: Package name and a unique bus ID (GPIB
+board index offers itself for GPIB). This is to transparently (to the use
+interface) reuse bus objects, as there may only be one bus object for every
+(hardware) bus. weaken() is used on every reference stored in this hash, so
 it doesn't prevent object destruction when the last "real" reference is lost.
 Yes, this breaks object orientation a little, but it comes so handy!
 
@@ -190,8 +192,8 @@ Yes, this breaks object orientation a little, but it comes so handy!
 		'0' => $Object,		"0" is the gpib board index
 	}
 
-Place your twin searching code in C<$self->_search_twin()>. Make sure it evaluates 
-C<$self->IgnoreTwin()>. Look at L<Lab::Bus::LinuxGPIB>.
+Place your twin searching code in C<$self->_search_twin()>. Make sure it
+evaluates C<$self->IgnoreTwin()>. Look at L<Lab::Bus::LinuxGPIB>.
 
 
 =head1 CONSTRUCTOR
@@ -206,10 +208,22 @@ Return blessed $self, with @_ accessible through $self->Config().
 
 =head1 METHODS
 
-=head2 Config
+=head2 config
 
 Provides unified access to the fields in initial @_ to all the child classes.
- 
+
+=head2 connection_new
+
+Empty stub function for overloading
+
+=head2 connection_read
+
+Empty stub function for overloading
+
+=head2 connection_write
+
+Empty stub function for overloading
+
 =head1 CAVEATS/BUGS
 
 Probably few. Mostly because there's not so much done here.
@@ -238,6 +252,7 @@ and many more...
            2009-2010 Daniel Schröer, Andreas K. Hüttel (L<http://www.akhuettel.de/>) and David Kalok,
            2010      Matthias Völker <mvoelker@cpan.org>
            2011      Florian Olbrich, Andreas K. Hüttel
+           2012      Andreas K. Hüttel
 
 This library is free software; you can redistribute it and/or modify it under the same
 terms as Perl itself.
