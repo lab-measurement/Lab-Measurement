@@ -189,6 +189,10 @@ use Exception::Class (
 
 Lab::Exception - exception handling classes
 
+=head1 METHODS
+
+This section is still missing.
+
 =head1 AUTHOR/COPYRIGHT
 
  Copyright     2011      Florian Olbrich
