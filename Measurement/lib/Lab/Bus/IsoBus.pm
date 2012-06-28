@@ -135,7 +135,6 @@ sub connection_write { # @_ = ( $connection_handle, $args = { command, wait_stat
 			# build the format for an IsoBus command
 			command => sprintf("@%d%s\r",$connection_handle,$command),
 		});
-        );
 
 	return $write_cnt;
 	}
