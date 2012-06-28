@@ -68,6 +68,6 @@ leading to undefined hardware behaviour.
 
 =head1 COPYRIGHT AND LICENCE
 
- (c) 2011 Andreas K. Hüttel
+ (c) 2011,2012 Andreas K. Hüttel
 
 =cut

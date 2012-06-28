@@ -764,6 +764,30 @@ sub function_list_index{
 # 
 # }
 
+# =head2 WriteConfig
+# 
+# this is NOT YET IMPLEMENTED in this base class so far
+# 
+#  $instrument->WriteConfig( 'TRIGGER' => { 'SOURCE' => 'CHANNEL1',
+#   			  	                          'EDGE'   => 'RISE' },
+#     	               'AQUIRE'  => 'HRES',
+#     	               'MEASURE' => { 'VRISE' => 'ON' });
+# 
+# Builds up the commands and sends them to the instrument. To get the correct
+# format a 
+# command rules hash has to be set up by the driver package
+# 
+# e.g. for SCPI commands
+# $instrument->{'CommandRules'} = { 
+#                   'preCommand'        => ':',
+#     		  'inCommand'         => ':',
+#     		  'betweenCmdAndData' => ' ',
+#     		  'postData'          => '' # empty entries can be skipped
+#     		};
+# 
+# 
+# 
+
 1;
 
 
@@ -794,32 +818,35 @@ Every inheriting class constructor should start as follows:
     ...
   }
 
-Beware that only the first set of parameters specific to an individual GPIB board 
-or any other bus hardware gets used. Settings for EOI assertion for example.
+Beware that only the first set of parameters specific to an individual GPIB
+board or any other bus hardware gets used. Settings for EOI assertion for
+example.
 
-If you know what you're doing or you have an exotic scenario you can use the connection 
-parameter "ignore_twins => 1" to force the creation of a new bus object, but this is discouraged
-- it will kill bus management and you might run into hardware/resource sharing issues.
+If you know what you're doing or you have an exotic scenario you can use the
+connection parameter "ignore_twins => 1" to force the creation of a new bus
+object, but this is discouraged - it will kill bus management and you might run
+into hardware/resource sharing issues.
 
 
 
 =head1 DESCRIPTION
 
-C<Lab::Instrument> is the base class for Instruments. It doesn't do much by itself, but
-is meant to be inherited in specific instrument drivers.
-It provides general C<read>, C<write> and C<query> methods and basic connection handling 
-(internal, C<_set_connection>, C<_check_connection>).
+C<Lab::Instrument> is the base class for Instruments. It doesn't do much by
+itself, but is meant to be inherited in specific instrument drivers. It provides
+general C<read>, C<write> and C<query> methods and basic connection handling
+(internally, C<_set_connection>, C<_check_connection>).
 
 
 =head1 CONSTRUCTOR
 
 =head2 new
 
-This blesses $self (don't do it yourself in an inheriting class!), initializes the basic "fields" to be accessed
-via AUTOLOAD and puts the configuration hash in $self->config to be accessed in methods and inherited
-classes.
+This blesses $self (don't do it yourself in an inheriting class!), initializes
+the basic "fields" to be accessed via AUTOLOAD and puts the configuration hash
+in $self->config to be accessed in methods and inherited classes.
 
-Arguments: just the configuration hash (or even-sized list) passed along from a child class constructor.
+Arguments: just the configuration hash (or even-sized list) passed along from a
+child class constructor. 
 
 =head1 METHODS
 
@@ -827,26 +854,33 @@ Arguments: just the configuration hash (or even-sized list) passed along from a 
 
  $instrument->write($command <, {optional hashref/hash}> );
  
-Sends the command C<$command> to the instrument. An option hash can be supplied as second or also as only argument.
-Generally, all options are passed to the connection/bus, so additional named options may be supported based on the connection and bus
-and can be passed as a hashref or hash. See L<Lab::Connection>.
+Sends the command C<$command> to the instrument. An option hash can be supplied
+as second or also as only argument. Generally, all options are passed to the
+connection/bus, so additional named options may be supported based on the
+connection and bus and can be passed as a hashref or hash. See
+L<Lab::Connection>.
  
 Optional named parameters for hash:
-error_check => 1/0	Invoke $instrument->check_errors after write. Default off.
+
+ error_check => 1/0
+
+Invoke $instrument->check_errors after write. Defaults to off.
 
 =head2 read
 
  $result=$instrument->read({ read_length => <max length>, brutal => <1/0>);
 
-Reads a result of C<ReadLength> from the instrument and returns it.
-Returns an exception on error.
+Reads a result of C<ReadLength> from the instrument and returns it. Returns an
+exception on error.
 
-If the parameter C<brutal> is set, a timeout in the connection will not result in an Exception thrown,
-but will return the data obtained until the timeout without further comment.
-Be aware that this data is also contained in the the timeout exception object (see C<Lab::Exception>).
+If the parameter C<brutal> is set, a timeout in the connection will not result
+in an Exception thrown, but will return the data obtained until the timeout
+without further comment. Be aware that this data is also contained in the the
+timeout exception object (see C<Lab::Exception>).
 
-Generally, all options are passed to the connection/bus, so additional named options may be supported based on the connection and bus
-and can be passed as a hashref or hash. See L<Lab::Connection>.
+Generally, all options are passed to the connection/bus, so additional named
+options may be supported based on the  connection and bus and can be passed as a
+hashref or hash. See L<Lab::Connection>.
 
 =head2 query
 
@@ -855,62 +889,42 @@ and can be passed as a hashref or hash. See L<Lab::Connection>.
                               read_length => $read_length);
 
 Sends the command C<$command> to the instrument and reads a result from the
-instrument and returns it. The length of the read buffer is set to C<read_length> or to the
-default set in the connection.
+instrument and returns it. The length of the read buffer is set to
+C<read_length> or to the default set in the connection.
 
 Waits for C<wait_query> microseconds before trying to read the answer.
 
-Generally, all options are passed to the connection/bus, so additional named options may be supported based on the connection and bus
-and can be passed as a hashref or hash. See L<Lab::Connection>.
-
-
-=head2 WriteConfig
-
-this is NOT YET IMPLEMENTED in this base class so far
-
- $instrument->WriteConfig( 'TRIGGER' => { 'SOURCE' => 'CHANNEL1',
-  			  	                          'EDGE'   => 'RISE' },
-    	               'AQUIRE'  => 'HRES',
-    	               'MEASURE' => { 'VRISE' => 'ON' });
-
-Builds up the commands and sends them to the instrument. To get the correct format a 
-command rules hash has to be set up by the driver package
-
-e.g. for SCPI commands
-$instrument->{'CommandRules'} = { 
-                  'preCommand'        => ':',
-    		  'inCommand'         => ':',
-    		  'betweenCmdAndData' => ' ',
-    		  'postData'          => '' # empty entries can be skipped
-    		};
+Generally, all options are passed to the connection/bus, so additional named
+options may be supported based on the connection and bus and can be passed as a
+hashref or hash. See L<Lab::Connection>.
 
 =head2 get_error
 
 	($errcode, $errmsg) = $instrument->get_error();
 
-Method stub to be overwritten. Implementations read one error (and message, if available) from
-the device.
+Method stub to be overwritten. Implementations read one error (and message, if
+available) from the device.
 
 =head2 get_status
 
 	$status = $instrument->get_status();
 	if( $instrument->get_status('ERROR') ) {...}
 	
-Method stub to be overwritten.
-This returns the status reported by the device (e.g. the status byte retrieved via serial poll from
-GPIB devices). When implementing, use only information which can be retrieved very fast from the device,
-as this may be used often. 
+Method stub to be overwritten. This returns the status reported by the device
+(e.g. the status byte retrieved via serial poll from GPIB devices). When
+implementing, use only information which can be retrieved very fast from the
+device, as this may be used often. 
 
 Without parameters, has to return a hashref with named status bits, e.g.
 
-$status => {
-	ERROR => 1,
-	DATA => 0,
-	READY => 1
-}
+ $status => {
+ 	ERROR => 1,
+ 	DATA => 0,
+ 	READY => 1
+ }
 
-If present, the first argument is interpreted as a key and the corresponding value of the hash above is
-returned directly.
+If present, the first argument is interpreted as a key and the corresponding
+value of the hash above is returned directly.
 
 The 'ERROR'-key has to be implemented in every device driver!
 
@@ -929,9 +943,9 @@ The 'ERROR'-key has to be implemented in every device driver!
 		$command = $e->command();		
 	}
 
-Uses get_error() to check the device for occured errors. Reads all present errors and throws a
-Lab::Exception::DeviceError. The list of errors, the device class and the last issued command(s)
-(if the script provided them) are enclosed.
+Uses get_error() to check the device for occured errors. Reads all present
+errors and throws a Lab::Exception::DeviceError. The list of errors, the device
+class and the last issued command(s) (if the script provided them) are enclosed.
 
 =head1 CAVEATS/BUGS
 
@@ -963,6 +977,7 @@ Probably many, with all the porting. This will get better.
            2009-2010 Daniel Schröer, Andreas K. Hüttel (L<http://www.akhuettel.de/>) and David Kalok,
            2010      Matthias Völker <mvoelker@cpan.org>
            2011      Florian Olbrich, Andreas K. Hüttel
+	   2012      Andreas K. Hüttel
 
 This library is free software; you can redistribute it and/or modify it under the same
 terms as Perl itself.
