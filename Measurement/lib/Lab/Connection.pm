@@ -208,7 +208,11 @@ sub _setbus { # $self->setbus() create new or use existing bus
 	my $self=shift;
 	my $bus_class = $self->bus_class();
 
-	$self->bus(eval("require $bus_class; new $bus_class(\$self->config());")) || Lab::Exception::Error->throw( error => "Failed to create bus $bus_class in " . __PACKAGE__ . "::_setbus.\n");
+	$self->bus(eval("require $bus_class; new $bus_class(\$self->config());")) ||
+        Lab::Exception::Error->throw( error => "Failed to create bus $bus_class in " . __PACKAGE__ .
+            "::_setbus. Error message was:".
+            "\n\n----------------------------------------------\n\n".
+            "$@\n----------------------------------------------\n");
 
 	# again, pass it all.
 	$self->connection_handle( $self->bus()->connection_new( $self->config() ));
