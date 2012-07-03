@@ -1,6 +1,12 @@
 package Lab::Instrument::PD11042;
+our $VERSION = '3.00';
+
+use strict;
+use Time::HiRes qw/usleep/, qw/time/;
+use Lab::Instrument;
 
 die "Not ported yet.";
+
 
 # Opcodes of all TMCL commands that can be used in direct mode
 use constant {
@@ -54,25 +60,31 @@ use constant {
 };
 
 
-
-use strict;
-use Time::HiRes qw/usleep/, qw/time/;
-use Lab::VISA;
-use Lab::Instrument;
-
 our %limits;
 our $RESOLUTION = 32;
 our $GETRIEBEMULTIPLIKATOR = 43;
 
+our @ISA = ("Lab::Instrument");
 
-sub new{
+our %fields = (
+	supported_connections => [ 'VISA', 'RS232', 'DEBUG' ],
+	baudrate => 9600,
+	databits => 8,
+	stopbits => 1,
+	parity => 'none',
+
+	handshake => 'none',
+	timeout => 500,
+);
+
+sub new {
 	my $proto = shift;
-	 my @args=@_;
-    my $class = ref($proto) || $proto;
-    my $self = {};
-    bless ($self, $class);
-	
-	
+	my $class = ref($proto) || $proto;
+	my $self = $class->SUPER::new(@_);
+	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__); 
+
+
+	# work in progress
 	if (ref(@args[0]) eq 'Lab::Instrument::RS232')
 		{
 		print "Init Motor PD-110 as RS232 device.\n";
@@ -81,19 +93,8 @@ sub new{
 		$self->{id} = 'Motor_PD-110';
 		
 		
-		my $status;
-		
-		my $status=Lab::VISA::viSetAttribute($self->{vi}->{config}->{RS232}->{vi}->{instr}, $Lab::VISA::VI_ATTR_ASRL_BAUD, 9600);
-		if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting baud: $status";}
+		my $status;			
 	
-		$status=Lab::VISA::viSetAttribute($self->{vi}->{config}->{RS232}->{vi}->{instr}, $Lab::VISA::VI_ATTR_ASRL_DATA_BITS, 8);
-		if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting databits: $status";}
-			
-		$status=Lab::VISA::viSetAttribute($self->{vi}->{config}->{RS232}->{vi}->{instr}, $Lab::VISA::VI_ATTR_ASRL_STOP_BITS, $Lab::VISA::VI_ASRL_STOP_ONE);
-		if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting stopbits: $status";}
-	
-		$status=Lab::VISA::viSetAttribute($self->{vi}->{config}->{RS232}->{vi}->{instr}, $Lab::VISA::VI_ATTR_ASRL_PARITY, $Lab::VISA::VI_ASRL_PAR_NONE);
-		if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting parity bit: $status";}
 	
 		$status=Lab::VISA::viSetAttribute($self->{vi}->{config}->{RS232}->{vi}->{instr}, $Lab::VISA::VI_ATTR_TERMCHAR_EN, $Lab::VISA::VI_FALSE);
 		if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting termchar enabled: $status";}	
@@ -171,29 +172,6 @@ sub new{
 		
 }
 
-sub create_header {
-	my $self = shift;
-	my $header;
-	
-	$self->get_config_data();
-	
-	$header .= "\n\n---------------------------------------\n";
-	$header .= ref($self)." :\n";
-	$header .= "---------------------------------------\n";
-	$header .= "ID = ".($self->{id})."\n";
-	
-	$header .= "---------------------------------------\n";
-	$header .= "\n";
-	
-	return $header;
-	
-	
-}
-
-sub get_config_data {
-	my $self = shift;
-	return $self;
-}
 
 
 # Execute command: exec_cmd(cmd, type, value)
@@ -728,3 +706,62 @@ return "$Stunden:$Minuten:$Sekunden  $Monatstag.$Monat.$Jahr\n";
 }
 
 1;
+
+
+=pod
+
+=encoding utf-8
+
+=head1 NAME
+
+Lab::Instrument::PD11042 - 42mm stepper motor with integrated controller/driver
+
+=head1 SYNOPSIS
+
+    use Lab::Instrument::PD11042;
+    
+    ...
+    
+=head1 DESCRIPTION
+
+The Lab::Instrument::PD11042 class implements an interface to the
+Trinamic PD-110-42 low-cost 42mm stepper motor with integrated
+controller/driver.
+
+=head1 CONSTRUCTOR
+
+   ...
+
+=head1 METHODS
+
+=head2 ...
+
+  ...
+
+...
+
+=head1 CAVEATS/BUGS
+
+None known so far. :)
+
+=head1 SEE ALSO
+
+=over 4
+
+=item Lab::Instrument
+
+=item
+<Lhttp://www.trinamic.com/index.php?option=com_content&view=article&id=243&
+Itemid=355>
+
+
+=back
+
+=head1 AUTHOR/COPYRIGHT
+
+This library is free software; you can redistribute it and/or modify it under
+the same terms as Perl itself.
+
+  (c) 2011 Stefan Geissler
+
+=cut
