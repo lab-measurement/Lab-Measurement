@@ -5,9 +5,6 @@ use strict;
 use Time::HiRes qw/usleep/, qw/time/;
 use Lab::Instrument;
 
-die "Not ported yet.";
-
-
 # Opcodes of all TMCL commands that can be used in direct mode
 use constant {
   TMCL_ROR  => 1
@@ -72,7 +69,6 @@ our %fields = (
 	databits => 8,
 	stopbits => 1,
 	parity => 'none',
-
 	handshake => 'none',
 	timeout => 500,
 );
@@ -83,93 +79,72 @@ sub new {
 	my $self = $class->SUPER::new(@_);
 	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__); 
 
+	# my $status;
+	# termchar is imho disabled by default
+	# $status=Lab::VISA::viSetAttribute($self->{vi}->{config}->{RS232}->{vi}->{instr}, $Lab::VISA::VI_ATTR_TERMCHAR_EN, $Lab::VISA::VI_FALSE);
+	# if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting termchar enabled: $status";}	
+	# not sure what the echo setting by default is, let's test
+	# $self->{vi}->{config}->{RS232_Echo} = 'OFF';
 
-	# work in progress
-	if (ref(@args[0]) eq 'Lab::Instrument::RS232')
-		{
-		print "Init Motor PD-110 as RS232 device.\n";
-		$self->{vi}=new Lab::Instrument(@_,'dummy_value');
-		$self->{CONNECTION_TYPE} = 'RS232';
-		$self->{id} = 'Motor_PD-110';
-		
-		
-		my $status;			
 	
-	
-		$status=Lab::VISA::viSetAttribute($self->{vi}->{config}->{RS232}->{vi}->{instr}, $Lab::VISA::VI_ATTR_TERMCHAR_EN, $Lab::VISA::VI_FALSE);
-		if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting termchar enabled: $status";}	
-
-
-		$self->{vi}->{config}->{RS232_Echo} = 'OFF';
+	# my ($result, $errcode) = $self->exec_cmd(TMCL_GAP, maximum_positioning_speed, 10);
+	# print $result."\n";
+	# my ($result, $errcode) = $self->exec_cmd(TMCL_GAP, ramp_mode, 0);
+	# print $result."\n";
+	# my ($result, $errcode) = $self->exec_cmd(TMCL_GAP, microstep_resolution, 5);
+	# print $result."\n";
+	# my ($result, $errcode) = $self->exec_cmd(TMCL_GAP, absolut_max_current, 745);
+	# print $result."\n";
+	# my ($result, $errcode) = $self->exec_cmd(TMCL_GAP, standby_current, 1400);
+	# print $result."\n";
+	# my ($result, $errcode) = $self->exec_cmd(TMCL_GAP, stall_detection_threshold, 2040);
+	# print $result."\n";
+	# my ($result, $errcode) = $self->exec_cmd(TMCL_GAP, power_down_dely, 0);
+	# print $result."\n";
+	# my ($result, $errcode) = $self->exec_cmd(TMCL_GAP, ramp_divisor, 7);
+	# print $result."\n";
+	# my ($result, $errcode) = $self->exec_cmd(TMCL_GAP, puls_divisor, 3);
+	# print $result."\n";
+	# my ($result, $errcode) = $self->exec_cmd(TMCL_GAP, freewheeling, 100);
+	# print $result."\n";
+	# exit;
 		
-		}
+	my ($result, $errcode);				
+	# set initial motor parameters (reference point, speed, microstep resolution, etc.
+	# 1.) speed:
+		$limits{'maximum_positioning_speed'} = 120;		
+		($result, $errcode) = $self->exec_cmd(TMCL_SAP, target_speed, 0);
+		($result, $errcode) = $self->exec_cmd(TMCL_SAP, maximum_positioning_speed, $self->steps2angle($limits{'maximum_positioning_speed'}/2.4)); #HIER ANSETZEN!!!
+		($result, $errcode) = $self->exec_cmd(TMCL_SAP, ramp_mode, 2);	
 		
-	else
-		{
-		die "Sorry, only RS232 implemented for Motor PD-110.";
-		}		
-		
-		# my ($result, $errcode) = $self->exec_cmd(TMCL_GAP, maximum_positioning_speed, 10);
-		# print $result."\n";
-		# my ($result, $errcode) = $self->exec_cmd(TMCL_GAP, ramp_mode, 0);
-		# print $result."\n";
-		# my ($result, $errcode) = $self->exec_cmd(TMCL_GAP, microstep_resolution, 5);
-		# print $result."\n";
-		# my ($result, $errcode) = $self->exec_cmd(TMCL_GAP, absolut_max_current, 745);
-		# print $result."\n";
-		# my ($result, $errcode) = $self->exec_cmd(TMCL_GAP, standby_current, 1400);
-		# print $result."\n";
-		# my ($result, $errcode) = $self->exec_cmd(TMCL_GAP, stall_detection_threshold, 2040);
-		# print $result."\n";
-		# my ($result, $errcode) = $self->exec_cmd(TMCL_GAP, power_down_dely, 0);
-		# print $result."\n";
-		# my ($result, $errcode) = $self->exec_cmd(TMCL_GAP, ramp_divisor, 7);
-		# print $result."\n";
-		# my ($result, $errcode) = $self->exec_cmd(TMCL_GAP, puls_divisor, 3);
-		# print $result."\n";
-		# my ($result, $errcode) = $self->exec_cmd(TMCL_GAP, freewheeling, 100);
-		# print $result."\n";
-		# exit;
-		
-		my ($result, $errcode);				
-		# set initial motor parameters (reference point, speed, microstep resolution, etc.
-		# 1.) speed:
-			$limits{'maximum_positioning_speed'} = 120;		
-			($result, $errcode) = $self->exec_cmd(TMCL_SAP, target_speed, 0);
-			($result, $errcode) = $self->exec_cmd(TMCL_SAP, maximum_positioning_speed, $self->steps2angle($limits{'maximum_positioning_speed'}/2.4)); #HIER ANSETZEN!!!
-			($result, $errcode) = $self->exec_cmd(TMCL_SAP, ramp_mode, 2);	
-		
-		# 2.) microstep resolution:
-			# 0 = full step (don't use), 
-			# 1 = half step (don't use), 
-			# 2 = 4 microsteps, 
-			# 3 = 8 microsteps, 
-			# 4 = 16 microsteps, 
-			# 5 = 32 microsteps, 
-			# 6 = 64 microsteps		
-			$RESOLUTION = 32;
-			($result, $errcode) = $self->exec_cmd(TMCL_SAP, microstep_resolution, 5);
+	# 2.) microstep resolution:
+		# 0 = full step (don't use), 
+		# 1 = half step (don't use), 
+		# 2 = 4 microsteps, 
+		# 3 = 8 microsteps, 
+		# 4 = 16 microsteps, 
+		# 5 = 32 microsteps, 
+		# 6 = 64 microsteps		
+		$RESOLUTION = 32;
+		($result, $errcode) = $self->exec_cmd(TMCL_SAP, microstep_resolution, 5);
 			
-		# 3.) motor current settings:
-			($result, $errcode) = $self->exec_cmd(TMCL_SAP, absolut_max_current, 745); # 469 mA
-			($result, $errcode) = $self->exec_cmd(TMCL_SAP, standby_current, 1400); # 117 mA
-			($result, $errcode) = $self->exec_cmd(TMCL_SAP, stall_detection_threshold, 2040);
-			($result, $errcode) = $self->exec_cmd(TMCL_SAP, power_down_dely, 0);
-			($result, $errcode) = $self->exec_cmd(TMCL_SAP, ramp_divisor, 7);
-			($result, $errcode) = $self->exec_cmd(TMCL_SAP, puls_divisor, 3);
-			($result, $errcode) = $self->exec_cmd(TMCL_SAP, freewheeling, 100);
+	# 3.) motor current settings:
+		($result, $errcode) = $self->exec_cmd(TMCL_SAP, absolut_max_current, 745); # 469 mA
+		($result, $errcode) = $self->exec_cmd(TMCL_SAP, standby_current, 1400); # 117 mA
+		($result, $errcode) = $self->exec_cmd(TMCL_SAP, stall_detection_threshold, 2040);
+		($result, $errcode) = $self->exec_cmd(TMCL_SAP, power_down_dely, 0);
+		($result, $errcode) = $self->exec_cmd(TMCL_SAP, ramp_divisor, 7);
+		($result, $errcode) = $self->exec_cmd(TMCL_SAP, puls_divisor, 3);
+		($result, $errcode) = $self->exec_cmd(TMCL_SAP, freewheeling, 100);
 		
-			# ($result, $errcode) = $self->exec_cmd(TMCL_SAP, actual_position, $self->angle2steps(-330));
-			# print $self->get_position()."\n";;
-			# exit;
-		# 4.) set some reference point and limits for motor movements:			
-			$self->init_limits();
+		# ($result, $errcode) = $self->exec_cmd(TMCL_SAP, actual_position, $self->angle2steps(-330));
+		# print $self->get_position()."\n";;
+		# exit;
+
+	# 4.) set some reference point and limits for motor movements:			
+		$self->init_limits();
 		
-		
-		# register instrument:
-		push ( @{${Lab::Instrument::INSTRUMENTS}}, $self );		
-		return $self;
-		
+	return $self;		
 }
 
 
@@ -189,7 +164,6 @@ sub exec_cmd {
 		$value = 4244897281 + $value;
 		}
 	
-	
 	my $v4 = int($value / 255**3);	
 	$v4 = ( $v4 > 255 ) ? 255 : $v4;		
 	$value -= (255**3)*$v4;
@@ -208,7 +182,7 @@ sub exec_cmd {
 	my $i = 0;
 	while($errcode != 100 && $i < 10) {
 	  #print $addr."-".$cmd."-".$type."-".$motor."-".$v4."-".$v3."-".$v2."-".$value."-".$checksum." (".$i.")\n";
-	  $self->{vi}->Write($query);
+	  $self->write($query);
 	  ($result, $errcode) = $self->get_reply();
 	  $i++;
 	}
@@ -219,17 +193,15 @@ sub exec_cmd {
 sub get_reply {
 	my $self = shift;	
 	my @result;
-	foreach (1..9)
-		{
-		push(@result,unpack("C",$self->{vi}->BrutalRead(1)));
-		}
+	foreach (1..9) {
+		push(@result,unpack("C",$self->connection()->BrutalRead(read_length => 1)));
+	}
 	
 	my $value =  (255**3)*$result[4] + (255**2)*$result[5] + 255*$result[6] + $result[7];
-	if ( $value > 2122448640 ) 
-		{
+	if ( $value > 2122448640 ) {
 		$value =  -(4244897281 - $value); 
-		}
-	
+	}
+
 	return $value, $result[2];	
 }
 
@@ -263,8 +235,6 @@ sub move{
 		{
 		$speed = $limits{'maximum_positioning_speed'};
 		}
-		
-		
 	
 	# this sets the upper limit for the positioning speed:
 	$speed = abs($speed);
@@ -280,7 +250,6 @@ sub move{
 		my ($result, $errcode) = $self->exec_cmd(TMCL_SAP, maximum_positioning_speed, $limits{'maximum_positioning_speed'});
 		}
 	
-	
 	# Moving in ABS or REL mode:
 	my $CP = $self->get_position();
 	if ( $mode eq "ABS" or $mode eq "abs" or $mode eq "ABSOLUTE" or $mode eq "absolute")
@@ -292,22 +261,15 @@ sub move{
 		$self->_save_motorlog($CP, $position);
 		$self->exec_cmd(TMCL_MVP, MVP_ABS, $self->angle2steps($position));
 		}
-	elsif ( $mode eq "REL" or $mode eq "rel" or $mode eq "RELATIVE" or $mode eq "relative")
-		{
-
-		
-			
+	elsif ( $mode eq "REL" or $mode eq "rel" or $mode eq "RELATIVE" or $mode eq "relative") {
 		if($CP+$position < $limits{'LOWER'} or $CP+$position > $limits{'UPPER'})
 			{
 			die "ERROR in sub move.Can't execute move; TARGET POSITION (".($CP+$position).") is out of valid limits (".$limits{'LOWER'}." ... ".$limits{'UPPER'}.")";
 			}
 		$self->_save_motorlog($CP, $CP+$position);
 		$self->exec_cmd(TMCL_MVP, MVP_REL, $self->angle2steps($position));
-		}
-		
-		
+	}
 	return 1;
-	
 }
 
 sub active {
@@ -358,8 +320,6 @@ sub init_limits {
 	my $self = shift;
 	my $lowerlimit;
 	my $upperlimit;
-	
-
 	
 	if ($self->read_motorinitdata())
 		{
@@ -706,7 +666,6 @@ return "$Stunden:$Minuten:$Sekunden  $Monatstag.$Monat.$Jahr\n";
 }
 
 1;
-
 
 =pod
 
