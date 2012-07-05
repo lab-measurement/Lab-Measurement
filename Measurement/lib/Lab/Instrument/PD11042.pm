@@ -71,6 +71,8 @@ our %fields = (
 	parity => 'none',
 	handshake => 'none',
 	timeout => 500,
+	inipath => '',
+	logpath => '',
 );
 
 sub new {
@@ -603,7 +605,7 @@ sub get_position{
 sub save_motorinitdata {
 	my $self = shift;
 	
-	open(DUMP, ">C:\\Perl\\site\\lib\\Lab\\Instrument\\PD11042.ini"); #open for write, overwrite
+	open(DUMP, ">PD11042.ini"); #open for write, overwrite
 	while( my ($key, $value) = each %limits ) 
 		{
 		print DUMP "$key, $value\n";
@@ -616,7 +618,7 @@ sub _save_motorlog {
 	my $init_pos = shift;
 	my $end_pos = shift;
 	
-	open(DUMP, ">>C:\\Perl\\site\\lib\\Lab\\Instrument\\PD11042.log"); #open for write, overwrite
+	open(DUMP, ">>PD11042.log"); #open for write, overwrite
 
 	print DUMP (my_timestamp())."\t move: $init_pos -> $end_pos \n";
 		
@@ -626,7 +628,7 @@ sub _save_motorlog {
 sub read_motorinitdata {
 	my $self = shift;
 	
-	if (not open(DUMP, "<C:\\Perl\\site\\lib\\Lab\\Instrument\\PD11042.ini"))
+	if (not open(DUMP, "<PD11042.ini"))
 		{
 		return 0;
 		}
