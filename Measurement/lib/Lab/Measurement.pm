@@ -43,7 +43,7 @@ sub new {
     # initialize terminal if requested
     $self->{termctl}=0;
     if (! $params{no_termcontrol}) {
-        labkey_init();
+        Lab::Measurement::KeyboardHandling::labkey_init();
 	$self->{termctl}=1;
     }
 
@@ -113,7 +113,7 @@ sub log_line {
     $self->{writer}->log_line(@_);
  
     if ($self->{termctl}) {
-       labkey_check();
+       Lab::Measurement::KeyboardHandling::labkey_check();
     }
 
     if ($self->{live_plotter}) {
