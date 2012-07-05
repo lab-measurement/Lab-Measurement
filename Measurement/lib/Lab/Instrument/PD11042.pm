@@ -5,6 +5,13 @@ use strict;
 use Time::HiRes qw/usleep/, qw/time/;
 use Lab::Instrument;
 
+# todo:
+# * test with VISA_RS232
+# * integrate the limits etc into the config hash
+# * hash call parameters
+# * path for ini / log file???
+# ...
+
 # Opcodes of all TMCL commands that can be used in direct mode
 use constant {
   TMCL_ROR  => 1
@@ -210,48 +217,43 @@ sub get_reply {
 
 sub move{
 	my $self = shift;
+
+	# Parameter, old style: ABS/REL, angle, speed
+
 	my $mode = shift; # ABS --> absolut \n REL --> relative
 	my $position = shift; 
 	my $speed = shift;
 	
+	# TODO:
+	# if (ref($mode) eq 'HASH') ...
+	# 'mode', 'angle', 'speed'
 	
-	if ( not defined $mode )
-		{
-		warn "too view paramters given in sub move. Paramters are <MODE> = ABS | REL and <POSITION> = $limits{'LOWER'} ... $limits{'UPPER'}, <SPEED> = 0 ... $limits{'maximum_positioning_speed'}";
-		return ;
-		}
-	if ( not $mode =~/ABS|abs|REL|rel/  )
-		{
-		if ( not defined $speed )
-			{
+	if ( not defined $mode ) {
+		die "Too few paramters given in Lab::Instrument::PD11042::move. Paramters are <MODE> = ABS | REL, <POSITION> = $limits{'LOWER'} ... $limits{'UPPER'}, <SPEED> = 0 ... $limits{'maximum_positioning_speed'}";
+	}
+	if ( not $mode =~/ABS|abs|REL|rel/  ) {
+		if ( not defined $speed ) {
 			$speed = $position;
 			$position = $mode;
 			$mode = "REL";
-			}
-		else
-			{
-			warn "unexpected value for <MODE> in sub move. expected values are ABS and REL.";
-			return ;
-			}
+		} else {
+			die "Unexpected value for <MODE> in Lab::Instrument::PD11042::move. Expected values are ABS and REL.";
 		}
-	if ( not defined $speed )
-		{
+	}
+	if ( not defined $speed ) {
 		$speed = $limits{'maximum_positioning_speed'};
-		}
+	}
 	
 	# this sets the upper limit for the positioning speed:
 	$speed = abs($speed);
-	if ( $speed <= $limits{'maximum_positioning_speed'})
-		{
+	if ( $speed <= $limits{'maximum_positioning_speed'}) {
 		$speed = $speed/2.4;
 		my ($result, $errcode) = $self->exec_cmd(TMCL_SAP, maximum_positioning_speed, $speed);
-		}
-	else
-		{
+	} else {
 		warn "Warning in sub move: <SPEED> = $speed is too high. Reduce <SPEED> to its maximum value defined by internal limit settings of $limits{'maximum_positioning_speed'}";
 		$speed = $speed/2.4;
 		my ($result, $errcode) = $self->exec_cmd(TMCL_SAP, maximum_positioning_speed, $limits{'maximum_positioning_speed'});
-		}
+	}
 	
 	# Moving in ABS or REL mode:
 	my $CP = $self->get_position();
