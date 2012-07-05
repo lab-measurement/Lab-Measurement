@@ -24,7 +24,7 @@ our @ISA = ("Lab::Connection");
 
 
 our %fields = (
-	bus_class => undef, # 'Lab::Bus::LinuxGPIB', 'Lab::Bus::VISA', ...
+	bus_class => 'Lab::Bus::RS232',
 	port => undef,
 	brutal => 0,
 	read_length=>1000, # bytes
@@ -38,7 +38,7 @@ sub new {
 	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
 
 	# Parameter checking
-	if( !defined $self->config('port') {
+	if (!defined $self->config('port')) {
 		Lab::Exception::CorruptParameter->throw( error => "No RS232 port specified! I can't work like this.\n" );
 	}
 
