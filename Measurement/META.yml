@@ -8,7 +8,7 @@ author:
   - 'Alois Dirnaichner <alois.dirnaichner@physik.uni-r.de>'
 build_requires: {}
 configure_requires:
-  Module::Build: 0.38
+  Module::Build: 0
 conflicts:
   Lab::Instrument: 0
   Lab::Tools: 0
@@ -148,7 +148,7 @@ requires:
   Exception::Class: 1.0
   File::Basename: 0
   File::Copy: 0
-  Module::Build: 0.38
+  Module::Build: 0
   Switch: 0
   TeX::Encode: 0
   Term::ReadKey: 0

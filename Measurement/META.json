@@ -20,7 +20,7 @@
    "prereqs" : {
       "configure" : {
          "requires" : {
-            "Module::Build" : "0.38"
+            "Module::Build" : "0"
          }
       },
       "runtime" : {
@@ -36,7 +36,7 @@
             "Exception::Class" : "1.0",
             "File::Basename" : 0,
             "File::Copy" : 0,
-            "Module::Build" : "0.38",
+            "Module::Build" : "0",
             "Switch" : 0,
             "TeX::Encode" : 0,
             "Term::ReadKey" : 0,

@@ -25,7 +25,7 @@ my $build = Module::Build->new(
         'Term::ReadKey'      => 0,
         'Switch'             => 0,
         'Clone'              => '0.31',
-	'Module::Build'      => '0.38',
+	'Module::Build'      => '0',
     },
     conflicts         => {
         'Lab::Instrument'    => '< 2.91',
