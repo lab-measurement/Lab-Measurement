@@ -354,7 +354,7 @@ sub init_limits {
 	while (1)
 		{
 		print "MOVE: ";
-		my $value = <>;
+		my $value = <STDIN>;
 		chomp $value;
 		if ($value eq "REF" or $value eq "ref")
 			{
@@ -390,12 +390,12 @@ sub init_limits {
 	while(1)
 		{
 		print "LOWER LIMIT: ";
-		my $value = <>;
+		my $value = <STDIN>;
 		chomp $value;
 		$lowerlimit = $value;
 		$limits{'LOWER'} = $lowerlimit;
 		print "UPPER LIMIT: ";
-		my $value = <>;
+		$value = <STDIN>;
 		chomp $value;
 		$upperlimit = $value;
 		$limits{'UPPER'} = $upperlimit;
@@ -421,7 +421,7 @@ sub init_limits {
 	while(1)
 		{
 		print "MOVE +/-10: Please press <ENTER> to confirm.";
-		my $input = <>;	
+		my $input = <STDIN>;
 		chomp $input;
 		if ( $input =~ /stop|STOP/ )
 			{
@@ -465,7 +465,7 @@ sub init_limits {
 			
 		}
 	print "Reached LOWER LIMIT\n";
-	print "Please confirm the position of the LOWER LIMIT: "; <>;
+	print "Please confirm the position of the LOWER LIMIT: "; <STDIN>;
 	$limits{'LOWER'} = $lowerlimit;
 	print "\n\n";
 	print "Moving to REFERENCE POINT ... \n";
@@ -475,7 +475,7 @@ sub init_limits {
 	while(1)
 		{
 		print "MOVE +/-10: Please press <ENTER> to confirm.";
-		my $input = <>;	
+		my $input = <STDIN>;
 		chomp $input;
 		if ( $input =~ /stop|STOP/ )
 			{
@@ -506,7 +506,7 @@ sub init_limits {
 			
 		}
 	print "Reached UPPER LIMIT\n";
-	print "Please confirm the position of the UPPER LIMIT: "; <>;
+	print "Please confirm the position of the UPPER LIMIT: "; <STDIN>;
 	$limits{'UPPER'} = $upperlimit;
 	print "\n\n";
 	$self->save_motorinitdata();
