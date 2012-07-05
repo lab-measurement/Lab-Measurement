@@ -64,7 +64,7 @@ our $GETRIEBEMULTIPLIKATOR = 43;
 our @ISA = ("Lab::Instrument");
 
 our %fields = (
-	supported_connections => [ 'VISA', 'RS232', 'DEBUG' ],
+	supported_connections => [ 'VISA', 'VISA_RS232', 'RS232', 'DEBUG' ],
 	baudrate => 9600,
 	databits => 8,
 	stopbits => 1,
@@ -180,7 +180,8 @@ sub exec_cmd {
 	my $checksum = ($addr + $cmd + $type + $motor + $v4 + $v3 + $v2 + $value) % 256;
 			
 	my $query = pack("C9", $addr, $cmd, $type, $motor, $v4, $v3, $v2, $value, $checksum);
-	my ($result, $errcode);
+	my $result=0;
+	my $errcode=0;
 	my $i = 0;
 	while($errcode != 100 && $i < 10) {
 	  #print $addr."-".$cmd."-".$type."-".$motor."-".$v4."-".$v3."-".$v2."-".$value."-".$checksum." (".$i.")\n";
@@ -323,28 +324,8 @@ sub init_limits {
 	my $lowerlimit;
 	my $upperlimit;
 	
-	if ($self->read_motorinitdata())
-		{
-			while (1)
-			{
-
-				print "Motor-Init data found. Do you want to keep the reference point and the limits? (y/n) ";
-				my $input = <>;
-				chomp $input;
-				if ( $input =~ /YES|yes|Y|y/)
-					{
-					return 1;			
-					}
-				elsif ( $input =~ /NO|no|N|n/)
-					{
-					#my $result = $self->{vi}->Query("sa$AXIS\r\n"); 
-					#my $result = $self->{vi}->Query("nullen\r\n");
-					$limits{'LOWER'} = -360;
-					$limits{'UPPER'} = 360;
-					last;
-					}
-			}
-		}
+	if (! $self->read_motorinitdata())
+	{
 		
 	my ($result, $errcode) = $self->exec_cmd(TMCL_MST, 0, 0); # Motor stop, to prevent unexpected motor activity
 	($result, $errcode) = $self->exec_cmd(TMCL_SAP, target_position, 0);
@@ -543,7 +524,7 @@ sub init_limits {
 	print "------------------------------------------------------\n";
 	print "\n\n";
 		
-	
+	}
 }
 
 sub _set_REF {
