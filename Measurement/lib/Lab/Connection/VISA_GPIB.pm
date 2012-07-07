@@ -88,24 +88,24 @@ sub EnableTermChar { # 0/1 off/on
   my $self=shift;
   my $enable=shift;
   my $result;
-  print "e/d\n";
+#  print "e/d\n";
   if ($enable==1) {
-     print "enable ";
+#     print "enable ";
      $result=Lab::VISA::viSetAttribute($self->connection_handle(), $Lab::VISA::VI_ATTR_TERMCHAR_EN, $Lab::VISA::VI_TRUE);
   } else {
-     print "disable ";
+#     print "disable ";
      $result=Lab::VISA::viSetAttribute($self->connection_handle(), $Lab::VISA::VI_ATTR_TERMCHAR_EN, $Lab::VISA::VI_FALSE);
   }
-  print "result: $result\n";
+#  print "result: $result\n";
   return $result;
 }
 
 sub SetTermChar { # the character as string
   my $self=shift;
   my $termchar=shift;
-  print "char\n";
+#  print "char\n";
   my $result=Lab::VISA::viSetAttribute($self->connection_handle(), $Lab::VISA::VI_ATTR_TERMCHAR, ord($termchar));
-  print "result: $result\n";
+#  print "result: $result\n";
   return $result;
 }
 
