@@ -31,7 +31,7 @@ sub new {
 	my $class = ref($proto) || $proto;
 	my $self = $class->SUPER::new(@_);
 	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
-	print "IPS12010 superconducting magnet supply code is highly experimental and untested. You have been warned.\n";
+	print "IPS12010 superconducting magnet supply code is experimental.\n";
 	return $self;
 }
 
