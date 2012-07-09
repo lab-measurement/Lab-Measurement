@@ -127,7 +127,7 @@ use Exception::Class (
 
 
 	#
-	# errors and warnings specific to VISA / Lab::VISA
+	# errors and warnings specific to RS232
 	#
 
 	Lab::Exception::RS232Error => {
@@ -147,6 +147,17 @@ use Exception::Class (
 							'data', # the data read up to the abort
 		],
 	},
+	
+    #
+    # errors and warnings specific to USB TMC
+    #
+
+    Lab::Exception::TMCOpenFileError => {
+        isa         => 'Lab::Exception::Error',
+        description => 'An error occured while trying to open the device file',
+        fields      => [],
+    },
+
 	
 	#
 	# errors and warnings sent by devices
