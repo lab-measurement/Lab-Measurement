@@ -14,6 +14,7 @@ package Lab::Connection::VISA_GPIB;
 our $VERSION = '3.00';
 
 use strict;
+use Lab::VISA;
 use Lab::Bus::VISA;
 use Lab::Connection::GPIB;
 use Lab::Exception;
@@ -80,6 +81,33 @@ sub _setbus {
 #
 # Read,Write,Query are OK in the version from Lab::Connection
 #
+
+# $self->connection_handle() is the VISA resource handle
+
+sub EnableTermChar { # 0/1 off/on
+  my $self=shift;
+  my $enable=shift;
+  my $result;
+#  print "e/d\n";
+  if ($enable==1) {
+#     print "enable ";
+     $result=Lab::VISA::viSetAttribute($self->connection_handle(), $Lab::VISA::VI_ATTR_TERMCHAR_EN, $Lab::VISA::VI_TRUE);
+  } else {
+#     print "disable ";
+     $result=Lab::VISA::viSetAttribute($self->connection_handle(), $Lab::VISA::VI_ATTR_TERMCHAR_EN, $Lab::VISA::VI_FALSE);
+  }
+#  print "result: $result\n";
+  return $result;
+}
+
+sub SetTermChar { # the character as string
+  my $self=shift;
+  my $termchar=shift;
+#  print "char\n";
+  my $result=Lab::VISA::viSetAttribute($self->connection_handle(), $Lab::VISA::VI_ATTR_TERMCHAR, ord($termchar));
+#  print "result: $result\n";
+  return $result;
+}
 
 
 =pod
@@ -162,6 +190,7 @@ Probably few. Mostly because there's not a lot to be done here. Please report.
 =head1 AUTHOR/COPYRIGHT
 
  Copyright 2011      Florian Olbrich
+           2012      Andreas K. Hüttel
 
 This library is free software; you can redistribute it and/or modify it under the same
 terms as Perl itself.
