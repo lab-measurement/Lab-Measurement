@@ -13,6 +13,7 @@ examples/VoltageSource/dummysource.pl
 examples/VoltageSource/multisource.pl
 lib/Lab/Bus.pm
 lib/Lab/Bus/DEBUG.pm
+lib/Lab/Bus/DEBUG/HumanInstrument.pm
 lib/Lab/Bus/IsoBus.pm
 lib/Lab/Bus/LinuxGPIB.pm
 lib/Lab/Bus/MODBUS_RS232.pm
@@ -44,15 +45,19 @@ lib/Lab/Instrument/MagnetSupply.pm
 lib/Lab/Instrument/Multimeter.pm
 lib/Lab/Instrument/Source.pm
 lib/Lab/Instrument/SR830.pm
+lib/Lab/Instrument/TemperatureControl.pm
 lib/Lab/Instrument/TemperatureControl/TLK43.pm
 lib/Lab/Instrument/TRMC2.pm
 lib/Lab/Instrument/Yokogawa7651.pm
 lib/Lab/Instrument/YokogawaGS200.pm
 lib/Lab/Measurement.pm
 lib/Lab/Measurement/Changes.pod
+lib/Lab/Measurement/Developer/Write-A-Source-Driver.pod
 lib/Lab/Measurement/Installation.pod
 lib/Lab/Measurement/Ladediagramm.pm
 lib/Lab/Measurement/Tutorial.pod
+META.json
+META.yml
 README
 scripts/lab-makefilelist.pl
 scripts/lab-makemakefile.pl
@@ -60,5 +65,3 @@ scripts/lab-makeoverview.pl
 scripts/lab-metainfo.pl
 scripts/lab-plotter.pl
 TODO
-META.yml
-META.json

@@ -3,6 +3,7 @@
 \bCVS\b
 ,v$
 \B\.svn\b
+.gitignore$
 
 # Avoid Makemaker generated and utility files.
 \bMakefile$
@@ -38,12 +39,6 @@
 
 # drivers and modules that are not ready yet for release
 
-# this driver does not contain anything actually useful so far - Andreas
-# In my opinion it can serve as an example - Daniel
-# lib/Lab/Instrument/Agilent81134A.pm
-
-# this is very much under construction - Andreas
-lib/Lab/Instrument/TemperatureControl.pm
 
 # dont distribute the old examples
 ^examples/Old
