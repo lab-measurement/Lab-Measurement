@@ -2,16 +2,12 @@ package Lab::Instrument::ITC503;
 our $VERSION = '3.00';
 
 use strict;
-use feature "switch";
 use Lab::Instrument;
 
 our @ISA = ("Lab::Instrument");
 
 my %fields = (
 	supported_connections => [ 'IsoBus', 'LinuxGPIB' ],
-
-	device_settings => {
-	}
 );
 
 sub new {
@@ -19,98 +15,32 @@ sub new {
 	my $class = ref($proto) || $proto;
 	my $self = $class->SUPER::new(@_);
 	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
-	printf "The ITC driver is work in progress. You have been warned.\n";
 
-	return $self;
-}
-
-
-
-sub _device_init {
-	my $self=shift;
-	
 	$self->connection()->SetTermChar(chr(13));
 	$self->connection()->EnableTermChar(1);
-	$self->itc_set_control(3); # Enable remote control, but leave the front panel unlocked
+
+	printf "The ITC driver is work in progress. You have been warned.\n";
+    
+#     my $xstatus=Lab::VISA::viSetAttribute($self->{vi}->{instr}, $Lab::VISA::VI_ATTR_TERMCHAR, 0xD);
+#     if ($xstatus != $Lab::VISA::VI_SUCCESS) { die "Error while setting read termination character: $xstatus";}
+# 
+#     $xstatus=Lab::VISA::viSetAttribute($self->{vi}->{instr}, $Lab::VISA::VI_ATTR_TERMCHAR_EN, $Lab::VISA::VI_TRUE);
+#     if ($xstatus != $Lab::VISA::VI_SUCCESS) { die "Error while enabling read termination character: $xstatus";}
+    
+    return $self;
 }
 
-#
-# evaluate a command response for error conditions (leading '?', check for correct command character if supplied)
-#
-sub parse_error {
-	my $self=shift;
-	my $device_msg = shift;
-	my $cmd = shift;
-	my $cmd_char = defined $cmd ? substr( $cmd, 0, 1 ) : undef;
-	
-	my $status_char = substr($device_msg, 0, 1);
-	given ($status_char) {
-		when( $_ eq '?' ) {
-			Lab::Exception::DeviceError->throw(
-				error => "ITC503 returned error '$device_msg' on command '$cmd'\n",
-				device_class => ref $self,
-				command => $cmd,
-				raw_message => $device_msg );
-		}
-		when( defined $cmd_char && $_ ne $cmd_char ) {
-			Lab::Exception::DeviceError->throw(
-				error => "Received an unexpected answer from ITC503. Expected '$cmd_char' prefix, received '$status_char' on command '$cmd'\n",
-				device_class => ref $self,
-				command => $cmd,
-				raw_message => $device_msg );
-		}
-	}
+sub itc_set_control { # don't use it if you get an error message during reading out sensors:"Cading Sensor";
+# 0 Local & Locked
+# 1 Remote & Locked
+# 2 Local & Unlocked
+# 3 Remote & Unlocked
+    my $self=shift;
+    my $mode=shift;
+    my $cmd=sprintf("C%d\r",$mode);
+    $self->query($cmd);
+    sleep(1);
 }
-
-
-#
-# query wrapper with error checking for the ITC
-#
-sub query {
-	my $self=shift;
-	my $cmd=shift;
-	
-	# ITC query answers always start with the command character if successful with a question mark and the command char on failure
-	my $cmd_char = substr( $cmd, 0, 1 );
-	
-	my $result = $self->SUPER::query($cmd, @_);
-	
-	$self->parse_error($result);
-	
-	return substr(chomp($result));
-}
-
-
-# old remark, relevance?
-# don't use it if you get an error message during reading out sensors:"Cading Sensor"
-# device modes:
-# 0 Local & Locked front panel
-# 1 Remote & Locked panel
-# 2 Local & Unlocked panel
-# 3 Remote & Unlocked panel
-sub set_control {
-	my $self=shift;
-	my $mode=shift;
-	given ($mode) {
-		when (/^\s*(0|1|2|3)\s*$/) {
-			$mode=$1;
-		}
-		when (/^\s*(locked)\s*$/) {
-			$mode=1;
-		}
-		when (/^\s*(unlocked)\s*$/) {
-			$mode=3;
-		}
-		default {
-			Lab::Exception::CorruptParameter->throw( "Invalid control mode specified." );
-		}
-	}
-	
-	my $result=$self->query("C${mode}\r",@_);
-		
-	$self->check_errors();
-}
-	
 
 sub itc_set_communications_protocol {
 # 0 "Normal" (default)
@@ -138,8 +68,8 @@ sub itc_read_parameter {
 
     my $self=shift;
     my $parameter=shift;
-    my $cmd="R$parameter\r";
-    my $result=$self->query($cmd,@_);
+    my $cmd=sprintf("R%d\r",$parameter);
+    my $result=$self->query($cmd);
     chomp $result;
     $result =~ s/^\s*R//;
     return sprintf("%e",$result);
@@ -168,7 +98,7 @@ sub itc_set_heater_auto {
     my $self=shift;
     my $mode=shift;
     $mode=sprintf("%d",$mode);
-    return $self->query("A$mode\r");
+    $self->query("A$mode\r");
 }
 
 sub itc_set_proportional_value {
@@ -200,7 +130,7 @@ sub itc_set_heater_sensor {
     my $value=shift;
     #$self->itc_set_heater_auto(0);
     $value=sprintf("%d",$value);
-    return $self->query("H$value\r");
+    $self->query("H$value\r");
 }
 
 sub itc_set_PID_auto {
@@ -235,7 +165,7 @@ sub itc_T_set_point {
     my $self=shift;
     my $value=shift;
     $value=sprintf("%.3f",$value);
-    return $self->query("T$value\r");
+    $self->query("T$value\r");
 }
 sub itc_sweep {
 # 0 Stop Sweep 
