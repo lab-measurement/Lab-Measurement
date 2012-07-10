@@ -28,7 +28,7 @@ sub new {
 
 sub _device_init {
 	my $self=shift;
-	
+	$self->connection()->Clear();	
 	$self->connection()->SetTermChar(chr(13));
 	$self->connection()->EnableTermChar(1);
 	$self->set_control(3); # Enable remote control, but leave the front panel unlocked
@@ -76,8 +76,9 @@ sub query {
 	my $result = $self->SUPER::query($cmd, @_);
 	
 	$self->parse_error($result, $cmd);
-	
-	return substr(chomp($result),1);
+	chomp $result;
+
+	return substr($result,1);
 }
 
 
@@ -140,6 +141,7 @@ sub itc_read_parameter {
     my $parameter=shift;
     my $cmd="R$parameter\r";
     my $result=$self->query($cmd,@_);
+
     return sprintf("%e",$result);
 }
 
