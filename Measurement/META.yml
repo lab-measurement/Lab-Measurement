@@ -22,124 +22,130 @@ name: Lab-Measurement
 provides:
   Lab::Bus:
     file: lib/Lab/Bus.pm
-    version: 2.96
+    version: 3.00
   Lab::Bus::DEBUG:
     file: lib/Lab/Bus/DEBUG.pm
-    version: 2.96
+    version: 3.00
+  Lab::Bus::DEBUG::HumanInstrument:
+    file: lib/Lab/Bus/DEBUG/HumanInstrument.pm
+    version: 3.00
   Lab::Bus::IsoBus:
     file: lib/Lab/Bus/IsoBus.pm
-    version: 2.96
+    version: 3.00
   Lab::Bus::LinuxGPIB:
     file: lib/Lab/Bus/LinuxGPIB.pm
-    version: 2.96
+    version: 3.00
   Lab::Bus::MODBUS_RS232:
     file: lib/Lab/Bus/MODBUS_RS232.pm
-    version: 2.96
+    version: 3.00
   Lab::Bus::RS232:
     file: lib/Lab/Bus/RS232.pm
-    version: 2.96
+    version: 3.00
   Lab::Bus::VISA:
     file: lib/Lab/Bus/VISA.pm
-    version: 2.96
+    version: 3.00
   Lab::Connection:
     file: lib/Lab/Connection.pm
-    version: 2.96
+    version: 3.00
   Lab::Connection::DEBUG:
     file: lib/Lab/Connection/DEBUG.pm
-    version: 2.96
+    version: 3.00
   Lab::Connection::GPIB:
     file: lib/Lab/Connection/GPIB.pm
-    version: 2.96
+    version: 3.00
   Lab::Connection::IsoBus:
     file: lib/Lab/Connection/IsoBus.pm
-    version: 2.96
+    version: 3.00
   Lab::Connection::LinuxGPIB:
     file: lib/Lab/Connection/LinuxGPIB.pm
-    version: 2.96
+    version: 3.00
   Lab::Connection::MODBUS_RS232:
     file: lib/Lab/Connection/MODBUS_RS232.pm
-    version: 2.96
+    version: 3.00
   Lab::Connection::VISA:
     file: lib/Lab/Connection/VISA.pm
-    version: 2.96
+    version: 3.00
   Lab::Connection::VISA_GPIB:
     file: lib/Lab/Connection/VISA_GPIB.pm
-    version: 2.96
+    version: 3.00
   Lab::Data::Meta:
     file: lib/Lab/Data/Meta.pm
-    version: 2.96
+    version: 3.00
   Lab::Data::PDL:
     file: lib/Lab/Data/PDL.pm
-    version: 2.96
+    version: 3.00
   Lab::Data::Plotter:
     file: lib/Lab/Data/Plotter.pm
-    version: 2.96
+    version: 3.00
   Lab::Data::Writer:
     file: lib/Lab/Data/Writer.pm
-    version: 2.96
+    version: 3.00
   Lab::Data::XMLtree:
     file: lib/Lab/Data/XMLtree.pm
-    version: 2.96
+    version: 3.00
   Lab::Exception:
     file: lib/Lab/Exception.pm
-    version: 2.96
+    version: 3.00
   Lab::Exception::Base:
     file: lib/Lab/Exception.pm
     version: 0
   Lab::Instrument:
     file: lib/Lab/Instrument.pm
-    version: 2.96
+    version: 3.00
   Lab::Instrument::DummySource:
     file: lib/Lab/Instrument/DummySource.pm
-    version: 2.96
+    version: 3.00
   Lab::Instrument::HP34401A:
     file: lib/Lab/Instrument/HP34401A.pm
-    version: 2.96
+    version: 3.00
   Lab::Instrument::HP3458A:
     file: lib/Lab/Instrument/HP3458A.pm
-    version: 2.96
+    version: 3.00
   Lab::Instrument::HP83732A:
     file: lib/Lab/Instrument/HP83732A.pm
-    version: 2.96
+    version: 3.00
   Lab::Instrument::ILM:
     file: lib/Lab/Instrument/ILM210.pm
-    version: 2.96
+    version: 3.00
   Lab::Instrument::IPS12010:
     file: lib/Lab/Instrument/IPS12010.pm
-    version: 2.96
+    version: 3.00
   Lab::Instrument::ITC503:
     file: lib/Lab/Instrument/ITC503.pm
-    version: 2.96
+    version: 3.00
   Lab::Instrument::MagnetSupply:
     file: lib/Lab/Instrument/MagnetSupply.pm
-    version: 2.96
+    version: 3.00
   Lab::Instrument::Multimeter:
     file: lib/Lab/Instrument/Multimeter.pm
-    version: 2.96
+    version: 3.00
   Lab::Instrument::SR830:
     file: lib/Lab/Instrument/SR830.pm
-    version: 2.96
+    version: 3.00
   Lab::Instrument::Source:
     file: lib/Lab/Instrument/Source.pm
-    version: 2.96
+    version: 3.00
   Lab::Instrument::TRMC2:
     file: lib/Lab/Instrument/TRMC2.pm
-    version: 2.96
+    version: 3.00
+  Lab::Instrument::TemperatureControl:
+    file: lib/Lab/Instrument/TemperatureControl.pm
+    version: 3.00
   Lab::Instrument::TemperatureControl::TLK43:
     file: lib/Lab/Instrument/TemperatureControl/TLK43.pm
-    version: 2.96
+    version: 3.00
   Lab::Instrument::Yokogawa7651:
     file: lib/Lab/Instrument/Yokogawa7651.pm
-    version: 2.96
+    version: 3.00
   Lab::Instrument::YokogawaGS200:
     file: lib/Lab/Instrument/YokogawaGS200.pm
-    version: 2.96
+    version: 3.00
   Lab::Measurement:
     file: lib/Lab/Measurement.pm
-    version: 2.96
+    version: 3.00
   Lab::Measurement::Ladediagramm:
     file: lib/Lab/Measurement/Ladediagramm.pm
-    version: 2.96
+    version: 3.00
 requires:
   Clone: 0.31
   Cwd: 0
@@ -163,4 +169,4 @@ resources:
   license: http://dev.perl.org/licenses/
   repository: git://gitorious.org/lab-measurement/lab.git
   x_MailingList: https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-visa-users
-version: 2.96
+version: 3.00
