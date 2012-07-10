@@ -28,7 +28,12 @@ sub new {
 
 sub _device_init {
 	my $self=shift;
-	$self->connection()->Clear();	
+
+	# Dont clear the instrument since that may make it unresponsive.
+	# Instead, set the communication protocol to "Normal", which should
+	# also clear all communication buffers.
+	$self->write("Q0\r");
+
 	$self->connection()->SetTermChar(chr(13));
 	$self->connection()->EnableTermChar(1);
 	$self->set_control(3); # Enable remote control, but leave the front panel unlocked
