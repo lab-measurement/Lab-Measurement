@@ -31,7 +31,7 @@ sub _device_init {
 	
 	$self->connection()->SetTermChar(chr(13));
 	$self->connection()->EnableTermChar(1);
-	$self->itc_set_control(3); # Enable remote control, but leave the front panel unlocked
+	$self->set_control(3); # Enable remote control, but leave the front panel unlocked
 }
 
 #
