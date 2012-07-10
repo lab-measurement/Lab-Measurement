@@ -108,8 +108,6 @@ sub set_control {
 	}
 	
 	my $result=$self->query("C${mode}\r",@_);
-		
-	$self->check_errors();
 }
 	
 
