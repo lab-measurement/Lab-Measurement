@@ -75,9 +75,9 @@ sub query {
 	
 	my $result = $self->SUPER::query($cmd, @_);
 	
-	$self->parse_error($result);
+	$self->parse_error($result, $cmd);
 	
-	return substr(chomp($result));
+	return substr(chomp($result),1);
 }
 
 
@@ -140,8 +140,6 @@ sub itc_read_parameter {
     my $parameter=shift;
     my $cmd="R$parameter\r";
     my $result=$self->query($cmd,@_);
-    chomp $result;
-    $result =~ s/^\s*R//;
     return sprintf("%e",$result);
 }
 
@@ -198,7 +196,6 @@ sub itc_set_heater_sensor {
 # 3 Sensor 3
     my $self=shift;
     my $value=shift;
-    #$self->itc_set_heater_auto(0);
     $value=sprintf("%d",$value);
     return $self->query("H$value\r");
 }
@@ -335,6 +332,7 @@ probably many
 =head1 AUTHOR/COPYRIGHT
 
   Copyright 2010-2011 David Kalok and Andreas K. Hüttel (L<http://www.akhuettel.de/>)
+            2012      Florian Olbrich and Andreas K. Huettel
 
 This library is free software; you can redistribute it and/or modify it under the same
 terms as Perl itself.
