@@ -6,7 +6,7 @@
 <link rel="stylesheet" type="text/css" href="doku.css" />
 </head>
 <body>
-<div id="header"><img id="logo" src="header.png" alt="Lab::VISA"/></div>
+<div id="header"><img id="logo" src="header.png" alt="Lab::Measurement"/></div>
 <div id="toc">
     <h1>Links</h1>
     <!--#include virtual="/deflinks.html" -->
@@ -18,12 +18,35 @@
     </ul>
 </div>
 
-<p><i>News flash: Lab::Measurement 2.96 a.k.a. 3.00 beta6 released...</i> This still
-is a beta version of a full code rewrite. We've been using it successfully
-in measurements on Linux with LinuxGPIB and on Windows with NI VISA. Version 3.00 definitely 
-comes closer, but there may still be bugs of course...</p>
+<p><i>
+News flash...
+<ul>
+<?php 
 
-<p><i>We're presenting a <a href="poster-dpg2012.pdf">poster on Lab::Measurement</a> at the DPG meeting in Berlin...</i></p>
+define('MAGPIE_CACHE_DIR', '/tmp/labmeasurement_magpie_cache');
+
+require_once 'magpierss/rss_fetch.inc';
+
+$url = 'http://dilfridge.blogspot.com/feeds/posts/default/-/lab-measurement';
+$rss = fetch_rss($url);
+$counter = 1;
+
+foreach ($rss->items as $item ) {
+    if ($counter<5) {
+        $title = $item[title];
+        $published = preg_replace('/T.*$/','',$item[published]);
+        echo "<li><a href='news.php#pos$counter'>";
+        if ($counter == 1) { echo "<b>"; };
+        echo "$published: $title";
+        if ($counter == 1) { echo "</b>"; };
+        echo "</a></li>\n";
+        $counter++;
+    };
+}
+
+?>
+</ul>
+</i></p>
 
 <p>Lab::Measurement allows to perform test and measurement tasks with Perl
 scripts. It provides an interface to several instrumentation control backends,
