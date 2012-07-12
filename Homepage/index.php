@@ -18,36 +18,6 @@
     </ul>
 </div>
 
-<p><i>
-News flash...
-<ul>
-<?php 
-
-define('MAGPIE_CACHE_DIR', '/tmp/labmeasurement_magpie_cache');
-
-require_once 'magpierss/rss_fetch.inc';
-
-$url = 'http://dilfridge.blogspot.com/feeds/posts/default/-/lab-measurement';
-$rss = fetch_rss($url);
-$counter = 1;
-
-foreach ($rss->items as $item ) {
-    if ($counter<5) {
-        $title = $item[title];
-        $published = preg_replace('/T.*$/','',$item[published]);
-        echo "<li><a href='news.php#pos$counter'>";
-        if ($counter == 1) { echo "<b>"; };
-        echo "$published: $title";
-        if ($counter == 1) { echo "</b>"; };
-        echo "</a></li>\n";
-        $counter++;
-    };
-}
-
-?>
-</ul>
-</i></p>
-
 <p>Lab::Measurement allows to perform test and measurement tasks with Perl
 scripts. It provides an interface to several instrumentation control backends,
 as e.g. <a href="http://linux-gpib.sourceforge.net/">Linux-GPIB</a> or National Instruments' <a
@@ -75,6 +45,36 @@ similar.</p>
 <p>These classes together are distributed as the Lab::Measurement system.
 Designed to make data aquisition fun!</p>
 
+<h2>News</h2>
+
+<p>
+<ul>
+<?php 
+
+define('MAGPIE_CACHE_DIR', '/tmp/labmeasurement_magpie_cache');
+
+require_once 'magpierss/rss_fetch.inc';
+
+$url = 'http://dilfridge.blogspot.com/feeds/posts/default/-/lab-measurement';
+$rss = fetch_rss($url);
+$counter = 1;
+
+foreach ($rss->items as $item ) {
+    if ($counter<5) {
+        $title = $item[title];
+        $published = preg_replace('/T.*$/','',$item[published]);
+        echo "<li><a href='news.php#pos$counter'>";
+        if ($counter == 1) { echo "<b>"; };
+        echo "$published: $title";
+        if ($counter == 1) { echo "</b>"; };
+        echo "</a></li>\n";
+        $counter++;
+    };
+}
+
+?>
+</ul>
+</p>
 
 <h2>How to obtain</h2>
 <p>
