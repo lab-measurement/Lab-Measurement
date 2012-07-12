@@ -9,7 +9,7 @@
 <div id="header"><img id="logo" src="header.png" alt="Lab::Measurement"/></div>
 <div id="toc">
     <h1>Links</h1>
-    <!--#include virtual="/deflinks.html" -->
+    <?php include '/deflinks.html'; ?>
     <h2>Download Lab::Measurement</h2>
     <ul>
         <li><a href="http://search.cpan.org/dist/Lab-Measurement/">CPAN releases</a></li>
