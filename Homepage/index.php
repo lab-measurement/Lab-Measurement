@@ -83,7 +83,7 @@ from CPAN</a>. The <a href="https://www.gitorious.org/lab-measurement/">source c
 hosted at Gitorious</a>, where you can also obtain the newest pre-release code and 
 browse the version history. If you would like to contribute, just send us your patches, 
 merge requests, ... :) For browsing the code we also have a direct 
-<a href="/gitweb/?p=labmeasurement/.git">gitweb access</a>.
+<a href="/gitweb/?p=labmeasurement;a=summary">gitweb access</a>.
 </p>
 
 <h2>Documentation</h2>
@@ -95,8 +95,8 @@ instructions</a> are provided as well. In addition, there's also a collection
 of <a href="backends.html">back-end specific documentation and links</a>.
 </p>
 <p>There is a <a
-    href="https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-visa-users">mailing
-list (lab-visa-users)</a> set up for Lab::VISA and Lab::Measurement. This mailing list is the
+    href="https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-measurement-users">mailing
+list (lab-measurement-users)</a> set up for Lab::Measurement. This mailing list is the
 right place to give feedback and ask for help.</p>
 
 <h2>Status</h2>
