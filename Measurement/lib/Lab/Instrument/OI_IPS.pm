@@ -1,5 +1,5 @@
 
-package Lab::Instrument::IPS12010;
+package Lab::Instrument::OI_IPS;
 our $VERSION = '3.00';
 
 use strict;
@@ -31,7 +31,7 @@ sub new {
 	my $class = ref($proto) || $proto;
 	my $self = $class->SUPER::new(@_);
 	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
-	print "IPS12010 superconducting magnet supply code is experimental.\n";
+	print "Oxford Instruments IPS superconducting magnet supply code is experimental.\n";
 	return $self;
 }
 
@@ -225,8 +225,8 @@ sub _get_heater {
 
     if (($hs==0) || ($hs==2)) { return 0; };
     if ($hs==1) { return 1; };
-    if ($hs==8) { die "IPS12010 heater status requested but no heater present!\n"; };
-    die "IPS12010 heater error!\n";
+    if ($hs==8) { die "IPS heater status requested but no heater present!\n"; };
+    die "IPS heater error!\n";
 }
 
 
@@ -295,9 +295,9 @@ sub _set_sweep_target_current {
 
 =head1 NAME
 
-Lab::Instrument::IPS12010 - Oxford Instruments IPS 120-10 superconducting magnet supply
+Lab::Instrument::OI_IPS - Oxford Instruments IPS series superconducting magnet supply
 
-  (c) 2010, 2011 Andreas K. Hüttel
+  (c) 2010, 2011, 2012 Andreas K. Hüttel
 
 =cut
 
