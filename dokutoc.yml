@@ -19,8 +19,9 @@ toc:
           - Measurement/scripts/lab-makefilelist.pl
           - Measurement/scripts/lab-makeoverview.pl
       - High-level tool classes:
-          - Measurement/lib/Lab/Data/Writer.pm
           - Measurement/lib/Lab/Measurement.pm
+          - Measurement/lib/Lab/Measurement/KeyboardHandling.pm
+          - Measurement/lib/Lab/Data/Writer.pm
           - Measurement/lib/Lab/Data/Meta.pm
           - Measurement/lib/Lab/Data/XMLtree.pm
           - Measurement/lib/Lab/Data/Plotter.pm
@@ -29,6 +30,7 @@ toc:
           - Multimeters:
               - Measurement/lib/Lab/Instrument/Multimeter.pm
               - Measurement/lib/Lab/Instrument/HP34401A.pm
+              - Measurement/lib/Lab/Instrument/HP34420A.pm
               - Measurement/lib/Lab/Instrument/HP3458A.pm
           - Voltage sources:
               - Measurement/lib/Lab/Instrument/Source.pm
@@ -39,6 +41,8 @@ toc:
               - Measurement/lib/Lab/Instrument/SR830.pm
           - RF generators:
               - Measurement/lib/Lab/Instrument/HP83732A.pm
+          - RF detectors:
+              - Measurement/lib/Lab/Instrument/U2000.pm
           - Superconducting magnet power supplies:
               - Measurement/lib/Lab/Instrument/MagnetSupply.pm
               - Measurement/lib/Lab/Instrument/IPS12010.pm
@@ -46,8 +50,11 @@ toc:
               - Measurement/lib/Lab/Instrument/TemperatureControl.pm
               - Measurement/lib/Lab/Instrument/TRMC2.pm
               - Measurement/lib/Lab/Instrument/ITC503.pm
+              - Measurement/lib/Lab/Instrument/TemperatureControl/TLK43.pm
           - Cryostat handling devices:
               - Measurement/lib/Lab/Instrument/ILM210.pm
+          - Stepper motors:
+              - Measurement/lib/Lab/Instrument/PD11042.pm
       - Connection classes:
           - Measurement/lib/Lab/Connection.pm
           - Measurement/lib/Lab/Connection/DEBUG.pm
@@ -56,15 +63,19 @@ toc:
           - Measurement/lib/Lab/Connection/MODBUS_RS232.pm
           - Measurement/lib/Lab/Connection/VISA.pm
           - Measurement/lib/Lab/Connection/VISA_GPIB.pm
+          - Measurement/lib/Lab/Connection/VISA_RS232.pm
           - Measurement/lib/Lab/Connection/IsoBus.pm
+          - Measurement/lib/Lab/Connection/USBtmc.pm
       - Bus classes:
           - Measurement/lib/Lab/Bus.pm
           - Measurement/lib/Lab/Bus/DEBUG.pm
+          - Measurement/lib/Lab/Bus/DEBUG/HumanInstrument.pm
           - Measurement/lib/Lab/Bus/LinuxGPIB.pm
           - Measurement/lib/Lab/Bus/RS232.pm
           - Measurement/lib/Lab/Bus/MODBUS_RS232.pm
           - Measurement/lib/Lab/Bus/VISA.pm
           - Measurement/lib/Lab/Bus/IsoBus.pm
+          - Measurement/lib/Lab/Bus/USBtmc.pm
   - The Lab::VISA package:
       - VISA/lib/Lab/VISA/Installation.pod
       - VISA/VISA.pod
