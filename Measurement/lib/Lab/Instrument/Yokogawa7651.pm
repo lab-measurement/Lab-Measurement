@@ -364,11 +364,11 @@ sub set_range {
 	
     if( $function =~ /voltage/i ){
     	given($my_range){
-    		when( $_ == 0.01 ){ $range = 2 }
-    		when( $_ == 0.1 ){ $range = 3 }
-    		when( $_ == 1 ){ $range = 4 }
-    		when( $_ == 10 ){ $range = 5 }
-    		when( $_ == 30 ){ $range = 6 }
+    		when( $_ == 0.012 ){ $range = 2 }
+    		when( $_ == 0.12 ){ $range = 3 }
+    		when( $_ == 1.2 ){ $range = 4 }
+    		when( $_ == 12 ){ $range = 5 }
+    		when( $_ == 32 ){ $range = 6 }
     		default { 
     			Lab::Exception::CorruptParameter->throw( "$range is not a valid voltage range. Read the documentation for a list of allowed ranges in mode $function. \n" )
     		}
@@ -376,9 +376,9 @@ sub set_range {
     }
     elsif($function =~ /current/i){
     	given($my_range){
-    		when( 0.001 ){ $range = 4 }
-    		when( 0.01 ){ $range = 5 }
-    		when( 0.1 ){ $range = 6 }
+    		when( 0.0012 ){ $range = 4 }
+    		when( 0.012 ){ $range = 5 }
+    		when( 0.12 ){ $range = 6 }
     		default { Lab::Exception::CorruptParameter->throw( "$range is not a valid current range. Read the documentation for a list of allowed ranges in mode $function.\n" )}
     	}
     }
@@ -438,11 +438,11 @@ sub get_range{
     
     if($function =~ /voltage/i){
     	given ($range) {
-    		when( /2/ ){ $range = 0.01; }
-    		when( /3/ ){ $range = 0.1; }
-    		when( /4/ ){ $range = 1; }
-    		when( /5/ ){ $range = 10; }
-    		when( /6/ ){ $range = 30; }
+    		when( /2/ ){ $range = 0.012; }
+    		when( /3/ ){ $range = 0.12; }
+    		when( /4/ ){ $range = 1.2; }
+    		when( /5/ ){ $range = 12; }
+    		when( /6/ ){ $range = 32; }
     		default {
     			Lab::Exception::CorruptParameter->throw( "$range is not a valid voltage range. Read the documentation for a list of allowed ranges in mode $function.\n")
     		}
@@ -450,9 +450,9 @@ sub get_range{
     }
     elsif($function =~ /current/i){
     	given($range){
-    		when( /4/ ){ $range = 0.001; }
-    		when( /5/ ){ $range = 0.01; }
-    		when( /6/ ){ $range = 0.1; }
+    		when( /4/ ){ $range = 0.0012; }
+    		when( /5/ ){ $range = 0.012; }
+    		when( /6/ ){ $range = 0.12; }
     		default {
     			Lab::Exception::CorruptParameter->throw( "$range is not a valid current range. Read the documentation for a list of allowed ranges in mode $function.\n" )
     		}
