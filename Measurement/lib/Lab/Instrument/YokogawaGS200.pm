@@ -156,7 +156,7 @@ sub set_level_auto {
 	
 	$self->write( $cmd );
 	
-	$self->{'device_cache'}->{'range'} = $self->get_range( device_cache => 1 );
+	$self->{'device_cache'}->{'range'} = $self->get_range( from_device => 1 );
 
     return $self->{'device_cache'}->{'level'} = $value;
 	
@@ -222,7 +222,7 @@ sub _sweep_to_level {
     	sleep 1;
     }
     
-    if( ! $self->get_level( device_cache => 1) == $target){
+    if( ! $self->get_level( from_device => 1) == $target){
     	Lab::Exception::CorruptParameter->throw(
     	"Sweep failed.")
     }
@@ -339,32 +339,9 @@ sub set_range {
     
     my $srcf = $self->get_function();
     
-    if( $srcf eq 'VOLT'  ){    	
-    	if( $range =~ m/(^10E-3|^100E-3|^1E\+0|^1E\+1|^3E\+1)/){
-    		$self->write("SOURce:RANGe $range");
-    		return $self->{'device_cache'}->{'range'} = $range;
+	$self->write("SOURce:RANGe $range", error_check => 1);
+    return $self->{'device_cache'}->{'range'} = $self->get_range( from_device => 1);
     		
-    	}
-    	else{
-    	  	Lab::Exception::CorruptParameter->throw(
-    		error=>"Source is in mode $srcf. For this mode, $range is not a valid range.");	
-    	} 
-    }
-    elsif( $srcf eq 'CURR' ){
-    		if( $range =~ m/(^1E-3|^10E-3|^100E-3|^200E-3)/ ){
-    			$self->write( "SOURce:RANGe $range" );
-    			return $self->{'device_cache'}->{'range'} = $range;
-    			 }
-    		else{
-    	  		Lab::Exception::CorruptParameter->throw(
-    			error=>"Source is in mode $srcf. For this mode, $range is not a valid range.");	
-    		}
-    }
-    else{
-    	Lab::Exception::CorruptParameter->throw(
-    			error=>"Something went wrong. $srcf is not a valid source function.");
-    }	
-
 }
 
 
