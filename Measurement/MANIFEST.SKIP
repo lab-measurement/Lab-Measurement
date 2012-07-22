@@ -42,3 +42,7 @@
 
 # dont distribute the old examples
 ^examples/Old
+
+# dont distribute the real world scripts
+^examples/RealWorld
+
