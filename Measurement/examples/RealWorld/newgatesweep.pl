@@ -4,7 +4,7 @@
  
 use strict;
 use Lab::Instrument::Yokogawa7651;
-use Lab::Instrument::HP34401A;
+use Lab::Instrument::HP3458A;
 use Time::HiRes qw/gettimeofday/;
 use Lab::Measurement;
 
@@ -13,9 +13,9 @@ use Lab::Measurement;
 #---gate---
 ############################## !!!!!!!!!!!!!!
 
-my $Vgatestart = 5;
-my $Vgatestop = 3;
-my $stepgate = 0.0005;
+my $Vgatestart = 0.665;
+my $Vgatestop = 0.695;
+my $stepgate = 0.0001;
 
 my $gateprotect = 1;			# 0 ist aus, 1 ist an
 my $Vgatemax = 8;			# wird unten fürs gateprotect verwendet
@@ -29,10 +29,10 @@ my @starttime = localtime(time);
 my $startstring=sprintf("%04u-%02u-%02u_%02u-%02u-%02u",$starttime[5]+1900,$starttime[4]+1,$starttime[3],$starttime[2],$starttime[1],$starttime[0]);
 
 
-my $bias=-0.05; #mV
-my $sample="thebest";
+my $bias=2.0; #mV
+my $sample="CB3224";
 my $filename="$startstring gatesweep sample$sample";
-my $ampI=1e-8;
+my $ampI=1e-11;
 
 
 #---init Yokogawa--- Gatespannung
@@ -53,10 +53,10 @@ my $YokGate=new $type_gate({
 $YokGate->set_voltage($Vgatestart);
 
 print "setting up Agilent for current through sample \n";
-my $hp=new Lab::Instrument::HP34401A({
+my $hp=new Lab::Instrument::HP3458A({
 	'connection_type' =>'VISA_GPIB',
 	'gpib_board' => 0,
-	'gpib_address' => $gpib_hp,
+	'gpib_address' => 15,
 	});
 
 ###################################################################################
@@ -66,7 +66,7 @@ Sample $sample
 Gate sweep from $Vgatestart to $Vgatestop bias $bias mV
 Ithaco amplification $ampI
 Voltage divider 1:1000 on source
-Prottection resistor on gate 10MOhm
+
 COMMENT
 
 
@@ -132,8 +132,8 @@ unless (($Vgatestop-$Vgatestart)/$stepgate > 0) {
 };
 my $stepsign_gate=$stepgate/abs($stepgate);
 
-#$hp2->write("TARM AUTO");
-#$hp2->write("NPLC 1");
+$hp->write("TARM AUTO");
+$hp->write("NPLC 8");
 
 $measurement->start_block();
 
@@ -145,7 +145,7 @@ for (my $Vgate=$Vgatestart; $stepsign_gate*$Vgate<=$stepsign_gate*$Vgatestop; $V
 	my $measIsample =$hp->get_value();	# lese Strominfo von Ithaco
 	#print "done\n";
 	chomp $measIsample;
-	$measurement->log_line($Vgate, $measIsample*$ampI);
+	$measurement->log_line($Vgate, -$measIsample*$ampI);
     }
 
 my $meta=$measurement->finish_measurement();

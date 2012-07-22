@@ -5,6 +5,8 @@
 use strict;
 use Lab::Instrument::Yokogawa7651;
 use Lab::Instrument::HP3458A;
+use Lab::Instrument::SR830;
+use Lab::Instrument::IPS12010;
 use Time::HiRes qw/usleep/;
 use Time::HiRes qw/sleep/;
 use Time::HiRes qw/tv_interval/;
@@ -27,14 +29,15 @@ my $startstring=sprintf("%04u-%02u-%02u_%02u-%02u-%02u",$starttime[5]+1900,$star
 
 
 # measurement constants
-#---dc sample1---
-my $Divider = 0.001;
+#---ac sample1---
+my $DividerDC = 0.001;
+
 my $yok1protect = 1;		# 0 oder 1 für an / aus, analog gateprotect
 my $Yok1DcRange = 5;		# Handbuch S.6-22:R2=10mV,R3=100mV,R4=1V,R5=10V,R6=30V
 my $Vdcmax1 = 12;	        # wird unten fürs biasprotect verwendet, on 470 MOhm corresponds to about 32 nA  
 
-my $ampI1 = 1e-11;         
-my $risetime1 = 100;		# rise time Ithaco Zeit in ms
+my $ampI = 1e-11;         
+my $risetime = 100;		# rise time Ithaco Zeit in ms
 
 
 my $multitime=2;  # multimeter integration time in line power cycles
@@ -42,25 +45,30 @@ my $multitime=2;  # multimeter integration time in line power cycles
 
 #---gate---
 ############################## !!!!!!!!!!!!!!
-my $Vgatestart = 0.66;
-my $Vgatestop = 0.71;
+my $Vgatestart = 0.665;
+my $Vgatestop = 0.695;
 my $stepgate = 0.00005;
 ##############################!!!!!!!!!!!!!!
 
 my $Vgatemax = 5;				# wird unten fürs gateprotect verwendet
 
+#---bias---
+
 ############################## !!!!!!!!!!!!!!
-my $Vbiasstart = -10;  #ACHTUNG!!! 1/1000 Teiler für dc-bias! -->1V=1mV
-my $Vbiasstop = 10;    #ACHTUNG!!! 1/1000 Teiler für dc-bias! -->1V=1mV
+my $Vbiasstart = -10;  #ACHTUNG!!! 1/1000 Teiler für dc-bias! -->1V=10mV
+my $Vbiasstop = 10;    #ACHTUNG!!! 1/1000 Teiler für dc-bias! -->1V=10mV
 my $stepbias = 0.02;   #ACHTUNG!!! 1/1000 Teiler für dc-bias! -->1mV=1µV
+##############################
+
+#---field---
+
+############################## !!!!!!!!!!!!!!
+my @Bfieldlist = (5);
 ##############################
 
 # all gpib addresses
 
-my $gpib_hp2 = 15;			# Spannung output Ithaco für Strommessung durch Probe		
-
-my $title = "Stability diagram DC";
-my $filename = $startstring."_$sample dia fewel";
+my $gpib_hp2 = 13;			# Spannung output Ithaco für Strommessung durch Probe		
 
 
 ####################################################################
@@ -84,8 +92,8 @@ my $YokGate=new $type_gate({
 
 
 #--- init Yoko dc bias sample 1 ----
-my $type_bias1="Lab::Instrument::Yokogawa7651";
-my $Yok1=new $type_bias1({
+my $type_bias="Lab::Instrument::Yokogawa7651";
+my $Yok=new $type_bias({
 	'connection_type' =>'VISA_GPIB',
     'gpib_board'    => 0,
     'gpib_address'  => 2,
@@ -93,42 +101,56 @@ my $Yok1=new $type_bias1({
     'gp_max_units_per_second' => 5,
     'gp_max_step_per_second' => 10,
     'gp_max_units_per_step' => 0.5,
-    'gp_min_units' => -11, 	
-    'gp_max_units'  => 11,
+    'gp_min_units' => -5, 	
+    'gp_max_units'  => 5,
 });
           
-
+my $magnet=new Lab::Instrument::IPS12010(
+        connection_type=>'VISA_GPIB',
+        gpib_address => 24,
+		max_current => 123.8,    # A
+		max_sweeprate => 0.0167, # A/s
+		soft_fieldconstant => 0.13731588, # T/A
+		can_reverse => 1,
+		can_use_negative_current => 1,
+);
 		  
 print "setting up Agilent for dc current through sample \n";
 my $hp2=new Lab::Instrument::HP3458A({
 	'connection_type' =>'VISA_GPIB',
 	'gpib_board' => 0,
-	'gpib_address' => $gpib_hp2,
+	'gpib_address' => 15,
 	});
 
+	
 $hp2->write("TARM AUTO");
 $hp2->write("NPLC $multitime");
 
 print " done!\n";
 
-#my $lia=new Lab::Instrument::SR830(0,$gpib_lia);
-#my $lia_amplitude=($lia->get_amplitude())*$DividerAC;
-
-#print "wait 3 hours for thermalization! \n";
-#sleep(10800);
+###################################################################################
+# Measurment loop for different B-fields
 ###################################################################################
 
+foreach my $field(@Bfieldlist){
+
+my $title = "Stability diagram at parallel magnetic field ($field T) in the few electron regime";
+my $filename = $startstring."_$sample dia fele par $field";
+
 my $comment=<<COMMENT;
-Stability Diagram DC at zero field for few electron regime.
+DC stability diagram measurement in the few electron regime for magnetic field $field T.
 
-Ithaco: Verstaerkung $ampI1  , Rise Time $risetime1 ms;
+Ithaco: Verstaerkung $ampI  , Rise Time $risetime ms;
 Messen der Ausgangsspannung des Ithaco über Agilent;
-Integration time multimeter: $multitime PLC 
+Voltage dividers DC: $DividerDC 
 
-Voltage dividers DC: $Divider 
+Orientation: -23.3°
+
+Multimeter integ. time (PLC) $multitime
+
 Temperatur = $temperature $temperatureunit;
 
-Vgate Vbias Idc  t
+Vgate Vbias Idc t
 COMMENT
 
 
@@ -142,13 +164,13 @@ my $measurement=new Lab::Measurement(
     filename_base   => $filename,
     description     => $comment,
 
-    live_plot       => 'currentdc',
+    live_plot       => 'currentac',
     live_refresh    => '300',
 
 constants       => [
         {
             'name'          => 'ampI',
-            'value'         => $ampI1,
+            'value'         => $ampI,
         },
     ],
     columns         => [
@@ -195,33 +217,19 @@ constants       => [
         },
 		{
             'unit'          => 'sec',
-			'expression'    => '$C6',
+			'expression'    => '$C3',
             'label'         => 'time',
             'description'   => "Timestamp (seconds since unix epoch)",
         },
     ],
     plots           => {
-        'currentdc'    => {
+        'currentac'    => {
             'type'          => 'pm3d',
             'xaxis'         => 0,
             'yaxis'         => 1,
             'cbaxis'        => 2,
             'grid'          => 'xtics ytics',
         },
-#        'currentacx'    => {
-#            'type'          => 'pm3d',
-#            'xaxis'         => 0,
-#            'yaxis'         => 1,
-#            'cbaxis'        => 3,
-#            'grid'          => 'xtics ytics',
-#        },
-#        'currentacr'    => {
-#            'type'          => 'pm3d',
-#            'xaxis'         => 0,
-#            'yaxis'         => 1,
-#            'cbaxis'        => 5,
-#            'grid'          => 'xtics ytics',
-#        },
     },
 );
 
@@ -238,6 +246,8 @@ unless (($Vbiasstop-$Vbiasstart)/$stepbias > 0) { # um das bias in die richtige 
 }
 my $stepsign_bias=$stepbias/abs($stepbias);
 
+print "Setting magnetic field: $field T\n";
+$magnet->set_field($field);
 
 ##Start der Messung
 for (my $Vgate=$Vgatestart;$stepsign_gate*$Vgate<=$stepsign_gate*$Vgatestop;$Vgate+=$stepgate)	{
@@ -248,27 +258,24 @@ for (my $Vgate=$Vgatestart;$stepsign_gate*$Vgate<=$stepsign_gate*$Vgatestop;$Vga
 	my $measVgate=$YokGate->set_voltage($Vgate);
 
 	#print "done\n setting bias voltage $Vbiasstart ";
-	my $measVb=$Yok1->set_voltage($Vbiasstart);
+	my $measVb=$Yok->set_voltage($Vbiasstart);
         
 	#print "done\n entering inner loop\n";
-	sleep(1);
+	sleep(3);
 
 	for (my $Vbias=$Vbiasstart;$stepsign_bias*$Vbias<=$stepsign_bias*$Vbiasstop;$Vbias+=$stepbias) {
 
-	    my $Vbias = $Yok1->set_voltage($Vbias);
+	    my $Vbias = $Yok->set_voltage($Vbias);
 		
 		my $t = gettimeofday();
         my $Vithaco = $hp2 -> get_value();			    # lese Strominfo von Ithako
 	    chomp $Vithaco;                                 # raw data (remove line feed from string)
 		
-#		my ($Vacx,$Vacy)=$lia->read_xy();
+		#print "ping \n";
 		
-	    my $Idc = -($Vithaco*$ampI1);              # '-' für den Ithako, damit positives G rauskommt
-#		my $Iacx= -($Vacx*$ampI1);
-#		my $Iacy= -($Vacy*$ampI1);
-#      my $Iacr=sqrt($Iacx*$Iacx+$Iacy*$Iacy);
+	    my $Idc = -($Vithaco*$ampI);              # '-' für den Ithako, damit positives G rauskommt
 		
-        my $VbiasComp = $Vbias * $Divider;
+        my $VbiasComp = $Vbias * $DividerDC;
             
 	    $measurement->log_line($measVgate, $VbiasComp, $Idc, $t);
 	    
@@ -277,4 +284,7 @@ for (my $Vgate=$Vgatestart;$stepsign_gate*$Vgate<=$stepsign_gate*$Vgatestop;$Vga
 
 my $meta=$measurement->finish_measurement();
 
-printf "End of Measurement!\n";
+printf "End of Measurement at magnetic field $field \n";
+}
+
+$magnet->set_field(0);

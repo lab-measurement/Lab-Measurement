@@ -7,6 +7,7 @@ use Lab::Instrument::Yokogawa7651;
 use Lab::Instrument::IPS12010;
 use Lab::Instrument::HP3458A;
 use Lab::Instrument::SR830;
+use Lab::Instrument::PD11042;
 
 use Time::HiRes qw/usleep/;
 use Time::HiRes qw/sleep/;
@@ -140,7 +141,7 @@ $hp2->write("NPLC $multitime");
 # Measurment 1
 ###################################################################################
 
-my $comment=<<COMMENT;
+my $comment1=<<COMMENT;
 AC dI measurment for different magnetic field strength in the hole regime.
 angle setting: 68° (165.5), which is most likely perpendicular field
 
@@ -165,11 +166,11 @@ COMMENT
 
 
 
-my $measurement=new Lab::Measurement(
+my $measurement1=new Lab::Measurement(
     sample          => $sample,
-    title           => $title,
-    filename_base   => $filename,
-    description     => $comment,
+    title           => $title1,
+    filename_base   => $filename1,
+    description     => $comment1,
 
     live_plot       => 'dIac',
     live_refresh    => '500',
@@ -242,11 +243,11 @@ constants       => [
 
 ###############################################################################
 
- 
 unless (($Vgatestop-$Vgatestart)/$stepgate > 0) { # um das gate in die richtige Richtung laufen zu lassen
     $stepgate = -$stepgate;
 }
 my $stepsign_gate=$stepgate/abs($stepgate);
+
 
 unless (($fieldstop-$fieldstart)/$fieldstep > 0) { # um das bias in die richtige Richtung laufen zu lassen
     $fieldstep = -$fieldstep;
@@ -257,7 +258,7 @@ my $stepsign_field=$fieldstep/abs($fieldstep);
 ##Start der Messung
 for (my $B=$fieldstart;$stepsign_field*$B<=$stepsign_field*$fieldstop;$B+=$fieldstep)	{
 
-	$measurement->start_block();
+	$measurement1->start_block();
 
 	#print "setting gate voltage $Vgatestart ";
 	my $measVg=$YokGate->set_voltage($Vgatestart);
@@ -285,12 +286,12 @@ for (my $B=$fieldstart;$stepsign_field*$B<=$stepsign_field*$fieldstop;$B+=$field
 		
 	    my $Idc = -($Vithaco*$ampI);              # '-' für den Ithako, damit positives G rauskommt
             
-	    $measurement->log_line($B, $Vgate, $Idc, $Iacx, $Iacy, $Iacr, $t);
+	    $measurement1->log_line($B, $Vgate, $Idc, $Iacx, $Iacy, $Iacr, $t);
 	    
 	}
 }    
 
-my $meta=$measurement->finish_measurement();
+my $meta=$measurement1->finish_measurement();
 
 printf "End of Measurement 1!\n";
 
@@ -403,10 +404,6 @@ constants       => [
 ###############################################################################
 
  
-unless (($Vgatestop-$Vgatestart)/$stepgate > 0) { # um das gate in die richtige Richtung laufen zu lassen
-    $stepgate = -$stepgate;
-}
-my $stepsign_gate=$stepgate/abs($stepgate);
 
 unless (($anglestop-$anglestart)/$anglestep > 0) { # um das bias in die richtige Richtung laufen zu lassen
     $anglestep = -$anglestep;

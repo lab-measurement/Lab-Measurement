@@ -38,24 +38,24 @@ my $Vdcmax1 = 12;	        # wird unten fürs biasprotect verwendet, on 470 MOhm c
 my $ampI = 1e-8;         
 my $risetime = 1;		# rise time Ithaco Zeit in ms
 
-my $lockinsettings='Frequency 137.48Hz, amplitude 100mV*10^-4=10µV RMS, Phase 0, sens=50mV, integ. time 100ms';
+my $lockinsettings='Frequency 137.48Hz, amplitude 50mV*10^-4=5µV RMS, Phase 0, sens=500mV, integ. time 100ms';
 
 my $multitime=2;  # multimeter integration time in line power cycles
 
 
 #---gate---
 ############################## !!!!!!!!!!!!!!
-my $Vgatestart = 0.9;
-my $Vgatestop = 1.36;
-my $stepgate = 0.0005;
+my $Vgatestart = -0.4;
+my $Vgatestop = 0.4;
+my $stepgate = 0.0025;
 ##############################!!!!!!!!!!!!!!
 
 my $Vgatemax = 5;				# wird unten fürs gateprotect verwendet
 
 ############################## !!!!!!!!!!!!!!
-my $Vbiasstart = -1.;  #ACHTUNG!!! 1/100 Teiler für dc-bias! -->1V=10mV
-my $Vbiasstop = 1.;    #ACHTUNG!!! 1/100 Teiler für dc-bias! -->1V=10mV
-my $stepbias = 0.005;   #ACHTUNG!!! 1/1000 Teiler für dc-bias! -->1mV=1µV
+my $Vbiasstart = -0.3;  #ACHTUNG!!! 1/100 Teiler für dc-bias! -->1V=10mV
+my $Vbiasstop = 0.3;    #ACHTUNG!!! 1/100 Teiler für dc-bias! -->1V=10mV
+my $stepbias = 0.001;   #ACHTUNG!!! 1/100 Teiler für dc-bias! -->1mV=1µV
 ##############################
 
 # all gpib addresses
@@ -63,7 +63,7 @@ my $stepbias = 0.005;   #ACHTUNG!!! 1/1000 Teiler für dc-bias! -->1mV=1µV
 my $gpib_hp2 = 13;			# Spannung output Ithaco für Strommessung durch Probe		
 
 my $title = "Stability diagram";
-my $filename = $startstring."_$sample dia $temperature$temperatureunit";
+my $filename = $startstring."_$sample dia hole par";
 
 
 ####################################################################
@@ -128,17 +128,17 @@ print " done!\n";
 ###################################################################################
 
 my $comment=<<COMMENT;
-AC stability diagram measurement in the few electron regime.
+AC stability diagram measurement in the hole regime for high parallel magnetic field.
 
 Ithaco: Verstaerkung $ampI  , Rise Time $risetime ms;
 Messen der Ausgangsspannung des Ithaco über Agilent;
 Voltage dividers DC: $DividerDC 
 Voltage divider AC: $DividerAC
 
-Magnetic field: 5T
+Magnetic field: 17T
 Orientation: -22°
 
-Effective LIA amplitude 10µV.
+
 Multimeter integ. time (PLC) $multitime
 
 Lock-in settings: $lockinsettings
@@ -270,7 +270,7 @@ for (my $Vgate=$Vgatestart;$stepsign_gate*$Vgate<=$stepsign_gate*$Vgatestop;$Vga
 	my $measVb=$Yok1->set_voltage($Vbiasstart);
         
 	#print "done\n entering inner loop\n";
-	sleep(1);
+	sleep(2);
 
 	for (my $Vbias=$Vbiasstart;$stepsign_bias*$Vbias<=$stepsign_bias*$Vbiasstop;$Vbias+=$stepbias) {
 
