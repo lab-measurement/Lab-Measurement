@@ -297,6 +297,8 @@ sub _set_sweep_target_current {
 
 Lab::Instrument::OI_IPS - Oxford Instruments IPS series superconducting magnet supply
 
+Tested with the Oxford Instruments IPS 120-10 and IPS 180 superconducting magnet power supplies.
+
   (c) 2010, 2011, 2012 Andreas K. Hüttel
 
 =cut
