@@ -1,5 +1,5 @@
 package Lab::Instrument::ITC503;
-our $VERSION = '3.00';
+our $VERSION = '3.10';
 
 use strict;
 use feature "switch";

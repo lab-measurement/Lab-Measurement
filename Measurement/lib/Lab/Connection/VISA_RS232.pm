@@ -11,7 +11,7 @@
 die "Work in progress\n";
 
 package Lab::Connection::VISA_RS232;
-our $VERSION = '3.00';
+our $VERSION = '3.10';
 
 use strict;
 use Lab::Bus::VISA;

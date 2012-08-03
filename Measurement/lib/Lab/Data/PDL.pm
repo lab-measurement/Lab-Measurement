@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 package Lab::Data::PDL;
-our $VERSION = '3.00';
+our $VERSION = '3.10';
 
 use strict;
 use PDL;

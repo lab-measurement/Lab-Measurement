@@ -31,7 +31,7 @@ sub full_message {
 }
 
 package Lab::Exception;
-our $VERSION = '3.00';
+our $VERSION = '3.10';
 
 
 #
