@@ -46,3 +46,5 @@
 # dont distribute the real world scripts
 ^examples/RealWorld
 
+# not ported yet
+^lib/Lab/Instrument/SignalRecovery726x.pm
