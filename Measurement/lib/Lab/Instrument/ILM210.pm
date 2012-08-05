@@ -1,4 +1,4 @@
-package Lab::Instrument::ILM;
+package Lab::Instrument::ILM210;
 our $VERSION = '3.10';
 use strict;
 use Lab::Instrument;
