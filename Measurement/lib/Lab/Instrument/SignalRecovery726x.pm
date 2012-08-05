@@ -1,82 +1,66 @@
 package Lab::Instrument::SignalRecovery726x;
 
-die "Not ported yet.";
-
 use strict;
 use Lab::Instrument;
-use Lab::VISA;
+use Data::Dumper;
+use Carp;
 use Time::HiRes qw (usleep);
 
+our @ISA = ("Lab::Instrument");
 
-
-# ------------------ INIT -------------------------
+our %fields = (
+	supported_connections => [ 'GPIB', 'VISA_GPIB', 'DEBUG' ],
+);
 
 sub new {
-    my $proto = shift;
-	 my @args=@_;
-    my $class = ref($proto) || $proto;
-    my $self = {};
-    bless ($self, $class);
-	
-	if (ref(@args[0]) eq 'Lab::Instrument::RS232')
-		{
-		print "Init SignalRecovery 726x as RS232 device.\n";
-		$self->{vi}=new Lab::Instrument(@_,'dummy_value');
-		
-		my $status=Lab::VISA::viSetAttribute($self->{vi}->{config}->{RS232}->{vi}->{instr}, $Lab::VISA::VI_ATTR_ASRL_BAUD, 19200);
-		if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting baud: $status";}
-	
-		$status=Lab::VISA::viSetAttribute($self->{vi}->{config}->{RS232}->{vi}->{instr}, $Lab::VISA::VI_ATTR_ASRL_DATA_BITS, 7);
-		if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting termchar: $status";}
-	
-		$status=Lab::VISA::viSetAttribute($self->{vi}->{config}->{RS232}->{vi}->{instr}, $Lab::VISA::VI_ATTR_ASRL_STOP_BITS, $Lab::VISA::VI_ASRL_STOP_ONE);
-		if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting termchar enabled: $status";}
-	
-		$status=Lab::VISA::viSetAttribute($self->{vi}->{config}->{RS232}->{vi}->{instr}, $Lab::VISA::VI_ATTR_ASRL_PARITY, $Lab::VISA::VI_ASRL_PAR_EVEN);
-		if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting termchar: $status";}
-	
-		$status=Lab::VISA::viSetAttribute($self->{vi}->{config}->{RS232}->{vi}->{instr}, $Lab::VISA::VI_ATTR_TERMCHAR, 10);
-		if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting termchar: $status";}
-	
-		$status=Lab::VISA::viSetAttribute($self->{vi}->{config}->{RS232}->{vi}->{instr}, $Lab::VISA::VI_ATTR_TERMCHAR_EN, $Lab::VISA::VI_TRUE);
-		if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting termchar enabled: $status";}	
+	my $proto = shift;
+	my $class = ref($proto) || $proto;
+	my $self = $class->SUPER::new(@_);
+	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__); 
 
-		$status=Lab::VISA::viSetAttribute($self->{vi}->{config}->{RS232}->{vi}->{instr}, $Lab::VISA::VI_ATTR_ASRL_END_IN, 	$Lab::VISA::VI_ASRL_END_TERMCHAR);
-		if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting end termchar: $status";}
-		
-		$status=Lab::VISA::viSetAttribute($self->{vi}->{config}->{RS232}->{vi}->{instr}, $Lab::VISA::VI_ATTR_TMO_VALUE, 	50 );
-		if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting end termchar: $status";}
-		
-	
-		$self->{vi}->{config}->{RS232_Echo} = 'CHARACTER';
-		
-		}
-		
-	else
-		{
-		print "Init SignalRecovery 726x as GPIB device.\n";
-		$self->{vi}=new Lab::Instrument(@_);
-		}
-		
-	# register instrument:
-	push ( @{${Lab::Instrument::INSTRUMENTS}}, $self );
-	return $self
+	return $self;
 }
+
+sub empty_buffer{
+    my $self=shift;
+    my $times=shift;
+    for (my $i=0;$i<$times;$i++) {
+		eval { $self->read( brutal => 1 ) };
+    }
+}
+
+#		my $status=Lab::VISA::viSetAttribute($self->{vi}->{config}->{RS232}->{vi}->{instr}, $Lab::VISA::VI_ATTR_ASRL_BAUD, 19200);
+#		if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting baud: $status";}
+#		$status=Lab::VISA::viSetAttribute($self->{vi}->{config}->{RS232}->{vi}->{instr}, $Lab::VISA::VI_ATTR_ASRL_DATA_BITS, 7);
+#		if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting termchar: $status";}
+#		$status=Lab::VISA::viSetAttribute($self->{vi}->{config}->{RS232}->{vi}->{instr}, $Lab::VISA::VI_ATTR_ASRL_STOP_BITS, $Lab::VISA::VI_ASRL_STOP_ONE);
+#		if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting termchar enabled: $status";}
+#		$status=Lab::VISA::viSetAttribute($self->{vi}->{config}->{RS232}->{vi}->{instr}, $Lab::VISA::VI_ATTR_ASRL_PARITY, $Lab::VISA::VI_ASRL_PAR_EVEN);
+#		if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting termchar: $status";}
+#		$status=Lab::VISA::viSetAttribute($self->{vi}->{config}->{RS232}->{vi}->{instr}, $Lab::VISA::VI_ATTR_TERMCHAR, 10);
+#		if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting termchar: $status";}
+#		$status=Lab::VISA::viSetAttribute($self->{vi}->{config}->{RS232}->{vi}->{instr}, $Lab::VISA::VI_ATTR_TERMCHAR_EN, $Lab::VISA::VI_TRUE);
+#		if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting termchar enabled: $status";}	
+#		$status=Lab::VISA::viSetAttribute($self->{vi}->{config}->{RS232}->{vi}->{instr}, $Lab::VISA::VI_ATTR_ASRL_END_IN, 	$Lab::VISA::VI_ASRL_END_TERMCHAR);
+#		if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting end termchar: $status";}
+#		$status=Lab::VISA::viSetAttribute($self->{vi}->{config}->{RS232}->{vi}->{instr}, $Lab::VISA::VI_ATTR_TMO_VALUE, 	50 );
+#		if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting end termchar: $status";}
+#	
+#		$self->{vi}->{config}->{RS232_Echo} = 'CHARACTER';
 
 sub reset {
-
 	my $self=shift;
-	$self->{vi}->Write("ADF 1");
-	}
-
-sub _set_RS232_Parameter { # internal / advanced use only 
-	my $self = shift;
-	my $RS232_Parameter = shift;
-	my $value = shift;
-	
-	return $self->{vi}->{config}->{RS232}->set_RS232_Parameter($RS232_Parameter, $value);
-
+	$self->write("ADF 1");
 }
+
+#sub _set_RS232_Parameter { # internal / advanced use only 
+#	my $self = shift;
+#	my $RS232_Parameter = shift;
+#	my $value = shift;
+#	
+#	return $self->{vi}->{config}->{RS232}->set_RS232_Parameter($RS232_Parameter, $value);
+
+#}
 
 
 
@@ -92,13 +76,13 @@ sub set_imode { # basic setting
 	
 	if ( not defined $imode )
 		{
-		return $self->{vi}->Query("IMODE");
+		return $self->query("IMODE");
 		}
 	
 	if (defined $imode and ($imode == 0 || $imode == 1 || $imode == 2)) {
 		my $cmd = sprintf("IMODE %d", $imode);
-		$self->{vi}->Write($cmd);
-		if ($self->{vi}->Query("IMODE") != $imode) {
+		$self->write($cmd);
+		if ($self->query("IMODE") != $imode) {
 			die "\nSIGNAL REOCOVERY 726x:\ncouldn't set IMODE";
 		} }
 	else {
@@ -117,14 +101,14 @@ sub set_vmode { # basic setting
 	
 	if ( not defined $vmode )
 		{
-		return $self->{vi}->Query("VMODE");
+		return $self->query("VMODE");
 		}
 	
 	if (defined $vmode and ($vmode == 0 || $vmode == 1 || $vmode == 2 || $vmode == 3)) {
 		
 		my $cmd = sprintf("VMODE %d", $vmode);
-		$self->{vi}->Write($cmd);
-		if ($self->{vi}->Query("VMODE") != $vmode) {
+		$self->write($cmd);
+		if ($self->query("VMODE") != $vmode) {
 			die "\nSIGNAL REOCOVERY 726x:\ncouldn't set VMODE";
 		} 
 		}
@@ -142,14 +126,14 @@ sub set_fet { # basic setting
 	
 	if ( not defined $value )
 		{
-		return $self->{vi}->Query("FET");
+		return $self->query("FET");
 		}
 	
 	if ( defined $value and ($value == 0 || $value == 1) ) {
 		
 		my $cmd = sprintf("FET %d", $value);
-		$self->{vi}->Write($cmd);
-		if ($self->{vi}->Query("FET") != $value) {
+		$self->write($cmd);
+		if ($self->query("FET") != $value) {
 			die "\nSIGNAL REOCOVERY 726x:\ncouldn't set FET";
 		} 
 		}
@@ -167,14 +151,14 @@ sub set_float { # basic setting
 	
 	if ( not defined $value )
 		{
-		return $self->{vi}->Query("FLOAT");
+		return $self->query("FLOAT");
 		}
 	
 	if (defined $value and ($value == 0 || $value == 1)) {
 		
 		my $cmd = sprintf("FLOAT %d", $value);
-		$self->{vi}->Write($cmd);
-		if ($self->{vi}->Query("FLOAT") != $value) {
+		$self->write($cmd);
+		if ($self->query("FLOAT") != $value) {
 			die "\nSIGNAL REOCOVERY 726x:\ncouldn't set FLOAT";
 		} 
 		}
@@ -192,14 +176,14 @@ sub set_cp { # basic setting
 	
 	if ( not defined $value )
 		{
-		return $self->{vi}->Query("CP");
+		return $self->query("CP");
 		}
 	
 	if (defined $value and ($value == 0 || $value == 1)) {
 		
 		my $cmd = sprintf("CP %d", $value);
-		$self->{vi}->Write($cmd);
-		if ($self->{vi}->Query("CP") != $value) {
+		$self->write($cmd);
+		if ($self->query("CP") != $value) {
 			die "\nSIGNAL REOCOVERY 726x:\ncouldn't set CP";
 		} 
 		}
@@ -222,11 +206,11 @@ sub set_sen { # basic setting
 	
 	
 	
-	my $imode = $self->{vi}->Query("IMODE");
+	my $imode = $self->query("IMODE");
 	
 	if (not defined $value) 
 		{
-		return $matrix_reverse[$imode][$self->{vi}->Query("SEN")-1];
+		return $matrix_reverse[$imode][$self->query("SEN")-1];
 		}
 	
 	# SENSITIVITY (IMODE == 0) --> 2nV, 5nV, 10nV, 20nV, 50nV, 100nV, 200nV, 500nV, 1uV, 2uV, 5uV, 10uV, 20uV, 50uV, 100uV, 200uV, 500uV, 1mV, 2mV, 5mV, 10mV, 20mV, 50mV, 100mV, 200mV, 500mV, 1V\n
@@ -249,12 +233,12 @@ sub set_sen { # basic setting
 	if (exists $matrix[$imode]->{$value}) {
 	 
 	    my $cmd = sprintf("SEN %d", $matrix[$imode]->{$value});
-		$self->{vi}->Write($cmd);
-		if ($self->{vi}->Query("SEN") != $matrix[$imode]->{$value}) {
+		$self->write($cmd);
+		if ($self->query("SEN") != $matrix[$imode]->{$value}) {
 			die "\nSIGNAL REOCOVERY 726x:\ncouldn't set sensitivity"; }
 		}
 	elsif ($value == "AUTO") {
-		$self->{vi}->Write("AS"); 		
+		$self->write("AS"); 		
 		}
 		
 	else {
@@ -274,7 +258,7 @@ sub set_acgain { # basic setting
 	
 	if ( not defined $value )
 		{
-		return ($self->{vi}->Query("ACGAIN"),$self->{vi}->Query("AUTOMATIC"));
+		return ($self->query("ACGAIN"),$self->query("AUTOMATIC"));
 		}
 	
 	if (index($value, "dB") >= 0) {
@@ -283,16 +267,16 @@ sub set_acgain { # basic setting
 	if (defined $value and int($value) == $value and $value <=9 and $value >= 0) {
 	
 		my $cmd = sprintf("ACGAIN %d", $value);
-		$self->{vi}->Write($cmd);
-		if ((my $gain = $self->{vi}->Query("ACGAIN")) != $value) {
+		$self->write($cmd);
+		if ((my $gain = $self->query("ACGAIN")) != $value) {
 			print "couldn't set ACGAIN to ".($value*10)."dB. Instead set to ".($gain*10)."dB.\n";
 		}
 	
 	}
 	elsif ($value eq "AUTO") {
 		my $cmd = sprintf("AUTOMATIC 1");
-		$self->{vi}->Write($cmd);
-		if ($self->{vi}->Query("AUTOMATIC") != 1) {
+		$self->write($cmd);
+		if ($self->query("AUTOMATIC") != 1) {
 			die "\nSIGNAL REOCOVERY 726x:\ncouldn't set ACGAIN";
 		}
 	}
@@ -320,14 +304,14 @@ sub set_linefilter { # basic setting
 	
 	if ( not defined $value )
 		{
-		return $self->{vi}->Query("LF");
+		return $self->query("LF");
 		}
 	
 	if (defined $value and ($value == 0 || $value == 1 || $value == 2 || $value == 3)) {
 		
 		my $cmd = sprintf("LF %d, %d", $value, $linefrequency);
-		$self->{vi}->Write($cmd);
-		if ($self->{vi}->Query("LF") != $value) 
+		$self->write($cmd);
+		if ($self->query("LF") != $value) 
 			{
 			die "\nSIGNAL REOCOVERY 726x:\ncouldn't set Linefilter";
 			} 
@@ -352,7 +336,7 @@ sub set_refchannel { # basic setting
 
 	if ( not defined $value )
 		{
-		return $self->{vi}->Query("IE");
+		return $self->query("IE");
 		}
 		
 	if ($value eq "INT" ) { $value = 0; }
@@ -361,8 +345,8 @@ sub set_refchannel { # basic setting
 	else { die "\nSIGNAL REOCOVERY 726x:\nunexpected value for REFERENCE CHANEL in sub set_refchennel. Expected values are:\n INT --> internal reference input mode\n EXT LOGIC --> external rear panel TTL input\n EXT --> external front panel analog input\n"; }
 		
 	my $cmd = sprintf("IE %d", $value);
-		$self->{vi}->Write($cmd);
-		if ($self->{vi}->Query("IE") != $value) {
+		$self->write($cmd);
+		if ($self->query("IE") != $value) {
 			die "\nSIGNAL REOCOVERY 726x:\ncouldn't set reference channel";
 		} 
 		
@@ -370,7 +354,7 @@ sub set_refchannel { # basic setting
 
 sub autophase { # basic setting
 	my $self=shift;
-	$self->{vi}->Write("AQN");
+	$self->write("AQN");
 	usleep(5*$self->set_tc()*1e6);
 	}
 
@@ -380,12 +364,12 @@ sub set_refpha{ # basic setting
 	
 	if ( not defined $value )
 		{
-		return $self->{vi}->Query("REFP.");
+		return $self->query("REFP.");
 		}
 		
 	if ($value >= 0 && $value <= 360) {
-		$self->{vi}->Write(sprintf("REFP %d", $value*1e3));
-		if ($self->{vi}->Query("REFP") != $value*1e3) {
+		$self->write(sprintf("REFP %d", $value*1e3));
+		if ($self->query("REFP") != $value*1e3) {
 			die "\nSIGNAL REOCOVERY 726x:\nCouldn't set reference phase in sub set_refpha.";
 			}			
 		}
@@ -394,7 +378,7 @@ sub set_refpha{ # basic setting
 
 sub get_refpha { # basic setting
 	my $self=shift;
-	my $value = $self->{vi}->Query("REFP.");
+	my $value = $self->query("REFP.");
 	return $value;
 	}
 
@@ -413,7 +397,7 @@ sub set_ouputfilter_slope {  # basic setting
 	
 	if ( not defined $value )
 		{
-		return $self->{vi}->Query("SLOPE");
+		return $self->query("SLOPE");
 		}
 	
 	if ($value eq "6dB") {$value = 0;}
@@ -423,8 +407,8 @@ sub set_ouputfilter_slope {  # basic setting
 	else { die "\nSIGNAL REOCOVERY 726x:\nunexpected value for SLOPE in sub set_ouputfilter_slope. Expected values are:\n  6dB -->  6dB/octave slope of output filter\n 12dB --> 12dB/octave slope of output filter\n 18dB --> 18dB/octave slope of output filter\n 24dB --> 24dB/octave slope of output filter\n"; }
 		
 	my $cmd = sprintf("SLOPE %d", $value);
-	$self->{vi}->Write($cmd);
-	if ($self->{vi}->Query("SLOPE") != $value) {
+	$self->write($cmd);
+	if ($self->query("SLOPE") != $value) {
 		die "\nSIGNAL REOCOVERY 726x:\ncouldn't set output lowpass filter";
 	}
 	 
@@ -440,7 +424,7 @@ sub set_tc { # basic setting
 	my @list = (10e-6, 20e-6, 40e-6, 80e-6, 160e-6, 320e-6, 640e-6, 5e-3, 10e-3, 20e-3, 50e-3, 100e-3, 200e-3, 500e-3, 1, 2, 5 , 10, 20, 50, 100, 200 , 500, 1e3, 2e3, 5e3, 10e3, 20e3, 50e3, 100e3);
 	
 	if(not defined $value) {
-		my $tc = $self->{vi}->Query("TC");
+		my $tc = $self->query("TC");
 		return $list[$tc];
 		}
 	
@@ -457,8 +441,8 @@ sub set_tc { # basic setting
 
 	if (exists $list{$value}) {
 	    my $cmd = sprintf("TC %d", $list{$value});
-		$self->{vi}->Write($cmd);
-		if ($self->{vi}->Query("TC") != $list{$value}) {die "\nSIGNAL REOCOVERY 726x:\ncouldn't set TC. This may happen at low oscillator frequencies below 10 Hz. For detailed informaitionis read the manual!"; }
+		$self->write($cmd);
+		if ($self->query("TC") != $list{$value}) {die "\nSIGNAL REOCOVERY 726x:\ncouldn't set TC. This may happen at low oscillator frequencies below 10 Hz. For detailed informaitionis read the manual!"; }
 		}		
 	else {
 		die "\nSIGNAL REOCOVERY 726x:\nunexpected value for TIME CONSTANT in set_tc. Filter Time Constant TC can be:\n10us, 20us, 40us, 80us, 160us, 320us, 640us, 5ms, 10ms, 20ms, 50ms, 100ms, 200ms, 500ms, 1s, 2s, 5s, 10s, 20s, 50s, 100s, 200s, 500s, 1ks, 2ks, 5ks, 10ks, 20ks, 50ks, 100ks\n"; }
@@ -477,8 +461,8 @@ sub set_offset { # basic setting
 	
 	if ($x_value >= -300 || $x_value <= 300) {
 		my $cmd = sprintf("XOF 1 %d", $x_value*100);
-		$self->{vi}->Write($cmd);
-		my @temp = split(/,/,$self->{vi}->Query("XOF"));
+		$self->write($cmd);
+		my @temp = split(/,/,$self->query("XOF"));
 		$offset[0] = $temp[1]/100;
 		if ($offset[0] != $x_value) {
 			die "\nSIGNAL REOCOVERY 726x:\ncouldn't set X chanel output offset";
@@ -487,8 +471,8 @@ sub set_offset { # basic setting
 		
 	if ($y_value >= -300 || $y_value <= 300) {
 		my $cmd = sprintf("YOF 1 %d", $y_value*100);
-		$self->{vi}->Write($cmd);
-		my @temp = split(/,/,$self->{vi}->Query("YOF"));
+		$self->write($cmd);
+		my @temp = split(/,/,$self->query("YOF"));
 		$offset[1] = $temp[1]/100;
 		if ($offset[1] != $y_value) {
 			die "\nSIGNAL REOCOVERY 726x:\ncouldn't set Y chanel output offset";
@@ -496,8 +480,8 @@ sub set_offset { # basic setting
 		}
 		
 	if($x_value eq 'OFF') {
-		$self->{vi}->Write("XOF 0");
-		my @temp = split(/,/,$self->{vi}->Query("XOF"));
+		$self->write("XOF 0");
+		my @temp = split(/,/,$self->query("XOF"));
 		$offset[0] = $temp[0];
 		if ($offset[0] != 0) {
 			die "\nSIGNAL REOCOVERY 726x:\ncouldn't set X chanel output offset";
@@ -505,8 +489,8 @@ sub set_offset { # basic setting
 		}
 		
 	if($y_value eq 'OFF') {
-		$self->{vi}->Write("YOF 0");
-		my @temp = split(/,/,$self->{vi}->Query("YOF"));
+		$self->write("YOF 0");
+		my @temp = split(/,/,$self->query("YOF"));
 		$offset[1] = $temp[0];
 		if ($offset[1] != 0) {
 			die "\nSIGNAL REOCOVERY 726x:\ncouldn't set Y chanel output offset";
@@ -514,10 +498,10 @@ sub set_offset { # basic setting
 		}
 		
 	if($x_value eq 'AUTO') {
-		$self->{vi}->Write("AXO");
-		my @temp = split(/,/,$self->{vi}->Query("XOF"));
+		$self->write("AXO");
+		my @temp = split(/,/,$self->query("XOF"));
 		$offset[0] = $temp[1];
-		my @temp = split(/,/,$self->{vi}->Query("YOF"));
+		my @temp = split(/,/,$self->query("YOF"));
 		$offset[1] = $temp[1];
 		}
 	
@@ -533,17 +517,17 @@ sub set_osc { # basic setting
 	my $self=shift;
 	my $value = shift;
 	
-	my $id = $self->{vi}->Query("ID");
+	my $id = $self->query("ID");
 	
 	if ( not defined $value )
 		{
 		if ($id == 7260)
 			{
-			return $self->{vi}->Query("OA")/1e3;
+			return $self->query("OA")/1e3;
 			}
 		elsif ($id == 7265) 
 			{
-			return $self->{vi}->Query("OA")/1e6;
+			return $self->query("OA")/1e6;
 			}
 		}
 		
@@ -555,14 +539,14 @@ sub set_osc { # basic setting
 		
 	if ($value >= 0 && $value <= 5) {
 		if ($id == 7260) { 
-		$self->{vi}->Write(sprintf("OA %d", sprintf("%d",$value  * 1e3))); 
-			if ((my $wert = $self->{vi}->Query("OA")) != sprintf("%d",$value  * 1e3)) {
+		$self->write(sprintf("OA %d", sprintf("%d",$value  * 1e3))); 
+			if ((my $wert = $self->query("OA")) != sprintf("%d",$value  * 1e3)) {
 				die "\nSIGNAL REOCOVERY 726x:\n\nSIGNAL REOCOVERY 726x:\nCouldn't set oscillator output Amplitude in sub set_osc.";
 			}
 		}
 		elsif ($id == 7265) { 
-			$self->{vi}->Write(sprintf("OA %d", sprintf("%d",$value * 1e6) ));
-			if ((my $wert = $self->{vi}->Query("OA")) != sprintf("%d",$value * 1e6)) {
+			$self->write(sprintf("OA %d", sprintf("%d",$value * 1e6) ));
+			if ((my $wert = $self->query("OA")) != sprintf("%d",$value * 1e6)) {
 				die "\nSIGNAL REOCOVERY 726x:\n\nSIGNAL REOCOVERY 726x:\nCouldn't set oscillator output Amplitude in sub set_osc.";
 			}
 		}
@@ -577,7 +561,7 @@ sub set_frq { # basic setting
 	
 	if ( not defined $value )
 		{
-		return $self->{vi}->Query("OF")/1e3;
+		return $self->query("OF")/1e3;
 		}
 	
 	if (index($value, "m") >=0 ) {
@@ -586,8 +570,8 @@ sub set_frq { # basic setting
 		$value = int($value) * 1e3; }
 		
 	if ($value > 0 && $value <= 250000) {
-		$self->{vi}->Write(sprintf("OF %d", $value*1e3));
-		if ($self->{vi}->Query("OF.") != $value) {
+		$self->write(sprintf("OF %d", $value*1e3));
+		if ($self->query("OF.") != $value) {
 			die "\nSIGNAL REOCOVERY 726x:\n\nSIGNAL REOCOVERY 726x:\nCouldn't set oscillator frequency in sub set_frq.";
 			}
 			
@@ -606,43 +590,43 @@ sub get_value { # basic
 	my $result;
 	# $channel can be:\n X   --> X channel output\n Y   --> Y channel output\n MAG --> Magnitude\n PHA --> Signale phase\n XY  --> X and Y channel output\n MP  --> Magnitude and signal Phase\n ALL --> X,Y, Magnitude and signal Phase\n
 	if ( $channel eq "X") { 
-		$result = $self->{vi}->Query("X.");
+		$result = $self->query("X.");
 		$result =~ s/\x00//g;
 		$self->{value} = $result;
 		return $result;
 		}
 	elsif ( $channel eq "Y") { 
-		$result = $self->{vi}->Query("Y.");
+		$result = $self->query("Y.");
 		$result =~ s/\x00//g;
 		$self->{value} = $result;
 		return $result;
 		}
 	elsif ( $channel eq "MAG") { 
-		$result = $self->{vi}->Query("MAG.");
+		$result = $self->query("MAG.");
 		$result =~ s/\x00//g;
 		$self->{value} = $result;
 		return $result;
 		}
 	elsif ( $channel eq "PHA") { 
-		$result = $self->{vi}->Query("PHA.");
+		$result = $self->query("PHA.");
 		$result =~ s/\x00//g;
 		$self->{value} = $result;
 		return $result;
 		}
 	elsif ( $channel eq "XY") { 
-		$result = $self->{vi}->Query("XY.");
+		$result = $self->query("XY.");
 		$result =~ s/\x00//g;
 		$self->{value} = split(",",$result);
 		return split(",",$result);
 		}
 	elsif ( $channel eq "MP") { 
-		$result = $self->{vi}->Query("MP.");
+		$result = $self->query("MP.");
 		$result =~ s/\x00//g;
 		$self->{value} = split(",",$result);
 		return split(",",$result);
 		}
 	elsif ( $channel eq "ALL") {
-		$result = $self->{vi}->Query("XY.").",".$self->{vi}->Query("MP.");
+		$result = $self->query("XY.").",".$self->query("MP.");
 		$result =~ s/\x00//g;
 		$self->{value} = split(",",$result);
 		return split(",",$result)
@@ -694,7 +678,7 @@ sub config_measurement { # basic
 	
 	if ($trigger eq "EXT")
 		{
-		$self->{vi}->Write("TDT");
+		$self->write("TDT");
 		usleep(1e6);
 		}
 	
@@ -720,10 +704,10 @@ sub get_data { # basic
 		$timeout = 100;
 		}
 	
-	my $status=Lab::VISA::viSetAttribute($self->{vi}->{instr},  $Lab::VISA::VI_ATTR_TMO_VALUE, $timeout);
+	my $status=Lab::VISA::viSetAttribute($self->{instr},  $Lab::VISA::VI_ATTR_TMO_VALUE, $timeout);
 	if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting baud: $status";}
 	
-	my @channels = split(",",$channel_list{int($self->{vi}->Query("CBD"))});
+	my @channels = split(",",$channel_list{int($self->query("CBD"))});
 	#if ($channels == 17) { $channels = 1; }
 	#elsif ($channels == 19) { $channels = 2; }
 	#elsif ($channels == 31) { $channels = 4; }
@@ -736,12 +720,12 @@ sub get_data { # basic
 		{
 		if ( defined $SEN and $SEN >= 2e-15 and $SEN <= 1)
 			{
-			$self->{vi}->Write(sprintf("DC %d", $i));
+			$self->write(sprintf("DC %d", $i));
 			my @temp;
 			my $data;
 			
 			while (1) {
-				eval '$self->{vi}->Read(100)*$SEN*0.01';
+				eval '$self->read(100)*$SEN*0.01';
 				if ($@ =~ /(Error while reading:)/ ) {last;}
 				push(@temp,$data);
 				}
@@ -750,12 +734,12 @@ sub get_data { # basic
 			}
 		else 
 		{
-			$self->{vi}->Write(sprintf("DC. %d", $i));
+			$self->write(sprintf("DC. %d", $i));
 			my @temp;
 			my $data;
 			
 			while (1) {
-				eval '$data = $self->{vi}->Read(100)';
+				eval '$data = $self->read(100)';
 				if ($@ =~ /(Error while reading:)/ ) {last;}
 				push(@temp,$data);
 				}
@@ -766,7 +750,7 @@ sub get_data { # basic
 		}		
 	
 	# set Time-Out for READ	back to default value
-	my $status=Lab::VISA::viSetAttribute($self->{vi}->{instr},  $Lab::VISA::VI_ATTR_TMO_VALUE, 3000);
+	my $status=Lab::VISA::viSetAttribute($self->{instr},  $Lab::VISA::VI_ATTR_TMO_VALUE, 3000);
 	if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting baud: $status";}
 	
 	return @data;
@@ -775,21 +759,21 @@ sub get_data { # basic
 
 sub trg { # basic
 	my $self = shift;	
-	$self->{vi}->Write("TD");	
+	$self->write("TD");	
 	}	
 
 sub abort { # basic
 
 	my $self=shift;
 
-	$self->{vi}->Write("HC");
+	$self->write("HC");
 	
 	}
 
 sub active {
 	my $self = shift;
 	
-	my @status = split(",",$self->{vi}->Query("M"));
+	my @status = split(",",$self->query("M"));
 	if($status[0] == 0) 
 		{
 		return 0;
@@ -806,7 +790,7 @@ sub wait {
 	
 	while(1) {
 		usleep(1e3);
-		my @status = split(",",$self->{vi}->Query("M"));
+		my @status = split(",",$self->query("M"));
 		if($status[0] == 0) {last;}		
 		}
 	return 0;
@@ -819,13 +803,13 @@ sub wait {
 sub display_on { # basic setting
 	
 	my $self=shift;
-	$self->{vi}->Write("LTS 1");
+	$self->write("LTS 1");
 	}
 	
 sub display_off { # basic setting
 	
 	my $self=shift;
-	$self->{vi}->Write("LTS 0");
+	$self->write("LTS 0");
 	}
 	
 
@@ -837,7 +821,7 @@ sub _clear_buffer { # internal / advanced use only
 
 	my $self=shift;
 
-	$self->{vi}->Write("NC");
+	$self->write("NC");
 	
 	}
 	
@@ -848,11 +832,11 @@ sub _set_buffer_datachannels { # internal / advanced use only
 	
 	if ( not defined $value )
 		{
-		return $self->{vi}->Query("CBD");
+		return $self->query("CBD");
 		}
 		
-	$self->{vi}->Write(sprintf("CBD %d", $value));
-	return $self->{vi}->Query("CBD");
+	$self->write(sprintf("CBD %d", $value));
+	return $self->query("CBD");
 	}
 	
 sub _set_buffer_length { # internal / advanced use only 
@@ -862,11 +846,11 @@ sub _set_buffer_length { # internal / advanced use only
 	
 	if ( not defined $nop )
 		{
-		return $self->{vi}->Query("LEN");
+		return $self->query("LEN");
 		}
 	
 	# get number of channels to be stored
-	my $channels = $self->{vi}->Query("CBD");
+	my $channels = $self->query("CBD");
 	if ($channels == 17) { $channels = 2; }
 	elsif ($channels == 19) { $channels = 3; }
 	elsif ($channels == 31) { $channels = 5; }
@@ -874,8 +858,8 @@ sub _set_buffer_length { # internal / advanced use only
 	# check buffer size
 	if ($nop > int(32000/$channels)) { die "\nSIGNAL REOCOVERY 726x:\n\nSIGNAL REOCOVERY 726x:\ncan't init BUFFER. Buffersize is too small for the given NUMBER OF POINTS and NUMBER OF CHANNELS to store.\n POINTS x (CHANNELS+1) cant exceed 32000.\n";}
 	
-	$self->{vi}->Write(sprintf("LEN %d", $nop));
-	return my $return = $self->{vi}->Query("LEN");
+	$self->write(sprintf("LEN %d", $nop));
+	return my $return = $self->query("LEN");
 	
 	}
 	
@@ -886,262 +870,19 @@ sub _set_buffer_storageinterval { # internal / advanced use only
 	
 	if ( not defined $interval )
 		{
-		return $self->{vi}->Query("STR")/1e3;
+		return $self->query("STR")/1e3;
 		}
 	
 	if ( $interval < 5e-3 or $interval > 1e6) {
 		die "\nSIGNAL REOCOVERY 726x:\nunexpected value for INTERVAL in sub set_buffer_interval. Expected values are between 5ms...1E6s with a resolution of 5ms.";
 		}
 	
-	$self->{vi}->Write(sprintf("STR %d", $interval*1e3));
+	$self->write(sprintf("STR %d", $interval*1e3));
 
-	return  $self->{vi}->Query("STR")/1e3;
+	return  $self->query("STR")/1e3;
 	
 	}
 	
-
-sub config_interactive {
-	my $self = shift;
-	my @config_parameter = @_;
-	my $setting;
-	
-	if ( not defined $config_parameter[0] )
-		{
-		$config_parameter[0] = "all";
-		}
-	$self->get_config_data();
-	
-	print "Interactive configuration procedure for ".($self->{id})." (Signal Recovery 726x):\n";
-	print "----------------------------------------------------------------\n\n";
-	
-	
-	while(1)
-		{
-		print "id = ".($self->{id})."\n";
-		print "function = ".($self->{config}->{function})."\n";
-		print "range = ".($self->{config}->{range})."\n";
-		print "sweep:\n";
-			print "  start = ".($self->{config}->{sweep_start})."\n";
-			print "  stop = ".($self->{config}->{sweep_stop})."\n";
-			print "  number of points = ".($self->{config}->{sweep_nop})."\n";
-			print "  time = ".($self->{config}->{sweep_time})."\n";
-		foreach my $config_parameter (@config_parameter)
-			{
-			$config_parameter =~ s/\s+//g; #remove all whitespaces
-			$config_parameter = "\L$config_parameter"; # transform all uppercase letters to lowercase letters
-			
-			if ( $config_parameter =~ /^(id|all)$/ )
-				{
-				print "new setting ID:  ";
-				$setting = "id=".<>;
-				$self->config($setting);
-				print "\n";	
-				}
-
-			
-			if ( $config_parameter =~ /^(function|all)$/ )
-				{
-				print "new setting FUNCTION:  ";
-				$setting = "function=".<>;
-				$self->config($setting);
-				print "\n";
-				$self->get_config_data();
-				}
-			
-			
-			if ( $config_parameter =~ /^(range|all)$/ )
-				{
-				print "new setting RANGE:  ";
-				$setting = "range=".<>;
-				$self->config($setting);
-				print "\n";
-				}
-			
-			if ( $config_parameter =~ /^(start)$/ )
-				{
-				print "new setting OUTPUT: ";
-				$setting = "sweep_start=".<>;
-				$self->config($setting);
-				print "\n";
-				}
-			
-			
-			if ( $config_parameter =~ /^(sweep|all)$/ )
-				{
-				print "new setting SWEEP_START:  ";
-				$setting = "sweep_start=".<>;
-				if ( $setting =~ /=/ )
-					{
-					$self->config($setting);
-					}
-				print "new setting SWEEP_STOP:  ";
-				$setting = "sweep_stop=".<>;
-				if ( $setting =~ /=/ )
-					{
-					$self->config($setting);
-					}
-				print "new setting SWEEP_NOP:  ";
-				$setting = "sweep_nop=".<>;
-				if ( $setting =~ /=/ )
-					{
-					$self->config($setting);
-					}
-				print "new setting SWEEP_TIME:  ";
-				$setting = "sweep_time=".<>;
-				if ( $setting =~ /=/ )
-					{
-					$self->config($setting);
-					
-					}
-				print "\n";
-				}
-			}
-			
-		print "repeat? (y/n)\t";
-		$setting = <>;
-		if ( $setting =~ /n|N|no|NO/ )
-			{
-			print "\n";
-			print $self->create_header();
-			print "\n";
-			last;
-			}
-		else
-			{
-			print "restart setting procedure for ".($self->{id})." (Signal Recovery 726x):\n";
-			}
-		}
-		
-	$self->get_config_data();
-		
-}
-
-
-sub config {
-	my $self = shift;
-	my @settings = @_;
-	
-	foreach my $setting (@settings)
-		{
-		$setting =~ s/\s+//g; #remove all whitespaces
-		$setting = "\L$setting"; # transform all uppercase letters to lowercase letters
-		$setting =~ s/,/\./; #replace ',' by '.'
-		
-	
-		if ( $setting =~ /(id=)(.+)?/ )
-			{
-			if ( defined $2 )
-				{
-				$self->{id} = $2;
-				}
-			}
-		elsif ( $setting =~ /(function=|mode=)(.+)?/ )
-			{
-			if ( defined $2 )
-				{
-				#if ( $2 eq 
-				#$self->set_mode($2);
-				}
-			}
-		elsif ( $setting =~ /(range=|sen=)(.+)?/ )
-			{
-			if ( defined $2 )
-				{
-				$self->set_sen($2);
-				}	
-			}
-		elsif ( $setting =~ /(sweep_start=)(.+)?/ )
-			{
-			if ( defined $2 )
-				{
-				$self->{config}->{sweep_start} = $2;
-				}	
-			}
-		elsif ( $setting =~ /(sweep_stop=)(.+)?/ )
-			{
-			if ( defined $2 )
-				{
-				$self->{config}->{sweep_stop} = $2;
-				}	
-			}
-		elsif ( $setting =~ /(sweep_nop=)(.+)?/ )
-			{
-			if ( defined $2 )
-				{
-				$self->{config}->{sweep_nop} = $2;
-				}	
-			}
-		elsif ( $setting =~ /(sweep_time=)(.+)?/ )
-			{
-			if ( defined $2 )
-				{
-				$self->{config}->{sweep_time} = $2;
-				}	
-			}		
-		else
-			{
-			warn "WARNING in sub config ".($self->{id})." (Signal Recovery 726x): ignore unknown condeword $1.";
-			}
-		}
-		
-	$self->get_config_data();
-}	
-
-sub get_config_data {
-	my $self = shift;
-	
-	$self->{config}->{ID} = $self->{id};	
-	$self->{config}->{IMODE} = $self->set_imode();	
-	$self->{config}->{VMODE} = $self->set_vmode();	
-	$self->{config}->{FET} = $self->set_fet();	
-	$self->{config}->{FLOAT} = $self->set_float();	
-	$self->{config}->{CP} = $self->set_cp();	
-	$self->{config}->{SEN} = $self->set_sen();	
-	$self->{config}->{ACGAIN} = $self->set_acgain();	
-	$self->{config}->{LINEFILTER} = $self->set_linefilter();	
-	$self->{config}->{REF_CHANNEL} = $self->set_refchannel();	
-	$self->{config}->{REF_PHA} = $self->set_refpha();	
-	$self->{config}->{OUTPUTFILTER_SLOPE} = $self->set_ouputfilter_slope();	
-	$self->{config}->{TC} = $self->set_tc();	
-	$self->{config}->{OFFSET} = $self->set_offset();	
-	$self->{config}->{OSC} = $self->set_osc();	
-	$self->{config}->{FRQ} = $self->set_frq();
-	
-}	
-sub create_header {
-	my $self = shift;
-	my $header;
-	
-	$self->get_config_data();
-	
-	$header .= "\n\n---------------------------------------\n";
-	$header .= ref($self)." :\n";
-	$header .= "---------------------------------------\n";
-	while ( my ($k,$v) = each %{$self->{config}} ) 
-		 {
-		 if ( ref($v) eq 'ARRAY')
-			{
-			$header .= "$k =>";
-			foreach (@{$v})
-				{
-				$header .= " $_,";
-				}
-			chop $header;
-			$header .= "\n";
-			}
-		else
-			{
-			$header .= "$k => $v\n";
-			}
-		 
-		 }
-	$header .= "---------------------------------------\n";
-	$header .= "\n";
-	
-	return $header;
-	
-	
-}
 	
 1;
 
@@ -1637,4 +1378,5 @@ probably many
 
 =head1 AUTHOR/COPYRIGHT
 
-2011 Stefan Geissler
+ (c) 2011 Stefan Geissler,
+     2012 David Kalok
