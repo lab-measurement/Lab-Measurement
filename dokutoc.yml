@@ -59,6 +59,7 @@ toc:
           - Measurement/lib/Lab/Connection.pm
           - Measurement/lib/Lab/Connection/DEBUG.pm
           - Measurement/lib/Lab/Connection/GPIB.pm
+          - Measurement/lib/Lab/Connection/RS232.pm
           - Measurement/lib/Lab/Connection/LinuxGPIB.pm
           - Measurement/lib/Lab/Connection/MODBUS_RS232.pm
           - Measurement/lib/Lab/Connection/VISA.pm
