@@ -6,7 +6,7 @@
 <meta property="og:title" content="Lab::Measurement - Measurement control with Perl" />
 <meta property="og:type" content="product" />
 <meta property="og:url" content="http://www.labmeasurement.de/" />
-<meta property="og:image" content="http://www.labmeasurement.de/header.png" />
+<meta property="og:image" content="http://www.labmeasurement.de/screen.png" />
 <meta property="og:site_name" content="Lab::Measurement" />
 <meta property="fb:admins" content="1016535977" />
 <link rel="stylesheet" type="text/css" href="doku.css" />
