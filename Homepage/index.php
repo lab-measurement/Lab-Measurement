@@ -2,7 +2,13 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de">
 <head>
-<title>Lab::Measurement - measurement control in Perl</title>
+<title>Lab::Measurement - Measurement control with Perl</title>
+<meta property="og:title" content="Lab::Measurement - Measurement control with Perl" />
+<meta property="og:type" content="product" />
+<meta property="og:url" content="http://www.labmeasurement.de/" />
+<meta property="og:image" content="http://www.labmeasurement.de/header.png" />
+<meta property="og:site_name" content="Lab::Measurement" />
+<meta property="fb:admins" content="1016535977" />
 <link rel="stylesheet" type="text/css" href="doku.css" />
 </head>
 <body>
@@ -16,6 +22,10 @@
         <li><a href="https://www.gitorious.org/lab-measurement/">Gitorious</a></li>
         <li><a href="http://www.labmeasurement.de/gitweb/?p=labmeasurement;a=summary">Gitweb browser</a></li>
     </ul>
+    <br>
+    <iframe
+      src="//www.facebook.com/plugins/like.php?href=http%3A%2F%2Fwww.labmeasurement.de%2F&amp;send=false&amp;layout=button_count&amp;width=100&amp;show_faces=false&amp;action=like&amp;colorscheme=light&amp;font=arial&amp;height=21"
+      scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:100px; height:21px;" allowTransparency="true"></iframe>
 </div>
 
 <p>Lab::Measurement allows to perform test and measurement tasks with Perl
