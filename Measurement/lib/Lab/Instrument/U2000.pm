@@ -255,10 +255,8 @@ Lab::Instrument::U2000 - Agilent U2000 series USB Power Sensor
 
 =head1 DESCRIPTION
 
-The Lab::Instrument::Multmeter class implements a generic interface to
-digital all-purpose multimeters. It is intended to be inherited by other
-classes, not to be called directly, and provides a set of generic functions.
-The class
+The Lab::Instrument::U2000 class implements an interface to the U2000 series
+power sensors from Agilent.
 
 =head1 CONSTRUCTOR
 
@@ -268,20 +266,39 @@ The class
 
 =head2 get_value
 
-    $value=$power->get_value();
+    $value=$power->read();
 
 Read out the current measurement value, for whatever type of measurement
 the sensor is currently configured. Waits for trigger.
 
 =head2 id
 
-    $id=$hp->id();
+    $id=$power->id();
 
 Returns the instruments ID string.
 
+=head2 set_sample_rate
+    $power->set_sample_rate(string);
+    
+Valid values are MIN, MAX, NORM, DOUBLE, FAST and 1-110 (rate in Hz).
+
+=head2 set_step_detect
+    $power->set_step_detect(string);
+    
+Valid values are ON and OFF.
+
+=head2 set_frequency
+    $power->set_frequency(string or number)
+    
+Sets frequency for internal frequency correction (in Hz).
+Valid values are DEF, MIN, MAX and 1kHz to 1000GHz.
+
 =head1 CAVEATS/BUGS
 
-none known so far :)
+Sometimes the sensor hangs for a short amount of time. Very seldom it 
+completely stops working. This is probably either a bug in the firmware or
+in the kernel driver as not even a reset of the USB port reenable communication.
+
 
 =head1 SEE ALSO
 
