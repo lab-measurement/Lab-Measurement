@@ -17,12 +17,11 @@ our %fields = (
     device_settings => {
 
     },
-    
-
 );
 
 
-sub new {
+sub new 
+{
     my $proto = shift;
     my $class = ref($proto) || $proto;
     my $self = $class->SUPER::new(@_);
@@ -31,18 +30,22 @@ sub new {
     return $self;
 }
 
-
-# template functions for inheriting classes
-
-sub id {
+sub id 
+{
     my $self=shift;
     return $self->query('*IDN?');
 }
 
-
-sub selftest {
+sub selftest 
+{
     my $self = shift;
     return $self->query("*TST");
+}
+
+sub reset
+{
+    my $self = shift;
+    $self->write("*RST");
 }
 
 sub set_power_unit
@@ -87,6 +90,49 @@ sub set_continous
     $self->write("INIT:CONT $cont");
 }
 
+sub auto_adjust_level
+{
+    my $self = shift;
+    $self->write("SENSe:ADJ:LEVel");
+}
+
+#NOTE: In auto attenation mode this function also switches attenuators.
+sub set_reference_level
+{
+    my $self = shift;
+    my $level = shift || "0"; #in dBm
+    $self->write("DISP:TRACe:Y:RLEVel $level");
+}
+
+sub set_preamp
+{
+    my $self = shift;
+    my $state = shift || "OFF"; #ON, OFF
+    $self->write("INPut:GAIN:STATe $state");
+}
+
+sub set_marker_auto_peak
+{
+    my $self = shift;
+    my $state = shift || "ON";
+    my $marker = shift || 1;
+    $self->write("CALC:MARKer$marker:MAX:AUTO $state");
+}
+
+sub get_marker_frequency
+{
+    my $self = shift;
+    my $marker = shift || 1;
+    return $self->query("CALC:MARK:X?");
+}
+
+sub get_marker_level
+{
+    my $self = shift;
+    my $marker = shift || 1;
+    return $self->query("CALC:MARK:Y?");
+}
+
 sub set_time_domain
 {
     my $self = shift;
@@ -99,10 +145,16 @@ sub set_time_domain
     $self->set_sweep_time("2000 US"); #TODO
 }
 
-sub read_rms
+sub single_sweep
 {
     my $self = shift;
     $self->write("INIT;*WAI");
+}
+
+sub read_rms
+{
+    my $self = shift;
+    $self->single_sweep();
     $self->write("CALC:MARK:FUNC:SUMM:RMS ON");
     return $self->query(":CALC:MARK:FUNC:SUMM:RMS:RES?");
 }
@@ -166,7 +218,7 @@ the sensor is currently configured. Waits for trigger.
 
 =head2 id
 
-    $id=$hp->id();
+    $id=$spectrum->id();
 
 Returns the instruments ID string.
 
