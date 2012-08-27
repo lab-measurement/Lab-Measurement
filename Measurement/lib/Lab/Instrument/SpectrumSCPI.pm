@@ -7,7 +7,7 @@ use Lab::Instrument;
 our @ISA = ("Lab::Instrument");
 
 our %fields = (
-    supported_connections => [ 'GPIB' ],
+    supported_connections => [ 'GPIB', 'TCPraw' ],
 
     connection_settings => {
         gpib_board => 0,
