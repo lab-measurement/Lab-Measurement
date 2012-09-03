@@ -31,20 +31,40 @@ sub new {
         #axes           => [],
         #plots          => {},
         #constants      => [],
-        
+
         #live_plot      => '',
         #live_refresh   => '',
         #live_latest    => '',
 
-	#no_termcontrol =>0,
-        
+        #no_termcontrol =>0,
+
         #writer_config  => {},
 
+    if (!defined($params{sample}))
+    {
+        Lab::Exception::CorruptParameter->throw( error => "Missing parameter in Lab::Mesaurement(): 'sample'\n" );
+    }
+    if (!defined($params{filename}) && !defined($params{filename_base}))
+    {
+        Lab::Exception::CorruptParameter->throw( error => "Missing parameter in Lab::Mesaurement(): 'filename' or 'filename_base'\n" );
+    }
+    if (!defined($params{columns}))
+    {
+        Lab::Exception::CorruptParameter->throw( error => "Missing parameter in Lab::Mesaurement(): 'columns'\n" );
+    }
+    if (!defined($params{axes}))
+    {
+        Lab::Exception::CorruptParameter->throw( error => "Missing parameter in Lab::Mesaurement(): 'axes'\n" );
+    }
+    if (!defined($params{plots}))
+    {
+        Lab::Exception::CorruptParameter->throw( error => "Missing parameter in Lab::Mesaurement(): 'plots'\n" );
+    }
     # initialize terminal if requested
     $self->{termctl}=0;
     if (! $params{no_termcontrol}) {
         Lab::Measurement::KeyboardHandling::labkey_init();
-	$self->{termctl}=1;
+        $self->{termctl}=1;
     }
 
     # Filenamen finden
@@ -61,12 +81,13 @@ sub new {
 
     # Writer erzeugen, Log öffnen
     my $writer=new Lab::Data::Writer($params{filename},$params{writer_config});
+
     # header schreiben
     $writer->log_comment("Sample $params{sample}");
     $writer->log_comment($params{title});
     $writer->log_comment($params{description});
     $writer->log_comment("Recorded with Lab::Measurement $Lab::Measurement::VERSION");
-        
+
     # Meta erzeugen
     my $meta=new Lab::Data::Meta({
         data_complete           => 0,
@@ -77,8 +98,8 @@ sub new {
     });
     $meta->column($params{columns});
     $meta->axis($params{axes});
-    $meta->plot($params{plots});
-    $meta->constant($params{constants});
+    $meta->plot($params{plots}); 
+    $meta->constant($params{constants} || []); 
     my ($filename,$path,$suffix)=($writer->get_filename(),$writer->configure('output_meta_ext'));
     $meta->save("$path$filename.$suffix");
     
