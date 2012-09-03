@@ -10,10 +10,20 @@ sub labkey_safe_exit {
   exit(@_);
 }
 
+sub labkey_safe_int {
+    ReadMode('normal');
+    exit(1);
+}
+
+sub labkey_safe_die {
+    ReadMode('normal');
+    # In order to print stack trace do not call exit(@_) here. 
+}
+
 sub labkey_init {
-  $SIG{'INT'} = \&labkey_safe_exit;
+  $SIG{'INT'} = \&labkey_safe_int;
   $SIG{'QUIT'} = \&labkey_safe_exit;
-  $SIG{__DIE__} = \&labkey_safe_exit;
+  $SIG{__DIE__} = \&labkey_safe_die;
   END { labkey_safe_exit(); }
   ReadMode( 'raw' );
 };
