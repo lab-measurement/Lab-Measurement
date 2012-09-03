@@ -307,6 +307,12 @@ sub _getset_node_list_from_string {
     my $perlnode_list=shift;
     my $defnode_list=shift;
     my $nodes_string=shift;
+    my $nodes_string_backup = $nodes_string;
+    if (!defined($nodes_string) || $nodes_string eq "")
+    {
+        Lab::Exception::CorruptParameter->throw( error => "Missing parameter in XMLtree::_getset_node_list_from_string(): 'nodes_string'\n" );
+    }
+
     my @parms=@_;
     #browse through all defined notes at the current root of the defnode_list
     for my $node_name (keys %$defnode_list) {
@@ -411,7 +417,7 @@ sub _getset_node_list_from_string {
             }
         }
     }
-    carp("XMLtree warning: attempt to access undeclared element $nodes_string");
+    carp("XMLtree warning: attempt to access undeclared element '$nodes_string_backup'");
 }
 #--------------------------------------#
 
