@@ -1,4 +1,4 @@
-package Lab::Instrument::HP83732A;
+package Lab::Instrument::MG369xB;
 our $VERSION = '3.10';
 
 use strict;
@@ -24,7 +24,8 @@ our %fields = (
 
 );
 
-sub new {
+sub new
+{
     my $proto = shift;
     my $class = ref($proto) || $proto;
     my $self = $class->SUPER::new(@_);
@@ -33,39 +34,131 @@ sub new {
 }
 
 
-sub id {
-    my $self=shift;
+sub id
+{
+    my $self = shift;
     return $self->query('*IDN?');
 }
 
 
-sub reset {
-    my $self=shift;
-    $self->write('*RST');
+sub reset
+{
+    my $self = shift;
+    $self->write('RST');
 }
 
-sub set_cw {
-    my $self=shift;
-    my $freq=shift;
-    $freq/=1000000;
+sub set_cw
+{
+    my $self = shift;
+    my $freq = shift;
+    $freq /= 1000000;
     $self->write("F0 $freq MH ACW");
 }
 
-sub set_power {
-    my $self=shift;
-    my $power=shift;
+sub set_power
+{
+    my $self = shift;
+    my $power = shift;
 
     $self->write("L0 $power DM");
 }
 
-sub power_on {
-    my $self=shift;
+sub power_on
+{
+    my $self = shift;
     $self->write('RF 1');
 }
 
-sub power_off {
-    my $self=shift;
+sub power_off
+{
+    my $self = shift;
     $self->write('RF 0');
+}
+
+# SYZ + UP produce distorted signal
+sub sweep_single_step
+{
+    my $self = shift;
+    my $onoff = (shift) ? "1" : "0";
+    $self->write("DU $onoff");
+}
+
+sub sweep_trigger_manual
+{
+    my $self = shift;
+    # RSS = reset sweep
+    $self->write("MNT RSS");
+}
+
+# Note: You have to set trigger type
+sub init_sweep_linear
+{
+    my $self = shift;
+    my $start = shift;
+    my $stop = shift;
+    my $step_size = shift;
+    
+    if (!defined($stop)) {
+        # Assume $start is a Sweep object
+        $step_size = $start->{step_size};
+        $stop = $start->{stop};
+        $start = $start->{start};
+    }
+
+
+    $self->sweep_single_step(1);
+    
+    my $next_sweep_start = undef;
+    
+    my $nr_of_steps = int(($stop-$start)/($step_size));
+
+    my $current_sweep_stop = $start + $step_size * $nr_of_steps;
+    print "$nr_of_steps\n";
+    
+    if ($nr_of_steps > 10000)
+    {
+        $nr_of_steps = 10000;
+        $current_sweep_stop = $start + $step_size * 10000;
+        $next_sweep_start = $current_sweep_stop + $step_size;
+    }
+    
+    print "$nr_of_steps $next_sweep_start $start $step_size $current_sweep_stop\n";
+    $self->{next_sweep_start} = $next_sweep_start;
+    $self->{stop} = $stop;
+    $self->{step_size} = $step_size;
+    $self->{step_nr} = 0; # Nr of TSS calls
+    $self->{nr_of_steps} = $nr_of_steps;
+
+    $start /= 1e6;
+    $current_sweep_stop /= 1e6;
+    $step_size /= 1e6;
+
+    # SSP = linear step sweep
+    # SP0 = equally spaced steps
+    # RSS = Reset śweep
+    my $cmd = "F1 $start MH F2 $current_sweep_stop MH SNS $nr_of_steps SPS SP0 SF1 SSP RSS";
+    print "Sending $cmd\n";
+    $self->write($cmd);
+    sleep(1);
+}
+
+sub sweep_next_step
+{
+    my $self = shift;
+    if ($self->{step_nr} >= $self->{nr_of_steps})
+    {
+        if (defined($self->{next_sweep_start})) {
+            $self->init_sweep_linear($self->{next_sweep_start}, $self->{stop}, $self->{step_size});
+        } else {
+            # Output last point
+            my $stop = $self->{stop};
+            $self->write("CF1 $stop");
+            usleep(200000);
+        }
+    } else {
+        $self->write("TSS");
+        $self->{step_nr}++;
+    }
 }
 
 1;
