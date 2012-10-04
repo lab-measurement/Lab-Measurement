@@ -5,12 +5,11 @@ use warnings;
 our $VERSION = '3.10';
 
 use Lab::Exception;
+use Lab::Instrument;
+use Lab::Measurement::KeyboardHandling qw(labkey_check);
 
 use Time::HiRes qw(usleep gettimeofday);
-
-use Lab::Instrument;
 use Clone qw(clone);
-#use diagnostics;
 
 our @ISA=('Lab::Instrument');
 
@@ -267,6 +266,7 @@ sub sweep_to_level {
 				? $self->_set_level( $target+$upstep, $args) 
 				: $self->_set_level( $target-$upstep, $args);
 			sleep($steptime);
+			labkey_check();
 			
 			$current = $next;		
 		}
