@@ -229,14 +229,9 @@ sub wait_done{
 	my $self = shift;
 	
 	# wait until currently running program is finished.
-	
 	while (($self->query("OC") =~ /^STS1=(\d+)/g )&& $1 & 2 ){
-    	#print $self->query("OC");
-    	#print $self->connection()->serial_poll()."\n";
-    	sleep 1;
-    }
-	
-	
+		sleep 1;
+	}
 }
 
 sub _sweep_to_level {
