@@ -31,29 +31,35 @@ sub labkey_init {
   $labkey_initialized=1;
 };
 
-# sub labkey_push_stop_handler
-# sub labkey_pop_stop_handler
-
-# sub labkey_push_pause_handler
-# sub labkey_pop_pause_handler
-
-# sub labkey_push_resume_handler
-# sub labkey_pop_resume_handler
-
 sub labkey_check {
   # handle as much as we can here directly
-  # q - exit safely, if necessary using a given handler which stops sweeps
-  # p - ?? pause, i.e. output "Measurement paused, press any key to continue"
+  # q - exit: if parameter soft=1 is passed, just return "DIE", otherwise exit
+  # p - pause, i.e. output "Measurement paused, press any key to continue"
   # t - output script timing info
+  my $soft=shift;
 
   if (( $labkey_initialized == 1 ) && ( defined ( my $key = ReadKey( -1 ) ) )) {
     # input waiting; it's in $key
     if ($key eq 'q') { 
       print "Terminating on keyboard request\n";
-      exit; 
+      if ( $soft==1 ) { return "DIE"; } else { exit; };
+    };
+    if ($key eq 'p') {
+      print "Measurement paused, press any key to continue\n";
+      while ( ! defined ( my $key = ReadKey( -1 ) ) ) {
+	 sleep 1;
+      };
+      print "Measurement continuing\n";
+    };
+    if ($key eq 't') {
+      print "Timing info following (maybe, sometime)\n";
     };
   };
+  return "";
 }
 
+sub labkey_soft_check {
+  return labkey_check(1);
+};
 
 1;
