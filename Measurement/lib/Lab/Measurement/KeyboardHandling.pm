@@ -5,6 +5,8 @@ our $VERSION = '3.10';
 
 use Term::ReadKey;
 
+my $labkey_initialized=0;
+
 sub labkey_safe_exit {
   ReadMode('normal');
   exit(@_);
@@ -26,6 +28,7 @@ sub labkey_init {
   $SIG{__DIE__} = \&labkey_safe_die;
   END { labkey_safe_exit(); }
   ReadMode( 'raw' );
+  $labkey_initialized=1;
 };
 
 # sub labkey_push_stop_handler
@@ -43,7 +46,7 @@ sub labkey_check {
   # p - ?? pause, i.e. output "Measurement paused, press any key to continue"
   # t - output script timing info
 
-  if ( defined ( my $key = ReadKey( -1 ) ) ) {
+  if (( $labkey_initialized == 1 ) && ( defined ( my $key = ReadKey( -1 ) ) )) {
     # input waiting; it's in $key
     if ($key eq 'q') { 
       print "Terminating on keyboard request\n";
