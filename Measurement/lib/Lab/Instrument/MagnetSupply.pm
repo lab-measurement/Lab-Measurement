@@ -2,6 +2,7 @@
 package Lab::Instrument::MagnetSupply;
 our $VERSION = '3.10';
 
+use Lab::Measurement::KeyboardHandling qw(labkey_soft_check);
 use strict;
 
 # about the coding and calling conventions
@@ -131,9 +132,23 @@ sub set_current {
 	# target value and wait
 
 	$self->start_sweep_to_current($targetcurrent);
+
+	my $currentcurrent;
 	do {
 	  sleep(5);
-	} while (abs($targetcurrent-$self->get_current()) > $self->get_max_current_deviation());
+	  $currentcurrent=$self->get_current();
+
+          if (labkey_soft_check() eq "DIE"); then {
+            # now what do we do here best? we cannot be sure that set_hold is
+            # implemented, and failing is not an option.
+            print "Setting sweep target to current value I=$currentcurrent\n";
+	    $self->start_sweep_to_current($currentcurrent);
+	    print "Terminating on keyboard request.\n";
+            exit;
+          };
+
+	} while (abs($targetcurrent-$currentcurrent)
+                                   > $self->get_max_current_deviation());
 	sleep(5);
         return $self->get_current();
 
