@@ -12,7 +12,7 @@ use Time::HiRes qw/sleep/;
 our @ISA = ("Lab::Instrument::TemperatureControl");
 
 our %fields = (
-	supported_connections => [ 'none' ],
+	supported_connections => [ 'GPIB','DEBUG' ],
 );
 
 
