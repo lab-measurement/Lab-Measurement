@@ -104,9 +104,8 @@ using Lab::Measurement</a> (outdated). Detailed <a href="docs/installation.html"
 instructions</a> are provided as well. In addition, there's also a collection
 of <a href="backends.html">back-end specific documentation and links</a>.
 </p>
-<p>There is a <a
-    href="https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-measurement-users">mailing
-list (lab-measurement-users)</a> set up for Lab::Measurement. This mailing list is the
+<p>The mailing list<a
+    href="https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-measurement-users">lab-measurement-users</a> is the
 right place to give feedback and ask for help.</p>
 
 <h2>Status</h2>
