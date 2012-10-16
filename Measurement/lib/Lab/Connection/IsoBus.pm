@@ -30,6 +30,28 @@ sub new {
 	return $self;
 }
 
+sub _configurebus { # $self->setbus() create new or use existing bus
+	my $self=shift;
+	
+
+	my $base = $self->config('base_connection');
+	
+	# add predefined connection settings to connection config:
+	# no overwriting of user defined connection settings
+	my $new_config = $base->config();
+	for my $key ( keys %{$self->config()} )
+		{
+		if ( not defined $base->config($key) )
+			{
+			$new_config->{$key} = $self->config($key);
+			}
+		}
+	$new_config->{'base_connection'} = undef; # aviod recursive definition of bas_connection
+	$base->config($new_config);
+	$self->config('base_connection')->_configurebus();
+	
+	
+}
 
 1;
 

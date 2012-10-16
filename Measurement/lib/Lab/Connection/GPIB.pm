@@ -49,6 +49,7 @@ sub new {
 
 
 
+
 #
 # These are the method stubs you have to overwrite when implementing the GPIB connection for your
 # hardware/driver. See documentation for detailed description of the parameters, expected exceptions
@@ -70,8 +71,6 @@ sub new {
 # sub Read { # @_ = ( read_length => $read_length, brutal => 1/0 )
 # 	return 0; # result
 # }
-
-
 # now comes GPIB-specific stuff
 
 sub EnableTermChar { # 0/1 off/on

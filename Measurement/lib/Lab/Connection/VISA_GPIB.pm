@@ -30,6 +30,7 @@ our %fields = (
 	read_length=>1000, # bytes
 	gpib_board=>0,
 	gpib_address=>1,
+	timeout => 2,
 );
 
 
@@ -71,8 +72,32 @@ sub _setbus {
 	
 	# again, pass it all.
 	$self->connection_handle( $self->bus()->connection_new( $self->config() ));
-
+	
+	
 	return $self->bus();
+}
+
+sub _configurebus {
+	my $self = shift;
+	
+	#
+	# set VISA Attributes:
+	#
+	
+	# termination character
+	if ( defined $self->config()->{termchar} )
+		{
+		$self->bus()->set_visa_attribute($self->connection_handle(), $Lab::VISA::VI_ATTR_TERMCHAR_EN, $Lab::VISA::VI_TRUE);
+		$self->bus()->set_visa_attribute($self->connection_handle(), $Lab::VISA::VI_ATTR_TERMCHAR, $self->config()->{termchar});
+		}
+	else
+		{
+		$self->bus()->set_visa_attribute($self->connection_handle(), $Lab::VISA::VI_ATTR_TERMCHAR_EN, $Lab::VISA::VI_FALSE);
+		}
+	
+	# read timeout
+	$self->bus()->set_visa_attribute($self->connection_handle(), $Lab::VISA::VI_ATTR_TMO_VALUE, $self->config()->{timeout}*1e3);
+
 }
 
 
@@ -108,6 +133,7 @@ sub SetTermChar { # the character as string
 #  print "result: $result\n";
   return $result;
 }
+
 
 
 =pod

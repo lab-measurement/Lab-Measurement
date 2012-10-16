@@ -47,27 +47,6 @@ sub new {
 		}
 	}
 
-	# set the connection $self->base_connection to the parameters required by IsoBus
-	# clear the connection if possible
-
-#   19     # we need to set the following RS232 options: 9600baud, 8 data bits, 1 stop bit, no parity, no flow control
-#   20     # what is the read terminator? we assume CR=13 here, but this is not set in stone
-#   21     # write terminator should I think always be CR=13=0x0d
-#   22     
-#   23     my $status=Lab::VISA::viSetAttribute($self->{vi}->{instr}, $Lab::VISA::VI_ATTR_ASRL_BAUD, 9600);
-#   24     if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting baud: $status";}
-#   25 
-#   26     $status=Lab::VISA::viSetAttribute($self->{vi}->{instr}, $Lab::VISA::VI_ATTR_TERMCHAR, 13);
-#   27     if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting termchar: $status";}
-#   28 
-#   29     $status=Lab::VISA::viSetAttribute($self->{vi}->{instr}, $Lab::VISA::VI_ATTR_TERMCHAR_EN, 1);
-#   30     if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting termchar enabled: $status";}
-#   31 
-#   32     $status=Lab::VISA::viSetAttribute($self->{vi}->{instr}, $Lab::VISA::VI_ATTR_ASRL_END_IN,   
-#              $Lab::VISA::VI_ASRL_END_TERMCHAR);
-#   33     if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting end termchar: $status";}
-#   34 
-#   35     #  here we might still have to reinitialize the serial port to make the settings come into effect. how???
 
 	return $self;
 }
@@ -81,6 +60,7 @@ sub connection_new { # @_ = ({ isobus_address => $isobus_address })
 	my $connection_handle=undef;
 	if (ref $_[0] eq 'HASH') { $args=shift } # try to be flexible about options as hash/hashref
 	else { $args={@_} }
+	
 
 	my $isobus_address = $args->{'isobus_address'};
 
@@ -104,7 +84,7 @@ sub connection_read { # @_ = ( $connection_handle, $args = { read_length, brutal
 	my $read_length = $args->{'read_length'} || $self->read_length();
 	my $result = undef;
 
-	$result=$self->base_connection->Read({
+	$result=$self->config('base_connection')->Read({
 		    brutal => $brutal, 
 		    read_length => $read_length,
 	});
@@ -120,10 +100,13 @@ sub connection_write { # @_ = ( $connection_handle, $args = { command, wait_stat
 	my $args = undef;
 	if (ref $_[0] eq 'HASH') { $args=shift } # try to be flexible about options as hash/hashref
 	else { $args={@_} }
+	
+	
 
 	my $command = $args->{'command'} || undef;
 
 	my $write_cnt = 0;
+	
 
 	if(!defined $command) {
 		Lab::Exception::CorruptParameter->throw(
@@ -131,9 +114,9 @@ sub connection_write { # @_ = ( $connection_handle, $args = { command, wait_stat
 		);
 	}
 	else {
-		$write_cnt=$self->base_connection->Write({
+		$write_cnt=$self->config('base_connection')->Write({
 			# build the format for an IsoBus command
-			command => sprintf("@%d%s\r",$connection_handle,$command),
+			command => sprintf("@%d%s",$connection_handle,$command),
 		});
 
 	return $write_cnt;
@@ -167,6 +150,13 @@ sub connection_query { # @_ = ( $connection_handle, $args = { command, read_leng
 
 	$result=$self->connection_read($args);
 	return $result;
+}
+
+sub connection_clear {
+	my $self = shift;
+	
+	$self->config('base_connection')->Clear();
+
 }
 
 
