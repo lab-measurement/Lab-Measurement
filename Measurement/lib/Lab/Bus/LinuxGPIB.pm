@@ -303,6 +303,7 @@ sub serial_poll {
 sub connection_clear {
 	my $self = shift;
 	my $connection_handle=shift;
+
 	ibclr($connection_handle->{'gpib_handle'});
 	ibloc($connection_handle->{'gpib_handle'});
 }

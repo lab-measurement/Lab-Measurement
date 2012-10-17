@@ -30,7 +30,6 @@ our %fields = (
 	supported_connections => [ 'ALL' ],
 	# for connection default settings/user supplied settings. see accessor method.
 	connection_settings => {
-		connection_type => 'LinuxGPIB',	
 	},
 
 	# default device settings/user supplied settings. see accessor method.
@@ -68,6 +67,7 @@ sub new {
 	# In most inherited classes, configure() is run through _construct()
 	#
 	$self->${\(__PACKAGE__.'::configure')}($self->config()); # use local configure, not possibly overwritten one
+
 	if( $class eq __PACKAGE__ ) {
 		# _setconnection after providing $config - needed for direct instantiation of Lab::Instrument
 		$self->_setconnection();
@@ -137,6 +137,7 @@ sub _construct {	# _construct(__PACKAGE__);
 	#
 	# Also, other stuff that should only happen in the top level class instantiation can go here.
 	#
+	
 	if( $class eq $package && $class ne 'Lab::Instrument' ) {
 		$self->_setconnection();
 		
@@ -224,7 +225,7 @@ sub device_sync{
 	
 			
 	if( $self->{'device_cache'}){
-		if($pref eq 'driver'){			
+		if($pref eq 'driver'){		
 			if($_[0]){
 				$self->${\('set_'.$_[0])}($self->{'device_cache'}->{$_[0]});
 				return 1;
@@ -300,7 +301,7 @@ sub _checkconnection { # Connection object or connection_type string (as in Lab:
 	my $found = 0;
 
 	$connection = ref($connection) || $connection;
-
+	
 	return 0 if ! defined $connection;
 
 	no strict 'refs';
@@ -331,11 +332,26 @@ sub _setconnection { # $self->setconnection() create new or use existing connect
 	for my $setting_key ( keys %{$self->connection_settings()} ) {
 		$config->{$setting_key} = $self->connection_settings($setting_key) if ! defined $config->{$setting_key};
 	}
-
+	
 	# check the configuration hash for a valid connection object or connection type, and set the connection
 	if( defined($self->config('connection')) ) {
+	
 		if($self->_checkconnection($self->config('connection')) ) {
 			$self->connection($self->config('connection'));
+			
+			# add predefined connection settings to connection config:
+			# no overwriting of user defined connection settings
+			my $new_config = $self->connection()->config();
+			for my $key ( keys %{$self->connection_settings()} )
+				{
+				if ( not defined $self->connection()->config($key) )
+					{
+					$new_config->{$key} = $self->connection_settings($key);
+					}
+				}
+			$self->connection()->config($new_config);
+			$self->connection()->_configurebus();
+			
 		}
 		else { Lab::Exception::CorruptParameter->throw( error => "Received invalid connection object!\n" ); }
 	}

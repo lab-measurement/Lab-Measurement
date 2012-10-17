@@ -18,8 +18,6 @@ our @ISA = ("Lab::Bus");
 our %fields = (
 	type => 'IsoBus',
 	base_connection => undef,
-	IsoEnableTermChar=>1,
-	IsoTermChar=>'\r',
 	brutal => 0,	# brutal as default?
 	wait_status=>10e-6, # sec;
 	wait_query=>10e-6, # sec;
@@ -44,20 +42,11 @@ sub new {
 		}
 		else {
 			# TODO implement twin detection
-			 $Lab::Bus::BusList{$self->type()}->{'default'} = $self;
-			 weaken($Lab::Bus::BusList{$self->type()}->{'default'});
+			# $Lab::Bus::BusList{$self->type()}->{'default'} = $self;
+			# weaken($Lab::Bus::BusList{$self->type()}->{'default'});
 		}
 	}
 
-	# set the connection $self->base_connection to the parameters required by IsoBus
-	$self->base_connection($self->config('base_connection')) if defined $self->config('base_connection');
-	$self->IsoEnableTermChar($self->config('IsoEnableTermChar')) if defined $self->config('IsoEnableTermChar');
-	$self->IsoTermChar($self->config('IsoTermChar')) if defined $self->config('IsoTermChar');
-	# clear the connection if possible
-
-# we need to set the following RS232 options: 9600baud, 8 data bits, 1 stop bit, no parity, no flow control
-# what is the read terminator? we assume CR=13 here, but this is not set in stone
-# write terminator should I think always be CR=13=0x0d
 
 	return $self;
 }
@@ -125,17 +114,11 @@ sub connection_write { # @_ = ( $connection_handle, $args = { command, wait_stat
 		);
 	}
 	else {
-		if ($self->IsoEnableTermChar()){
-			$write_cnt=$self->base_connection->Write({
-				# build the format for an IsoBus command
-				command => sprintf("@%d%s%s",$connection_handle,$command,$self->IsoTermChar()),
-			});
-		}
-		else
-		{$write_cnt=$self->base_connection->Write({
-				# build the format for an IsoBus command
-				command => sprintf("@%d%s",$connection_handle,$command)})
-		};
+		$write_cnt=$self->config('base_connection')->Write({
+			# build the format for an IsoBus command
+			command => sprintf("@%d%s",$connection_handle,$command),
+		});
+
 	return $write_cnt;
 	}
 }

@@ -186,6 +186,8 @@ sub _construct {	# _construct(__PACKAGE__);
 		$self->{_permitted}->{$element} = $fields->{$element};
 	}
 	@{$self}{keys %{$fields}} = values %{$fields};
+	
+
 
 	if( $class eq $package ) {
 		$self->configure($self->config()); # so that _setbus has access to all the fields
@@ -216,6 +218,12 @@ sub _setbus { # $self->setbus() create new or use existing bus
 
 	# again, pass it all.
 	$self->connection_handle( $self->bus()->connection_new( $self->config() ));
+}
+
+sub _configurebus {
+	my $self = shift;
+		
+	return;
 }
 
 

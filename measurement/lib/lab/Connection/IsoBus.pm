@@ -32,6 +32,7 @@ sub new {
 
 sub _configurebus { # $self->setbus() create new or use existing bus
 	my $self=shift;
+	
 
 	my $base = $self->config('base_connection');
 	
@@ -48,22 +49,8 @@ sub _configurebus { # $self->setbus() create new or use existing bus
 	$new_config->{'base_connection'} = undef; # aviod recursive definition of bas_connection
 	$base->config($new_config);
 	$self->config('base_connection')->_configurebus();
-}
-
-sub EnableTermChar { # 0/1 off/on
-  my $self=shift;
-  my $enable=shift;
-  print "EnableTermChar Ignored: Only for GPIB not for IsoBus?\n";
-  #$self->{'TermChar'}=$enable;#bus()->connection_enabletermchar($self->connection_handle(), $enable);}
-  return 1;
-}
-
-sub SetTermChar { # the character as string
-  my $self=shift;
-  my $termchar=shift;
-  print "SetTermChar Ignored: Only for GPIB not for IsoBus?\n";
-  #my $result=$self->bus()->connection_settermchar($self->connection_handle(), $termchar);
-  return 1;
+	
+	
 }
 
 1;
