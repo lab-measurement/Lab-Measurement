@@ -291,15 +291,6 @@ sub set_visa_attribute {
 }
 
 
-#
-# calls ibclear() on the instrument - how to do on VISA?
-#
-#sub connection_clear {
-#	my $self = shift;
-#	my $connection_handle=shift;
-#
-#	ibclr($connection_handle->{'gpib_handle'});
-#}
 
 
 
@@ -398,13 +389,21 @@ Sends $command to the instrument specified by the handle, and waits $wait_status
 
 =head2 connection_read
 
-  $visa->connection_read( $InstrumentHandle, { command => $command, read_length => $read_length, brutal => 0/1 } );
+  $visa->connection_read( $InstrumentHandle, { command => $command, read_length => $read_length, timeout => $seconds,  brutal => 0/1 } );
 
 Sends $Command to the instrument specified by the handle. Reads back a maximum of $readlength bytes. If a timeout or
 an error occurs, Lab::Exception::VISAError or Lab::Exception::VISATimeout are thrown, respectively. The Timeout object
 carries the data received up to the timeout event, accessible through $Exception->Data().
 
+Setting C<timeout> changes the timeout value only for the current read operation.
 Setting C<Brutal> to a true value will result in timeouts being ignored, and the gathered data returned without error.
+
+=head2 connection_clear
+
+  $visa->connection_clear( $InstrumentHandle );
+
+Clears the specified connection $InstrumentHandle.
+
 
 
 =head2 connection_query
@@ -413,6 +412,13 @@ Setting C<Brutal> to a true value will result in timeouts being ignored, and the
 
 Performs an connection_write followed by an connection_read, each given the supplied parameters. Waits $wait_query microseconds
 betweeen Write and Read.
+
+
+=head2 set_visa_attribute
+
+  $visa->set_visa_attribute( $InstrumentHandle, $attribute, $value );
+
+Sets for the VISA_ATTRIBUTE $attribute the new value $value. 
 
 
 
