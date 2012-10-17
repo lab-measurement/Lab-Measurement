@@ -633,6 +633,47 @@ sub connection_settings {
 	}
 }
 
+sub _check_args {
+	my $self = shift;
+	my $args = shift;
+	my $params = shift;
+	
+	if (ref($args) eq "HASH") 
+		{
+		
+		my $arguments = $args;
+		
+		my @return_args = ();
+	
+		foreach my $param (@{$params}) 
+			{
+			
+			if (exists $arguments->{$param}) 
+				{
+				push (@return_args, $arguments->{$param});
+				delete $arguments->{$param};
+				}
+			}
+		if (scalar(keys %{$arguments}) > 0) 
+			{
+			my $errmess = "Unknown parameter given in $self :";
+			while ( my ($k,$v) = each %{$arguments} ) 
+				{
+				$errmess .= $k." => ".$v."\t";
+				}
+			print Lab::Exception::Warning->new( error => $errmess);
+			}
+			
+		return @return_args;
+		}
+	else 
+		{
+		
+		return @{$args};
+		}
+		
+}
+
 
 #
 # config gets it's own accessor - convenient access like $self->config('GPIB_Paddress') instead of $self->config()->{'GPIB_Paddress'}
