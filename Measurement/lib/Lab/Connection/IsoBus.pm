@@ -30,7 +30,21 @@ sub new {
 	return $self;
 }
 
+sub EnableTermChar { # 0/1 off/on
+  my $self=shift;
+  my $enable=shift;
+  print "EnableTermChar Ignored: Only for GPIB not for IsoBus?\n";
+  #$self->{'TermChar'}=$enable;#bus()->connection_enabletermchar($self->connection_handle(), $enable);}
+  return 1;
+}
 
+sub SetTermChar { # the character as string
+  my $self=shift;
+  my $termchar=shift;
+  print "SetTermChar Ignored: Only for GPIB not for IsoBus?\n";
+  #my $result=$self->bus()->connection_settermchar($self->connection_handle(), $termchar);
+  return 1;
+}
 1;
 
 #
