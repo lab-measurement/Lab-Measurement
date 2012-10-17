@@ -207,7 +207,61 @@ Lab::Bus::IsoBus - Oxford Instruments IsoBus bus
 
 =head1 SYNOPSIS
 
-soon
+This is the IsoBus bus class. Typically you create it implicit through instrument creation:
+
+  my $instrument = new Lab::Instrument::IPS({
+    BusType => 'IsoBus',
+	base_connection => new Lab::Bus::VISA_GPIB({ gpib_board => 0, gpib_address => 24}),
+	isobus_addres => 2,
+  }
+  
+=head1 METHODS
+
+=head2 connection_new
+
+  $isobus->connection_new({ resource_name => $isobus_address });
+
+Creates a new instrument handle for this bus.
+
+The handle is usually stored in an instrument object and given to connection_read, connection_write etc.
+to identify and handle the calling instrument:
+
+  $InstrumentHandle = $isobus->connection_new({ resource_name => $isobus_address });
+  $result = $isobus->connection_read($self->InstrumentHandle(), { options });
+
+See C<Lab::Instrument::Read()>.
+
+
+=head2 connection_write
+
+  $isobus->connection_write( $InstrumentHandle, { command => $command, wait_status => $wait_status } );
+
+Puts in front of the $command-string the isobus_adress, e.g. "@1$command". Passes the modified argument hash to the base_connection.
+For further information refer to the specific connection class of $base_connection.
+
+=head2 connection_read
+
+  $isobus->connection_read( $InstrumentHandle, { command => $command, read_length => $read_length, timeout => $seconds,  brutal => 0/1 } );
+
+Puts in front of the $command-string the isobus_adress, e.g. "@1$command". Passes the modified argument hash to the base_connection.
+For further information refer to the specific connection class of $base_connection.
+
+
+=head2 connection_clear
+
+  $isobus->connection_clear( $InstrumentHandle );
+
+Clears the specified connection $InstrumentHandle.
+
+
+
+=head2 connection_query
+
+  $isobus->connection_query( $InstrumentHandle, { command => $command, read_length => $read_length, wait_status => $wait_status, wait_query => $wait_query, brutal => 0/1 } );
+
+Puts in front of the $command-string the isobus_adress, e.g. "@1$command". Passes the modified argument hash to the base_connection.
+For further information refer to the specific connection class of $base_connection.
+
 
 =head1 SEE ALSO
 
