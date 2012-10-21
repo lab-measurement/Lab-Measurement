@@ -31,7 +31,7 @@ my $build = Module::Build->new(
         'Lab::Instrument'    => '< 2.91',
         'Lab::Tools'         => '< 2.91',
     },
-    script_files => 'scripts',
+    script_files => [ 'scripts', 'lib/Lab/XPRESS/Xpression.pl' ],
     create_readme     => 0,
     dist_author       => ['Daniel Schröer <schroeer@cpan.org>',
                           'Andreas K. Hüttel <mail@akhuettel.de>',
@@ -42,7 +42,7 @@ my $build = Module::Build->new(
     meta_merge        => {
         resources       => {
             homepage      => 'http://www.labmeasurement.de/',
-            bugtracker    => 'http://rt.cpan.org/NoAuth/Bugs.html?Dist=Lab-Measurement',
+            bugtracker    => 'https://www.labmeasurement.de/bugs/',
             MailingList   => 'https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-visa-users',
             repository    => 'git://gitorious.org/lab-measurement/lab.git',
         }
