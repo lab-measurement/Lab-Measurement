@@ -4,12 +4,13 @@ package Lab::XPRESS::Sweep::Sweep;
 use Time::HiRes qw/usleep/, qw/time/;
 use Term::ReadKey;
 use Lab::XPRESS::Utilities::Utilities;
+use Lab::Exception;
 use strict;
 our $PAUSE = 0;
 our $ACTIVE_SWEEPS = ();
 
 
-
+our $AUTOLOAD;
 
 
 
@@ -27,7 +28,6 @@ sub new {
 		delay_before_loop => 0,
 		delay_in_loop => 0,
 		delay_after_loop => 0,
-		
 			
 		points => [undef,undef],
 		
@@ -40,6 +40,9 @@ sub new {
 		backsweep => 0,
 		repetitions => 0
 	};
+
+	$self->{LOG} = ();
+	@{$self->{LOG}}[0] = {};
 
 	# deep copy $default_config:
 	while ( my ($k,$v) = each %{$self->{default_config}} ) 
@@ -76,7 +79,6 @@ sub new {
 	
 		
 	$self->prepaire_config();
-	
 	
 	$self->{pause} = 0;	
 	$self->{DataFile_counter} = 0;	
@@ -182,7 +184,7 @@ sub prepaire_config {
 		die "inconsistent definition of sweep_config_data: number of elements in 'number_of_points' larger than number of sweep sequences.";
 		}
 		
-	
+
 	
 	
 	# fill up Arrays to fit with given Points:
@@ -205,7 +207,6 @@ sub prepaire_config {
 		{
 		push(@{$self->{config}->{number_of_points}}, @{$self->{config}->{number_of_points}}[-1]);
 		}
-		
 		
 		
 		
@@ -420,6 +421,8 @@ sub add_DataFile {
 	my $DataFile = shift;
 	push(@{$self->{DataFiles}}, $DataFile);
 	$self->{DataFile_counter}++;
+
+	@{$self->{LOG}}[$self->{DataFile_counter}] = {};
 	
 	return $self;
 }
@@ -507,11 +510,19 @@ sub start {
 			# Slave mode: do measurement
 			else
 				{
+				my $i = 1;
 				foreach my $DataFile (@{$self->{DataFiles}})
 					{
-					$DataFile->{measurement}->($self);
+						$DataFile->{measurement}->($self);
+						if ($DataFile->{autolog} == 1)
+						{
+							$DataFile->LOG($self->create_LOG_HASH($i));
+						}
+
+					$i++;
 					}
 				}
+
 			
 			# exit loop:
 			if ( $self->exit_loop() )
@@ -932,6 +943,134 @@ sub user_command {
 	
 }
 
+sub LOG {
+
+	my $self = shift;
+	my @args = @_;
+
+
+	if ( ref($args[0]) eq "HASH" )
+		{
+		my $file = ( defined $args[1] ) ? $args[1] : 0;
+		if ( not defined @{$self->{DataFiles}}[$args[1]-1] )
+			{
+			Lab::Exception::Warning->throw("DataFile $file is not defined! \n");
+			}
+		while ( my ($key,$value) = each %{$args[0]} ) 
+			{
+    		@{$self->{LOG}}[$file]->{$key} = $value;
+			}
+		}
+	else
+		{
+		# for old style: LOG("column_name", "value", "File")
+		my $file = ( defined $args[2] ) ? $args[2] : 0;
+		if ( not defined @{$self->{DataFiles}}[$args[2]-1] )
+			{
+			Lab::Exception::Warning->throw("DataFile $file is not defined! \n");
+			}
+		@{$self->{LOG}}[$file]->{$args[0]} = $args[1];
+		}
+}
+
+sub set_autolog {
+	my $self = shift;
+	my $value = shift;
+	my $file = shift;
+
+	if (not defined $file or $file == 0) {
+		foreach my $DataFile (@{$self->{DataFiles}})
+		{
+			$DataFile->set_autolog($value);
+		}
+	}
+	elsif (defined @{$self->{DataFiles}}[$file-1]) {
+		@{$self->{DataFiles}}[$file-1]->set_autolog($value);
+	}
+	else {
+		print new Lab::Exception::Warning("DataFile $file is not defined! \n");
+	}
+
+
+	return $self;
+}
+
+sub skiplog {
+	my $self = shift;
+	my $file = shift;
+
+	if (not defined $file or $file == 0) {
+		foreach my $DataFile (@{$self->{DataFiles}})
+		{
+			$DataFile->skiplog();
+		}
+	}
+	elsif (defined @{$self->{DataFiles}}[$file-1]) {
+		@{$self->{DataFiles}}[$file-1]->skiplog();
+	}
+	else {
+		print new Lab::Exception::Warning("DataFile $file is not defined! \n");
+	}
+
+
+	return $self;
+}
+
+sub write_LOG {
+	my $self = shift;
+	my $file = shift;
+
+	if (not defined $file or $file == 0) {
+		my $i = 1;
+		foreach my $DataFile (@{$self->{DataFiles}})
+		{
+			$DataFile->LOG($self->create_LOG_HASH($i));
+			$i++;
+		}
+	}
+	elsif (defined @{$self->{DataFiles}}[$file-1]) {
+		@{$self->{DataFiles}}[$file-1]->LOG($self->create_LOG_HASH($file));
+	}
+	else {
+		print new Lab::Exception::Warning("DataFile $file is not defined! \n");
+	}
+
+
+	return $self;
+
+}
+
+sub create_LOG_HASH {
+	my $self = shift;
+	my $file = shift;
+
+	my $LOG_HASH = {};
+
+	foreach my $column (@{@{$self->{DataFiles}}[$file-1]->{COLUMNS}}) {
+			if (defined @{$self->{LOG}}[$file]->{$column}) {
+				$LOG_HASH->{$column} = @{$self->{LOG}}[$file]->{$column};
+			}
+			elsif (defined @{$self->{LOG}}[0]->{$column}) {
+				$LOG_HASH->{$column} = @{$self->{LOG}}[0]->{$column};
+			}
+			else {
+				if (exists @{$self->{LOG}}[$file]->{$column} or exists @{$self->{LOG}}[0]->{$column})
+					{
+					print new Lab::Exception::Warning("Value for Paramter $column undefined\n");
+					}
+				else
+					{
+					print new Lab::Exception::Warning("Paramter $column not found. Maybe a typing error??\n");
+					}
+				$LOG_HASH->{$column} = '?';
+			}
+		}
+
+	return $LOG_HASH;
+
+}
+
+
 sub deep_copy {
 
     # if not defined then return it
@@ -980,6 +1119,8 @@ sub deep_copy {
         return $obj;
     }
 }
+
+
 
 # sub timestamp {
 

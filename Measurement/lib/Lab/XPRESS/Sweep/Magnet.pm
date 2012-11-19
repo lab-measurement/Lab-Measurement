@@ -19,7 +19,7 @@ sub new {
 		points	=>	[],
 		durations	=> [],
 		mode	=> 'continuouse',
-		allowed_instruments => ['Lab::Instrument::IPS'],
+		allowed_instruments => ['Lab::Instrument::IPS', 'Lab::Instrument::IPSWeiss1', 'Lab::Instrument::IPSWeiss2', 'Lab::Instrument::IPSWeissDillFridge'],
 		allowed_sweep_modes => ['continuouse', 'list', 'step'],
 		number_of_points => [undef]
 		};
@@ -28,7 +28,7 @@ sub new {
 	bless ($self, $class);
 	
 	
-			
+	print "hallo\n";		
     return $self;
 }
 

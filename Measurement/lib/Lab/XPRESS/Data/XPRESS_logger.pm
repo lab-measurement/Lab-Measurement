@@ -343,6 +343,18 @@ sub LOG {
 				#print "\n";
 			}
 		}
+
+	elsif ( ref($data) eq 'HASH' )
+		{
+		my @logline;
+		while ( my ($key,$value) = each %{$self->{COLUMN_NAMES}} ) 
+			{
+    		$logline[$value] = $data->{$key};
+    		}
+    	my $logline = join("\t", @logline);
+    	print $filehandle $logline."\n";
+
+		}
 	else
 		{
 		# if ($data =~ /[[:alpha:]]/ or  not $data =~ /[[:alnum:]]/)

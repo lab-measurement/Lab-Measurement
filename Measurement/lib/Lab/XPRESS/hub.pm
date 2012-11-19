@@ -59,8 +59,8 @@ sub Connection {
 	my $connection = shift;
 	
 	$connection = "Lab::Connection::".$connection;
-	eval "require $connection; $connection->import(); 1;"
-		or do Lab::Exception::CorruptParameter->throw( error => "Can't locate module $connection\n" );
+	eval "require $connection; $connection->import(); 1;";
+		#or do Lab::Exception::CorruptParameter->throw( error => "Can't locate module $connection\n" );
 		
 	return $connection->new(@_);
 		

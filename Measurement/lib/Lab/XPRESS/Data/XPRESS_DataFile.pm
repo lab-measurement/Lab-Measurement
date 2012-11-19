@@ -4,6 +4,7 @@ package Lab::XPRESS::Data::XPRESS_DataFile;
 use strict;
 use Time::HiRes qw/usleep/, qw/time/;
 use Lab::XPRESS::Data::XPRESS_logger;
+use Lab::XPRESS::Sweep::Sweep;
 
 our $counter = 0;
 
@@ -14,11 +15,14 @@ sub new {
     bless ($self, $class);
 	$self->{COLUMN_NAMES};
 	$self->{NUMBER_OF_COLUMNS} = 0;
-	$self->{COLUMNS} = "#COLUMNS#";
+	$self->{COLUMNS} = ();
 	$self->{BLOCK_NUM} = 0;
 	$self->{LOG_STARTED} = 0;
 	$self->{loop}->{interval} = 1;
 	$self->{loop}->{overtime} = 0;
+
+	$self->{autolog} = 1;
+	$self->{skiplog} = 0;
 	
 	my $filenamebase = shift;
 	if ( not $filenamebase =~ /\// )
@@ -92,6 +96,12 @@ sub add_config {
 sub add_column {
 	my $self = shift;
 	my $col = shift;
+
+
+	if (eval "return exists &Lab::XPRESS::Sweep::Sweep::$col;") 
+		{
+		Lab::Exception::Warning->throw("$col is not an alowed column name. Sorry. \n");
+		}
 	
 	if ( not defined $col)
 		{
@@ -99,7 +109,7 @@ sub add_column {
 		}
 	
 	$self->{COLUMN_NAMES}{$col} = scalar(keys %{$self->{COLUMN_NAMES}})+1;
-	$self->{COLUMNS} .= "\t".$col;
+	push(@{$self->{COLUMNS}}, $col);
 	$self->{NUMBER_OF_COLUMNS} += 1;
 	$self->{logger}->{COLUMN_NAMES} = $self->{COLUMN_NAMES};
 	return $self;
@@ -187,9 +197,12 @@ sub start_log {
 		{
 		$self->{logger}->LOG($self->{CONFIG});
 		}
-	if ( defined $self->{COLUMNS})
+	if ( defined @{$self->{COLUMNS}}[0])
 		{
-		$self->{logger}->LOG($self->{COLUMNS});
+		my $columns = "#COLUMNS#\t";
+		$columns .= join("\t", @{$self->{COLUMNS}});
+
+		$self->{logger}->LOG($columns);
 		}
 	$self->{LOG_STARTED} =1;
 	return $self;
@@ -326,15 +339,44 @@ sub save_plot {
 }
 
 sub LOG {
-	my ($self, @data) = @_;
+	my $self = shift;
+
+	if ($self->{skiplog} == 1) {
+		$self->{skiplog} = 0;
+		return $self;
+	}
 		
 	if (not $self->{LOG_STARTED})
 		{
 		$self->start_log();
 		}
-					
-	$self->{logger}->LOG(\@data);
 	
+	if (ref($_[0]) eq "HASH")
+		{
+		$self->{logger}->LOG(@_);
+		}
+	else
+		{		
+		$self->{logger}->LOG(\@_);
+		}
+	
+	return $self;
+}
+
+sub set_autolog {
+	my $self = shift;
+	my $value = shift;
+
+	$self->{autolog} = $value;
+
+	return $self;
+}
+
+sub skiplog {
+	my $self = shift;
+
+	$self->{skiplog} = 1;
+
 	return $self;
 }
 
