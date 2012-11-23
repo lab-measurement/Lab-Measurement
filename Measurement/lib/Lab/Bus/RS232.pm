@@ -57,7 +57,7 @@ sub new {
 	# parameter parsing
 	$self->port($self->config('port')) if defined $self->config('port');
 	warn ("No port supplied to RS232 bus. Assuming default port " . $self->config('port') . "\n") if(!defined $self->config('port'));
-	$self->port($self->config('baudrate')) if defined $self->config('baudrate');
+	$self->baudrate($self->config('baudrate')) if defined $self->config('baudrate');
 	$self->parity($self->config('parity')) if defined $self->config('parity');
 	$self->databits($self->config('databits')) if defined $self->config('databits');
 	$self->stopbits($self->config('stopbits')) if defined $self->config('stopbits');

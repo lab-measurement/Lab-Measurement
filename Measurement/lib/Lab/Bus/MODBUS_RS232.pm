@@ -6,7 +6,7 @@
 # possible interfaces are RS485/RS232 and Ethernet.
 # For now this driver uses Lab::Bus::RS232 as backend. It's main use is to
 # generate the checksums used by MODBUS RTU. The memory addresses are device specific and
-# have to be stored in the according connection packages.
+# have to be stored in the according device driver packages.
 #
 
 use strict;
