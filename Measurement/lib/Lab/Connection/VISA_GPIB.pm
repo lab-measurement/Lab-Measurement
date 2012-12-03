@@ -41,6 +41,8 @@ sub new {
 	my $self = $class->SUPER::new(@_); # getting fields and _permitted from parent class, parameter checks
 	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
 
+
+
 	return $self;
 }
 
@@ -72,14 +74,14 @@ sub _setbus {
 	
 	# again, pass it all.
 	$self->connection_handle( $self->bus()->connection_new( $self->config() ));
-	
-	
+
 	return $self->bus();
 }
 
 sub _configurebus {
 	my $self = shift;
 	
+
 	#
 	# set VISA Attributes:
 	#
@@ -87,8 +89,12 @@ sub _configurebus {
 	# termination character
 	if ( defined $self->config()->{termchar} )
 		{
+		if ($self->config()->{termchar} =~ m/^[0-9]+$/)
+		{
+			$self->config()->{termchar} = chr($self->config()->{termchar});
+		}
 		$self->bus()->set_visa_attribute($self->connection_handle(), $Lab::VISA::VI_ATTR_TERMCHAR_EN, $Lab::VISA::VI_TRUE);
-		$self->bus()->set_visa_attribute($self->connection_handle(), $Lab::VISA::VI_ATTR_TERMCHAR, $self->config()->{termchar});
+		$self->bus()->set_visa_attribute($self->connection_handle(), $Lab::VISA::VI_ATTR_TERMCHAR, ord($self->config()->{termchar}));
 		}
 	else
 		{

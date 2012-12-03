@@ -125,8 +125,12 @@ sub _configurebus {
 	# termination character
 	if ( defined $self->config()->{termchar} )
 		{
+		if ($self->config()->{termchar} =~ m/^[0-9]+$/)
+		{
+			$self->config()->{termchar} = chr($self->config()->{termchar});
+		}
 		$self->bus()->set_visa_attribute($self->connection_handle(), $Lab::VISA::VI_ATTR_TERMCHAR_EN, $Lab::VISA::VI_TRUE);
-		$self->bus()->set_visa_attribute($self->connection_handle(), $Lab::VISA::VI_ATTR_TERMCHAR, $self->config()->{termchar});
+		$self->bus()->set_visa_attribute($self->connection_handle(), $Lab::VISA::VI_ATTR_TERMCHAR,  ord($self->config()->{termchar}));
 		}
 	else
 		{
@@ -165,7 +169,7 @@ Lab::Connection::VISA_RS232, set the connection_type parameter accordingly:
 
  $instrument = new BlaDeviceType(
     connection_type => 'VISA_RS232',
-    rs232_adress => 1
+    port => 'ASRL1',
  )
 
 =head1 DESCRIPTION
@@ -184,7 +188,7 @@ The main feature is to set upon initialization all the RS232 libe parameters
 =head2 new
 
  my $connection = new Lab::Connection::VISA_RS232(
-    rs232_adress => 1,
+    port => 'ASRL1',
     baud_rate => 9600,
  )
 
@@ -199,12 +203,12 @@ This just falls back on the methods inherited from L<Lab::Connection>.
 Provides unified access to the fields in initial @_ to all the child classes.
 E.g.
 
- $RS232_Address=$instrument->Config(rs232_address);
+ $GPIB_Address=$instrument->Config(gpib_address);
 
 Without arguments, returns a reference to the complete $self->Config aka @_ of the constructor.
 
  $Config = $connection->Config();
- $RS232_Address = $connection->Config()->{'rs232_address'};
+ $GPIB_Address = $connection->Config()->{'gpib_address'};
  
 =head1 CAVEATS/BUGS
 
