@@ -428,7 +428,6 @@ sub start_plot {
 	$gp = "plot ";
 	foreach my $y (@{$self->{plot}->{'y-axis'}})
 		{
-		print "hallo\n";
 		if ( not defined $y )
 			{
 			next;

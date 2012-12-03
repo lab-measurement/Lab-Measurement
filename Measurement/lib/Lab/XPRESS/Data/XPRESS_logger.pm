@@ -351,8 +351,9 @@ sub LOG {
 			{
     		$logline[$value] = $data->{$key};
     		}
+		shift @logline;
     	my $logline = join("\t", @logline);
-    	print $filehandle $logline."\n";
+    	print $filehandle $logline;
 
 		}
 	else
