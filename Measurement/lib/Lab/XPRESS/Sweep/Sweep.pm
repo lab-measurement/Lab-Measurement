@@ -2,6 +2,7 @@ package Lab::XPRESS::Sweep::Sweep;
 
 
 use Time::HiRes qw/usleep/, qw/time/;
+use POSIX qw(ceil);
 use Term::ReadKey;
 use Lab::XPRESS::Utilities::Utilities;
 use Lab::Exception;
@@ -90,7 +91,14 @@ sub new {
 
 sub prepaire_config {
 	my $self = shift;
-	
+
+	# correct typing errors:
+	$self->{config}->{mode}  =~ s/\s+//g; #remove all whitespaces
+	$self->{config}->{mode}  =~ "\L$function"; # transform all uppercase letters to lowercase letters
+	if ($self->{config}->{mode} =~ /continuous|contious|cont|continuouse|continouse|coninuos|continuose/)
+		{
+		$self->{config}->{mode} = 'continuous';
+		}
 	
 	# make an Array out of single values if necessary:
 	if ( ref($self->{config}->{points}) ne 'ARRAY' )
@@ -319,18 +327,22 @@ sub prepaire_config {
 		
 		foreach my $i (0..$length_points-2) 
 			{
+			my $nop = abs((@{$self->{config}->{points}}[$i+1] - @{$self->{config}->{points}}[$i])/ @{$self->{config}->{stepwidths}}[$i]);
+			$nop = ceil($nop); 
+			   
 			my $point = @{$self->{config}->{points}}[$i];
-			while($point*@{$self->{config}->{sweepsigns}}[$i] <= @{$self->{config}->{points}}[$i+1]*@{$self->{config}->{sweepsigns}}[$i]) 
+			for(my $j = 0; $j <= $nop; $j++) 
 				{
-				if ( $point != @{$temp_points}[-1] ) 
+				if ( $point != @{$temp_points}[-1] or not defined @{$temp_points}[-1]) 
 					{
 					push (@{$temp_points}, $point);
 					push (@{$temp_rates}, @{$self->{config}->{rates}}[$i+1]);
 					push (@{$temp_durations}, @{$self->{config}->{durations}}[$i+1]/@{$self->{config}->{number_of_points}}[$i]);
 					push (@{$temp_sweepsigns}, @{$self->{config}->{sweepsigns}}[$i]);
-					}				
+					}
 				$point += @{$self->{config}->{stepwidths}}[$i]*@{$self->{config}->{sweepsigns}}[$i];
-				}				
+				}
+			@{$temp_points}[-1] = @{$self->{config}->{points}}[$i+1];
 			}
 		pop @{$temp_rates};
 		pop @{$temp_durations};
@@ -838,6 +850,17 @@ sub abort {
 		
 	exit;
 }
+
+sub stop {
+
+	print "Sweep stopped by User!\n";
+	foreach my $sweep (@{$ACTIVE_SWEEPS})
+		{
+		$sweep->exit();
+		}
+		
+}
+
 
 sub exit {
 	return shift;

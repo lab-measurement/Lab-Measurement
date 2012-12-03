@@ -21,9 +21,9 @@ sub new {
 		duration	=> undef,
 		durations	=> undef,
 		stepwidths => 1,
-		mode	=> 'continuouse',
+		mode	=> 'continuous',
 		allowed_instruments => [undef],
-		allowed_sweep_modes => ['continuouse'],
+		allowed_sweep_modes => ['continuous'],
 		number_of_points => [undef]
 		};
 	

@@ -1,15 +1,41 @@
 package Lab::Instrument::SignalRecovery726x;
+our $VERSION = '3.10';
 
 use strict;
+use Time::HiRes qw/usleep/, qw/time/;
 use Lab::Instrument;
-use Data::Dumper;
-use Carp;
 use Time::HiRes qw (usleep);
+
 
 our @ISA = ("Lab::Instrument");
 
 our %fields = (
-	supported_connections => [ 'GPIB', 'VISA_GPIB', 'DEBUG' ],
+	supported_connections => [ 'VISA', 'VISA_GPIB', 'GPIB', 'VISA_RS232', 'RS232', 'DEBUG' ],
+
+	connection_settings => {
+		baudrate => 19200,
+		databits => 7,
+		stopbits => 1,
+		parity => 'even',
+		handshake => 'none',
+		rs232_echo => 'character',
+		timeout => 500,
+		termchar => "\n",
+		timeout => 2
+	},
+
+	device_settings => {
+		read_default => 'device'
+	},
+
+	device_cache => {
+		id => 'SignalRecovery726x',
+		osc => undef,
+		frq => undef,
+		acgain => undef,
+		tc => undef
+	}
+
 );
 
 sub new {
@@ -18,57 +44,23 @@ sub new {
 	my $self = $class->SUPER::new(@_);
 	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__); 
 
-	return $self;
+	return $self;		
 }
-
-sub empty_buffer{
-    my $self=shift;
-    my $times=shift;
-    for (my $i=0;$i<$times;$i++) {
-		eval { $self->read( brutal => 1 ) };
-    }
-}
-
-#		my $status=Lab::VISA::viSetAttribute($self->{vi}->{config}->{RS232}->{vi}->{instr}, $Lab::VISA::VI_ATTR_ASRL_BAUD, 19200);
-#		if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting baud: $status";}
-#		$status=Lab::VISA::viSetAttribute($self->{vi}->{config}->{RS232}->{vi}->{instr}, $Lab::VISA::VI_ATTR_ASRL_DATA_BITS, 7);
-#		if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting termchar: $status";}
-#		$status=Lab::VISA::viSetAttribute($self->{vi}->{config}->{RS232}->{vi}->{instr}, $Lab::VISA::VI_ATTR_ASRL_STOP_BITS, $Lab::VISA::VI_ASRL_STOP_ONE);
-#		if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting termchar enabled: $status";}
-#		$status=Lab::VISA::viSetAttribute($self->{vi}->{config}->{RS232}->{vi}->{instr}, $Lab::VISA::VI_ATTR_ASRL_PARITY, $Lab::VISA::VI_ASRL_PAR_EVEN);
-#		if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting termchar: $status";}
-#		$status=Lab::VISA::viSetAttribute($self->{vi}->{config}->{RS232}->{vi}->{instr}, $Lab::VISA::VI_ATTR_TERMCHAR, 10);
-#		if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting termchar: $status";}
-#		$status=Lab::VISA::viSetAttribute($self->{vi}->{config}->{RS232}->{vi}->{instr}, $Lab::VISA::VI_ATTR_TERMCHAR_EN, $Lab::VISA::VI_TRUE);
-#		if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting termchar enabled: $status";}	
-#		$status=Lab::VISA::viSetAttribute($self->{vi}->{config}->{RS232}->{vi}->{instr}, $Lab::VISA::VI_ATTR_ASRL_END_IN, 	$Lab::VISA::VI_ASRL_END_TERMCHAR);
-#		if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting end termchar: $status";}
-#		$status=Lab::VISA::viSetAttribute($self->{vi}->{config}->{RS232}->{vi}->{instr}, $Lab::VISA::VI_ATTR_TMO_VALUE, 	50 );
-#		if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting end termchar: $status";}
-#	
-#		$self->{vi}->{config}->{RS232_Echo} = 'CHARACTER';
 
 sub reset {
+
 	my $self=shift;
 	$self->write("ADF 1");
-}
 
-#sub _set_RS232_Parameter { # internal / advanced use only 
-#	my $self = shift;
-#	my $RS232_Parameter = shift;
-#	my $value = shift;
-#	
-#	return $self->{vi}->{config}->{RS232}->set_RS232_Parameter($RS232_Parameter, $value);
-
-#}
-
+	$self->_cache_init();
+	}
 
 
 # ------------------ SIGNAL CHANNEL -------------------------
 
 sub set_imode { # basic setting
 	my $self=shift;
-	my $imode = shift;
+	my ($imode) = $self->_check_args( \@_, ['value'] );
 	
 	# $imode == 0  --> Current Mode OFF
 	# $imode == 1  --> High Bandwidth Current Mode
@@ -76,23 +68,45 @@ sub set_imode { # basic setting
 	
 	if ( not defined $imode )
 		{
-		return $self->query("IMODE");
+		return get_imode();
 		}
 	
 	if (defined $imode and ($imode == 0 || $imode == 1 || $imode == 2)) {
 		my $cmd = sprintf("IMODE %d", $imode);
 		$self->write($cmd);
 		if ($self->query("IMODE") != $imode) {
-			die "\nSIGNAL REOCOVERY 726x:\ncouldn't set IMODE";
-		} }
+			Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\ncouldn't set IMODE" );
+		} 
+		else {
+			$self->{'device_cache'}->{'imode'} = $imode;
+		}
+	}
 	else {
-		die "\nSIGNAL REOCOVERY 726x:\nunexpected value for IMODE in sub set_imode. Expected values are:\n 0 --> Current Mode OFF\n 1 --> High Bandwidth Current Mode\n 2 --> Low Noise Current Mode\n"; }
+		Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\nunexpected value for IMODE in sub set_imode. Expected values are:\n 0 --> Current Mode OFF\n 1 --> High Bandwidth Current Mode\n 2 --> Low Noise Current Mode\n" ); }
 		
+	}
+
+sub get_imode {
+	my $self = shift;
+
+	my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
+
+    if (not defined $read_mode or not $read_mode =~ /device|cache/)
+    {
+        $read_mode = $self->device_settings()->{read_default};
+    }
+    
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'imode'})
+    {
+        return $self->{'device_cache'}->{'imode'};
+    }  
+
+	return $self->{'device_cache'}->{'imode'} = $self->query("IMODE");
 	}
 	
 sub set_vmode { # basic setting
 	my $self=shift;
-	my $vmode = shift;
+	my ($vmode) = $self->_check_args( \@_, ['value'] );
 	
 	# $vmode == 0  --> Both inputs grounded (testmode)
 	# $vmode == 1  --> A input only
@@ -101,7 +115,7 @@ sub set_vmode { # basic setting
 	
 	if ( not defined $vmode )
 		{
-		return $self->query("VMODE");
+		return $self->get_vmode();
 		}
 	
 	if (defined $vmode and ($vmode == 0 || $vmode == 1 || $vmode == 2 || $vmode == 3)) {
@@ -109,24 +123,45 @@ sub set_vmode { # basic setting
 		my $cmd = sprintf("VMODE %d", $vmode);
 		$self->write($cmd);
 		if ($self->query("VMODE") != $vmode) {
-			die "\nSIGNAL REOCOVERY 726x:\ncouldn't set VMODE";
+			Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\ncouldn't set VMODE" );
 		} 
+		else {
+			$self->{'device_cache'}->{'vmode'} = $vmode;
 		}
+	}
 	else {
-		die "\nSIGNAL REOCOVERY 726x:\nunexpected value for VMODE in sub set_vmode. Expected values are:\n 0 --> Both inputs grounded (testmode)\n 1 --> A input only\n 2 --> -B input only\n 3 --> A-B differential mode\n"; }
+		Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\nunexpected value for VMODE in sub set_vmode. Expected values are:\n 0 --> Both inputs grounded (testmode)\n 1 --> A input only\n 2 --> -B input only\n 3 --> A-B differential mode\n" ); }
 		
+	}
+
+sub get_vmode {
+	my $self = shift;
+
+	my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
+
+    if (not defined $read_mode or not $read_mode =~ /device|cache/)
+    {
+        $read_mode = $self->device_settings()->{read_default};
+    }
+    
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'vmode'})
+    {
+        return $self->{'device_cache'}->{'vmode'};
+    }  
+
+	return $self->{'device_cache'}->{'vmode'} = $self->query("VMODE");
 	}
 	
 sub set_fet { # basic setting
 	my $self=shift;
-	my $value = shift;
+	my ($value) = $self->_check_args( \@_, ['value'] );
 	
 	# $value == 0 --> Bipolar device, 10 kOhm input impedance, 2nV/sqrt(Hz) voltage noise at 1 kHz
 	# $value == 1 --> FET, 10 MOhm input impedance, 5nV/sqrt(Hz) voltage noise at 1 kHz
 	
 	if ( not defined $value )
 		{
-		return $self->query("FET");
+		return $self->get_fet();
 		}
 	
 	if ( defined $value and ($value == 0 || $value == 1) ) {
@@ -134,24 +169,45 @@ sub set_fet { # basic setting
 		my $cmd = sprintf("FET %d", $value);
 		$self->write($cmd);
 		if ($self->query("FET") != $value) {
-			die "\nSIGNAL REOCOVERY 726x:\ncouldn't set FET";
+			Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\ncouldn't set FET" );
 		} 
+		else {
+			$self->{'device_cache'}->{'fet'} = $value;
 		}
+	}
 	else {
-		die "\nSIGNAL REOCOVERY 726x:\nunexpected value in sub set_fet. Expected values are:\n 0 --> Bipolar device, 10 kOhm input impedance, 2nV/sqrt(Hz) voltage noise at 1 kHz\n 1 --> FET, 10 MOhm input impedance, 5nV/sqrt(Hz) voltage noise at 1 kHz\n"; }
+		Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\nunexpected value in sub set_fet. Expected values are:\n 0 --> Bipolar device, 10 kOhm input impedance, 2nV/sqrt(Hz) voltage noise at 1 kHz\n 1 --> FET, 10 MOhm input impedance, 5nV/sqrt(Hz) voltage noise at 1 kHz\n" ); }
 		
+	}
+
+sub get_fet {
+	my $self = shift;
+
+	my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
+
+    if (not defined $read_mode or not $read_mode =~ /device|cache/)
+    {
+        $read_mode = $self->device_settings()->{read_default};
+    }
+    
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'fet'})
+    {
+        return $self->{'device_cache'}->{'fet'};
+    }  
+
+	return $self->{'device_cache'}->{'fet'} = $self->query("FET");
 	}
 	
 sub set_float { # basic setting
 	my $self=shift;
-	my $value = shift;
+	my ($value) = $self->_check_args( \@_, ['value'] );
 	
 	# $value == 0 --> input conector shield set to GROUND
 	# $value == 1 --> input conector shield set to FLOAT
 	
 	if ( not defined $value )
 		{
-		return $self->query("FLOAT");
+		return $self->get_float();
 		}
 	
 	if (defined $value and ($value == 0 || $value == 1)) {
@@ -159,24 +215,45 @@ sub set_float { # basic setting
 		my $cmd = sprintf("FLOAT %d", $value);
 		$self->write($cmd);
 		if ($self->query("FLOAT") != $value) {
-			die "\nSIGNAL REOCOVERY 726x:\ncouldn't set FLOAT";
-		} 
+			Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\ncouldn't set FLOAT" );
 		}
+		else {
+			$self->{'device_cache'}->{'float'} = $value;
+		} 
+	}
 	else {
-		die "\nSIGNAL REOCOVERY 726x:\nunexpected value in sub set_float. Expected values are:\n 0 --> input conector shield set to GROUND\n 1 --> input conector shield set to FLOAT\n"; }
+		Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\nunexpected value in sub set_float. Expected values are:\n 0 --> input conector shield set to GROUND\n 1 --> input conector shield set to FLOAT\n" ); }
 		
+	}
+
+sub get_float {
+	my $self = shift;
+
+	my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
+
+    if (not defined $read_mode or not $read_mode =~ /device|cache/)
+    {
+        $read_mode = $self->device_settings()->{read_default};
+    }
+    
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'fet'})
+    {
+        return $self->{'device_cache'}->{'fet'};
+    }
+
+	return $self->{'device_cache'}->{'float'} = $self->query("FLOAT");
 	}
 	
 sub set_cp { # basic setting
 	my $self=shift;
-	my $value = shift;
+	my ($value) = $self->_check_args( \@_, ['value'] );
 	
 	# $value == 0 --> input coupling mode AC\n
 	# $value == 1 --> input coupling mode DC\n
 	
 	if ( not defined $value )
 		{
-		return $self->query("CP");
+		return $self->get_cp();
 		}
 	
 	if (defined $value and ($value == 0 || $value == 1)) {
@@ -184,33 +261,48 @@ sub set_cp { # basic setting
 		my $cmd = sprintf("CP %d", $value);
 		$self->write($cmd);
 		if ($self->query("CP") != $value) {
-			die "\nSIGNAL REOCOVERY 726x:\ncouldn't set CP";
+			Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\ncouldn't set CP" );
 		} 
+		else {
+			$self->{'device_cache'}->{'cp'} = $value;
 		}
+	}
 	else {
-		die "\nSIGNAL REOCOVERY 726x:\nunexpected value in sub set_cp. Expected values are:\n 0 --> input coupling mode AC\n 1 --> input coupling mode DC\n"; }
+		Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\nunexpected value in sub set_cp. Expected values are:\n 0 --> input coupling mode AC\n 1 --> input coupling mode DC\n" ); }
 		
+	}
+
+sub get_cp {
+	my $self = shift;#
+	
+	my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
+
+    if (not defined $read_mode or not $read_mode =~ /device|cache/)
+    {
+        $read_mode = $self->device_settings()->{read_default};
+    }
+    
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'fet'})
+    {
+        return $self->{'device_cache'}->{'fet'};
+    }
+
+	return $self->{'device_cache'}->{'cp'} = $self->query("CP");
 	}
 	
 sub set_sen { # basic setting
 	my $self=shift;
-	my $value = shift;
+	my ($value) = $self->_check_args( \@_, ['value'] );
 	
 	my @matrix = ({2e-9=>1, 5e-9=>2, 10e-9=>3, 2e-8=>4, 5e-8=>5, 10e-8=>6, 2e-7=>7, 5e-7=>8, 10e-7=>9, 2e-6=>10, 5e-6=>11, 10e-6=>12, 2e-5=>13, 5e-5=>14, 10e-5=>15, 2e-4=>16, 5e-4=>17, 10e-4=>18, 2e-3=>19, 5e-3=>20, 10e-3=>21, 2e-2=>22, 5e-2=>23, 10e-2=>24, 2e-1=>25, 5e-1=>26, 10e-1=>27},
 				   {2e-15=>1, 5e-15=>2, 10e-15=>3, 2e-14=>4, 5e-14=>5, 10e-14=>6, 2e-13=>7, 5e-13=>8, 10e-13=>9, 2e-12=>10, 5e-12=>11, 10e-12=>12, 2e-11=>13, 5e-11=>14, 10e-11=>15, 2e-10=>16, 5e-10=>17, 10e-10=>18, 2e-9=>19, 5e-9=>20, 10e-9=>21, 2e-8=>22, 5e-8=>23, 10e-8=>24, 2e-7=>25, 5e-7=>26, 10e-7=>27},
 				   {2e-15=>7, 5e-15=>8, 10e-15=>9, 2e-14=>10, 5e-14=>11, 10e-14=>12, 2e-13=>13, 5e-13=>14, 10e-13=>15, 2e-12=>16, 5e-12=>17, 10e-12=>18, 2e-11=>19, 5e-11=>20, 10e-11=>21, 2e-10=>22, 5e-10=>23, 10e-10=>24, 2e-9=>25, 5e-9=>26, 10e-9=>27});
 	
-	my @matrix_reverse = (	[2e-9, 5e-9, 10e-9, 2e-8, 5e-8, 10e-8, 2e-7, 5e-7, 10e-7, 2e-6, 5e-6, 10e-6, 2e-5, 5e-5, 10e-5, 2e-4, 5e-4, 10e-4, 2e-3, 5e-3, 10e-3, 2e-2, 5e-2, 10e-2, 2e-1, 5e-1, 10e-1],
-				[2e-15, 5e-15, 10e-15, 2e-14, 5e-14, 10e-14, 2e-13, 5e-13, 10e-13, 2e-12, 5e-12, 10e-12, 2e-11, 5e-11, 10e-11, 2e-10, 5e-10, 10e-10, 2e-9, 5e-9, 10e-9, 2e-8, 5e-8, 10e-8, 2e-7, 5e-7, 10e-7],
-				[2e-15, 5e-15, 10e-15, 2e-14, 5e-14, 10e-14, 2e-13, 5e-13, 10e-13, 2e-12, 5e-12, 10e-12, 2e-11, 5e-11, 10e-11, 2e-10, 5e-10, 10e-10, 2e-9, 5e-9, 10e-9]);
-	
-	
-	
 	my $imode = $self->query("IMODE");
 	
 	if (not defined $value) 
 		{
-		return $matrix_reverse[$imode][$self->query("SEN")-1];
+		return $self->get_sen();
 		}
 	
 	# SENSITIVITY (IMODE == 0) --> 2nV, 5nV, 10nV, 20nV, 50nV, 100nV, 200nV, 500nV, 1uV, 2uV, 5uV, 10uV, 20uV, 50uV, 100uV, 200uV, 500uV, 1mV, 2mV, 5mV, 10mV, 20mV, 50mV, 100mV, 200mV, 500mV, 1V\n
@@ -235,21 +327,50 @@ sub set_sen { # basic setting
 	    my $cmd = sprintf("SEN %d", $matrix[$imode]->{$value});
 		$self->write($cmd);
 		if ($self->query("SEN") != $matrix[$imode]->{$value}) {
-			die "\nSIGNAL REOCOVERY 726x:\ncouldn't set sensitivity"; }
+			Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\ncouldn't set sensitivity" ); }
+		else {
+			$self->{'device_cache'}->{'sen'} = $value;
 		}
+	}
 	elsif ($value == "AUTO") {
-		$self->write("AS"); 		
+		$self->write("AS"); 
+		$self->{'device_cache'}->{'sen'} = "AUTO";		
 		}
 		
 	else {
-		die "\nSIGNAL REOCOVERY 726x:\nunexpected value for SENSITIVITY in sub set_sen. Expected values are: \n\n SENSITIVITY (IMODE == 0) --> 2nV, 5nV, 10nV, 20nV, 50nV, 100nV, 200nV, 500nV, 1uV, 2uV, 5uV, 10uV, 20uV, 50uV, 100uV, 200uV, 500uV, 1mV, 2mV, 5mV, 10mV, 20mV, 50mV, 100mV, 200mV, 500mV, 1V\n\n SENSITIVITY (IMODE == 1) --> 2fA, 5fA, 10fA, 20fA, 50fA, 100fA, 200fA, 500fA, 1pA, 2pA, 5pA, 10pA, 20pA, 50pA, 100pA, 200pA, 500pA, 1nA, 2nA, 5nA, 10nA, 20nA, 50nA, 100nA, 200nA, 500nA, 1uA\n\n SENSITIVITY (IMODE == 2) --> 2fA, 5fA, 10fA, 20fA, 50fA, 100fA, 200fA, 500fA, 1pA, 2pA, 5pA, 10pA, 20pA, 50pA, 100pA, 200pA, 500pA, 1nA, 2nA, 5nA, 10nA\n";
+		Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\nunexpected value for SENSITIVITY in sub set_sen. Expected values are: \n\n SENSITIVITY (IMODE == 0) --> 2nV, 5nV, 10nV, 20nV, 50nV, 100nV, 200nV, 500nV, 1uV, 2uV, 5uV, 10uV, 20uV, 50uV, 100uV, 200uV, 500uV, 1mV, 2mV, 5mV, 10mV, 20mV, 50mV, 100mV, 200mV, 500mV, 1V\n\n SENSITIVITY (IMODE == 1) --> 2fA, 5fA, 10fA, 20fA, 50fA, 100fA, 200fA, 500fA, 1pA, 2pA, 5pA, 10pA, 20pA, 50pA, 100pA, 200pA, 500pA, 1nA, 2nA, 5nA, 10nA, 20nA, 50nA, 100nA, 200nA, 500nA, 1uA\n\n SENSITIVITY (IMODE == 2) --> 2fA, 5fA, 10fA, 20fA, 50fA, 100fA, 200fA, 500fA, 1pA, 2pA, 5pA, 10pA, 20pA, 50pA, 100pA, 200pA, 500pA, 1nA, 2nA, 5nA, 10nA\n" );
 		}
 
+	}
+
+sub get_sen {
+	my $self = shift;
+
+	my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
+
+    if (not defined $read_mode or not $read_mode =~ /device|cache/)
+    {
+        $read_mode = $self->device_settings()->{read_default};
+    }
+    
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'sen'})
+    {
+        return $self->{'device_cache'}->{'sen'};
+    }
+
+	my @matrix_reverse = (	[2e-9, 5e-9, 10e-9, 2e-8, 5e-8, 10e-8, 2e-7, 5e-7, 10e-7, 2e-6, 5e-6, 10e-6, 2e-5, 5e-5, 10e-5, 2e-4, 5e-4, 10e-4, 2e-3, 5e-3, 10e-3, 2e-2, 5e-2, 10e-2, 2e-1, 5e-1, 10e-1],
+				[2e-15, 5e-15, 10e-15, 2e-14, 5e-14, 10e-14, 2e-13, 5e-13, 10e-13, 2e-12, 5e-12, 10e-12, 2e-11, 5e-11, 10e-11, 2e-10, 5e-10, 10e-10, 2e-9, 5e-9, 10e-9, 2e-8, 5e-8, 10e-8, 2e-7, 5e-7, 10e-7],
+				[2e-15, 5e-15, 10e-15, 2e-14, 5e-14, 10e-14, 2e-13, 5e-13, 10e-13, 2e-12, 5e-12, 10e-12, 2e-11, 5e-11, 10e-11, 2e-10, 5e-10, 10e-10, 2e-9, 5e-9, 10e-9]);
+	
+	my $imode = $self->get_imode({'read_mode' => $read_mode});
+
+	return $self->{'device_cache'}->{'sen'} = $matrix_reverse[$imode][$self->query("SEN")-1];
+	
 	}
 	
 sub set_acgain { # basic setting
 	my $self=shift;
-	my $value = shift;
+	my ($value) = $self->_check_args( \@_, ['value'] );
 	
 	# AC-GAIN == 0 -->  0 dB gain of the signal channel amplifier\n
 	# AC-GAIN == 1 --> 10 dB gain of the signal channel amplifier\n
@@ -258,7 +379,7 @@ sub set_acgain { # basic setting
 	
 	if ( not defined $value )
 		{
-		return ($self->query("ACGAIN"),$self->query("AUTOMATIC"));
+		return get_acgain();
 		}
 	
 	if (index($value, "dB") >= 0) {
@@ -268,34 +389,57 @@ sub set_acgain { # basic setting
 	
 		my $cmd = sprintf("ACGAIN %d", $value);
 		$self->write($cmd);
-		if ((my $gain = $self->query("ACGAIN")) != $value) {
+		my $gain = $self->query("ACGAIN");
+		if ( $gain != $value) {
 			print "couldn't set ACGAIN to ".($value*10)."dB. Instead set to ".($gain*10)."dB.\n";
 		}
+
+		$self->{'device_cache'}->{'acgain'} = $gain;
 	
 	}
 	elsif ($value eq "AUTO") {
 		my $cmd = sprintf("AUTOMATIC 1");
 		$self->write($cmd);
 		if ($self->query("AUTOMATIC") != 1) {
-			die "\nSIGNAL REOCOVERY 726x:\ncouldn't set ACGAIN";
+			Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\ncouldn't set ACGAIN" );
+		}
+		else {
+			$self->{'device_cache'}->{'acgain'} = 'AUTO';
 		}
 	}
 	else { 
-		die "\nSIGNAL REOCOVERY 726x:\nunexpected value for AC-GAIN in sub set_acgain. Expected values are:\n AC-GAIN == 0 -->  0 dB gain of the signal channel amplifier\n AC-GAIN == 1 --> 10 dB gain of the signal channel amplifier\n ...\n AC-GAIN == 9 --> 90 dB gain of the signal channel amplifier\n";
+		Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\nunexpected value for AC-GAIN in sub set_acgain. Expected values are:\n AC-GAIN == 0 -->  0 dB gain of the signal channel amplifier\n AC-GAIN == 1 --> 10 dB gain of the signal channel amplifier\n ...\n AC-GAIN == 9 --> 90 dB gain of the signal channel amplifier\n" );
 	}
 	
 	
+	}
+
+sub get_acgain {
+	my $self = shift;
+
+	my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
+
+    if (not defined $read_mode or not $read_mode =~ /device|cache/)
+    {
+        $read_mode = $self->device_settings()->{read_default};
+    }
+    
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'acgain'})
+    {
+        return $self->{'device_cache'}->{'acgain'};
+    }
+
+	return $self->{'device_cache'}->{'acgain'} = $self->query("ACGAIN");
 	}
 	
 sub set_linefilter { # basic setting
 	my $self=shift;
-	my $value = shift;
-	my $linefrequency = shift;
+	my ($value, $linefrequency) = $self->_check_args( \@_, ['value', 'line_frequency'] );
 	
 	if ( not defined $linefrequency ) { $linefrequency = 1;} # 1-->50Hz
 	elsif ($linefrequency eq "50Hz") { $linefrequency = 1;}
 	elsif ($linefrequency eq "60Hz") { $linefrequency = 0;} # 0 --> 60Hz
-	else { die "\nSIGNAL REOCOVERY 726x:\nunexpected value for LINEFREQUENCY in sub set_linefilter. Expected values are '50Hz' or '60Hz'.";}
+	else { Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\nunexpected value for LINEFREQUENCY in sub set_linefilter. Expected values are '50Hz' or '60Hz'." );}
 	
 	# LINE-FILTER == 0 --> OFF\n
 	# LINE-FILTER == 1 --> enable 50Hz/60Hz notch filter\n
@@ -304,7 +448,7 @@ sub set_linefilter { # basic setting
 	
 	if ( not defined $value )
 		{
-		return $self->query("LF");
+		return $self->get_linefilter();
 		}
 	
 	if (defined $value and ($value == 0 || $value == 1 || $value == 2 || $value == 3)) {
@@ -313,13 +457,34 @@ sub set_linefilter { # basic setting
 		$self->write($cmd);
 		if ($self->query("LF") != $value) 
 			{
-			die "\nSIGNAL REOCOVERY 726x:\ncouldn't set Linefilter";
+			Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\ncouldn't set Linefilter" );
 			} 
+		else {
+			$self->{'device_cache'}->{'linefilter'} = $value;
+		}
 	}
 	else {
-		die "\nSIGNAL REOCOVERY 726x:\nunexpected value for FILTER in sub set_linefilter. Expected values are:\n LINE-FILTER == 0 --> OFF\n LINE-FILTER == 1 --> enable 50Hz/60Hz notch filter\n LINE-FILTER == 2 --> enable 100Hz/120Hz notch filter\n LINE-FILTER == 3 --> enable 50Hz/60Hz and 100Hz/120Hz notch filter\n"; 
+		Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\nunexpected value for FILTER in sub set_linefilter. Expected values are:\n LINE-FILTER == 0 --> OFF\n LINE-FILTER == 1 --> enable 50Hz/60Hz notch filter\n LINE-FILTER == 2 --> enable 100Hz/120Hz notch filter\n LINE-FILTER == 3 --> enable 50Hz/60Hz and 100Hz/120Hz notch filter\n" ); 
 	}
 		
+	}
+
+sub get_linefilter {
+	my $self = shift;
+
+	my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
+
+    if (not defined $read_mode or not $read_mode =~ /device|cache/)
+    {
+        $read_mode = $self->device_settings()->{read_default};
+    }
+    
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'linefilter'})
+    {
+        return $self->{'device_cache'}->{'linefilter'};
+    }
+
+	return $self->{'device_cache'}->{'linefilter'} = $self->query("LF");
 	}
 
 
@@ -328,7 +493,7 @@ sub set_linefilter { # basic setting
 	
 sub set_refchannel { # basic setting
 	my $self=shift;
-	my $value = shift;
+	my ($value) = $self->_check_args( \@_, ['value'] );
 	
 	# INT --> internal reference input mode\n
 	# EXT LOGIC --> external rear panel TTL input\n
@@ -336,20 +501,56 @@ sub set_refchannel { # basic setting
 
 	if ( not defined $value )
 		{
-		return $self->query("IE");
+		return $self->get_refchannel();
 		}
 		
 	if ($value eq "INT" ) { $value = 0; }
 	elsif ( $value eq "EXT LOGIC") { $value = 1; }
 	elsif ( $value eq "EXT") { $value = 2; }		
-	else { die "\nSIGNAL REOCOVERY 726x:\nunexpected value for REFERENCE CHANEL in sub set_refchennel. Expected values are:\n INT --> internal reference input mode\n EXT LOGIC --> external rear panel TTL input\n EXT --> external front panel analog input\n"; }
+	else { Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\nunexpected value for REFERENCE CHANEL in sub set_refchennel. Expected values are:\n INT --> internal reference input mode\n EXT LOGIC --> external rear panel TTL input\n EXT --> external front panel analog input\n" ); }
 		
 	my $cmd = sprintf("IE %d", $value);
 		$self->write($cmd);
 		if ($self->query("IE") != $value) {
-			die "\nSIGNAL REOCOVERY 726x:\ncouldn't set reference channel";
+			Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\ncouldn't set reference channel" );
 		} 
+		else {
+			$self->{'device_cache'}->{'refchannel'} = $value;
+		}
 		
+	}
+
+sub get_refchannel {
+	my $self = shift;
+
+	my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
+
+    if (not defined $read_mode or not $read_mode =~ /device|cache/)
+    {
+        $read_mode = $self->device_settings()->{read_default};
+    }
+    
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'refchannel'})
+    {
+        return $self->{'device_cache'}->{'refchannel'};
+    }
+
+    my $result = $self->query("IE");
+
+    if ($result == 0) 
+    {
+    	$self->{'device_cache'}->{'refchannel'} = 'INT';
+    }
+    elsif ($result == 1) 
+    {
+    	$self->{'device_cache'}->{'refchannel'} = 'EXT LOGIC';
+    }
+    elsif ($result == 2) 
+    {
+    	$self->{'device_cache'}->{'refchannel'} = 'EXT';
+    }
+
+	return $self->{'device_cache'}->{'refchannel'};
 	}
 
 sub autophase { # basic setting
@@ -360,7 +561,7 @@ sub autophase { # basic setting
 
 sub set_refpha{ # basic setting
 	my $self=shift;
-	my $value = shift;
+	my ($value) = $self->_check_args( \@_, ['value'] );
 	
 	if ( not defined $value )
 		{
@@ -370,16 +571,32 @@ sub set_refpha{ # basic setting
 	if ($value >= 0 && $value <= 360) {
 		$self->write(sprintf("REFP %d", $value*1e3));
 		if ($self->query("REFP") != $value*1e3) {
-			die "\nSIGNAL REOCOVERY 726x:\nCouldn't set reference phase in sub set_refpha.";
+			Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\nCouldn't set reference phase in sub set_refpha." );
 			}			
+		
+		else {
+			$self->{'device_cache'}->{'refpha'} = $value;
 		}
-	else { die "\nSIGNAL REOCOVERY 726x:\nunexpected value for REFERENCE PHASE in sub set_refpha. Expected values must be in the range 0..360"; }
+	}
+	else { Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\nunexpected value for REFERENCE PHASE in sub set_refpha. Expected values must be in the range 0..360" ); }
 	 }
 
 sub get_refpha { # basic setting
 	my $self=shift;
-	my $value = $self->query("REFP.");
-	return $value;
+
+	my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
+
+    if (not defined $read_mode or not $read_mode =~ /device|cache/)
+    {
+        $read_mode = $self->device_settings()->{read_default};
+    }
+    
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'refpha'})
+    {
+        return $self->{'device_cache'}->{'refpha'};
+    }
+
+	return $self->{'device_cache'}->{'refpha'} = $self->query("REFP.");
 	}
 
 	
@@ -388,7 +605,7 @@ sub get_refpha { # basic setting
 
 sub set_ouputfilter_slope {  # basic setting
 	my $self=shift;
-	my $value = shift;
+	my ($value) = $self->_check_args( \@_, ['value'] );
 	
 	#  6dB -->  6dB/octave slope of output filter\n
 	# 12dB --> 12dB/octave slope of output filter\n
@@ -397,26 +614,67 @@ sub set_ouputfilter_slope {  # basic setting
 	
 	if ( not defined $value )
 		{
-		return $self->query("SLOPE");
+		return $self->get_ouputfilter_slope();
 		}
 	
 	if ($value eq "6dB") {$value = 0;}
 	elsif ($value eq "12dB") {$value = 1;}
 	elsif ($value eq "18dB") {$value = 2;}
 	elsif ($value eq "24dB") {$value = 3;}
-	else { die "\nSIGNAL REOCOVERY 726x:\nunexpected value for SLOPE in sub set_ouputfilter_slope. Expected values are:\n  6dB -->  6dB/octave slope of output filter\n 12dB --> 12dB/octave slope of output filter\n 18dB --> 18dB/octave slope of output filter\n 24dB --> 24dB/octave slope of output filter\n"; }
+	else { Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\nunexpected value for SLOPE in sub set_ouputfilter_slope. Expected values are:\n  6dB -->  6dB/octave slope of output filter\n 12dB --> 12dB/octave slope of output filter\n 18dB --> 18dB/octave slope of output filter\n 24dB --> 24dB/octave slope of output filter\n" ); }
 		
 	my $cmd = sprintf("SLOPE %d", $value);
 	$self->write($cmd);
 	if ($self->query("SLOPE") != $value) {
-		die "\nSIGNAL REOCOVERY 726x:\ncouldn't set output lowpass filter";
+		Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\ncouldn't set output lowpass filter" );
+	}
+	else {
+		$self->{'device_cache'}->{'ouputfilter_slope'} = $value;
 	}
 	 
 	}
+
+sub get_ouputfilter_slope {
+	my $self = shift;
+
+	my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
+
+    if (not defined $read_mode or not $read_mode =~ /device|cache/)
+    {
+        $read_mode = $self->device_settings()->{read_default};
+    }
+    
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'ouputfilter_slope'})
+    {
+        return $self->{'device_cache'}->{'ouputfilter_slope'};
+    }
+
+    my $result = $self->query("SLOPE");
+
+    if ($result == 0) 
+    {
+    	$self->{'device_cache'}->{'ouputfilter_slope'} = '6dB';
+    }
+    elsif ($result == 1) 
+    {
+    	$self->{'device_cache'}->{'ouputfilter_slope'} = '12dB';
+    }
+	elsif ($result == 2) 
+    {
+    	$self->{'device_cache'}->{'ouputfilter_slope'} = '18dB';
+    }
+	elsif ($result == 3) 
+    {
+    	$self->{'device_cache'}->{'ouputfilter_slope'} = '24dB';
+    }
+
+	return $self->{'device_cache'}->{'ouputfilter_slope'};
+	}
+
 	
 sub set_tc { # basic setting
 	my $self=shift;
-	my $value = shift;
+	my ($value) = $self->_check_args( \@_, ['value'] );
 	
 	# Filter Time Constant: 10us, 20us, 40us, 80us, 160us, 320us, 640us, 5ms, 10ms, 20ms, 50ms, 100ms, 200ms, 500ms, 1s, 2s, 5s, 10s, 20s, 50s, 100s, 200s, 500s, 1ks, 2ks, 5ks, 10ks, 20ks, 50ks, 100ks\n
 	
@@ -442,21 +700,49 @@ sub set_tc { # basic setting
 	if (exists $list{$value}) {
 	    my $cmd = sprintf("TC %d", $list{$value});
 		$self->write($cmd);
-		if ($self->query("TC") != $list{$value}) {die "\nSIGNAL REOCOVERY 726x:\ncouldn't set TC. This may happen at low oscillator frequencies below 10 Hz. For detailed informaitionis read the manual!"; }
-		}		
+		if ($self->query("TC") != $list{$value}) {
+			Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\ncouldn't set TC. This may happen at low oscillator frequencies below 10 Hz. For detailed informaitionis read the manual!" ); 
+		}
+		
+		else {
+			$self->{'device_cache'}->{'tc'} = $value;
+		}
+	}		
 	else {
-		die "\nSIGNAL REOCOVERY 726x:\nunexpected value for TIME CONSTANT in set_tc. Filter Time Constant TC can be:\n10us, 20us, 40us, 80us, 160us, 320us, 640us, 5ms, 10ms, 20ms, 50ms, 100ms, 200ms, 500ms, 1s, 2s, 5s, 10s, 20s, 50s, 100s, 200s, 500s, 1ks, 2ks, 5ks, 10ks, 20ks, 50ks, 100ks\n"; }
+		Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\nunexpected value for TIME CONSTANT in set_tc. Filter Time Constant TC can be:\n10us, 20us, 40us, 80us, 160us, 320us, 640us, 5ms, 10ms, 20ms, 50ms, 100ms, 200ms, 500ms, 1s, 2s, 5s, 10s, 20s, 50s, 100s, 200s, 500s, 1ks, 2ks, 5ks, 10ks, 20ks, 50ks, 100ks\n" ); 
+	}
 			
+	}
+
+sub get_tc {
+	my $self = shift;
+
+	my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
+
+    if (not defined $read_mode or not $read_mode =~ /device|cache/)
+    {
+        $read_mode = $self->device_settings()->{read_default};
+    }
+    
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'tc'})
+    {
+        return $self->{'device_cache'}->{'tc'};
+    }
+
+	my @list = (10e-6, 20e-6, 40e-6, 80e-6, 160e-6, 320e-6, 640e-6, 5e-3, 10e-3, 20e-3, 50e-3, 100e-3, 200e-3, 500e-3, 1, 2, 5 , 10, 20, 50, 100, 200 , 500, 1e3, 2e3, 5e3, 10e3, 20e3, 50e3, 100e3);
+	
+	my $tc = $self->query("TC");
+
+	return $self->{'device_cache'}->{'tc'} = $list[$tc];
 	}
 
 	
 
 # ---------------- SIGNAL CHANNEL OUTPUT AMPLIFIERS --------------	
 
-sub set_offset { # basic setting
+sub set_offset { # basic setting 	<-----Hier muessen Fehler noch besser abgefangen werden und eine get_funktion aingefügt werden + caching
 	my $self=shift;
-	my $x_value = shift;
-	my $y_value = shift;
+	my ($x_value, $y_value) = $self->_check_args( \@_, ['X', 'Y'] );
 	my @offset;
 	
 	if ($x_value >= -300 || $x_value <= 300) {
@@ -465,7 +751,7 @@ sub set_offset { # basic setting
 		my @temp = split(/,/,$self->query("XOF"));
 		$offset[0] = $temp[1]/100;
 		if ($offset[0] != $x_value) {
-			die "\nSIGNAL REOCOVERY 726x:\ncouldn't set X chanel output offset";
+			Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\ncouldn't set X chanel output offset" );
 			}
 		}
 		
@@ -475,7 +761,7 @@ sub set_offset { # basic setting
 		my @temp = split(/,/,$self->query("YOF"));
 		$offset[1] = $temp[1]/100;
 		if ($offset[1] != $y_value) {
-			die "\nSIGNAL REOCOVERY 726x:\ncouldn't set Y chanel output offset";
+			Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\ncouldn't set Y chanel output offset" );
 			}
 		}
 		
@@ -484,8 +770,8 @@ sub set_offset { # basic setting
 		my @temp = split(/,/,$self->query("XOF"));
 		$offset[0] = $temp[0];
 		if ($offset[0] != 0) {
-			die "\nSIGNAL REOCOVERY 726x:\ncouldn't set X chanel output offset";
-			}
+			Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\ncouldn't set X chanel output offset" );
+			} 
 		}
 		
 	if($y_value eq 'OFF') {
@@ -493,7 +779,7 @@ sub set_offset { # basic setting
 		my @temp = split(/,/,$self->query("YOF"));
 		$offset[1] = $temp[0];
 		if ($offset[1] != 0) {
-			die "\nSIGNAL REOCOVERY 726x:\ncouldn't set Y chanel output offset";
+			Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\ncouldn't set Y chanel output offset" );
 			}
 		}
 		
@@ -515,20 +801,13 @@ sub set_offset { # basic setting
 
 sub set_osc { # basic setting
 	my $self=shift;
-	my $value = shift;
+	my ($value) = $self->_check_args( \@_, ['value'] );
 	
 	my $id = $self->query("ID");
 	
 	if ( not defined $value )
 		{
-		if ($id == 7260)
-			{
-			return $self->query("OA")/1e3;
-			}
-		elsif ($id == 7265) 
-			{
-			return $self->query("OA")/1e6;
-			}
+		$self->get_osc();
 		}
 		
 	
@@ -541,27 +820,61 @@ sub set_osc { # basic setting
 		if ($id == 7260) { 
 		$self->write(sprintf("OA %d", sprintf("%d",$value  * 1e3))); 
 			if ((my $wert = $self->query("OA")) != sprintf("%d",$value  * 1e3)) {
-				die "\nSIGNAL REOCOVERY 726x:\n\nSIGNAL REOCOVERY 726x:\nCouldn't set oscillator output Amplitude in sub set_osc.";
+				Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\n\nSIGNAL REOCOVERY 726x:\nCouldn't set oscillator output Amplitude in sub set_osc." );
 			}
 		}
 		elsif ($id == 7265) { 
 			$self->write(sprintf("OA %d", sprintf("%d",$value * 1e6) ));
 			if ((my $wert = $self->query("OA")) != sprintf("%d",$value * 1e6)) {
-				die "\nSIGNAL REOCOVERY 726x:\n\nSIGNAL REOCOVERY 726x:\nCouldn't set oscillator output Amplitude in sub set_osc.";
+				Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\n\nSIGNAL REOCOVERY 726x:\nCouldn't set oscillator output Amplitude in sub set_osc." );
 			}
 		}
+		$self->{'device_cache'}->{'osc'} = $value;
 			
 	}
-	else { die "\nSIGNAL REOCOVERY 726x:\n\nSIGNAL REOCOVERY 726x:\nunexpected value for OSCILLATOR OUTPUT in sub set_osc. Expected values must be in the range 0..5V."; }
+	else { Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\n\nSIGNAL REOCOVERY 726x:\nunexpected value for OSCILLATOR OUTPUT in sub set_osc. Expected values must be in the range 0..5V." ); }
 	}
-	 
+
+sub get_osc {
+	my $self = shift;
+
+	my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
+
+    if (not defined $read_mode or not $read_mode =~ /device|cache/)
+    {
+        $read_mode = $self->device_settings()->{read_default};
+    }
+    
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'osc'})
+    {
+        return $self->{'device_cache'}->{'osc'};
+    }
+
+	my $id = $self->query("ID");
+
+	my $osc;
+	
+
+	if ($id == 7260)
+	{
+		$osc = $self->query("OA")/1e3;
+	}
+	elsif ($id == 7265) 
+	{
+		$osc = $self->query("OA")/1e6;
+	}
+	
+
+	return $self->{'device_cache'}->{'osc'} = $osc;
+	}	 
+
 sub set_frq { # basic setting
 	my $self=shift;
-	my $value = shift;
+	my ($value) = $self->_check_args( \@_, ['value'] );
 	
 	if ( not defined $value )
 		{
-		return $self->query("OF")/1e3;
+		return $self->get_frq();
 		}
 	
 	if (index($value, "m") >=0 ) {
@@ -572,75 +885,139 @@ sub set_frq { # basic setting
 	if ($value > 0 && $value <= 250000) {
 		$self->write(sprintf("OF %d", $value*1e3));
 		if ($self->query("OF.") != $value) {
-			die "\nSIGNAL REOCOVERY 726x:\n\nSIGNAL REOCOVERY 726x:\nCouldn't set oscillator frequency in sub set_frq.";
+			Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\n\nSIGNAL REOCOVERY 726x:\nCouldn't set oscillator frequency in sub set_frq." );
 			}
-			
+		else {
+			$self->{'device_cache'}->{'frq'} = $value;
+			}	
 		}
-	else { die "\nSIGNAL REOCOVERY 726x:\n\nSIGNAL REOCOVERY 726x:\nunexpected value for OSCILLATOR FREQUENCY in sub set_frq. Expected values must be in the range 0..250kHz"; }
-	 }
+	else { Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\n\nSIGNAL REOCOVERY 726x:\nunexpected value for OSCILLATOR FREQUENCY in sub set_frq. Expected values must be in the range 0..250kHz" ); }	 }
 	 
+sub get_frq {
+	my $self = shift;
 
+	my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
+
+    if (not defined $read_mode or not $read_mode =~ /device|cache/)
+    {
+        $read_mode = $self->device_settings()->{read_default};
+    }
+    
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'frq'})
+    {
+        return $self->{'device_cache'}->{'frq'};
+    }
+
+	return $self->{'device_cache'}->{'frq'} = $self->query("OF")/1e3;
+	}
 
 # --------------- INSTRUMENT OUTPUTS ------------------------------	
 	
 sub get_value { # basic
 	my $self=shift;
-	my $channel = shift;
+	my ($channel, $read_mode) = $self->_check_args( \@_, ['channel', 'read_mode'] );
 	
+	if (not defined $read_mode or not $read_mode =~ /device|cache/)
+    {
+        $read_mode = $self->device_settings()->{read_default};
+    }
+
 	my $result;
 	# $channel can be:\n X   --> X channel output\n Y   --> Y channel output\n MAG --> Magnitude\n PHA --> Signale phase\n XY  --> X and Y channel output\n MP  --> Magnitude and signal Phase\n ALL --> X,Y, Magnitude and signal Phase\n
-	if ( $channel eq "X") { 
+	if ( $channel eq "X") {
+
+		if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'value'}->{'X'})
+		{
+		    return $self->{'device_cache'}->{'value'}->{'X'};
+		}
+
 		$result = $self->query("X.");
 		$result =~ s/\x00//g;
-		$self->{value} = $result;
+		$self->{'device_cache'}->{'value'}->{'X'} = $result;
 		return $result;
 		}
 	elsif ( $channel eq "Y") { 
+
+		if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'value'}->{'Y'})
+		{
+		    return $self->{'device_cache'}->{'value'}->{'Y'};
+		}
+
 		$result = $self->query("Y.");
 		$result =~ s/\x00//g;
-		$self->{value} = $result;
+		$self->{'device_cache'}->{'value'}->{'Y'} = $result;
 		return $result;
 		}
 	elsif ( $channel eq "MAG") { 
+
+		if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'value'}->{'MAG'})
+		{
+		    return $self->{'device_cache'}->{'value'}->{'MAG'};
+		}
+
 		$result = $self->query("MAG.");
 		$result =~ s/\x00//g;
-		$self->{value} = $result;
+		$self->{'device_cache'}->{'value'}->{'MAG'} = $result;
 		return $result;
 		}
-	elsif ( $channel eq "PHA") { 
+	elsif ( $channel eq "PHA") {
+
+		if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'value'}->{'PHA'})
+		{
+		    return $self->{'device_cache'}->{'value'}->{'PHA'};
+		}
+
 		$result = $self->query("PHA.");
 		$result =~ s/\x00//g;
-		$self->{value} = $result;
+		$self->{'device_cache'}->{'value'}->{'PHA'} = $result;
 		return $result;
 		}
 	elsif ( $channel eq "XY") { 
+
+		if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'value'}->{'X'} and defined $self->{'device_cache'}->{'value'}->{'Y'})
+		{
+		    return $self->{'device_cache'}->{'value'};
+		}
+
 		$result = $self->query("XY.");
 		$result =~ s/\x00//g;
-		$self->{value} = split(",",$result);
-		return split(",",$result);
+
+		($self->{'device_cache'}->{'value'}->{'X'}, $self->{'device_cache'}->{'value'}->{'Y'}) = split(",",$result);
+		
+		return $self->{'device_cache'}->{'value'};
 		}
 	elsif ( $channel eq "MP") { 
+
+		if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'value'}->{'MAG'} and defined $self->{'device_cache'}->{'value'}->{'PHA'})
+		{
+		    return $self->{'device_cache'}->{'value'};
+		}
+
 		$result = $self->query("MP.");
 		$result =~ s/\x00//g;
-		$self->{value} = split(",",$result);
-		return split(",",$result);
+		($self->{'device_cache'}->{'value'}->{'MAG'}, $self->{'device_cache'}->{'value'}->{'PHA'}) = split(",",$result);
+		return $self->{'device_cache'}->{'value'};
 		}
-	elsif ( $channel eq "ALL") {
+	elsif ( $channel eq "ALL" or $channel eq "") {
+
+		if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'value'}->{'X'} and defined $self->{'device_cache'}->{'value'}->{'Y'} and defined $self->{'device_cache'}->{'value'}->{'MAG'} and defined $self->{'device_cache'}->{'value'}->{'PHA'})
+		{
+		    return $self->{'device_cache'}->{'value'};
+		}
+
 		$result = $self->query("XY.").",".$self->query("MP.");
 		$result =~ s/\x00//g;
-		$self->{value} = split(",",$result);
-		return split(",",$result)
+		($self->{'device_cache'}->{'value'}->{'X'}, $self->{'device_cache'}->{'value'}->{'Y'}, $self->{'device_cache'}->{'value'}->{'MAG'}, $self->{'device_cache'}->{'value'}->{'PHA'})  = split(",",$result);
+		return $self->{'device_cache'}->{'value'};
 		}	
-	else { die "\nSIGNAL REOCOVERY 726x:\nCHANNEL can be:\n X   --> X channel output\n Y   --> Y channel output\n MAG --> Magnitude\n PHA --> Signale phase\n XY  --> X and Y channel output\n MP  --> Magnitude and signal Phase\n ALL --> X,Y, Magnitude and signal Phase\n"; }
-}
+	else { Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\nCHANNEL can be:\n X   --> X channel output\n Y   --> Y channel output\n MAG --> Magnitude\n PHA --> Signale phase\n XY  --> X and Y channel output\n MP  --> Magnitude and signal Phase\n ALL --> X,Y, Magnitude and signal Phase\n" ); }
+	}
 
 sub config_measurement { # basic
 
 	my $self=shift;
-	my $channel = shift;
-	my $nop = shift;	
-	my $interval = shift;	
-	my $trigger = shift;	
+
+	my ($channel, $nop, $interval, $trigger) = $self->_check_args( \@_, ['channel', 'nop', 'interval', 'trigger'] );
 	
 	print "--------------------------------------\n";
 	print "SignalRecovery sub config_measurement:\n";
@@ -662,7 +1039,7 @@ sub config_measurement { # basic
 	elsif ($channel eq "PHA-") { $channel = 8; } # only PHA channel; Sensitivity not logged --> floating point read out not possible!
 	elsif ($channel eq "MP-") { $channel = 12; } # only MP channel; Sensitivity not logged --> floating point read out not possible!
 	elsif($channel eq "ALL-") { $channel = 15; } # only XYMP channel; Sensitivity not logged --> floating point read out not possible!
-	else { die "\nSIGNAL REOCOVERY 726x:\nunexpected value for DATA CHANNELS in sub config_measurement. Expected values are:\n X   --> X channel output\n XY  --> X and Y channel output\n MAG   --> MAG channel output\n PHA   --> PHA channel output\n MP  --> MAG and PHA channel output\n ALL --> X,Y, Magnitude and signal Phase\n \n X-   --> X channel output without Sensitivity \n XY-  --> X and Y channel output without Sensitivity\n MAG-   --> MAG channel output without Sensitivity\n PHA-   --> PHA channel output without Sensitivity\n MP-  --> MAG and PHA channel output without Sensitivity\n ALL- --> X,Y, Magnitude and signal Phase without Sensitivity\n";}	$self->_set_buffer_datachannels($channel);
+	else { Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\nunexpected value for DATA CHANNELS in sub config_measurement. Expected values are:\n X   --> X channel output\n XY  --> X and Y channel output\n MAG   --> MAG channel output\n PHA   --> PHA channel output\n MP  --> MAG and PHA channel output\n ALL --> X,Y, Magnitude and signal Phase\n \n X-   --> X channel output without Sensitivity \n XY-  --> X and Y channel output without Sensitivity\n MAG-   --> MAG channel output without Sensitivity\n PHA-   --> PHA channel output without Sensitivity\n MP-  --> MAG and PHA channel output without Sensitivity\n ALL- --> X,Y, Magnitude and signal Phase without Sensitivity\n" );}	$self->_set_buffer_datachannels($channel);
 	
 	print "SIGNAL REOCOVERY 726x: set channels: ".$self->_set_buffer_datachannels($channel);
 	
@@ -690,8 +1067,9 @@ sub config_measurement { # basic
 sub get_data { # basic
 
 	my $self = shift;
-	my $SEN = shift;
-	my $timeout = shift;
+
+	my ($SEN, $timeout) = $self->_check_args( \@_, ['SEN', 'timeout'] );
+
 	my @dummy;
 	my @data;
 	my %channel_list = (1 => "0", 2 => "1", 3 => "0,1" , 4 => "2", 8 => "3", 12 => "2,3", 15 => "0,1,2,3", 17 => "0", 18 => "1", 19 => "0,1", 20 => "2",  24 => "3", 28 => "2,3", 31 => "0,1,2,3");
@@ -704,8 +1082,8 @@ sub get_data { # basic
 		$timeout = 100;
 		}
 	
-	my $status=Lab::VISA::viSetAttribute($self->{instr},  $Lab::VISA::VI_ATTR_TMO_VALUE, $timeout);
-	if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting baud: $status";}
+	my $status=Lab::VISA::viSetAttribute($self->{vi}->{instr},  $Lab::VISA::VI_ATTR_TMO_VALUE, $timeout);
+	if ($status != $Lab::VISA::VI_SUCCESS) { Lab::Exception::CorruptParameter->throw( error => "Error while setting baud: $status" );}
 	
 	my @channels = split(",",$channel_list{int($self->query("CBD"))});
 	#if ($channels == 17) { $channels = 1; }
@@ -750,8 +1128,8 @@ sub get_data { # basic
 		}		
 	
 	# set Time-Out for READ	back to default value
-	my $status=Lab::VISA::viSetAttribute($self->{instr},  $Lab::VISA::VI_ATTR_TMO_VALUE, 3000);
-	if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting baud: $status";}
+	my $status=Lab::VISA::viSetAttribute($self->{vi}->{instr},  $Lab::VISA::VI_ATTR_TMO_VALUE, 3000);
+	if ($status != $Lab::VISA::VI_SUCCESS) { Lab::Exception::CorruptParameter->throw( error => "Error while setting baud: $status" );}
 	
 	return @data;
 	
@@ -828,7 +1206,7 @@ sub _clear_buffer { # internal / advanced use only
 sub _set_buffer_datachannels { # internal / advanced use only 
 
 	my $self=shift;
-	my $value=shift;
+	my ($value) = $self->_check_args( \@_, ['value'] );
 	
 	if ( not defined $value )
 		{
@@ -842,7 +1220,7 @@ sub _set_buffer_datachannels { # internal / advanced use only
 sub _set_buffer_length { # internal / advanced use only 
 
 	my $self=shift;
-	my $nop = shift;
+	my ($nop) = $self->_check_args( \@_, ['nop'] );
 	
 	if ( not defined $nop )
 		{
@@ -856,7 +1234,7 @@ sub _set_buffer_length { # internal / advanced use only
 	elsif ($channels == 31) { $channels = 5; }
 	
 	# check buffer size
-	if ($nop > int(32000/$channels)) { die "\nSIGNAL REOCOVERY 726x:\n\nSIGNAL REOCOVERY 726x:\ncan't init BUFFER. Buffersize is too small for the given NUMBER OF POINTS and NUMBER OF CHANNELS to store.\n POINTS x (CHANNELS+1) cant exceed 32000.\n";}
+	if ($nop > int(32000/$channels)) { Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\n\nSIGNAL REOCOVERY 726x:\ncan't init BUFFER. Buffersize is too small for the given NUMBER OF POINTS and NUMBER OF CHANNELS to store.\n POINTS x (CHANNELS+1) cant exceed 32000.\n" );}
 	
 	$self->write(sprintf("LEN %d", $nop));
 	return my $return = $self->query("LEN");
@@ -866,7 +1244,7 @@ sub _set_buffer_length { # internal / advanced use only
 sub _set_buffer_storageinterval { # internal / advanced use only 
 
 	my $self=shift;
-	my $interval = shift;
+	my ($interval) = $self->_check_args( \@_, ['value'] );
 	
 	if ( not defined $interval )
 		{
@@ -874,7 +1252,7 @@ sub _set_buffer_storageinterval { # internal / advanced use only
 		}
 	
 	if ( $interval < 5e-3 or $interval > 1e6) {
-		die "\nSIGNAL REOCOVERY 726x:\nunexpected value for INTERVAL in sub set_buffer_interval. Expected values are between 5ms...1E6s with a resolution of 5ms.";
+		Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\nunexpected value for INTERVAL in sub set_buffer_interval. Expected values are between 5ms...1E6s with a resolution of 5ms." );
 		}
 	
 	$self->write(sprintf("STR %d", $interval*1e3));
@@ -883,6 +1261,11 @@ sub _set_buffer_storageinterval { # internal / advanced use only
 	
 	}
 	
+
+
+
+
+
 	
 1;
 
@@ -1264,7 +1647,7 @@ Preset Signal Recovery 7260 / 7265 Lock-in Amplifier
 
 =item $value
 
-	  REFERENCE PHASE can be between 0 ... 306�
+	  REFERENCE PHASE can be between 0 ... 306°
 
 =back
 
@@ -1378,5 +1761,4 @@ probably many
 
 =head1 AUTHOR/COPYRIGHT
 
- (c) 2011 Stefan Geissler,
-     2012 David Kalok
+2011 Stefan Geissler

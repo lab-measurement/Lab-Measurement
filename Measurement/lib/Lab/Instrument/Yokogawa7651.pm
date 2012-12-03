@@ -38,10 +38,9 @@ our %fields = (
 
         read_default => 'device'
 	},
-
-    device_ID => 'Yokogawa7651',
 	
 	device_cache => {
+        id => 'Yokogawa7651',
 		function			=> undef, 
 		range			=> undef,
 		level			=> undef,
@@ -184,7 +183,7 @@ sub trg {
 
 sub config_sweep{   
     my $self = shift;
-    my ($target, $rate, $time) = $self->_check_args( \@_, ['target', 'rate', 'time'] );
+    my ($target, $rate, $time) = $self->_check_args( \@_, ['points', 'rate', 'time'] );
 
 
     # get current position:
@@ -304,7 +303,7 @@ sub config_sweep{
 
 sub configure_sweep{    
 	my $self=shift;
-    my ($target, $time, $rate) = $self->_check_args( \@_, ['target', 'time', 'rate'] );
+    my ($target, $time, $rate) = $self->_check_args( \@_, ['points', 'time', 'rate'] );
 	
     $self->config_sweep($target, $rate, $time);
     
@@ -381,22 +380,23 @@ sub wait {
     
     while(1)
         {
-        my %status = $self->get_status();
-        my $current_level = $self->get_level();
+        #my $status = $self->get_status();
+        my $status = $self->get_status();
+		my $current_level = $self->get_level();
         if ( $flag <= 1.1 and $flag >= 0.9 )
             {
             print "\t\t\t\t\t\t\t\t\t\r";
-            print "$self->{device_ID} is sweeping ($current_level )\r";
-            usleep(5e5);
+            print "$self->get_id() is sweeping ($current_level )\r";
+            #usleep(5e5);
             }
         elsif ( $flag <= 0 )
             {
             print "\t\t\t\t\t\t\t\t\t\r";
-            print "$self->{device_ID} is         \r";
+            print "$self->get_id() is          ($current_level ) \r";
             $flag = 2;
             }
-        $flag -= 0.1;
-        if ( $status{'execution'} == 0) 
+        $flag -= 0.5;
+        if ( $status->{'execution'} == 0) 
             {
             print "\t\t\t\t\t\t\t\t\t\r";
             $| = 0;
@@ -407,7 +407,7 @@ sub wait {
 
 sub _sweep_to_level {   
     my $self = shift;
-    my ($target, $time) = $self->_check_args( \@_, ['target', 'time'] );
+    my ($target, $time) = $self->_check_args( \@_, ['points', 'time'] );
 
 	# print "Yokogawa7651.pm: configuring sweep $target $time\n";
     $self->config_sweep({target => $target,
@@ -441,14 +441,14 @@ sub _sweep_to_level {
 sub get_function{   
 	my $self = shift;
 	
-	my ($read_from) = $self->_check_args( \@_, ['read_from'] );
+	my ($read_mode) = $self->_check_args( \@_, ['read_from'] );
 
-    if (not defined $read_from or not $read_from =~ /device|cache/)
+    if (not defined $read_mode or not $read_mode =~ /device|cache/)
     {
-        $read_from = $self->device_settings()->{read_default};
+        $read_mode = $self->device_settings()->{read_default};
     }
 	
-    if($read_from eq 'cache' and defined $self->{'device_cache'}->{'function'})
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'function'})
     {
      	return $self->{'device_cache'}->{'function'};
     }    
@@ -466,21 +466,51 @@ sub get_function{
 
 sub get_level { 
     my $self=shift;
+	my $cmd="OD";
+	my $result;
     
-    my ($read_from) = $self->_check_args( \@_, ['read_from'] );
+    my ($read_mode) = $self->_check_args( \@_, ['read_from'] );
 
-    if (not defined $read_from or not $read_from =~ /device|cache/)
-    {
-        $read_from = $self->device_settings()->{read_default};
-    }
+    if (not defined $read_mode or not $read_mode =~ /device|cache|request|fetch/)
+		{
+        $read_mode = $self->device_settings()->{read_default};
+		}
     
-    if($read_from eq 'cache' and defined $self->{'device_cache'}->{'level'})
-    {
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'level'})
+		{
         return $self->{'device_cache'}->{'level'};
-    }    
+		}  
+	elsif($read_mode eq 'request' and $self->{request} == 0 )
+		{
+		$self->{request} = 1;
+        $self->write($cmd);
+		return;
+		}
+	elsif($read_mode eq 'request' and $self->{request} == 1 )
+		{
+		$result = $self->read();
+        $self->write($cmd);
+		return;
+		}
+	elsif ($read_mode eq 'fetch' and $self->{request} == 1)
+		{
+		$self->{request} = 0;
+        $result = $self->read();
+		}
+	else
+		{
+		if ( $self->{request} == 1 )
+			{
+			$self->{request} = 0;
+			$result = $self->read();
+			}
+		else
+			{
+			$result = $self->query($cmd);
+			}
+		}
        
-    my $cmd="OD";
-    my $result=$self->query($cmd);
+   
     $result=~/....([\+\-\d\.E]*)/;
     return $self->{'device_cache'}->{'level'} = $1;
 }
@@ -592,14 +622,14 @@ sub set_range {
 sub get_info {  
     my $self=shift;
 
-    my ($read_from) = $self->_check_args( \@_, ['read_from'] );
+    my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
 
-    if (not defined $read_from or not $read_from =~ /device|cache/)
+    if (not defined $read_mode or not $read_mode =~ /device|cache/)
     {
-        $read_from = $self->device_settings()->{read_default};
+        $read_mode = $self->device_settings()->{read_default};
     }
     
-    if($read_from eq 'cache' and defined $self->{'device_cache'}->{'info'})
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'info'})
     {
         return $self->{'device_cache'}->{'info'};
     }  
@@ -620,14 +650,14 @@ sub get_info {
 sub get_range{  
     my $self=shift;
     
-    my ($read_from) = $self->_check_args( \@_, ['read_from'] );
+    my ($read_mode) = $self->_check_args( \@_, ['read_from'] );
 
-    if (not defined $read_from or not $read_from =~ /device|cache/)
+    if (not defined $read_mode or not $read_mode =~ /device|cache/)
     {
-        $read_from = $self->device_settings()->{read_default};
+        $read_mode = $self->device_settings()->{read_default};
     }
     
-    if($read_from eq 'cache' and defined $self->{'device_cache'}->{'range'})
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'range'})
     {
         return $self->{'device_cache'}->{'range'};
     } 
@@ -762,14 +792,14 @@ sub set_output {
 sub get_output {   
     my $self=shift;
     
-    my ($read_from) = $self->_check_args( \@_, ['read_from'] );
+    my ($read_mode) = $self->_check_args( \@_, ['read_from'] );
 
-    if (not defined $read_from or not $read_from =~ /device|cache/)
+    if (not defined $read_mode or not $read_mode =~ /device|cache/)
     {
-        $read_from = $self->device_settings()->{read_default};
+        $read_mode = $self->device_settings()->{read_default};
     }
     
-    if($read_from eq 'cache' and defined $self->{'device_cache'}->{'output'})
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'output'})
     {
         return $self->{'device_cache'}->{'output'};
     }   
@@ -803,14 +833,14 @@ sub set_voltage_limit {
 sub get_voltage_limit {
 	my $self = shift;
 	
-	my ($read_from) = $self->_check_args( \@_, ['read_from'] );
+	my ($read_mode) = $self->_check_args( \@_, ['read_from'] );
 
-    if (not defined $read_from or not $read_from =~ /device|cache/)
+    if (not defined $read_mode or not $read_mode =~ /device|cache/)
     {
-        $read_from = $self->device_settings()->{read_default};
+        $read_mode = $self->device_settings()->{read_default};
     }
     
-    if($read_from eq 'cache' and defined $self->{'device_cache'}->{'voltage_limit'})
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'voltage_limit'})
     {
         return $self->{'device_cache'}->{'voltage_limit'};
     }  
@@ -838,14 +868,14 @@ sub set_current_limit {
 sub get_current_limit {
 	my $self = shift;
 	
-	my ($read_from) = $self->_check_args( \@_, ['read_from'] );
+	my ($read_mode) = $self->_check_args( \@_, ['read_from'] );
 
-    if (not defined $read_from or not $read_from =~ /device|cache/)
+    if (not defined $read_mode or not $read_mode =~ /device|cache/)
     {
-        $read_from = $self->device_settings()->{read_default};
+        $read_mode = $self->device_settings()->{read_default};
     }
     
-    if($read_from eq 'cache' and defined $self->{'device_cache'}->{'current_limit'})
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'current_limit'})
     {
         return $self->{'device_cache'}->{'current_limit'};
     }  
@@ -878,6 +908,8 @@ sub get_status {
     return $result->{$request} if defined $request;
     return $result;
 }
+
+
 
 #
 # Accessor implementations

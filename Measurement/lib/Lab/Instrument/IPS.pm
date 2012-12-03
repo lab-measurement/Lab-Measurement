@@ -12,9 +12,6 @@ use Lab::Instrument::MagnetSupply;
 
 our @ISA=('Lab::Instrument');
 
-
-
-
 my $default_config={
     use_persistentmode          => 0,
     can_reverse                 => 1,
@@ -22,7 +19,7 @@ my $default_config={
 };
 
 our %fields = (
-	supported_connections => [ 'VISA', 'VISA_GPIB', 'GPIB', 'VISA_RS232', 'RS232', 'ISOBUS', 'DEBUG' ],
+	supported_connections => [ 'VISA', 'VISA_GPIB', 'GPIB', 'VISA_RS232', 'RS232', 'IsoBus', 'DEBUG' ],
 
 	# default settings for the supported connections
 	connection_settings => {
@@ -33,15 +30,19 @@ our %fields = (
 		stopbits => 2,
 		parity => 'none',
 		handshake => 'none',
-		termchar => ord("\r"),
+		termchar => "\r",
 		timeout => 2,
 	},
 
 	device_settings => { 
-		has_switchheater => 0
+		has_switchheater => 0,
+		read_default => 'device'
 	},
 	
-	device_cache =>{			
+	device_cache =>{
+		id => 'Oxford IPS',
+		field => undef
+
 	}
 
 );
@@ -67,11 +68,25 @@ sub get_version { # internal only
 	
 	
 	return $version;
+
+	# if ($version =~ /\b(IPS180)/)
+		# {
+		# return 'MISCHER';
+		# }
+	# elsif ($version =~ /Version\s3\.06/)
+		# {		
+		# return 'KRYO1';
+		# }
+	# elsif ($version =~ /Version\s3\.07/)
+		# {
+		# return 'KRYO2';
+		# }	
 }
 
 
 sub _init_magnet { # internal only
 	my $self=shift;
+	my $magnet = shift;
 	
 	$self->{SWEEP_CONFIG_ARMED} = 0;
 	$self->_set_control(3);
@@ -103,6 +118,34 @@ sub _init_magnet { # internal only
 	#print "done!\n";
 }
 
+# sub _set_limits { # internal only
+	# my $self = shift;
+	# my $magnet = shift;
+		
+	# # set limits
+	# if( $magnet =~ /\b(KRYO1|kryo1)\b/ )
+		# {
+		# %LIMITS = ( 'magneticfield' => 14, 'field_intervall_limits' => [0, 9, 11.5, 13], 'rate_intervall_limits' => [1.98, 0.66, 0.36, 0.18]);
+		# }
+	# elsif( $magnet =~ /\b(KRYO2|kryo2)\b/ )
+		# {
+		# %LIMITS = ( 'magneticfield' => 10, 'field_intervall_limits' => [0, 10], 'rate_intervall_limits' => [1.98, 1.98]);
+		# }
+	# elsif( $magnet =~ /\b(MISCHER|mischer)\b/ )
+		# {
+		# %LIMITS = ( 'magneticfield' => 17, 'field_intervall_limits' => [0, 10.99, 13.73, 16.48], 'rate_intervall_limits' => [0.660, 0.552, 0.276, 0.138]);
+		# }
+	# elsif( $magnet =~ /\b(VECTRO|vector|VECTORMAGNET|vectormagnet|3D|3d)\b/ )
+		# {
+		# %LIMITS = ( 'magneticfield' => 1.01, 'field_intervall_limits' => [0, 1.01], 'rate_intervall_limits' => [0.6, 0.6]);
+		# }
+	# else
+		# {
+		# die "unexpected value for MAGNET in sub _set_limits";
+		# }
+		
+# }
+
 
 sub set_switchheater { # internal only
 # 0 Heater Off                  (close switch)
@@ -111,9 +154,7 @@ sub set_switchheater { # internal only
 #   if recorded magnet current==present power supply output current)
 # 2 Heater On, no Checks        (open switch)
     my $self=shift;
-
-	# parameter == hash??
-	my ($mode) = $self->_check_args( \@_, ['mode'] );	
+    my ($mode) = $self->_check_args( \@_, ['value'] );
 	
 	if (ref($mode) eq "HASH") 
 		{
@@ -138,11 +179,13 @@ sub _set_control { # internal only
 # 2 Local & Unlocked
 # 3 Remote & Unlocked
     my $self=shift;
-
-	# parameter == hash??
-	my ($mode) = $self->_check_args( \@_, ['mode'] );	
+    my $mode=shift;
 	
-	$self->query("C$mode\r");
+	if (ref($mode) eq "HASH") 
+		{
+		$mode = $mode->{mode};
+		}
+   $self->query("C$mode\r");
 }
 
 sub _set_mode { # internal only
@@ -154,10 +197,12 @@ sub _set_mode { # internal only
 # 8     Amps        Unaffected
 # 9     Tesla       Unaffected
     my $self=shift;
-
-	# parameter == hash??
-	my ($mode) = $self->_check_args( \@_, ['mode'] );	
+    my $mode=shift;
 	
+	if (ref($mode) eq "HASH") 
+		{
+		$mode = $mode->{mode};
+		}
 	
 	if ($mode != 0 and $mode != 1 and $mode != 4 and $mode != 5 and $mode != 8 and $mode != 9)
 		{
@@ -173,9 +218,12 @@ sub _set_communicationsprotocol { # internal only
 # 4 Extended Resolution
 # 6 Extended Resolution. Sends <LF> after each <CR>.
     my $self=shift;
-
-	# parameter == hash??
-	my ($mode) = $self->_check_args( \@_, ['mode'] );	
+    my $mode=shift;
+	
+	if (ref($mode) eq "HASH") 
+		{
+		$mode = $mode->{mode};
+		}
 	
 	if ($mode != 0 and $mode != 2 and $mode != 4 and $mode != 6)
 		{
@@ -191,9 +239,12 @@ sub _set_activity { # internal only
 # 2 To Zero
 # 4 Clamp (clamp the power supply output)
     my $self=shift;
-
-	# parameter == hash??
-	my ($mode) = $self->_check_args( \@_, ['mode'] );	
+    my $mode=shift;
+	
+	if (ref($mode) eq "HASH") 
+		{
+		$mode = $mode->{mode};
+		}
 	
 	if ($mode != 0 and $mode != 2 and $mode != 4 and $mode != 6)
 		{
@@ -205,16 +256,19 @@ sub _set_activity { # internal only
 
 sub set_rate {
 	my $self = shift;
-
-	# parameter == hash??
-	my ($targetrate) = $self->_check_args( \@_, ['rate'] );	
+	my ($targetrate) = $self->_check_args( \@_, ['value'] );
+	
+	if (ref($targetrate) eq "HASH") 
+		{
+		$targetrate = $targetrate->{rate};
+		}
 	
 	if ($targetrate < 0.0001)
 	{
 	$targetrate = 0.0001;
 	}
 	
-	$self->query(sprintf("T%.5f\r", $targetrate));
+	$self->device_cache()->{'rate'} = $self->query(sprintf("T%.5f\r", $targetrate));
 	printf("$self->{ID}: T%.5f\r\n", $targetrate);
 	
 	return;
@@ -223,21 +277,52 @@ sub set_rate {
 
 sub get_rate {
 	my $self = shift;
+
+	my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
+
+    if (not defined $read_mode or not $read_mode =~ /device|cache/)
+    {
+        $read_mode = $self->device_settings()->{read_default};
+    }
+    
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'rate'})
+    {
+        return $self->{'device_cache'}->{'rate'};
+    }
 	
-	return $self->get_parameter(9);
+	return $self->device_cache()->{'rate'} = $self->get_parameter(9);
 }
 
 sub set_targetfield {
 	my $self = shift;
+	my ($targetfield) = $self->_check_args( \@_, ['value'] );
 	
-	# parameter == hash??
-	my ($targetfield) = $self->_check_args( \@_, ['targetfield'] );	
 	
 	$self->query(sprintf("J%.5f\r", $targetfield));
 	printf("$self->{ID}: J%.5f\r\n", $targetfield);
+
+	$self->device_cache()->{'targetfield'} = $targetfield;
 	
 	return;
 	
+}
+
+sub get_targetfield {
+	my $self = shift;
+
+	my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
+
+    if (not defined $read_mode or not $read_mode =~ /device|cache/)
+    {
+        $read_mode = $self->device_settings()->{read_default};
+    }
+    
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'targetfield'})
+    {
+        return $self->{'device_cache'}->{'targetfield'};
+    }
+	
+	return $self->device_cache()->{'targetfield'} = $self->get_parameter(8);
 }
 
 sub get_parameter { # advanced
@@ -263,9 +348,12 @@ sub get_parameter { # advanced
 #23 --> Lead resistance                     milliohm
 #24 --> Magnet inductance                   henry
     my $self=shift;
+    my ($parameter) = $self->_check_args( \@_, ['param'] );
 	
-	# parameter == hash??
-	my ($parameter) = $self->_check_args( \@_, ['parameter'] );	
+	if (ref($parameter) eq "HASH") 
+		{
+		$parameter = $parameter->{parameter};
+		}
 
 	if ($parameter != 0 and $parameter != 1 and $parameter != 2 and $parameter != 3 and $parameter != 4 and $parameter != 5 and $parameter != 6 and $parameter != 7 and $parameter != 8 and $parameter != 9 and $parameter != 10 and $parameter != 15 and $parameter != 16 and $parameter != 17 and $parameter != 18 and $parameter != 19 and $parameter != 20 and $parameter != 21 and $parameter != 22 and $parameter != 23 and $parameter != 24)
 		{
@@ -279,51 +367,83 @@ sub get_parameter { # advanced
 
 sub get_value {
 	my $self = shift;
-	return $self->get_field();
+	return $self->get_field(@_);
 }
 
 sub get_field { # basic
 	# returns the current value of the magnetic field
 	
 	my $self=shift;
-	$self->{value} = $self->query("R7\r");
-	$self->{value} =~ s/^R//;
-	return $self->{value};
+
+	my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
+
+    if (not defined $read_mode or not $read_mode =~ /device|cache|request|fetch/)
+    {
+        $read_mode = $self->device_settings()->{read_default};
+    }
 	
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'field'})
+    {
+     	return $self->{'device_cache'}->{'field'};
+    } 
+    elsif($read_mode eq 'request')
+    {
+    	if ($self->{'request'} != 0) {
+    		$self->read();
+    	}
+    	$self->write("R7\r");
+    	$self->{'request'} = 1;
+		
+    }
+    elsif ( $read_mode eq 'fetch' and $self->{'request'} == 1 )
+	{
+		$self->{'request'} = 0;
+		return $self->device_cache()->{field} = $self->read();
 	}
+    else
+    {
+    	my $result = $self->query("R7\r");
+		$result =~ s/^R//;
+		return $self->device_cache()->{field} = $result;	
+    }
+
+	
+}
 
 sub wait { # basic
 # waits during magnet is sweeping
 	my $self = shift;
 	
-	# parameter == hash??
-	my ($seconds) = $self->_check_args( \@_, ['seconds'] );	
-	
-	my $min = 0.1;
-		
-	my $time_0 = time();
-	
-	if ( not defined $seconds )
-		{
-		while($self->active())
-			{
-			#wait ...
-			}
-		return 0;
-		}
-	else
-		{
-		while($self->active())
-			{
-			my $time_1 = time();
-			if ( ($time_1 - $time_0) > ($seconds - $min) )
-				{
-				usleep(($seconds - ($time_1 - $time_0) )*1e6);
-				last;
-				}
-			}
-		return 0;
-		}	
+	my $flag = 1;
+    local $| = 1;
+    
+    
+    while(1)
+        {
+
+		my $current_field = $self->get_field();
+        if ( $flag <= 1.1 and $flag >= 0.9 )
+            {
+            print "\t\t\t\t\t\t\t\t\t\r";
+            print "$self->get_id() is sweeping ($current_field )\r";
+            #usleep(5e5);
+            }
+        elsif ( $flag <= 0 )
+            {
+            print "\t\t\t\t\t\t\t\t\t\r";
+            print "$self->get_id() is          ($current_field ) \r";
+            $flag = 2;
+            }
+        $flag -= 0.5;
+        if (not $self->active()) 
+            {
+            print "\t\t\t\t\t\t\t\t\t\r";
+            $| = 0;
+            last;
+            }
+        }
+	return 0;
+			
 	
 }
 
@@ -531,9 +651,8 @@ sub _prepare_sweep_sequence {
 
 sub config_sweep { # basic
 	my $self = shift;
-	
-	# parameter == hash??
-	my ($field, $rate, $interval) = $self->_check_args( \@_, ['field', 'rate', 'interval'] );	
+
+	my ($field, $rate, $interval) = $self->_check_args( \@_, ['points', 'rates', 'interval'] );
 		
 	my @sweep_points;
 	my @sweep_rates;
@@ -548,12 +667,7 @@ sub config_sweep { # basic
 
 	if (not defined $rate)
 		{
-		Lab::Exception::CorruptParameter->throw( error =>  "too view parameters given in sub config_sweep. Expected parameters are \'field\', \'rate\', <interval>." );
-		}
-	
-	if (not defined $field)
-		{
-		Lab::Exception::CorruptParameter->throw( error =>  "too view parameters given in sub config_sweep. Expected parameters are \'field\', \'rate\', <interval>." );
+		Lab::Exception::CorruptParameter->throw( error =>  "too view parameters given in sub config_sweep. Expected parameters are FIELD, RATE, <INTERVAL>." );
 		}
 		
 	

@@ -18,9 +18,9 @@ sub new {
 		interval	=> 1,
 		points	=>	[],
 		durations	=> [],
-		mode	=> 'continuouse',
+		mode	=> 'continuous',
 		allowed_instruments => ['Lab::Instrument::PD11042', 'Lab::Instrument::ProStep4'],
-		allowed_sweep_modes => ['continuouse', 'list', 'step'],
+		allowed_sweep_modes => ['continuous', 'list', 'step'],
 		number_of_points => [undef]
 		};
 		
@@ -43,10 +43,10 @@ sub go_to_sweep_start {
 	
 }
 
-sub start_continuouse_sweep {
+sub start_continuous_sweep {
 	my $self = shift;
 	
-	# continuouse sweep:
+	# continuous sweep:
 	$self->{config}->{instrument}->move("ABS", @{$self->{config}->{points}}[$self->{iterator}+1], @{$self->{config}->{rates}}[$self->{iterator}+1]);
 		
 }
@@ -72,7 +72,7 @@ sub exit_loop {
 				return 1;
 				}
 			}
-		if ( $self->{config}->{mode} eq 'continuouse' )
+		if ( $self->{config}->{mode} eq 'continuous' )
 			{	
 			if (not defined @{$self->{config}->{points}}[$self->{sequence}+2])
 				{

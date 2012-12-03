@@ -107,16 +107,16 @@ sub get_function {
 	my $self = shift;
 	
 	# read from cache or from device?
-	my ($read_from) = $self->_check_args( \@_, ['read_from'] );
+	my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
 	
-	# make sure, that $read_from has a defined value:
-    if (not defined $read_from or not $read_from =~ /device|cache/)
+	# make sure, that $read_mode has a defined value:
+    if (not defined $read_mode or not $read_mode =~ /device|cache/)
     {
-        $read_from = $self->device_settings()->{read_default};
+        $read_mode = $self->device_settings()->{read_default};
     }
     
 	# read from cache:
-    if($read_from eq 'cache' and defined $self->{'device_cache'}->{'function'})
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'function'})
     {
         return $self->{'device_cache'}->{'function'};
     } 
@@ -213,21 +213,21 @@ sub get_range {
 	
 		
 	# read from cache or from device?
-	my ($function, $read_from) = $self->_check_args( \@_, ['function', 'read_from'] );	
+	my ($function, $read_mode) = $self->_check_args( \@_, ['function', 'read_mode'] );	
 	
-	# make sure, that $read_from has a defined value:
-    if (not defined $read_from or not $read_from =~ /device|cache/)
+	# make sure, that $read_mode has a defined value:
+    if (not defined $read_mode or not $read_mode =~ /device|cache/)
     {
-        $read_from = $self->device_settings()->{read_default};
+        $read_mode = $self->device_settings()->{read_default};
     }
 	
 	if (not defined $function) 
 		{
-		$function = $self->get_function($read_from);
+		$function = $self->get_function($read_mode);
 		}
     
 	# read from cache:
-    if($read_from eq 'cache' and defined $self->{'device_cache'}->{'range'})
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'range'})
     {
         return $self->{'device_cache'}->{'range'};
     } 
@@ -308,21 +308,21 @@ sub get_nplc {
 	my $self = shift;	
 	
 	# read from cache or from device?
-	my ($function, $read_from) = $self->_check_args( \@_, ['function', 'read_from'] );	
+	my ($function, $read_mode) = $self->_check_args( \@_, ['function', 'read_mode'] );	
 	
-	# make sure, that $read_from has a defined value:
-    if (not defined $read_from or not $read_from =~ /device|cache/)
+	# make sure, that $read_mode has a defined value:
+    if (not defined $read_mode or not $read_mode =~ /device|cache/)
     {
-        $read_from = $self->device_settings()->{read_default};
+        $read_mode = $self->device_settings()->{read_default};
     }
 	
 	if (not defined $function) 
 		{
-		$function = $self->get_function($read_from);
+		$function = $self->get_function($read_mode);
 		}
     
 	# read from cache:
-    if($read_from eq 'cache' and defined $self->{'device_cache'}->{'nplc'})
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'nplc'})
     {
         return $self->{'device_cache'}->{'nplc'};
     } 
@@ -404,21 +404,21 @@ sub get_resolution{
 	my $self = shift;	
 	
 	# read from cache or from device?
-	my ($function, $read_from) = $self->_check_args( \@_, ['function', 'read_from'] );	
+	my ($function, $read_mode) = $self->_check_args( \@_, ['function', 'read_mode'] );	
 	
-    if (not defined $read_from or not $read_from =~ /device|cache/)
+    if (not defined $read_mode or not $read_mode =~ /device|cache/)
     {
-        $read_from = $self->device_settings()->{read_default};
+        $read_mode = $self->device_settings()->{read_default};
     }
 	
-	# make sure, that $read_from has a defined value:
+	# make sure, that $read_mode has a defined value:
 	if (not defined $function) 
 		{
-		$function = $self->get_function($read_from);
+		$function = $self->get_function($read_mode);
 		}
     
 	# read from cache:
-    if($read_from eq 'cache' and defined $self->{'device_cache'}->{'resolution'})
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'resolution'})
     {
         return $self->{'device_cache'}->{'resolution'};
     } 
@@ -498,21 +498,21 @@ sub get_tc{
 	my $self = shift;	
 
 	# read from cache or from device?
-	my ($function, $read_from) = $self->_check_args( \@_, ['function', 'read_from'] );	
+	my ($function, $read_mode) = $self->_check_args( \@_, ['function', 'read_mode'] );	
 	
-    if (not defined $read_from or not $read_from =~ /device|cache/)
+    if (not defined $read_mode or not $read_mode =~ /device|cache/)
     {
-        $read_from = $self->device_settings()->{read_default};
+        $read_mode = $self->device_settings()->{read_default};
     }
 	
-	# make sure, that $read_from has a defined value:
+	# make sure, that $read_mode has a defined value:
 	if (not defined $function) 
 		{
-		$function = $self->get_function($read_from);
+		$function = $self->get_function($read_mode);
 		}
     
 	# read from cache:
-    if($read_from eq 'cache' and defined $self->{'device_cache'}->{'tc'})
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'tc'})
     {
         return $self->{'device_cache'}->{'tc'};
     } 
@@ -591,21 +591,21 @@ sub get_bw {
 	my $self = shift;
 	
 	# read from cache or from device?
-	my ($function, $read_from) = $self->_check_args( \@_, ['function', 'read_from'] );	
+	my ($function, $read_mode) = $self->_check_args( \@_, ['function', 'read_mode'] );	
 	
-    if (not defined $read_from or not $read_from =~ /device|cache/)
+    if (not defined $read_mode or not $read_mode =~ /device|cache/)
     {
-        $read_from = $self->device_settings()->{read_default};
+        $read_mode = $self->device_settings()->{read_default};
     }
 	
-	# make sure, that $read_from has a defined value:
+	# make sure, that $read_mode has a defined value:
 	if (not defined $function) 
 		{
-		$function = $self->get_function($read_from);
+		$function = $self->get_function($read_mode);
 		}
     
 	# read from cache:
-    if($read_from eq 'cache' and defined $self->{'device_cache'}->{'bw'})
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'bw'})
     {
         return $self->{'device_cache'}->{'bw'};
     } 
@@ -641,25 +641,28 @@ sub get_value { # basic
 	# fastest way to get a value:
 	if ( not defined @_[0])
 		{
-		$self->device_cache()->{value} = $self->query( ":read?");	
-		return $self->device_cache()->{value};
+		if ( $self->{request} == 1 ) 
+			{
+			$self->{'request'} = 0;
+			$self->device_cache()->{value} = $self->read();
+			}
+		else
+			{
+			$self->device_cache()->{value} = $self->query( ":read?");
+			}
+			return $self->device_cache()->{value};
 		}
 	
 	# parameter == hash??	
-	my ($function, $range, $integration, $read_from) = $self->_check_args(\@_, ['function', 'range', 'integration', 'read_from']);
+	my ($function, $range, $integration, $read_mode) = $self->_check_args(\@_, ['function', 'range', 'integration', 'read_mode']);
 	my ($int_time, $int_mode) = $self->_check_args($integration, ['value', 'mode']);
 	
-	# make sure, that $read_from has a defined value:
-	if (not defined $read_from or not $read_from =~ /device|cache/)
-    {
-        $read_from = $self->device_settings()->{read_default};
-    }
 	
-	# read from cache:
-    if($read_from eq 'cache' and defined $self->{'device_cache'}->{'value'})
+	# make sure, that $read_mode has a defined value:
+	if (not defined $read_mode or not $read_mode =~ /device|cache|request|fetch/)
     {
-        return $self->{'device_cache'}->{'value'};
-    } 
+        $read_mode = $self->device_settings()->{read_default};
+    }
 	
 	
 	# read from device:	
@@ -668,7 +671,12 @@ sub get_value { # basic
 	# check input parameter
 	$function =~ s/\s+//g; #remove all whitespaces
 	$function = "\L$function"; # transform all uppercase letters to lowercase letters
-	if ( $function =~ /^(voltage|volt|voltage:ac|volt:ac|voltage:dc|volt:dc)$/ ) 
+	if ( $function =~ /request|fetch/ )
+		{
+		$read_mode = $function;
+		$function = undef;
+		}
+	elsif ( $function =~ /^(voltage|volt|voltage:ac|volt:ac|voltage:dc|volt:dc)$/ ) 
 		{
 		if ( abs($range) > 1000 and not $range =~ /^(min|max|def|auto)$/) 
 			{
@@ -726,26 +734,48 @@ sub get_value { # basic
 		}
 	
 	
-	
 	# get_value	
-	if ( $int_mode eq 'res' )
+	if ( defined $function and $function ne "" )
 		{
-		$self->write( ":FUNCTION '$function'; :SENS:$function:ZERO:AUTO OFF; :$function:RANGE $range;  RES $int_time");	
+		if ( $int_mode eq 'res' )
+			{
+			$self->write( ":FUNCTION '$function'; :SENS:$function:ZERO:AUTO OFF; :$function:RANGE $range;  RES $int_time");	
+			}
+		elsif ( $int_mode eq 'tc' )
+			{
+			$self->write( ":FUNCTION '$function'; :SENS:$function:ZERO:AUTO OFF; :$function:RANGE $range; :$function:APER $int_time; APERTURE:ENABLED 1");	
+			}
+		elsif ( $int_mode eq 'nplc' )
+			{
+			$self->write( ":FUNCTION '$function'; :SENS:$function:ZERO:AUTO OFF; :$function:RANGE $range; NPLC $int_time");	
+			}
+		else
+			{
+			$self->write( ":FUNCTION '$function';");
+			}
 		}
-	elsif ( $int_mode eq 'tc' )
+	
+	# read from cache:
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'value'})
 		{
-		$self->write( ":FUNCTION '$function'; :SENS:$function:ZERO:AUTO OFF; :$function:RANGE $range; :$function:APER $int_time; APERTURE:ENABLED 1");	
+        return $self->{'device_cache'}->{'value'};
+		}	
+	# request
+	elsif ( $read_mode eq "request" )
+		{
+		$self->{'request'} = 1;		
+		return $self->write( ":read?");		
 		}
-	elsif ( $int_mode eq 'nplc' )
+	# fetch:
+	elsif ( $read_mode eq 'fetch' and $self->{'request'} == 1 )
 		{
-		$self->write( ":FUNCTION '$function'; :SENS:$function:ZERO:AUTO OFF; :$function:RANGE $range; NPLC $int_time");	
+		$self->{'request'} = 0;
+		return $self->device_cache()->{value} = $self->read();
 		}
 	else
 		{
-		$self->write( ":FUNCTION '$function';");
+		return $self->device_cache()->{value} = $self->query( ":read?");
 		}
-		
-	return $self->device_cache()->{value} = $self->query( ":read?");
 	
 		
 	
@@ -755,16 +785,16 @@ sub get_T { # basic
 	my $self = shift;
 	
 	# parameter == hash??
-	my ( $sensor, $read_from ) = $self->_check_args(\@_, ['sensor', 'read_from']);
+	my ( $sensor, $read_mode ) = $self->_check_args(\@_, ['sensor', 'read_mode']);
 	
-	# make sure, that $read_from has a defined value:
-	if (not defined $read_from or not $read_from =~ /device|cache/)
+	# make sure, that $read_mode has a defined value:
+	if (not defined $read_mode or not $read_mode =~ /device|cache/)
     {
-        $read_from = $self->device_settings()->{read_default};
+        $read_mode = $self->device_settings()->{read_default};
     }
 	
 	# read from cache:
-    if($read_from eq 'cache' and defined $self->{'device_cache'}->{'bw'})
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'bw'})
     {
         return $self->{'device_cache'}->{'bw'};
     } 

@@ -18,7 +18,7 @@ sub new {
 
 
 
-sub File {
+sub DataFile {
 	my $self = shift;
 	my $filenamebase = shift;
 	
