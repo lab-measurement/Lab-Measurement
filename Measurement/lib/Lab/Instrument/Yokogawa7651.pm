@@ -48,6 +48,7 @@ our %fields = (
 	},
 	
 	device_cache_order => ['function','range'],
+	request => 0
 );
 
 sub new {
@@ -183,7 +184,7 @@ sub trg {
 
 sub config_sweep{   
     my $self = shift;
-    my ($target, $rate, $time) = $self->_check_args( \@_, ['points', 'rate', 'time'] );
+    my ($target, $rate, $time) = $self->_check_args( \@_, ['target', 'rate', 'time'] );
 
 
     # get current position:
@@ -303,7 +304,7 @@ sub config_sweep{
 
 sub configure_sweep{    
 	my $self=shift;
-    my ($target, $time, $rate) = $self->_check_args( \@_, ['points', 'time', 'rate'] );
+    my ($target, $time, $rate) = $self->_check_args( \@_, ['target', 'time', 'rate'] );
 	
     $self->config_sweep($target, $rate, $time);
     
@@ -386,13 +387,13 @@ sub wait {
         if ( $flag <= 1.1 and $flag >= 0.9 )
             {
             print "\t\t\t\t\t\t\t\t\t\r";
-            print "$self->get_id() is sweeping ($current_level )\r";
+            print $self->get_id()." is sweeping ($current_level )\r";
             #usleep(5e5);
             }
         elsif ( $flag <= 0 )
             {
             print "\t\t\t\t\t\t\t\t\t\r";
-            print "$self->get_id() is          ($current_level ) \r";
+            print $self->get_id()." is          ($current_level ) \r";
             $flag = 2;
             }
         $flag -= 0.5;
@@ -805,7 +806,7 @@ sub get_output {
     }   
     
     my $res = $self->get_status();
-    return $self->{'device_cache'}->{'output'} = $res->{'output'};  
+    return $self->{'device_cache'}->{'output'} = $res->{'output'}/128;  
 }
 
 sub initialize {    

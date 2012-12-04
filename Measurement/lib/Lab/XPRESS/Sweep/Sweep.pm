@@ -94,7 +94,7 @@ sub prepaire_config {
 
 	# correct typing errors:
 	$self->{config}->{mode}  =~ s/\s+//g; #remove all whitespaces
-	$self->{config}->{mode}  =~ "\L$function"; # transform all uppercase letters to lowercase letters
+	$self->{config}->{mode}  =~ "\L$self->{config}->{mode}"; # transform all uppercase letters to lowercase letters
 	if ($self->{config}->{mode} =~ /continuous|contious|cont|continuouse|continouse|coninuos|continuose/)
 		{
 		$self->{config}->{mode} = 'continuous';
@@ -303,11 +303,11 @@ sub prepaire_config {
 	
 	
 	# Calculations and checks depending on the selected sweep mode:
-	if ( $self->{config}->{mode} eq 'continuouse' )
+	if ( $self->{config}->{mode} eq 'continuous' )
 		{	
 		if ( not defined @{$self->{config}->{rates}}[0] or not defined @{$self->{config}->{durations}}[0] )
 			{
-			die "inconsistent definition of sweep_config_data: for sweep_mode 'continuouse' you have to define the rate or the duration for the sweep.";
+			die "inconsistent definition of sweep_config_data: for sweep_mode 'continuous' you have to define the rate or the duration for the sweep.";
 			}	
 		}
 	elsif ( $self->{config}->{mode} eq 'step' )
@@ -489,10 +489,10 @@ sub start {
 		$self->before_loop();
 		$self->go_to_sweep_start();
 		$self->delay($self->{config}->{delay_before_loop});
-		# continuouse sweep:
-		if ( $self->{config}->{mode} eq 'continuouse' )
+		# continuous sweep:
+		if ( $self->{config}->{mode} eq 'continuous' )
 			{	
-			$self->start_continuouse_sweep();
+			$self->start_continuous_sweep();
 			}
 		$self->{Time_start} = time();
 		$self->{Date_start}, $self->{TimeStamp_start} = timestamp();
@@ -874,7 +874,7 @@ sub go_to_sweep_start {
 	return shift;
 }
 
-sub start_continuouse_sweep {
+sub start_continuous_sweep {
 	return shift;
 }
 

@@ -41,6 +41,17 @@ sub Sweep {
 
 }
 
+sub Frame {
+	my $self = shift;
+	
+	my $frame = "Lab::XPRESS::Sweep::Frame";
+	eval "require $frame; $frame->import(); 1;" 
+		or do Lab::Exception::CorruptParameter->throw( error => "Can't locate module $frame\n" );
+
+	return $frame->new(@_);
+
+}
+
 sub Instrument {
 	my $self = shift;
 	my $instrument = shift;

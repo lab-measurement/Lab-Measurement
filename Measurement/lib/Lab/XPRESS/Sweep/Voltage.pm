@@ -16,12 +16,12 @@ sub new {
 	my $self->{default_config} = {
 		id => 'Voltage_sweep',
 		interval	=> 1,
-		points	=>	[],
+		target	=>	[],
 		durations	=> [],
 		mode	=> 'continuous',
 		allowed_instruments => ['Lab::Instrument::Yokogawa7651', 'Lab::Instrument::Keithley2400'],
 		allowed_sweep_modes => ['continuous', 'list', 'step'],
-		number_of_points => [undef]
+		number_of_target => [undef]
 		};
 		
 	$self = $class->SUPER::new( $self->{default_config} ,@args);	
@@ -38,7 +38,7 @@ sub go_to_sweep_start {
 	# go to start:
 	print "going to start ... ";
 	$self->{config}->{instrument}->config_sweep({
-		'points' => @{$self->{config}->{points}}[$self->{iterator}], 
+		'target' => @{$self->{config}->{target}}[$self->{iterator}], 
 		'rate' => @{$self->{config}->{rates}}[$self->{iterator}]
 		});
 	$self->{config}->{instrument}->trg();
@@ -51,7 +51,7 @@ sub start_continuous_sweep {
 	my $self = shift;
 		
 	$self->{config}->{instrument}->config_sweep({
-		'points' => @{$self->{config}->{points}}[$self->{iterator}+1],
+		'target' => @{$self->{config}->{target}}[$self->{iterator}+1],
 		'rate' => @{$self->{config}->{rates}}[$self->{iterator}+1]
 		});
 	$self->{config}->{instrument}->trg();
@@ -63,7 +63,7 @@ sub go_to_next_step {
 	my $self = shift;
 	
 	$self->{config}->{instrument}->config_sweep({
-		'points' => @{$self->{config}->{points}}[$self->{iterator}],
+		'target' => @{$self->{config}->{target}}[$self->{iterator}],
 		'rate' => @{$self->{config}->{rates}}[$self->{iterator}]
 		});
 		$self->{config}->{instrument}->trg();
@@ -76,20 +76,20 @@ sub exit_loop {
 		{
 		if ( $self->{config}->{mode} =~ /step|list/ )
 			{	
-			if (not defined @{$self->{config}->{points}}[$self->{iterator}+1])
+			if (not defined @{$self->{config}->{target}}[$self->{iterator}+1])
 				{
 				return 1;
 				}
 			}
 		if ( $self->{config}->{mode} eq "continuous" )
 			{	
-			if (not defined @{$self->{config}->{points}}[$self->{sequence}+2])
+			if (not defined @{$self->{config}->{target}}[$self->{sequence}+2])
 				{
 				return 1;
 				}
 			$self->{sequence}++;
 			$self->{config}->{instrument}->config_sweep({
-				'points' => @{$self->{config}->{points}}[$self->{sequence}+1],
+				'target' => @{$self->{config}->{target}}[$self->{sequence}+1],
 				'rate' => @{$self->{config}->{rates}}[$self->{sequence}+1]
 				});
 			$self->{config}->{instrument}->trg();
