@@ -57,6 +57,7 @@ sub new {
 	my $self = $class->SUPER::new(@_);
 	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
     
+	
     return $self;
 }
 
@@ -184,7 +185,7 @@ sub trg {
 
 sub config_sweep{   
     my $self = shift;
-    my ($target, $rate, $time) = $self->_check_args( \@_, ['target', 'rate', 'time'] );
+    my ($target, $rate, $time) = $self->_check_args( \@_, ['points', 'rate', 'time'] );
 
 
     # get current position:
@@ -304,7 +305,7 @@ sub config_sweep{
 
 sub configure_sweep{    
 	my $self=shift;
-    my ($target, $time, $rate) = $self->_check_args( \@_, ['target', 'time', 'rate'] );
+    my ($target, $time, $rate) = $self->_check_args( \@_, ['points', 'time', 'rate'] );
 	
     $self->config_sweep($target, $rate, $time);
     
@@ -442,7 +443,7 @@ sub _sweep_to_level {
 sub get_function{   
 	my $self = shift;
 	
-	my ($read_mode) = $self->_check_args( \@_, ['read_from'] );
+	my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
 
     if (not defined $read_mode or not $read_mode =~ /device|cache/)
     {
@@ -457,7 +458,7 @@ sub get_function{
     my $cmd="OD";
     my $result=$self->query($cmd);
     if($result=~/^...([VA])/){
-    	return $self->{'device_cache'}->{'function'} = ( $1 eq "V" ) ? "Voltage" : "Current";
+    	return $self->{'device_cache'}->{'function'} = ( $1 eq "V" ) ? "voltage" : "current";
     }
     else{
     	Lab::Exception::CorruptParameter->throw( "Output of command OD is not valid. \n" );
@@ -470,7 +471,7 @@ sub get_level {
 	my $cmd="OD";
 	my $result;
     
-    my ($read_mode) = $self->_check_args( \@_, ['read_from'] );
+    my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
 
     if (not defined $read_mode or not $read_mode =~ /device|cache|request|fetch/)
 		{
@@ -651,7 +652,7 @@ sub get_info {
 sub get_range{  
     my $self=shift;
     
-    my ($read_mode) = $self->_check_args( \@_, ['read_from'] );
+    my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
 
     if (not defined $read_mode or not $read_mode =~ /device|cache/)
     {
@@ -793,7 +794,7 @@ sub set_output {
 sub get_output {   
     my $self=shift;
     
-    my ($read_mode) = $self->_check_args( \@_, ['read_from'] );
+    my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
 
     if (not defined $read_mode or not $read_mode =~ /device|cache/)
     {
@@ -834,7 +835,7 @@ sub set_voltage_limit {
 sub get_voltage_limit {
 	my $self = shift;
 	
-	my ($read_mode) = $self->_check_args( \@_, ['read_from'] );
+	my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
 
     if (not defined $read_mode or not $read_mode =~ /device|cache/)
     {
@@ -869,7 +870,7 @@ sub set_current_limit {
 sub get_current_limit {
 	my $self = shift;
 	
-	my ($read_mode) = $self->_check_args( \@_, ['read_from'] );
+	my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
 
     if (not defined $read_mode or not $read_mode =~ /device|cache/)
     {

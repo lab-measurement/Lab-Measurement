@@ -67,7 +67,7 @@ sub check_config_paramters {
 
 sub exit_loop {
 	my $self = shift;
-	if ( @{$self->{config}->{durations}}[0] != 0 and $self->{iterator} >= $self->{config}->{number_of_points} )
+	if ( @{$self->{config}->{durations}}[0] > 0 and $self->{iterator} >= $self->{config}->{number_of_points} )
 		{
 		return 1;
 		}

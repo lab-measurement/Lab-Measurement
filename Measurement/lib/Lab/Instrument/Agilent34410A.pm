@@ -38,7 +38,9 @@ our %fields = (
 		'resolution' => undef,
 		'tc' => undef,
 		'bw' => undef,		
-	}
+	},
+	
+	device_cache_order => ['function','range', 'nplc', 'resolution', 'tc', 'bw'],
 
 );
 
@@ -90,6 +92,7 @@ sub set_function { # basic
 	#set function:
 	$function =~ s/\s+//g; #remove all whitespaces
 	$function = "\L$function"; # transform all uppercase letters to lowercase letters
+	print "Function = $function\n";
 	if ( $function =~ /^(current|curr|current:ac|curr:ac|current:dc|curr:dc|voltage|volt|voltage:ac|volt:ac|voltage:dc|volt:dc|resisitance|res|fresistance|fres)$/)
 		{
 		$function =  $self->query( sprintf("FUNCTION '%s'; FUNCTION?", $function));

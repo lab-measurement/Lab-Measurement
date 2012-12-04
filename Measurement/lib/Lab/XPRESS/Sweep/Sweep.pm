@@ -259,6 +259,14 @@ sub prepaire_config {
 		{
 		die 'inconsistent definition of sweep_config_data: rate as well as duration defined. Use only one of both.';
 		}
+	elsif ( defined @{$self->{config}->{durations}}[0] and @{$self->{config}->{durations}}[0] == 0)
+		{
+		die 'bad definition of sweep parameters: duration == 0 not allowed';
+		}
+	elsif ( defined @{$self->{config}->{rates}}[0] and @{$self->{config}->{rates}}[0] == 0)
+		{
+		die 'bad definition of sweep parameters: rate == 0 not allowed';
+		}
 	elsif ( defined @{$self->{config}->{durations}}[0])
 		{					
 		foreach my $i (0..$length_points-1)
