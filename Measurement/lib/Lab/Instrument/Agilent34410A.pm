@@ -23,6 +23,7 @@ our %fields = (
 		gpib_address => undef,
 		timeout => 2,
 		read_default => "device",
+		termchar => "\n"
 	},
 
 	device_settings => { 

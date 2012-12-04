@@ -1018,7 +1018,7 @@ sub set_autolog {
 	return $self;
 }
 
-sub skiplog {
+sub skip_LOG {
 	my $self = shift;
 	my $file = shift;
 

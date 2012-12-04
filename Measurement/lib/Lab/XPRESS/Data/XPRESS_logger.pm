@@ -353,7 +353,7 @@ sub LOG {
     		}
 		shift @logline;
     	my $logline = join("\t", @logline);
-    	print $filehandle $logline;
+    	print $filehandle $logline."\n";
 
 		}
 	else
