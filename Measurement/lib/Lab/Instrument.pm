@@ -516,6 +516,7 @@ sub query {
 
 	my $result = $self->connection()->Query($args);
 	$self->check_errors($args->{'command'}) if $args->{error_check};
+	$result =~ s/^(\s|\r|\t|\n)|(\s|\r|\t|\n)$//g;
 	return $result;
 }
 
