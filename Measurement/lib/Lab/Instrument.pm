@@ -199,9 +199,9 @@ sub _cache_init {
 				$self->_getset_key($ckey) if exists $ckeyhash{$ckey};			
 			}
 			# initialize all values not in device_cache_order
-			for my $ckey (@ckeys){
-				$self->_getset_key($ckey) if not exists $orderhash{$ckey};
-			}
+			#for my $ckey (@ckeys){
+			#	$self->_getset_key($ckey) if not exists $orderhash{$ckey};
+			#}
 		}
 		# no ordering required
 		else{
@@ -495,6 +495,8 @@ sub read {
 
 	my $result = $self->connection()->Read($args);
 	$self->check_errors('Just a plain and simple read.') if $args->{error_check};
+	
+	$result =~ s/^(\s|\r|\t|\n)|(\s|\r|\t|\n)$//g;
 	return $result;
 }
 

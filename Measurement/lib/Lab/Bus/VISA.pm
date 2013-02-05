@@ -148,10 +148,7 @@ sub connection_read { # @_ = ( $connection_handle, $args = { read_length, brutal
 		}
 
 	$result = substr($result,0,$read_cnt);
-	my $temp = $/;
-	$/ = $self->config('termchar');
-	chomp($result);
-	$/ = $temp;
+	
 	return $result;
 }
 
