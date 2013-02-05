@@ -7,7 +7,6 @@ use strict;
 use Time::HiRes qw/usleep/, qw/time/;
 use Lab::VISA;
 use Lab::Instrument;
-use Lab::Instrument::MagnetSupply;
 
 
 our @ISA=('Lab::Instrument');
@@ -367,7 +366,8 @@ sub get_parameter { # advanced
 
 sub get_value {
 	my $self = shift;
-	return $self->get_field(@_);
+	my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
+	return $self->get_field({read_mode => $read_mode});
 }
 
 sub get_field { # basic
@@ -398,7 +398,9 @@ sub get_field { # basic
     elsif ( $read_mode eq 'fetch' and $self->{'request'} == 1 )
 	{
 		$self->{'request'} = 0;
-		return $self->device_cache()->{field} = $self->read();
+		my $result = $self->read();
+		$result =~ s/^R//;
+		return $self->device_cache()->{field} = $result;
 	}
     else
     {
@@ -425,13 +427,13 @@ sub wait { # basic
         if ( $flag <= 1.1 and $flag >= 0.9 )
             {
             print "\t\t\t\t\t\t\t\t\t\r";
-            print "$self->get_id() is sweeping ($current_field )\r";
+            print $self->get_id()." is sweeping ($current_field )\r";
             #usleep(5e5);
             }
         elsif ( $flag <= 0 )
             {
             print "\t\t\t\t\t\t\t\t\t\r";
-            print "$self->get_id() is          ($current_field ) \r";
+            print $self->get_id()." is          ($current_field ) \r";
             $flag = 2;
             }
         $flag -= 0.5;

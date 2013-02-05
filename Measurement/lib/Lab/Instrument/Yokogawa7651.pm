@@ -39,6 +39,7 @@ our %fields = (
         read_default => 'device'
 	},
 	
+	
 	device_cache => {
         id => 'Yokogawa7651',
 		function			=> undef, 
@@ -56,11 +57,14 @@ sub new {
 	my $class = ref($proto) || $proto;
 	my $self = $class->SUPER::new(@_);
 	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
-    
 	
     return $self;
 }
 
+sub _device_init {
+	my $self = shift;
+	$self->end_program();
+}
 
 sub set_voltage {   
     my $self=shift;
@@ -503,8 +507,9 @@ sub get_level {
 		{
 		if ( $self->{request} == 1 )
 			{
-			$self->{request} = 0;
 			$result = $self->read();
+			$self->{request} = 0;
+			$result = $self->query($cmd);
 			}
 		else
 			{
@@ -745,7 +750,7 @@ sub set_output {
     my $self = shift;
     my ($value) = $self->_check_args( \@_, ['value'] );
 
-    my $current_level; # for internal use only
+    my $current_level = undef; # for internal use only
     
     if ( not defined $value )
         {
@@ -765,6 +770,8 @@ sub set_output {
             $self->set_level(0);
             }
         }
+
+    $self->wait();
 
     if ( $value == 1 )
         {
@@ -810,7 +817,7 @@ sub get_output {
     return $self->{'device_cache'}->{'output'} = $res->{'output'}/128;  
 }
 
-sub initialize {    
+sub initialize {  
     my $self=shift;
     $self->reset();
 }

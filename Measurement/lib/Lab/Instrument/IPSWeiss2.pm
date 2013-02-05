@@ -14,11 +14,14 @@ our %fields = (
 	connection_settings => {
 		gpib_board => 0,
 		gpib_address => undef,
+		isobus_address => 2,
 		baudrate => 9600,
 		databits => 8,
 		stopbits => 2,
 		parity => 'none',
 		handshake => 'none',
+		termchar => "\r",
+		timeout => 2,
 		
 	},
 
@@ -26,7 +29,8 @@ our %fields = (
 		has_switchheater => 1
 	},
 	
-	device_cache =>{			
+	device_cache =>{
+		id => 'IPSWeiss2',
 	}
 
 );

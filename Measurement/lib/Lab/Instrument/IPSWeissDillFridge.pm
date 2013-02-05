@@ -19,6 +19,7 @@ our %fields = (
 		stopbits => 2,
 		parity => 'none',
 		handshake => 'none',
+		termchar => '\r'
 		
 	},
 
@@ -26,7 +27,8 @@ our %fields = (
 		has_switchheater => 0
 	},
 	
-	device_cache =>{			
+	device_cache =>{
+		id => "Weiss Dilution Fridge"
 	}
 
 );

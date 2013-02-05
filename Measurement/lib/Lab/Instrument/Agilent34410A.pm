@@ -92,12 +92,12 @@ sub set_function { # basic
 	#set function:
 	$function =~ s/\s+//g; #remove all whitespaces
 	$function = "\L$function"; # transform all uppercase letters to lowercase letters
-	print "Function = $function\n";
+
 	if ( $function =~ /^(current|curr|current:ac|curr:ac|current:dc|curr:dc|voltage|volt|voltage:ac|volt:ac|voltage:dc|volt:dc|resisitance|res|fresistance|fres)$/)
 		{
 		$function =  $self->query( sprintf("FUNCTION '%s'; FUNCTION?", $function));
 		$function =~ s/\"//g; # remove leading and ending "
-		chomp($function);
+
 		return  $self->{'device_cache'}->{'function'} = $function;
 		}
 	else
@@ -194,13 +194,13 @@ sub set_range { # basic
 	if ( $range =~ /^(min|max|def)$/ or $range =~ /\b\d+(e\d+|E\d+|exp\d+|EXP\d+)?\b/) 
 		{		
 		$range = $self->query( "$function:RANGE $range; RANGE?");
-		chomp($range);
+
 		return  $self->{'device_cache'}->{'range'} = $range;
 		}
 	elsif ($range =~ /^(auto)$/) 
 		{
 		$range =  "RANGE=AUTO , ".$self->query( sprintf("%s:RANGE:AUTO ON; RANGE?", $function));
-		chomp($range);
+
 		return $self->{'device_cache'}->{'range'} = $range;
 		}
 	else 
@@ -243,7 +243,7 @@ sub get_range {
 	if ( $function  =~ /^(voltage|volt|voltage:ac|volt:ac|voltage:dc|volt:dc|current|curr|current:ac|curr:ac|current:dc|curr:dc|resisitance|res|fresistance|fres)$/ )
 		{
 		my $range = $self->query( "$function:RANGE?");
-		chomp($range);
+
 		return $self->{'device_cache'}->{'range'} = $range;
 		}				
 	else
@@ -297,7 +297,7 @@ sub set_nplc { # basic
 	if ($function =~ /^(current|curr|current:dc|curr:dc|voltage|volt|voltage:dc|volt:dc|resisitance|res|fresistance|fres)$/ )
 		{		
 		$nplc = $self->query( "$function:NPLC $nplc; NPLC?");
-		chomp($nplc);
+
 		return $self->{'device_cache'}->{'nplc'} = $nplc;
 		}
 	else
@@ -339,7 +339,7 @@ sub get_nplc {
 	if ( $function  =~ /^(voltage|volt|voltage:ac|volt:ac|voltage:dc|volt:dc|current|curr|current:ac|curr:ac|current:dc|curr:dc|resisitance|res|fresistance|fres)$/ )
 		{
 		my $nplc = $self->query( "$function:NPLC?");
-		chomp($nplc);
+
 		return  $self->{'device_cache'}->{'nplc'} = $nplc;
 		}				
 	else
@@ -394,7 +394,7 @@ sub set_resolution{ # basic
 		my $range = $self->get_range($function);
 		$self->set_range($function, $range); # switch off autorange function if activated.
 		$resolution = $self->query( "$function:RES $resolution; RES?");
-		chomp($resolution);
+
 		return $self->{'device_cache'}->{'resolution'} = $resolution;
 		}
 	else
@@ -435,7 +435,7 @@ sub get_resolution{
 	if ( $function  =~ /^(voltage|volt|voltage:ac|volt:ac|voltage:dc|volt:dc|current|curr|current:ac|curr:ac|current:dc|curr:dc|resisitance|res|fresistance|fres)$/ )
 		{
 		my $resolution = $self->query( "$function:RES?");
-		chomp($resolution);
+
 		return  $self->{'device_cache'}->{'resolution'} = $resolution;
 		}				
 	else
@@ -487,7 +487,7 @@ sub set_tc { # basic
 	if ($function =~ /^(current|curr|current:dc|curr:dc|voltage|volt|voltage:dc|volt:dc|resisitance|res|fresistance|fres)$/ )
 		{
 		$tc = $self->query( ":$function:APERTURE $tc; APERTURE:ENABLED 1; :$function:APERTURE?");
-		chomp($tc);
+
 		return $self->{'device_cache'}->{'tc'} = $tc;
 		}
 	else
@@ -529,7 +529,7 @@ sub get_tc{
 	if ( $function  =~ /^(voltage|volt|voltage:ac|volt:ac|voltage:dc|volt:dc|current|curr|current:ac|curr:ac|current:dc|curr:dc|resisitance|res|fresistance|fres)$/ )
 		{
 		my $tc = $self->query( "$function:APERTURE?");
-		chomp($tc);
+
 		return $self->{'device_cache'}->{'tc'} = $tc;
 		}				
 	else
@@ -580,7 +580,7 @@ sub set_bw { # basic
 	if ( $function =~ /^(current:ac|curr:ac|voltage:ac|volt:ac|)$/ )
 		{
 		$bw = $self->query( "$function:BANDWIDTH $bw; BANDWIDTH?");
-		chomp($bw);
+
 		return $self->{'device_cache'}->{'bw'} = $bw;
 		}
 	else
@@ -622,7 +622,7 @@ sub get_bw {
 	if ( $function =~ /^(voltage:ac|volt:ac|current:ac|curr:ac)$/ )
 		{
 		my $bw = $self->query( "$function:BANDWIDTH?");
-		chomp($bw);
+
 		return $self->{'device_cache'}->{'bw'} = $bw;
 		}				
 	else
@@ -785,37 +785,6 @@ sub get_value { # basic
 	
 }
 
-sub get_T { # basic
-	my $self = shift;
-	
-	# parameter == hash??
-	my ( $sensor, $read_mode ) = $self->_check_args(\@_, ['sensor', 'read_mode']);
-	
-	# make sure, that $read_mode has a defined value:
-	if (not defined $read_mode or not $read_mode =~ /device|cache/)
-    {
-        $read_mode = $self->device_settings()->{read_default};
-    }
-	
-	# read from cache:
-    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'bw'})
-    {
-        return $self->{'device_cache'}->{'bw'};
-    } 
-	
-	#read from device:
-	# check if given sensorname is in sensors list
-	if ( not Lab::Instrument::TemperatureDiodes->valid_sensor($sensor))
-		{
-		Lab::Exception::CorruptParameter->throw( error => "unexpected value for SENSOR in sub get_T. Expected values are defined in package Lab::Instrument::TemperatureDiodes.pm -> SENSOR.");
-		}
-	
-	# measure temperature
-	my $value = $self->get_value();	
-	return $self->device_cache()->{value} = Lab::Instrument::TemperatureDiodes->convert2Kelvin($value,$sensor);
-	
-}
-
 sub config_measurement { # basic
 	my $self = shift;
 	
@@ -912,7 +881,7 @@ sub get_data { # basic
 			my $break = 1;
 			while($break){
 				$data = $self->connection()->LongQuery( command => "R? 1");
-				chomp $data;
+
 				my $index;
 				if(index($data,"+") == -1){
 					$index = index($data,"-");
@@ -936,7 +905,7 @@ sub get_data { # basic
 		# wait until data are available
 		$self->wait();
 		$data = $self->connection()->LongQuery( command => "FETC?");
-		chomp $data;	
+	
 		@data = split(",",$data);	
 		return @data;	
 		}
@@ -997,7 +966,7 @@ sub _set_triggersource { # internal
 	if ( not defined $source) 
 		{
 		$source = $self->query( sprintf("TRIGGER:SOURCE?"));
-		chomp($source);
+
 		$self->{config}->{triggersource} = $source;
 		return $source;
 		}
@@ -1025,7 +994,7 @@ sub _set_triggercount { # internal
 	if ( not defined $count) 
 		{
 		$count =  $self->query( sprintf("TRIGGER:COUNT?"));
-		chomp($count);
+
 		$self->{config}->{triggercount} = $count;
 		return $count;		
 		}
@@ -1052,7 +1021,7 @@ sub _set_triggerdelay { # internal
 	if ( not defined $delay) 
 		{
 		$delay =  $self->query( sprintf("TRIGGER:DELAY?"));	
-		chomp($delay);
+
 		$self->{config}->{triggerdely} = $delay;
 		return $delay;
 		}
@@ -1084,7 +1053,7 @@ sub _set_samplecount { # internal
 	if ( not defined $count) 
 		{
 		$count = $self->query( sprintf("SAMPLE:COUNT?"));	
-		chomp($count);
+
 		$self->{config}->{samplecount} = $count;
 		return $count;
 		}
@@ -1110,7 +1079,7 @@ sub _set_sampledelay { # internal
 	if ( not defined $delay) 
 		{
 		$delay =  $self->query( sprintf("SAMPLE:TIMER?"));	
-		chomp($delay);
+
 		$self->{config}->{sampledelay} = $delay;
 		return $delay;
 		}
@@ -1154,7 +1123,7 @@ sub display_text { # basic
     if ($text) {
         $self->write( qq(DISPlay:TEXT "$text"));
     } else {
-        chomp($text=$self->query( qq(DISPlay:TEXT?)));
+        $text=$self->query( qq(DISPlay:TEXT?));
         $text=~s/\"//g;
     }
     return $text;
