@@ -37,7 +37,7 @@ sub go_to_sweep_start {
 	
 	# go to start:
 	print "going to start ... ";
-	$self->{config}->{instrument}->move("ABS", @{$self->{config}->{points}}[0], @{$self->{config}->{rates}}[0]);
+	$self->{config}->{instrument}->move(@{$self->{config}->{points}}[0], @{$self->{config}->{rates}}[0], {mode => 'ABS'});
 	$self->{config}->{instrument}->wait();
 	print "done\n";
 	
@@ -47,7 +47,7 @@ sub start_continuous_sweep {
 	my $self = shift;
 	
 	# continuous sweep:
-	$self->{config}->{instrument}->move("ABS", @{$self->{config}->{points}}[$self->{iterator}+1], @{$self->{config}->{rates}}[$self->{iterator}+1]);
+	$self->{config}->{instrument}->move(@{$self->{config}->{points}}[$self->{iterator}+1], @{$self->{config}->{rates}}[$self->{iterator}+1], {mode => 'ABS'});
 		
 }
 
@@ -56,7 +56,7 @@ sub go_to_next_step {
 	my $self = shift;
 
 	# step mode:
-	$self->{config}->{instrument}->move("ABS", @{$self->{config}->{points}}[$self->{iterator}], @{$self->{config}->{rates}}[$self->{iterator}]);
+	$self->{config}->{instrument}->move(@{$self->{config}->{points}}[$self->{iterator}], @{$self->{config}->{rates}}[$self->{iterator}], {mode => 'ABS'});
 	$self->{config}->{instrument}->wait();
 	
 }
@@ -79,7 +79,7 @@ sub exit_loop {
 				return 1;
 				}
 			$self->{sequence}++;
-			$self->{config}->{instrument}->move("ABS", @{$self->{config}->{points}}[$self->{sequence} +1 ], @{$self->{config}->{rates}}[$self->{sequence} +1 ]);
+			$self->{config}->{instrument}->move(@{$self->{config}->{points}}[$self->{sequence} +1 ], @{$self->{config}->{rates}}[$self->{sequence} +1 ], {mode => 'ABS'});
 			}
 		return 0;
 		}

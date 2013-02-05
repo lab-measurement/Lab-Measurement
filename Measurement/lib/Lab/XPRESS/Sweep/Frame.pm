@@ -100,7 +100,7 @@ sub add_slave {
 		}
 	
 	my $type = ref($slave);
-	if ( $type =~ /^Lab::Sweep/ )
+	if ( $type =~ /^Lab::XPRESS::Sweep/ )
 		{
 		push ( @{$self->{slaves}}, $slave );
 		$self->{slave_counter}++;
@@ -113,7 +113,7 @@ sub add_slave {
 		}
 	else
 		{
-		warn 'slave object is of type $type. Cannot add slave.';
+		warn "slave object is of type $type. Cannot add slave.";
 		}
 		
 	# my $type = ref($self->{slaves}[-1]);
