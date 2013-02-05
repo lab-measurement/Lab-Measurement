@@ -797,7 +797,7 @@ sub divide {
 		}
 	else
 		{	
-		map {$_ = $_." * "."$value";} (@{$result->{COL_NAMES}});
+		map {$_ = $_." / "."$value";} (@{$result->{COL_NAMES}});
 		for ( my $block = 0 ; $block < ( my $len_b = @{$self->{DATA}[$column]}); $block++)
 			{
 			my $self_temp = $self->copy();
@@ -1383,7 +1383,7 @@ sub copy {
 	my $self = shift;
 					
 	
-	my $copy = new Lab::Data::SG_dataset ();
+	my $copy = new Lab::XPRESS::Data::XPRESS_dataset ();
 	
 	
 	while ( my ($key,$value) = each %{$self} ) 
@@ -3090,7 +3090,7 @@ sub differentiate_numerical {
 	$i = $self->get_colnum($i);
 	if ( $v == -1 or $i == -1 )
 		{
-		warn "WARNING: invalid parameters given for sub offset_correction_idc(). ";
+		warn "WARNING: invalid parameters given for sub differentiate_numerical(). ";
 		return $self;
 		}
 	# sort data:
@@ -3117,6 +3117,87 @@ sub differentiate_numerical {
 	
 	return $self;
 	
+}
+
+sub diff_num {
+	my $self = shift;
+ 	my $x = shift;
+	my $y = shift;
+	my $N_smoothing = shift;
+	
+	if ( not defined $N_smoothing )
+		{
+		$N_smoothing = 0;
+		}
+	
+	my @x = @{$x};
+	my @y = @{$y};
+
+	
+
+ 		
+ 	# sort data:
+ 	my @x_index  = sort { $x[$a] <=> $x[$b] } (0..$#x);
+ 
+ 	my @x_sorted = ();
+ 	my @y_sorted = ();
+ 	foreach my $index (@x_index)
+ 		{
+ 		$x_sorted[$index] = shift(@x);
+ 		$y_sorted[$index] = shift(@y);
+ 		}
+     
+ 	
+ 	# do a weak smoothing:
+	my $N = $N_smoothing;
+	my @y_s;
+	foreach my $i (0.. (my $length = @y_sorted)-1)
+		{
+		my $y_s = 0;
+		for (my $n = $i - $N; $n <= $i + $N; $n++)
+			{
+			if ( $n >= 0 and $n <= (my $length = @y_sorted)-1 )
+				{
+				$y_s += $y_sorted[$n];
+				}
+			elsif ($n < 0)
+				{
+				$y_s += $y_sorted[0];
+				}
+			elsif ($n > (my $length = @y)-1 )
+				{
+				$y_s += $y_sorted[-1];
+				}
+			}	
+		$y_s /= (2*$N+1);
+		push(@y_s, $y_s);
+		}
+	my $y = @y;
+	my $ys = @y_s;
+	
+ 
+	# interpolate data:
+    my (@di) = derivatives(\@x_sorted, \@y_sorted);
+	
+	
+	
+	# sort data:
+ 	my @x_index  = sort { $x[$b] <=> $x[$a] } (0..$#x_sorted);
+ 
+ 	my @x = ();
+ 	my @y= ();
+ 	my @y_smoothed;
+ 	my @y_differentiated;
+ 	foreach my $index (@x_index)
+ 		{
+ 		$x[$index] = shift(@x_sorted);
+ 		$y[$index] = shift(@y_sorted);
+ 		$y_smoothed[$index] = shift(@y_s);
+ 		$y_differentiated[$index] = shift(@di); 		
+ 		}
+	
+  
+  return @y_differentiated; 
 }
 
 sub offset_correction_vdc {

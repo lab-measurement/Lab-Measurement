@@ -646,14 +646,14 @@ sub estimate_total_sweep_duration {
 			{
 			$duration_total += $slave->{config}->{estimated_sweep_duration};
 			}
-		print "duration_total_1: $duration_total\n";
+		#print "duration_total_1: $duration_total\n";
 			my $number_of_steps = @{$self->{config}->{durations}}-1;
 		$duration_total *= $number_of_steps;
-		print "duration_total_2: $duration_total\n";
+		#print "duration_total_2: $duration_total\n";
 		$duration_total += $self->{config}->{estimated_sweep_duration};
-		print "duration_total_3: $duration_total\n";
+		#print "duration_total_3: $duration_total\n";
 		$duration_total *= $self->{config}->{repetitions};
-		print "duration_total_4: $duration_total\n";
+		#print "duration_total_4: $duration_total\n";
 		$self->{config}->{estimated_sweep_duration_total} = $duration_total;
 		}
 	
