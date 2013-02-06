@@ -432,6 +432,11 @@ sub start_plot {
 			{
 			next;
 			}
+
+		if (not defined $self->{plot}->{'type'}) {
+			$self->{plot}->{'type'} = 'point';
+		}
+
 		if ( $self->{plot}->{'type'} =~ /\b(line|lines|LINE|LINES|L|l|ln|LN)\b/)
 			{			
 			if ( $block_num > 1 )
