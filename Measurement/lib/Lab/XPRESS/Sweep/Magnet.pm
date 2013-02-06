@@ -27,8 +27,6 @@ sub new {
 	$self = $class->SUPER::new($self->{default_config},@args);	
 	bless ($self, $class);
 	
-	
-	print "hallo\n";		
     return $self;
 }
 
