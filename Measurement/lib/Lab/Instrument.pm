@@ -482,9 +482,11 @@ sub write {
 
 	$args->{'command'} = $command if defined $command;
 	
-	$self->connection()->Write($args);
+	my $result = $self->connection()->Write($args);
 	
 	$self->check_errors($args->{'command'}) if $args->{error_check};
+
+	return $result;
 }
 
 
