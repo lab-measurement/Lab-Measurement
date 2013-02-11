@@ -102,6 +102,19 @@ sub add_slave {
 	my $type = ref($slave);
 	if ( $type =~ /^Lab::XPRESS::Sweep/ )
 		{
+		if ($slave->{DataFile_counter} <= 0) {
+			while (1) {
+				print "\n XPRESS::FRAME: -- Added slave sweep has no DataFile! Continue anyway (y/n) ?\n";
+				my $answer = <>;
+				if ($answer =~ /y|Y/) {
+					last;
+				} 
+				elsif ($answer =~ /n|N/) {
+					exit;
+				}
+			}
+		}
+
 		push ( @{$self->{slaves}}, $slave );
 		$self->{slave_counter}++;
 		}

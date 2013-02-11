@@ -183,11 +183,11 @@ sub prepaire_config {
 		{
 		die "inconsistent definition of sweep_config_data: number of elements in 'durations' larger than number of elements in 'points'.";
 		}
-	if ( $length_stepwidths > $length_points - 1 and $self->{config}->{mode} ne 'list')
+	if ( $length_stepwidths > $length_points - 1)
 		{
 		die "inconsistent definition of sweep_config_data: number of elements in 'stepwidths' larger than number of sweep sequences.";
 		}
-	if ( $length_number_of_points > $length_points - 1 and $self->{config}->{mode} ne 'list')
+	if ( $length_number_of_points > $length_points - 1)
 		{
 		die "inconsistent definition of sweep_config_data: number of elements in 'number_of_points' larger than number of sweep sequences.";
 		}
@@ -479,6 +479,13 @@ sub start {
 			 $file->add_header($instrument->create_header());
 			 }		
 		 }
+
+	if (not defined @{$self->{slaves}}[0]) {
+		if ($self->{DataFile_counter} <= 0) {
+			print new Lab::Exception::Warning(error => "Attention: ".ref($self)." has no DataFile ! \n");
+		}
+
+	}
 	
 	
 	
