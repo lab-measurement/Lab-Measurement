@@ -183,11 +183,11 @@ sub prepaire_config {
 		{
 		die "inconsistent definition of sweep_config_data: number of elements in 'durations' larger than number of elements in 'points'.";
 		}
-	if ( $length_stepwidths > $length_points - 1)
+	if ( $length_stepwidths > $length_points - 1 and $self->{config}->{mode} ne 'list')
 		{
 		die "inconsistent definition of sweep_config_data: number of elements in 'stepwidths' larger than number of sweep sequences.";
 		}
-	if ( $length_number_of_points > $length_points - 1)
+	if ( $length_number_of_points > $length_points - 1 and $self->{config}->{mode} ne 'list')
 		{
 		die "inconsistent definition of sweep_config_data: number of elements in 'number_of_points' larger than number of sweep sequences.";
 		}
@@ -572,7 +572,7 @@ sub start {
 		$self->delay($self->{config}->{delay_after_loop});
 
 		# prepare_backsweep:
-		if ( $self->{config}->{backsweep} == 1 )
+		if ( $self->{config}->{backsweep} > 0 )
 			{
 			$self->prepare_backsweep();
 			}
