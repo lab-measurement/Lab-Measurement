@@ -498,7 +498,7 @@ sub read {
 	my $result = $self->connection()->Read($args);
 	$self->check_errors('Just a plain and simple read.') if $args->{error_check};
 	
-	$result =~ s/^(\s|\r|\t|\n)|(\s|\r|\t|\n)$//g;
+	$result =~ s/^[ \r\t\n]+|[ \r\t\n]+$//g;
 	return $result;
 }
 
@@ -518,7 +518,7 @@ sub query {
 
 	my $result = $self->connection()->Query($args);
 	$self->check_errors($args->{'command'}) if $args->{error_check};
-	$result =~ s/^(\s|\r|\t|\n)|(\s|\r|\t|\n)$//g;
+	$result =~ s/^[ \r\t\n]+|[ \r\t\n]+$//g;
 	return $result;
 }
 
