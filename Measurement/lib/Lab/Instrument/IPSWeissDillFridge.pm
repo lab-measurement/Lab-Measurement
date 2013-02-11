@@ -19,7 +19,8 @@ our %fields = (
 		stopbits => 2,
 		parity => 'none',
 		handshake => 'none',
-		termchar => '\r'
+		termchar => "\r",
+		timeout => 2,
 		
 	},
 

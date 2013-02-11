@@ -18,7 +18,7 @@ our %fields = (
 		parity => 'none',
 		handshake => 'none',
 		#rs232_echo => 'character',
-		#termchar => "\r",
+		termchar => "\r",
 		timeout => 1
 	},
 
@@ -98,28 +98,32 @@ sub get_T{
 	}
 
 	else {
-		while ( ($self->write("getTemp\r\n") < 0) )
+		for (my $i = 0; $i < 3; $i++)
 		{
-		#print "repeat sending\n";
-		}
-
-		while ( 1 ) 
-			{
-			eval '$temperature = $self->read()';
-			if ($@) 
+			$self->write("getTemp\r\n");
+			
+			for (my $j = 0; $j < 3; $j++)
 				{
-				next;
+				eval '$temperature = $self->read()';
+				if ($@) 
+					{
+					next;
+					}
+				elsif ( $temperature < 0 or $temperature > 1.5 ) {
+				#print "from cache";
+					return $self->{'device_cache'}->{'T'};
 				}
-			elsif ( $temperature < 0 or $temperature > 1.5 ) {
-			#print "from cache";
-				return $self->{'device_cache'}->{'T'};
+				else {
+					chomp $temperature;
+					$self->{'device_cache'}->{'T'} = $temperature;
+					return $self->{'device_cache'}->{'T'};
+				}
 			}
-			else {
-				chomp $temperature;
-				$self->{'device_cache'}->{'T'} = $temperature;
-				return $self->{'device_cache'}->{'T'};
-			}
+			
+			
 		}
+		
+		return $self->{'device_cache'}->{'T'};
 	}
 
 }
