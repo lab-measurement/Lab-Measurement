@@ -9,16 +9,19 @@ use Time::HiRes qw (usleep sleep);
 use Lab::Connection::GPIB;
 use Lab::Exception;
 
-our @ISA = ("Lab::Connection::GPIB");
+our @ISA = ("Lab::Connection::Socket");
 
 our %fields = (
-	bus_class => 'Lab::Bus::TCPraw',
+	bus_class => 'Lab::Bus::Socket',
+	proto => 'tcp',
+	remote_port => '5025',
 	wait_status=>0, # usec;
 	wait_query=>10e-6, # sec;
 	read_length=>1000, # bytes
 	timeout=>1, # seconds
 );
 
+# basically, we're just calling Socket with decent default port and proto
 
 sub new {
 	my $proto = shift;
@@ -30,57 +33,9 @@ sub new {
 	return $self;
 }
 
-sub Write {
-	my $self=shift;
-	my $options=undef;
-	if (ref $_[0] eq 'HASH') { $options=shift }
-	else { $options={@_} }
-	
-	my $timeout = $options->{'timeout'} || $self->timeout();
-	$self->bus()->timeout($self->connection_handle(), $timeout);
-	
-	return $self->bus()->connection_write($self->connection_handle(), $options);
-}
-
-
-sub Read {
-	my $self=shift;
-	my $options=undef;
-	if (ref $_[0] eq 'HASH') { $options=shift }
-	else { $options={@_} }
-	
-	my $timeout = $options->{'timeout'} || $self->timeout();
-	$self->bus()->timeout($self->connection_handle(), $timeout);
-
-	return $self->bus()->connection_read($self->connection_handle(), $options);
-}
-
-sub Query {
-	my $self=shift;
-	my $options=undef;
-	if (ref $_[0] eq 'HASH') { $options=shift }
-	else { $options={@_} }
-
-	my $wait_query=$options->{'wait_query'} || $self->wait_query();
-	my $timeout = $options->{'timeout'} || $self->timeout();
-	$self->bus()->timeout($self->connection_handle(), $timeout);
-	
-	$self->Write( $options );
-	usleep($wait_query);
-	return $self->Read($options);
-}
-
-sub Clear {
-	my $self=shift;
-	my $options=undef;
-	return $self->bus()->connection_device_clear($self->connection_handle());
-}
-
-
 #
-# Query from Lab::Connection is sufficient
-# EnableTermChar, SetTermChar from Lab::Connection::GPIB are sufficient.
-#
+# That's all folks. For now.
+# 
 
 
 
@@ -90,75 +45,12 @@ sub Clear {
 
 =head1 NAME
 
-Lab::Connection::LinuxGPIB - connection class which uses LinuxGPIB (libgpib0) as a backend.
-
-=head1 SYNOPSIS
-
-This is not called directly. To make a GPIB suppporting instrument use Lab::Connection::LinuxGPIB, set
-the connection_type parameter accordingly:
-
-$instrument = new HP34401A(
-   connection_type => 'LinuxGPIB',
-   gpib_board => 0,
-   gpib_address => 14
-)
-
-=head1 DESCRIPTION
-
-C<Lab::Connection::LinuxGPIB> provides a GPIB-type connection with the bus L<Lab::Bus::LinuxGPIB>,
-using L<Linux GPIB (aka libgpib0 in debian)|http://linux-gpib.sourceforge.net/> as backend.
-
-It inherits from L<Lab::Connection::GPIB> and subsequently from L<Lab::Connection>.
-
-For L<Lab::Bus::LinuxGPIB>, the generic methods of L<Lab::Connection> suffice, so only a few defaults are set:
-  wait_status=>0, # usec;
-  wait_query=>10, # usec;
-  read_length=>1000, # bytes
-
-=head1 CONSTRUCTOR
-
-=head2 new
-
- my $connection = new Lab::Connection::LinuxGPIB(
-    gpib_board => 0,
-    gpib_address => $address,
-    gpib_saddress => $secondary_address
- }
-
-=head1 METHODS
-
-This just falls back on the methods inherited from L<Lab::Connection>.
-
-
-=head2 config
-
-Provides unified access to the fields in initial @_ to all the child classes.
-E.g.
-
- $GPIB_Address=$instrument->Config(gpib_address);
-
-Without arguments, returns a reference to the complete $self->Config aka @_ of the constructor.
-
- $Config = $connection->Config();
- $GPIB_Address = $connection->Config()->{'gpib_address'};
- 
-=head1 CAVEATS/BUGS
-
-Probably few. Mostly because there's not a lot to be done here. Please report.
-
-=head1 SEE ALSO
-
-=over 4
-
-=item * L<Lab::Connection>
-
-=item * L<Lab::Connection::GPIB>
-
-=back
+Lab::Connection::TCPraw - connection class which uses a so-called TCPraw connection
 
 =head1 AUTHOR/COPYRIGHT
 
- Copyright 2011      Florian Olbrich
+ Copyright 2012      Hermann Kraus
+           2013      Andreas K. Hüttel
 
 This library is free software; you can redistribute it and/or modify it under the same
 terms as Perl itself.
