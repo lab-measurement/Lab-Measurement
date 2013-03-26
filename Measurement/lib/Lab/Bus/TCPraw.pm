@@ -54,9 +54,10 @@ sub connection_new {
 	if (ref $_[0] eq 'HASH') { $args=shift } # try to be flexible about options as hash/hashref
 	else { $args={@_} }
 	my $ip_address = $args->{'ip_address'};
-#	
-    my $socket = new IO::Socket::INET(PeerAddr => $ip_address,
-                                PeerPort => '5025',
+	my $ip_port = $args->{'ip_port'};
+
+	my $socket = new IO::Socket::INET(PeerAddr => $ip_address,
+                                PeerPort => $ip_port,
                                 Proto => 'tcp',
                                 Timeout => 1,
                                 Blocking => 1,);
@@ -366,6 +367,7 @@ L<Lab::Bus>
            2010      Matthias Völker <mvoelker@cpan.org>
            2011      Florian Olbrich, Andreas K. Hüttel
            2012      Hermann Kraus
+           2013      Andreas K. Hüttel
 
 This library is free software; you can redistribute it and/or modify it under the same
 terms as Perl itself.
