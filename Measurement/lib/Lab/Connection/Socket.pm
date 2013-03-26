@@ -5,7 +5,6 @@ use Lab::Bus::Socket;
 use Lab::Connection;
 use Lab::Exception;
 
-
 our @ISA = ("Lab::Connection");
 
 our %fields = (
@@ -14,7 +13,6 @@ our %fields = (
 	wait_query=>10e-6, # sec;
 	read_length=>1000, # bytes
 );
-
 
 sub new {
 	my $proto = shift;
@@ -25,49 +23,6 @@ sub new {
 
 	return $self;
 }
-#
-
-# Connection definitions sufficient:
-#sub Write {
-#	my $self=shift;
-#	my $options=undef;
-#	if (ref $_[0] eq 'HASH') { $options=shift }
-#	else { $options={@_} }
-#	
-#	my $timeout = $options->{'timeout'} || $self->timeout();
-##	$self->bus()->timeout($self->connection_handle(), $timeout);
-#	
-#	return $self->bus()->connection_write($self->connection_handle(), $options);
-#}
-
-
-#
-#sub Read {
-#	my $self=shift;
-#	my $options=undef;
-#	if (ref $_[0] eq 'HASH') { $options=shift }
-#	else { $options={@_} }
-#	
-#	my $timeout = $options->{'timeout'} || $self->timeout();
-#	$self->bus()->timeout($self->connection_handle(), $timeout);
-#
-#	return $self->bus()->connection_read($self->connection_handle(), $options);
-#}
-#
-#sub Query {
-#	my $self=shift;
-#	my $options=undef;
-#	if (ref $_[0] eq 'HASH') { $options=shift }
-#	else { $options={@_} }
-#
-#	my $wait_query=$options->{'wait_query'} || $self->wait_query();
-#	my $timeout = $options->{'timeout'} || $self->timeout();
-#	$self->bus()->timeout($self->connection_handle(), $timeout);
-#	
-#	$self->Write( $options );
-#	usleep($wait_query);
-#	return $self->Read($options);
-#}
 
 #---For compatibility with Instruments written for GPIB----
 sub EnableTermChar { # 0/1 off/on

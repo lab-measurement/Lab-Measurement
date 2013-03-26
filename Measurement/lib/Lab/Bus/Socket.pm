@@ -15,20 +15,17 @@ use IO::Select;
 
 our @ISA = ("Lab::Bus");
 
-
 our %fields = (
 	type => 'Socket',	
-    PeerAddr => 'localhost', # Client for Write
-    PeerPort => '6342',
-    OpenServer =>0,
-    LocalHost => 'localhost', # Server for Read
-    LocalPort => '6342',
-	Proto =>'tcp',
-	Listen => 1,
-    Reuse => 1,
-    Timeout=> 60,
-    EnableTermChar=>0,
-    TermChar=>"\r\n",
+	remote_addr => 'localhost', # Client for Write
+	remote_port => '6342',
+	open_server => 0,
+	local_addr => 'localhost', # Server for Read
+	local_port => '6342',
+	proto => 'tcp',
+	listen_queue => 1,
+	reuse => 1,
+	timeout=> 60,
 	closechar =>"\004", # EOT
 	brutal => 0,	# brutal as default?
 	wait_query=>10e-6, # sec;
@@ -45,11 +42,11 @@ sub new {
 	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
 	# parameter parsing
 
-	$self->PeerAddr($self->config('PeerAddr')) if defined $self->config('PeerAddr');
-	$self->PeerPort($self->config('PeerPort')) if defined $self->config('PeerPort');
-	$self->OpenServer($self->config('OpenServer')) if defined $self->config('OpenServer');
-	$self->LocalHost($self->config('LocalHost')) if defined $self->config('LocalHost');
-	$self->LocalPort($self->config('LocalPort')) if defined $self->config('LocalPort');
+	$self->remote_addr($self->config('remote_addr')) if defined $self->config('remote_addr');
+	$self->remote_port($self->config('remote_port')) if defined $self->config('remote_port');
+	$self->open_server($self->config('open_server')) if defined $self->config('open_server');
+	$self->local_addr($self->config('local_addr')) if defined $self->config('local_addr');
+	$self->local_port($self->config('local_port')) if defined $self->config('local_port');
 	$self->Proto($self->config('Proto')) if defined $self->config('Proto');
 	$self->Timeout($self->config('Timeout')) if defined $self->config('Timeout');
 	$self->EnableTermChar($self->config('EnableTermChar')) if defined $self->config('EnableTermChar');
@@ -76,20 +73,21 @@ sub connection_new { # { gpib_address => primary address }
 	else { $args={@_} }
 	my $server = undef;
 	my $client = undef;
-	if ($args->{'OpenServer'}){
+	if ($args->{'open_server'}){
+		die "server sockets not yet supported\n";
  		$server = new IO::Socket::INET (
-                                  LocalHost => $args->{'LocalHost'},
-                                  LocalPort => $args->{'LocalPort'},
-                                  Proto => $args->{'Proto'},
-                                  Listen => $args->{'Listen'},
-                                  Reuse => $args->{'Reuse'},
+                                  LocalHost => $args->{'local_addr'},
+                                  LocalPort => $args->{'local_port'},
+                                  Proto => $args->{'proto'},
+                                  Listen => $args->{'listen_queue'},
+                                  Reuse => $args->{'reuse'},
                                  );
 		die "Could not create socket server: $!\n" unless $server;
 	}                             
  	$client = new IO::Socket::INET (
-                                  PeerAddr => $args->{'PeerAddr'},
-                                  PeerPort => $args->{'PeerPort'},
-                                  Proto => $args->{'Proto'},
+                                  PeerAddr => $args->{'remote_addr'},
+                                  PeerPort => $args->{'remote_port'},
+                                  Proto => $args->{'proto'},
                                  );
 	die "Could not create socket client: $!\n" unless $client;
 	$client->autoflush(1);
@@ -162,8 +160,6 @@ sub connection_read { # @_ = ( $connection_handle, $args = { read_length, brutal
 	};
 
 	$raw = $result;
-	#$result =~ /^\s*([+-][0-9]*\.[0-9]*)([eE]([+-]?[0-9]*))?\s*\x00*$/;
-	#$result = $1;
 	$result =~ s/[\n\r\x00]*$//;
 	return $result;
 }
@@ -191,22 +187,6 @@ sub connection_query { # @_ = ( $connection_handle, $args = { command, read_leng
 }
 	
 
-#sub connection_settermchar 
-#{ 
-#	my $self = shift;
-#	my $connection_handle=shift;
-#	my $args = undef;
-#	if (ref $_[0] eq 'HASH') { $args=shift } # try to be flexible about options as hash/hashref
-#	else { $args={@_} }
-#	my $termchar=$args->{'TermChar'};
-#	return 1;
-#}
-#
-#sub connection_enabletermchar 
-#{ 
-#	return 1;
-#}
-
 sub serial_poll 
 {
 	my $self = shift;
@@ -218,7 +198,31 @@ sub connection_clear
 {
 	my $self = shift;
 	my $connection_handle=shift;
-
-	close($connection_handle->{'socket'});
+	return undef;
 }
-	
+
+1;
+
+=pod
+
+=encoding utf-8
+
+=head1 NAME
+
+Lab::Bus::Socket - IP socket as bus
+
+=head1 SYNOPSIS
+
+This is the IP socket bus class.
+
+=head1 AUTHOR/COPYRIGHT
+
+ Copyright 2012      David Kalok
+           2013      Andreas K. Hüttel
+
+This library is free software; you can redistribute it and/or modify it under the same
+terms as Perl itself.
+
+=cut
+
+1;
