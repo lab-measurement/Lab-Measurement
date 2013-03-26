@@ -25,6 +25,8 @@ our %fields = (
 
 
 sub new {
+	print "the TCPraw connection is deprecated, please use Socket with target port 5025 instead\n";
+
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
 	my $twin = undef;
