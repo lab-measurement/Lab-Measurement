@@ -150,7 +150,7 @@ sub connection_read { # @_ = ( $connection_handle, $args = { read_length, brutal
 	else {
 		my @ready = IO::Select->new($sock)->can_read($self->{'Timeout'});
 		if (@ready) {
-    		$sock->recv($result,$read_length) or die "$! reading";
+    		$sock->recv($result,$read_length);
 		}
 		else {	
 			Lab::Exception::Timeout->throw(
