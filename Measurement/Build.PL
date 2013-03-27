@@ -31,7 +31,7 @@ my $build = Module::Build->new(
         'Lab::Instrument'    => '< 2.91',
         'Lab::Tools'         => '< 2.91',
     },
-    script_files => [ 'scripts', 'lib/Lab/XPRESS/Xpression.pl' ],
+    script_files => 'scripts',
     create_readme     => 0,
     dist_author       => ['Daniel Schröer <schroeer@cpan.org>',
                           'Andreas K. Hüttel <mail@akhuettel.de>',
