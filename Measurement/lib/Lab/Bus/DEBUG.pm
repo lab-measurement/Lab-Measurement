@@ -12,7 +12,7 @@ use Time::HiRes qw (usleep sleep);
 use Lab::Bus;
 use Data::Dumper;
 use Carp;
-use Lab::BUS::DEBUG::HumanInstrument;
+use Lab::Bus::DEBUG::HumanInstrument;
 
 use Lab::Exception
 
