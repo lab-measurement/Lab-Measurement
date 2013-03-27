@@ -14,7 +14,7 @@ use POSIX qw[fmod];
 our @ISA = ("Lab::Instrument");
 
 our %fields = (
-	supported_connections => [ 'GPIB', 'VISA_GPIB', 'DEBUG' ],
+	supported_connections => [ 'GPIB', 'VISA_GPIB' ],
 	device_raw_settings => [],
 	device_settings => {
 	    imode => undef,

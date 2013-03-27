@@ -13,7 +13,7 @@ use Lab::Instrument::Source;
 our @ISA=('Lab::Instrument::Source');
 
 our %fields = (
-	supported_connections => [ 'VISA_GPIB', 'GPIB', 'VISA', 'DEBUG' ],
+	supported_connections => [ 'VISA_GPIB', 'GPIB', 'VISA' ],
 
 	# default settings for the supported connections
 	connection_settings => {

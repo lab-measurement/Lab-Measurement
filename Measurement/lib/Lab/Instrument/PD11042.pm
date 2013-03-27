@@ -71,7 +71,7 @@ our $GETRIEBEMULTIPLIKATOR = 43;
 our @ISA = ("Lab::Instrument");
 
 our %fields = (
-	supported_connections => [ 'VISA', 'VISA_RS232', 'RS232', 'DEBUG' ],
+	supported_connections => [ 'VISA', 'VISA_RS232', 'RS232' ],
 	baudrate => 9600,
 	databits => 8,
 	stopbits => 1,

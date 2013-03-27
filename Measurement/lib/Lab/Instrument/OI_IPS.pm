@@ -15,7 +15,7 @@ our @ISA=('Lab::Instrument::MagnetSupply');
 
 
 our %fields = (
-	supported_connections => [ 'GPIB', 'DEBUG','Socket','IsoBus' ],
+	supported_connections => [ 'GPIB','Socket','IsoBus' ],
 
 	# default settings for the supported connections
 	connection_settings => {

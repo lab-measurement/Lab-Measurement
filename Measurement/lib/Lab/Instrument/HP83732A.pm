@@ -8,7 +8,7 @@ use Time::HiRes qw (usleep);
 our @ISA = ("Lab::Instrument");
 
 our %fields = (
-	supported_connections => [ 'GPIB', 'DEBUG' ],
+	supported_connections => [ 'GPIB' ],
 
 	# default settings for the supported connections
 	connection_settings => {

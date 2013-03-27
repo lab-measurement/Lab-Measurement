@@ -307,8 +307,9 @@ sub _checkconnection { # Connection object or connection_type string (as in Lab:
 	no strict 'refs';
 	if( grep(/^ALL$/, @{$self->supported_connections()}) == 1 ) {
 		return $connection;
-	}
-	else {
+	} elsif ( $connection->isa('Lab::Connection::DEBUG')) {
+		return $connection;
+	} else {
 		for my $conn_supp ( @{$self->supported_connections()} ) {
 			return $conn_supp if( $connection->isa('Lab::Connection::'.$conn_supp));
 		}
@@ -363,8 +364,15 @@ sub _setconnection { # $self->setconnection() create new or use existing connect
 
 		if( $connection_type !~ /^[A-Za-z0-9_\-\:]*$/ ) { Lab::Exception::CorruptParameter->throw( error => "Given connection type is does not look like a valid module name.\n"); };
 
-		if( $connection_type eq 'none' ) { return; };
-		# todo: allow this only if the device supports connection_type none
+		if( $connection_type eq 'none' ) {
+			if( grep(/^none$/, @{$self->supported_connections()}) == 1 ) {
+				return;
+			} else {
+				Lab::Exception::Error->throw(
+					error => 	"Sorry, this instrument cannot work without a connection.\n"
+				);
+			};
+		};
 
 		$full_connection = "Lab::Connection::" . $connection_type;
 		eval("require ${full_connection};");

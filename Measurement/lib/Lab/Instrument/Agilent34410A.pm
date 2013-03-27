@@ -15,7 +15,7 @@ use Lab::Instrument::Multimeter;
 our @ISA = ("Lab::Instrument::Multimeter");
 
 our %fields = (
-	supported_connections => [ 'VISA_GPIB', 'GPIB', 'DEBUG' ],
+	supported_connections => [ 'VISA_GPIB', 'GPIB' ],
 
 	# default settings for the supported connections
 	connection_settings => {
