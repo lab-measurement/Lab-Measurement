@@ -197,7 +197,7 @@ sub set_level {
 	return $voltage if $voltage == $current;
 
 	if ($self->device_settings()->{'gate_protect'} && $self->device_settings()->{'gp_max_units_per_step'} < abs($voltage-$current)) {
-		return $voltage=$self->sweep_to_level($voltage,@_);
+		return $voltage=$self->gp_sweep($voltage,@_);
 	} else {
 		return $self->_set_level($voltage,{@_});
 	}
@@ -205,75 +205,65 @@ sub set_level {
 }
 
 
-
-
-
-
-sub sweep_to_level {
-	my $self = shift;
+sub gp_sweep {
+	my $self   = shift;
 	my $target = shift;
+	my $args = undef;
 	
-	my($time, $args) = $self->parse_optional(@_);
 	
-	if(!defined $target || ref($target) eq 'HASH') {
-		Lab::Exception::CorruptParameter->throw( error=>'No voltage given.');
+	if ( ref $_[0] eq 'HASH' && scalar(@_) == 1 ) { $args = shift }
+	elsif ( scalar(@_) % 2 == 0 ) { $args = {@_}; }
+	else {
+		Lab::Exception::CorruptParameter->throw( error =>
+"Sorry, I'm unclear about my parameters. See documentation.\nParameters: "
+			  . join( ", ", ( $target, @_ ) )
+			  . "\n" );
 	}
-	
+
+
+	if ( !defined $target || ref($target) eq 'HASH' ) {
+		Lab::Exception::CorruptParameter->throw( error => 'No voltage given.' );
+	}
+
 	# Check correct channel setup
-	
+
 	$self->_check_gate_protect();
-	
-	# Make sure stepsize is within gate_protect boundaries. 
-	
-	my $stepsize = $args->{stepsize} || $self->get_stepsize();
+
+	# Make sure stepsize is within gate_protect boundaries.
+
 	my $upstep = $self->get_gp_max_units_per_step();
-	$upstep = $stepsize if $stepsize < $upstep;
-	
-	if(!defined $stepsize){
-		Lab::Exception::CorruptParameter->throw( 'No stepsize given. Please specify either stepsize or gp_max_units_per_step.');
-	}
-	
+
+
 	my $apsec = $self->get_gp_max_units_per_second();
-	
+
 	my $spsec = $self->get_gp_max_step_per_second();
-	
-	my $current = $self->get_level( from_device => 1 )+ 0.;
-	
-	if( $target == $current ){
+
+	my $current = $self->get_level( from_device => 1 ) + 0.;
+
+	if ( $target == $current ) {
 		return $target;
 	}
-	
-	if( $self->device_settings()->{"gate_protect"} && $time ){
-		$time = ( abs($target - $current)/$time < $apsec ) ? $time : abs($target-$current)/$apsec;
-	}	
-	elsif(!defined($time)){
-		$time = (abs($target-$current)+0.)/$apsec;
-	}	
-	
-	# sweep to current
 
-	if($self->can("_sweep_to_level")) {
-		return $self->_sweep_to_level($target,$time,$args);
-	}
-	else{
-			
-		my $steptime = $time / ( abs($current - $target)/$upstep );
-		
-		unless( $current != $target){
-			if( abs($target-$current) <= $upstep ){
-				$self->_set_level($target, $args);
-			}
-			my $next = ($target - $current > 0) 
-				? $self->_set_level( $target+$upstep, $args) 
-				: $self->_set_level( $target-$upstep, $args);
-			sleep($steptime);
-			
-			$current = $next;		
+	# sweep to value
+
+	while ( $current != $target ) {
+		if ( abs( $target - $current ) <= $upstep ) {
+			$current = $self->_set_level( $target, $args );
 		}
-		return $current;			
+		else {
+			my $next =
+			  ( $target - $current > 0 )
+			  ? $self->_set_level( $current + $upstep, $args )
+			  : $self->_set_level( $current - $upstep, $args );
+			usleep(1.e6/$spsec);
+
+			$current = $next;
+		}
 	}
-	
+	return $current;
 }
+
+
 
 sub is_me_channel{
 	my $self = shift;

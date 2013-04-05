@@ -194,7 +194,7 @@ sub program_halt{
 	$self->write("$cmd");
 }
 
-sub _sweep_to_level {
+sub sweep {
     my $self=shift;
     my $target=shift;
     my $time=shift;

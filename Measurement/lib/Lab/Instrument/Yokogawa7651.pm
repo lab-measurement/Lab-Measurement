@@ -239,7 +239,7 @@ sub wait_done{
 	
 }
 
-sub _sweep_to_level {
+sub sweep {
     my $self = shift;
     my $target = shift;
     my $time = shift;
