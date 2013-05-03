@@ -3,7 +3,7 @@ package Lab::XPRESS::Sweep::Frame;
 
 use Time::HiRes qw/usleep/, qw/time/;
 use strict;
-use Lab::XPRESS::Sweep::Dummy;
+use Lab::Exception;
 
 sub new {
     my $proto = shift;
@@ -24,53 +24,18 @@ sub start {
 	
 	if ( not defined $self->{master} )
 		{
-		warn 'no master defined';
+		Lab::Exception::Warning->throw(error => "no master defined");
 		}
-	elsif ( not defined $self->{slaves}[-1] )
-		{
-		warn 'no measurement defined';
-		return $self;
-		}
-	elsif ( defined $self->{slaves}[-1] )
-		{
-		if ( $self->{master}->{config}->{mode} =~ /step|list/  )
-			{
-			foreach my $slave (@{$self->{slaves}})
-				{
-				if ( not defined $slave->{DataFiles}[-1] )
-					{
-					if ( ref($slave) != 'Lab::XPRESS::Sweep::Dummy' )
-						{
-						warn "no measurement defined in slave ref($slave)";
-						}
-					}
-				}
-			$self->{master}->start(undef, $self->{slaves});
-			return $self;
-			}
-		else
-			{
-			warn 'master not in step or list mode';
-			return $self;
-			}
-		}
+	else {
+		$self->{master}->start();
+	}
 
 }
 
-sub halt {
+sub abort {
 	my $self = shift;
 	
-	foreach my $slave ( @{$self->{slaves}} )
-		{
-		$slave->halt();
-		}
-		
-	if ( defined $self->{master} )
-		{
-		$self->{master}->halt();
-		}
-	
-	exit;
+	$self->{master}->abort();
 	
 }
 
@@ -81,11 +46,11 @@ sub pause {
 sub add_master {
 	my $self = shift;	
 	$self->{master} = shift;
-	if ( $self->{master}->{DataFile_counter} > 0 )
+
+	my $type = ref($self->{master});
+	if ( not $type =~ /^Lab::XPRESS::Sweep/ )
 		{
-		$self->{master}->{DataFile_counter}= 0;
-		$self->{master}->{DataFiles} = ();
-		#warn 'WARNING: master may not have a DataFile object. Will be ignored.';
+		Lab::Exception::Warning->throw(error => "Master is not of type Lab::XPRESS::Sweep . ");
 		}
 	return $self;
 }
@@ -96,43 +61,11 @@ sub add_slave {
 	
 	if ( not defined $self->{master} )
 		{
-		die 'no master defined when called add_slave().';
+		Lab::Exception::Warning->throw(error => "no master defined when called add_slave().");
 		}
 	
-	my $type = ref($slave);
-	if ( $type =~ /^Lab::XPRESS::Sweep/ )
-		{
-		if ($slave->{DataFile_counter} <= 0) {
-			while (1) {
-				print "\n XPRESS::FRAME: -- Added slave sweep has no DataFile! Continue anyway (y/n) ?\n";
-				my $answer = <>;
-				if ($answer =~ /y|Y/) {
-					last;
-				} 
-				elsif ($answer =~ /n|N/) {
-					exit;
-				}
-			}
-		}
+	$self->{master}->add_slave($slave);
 
-		push ( @{$self->{slaves}}, $slave );
-		$self->{slave_counter}++;
-		}
-	elsif ( $type eq 'CODE' )
-		{
-		$slave = new Lab::XPRESS::Sweep::Dummy($slave);
-		push ( @{$self->{slaves}}, $slave );
-		$self->{slave_counter}++;
-		}
-	else
-		{
-		warn "slave object is of type $type. Cannot add slave.";
-		}
-		
-	# my $type = ref($self->{slaves}[-1]);
-	# print "add slave:\n";
-	# print $type."\n";
-	
 	return $self;
 }
 

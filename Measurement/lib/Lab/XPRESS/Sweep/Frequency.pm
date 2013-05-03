@@ -15,9 +15,10 @@ sub new {
     my $class = ref($proto) || $proto; 
 	my $self->{default_config} = {
 		id => 'Frequency_Sweep',
+		filename_extension => 'FRQ=',
 		interval	=> 1,
 		points	=>	[],
-		rates => [1],
+		rate => [1],
 		mode	=> 'step',
 		allowed_instruments => ['Lab::Instrument::SignalRecovery726x'],
 		allowed_sweep_modes => ['list', 'step'],

@@ -1,4 +1,4 @@
-package Lab::XPRESS::Sweep::Time;
+package Lab::XPRESS::Sweep::DietersCrazyTempSweep;
 
 use Lab::XPRESS::Sweep::Sweep;
 use Time::HiRes qw/usleep/, qw/time/;
@@ -17,22 +17,15 @@ sub new {
 	my $self->{default_config} = {
 		id => 'Time_sweep',
 		interval	=> 1,
-		points	=>	[0], #[0,10],
-		duration	=> undef,
+		points	=>	[0,10],
+		duration	=> [1],
 		stepwidth => 1,
 		mode	=> 'continuous',
-		allowed_instruments => [undef],
+		allowed_instruments => ['Lab::Instrument::ITC'],
 		allowed_sweep_modes => ['continuous'],
 		};
 	
-	if (ref(@args[0]->{duration}) ne "ARRAY") {
-		@args[0]->{duration} = [@args[0]->{duration}];
-	}
 	
-	foreach my $d (@{@args[0]->{duration}}) 
-			{
-			push(@{$self->{default_config}->{points}}, $d);
-			}
 	# create self from Sweep basic class:
 	$self = $class->SUPER::new($self->{default_config},@args);	
 	bless ($self, $class);
@@ -45,7 +38,8 @@ sub new {
 	$self->{DataFile_counter} = 0;	
 	$self->{DataFiles} = ();
 	
-	print "SF: ".$self->{config}->{separate_files}."\n";	
+	
+			
     return $self;
 }
 
@@ -67,34 +61,53 @@ sub check_config_paramters {
 
 sub exit_loop {
 	my $self = shift;
-
-	if ( @{$self->{config}->{points}}[$self->{sequence}] > 0 and $self->{iterator} >= (@{$self->{config}->{points}}[$self->{sequence}]/@{$self->{config}->{interval}}[$self->{sequence}]) )
-		{
-		if (not defined @{$self->{config}->{points}}[$self->{sequence}+1])
+	
+	my $T_Probe = $self->{config}->{instrument}->get_value(3);
+	
+	if ($self->{sequence} == 0) {
+		
+	
+		if ($T_Probe >= @{$self->{config}->{points}}[1] )
 			{
-			return 1;
+			$self->{config}->{instrument}->set_heateroutput(0);
+			$self->{sequence} ++;
+			foreach my $file (@{$self->{DataFiles}}) {
+				$file->start_block();
 			}
-
-		$self->{iterator} = 0;
-		$self->{sequence} ++;
-		return 0;
+			$self->skip_LOG();
+			}
+		elsif( $T_Probe < 15 )
+			{
+			$self->{config}->{instrument}->set_heateroutput(33); # 0..99% of heaterlimit
+			}
+		elsif( $T_Probe >= 15 and $T_Probe <= 40 )
+			{
+			$self->{config}->{instrument}->set_heateroutput(56); # 0..99% of heaterlimit
+			}
+		elsif( $T_Probe > 40 )
+			{
+			$self->{config}->{instrument}->set_heateroutput(70); # 0..99% of heaterlimit
+			}
+		
+	}
+	elsif ($self->{sequence} == 1) {
+		if ($T_Probe > @{$self->{config}->{points}}[1]) {
+			$self->skip_LOG();
 		}
-	else
-		{
-		return 0;
+		elsif ($T_Probe <= @{$self->{config}->{points}}[0]) {
+			return 1;
 		}
+	}
+	
+	return 0;
+	
 }
 
 sub get_value {
 	my $self = shift;
-	return $self->{time};
+	return $self->{config}->{instrument}->get_value(3);
 }
 
-sub go_to_sweep_start {
-	my $self = shift;
-	
-	$self->{sequence} ++;
-	}
 	
 sub halt {
 	return shift;

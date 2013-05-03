@@ -15,9 +15,10 @@ sub new {
     my $class = ref($proto) || $proto; 
 	my $self->{default_config} = {
 		id => 'Voltage_sweep',
+		filename_extension => 'V=',
 		interval	=> 1,
 		points	=>	[],
-		durations	=> [],
+		duration	=> [],
 		mode	=> 'continuous',
 		allowed_instruments => ['Lab::Instrument::Yokogawa7651', 'Lab::Instrument::Keithley2400'],
 		allowed_sweep_modes => ['continuous', 'list', 'step'],
@@ -39,7 +40,7 @@ sub go_to_sweep_start {
 	print "going to start ... ";
 	$self->{config}->{instrument}->config_sweep({
 		'points' => @{$self->{config}->{points}}[$self->{iterator}], 
-		'rate' => @{$self->{config}->{rates}}[$self->{iterator}]
+		'rate' => @{$self->{config}->{rate}}[$self->{iterator}]
 		});
 	$self->{config}->{instrument}->trg();
 	$self->{config}->{instrument}->wait();
@@ -52,7 +53,7 @@ sub start_continuous_sweep {
 		
 	$self->{config}->{instrument}->config_sweep({
 		'points' => @{$self->{config}->{points}}[$self->{iterator}+1],
-		'rate' => @{$self->{config}->{rates}}[$self->{iterator}+1]
+		'rate' => @{$self->{config}->{rate}}[$self->{iterator}+1]
 		});
 	$self->{config}->{instrument}->trg();
 	}
@@ -64,7 +65,7 @@ sub go_to_next_step {
 	
 	$self->{config}->{instrument}->config_sweep({
 		'points' => @{$self->{config}->{points}}[$self->{iterator}],
-		'rate' => @{$self->{config}->{rates}}[$self->{iterator}]
+		'rate' => @{$self->{config}->{rate}}[$self->{iterator}]
 		});
 		$self->{config}->{instrument}->trg();
 		$self->{config}->{instrument}->wait();
@@ -90,7 +91,7 @@ sub exit_loop {
 			$self->{sequence}++;
 			$self->{config}->{instrument}->config_sweep({
 				'points' => @{$self->{config}->{points}}[$self->{sequence}+1],
-				'rate' => @{$self->{config}->{rates}}[$self->{sequence}+1]
+				'rate' => @{$self->{config}->{rate}}[$self->{sequence}+1]
 				});
 			$self->{config}->{instrument}->trg();
 			}
