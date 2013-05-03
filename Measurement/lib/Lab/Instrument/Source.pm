@@ -219,9 +219,8 @@ sub sweep_to_level {
 	}
 	
 	# Check correct channel setup
-	
 	$self->_check_gate_protect();
-	
+
 	# Make sure stepsize is within gate_protect boundaries. 
 	
 	my $stepsize = $args->{stepsize} || $self->get_stepsize();
@@ -235,6 +234,8 @@ sub sweep_to_level {
 	my $apsec = $self->get_gp_max_units_per_second();
 	
 	my $spsec = $self->get_gp_max_step_per_second();
+
+	
 	
 	my $current = $self->get_level( from_device => 1 )+ 0.;
 	
@@ -249,6 +250,7 @@ sub sweep_to_level {
 		$time = (abs($target-$current)+0.)/$apsec;
 	}	
 	
+
 	# sweep to current
 
 	if($self->can("_sweep_to_level")) {
