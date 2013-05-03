@@ -399,13 +399,13 @@ sub get_field { # basic
 	{
 		$self->{'request'} = 0;
 		my $result = $self->read();
-		$result =~ s/^R//;
+		$result =~ s/R//g;
 		return $self->device_cache()->{field} = $result;
 	}
     else
     {
     	my $result = $self->query("R7\r");
-		$result =~ s/^R//;
+		$result =~ s/R//g;
 		return $self->device_cache()->{field} = $result;	
     }
 
@@ -760,7 +760,100 @@ sub config_sweep { # basic
 
 }
 
+sub sweep_to_field {
+	my $self = shift;
+	my ($target, $rate) = $self->_check_args( \@_, ['target', 'rate'] );
+	
+	my $current_field = $self->get_value();
 
+	my $current_field_interval = 0;
+	my $target_field_interval = 0;
+	
+	my @targets;
+	my @rates;
+	
+	
+	
+	my $sweep_direction = ($current_field < $target)? 1: -1;
+	
+	foreach my $field_limit (@{$self->{LIMITS}->{field_intervall_limits}}) {
+		if (abs($current_field) > $field_limit and $field_limit != 0) {
+		$current_field_interval++;
+		}
+		if (abs($target) > $field_limit and $field_limit != 0) {
+		$target_field_interval++;
+		}
+	}
+
+	
+	
+	
+	$current_field_interval = ($current_field < 0) ? $current_field_interval*(-1) : $current_field_interval;
+	$target_field_interval = ($target < 0) ? $target_field_interval*(-1) : $target_field_interval;
+
+	# add interval limits:
+	my $interval = $current_field_interval;
+
+	while (1) {
+		my $vergleichswert = (($interval >= 0) ? 1 : -1)*@{$self->{LIMITS}->{field_intervall_limits}}[($interval*$sweep_direction >= 0)? abs($interval)+1 : abs($interval)];
+		if( $interval == 0 )
+			{
+			$vergleichswert*=$sweep_direction;
+			}
+
+		my $index = abs($interval);
+
+
+		if ($target*$sweep_direction <= $vergleichswert*$sweep_direction or ( abs($interval) >= @{$self->{LIMITS}->{field_intervall_limits}}-1 and $interval != $current_field_interval)) {
+			push(@targets, $target);
+
+
+			if ($rate > @{$self->{LIMITS}->{rate_intervall_limits}}[$index] or not defined $rate )
+				{
+				push(@rates, @{$self->{LIMITS}->{rate_intervall_limits}}[$index]);
+				}
+			else
+				{
+				push(@rates, $rate);
+				}
+
+
+			last;
+
+		}
+
+
+		if ($vergleichswert != $current_field) {	
+			push(@targets, $vergleichswert);
+			if ($rate > @{$self->{LIMITS}->{rate_intervall_limits}}[abs($interval)] or not defined $rate )
+				{
+				push(@rates, @{$self->{LIMITS}->{rate_intervall_limits}}[abs($interval)]);
+				}
+			else
+				{
+				push(@rates, $rate);
+				}
+		}
+
+
+		$interval += $sweep_direction;
+	}
+	
+	print "Targets: @targets \n";
+	print "Rates: @rates \n";
+	exit;
+	# starrt sweep and wait...
+	$self->config_sweep(\@targets, \@rates);
+	$self->trg();
+	$self->wait();	
+	
+}
+
+sub sweep_to_level {
+
+	my $self = shift;
+	return $self->sweep_to_field(@_);
+}
 
 1;
 
