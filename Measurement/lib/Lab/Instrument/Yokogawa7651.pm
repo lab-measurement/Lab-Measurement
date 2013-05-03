@@ -27,9 +27,9 @@ our %fields = (
 	device_settings => {
 		gate_protect            => 0,
 		gp_equal_level          => 1e-5,
-		gp_max_units_per_second  => 0.002,
-		gp_max_units_per_step    => 0.001,
-		gp_max_step_per_second  => 2,
+		gp_max_units_per_second  => undef,
+		gp_max_units_per_step    => undef,
+		gp_max_step_per_second  => undef,
 
 		max_sweep_time=>3600,
 		min_sweep_time=>0.1,
@@ -202,7 +202,7 @@ sub config_sweep{
     }
     elsif (not defined $rate and defined $time) {
         $duration = $time;
-        $rate = int(abs($start-$target)/$time);
+        $rate = abs($start-$target)/$time;
     }
     elsif (defined $rate and defined $time) {
         Lab::Exception::CorruptParameter->throw("Definition of rate and time simultanousely is inconsistent!");
@@ -218,6 +218,7 @@ sub config_sweep{
         
     }
 
+	
     
     # check if the given target value and given rate are within the GATE-PROTECTION limts:
     if ( $self->device_settings()->{gate_protect} )
@@ -415,9 +416,12 @@ sub _sweep_to_level {
     my $self = shift;
     my ($target, $time) = $self->_check_args( \@_, ['points', 'time'] );
 
+			
 	# print "Yokogawa7651.pm: configuring sweep $target $time\n";
-    $self->config_sweep({target => $target,
+    $self->config_sweep({points => $target,
                         time => $time});
+						
+
 
 	# print "Yokogawa7651.pm: executing program\n";
     $self->execute_program(2);
