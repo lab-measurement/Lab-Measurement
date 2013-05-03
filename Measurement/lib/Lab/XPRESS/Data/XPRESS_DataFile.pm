@@ -3,10 +3,14 @@ package Lab::XPRESS::Data::XPRESS_DataFile;
 
 use strict;
 use Time::HiRes qw/usleep/, qw/time/;
+use Storable qw(dclone);
+use File::Copy;
 use Lab::XPRESS::Data::XPRESS_logger;
 use Lab::XPRESS::Sweep::Sweep;
 
 our $counter = 0;
+our $GLOBAL_PATH = "./";
+our $GLOBAL_FOLDER = undef;
 
 sub new {
     my $proto = shift;
@@ -25,18 +29,83 @@ sub new {
 	$self->{skiplog} = 0;
 	
 	my $filenamebase = shift;
-	if ( not $filenamebase =~ /\// )
-		{
-		$filenamebase = "./".$filenamebase;
-		}
+
+	$self->{filenamebase} = $filenamebase;
+
 	my @plots = @_;
+	$self->{plots} = [];
+	foreach my $plot (@plots) {
+		push (@{$self->{plots}}, $plot);
+	}
+	
 	$self->{plot_count} = @plots;
 	# create file-handle:
-	$self->{logger} = new Lab::XPRESS::Data::XPRESS_logger($filenamebase, \@plots);
+	$self->{filenamebase} = $self->create_folder($self->{filenamebase});
+
+	$self->open_logger($self->{filenamebase}, $self->{plots});
+	$self->{file} = $self->{filenamebase};
 	
 	
 	return $self;
 	
+}
+
+
+sub create_folder {
+
+	my $self = shift;
+	my $filenamebase = shift;
+
+	$filenamebase =~ s/\\/\//g;
+	$filenamebase =~ s/\.\///g;
+	$filenamebase =~ s/\.\.\///g;
+	$filenamebase =~ s/[a-zA-Z]\:\///g;
+
+	my @filename = split(/\//, $filenamebase);
+	my $filename = pop(@filename);
+
+	my $folder = join('/', @filename);
+
+	if (not defined $GLOBAL_FOLDER)
+		{
+		if ( not -d $GLOBAL_PATH )
+				{
+				mkdir $GLOBAL_PATH;
+				}
+				
+		# look for existing files:
+		opendir (DIR, $GLOBAL_PATH);
+		my @files = readdir(DIR);
+
+		my $max_index = 0;
+		foreach my $file (@files)
+			{
+
+			if ( $file =~ /(MEAS)_([0-9]+)\b/ )
+				{
+				if ( $2 > $max_index )
+					{
+					$max_index = $2;
+					}
+				$max_index ++;
+				}
+			}
+
+		closedir(DIR);
+
+		$GLOBAL_FOLDER = sprintf("%s/MEAS_%03d",$GLOBAL_PATH, $max_index);
+
+		mkdir ($GLOBAL_FOLDER);
+		
+		copy($0, $GLOBAL_FOLDER);
+		}
+
+	
+	my $folder = $GLOBAL_FOLDER."/".$folder;
+
+	return $folder."/".$filename;
+
+
 }
 
 # ------------------------------- CONFIG ---------------------------------------------------------
@@ -112,77 +181,71 @@ sub add_column {
 	push(@{$self->{COLUMNS}}, $col);
 	$self->{NUMBER_OF_COLUMNS} += 1;
 	$self->{logger}->{COLUMN_NAMES} = $self->{COLUMN_NAMES};
+	$self->{logger}->{NUMBER_OF_COLUMNS} = $self->{NUMBER_OF_COLUMNS};
 	return $self;
 }
 
 sub add_plot {
 	my $self = shift;
 	my $plot = shift;
-	
-	# # prepair y-axis:	
-	# if ( ref($plot->{'y-axis'}) ne 'ARRAY')
-		# {
-		# $plot->{'y-axis'} = [$plot->{'y-axis'}];
-		# }
 		
-	# # prepair y2-axis:
-	# if ( ref($plot->{'y2-axis'}) ne 'ARRAY')
-		# {
-		# $plot->{'y2-axis'} = [$plot->{'y2-axis'}];
-		# }
-	
-
-	
-	# # replace columnames by columnumbers:
-	# if ( exists $self->{COLUMN_NAMES}{$plot->{'x-axis'}})
-		# {
-		# $plot->{'x-axis'} =  $self->{COLUMN_NAMES}{$plot->{'x-axis'}};
-		# }
-		
-	# my $temp = ();	
-	# foreach my $axis (@{$plot->{'y-axis'}})
-		# {		
-		# if ( exists $self->{COLUMN_NAMES}{$axis})
-			# {
-			# push (@{$temp}, $self->{COLUMN_NAMES}{$axis});			
-			# }
-		# elsif ( $axis <= $self->{NUMBER_OF_COLUMNS} )
-			# {
-			# push (@{$temp}, $axis);
-			# }
-		# $plot->{'y-axis'} =  $temp;
-		# }
-		
-	# my $temp = ();		
-	# foreach my $axis (@{$plot->{'y2-axis'}})
-		# {
-		# if ( exists $self->{COLUMN_NAMES}{$axis})
-			# {
-			# push (@{$temp}, $self->{COLUMN_NAMES}{$axis});	
-			# }
-		# elsif ( $axis <= $self->{NUMBER_OF_COLUMNS} )
-			# {
-			# push (@{$temp}, $axis);
-			# }
-		# $plot->{'y2-axis'} =  $temp;
-		# }
-		
-	# if ( exists $self->{COLUMN_NAMES}{$plot->{'z-axis'}})
-		# {
-		# $plot->{'z-axis'} =  $self->{COLUMN_NAMES}{$plot->{'z-axis'}};
-		# }
-		
-	# if ( exists $self->{COLUMN_NAMES}{$plot->{'cb-axis'}})
-		# {
-		# $plot->{'cb-axis'} =  $self->{COLUMN_NAMES}{$plot->{'cb-axis'}};
-		# }
-		
-	
+	push (@{$self->{plots}}, $plot);
 	$self->{logger}->{COLUMN_NAMES} = $self->{COLUMN_NAMES}; # refresh logger->column_names
-	$self->{logger}->add_plots($plot);
+	my $plot_copy = dclone(\%{$plot});
+	$self->{logger}->add_plots($plot_copy);
 	$self->{plot_count}++;
 	
 	return $self;
+}
+
+sub open_logger {
+	my $self = shift;
+	my $filenamebase = shift;
+	my $plots = shift;
+
+	my $plots_copy = [];
+
+	if (defined $plots) {
+		my $plots_copy = dclone($plots);
+	}
+	
+
+	$self->{logger} = new Lab::XPRESS::Data::XPRESS_logger($filenamebase, $plots_copy);
+	$self->{logger}->{COLUMN_NAMES} = $self->{COLUMN_NAMES};
+}
+
+sub change_filenamebase {
+	my $self = shift;
+	my $filenamebase = shift;
+	if ( not $filenamebase =~ /\// )
+		{
+		$filenamebase = "./".$filenamebase;
+		}
+
+	#$self->{filenamebase} = $filenamebase;
+
+	my $old_file = $self->{logger}->{filename};
+	my $old_directory = $self->{logger}->{directory};
+
+	delete $self->{logger};
+	$self->{LOG_STARTED} = 0;
+
+	
+	if (-z $old_file) {
+		unlink $old_file;
+	}
+
+	$self->open_logger($filenamebase);
+	$self->{file} = $filenamebase;
+
+	$self->{logger}->{COLUMN_NAMES} = $self->{COLUMN_NAMES};
+	$self->{logger}->{NUMBER_OF_COLUMNS} = $self->{NUMBER_OF_COLUMNS};
+
+	my $plots_copy = dclone($self->{plots});
+	$self->{logger}->add_plots($plots_copy);
+
+
+	
 }
 
 sub start_log {

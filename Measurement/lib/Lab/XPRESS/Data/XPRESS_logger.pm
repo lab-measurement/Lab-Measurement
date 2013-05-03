@@ -15,7 +15,7 @@ sub new {
 	my $self = {};
     bless ($self, $class);
 	
-	($self->{filehandle},$self->{filename}) = $self->open_file($filenamebase);
+	($self->{filehandle},$self->{filename}, $self->{directory}) = $self->open_file($filenamebase);
 	$self->{block_num} = 0;
 	$self->{line_num} = 0;
 	
@@ -59,6 +59,7 @@ sub open_file {
 	my $self = shift;
 	my $filenamebase = shift;
 	
+
 	
 	# split directory/filname ..
 	if ( $filenamebase =~ /(.+)(\/|\/\/|\\|\\\\)(.+)\b/ ) 
@@ -86,26 +87,45 @@ sub open_file {
 		my $max_index = 0;
 		foreach my $file (@files)
 			{
-			if ( $file =~ /($filename)_(\d+)(\.*)\b/ )
-				{
-				if ( $2 > $max_index )
+
+			my $temp_filename = $filename;
+			$temp_filename =~ s/\(/\\\(/g;
+			$temp_filename =~ s/\)/\\\)/g;
+			#print $temp_filename."\n";
+			if ( $file =~ /($temp_filename)(_(\d+))?(\.*)\b/ )
+				{	
+				if ( $3 > $max_index )
 					{
-					$max_index = $2;
+					$max_index = $3;
 					}
+				elsif (not defined $3) 
+					{
+					$max_index = 1;
+					} 	
 				}
+
 			}
 		closedir(DIR);
 		$max_index++;
 		
+		my $file_data;
 		# open new file:
-		my $file_data = sprintf("%s/%s_%03d%s",$directory, $filename, $max_index, $filenameextension);
+		if ($max_index > 1) 
+		{
+			$file_data = sprintf("%s/%s_%03d%s",$directory, $filename, $max_index, $filenameextension);	
+		}
+		else
+		{
+			$file_data = sprintf("%s/%s%s",$directory, $filename, $filenameextension);	
+		}
+		
 		open (my $LOG, ">".$file_data) or die "cannot open $file_data";
 		my $old_fh = select($LOG);
 		$| = 1;
 		select($old_fh);
 		print "open $file_data --> ok\n";		
 		#my $file_eps = sprintf("%s/%s_%03d",$directory, $filename, $max_index);
-		return ($LOG,$file_data);
+		return ($LOG,$file_data, $directory);
 		}	
 	
 }
@@ -125,6 +145,7 @@ sub add_plots {
 	my $plots = shift;
 	
 	# check if $plots is an ARRAY-REF or just a single plot
+	#print "$self->{plots}";
 	my $num_of_plots = @{$self->{plots}};
 	my $allready_existing_plots = $num_of_plots;
 	
@@ -164,6 +185,7 @@ sub add_plots {
 		$self->{plots}->[$i]->{plotter}->{ID} = $i;
 		$self->{plots}->[$i]->{plotter}->{FILENAME} = $self->{filename};
 		$self->{plots}->[$i]->{plotter}->{COLUMN_NAMES} = $self->{COLUMN_NAMES};
+		$self->{plots}->[$i]->{plotter}->{NUMBER_OF_COLUMNS} = $self->{NUMBER_OF_COLUMNS};
 		$self->{plots}->[$i]->{plotter}->{BLOCK_NUM} = $self->{block_num};
 		$self->{plots}->[$i]->{plotter}->{LINE_NUM} = $self->{line_num};		
 		$self->{plots}->[$i]->{plotter}->init_gnuplot();
@@ -577,6 +599,18 @@ sub LOG_linetrace {
 		
 	return 1;
 		
+}
+
+sub DESTROY {
+
+	my $self = shift;
+
+	foreach my $plot (@{$self->{plots}})
+		{
+		$plot->{plotter}->_stop_live_plot();
+		$plot->{plotter};
+		}
+	$self->close_file();
 }
 
 1;

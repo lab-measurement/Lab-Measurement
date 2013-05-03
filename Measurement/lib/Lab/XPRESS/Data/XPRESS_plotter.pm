@@ -34,7 +34,7 @@ sub new {
 
 sub prepair_plot_config_data {
 	my $self = shift;
-	
+
 	# prepair y-axis:	
 	if ( ref($self->{plot}->{'y-axis'}) ne 'ARRAY')
 		{
@@ -57,8 +57,7 @@ sub prepair_plot_config_data {
 	
 	my $temp = ();	
 	foreach my $axis (@{$self->{plot}->{'y-axis'}})
-		{	
-					
+		{			
 		if ( exists $self->{COLUMN_NAMES}{$axis})
 			{
 			push (@{$temp}, $self->{COLUMN_NAMES}{$axis});			
@@ -118,9 +117,9 @@ sub get_gnuplot_pipe {
 
 sub init_gnuplot {
 	my $self = shift;
+
+
 	$self->prepair_plot_config_data();
-	
-	
 	
 	my %plot = %{$self->{plot}};
 	my $gp;
@@ -364,6 +363,7 @@ sub init_gnuplot {
 		
 		print $gpipe $gp;
 		usleep(1e4);
+
 		return $gpipe;
 
 }
@@ -402,7 +402,7 @@ sub start_plot {
 	my $gp;
 	my $gpipe = $self->{gpipe};
 	
-		
+	print "start Plot \n";
 	# if plot mode == pm3d, then change to other start routine:
 	if ( $self->{plot}->{'type'} eq 'pm3d' and $block_num <= 1)
 		{
@@ -1242,7 +1242,10 @@ sub bind_s {
 			my $max_index = 0;
 			foreach my $file (@files)
 				{
-				if ( $file =~ /($filename)_(\d+)(\.*)\b/ )
+				my $temp_filename = $filename;
+				$temp_filename =~ s/\(/\\\(/g;
+				$temp_filename =~ s/\)/\\\)/g;
+				if ( $file =~ /($temp_filename)_(\d+)(\.*)\b/ )
 					{
 					if ( $2 > $max_index )
 						{
