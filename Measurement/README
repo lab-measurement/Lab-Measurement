@@ -55,6 +55,7 @@ Copyright (c)
   2004-2008 Daniel Schröer, 
   2009-2010 Daniel Schröer, Andreas K. Hüttel, Daniela Taubert, David Kalok, and others,
   2011-2012 Florian Olbrich, Andreas K. Hüttel, Alois Dirnaichner, Hermann Kraus, Stefan Geissler
+  2013      Andreas K. Hüttel, Alois Dirnaichner
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.3 or,

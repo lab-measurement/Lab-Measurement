@@ -3,7 +3,7 @@ package Lab::Instrument::Yokogawa7651;
 use warnings;
 use strict;
 
-our $VERSION = '3.10';
+our $VERSION = '3.11';
 use 5.010;
 
 

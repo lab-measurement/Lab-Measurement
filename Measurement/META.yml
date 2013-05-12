@@ -8,12 +8,12 @@ author:
   - 'Alois Dirnaichner <alois.dirnaichner@physik.uni-r.de>'
 build_requires: {}
 configure_requires:
-  Module::Build: 0.38
+  Module::Build: 0.40
 conflicts:
-  Lab::Instrument: 0
-  Lab::Tools: 0
+  Lab::Instrument: '< 2.91'
+  Lab::Tools: '< 2.91'
 dynamic_config: 1
-generated_by: 'Module::Build version 0.38, CPAN::Meta::Converter version 2.112621'
+generated_by: 'Module::Build version 0.4003, CPAN::Meta::Converter version 2.120921'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -22,154 +22,154 @@ name: Lab-Measurement
 provides:
   Lab::Bus:
     file: lib/Lab/Bus.pm
-    version: 3.10
+    version: 3.11
   Lab::Bus::DEBUG:
     file: lib/Lab/Bus/DEBUG.pm
-    version: 3.10
+    version: 3.11
   Lab::Bus::DEBUG::HumanInstrument:
     file: lib/Lab/Bus/DEBUG/HumanInstrument.pm
-    version: 3.10
+    version: 3.11
   Lab::Bus::IsoBus:
     file: lib/Lab/Bus/IsoBus.pm
-    version: 3.10
+    version: 3.11
   Lab::Bus::LinuxGPIB:
     file: lib/Lab/Bus/LinuxGPIB.pm
-    version: 3.10
+    version: 3.11
   Lab::Bus::MODBUS_RS232:
     file: lib/Lab/Bus/MODBUS_RS232.pm
-    version: 3.10
+    version: 3.11
   Lab::Bus::RS232:
     file: lib/Lab/Bus/RS232.pm
-    version: 3.10
+    version: 3.11
   Lab::Bus::USBtmc:
     file: lib/Lab/Bus/USBtmc.pm
-    version: 3.10
+    version: 3.11
   Lab::Bus::VISA:
     file: lib/Lab/Bus/VISA.pm
-    version: 3.10
+    version: 3.11
   Lab::Connection:
     file: lib/Lab/Connection.pm
-    version: 3.10
+    version: 3.11
   Lab::Connection::DEBUG:
     file: lib/Lab/Connection/DEBUG.pm
-    version: 3.10
+    version: 3.11
   Lab::Connection::GPIB:
     file: lib/Lab/Connection/GPIB.pm
-    version: 3.10
+    version: 3.11
   Lab::Connection::IsoBus:
     file: lib/Lab/Connection/IsoBus.pm
-    version: 3.10
+    version: 3.11
   Lab::Connection::LinuxGPIB:
     file: lib/Lab/Connection/LinuxGPIB.pm
-    version: 3.10
+    version: 3.11
   Lab::Connection::MODBUS_RS232:
     file: lib/Lab/Connection/MODBUS_RS232.pm
-    version: 3.10
+    version: 3.11
   Lab::Connection::RS232:
     file: lib/Lab/Connection/RS232.pm
-    version: 3.10
+    version: 3.11
   Lab::Connection::USBtmc:
     file: lib/Lab/Connection/USBtmc.pm
-    version: 3.10
+    version: 3.11
   Lab::Connection::VISA:
     file: lib/Lab/Connection/VISA.pm
-    version: 3.10
+    version: 3.11
   Lab::Connection::VISA_GPIB:
     file: lib/Lab/Connection/VISA_GPIB.pm
-    version: 3.10
+    version: 3.11
   Lab::Connection::VISA_RS232:
     file: lib/Lab/Connection/VISA_RS232.pm
-    version: 3.10
+    version: 3.11
   Lab::Data::Meta:
     file: lib/Lab/Data/Meta.pm
-    version: 3.10
+    version: 3.11
   Lab::Data::PDL:
     file: lib/Lab/Data/PDL.pm
-    version: 3.10
+    version: 3.11
   Lab::Data::Plotter:
     file: lib/Lab/Data/Plotter.pm
-    version: 3.10
+    version: 3.11
   Lab::Data::Writer:
     file: lib/Lab/Data/Writer.pm
-    version: 3.10
+    version: 3.11
   Lab::Data::XMLtree:
     file: lib/Lab/Data/XMLtree.pm
-    version: 3.10
+    version: 3.11
   Lab::Exception:
     file: lib/Lab/Exception.pm
-    version: 3.10
+    version: 3.11
   Lab::Exception::Base:
     file: lib/Lab/Exception.pm
     version: 0
   Lab::Instrument:
     file: lib/Lab/Instrument.pm
-    version: 3.10
+    version: 3.11
   Lab::Instrument::DummySource:
     file: lib/Lab/Instrument/DummySource.pm
-    version: 3.10
+    version: 3.11
   Lab::Instrument::HP34401A:
     file: lib/Lab/Instrument/HP34401A.pm
-    version: 3.10
+    version: 3.11
   Lab::Instrument::HP34420A:
     file: lib/Lab/Instrument/HP34420A.pm
-    version: 3.10
+    version: 3.11
   Lab::Instrument::HP3458A:
     file: lib/Lab/Instrument/HP3458A.pm
-    version: 3.10
+    version: 3.11
   Lab::Instrument::HP83732A:
     file: lib/Lab/Instrument/HP83732A.pm
-    version: 3.10
+    version: 3.11
   Lab::Instrument::ILM:
     file: lib/Lab/Instrument/ILM210.pm
-    version: 3.10
+    version: 3.11
   Lab::Instrument::ITC503:
     file: lib/Lab/Instrument/ITC503.pm
-    version: 3.10
+    version: 3.11
   Lab::Instrument::MagnetSupply:
     file: lib/Lab/Instrument/MagnetSupply.pm
-    version: 3.10
+    version: 3.11
   Lab::Instrument::Multimeter:
     file: lib/Lab/Instrument/Multimeter.pm
-    version: 3.10
+    version: 3.11
   Lab::Instrument::OI_IPS:
     file: lib/Lab/Instrument/OI_IPS.pm
-    version: 3.10
+    version: 3.11
   Lab::Instrument::PD11042:
     file: lib/Lab/Instrument/PD11042.pm
-    version: 3.10
+    version: 3.11
   Lab::Instrument::SR830:
     file: lib/Lab/Instrument/SR830.pm
-    version: 3.10
+    version: 3.11
   Lab::Instrument::Source:
     file: lib/Lab/Instrument/Source.pm
-    version: 3.10
+    version: 3.11
   Lab::Instrument::TRMC2:
     file: lib/Lab/Instrument/TRMC2.pm
-    version: 3.10
+    version: 3.11
   Lab::Instrument::TemperatureControl:
     file: lib/Lab/Instrument/TemperatureControl.pm
-    version: 3.10
+    version: 3.11
   Lab::Instrument::TemperatureControl::TLK43:
     file: lib/Lab/Instrument/TemperatureControl/TLK43.pm
-    version: 3.10
+    version: 3.11
   Lab::Instrument::U2000:
     file: lib/Lab/Instrument/U2000.pm
-    version: 3.10
+    version: 3.11
   Lab::Instrument::Yokogawa7651:
     file: lib/Lab/Instrument/Yokogawa7651.pm
-    version: 3.10
+    version: 3.11
   Lab::Instrument::YokogawaGS200:
     file: lib/Lab/Instrument/YokogawaGS200.pm
-    version: 3.10
+    version: 3.11
   Lab::Measurement:
     file: lib/Lab/Measurement.pm
-    version: 3.10
+    version: 3.11
   Lab::Measurement::KeyboardHandling:
     file: lib/Lab/Measurement/KeyboardHandling.pm
-    version: 3.10
+    version: 3.11
   Lab::Measurement::Ladediagramm:
     file: lib/Lab/Measurement/Ladediagramm.pm
-    version: 3.10
+    version: 3.11
 requires:
   Clone: 0.31
   Cwd: 0
@@ -193,4 +193,4 @@ resources:
   license: http://dev.perl.org/licenses/
   repository: git://gitorious.org/lab-measurement/lab.git
   x_MailingList: https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-visa-users
-version: 3.10
+version: 3.11

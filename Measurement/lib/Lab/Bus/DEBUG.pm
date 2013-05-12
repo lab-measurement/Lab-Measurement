@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 package Lab::Bus::DEBUG;
-our $VERSION = '3.10';
+our $VERSION = '3.11';
 
 use strict;
 use threads;
