@@ -125,9 +125,12 @@ sub connection_read { # @_ = ( $connection_handle, $args = { read_length, brutal
 		$self->set_visa_attribute($connection_handle, $Lab::VISA::VI_ATTR_TMO_VALUE, $timeout*1e3);
 		}
 
+		
 	($status,$result,$read_cnt)=Lab::VISA::viRead($connection_handle,$read_length);
+	#print "$status,$result,$read_cnt\n";
+	#exit;
 
-	if ( ! ( $status ==  $Lab::VISA::VI_SUCCESS || $status == $Lab::VISA::VI_SUCCESS_TERM_CHAR || $status == $Lab::VISA::VI_ERROR_TMO ) ) {
+	if ( ! ( $status ==  $Lab::VISA::VI_SUCCESS || $status == $Lab::VISA::VI_SUCCESS_TERM_CHAR || $status == $Lab::VISA::VI_ERROR_TMO || $status > 0) ) {
 		Lab::Exception::VISAError->throw(
 			error => "Error in Lab::Bus::VISA::connection_read() while executing $command, Status $status",
 			status => $status,
