@@ -1304,11 +1304,11 @@ sub save_plot {
 	
 	if ( $type eq 'eps' )
 		{
-		$self->_plot_eps($filename);
+		$self->_save_eps($filename);
 		}
 	elsif ( $type eq 'png' )
 		{
-		$self->_plot_png($filename);
+		$self->_save_png($filename);
 		}
 	else
 		{
@@ -1319,7 +1319,7 @@ sub save_plot {
 	
 }
 
-sub _plot_eps {
+sub _save_eps {
 	my $self = shift;
 	my $filename = shift;
 	$filename .= '.eps';
@@ -1343,7 +1343,7 @@ sub _plot_eps {
 		
 }
 
-sub _plot_png {
+sub _save_png {
 	my $self = shift;
 	my $filename = shift;
 	$filename .= '.png';
