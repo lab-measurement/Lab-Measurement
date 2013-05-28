@@ -839,10 +839,7 @@ sub sweep_to_field {
 		$interval += $sweep_direction;
 	}
 	
-	print "Targets: @targets \n";
-	print "Rates: @rates \n";
-	exit;
-	# starrt sweep and wait...
+
 	$self->config_sweep(\@targets, \@rates);
 	$self->trg();
 	$self->wait();	
