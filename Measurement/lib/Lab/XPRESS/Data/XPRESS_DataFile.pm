@@ -35,7 +35,7 @@ sub new {
 	my @plots = @_;
 	$self->{plots} = [];
 	foreach my $plot (@plots) {
-		push (@{$self->{plots}}, $plot);
+		$self->add_plot($plot);
 	}
 	
 	$self->{plot_count} = @plots;
@@ -188,7 +188,10 @@ sub add_column {
 sub add_plot {
 	my $self = shift;
 	my $plot = shift;
-		
+	
+	if (not defined $plot->{'autosave'}) {
+		$plot->{'autosave'} = 'last';
+	}	
 	push (@{$self->{plots}}, $plot);
 	$self->{logger}->{COLUMN_NAMES} = $self->{COLUMN_NAMES}; # refresh logger->column_names
 	my $plot_copy = dclone(\%{$plot});
