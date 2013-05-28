@@ -412,28 +412,28 @@ sub prepaire_config {
 sub prepare_backsweep {
 	my $self= shift;
 	my $points = ();
-	my $rate = ();
-	my $duration = ();
+	my $rates = ();
+	my $durations = ();
 	foreach my $point (@{$self->{config}->{points}}) {
 		unshift (@{$points}, $point);
 	}
 	foreach my $rate (@{$self->{config}->{rate}}) {
-		unshift (@{$rate}, $rate);
+		unshift (@{$rates}, $rate);
 	}	
 	foreach my $duration (@{$self->{config}->{duration}}) {
-		unshift (@{$duration}, $duration);
+		unshift (@{$durations}, $duration);
 	}
 
-	unshift(@{$rate}, pop(@{$rate}));
-	unshift(@{$duration}, 0);
-	pop(@{$duration});
+	unshift(@{$rates}, pop(@{$rates}));
+	unshift(@{$durations}, 0);
+	pop(@{$durations});
 	
 	#print "Points @{$points} \n";
 	#print "rate @{$rate} \n";
 	#print "duration @{$duration} \n";
 	$self->{config}->{points} = $points;
-	$self->{config}->{rate} = $rate;	
-	$self->{config}->{duration} = $duration;	
+	$self->{config}->{rate} = $rates;	
+	$self->{config}->{duration} = $durations;	
 	
 	
 }
@@ -893,7 +893,7 @@ sub finish {
 		{
 		foreach (0..$file->{plot_count}-1) 
 			{
-			if ( $file->{logger}->{plots}->[$_]->{autosave} eq 'allways' )
+			if ( $file->{logger}->{plots}->[$_]->{autosave} eq 'always' )
 				{
 				$file->save_plot($_);
 				}

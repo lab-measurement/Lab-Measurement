@@ -44,8 +44,7 @@ sub new {
 	# init mandatory parameters:		
 	$self->{DataFile_counter} = 0;	
 	$self->{DataFiles} = ();
-	
-	print "SF: ".$self->{config}->{separate_files}."\n";	
+
     return $self;
 }
 
