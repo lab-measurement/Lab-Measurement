@@ -1,4 +1,4 @@
-package Lab::Instrument::ILM210;
+package Lab::Instrument::OI_ILM210;
 our $VERSION = '3.10';
 use strict;
 use Lab::Instrument;
@@ -39,13 +39,13 @@ sub get_level {
 
 =head1 NAME
 
-Lab::Instrument::ILM210 - Oxford Instruments ILM Intelligent Level Meter
+Lab::Instrument::OI_ILM210 - Oxford Instruments ILM Intelligent Level Meter
 
 =head1 SYNOPSIS
 
-    use Lab::Instrument::ILM210;
+    use Lab::Instrument::OI_ILM210;
     
-    my $ilm=new Lab::Instrument::ILM210(
+    my $ilm=new Lab::Instrument::OI_ILM210(
       connection_type=>'IsoBus', 
       base_connection=>..., 
       isobus_address=>5,
@@ -53,13 +53,13 @@ Lab::Instrument::ILM210 - Oxford Instruments ILM Intelligent Level Meter
 
 =head1 DESCRIPTION
 
-The Lab::Instrument::ILM210 class implements an interface to the Oxford Instruments 
+The Lab::Instrument::OI_ILM210 class implements an interface to the Oxford Instruments 
 ILM helium level meter (tested with the ILM210).
 
 
 =head1 CONSTRUCTOR
 
-    my $ilm=new Lab::Instrument::ILM210(
+    my $ilm=new Lab::Instrument::OI_ILM210(
       connection_type=>'IsoBus', 
       base_connection=> $iso, 
       isobus_address=> $addr,

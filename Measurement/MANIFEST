@@ -50,14 +50,14 @@ lib/Lab/Instrument/HP34401A.pm
 lib/Lab/Instrument/HP34420A.pm
 lib/Lab/Instrument/HP3458A.pm
 lib/Lab/Instrument/HP83732A.pm
-lib/Lab/Instrument/ILM210.pm
 lib/Lab/Instrument/IPS12010.pm
-lib/Lab/Instrument/ITC503.pm
 lib/Lab/Instrument/LabViewHeater.pm
 lib/Lab/Instrument/MagnetSupply.pm
 lib/Lab/Instrument/MG369xB.pm
 lib/Lab/Instrument/Multimeter.pm
+lib/Lab/Instrument/OI_ILM210.pm
 lib/Lab/Instrument/OI_IPS.pm
+lib/Lab/Instrument/OI_ITC503.pm
 lib/Lab/Instrument/OI_Mercury.pm
 lib/Lab/Instrument/PD11042.pm
 lib/Lab/Instrument/Source.pm

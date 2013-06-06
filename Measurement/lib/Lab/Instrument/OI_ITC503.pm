@@ -1,4 +1,4 @@
-package Lab::Instrument::ITC503;
+package Lab::Instrument::OI_ITC503;
 our $VERSION = '3.10';
 
 use strict;
@@ -306,19 +306,19 @@ sub itc_clear_sweep_table {
 
 =head1 NAME
 
-Lab::Instrument::ITC503 - Oxford Instruments ITC503 Intelligent Temperature Control
+Lab::Instrument::OI_ITC503 - Oxford Instruments ITC503 Intelligent Temperature Control
 
 =head1 SYNOPSIS
 
-    use Lab::Instrument::ITC503;
+    use Lab::Instrument::OI_ITC503;
     
-    my $itc=new Lab::Instrument::ITC503(
+    my $itc=new Lab::Instrument::OI_ITC503(
 	isobus_address=>3,
     );
  
 =head1 DESCRIPTION
 
-The Lab::Instrument::ITC503 class implements an interface to the Oxford Instruments 
+The Lab::Instrument::OI_ITC503 class implements an interface to the Oxford Instruments 
 ITC intelligent temperature controller (tested with the ITC503). This driver is still
 work in progress and also lacks documentation.
 
