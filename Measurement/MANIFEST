@@ -7,6 +7,7 @@ examples/QuantumDot/gatesweep.pl
 examples/Simple/hp34401a_read.pl
 examples/Simple/hp3458a_read.pl
 examples/Simple/hp_demo.pl
+examples/Simple/isobus_query_id.pl
 examples/Simple/query_id.pl
 examples/Simple/srs_read.pl
 examples/Simple/U2000a.pl
