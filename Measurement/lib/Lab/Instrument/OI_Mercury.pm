@@ -22,13 +22,26 @@ sub get_he_level {
   my $self = shift;
   my $channel = shift;
   $channel = "DB5.L1" unless defined($channel);
-  
+
   my $level=$self->query("READ:DEV:$channel:LVL:SIG:HEL\n");
   # typical response: STAT:DEV:DB5.L1:LVL:SIG:HEL:LEV:56.3938%:RES:47.8665O
 
   $level=~s/^.*:LEV://;
   $level=~s/%.*$//;
-  return $level;  
+  return $level;
+};
+
+sub get_he_level_resistance {
+  my $self = shift;
+  my $channel = shift;
+  $channel = "DB5.L1" unless defined($channel);
+
+  my $level=$self->query("READ:DEV:$channel:LVL:SIG:HEL\n");
+  # typical response: STAT:DEV:DB5.L1:LVL:SIG:HEL:LEV:56.3938%:RES:47.8665O
+
+  $level=~s/^.*:RES://;
+  $level=~s/:.*$//;
+  return $level;
 };
 
 sub get_n2_level {
@@ -42,6 +55,19 @@ sub get_n2_level {
   $level=~s/^.*:LEV://;
   $level=~s/%.*$//;
   return $level;  
+};
+
+sub get_n2_level_frequency {
+  my $self = shift;
+  my $channel = shift;
+  $channel = "DB5.L1" unless defined($channel);
+
+  my $level=$self->query("READ:DEV:$channel:LVL:SIG:NIT\n");
+  # typical response: STAT:DEV:DB5.L1:LVL:SIG:NIT:COUN:10125.0000n:FREQ:472867:LEV:52.6014%
+
+  $level=~s/^.*:FREQ://;
+  $level=~s/:.*$//;
+  return $level;
 };
 
 sub get_temperature {
