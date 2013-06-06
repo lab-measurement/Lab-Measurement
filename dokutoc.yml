@@ -10,6 +10,7 @@ toc:
       - Example scripts:
           - Measurement/examples/Simple/yoko_goto.pl
           - Measurement/examples/Simple/query_id.pl
+          - Measurement/examples/Simple/isobus_query_id.pl
           - Measurement/examples/Simple/srs_read.pl
           - Measurement/examples/QuantumDot/gatesweep.pl
           - Measurement/examples/QuantumDot/biasfield.pl
@@ -49,10 +50,11 @@ toc:
           - Temperature control devices:
               - Measurement/lib/Lab/Instrument/TemperatureControl.pm
               - Measurement/lib/Lab/Instrument/TRMC2.pm
-              - Measurement/lib/Lab/Instrument/ITC503.pm
+              - Measurement/lib/Lab/Instrument/OI_ITC503.pm
               - Measurement/lib/Lab/Instrument/TemperatureControl/TLK43.pm
           - Cryostat handling devices:
-              - Measurement/lib/Lab/Instrument/ILM210.pm
+              - Measurement/lib/Lab/Instrument/OI_ILM210.pm
+              - Measurement/lib/Lab/Instrument/OI_Mercury.pm
           - Stepper motors:
               - Measurement/lib/Lab/Instrument/PD11042.pm
       - Connection classes:
