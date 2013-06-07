@@ -30,6 +30,7 @@ our %fields = (
 	supported_connections => [ 'ALL' ],
 	# for connection default settings/user supplied settings. see accessor method.
 	connection_settings => {
+		timeout =>	1
 	},
 
 	# default device settings/user supplied settings. see accessor method.
@@ -40,7 +41,9 @@ our %fields = (
 		query_long_length => 10240, # bytes
 	},
 	
-	device_cache => {},
+	device_cache => {
+		'id' => undef
+	},
 
 	device_cache_order => [],
 
@@ -159,7 +162,7 @@ sub _getset_key{
 	if( !defined $self->device_cache()->{$ckey}  ) {
 		my $subname = 'get_' . $ckey;
 		Lab::Exception::CorruptParameter->throw("No get method defined for device_cache field $ckey! \n") if ! $self->can($subname);
-		$self->device_cache()->{$ckey} = $self->$subname( from_device => 1 );
+		$self->device_cache()->{$ckey} = $self->$subname( {from_device => 1} );
 		}
 	else {
 		my $subname = 'set_' . $ckey;
@@ -196,9 +199,9 @@ sub _cache_init {
 				$self->_getset_key($ckey) if exists $ckeyhash{$ckey};			
 			}
 			# initialize all values not in device_cache_order
-			for my $ckey (@ckeys){
-				$self->_getset_key($ckey) if not exists $orderhash{$ckey};
-			}
+			#for my $ckey (@ckeys){
+			#	$self->_getset_key($ckey) if not exists $orderhash{$ckey};
+			#}
 		}
 		# no ordering required
 		else{
@@ -467,6 +470,18 @@ sub check_errors {
 # passing through generic write, read and query from the connection.
 #
 
+sub set_id {
+	my $self = shift;	
+	my ($id) = $self->_check_args( \@_, ['id'] );
+	$self->{'device_cache'}->{'id'} = $id;	
+	
+}
+
+sub get_id {
+	my $self = shift;
+	return $self->{'device_cache'}->{'id'};
+}
+
 sub write {
 	my $self=shift;
 	my $command= scalar(@_)%2 == 0 && ref $_[1] ne 'HASH' ? undef : shift;  # even sized parameter list and second parm no hashref? => Assume parameter hash
@@ -475,9 +490,11 @@ sub write {
 
 	$args->{'command'} = $command if defined $command;
 	
-	$self->connection()->Write($args);
+	my $result = $self->connection()->Write($args);
 	
 	$self->check_errors($args->{'command'}) if $args->{error_check};
+
+	return $result;
 }
 
 
@@ -488,6 +505,8 @@ sub read {
 
 	my $result = $self->connection()->Read($args);
 	$self->check_errors('Just a plain and simple read.') if $args->{error_check};
+	
+	$result =~ s/^[ \r\t\n]+|[ \r\t\n]+$//g;
 	return $result;
 }
 
@@ -507,6 +526,7 @@ sub query {
 
 	my $result = $self->connection()->Query($args);
 	$self->check_errors($args->{'command'}) if $args->{error_check};
+	$result =~ s/^[ \r\t\n]+|[ \r\t\n]+$//g;
 	return $result;
 }
 
@@ -640,6 +660,78 @@ sub connection_settings {
 		return $self->{'connection_settings'}->{$value};
 	}
 }
+
+sub _check_args {
+	my $self = shift;
+	my $args = shift;
+	my $params = shift;
+	
+	my $arguments;
+
+	my $i = 0;
+	my $tempo_hash = {};
+
+	foreach my $arg (@{$args}) 
+	{
+		if ( ref($arg) ne "HASH" )
+			{
+			if ( defined @{$params}[$i] )
+				{
+				$tempo_hash->{@{$params}[$i]} = $arg;
+				
+				}
+			$i++;
+			}
+		else
+			{
+			%{$arguments} = (%{$tempo_hash}, %{@{$args}[$i]});
+			last;	
+			}
+	}
+
+	if (not defined $arguments) 
+	{
+		$arguments = $tempo_hash;
+	}
+
+		
+	my @return_args = ();
+	
+	foreach my $param (@{$params}) 
+		{
+			
+		if (exists $arguments->{$param}) 
+			{
+			push (@return_args, $arguments->{$param});
+			delete $arguments->{$param};
+			}
+		else
+			{
+			push (@return_args, undef);
+			}
+		}
+
+	foreach my $param ('from_device', 'from_cache') 	# Delete Standard option parameters from $arguments hash if not defined in device driver function
+		{
+		if (exists $arguments->{$param}) 
+			{
+			delete $arguments->{$param};
+			}
+		}
+
+	if (scalar(keys %{$arguments}) > 0) 
+		{
+		my $errmess = "Unknown parameter given in $self :";
+		while ( my ($k,$v) = each %{$arguments} ) 
+			{
+			$errmess .= $k." => ".$v."\t";
+			}
+		print Lab::Exception::Warning->new( error => $errmess);
+		}
+			
+	return @return_args;
+}
+	
 
 
 #
@@ -970,6 +1062,17 @@ The 'ERROR'-key has to be implemented in every device driver!
 Uses get_error() to check the device for occured errors. Reads all present
 errors and throws a Lab::Exception::DeviceError. The list of errors, the device
 class and the last issued command(s) (if the script provided them) are enclosed.
+
+=head2 _check_args
+
+	my ($arg_1, $arg_2, ... ) = $instrument->_check_args(\@args, @arg_names );
+	
+	This methode is expected to be used to deal with the different possibilities a user can pass arguments when calling an instruments methode.
+	@args are the users arguments. The expected arguments of a specific methode may be $arg_1 and $arg_2.
+	Using the old style calling a methode, you have to pass the two arguments in the right order.
+	Using the new style, you can pass the arguments as a HASH using the arguments' names @arg_names. You don't have to take care of the right order in this case.
+	Furthermore the methode triggers a waring if it finds unknown parameter in the arguments hash ( this is to cathch typos in the script ).
+	
 
 =head1 CAVEATS/BUGS
 

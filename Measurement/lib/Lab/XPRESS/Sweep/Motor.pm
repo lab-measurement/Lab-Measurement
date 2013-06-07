@@ -14,13 +14,14 @@ sub new {
 	my @args=@_;
     my $class = ref($proto) || $proto; 
 	my $self->{default_config} = {
-		id => 'Motor_sweep',
+		id => 'Motor_sweep',+
+		filename_extension => 'PHI=',
 		interval	=> 1,
 		points	=>	[],
-		durations	=> [],
-		mode	=> 'continuouse',
+		duration	=> [],
+		mode	=> 'continuous',
 		allowed_instruments => ['Lab::Instrument::PD11042', 'Lab::Instrument::ProStep4'],
-		allowed_sweep_modes => ['continuouse', 'list', 'step'],
+		allowed_sweep_modes => ['continuous', 'list', 'step'],
 		number_of_points => [undef]
 		};
 		
@@ -37,17 +38,17 @@ sub go_to_sweep_start {
 	
 	# go to start:
 	print "going to start ... ";
-	$self->{config}->{instrument}->move("ABS", @{$self->{config}->{points}}[0], @{$self->{config}->{rates}}[0]);
+	$self->{config}->{instrument}->move(@{$self->{config}->{points}}[0], @{$self->{config}->{rate}}[0], {mode => 'ABS'});
 	$self->{config}->{instrument}->wait();
 	print "done\n";
 	
 }
 
-sub start_continuouse_sweep {
+sub start_continuous_sweep {
 	my $self = shift;
 	
-	# continuouse sweep:
-	$self->{config}->{instrument}->move("ABS", @{$self->{config}->{points}}[$self->{iterator}+1], @{$self->{config}->{rates}}[$self->{iterator}+1]);
+	# continuous sweep:
+	$self->{config}->{instrument}->move(@{$self->{config}->{points}}[$self->{iterator}+1], @{$self->{config}->{rate}}[$self->{iterator}+1], {mode => 'ABS'});
 		
 }
 
@@ -56,7 +57,7 @@ sub go_to_next_step {
 	my $self = shift;
 
 	# step mode:
-	$self->{config}->{instrument}->move("ABS", @{$self->{config}->{points}}[$self->{iterator}], @{$self->{config}->{rates}}[$self->{iterator}]);
+	$self->{config}->{instrument}->move(@{$self->{config}->{points}}[$self->{iterator}], @{$self->{config}->{rate}}[$self->{iterator}], {mode => 'ABS'});
 	$self->{config}->{instrument}->wait();
 	
 }
@@ -72,14 +73,14 @@ sub exit_loop {
 				return 1;
 				}
 			}
-		if ( $self->{config}->{mode} eq 'continuouse' )
+		if ( $self->{config}->{mode} eq 'continuous' )
 			{	
 			if (not defined @{$self->{config}->{points}}[$self->{sequence}+2])
 				{
 				return 1;
 				}
 			$self->{sequence}++;
-			$self->{config}->{instrument}->move("ABS", @{$self->{config}->{points}}[$self->{sequence} +1 ], @{$self->{config}->{rates}}[$self->{sequence} +1 ]);
+			$self->{config}->{instrument}->move(@{$self->{config}->{points}}[$self->{sequence} +1 ], @{$self->{config}->{rate}}[$self->{sequence} +1 ], {mode => 'ABS'});
 			}
 		return 0;
 		}

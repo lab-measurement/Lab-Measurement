@@ -399,7 +399,7 @@ sub extract_col {
 
 	my $temp_self = $self->copy();
 	
-	my $data = new Lab::Data::SG_dataset ();
+	my $data = new Lab::XPRESS::Data::XPRESS_dataset ();
 	
 		
 	$data->{HEADER} = $temp_self->{HEADER};
@@ -447,7 +447,7 @@ sub extract_block {
 
 	my $temp_self = $self->copy();
 	
-	my $data = new Lab::Data::SG_dataset ();
+	my $data = new Lab::XPRESS::Data::XPRESS_dataset ();
 	
 		
 	$data->{HEADER} = $temp_self->{HEADER};
@@ -491,7 +491,7 @@ sub extract_line {
 
 	my $temp_self = $self->copy();
 	
-	my $data = new Lab::Data::SG_dataset ();
+	my $data = new Lab::XPRESS::Data::XPRESS_dataset ();
 	
 		
 	$data->{HEADER} = $temp_self->{HEADER};
@@ -534,7 +534,7 @@ sub col_old {
 
 	my $temp_self = $self->copy();
 	
-	my $data = new Lab::Data::SG_dataset ();
+	my $data = new Lab::XPRESS::Data::XPRESS_dataset ();
 	if (@column)
 		{
 		$data->{HEADER} = $temp_self->{HEADER};
@@ -624,7 +624,7 @@ sub add {
 	
 		
 	
-	if ( ref($value) eq 'Lab::Data::SG_dataset')
+	if ( ref($value) eq 'Lab::XPRESS::Data::XPRESS_dataset')
 		{
 		if ($value->{EXPRESSION} =~ /EP([0-9]+)/) 
 			{
@@ -670,7 +670,7 @@ sub subtract {
 	
 		
 	
-	if ( ref($value) eq 'Lab::Data::SG_dataset')
+	if ( ref($value) eq 'Lab::XPRESS::Data::XPRESS_dataset')
 		{
 		# check for expressions:
 		if ($value->{EXPRESSION} =~ /EP([0-9]+)/) 
@@ -732,7 +732,7 @@ sub multiply {
 	
 		
 	
-	if ( ref($value) eq 'Lab::Data::SG_dataset')
+	if ( ref($value) eq 'Lab::XPRESS::Data::XPRESS_dataset')
 		{		
 		if ($value->{EXPRESSION} =~ /EP([0-9]+)/) 
 			{
@@ -777,7 +777,7 @@ sub divide {
 	
 		
 	my $temp;
-	if ( ref($value) eq 'Lab::Data::SG_dataset')
+	if ( ref($value) eq 'Lab::XPRESS::Data::XPRESS_dataset')
 		{		
 		if ($value->{EXPRESSION} =~ /EP([0-9]+)/) 
 			{
@@ -797,7 +797,7 @@ sub divide {
 		}
 	else
 		{	
-		map {$_ = $_." * "."$value";} (@{$result->{COL_NAMES}});
+		map {$_ = $_." / "."$value";} (@{$result->{COL_NAMES}});
 		for ( my $block = 0 ; $block < ( my $len_b = @{$self->{DATA}[$column]}); $block++)
 			{
 			my $self_temp = $self->copy();
@@ -827,7 +827,7 @@ sub sin {
 			push (@{$result->{DATA}[0]}, map { sin(($_/180)*$pi)  } (@{$value}));
 			}
 		}
-	elsif ( ref($value) eq 'Lab::Data::SG_dataset')
+	elsif ( ref($value) eq 'Lab::XPRESS::Data::XPRESS_dataset')
 		{
 		if ($value->{EXPRESSION} =~ /EP([0-9]+)/) 
 			{
@@ -871,7 +871,7 @@ sub cos {
 			push (@{$result->{DATA}[0]}, map { cos(($_/180)*$pi)  } (@{$value}));
 			}
 		}
-	elsif ( ref($value) eq 'Lab::Data::SG_dataset')
+	elsif ( ref($value) eq 'Lab::XPRESS::Data::XPRESS_dataset')
 		{
 		if ($value->{EXPRESSION} =~ /EP([0-9]+)/) 
 			{
@@ -917,7 +917,7 @@ sub tan {
 			push (@{$result->{DATA}[0]}, map { ((_modulo($_ ,90) == 0) and (_modulo($_ ,180) != 0)) ? 'nan' : sin(($_/180)*$pi)/cos(($_/180)*$pi)  } (@{$value}));
 			}
 		}
-	elsif ( ref($value) eq 'Lab::Data::SG_dataset')
+	elsif ( ref($value) eq 'Lab::XPRESS::Data::XPRESS_dataset')
 		{
 		if ($value->{EXPRESSION} =~ /EP([0-9]+)/) 
 			{
@@ -961,7 +961,7 @@ sub abs {
 			push (@{$result->{DATA}[0]}, map { abs($_)  } (@{$value}));
 			}
 		}
-	elsif ( ref($value) eq 'Lab::Data::SG_dataset')
+	elsif ( ref($value) eq 'Lab::XPRESS::Data::XPRESS_dataset')
 		{
 		if ($value->{EXPRESSION} =~ /EP([0-9]+)/) 
 			{
@@ -1006,7 +1006,7 @@ sub sgn {
 			push (@{$result->{DATA}[0]}, map { if ( $_ > 0 ) { $_ = 1;} elsif ( $_ == 0 ) { $_ = 0;} elsif ( $_ < 0 )  { $_ = -1;}   } (@{$value}));
 			}
 		}
-	elsif ( ref($value) eq 'Lab::Data::SG_dataset')
+	elsif ( ref($value) eq 'Lab::XPRESS::Data::XPRESS_dataset')
 		{
 		if ($value->{EXPRESSION} =~ /EP([0-9]+)/) 
 			{
@@ -1050,7 +1050,7 @@ sub exp {
 			push (@{$result->{DATA}[0]}, map { exp($_)  } (@{$value}));
 			}
 		}
-	elsif ( ref($value) eq 'Lab::Data::SG_dataset')
+	elsif ( ref($value) eq 'Lab::XPRESS::Data::XPRESS_dataset')
 		{
 		if ($value->{EXPRESSION} =~ /EP([0-9]+)/) 
 			{
@@ -1094,7 +1094,7 @@ sub ln {
 			push (@{$result->{DATA}[0]}, map { ($_ >= 0) ? log($_)/log(exp(1)) : 'nan'  } (@{$value}));
 			}
 		}
-	elsif ( ref($value) eq 'Lab::Data::SG_dataset')
+	elsif ( ref($value) eq 'Lab::XPRESS::Data::XPRESS_dataset')
 		{
 		if ($value->{EXPRESSION} =~ /EP([0-9]+)/) 
 			{
@@ -1138,7 +1138,7 @@ sub log {
 			push (@{$result->{DATA}[0]}, map { ($_ >= 0) ? log($_)/log(10) : 'nan'  } (@{$value}));
 			}
 		}
-	elsif ( ref($value) eq 'Lab::Data::SG_dataset')
+	elsif ( ref($value) eq 'Lab::XPRESS::Data::XPRESS_dataset')
 		{
 		if ($value->{EXPRESSION} =~ /EP([0-9]+)/) 
 			{
@@ -1182,7 +1182,7 @@ sub sqrt {
 			push (@{$result->{DATA}[0]}, map { ($_ >= 0 ) ?  sqrt($_) : 'nan'  } (@{$value}));
 			}
 		}
-	elsif ( ref($value) eq 'Lab::Data::SG_dataset')
+	elsif ( ref($value) eq 'Lab::XPRESS::Data::XPRESS_dataset')
 		{
 		if ($value->{EXPRESSION} =~ /EP([0-9]+)/) 
 			{
@@ -1227,7 +1227,7 @@ sub yEx {
 			push (@{$result->{DATA}[0]}, map { $_**$x  } (@{$y}));
 			}
 		}
-	elsif ( ref($y) eq 'Lab::Data::SG_dataset')
+	elsif ( ref($y) eq 'Lab::XPRESS::Data::XPRESS_dataset')
 		{
 		if ($y->{EXPRESSION} =~ /EP([0-9]+)/) 
 			{
@@ -1271,7 +1271,7 @@ sub modulo {
 	
 		
 	
-	if ( ref($value) eq 'Lab::Data::SG_dataset')
+	if ( ref($value) eq 'Lab::XPRESS::Data::XPRESS_dataset')
 		{
 		if ($value->{EXPRESSION} =~ /EP([0-9]+)/) 
 			{
@@ -1339,7 +1339,7 @@ sub lineFit {
     # }
 	# elsif ( UNIVERSAL::isa( $self, 'HASH' ) ) 
 		# {      
-		# my $copy = new Lab::Data::SG_dataset ();
+		# my $copy = new Lab::XPRESS::Data::XPRESS_dataset ();
         # foreach my $key ( keys %$self ) 
 			# {
             # if ( !defined( $self->{$key} ) || !ref( $self->{$key} ) ) 
@@ -1383,7 +1383,7 @@ sub copy {
 	my $self = shift;
 					
 	
-	my $copy = new Lab::Data::SG_dataset ();
+	my $copy = new Lab::XPRESS::Data::XPRESS_dataset ();
 	
 	
 	while ( my ($key,$value) = each %{$self} ) 
@@ -1502,7 +1502,7 @@ sub set {
 	my $i = 0;
 	foreach my $column (@column)
 		{
-		if ( ref($data) eq 'Lab::Data::SG_dataset' )
+		if ( ref($data) eq 'Lab::XPRESS::Data::XPRESS_dataset' )
 			{
 			my $len_d;
 			my $len_c;
@@ -2017,7 +2017,7 @@ sub find {
 				@{$self->{EXP_PARTS}}[2] = @{$self->{EVAL_PARTS}}[$1];
 				}
 				
-			if ( ref(@{$self->{EXP_PARTS}}[0]) ne 'Lab::Data::SG_dataset' )
+			if ( ref(@{$self->{EXP_PARTS}}[0]) ne 'Lab::XPRESS::Data::XPRESS_dataset' )
 				{
 				warn "WARNING: in sub 'find' no well defined condtion given. Ignor find command. Return all.";
 				my @selection;
@@ -2026,7 +2026,7 @@ sub find {
 				}
 				
 	
-			if ( ref(@{$self->{EXP_PARTS}}[2]) eq 'Lab::Data::SG_dataset' )
+			if ( ref(@{$self->{EXP_PARTS}}[2]) eq 'Lab::XPRESS::Data::XPRESS_dataset' )
 				{
 				map { if ((my $len_0 = @{@{$self->{EXP_PARTS}}[0]->{DATA}[0][$_]}) != (my $len_2 = @{@{$self->{EXP_PARTS}}[2]->{DATA}[0][$_]})) { warn 'WARNING: unexpected values sub eval within the expression given. Ignore, return self.'; return $self;}  } ((0..@{@{$self->{EXP_PARTS}}[2]->{DATA}[0]}-1));
 				}
@@ -2043,8 +2043,10 @@ sub find {
 				my $index = 0;
 				my @indices;
 				my $temp;
+				print @{$self->{EXP_PARTS}}[0]->{0};
+				exit;
 				my @block = @{@{$self->{EXP_PARTS}}[0]->{DATA}[0][$block]};
-				if ( ref(@{$self->{EXP_PARTS}}[2]) eq 'Lab::Data::SG_dataset' )
+				if ( ref(@{$self->{EXP_PARTS}}[2]) eq 'Lab::XPRESS::Data::XPRESS_dataset' )
 					{
 					@indices =  grep{ $temp = $_; $_ = $index; $index++; eval $temp.@{$self->{EXP_PARTS}}[1].@{@{$self->{EXP_PARTS}}[2]->{DATA}[0][$block]}[$index] } (@block);
 					}
@@ -2084,7 +2086,7 @@ sub find {
 			@{$self->{EXP_PARTS}}[4] = @{$self->{EVAL_PARTS}}[$1];
 			}
 				
-		if ( ref(@{$self->{EXP_PARTS}}[2]) ne 'Lab::Data::SG_dataset' )
+		if ( ref(@{$self->{EXP_PARTS}}[2]) ne 'Lab::XPRESS::Data::XPRESS_dataset' )
 			{
 			warn "WARNING: in sub 'find' no well defined condtion given. Ignor find command. Return all.";
 			my @selection;
@@ -2092,12 +2094,12 @@ sub find {
 			return @selection;
 			}				
 	
-		if ( ref(@{$self->{EXP_PARTS}}[0]) eq 'Lab::Data::SG_dataset' )
+		if ( ref(@{$self->{EXP_PARTS}}[0]) eq 'Lab::XPRESS::Data::XPRESS_dataset' )
 			{
 			map { if ((my $len_0 = @{@{$self->{EXP_PARTS}}[0]->{DATA}[0][$_]}) != (my $len_2 = @{@{$self->{EXP_PARTS}}[2]->{DATA}[0][$_]})) { warn 'WARNING: unexpected values sub eval within the expression given. Ignore, return self.'; return $self;}  } ((0..@{@{$self->{EXP_PARTS}}[2]->{DATA}[0]}-1));
 			}
 			
-		if ( ref(@{$self->{EXP_PARTS}}[4]) eq 'Lab::Data::SG_dataset' )
+		if ( ref(@{$self->{EXP_PARTS}}[4]) eq 'Lab::XPRESS::Data::XPRESS_dataset' )
 			{
 			map { if ((my $len_4 = @{@{$self->{EXP_PARTS}}[4]->{DATA}[0][$_]}) != (my $len_2 = @{@{$self->{EXP_PARTS}}[2]->{DATA}[0][$_]})) { warn 'WARNING: unexpected values sub eval within the expression given. Ignore, return self.'; return $self;}  } ((0..@{@{$self->{EXP_PARTS}}[2]->{DATA}[0]}-1));
 			}
@@ -2115,15 +2117,15 @@ sub find {
 			my $temp;
 			my @block = @{@{$self->{EXP_PARTS}}[2]->{DATA}[0][$block]};
 			
-			if ( ref(@{$self->{EXP_PARTS}}[0]) eq 'Lab::Data::SG_dataset' and  ref(@{$self->{EXP_PARTS}}[4]) eq 'Lab::Data::SG_dataset' )
+			if ( ref(@{$self->{EXP_PARTS}}[0]) eq 'Lab::XPRESS::Data::XPRESS_dataset' and  ref(@{$self->{EXP_PARTS}}[4]) eq 'Lab::XPRESS::Data::XPRESS_dataset' )
 				{
 				@indices =  grep{ $temp = $_; $_ = $index; $index++; eval @{@{$self->{EXP_PARTS}}[0]->{DATA}[0][$block]}[$index].@{$self->{EXP_PARTS}}[1].$temp and eval $temp.@{$self->{EXP_PARTS}}[3].@{@{$self->{EXP_PARTS}}[4]->{DATA}[0][$block]}[$index]; } (@block);
 				}
-			elsif ( ref(@{$self->{EXP_PARTS}}[0]) eq 'Lab::Data::SG_dataset' )
+			elsif ( ref(@{$self->{EXP_PARTS}}[0]) eq 'Lab::XPRESS::Data::XPRESS_dataset' )
 				{
 				@indices =  grep{ $temp = $_; $_ = $index; $index++; eval @{@{$self->{EXP_PARTS}}[0]->{DATA}[0][$block]}[$index].@{$self->{EXP_PARTS}}[1].$temp and eval $temp.@{$self->{EXP_PARTS}}[3].@{$self->{EXP_PARTS}}[4]; } (@block);
 				}
-			elsif ( ref(@{$self->{EXP_PARTS}}[4]) eq 'Lab::Data::SG_dataset' )
+			elsif ( ref(@{$self->{EXP_PARTS}}[4]) eq 'Lab::XPRESS::Data::XPRESS_dataset' )
 				{
 				@indices =  grep{ $temp = $_; $_ = $index; $index++; eval @{$self->{EXP_PARTS}}[0].@{$self->{EXP_PARTS}}[1].$temp and eval $temp.@{$self->{EXP_PARTS}}[3].@{@{$self->{EXP_PARTS}}[4]->{DATA}[0][$block]}[$index]; } (@block);
 				}	
@@ -2163,7 +2165,7 @@ sub replace {
 	
 	
 	# prepare replace data:
-	if ( ref($self_re) eq 'Lab::Data::SG_dataset' )
+	if ( ref($self_re) eq 'Lab::XPRESS::Data::XPRESS_dataset' )
 		{
 		if ( not (my $len = @{$self_re->{EXP_PARTS}}) == 1 )
 			{
@@ -2189,8 +2191,8 @@ sub replace {
 			{
 			for ( my $c = 0; $c < ( my $len = @{$self->{DATA}} ); $c++)
 				{
-				# replace data are of type Lab::Data::SG_dataset:
-				if (ref($self_re) eq 'Lab::Data::SG_dataset')
+				# replace data are of type Lab::XPRESS::Data::XPRESS_dataset:
+				if (ref($self_re) eq 'Lab::XPRESS::Data::XPRESS_dataset')
 					{
 					map {print $_."\n";$self->{DATA}[$c][$block][$_] = $self_re->{DATA}[$c][$block][$_];} (@{$selection[$block]});
 					}
@@ -2707,7 +2709,7 @@ sub calc {
 				#print $ep4." * ".$ep5." = ";
 					
 				# calculate:
-				if ( ref($ep4) eq 'Lab::Data::SG_dataset')
+				if ( ref($ep4) eq 'Lab::XPRESS::Data::XPRESS_dataset')
 					{
 					$ep4 = $ep4->multiply($ep5, 0);
 					push(@{$self->{EVAL_PARTS}}, $ep4);
@@ -2716,7 +2718,7 @@ sub calc {
 					}
 				elsif ( ref($ep4) eq "ARRAY" )
 					{
-					my $temp = new Lab::Data::SG_dataset ();
+					my $temp = new Lab::XPRESS::Data::XPRESS_dataset ();
 					$temp->set($ep4, 0);
 					$ep4 = $temp;
 					$ep4 = $ep4->multiply($ep5, 0);
@@ -2752,7 +2754,7 @@ sub calc {
 				#print $ep4." / ".$ep5." = ";
 					
 				# calculate:
-				if ( ref($ep4) eq 'Lab::Data::SG_dataset')
+				if ( ref($ep4) eq 'Lab::XPRESS::Data::XPRESS_dataset')
 					{
 					$ep4 = $ep4->divide($ep5, 0);
 					push(@{$self->{EVAL_PARTS}}, $ep4);
@@ -2761,7 +2763,7 @@ sub calc {
 					}
 				elsif ( ref($ep4) eq "ARRAY" )
 					{
-					my $temp = new Lab::Data::SG_dataset ();
+					my $temp = new Lab::XPRESS::Data::XPRESS_dataset ();
 					$temp->set($ep4, 0);
 					$ep4 = $temp;
 					$ep4 = $ep4->divide($ep5, 0);
@@ -2797,7 +2799,7 @@ sub calc {
 				#print $ep4." + ".$ep5." = ";
 					
 				# calculate:
-				if ( ref($ep4) eq 'Lab::Data::SG_dataset')
+				if ( ref($ep4) eq 'Lab::XPRESS::Data::XPRESS_dataset')
 					{
 					$ep4 = $ep4->add($ep5, 0);
 					push(@{$self->{EVAL_PARTS}}, $ep4);
@@ -2806,7 +2808,7 @@ sub calc {
 					}
 				elsif ( ref($ep4) eq "ARRAY" )
 					{
-					my $temp = new Lab::Data::SG_dataset ();
+					my $temp = new Lab::XPRESS::Data::XPRESS_dataset ();
 					$temp->set($ep4, 0);
 					$ep4 = $temp;
 					$ep4 = $ep4->add($ep5, 0);
@@ -2842,7 +2844,7 @@ sub calc {
 				#print $ep4." - ".$ep5." = ";
 					
 				# calculate:
-				if ( ref($ep4) eq 'Lab::Data::SG_dataset')
+				if ( ref($ep4) eq 'Lab::XPRESS::Data::XPRESS_dataset')
 					{
 					$ep4 = $ep4->subtract($ep5, 0);
 					push(@{$self->{EVAL_PARTS}}, $ep4);
@@ -2851,7 +2853,7 @@ sub calc {
 					}
 				elsif ( ref($ep4) eq "ARRAY" )
 					{
-					my $temp = new Lab::Data::SG_dataset ();
+					my $temp = new Lab::XPRESS::Data::XPRESS_dataset ();
 					$temp->set($ep4, 0);
 					$ep4 = $temp;
 					$ep4 = $ep4->subtract($ep5, 0);
@@ -2885,7 +2887,7 @@ sub calc {
 				#print $ep4." % ".$ep5." = ";
 					
 				# calculate:
-				if ( ref($ep4) eq 'Lab::Data::SG_dataset')
+				if ( ref($ep4) eq 'Lab::XPRESS::Data::XPRESS_dataset')
 					{
 					$ep4 = $ep4->modulo($ep5, 0);
 					push(@{$self->{EVAL_PARTS}}, $ep4);
@@ -2894,7 +2896,7 @@ sub calc {
 					}
 				elsif ( ref($ep4) eq "ARRAY" )
 					{
-					my $temp = new Lab::Data::SG_dataset ();
+					my $temp = new Lab::XPRESS::Data::XPRESS_dataset ();
 					$temp->set($ep4, 0);
 					$ep4 = $temp;
 					$ep4 = $ep4->modulo($ep5, 0);
@@ -3090,7 +3092,7 @@ sub differentiate_numerical {
 	$i = $self->get_colnum($i);
 	if ( $v == -1 or $i == -1 )
 		{
-		warn "WARNING: invalid parameters given for sub offset_correction_idc(). ";
+		warn "WARNING: invalid parameters given for sub differentiate_numerical(). ";
 		return $self;
 		}
 	# sort data:
@@ -3117,6 +3119,87 @@ sub differentiate_numerical {
 	
 	return $self;
 	
+}
+
+sub diff_num {
+	my $self = shift;
+ 	my $x = shift;
+	my $y = shift;
+	my $N_smoothing = shift;
+	
+	if ( not defined $N_smoothing )
+		{
+		$N_smoothing = 0;
+		}
+	
+	my @x = @{$x};
+	my @y = @{$y};
+
+	
+
+ 		
+ 	# sort data:
+ 	my @x_index  = sort { $x[$a] <=> $x[$b] } (0..$#x);
+ 
+ 	my @x_sorted = ();
+ 	my @y_sorted = ();
+ 	foreach my $index (@x_index)
+ 		{
+ 		$x_sorted[$index] = shift(@x);
+ 		$y_sorted[$index] = shift(@y);
+ 		}
+     
+ 	
+ 	# do a weak smoothing:
+	my $N = $N_smoothing;
+	my @y_s;
+	foreach my $i (0.. (my $length = @y_sorted)-1)
+		{
+		my $y_s = 0;
+		for (my $n = $i - $N; $n <= $i + $N; $n++)
+			{
+			if ( $n >= 0 and $n <= (my $length = @y_sorted)-1 )
+				{
+				$y_s += $y_sorted[$n];
+				}
+			elsif ($n < 0)
+				{
+				$y_s += $y_sorted[0];
+				}
+			elsif ($n > (my $length = @y)-1 )
+				{
+				$y_s += $y_sorted[-1];
+				}
+			}	
+		$y_s /= (2*$N+1);
+		push(@y_s, $y_s);
+		}
+	my $y = @y;
+	my $ys = @y_s;
+	
+ 
+	# interpolate data:
+    my (@di) = derivatives(\@x_sorted, \@y_sorted);
+	
+	
+	
+	# sort data:
+ 	my @x_index  = sort { $x[$b] <=> $x[$a] } (0..$#x_sorted);
+ 
+ 	my @x = ();
+ 	my @y= ();
+ 	my @y_smoothed;
+ 	my @y_differentiated;
+ 	foreach my $index (@x_index)
+ 		{
+ 		$x[$index] = shift(@x_sorted);
+ 		$y[$index] = shift(@y_sorted);
+ 		$y_smoothed[$index] = shift(@y_s);
+ 		$y_differentiated[$index] = shift(@di); 		
+ 		}
+	
+  
+  return @y_differentiated; 
 }
 
 sub offset_correction_vdc {

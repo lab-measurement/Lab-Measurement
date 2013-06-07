@@ -15,20 +15,19 @@ sub new {
     my $class = ref($proto) || $proto; 
 	my $self->{default_config} = {
 		id => 'Magnet_sweep',
+		filename_extension => 'B=',
 		interval	=> 1,
 		points	=>	[],
-		durations	=> [],
-		mode	=> 'continuouse',
-		allowed_instruments => ['Lab::Instrument::IPS'],
-		allowed_sweep_modes => ['continuouse', 'list', 'step'],
+		duration	=> [],
+		mode	=> 'continuous',
+		allowed_instruments => ['Lab::Instrument::IPS', 'Lab::Instrument::IPSWeiss1', 'Lab::Instrument::IPSWeiss2', 'Lab::Instrument::IPSWeissDillFridge'],
+		allowed_sweep_modes => ['continuous', 'list', 'step'],
 		number_of_points => [undef]
 		};
 		
 	$self = $class->SUPER::new($self->{default_config},@args);	
 	bless ($self, $class);
 	
-	
-			
     return $self;
 }
 
@@ -37,18 +36,23 @@ sub go_to_sweep_start {
 	
 	# go to start:
 	print "going to start ... ";
-	$self->{config}->{instrument}->config_sweep(@{$self->{config}->{points}}[0], @{$self->{config}->{rates}}[0] );
-	$self->{config}->{instrument}->trg();
-	$self->{config}->{instrument}->wait();
+	$self->{config}->{instrument}->sweep_to_field({
+		'target' => @{$self->{config}->{points}}[0], 
+		'rate' => @{$self->{config}->{rate}}[0] 
+		});
+
 	print "done\n";
 	
 }
 
-sub start_continuouse_sweep {
+sub start_continuous_sweep {
 	my $self = shift;
 
-	# continuouse sweep:
-	$self->{config}->{instrument}->config_sweep($self->{config}->{points}, $self->{config}->{rates});
+	# continuous sweep:
+	$self->{config}->{instrument}->config_sweep({
+		'points' => $self->{config}->{points}, 
+		'rates' => $self->{config}->{rate}
+		});
 	$self->{config}->{instrument}->trg();
 		
 }
@@ -59,7 +63,10 @@ sub go_to_next_step {
 
 	
 	# step mode:	
-	$self->{config}->{instrument}->config_sweep(@{$self->{config}->{points}}[$self->{iterator}], @{$self->{config}->{rates}}[$self->{iterator}]);
+	$self->{config}->{instrument}->config_sweep({
+		'points' => @{$self->{config}->{points}}[$self->{iterator}], 
+		'rates' => @{$self->{config}->{rate}}[$self->{iterator}]
+		});
 	$self->{config}->{instrument}->trg();
 	$self->{config}->{instrument}->wait();
 

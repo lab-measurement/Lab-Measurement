@@ -138,7 +138,7 @@ sub set_current {
 	  sleep(5);
 	  $currentcurrent=$self->get_current();
 
-          if (labkey_soft_check() eq "DIE"); then {
+          if (labkey_soft_check() eq "DIE") then {
             # now what do we do here best? we cannot be sure that set_hold is
             # implemented, and failing is not an option.
             print "Setting sweep target to current value I=$currentcurrent\n";

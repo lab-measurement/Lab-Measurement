@@ -22,6 +22,8 @@ our %fields = (
 		gpib_board => 0,
 		gpib_address => undef,
 		timeout => 2,
+		read_default => "device",
+		termchar => "\n"
 	},
 
 	device_settings => { 
@@ -29,13 +31,16 @@ our %fields = (
 	},
 	
 	device_cache =>{
+		'id' => 'Agilent34410A',
 		'function' => undef,
 		'range' => undef,
 		'nplc' => undef,
 		'resolution' => undef,
 		'tc' => undef,
-		'bandwidth' => undef,		
-	}
+		'bw' => undef,		
+	},
+	
+	device_cache_order => ['function','range', 'nplc', 'resolution', 'tc', 'bw'],
 
 );
 
@@ -48,10 +53,6 @@ sub new {
 	return $self;
 }
 
-sub id {
-    my $self=shift;
-    return $self->query('*IDN?');	
-}
 
 sub get_error {
     my $self=shift;
@@ -64,6 +65,7 @@ sub get_error {
 sub reset { # basic
     my $self=shift;
     $self->write( "*RST");
+	$self->_cache_init();
 }
 
 
@@ -90,12 +92,13 @@ sub set_function { # basic
 	#set function:
 	$function =~ s/\s+//g; #remove all whitespaces
 	$function = "\L$function"; # transform all uppercase letters to lowercase letters
+
 	if ( $function =~ /^(current|curr|current:ac|curr:ac|current:dc|curr:dc|voltage|volt|voltage:ac|volt:ac|voltage:dc|volt:dc|resisitance|res|fresistance|fres)$/)
 		{
 		$function =  $self->query( sprintf("FUNCTION '%s'; FUNCTION?", $function));
 		$function =~ s/\"//g; # remove leading and ending "
-		chomp($function);
-		return $function;
+
+		return  $self->{'device_cache'}->{'function'} = $function;
 		}
 	else
 		{
@@ -107,10 +110,26 @@ sub set_function { # basic
 sub get_function {
 	my $self = shift;
 	
+	# read from cache or from device?
+	my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
+	
+	# make sure, that $read_mode has a defined value:
+    if (not defined $read_mode or not $read_mode =~ /device|cache/)
+    {
+        $read_mode = $self->device_settings()->{read_default};
+    }
+    
+	# read from cache:
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'function'})
+    {
+        return $self->{'device_cache'}->{'function'};
+    } 
+	
+	# read from device:
 	my $function = $self->query( "FUNCTION?");
 	if ( $function =~ /([\w:]+)/ ) 
 		{
-		return $1;
+		return $self->{'device_cache'}->{'function'} = $1;
 		}
 }
 
@@ -175,14 +194,14 @@ sub set_range { # basic
 	if ( $range =~ /^(min|max|def)$/ or $range =~ /\b\d+(e\d+|E\d+|exp\d+|EXP\d+)?\b/) 
 		{		
 		$range = $self->query( "$function:RANGE $range; RANGE?");
-		chomp($range);
-		return $range;
+
+		return  $self->{'device_cache'}->{'range'} = $range;
 		}
 	elsif ($range =~ /^(auto)$/) 
 		{
 		$range =  "RANGE=AUTO , ".$self->query( sprintf("%s:RANGE:AUTO ON; RANGE?", $function));
-		chomp($range);
-		return $range;
+
+		return $self->{'device_cache'}->{'range'} = $range;
 		}
 	else 
 		{
@@ -197,22 +216,35 @@ sub get_range {
 	my $self = shift;	
 	
 		
-	# parameter == hash??
-	my ($function) = $self->_check_args( \@_, ['function'] );
+	# read from cache or from device?
+	my ($function, $read_mode) = $self->_check_args( \@_, ['function', 'read_mode'] );	
+	
+	# make sure, that $read_mode has a defined value:
+    if (not defined $read_mode or not $read_mode =~ /device|cache/)
+    {
+        $read_mode = $self->device_settings()->{read_default};
+    }
 	
 	if (not defined $function) 
 		{
-		$function = $self->get_function();
-		}	
-		
+		$function = $self->get_function($read_mode);
+		}
+    
+	# read from cache:
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'range'})
+    {
+        return $self->{'device_cache'}->{'range'};
+    } 
+	
+	
+	# read from device:	
 	$function =~ s/\s+//g; #remove all whitespaces
 	$function = "\L$function"; # transform all uppercase letters to lowercase letters
-	
 	if ( $function  =~ /^(voltage|volt|voltage:ac|volt:ac|voltage:dc|volt:dc|current|curr|current:ac|curr:ac|current:dc|curr:dc|resisitance|res|fresistance|fres)$/ )
 		{
 		my $range = $self->query( "$function:RANGE?");
-		chomp($range);
-		return $range;
+
+		return $self->{'device_cache'}->{'range'} = $range;
 		}				
 	else
 		{
@@ -265,8 +297,8 @@ sub set_nplc { # basic
 	if ($function =~ /^(current|curr|current:dc|curr:dc|voltage|volt|voltage:dc|volt:dc|resisitance|res|fresistance|fres)$/ )
 		{		
 		$nplc = $self->query( "$function:NPLC $nplc; NPLC?");
-		chomp($nplc);
-		return $nplc;
+
+		return $self->{'device_cache'}->{'nplc'} = $nplc;
 		}
 	else
 		{
@@ -279,22 +311,36 @@ sub set_nplc { # basic
 sub get_nplc {
 	my $self = shift;	
 	
-	# parameter == hash??
-	my ($function) = $self->_check_args( \@_, ['function'] );
+	# read from cache or from device?
+	my ($function, $read_mode) = $self->_check_args( \@_, ['function', 'read_mode'] );	
+	
+	# make sure, that $read_mode has a defined value:
+    if (not defined $read_mode or not $read_mode =~ /device|cache/)
+    {
+        $read_mode = $self->device_settings()->{read_default};
+    }
 	
 	if (not defined $function) 
 		{
-		$function = $self->get_function();
+		$function = $self->get_function($read_mode);
 		}
-		
+    
+	# read from cache:
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'nplc'})
+    {
+        return $self->{'device_cache'}->{'nplc'};
+    } 
+	
+	
+	# read from device:			
 	$function =~ s/\s+//g; #remove all whitespaces
 	$function = "\L$function"; # transform all uppercase letters to lowercase letters
 	
 	if ( $function  =~ /^(voltage|volt|voltage:ac|volt:ac|voltage:dc|volt:dc|current|curr|current:ac|curr:ac|current:dc|curr:dc|resisitance|res|fresistance|fres)$/ )
 		{
 		my $nplc = $self->query( "$function:NPLC?");
-		chomp($nplc);
-		return $nplc;
+
+		return  $self->{'device_cache'}->{'nplc'} = $nplc;
 		}				
 	else
 		{
@@ -348,8 +394,8 @@ sub set_resolution{ # basic
 		my $range = $self->get_range($function);
 		$self->set_range($function, $range); # switch off autorange function if activated.
 		$resolution = $self->query( "$function:RES $resolution; RES?");
-		chomp($resolution);
-		return $resolution;
+
+		return $self->{'device_cache'}->{'resolution'} = $resolution;
 		}
 	else
 		{
@@ -361,22 +407,36 @@ sub set_resolution{ # basic
 sub get_resolution{
 	my $self = shift;	
 	
-	# parameter == hash??
-	my ($function) = $self->_check_args( \@_, ['function'] );
+	# read from cache or from device?
+	my ($function, $read_mode) = $self->_check_args( \@_, ['function', 'read_mode'] );	
 	
+    if (not defined $read_mode or not $read_mode =~ /device|cache/)
+    {
+        $read_mode = $self->device_settings()->{read_default};
+    }
+	
+	# make sure, that $read_mode has a defined value:
 	if (not defined $function) 
 		{
-		$function = $self->get_function();
+		$function = $self->get_function($read_mode);
 		}
-		
+    
+	# read from cache:
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'resolution'})
+    {
+        return $self->{'device_cache'}->{'resolution'};
+    } 
+	
+	
+	# read from device:	
 	$function =~ s/\s+//g; #remove all whitespaces
 	$function = "\L$function"; # transform all uppercase letters to lowercase letters
 	
 	if ( $function  =~ /^(voltage|volt|voltage:ac|volt:ac|voltage:dc|volt:dc|current|curr|current:ac|curr:ac|current:dc|curr:dc|resisitance|res|fresistance|fres)$/ )
 		{
 		my $resolution = $self->query( "$function:RES?");
-		chomp($resolution);
-		return $resolution;
+
+		return  $self->{'device_cache'}->{'resolution'} = $resolution;
 		}				
 	else
 		{
@@ -427,8 +487,8 @@ sub set_tc { # basic
 	if ($function =~ /^(current|curr|current:dc|curr:dc|voltage|volt|voltage:dc|volt:dc|resisitance|res|fresistance|fres)$/ )
 		{
 		$tc = $self->query( ":$function:APERTURE $tc; APERTURE:ENABLED 1; :$function:APERTURE?");
-		chomp($tc);
-		return $tc;
+
+		return $self->{'device_cache'}->{'tc'} = $tc;
 		}
 	else
 		{	
@@ -440,24 +500,37 @@ sub set_tc { # basic
 
 sub get_tc{
 	my $self = shift;	
+
+	# read from cache or from device?
+	my ($function, $read_mode) = $self->_check_args( \@_, ['function', 'read_mode'] );	
 	
-	# parameter == hash??
-	my ($function) = $self->_check_args( \@_, ['function'] );
+    if (not defined $read_mode or not $read_mode =~ /device|cache/)
+    {
+        $read_mode = $self->device_settings()->{read_default};
+    }
 	
+	# make sure, that $read_mode has a defined value:
 	if (not defined $function) 
 		{
-		$function = $self->get_function();
+		$function = $self->get_function($read_mode);
 		}
+    
+	# read from cache:
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'tc'})
+    {
+        return $self->{'device_cache'}->{'tc'};
+    } 
 	
-		
+	
+	# read from device:	
 	$function =~ s/\s+//g; #remove all whitespaces
 	$function = "\L$function"; # transform all uppercase letters to lowercase letters
 	
 	if ( $function  =~ /^(voltage|volt|voltage:ac|volt:ac|voltage:dc|volt:dc|current|curr|current:ac|curr:ac|current:dc|curr:dc|resisitance|res|fresistance|fres)$/ )
 		{
 		my $tc = $self->query( "$function:APERTURE?");
-		chomp($tc);
-		return $tc;
+
+		return $self->{'device_cache'}->{'tc'} = $tc;
 		}				
 	else
 		{
@@ -507,8 +580,8 @@ sub set_bw { # basic
 	if ( $function =~ /^(current:ac|curr:ac|voltage:ac|volt:ac|)$/ )
 		{
 		$bw = $self->query( "$function:BANDWIDTH $bw; BANDWIDTH?");
-		chomp($bw);
-		return $bw;
+
+		return $self->{'device_cache'}->{'bw'} = $bw;
 		}
 	else
 		{	
@@ -521,27 +594,40 @@ sub set_bw { # basic
 sub get_bw {
 	my $self = shift;
 	
-	# parameter == hash??
-	my ($function) = $self->_check_args( \@_, ['function'] );
-	#print $self->_check_args( 10, {'function'} )."\n";
+	# read from cache or from device?
+	my ($function, $read_mode) = $self->_check_args( \@_, ['function', 'read_mode'] );	
 	
+    if (not defined $read_mode or not $read_mode =~ /device|cache/)
+    {
+        $read_mode = $self->device_settings()->{read_default};
+    }
+	
+	# make sure, that $read_mode has a defined value:
 	if (not defined $function) 
 		{
-		$function = $self->get_function();
+		$function = $self->get_function($read_mode);
 		}
-		
+    
+	# read from cache:
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'bw'})
+    {
+        return $self->{'device_cache'}->{'bw'};
+    } 
+	
+	
+	# read from device:	
 	$function =~ s/\s+//g; #remove all whitespaces
 	$function = "\L$function"; # transform all uppercase letters to lowercase letters
 	
 	if ( $function =~ /^(voltage:ac|volt:ac|current:ac|curr:ac)$/ )
 		{
 		my $bw = $self->query( "$function:BANDWIDTH?");
-		chomp($bw);
-		return $bw;
+
+		return $self->{'device_cache'}->{'bw'} = $bw;
 		}				
 	else
 		{
-		Lab::Exception::CorruptParameter->throw( error => "unexpected parameter $function.");
+		return undef;
 		}
 }
 
@@ -559,21 +645,42 @@ sub get_value { # basic
 	# fastest way to get a value:
 	if ( not defined @_[0])
 		{
-		$self->{value} = $self->query( ":read?");	
-		return $self->{value};
+		if ( $self->{request} == 1 ) 
+			{
+			$self->{'request'} = 0;
+			$self->device_cache()->{value} = $self->read();
+			}
+		else
+			{
+			$self->device_cache()->{value} = $self->query( ":read?");
+			}
+			return $self->device_cache()->{value};
 		}
 	
 	# parameter == hash??	
-	my ($function, $range, $integration) = $self->_check_args(\@_, ['function', 'range', 'integration']);
+	my ($function, $range, $integration, $read_mode) = $self->_check_args(\@_, ['function', 'range', 'integration', 'read_mode']);
 	my ($int_time, $int_mode) = $self->_check_args($integration, ['value', 'mode']);
 	
-	$range='DEF' unless (defined $range);
-		
+	
+	# make sure, that $read_mode has a defined value:
+	if (not defined $read_mode or not $read_mode =~ /device|cache|request|fetch/)
+    {
+        $read_mode = $self->device_settings()->{read_default};
+    }
+	
+	
+	# read from device:	
+	$range='DEF' unless (defined $range);		
 	
 	# check input parameter
 	$function =~ s/\s+//g; #remove all whitespaces
 	$function = "\L$function"; # transform all uppercase letters to lowercase letters
-	if ( $function =~ /^(voltage|volt|voltage:ac|volt:ac|voltage:dc|volt:dc)$/ ) 
+	if ( $function =~ /request|fetch/ )
+		{
+		$read_mode = $function;
+		$function = undef;
+		}
+	elsif ( $function =~ /^(voltage|volt|voltage:ac|volt:ac|voltage:dc|volt:dc)$/ ) 
 		{
 		if ( abs($range) > 1000 and not $range =~ /^(min|max|def|auto)$/) 
 			{
@@ -602,82 +709,79 @@ sub get_value { # basic
 	if ( $int_mode =~ /resolution|res/ )
 		{
 		$int_mode = "res";
-		if ( $int_value < 0.3e-6*$range and not $int_value =~ /^(MIN|min|MAX|max|DEF|def)$/)
+		if ( $int_time < 0.3e-6*$range and not $int_time =~ /^(MIN|min|MAX|max|DEF|def)$/)
 			{
 			Lab::Exception::CorruptParameter->throw( error => "unexpected value for RESOLUTION in sub get_value. Expected values are from 0.3e-6xRANGE ... 30e-6xRANGE.");
 			}
 		}
 	elsif ( $int_mode eq "tc" )
 		{
-		if ( ($int_value < 1e-4 or $int_value > 1) and not $int_value =~ /^(MIN|min|MAX|max|DEF|def)$/)
+		if ( ($int_time < 1e-4 or $int_time > 1) and not $int_time =~ /^(MIN|min|MAX|max|DEF|def)$/)
 			{
 			Lab::Exception::CorruptParameter->throw( error => "unexpected value for INTEGRATION TIME in sub get_value. Expected values are from 1e-4 ... 1 sec.");
 			}
 		}
 	elsif ( $int_mode eq "nplc" )
 		{
-		if (  ($int_value < 0.01 or $int_value > 100) and not $int_value =~ /^(MIN|min|MAX|max|DEF|def)$/)
+		if (  ($int_time < 0.01 or $int_time > 100) and not $int_time =~ /^(MIN|min|MAX|max|DEF|def)$/)
 			{
 			Lab::Exception::CorruptParameter->throw( error => "unexpected value for NPLC in sub get_value. Expected values are from 0.01 ... 100.");
 			}
 		}
-	elsif ( defined $int_value )  
+	elsif ( defined $int_time )  
 		{
 		$int_mode = 'nplc';
-		if (  ($int_value < 0.01 or $int_value > 100) and not $int_value =~ /^(MIN|min|MAX|max|DEF|def)$/)
+		if (  ($int_time < 0.01 or $int_time > 100) and not $int_time =~ /^(MIN|min|MAX|max|DEF|def)$/)
 			{
 			Lab::Exception::CorruptParameter->throw( error => "unexpected value for NPLC in sub get_value. Expected values are from 0.01 ... 100.");
 			}
 		}
-	
 	
 	
 	# get_value	
-	if ( $int_mode eq 'res' )
+	if ( defined $function and $function ne "" )
 		{
-		$self->write( ":FUNCTION '$function'; :SENS:$function:ZERO:AUTO OFF; :$function:RANGE $range;  RES $int_value");
-		$self->{value} = $self->query( ":read?");	
-		return $self->{value};
+		if ( $int_mode eq 'res' )
+			{
+			$self->write( ":FUNCTION '$function'; :SENS:$function:ZERO:AUTO OFF; :$function:RANGE $range;  RES $int_time");	
+			}
+		elsif ( $int_mode eq 'tc' )
+			{
+			$self->write( ":FUNCTION '$function'; :SENS:$function:ZERO:AUTO OFF; :$function:RANGE $range; :$function:APER $int_time; APERTURE:ENABLED 1");	
+			}
+		elsif ( $int_mode eq 'nplc' )
+			{
+			$self->write( ":FUNCTION '$function'; :SENS:$function:ZERO:AUTO OFF; :$function:RANGE $range; NPLC $int_time");	
+			}
+		else
+			{
+			$self->write( ":FUNCTION '$function';");
+			}
 		}
-	elsif ( $int_mode eq 'tc' )
+	
+	# read from cache:
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'value'})
 		{
-		$self->write( ":FUNCTION '$function'; :SENS:$function:ZERO:AUTO OFF; :$function:RANGE $range; :$function:APER $int_value; APERTURE:ENABLED 1");
-		$self->{value} = $self->query( ":read?");	
-		return $self->{value};
+        return $self->{'device_cache'}->{'value'};
+		}	
+	# request
+	elsif ( $read_mode eq "request" )
+		{
+		$self->{'request'} = 1;		
+		return $self->write( ":read?");		
 		}
-	elsif ( $int_mode eq 'nplc' )
+	# fetch:
+	elsif ( $read_mode eq 'fetch' and $self->{'request'} == 1 )
 		{
-		$self->write( ":FUNCTION '$function'; :SENS:$function:ZERO:AUTO OFF; :$function:RANGE $range; NPLC $int_value");
-		$self->{value} = $self->query( ":read?");	
-		return $self->{value};
+		$self->{'request'} = 0;
+		return $self->device_cache()->{value} = $self->read();
 		}
 	else
 		{
-		$self->write( ":FUNCTION '$function';");
-		$self->{value} = $self->query( ":read?");	
-		return $self->{value};
+		return $self->device_cache()->{value} = $self->query( ":read?");
 		}
 	
 		
-	
-}
-
-sub get_T { # basic
-	my $self = shift;
-	
-	# parameter == hash??
-	my ( $sensor ) = $self->_check_args(\@_, ['sensor']);
-	
-	# check if given sensorname is in sensors list
-	if ( not Lab::Instrument::TemperatureDiodes->valid_sensor($sensor))
-		{
-		Lab::Exception::CorruptParameter->throw( error => "unexpected value for SENSOR in sub get_T. Expected values are defined in package Lab::Instrument::TemperatureDiodes.pm -> SENSOR.");
-		}
-	
-	# measure temperature
-	my $value = $self->get_value();
-	$self->{value} = Lab::Instrument::TemperatureDiodes->convert2Kelvin($value,$sensor);
-	return $self->{value};
 	
 }
 
@@ -777,7 +881,7 @@ sub get_data { # basic
 			my $break = 1;
 			while($break){
 				$data = $self->connection()->LongQuery( command => "R? 1");
-				chomp $data;
+
 				my $index;
 				if(index($data,"+") == -1){
 					$index = index($data,"-");
@@ -801,7 +905,7 @@ sub get_data { # basic
 		# wait until data are available
 		$self->wait();
 		$data = $self->connection()->LongQuery( command => "FETC?");
-		chomp $data;	
+	
 		@data = split(",",$data);	
 		return @data;	
 		}
@@ -862,7 +966,7 @@ sub _set_triggersource { # internal
 	if ( not defined $source) 
 		{
 		$source = $self->query( sprintf("TRIGGER:SOURCE?"));
-		chomp($source);
+
 		$self->{config}->{triggersource} = $source;
 		return $source;
 		}
@@ -890,7 +994,7 @@ sub _set_triggercount { # internal
 	if ( not defined $count) 
 		{
 		$count =  $self->query( sprintf("TRIGGER:COUNT?"));
-		chomp($count);
+
 		$self->{config}->{triggercount} = $count;
 		return $count;		
 		}
@@ -917,7 +1021,7 @@ sub _set_triggerdelay { # internal
 	if ( not defined $delay) 
 		{
 		$delay =  $self->query( sprintf("TRIGGER:DELAY?"));	
-		chomp($delay);
+
 		$self->{config}->{triggerdely} = $delay;
 		return $delay;
 		}
@@ -949,7 +1053,7 @@ sub _set_samplecount { # internal
 	if ( not defined $count) 
 		{
 		$count = $self->query( sprintf("SAMPLE:COUNT?"));	
-		chomp($count);
+
 		$self->{config}->{samplecount} = $count;
 		return $count;
 		}
@@ -975,7 +1079,7 @@ sub _set_sampledelay { # internal
 	if ( not defined $delay) 
 		{
 		$delay =  $self->query( sprintf("SAMPLE:TIMER?"));	
-		chomp($delay);
+
 		$self->{config}->{sampledelay} = $delay;
 		return $delay;
 		}
@@ -1019,7 +1123,7 @@ sub display_text { # basic
     if ($text) {
         $self->write( qq(DISPlay:TEXT "$text"));
     } else {
-        chomp($text=$self->query( qq(DISPlay:TEXT?)));
+        $text=$self->query( qq(DISPlay:TEXT?));
         $text=~s/\"//g;
     }
     return $text;

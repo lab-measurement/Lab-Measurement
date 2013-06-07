@@ -1,5 +1,5 @@
 use strict;
-use Win32::API;
+#use Win32::API;
 
 
 
@@ -95,14 +95,15 @@ package XRC;
 
 use Wx qw (:everything);
 use Wx::XRC;
-use Cava::Packager;
-Cava::Packager::SetResourcePath('./Xpression/res');
+#use Cava::Packager;
+#Cava::Packager::SetResourcePath('./Xpression/res');
 use Lab::XPRESS::Data::XPRESS_dataset;
 use Lab::XPRESS::Xpression::PlotterGUI;
 
 sub new {
 	my $file = @_[1];
-	my $file = Cava::Packager::GetResource("XRC/$file");
+	#my $file = Cava::Packager::GetResource("XRC/$file");
+	$file = "./Xpression/res/XRC/$file";
 	my $xrc = Wx::XmlResource->new();
     $xrc->InitAllHandlers();
     $xrc->Load($file);

@@ -34,7 +34,7 @@ sub new {
 
 sub prepair_plot_config_data {
 	my $self = shift;
-	
+
 	# prepair y-axis:	
 	if ( ref($self->{plot}->{'y-axis'}) ne 'ARRAY')
 		{
@@ -57,8 +57,7 @@ sub prepair_plot_config_data {
 	
 	my $temp = ();	
 	foreach my $axis (@{$self->{plot}->{'y-axis'}})
-		{	
-					
+		{			
 		if ( exists $self->{COLUMN_NAMES}{$axis})
 			{
 			push (@{$temp}, $self->{COLUMN_NAMES}{$axis});			
@@ -118,9 +117,9 @@ sub get_gnuplot_pipe {
 
 sub init_gnuplot {
 	my $self = shift;
+
+
 	$self->prepair_plot_config_data();
-	
-	
 	
 	my %plot = %{$self->{plot}};
 	my $gp;
@@ -364,6 +363,7 @@ sub init_gnuplot {
 		
 		print $gpipe $gp;
 		usleep(1e4);
+
 		return $gpipe;
 
 }
@@ -402,7 +402,7 @@ sub start_plot {
 	my $gp;
 	my $gpipe = $self->{gpipe};
 	
-		
+	print "start Plot \n";
 	# if plot mode == pm3d, then change to other start routine:
 	if ( $self->{plot}->{'type'} eq 'pm3d' and $block_num <= 1)
 		{
@@ -428,11 +428,15 @@ sub start_plot {
 	$gp = "plot ";
 	foreach my $y (@{$self->{plot}->{'y-axis'}})
 		{
-		print "hallo\n";
 		if ( not defined $y )
 			{
 			next;
 			}
+
+		if (not defined $self->{plot}->{'type'}) {
+			$self->{plot}->{'type'} = 'point';
+		}
+
 		if ( $self->{plot}->{'type'} =~ /\b(line|lines|LINE|LINES|L|l|ln|LN)\b/)
 			{			
 			if ( $block_num > 1 )
@@ -1238,7 +1242,10 @@ sub bind_s {
 			my $max_index = 0;
 			foreach my $file (@files)
 				{
-				if ( $file =~ /($filename)_(\d+)(\.*)\b/ )
+				my $temp_filename = $filename;
+				$temp_filename =~ s/\(/\\\(/g;
+				$temp_filename =~ s/\)/\\\)/g;
+				if ( $file =~ /($temp_filename)_(\d+)(\.*)\b/ )
 					{
 					if ( $2 > $max_index )
 						{
@@ -1297,11 +1304,11 @@ sub save_plot {
 	
 	if ( $type eq 'eps' )
 		{
-		$self->_plot_eps($filename);
+		$self->_save_eps($filename);
 		}
 	elsif ( $type eq 'png' )
 		{
-		$self->_plot_png($filename);
+		$self->_save_png($filename);
 		}
 	else
 		{
@@ -1312,7 +1319,7 @@ sub save_plot {
 	
 }
 
-sub _plot_eps {
+sub _save_eps {
 	my $self = shift;
 	my $filename = shift;
 	$filename .= '.eps';
@@ -1336,7 +1343,7 @@ sub _plot_eps {
 		
 }
 
-sub _plot_png {
+sub _save_png {
 	my $self = shift;
 	my $filename = shift;
 	$filename .= '.png';

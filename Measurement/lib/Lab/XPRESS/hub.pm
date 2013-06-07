@@ -18,7 +18,7 @@ sub new {
 
 
 
-sub File {
+sub DataFile {
 	my $self = shift;
 	my $filenamebase = shift;
 	
@@ -35,9 +35,21 @@ sub Sweep {
 	
 	$sweep = "Lab::XPRESS::Sweep::".$sweep;
 	eval "require $sweep; $sweep->import(); 1;" 
-		or do Lab::Exception::CorruptParameter->throw( error => "Can't locate module $sweep\n" );
+		or do Lab::Exception::CorruptParameter->throw( error => $@ );
 
 	return $sweep->new(@_);
+
+}
+
+sub Frame {
+	my $self = shift;
+	
+	my $frame = "Lab::XPRESS::Sweep::Frame";
+	eval "require $frame; $frame->import(); 1;" 
+		or do Lab::Exception::CorruptParameter->throw( error => $@ );
+		#or do Lab::Exception::CorruptParameter->throw( error => "Can't locate module $frame\n" );
+
+	return $frame->new(@_);
 
 }
 
@@ -48,7 +60,8 @@ sub Instrument {
 	
 	$instrument = "Lab::Instrument::".$instrument;
 	eval "require $instrument; $instrument->import(); 1;" 
-		or do Lab::Exception::CorruptParameter->throw( error => "Can't locate module $instrument\n" );
+		or do Lab::Exception::CorruptParameter->throw( error => $@ );
+		#or do Lab::Exception::CorruptParameter->throw( error => "Can't locate module $instrument\n" );
 
 	return $instrument->new(@_);
 
@@ -60,7 +73,8 @@ sub Connection {
 	
 	$connection = "Lab::Connection::".$connection;
 	eval "require $connection; $connection->import(); 1;"
-		or do Lab::Exception::CorruptParameter->throw( error => "Can't locate module $connection\n" );
+		or do Lab::Exception::CorruptParameter->throw( error => $@ );
+		#or do Lab::Exception::CorruptParameter->throw( error => "Can't locate module $connection\n" );
 		
 	return $connection->new(@_);
 		
