@@ -2,7 +2,7 @@ package Lab::XPRESS::hub;
 use Lab::Exception;
 use strict;
 
-
+our $VERSION = '3.19';
 
 
 sub new {

@@ -1,13 +1,11 @@
-#$Id: Plotter.pm 516 2006-09-28 14:59:28Z schroeer $
+package Lab::XPRESS::Xpression::Plotter;
 
-package Lab::Data::Plotter;
+our $VERSION = '3.19';
 
 use strict;
 use Lab::Data::Meta;
 use Data::Dumper;
 use Time::HiRes qw/gettimeofday tv_interval/;
-
-our $VERSION = sprintf("1.%04d", q$Revision: 516 $ =~ / (\d+) /);
 
 sub new {
     my $proto = shift;
@@ -415,7 +413,7 @@ Available options are
 
 This is $Id: Plotter.pm 516 2006-09-28 14:59:28Z schroeer $
 
-Copyright 2004-2006 Daniel Schröer (L<http://www.danielschroeer.de>)
+  Copyright 2004-2006 Daniel SchrÃ¶er (L<http://www.danielschroeer.de>)
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 

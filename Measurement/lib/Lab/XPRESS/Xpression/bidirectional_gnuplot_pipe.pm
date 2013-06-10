@@ -1,7 +1,9 @@
-package Lab::Data::bidirectional_gnuplot_pipe;
+package Lab::XPRESSION::Xpress::bidirectional_gnuplot_pipe;
 
 use IPC::Run qw( start pump finish timeout );
 use strict;
+
+our $VERSION = '3.19';
 
 
 sub new {

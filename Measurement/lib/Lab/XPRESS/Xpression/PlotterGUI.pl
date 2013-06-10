@@ -1,5 +1,6 @@
+package Lab::XPRESS::Xpression::PlotterGUI;
 
-	package Lab::XPRESS::Xpression::PlotterGUI;
+our $VERSION = '3.19';
 
 use strict;
 use Time::HiRes qw/gettimeofday tv_interval/;

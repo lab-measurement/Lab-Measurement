@@ -1,12 +1,11 @@
-package Lab::Data::PlotterGUI_bidirectional;
+package Lab::XPRESSION::Xpress::PlotterGUI_bidirectional;
 
 use strict;
 use IPC::Run qw( start pump finish timeout );
 use Time::HiRes qw/gettimeofday tv_interval/;
 use Time::HiRes qw/usleep/, qw/time/;
 
-
-
+our $VERSION = '3.19';
 
 
 sub new {
