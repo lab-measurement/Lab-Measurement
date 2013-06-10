@@ -1726,7 +1726,7 @@ L<set_tc>
 
 =head1 AUTHOR/COPYRIGHT
 
-Stefan Geissler
+ (c) 2012-2013 Stefan Geissler, Christian Butschkow
 
 .
 

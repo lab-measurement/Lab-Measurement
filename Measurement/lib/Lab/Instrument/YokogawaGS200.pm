@@ -631,7 +631,7 @@ The YokogawaGP200 class is a Source (L<Lab::Instrument::Source>)
  (c) 2004-2006 Daniel Schröer
  (c) 2007-2010 Daniel Schröer, Daniela Taubert, Andreas K. Hüttel, and others
  (c) 2011 Florian Olbrich, Andreas K. Hüttel
- (c) 2012 Alois Dirnaichner
+ (c) 2012-2013 Alois Dirnaichner, Andreas K. Hüttel
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 

@@ -8,12 +8,12 @@ author:
   - 'Alois Dirnaichner <alois.dirnaichner@physik.uni-r.de>'
 build_requires: {}
 configure_requires:
-  Module::Build: 0.38
+  Module::Build: 0.40
 conflicts:
-  Lab::Instrument: 0
-  Lab::Tools: 0
+  Lab::Instrument: '< 2.91'
+  Lab::Tools: '< 2.91'
 dynamic_config: 1
-generated_by: 'Module::Build version 0.38, CPAN::Meta::Converter version 2.112621'
+generated_by: 'Module::Build version 0.4003, CPAN::Meta::Converter version 2.120921'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -41,6 +41,9 @@ provides:
   Lab::Bus::RS232:
     file: lib/Lab/Bus/RS232.pm
     version: 3.10
+  Lab::Bus::Socket:
+    file: lib/Lab/Bus/Socket.pm
+    version: 3.00
   Lab::Bus::USBtmc:
     file: lib/Lab/Bus/USBtmc.pm
     version: 3.10
@@ -68,6 +71,12 @@ provides:
   Lab::Connection::RS232:
     file: lib/Lab/Connection/RS232.pm
     version: 3.10
+  Lab::Connection::Socket:
+    file: lib/Lab/Connection/Socket.pm
+    version: 3.00
+  Lab::Connection::TCPraw:
+    file: lib/Lab/Connection/TCPraw.pm
+    version: 3.10
   Lab::Connection::USBtmc:
     file: lib/Lab/Connection/USBtmc.pm
     version: 3.10
@@ -89,12 +98,18 @@ provides:
   Lab::Data::Plotter:
     file: lib/Lab/Data/Plotter.pm
     version: 3.10
+  Lab::Data::PlotterGUI_bidirectional:
+    file: lib/Lab/XPRESS/Xpression/PlotterGUI_bidirectional.pm
+    version: 0
   Lab::Data::Writer:
     file: lib/Lab/Data/Writer.pm
     version: 3.10
   Lab::Data::XMLtree:
     file: lib/Lab/Data/XMLtree.pm
     version: 3.10
+  Lab::Data::bidirectional_gnuplot_pipe:
+    file: lib/Lab/XPRESS/Xpression/bidirectional_gnuplot_pipe.pm
+    version: 0
   Lab::Exception:
     file: lib/Lab/Exception.pm
     version: 3.10
@@ -104,6 +119,9 @@ provides:
   Lab::Instrument:
     file: lib/Lab/Instrument.pm
     version: 3.10
+  Lab::Instrument::Agilent34410A:
+    file: lib/Lab/Instrument/Agilent34410A.pm
+    version: 2.00
   Lab::Instrument::DummySource:
     file: lib/Lab/Instrument/DummySource.pm
     version: 3.10
@@ -119,11 +137,11 @@ provides:
   Lab::Instrument::HP83732A:
     file: lib/Lab/Instrument/HP83732A.pm
     version: 3.10
-  Lab::Instrument::ILM:
-    file: lib/Lab/Instrument/ILM210.pm
+  Lab::Instrument::LabViewHeater:
+    file: lib/Lab/Instrument/LabViewHeater.pm
     version: 3.10
-  Lab::Instrument::ITC503:
-    file: lib/Lab/Instrument/ITC503.pm
+  Lab::Instrument::MG369xB:
+    file: lib/Lab/Instrument/MG369xB.pm
     version: 3.10
   Lab::Instrument::MagnetSupply:
     file: lib/Lab/Instrument/MagnetSupply.pm
@@ -131,8 +149,17 @@ provides:
   Lab::Instrument::Multimeter:
     file: lib/Lab/Instrument/Multimeter.pm
     version: 3.10
+  Lab::Instrument::OI_ILM210:
+    file: lib/Lab/Instrument/OI_ILM210.pm
+    version: 3.10
   Lab::Instrument::OI_IPS:
     file: lib/Lab/Instrument/OI_IPS.pm
+    version: 3.10
+  Lab::Instrument::OI_ITC503:
+    file: lib/Lab/Instrument/OI_ITC503.pm
+    version: 3.10
+  Lab::Instrument::OI_Mercury:
+    file: lib/Lab/Instrument/OI_Mercury.pm
     version: 3.10
   Lab::Instrument::PD11042:
     file: lib/Lab/Instrument/PD11042.pm
@@ -142,6 +169,9 @@ provides:
     version: 3.10
   Lab::Instrument::Source:
     file: lib/Lab/Instrument/Source.pm
+    version: 3.10
+  Lab::Instrument::SpectrumSCPI:
+    file: lib/Lab/Instrument/SpectrumSCPI.pm
     version: 3.10
   Lab::Instrument::TRMC2:
     file: lib/Lab/Instrument/TRMC2.pm
@@ -170,6 +200,48 @@ provides:
   Lab::Measurement::Ladediagramm:
     file: lib/Lab/Measurement/Ladediagramm.pm
     version: 3.10
+  Lab::XPRESS::Data::XPRESS_DataFile:
+    file: lib/Lab/XPRESS/Data/XPRESS_DataFile.pm
+    version: 0
+  Lab::XPRESS::Data::XPRESS_dataset:
+    file: lib/Lab/XPRESS/Data/XPRESS_dataset.pm
+    version: 0
+  Lab::XPRESS::Data::XPRESS_logger:
+    file: lib/Lab/XPRESS/Data/XPRESS_logger.pm
+    version: 0
+  Lab::XPRESS::Data::XPRESS_plotter:
+    file: lib/Lab/XPRESS/Data/XPRESS_plotter.pm
+    version: 0
+  Lab::XPRESS::Sweep::Dummy:
+    file: lib/Lab/XPRESS/Sweep/Dummy.pm
+    version: 0
+  Lab::XPRESS::Sweep::Frame:
+    file: lib/Lab/XPRESS/Sweep/Frame.pm
+    version: 0
+  Lab::XPRESS::Sweep::Magnet:
+    file: lib/Lab/XPRESS/Sweep/Magnet.pm
+    version: 0
+  Lab::XPRESS::Sweep::Motor:
+    file: lib/Lab/XPRESS/Sweep/Motor.pm
+    version: 0
+  Lab::XPRESS::Sweep::Repeater:
+    file: lib/Lab/XPRESS/Sweep/Repeater.pm
+    version: 0
+  Lab::XPRESS::Sweep::Sweep:
+    file: lib/Lab/XPRESS/Sweep/Sweep.pm
+    version: 0
+  Lab::XPRESS::Sweep::Time:
+    file: lib/Lab/XPRESS/Sweep/Time.pm
+    version: 0
+  Lab::XPRESS::Sweep::Voltage:
+    file: lib/Lab/XPRESS/Sweep/Voltage.pm
+    version: 0
+  Lab::XPRESS::Xpression::PlotterGUI:
+    file: lib/Lab/XPRESS/Xpression/PlotterGUI.pm
+    version: 0
+  Lab::XPRESS::hub:
+    file: lib/Lab/XPRESS/hub.pm
+    version: 0
 requires:
   Clone: 0.31
   Cwd: 0
@@ -188,7 +260,7 @@ requires:
   XML::Twig: 0
   encoding::warnings: 0
 resources:
-  bugtracker: http://rt.cpan.org/NoAuth/Bugs.html?Dist=Lab-Measurement
+  bugtracker: https://www.labmeasurement.de/bugs/
   homepage: http://www.labmeasurement.de/
   license: http://dev.perl.org/licenses/
   repository: git://gitorious.org/lab-measurement/lab.git

@@ -1105,6 +1105,7 @@ Probably many, with all the porting. This will get better.
            2010      Matthias Völker <mvoelker@cpan.org>
            2011      Florian Olbrich, Andreas K. Hüttel
 	   2012      Andreas K. Hüttel
+	   2013      Stefan Geissler, Christian Butschkow, Andreas K. Hüttel
 
 This library is free software; you can redistribute it and/or modify it under the same
 terms as Perl itself.
