@@ -313,42 +313,6 @@ sub configure_sweep{
     my ($target, $time, $rate) = $self->_check_args( \@_, ['points', 'time', 'rate'] );
 	
     $self->config_sweep($target, $rate, $time);
-    
-    
- #    my $output_now=$self->get_level();
- #    #Test if $stop in range
- #    my $range=$self->get_range();
-    
- #    if ( $target > $range || $target < -$range ){
- #        Lab::Exception::CorruptParameter->throw("The desired source level $target is not within the source range $range \n");
- #    }
-    
-	# if ( $time < 0.1 ) {
-	# 	$time=0.1;
-	# 	print " Yokogawa7651.pm warning: correcting too short sweep time\n";
-	# }
-	
- #    # Set interval time
- #    my $cmd=sprintf("PI%.1fe",$time);
- #    $self->write( $cmd, error_check => 1 );
-    
- #    # Set sweep time
- #    $cmd=sprintf("SW%.1fe",$time);
- #    $self->write( $cmd, error_check => 1 );
-    
- #    # Select single mode
- #    $self->write("M1");
-    
-    
- #    #Start Programming-----
-
- #    $self->start_program();
-    
- #    # We call internal sub to set level directly
- #    $self->set_setpoint($target);
-    
- #    $self->end_program();
-	
 }
 
 
