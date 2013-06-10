@@ -25,11 +25,11 @@ our %fields = (
 	},
 
 	device_settings => {
-		gate_protect            => 0,
+		gate_protect            => 1,
 		gp_equal_level          => 1e-5,
-		gp_max_units_per_second  => undef,
-		gp_max_units_per_step    => undef,
-		gp_max_step_per_second  => undef,
+		gp_max_units_per_second  => 0.005,
+		gp_max_units_per_step    => 0.001,
+		gp_max_step_per_second  => 5,
 
 		max_sweep_time=>3600,
 		min_sweep_time=>0.1,
