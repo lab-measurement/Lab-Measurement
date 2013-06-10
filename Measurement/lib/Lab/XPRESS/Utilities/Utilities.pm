@@ -3,6 +3,8 @@
 use Term::ReadKey;
 use Time::HiRes qw/usleep/, qw/time/;
 
+our $VERSION = '3.19';
+
 # collection of some usefull subroutines:
 
 sub my_sleep {
