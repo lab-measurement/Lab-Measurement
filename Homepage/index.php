@@ -127,7 +127,8 @@ continued by <a href="http://www.akhuettel.de/">Andreas K.
 H&uuml;ttel</a>, Daniela Taubert, and Daniel Schr&ouml;er. Most of the documentation was
 written by Daniel Schr&ouml;er. In 2011, the code was refactored mostly by Florian Olbrich
 to include the Bus and Connection layers; subsequently the name of the entire package collection
-was changed to Lab::Measurement. Current lead developer is Alois Dirnaichner.
+was changed to Lab::Measurement. Currently development is continued by Christian Butschkow, Stefan
+Geissler, and Alois Dirnaichner.
 </p>
 
 </body>
