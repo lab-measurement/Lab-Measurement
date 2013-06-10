@@ -153,10 +153,6 @@
          "file" : "lib/Lab/Data/Plotter.pm",
          "version" : "3.10"
       },
-      "Lab::Data::PlotterGUI_bidirectional" : {
-         "file" : "lib/Lab/XPRESS/Xpression/PlotterGUI_bidirectional.pm",
-         "version" : 0
-      },
       "Lab::Data::Writer" : {
          "file" : "lib/Lab/Data/Writer.pm",
          "version" : "3.10"
@@ -164,10 +160,6 @@
       "Lab::Data::XMLtree" : {
          "file" : "lib/Lab/Data/XMLtree.pm",
          "version" : "3.10"
-      },
-      "Lab::Data::bidirectional_gnuplot_pipe" : {
-         "file" : "lib/Lab/XPRESS/Xpression/bidirectional_gnuplot_pipe.pm",
-         "version" : 0
       },
       "Lab::Exception" : {
          "file" : "lib/Lab/Exception.pm",
@@ -184,6 +176,10 @@
       "Lab::Instrument::Agilent34410A" : {
          "file" : "lib/Lab/Instrument/Agilent34410A.pm",
          "version" : "2.00"
+      },
+      "Lab::Instrument::Agilent34420A" : {
+         "file" : "lib/Lab/Instrument/Agilent34420A.pm",
+         "version" : 0
       },
       "Lab::Instrument::DummySource" : {
          "file" : "lib/Lab/Instrument/DummySource.pm",
@@ -204,6 +200,18 @@
       "Lab::Instrument::HP83732A" : {
          "file" : "lib/Lab/Instrument/HP83732A.pm",
          "version" : "3.10"
+      },
+      "Lab::Instrument::IPS" : {
+         "file" : "lib/Lab/Instrument/IPS.pm",
+         "version" : 0
+      },
+      "Lab::Instrument::ITC" : {
+         "file" : "lib/Lab/Instrument/ITC.pm",
+         "version" : 0
+      },
+      "Lab::Instrument::Keithley2000" : {
+         "file" : "lib/Lab/Instrument/Keithley2000.pm",
+         "version" : 0
       },
       "Lab::Instrument::LabViewHeater" : {
          "file" : "lib/Lab/Instrument/LabViewHeater.pm",
@@ -241,6 +249,10 @@
          "file" : "lib/Lab/Instrument/PD11042.pm",
          "version" : "3.10"
       },
+      "Lab::Instrument::ProStep4" : {
+         "file" : "lib/Lab/Instrument/ProStep4.pm",
+         "version" : "3.10"
+      },
       "Lab::Instrument::SR830" : {
          "file" : "lib/Lab/Instrument/SR830.pm",
          "version" : "3.10"
@@ -251,6 +263,10 @@
       },
       "Lab::Instrument::SpectrumSCPI" : {
          "file" : "lib/Lab/Instrument/SpectrumSCPI.pm",
+         "version" : "3.10"
+      },
+      "Lab::Instrument::TCD" : {
+         "file" : "lib/Lab/Instrument/TCD.pm",
          "version" : "3.10"
       },
       "Lab::Instrument::TRMC2" : {
@@ -264,6 +280,14 @@
       "Lab::Instrument::TemperatureControl::TLK43" : {
          "file" : "lib/Lab/Instrument/TemperatureControl/TLK43.pm",
          "version" : "3.10"
+      },
+      "Lab::Instrument::TemperatureDiode" : {
+         "file" : "lib/Lab/Instrument/TemperatureDiode.pm",
+         "version" : "3.10"
+      },
+      "Lab::Instrument::TemperatureDiode::SI420" : {
+         "file" : "lib/Lab/Instrument/TemperatureDiode/SI420.pm",
+         "version" : 0
       },
       "Lab::Instrument::U2000" : {
          "file" : "lib/Lab/Instrument/U2000.pm",
@@ -291,51 +315,63 @@
       },
       "Lab::XPRESS::Data::XPRESS_DataFile" : {
          "file" : "lib/Lab/XPRESS/Data/XPRESS_DataFile.pm",
-         "version" : 0
+         "version" : "3.19"
       },
       "Lab::XPRESS::Data::XPRESS_dataset" : {
          "file" : "lib/Lab/XPRESS/Data/XPRESS_dataset.pm",
-         "version" : 0
+         "version" : "3.19"
       },
       "Lab::XPRESS::Data::XPRESS_logger" : {
          "file" : "lib/Lab/XPRESS/Data/XPRESS_logger.pm",
-         "version" : 0
+         "version" : "3.19"
       },
       "Lab::XPRESS::Data::XPRESS_plotter" : {
          "file" : "lib/Lab/XPRESS/Data/XPRESS_plotter.pm",
-         "version" : 0
+         "version" : "3.19"
+      },
+      "Lab::XPRESS::Sweep::DietersCrazyTempSweep" : {
+         "file" : "lib/Lab/XPRESS/Sweep/DietersCrazyTempSweep.pm",
+         "version" : "3.19"
       },
       "Lab::XPRESS::Sweep::Dummy" : {
          "file" : "lib/Lab/XPRESS/Sweep/Dummy.pm",
-         "version" : 0
+         "version" : "3.19"
       },
       "Lab::XPRESS::Sweep::Frame" : {
          "file" : "lib/Lab/XPRESS/Sweep/Frame.pm",
-         "version" : 0
+         "version" : "3.19"
+      },
+      "Lab::XPRESS::Sweep::Frequency" : {
+         "file" : "lib/Lab/XPRESS/Sweep/Frequency.pm",
+         "version" : "3.19"
       },
       "Lab::XPRESS::Sweep::Magnet" : {
          "file" : "lib/Lab/XPRESS/Sweep/Magnet.pm",
-         "version" : 0
+         "version" : "3.19"
       },
       "Lab::XPRESS::Sweep::Motor" : {
          "file" : "lib/Lab/XPRESS/Sweep/Motor.pm",
-         "version" : 0
+         "version" : "3.19"
       },
       "Lab::XPRESS::Sweep::Repeater" : {
          "file" : "lib/Lab/XPRESS/Sweep/Repeater.pm",
-         "version" : 0
+         "version" : "3.19"
       },
       "Lab::XPRESS::Sweep::Sweep" : {
          "file" : "lib/Lab/XPRESS/Sweep/Sweep.pm",
-         "version" : 0
+         "version" : "3.19"
       },
       "Lab::XPRESS::Sweep::Time" : {
          "file" : "lib/Lab/XPRESS/Sweep/Time.pm",
-         "version" : 0
+         "version" : "3.19"
       },
       "Lab::XPRESS::Sweep::Voltage" : {
          "file" : "lib/Lab/XPRESS/Sweep/Voltage.pm",
-         "version" : 0
+         "version" : "3.19"
+      },
+      "Lab::XPRESS::Xpression::Plotter" : {
+         "file" : "lib/Lab/XPRESS/Xpression/Plotter.pm",
+         "version" : "3.19"
       },
       "Lab::XPRESS::Xpression::PlotterGUI" : {
          "file" : "lib/Lab/XPRESS/Xpression/PlotterGUI.pm",
@@ -343,7 +379,15 @@
       },
       "Lab::XPRESS::hub" : {
          "file" : "lib/Lab/XPRESS/hub.pm",
-         "version" : 0
+         "version" : "3.19"
+      },
+      "Lab::XPRESSION::Xpress::PlotterGUI_bidirectional" : {
+         "file" : "lib/Lab/XPRESS/Xpression/PlotterGUI_bidirectional.pm",
+         "version" : "3.19"
+      },
+      "Lab::XPRESSION::Xpress::bidirectional_gnuplot_pipe" : {
+         "file" : "lib/Lab/XPRESS/Xpression/bidirectional_gnuplot_pipe.pm",
+         "version" : "3.19"
       }
    },
    "release_status" : "stable",
