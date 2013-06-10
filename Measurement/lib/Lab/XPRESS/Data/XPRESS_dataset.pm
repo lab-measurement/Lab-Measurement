@@ -1,5 +1,7 @@
 package Lab::XPRESS::Data::XPRESS_dataset;
 
+our $VERSION = '3.19';
+
 use strict;
 use Math::Trig;
 use Statistics::LineFit;

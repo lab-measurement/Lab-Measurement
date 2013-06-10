@@ -1,12 +1,13 @@
 package Lab::XPRESS::Data::XPRESS_DataFile;
 
-
 use strict;
 use Time::HiRes qw/usleep/, qw/time/;
 use Storable qw(dclone);
 use File::Copy;
 use Lab::XPRESS::Data::XPRESS_logger;
 use Lab::XPRESS::Sweep::Sweep;
+
+our $VERSION = '3.19';
 
 our $counter = 0;
 our $GLOBAL_PATH = "./";
