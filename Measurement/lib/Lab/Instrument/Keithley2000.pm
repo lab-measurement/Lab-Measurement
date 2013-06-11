@@ -1,5 +1,5 @@
 package Lab::Instrument::Keithley2000;
-our $version = '3.10';
+our $VERSION = '3.19';
 
 use strict;
 use Lab::Instrument;

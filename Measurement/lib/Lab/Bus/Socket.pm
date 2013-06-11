@@ -2,7 +2,7 @@
 
 
 package Lab::Bus::Socket;
-our $VERSION = '3.00';
+our $VERSION = '3.19';
 
 use strict;
 use Scalar::Util qw(weaken);

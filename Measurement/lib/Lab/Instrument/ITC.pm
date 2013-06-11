@@ -1,9 +1,9 @@
 package Lab::Instrument::ITC;
+our $VERSION = '3.19';
 
 use strict;
 use Lab::Instrument;
 
-our $version = '3.10';
 our @ISA=('Lab::Instrument');
 
 

@@ -36,19 +36,19 @@ my $build = Module::Build->new(
 	'scripts/lab-makeoverview.pl',
 	'scripts/lab-metainfo.pl',
 	'scripts/lab-plotter.pl', 
-	'lib/Lab/XPRESS/Xpression.pl' ],
+	'lib/Lab/XPRESS/Xpression.pl',
+	'lib/Lab/XPRESS/Xpression/bin/vieWx.pl' ],
     create_readme     => 0,
-    dist_author       => ['Daniel Schröer <schroeer@cpan.org>',
-                          'Andreas K. Hüttel <mail@akhuettel.de>',
-                          'Daniela Taubert <daniela.taubert@physik.uni-muenchen.de>', 
-                          'Florian Olbrich <florian.olbrich@devtek.de>',
-                          'Alois Dirnaichner <alois.dirnaichner@physik.uni-r.de>'
+    dist_author       => ['Andreas K. Hüttel <mail@akhuettel.de>',
+                          'Alois Dirnaichner <alois.dirnaichner@physik.uni-r.de>',
+			  'Christian Butschkow <christian.butschkow@physik.uni-r.de>',
+			  'Stefan Geissler <stefan.geissler@physik.uni-r.de>'
                          ],
     meta_merge        => {
         resources       => {
             homepage      => 'http://www.labmeasurement.de/',
             bugtracker    => 'https://www.labmeasurement.de/bugs/',
-            MailingList   => 'https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-visa-users',
+            MailingList   => 'https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-measurement-users',
             repository    => 'git://gitorious.org/lab-measurement/lab.git',
         }
     },

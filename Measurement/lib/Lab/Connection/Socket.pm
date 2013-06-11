@@ -1,5 +1,5 @@
 package Lab::Connection::Socket;
-our $VERSION = '3.00';
+our $VERSION = '3.19';
 
 use Lab::Bus::Socket;
 use Lab::Connection;

@@ -1,10 +1,9 @@
 package Lab::Instrument::Agilent34420A;
+our $VERSION = '3.19';
 
 use strict;
 use Lab::Instrument;
 use Time::HiRes qw (usleep);
-
-our $version = '3.10';
 
 our @ISA = ("Lab::Instrument");
 

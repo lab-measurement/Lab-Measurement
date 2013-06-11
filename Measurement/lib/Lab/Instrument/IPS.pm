@@ -1,7 +1,5 @@
-#$Id: IPS.pm 2012-11-10 Geissler/Butschkow $
-
 package Lab::Instrument::IPS;
-our $version = '3.10';
+our $VERSION = '3.19';
 
 use strict;
 use Time::HiRes qw/usleep/, qw/time/;

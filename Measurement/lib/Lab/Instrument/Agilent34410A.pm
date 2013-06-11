@@ -1,7 +1,5 @@
-#!/usr/bin/perl
-
 package Lab::Instrument::Agilent34410A;
-our $VERSION = '2.00';
+our $VERSION = '3.19';
 
 use strict;
 use Time::HiRes qw (usleep);
