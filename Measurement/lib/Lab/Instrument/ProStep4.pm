@@ -61,6 +61,7 @@ sub new {
 	
 	$self->init();
 	
+	$self->{active} = 0;
 	return $self;
 	}
 	
@@ -172,32 +173,7 @@ sub active {
 	
 	my $result = $self->query("a".$AXIS."?\r\n");
 	
-	my @results = split(/\s+/, $result);
-	if (scalar(@results) eq 6) {
-		$self->device_cache()->{position} = $self->steps2angle($results[3]);
-		$self->save_motorinitdata;
-		return 1;
-	}
-	elsif (scalar(@results) eq 4) {
-		$self->device_cache()->{position} = $self->steps2angle($results[2]);
-		$self->save_motorinitdata;
-		return 0;
-	}
-	else {
-		$result = $self->connection()->BrutalRead({read_length => 100});
-		my @results = split(/\s+/, $result);
-		
-		if (scalar(@results) eq 6) {
-			$self->device_cache()->{position} = $self->steps2angle($results[3]);
-			$self->save_motorinitdata;
-			return 1;
-		}
-		elsif (scalar(@results) eq 4) {
-			$self->device_cache()->{position} = $self->steps2angle($results[2]);
-			$self->save_motorinitdata;
-			return 0;
-		}
-		}
+	return $self->{active};
 			
 }
 
@@ -210,7 +186,7 @@ sub wait {
 	
 	while ( $self->active())
 			{
-			my $current = $self->get_value();
+			my $current = $self->device_cache()->{position};
 			if ( $flag <= 1.1 and $flag >= 0.9 )
 				{
 				print $self->get_id().sprintf(" is sweeping (%.2f\370)\r", $current);
@@ -501,32 +477,26 @@ sub get_position{
 			$result = $self->query($cmd);
 			}
 		}
-	
-	my @results = split(/\s+/, $result);
 
-	if (scalar(@results) eq 6) {
-		$result = $self->steps2angle($results[3]);
-	}
-	elsif (scalar(@results) eq 4) {
-		
-		$result = $self->steps2angle($results[2]);
-	}
-	else {
-		$result = $self->connection()->BrutalRead({read_length => 100});
-		my @results = split(/\s+/, $result);
-		
-		if (scalar(@results) eq 6) {
-			$result = $self->steps2angle($results[3]);
+	for (0..2) {
+		if ($result =~ m/Posi_$AXIS:\s+([+-]?\d+)/) {
+			$self->device_cache()->{position} = $self->steps2angle($1);
+			$self->{active} = 0;
+			last;
 		}
-		elsif (scalar(@results) eq 4) {
-			$result = $self->steps2angle($results[2]);
+		elsif ($result =~ m/Soll\/Ist\/Speed_$AXIS:\s+([+-]?\d+)\s+([+-]?\d+)\s+([+-]?\d+)/) {
+			$self->device_cache()->{position} = $self->steps2angle($2);
+			$self->{active} = 1;
+			last
+		}
+		else {
+			$result = $self->connection()->BrutalRead({read_length => 100});
 		}
 	}
 	
-	$self->device_cache()->{position} = $result;
 	$self->save_motorinitdata();
-	$self->{value} = $result;
-	return $result;
+	$self->{value} = $self->device_cache()->{position};
+	return $self->device_cache()->{position};
 	
 }
 
