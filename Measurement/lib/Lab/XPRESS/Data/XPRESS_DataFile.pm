@@ -93,7 +93,8 @@ sub create_folder {
 			}
 
 		closedir(DIR);
-
+		
+		$GLOBAL_PATH =~ s/\/$//;
 		$GLOBAL_FOLDER = sprintf("%s/MEAS_%03d",$GLOBAL_PATH, $max_index);
 
 		mkdir ($GLOBAL_FOLDER);
@@ -240,7 +241,7 @@ sub change_filenamebase {
 	}
 
 	$self->open_logger($filenamebase);
-	$self->{file} = $filenamebase;
+	$self->{file} = $self->{logger}->{filename};
 
 	$self->{logger}->{COLUMN_NAMES} = $self->{COLUMN_NAMES};
 	$self->{logger}->{NUMBER_OF_COLUMNS} = $self->{NUMBER_OF_COLUMNS};
