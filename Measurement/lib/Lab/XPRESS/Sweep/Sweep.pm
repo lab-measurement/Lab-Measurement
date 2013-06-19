@@ -1,6 +1,5 @@
 package Lab::XPRESS::Sweep::Sweep;
 
-our $VERSION = '3.19';
 
 use Time::HiRes qw/usleep/, qw/time/;
 use POSIX qw(ceil);
@@ -494,6 +493,7 @@ sub start {
 				my $filenamebase = $DataFile->{filenamebase};
 
 				my $new_filenamebase = $self->add_filename_extensions($filenamebase);
+				
 				if($new_filenamebase ne $DataFile->{file} )
 					{
 					$DataFile->change_filenamebase($new_filenamebase);
@@ -515,7 +515,7 @@ sub start {
 	$SIG{BREAK} = \&enable_pause;
 	$SIG{INT} = \&abort;
 
-	for ( my $i = 1; ($i <= $self->{config}->{repetitions}) or ($self->{config}->{repetitions} <= 0); $i++)
+	for ( my $i = 1; ($i <= $self->{config}->{repetitions}) or ($self->{config}->{repetitions} < 0); $i++)
 		{
 		$self->{repetition}++;
 		foreach my $file (@{$self->{DataFiles}}) 
@@ -864,6 +864,7 @@ sub get_value {
 } 
 
 sub enable_pause {
+	print "Sweep will be paused after finishing this sweep. \n";
 	$PAUSE = 1;
 }
 
