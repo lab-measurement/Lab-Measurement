@@ -36,6 +36,12 @@ sub new {
 	return $self;
 }
 
+sub _device_init {
+	my $self = shift;
+	
+	$self->write("InPut:FILTer:STATe OFF");
+}
+
 sub get_error {
     my $self=shift;
     chomp(my $err=$self->query("SYSTem:ERRor?"));
