@@ -1,8 +1,6 @@
 #!/usr/bin/perl
 
-use 5.008;
 use strict;
-use utf8;
 use ExtUtils::MakeMaker;
 
 # If you have Swig installed, un-comment the next line 
@@ -43,8 +41,7 @@ WriteMakefile(
         },
     },
 
-    (($] >= 5.005)
-    ?   (ABSTRACT_FROM  => 'VISA.pod',
-         AUTHOR         => ['Daniel Schröer <schroeer@cpan.org>', 'Andreas K. Hüttel <mail@akhuettel.de>'] ) : ()),
+    'ABSTRACT_FROM'     => 'VISA.pod',
+    'AUTHOR'            => ['Daniel Schröer <schroeer@cpan.org>', 'Andreas K. Hüttel <mail@akhuettel.de>'],
 
 );
