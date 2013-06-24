@@ -1,6 +1,9 @@
 History of Lab::VISA
 ====================
 
+Lab::VISA 3.00
+  * fix remaining non-unicode texts
+
 Lab::VISA 2.95
   * add support for viReadSTB 
 

@@ -176,8 +176,6 @@ This project was indicated to me only recently by a Lab::VISA user. It looks ver
 
 =head1 AUTHOR/COPYRIGHT
 
-This is $Id$
-
 This swig-based interface is
 
  (c) 2004-2006 Daniel Schröer
