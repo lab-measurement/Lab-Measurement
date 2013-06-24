@@ -37,9 +37,9 @@ WriteMakefile(
     'OBJECT'            => q/$(O_FILES)/,
     'META_MERGE'        => {
         resources => {
-            homepage    =>      'http://www.labmeasurement.de/',
-            bugtracker  =>      'http://rt.cpan.org/NoAuth/Bugs.html?Dist=Lab-VISA',
-            MailingList =>      'lab-visa-users@mailman.uni-regensburg.de',
+            homepage    =>      'https://www.labmeasurement.de/',
+            bugtracker  =>      'https://www.labmeasurement.de/bugs/',
+            MailingList =>      'lab-measurement-users@mailman.uni-regensburg.de',
         },
     },
 

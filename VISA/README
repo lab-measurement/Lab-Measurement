@@ -41,20 +41,18 @@ advantage of your findings.
 Lab::VISA now has a L<homepage|http://www.labvisa.de/>.
 
 There is a mailing list set up for Lab::VISA at
-L<https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-visa-users>
-
-A webbased discussion forum (that can be reached from the CPAN page) is located at
-L<http://cpanforum.com/dist/Lab-VISA>
+L<https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-measurement-users>
 
 Bugs can be reported to
-L<https://rt.cpan.org/Public/Dist/Display.html?Name=Lab-VISA>
+L<https://www.labmeasurement.de/bugs/>
 
 You will also find that the authors of this package are always happy to receive feedback.
 
 =head1 COPYRIGHT AND LICENCE
 
  (c) 2004-2006 Daniel Schröer
- (c) 2007-2010 Daniel Schröer, Andreas Hüttel, Daniela Taubert, and others 
+ (c) 2007-2010 Daniel Schröer, Andreas K. Hüttel, Daniela Taubert, and others
+ (c) 2013      Andreas K. Hüttel
 
 This library is free software; you can redistribute it and/or modify it 
 under the same terms as Perl itself. 
