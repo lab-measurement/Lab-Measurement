@@ -70,6 +70,19 @@ sub get_n2_level_frequency {
   return $level;
 };
 
+sub get_n2_level_counter {
+  my $self = shift;
+  my $channel = shift;
+  $channel = "DB5.L1" unless defined($channel);
+
+  my $level=$self->query("READ:DEV:$channel:LVL:SIG:NIT\n");
+  # typical response: STAT:DEV:DB5.L1:LVL:SIG:NIT:COUN:10125.0000n:FREQ:472867:LEV:52.6014%
+
+  $level=~s/^.*:COUN://;
+  $level=~s/n:.*$//;
+  return $level;
+};
+
 sub get_temperature {
   my $self = shift;
   my $channel = shift;
