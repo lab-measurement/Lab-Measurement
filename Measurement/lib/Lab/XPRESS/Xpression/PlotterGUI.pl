@@ -97,99 +97,99 @@ sub init_gnuplot {
 			}
 			
 			
-		if ( defined $plot->{X}->{range} )
+		if ( defined $plot{X}->{range} )
 			{
-			$gp.="set xrange [$plot->{X}->{range]\n";
+			$gp.="set xrange [$plot{X}->{range}]\n";
 			}		
 			
-		if ( defined $plot->{Y}->{range} )
+		if ( defined $plot{Y}->{range} )
 			{
-			$gp.="set yrange [$plot->{Y}->{range]\n";
+			$gp.="set yrange [$plot{Y}->{range}]\n";
 			}	
 		
-		if ( defined $plot->{Y2}->{range} )
+		if ( defined $plot{Y2}->{range} )
 			{
-			$gp.="set y2range [$plot->{Y2}->{range]\n";
+			$gp.="set y2range [$plot{Y2}->{range}]\n";
 			}	
 			
-		if ( defined $plot->{Z}->{range} )
+		if ( defined $plot{Z}->{range} )
 			{
-			$gp.="set zrange [$plot->{Z}->{range]\n";
+			$gp.="set zrange [$plot{Z}->{range}]\n";
 			}	
 			
-		if ( defined $plot->{CB}->{range} )
+		if ( defined $plot{CB}->{range} )
 			{
-			$gp.="set cbrange [$plot->{CB}->{range]\n";
+			$gp.="set cbrange [$plot{CB}->{range}]\n";
 			}	
 		
-		if ( defined $plot->{X}->{format} )
+		if ( defined $plot{X}->{format} )
 			{
-			$gp .= "set format x '".$plot->{X}->{format}."'\n";
+			$gp .= "set format x '".$plot{X}->{format}."'\n";
 			}
 			
-		if ( defined $plot->{Y}->{format} )
+		if ( defined $plot{Y}->{format} )
 			{
-			$gp .= "set format y '".$plot->{Y}->{format}."'\n";
+			$gp .= "set format y '".$plot{Y}->{format}."'\n";
 			}
 			
-		if ( defined $plot->{Y2}->{format} )
+		if ( defined $plot{Y2}->{format} )
 			{
-			$gp .= "set format y2 '".$plot->{Y2}->{format}."'\n";
+			$gp .= "set format y2 '".$plot{Y2}->{format}."'\n";
 			}
 			
-		if ( defined $plot->{Z}->{format} )
+		if ( defined $plot{Z}->{format} )
 			{
-			$gp .= "set format Z '".$plot->{Z}->{format}."'\n";
+			$gp .= "set format Z '".$plot{Z}->{format}."'\n";
 			}
 			
-		if ( defined $plot->{CB}->{format} )
+		if ( defined $plot{CB}->{format} )
 			{
-			$gp .= "set format cb '".$plot->{CB}->{format}."'\n";
+			$gp .= "set format cb '".$plot{CB}->{format}."'\n";
 			}
 			
-		if ( defined $plot->{X}->{label} )
+		if ( defined $plot{X}->{label} )
 			{
-			$gp.="set xlabel '$plot->{X}->{label}'\n";
+			$gp.="set xlabel '$plot{X}->{label}'\n";
 			}
 		else
 			{
-			$gp.="set xlabel '$plot->{X}->{column_name}'\n";
+			$gp.="set xlabel '$plot{X}->{column_name}'\n";
 			}
 		
-		if ( defined $plot->{Y}->{label} )
+		if ( defined $plot{Y}->{label} )
 			{
-			$gp.="set ylabel '$plot->{Y}->{label}'\n";
+			$gp.="set ylabel '$plot{Y}->{label}'\n";
 			}
 		else
 			{
-			$gp.="set ylabel '@{$plot->{Y}->{wave}}[0]->{column_name}'\n";
+			$gp.="set ylabel '@{$plot{Y}->{wave}}[0]->{column_name}'\n";
 			}
 			
-		if ( defined $plot->{Y2}->{label} )
+		if ( defined $plot{Y2}->{label} )
 			{
-			$gp.="set y2label '$plot->{Y2}->{label}'\n";
+			$gp.="set y2label '$plot{Y2}->{label}'\n";
 			}
 		else
 			{
-			$gp.="set y2label '@{$plot->{Y2}->{wave}}[0]->{column_name}'\n";
+			$gp.="set y2label '@{$plot{Y2}->{wave}}[0]->{column_name}'\n";
 			}
 			
-		if ( defined $plot->{Z}->{label} )
+		if ( defined $plot{Z}->{label} )
 			{
-			$gp.="set zlabel '$plot->{Z}->{label}'\n";
+			$gp.="set zlabel '$plot{Z}->{label}'\n";
 			}
 		else
 			{
-			$gp.="set zlabel '@{$plot->{Z}->{wave}}[0]->{column_name}'\n";
+			$gp.="set zlabel '@{$plot{Z}->{wave}}[0]->{column_name}'\n";
 			}
 		
-		if ( defined $plot->{CB}->{label} )
+		if ( defined $plot{CB}->{label} )
 			{
-			$gp.="set cblabel '$plot->{CB}->{label}'\n";
+			$gp.="set cblabel '$plot{CB}->{label}'\n";
 			}
 		else
 			{
-			$gp.="set cblabel '@{$plot->{CB}->{wave}}[0]->{column_name}'\n";
+			$gp.="set cblabel '@{$plot{CB}->{wave}}[0]->{column_name}'\n";
 			}
 			
 			
@@ -198,19 +198,19 @@ sub init_gnuplot {
 			$gp.="set grid $plot{'grid'}\n";
 			}
 						
-		if ( not defined $plot->{X} )
+		if ( not defined $plot{X} )
 			{
 			die "Error while plotting data. x-axis is not defined.";
 			}
 			
 		
 			
-		if ( not defined $plot->{Y} )
+		if ( not defined $plot{Y} )
 			{
 			die "Error while plotting data. y-axis is not defined.";
 			}
 		
-		if ( not defined $plot->{Z} and not defined $plot->{CB}  and $plot->{type} eq 'pm3d')
+		if ( not defined $plot{Z} and not defined $plot{CB}  and $plot{type} eq 'pm3d')
 			{
 			die "Error while plotting data. Plot type = pm3d: z-axis and/or cb-axis are not defined.";
 			}
@@ -352,12 +352,12 @@ sub plot_pm3d {
 	if ( defined $self->{plot}->{Z})
 		{
 		$gp = "";
-		$gp .= "splot '$filename' using $self->{plot}->{X}->{column_number}:@{$self->{plot}->{Y}->{wave}}[0]->{coolumn_number}:@{$self->{pot}->{Z}->{wave}}[0]->{column_number}; \n";
+#		$gp .= "splot '$filename' using $self->{plot}->{X}->{column_number}:@{$self->{plot}->{Y}->{wave}}[0]->{coolumn_number}:@{$self->{pot}->{Z}->{wave}}[0]->{column_number}; \n";
 		}
 	elsif (defined $self->{plot}->{'cb-axis'} )
 		{
 		$gp = "";
-		$gp .= "splot '$filename' using $self->{plot}->{X}->{column_number}:@{$self->{plot}->{Y}->{wave}}[0]->{coolumn_number}:@{$self->{pot}->{CB}->{wave}}[0]->{column_number}; \n";	
+#		$gp .= "splot '$filename' using $self->{plot}->{X}->{column_number}:@{$self->{plot}->{Y}->{wave}}[0]->{coolumn_number}:@{$self->{pot}->{CB}->{wave}}[0]->{column_number}; \n";	
 		}
 		
 		
