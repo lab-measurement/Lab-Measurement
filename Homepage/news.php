@@ -34,7 +34,7 @@ foreach ($rss->items as $item ) {
         $url   = $item['link'];
         $published = preg_replace('/T.*$/','',$item['published']);
         echo "<a name='pos$counter'><h2>$title &nbsp; <font size='-1'>(posted $published)</font></h2></a>\n";
-        echo "<p>$item['atom_content']</p>\n\n";
+        echo "<p>$item[atom_content]</p>\n\n";
         $counter++;
     };
 }
