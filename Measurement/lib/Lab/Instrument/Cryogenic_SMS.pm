@@ -1,24 +1,42 @@
-package Lab::Instrument::Cryogenic;
+package Lab::Instrument::Cryogenic_SMS;
+our $VERSION = '3.19';
 
 use strict;
 use Lab::Instrument;
+#use Lab::Instrument::MagnetSupply;
+
+#our @ISA=('Lab::Instrument::MagnetSupply');
+our @ISA=('Lab::Instrument');
+# does not use any magnet supply specific code yet
+
+our %fields = (
+	supported_connections => [ 'GPIB', 'VISA' ],
+
+	# default settings for the supported connections
+	connection_settings => {
+		gpib_board => 0,
+		gpib_address => undef,
+	},
+
+#	device_settings => {
+#	    use_persistentmode          => 0,
+#	    can_reverse                 => 0,
+#	    can_use_negative_current    => 0,
+#	},
+);
 
 sub new {
-    my $proto = shift;
-    my $class = ref($proto) || $proto;
-    my $self = {};
-    bless ($self, $class);
-
-    $self->{vi}=new Lab::Instrument(@_);
-
-    return $self
+	my $proto = shift;
+	my $class = ref($proto) || $proto;
+	my $self = $class->SUPER::new(@_);
+	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
+	print "Cryogenic SMS magnet supply code is experimental.\n";
+	return $self;
 }
-
-
 
 sub ramp_to_mid {
     my $self=shift;
-    $self->{vi}->Write("RAMP MID\n");
+    $self->write("RAMP MID\n");
     my $status = $self-> status();
     while ($status =~ /HOLDING/) {	# takes care that command is finally executed
       $status = $self-> status();
@@ -27,17 +45,16 @@ sub ramp_to_mid {
       my $mid = $1;
       $status =~/OUTPUT: (.*) AMPS/;
       my $out = $1;
- 
+
       last if $mid == $out;  # breaks if we have already reached target
 
-
-      $self->{vi}->Write("RAMP MID\n");
+      $self->write("RAMP MID\n");
       print "power supply not responding, send command again\n";
       sleep(1);
     }
 
     while ($status =~ /RAMPING/) {	
-      $status = $self-> status();
+      $status = $self->status();
       sleep(1);
     }
 
@@ -54,27 +71,27 @@ sub ramp_to_mid {
 
 sub ramp_to_zero {
     my $self=shift;
-    $self->{vi}->Write("RAMP ZERO\n");
-    my $status = $self-> status();
+    $self->write("RAMP ZERO\n");
+    my $status = $self->status();
     while ($status =~ /HOLDING/) {	# takes care that command is finally executed
-      $status = $self-> status();
+      $status = $self->status();
 
       $status =~/OUTPUT: (.*) AMPS/;
       my $out = $1;
  
       last if $out == 0;  # breaks if we have already reached target
 
-      $self->{vi}->Write("RAMP ZERO\n");
+      $self->write("RAMP ZERO\n");
       print "power supply not responding, send command again\n";
       sleep(1);
     }
 
     while ($status =~ /RAMPING/) {	
-      $status = $self-> status();
+      $status = $self->status();
       sleep(1);
     }
 
-    $status = $self-> status();
+    $status = $self->status();
     $status =~/OUTPUT: (.*) AMPS/;
     my $out = $1;
     if ($out == 0) {
@@ -86,10 +103,10 @@ sub ramp_to_zero {
 
 sub ramp_to_max {
     my $self=shift;
-    $self->{vi}->Write("RAMP MAX\n");
-    my $status = $self-> status();
+    $self->write("RAMP MAX\n");
+    my $status = $self->status();
     while ($status =~ /HOLDING/) {	# takes care that command is finally executed
-      $status = $self-> status();
+      $status = $self->status();
 
       $status =~/MAX SETTING: (.*) AMPS/;
       my $max = $1;
@@ -99,13 +116,13 @@ sub ramp_to_max {
       last if $max == $out;  # breaks if we have already reached target
 
 
-      $self->{vi}->Write("RAMP MID\n");
+      $self->write("RAMP MID\n");
       print "power supply not responding, send command again\n";
       sleep(1);
     }
 
     while ($status =~ /RAMPING/) {	
-      $status = $self-> status();
+      $status = $self->status();
       sleep(1);
     }
 
@@ -118,20 +135,17 @@ sub ramp_to_max {
     return 1;
 }
 
-
-
-
 sub heater_on{
     my $self=shift;
-    $self->{vi}->Write("HEATER ON\n");
+    $self->write("HEATER ON\n");
 
     my $status = $self-> status();
     while ($status =~ /HEATER STATUS: OFF/) {	# takes care that command is finally executed
       sleep(1);
-      $self->{vi}->Write("HEATER ON\n");
+      $self->write("HEATER ON\n");
       print "power supply not responding, send command again\n";
       sleep(1);
-      $status = $self-> status();
+      $status = $self->status();
     }
     sleep(10);
     return 0;
@@ -139,15 +153,15 @@ sub heater_on{
 
 sub heater_off{
     my $self=shift;
-    $self->{vi}->Write("HEATER OFF\n");
+    $self->write("HEATER OFF\n");
 
-    my $status = $self-> status();
+    my $status = $self->status();
     while ($status =~ /HEATER STATUS: ON/) {	# takes care that command is finally executed
       sleep(1);
       print "power supply not responding, send command again\n";
-      $self->{vi}->Write("HEATER OFF\n");
+      $self->write("HEATER OFF\n");
       sleep(1);
-      $status = $self-> status();
+      $status = $self->status();
     }
     sleep(10);
     return 0;
@@ -155,9 +169,9 @@ sub heater_off{
 
 sub status {
     my $self=shift;
-    my $result=$self->{vi}->long_Query("U\n",1000);
+    my $result=$self->query(command => "U\n", read_length=>1000);
     for (my $i = 1; $i <= 20; $i++) {
-      $result.=$self->{vi}->long_Query("U\n",1000);
+      $result.=$self->query(command => "U\n", read_length=>1000);
 
     }
     return $result;
@@ -165,11 +179,8 @@ sub status {
 
 sub read_messages {
     my $self=shift;
-    my $result=$self->{vi}->Read(1000);
+    my $result=$self->read(read_length=>1000);
 }
-
-
-1;
 
 1;
 
@@ -182,7 +193,9 @@ sub read_messages {
 
 Lab::Instrument::Cryogenic - Cryogenic SMS120 superconducting magnet supply
 
-  Source: David Borowsky and Simon Mates
+  (c)           David Borowsky
+      2013      Andreas K. Hüttel
+  
 
 =cut
 
