@@ -6,7 +6,7 @@ use strict;
 use Lab::Instrument::Yokogawa7651;
 use Lab::Instrument::HP3458A;
 use Lab::Instrument::SR830;
-use Lab::Instrument::IPS12010;
+use Lab::Instrument::OI_IPS;
 use Time::HiRes qw/usleep/;
 use Time::HiRes qw/sleep/;
 use Time::HiRes qw/tv_interval/;
@@ -105,7 +105,7 @@ my $Yok=new $type_bias({
     'gp_max_units'  => 5,
 });
           
-my $magnet=new Lab::Instrument::IPS12010(
+my $magnet=new Lab::Instrument::OI_IPS(
         connection_type=>'VISA_GPIB',
         gpib_address => 24,
 		max_current => 123.8,    # A

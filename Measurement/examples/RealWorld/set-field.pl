@@ -3,9 +3,9 @@
 use strict;
 
 use Lab::Instrument;
-use Lab::Instrument::IPS12010;
+use Lab::Instrument::OI_IPS;
 
-my $magnet=new Lab::Instrument::IPS12010(
+my $magnet=new Lab::Instrument::OI_IPS(
         connection_type=>'VISA_GPIB',
         gpib_address => 24,
 		max_current => 123.8,    # A
