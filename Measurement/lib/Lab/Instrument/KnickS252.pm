@@ -35,10 +35,8 @@ our %fields = (
 	
 	device_cache => {
         id => 'KnickS252',
-		function			=> undef, 
 		range			=> undef,
 		level			=> undef,
-		output					=> undef,
 	},
 	
 	device_cache_order => ['function','range'],
