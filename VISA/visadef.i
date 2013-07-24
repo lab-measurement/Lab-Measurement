@@ -618,6 +618,7 @@ ViStatus _VI_FUNC viVxiServantResponse(ViSession vi, ViInt16 mode, ViUInt32 resp
 #define VI_VXI_RESP_NONE            (0)
 #define VI_VXI_RESP_PROT_ERROR      (-1)
 
+
 /* This allows extended Serial support on Win32 and on NI ENET Serial products */
 
 #define VI_ATTR_ASRL_DISCARD_NULL   (0x3FFF00B0UL)
@@ -643,3 +644,5 @@ ViStatus _VI_FUNC viVxiServantResponse(ViSession vi, ViInt16 mode, ViUInt32 resp
 #define VI_EVENT_ASRL_CHAR          (0x3FFF2035UL)
 #define VI_EVENT_ASRL_TERMCHAR      (0x3FFF2024UL)
 
+
+ViStatus _VI_FUNC viGpibControlREN(ViSession vi, ViInt16 mode);

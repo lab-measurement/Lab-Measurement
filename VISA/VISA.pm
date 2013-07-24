@@ -50,6 +50,7 @@ sub this {
 package Lab::VISA;
 
 *viVxiServantResponse = *Lab::VISAc::viVxiServantResponse;
+*viGpibControlREN = *Lab::VISAc::viGpibControlREN;
 *viOpenDefaultRM = *Lab::VISAc::viOpenDefaultRM;
 *viOpen = *Lab::VISAc::viOpen;
 *viSetAttribute = *Lab::VISAc::viSetAttribute;
