@@ -71,8 +71,8 @@ $counter = 1;
 
 foreach ($rss->items as $item ) {
     if ($counter<5) {
-        $title = $item[title];
-        $published = preg_replace('/T.*$/','',$item[published]);
+        $title = $item['title'];
+        $published = preg_replace('/T.*$/','',$item['published']);
         echo "<li><a href='news.php#pos$counter'>";
         if ($counter == 1) { echo "<b>"; };
         echo "$published: $title";

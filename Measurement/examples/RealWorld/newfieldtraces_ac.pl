@@ -4,7 +4,7 @@
  
 use strict;
 use Lab::Instrument::Yokogawa7651;
-use Lab::Instrument::IPS12010;
+use Lab::Instrument::OI_IPS;
 use Lab::Instrument::HP3458A;
 use Lab::Instrument::SR830;
 
@@ -118,7 +118,7 @@ my $lia=new Lab::Instrument::SR830({
 	'gpib_address' => 7,
 	});
 
-my $magnet=new Lab::Instrument::IPS12010(
+my $magnet=new Lab::Instrument::OI_IPS(
         connection_type=>'VISA_GPIB',
         gpib_address => 24,
 		max_current => 123.8,    # A
