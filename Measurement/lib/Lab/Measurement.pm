@@ -67,10 +67,10 @@ sub new {
 	$self->{termctl}=1;
     }
 
-    $self->{itx_format}=0;
-    if ($params{itx_format}) {
-	$self->{itx_format}=1;
-    }		
+#    $self->{itx_format}=0;
+#    if ($params{itx_format}) {
+#	$self->{itx_format}=1;
+#    }		
 
 
     # Filenamen finden
@@ -178,9 +178,9 @@ sub finish_measurement {
     }
 
     delete $self->{writer};
-    if($self->{itx_format}) {
-    	$self->create_itx();
-    }
+#    if($self->{itx_format}) {
+#    	$self->create_itx();
+#    }
     return delete $self->{meta};
 }
 
@@ -239,34 +239,34 @@ sub log {
     }
 }
 
-sub create_itx{
-	my $self=shift;
-	    	#my $fh=$self->{writer};
-    	#print $fh "END\r\n"
-		    	#itx header for IGOR
-	    my $itx_header= "IGOR\rWAVES/D";
-	    my $filestr=$self->{meta}->{data_file};
-	    my $path=$self->{meta}->{__abs_path};
-	    open my $fh, "$path$filestr";
-	    $filestr=~ s/\.\w*$//;
-	    open my $fh_itx, ">$path$filestr.itx";    
-	    #for my $fields_key ( keys %{$self->{_permitted}} )
-	    foreach my $value ( values($self->{meta}->{column}) ){	    
-	    	my $labelstr=$value->{label};
-	    	$itx_header.=sprintf("\t%s_%s",$filestr,$labelstr);
-	    }	
-	    $itx_header.="\nBEGIN\n";
-	    $fh_itx->write($itx_header);
-	    while  (defined(my $line=<$fh>)) {
-		    if ($line=~m/^[^\#]/){
-		    	$fh_itx->write($line)
-		    }else{
-		    	#print  "comment\n"
-		    }	
-	    }
-	    $fh_itx->write("\nEND\n");
-		#print $fh ($itx_header);	
-}
+# sub create_itx{
+# 	my $self=shift;
+# 	    	#my $fh=$self->{writer};
+#     	#print $fh "END\r\n"
+# 		    	#itx header for IGOR
+# 	    my $itx_header= "IGOR\rWAVES/D";
+# 	    my $filestr=$self->{meta}->{data_file};
+# 	    my $path=$self->{meta}->{__abs_path};
+# 	    open my $fh, "$path$filestr";
+# 	    $filestr=~ s/\.\w*$//;
+# 	    open my $fh_itx, ">$path$filestr.itx";    
+# 	    #for my $fields_key ( keys %{$self->{_permitted}} )
+# 	    foreach my $value ( values($self->{meta}->{column}) ){	    
+# 	    	my $labelstr=$value->{label};
+# 	    	$itx_header.=sprintf("\t%s_%s",$filestr,$labelstr);
+# 	    }	
+# 	    $itx_header.="\nBEGIN\n";
+# 	    $fh_itx->write($itx_header);
+# 	    while  (defined(my $line=<$fh>)) {
+# 		    if ($line=~m/^[^\#]/){
+# 		    	$fh_itx->write($line)
+# 		    }else{
+# 		    	#print  "comment\n"
+# 		    }	
+# 	    }
+# 	    $fh_itx->write("\nEND\n");
+# 		#print $fh ($itx_header);	
+# }
     
 	
 
