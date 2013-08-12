@@ -1451,34 +1451,34 @@ The column_name has to be one of the previously defined columnames in the DataFi
 When using multiple DataFile objects within one sweep, you can direct the data hash one of the DataFiles by the second parameter (int). If this parameter is set to 0 (default) the data hash will be directed to all DataFile objects.
 
 Examples:
-$sweep->LOG({
-	'voltage' => 10,
-	'current' => 1e-6,
-	'reistance' => $R
-});
+	$sweep->LOG({
+		'voltage' => 10,
+		'current' => 1e-6,
+		'reistance' => $R
+	});
 
 OR:
 
-$sweep->LOG({'voltage' => 10});
-$sweep->LOG({'current' => 1e-6});
-$sweep->LOG({'reistance' => $R});
+	$sweep->LOG({'voltage' => 10});
+	$sweep->LOG({'current' => 1e-6});
+	$sweep->LOG({'reistance' => $R});
 
 for two DataFiles:
 
-# this value will be logged in both DataFiles
-$sweep->LOG({'voltage' => 10},0); 
+	# this value will be logged in both DataFiles
+	$sweep->LOG({'voltage' => 10},0); 
 
-# this values will be logged in DataFile 1
-$sweep->LOG({
-	'current' => 1e-6,
-	'reistance' => $R1
-},1); 
+	# this values will be logged in DataFile 1
+	$sweep->LOG({
+		'current' => 1e-6,
+		'reistance' => $R1
+	},1); 
 
-# this values will be logged in DataFile 2
-$sweep->LOG({
-	'current' => 10e-6,
-	'reistance' => $R2
-},2); 
+	# this values will be logged in DataFile 2
+	$sweep->LOG({
+		'current' => 10e-6,
+		'reistance' => $R2
+	},2); 
 
 .
 
@@ -1486,7 +1486,7 @@ $sweep->LOG({
 
 use this method, in order to stop the current sweep. Example:
 	
-	Stop a voltage Sweep if device current exeeds a critical limit.
+	# Stop a voltage Sweep if device current exeeds a critical limit.
 
 	if ($current > $high_limit) {
 		$voltage_sweep->last();
@@ -1499,37 +1499,37 @@ use this method, in order to stop the current sweep. Example:
 
 preefine the default_config hash values in method 'new':
 
-sub new {
-    my $proto = shift;
-	my @args=@_;
-    my $class = ref($proto) || $proto; 
-	my $self->{default_config} = {
-		id => 'Magnet_sweep',
-		filename_extension => 'B=',
-		interval	=> 1,
-		points	=>	[],
-		duration	=> [],
-		mode	=> 'continuous',
-		allowed_instruments => ['Lab::Instrument::IPS', 'Lab::Instrument::IPSWeiss1', 'Lab::Instrument::IPSWeiss2', 'Lab::Instrument::IPSWeissDillFridge'],
-		allowed_sweep_modes => ['continuous', 'list', 'step'],
-		number_of_points => [undef]
-		};
+	sub new {
+	    my $proto = shift;
+		my @args=@_;
+	    my $class = ref($proto) || $proto; 
+		my $self->{default_config} = {
+			id => 'Magnet_sweep',
+			filename_extension => 'B=',
+			interval	=> 1,
+			points	=>	[],
+			duration	=> [],
+			mode	=> 'continuous',
+			allowed_instruments => ['Lab::Instrument::IPS', 'Lab::Instrument::IPSWeiss1', 'Lab::Instrument::IPSWeiss2', 'Lab::Instrument::IPSWeissDillFridge'],
+			allowed_sweep_modes => ['continuous', 'list', 'step'],
+			number_of_points => [undef]
+			};
+			
+		$self = $class->SUPER::new($self->{default_config},@args);	
+		bless ($self, $class);
 		
-	$self = $class->SUPER::new($self->{default_config},@args);	
-	bless ($self, $class);
-	
-    return $self;
-}
+	    return $self;
+	}
 
 
 the following methodes have to be overloaded in the subclass:
 
-sub go_to_sweep_start{}
-sub start_continuous_sweep{}
-sub go_to_next_step{}
-sub exit_loop{}
-sub get_value{}
-sub exit{}
+	sub go_to_sweep_start{}
+	sub start_continuous_sweep{}
+	sub go_to_next_step{}
+	sub exit_loop{}
+	sub get_value{}
+	sub exit{}
 
 additionally see one of the present Sweep-Subclasses.
 

@@ -172,51 +172,51 @@ Instantiates a new Magnet-sweep.
 
 =head2 instrument [Lab::Instrument] (mandatory)
 
-	Instrument, conducting the sweep. Must be of type Lab:Instrument. 
-	Allowed instruments: Lab::Instrument::IPS, Lab::Instrument::IPSWeiss1, Lab::Instrument::IPSWeiss2, Lab::Instrument::IPSWeissDillFridge
+Instrument, conducting the sweep. Must be of type Lab:Instrument. 
+Allowed instruments: Lab::Instrument::IPS, Lab::Instrument::IPSWeiss1, Lab::Instrument::IPSWeiss2, Lab::Instrument::IPSWeissDillFridge
 
 .
 
 =head2 mode [string] (default = 'continuous' | 'step' | 'list')
 	
-	continuous: perform a continuous magnetic field sweep. Measurements will be performed constantly at the time-interval defined in interval.
+continuous: perform a continuous magnetic field sweep. Measurements will be performed constantly at the time-interval defined in interval.
 
-	step: measurements will be performed at discrete values of the magnetic field between start and end points defined in parameter points, seperated by the magnetic field values defined in parameter stepwidth
+step: measurements will be performed at discrete values of the magnetic field between start and end points defined in parameter points, seperated by the magnetic field values defined in parameter stepwidth
 
-	list: measurements will be performed at a list of magnetic field values defined in parameter points
+list: measurements will be performed at a list of magnetic field values defined in parameter points
 	
 .
 
 =head2 points [float array] (mandatory)
 
-	array of magnetic field values (in Tesla) that defines the characteristic points of the sweep.
-	First value is appraoched before measurement begins. 
+array of magnetic field values (in Tesla) that defines the characteristic points of the sweep.
+First value is appraoched before measurement begins. 
 
-	Case mode => 'continuous' :
-	List of at least 2 values, that define start and end point of the sweep or a sequence of consecutive sweep-sections (e.g. if changing the sweep-rate for different sections or reversing the sweep direction). 
-	Examples: 	points => [-5, 5]	# Start: -5 / Stop: 5
+Case mode => 'continuous' :
+List of at least 2 values, that define start and end point of the sweep or a sequence of consecutive sweep-sections (e.g. if changing the sweep-rate for different sections or reversing the sweep direction). 
+	 	points => [-5, 5]	# Start: -5 / Stop: 5
 
-				points => [-5, -1, 1, 5]
+		points => [-5, -1, 1, 5]
 
-				points => [0, -5, 5]
+		points => [0, -5, 5]
 
-	Case mode => 'step' :
-	Same as in 'continuous' but magnetic field will be swept in stop and go mode. I.e. Magnet approaches field values between start and stop at the interval defined in 'stepwidth'. A measurement is performed, when magnet is idle.
+Case mode => 'step' :
+Same as in 'continuous' but magnetic field will be swept in stop and go mode. I.e. Magnet approaches field values between start and stop at the interval defined in 'stepwidth'. A measurement is performed, when magnet is idle.
 
-	Case mode => 'list' :
-	Array of magnetic field values, with minimum length 1, that are approached in sequence to perform a measurment.
+Case mode => 'list' :
+Array of magnetic field values, with minimum length 1, that are approached in sequence to perform a measurment.
 
 .
 
 =head2 rate [float array] (mandatory if not defined duration)
 
-	array of rates, at which the magnetic field is swept (Tesla / min).
-	Has to be of length 1 or greater (Maximum length: length of points-array).
-	The first value defines the rate to approach the starting point. 
-	The following values define the rates to approach the magnetic field values defined by the points-array.
-	If the number of values in the rates-array is less than the length of the points-array, the last defined rate will be used for the remaining sweep sections.
+array of rates, at which the magnetic field is swept (Tesla / min).
+Has to be of length 1 or greater (Maximum length: length of points-array).
+The first value defines the rate to approach the starting point. 
+The following values define the rates to approach the magnetic field values defined by the points-array.
+If the number of values in the rates-array is less than the length of the points-array, the last defined rate will be used for the remaining sweep sections.
 
-	Example:
+	
 	points => [-5, -1, 1, 5],
 	rates => [1, 0.5, 0.2]
 	
@@ -230,22 +230,21 @@ Instantiates a new Magnet-sweep.
 
 =head2 duration [float array] (mandatory if not defined rate)
 
-	can be used instead of 'rate'. Attention: Use only the 'duration' or the 'rate' parameter. Using both will cause an Error!
+can be used instead of 'rate'. Attention: Use only the 'duration' or the 'rate' parameter. Using both will cause an Error!
 	
-	The first value defines the duration to approach the starting point. 
-	The second value defines the duration to approach the magnetic field value defined by the second value of the points-array.
-	...
-	If the number of values in the duration-array is less than the length of the points-array, last defined duration will be used for the remaining sweep sections.
+The first value defines the duration to approach the starting point. 
+The second value defines the duration to approach the magnetic field value defined by the second value of the points-array.
+...
+If the number of values in the duration-array is less than the length of the points-array, last defined duration will be used for the remaining sweep sections.
 
 .
 
 =head2 stepwidth [float array]
 
-	This parameter is relevant only if mode = 'step' has been selected. 
-	Stepwidth has to be an array of length '1' or greater. The values define the width for each step within the corresponding sweep sequence. 
-	If the length of the defined sweep sequence devided by the stepwidth is not an integer number, the last step will be smaller in order to reach the defined points-value.
+This parameter is relevant only if mode = 'step' has been selected. 
+Stepwidth has to be an array of length '1' or greater. The values define the width for each step within the corresponding sweep sequence. 
+If the length of the defined sweep sequence devided by the stepwidth is not an integer number, the last step will be smaller in order to reach the defined points-value.
 	
-	Example:
 	points = [0, 0.5, 3]
 	stepwidth = [0.2, 0.5]
 	
@@ -255,11 +254,10 @@ Instantiates a new Magnet-sweep.
 
 =head2 number_of_points [int array]
 
-	can be used instead of 'stepwidth'. Attention: Use only the 'number_of_points' or the 'stepwidth' parameter. Using both will cause an Error!
-	This parameter is relevant only if mode = 'step' has been selected. 
-	Number_of_points has to be an array of length '1' or greater. The values defines the number of steps within the corresponding sweep sequence.
+can be used instead of 'stepwidth'. Attention: Use only the 'number_of_points' or the 'stepwidth' parameter. Using both will cause an Error!
+This parameter is relevant only if mode = 'step' has been selected. 
+Number_of_points has to be an array of length '1' or greater. The values defines the number of steps within the corresponding sweep sequence.
 	
-	Example:
 	points = [0, 0.5, 3]
 	stepwidth = [2, 5]
 	
@@ -269,46 +267,46 @@ Instantiates a new Magnet-sweep.
 
 =head2 interval [float] (default = 1)
 
-	interval in seconds for taking measurement points. Only relevant in mode 'continuous'.
+interval in seconds for taking measurement points. Only relevant in mode 'continuous'.
 
 .
 
 =head2 backsweep [int] (default = 0 | 1 | 2)
 
-	0 : no backsweep (default)
-	1 : a backsweep will be performed
-	2 : no backsweep performed automatically, but sweep sequence will be reverted every second time the sweep is started (relevant eg. if sweep operates as a slave. This way the sweep sequence is reverted at every second step of the master)
+0 : no backsweep (default)
+1 : a backsweep will be performed
+2 : no backsweep performed automatically, but sweep sequence will be reverted every second time the sweep is started (relevant eg. if sweep operates as a slave. This way the sweep sequence is reverted at every second step of the master)
 	
 .
 
 =head2 id [string] (default = 'Magnet_sweep')
 
-	Just an ID.
+Just an ID.
 
 .
 
 =head2 filename_extention [string] (default = 'B=')
 
-	Defines a postfix, that will be appended to the filenames if necessary.
+Defines a postfix, that will be appended to the filenames if necessary.
 
 .
 
 =head2 delay_before_loop [int] (default = 0)
 
-	defines the time in seconds to wait after the starting point has been reached.
+defines the time in seconds to wait after the starting point has been reached.
 
 .
 
 =head2 delay_in_loop [int] (default = 0)
 
-	This parameter is relevant only if mode = 'step' or 'list' has been selected. 
-	Defines the time in seconds to wait after the value for the next step has been reached.
+This parameter is relevant only if mode = 'step' or 'list' has been selected. 
+Defines the time in seconds to wait after the value for the next step has been reached.
 
 .
 
 =head2 delay_after_loop [int] (default = 0)
 
-	Defines the time in seconds to wait after the sweep has been finished. This delay will be executed before an optional backsweep or optional repetitions of the sweep.
+Defines the time in seconds to wait after the sweep has been finished. This delay will be executed before an optional backsweep or optional repetitions of the sweep.
 
 .
 
