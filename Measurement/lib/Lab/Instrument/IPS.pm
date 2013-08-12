@@ -760,6 +760,7 @@ sub config_sweep { # basic
 
 sub sweep_to_field {
 	my $self = shift;
+
 	my ($target, $rate) = $self->_check_args( \@_, ['target', 'rate'] );
 	
 	my $current_field = $self->get_value();
@@ -770,8 +771,12 @@ sub sweep_to_field {
 	my @targets;
 	my @rates;
 	
-	
-	
+	if (abs($target) > $self->{LIMITS}->{magneticfield}) {
+		Lab::Exception::CorruptParameter->throw( error =>  "Target-Field exceed maximum field value! \n" );
+	}
+	if (not defined $rate) {
+		$rate = @{$self->{LIMITS}->{rate_intervall_limits}}[0];
+	}
 	my $sweep_direction = ($current_field < $target)? 1: -1;
 	
 	foreach my $field_limit (@{$self->{LIMITS}->{field_intervall_limits}}) {

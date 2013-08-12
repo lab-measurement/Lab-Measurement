@@ -37,7 +37,7 @@ sub new {
 	my $self = $class->SUPER::new(@_);
 	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
 	
-	$self->{LIMITS} = { 'magneticfield' => 14, 'field_intervall_limits' => [0, 9, 11.5, 13], 'rate_intervall_limits' => [1.98, 0.66, 0.36, 0.18]};
+	$self->{LIMITS} = { 'magneticfield' => 14, 'field_intervall_limits' => [0, 9, 11.5, 13, 14], 'rate_intervall_limits' => [1.98, 0.66, 0.36, 0.18, 0.18]};
 	
 	$self->connection()->Clear();
 	$self->check_magnet();
