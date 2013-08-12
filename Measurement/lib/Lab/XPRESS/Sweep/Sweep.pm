@@ -1392,3 +1392,165 @@ sub AUTOLOAD {
 
 
 1;
+
+
+=head1 NAME
+
+	Lab::XPRESS::Sweep::Sweep - base class for Sweeps
+
+.
+
+=head1 SYNOPSIS
+
+	Lab::XPRESS::Sweep::Sweep is meant to be used as a base class for inheriting Sweeps.
+	It should not be used directly. 
+
+.
+
+=head1 DESCRIPTION
+
+The Lab::XPRESS::Sweep::Sweep class implements major parts of the Lab::XPRESS framework, a modular way for easy scripting measurements in perl and Lab::Measurement.
+Direct usage of this class would not result in any action. However it constitutes the fundament for more spezialized subclass Sweeps e.g. Lab::XPRESS::Sweep::Magnet. 
+.
+
+=head1 SWEEP PARAMETERS
+
+The configuration parameters are described in the particular subclasses (e.g. Lab::XPRESS::Sweep::Magnet). 
+
+.
+
+=head1 METHODS
+
+=head2 add_DataFile [Lab::XPRESS::Data::XPRESS_DataFile object]
+
+use this method to assign a DataFile object with a sweep if it operates as a slave or as a individual sweep. The sweep will call the user-defined measurment routine assigned with the DataFile.
+Sweeps accept multiple DataFile objects when add_DataFile is used repeatedly. 
+
+.
+
+=head2 start
+
+use this method to execute the sweep.
+
+.
+
+=head2 get_value 
+
+returns by default the current value of the points array or the current step. The method is intended to be overloaded by Sweep-Subclasses, in order to return the current value of the sweeping instrument.
+
+.
+
+
+=head2 LOG [hash, int (default = 0)]
+
+use this method to store the data collected by user-defined measurment routine in the DataFile object.
+
+The hash has to look like this: $column_name => $value
+The column_name has to be one of the previously defined columnames in the DataFile object.
+
+When using multiple DataFile objects within one sweep, you can direct the data hash one of the DataFiles by the second parameter (int). If this parameter is set to 0 (default) the data hash will be directed to all DataFile objects.
+
+Examples:
+$sweep->LOG({
+	'voltage' => 10,
+	'current' => 1e-6,
+	'reistance' => $R
+});
+
+OR:
+
+$sweep->LOG({'voltage' => 10});
+$sweep->LOG({'current' => 1e-6});
+$sweep->LOG({'reistance' => $R});
+
+for two DataFiles:
+
+# this value will be logged in both DataFiles
+$sweep->LOG({'voltage' => 10},0); 
+
+# this values will be logged in DataFile 1
+$sweep->LOG({
+	'current' => 1e-6,
+	'reistance' => $R1
+},1); 
+
+# this values will be logged in DataFile 2
+$sweep->LOG({
+	'current' => 10e-6,
+	'reistance' => $R2
+},2); 
+
+.
+
+=head2 last
+
+use this method, in order to stop the current sweep. Example:
+	
+	Stop a voltage Sweep if device current exeeds a critical limit.
+
+	if ($current > $high_limit) {
+		$voltage_sweep->last();
+	}
+
+.
+
+=head1 HOW TO DEVELOP SUBCLASS OF Lab::XPRESS::Sweep::Sweep
+
+
+preefine the default_config hash values in method 'new':
+
+sub new {
+    my $proto = shift;
+	my @args=@_;
+    my $class = ref($proto) || $proto; 
+	my $self->{default_config} = {
+		id => 'Magnet_sweep',
+		filename_extension => 'B=',
+		interval	=> 1,
+		points	=>	[],
+		duration	=> [],
+		mode	=> 'continuous',
+		allowed_instruments => ['Lab::Instrument::IPS', 'Lab::Instrument::IPSWeiss1', 'Lab::Instrument::IPSWeiss2', 'Lab::Instrument::IPSWeissDillFridge'],
+		allowed_sweep_modes => ['continuous', 'list', 'step'],
+		number_of_points => [undef]
+		};
+		
+	$self = $class->SUPER::new($self->{default_config},@args);	
+	bless ($self, $class);
+	
+    return $self;
+}
+
+
+the following methodes have to be overloaded in the subclass:
+
+sub go_to_sweep_start{}
+sub start_continuous_sweep{}
+sub go_to_next_step{}
+sub exit_loop{}
+sub get_value{}
+sub exit{}
+
+additionally see one of the present Sweep-Subclasses.
+
+
+.
+
+
+=head1 CAVEATS/BUGS
+
+probably some
+
+.
+
+
+=head1 AUTHOR/COPYRIGHT
+
+Christian Butschkow and Stefan Geißler
+
+This library is free software; you can redistribute it and/or modify it under the same
+terms as Perl itself.
+
+.
+
+=cut
