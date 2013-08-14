@@ -259,9 +259,9 @@ This parameter is relevant only if mode = 'step' has been selected.
 Number_of_points has to be an array of length '1' or greater. The values defines the number of steps within the corresponding sweep sequence.
 	
 	points = [0, 0.5, 3]
-	stepwidth = [2, 5]
+	number_of_points = [5, 2]
 	
-	==> steps: 0, 0.25, 0.5, 1.0, 1.5, 2.0, 2.5, 3
+	==> steps: 0, 0.1, 0.2, 0.3, 0.4, 0.5, 1.75, 3
 
 .
 
@@ -328,6 +328,7 @@ probably none
 
 =head1 AUTHOR/COPYRIGHT
 
+Christian Butschkow and Stefan Geiﬂler
 
 This library is free software; you can redistribute it and/or modify it under the same
 terms as Perl itself.

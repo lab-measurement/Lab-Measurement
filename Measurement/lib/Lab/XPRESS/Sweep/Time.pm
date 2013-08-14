@@ -103,3 +103,110 @@ sub halt {
 
 
 1;
+
+
+
+
+=head1 NAME
+
+	Lab::XPRESS::Sweep::Time - simple time controlled repeater
+
+.
+
+=head1 SYNOPSIS
+
+	use Lab::XPRESS::hub;
+	my $hub = new Lab::XPRESS::hub();
+	
+	
+	
+	my $repeater = $hub->Sweep('Time',
+		{
+		duration => 5
+		});
+
+.
+
+=head1 DESCRIPTION
+
+Parent: Lab::XPRESS::Sweep::Sweep
+
+The Lab::XPRESS::Sweep::Time class implements a simple time controlled repeater module in the Lab::XPRESS::Sweep framework.
+
+.
+
+=head1 CONSTRUCTOR
+	
+
+	my $repeater = $hub->Sweep('Time',
+		{
+		repetitions => 5
+		});
+
+Instantiates a new Repeater.
+
+.
+
+=head1 PARAMETERS
+
+
+
+=head2 duration [int] (default = 1)
+	
+duration for the time controlled repeater. Default value is 1, negative values indicate a infinit number of repetitions.
+
+.
+
+=head2 interval [int] (default = 1)
+	
+interval in seconds for taking measurement points.
+
+.
+
+=head2 id [string] (default = 'Repeater')
+
+Just an ID.
+
+.
+
+
+=head2 delay_before_loop [int] (default = 0)
+
+defines the time in seconds to wait after the starting point has been reached.
+
+.
+
+
+=head2 delay_after_loop [int] (default = 0)
+
+Defines the time in seconds to wait after the sweep has been finished. This delay will be executed before an optional backsweep or optional repetitions of the sweep.
+
+.
+
+=head1 CAVEATS/BUGS
+
+probably none
+
+.
+
+=head1 SEE ALSO
+
+=over 4
+
+=item L<Lab::XPRESS::Sweep>
+
+=back
+
+.
+
+=head1 AUTHOR/COPYRIGHT
+
+Christian Butschkow and Stefan Geiﬂler
+
+This library is free software; you can redistribute it and/or modify it under the same
+terms as Perl itself.
+
+.
+
+=cut
+

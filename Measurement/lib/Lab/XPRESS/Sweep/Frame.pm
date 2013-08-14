@@ -71,3 +71,96 @@ sub add_slave {
 }
 
 1;
+
+
+
+=head1 NAME
+
+	Lab::XPRESS::Sweep::Frame - 
+
+.
+
+=head1 SYNOPSIS
+
+	use Lab::XPRESS::hub;
+	my $hub = new Lab::XPRESS::hub();
+	
+	my $frame = $hub->Frame();
+	
+	$frame->add_master($sweep_0);
+	
+	$frame->add_slave($sweep_1);
+	$frame->add_slave($sweep_2);
+	$frame->add_slave($sweep_3);
+	
+	$frame->start();
+
+.
+
+=head1 DESCRIPTION
+
+Parent: Lab::XPRESS::Sweep::Sweep
+
+The Lab::XPRESS::Sweep::Frame class implements a module to organize a nested sweep structure in the Lab::XPRESS::Sweep framework.
+
+The Frame object has no parameters.
+.
+
+=head1 CONSTRUCTOR
+	
+	my $frame = $hub->Frame();
+
+Instantiates a new Frame object.
+
+.
+
+=head1 METHODS
+
+=head2 add_master
+
+	$frame->add_master($sweep);
+	
+use this methode to add a master sweep to the frame object. A Frame accepts only a single master sweep.
+	
+.
+	
+=head2 add_slave
+
+	$frame->add_slave($sweep);
+	
+use this methode to add a slave sweep to the frame object. A Frame can have several slave sweeps.
+
+The order in which the slave sweeps are added to the frame object, defines the sequence in which the individual slave sweeps will be executed.
+
+	$frame->add_slave($sweep_1);
+	$frame->add_slave($sweep_2);
+	$frame->add_slave($sweep_3);
+	
+The frame object accepts also another frame object as a slave sweep. This way you can build up a multi level nested sweep structure.
+
+	my $inner_frame = $hub->Frame();
+	my $outer_frame = $hub->Frame();
+	
+	$inner_frame->add_master($sweep_0);
+	
+	$inner_frame->add_slave($sweep_1);
+	$inner_frame->add_slave($sweep_2);
+	$inner_frame->add_slave($sweep_3);
+	
+	
+	$outer_frame->add_master($sweep_10);
+	
+	$outer_frame->add_slave($sweep_11);
+	$outer_frame->add_slave($inner_frame);
+	$outer_frame->add_slave($sweep_11);
+	
+	
+	$outer_frame->start();
+	
+.
+
+=head2 start
+
+	$frame->start();
+	
+use this methode to execute the nested sweeps.
