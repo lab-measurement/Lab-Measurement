@@ -27,8 +27,6 @@ toc:
           - Measurement/lib/Lab/Data/XMLtree.pm
           - Measurement/lib/Lab/Data/Plotter.pm
       - XPRESS:
-          - Tutorial:
-              - Measurement/examples/XPRESS/IV.pl
           - Sweep classes:
               - Measurement/lib/Lab/XPRESS/Sweep/Sweep.pm
               - Measurement/lib/Lab/XPRESS/Sweep/Magnet.pm
@@ -36,8 +34,11 @@ toc:
               - Measurement/lib/Lab/XPRESS/Sweep/Time.pm
               - Measurement/lib/Lab/XPRESS/Sweep/Motor.pm
               - Measurement/lib/Lab/XPRESS/Sweep/Repeater.pm
+              - Measurement/lib/Lab/XPRESS/Sweep/Temperature.pm
 		  - Nested sweep structure:
 			  - Measurement/lib/Lab/XPRESS/Sweep/Frame.pm
+		  - Tutorial:
+              - Measurement/examples/XPRESS/IV.pl
       - Instrument control classes:
           - Measurement/lib/Lab/Instrument.pm
           - Multimeters:
