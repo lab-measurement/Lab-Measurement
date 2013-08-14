@@ -299,3 +299,184 @@ sub convert_time {
 
 
 1;
+
+
+
+=head1 NAME
+
+	Lab::XPRESS::Sweep::Temperature - temperature sweep
+
+.
+
+=head1 SYNOPSIS
+
+	use Lab::XPRESS::hub;
+	my $hub = new Lab::XPRESS::hub();
+	
+	
+	my $tsensor = $hub->Instrument('ITC', 
+		{
+		connection_type => 'VISA_RS232',
+		gpib_address => 2
+		});
+	
+	my $sweep_temperature = $hub->Sweep('Temperature',
+		{
+		instrument => $tsensor,
+		points => [90,4],
+		mode => 'list'
+		});
+
+.
+
+=head1 DESCRIPTION
+
+Parent: Lab::XPRESS::Sweep::Sweep
+
+The Lab::XPRESS::Sweep::Temperature class implements a module for temperature sweeps in the Lab::XPRESS::Sweep framework.
+
+.
+
+=head1 CONSTRUCTOR
+	
+
+	my $sweep_temperature = $hub->Sweep('Temperature',
+		{
+		instrument => $tsensor,
+		points => [90,4],
+		mode => 'list'
+		});
+
+
+Instantiates a new temperature sweep
+
+.
+
+=head1 PARAMETERS
+
+=head2 instrument [Lab::Instrument] (mandatory)
+
+Instrument, conducting the sweep. Must be of type Lab:Instrument. 
+Supported instruments: Lab::Instrument::ITC
+
+.
+
+=head2 mode [string] (default = 'continuous' | 'step' | 'list')
+	
+continuous: perform a continuous temperature sweep. After the starting temperature has been stabalized by the temperature controller, the heater will be switched off in order to cool down to the final value. Measurements will be performed constantly at the time-interval defined in interval.
+
+step: measurements will be performed at discrete values between start and end points defined in parameter points, seperated by a step defined in parameter stepwidth
+
+list: measurements will be performed at a list of values defined in parameter points
+	
+.
+
+=head2 points [float array] (mandatory)
+
+array of values (in deg) that defines the characteristic points of the sweep.
+First value is appraoched before measurement begins. 
+
+Case mode => 'continuous' :
+List of exactly 2 values, that define start and end point of the sweep. The starting point has to be higher value than the endpont. 
+	 	points => [180, 4]	# Start: 180 K / Stop: 4 K
+
+Case mode => 'step' :
+Same as in 'continuous' but the temperature controller will stabalize the temperature at the defined setpoints.  A measurement is performed, when the motor is idle.
+
+Case mode => 'list' :
+Array of values, with minimum length 1, that are approached in sequence to perform a measurment.
+
+.
+
+
+
+=head2 stepwidth [float array]
+
+This parameter is relevant only if mode = 'step' has been selected. 
+Stepwidth has to be an array of length '1' or greater. The values define the width for each step within the corresponding sweep sequence. 
+If the length of the defined sweep sequence devided by the stepwidth is not an integer number, the last step will be smaller in order to reach the defined points-value.
+	
+	points = [0, 90, 180]
+	stepwidth = [10, 25]
+	
+	==> steps: 0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 115, 140, 165, 180
+
+.
+
+=head2 number_of_points [int array]
+
+can be used instead of 'stepwidth'. Attention: Use only the 'number_of_points' or the 'stepwidth' parameter. Using both will cause an Error!
+This parameter is relevant only if mode = 'step' has been selected. 
+Number_of_points has to be an array of length '1' or greater. The values defines the number of steps within the corresponding sweep sequence.
+	
+	points = [0, 90, 180]
+	number_of_points = [5, 2]
+	
+	==> steps: 0, 18, 36, 54, 72, 90, 135, 180
+
+.
+
+=head2 interval [float] (default = 1)
+
+interval in seconds for taking measurement points. Only relevant in mode 'continuous'.
+
+.
+
+
+=head2 id [string] (default = 'Temperature_sweep')
+
+Just an ID.
+
+.
+
+=head2 filename_extention [string] (default = 'T=')
+
+Defines a postfix, that will be appended to the filenames if necessary.
+
+.
+
+=head2 delay_before_loop [int] (default = 0)
+
+defines the time in seconds to wait after the starting point has been reached.
+
+.
+
+=head2 delay_in_loop [int] (default = 0)
+
+This parameter is relevant only if mode = 'step' or 'list' has been selected. 
+Defines the time in seconds to wait after the value for the next step has been reached.
+
+.
+
+=head2 delay_after_loop [int] (default = 0)
+
+Defines the time in seconds to wait after the sweep has been finished. This delay will be executed before an optional backsweep or optional repetitions of the sweep.
+
+.
+
+=head1 CAVEATS/BUGS
+
+probably none
+
+.
+
+=head1 SEE ALSO
+
+=over 4
+
+=item L<Lab::XPRESS::Sweep>
+
+=back
+
+.
+
+=head1 AUTHOR/COPYRIGHT
+
+Christian Butschkow and Stefan Geiﬂler
+
+This library is free software; you can redistribute it and/or modify it under the same
+terms as Perl itself.
+
+.
+
+=cut
