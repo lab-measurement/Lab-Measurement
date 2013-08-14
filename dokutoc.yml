@@ -32,6 +32,12 @@ toc:
           - Sweep classes:
               - Measurement/lib/Lab/XPRESS/Sweep/Sweep.pm
               - Measurement/lib/Lab/XPRESS/Sweep/Magnet.pm
+              - Measurement/lib/Lab/XPRESS/Sweep/Voltage.pm
+              - Measurement/lib/Lab/XPRESS/Sweep/Time.pm
+              - Measurement/lib/Lab/XPRESS/Sweep/Motor.pm
+              - Measurement/lib/Lab/XPRESS/Sweep/Repeater.pm
+		  - Nested sweep structure:
+			  - Measurement/lib/Lab/XPRESS/Sweep/Frame.pm
       - Instrument control classes:
           - Measurement/lib/Lab/Instrument.pm
           - Multimeters:
