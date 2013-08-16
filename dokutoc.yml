@@ -35,6 +35,7 @@ toc:
           - Measurement/lib/Lab/XPRESS/Sweep/Repeater.pm
           - Measurement/lib/Lab/XPRESS/Sweep/Temperature.pm
           - Measurement/lib/Lab/XPRESS/Sweep/Frame.pm
+          - Measurement/examples/XPRESS/Example1_Simple-IV.pl
       - Instrument control classes:
           - Measurement/lib/Lab/Instrument.pm
           - Multimeters:
