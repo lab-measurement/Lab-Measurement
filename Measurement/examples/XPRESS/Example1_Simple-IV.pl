@@ -86,13 +86,13 @@ XPRESS for DUMMIES
 =head1 Abstract
 
 	This is a simple, but fully functional Lab::Measurment script, which makes use of the XPRESS add-on. 
-	It's purpose as a measurement script is to record a single IV-curve. However it is also a step-by-step tutorial (for beginners) in writing a XPRESS-style Lab::Measurement script.
+	Its purpose as a measurement script is to record a single IV-curve. However it is also a step-by-step tutorial (for beginners) in writing a XPRESS-style Lab::Measurement script.
 	
 .
 
 =head1 Introduction 
 
-XPRESS is an add-on to Lab::Measurements, that serves several purposes: 
+XPRESS is an add-on to Lab::Measurement, that serves several purposes: 
 make writing scripts easy and structured, improve the script readability, save keystrokes and implement a whole bunch of features, that probably would make your scripts really messy if you would have to do it by your own.
 In order to fulfill those goals, we chose a very modular approach, that enables you to interchange elements within a script, and by that creating a whole new measurement without writing everything from scratch.
 
@@ -138,8 +138,8 @@ But how do we get it into the script? Here is, how it's done for the voltage sou
 
 As mentioned before, we receive the ingredients for our script (and therefore also instruments) from the hub. The function $hub->Instrument() returns the Instrument as a Lab::Measurement object, which we assign to the variable $voltage_source. As first parameter, we have to pass the name of the instrument. 
 The second parameter, the part wrapped in {}, is the configuration hash. This hash should always contain at least the connection_type (here VISA_GPIB) and depending on the connection a corresponding address. Here we use, furthermore, the parameter gate_protect. Gate protection is a really great feature, which comes with Lab::Mesurement, that can help you protecting your samples. 
-But since this is no gate, we don't want to use it now, we just turn it off by setting the parameter 0. The next example will introduce a gate, and explain the feature in more detail.
-However the hash can contain more than that. The available options and parameters can be found in the particular instrument driver documentations. Let's try it on the example of our multimeter:
+But since this is no gate, we don't want to use it now. We just turn it off by setting the parameter to 0. The next example will introduce a gate, and explain the feature in more detail.
+However, the hash can contain more than that. The available options and parameters can be found in the particular instrument driver documentations. Let's try it on the example of our multimeter:
 
 	my $multimeter = $hub->Instrument('Agilent34410A', 
 		{
@@ -168,11 +168,11 @@ Again we have to specify the type of sweep ('Voltage' here) and a configuration 
 The points parameter defines the starting point and the target of the Sweep in an array. 
 In the rate array, the first value specifies the rate at which the starting point is approached, while the second value defines the rate at which the target will be approached.
 Here points and rate are of length 2, but one could provide many more, in order to get a complex sweep sequence with changing sweep rates or reversing sweep directions. This is demonstrated in one of the other XPRESS example files.
-Besides that, there are many other parameters and options available to characterise the sweep, which are documented under the perticular types of Sweep.
+Besides that, there are many other parameters and options available to characterise the sweep, which are documented under the particular types of Sweep.
 
 =head2 3. The DataFile
 
-In order to log our measurements, we need a DataFile object. It can be obtaines using the hub:
+In order to log our measurements, we need a DataFile object. It can be obtained using the hub:
 
 	my $DataFile = $hub->DataFile('IVcurve_sample1.dat');
 
@@ -190,12 +190,12 @@ The data will later be logged in the DataFile, corresponding to the order you ad
 		y-axis => 'Current'
 		});
 
-There are more parameters, that modify the look and type of the plot. Details can be found in the documentation of Lab::XPRESS::Data::XPRESS_DataFile.
+There are more parameters, that modify the look and type of the plot. Details can be found in the documentation of L<Lab::XPRESS::Data::XPRESS_DataFile>.
 
 
 =head2 4. The measurement instructions
 
-As the last ingredient, we have to define how the data values per single measurement are generated. This set of instruction has to be wrapped into a subroutine, which will be executed each second while . First, let's have a look on the entire block, before discussing it in detail.
+As the last ingredient, we have to define how the data values per single measurement are generated. This set of instruction has to be wrapped into a subroutine, which will be executed each second while the sweep is sctive. First, let's have a look on the entire block, before discussing it in detail.
 
 	my $my_measurement = sub {
 	
@@ -216,24 +216,24 @@ Ok now have a closer look:
 
 =over 4
 
-=item * C< my $my_measurement = sub { ... > -- Here we indicate by the word 'sub', that a new subroutine is created, which instructions, are enclosed by {}. At the same time, the subroutine is assigned to the variable $my_measurement. This allows us to work with it later on.
+=item * C<< my $my_measurement = sub { ... >> -- Here we indicate by the word 'sub', that a new subroutine is created, which instructions, are enclosed by {}. At the same time, the subroutine is assigned to the variable $my_measurement. This allows us to work with it later on.
 
-=item * C< my $sweep = shift; > -- This line delivers us the current sweep object, which is important for propper logging of the data.
+=item * C<< my $sweep = shift; >> -- This line delivers us the current sweep object, which is important for propper logging of the data.
 
-=item * C< my $voltage = $voltage_source->get_value(); > -- By using the function get_value() of the voltage_source we retrieve the currently applied voltage.
+=item * C<< my $voltage = $voltage_source->get_value(); >> -- By using the function get_value() of the voltage_source we retrieve the currently applied voltage.
 
-=item * C< my $current = $multimeter->get_value()*1e-7; > -- Same as before, however since we are using a current to voltage converter, we have to multiply the measured value with an amplification factor.
+=item * C<< my $current = $multimeter->get_value()*1e-7; >> -- Same as before, however since we are using a current to voltage converter, we have to multiply the measured value with an amplification factor.
 
-=item * C< my $resistance = ($current != 0) ? $voltage/$current : '?'; > -- This looks complicated, well but isn't. You have to read it like: If $current is not zero (?) then $resistance = $voltage / $current. Else (:) $resistance = '?'. This prevents from deviding by 0, which is not allowed. It might be unlikely, that $current is exactly 0, but we don't want to break our script in the middle of a measurement. 
+=item * C<< my $resistance = ($current != 0) ? $voltage/$current : '?'; >> -- This looks complicated, well but isn't. You have to read it like: If $current is not zero (?) then $resistance = $voltage / $current. Else (:) $resistance = '?'. This prevents from dividing by 0, which is not allowed. It might be unlikely, that $current is exactly 0, but we don't want to break our script in the middle of a measurement. 
 
-=item * C< $sweep->LOG({
+=item * C<< $sweep->LOG({
 			Voltage => $voltage,
 			Current => $current,
 			Resistance => $resistance
-			}); > 
+			}); >> 
 		-- To store the generated values use $sweep->LOG(). With the hash you put into the function, you connect the freshly measured values with the columns you defined before in your DataFile.
 
-=item * C< }; > -- close block and terminate with semicolon
+=item * C<< }; >> -- close block and terminate with semicolon
 
 =back
 
