@@ -114,6 +114,7 @@ It's really that easy! In the following we would like to show you how to obtain 
 =head1 Step by step tutorial - How to write an IV-curve measurement
 
 =head2 0. The hub
+
 The hub is actually not an ingredient. In the metaphor of a recipe, the hub is rather the grocer, who supplies you with fresh ingredients. 
 And every good chef needs his very own grocer, right? So let's see how to create a hub in your script:
 
@@ -124,6 +125,7 @@ The first line is the PERL way to import a library. The second line, actually cr
 Now, since we have the hub, it will be easy to obtain the rest.
 
 =head2 1. Measurement instruments
+
 For the measurment we need a voltage source and a multimeter to measure the current through our device. Physically the equipment is already next to the computer and connected via National Instruments GPIB interface.
 But how do we get it into the script? Here is, how it's done for the voltage source (We chose a Yokogawa7651): 
 
@@ -168,7 +170,7 @@ In the rate array, the first value specifies the rate at which the starting poin
 Here points and rate are of length 2, but one could provide many more, in order to get a complex sweep sequence with changing sweep rates or reversing sweep directions. This is demonstrated in one of the other XPRESS example files.
 Besides that, there are many other parameters and options available to characterise the sweep, which are documented under the perticular types of Sweep.
 
-=head3 3. The DataFile
+=head2 3. The DataFile
 
 In order to log our measurements, we need a DataFile object. It can be obtaines using the hub:
 
