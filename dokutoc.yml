@@ -27,17 +27,15 @@ toc:
           - Measurement/lib/Lab/Data/XMLtree.pm
           - Measurement/lib/Lab/Data/Plotter.pm
       - XPRESS:
-	      - Measurement/lib/Lab/XPRESS/Sweep/Frame.pm
-	      - General Classes:
-		      - Measurement/lib/Lab/XPRESS/Sweep/Sweep.pm
-			  - Measurement/lib/Lab/XPRESS/Sweep/Frame.pm
-          - Sweep Classes:		      
-              - Measurement/lib/Lab/XPRESS/Sweep/Magnet.pm
-			  - Measurement/lib/Lab/XPRESS/Sweep/Voltage.pm
-              - Measurement/lib/Lab/XPRESS/Sweep/Time.pm
-              - Measurement/lib/Lab/XPRESS/Sweep/Motor.pm
-              - Measurement/lib/Lab/XPRESS/Sweep/Repeater.pm
-              - Measurement/lib/Lab/XPRESS/Sweep/Temperature.pm	      
+		  - Measurement/lib/Lab/XPRESS/Sweep/Sweep.pm
+	      - Measurement/lib/Lab/XPRESS/Sweep/Frame.pm	      
+          - Measurement/lib/Lab/XPRESS/Sweep/Magnet.pm
+	      - Measurement/lib/Lab/XPRESS/Sweep/Voltage.pm
+          - Measurement/lib/Lab/XPRESS/Sweep/Time.pm
+          - Measurement/lib/Lab/XPRESS/Sweep/Motor.pm
+          - Measurement/lib/Lab/XPRESS/Sweep/Repeater.pm
+          - Measurement/lib/Lab/XPRESS/Sweep/Temperature.pm
+          - Measurement/examples/XPRESS/Example1_Simple-IV.pl	      
       - Instrument control classes:
           - Measurement/lib/Lab/Instrument.pm
           - Multimeters:
