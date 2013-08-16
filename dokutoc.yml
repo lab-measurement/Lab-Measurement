@@ -28,8 +28,6 @@ toc:
           - Measurement/lib/Lab/Data/Plotter.pm
       - XPRESS:
 	      - Measurement/lib/Lab/XPRESS/Sweep/Frame.pm
-	      - Examples:
-              - Measurement/examples/XPRESS/Example1_Simple-IV.pl
 	      - General Classes:
 		      - Measurement/lib/Lab/XPRESS/Sweep/Sweep.pm
 			  - Measurement/lib/Lab/XPRESS/Sweep/Frame.pm
