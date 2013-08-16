@@ -189,7 +189,18 @@ sub add_column {
 
 sub add_plot {
 	my $self = shift;
-	my $plot = shift;
+	my $plot;
+	
+	
+	
+	if ( ref(@_[0]) eq 'HASH')
+		 {
+		 $plot = @_[0];
+		 }
+	 else
+		 {
+		 $plot = shift;
+		 }
 	
 	if (not defined $plot->{'autosave'}) {
 		$plot->{'autosave'} = 'last';
@@ -593,5 +604,6 @@ sub DESTROY {
         $self->finish_measurement();
     }
 }
+
 	
 	1;

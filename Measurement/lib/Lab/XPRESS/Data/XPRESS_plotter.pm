@@ -11,15 +11,23 @@ sub new {
     my $proto = shift;
     my $class = ref($proto) || $proto;
 	my $filename = shift;
-    my $plot = shift;
-	my %plot = %$plot;
+    my $plot;	
 	
+	if ( ref(@_[0]) eq 'HASH')
+		{
+		$plot = @_[0];
+		}
+	else
+		{
+		$plot = shift;
+		}	
 	
     my $self = bless {
 		filename => $filename,
         plot => $plot
     }, $class;		
 	
+	my %plot = %$plot;
 	
 	$self->{PAUSE} = -1; # negative value ==> pause disabled, positive value ==> pause enabled
 			
