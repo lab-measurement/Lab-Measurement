@@ -1,6 +1,6 @@
 ---
 title: Lab::Measurement documentation
-authors: Daniel Schröer, Florian Olbrich, Andreas K. Hüttel, and others
+authors: Daniel Schröer, Andreas K. Hüttel, Stefan Geißler, Christian Butschkow, and others
 toc:
   - The Lab::Measurement package:
       - Measurement/lib/Lab/Measurement/Changes.pod
