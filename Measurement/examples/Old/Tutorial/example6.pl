@@ -2,7 +2,7 @@
 
 # example6.pl
 
-# Eine Spannungsquelle fahren, Leitf‰higkeit (ohne Lock-In) messen
+# Eine Spannungsquelle fahren, Leitf√§higkeit (ohne Lock-In) messen
 
 use strict;
 use Lab::Instrument::KnickS252;
@@ -27,7 +27,7 @@ my $R_Kontakt       =1089;
 my $sample          ="S5c (81059)";
 my $title           ="QPC links unten";
 my $comment         =<<COMMENT;
-Strom von 12 nach 14; V_{SD,DC}=$v_sd V; L¸ftung an; Ca. 25mK.
+Strom von 12 nach 14; V_{SD,DC}=$v_sd V; L√ºftung an; Ca. 25mK.
 Ithaco: Amplification $amp, Supression 10e-10 off, Rise Time 0.3ms.
 Fahre Ghf4 (Yoko04)
 COMMENT

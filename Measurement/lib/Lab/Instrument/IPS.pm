@@ -1014,7 +1014,7 @@ probably many
 
 This is $Id: ILM.pm 613 2010-04-14 20:40:41Z schroeer $
 
-Copyright 2010 Andreas K. Hüttel (L<http://www.akhuettel.de/>)
+Copyright 2010 Andreas K. HÃ¼ttel (L<http://www.akhuettel.de/>)
 
 modified 2011 by Stefan Geissler
 

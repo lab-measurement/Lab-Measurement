@@ -18,7 +18,7 @@ use Lab::Measurement;
 use warnings "all";
 
 #general information
-my $t = 0;			      # fürs Stoppen der Messzeit
+my $t = 0;			      # fÃ¼rs Stoppen der Messzeit
 my $temperature = 'falling';      # Temperatur in milli-Kelvin!
 my $temperatureunit = 'mK';
 my $sample = "thebest";
@@ -31,9 +31,9 @@ my $startstring=sprintf("%04u-%02u-%02u_%02u-%02u-%02u",$starttime[5]+1900,$star
 # measurement constants
 #---dc sample1---
 my $Divider = 0.001;
-my $yok1protect = 1;		# 0 oder 1 für an / aus, analog gateprotect
+my $yok1protect = 1;		# 0 oder 1 fÃ¼r an / aus, analog gateprotect
 my $Yok1DcRange = 5;		# Handbuch S.6-22:R2=10mV,R3=100mV,R4=1V,R5=10V,R6=30V
-my $Vdcmax1 = 12;	        # wird unten fürs biasprotect verwendet, on 470 MOhm corresponds to about 32 nA  
+my $Vdcmax1 = 12;	        # wird unten fÃ¼rs biasprotect verwendet, on 470 MOhm corresponds to about 32 nA  
 
 my $ampI1 = 1e-9;         
 my $risetime1 = 100;		# rise time Ithaco Zeit in ms
@@ -49,7 +49,7 @@ my $Vgatestop = 3.7;
 my $stepgate = 0.001;
 ##############################!!!!!!!!!!!!!!
 
-my $Vgatemax = 5;				# wird unten fürs gateprotect verwendet
+my $Vgatemax = 5;				# wird unten fÃ¼rs gateprotect verwendet
 
 my $Vbias = 0.0;				# Bias in milivolt (Results in microvolt after divider) without offset
 
@@ -126,7 +126,7 @@ print " done!\n";
 
 my $comment=<<COMMENT;
 Ithaco: Verstaerkung $ampI1  , Rise Time $risetime1 ms;
-Messen der Ausgangsspannung des Ithaco über Agilent;
+Messen der Ausgangsspannung des Ithaco Ã¼ber Agilent;
 Voltage dividers DC: $Divider 
 Temperatur = $temperature $temperatureunit;
 
@@ -261,7 +261,7 @@ for (my $pos=$anglestart;$stepsign_angle*$pos<=$stepsign_angle*$anglestop;$pos+=
 	    chomp $Vithaco;                                 # raw data (remove line feed from string)
 		
 		
-	    my $Idc = -($Vithaco*$ampI1);              # '-' für den Ithako, damit positives G rauskommt
+	    my $Idc = -($Vithaco*$ampI1);              # '-' fÃ¼r den Ithako, damit positives G rauskommt
             
 	    $measurement->log_line($pos, $Vgate, $Idc, $t);
 	    

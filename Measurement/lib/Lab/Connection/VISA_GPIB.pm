@@ -222,7 +222,7 @@ Probably few. Mostly because there's not a lot to be done here. Please report.
 =head1 AUTHOR/COPYRIGHT
 
  Copyright 2011      Florian Olbrich
-           2012      Andreas K. Hüttel
+           2012      Andreas K. HÃ¼ttel
 
 This library is free software; you can redistribute it and/or modify it under the same
 terms as Perl itself.

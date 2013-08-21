@@ -19,7 +19,7 @@ use Lab::Measurement;
 use warnings "all";
 
 #general information
-my $t = 0;			      # fürs Stoppen der Messzeit
+my $t = 0;			      # fÃ¼rs Stoppen der Messzeit
 my $temperature = '30';      # Temperatur in milli-Kelvin!
 my $temperatureunit = 'mK';
 my $sample = "CB3224";
@@ -34,13 +34,13 @@ my $startstring=sprintf("%04u-%02u-%02u_%02u-%02u-%02u",$starttime[5]+1900,$star
 my $DividerAC=0.0001;
 my $DividerDC = 0.01;
 
-my $yok1protect = 1;		# 0 oder 1 für an / aus, analog gateprotect
+my $yok1protect = 1;		# 0 oder 1 fÃ¼r an / aus, analog gateprotect
 my $Yok1DcRange = 5;		# Handbuch S.6-22:R2=10mV,R3=100mV,R4=1V,R5=10V,R6=30V
-my $Vdcmax1 = 12;	        # wird unten fürs biasprotect verwendet, on 470 MOhm corresponds to about 32 nA  
+my $Vdcmax1 = 12;	        # wird unten fÃ¼rs biasprotect verwendet, on 470 MOhm corresponds to about 32 nA  
 
 my $ampI = 1e-8;         
 my $risetime = 1;		# rise time Ithaco Zeit in ms
-my $lockinsettings='Frequency 137.48Hz, amplitude 100mV*10^-4=10µV RMS, Phase 0, sens=50mV, integ. time 100ms';
+my $lockinsettings='Frequency 137.48Hz, amplitude 100mV*10^-4=10ÂµV RMS, Phase 0, sens=50mV, integ. time 100ms';
 
 
 my $multitime=2;  # multimeter integration time in line power cycles
@@ -53,7 +53,7 @@ my $Vgatestop = 1.36;
 my $stepgate = 0.0001;
 ##############################!!!!!!!!!!!!!!
 
-my $Vgatemax = 5;				# wird unten fürs gateprotect verwendet
+my $Vgatemax = 5;				# wird unten fÃ¼rs gateprotect verwendet
 
 my $Vbias = 1.0;				# Bias in Volt (Results in x*10 millivolt after divider) without offset
 
@@ -135,11 +135,11 @@ my $comment=<<COMMENT;
 AC dI measurment for different angles in the few electron regime.
 
 Ithaco: Verstaerkung $ampI  , Rise Time $risetime ms;
-Messen der Ausgangsspannung des Ithaco über Agilent;
+Messen der Ausgangsspannung des Ithaco Ã¼ber Agilent;
 Voltage dividers DC: $DividerDC 
 Voltage divider AC: $DividerAC
 
-Effective LIA amplitude 10µV.
+Effective LIA amplitude 10ÂµV.
 Multimeter integ. time (PLC) $multitime
 
 Lock-in settings: $lockinsettings
@@ -284,7 +284,7 @@ for (my $pos=$anglestart;$stepsign_angle*$pos<=$stepsign_angle*$anglestop;$pos+=
 		my $Iacr=sqrt($Iacx*$Iacx+$Iacy*$Iacy);
 		
 		
-	    my $Idc = -($Vithaco*$ampI);              # '-' für den Ithako, damit positives G rauskommt
+	    my $Idc = -($Vithaco*$ampI);              # '-' fÃ¼r den Ithako, damit positives G rauskommt
             
 	    $measurement->log_line($pos, $Vgate, $Idc, $Iacx, $Iacy, $Iacr, $t);
 	    

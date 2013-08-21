@@ -28,7 +28,7 @@ sub convert2Kelvin {
 		$value = (-234.66*$value**5.0) + (548.92*$value**4.0) - (509.23*$value**3.0) + (201.73*$value**2.0) - (453.87*$value**1.0) + 537.83;
 		return $value;
 		}
-	elsif ($value > 1.7191 ) {$value = 0; return 0; } # keine Aussage möglich
+	elsif ($value > 1.7191 ) {$value = 0; return 0; } # keine Aussage mÃ¶glich
 	elsif ($value > 1.7086 ) { $y= 1; $x1=1.7086; $x2=1.7191; }
 	elsif ($value > 1.6852 ) { $y= 2; $x1=1.6852; $x2=1.7086; }
 	elsif ($value > 1.6530 ) { $y= 3; $x1=1.6530; $x2=1.6852; }

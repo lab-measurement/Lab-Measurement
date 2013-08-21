@@ -18,7 +18,7 @@ use Lab::Measurement;
 use warnings "all";
 
 #general information
-my $t = 0;			      # fürs Stoppen der Messzeit
+my $t = 0;			      # fÃ¼rs Stoppen der Messzeit
 my $temperature = '30';      # Temperatur in milli-Kelvin!
 my $temperatureunit = 'mK';
 my $sample = "CB3442";
@@ -32,9 +32,9 @@ my $startstring=sprintf("%04u-%02u-%02u_%02u-%02u-%02u",$starttime[5]+1900,$star
 #---ac sample1---
 my $DividerDC = 0.001;
 
-my $yok1protect = 1;		# 0 oder 1 für an / aus, analog gateprotect
+my $yok1protect = 1;		# 0 oder 1 fÃ¼r an / aus, analog gateprotect
 my $Yok1DcRange = 5;		# Handbuch S.6-22:R2=10mV,R3=100mV,R4=1V,R5=10V,R6=30V
-my $Vdcmax1 = 12;	        # wird unten fürs biasprotect verwendet, on 470 MOhm corresponds to about 32 nA  
+my $Vdcmax1 = 12;	        # wird unten fÃ¼rs biasprotect verwendet, on 470 MOhm corresponds to about 32 nA  
 
 my $ampI = 1e-11;         
 my $risetime = 100;		# rise time Ithaco Zeit in ms
@@ -50,14 +50,14 @@ my $Vgatestop = 0.695;
 my $stepgate = 0.00005;
 ##############################!!!!!!!!!!!!!!
 
-my $Vgatemax = 5;				# wird unten fürs gateprotect verwendet
+my $Vgatemax = 5;				# wird unten fÃ¼rs gateprotect verwendet
 
 #---bias---
 
 ############################## !!!!!!!!!!!!!!
-my $Vbiasstart = -10;  #ACHTUNG!!! 1/1000 Teiler für dc-bias! -->1V=10mV
-my $Vbiasstop = 10;    #ACHTUNG!!! 1/1000 Teiler für dc-bias! -->1V=10mV
-my $stepbias = 0.02;   #ACHTUNG!!! 1/1000 Teiler für dc-bias! -->1mV=1µV
+my $Vbiasstart = -10;  #ACHTUNG!!! 1/1000 Teiler fÃ¼r dc-bias! -->1V=10mV
+my $Vbiasstop = 10;    #ACHTUNG!!! 1/1000 Teiler fÃ¼r dc-bias! -->1V=10mV
+my $stepbias = 0.02;   #ACHTUNG!!! 1/1000 Teiler fÃ¼r dc-bias! -->1mV=1ÂµV
 ##############################
 
 #---field---
@@ -68,7 +68,7 @@ my @Bfieldlist = (5);
 
 # all gpib addresses
 
-my $gpib_hp2 = 13;			# Spannung output Ithaco für Strommessung durch Probe		
+my $gpib_hp2 = 13;			# Spannung output Ithaco fÃ¼r Strommessung durch Probe		
 
 
 ####################################################################
@@ -141,10 +141,10 @@ my $comment=<<COMMENT;
 DC stability diagram measurement in the few electron regime for magnetic field $field T.
 
 Ithaco: Verstaerkung $ampI  , Rise Time $risetime ms;
-Messen der Ausgangsspannung des Ithaco über Agilent;
+Messen der Ausgangsspannung des Ithaco Ã¼ber Agilent;
 Voltage dividers DC: $DividerDC 
 
-Orientation: -23.3°
+Orientation: -23.3Â°
 
 Multimeter integ. time (PLC) $multitime
 
@@ -273,7 +273,7 @@ for (my $Vgate=$Vgatestart;$stepsign_gate*$Vgate<=$stepsign_gate*$Vgatestop;$Vga
 		
 		#print "ping \n";
 		
-	    my $Idc = -($Vithaco*$ampI);              # '-' für den Ithako, damit positives G rauskommt
+	    my $Idc = -($Vithaco*$ampI);              # '-' fÃ¼r den Ithako, damit positives G rauskommt
 		
         my $VbiasComp = $Vbias * $DividerDC;
             

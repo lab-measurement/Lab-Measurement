@@ -17,7 +17,7 @@ use Lab::Measurement;
 use warnings "all";
 
 #general information
-my $t = 0;			      # fürs Stoppen der Messzeit
+my $t = 0;			      # fÃ¼rs Stoppen der Messzeit
 my $temperature = '30';      # Temperatur in milli-Kelvin!
 my $temperatureunit = 'mK';
 my $sample = "CB3442";
@@ -31,14 +31,14 @@ my $startstring=sprintf("%04u-%02u-%02u_%02u-%02u-%02u",$starttime[5]+1900,$star
 #---ac sample1---
 my $DividerDC = 0.01;
 my $DividerAC = 0.0001;
-my $yok1protect = 1;		# 0 oder 1 für an / aus, analog gateprotect
+my $yok1protect = 1;		# 0 oder 1 fÃ¼r an / aus, analog gateprotect
 my $Yok1DcRange = 5;		# Handbuch S.6-22:R2=10mV,R3=100mV,R4=1V,R5=10V,R6=30V
-my $Vdcmax1 = 12;	        # wird unten fürs biasprotect verwendet, on 470 MOhm corresponds to about 32 nA  
+my $Vdcmax1 = 12;	        # wird unten fÃ¼rs biasprotect verwendet, on 470 MOhm corresponds to about 32 nA  
 
 my $ampI = 1e-8;         
 my $risetime = 1;		# rise time Ithaco Zeit in ms
 
-my $lockinsettings='Frequency 137.48Hz, amplitude 50mV*10^-4=5µV RMS, Phase 0, sens=500mV, integ. time 100ms';
+my $lockinsettings='Frequency 137.48Hz, amplitude 50mV*10^-4=5ÂµV RMS, Phase 0, sens=500mV, integ. time 100ms';
 
 my $multitime=2;  # multimeter integration time in line power cycles
 
@@ -50,17 +50,17 @@ my $Vgatestop = 0.4;
 my $stepgate = 0.0025;
 ##############################!!!!!!!!!!!!!!
 
-my $Vgatemax = 5;				# wird unten fürs gateprotect verwendet
+my $Vgatemax = 5;				# wird unten fÃ¼rs gateprotect verwendet
 
 ############################## !!!!!!!!!!!!!!
-my $Vbiasstart = -0.3;  #ACHTUNG!!! 1/100 Teiler für dc-bias! -->1V=10mV
-my $Vbiasstop = 0.3;    #ACHTUNG!!! 1/100 Teiler für dc-bias! -->1V=10mV
-my $stepbias = 0.001;   #ACHTUNG!!! 1/100 Teiler für dc-bias! -->1mV=1µV
+my $Vbiasstart = -0.3;  #ACHTUNG!!! 1/100 Teiler fÃ¼r dc-bias! -->1V=10mV
+my $Vbiasstop = 0.3;    #ACHTUNG!!! 1/100 Teiler fÃ¼r dc-bias! -->1V=10mV
+my $stepbias = 0.001;   #ACHTUNG!!! 1/100 Teiler fÃ¼r dc-bias! -->1mV=1ÂµV
 ##############################
 
 # all gpib addresses
 
-my $gpib_hp2 = 13;			# Spannung output Ithaco für Strommessung durch Probe		
+my $gpib_hp2 = 13;			# Spannung output Ithaco fÃ¼r Strommessung durch Probe		
 
 my $title = "Stability diagram";
 my $filename = $startstring."_$sample dia hole par";
@@ -131,12 +131,12 @@ my $comment=<<COMMENT;
 AC stability diagram measurement in the hole regime for high parallel magnetic field.
 
 Ithaco: Verstaerkung $ampI  , Rise Time $risetime ms;
-Messen der Ausgangsspannung des Ithaco über Agilent;
+Messen der Ausgangsspannung des Ithaco Ã¼ber Agilent;
 Voltage dividers DC: $DividerDC 
 Voltage divider AC: $DividerAC
 
 Magnetic field: 17T
-Orientation: -22°
+Orientation: -22Â°
 
 
 Multimeter integ. time (PLC) $multitime
@@ -286,7 +286,7 @@ for (my $Vgate=$Vgatestart;$stepsign_gate*$Vgate<=$stepsign_gate*$Vgatestop;$Vga
 		
 		#print "pong \n";
 		
-	    my $Idc = -($Vithaco*$ampI);              # '-' für den Ithako, damit positives G rauskommt
+	    my $Idc = -($Vithaco*$ampI);              # '-' fÃ¼r den Ithako, damit positives G rauskommt
 		my $Iacx= -($Vacx*$ampI);
 		my $Iacy= -($Vacy*$ampI);
         my $Iacr=sqrt($Iacx*$Iacx+$Iacy*$Iacy);

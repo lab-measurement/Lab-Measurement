@@ -20,7 +20,7 @@ use Lab::Measurement;
 use warnings "all";
 
 #general information
-my $t = 0;			      # fürs Stoppen der Messzeit
+my $t = 0;			      # fÃ¼rs Stoppen der Messzeit
 my $temperature = '30';      # Temperatur in milli-Kelvin!
 my $temperatureunit = 'mK';
 my $sample = "CB3224";
@@ -35,9 +35,9 @@ my $startstring=sprintf("%04u-%02u-%02u_%02u-%02u-%02u",$starttime[5]+1900,$star
 
 my $DividerDC = 0.001;
 
-my $yok1protect = 1;		# 0 oder 1 für an / aus, analog gateprotect
+my $yok1protect = 1;		# 0 oder 1 fÃ¼r an / aus, analog gateprotect
 my $Yok1DcRange = 5;		# Handbuch S.6-22:R2=10mV,R3=100mV,R4=1V,R5=10V,R6=30V
-my $Vdcmax1 = 12;	        # wird unten fürs biasprotect verwendet, on 470 MOhm corresponds to about 32 nA  
+my $Vdcmax1 = 12;	        # wird unten fÃ¼rs biasprotect verwendet, on 470 MOhm corresponds to about 32 nA  
 
 my $ampI = 1e-11;         
 my $risetime = 100;		# rise time Ithaco Zeit in ms
@@ -134,7 +134,7 @@ Current measurment for different magnetic field strength and bias in the few ele
 angle setting: -22.3, which is most likely parallel field
 
 Ithaco: Verstaerkung $ampI  , Rise Time $risetime ms;
-Messen der Ausgangsspannung des Ithaco über Agilent;
+Messen der Ausgangsspannung des Ithaco Ã¼ber Agilent;
 Voltage dividers DC: $DividerDC 
 
 Multimeter integ. time (PLC) $multitime
@@ -261,7 +261,7 @@ for (my $B=$fieldstart;$stepsign_field*$B<=$stepsign_field*($fieldstop+$fieldtol
 	    chomp $Vithaco;                                 # raw data (remove line feed from string)
 		
 		
-	    my $Idc = -($Vithaco*$ampI);              # '-' für den Ithako, damit positives G rauskommt
+	    my $Idc = -($Vithaco*$ampI);              # '-' fÃ¼r den Ithako, damit positives G rauskommt
             
 	    $measurement1->log_line($B, $Vbias, $Idc, $t);
 	    
@@ -279,12 +279,12 @@ printf "End of Measurement 1!\n";
 
 my $comment2=<<COMMENT;
 DC current measurment for different magnetic field orientations and bias in the few electron regime.
-angle sweep -23.3 (parallel) to 62.3° (perpendicular) field
+angle sweep -23.3 (parallel) to 62.3Â° (perpendicular) field
 
 Field strength $fieldstop T
 
 Ithaco: Verstaerkung $ampI  , Rise Time $risetime ms;
-Messen der Ausgangsspannung des Ithaco über Agilent;
+Messen der Ausgangsspannung des Ithaco Ã¼ber Agilent;
 Voltage dividers DC: $DividerDC 
 
 Multimeter integ. time (PLC) $multitime
@@ -413,7 +413,7 @@ for (my $Phi=$anglestart;$stepsign_angle*$Phi<=$stepsign_angle*$anglestop;$Phi+=
 		
 		
 		
-	    my $Idc = -($Vithaco*$ampI);              # '-' für den Ithako, damit positives G rauskommt
+	    my $Idc = -($Vithaco*$ampI);              # '-' fÃ¼r den Ithako, damit positives G rauskommt
             
 	    $measurement2->log_line($Phi, $Vbias, $Idc, $t);
 	    
@@ -433,7 +433,7 @@ Current measurment for different magnetic field strength and bias in the few ele
 angle setting: 62.3, which is most likely perpendicular field
 
 Ithaco: Verstaerkung $ampI  , Rise Time $risetime ms;
-Messen der Ausgangsspannung des Ithaco über Agilent;
+Messen der Ausgangsspannung des Ithaco Ã¼ber Agilent;
 Voltage dividers DC: $DividerDC 
 
 Multimeter integ. time (PLC) $multitime
@@ -554,7 +554,7 @@ for (my $B=$fieldstop;$stepsign_field*$B<=$stepsign_field*($fieldstart-$fieldtol
 	    chomp $Vithaco;                                 # raw data (remove line feed from string)
 		
 		
-	    my $Idc = -($Vithaco*$ampI);              # '-' für den Ithako, damit positives G rauskommt
+	    my $Idc = -($Vithaco*$ampI);              # '-' fÃ¼r den Ithako, damit positives G rauskommt
             
 	    $measurement3->log_line($B, $Vbias, $Idc, $t);
 	    

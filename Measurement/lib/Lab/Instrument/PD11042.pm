@@ -379,7 +379,7 @@ sub init_limits {
 			}
 		else
 			{
-			print "Please move the motor position to the REFERENCE POINT. Enter an angle between -188° ... +180°.\n";
+			print "Please move the motor position to the REFERENCE POINT. Enter an angle between -188Â° ... +180Â°.\n";
 			}		
 		}
 		

@@ -18,7 +18,7 @@ my $Vgatestop = 0.695;
 my $stepgate = 0.0001;
 
 my $gateprotect = 1;			# 0 ist aus, 1 ist an
-my $Vgatemax = 8;			# wird unten fürs gateprotect verwendet
+my $Vgatemax = 8;			# wird unten fÃ¼rs gateprotect verwendet
 
 my $gpib_yoko_backgate = 3;	
 my $gpib_hp = 13;

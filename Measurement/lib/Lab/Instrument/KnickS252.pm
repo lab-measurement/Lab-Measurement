@@ -245,8 +245,8 @@ The Lab::Instrument::KnickS252 class is a Lab::Instrument (L<Lab::Instrument>).
 
 =head1 AUTHOR/COPYRIGHT
 
-  Copyright 2004/2005 Daniel Schröer
-            2013      Andreas K. Hüttel
+  Copyright 2004/2005 Daniel SchrÃ¶er
+            2013      Andreas K. HÃ¼ttel
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 

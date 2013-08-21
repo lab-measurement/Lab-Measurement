@@ -594,7 +594,7 @@ probably many
 
 This is $Id: ITC503.pm 618 2010-04-15 10:16:04Z huettel $
 
-Copyright 2010 David Kalok and Andreas K. Hüttel (L<http://www.akhuettel.de/>)
+Copyright 2010 David Kalok and Andreas K. HÃ¼ttel (L<http://www.akhuettel.de/>)
 
 Modified 2011 by Stefan Geissler
 

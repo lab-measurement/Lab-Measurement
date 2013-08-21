@@ -20,7 +20,7 @@ use Lab::Measurement;
 use warnings "all";
 
 #general information
-my $t = 0;			      # fürs Stoppen der Messzeit
+my $t = 0;			      # fÃ¼rs Stoppen der Messzeit
 my $temperature = '30';      # Temperatur in milli-Kelvin!
 my $temperatureunit = 'mK';
 my $sample = "CB3224";
@@ -35,13 +35,13 @@ my $startstring=sprintf("%04u-%02u-%02u_%02u-%02u-%02u",$starttime[5]+1900,$star
 my $DividerAC=0.0001;
 my $DividerDC = 0.01;
 
-my $yok1protect = 1;		# 0 oder 1 für an / aus, analog gateprotect
+my $yok1protect = 1;		# 0 oder 1 fÃ¼r an / aus, analog gateprotect
 my $Yok1DcRange = 5;		# Handbuch S.6-22:R2=10mV,R3=100mV,R4=1V,R5=10V,R6=30V
-my $Vdcmax1 = 12;	        # wird unten fürs biasprotect verwendet, on 470 MOhm corresponds to about 32 nA  
+my $Vdcmax1 = 12;	        # wird unten fÃ¼rs biasprotect verwendet, on 470 MOhm corresponds to about 32 nA  
 
 my $ampI = 1e-8;         
 my $risetime = 1;		# rise time Ithaco Zeit in ms
-my $lockinsettings='Frequency 137.48Hz, amplitude 50mV*10^-4=5µV RMS, Phase 0, sens=100mV, integ. time 100ms';
+my $lockinsettings='Frequency 137.48Hz, amplitude 50mV*10^-4=5ÂµV RMS, Phase 0, sens=100mV, integ. time 100ms';
 
 
 my $multitime=2;  # multimeter integration time in line power cycles
@@ -54,7 +54,7 @@ my $Vgatestop = 0.4;
 my $stepgate = 0.0005;
 ##############################!!!!!!!!!!!!!!
 
-my $Vgatemax = 5;				# wird unten fürs gateprotect verwendet
+my $Vgatemax = 5;				# wird unten fÃ¼rs gateprotect verwendet
 
 my $Vbias = 35e-6;
 
@@ -143,10 +143,10 @@ $hp2->write("NPLC $multitime");
 
 my $comment1=<<COMMENT;
 AC dI measurment for different magnetic field strength in the hole regime.
-angle setting: 68° (165.5), which is most likely perpendicular field
+angle setting: 68Â° (165.5), which is most likely perpendicular field
 
 Ithaco: Verstaerkung $ampI  , Rise Time $risetime ms;
-Messen der Ausgangsspannung des Ithaco über Agilent;
+Messen der Ausgangsspannung des Ithaco Ã¼ber Agilent;
 Voltage dividers DC: $DividerDC 
 Voltage divider AC: $DividerAC
 
@@ -284,7 +284,7 @@ for (my $B=$fieldstart;$stepsign_field*$B<=$stepsign_field*$fieldstop;$B+=$field
 		my $Iacr=sqrt($Iacx*$Iacx+$Iacy*$Iacy);
 		
 		
-	    my $Idc = -($Vithaco*$ampI);              # '-' für den Ithako, damit positives G rauskommt
+	    my $Idc = -($Vithaco*$ampI);              # '-' fÃ¼r den Ithako, damit positives G rauskommt
             
 	    $measurement1->log_line($B, $Vgate, $Idc, $Iacx, $Iacy, $Iacr, $t);
 	    
@@ -301,12 +301,12 @@ printf "End of Measurement 1!\n";
 
 my $comment2=<<COMMENT;
 AC dI measurment for different magnetic field orientations in the hole regime.
-angle sweep 68° (165.5 perpendicular) to -22° (208.7 parallel) field
+angle sweep 68Â° (165.5 perpendicular) to -22Â° (208.7 parallel) field
 
 Field strength $fieldstop T
 
 Ithaco: Verstaerkung $ampI  , Rise Time $risetime ms;
-Messen der Ausgangsspannung des Ithaco über Agilent;
+Messen der Ausgangsspannung des Ithaco Ã¼ber Agilent;
 Voltage dividers DC: $DividerDC 
 Voltage divider AC: $DividerAC
 
@@ -443,7 +443,7 @@ for (my $Phi=$anglestart;$stepsign_angle*$Phi<=$stepsign_angle*$anglestop;$Phi+=
 		my $Iacr=sqrt($Iacx*$Iacx+$Iacy*$Iacy);
 		
 		
-	    my $Idc = -($Vithaco*$ampI);              # '-' für den Ithako, damit positives G rauskommt
+	    my $Idc = -($Vithaco*$ampI);              # '-' fÃ¼r den Ithako, damit positives G rauskommt
             
 	    $measurement2->log_line($Phi, $Vgate, $Idc, $Iacx, $Iacy, $Iacr, $t);
 	    

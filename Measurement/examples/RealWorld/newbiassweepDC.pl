@@ -20,7 +20,7 @@ my $Vgatestop = 0.8;
 my $stepgate = 0.0001;
 
 my $gateprotect = 1;			# 0 ist aus, 1 ist an
-my $Vgatemax = 7;			# wird unten fürs gateprotect verwendet
+my $Vgatemax = 7;			# wird unten fÃ¼rs gateprotect verwendet
 
 my $gpib_yoko_backgate = 3;	
 my $gpib_hp2 = 15;
@@ -42,7 +42,7 @@ my $risetime=10; #ms
 
 my $multitime = 10; # Integration time of multimeter in PLCs
 
-my $lockinsettings='Frequency 47.7Hz, amplitude 100mV*10^-4=10µV RMS, Phase 0, sens=10mV, integ. time 0.3s';
+my $lockinsettings='Frequency 47.7Hz, amplitude 100mV*10^-4=10ÂµV RMS, Phase 0, sens=10mV, integ. time 0.3s';
 
 #---init Yokogawa--- Gatespannung
 my $type_gate="Lab::Instrument::Yokogawa7651";
@@ -83,7 +83,7 @@ my $comment=<<COMMENT;
 Sample $sample
 Gate sweep from $Vgatestart to $Vgatestop bias $bias mV
 Ithako amp = $ampI; risetime= $risetime ms;
-Messen der Ausgangsspannung des Ithaco über Agilent und Lock-in;
+Messen der Ausgangsspannung des Ithaco Ã¼ber Agilent und Lock-in;
 Lock-in-Einstellungen $lockinsettings;
 Voltage divider AC: 1:10000
 Multimeter integ. time (PLC) 10
@@ -171,7 +171,7 @@ for (my $Vgate=$Vgatestart; $stepsign_gate*$Vgate<=$stepsign_gate*$Vgatestop; $V
 	chomp $measIsample;
 	my ($Vacx,$Vacy)=$lia->get_xy();
 		
-    my $Idc = -($measIsample*$ampI);              # '-' für den Ithako, damit positives G rauskommt
+    my $Idc = -($measIsample*$ampI);              # '-' fÃ¼r den Ithako, damit positives G rauskommt
 	my $Iacx= -($Vacx*$ampI);
 	my $Iacy= -($Vacy*$ampI);
     my $Iacr=sqrt($Iacx*$Iacx+$Iacy*$Iacy);

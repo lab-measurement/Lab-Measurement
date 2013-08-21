@@ -107,7 +107,7 @@ sub _start_plot {
         }
     }
     
-    #Quatsch. Aussen �ber Files loopen, dann �ber Konstanten
+    #Quatsch. Aussen über Files loopen, dann über Konstanten
     if ($self->{meta}->constant()) {
         $gp.="#\n# Constants\n" ;
         for (@{$self->{meta}->constant()}) {
@@ -413,7 +413,7 @@ Available options are
 
 This is $Id: Plotter.pm 516 2006-09-28 14:59:28Z schroeer $
 
-  Copyright 2004-2006 Daniel Schröer (L<http://www.danielschroeer.de>)
+  Copyright 2004-2006 Daniel SchrÃ¶er (L<http://www.danielschroeer.de>)
 
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 
