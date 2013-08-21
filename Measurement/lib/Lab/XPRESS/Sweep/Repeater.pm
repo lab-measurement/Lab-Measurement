@@ -155,7 +155,7 @@ probably none
 
 =head1 AUTHOR/COPYRIGHT
 
-Christian Butschkow and Stefan Geiﬂler
+Christian Butschkow and Stefan Gei√üler
 
 This library is free software; you can redistribute it and/or modify it under the same
 terms as Perl itself.
