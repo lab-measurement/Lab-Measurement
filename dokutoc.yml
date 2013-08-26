@@ -29,6 +29,7 @@ toc:
       - XPRESS:
           - Examples:
               - Measurement/examples/XPRESS/Example1_Simple-IV.pl
+              - Measurement/examples/XPRESS/Example2_Gate-IV-scan.pl
           - General classes:
               - Measurement/lib/Lab/XPRESS/Sweep/Sweep.pm
               - Measurement/lib/Lab/XPRESS/Sweep/Frame.pm
