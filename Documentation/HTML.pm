@@ -126,7 +126,7 @@ FOOTER
 package MyPodXHTML;
 use strict;
 use base 'Pod::Simple::XHTML';
-use HTML::Entities;
+#use HTML::Entities;
 
 sub new {
     my $self = shift->SUPER::new();
@@ -154,7 +154,7 @@ sub resolve_pod_page_link {
     }
 
     return ($self->perldoc_url_prefix || '')
-        . encode_entities($to) . $section
+        . HTML::Entities::encode_entities($to) . $section
         . ($self->perldoc_url_postfix || '');
 }
 
