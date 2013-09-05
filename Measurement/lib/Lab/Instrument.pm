@@ -5,16 +5,19 @@ use warnings;
 
 our $VERSION = '3.19';
 
+use Lab::Generic;
 use Lab::Exception;
 use Lab::Connection;
 use Carp qw(cluck croak);
 use Data::Dumper;
 use Clone qw(clone);
+use Class::ISA qw(self_and_super_path);
+use Hook::LexWrap;
 
 use Time::HiRes qw (usleep sleep);
 use POSIX; # added for int() function
 
-our @ISA = ();
+our @ISA = ('Lab::Generic');
 
 our $AUTOLOAD;
 
@@ -51,6 +54,168 @@ our %fields = (
 );
 
 
+# this methode implements the cache-handling:
+# 
+# It will wrap all get- and set-functions for parameters initialized in $fields->{device_cache} with additional pre- and post-processing code.
+# If a get-function is called and read_mode == cache, the $self->{device_cache}->{parameter} will be returned immediately. The original get-function won't be executed in this case.
+# This behaviour can be disabled by setting the parmeter $self->{config}->{no_cache} = 1.
+# The return-value of the get-function will be cached in $self->{device_cache}in any case.
+#
+# Set-functions will automatically call the corresponding get-function in the post-processing section, in order to keep the cache up to date.
+# 
+# If a requestID has been set, only the get-function, which placed the request will be executed, while all others return the cache-value. Set-functions won't be executed at all.
+# 
+
+sub _init_cache_handling {
+	 my $self = shift;
+	 my $class = shift; 
+	 
+	 
+	 no strict 'refs';
+	 
+	 # avoid to redefine the subs twice
+	 if ( defined ${$class.'::MODIFIED'} )
+		{
+		return;
+		}
+		
+	my $fields = *${\($class.'::fields')}{HASH};
+	my @cache_params = keys %{$fields->{device_cache}};
+	
+	
+		
+	# wrap parameter function defined in %fields->{device_cache}:
+	foreach my $cache_param (@cache_params)
+		{
+		my $set_sub = "set_".$cache_param; 
+		my $get_sub = "get_".$cache_param; 
+		
+		my $get_methode = *{$class."::".$get_sub};
+		my $set_methode = *{$class."::".$set_sub};
+			
+		if (  $class->can("set_".$cache_param) and exists &$set_methode )
+			{
+			# wrap set-function: 
+			wrap ($class."::".$set_sub, 
+				# before set-functions is executed:
+				pre => sub {
+					my $self = shift;
+			
+					# read_mode handling: do not execute if request is set:
+					if (defined $self->{requestID} or $self->connection()->is_blocked() )
+						{
+						$_[-1] = 'connection blocked';
+						}
+					},
+				# after set-functions is executed:
+				post => sub {
+				
+					# call coresponding get-function in order to keep the cache up to date, if available
+					if ( $self->can($get_sub))
+						{
+						my $var = $self->$get_sub(); 
+						}
+					
+					});
+			}
+		
+		if (  $class->can("get_".$cache_param) and  exists &$get_methode  )
+			{	
+			my $parameter = $cache_param;
+			
+			
+			# wrap get-function: 
+			wrap ($class."::".$get_sub, 
+			
+				# before get-functions is executed:
+				pre => sub {
+					my $self = shift;									
+					
+					
+					# read_mode handling:
+					my @args = @_;
+					pop @args;
+					my ($read_mode, $tail) = $self->_check_args(\@args, ['read_mode']);
+					
+					
+					# do not read if request has been set. set read_mode to cache if cache is available	
+					if ( $self->connection()->is_blocked() == 1 )
+						{
+						if ( defined $self->{device_cache}->{$parameter} )
+								{								
+								$read_mode = 'cache';
+								}
+							else
+								{
+								$_[-1] = 'connection_blocked' ;
+								}
+						}
+
+					
+					if (defined $self->{requestID}) 
+						{
+						my ($package, $filename, $subroutine, $line) = split(/ /, $self->{requestID});
+						
+						if ( $subroutine ne $class."::".$get_sub )
+							{
+							if ( defined $self->{device_cache}->{$parameter} )
+								{
+								
+								$read_mode = 'cache';
+								}
+							else
+								{
+								$_[-1] = 'connection_blocked' ;
+								}
+							}
+						else
+							{
+							$read_mode = undef;
+							pop @_ ;
+							}
+							
+						}
+						
+					
+					
+					
+					# return cache value if read_mode is set to cache
+					if ( defined $read_mode and $read_mode eq 'cache' and defined $self->{device_cache}->{$parameter} and not $self->{config}->{no_cache})
+						{		
+						$_[-1] = $self->{device_cache}->{$parameter};
+						} 
+						
+					},
+				
+				# after get-functions is executed:
+				post => sub {	
+					
+					# refresh cache value
+					if ( not defined $_[-1] or ref ($_[-1]) eq 'Hook::LexWrap::Cleanup' )
+						{
+						return;
+						}			
+					else
+						{
+						$self->{device_cache}->{$parameter} = $_[-1];
+						}
+					});
+				
+			}
+		
+		}
+	 	
+		
+	# remeber that we have allready redefined the functions	
+	${$class.'::MODIFIED'} = 1;
+		
+	use strict 'refs';
+
+
+ 
+}
+
+
 
 sub new { 
 	my $proto = shift;
@@ -59,10 +224,31 @@ sub new {
 	if (ref $_[0] eq 'HASH') { $config=shift }
 	else { $config={@_} }
 
-	my $self={};
-	bless ($self, $class);
+	
+	#my $self={};
+	#bless ($self, $class);
 
+	my $self = $class->SUPER::new(@_);
 	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
+	
+	
+	
+	my @isa = Class::ISA::self_and_super_path($class);
+	my $flag = 0;
+	while (@isa)
+		{
+		my $isa = pop @isa;
+		if ( $flag == 1)
+			{
+			$self->_init_cache_handling($isa);
+			}
+		if ( $isa eq 'Lab::Instrument' )
+			{
+			$flag = 1;
+			}
+		
+		}
+	
 
 	$self->config($config);
 
@@ -162,7 +348,7 @@ sub _getset_key{
 	if( !defined $self->device_cache()->{$ckey}  ) {
 		my $subname = 'get_' . $ckey;
 		Lab::Exception::CorruptParameter->throw("No get method defined for device_cache field $ckey! \n") if ! $self->can($subname);
-		$self->device_cache()->{$ckey} = $self->$subname( {from_device => 1} );
+		$self->$subname( );
 		}
 	else {
 		my $subname = 'set_' . $ckey;
@@ -203,7 +389,7 @@ sub _cache_init {
 			#	$self->_getset_key($ckey) if not exists $orderhash{$ckey};
 			#}
 		}
-		# no ordering required
+		# no ordering requestd
 		else{
 			for my $ckey ( @ckeys ) {
 				$self->_getset_key($ckey);	
@@ -439,9 +625,8 @@ sub check_errors {
 	my $self=shift;
 	my $command=shift;
 	my @errors=();
-	
-	if($self->get_status()->{'ERROR'}) {
-	
+		
+	if($self->get_status()->{'ERROR'}) {	
 		my ( $code, $message )  = $self->get_error();	
 		while( $code != 0 && $code != -1 ) {
 			push @errors, [$code, $message];
@@ -502,7 +687,21 @@ sub read {
 	my $self=shift;
 	my $args = scalar(@_)%2==0 ? {@_} : ( ref($_[0]) eq 'HASH' ? $_[0] : undef );
 	Lab::Exception::CorruptParameter->throw( "Illegal parameter hash given!\n" ) if !defined($args);
-
+	#my $read_mode = (defined $args->{'read_mode'}) ? $args->{'read_mode'} : 'device';
+	#$args->{'command'} = $command if defined $command;
+	
+	# # generate requestID from caller:
+	# my ($package, $filename, $line, $subroutine);
+	# ($package, $filename, $line, $subroutine) = caller(1);
+	# ($package, $filename, $line) = caller(0);
+	# my $requestID = $package."_".$filename."_".$subroutine."_".$line;
+	
+	# # read-mode handling:
+	# if ( defined $self->{requestID} or $read_mode eq 'cache' )
+		# {
+		# return $self->{'communication_cache'}->{$requestID};
+		# }
+	
 	my $result = $self->connection()->Read($args);
 	$self->check_errors('Just a plain and simple read.') if $args->{error_check};
 	
@@ -511,23 +710,86 @@ sub read {
 }
 
 
-# query( $command, { channel => 1 })
-# query( $command, channel => 1 )
-# query({ command => $cmd, channel => 1 })
-# query( command => $cmd, channel => 1 )
+sub request {
+	my $self = shift;
+	my ($command, $args) = $self->parse_optional(@_);
+	my $read_mode = (defined $args->{'read_mode'}) ? $args->{'read_mode'} : 'device';
+	
+	
+	# generate requestID from caller:
+	my ($package, $filename, $line, $subroutine);
+	($package, $filename, $line, $subroutine) = caller(1);
+	($package, $filename, $line) = caller(0);
+	my $requestID = $package." ".$filename." ".$subroutine." ".$line;
+	
+	
+	# # avoid to return an undef value:
+	if ( $read_mode eq 'request' and not defined $self->{requestID} )
+		{
+		$self->write(@_);
+		$self->connection()->block_connection();
+		$self->{requestID} = $requestID;
+		return undef;
+		}
+	elsif ( defined $self->{requestID} and $self->{requestID} eq $requestID )
+		{
+		$self->connection()->unblock_connection();
+		$self->{requestID} = undef;
+		return $self->read(@_);
+		}
+	else
+		{
+		return $self->query(@_);
+		}
+		
+		
+	
+}
 
-# $time, $true_scalar
 
 sub query {
 	my $self=shift;
 	my ($command, $args) = $self->parse_optional(@_);
-
+	my $read_mode = (defined $args->{'read_mode'}) ? $args->{'read_mode'} : 'device';
 	$args->{'command'} = $command if defined $command;
-
+	
+	if ( not defined $args->{'command'} )
+		{
+		Lab::Exception::CorruptParameter->throw( "No 'command' given!\n" );
+		}
+	
+		
 	my $result = $self->connection()->Query($args);
 	$self->check_errors($args->{'command'}) if $args->{error_check};
-	$result =~ s/^[ \r\t\n]+|[ \r\t\n]+$//g;
-	return $result;
+	return $result;	
+		
+	# # generate requestID from caller:
+	# my ($package, $filename, $line, $subroutine);
+	# ($package, $filename, $line, $subroutine) = caller(1);
+	# ($package, $filename, $line) = caller(0);	
+	# my $cacheID = $package."_".$filename."_".$subroutine."_".$line;
+	
+	
+	# # avoid to return an undef value:
+	# if ( not defined $self->{'communication_cache'}->{$cacheID} )
+		# {
+		# $read_mode = 'device';
+		# }
+	
+	# # read_mode handling:
+	# if ( defined $self->{requestID} or $read_mode eq 'cache' ) 
+		# {
+		# return $self->{'communication_cache'}->{$cacheID};
+		# }
+	# else
+		# {
+		# my $result = $self->connection()->Query($args);
+		# $self->check_errors($args->{'command'}) if $args->{error_check};
+		# return $self->{'communication_cache'}->{$cacheID} = $result;
+		# }
+
+			
+		
 }
 
 
@@ -666,40 +928,31 @@ sub _check_args {
 	my $args = shift;
 	my $params = shift;
 	
-	my $arguments;
+	my $arguments = {};
 
 	my $i = 0;
-	my $tempo_hash = {};
-
 	foreach my $arg (@{$args}) 
 	{
 		if ( ref($arg) ne "HASH" )
 			{
 			if ( defined @{$params}[$i] )
 				{
-				$tempo_hash->{@{$params}[$i]} = $arg;
-				
+				$arguments->{@{$params}[$i]} = $arg;				
 				}
 			$i++;
 			}
 		else
 			{
-			%{$arguments} = (%{$tempo_hash}, %{@{$args}[$i]});
-			last;	
+			%{$arguments} = (%{$arguments}, %{$arg});
+			$i++;
 			}
 	}
 
-	if (not defined $arguments) 
-	{
-		$arguments = $tempo_hash;
-	}
-
-		
+			
 	my @return_args = ();
 	
 	foreach my $param (@{$params}) 
 		{
-			
 		if (exists $arguments->{$param}) 
 			{
 			push (@return_args, $arguments->{$param});
@@ -718,18 +971,29 @@ sub _check_args {
 			delete $arguments->{$param};
 			}
 		}
+		
 
-	if (scalar(keys %{$arguments}) > 0) 
+	push(@return_args, $arguments);
+	# if (scalar(keys %{$arguments}) > 0) 
+		# {
+		# my $errmess = "Unknown parameter given in $self :";
+		# while ( my ($k,$v) = each %{$arguments} ) 
+			# {
+			# $errmess .= $k." => ".$v."\t";
+			# }
+		# print Lab::Exception::Warning->new( error => $errmess);
+		# }
+		
+	if (wantarray)
 		{
-		my $errmess = "Unknown parameter given in $self :";
-		while ( my ($k,$v) = each %{$arguments} ) 
-			{
-			$errmess .= $k." => ".$v."\t";
-			}
-		print Lab::Exception::Warning->new( error => $errmess);
+		return @return_args;
+		}
+	else
+		{
+		return $return_args[0];
 		}
 			
-	return @return_args;
+	
 }
 	
 
