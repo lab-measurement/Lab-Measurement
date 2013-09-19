@@ -180,25 +180,23 @@ sub create_subsource { # create_subsource( channel => $channel_nr, more=>options
 
 sub set_level {
 	my $self=shift;
-	my $voltage=shift;
-	my $args=undef;
-	if(!defined $voltage || ref($voltage) eq 'HASH') {
-		Lab::Exception::CorruptParameter->throw( error=>'No voltage given.');
-	}
-	if (ref $_[0] eq 'HASH' && scalar(@_)==1) { $args=shift }
-	elsif ( scalar(@_)%2==0 ) { $args={@_}; }
-	else {
-		Lab::Exception::CorruptParameter->throw(error => "Sorry, I'm unclear about my parameters. See documentation.\nParameters: " . join(", ", ($voltage, @_)) . "\n");
-	}
 	
-	my $current = $self->get_level();
-	
-	return $voltage if $voltage == $current;
+	my ($target) = $self->_check_args( \@_, ['target'] );
 
-	if ($self->device_settings()->{'gate_protect'} && $self->device_settings()->{'gp_max_units_per_step'} < abs($voltage-$current)) {
-		return $voltage=$self->sweep_to_level($voltage,@_);
-	} else {
-		return $self->_set_level($voltage,{@_});
+	
+	if ($self->device_settings()->{'gate_protect'}){
+	
+		my $current = $self->get_level({read_mode => 'fetch'});
+	
+		return $voltage if $voltage == $current;
+
+		if ( $self->device_settings()->{'gp_max_units_per_step'} < abs($voltage-$current)) {
+			return $self->sweep_to_level($voltage,@_);
+		} 
+	}
+	
+	else {
+		return $self->_set_level($voltage,@_);
 	}
  
 }
@@ -248,7 +246,7 @@ sub sweep_to_level {
 	}	
 	elsif(!defined($time)){
 		$time = (abs($target-$current)+0.)/$apsec;
-	}	
+	}
 	
 
 	# sweep to current
