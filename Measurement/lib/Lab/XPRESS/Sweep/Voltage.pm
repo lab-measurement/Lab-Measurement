@@ -22,6 +22,7 @@ sub new {
 		points	=>	[],
 		duration	=> [],
 		mode	=> 'continuous',
+		jump => 0,
 		allowed_instruments => ['Lab::Instrument::Yokogawa7651', 'Lab::Instrument::Keithley2400'],
 		allowed_sweep_modes => ['continuous', 'list', 'step'],
 		number_of_points => [undef]
@@ -65,13 +66,18 @@ sub start_continuous_sweep {
 sub go_to_next_step {
 	my $self = shift;
 	
-	$self->{config}->{instrument}->config_sweep({
-		'points' => @{$self->{config}->{points}}[$self->{iterator}],
-		'rate' => @{$self->{config}->{rate}}[$self->{iterator}]
+	if ( $self->{config}->{jump} == 1 ){
+		$self->{config}->{instrument}->set_voltage(${$self->{config}->{points}}[$self->{iterator}]);
+	}
+	else{
+		$self->{config}->{instrument}->config_sweep({
+			'points' => @{$self->{config}->{points}}[$self->{iterator}],
+			'rate' => @{$self->{config}->{rate}}[$self->{iterator}]
 		});
 		$self->{config}->{instrument}->trg();
 		$self->{config}->{instrument}->wait();
 	}
+}
 
 sub exit_loop {
 	my $self = shift;
@@ -286,6 +292,16 @@ interval in seconds for taking measurement points. Only relevant in mode 'contin
 2 : no backsweep performed automatically, but sweep sequence will be reverted every second time the sweep is started (relevant eg. if sweep operates as a slave. This way the sweep sequence is reverted at every second step of the master)
 	
 .
+
+=head2 jump [int] (default = 0 | 1 )
+
+can be used to switch off the sweeping between adjacent points in step or list mode.
+
+0 : a sweep is performed between adjacent steps (default)
+1 : the voltage is set without sweeping, given that gateprotect does not trigger a sweep.
+	
+.
+
 
 =head2 id [string] (default = 'Voltage_sweep')
 
