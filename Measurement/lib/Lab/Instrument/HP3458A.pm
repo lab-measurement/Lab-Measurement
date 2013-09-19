@@ -180,7 +180,7 @@ sub triggered_read {
 	my $args = scalar(@_)%2==0 ? {@_} : ( ref($_[0]) eq 'HASH' ? $_[0] : undef );
 	Lab::Exception::CorruptParameter->throw( "Illegal parameter hash given!\n" ) if !defined($args);
 	
-	$args->{'timeout'} = $args->{'timeout'} || $self->timeout();
+	$args->{'timeout'} = $args->{'timeout'} || undef;
 
     my $value = $self->query( "TARM SGL", $args);
 
