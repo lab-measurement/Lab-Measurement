@@ -54,6 +54,139 @@ our %fields = (
 );
 
 
+
+
+
+
+sub new { 
+	my $proto = shift;
+	my $class = ref($proto) || $proto;
+	my $config = undef;
+	if (ref $_[0] eq 'HASH') { $config=shift }
+	else { $config={@_} }
+
+	
+
+	my $self = $class->SUPER::new(@_);
+	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
+	
+	# wrap additional code for automatic cache-handling aroung all paramter set- and get-functions defined in %fields->{device_cache}
+	my @isa = Class::ISA::self_and_super_path($class);
+	my $flag = 0;
+	while (@isa)
+		{
+		my $isa = pop @isa;
+		if ( $flag == 1)
+			{
+			$self->_init_cache_handling($isa);
+			}
+		if ( $isa eq 'Lab::Instrument' )
+			{
+			$flag = 1;
+			}
+		
+		}
+	
+
+	$self->config($config);
+
+	#
+	# In most inherited classes, configure() is run through _construct()
+	#
+	$self->${\(__PACKAGE__.'::configure')}($self->config()); # use local configure, not possibly overwritten one
+
+	if( $class eq __PACKAGE__ ) {
+		# _setconnection after providing $config - needed for direct instantiation of Lab::Instrument
+		$self->_setconnection();
+	}
+
+	# digest parameters
+	$self->device_name($self->config('device_name')) if defined $self->config('device_name');
+	$self->device_comment($self->config('device_comment')) if defined $self->config('device_comment');
+
+	return $self;
+}
+
+
+
+
+
+
+
+#
+# Call this in inheriting class's constructors to conveniently initialize the %fields object data.
+#
+sub _construct {	# _construct(__PACKAGE__);
+	(my $self, my $package) = (shift, shift);
+	my $class = ref($self);
+	my $fields = undef;
+	{
+		no strict 'refs';
+		$fields = *${\($package.'::fields')}{HASH};
+	}	
+
+
+	foreach my $element (keys %{$fields}) {
+		# handle special subarrays
+		if( $element eq 'device_settings' ) {
+			# don't overwrite filled hash from ancestor
+			$self->{device_settings} = {} if ! exists($self->{device_settings});
+			for my $s_key ( keys %{$fields->{'device_settings'}} ) {
+				$self->{device_settings}->{$s_key} = clone($fields->{device_settings}->{$s_key});
+			}
+		}
+		elsif( $element eq 'connection_settings' ) {
+			# don't overwrite filled hash from ancestor
+			$self->{connection_settings} = {} if ! exists($self->{connection_settings});
+			for my $s_key ( keys %{$fields->{connection_settings}} ) {
+				$self->{connection_settings}->{$s_key} = clone($fields->{connection_settings}->{$s_key});
+			}
+		}
+		else {
+			# handle the normal fields - can also be hash refs etc, so use clone to get a deep copy
+			$self->{$element} = clone($fields->{$element});
+			#warn "here comes\n" if($element eq 'device_cache');
+			#warn Dumper($Lab::Instrument::DummySource::fields) if($element eq 'device_cache');
+		}
+		$self->{_permitted}->{$element} = 1;
+	}
+	# @{$self}{keys %{$fields}} = values %{$fields};
+
+	#
+	# run configure() of the calling package on the supplied config hash.
+	# this parses the whole config hash on every heritance level (and with every version of configure())
+	# For Lab::Instrument itself it does not make sense, as $self->config() is not set yet. Instead it's run from the new() method, see there.
+	#
+	$self->${\($package.'::configure')}($self->config()) if $class ne 'Lab::Instrument'; # use configure() of calling package, not possibly overwritten one
+
+	#
+	# Check and parse the connection data OR the connection object in $self->config(), but only if 
+	# _construct() has been called from the instantiated class (and not from somewhere up the heritance hierarchy)
+	# That's because child classes can add new entrys to $self->supported_connections(), so delay checking to the top class.
+	# Also, don't run _setconnection() for Lab::Instrument, as in this case the needed fields in $self->config() are not set yet.
+	# It's run in Lab::Instrument::new() instead if needed.
+	#
+	# Also, other stuff that should only happen in the top level class instantiation can go here.
+	#
+	
+	if( $class eq $package && $class ne 'Lab::Instrument' ) {
+		$self->_setconnection();
+		
+		# Match the device hash with the device
+		# The cache carries the default values set above and was possibly modified with user
+		# defined values through configure() before the connection was set. These settings are now transferred
+		# to the device.
+		$self->_device_init(); # enable device communication if necessary
+		$self->_cache_init();  # transfer configuration to/from device
+	}
+}
+
+
+
+
+
+
+
 # this methode implements the cache-handling:
 # 
 # It will wrap all get- and set-functions for parameters initialized in $fields->{device_cache} with additional pre- and post-processing code.
@@ -217,127 +350,16 @@ sub _init_cache_handling {
 
 
 
-sub new { 
-	my $proto = shift;
-	my $class = ref($proto) || $proto;
-	my $config = undef;
-	if (ref $_[0] eq 'HASH') { $config=shift }
-	else { $config={@_} }
-
-	
-	#my $self={};
-	#bless ($self, $class);
-
-	my $self = $class->SUPER::new(@_);
-	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
-	
-	
-	
-	my @isa = Class::ISA::self_and_super_path($class);
-	my $flag = 0;
-	while (@isa)
-		{
-		my $isa = pop @isa;
-		if ( $flag == 1)
-			{
-			$self->_init_cache_handling($isa);
-			}
-		if ( $isa eq 'Lab::Instrument' )
-			{
-			$flag = 1;
-			}
-		
-		}
-	
-
-	$self->config($config);
-
-	#
-	# In most inherited classes, configure() is run through _construct()
-	#
-	$self->${\(__PACKAGE__.'::configure')}($self->config()); # use local configure, not possibly overwritten one
-
-	if( $class eq __PACKAGE__ ) {
-		# _setconnection after providing $config - needed for direct instantiation of Lab::Instrument
-		$self->_setconnection();
-	}
-
-	# digest parameters
-	$self->device_name($self->config('device_name')) if defined $self->config('device_name');
-	$self->device_comment($self->config('device_comment')) if defined $self->config('device_comment');
-
-	return $self;
-}
 
 
 
-#
-# Call this in inheriting class's constructors to conveniently initialize the %fields object data.
-#
-sub _construct {	# _construct(__PACKAGE__);
-	(my $self, my $package) = (shift, shift);
-	my $class = ref($self);
-	my $fields = undef;
-	{
-		no strict 'refs';
-		$fields = *${\($package.'::fields')}{HASH};
-	}	
 
 
-	foreach my $element (keys %{$fields}) {
-		# handle special subarrays
-		if( $element eq 'device_settings' ) {
-			# don't overwrite filled hash from ancestor
-			$self->{device_settings} = {} if ! exists($self->{device_settings});
-			for my $s_key ( keys %{$fields->{'device_settings'}} ) {
-				$self->{device_settings}->{$s_key} = clone($fields->{device_settings}->{$s_key});
-			}
-		}
-		elsif( $element eq 'connection_settings' ) {
-			# don't overwrite filled hash from ancestor
-			$self->{connection_settings} = {} if ! exists($self->{connection_settings});
-			for my $s_key ( keys %{$fields->{connection_settings}} ) {
-				$self->{connection_settings}->{$s_key} = clone($fields->{connection_settings}->{$s_key});
-			}
-		}
-		else {
-			# handle the normal fields - can also be hash refs etc, so use clone to get a deep copy
-			$self->{$element} = clone($fields->{$element});
-			#warn "here comes\n" if($element eq 'device_cache');
-			#warn Dumper($Lab::Instrument::DummySource::fields) if($element eq 'device_cache');
-		}
-		$self->{_permitted}->{$element} = 1;
-	}
-	# @{$self}{keys %{$fields}} = values %{$fields};
 
-	#
-	# run configure() of the calling package on the supplied config hash.
-	# this parses the whole config hash on every heritance level (and with every version of configure())
-	# For Lab::Instrument itself it does not make sense, as $self->config() is not set yet. Instead it's run from the new() method, see there.
-	#
-	$self->${\($package.'::configure')}($self->config()) if $class ne 'Lab::Instrument'; # use configure() of calling package, not possibly overwritten one
 
-	#
-	# Check and parse the connection data OR the connection object in $self->config(), but only if 
-	# _construct() has been called from the instantiated class (and not from somewhere up the heritance hierarchy)
-	# That's because child classes can add new entrys to $self->supported_connections(), so delay checking to the top class.
-	# Also, don't run _setconnection() for Lab::Instrument, as in this case the needed fields in $self->config() are not set yet.
-	# It's run in Lab::Instrument::new() instead if needed.
-	#
-	# Also, other stuff that should only happen in the top level class instantiation can go here.
-	#
-	
-	if( $class eq $package && $class ne 'Lab::Instrument' ) {
-		$self->_setconnection();
-		
-		# Match the device hash with the device
-		# The cache carries the default values set above and was possibly modified with user
-		# defined values through configure() before the connection was set. These settings are now transferred
-		# to the device.
-		$self->_device_init(); # enable device communication if necessary
-		$self->_cache_init();  # transfer configuration to/from device
-	}
-}
+
+
+
 
 
 sub _getset_key{
@@ -348,7 +370,7 @@ sub _getset_key{
 	if( !defined $self->device_cache()->{$ckey}  ) {
 		my $subname = 'get_' . $ckey;
 		Lab::Exception::CorruptParameter->throw("No get method defined for device_cache field $ckey! \n") if ! $self->can($subname);
-		$self->$subname( );
+		my $result = $self->$subname( );
 		}
 	else {
 		my $subname = 'set_' . $ckey;
@@ -529,19 +551,6 @@ sub _setconnection { # $self->setconnection() create new or use existing connect
 		if($self->_checkconnection($self->config('connection')) ) {
 			$self->connection($self->config('connection'));
 			
-			# add predefined connection settings to connection config:
-			# no overwriting of user defined connection settings
-			my $new_config = $self->connection()->config();
-			for my $key ( keys %{$self->connection_settings()} )
-				{
-				if ( not defined $self->connection()->config($key) )
-					{
-					$new_config->{$key} = $self->connection_settings($key);
-					}
-				}
-			$self->connection()->config($new_config);
-			$self->connection()->_configurebus();
-			
 		}
 		else { Lab::Exception::CorruptParameter->throw( error => "Received invalid connection object!\n" ); }
 	}
@@ -587,6 +596,21 @@ sub _setconnection { # $self->setconnection() create new or use existing connect
 	}
 	else {
 		Lab::Exception::CorruptParameter->throw( error => "Neither a connection nor a connection type was supplied.\n");	}
+
+
+
+	# add predefined connection settings to connection config:
+	# no overwriting of user defined connection settings
+	my $new_config = $self->connection()->config();
+	for my $key ( keys %{$self->connection_settings()} )
+		{
+		if ( not defined $self->connection()->config($key) )
+			{
+			$new_config->{$key} = $self->connection_settings($key);
+			}
+		}
+	$self->connection()->config($new_config);
+	$self->connection()->_configurebus();
 }
 
 
@@ -687,25 +711,11 @@ sub read {
 	my $self=shift;
 	my $args = scalar(@_)%2==0 ? {@_} : ( ref($_[0]) eq 'HASH' ? $_[0] : undef );
 	Lab::Exception::CorruptParameter->throw( "Illegal parameter hash given!\n" ) if !defined($args);
-	#my $read_mode = (defined $args->{'read_mode'}) ? $args->{'read_mode'} : 'device';
-	#$args->{'command'} = $command if defined $command;
-	
-	# # generate requestID from caller:
-	# my ($package, $filename, $line, $subroutine);
-	# ($package, $filename, $line, $subroutine) = caller(1);
-	# ($package, $filename, $line) = caller(0);
-	# my $requestID = $package."_".$filename."_".$subroutine."_".$line;
-	
-	# # read-mode handling:
-	# if ( defined $self->{requestID} or $read_mode eq 'cache' )
-		# {
-		# return $self->{'communication_cache'}->{$requestID};
-		# }
 	
 	my $result = $self->connection()->Read($args);
 	$self->check_errors('Just a plain and simple read.') if $args->{error_check};
 	
-	$result =~ s/^[ \r\t\n]+|[ \r\t\n]+$//g;
+	$result =~ s/^[\r\t\n]+|[\r\t\n]+$//g;
 	return $result;
 }
 
@@ -761,33 +771,10 @@ sub query {
 		
 	my $result = $self->connection()->Query($args);
 	$self->check_errors($args->{'command'}) if $args->{error_check};
+	
+	$result =~ s/^[\r\t\n]+|[\r\t\n]+$//g;
 	return $result;	
 		
-	# # generate requestID from caller:
-	# my ($package, $filename, $line, $subroutine);
-	# ($package, $filename, $line, $subroutine) = caller(1);
-	# ($package, $filename, $line) = caller(0);	
-	# my $cacheID = $package."_".$filename."_".$subroutine."_".$line;
-	
-	
-	# # avoid to return an undef value:
-	# if ( not defined $self->{'communication_cache'}->{$cacheID} )
-		# {
-		# $read_mode = 'device';
-		# }
-	
-	# # read_mode handling:
-	# if ( defined $self->{requestID} or $read_mode eq 'cache' ) 
-		# {
-		# return $self->{'communication_cache'}->{$cacheID};
-		# }
-	# else
-		# {
-		# my $result = $self->connection()->Query($args);
-		# $self->check_errors($args->{'command'}) if $args->{error_check};
-		# return $self->{'communication_cache'}->{$cacheID} = $result;
-		# }
-
 			
 		
 }
