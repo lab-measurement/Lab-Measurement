@@ -38,6 +38,7 @@ sub _configurebus { # $self->setbus() create new or use existing bus
 	
 	# add predefined connection settings to connection config:
 	# no overwriting of user defined connection settings
+	
 	my $new_config = $base->config();
 	for my $key ( keys %{$self->config()} )
 		{
@@ -50,7 +51,7 @@ sub _configurebus { # $self->setbus() create new or use existing bus
 	$base->config($new_config);
 	$self->config('base_connection')->_configurebus();
 	
-	
+		
 }
 
 
