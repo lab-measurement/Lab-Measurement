@@ -1,3 +1,6 @@
+# Please note: The Oxford IPS expects a \r after all commands, no matter which connection is used. For rs232 connection, additionally \n has to be added.
+# Hence termchar => \n. For Isobus connection, no additional termchar must be added. Hence IsoEnableTermChar => 0.
+
 package Lab::Instrument::IPS;
 our $VERSION = '3.19';
 
@@ -28,6 +31,7 @@ our %fields = (
 		parity => 'none',
 		handshake => 'none',
 		termchar => "\r",
+		IsoEnableTermChar => 0,
 		timeout => 2,
 	},
 
@@ -38,6 +42,8 @@ our %fields = (
 	
 	device_cache =>{
 		id => 'Oxford IPS',
+		targetfield => undef,
+		rate => undef,
 		field => undef
 
 	}
@@ -65,19 +71,6 @@ sub get_version { # internal only
 	
 	
 	return $version;
-
-	# if ($version =~ /\b(IPS180)/)
-		# {
-		# return 'MISCHER';
-		# }
-	# elsif ($version =~ /Version\s3\.06/)
-		# {		
-		# return 'KRYO1';
-		# }
-	# elsif ($version =~ /Version\s3\.07/)
-		# {
-		# return 'KRYO2';
-		# }	
 }
 
 
@@ -265,8 +258,8 @@ sub set_rate {
 	$targetrate = 0.0001;
 	}
 	
-	$self->device_cache()->{'rate'} = $self->query(sprintf("T%.5f\r", $targetrate));
-	printf("$self->{ID}: T%.5f\r\n", $targetrate);
+	$self->query(sprintf("T%.5f\r", $targetrate));
+	#printf("$self->{ID}: T%.5f\r\n", $targetrate);
 	
 	return;
 
@@ -275,19 +268,9 @@ sub set_rate {
 sub get_rate {
 	my $self = shift;
 
-	my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
-
-    if (not defined $read_mode or not $read_mode =~ /device|cache/)
-    {
-        $read_mode = $self->device_settings()->{read_default};
-    }
-    
-    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'rate'})
-    {
-        return $self->{'device_cache'}->{'rate'};
-    }
+	my ($tail) = $self->_check_args( \@_);
 	
-	return $self->device_cache()->{'rate'} = $self->get_parameter(9);
+	return $self->get_parameter(9, $tail);
 }
 
 sub set_targetfield {
@@ -296,9 +279,7 @@ sub set_targetfield {
 	
 	
 	$self->query(sprintf("J%.5f\r", $targetfield));
-	printf("$self->{ID}: J%.5f\r\n", $targetfield);
-
-	$self->device_cache()->{'targetfield'} = $targetfield;
+	#printf("$self->{ID}: J%.5f\r\n", $targetfield);
 	
 	return;
 	
@@ -307,19 +288,9 @@ sub set_targetfield {
 sub get_targetfield {
 	my $self = shift;
 
-	my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
+	my ($tail) = $self->_check_args( \@_ );
 
-    if (not defined $read_mode or not $read_mode =~ /device|cache/)
-    {
-        $read_mode = $self->device_settings()->{read_default};
-    }
-    
-    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'targetfield'})
-    {
-        return $self->{'device_cache'}->{'targetfield'};
-    }
-	
-	return $self->device_cache()->{'targetfield'} = $self->get_parameter(8);
+	return $self->get_parameter(8, $tail);
 }
 
 sub get_parameter { # advanced
@@ -364,8 +335,8 @@ sub get_parameter { # advanced
 
 sub get_value {
 	my $self = shift;
-	my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
-	return $self->get_field({read_mode => $read_mode});
+	my ($tail) = $self->_check_args( \@_);
+	return $self->get_field($tail);
 }
 
 sub get_field { # basic
@@ -373,40 +344,11 @@ sub get_field { # basic
 	
 	my $self=shift;
 
-	my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
+	my ($tail) = $self->_check_args( \@_ );
 
-    if (not defined $read_mode or not $read_mode =~ /device|cache|request|fetch/)
-    {
-        $read_mode = $self->device_settings()->{read_default};
-    }
-	
-    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'field'})
-    {
-     	return $self->{'device_cache'}->{'field'};
-    } 
-    elsif($read_mode eq 'request')
-    {
-    	if ($self->{'request'} != 0) {
-    		$self->read();
-    	}
-    	$self->write("R7\r");
-    	$self->{'request'} = 1;
-		
-    }
-    elsif ( $read_mode eq 'fetch' and $self->{'request'} == 1 )
-	{
-		$self->{'request'} = 0;
-		my $result = $self->read();
-		$result =~ s/R//g;
-		return $self->device_cache()->{field} = $result;
-	}
-    else
-    {
-    	my $result = $self->query("R7\r");
-		$result =~ s/R//g;
-		return $self->device_cache()->{field} = $result;	
-    }
-
+    my $result = $self->query("R7\r", $tail);
+	$result =~ s/R//g;
+	return $result;	
 	
 }
 

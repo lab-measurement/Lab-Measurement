@@ -340,7 +340,7 @@ sub set_heatersensor { # basic
 		Lab::Exception::CorruptParameter->throw( error => "unexpected value for SENSOR in sub set_heatersensor. Expected values are:\n 1 --> Sensor #1\n 2 --> Sensor #2\n 3 --> Sensor #3");
 		}
 	
-    $self->query("H$sensor");
+    $self->query("H$sensor\r");
 }
 
 sub _set_heaterlimit { # internal only

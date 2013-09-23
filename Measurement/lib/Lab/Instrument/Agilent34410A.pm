@@ -1,21 +1,17 @@
 #!/usr/bin/perl
 
-package Lab::Instrument::Agilent34410A_mod;
+package Lab::Instrument::Agilent34410A;
 our $VERSION = '2.00';
 
 use strict;
 use Time::HiRes qw (usleep);
-use Scalar::Util qw(weaken);
 use Lab::Instrument;
-use Carp;
-use Data::Dumper;
 use Lab::Instrument::Multimeter;
-use Sub::Override qw(override, replace);
 
 
 our @ISA = ("Lab::Instrument::Multimeter");
 
-#our $MODIFIED = "modified";
+
 
 our %fields = (
 	supported_connections => [ 'VISA_GPIB', 'GPIB', 'DEBUG', 'DUMMY' ],
