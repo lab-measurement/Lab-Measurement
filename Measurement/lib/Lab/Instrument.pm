@@ -103,6 +103,9 @@ sub new {
 	# digest parameters
 	$self->device_name($self->config('device_name')) if defined $self->config('device_name');
 	$self->device_comment($self->config('device_comment')) if defined $self->config('device_comment');
+	
+	
+	$self->register_instrument();
 
 	return $self;
 }
@@ -350,7 +353,30 @@ sub _init_cache_handling {
 
 
 
+sub register_instrument {
+	my $self = shift;
+	
+	push( @{Lab::Instrument::REGISTERED_INSTRUMENTS}, $self );
 
+
+}
+
+sub sprint_config {
+	my $self = shift;
+
+	
+	$Data::Dumper::Varname = "device_cache_";	
+	my $config = Dumper $self->device_cache();
+	
+	$config .= "\n";
+	
+	$Data::Dumper::Varname = "connection_settings_";
+	$config .= Dumper $self->connection()->config();
+	
+	return $config;
+	
+
+}
 
 
 
@@ -376,7 +402,7 @@ sub _getset_key{
 		my $subname = 'set_' . $ckey;
 		
 		Lab::Exception::CorruptParameter->throw("No set method defined for device_cache field $ckey!\n") if ! $self->can($subname);
-		$self->$subname($self->device_cache()->{$ckey});
+		my $result = $self->$subname($self->device_cache()->{$ckey});
 	}
 	
 }
