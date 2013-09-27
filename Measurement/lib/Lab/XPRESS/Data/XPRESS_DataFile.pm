@@ -12,6 +12,7 @@ our $VERSION = '3.19';
 our $counter = 0;
 our $GLOBAL_PATH = "./";
 our $GLOBAL_FOLDER = undef;
+our $DEFAULT_FOLDER = "MEAS";
 
 sub new {
     my $proto = shift;
@@ -30,6 +31,9 @@ sub new {
 	$self->{skiplog} = 0;
 	
 	my $filenamebase = shift;
+	my $foldername = $DEFAULT_FOLDER;
+    $foldername = shift if @_;
+	
 
 	$self->{filenamebase} = $filenamebase;
 
@@ -41,7 +45,7 @@ sub new {
 	
 	$self->{plot_count} = @plots;
 	# create file-handle:
-	$self->{filenamebase} = $self->create_folder($self->{filenamebase});
+	$self->{filenamebase} = $self->create_folder($self->{filenamebase},$foldername);
 
 	$self->open_logger($self->{filenamebase}, $self->{plots});
 	$self->{file} = $self->{filenamebase};
@@ -56,6 +60,7 @@ sub create_folder {
 
 	my $self = shift;
 	my $filenamebase = shift;
+	my $foldername = shift;
 
 	$filenamebase =~ s/\\/\//g;
 	$filenamebase =~ s/\.\///g;
@@ -82,7 +87,7 @@ sub create_folder {
 		foreach my $file (@files)
 			{
 
-			if ( $file =~ /(MEAS)_([0-9]+)\b/ )
+			if ( $file =~ /($foldername)_([0-9]+)\b/ )
 				{
 				if ( $2 > $max_index )
 					{
@@ -95,7 +100,7 @@ sub create_folder {
 		closedir(DIR);
 		
 		$GLOBAL_PATH =~ s/\/$//;
-		$GLOBAL_FOLDER = sprintf("%s/MEAS_%03d",$GLOBAL_PATH, $max_index);
+		$GLOBAL_FOLDER = sprintf("%s/%s_%03d",$GLOBAL_PATH,$foldername, $max_index);
 
 		mkdir ($GLOBAL_FOLDER);
 		
@@ -328,12 +333,12 @@ sub end_loop {
 		}
 	
 	
-	my $delta_time = ($self->{loop}->{t1}-$self->{loop}->{t0}) + $self->{loop}->{overtime};
+	my $delta_time = ($self->{loop}->{t1}-$self->{loop}->{t0});# + $self->{loop}->{overtime};
 	if ($delta_time > $self->{loop}->{interval})
 		{
 		$self->{loop}->{overtime} = $delta_time - $self->{loop}->{interval};
 		$delta_time = $self->{loop}->{interval};			
-		warn "WARNING: Measurement Loop takes more time ($self->{loop}->{overtime}) than specified by measurement intervall ($self->{loop}->{interval}).\n";
+		warn "WARNING: Measurement Loop takes more time ($self->{loop}->{overtime}) than specified by measurement interval ($self->{loop}->{interval}).\n";
 		}
 	else
 		{

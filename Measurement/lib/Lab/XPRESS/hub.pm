@@ -20,10 +20,10 @@ sub new {
 
 sub DataFile {
 	my $self = shift;
-	my $filenamebase = shift;
+	my ($filenamebase,$foldername) = @_;
 	
 	use Lab::XPRESS::Data::XPRESS_DataFile;
-	my $xFile = new Lab::XPRESS::Data::XPRESS_DataFile($filenamebase)
+	my $xFile = new Lab::XPRESS::Data::XPRESS_DataFile($filenamebase,$foldername)
 		or die Lab::Exception::CorruptParameter->throw( error => "Can't open file $filenamebase\n" );
 	return $xFile;
 		
