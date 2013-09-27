@@ -59,9 +59,9 @@ sub _device_init {
 
 sub configure_voltage_dc {
 	my $self=shift;
-    my $range=shift; # in V, or "AUTO", "MIN", "MAX"
-    my $tint=shift;  # integration time in sec, "DEFAULT", "MIN", "MAX"
-    
+
+	my ($range,$tint) = $self->_check_args( \@_, ['range','tint'] );	
+	    
     if($range eq 'AUTO' || !defined($range)) {
     	$range='AUTO';
     }
@@ -96,6 +96,9 @@ sub configure_voltage_dc {
 
 sub configure_voltage_dc_trigger {
 	my $self=shift;
+	
+	my ($range,$tint,$count,$delay) = $self->_check_args( \@_, ['range','tint','count','delay'] );
+    
     my $range=shift; # in V, or "AUTO", "MIN", "MAX"
     my $tint=shift;  # integration time in sec, "DEFAULT", "MIN", "MAX"
     my $count=shift;
@@ -108,12 +111,18 @@ sub configure_voltage_dc_trigger {
 	$delay=0 if !defined($delay);
     Lab::Exception::CorruptParameter->throw( error => "Trigger delay has to be a positive decimal value\n" )
     	if($count !~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/);
-        
+	
 
-    $self->_configure_voltage_dc($range, $tint);
+    $self->configure_voltage_dc($range, $tint);
+
 
 	#$self->write( "PRESET NORM" );
-	$self->write( "INBUF ON", error_check => 1);
+	if ($count > 1){
+		$self->write( "INBUF ON", error_check => 1);
+	}
+	else{
+		$self->write( "INBUF OFF", error_check => 1);
+	}
     $self->write( "TARM AUTO", error_check => 1 );
     $self->write( "TRIG HOLD", error_check => 1 );
     $self->write( "NRDGS $count, AUTO", error_check => 1 );
@@ -182,7 +191,7 @@ sub triggered_read {
 	
 	$args->{'timeout'} = $args->{'timeout'} || undef;
 
-    my $value = $self->query( "TARM SGL", $args);
+    my $value = $self->query( "TRIG SGL", $args);
 
     chomp $value;
 
@@ -427,6 +436,10 @@ sub get_id {
     return $self->query('*IDN?', @_);
 }
 
+sub trg{
+	my $self = shift;
+	$self->write('TRIG SGL', @_);
+	}
 
 sub get_value {
     # Triggers one Measurement and Reads it
