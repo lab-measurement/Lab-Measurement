@@ -50,119 +50,119 @@
    "provides" : {
       "Lab::Bus" : {
          "file" : "lib/Lab/Bus.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Bus::DEBUG" : {
          "file" : "lib/Lab/Bus/DEBUG.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Bus::DEBUG::HumanInstrument" : {
          "file" : "lib/Lab/Bus/DEBUG/HumanInstrument.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Bus::IsoBus" : {
          "file" : "lib/Lab/Bus/IsoBus.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Bus::LinuxGPIB" : {
          "file" : "lib/Lab/Bus/LinuxGPIB.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Bus::MODBUS_RS232" : {
          "file" : "lib/Lab/Bus/MODBUS_RS232.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Bus::RS232" : {
          "file" : "lib/Lab/Bus/RS232.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Bus::Socket" : {
          "file" : "lib/Lab/Bus/Socket.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Bus::USBtmc" : {
          "file" : "lib/Lab/Bus/USBtmc.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Bus::VISA" : {
          "file" : "lib/Lab/Bus/VISA.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Connection" : {
          "file" : "lib/Lab/Connection.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Connection::DEBUG" : {
          "file" : "lib/Lab/Connection/DEBUG.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Connection::GPIB" : {
          "file" : "lib/Lab/Connection/GPIB.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Connection::IsoBus" : {
          "file" : "lib/Lab/Connection/IsoBus.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Connection::LinuxGPIB" : {
          "file" : "lib/Lab/Connection/LinuxGPIB.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Connection::MODBUS_RS232" : {
          "file" : "lib/Lab/Connection/MODBUS_RS232.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Connection::RS232" : {
          "file" : "lib/Lab/Connection/RS232.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Connection::Socket" : {
          "file" : "lib/Lab/Connection/Socket.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Connection::TCPraw" : {
          "file" : "lib/Lab/Connection/TCPraw.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Connection::USBtmc" : {
          "file" : "lib/Lab/Connection/USBtmc.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Connection::VISA" : {
          "file" : "lib/Lab/Connection/VISA.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Connection::VISA_GPIB" : {
          "file" : "lib/Lab/Connection/VISA_GPIB.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Connection::VISA_RS232" : {
          "file" : "lib/Lab/Connection/VISA_RS232.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Data::Meta" : {
          "file" : "lib/Lab/Data/Meta.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Data::PDL" : {
          "file" : "lib/Lab/Data/PDL.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Data::Plotter" : {
          "file" : "lib/Lab/Data/Plotter.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Data::Writer" : {
          "file" : "lib/Lab/Data/Writer.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Data::XMLtree" : {
          "file" : "lib/Lab/Data/XMLtree.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Exception" : {
          "file" : "lib/Lab/Exception.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Exception::Base" : {
          "file" : "lib/Lab/Exception.pm",
@@ -170,223 +170,235 @@
       },
       "Lab::Instrument" : {
          "file" : "lib/Lab/Instrument.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Instrument::Agilent34410A" : {
          "file" : "lib/Lab/Instrument/Agilent34410A.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Instrument::Agilent34420A" : {
          "file" : "lib/Lab/Instrument/Agilent34420A.pm",
-         "version" : "3.19"
+         "version" : "3.20"
+      },
+      "Lab::Instrument::Cryogenic_SMS" : {
+         "file" : "lib/Lab/Instrument/Cryogenic_SMS.pm",
+         "version" : "3.20"
       },
       "Lab::Instrument::DummySource" : {
          "file" : "lib/Lab/Instrument/DummySource.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Instrument::HP34401A" : {
          "file" : "lib/Lab/Instrument/HP34401A.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Instrument::HP34420A" : {
          "file" : "lib/Lab/Instrument/HP34420A.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Instrument::HP3458A" : {
          "file" : "lib/Lab/Instrument/HP3458A.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Instrument::HP83732A" : {
          "file" : "lib/Lab/Instrument/HP83732A.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Instrument::IPS" : {
          "file" : "lib/Lab/Instrument/IPS.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Instrument::ITC" : {
          "file" : "lib/Lab/Instrument/ITC.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Instrument::Keithley2000" : {
          "file" : "lib/Lab/Instrument/Keithley2000.pm",
-         "version" : "3.19"
+         "version" : "3.20"
+      },
+      "Lab::Instrument::KnickS252" : {
+         "file" : "lib/Lab/Instrument/KnickS252.pm",
+         "version" : "3.20"
       },
       "Lab::Instrument::LabViewHeater" : {
          "file" : "lib/Lab/Instrument/LabViewHeater.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Instrument::MG369xB" : {
          "file" : "lib/Lab/Instrument/MG369xB.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Instrument::MagnetSupply" : {
          "file" : "lib/Lab/Instrument/MagnetSupply.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Instrument::Multimeter" : {
          "file" : "lib/Lab/Instrument/Multimeter.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Instrument::OI_ILM210" : {
          "file" : "lib/Lab/Instrument/OI_ILM210.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Instrument::OI_IPS" : {
          "file" : "lib/Lab/Instrument/OI_IPS.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Instrument::OI_ITC503" : {
          "file" : "lib/Lab/Instrument/OI_ITC503.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Instrument::OI_Mercury" : {
          "file" : "lib/Lab/Instrument/OI_Mercury.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Instrument::PD11042" : {
          "file" : "lib/Lab/Instrument/PD11042.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Instrument::ProStep4" : {
          "file" : "lib/Lab/Instrument/ProStep4.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Instrument::SR830" : {
          "file" : "lib/Lab/Instrument/SR830.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Instrument::Source" : {
          "file" : "lib/Lab/Instrument/Source.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Instrument::SpectrumSCPI" : {
          "file" : "lib/Lab/Instrument/SpectrumSCPI.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Instrument::TCD" : {
          "file" : "lib/Lab/Instrument/TCD.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Instrument::TRMC2" : {
          "file" : "lib/Lab/Instrument/TRMC2.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Instrument::TemperatureControl" : {
          "file" : "lib/Lab/Instrument/TemperatureControl.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Instrument::TemperatureControl::TLK43" : {
          "file" : "lib/Lab/Instrument/TemperatureControl/TLK43.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Instrument::TemperatureDiode" : {
          "file" : "lib/Lab/Instrument/TemperatureDiode.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Instrument::TemperatureDiode::SI420" : {
          "file" : "lib/Lab/Instrument/TemperatureDiode/SI420.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Instrument::U2000" : {
          "file" : "lib/Lab/Instrument/U2000.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Instrument::Yokogawa7651" : {
          "file" : "lib/Lab/Instrument/Yokogawa7651.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Instrument::YokogawaGS200" : {
          "file" : "lib/Lab/Instrument/YokogawaGS200.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Measurement" : {
          "file" : "lib/Lab/Measurement.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Measurement::KeyboardHandling" : {
          "file" : "lib/Lab/Measurement/KeyboardHandling.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::Measurement::Ladediagramm" : {
          "file" : "lib/Lab/Measurement/Ladediagramm.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::XPRESS::Data::XPRESS_DataFile" : {
          "file" : "lib/Lab/XPRESS/Data/XPRESS_DataFile.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::XPRESS::Data::XPRESS_dataset" : {
          "file" : "lib/Lab/XPRESS/Data/XPRESS_dataset.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::XPRESS::Data::XPRESS_logger" : {
          "file" : "lib/Lab/XPRESS/Data/XPRESS_logger.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::XPRESS::Data::XPRESS_plotter" : {
          "file" : "lib/Lab/XPRESS/Data/XPRESS_plotter.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::XPRESS::Sweep::DietersCrazyTempSweep" : {
          "file" : "lib/Lab/XPRESS/Sweep/DietersCrazyTempSweep.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::XPRESS::Sweep::Dummy" : {
          "file" : "lib/Lab/XPRESS/Sweep/Dummy.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::XPRESS::Sweep::Frame" : {
          "file" : "lib/Lab/XPRESS/Sweep/Frame.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::XPRESS::Sweep::Frequency" : {
          "file" : "lib/Lab/XPRESS/Sweep/Frequency.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::XPRESS::Sweep::Magnet" : {
          "file" : "lib/Lab/XPRESS/Sweep/Magnet.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::XPRESS::Sweep::Motor" : {
          "file" : "lib/Lab/XPRESS/Sweep/Motor.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::XPRESS::Sweep::Repeater" : {
          "file" : "lib/Lab/XPRESS/Sweep/Repeater.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::XPRESS::Sweep::Sweep" : {
          "file" : "lib/Lab/XPRESS/Sweep/Sweep.pm",
-         "version" : "3.19"
+         "version" : "3.20"
+      },
+      "Lab::XPRESS::Sweep::Temperature" : {
+         "file" : "lib/Lab/XPRESS/Sweep/Temperature.pm",
+         "version" : "3.20"
       },
       "Lab::XPRESS::Sweep::Time" : {
          "file" : "lib/Lab/XPRESS/Sweep/Time.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::XPRESS::Sweep::Voltage" : {
          "file" : "lib/Lab/XPRESS/Sweep/Voltage.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::XPRESS::Xpression::Plotter" : {
          "file" : "lib/Lab/XPRESS/Xpression/Plotter.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::XPRESS::Xpression::PlotterGUI" : {
          "file" : "lib/Lab/XPRESS/Xpression/PlotterGUI.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::XPRESS::hub" : {
          "file" : "lib/Lab/XPRESS/hub.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::XPRESSION::Xpress::PlotterGUI_bidirectional" : {
          "file" : "lib/Lab/XPRESS/Xpression/PlotterGUI_bidirectional.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       },
       "Lab::XPRESSION::Xpress::bidirectional_gnuplot_pipe" : {
          "file" : "lib/Lab/XPRESS/Xpression/bidirectional_gnuplot_pipe.pm",
-         "version" : "3.19"
+         "version" : "3.20"
       }
    },
    "release_status" : "stable",
@@ -403,5 +415,5 @@
       },
       "x_MailingList" : "https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-measurement-users"
    },
-   "version" : "3.19"
+   "version" : "3.20"
 }
