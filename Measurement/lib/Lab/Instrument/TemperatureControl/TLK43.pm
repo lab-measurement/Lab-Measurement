@@ -4,7 +4,7 @@
 #
 
 package Lab::Instrument::TemperatureControl::TLK43;
-our $VERSION = '3.19';
+our $VERSION = '3.20';
 
 use strict;
 use Lab::Instrument;
