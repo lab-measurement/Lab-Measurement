@@ -284,6 +284,7 @@ provides:
     file: lib/Lab/XPRESS/Xpression/bidirectional_gnuplot_pipe.pm
     version: 3.20
 requires:
+  Class::ISA: 0
   Clone: 0.31
   Cwd: 0
   Data::Dumper: 0
@@ -291,6 +292,7 @@ requires:
   Exception::Class: 1.0
   File::Basename: 0
   File::Copy: 0
+  Hook::LexWrap: 0
   Module::Build: 0
   Switch: 0
   TeX::Encode: 0
