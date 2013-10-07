@@ -51,6 +51,7 @@ sub new {
 	$self->{file} = $self->{filenamebase};
 	
 	
+	
 	return $self;
 	
 }
@@ -105,6 +106,8 @@ sub create_folder {
 		mkdir ($GLOBAL_FOLDER);
 		
 		copy($0, $GLOBAL_FOLDER);
+		
+		$self->create_InfoFile();
 		}
 
 	
@@ -115,6 +118,24 @@ sub create_folder {
 
 }
 
+
+sub create_InfoFile {
+	my $self = shift;
+	
+	open (my $LOG, ">".$GLOBAL_FOLDER."/Config.txt") or die "cannot open Config.txt";
+	print $LOG "Instrument Configuration\n";
+	print $LOG "-" x 100, "\n\n";
+	print $LOG $self->timestamp(), "\n";
+	print $LOG "-" x 100, "\n\n";
+	
+	foreach my $instrument (@{Lab::Instrument::REGISTERED_INSTRUMENTS})
+		{
+		print $LOG $instrument->get_id() , "\n\n";
+		print $LOG $instrument->sprint_config(), "\n";
+		print $LOG "-" x 100, "\n\n";
+		}
+	
+}
 # ------------------------------- CONFIG ---------------------------------------------------------
 sub add_measurement {
 	my $self = shift;	

@@ -2,7 +2,7 @@ package Lab::Instrument::Source;
 use strict;
 use warnings;
 
-our $VERSION = '3.19';
+our $VERSION = '3.10';
 
 use Lab::Exception;
 use Lab::Instrument;
@@ -40,6 +40,11 @@ our %fields = (
 
 	default_channel => 1,
 	max_channels => 1,
+	
+	device_cache => { 
+		level => undef,
+		range => undef
+		}
 );
 
 sub new {
@@ -67,8 +72,7 @@ sub new {
 	my $self = $class->SUPER::new(@_);
 	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
 
-
-
+	
 	#
 	# Parameter parsing
 	#
@@ -177,32 +181,22 @@ sub create_subsource { # create_subsource( channel => $channel_nr, more=>options
 
 
 
-
 sub set_level {
-	my $self=shift;
-	
-	my ($target) = $self->_check_args( \@_, ['target'] );
+	my $self = shift;
+	my ($target, $tail) = $self->_check_args( \@_, ['target'] );
 
-	
-	if ($self->device_settings()->{'gate_protect'}){
-	
-		my $current = $self->get_level({read_mode => 'fetch'});
-	
-		return $voltage if $voltage == $current;
+	my $current_level = $self->get_level({read_mode => 'cache'});
 
-		if ( $self->device_settings()->{'gp_max_units_per_step'} < abs($voltage-$current)) {
-			return $self->sweep_to_level($voltage,@_);
-		} 
+	if ( $target == $current_level) {
+		return $current_level;
 	}
-	
-	else {
-		return $self->_set_level($voltage,@_);
+
+	if ( $self->device_settings()->{'gate_protect'} and $self->device_settings()->{'gp_max_units_per_step'} < abs($target - $current_level) ) {
+		return $self->sweep_to_level($target,$tail);
+	} else {
+		return $self->_set_level($target,$tail);
 	}
- 
 }
-
-
-
 
 
 
@@ -217,8 +211,9 @@ sub sweep_to_level {
 	}
 	
 	# Check correct channel setup
+	
 	$self->_check_gate_protect();
-
+	
 	# Make sure stepsize is within gate_protect boundaries. 
 	
 	my $stepsize = $args->{stepsize} || $self->get_stepsize();
@@ -232,8 +227,6 @@ sub sweep_to_level {
 	my $apsec = $self->get_gp_max_units_per_second();
 	
 	my $spsec = $self->get_gp_max_step_per_second();
-
-	
 	
 	my $current = $self->get_level( from_device => 1 )+ 0.;
 	
@@ -248,7 +241,6 @@ sub sweep_to_level {
 		$time = (abs($target-$current)+0.)/$apsec;
 	}
 	
-
 	# sweep to current
 
 	if($self->can("_sweep_to_level")) {

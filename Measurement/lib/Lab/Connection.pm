@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 package Lab::Connection;
-our $VERSION = '3.19';
+our $VERSION = '3.10';
 
 use strict;
 
@@ -54,6 +54,12 @@ sub new {
 sub Clear {
 	my $self=shift;
 	
+	# do nothing if connection is blocked
+	if ( $self->{blocked} )
+		{
+		return undef;
+		}
+	
 	return $self->bus()->connection_clear($self->connection_handle()) if ($self->bus()->can('connection_clear'));
 	# error message
 	warn "Clear function is not implemented in the bus ".ref($self->bus())."\n";
@@ -66,6 +72,12 @@ sub Write {
 	if (ref $_[0] eq 'HASH') { $options=shift }
 	else { $options={@_} }
 	
+	# do nothing if connection is blocked
+	if ( $self->{connection_blocked} )
+		{
+		return undef;
+		}
+		
 	return $self->bus()->connection_write($self->connection_handle(), $options);
 }
 
@@ -75,8 +87,34 @@ sub Read {
 	my $options=undef;
 	if (ref $_[0] eq 'HASH') { $options=shift }
 	else { $options={@_} }
+	
+	# do nothing if connection is blocked
+	if ( $self->{connection_blocked} )
+		{
+		return undef;
+		}
 
-	return $self->bus()->connection_read($self->connection_handle(), $options);
+	my $result = $self->bus()->connection_read($self->connection_handle(), $options);
+	
+	# cut off all termination characters:
+	my $temp = $/;
+	if ( ref($self->config('termchar')) eq "ARRAY" )
+		{
+		foreach my $term ( @{ $self->config('termchar') } )
+			{
+			$/ = $term;
+			chomp($result);
+			}
+		}
+	else
+		{
+		$/ =  $self->config('termchar');
+		chomp($result);
+		}
+	$/ = $temp;
+	
+	
+	return $result;
 }
 
 
@@ -139,6 +177,33 @@ sub timeout {
 	$self->bus()->timeout($self->connection_handle(), $timo) if defined($self->bus()); # if called by $self->configure() before the bus is created.
 }
 
+sub block_connection {
+	my $self = shift;
+	
+	$self->{connection_blocked} = 1;
+	
+}
+
+sub unblock_connection {
+	my $self = shift;
+	
+	$self->{connection_blocked} = undef;
+	
+}
+
+sub is_blocked {
+	my $self = shift;
+	
+	if ( $self->{connection_blocked} == 1 )
+		{
+		return 1;
+		}
+	else
+		{
+		return 0;
+		}
+	
+}
 
 
 #

@@ -19,7 +19,7 @@ our %fields = (
 	type => 'IsoBus',
 	base_connection => undef,
 	IsoEnableTermChar=>1,
-	IsoTermChar=>'\r',
+	IsoTermChar=>"\r",
 	brutal => 0,	# brutal as default?
 	wait_status=>10e-6, # sec;
 	wait_query=>10e-6, # sec;
@@ -58,7 +58,7 @@ sub new {
 # we need to set the following RS232 options: 9600baud, 8 data bits, 1 stop bit, no parity, no flow control
 # what is the read terminator? we assume CR=13 here, but this is not set in stone
 # write terminator should I think always be CR=13=0x0d
-
+	
 	return $self;
 }
 
@@ -113,7 +113,6 @@ sub connection_write { # @_ = ( $connection_handle, $args = { command, wait_stat
 	else { $args={@_} }
 	
 	
-
 	my $command = $args->{'command'} || undef;
 
 	my $write_cnt = 0;
@@ -125,11 +124,12 @@ sub connection_write { # @_ = ( $connection_handle, $args = { command, wait_stat
 		);
 	}
 	else {
-		if ($self->IsoEnableTermChar()){
+		if ($self->config("IsoEnableTermChar")){
 			$write_cnt=$self->base_connection->Write({
 				# build the format for an IsoBus command
 				command => sprintf("@%d%s%s",$connection_handle,$command,$self->IsoTermChar()),
 			});
+			
 		}
 		else
 		{$write_cnt=$self->base_connection->Write({
@@ -287,4 +287,5 @@ terms as Perl itself.
 
 
 1;
+
 
