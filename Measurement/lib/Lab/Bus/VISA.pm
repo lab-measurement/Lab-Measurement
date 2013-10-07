@@ -73,6 +73,11 @@ sub _check_resource_name { # @_ = ( $resource_name )
 	) {
 		return 1;
 	}
+	elsif (
+		$resname =~ /^TCPIP0?::[0-9\.]*(::INSTR)?$/         # TCP/IP INSTR
+	) {
+		return 1;
+	}
 
 	return 0;
 }
