@@ -5,6 +5,7 @@ our $VERSION = '3.20';
 
 use strict;
 
+use Lab::Generic;
 use Time::HiRes qw (usleep sleep);
 use POSIX; # added for int() function
 
@@ -13,7 +14,7 @@ use Data::Dumper;
 our $AUTOLOAD;
 
 
-our @ISA = ();
+our @ISA = ('Lab::Generic');
 
 
 our %fields = (
@@ -33,7 +34,7 @@ sub new {
 	my $config = undef;
 	if (ref $_[0] eq 'HASH') { $config=shift } # try to be flexible about options as hash/hashref
 	else { $config={@_} }
-	my $self={};
+	my $self=$class->SUPER::new(@_);
 	bless ($self, $class);
 	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
 
@@ -68,15 +69,19 @@ sub Clear {
 
 sub Write {
 	my $self=shift;
+	#my ($command) = $self->_check_args(\@_, ['command']);
 	my $options=undef;
 	if (ref $_[0] eq 'HASH') { $options=shift }
 	else { $options={@_} }
+	
 	
 	# do nothing if connection is blocked
 	if ( $self->{connection_blocked} )
 		{
 		return undef;
 		}
+		
+	#print "Command: ".$command."\n";
 		
 	return $self->bus()->connection_write($self->connection_handle(), $options);
 }
