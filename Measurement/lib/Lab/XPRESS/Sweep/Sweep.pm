@@ -1344,6 +1344,14 @@ sub AUTOLOAD {
 		}
 	}
 	elsif( $name =~ qr/^(set_)(.*)$/ ) {
+	
+		# There is a problem with deep copying of the instrument hash.
+		# The elements of the hash could not be accessed correctly.
+		# The workaround is to tempsave the hashref and put it back in
+		# place. This should be only temporary though.
+
+		my $instrument = $self->{config}->{instrument};
+		
 		if(exists $self->{config_original}->{$2}){
 			if ($self->active()) {
 				print Lab::Exception::Warning->new( error => "WARNING: Cannot set parameter while sweep is active \n");
@@ -1353,11 +1361,15 @@ sub AUTOLOAD {
 				$self->{config_original}->{$2} = @_[0];
 			}
 			else {
-				$self->{config_original}->{$2} = dclone(\@_);
+				$self->{config_original}->{$2} = deep_copy(\@_);
 			}
 
-			$self->{config} = dclone($self->{config_original});
+			$self->{config} = deep_copy($self->{config_original});
+			#use Data::Dumper;
 
+			#print Dumper $self->{config};
+			
+			$self->{config}->{instrument} = $instrument;
 			$self->prepaire_config();
 		}
 		else{

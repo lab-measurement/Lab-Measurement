@@ -13,7 +13,6 @@ use Lab::Instrument;
 our @ISA=('Lab::Instrument');
 
 my $default_config={
-    use_persistentmode          => 0,
     can_reverse                 => 1,
     can_use_negative_current    => 1,
 };
@@ -44,7 +43,8 @@ our %fields = (
 		id => 'Oxford IPS',
 		targetfield => undef,
 		rate => undef,
-		field => undef
+		field => undef,
+		persistent_mode => 0
 
 	}
 
@@ -85,8 +85,9 @@ sub _init_magnet { # internal only
 	if ( $device_settings->{has_switchheater} )
 		{
 		#print "Try to switch on the SWITCHHEATER ...";
-		$self->set_switchheater(1);
-		if (not $self->get_switchheater())
+		$self->set_persistent_mode(0);
+		
+		if ($self->get_switchheater() ~~ [0,2])
 			{
 			Lab::Exception::CorruptParameter->throw( error =>  "PSU != Magnet --> SWITCHHEATER cannot be switched on." );
 			}
@@ -144,23 +145,38 @@ sub set_switchheater { # internal only
 #   if recorded magnet current==present power supply output current)
 # 2 Heater On, no Checks        (open switch)
     my $self=shift;
-    my ($mode) = $self->_check_args( \@_, ['value'] );
+    my ($mode,$tail) = $self->_check_args( \@_, ['value'] );
 	
-	if (ref($mode) eq "HASH") 
-		{
-		$mode = $mode->{mode};
+	warn "Try to use switchheater: No switchheater installed!" if not $self->{device_settings}->{has_switchheater};
+	
+	#print "Trying to switch switchheater to mode $mode\n";
+	
+	if ($mode == 0){
+		while (not $self->get_switchheater() ~~ [0,2] ){
+			$self->query("H$mode\r",$tail);
+			sleep(1);
 		}
+	}
+	elsif($mode == 1){
+		while(not $self->get_switchheater() == 1){
 	
-    $self->query("H$mode\r");
-    sleep(2);  # wait for heater to open the switch	
+			$self->query("H$mode\r",$tail);
+			sleep(1);
+		}
+	}
+	else{
+		print Lab::Exception::Warning->new("Mode $mode is not allowed for the switchheater. Select 0 (off) or 1 (on).");
+	}
+    sleep(10);  # wait for heater to open the switch	
 }
 
 sub get_switchheater { # internal only
     my $self=shift;
-	my $result=$self->query("X\r");
+	warn "Try to use switchheater: No switchheater installed!" if not $self->{device_settings}->{has_switchheater};
+	
+	my $result=$self->query("X\r",@_);
 	$result =~ /X[0-9][0-9]A[0-9]C[0-9]H(.)/;
-	$result = $1;
-	return $result;
+	return $1;
 }
 
 sub _set_control { # internal only
@@ -169,13 +185,9 @@ sub _set_control { # internal only
 # 2 Local & Unlocked
 # 3 Remote & Unlocked
     my $self=shift;
-    my $mode=shift;
+	my ($mode,$tail) = $self->_check_args( \@_, ['mode'] );
 	
-	if (ref($mode) eq "HASH") 
-		{
-		$mode = $mode->{mode};
-		}
-   $self->query("C$mode\r");
+   $self->query("C$mode\r",$tail);
 }
 
 sub _set_mode { # internal only
@@ -187,12 +199,7 @@ sub _set_mode { # internal only
 # 8     Amps        Unaffected
 # 9     Tesla       Unaffected
     my $self=shift;
-    my $mode=shift;
-	
-	if (ref($mode) eq "HASH") 
-		{
-		$mode = $mode->{mode};
-		}
+    my ($mode,$tail) = $self->_check_args( \@_, ['mode'] );
 	
 	if ($mode != 0 and $mode != 1 and $mode != 4 and $mode != 5 and $mode != 8 and $mode != 9)
 		{
@@ -223,20 +230,41 @@ sub _set_communicationsprotocol { # internal only
 	$self->write("Q$mode\r"); #no aswer from IPS expected
 }
 
+sub hold {
+my $self = shift;
+
+$self->_set_activity(0);
+}
+
+sub tosetpoint {
+	my $self = shift;
+
+	$self->_set_activity(1)
+
+	sleep(1) while $self->active();
+}
+
+sub tozero {
+	my $self = shift;
+
+	$self->_set_activity(2);
+
+	while($self->active())
+	{
+		sleep(1);
+	}
+
+}
+
 sub _set_activity { # internal only
 # 0 Hold
 # 1 To Set Point
 # 2 To Zero
 # 4 Clamp (clamp the power supply output)
     my $self=shift;
-    my $mode=shift;
+	my ($mode,$tail) = $self->_check_args( \@_, ['mode'] );
 	
-	if (ref($mode) eq "HASH") 
-		{
-		$mode = $mode->{mode};
-		}
-	
-	if ($mode != 0 and $mode != 2 and $mode != 4 and $mode != 6)
+	if (not $mode ~~ [0,1,2,4])
 		{
 		Lab::Exception::CorruptParameter->throw( error =>  "unexpected value for MODE in sub _set_activity. Expected values are:\n\n 0 --> Hold\n 1 --> To Set Point\n 2 --> To Zero\n 4 --> Clamp (clamp the power supply output)");
 		}
@@ -247,11 +275,6 @@ sub _set_activity { # internal only
 sub set_rate {
 	my $self = shift;
 	my ($targetrate) = $self->_check_args( \@_, ['value'] );
-	
-	if (ref($targetrate) eq "HASH") 
-		{
-		$targetrate = $targetrate->{rate};
-		}
 	
 	if ($targetrate < 0.0001)
 	{
@@ -318,11 +341,6 @@ sub get_parameter { # advanced
     my $self=shift;
     my ($parameter) = $self->_check_args( \@_, ['param'] );
 	
-	if (ref($parameter) eq "HASH") 
-		{
-		$parameter = $parameter->{parameter};
-		}
-
 	if ($parameter != 0 and $parameter != 1 and $parameter != 2 and $parameter != 3 and $parameter != 4 and $parameter != 5 and $parameter != 6 and $parameter != 7 and $parameter != 8 and $parameter != 9 and $parameter != 10 and $parameter != 15 and $parameter != 16 and $parameter != 17 and $parameter != 18 and $parameter != 19 and $parameter != 20 and $parameter != 21 and $parameter != 22 and $parameter != 23 and $parameter != 24)
 		{
 		Lab::Exception::CorruptParameter->throw( error =>  "\n 0 --> Demand current (output current)     amp\n 1 --> Measured power supply voltage       volt\n 2 --> Measured magnet current             amp\n 3 --> -\n 4 --> -\n 5 --> Set point (target current)          amp\n 6 --> Current sweep rate                  amp/min\n 7 --> Demand field (output field)         tesla\n 8 --> Set point (target field)            tesla\n 9 --> Field sweep rate                    tesla/minute\n10 --> - 14 -\n15 --> Software voltage limit              volt\n16 --> Persistent magnet current           amp\n17 --> Trip current                        amp\n18 --> Persistent magnet field             tesla\n19 --> Trip field                          tesla\n20 --> Switch heater current               milliamp\n21 --> Safe current limit, most negative   amp\n22 --> Safe current limit, most positive   amp\n23 --> Lead resistance                     milliohm\n24 --> Magnet inductance                   henry" );
@@ -350,6 +368,80 @@ sub get_field { # basic
 	$result =~ s/R//g;
 	return $result;	
 	
+}
+
+sub set_persistent_mode {
+	my $self=shift;
+	
+	my ($mode,$tail) = $self->_check_args(\@_,['mode']);
+	
+	return 0 if not $self->{device_settings}->{has_switchheater};
+	
+	my $switch = $self->get_switchheater();
+	
+	#print "We are in mode $current_mode \n";
+	
+	if($mode == 1) {
+
+		$self->hold();
+		$self->set_switchheater(0);
+		
+		$self->tozero();
+
+		#$current_mode = 1;
+		
+	}
+	elsif($mode == 0 and  $switch == 2) {
+		
+		my $setpoint = $self->get_persistent_field();
+	
+		$self->set_targetfield($setpoint);
+	
+		$self->tosetpoint();
+		#print "Try to start switchheater...\n";
+		$self->set_switchheater(1);
+		#print "Switchheater has status ".$self->get_switchheater();
+
+	}
+	elsif($mode == 0 and $switch == 0){
+		print "Zero magnetic field. Switch on switchheater.\n";
+		$self->set_switchheater(1);
+
+	
+	}	
+	
+}
+
+sub get_persistent_mode {
+	my $self=shift;
+	my ($tail) = $self->_check_args( \@_ );
+	
+	return 0 if not $self->{device_settings}->{has_switchheater};
+		
+    my $sh = $self->get_switchheater();
+	my $field = $self->get_field();
+	
+	# Are we really in persistent mode?
+	
+	if($field == 0 && $sh == 2){
+		return 1;
+	}
+	else{
+		return 0;
+	};
+
+}
+
+sub get_persistent_field {
+	my $self=shift;
+	my ($tail) = $self->_check_args( \@_ );
+	
+	# Are we really in persistent mode?
+	
+	
+	return $self->get_parameter(18);
+	
+		
 }
 
 sub wait { # basic

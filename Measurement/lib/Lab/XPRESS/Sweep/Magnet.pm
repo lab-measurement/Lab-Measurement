@@ -22,8 +22,9 @@ sub new {
 		points	=>	[],
 		duration	=> [],
 		mode	=> 'continuous',
-		allowed_instruments => ['Lab::Instrument::IPS', 'Lab::Instrument::IPSWeiss1', 'Lab::Instrument::IPSWeiss2', 'Lab::Instrument::IPSWeissDillFridge'],
+		allowed_instruments => ['Lab::Instrument::IPS', 'Lab::Instrument::IPSWeiss1', 'Lab::Instrument::IPSWeiss2', 'Lab::Instrument::IPSWeissDillFridge', 'Lab::Instrument::IPSStrunkDillFridge'],
 		allowed_sweep_modes => ['continuous', 'list', 'step'],
+		use_persistentmode => 0,
 		number_of_points => [undef]
 		};
 		
@@ -36,6 +37,18 @@ sub new {
 sub go_to_sweep_start {
 	my $self = shift;
 	
+	if($self->{config}->{use_persistentmode}){
+		if(! $self->{config}->{instrument}->{device_settings}->{has_switchheater}){
+			warn "Persistent sweep mode requires a switchheater. Persistent sweep mode is switched off.\n";
+			$self->{config}->{use_persistentmode} = 0;
+			}
+			else{
+				$self->{config}->{instrument}->set_persistent_mode(0);
+			}
+
+		};
+
+
 	# go to start:
 	print "going to start ... ";
 	$self->{config}->{instrument}->sweep_to_field({
@@ -43,12 +56,20 @@ sub go_to_sweep_start {
 		'rate' => @{$self->{config}->{rate}}[0] 
 		});
 
+	$self->{config}->{instrument}->set_persistent_mode(1) if $self->{config}->{use_persistentmode};
+
 	print "done\n";
+	
+		
 	
 }
 
 sub start_continuous_sweep {
 	my $self = shift;
+
+	if($self->{config}->{use_persistentmode}){
+		$self->{config}->{instrument}->set_persistent_mode(0);
+	};
 
 	# continuous sweep:
 	$self->{config}->{instrument}->config_sweep({
@@ -63,14 +84,20 @@ sub start_continuous_sweep {
 sub go_to_next_step {
 	my $self = shift;
 
+	$self->{config}->{instrument}->set_persistent_mode(0) if $self->{config}->{use_persistentmode};
 	
 	# step mode:	
 	$self->{config}->{instrument}->config_sweep({
 		'points' => @{$self->{config}->{points}}[$self->{iterator}], 
 		'rates' => @{$self->{config}->{rate}}[$self->{iterator}]
 		});
+		
+	
 	$self->{config}->{instrument}->trg();
 	$self->{config}->{instrument}->wait();
+
+	$self->{config}->{instrument}->set_persistent_mode(1) if $self->{config}->{use_persistentmode};
+	
 
 }
 
@@ -105,8 +132,14 @@ sub get_value {
 
 sub exit {
 	my $self = shift;
+	$self->{config}->{instrument}->set_persistent_mode(1) if $self->{config}->{use_persistentmode};
 	$self->{config}->{instrument}->abort();
+	
+
 }
+
+
+
 
 
 1;
