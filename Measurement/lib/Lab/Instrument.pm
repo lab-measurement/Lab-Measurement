@@ -369,10 +369,12 @@ sub sprint_config {
 	my $config = Dumper $self->device_cache();
 	
 	$config .= "\n";
+
 	
 	$Data::Dumper::Varname = "connection_settings_";
+	if (defined $self->connection()) {
 	$config .= Dumper $self->connection()->config();
-	
+	}
 	return $config;
 	
 
