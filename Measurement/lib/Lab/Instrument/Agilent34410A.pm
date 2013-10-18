@@ -58,8 +58,7 @@ sub new {
 
 sub get_error {
     my $self=shift;
-	my $err=$self->query( "SYSTem:ERRor?");
-    #chomp($err);
+    chomp(my $err=$self->query( "SYSTem:ERRor?"));
     my ($err_num,$err_msg)=split ",",$err;
     $err_msg=~s/\"//g;
     return ($err_num,$err_msg);

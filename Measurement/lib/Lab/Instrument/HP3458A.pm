@@ -45,10 +45,10 @@ sub _device_init {
 	#$self->connection()->SetTermChar("\r\n");
 	#$self->connection()->EnableTermChar(1);
 	#print "hallo\n";
-	$self->write("END 2"); # or ERRSTR? and other queries will time out, unless using a line/message end character
-	$self->write('TARM AUTO'); # keep measuring
-	$self->write('TRIG AUTO'); # keep measuring
-	$self->write('NRDGS 1,AUTO'); # keep measuring
+	$self->write("END 2", error_check=>1); # or ERRSTR? and other queries will time out, unless using a line/message end character
+	$self->write('TARM AUTO', error_check=>1); # keep measuring
+	$self->write('TRIG AUTO', error_check=>1); # keep measuring
+	$self->write('NRDGS 1,AUTO', error_check=>1); # keep measuring
 }
 
 
@@ -62,11 +62,13 @@ sub configure_voltage_dc {
 
 	my ($range,$tint) = $self->_check_args( \@_, ['range','tint'] );	
 	    
+	my $range_cmd = "FUNC DCV ";
+    
     if($range eq 'AUTO' || !defined($range)) {
-    	$range='AUTO';
+    	$range_cmd='ARANGE ON';
     }
     elsif($range =~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/) {
-	    #$range = sprintf("%e",abs($range));
+	    $range_cmd = sprintf("FUNC DCV %e",abs($range));
     }
     elsif($range !~ /^(MIN|MAX)$/) {
     	Lab::Exception::CorruptParameter->throw( error => "Range has to be set to a decimal value or 'AUTO', 'MIN' or 'MAX' in " . (caller(0))[3] . "\n" );	
@@ -90,8 +92,9 @@ sub configure_voltage_dc {
     }
     
 	# do it
-	$self->write( "FUNC DCV ${range}" );
-	$self->write( "NPLC ${tint}", error_check=>1 );	
+	$self->write( $range_cmd , error_check=>1);
+	$self->write( "NPLC ${tint}", error_check=>1);	
+	#$self->write( "NPLC ${tint}", { error_check=>1 });	
 }
 
 sub configure_voltage_dc_trigger {
@@ -433,7 +436,7 @@ sub preset {
 
 sub get_id {
     my $self=shift;
-    return $self->query('*IDN?', @_);
+    return $self->query('ID?', @_);
 }
 
 sub trg{

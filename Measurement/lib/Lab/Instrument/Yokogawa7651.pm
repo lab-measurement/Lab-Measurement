@@ -81,43 +81,6 @@ sub set_voltage {
     return $self->set_level($voltage, @_);
 }
 
-sub set_voltage_auto {  #<------WTF?
-    my $self=shift;
-    my ($voltage) = $self->_check_args( \@_, ['voltage'] );
-    
-    my $function = $self->get_function();
-
-    if($function ne '1'){
-    	Lab::Exception::CorruptParameter->throw(
-    	error=>"Source is in mode $function. Can't set voltage level.");
-    }
-    
-    if( abs($voltage) > 32.){
-    	Lab::Exception::CorruptParameter->throw(
-    	error=>"Source is not capable of voltage level > 32V. Can't set voltage level.");
-    }
-    
-    $self->set_level_auto($voltage, @_);
-}
-
-sub set_current_auto {  #<------WTF?
-    my $self=shift;
-    my ($current) = $self->_check_args( \@_, ['current'] );
-    
-    my $function = $self->get_function();
-
-    if($function ne '5'){
-    	Lab::Exception::CorruptParameter->throw(
-    	error=>"Source is in mode $function. Can't set current level.");
-    }
-    
-    if( abs($current) > 0.200){
-    	Lab::Exception::CorruptParameter->throw(
-    	error=>"Source is not capable of current level > 200mA. Can't set current level.");
-    }
-    
-    $self->set_level_auto($current, @_);
-}
 
 sub set_current {   
     my $self=shift;
@@ -144,7 +107,7 @@ sub _set_level {
     my $self=shift;
     my ($value) = $self->_check_args( \@_, ['value'] );
     
-    my $range=$self->get_range();
+    my $range=$self->get_range({read_mode => 'cache'});
 	
     
     if ( $value > $range || $value < -$range ){

@@ -5,6 +5,7 @@ our $VERSION="3.20";
 use strict;
 use warnings;
 use Lab::Instrument;
+use Lab::Instrument::TemperatureControl;
 use IO::File;
 use Time::HiRes qw/usleep/;
 use Time::HiRes qw/sleep/;
