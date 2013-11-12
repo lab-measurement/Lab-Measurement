@@ -1,5 +1,7 @@
 package Lab::Generic;
 
+our $VERSION = '3.20';
+
 
 sub new { 
 	my $proto = shift;

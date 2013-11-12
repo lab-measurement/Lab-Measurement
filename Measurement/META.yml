@@ -109,6 +109,9 @@ provides:
   Lab::Exception::Base:
     file: lib/Lab/Exception.pm
     version: 0
+  Lab::Generic:
+    file: lib/Lab/Generic.pm
+    version: 3.20
   Lab::Instrument:
     file: lib/Lab/Instrument.pm
     version: 3.20

@@ -1,4 +1,5 @@
 Build.PL
+examples/DerivedClasses/IPSStrunkDillFridge.pm
 examples/DerivedClasses/IPSWeiss1.pm
 examples/DerivedClasses/IPSWeiss2.pm
 examples/DerivedClasses/IPSWeissDillFridge.pm
@@ -49,6 +50,7 @@ lib/Lab/Data/Plotter.pm
 lib/Lab/Data/Writer.pm
 lib/Lab/Data/XMLtree.pm
 lib/Lab/Exception.pm
+lib/Lab/Generic.pm
 lib/Lab/Instrument.pm
 lib/Lab/Instrument/Agilent34410A.pm
 lib/Lab/Instrument/Agilent34420A.pm
