@@ -126,7 +126,12 @@ sub exit_loop {
 
 sub get_value {
 	my $self = shift;
+	if ($self->{config}->{use_persistentmode}){
+		return $self->{config}->{instrument}->get_persistent_field();
+	}
+	else{
 	return $self->{config}->{instrument}->get_field();
+}
 }
 
 

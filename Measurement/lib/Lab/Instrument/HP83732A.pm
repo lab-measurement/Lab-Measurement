@@ -41,11 +41,28 @@ sub reset {
     $self->write('*RST');
 }
 
+sub set_frq{
+	my $self = shift;
+	my ($freq) = $self->_check_args( \@_, ['value'] );
+	#my $freq = shift;
+	$self->set_cw($freq);
+	
+}
+
 sub set_cw {
     my $self=shift;
     my $freq=shift;
-	$freq/=1000000;
-    $self->write("FREQuency:CW $freq MHZ");
+
+    $self->write("FREQuency:CW $freq Hz");
+}
+
+sub get_frq{
+	my $self = shift;
+	
+	my $freq = $self->query("FREQuency:CW?");
+
+	return $freq;
+	
 }
 
 sub set_power {

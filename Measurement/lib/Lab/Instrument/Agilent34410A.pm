@@ -20,7 +20,6 @@ our %fields = (
 	connection_settings => {
 		gpib_board => 0,
 		gpib_address => undef,
-		timeout => 2,
 		read_default => "device",
 		termchar => "\n"
 	},
@@ -663,8 +662,6 @@ sub get_value { # basic
 		
 	
 }
-
-
 
 sub config_measurement { # basic
 	my $self = shift;

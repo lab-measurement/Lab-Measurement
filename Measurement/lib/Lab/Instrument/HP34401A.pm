@@ -318,11 +318,8 @@ sub configure_voltage_dc {
 
 sub configure_voltage_dc_trigger {
 	my $self=shift;
-    my $tint=shift;  # integration time in sec, Default is 10PLC , "MIN" = 0.02 PLC, "MAX" = 100 PLC
-    my $range=shift; # in V, or "DEF"(Default), "MIN", "MAX"
-    my $count=shift; # Measurment count, Default = 1
-    my $delay=shift; # in seconds, Default = 'MIN'
-    my $res_cmd = shift; # Resolution. Decimal (not number of digits!). NOT VALID FOR AC MEASUREMENT
+	
+	my ($range,$tint,$count,$delay,$res_cmd) = $self->_check_args( \@_, ['range','tint','count','delay','resolution'] );
     
     ### Check the parameters for errors 
     
@@ -367,12 +364,12 @@ sub configure_voltage_dc_trigger {
     $self->write( "CONF:VOLT:DC ${range} ${res_cmd}", error_check => 1 );
     $self->write( "VOLT:DC:NPLC ${tint}", error_check => 1 ) if $res_cmd eq ''; # integration time implicitly set if resolution not given
     
-    $self->write("*ESE 1");
-    $self->write("*CLS");
+    $self->write("*ESE 1", error_check => 1 );
+    $self->write("*CLS", error_check => 1 );
         
-    $self->write( "TRIG:SOURce BUS" );
-    $self->write( "SAMPle:COUNt $count");
-    $self->write( "TRIG:DELay $delay");
+    $self->write( "TRIG:SOURce BUS", error_check => 1  );
+    $self->write( "SAMPle:COUNt $count", error_check => 1 );
+    $self->write( "TRIG:DELay $delay", error_check => 1 );
 
     
 }

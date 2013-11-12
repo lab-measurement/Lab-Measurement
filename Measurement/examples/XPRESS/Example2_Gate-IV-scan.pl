@@ -1,4 +1,3 @@
-
 #-------- 0. Create the hub ----------------
 
 use Lab::XPRESS::hub;
@@ -170,10 +169,10 @@ In the following, we will focus the new parts of our script and discuss it's mea
 In this first part of this script, we are doing more or less the same as in Example 1. Creating a hub with the first two lines.
 Then, initializing the instruments we need, which are provided to us by the hub. Now what's new is, that we initialize here a third instrument,
 the gate, which is again a Yokogawa7651. No big deal, so far. New is, that we are using the gate protection mode this time.
-It's turned on by C<< gate_protect => 1 >>. With C<< gp_min_units => -10 >> and C<< gp_max_units => 15 >> we define the lower and upper limits, which we do not
+It's turned on by C<<gate_protect => 1>>. With C<<gp_min_units => -10>> and C<<gp_max_units => 15>> we define the lower and upper limits, which we do not
 want to be exceeded by the source instrument. So if the Yokogawa is in voltage sourcing mode (which we expect to be for now), 
-the output Voltage will be limited to values between -10V and 15V. If it would be in current mode, it would not be limited at all, because 15A might be a little bit too much for this device :)
-With C<< gp_max_units_per_second => 10e-3 >> we define the highest possible sweep rate, so it will sweep no faster than 10mV per second. 
+the output Voltage will be limited to values between -10V and 15V. If it would be in current mode, it would not be limited at all, because 15A might be a little bit to much for this device :)
+With C<<gp_max_units_per_second => 10e-3>> we define the highest possible sweep rate, so it will sweep no faster than 10mV per second. 
 
 
 =head2 Sweep Objects

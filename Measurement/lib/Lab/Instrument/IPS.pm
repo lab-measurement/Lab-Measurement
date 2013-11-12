@@ -239,7 +239,7 @@ $self->_set_activity(0);
 sub tosetpoint {
 	my $self = shift;
 
-	$self->_set_activity(1)
+	$self->_set_activity(1);
 
 	sleep(1) while $self->active();
 }

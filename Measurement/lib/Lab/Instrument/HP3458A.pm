@@ -445,9 +445,9 @@ sub trg{
 	}
 
 sub get_value {
-    # Triggers one Measurement and Reads it
+
     my $self=shift;
-    #my $val=$self->query("TRIG SGL", @_);
+
     my $val=$self->read(@_);
     chomp $val;
     return $val;
