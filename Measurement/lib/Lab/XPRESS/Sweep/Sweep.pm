@@ -494,7 +494,6 @@ sub start {
 				my $filenamebase = $DataFile->{filenamebase};
 
 				my $new_filenamebase = $self->add_filename_extensions($filenamebase);
-				
 				if($new_filenamebase ne $DataFile->{file} )
 					{
 					$DataFile->change_filenamebase($new_filenamebase);
@@ -873,6 +872,7 @@ sub pause {
 	my $self = shift;
 	print "\n\nPAUSE: continue with <ENTER>\n";
 	<>;
+	$PAUSE = 0;
 } 
 
 sub finish {
