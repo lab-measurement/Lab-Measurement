@@ -347,7 +347,7 @@ sub set_resolution{ # basic
 	# set resolution:
 	if ($function =~ /^(current|curr|current:dc|curr:dc|voltage|volt|voltage:dc|volt:dc|resisitance|res|fresistance|fres)$/ )
 		{	
-		my $range = $self->get_range($function);
+		
 		$self->set_range($function, $range); # switch off autorange function if activated.
 		$self->write( "$function:RES $resolution", $tail);
 		}
