@@ -155,11 +155,18 @@ sub stabilize {
 	my $criterion_std_dev_INSTR = 0;
 	my $criterion_std_dev_SENSOR = 1;
 
-	print "Stabilize Temperature at $setpoint K ... \n";
+	
 	$self->{config}->{instrument}->set_heatercontrol('AUTO');
 	$self->{config}->{instrument}->set_T($setpoint);
 	
 	local $| = 1;
+	
+	print "Stabilize Temperature at $setpoint K ... \n\n";
+	#my $line1  = "\rElapsed: $elapsed_time \n Current Temp INSTR: @T_INSTR[-1] \n Current Temp SENSOR: @T_SENSOR[-1] \n ";
+	#my $line2 = "Current Median: @MEDIAN_INSTR[-1] \n Std. Dev. T Instr. : $INSTR_STD_DEV \n Std. Dev. T Sensor : $SENSOR_STD_DEV \n ";
+	#my $line3 = "CRIT SETPOINT: $criterion_setpoint \n CRIT Std. Dev. T Instr. : $criterion_std_dev_INSTR \n CRIT Std. Dev. T Sensor : $criterion_std_dev_SENSOR \n ";
+	print " Time    "." | "." TEMP "." | "."SENS "." | "."MED_I"." | "."ISD "." | "."SSD "." | "."C1"." | "."C2"." | "."C3"." \n";
+	
 	
 	while (1) {
 	
@@ -276,7 +283,7 @@ sub stabilize {
 	
 	$| = 0;
 	
-	print "Temperature stabilized at $setpoint K \n";
+	print "\nTemperature stabilized at $setpoint K \n";
 }
 
 sub convert_time { 
