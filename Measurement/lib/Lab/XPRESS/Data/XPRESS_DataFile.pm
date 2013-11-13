@@ -61,7 +61,7 @@ sub create_folder {
 
 	my $self = shift;
 	my $filenamebase = shift;
-	my $foldername = shift;
+	my $foldername = shift || $DEFAULT_FOLDER;
 
 	$filenamebase =~ s/\\/\//g;
 	$filenamebase =~ s/\.\///g;
