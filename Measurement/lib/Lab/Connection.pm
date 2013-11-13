@@ -69,19 +69,15 @@ sub Clear {
 
 sub Write {
 	my $self=shift;
-	#my ($command) = $self->_check_args(\@_, ['command']);
 	my $options=undef;
 	if (ref $_[0] eq 'HASH') { $options=shift }
 	else { $options={@_} }
-	
 	
 	# do nothing if connection is blocked
 	if ( $self->{connection_blocked} )
 		{
 		return undef;
 		}
-		
-	#print "Command: ".$command."\n";
 		
 	return $self->bus()->connection_write($self->connection_handle(), $options);
 }
