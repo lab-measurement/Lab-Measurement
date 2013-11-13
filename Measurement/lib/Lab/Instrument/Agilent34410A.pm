@@ -20,6 +20,7 @@ our %fields = (
 	connection_settings => {
 		gpib_board => 0,
 		gpib_address => undef,
+		timeout => 2,
 		read_default => "device",
 		termchar => "\n"
 	},
@@ -346,6 +347,7 @@ sub set_resolution{ # basic
 	# set resolution:
 	if ($function =~ /^(current|curr|current:dc|curr:dc|voltage|volt|voltage:dc|volt:dc|resisitance|res|fresistance|fres)$/ )
 		{	
+		my $range = $self->get_range($function);
 		$self->set_range($function, $range); # switch off autorange function if activated.
 		$self->write( "$function:RES $resolution", $tail);
 		}
@@ -758,8 +760,8 @@ sub get_data { # basic
 		for ( my $i = 1; $i <= $readings; $i++){
 			my $break = 1;
 			while($break){
-				$data = $self->connection()->LongQuery( {command => "R? 1"} );
-				#chomp $data;
+				$data = $self->connection()->LongQuery( command => "R? 1");
+
 				my $index;
 				if(index($data,"+") == -1){
 					$index = index($data,"-");
@@ -782,8 +784,8 @@ sub get_data { # basic
 	elsif ($readings eq "ALL" or $readings = "all") {
 		# wait until data are available
 		$self->wait();
-		$data = $self->connection()->LongQuery( {command => "FETC?"} );
-		#chomp $data;	
+		$data = $self->connection()->LongQuery( command => "FETC?");
+	
 		@data = split(",",$data);	
 		return @data;	
 		}
@@ -844,7 +846,7 @@ sub _set_triggersource { # internal
 	if ( not defined $source) 
 		{
 		$source = $self->query( sprintf("TRIGGER:SOURCE?"));
-		#chomp($source);
+
 		$self->{config}->{triggersource} = $source;
 		return $source;
 		}
@@ -872,7 +874,7 @@ sub _set_triggercount { # internal
 	if ( not defined $count) 
 		{
 		$count =  $self->query( sprintf("TRIGGER:COUNT?"));
-		#chomp($count);
+
 		$self->{config}->{triggercount} = $count;
 		return $count;		
 		}
@@ -899,7 +901,7 @@ sub _set_triggerdelay { # internal
 	if ( not defined $delay) 
 		{
 		$delay =  $self->query( sprintf("TRIGGER:DELAY?"));	
-		#chomp($delay);
+
 		$self->{config}->{triggerdely} = $delay;
 		return $delay;
 		}
@@ -931,7 +933,7 @@ sub _set_samplecount { # internal
 	if ( not defined $count) 
 		{
 		$count = $self->query( sprintf("SAMPLE:COUNT?"));	
-		#chomp($count);
+
 		$self->{config}->{samplecount} = $count;
 		return $count;
 		}
@@ -957,7 +959,7 @@ sub _set_sampledelay { # internal
 	if ( not defined $delay) 
 		{
 		$delay =  $self->query( sprintf("SAMPLE:TIMER?"));	
-		#chomp($delay);
+
 		$self->{config}->{sampledelay} = $delay;
 		return $delay;
 		}
@@ -1001,7 +1003,7 @@ sub display_text { # basic
     if ($text) {
         $self->write( qq(DISPlay:TEXT "$text"));
     } else {
-        #chomp($text=$self->query( qq(DISPlay:TEXT?)));
+        $text=$self->query( qq(DISPlay:TEXT?));
         $text=~s/\"//g;
     }
     return $text;
