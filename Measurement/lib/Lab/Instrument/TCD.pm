@@ -28,7 +28,7 @@ our %fields = (
 
 	device_cache => {
 		id => 'Temperature Control',
-		T => undef
+		#T => undef
 	}
 
 );
@@ -145,6 +145,12 @@ sub set_heateroff{
 
 	$self->write("heaterOff\r\n");
 	
+}
+
+sub set_heatercontrol {
+	my $self = shift;
+	
+	return;
 }
 
 # sub stabilize_T {
