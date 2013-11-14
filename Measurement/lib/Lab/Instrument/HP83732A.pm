@@ -67,9 +67,15 @@ sub get_frq{
 
 sub set_power {
     my $self=shift;
-    my $power=shift;
+	my ($power) = $self->_check_args( \@_, ['value'] );
 
     $self->write("POWer:LEVel $power DBM");
+}
+
+sub get_power {
+	my $self = shift;
+	
+	return $self->query("POWer:LEVel?");
 }
 
 sub power_on {
