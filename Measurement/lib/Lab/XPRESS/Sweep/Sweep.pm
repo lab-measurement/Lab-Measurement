@@ -494,7 +494,6 @@ sub start {
 				my $filenamebase = $DataFile->{filenamebase};
 
 				my $new_filenamebase = $self->add_filename_extensions($filenamebase);
-				
 				if($new_filenamebase ne $DataFile->{file} )
 					{
 					$DataFile->change_filenamebase($new_filenamebase);
@@ -873,6 +872,7 @@ sub pause {
 	my $self = shift;
 	print "\n\nPAUSE: continue with <ENTER>\n";
 	<>;
+	$PAUSE = 0;
 } 
 
 sub finish {
@@ -1046,7 +1046,19 @@ sub check_loop_duration {
 		{
 		$self->{loop}->{overtime} = 0;
 		}
+		
+	my $time0 = time();
+	
+	while($delta_time > 0.2)
+		{
+		print "activity check \n";
+		$self->{config}->{instrument}->active();
+		
+		$delta_time = $delta_time - (time() - $time0);
+		}
+	
 	usleep((@{$self->{config}->{interval}}[$self->{sequence}]-$delta_time)*1e6);
+	
 	$self->{loop}->{t0} = time();
 	return $delta_time;
 	

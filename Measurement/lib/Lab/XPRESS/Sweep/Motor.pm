@@ -59,7 +59,7 @@ sub go_to_next_step {
 	my $self = shift;
 
 	# step mode:
-	$self->{config}->{instrument}->move(@{$self->{config}->{points}}[$self->{iterator}], @{$self->{config}->{rate}}[$self->{iterator}], {mode => 'ABS'});
+	$self->{config}->{instrument}->move({position => @{$self->{config}->{points}}[$self->{iterator}], speed => @{$self->{config}->{rate}}[$self->{iterator}], mode => 'ABS'});
 	$self->{config}->{instrument}->wait();
 	
 }

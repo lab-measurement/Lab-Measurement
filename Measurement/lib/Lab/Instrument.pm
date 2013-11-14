@@ -65,8 +65,6 @@ sub new {
 	if (ref $_[0] eq 'HASH') { $config=shift }
 	else { $config={@_} }
 
-	
-
 	my $self = $class->SUPER::new(@_);
 	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
 	
@@ -219,7 +217,6 @@ sub _init_cache_handling {
 	my @cache_params = keys %{$fields->{device_cache}};
 	
 	
-		
 	# wrap parameter function defined in %fields->{device_cache}:
 	foreach my $cache_param (@cache_params)
 		{
@@ -236,6 +233,8 @@ sub _init_cache_handling {
 				# before set-functions is executed:
 				pre => sub {
 					my $self = shift;
+					
+					${__PACKAGE__::SELF} = $self;
 			
 					# read_mode handling: do not execute if request is set:
 					if (defined $self->{requestID} or $self->connection()->is_blocked() )
@@ -246,10 +245,15 @@ sub _init_cache_handling {
 				# after set-functions is executed:
 				post => sub {
 				
-					# call coresponding get-function in order to keep the cache up to date, if available
-					if ( $self->can($get_sub))
+					if ( not defined ${__PACKAGE__::SELF} )
 						{
-						my $var = $self->$get_sub(); 
+						return;
+						}
+				
+					# call coresponding get-function in order to keep the cache up to date, if available
+					if ( ${__PACKAGE__::SELF}->can($get_sub))
+						{
+						my $var = ${__PACKAGE__::SELF}->$get_sub(); 
 						}
 					
 					});
@@ -262,11 +266,13 @@ sub _init_cache_handling {
 			
 			# wrap get-function: 
 			wrap ($class."::".$get_sub, 
-			
+				
 				# before get-functions is executed:
-				pre => sub {
-					my $self = shift;									
+				pre => sub {						
+					my $self = shift;
 					
+										
+					${__PACKAGE__::SELF} = $self;
 					
 					# read_mode handling:
 					my @args = @_;
@@ -326,6 +332,11 @@ sub _init_cache_handling {
 				# after get-functions is executed:
 				post => sub {	
 					
+					if ( not defined ${__PACKAGE__::SELF} )
+						{
+						return;
+						}
+										
 					# refresh cache value
 					if ( not defined $_[-1] or ref ($_[-1]) eq 'Hook::LexWrap::Cleanup' )
 						{
@@ -333,7 +344,7 @@ sub _init_cache_handling {
 						}			
 					else
 						{
-						$self->{device_cache}->{$parameter} = $_[-1];
+						${__PACKAGE__::SELF}->{device_cache}->{$parameter} = $_[-1];
 						}
 					});
 				
@@ -369,7 +380,6 @@ sub sprint_config {
 	my $config = Dumper $self->device_cache();
 	
 	$config .= "\n";
-
 	
 	$Data::Dumper::Varname = "connection_settings_";
 	if (defined $self->connection()) {

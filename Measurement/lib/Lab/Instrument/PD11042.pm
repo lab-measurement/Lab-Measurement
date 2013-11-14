@@ -61,6 +61,9 @@ use constant {
  ,freewheeling => 204
  ,stall_detection_threshold => 211
  ,power_down_dely => 214
+ # global parameters
+ ,user_defined => 2
+ 
 };
 
 
@@ -71,15 +74,35 @@ our $GETRIEBEMULTIPLIKATOR = 43;
 our @ISA = ("Lab::Instrument");
 
 our %fields = (
-	supported_connections => [ 'VISA', 'VISA_RS232', 'RS232' ],
-	baudrate => 9600,
-	databits => 8,
-	stopbits => 1,
-	parity => 'none',
-	handshake => 'none',
-	timeout => 500,
-	inipath => '',
-	logpath => '',
+	supported_connections => [ 'VISA', 'VISA_RS232', 'RS232', 'DEBUG' ],
+	connection_settings => {
+		baudrate => 9600,
+		databits => 8,
+		stopbits => 1,
+		parity => 'none',
+		handshake => 'none',
+		termchar => '\r',
+		timeout => 2,
+		},
+		
+	device_settings => { 
+		read_default => 'device',
+		pos_mode => 'ABS',
+		speed_max => 180,
+		upper_limit => 180,
+		lower_limit => -180,
+		inipath => "C:\\Perl\\site\\lib\\Lab\\Instrument\\PD11042.ini",
+		logpath => "C:\\Perl\\site\\lib\\Lab\\Instrument\\PD11042.log",
+		
+	},
+	
+	device_cache =>{
+		id => 'PD11042',
+		position => undef,
+		target => undef,
+	},
+	
+	device_cache_order => ['id'],
 );
 
 sub new {
@@ -91,7 +114,7 @@ sub new {
 	# my $status;
 	# termchar is imho disabled by default
 	# $status=Lab::VISA::viSetAttribute($self->{vi}->{config}->{RS232}->{vi}->{instr}, $Lab::VISA::VI_ATTR_TERMCHAR_EN, $Lab::VISA::VI_FALSE);
-	# if ($status != $Lab::VISA::VI_SUCCESS) { die "Error while setting termchar enabled: $status";}	
+	# if ($status != $Lab::VISA::VI_SUCCESS) { Lab::Exception::CorruptParameter->throw( error =>  "Error while setting termchar enabled: $status");}	
 	# not sure what the echo setting by default is, let's test
 	# $self->{vi}->{config}->{RS232_Echo} = 'OFF';
 
@@ -125,7 +148,7 @@ sub new {
 		($result, $errcode) = $self->exec_cmd(TMCL_SAP, target_speed, 0);
 		($result, $errcode) = $self->exec_cmd(TMCL_SAP, maximum_positioning_speed, $self->steps2angle($limits{'maximum_positioning_speed'}/2.4)); #HIER ANSETZEN!!!
 		($result, $errcode) = $self->exec_cmd(TMCL_SAP, ramp_mode, 2);	
-		
+
 	# 2.) microstep resolution:
 		# 0 = full step (don't use), 
 		# 1 = half step (don't use), 
@@ -149,8 +172,15 @@ sub new {
 		# ($result, $errcode) = $self->exec_cmd(TMCL_SAP, actual_position, $self->angle2steps(-330));
 		# print $self->get_position()."\n";;
 		# exit;
+		
+	# 4.) restore position	
+		#$self->exec_cmd(TMCL_RSGP, 0, 0, 2);
+		#my ($result, $errcode) = $self->exec_cmd(TMCL_GGP, 0, 0, 2);
+		#my ($result2, $errcode) = $self->exec_cmd(TMCL_SAP, target_position, $self->angle2steps(83.59));
+		#my ($result2, $errcode) = $self->exec_cmd(TMCL_SAP, actual_position, $self->angle2steps(83.59));
+		#exit;
 
-	# 4.) set some reference point and limits for motor movements:			
+	# 5.) set some reference point and limits for motor movements:			
 		$self->init_limits();
 		
 	return $self;		
@@ -158,15 +188,20 @@ sub new {
 
 
 
-# Execute command: exec_cmd(cmd, type, value)
+# Execute command: exec_cmd(cmd, type, value, [motor])
 sub exec_cmd {
 	my $self = shift;
 	
 	my $addr = 1;
 	my $cmd = shift;
 	my $type = shift;
-	my $motor = 0;
 	my $value = shift;
+	my $motor = shift;
+	if ( not defined $motor)
+		{
+		$motor = 0;
+		}
+	
 	
 	if ( $value < 0 )
 		{
@@ -190,6 +225,8 @@ sub exec_cmd {
 	my $result=0;
 	my $errcode=0;
 	my $i = 0;
+	
+	
 	while($errcode != 100 && $i < 10) {
 	  #print $addr."-".$cmd."-".$type."-".$motor."-".$v4."-".$v3."-".$v2."-".$value."-".$checksum." (".$i.")\n";
 	  $self->write($query);
@@ -203,8 +240,10 @@ sub exec_cmd {
 sub get_reply {
 	my $self = shift;	
 	my @result;
+	
 	foreach (1..9) {
-		push(@result,unpack("C",$self->connection()->BrutalRead(read_length => 1)));
+		my $a = $self->connection()->BrutalRead(read_length => 1);
+		push(@result,unpack("C",$a));
 	}
 	
 	my $value =  (255**3)*$result[4] + (255**2)*$result[5] + 255*$result[6] + $result[7];
@@ -220,58 +259,70 @@ sub move{
 
 	# Parameter, old style: ABS/REL, angle, speed
 
-	my $mode = shift; # ABS --> absolut \n REL --> relative
-	my $position = shift; 
-	my $speed = shift;
+	my ($position, $speed, $mode) = $self->_check_args( \@_, ['position', 'speed', 'mode'] );
 	
 	# TODO:
 	# if (ref($mode) eq 'HASH') ...
 	# 'mode', 'angle', 'speed'
 	
-	if ( not defined $mode ) {
-		die "Too few paramters given in Lab::Instrument::PD11042::move. Paramters are <MODE> = ABS | REL, <POSITION> = $limits{'LOWER'} ... $limits{'UPPER'}, <SPEED> = 0 ... $limits{'maximum_positioning_speed'}";
-	}
-	if ( not $mode =~/ABS|abs|REL|rel/  ) {
-		if ( not defined $speed ) {
-			$speed = $position;
-			$position = $mode;
-			$mode = "REL";
-		} else {
-			die "Unexpected value for <MODE> in Lab::Instrument::PD11042::move. Expected values are ABS and REL.";
+	
+	if ( not defined $mode )
+		{
+		$mode = $self->device_settings()->{pos_mode};
 		}
-	}
-	if ( not defined $speed ) {
-		$speed = $limits{'maximum_positioning_speed'};
-	}
+	if ( not $mode =~/ABS|abs|REL|rel/  )
+		{
+		Lab::Exception::CorruptParameter->throw( error => "unexpected value for <MODE> in sub move. expected values are ABS and REL.");
+		}
+	if ( not defined $speed )
+		{
+		$speed = $self->device_settings()->{speed_max};
+		}
+	if ( not defined $position )
+		{
+		Lab::Exception::CorruptParameter->throw( error => $self->get_id().": No target given in sub move! ");
+		}
+	elsif (not $position =~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/)
+		{
+		Lab::Exception::CorruptParameter->throw( error => $self->get_id().": Illegal Value given for POSITION in sub move!");
+		}
+	
 	
 	# this sets the upper limit for the positioning speed:
 	$speed = abs($speed);
-	if ( $speed <= $limits{'maximum_positioning_speed'}) {
-		$speed = $speed/2.4;
-		my ($result, $errcode) = $self->exec_cmd(TMCL_SAP, maximum_positioning_speed, $speed);
-	} else {
-		warn "Warning in sub move: <SPEED> = $speed is too high. Reduce <SPEED> to its maximum value defined by internal limit settings of $limits{'maximum_positioning_speed'}";
-		$speed = $speed/2.4;
-		my ($result, $errcode) = $self->exec_cmd(TMCL_SAP, maximum_positioning_speed, $limits{'maximum_positioning_speed'});
-	}
+	if ( $speed > $self->device_settings()->{speed_max})
+		{
+		print new Lab::Exception::CorruptParameter( error => "Warning in sub move: <SPEED> = $speed is too high. Reduce <SPEED> to its maximum value defined by internal limit settings of ". $self->device_settings()->{speed_max});
+		$speed = $self->device_settings()->{speed_max};
+		}
+	
+	$speed = $speed/2.4;
+	my ($result, $errcode) = $self->exec_cmd(TMCL_SAP, maximum_positioning_speed, $speed);
+	
 	
 	# Moving in ABS or REL mode:
 	my $CP = $self->get_position();
 	if ( $mode eq "ABS" or $mode eq "abs" or $mode eq "ABSOLUTE" or $mode eq "absolute")
 		{
-		if ($position < $limits{'LOWER'} or $position > $limits{'UPPER'})
+		if ($position < $self->device_settings()->{lower_limit} or $position > $self->device_settings()->{upper_limit})
 			{
-			die "unexpected value for NEW POSITION in sub move. Expected values are between $limits{'LOWER'} ... $limits{'UPPER'}";
+			Lab::Exception::CorruptParameter->throw( error =>  "unexpected value for NEW POSITION in sub move. Expected values are between $limits{'LOWER'} ... $limits{'UPPER'}");
 			}
+		$self->device_cache()->{target} = $position;
 		$self->_save_motorlog($CP, $position);
+		$self->save_motorinitdata();
 		$self->exec_cmd(TMCL_MVP, MVP_ABS, $self->angle2steps($position));
 		}
 	elsif ( $mode eq "REL" or $mode eq "rel" or $mode eq "RELATIVE" or $mode eq "relative") {
-		if($CP+$position < $limits{'LOWER'} or $CP+$position > $limits{'UPPER'})
+		if($CP+$position < $self->device_settings()->{lower_limit} or $CP+$position > $self->device_settings()->{upper_limit})
 			{
-			die "ERROR in sub move.Can't execute move; TARGET POSITION (".($CP+$position).") is out of valid limits (".$limits{'LOWER'}." ... ".$limits{'UPPER'}.")";
+			Lab::Exception::CorruptParameter->throw( error =>  "ERROR in sub move.Can't execute move; TARGET POSITION (".($CP+$position).") is out of valid limits (".$limits{'LOWER'}." ... ".$limits{'UPPER'}.")");
 			}
+			
+		$self->device_cache()->{target} = $CP+$position;
 		$self->_save_motorlog($CP, $CP+$position);
+		$self->save_motorinitdata();
+		
 		$self->exec_cmd(TMCL_MVP, MVP_REL, $self->angle2steps($position));
 	}
 	return 1;
@@ -296,14 +347,14 @@ sub wait {
 			{
 			if ( $flag <= 1.1 and $flag >= 0.9 )
 				{
-				print "$self->{id} is sweeping\r";
+				printf ("%s is sweeping (%06.2f)\r", $self->get_id(), $self->device_cache()->{position});
 				}
 			elsif ( $flag <= 0 )
 				{
-				print "$self->{id} is         \r";
+				printf ("%s is          (%06.2f)\r", $self->get_id(), $self->device_cache()->{position});
 				$flag = 2;
 				}
-			$flag -= 0.1;
+			$flag -= 0.5;
 			usleep(5e3);
 			}
 	
@@ -317,7 +368,7 @@ sub wait {
 sub abort {
 	my $self = shift;
 	$self->exec_cmd(TMCL_MST, 0, 0);
-	print "Motor stoped at $self->get_position()\n";
+	print "Motor stoped at ".$self->get_position()."\n";
 	return;
 }
 
@@ -326,14 +377,29 @@ sub init_limits {
 	my $lowerlimit;
 	my $upperlimit;
 	
-	if (! $self->read_motorinitdata())
-	{
+	if ($self->read_motorinitdata())
+		{
+			while (1)
+			{
+				print "Motor-Init data found. Do you want to keep the reference point and the limits? (y/n) ";
+				my $input = <>;
+				chomp $input;
+				if ( $input =~ /YES|yes|Y|y/)
+					{
+					return 1;			
+					}
+				elsif ( $input =~ /NO|no|N|n/)
+					{
+					my ($result, $errcode) = $self->exec_cmd(TMCL_MST, 0, 0); # Motor stop, to prevent unexpected motor activity
+					($result, $errcode) = $self->exec_cmd(TMCL_SAP, target_position, 0);
+					($result, $errcode) = $self->exec_cmd(TMCL_SAP, actual_position, 0);
+					$self->device_settings->{lower_limit} = -360;
+					$self->device_settings->{upper_limit} = 360;
+					last;
+					}
+			}
+		}
 		
-	my ($result, $errcode) = $self->exec_cmd(TMCL_MST, 0, 0); # Motor stop, to prevent unexpected motor activity
-	($result, $errcode) = $self->exec_cmd(TMCL_SAP, target_position, 0);
-	($result, $errcode) = $self->exec_cmd(TMCL_SAP, actual_position, 0);
-	$limits{'LOWER'} = -360;
-	$limits{'UPPER'} = 360;
 	print "\n\n";
 	print "----------------------------------------------\n";
 	print "----------- Init Motor PDx-110-42 ------------\n";
@@ -361,7 +427,7 @@ sub init_limits {
 		if ($value eq "REF" or $value eq "ref")
 			{
 			# set actual position as reference point Zero
-			$limits{'POSITION'} = 0;# for testing only
+			$self->device_cache()->{position} = 0;# for testing only
 			my ($result, $errcode) = $self->exec_cmd(TMCL_MST, 0, 0); # Motor stop, to prevent unexpected motor activity
 			($result, $errcode) = $self->exec_cmd(TMCL_SAP, target_position, 0);
 			($result, $errcode) = $self->exec_cmd(TMCL_SAP, actual_position, 0);
@@ -369,17 +435,12 @@ sub init_limits {
 			}
 		elsif ($value =~ /^[+-]?\d+$/ and $value >= -180 and $value <= 180)
 			{
-			$self->move("REL",$value);
-			while (1)
-				{
-				my $result = $self->get_position();
-				print $result."\n";
-				if ( $self->active() == 0 ){ last;}			
-				}
+			$self->move($value, {mode => 'REL'});
+			$self->wait();
 			}
 		else
 			{
-			print "Please move the motor position to the REFERENCE POINT. Enter an angle between -188Â° ... +180Â°.\n";
+			print "Please move the motor position to the REFERENCE POINT. Enter an angle between -188° ... +180°.\n";
 			}		
 		}
 		
@@ -395,12 +456,12 @@ sub init_limits {
 		my $value = <STDIN>;
 		chomp $value;
 		$lowerlimit = $value;
-		$limits{'LOWER'} = $lowerlimit;
+		$self->device_settings()->{lower_limit} = $lowerlimit;
 		print "UPPER LIMIT: ";
 		$value = <STDIN>;
 		chomp $value;
 		$upperlimit = $value;
-		$limits{'UPPER'} = $upperlimit;
+		$self->device_settings()->{upper_limit} = $upperlimit;
 		if ($lowerlimit < $upperlimit)
 			{
 			last;
@@ -434,44 +495,30 @@ sub init_limits {
 			{
 			if ( $lowerlimit <= 0 )
 				{
-				$self->move("REL",-10);
-				while (1)
-					{
-					my $result = $self->get_position();
-					print $result."\n";
-					if ( $self->active() == 0 ){ last;}			
-					}
+				$self->move(-10, {mode => 'REL'});
+				$self->wait();
+
 				}
 			else
 				{
-				$self->move("REL",10);
-				while (1)
-					{
-					my $result = $self->get_position();
-					print $result."\n";
-					if ( $self->active() == 0 ){ last;}			
-					}
+				$self->move(10, {mode => 'REL'});
+				$self->wait();
 				}
 			}
 		else
 			{
-			$self->move("ABS",$lowerlimit);
-			while (1)
-				{
-				my $result = $self->get_position();
-				print $result."\n";
-				if ( $self->active() == 0 ){ last;}			
-				}
+			$self->move($lowerlimit, {mode => 'ABS'});
+			$self->wait();
 			last;
 			}
 			
 		}
 	print "Reached LOWER LIMIT\n";
 	print "Please confirm the position of the LOWER LIMIT: "; <STDIN>;
-	$limits{'LOWER'} = $lowerlimit;
+	$self->device_settings()->{'lower_limit'} = $lowerlimit;
 	print "\n\n";
 	print "Moving to REFERENCE POINT ... \n";
-	print $self->move("ABS",0)."\n";
+	print $self->move(0, {mode => 'ABS'})."\n";
 	$self->wait();
 	print "Moving to UPPER LIMIT ...\n";	
 	while(1)
@@ -486,47 +533,35 @@ sub init_limits {
 			}		
 		if ( abs($upperlimit - $self->get_position()) >= 10)
 			{
-			$self->move("REL",10);
-			while (1)
-				{
-				my $result = $self->get_position();
-				print $result."\n";
-				if ( $self->active() == 0 ){ last;}			
-				}
+			$self->move(10, {mode => 'REL'});
+			$self->wait();
 			}
 		else
 			{
-			$self->move("ABS",$upperlimit);
-			while (1)
-				{
-				my $result = $self->get_position();
-				print $result."\n";
-				if ( $self->active() == 0 ){ last;}			
-				}
+			$self->move($upperlimit, {mode => 'ABS'});
+			$self->wait();
+
 			last;
 			}
 			
 		}
 	print "Reached UPPER LIMIT\n";
 	print "Please confirm the position of the UPPER LIMIT: "; <STDIN>;
-	$limits{'UPPER'} = $upperlimit;
+	$self->device_settings()->{'upper_limit'} = $upperlimit;
 	print "\n\n";
 	$self->save_motorinitdata();
 	
 	print "moving to the reference point.\n";
-	$self->move("ABS",0);
-			while (1)
-				{
-				my $result = $self->get_position();
-				print $result."\n";
-				if ( $self->active() == 0 ){ last;}			
-				}
+	$self->move(0, {mode => 'ABS'});
+
+
+	$self->wait();
 	print "------------------------------------------------------\n";
 	print "------------ Motor PDx-110-42 initialized ------------\n";
 	print "------------------------------------------------------\n";
 	print "\n\n";
 		
-	}
+	
 }
 
 sub _set_REF {
@@ -571,37 +606,57 @@ sub angle2steps {
 
 sub get_value {
 	my $self = shift;
-	return $self->get_position();
+	my ($read_mode, $tail) = $self->_check_args( \@_, ['read_mode'] );
+	
+	return $self->get_position({read_mode => $read_mode});
 }
 
 sub get_position{
 	my $self = shift;
+	my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
+	
+			
+	if (not defined $read_mode or not $read_mode =~ /device|cache|request|fetch/)
+		{
+        $read_mode = $self->device_settings()->{read_default};
+		}
+		
+	if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'position'})
+		{
+        return $self->{'device_cache'}->{'position'};
+		}  
 	
 	my ($result, $errcode) = $self->exec_cmd(TMCL_GAP, actual_position, 0);
-	$limits{POSITION} = $self->steps2angle($result);
-	$self->save_motorinitdata;
-	$self->{value} = $limits{POSITION};
-	return $limits{POSITION};
+	
+	# store position in Global-Parameter 0:
+	$self->exec_cmd(TMCL_SGP, 0, $result, 2);
+	$self->exec_cmd(TMCL_STGP, 0, 0, 2);
+	
+	$self->device_cache()->{position} = $self->steps2angle($result);
+	$self->save_motorinitdata();
+	$self->{value} = $self->device_cache()->{position};
+	return $self->device_cache()->{position};
 	
 }
 
 sub save_motorinitdata {
 	my $self = shift;
 	
-	open(DUMP, ">PD11042.ini"); #open for write, overwrite
-	while( my ($key, $value) = each %limits ) 
-		{
-		print DUMP "$key, $value\n";
-		}
+	open(DUMP, ">".$self->device_settings()->{'inipath'}); #open for write, overwrite
+	print DUMP "POSITION: ".$self->device_cache()->{position}."\n";
+	print DUMP "TARGET: ".$self->device_cache()->{target}."\n";
+	print DUMP "SPEED_MAX: ".$self->device_settings()->{speed_max}."\n";
+	print DUMP "UPPER_LIMIT: ".$self->device_settings()->{upper_limit}."\n";
+	print DUMP "LOWER_LIMIT: ".$self->device_settings()->{lower_limit}."\n";
+	print DUMP "TIMESTAMP: ".time()."\n";
 	close(DUMP);
 }
 
 sub _save_motorlog {
 	my $self = shift;
-	my $init_pos = shift;
-	my $end_pos = shift;
+	my ($init_pos, $end_pos) = $self->_check_args( \@_, ['init_pos', 'end_pos'] );
 	
-	open(DUMP, ">>PD11042.log"); #open for write, overwrite
+	open(DUMP, ">>".$self->device_settings()->{'logpath'}); #open for write, overwrite
 
 	print DUMP (my_timestamp())."\t move: $init_pos -> $end_pos \n";
 		
@@ -611,23 +666,33 @@ sub _save_motorlog {
 sub read_motorinitdata {
 	my $self = shift;
 	
-	if (not open(DUMP, "<PD11042.ini"))
+	if (not open(DUMP, "<".$self->device_settings()->{'inipath'}))
 		{
 		return 0;
 		}
 	while(<DUMP>)
 		{
 		chomp ($_);
-		my @line = split(/, /,$_);
-		$limits{$line[0]} = $line[1];
+		my @line = split(/: /,$_);
+		if ($line[0] eq 'POSITION') {$self->device_cache()->{position} = $line[1];}
+		elsif ($line[0] eq 'TARGET') {$self->device_cache()->{target} = $line[1];}
+		elsif ($line[0] eq 'SPEED_MAX') {$self->device_settings()->{speed_max} = $line[1];}
+		elsif ($line[0] eq 'UPPER_LIMIT') {$self->device_settings()->{upper_limit} = $line[1];}
+		elsif ($line[0] eq 'LOWER_LIMIT') {$self->device_settings()->{lower_limit} = $line[1];}
+		
 		}
 	
 	print "\nread MOTOR-INIT-DATA\n";
 	print "--------------------\n";
-	while( my ($key, $value) = each %limits ) 
-		{
-		print "$key: $value\n";
-		}
+	print "POSITION: ".$self->device_cache()->{position}."\n";
+	print "TARGET: ".$self->device_cache()->{target}."\n";
+	print "SPEED_MAX: ".$self->device_settings()->{speed_max}."\n";
+	print "UPPER_LIMIT: ".$self->device_settings()->{upper_limit}."\n";
+	print "LOWER_LIMIT: ".$self->device_settings()->{lower_limit}."\n";
+
+
+
+
 	print "--------------------\n";
 	return 1;
 }
