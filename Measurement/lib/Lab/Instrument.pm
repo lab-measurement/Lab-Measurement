@@ -87,6 +87,8 @@ sub new {
 	
 
 	$self->config($config);
+	
+	
 
 	#
 	# In most inherited classes, configure() is run through _construct()
@@ -150,7 +152,10 @@ sub _construct {	# _construct(__PACKAGE__);
 			#warn Dumper($Lab::Instrument::DummySource::fields) if($element eq 'device_cache');
 		}
 		$self->{_permitted}->{$element} = 1;
+	
 	}
+	
+	
 	# @{$self}{keys %{$fields}} = values %{$fields};
 
 	#
@@ -178,8 +183,14 @@ sub _construct {	# _construct(__PACKAGE__);
 		# defined values through configure() before the connection was set. These settings are now transferred
 		# to the device.
 		$self->_device_init(); # enable device communication if necessary
-		$self->_cache_init();  # transfer configuration to/from device
+		$self->_set_config_parameters(); # transfer configuration to device
+		$self->_refresh_cache();
+		#$self->_cache_init();  # transfer configuration to/from device
+		
 	}
+	
+
+	
 }
 
 
@@ -274,6 +285,7 @@ sub _init_cache_handling {
 										
 					${__PACKAGE__::SELF} = $self;
 					
+					
 					# read_mode handling:
 					my @args = @_;
 					pop @args;
@@ -283,7 +295,7 @@ sub _init_cache_handling {
 					# do not read if request has been set. set read_mode to cache if cache is available	
 					if ( $self->connection()->is_blocked() == 1 )
 						{
-						if ( defined $self->{device_cache}->{$parameter} )
+						if ( defined $self->device_cache($parameter) )
 								{								
 								$read_mode = 'cache';
 								}
@@ -300,7 +312,7 @@ sub _init_cache_handling {
 						
 						if ( $subroutine ne $class."::".$get_sub )
 							{
-							if ( defined $self->{device_cache}->{$parameter} )
+							if ( defined $self->device_cache($parameter) )
 								{
 								
 								$read_mode = 'cache';
@@ -322,9 +334,9 @@ sub _init_cache_handling {
 					
 					
 					# return cache value if read_mode is set to cache
-					if ( defined $read_mode and $read_mode eq 'cache' and defined $self->{device_cache}->{$parameter} and not $self->{config}->{no_cache})
+					if ( defined $read_mode and $read_mode eq 'cache' and defined $self->device_cache($parameter) and not $self->{config}->{no_cache})
 						{		
-						$_[-1] = $self->{device_cache}->{$parameter};
+						$_[-1] = $self->device_cache($parameter);
 						} 
 						
 					},
@@ -344,7 +356,7 @@ sub _init_cache_handling {
 						}			
 					else
 						{
-						${__PACKAGE__::SELF}->{device_cache}->{$parameter} = $_[-1];
+						${__PACKAGE__::SELF}->device_cache({$parameter => $_[-1]});
 						}
 					});
 				
@@ -369,7 +381,13 @@ sub register_instrument {
 	
 	push( @{Lab::Instrument::REGISTERED_INSTRUMENTS}, $self );
 
+}
 
+sub unregister_instrument {
+	my $self = shift;
+
+	@{Lab::Instrument::REGISTERED_INSTRUMENTS} = grep { $_ ne $self } @{Lab::Instrument::REGISTERED_INSTRUMENTS};
+	
 }
 
 sub sprint_config {
@@ -381,6 +399,7 @@ sub sprint_config {
 	
 	$config .= "\n";
 	
+	$Data::Dumper::Maxdepth = 1;
 	$Data::Dumper::Varname = "connection_settings_";
 	if (defined $self->connection()) {
 	$config .= Dumper $self->connection()->config();
@@ -393,26 +412,86 @@ sub sprint_config {
 
 
 
+sub _set_config_parameters {
+	my $self = shift;
+	
+	my @order = @{$self->device_cache_order()};
+	my @keys = keys %{$self->config()};
+	
+	
+	
+	foreach my $ckey (@order)
+		{
+		my $subname = 'set_' . $ckey;		
+		if ( defined $self->config($ckey) and $self->can($subname) )
+			{
+			my $result = $self->$subname($self->config($ckey));
+			@keys = grep { $_ ne $ckey } @keys;
+			}		
+		}
+	
+	foreach my $ckey (@keys)
+		{		
+		my $subname = 'set_' . $ckey;		
+		if ( $self->can($subname) )
+			{
+			my $result = $self->$subname($self->config($ckey));
+			}		
+		}
+		
+	
+}
+
+
+sub _refresh_cache {
+	my $self = shift;
+	
+	my @order = @{$self->device_cache_order()};
+	my @keys = keys %{$self->device_cache()};
+	
+	
+	foreach my $ckey (@order)
+		{
+		my $subname = 'get_' . $ckey;
+		if ( defined $self->config($ckey) and $self->can($subname) )
+			{
+			my $result = $self->$subname();
+			@keys = grep { $_ ne $ckey } @keys;
+			}		
+		}		
+	
+		
+	foreach my $ckey (@keys)
+		{
+		my $subname = 'get_' . $ckey;
+		if ( $self->can($subname) )
+			{
+			my $result = $self->$subname();
+			}		
+		}
+
+}
 
 
 
 
 
-
-
+# old; replaced by _refresh_cache and _set_config_parameters
 sub _getset_key{
 	my $self = shift;
 	my $ckey = shift;
 	
+	#print Dumper $self->device_cache();
+	
 	Lab::Exception::CorruptParameter->throw( "No field with name $ckey in device_cache!\n" ) if !exists $self->device_cache()->{$ckey};
-	if( !defined $self->device_cache()->{$ckey}  ) {
+	if( !defined $self->device_cache()->{$ckey} and !defined $self->config()->{$ckey}  ) {	
 		my $subname = 'get_' . $ckey;
 		Lab::Exception::CorruptParameter->throw("No get method defined for device_cache field $ckey! \n") if ! $self->can($subname);
 		my $result = $self->$subname( );
 		}
 	else {
 		my $subname = 'set_' . $ckey;
-		
+		print Dumper $self->device_cache() if ! $self->can($subname);
 		Lab::Exception::CorruptParameter->throw("No set method defined for device_cache field $ckey!\n") if ! $self->can($subname);
 		my $result = $self->$subname($self->device_cache()->{$ckey});
 	}
@@ -425,10 +504,15 @@ sub _getset_key{
 # Without parameter, parses the whole $self->device_cache. Else, the parameter list is parsed as a list of
 # field names. Contained fields for which have no corresponding getter/setter/device_cache entry exists will result in an exception thrown.
 #
+# old; replaced by _refresh_cache and _set_config_parameters
 sub _cache_init {
 	my $self = shift;
 	my $subname = shift;
 	my @ckeys = scalar(@_) > 0 ? @_ : keys %{$self->device_cache()};
+	
+	#print Dumper $self->config();
+	
+	print "ckeys: @ckeys\n";
 	
 	# a key hash, to search for given keys quickly
 	my %ckeyhash;
@@ -437,11 +521,11 @@ sub _cache_init {
 	
 	my @order = @{$self->device_cache_order()};
 	
-	if( $self->{'device_cache'} && $self->connection() ) {
+	if( $self->device_cache() && $self->connection() ) {
 		# do we have a preferred order for device cache settings?
 		if( @order ){
 			@orderhash{@order} = ();
-			for my $ckey (@order){
+			foreach my $ckey (@order){
 				$self->_getset_key($ckey) if exists $ckeyhash{$ckey};			
 			}
 			# initialize all values not in device_cache_order
@@ -451,7 +535,7 @@ sub _cache_init {
 		}
 		# no ordering requestd
 		else{
-			for my $ckey ( @ckeys ) {
+			foreach my $ckey ( @ckeys ) {
 				$self->_getset_key($ckey);	
 			}
 		}
@@ -466,23 +550,23 @@ sub _cache_init {
 # 	Preference of the sync: 'device' (default) or 'driver'
 #	Name of variable to sync.											  
 #
-
+# not in use
 sub device_sync{
 	my $self = shift;
 	
 	my $pref = shift || 'device';
 	
 			
-	if( $self->{'device_cache'}){
+	if( $self->device_cache()){
 		if($pref eq 'driver'){		
 			if($_[0]){
-				$self->${\('set_'.$_[0])}($self->{'device_cache'}->{$_[0]});
+				$self->${\('set_'.$_[0])}($self->device_cache({$_[0]}));
 				return 1;
 			}		
 			else{
 				my $count = 0;
-				foreach my $key (keys %{$self->{'device_cache'}} ){
-					$self->${\('set_'.$key)}($self->{'device_cache'}->{$key});
+				foreach my $key (keys %{$self->device_cache()} ){
+					$self->${\('set_'.$key)}($self->device_cache($key));
 					$count += 1;
 				}				
 				return $count;
@@ -490,13 +574,13 @@ sub device_sync{
 		}
 		else{
 			if($_[0]){
-				$self->{'device_cache'}->{$_[0]} = $self->${\('get_'.$_[0])}( device_cache => 1 );
+				$self->device_cache($_[0]) = $self->${\('get_'.$_[0])}( device_cache => 1 );
 				return 1;
 			}
 			else{
 				my $count = 0;
-				foreach my $key (keys %{$self->{'device_cache'}} ){
-					$self->{'device_cache'}->{$key} = $self->${\('get_'.$key)}( device_cache => 1 );
+				foreach my $key (keys %{$self->device_cache()} ){
+					$self->device_cache($key) = $self->${\('get_'.$key)}( device_cache => 1 );
 					$count += 1;
 				}				
 				return $count;
@@ -528,7 +612,7 @@ sub configure {
 		#
 		for my $fields_key ( keys %{$self->{_permitted}} ) {
 			{	# restrict scope of "no strict"
-				no strict 'refs';
+				no strict 'refs';				
 				$self->$fields_key($config->{$fields_key}) if exists $config->{$fields_key};
 			}
 		}
@@ -537,7 +621,7 @@ sub configure {
 		# fill fields $self->device_settings and $self->device_cache from entries given in configuration hash (this is usually the same as $self->config )
 		#
 		$self->device_settings($config);
-		$self->device_cache($config);
+		#$self->device_cache($config);
 	}
 }
 
@@ -720,13 +804,13 @@ sub check_errors {
 sub set_id {
 	my $self = shift;	
 	my ($id) = $self->_check_args( \@_, ['id'] );
-	$self->{'device_cache'}->{'id'} = $id;	
+	$self->device_cache({'id' => $id});	
 	
 }
 
 sub get_id {
 	my $self = shift;
-	return $self->{'device_cache'}->{'id'};
+	return $self->device_cache('id');	
 }
 
 sub write {
@@ -1041,6 +1125,23 @@ sub config {	# $value = self->config($key);
 		return $self->{'config'}->{$key};
 	}
 }
+
+
+
+# sub device_cache {	# $value = $self->{'device_cache'}($key);
+	# (my $self, my $key) = (shift, shift);
+
+	# if(!defined $key) {
+		# return $self->{'device_cache'};
+	# }
+	# elsif(ref($key) =~ /HASH/) {
+		# return $self->{'device_cache'} =  ($self->{'device_cache'}, $key);
+	# }
+	# else {
+		# return $self->{'device_cache'}->{$key};
+	# }
+# }
+
 
 #
 # provides generic accessor methods to the fields defined in %fields and to the elements of $self->device_settings
