@@ -63,7 +63,9 @@ sub new {
 
 sub _device_init {
 	my $self = shift;
-	$self->end_program();
+	if ($self->get_status('setting')) {
+		$self->end_program();
+	}
 }
 
 sub set_voltage {   
