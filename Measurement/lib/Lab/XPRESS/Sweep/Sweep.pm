@@ -871,7 +871,9 @@ sub enable_pause {
 sub pause {
 	my $self = shift;
 	print "\n\nPAUSE: continue with <ENTER>\n";
+	ReadMode('normal');
 	<>;
+	ReadMode('cbreak');
 	$PAUSE = 0;
 } 
 
@@ -933,6 +935,8 @@ sub finish {
 				}
 			}
 		}	
+	
+	ReadMode('normal');
 } 
 
 sub active {
@@ -1035,12 +1039,17 @@ sub check_loop_duration {
 		}
 	
 	
+	if ( ($self->{loop}->{t1}-$self->{loop}->{t0}) > @{$self->{config}->{interval}}[$self->{sequence}])
+		{
+		warn "WARNING: Measurement Loop takes more time (".($self->{loop}->{t1}-$self->{loop}->{t0}).") than specified by measurement intervall (@{$self->{config}->{sequence}}[$self->{iterator}]).\n";
+		}
+	
 	my $delta_time = ($self->{loop}->{t1}-$self->{loop}->{t0}) + $self->{loop}->{overtime};
 	if ($delta_time > @{$self->{config}->{interval}}[$self->{sequence}])
 		{
 		$self->{loop}->{overtime} = $delta_time - @{$self->{config}->{interval}}[$self->{sequence}];
 		$delta_time = @{$self->{config}->{interval}}[$self->{sequence}];			
-		warn "WARNING: Measurement Loop takes more time ($self->{loop}->{overtime}) than specified by measurement intervall (@{$self->{config}->{sequence}}[$self->{iterator}]).\n";
+		#warn "WARNING: Measurement Loop takes more time ($self->{loop}->{overtime}) than specified by measurement intervall (@{$self->{config}->{sequence}}[$self->{iterator}]).\n";
 		}
 	else
 		{
@@ -1049,9 +1058,8 @@ sub check_loop_duration {
 		
 	my $time0 = time();
 	
-	while($delta_time > 0.2)
+	while((@{$self->{config}->{interval}}[$self->{sequence}] -$delta_time) > 0.2)
 		{
-		print "activity check \n";
 		$self->{config}->{instrument}->active();
 		
 		$delta_time = $delta_time - (time() - $time0);
