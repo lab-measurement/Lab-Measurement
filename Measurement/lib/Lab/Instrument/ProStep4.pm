@@ -171,7 +171,7 @@ sub move{
 sub active {
 	my $self = shift;
 	
-	my $result = $self->query("a".$AXIS."?\r\n");
+	my $result = $self->get_position();
 	
 	return $self->{active};
 			
