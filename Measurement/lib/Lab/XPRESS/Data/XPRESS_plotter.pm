@@ -30,6 +30,11 @@ sub new {
 	my %plot = %$plot;
 	
 	$self->{PAUSE} = -1; # negative value ==> pause disabled, positive value ==> pause enabled
+	
+	if ( $self->{plot}->{refresh} eq 'block' )
+		{
+		$self->{PAUSE} = 1;
+		}
 			
 	$self->{gpipe} = $self->get_gnuplot_pipe();
 	
