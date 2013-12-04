@@ -31,6 +31,12 @@ sub new {
 	$self->{skiplog} = 0;
 	
 	my $filenamebase = shift;
+	
+	if (not $filenamebase =~ /(.+)(\..+)\b/)
+	{
+		$filenamebase .= ".dat";
+	}
+	
 	my $foldername = $DEFAULT_FOLDER;
     $foldername = shift if @_;
 	
