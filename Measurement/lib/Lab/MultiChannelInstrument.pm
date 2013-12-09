@@ -252,7 +252,7 @@ sub AUTOLOAD {
 			return $self->{'device_settings'}->{$name};
 		}
 	}
-	elsif( $self->{channels}->{$self->{device_settings}->{channel_default}}->can($name) ) {
+	elsif( defined $self->{channels}->{$self->{device_settings}->{channel_default}} and $self->{channels}->{$self->{device_settings}->{channel_default}}->can($name) ) {
 		return $self->{channels}->{$self->{device_settings}->{channel_default}}->$name(@_);
 	}
 	else {
