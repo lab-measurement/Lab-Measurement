@@ -62,7 +62,7 @@ sub set_voltage {
     my $self=shift;
     my $voltage=shift;
     
-    my $function = $self->get_function();
+    my $function = $self->get_function({read_mode => 'cache'});
 
     if($function ne 'VOLT'){
     	Lab::Exception::CorruptParameter->throw(
