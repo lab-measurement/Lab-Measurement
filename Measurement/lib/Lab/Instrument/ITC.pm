@@ -272,18 +272,18 @@ sub set_PID { # basic
 	my $self = shift;
 	my ($P, $I, $D) = $self->_check_args( \@_, ['P', 'I', 'D'] );
 	
-	if ((not defined $P or not defined $I or not defined $D) and ( $P ne "auto" or $P ne "AUTO" or $P ne "man" or $P ne "MAN"))
-		{
-		Lab::Exception::CorruptParameter->throw( error => "unexpected values for PID in sub set_PID. Exactly three arguments are required.");
-		}
 	
-	if ( $P eq "auto" or $P eq "AUTO" )
+	if ((defined $P) and ( $P eq "auto" or $P eq "AUTO" ))
 		{
 		$self->query("L1\r"); # enable AUTO-PID
 		}
-	elsif ($P eq "man" or $P eq "MAN")
+	elsif ((defined $P) and ( $P eq "man" or $P eq "MAN"))
 		{
 		$self->query("L0\r"); # disable AUTO-PID
+		}
+	elsif ((not defined $P or not defined $I or not defined $D))
+		{
+		Lab::Exception::CorruptParameter->throw( error => "unexpected values for PID in sub set_PID. Exactly three arguments are required.");
 		}
 	else 
 		{
