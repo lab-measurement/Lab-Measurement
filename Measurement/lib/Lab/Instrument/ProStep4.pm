@@ -59,13 +59,13 @@ sub new {
 	my $self = $class->SUPER::new(@_);
 	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__); 
 	
-	$self->init();
+	#$self->init();
 	
 	$self->{active} = 0;
 	return $self;
 	}
 	
-sub init {
+sub _device_init {
 	my $self = shift;
 	
 	$self->query("C:\r\n");
@@ -539,7 +539,7 @@ sub read_motorinitdata {
 		if ($line[0] eq 'POSITION') {$self->device_cache()->{position} = $line[1];}
 		elsif ($line[0] eq 'TARGET') {$self->device_cache()->{target} = $line[1];}
 		elsif ($line[0] eq 'SPEED_MAX') {$self->device_settings()->{speed_max} = $line[1];}
-		elsif ($line[0] eq 'UPPER_LIMIT') {$self->device_settings()->{upper_limit} = $line[1];}
+		elsif ($line[0] eq 'UPPER_LIMIT') { $self->device_settings()->{upper_limit} = $line[1];}
 		elsif ($line[0] eq 'LOWER_LIMIT') {$self->device_settings()->{lower_limit} = $line[1];}
 		
 		}
