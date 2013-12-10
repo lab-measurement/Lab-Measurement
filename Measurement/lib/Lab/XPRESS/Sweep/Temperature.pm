@@ -33,7 +33,9 @@ sub new {
 		stabilize_observation_time => 3*60,
 		tolerance_setpoint => 0.2,
 		std_dev_instrument => 0.15,
-		std_dev_sensor => 0.15
+		std_dev_sensor => 0.15,
+		
+		max_stabilization_time => undef
 		
 		};
 	
@@ -161,6 +163,8 @@ sub stabilize {
 	
 	local $| = 1;
 	
+	my $time0 = time();
+
 	print "Stabilize Temperature at $setpoint K ... \n\n";
 	#my $line1  = "\rElapsed: $elapsed_time \n Current Temp INSTR: @T_INSTR[-1] \n Current Temp SENSOR: @T_SENSOR[-1] \n ";
 	#my $line2 = "Current Median: @MEDIAN_INSTR[-1] \n Std. Dev. T Instr. : $INSTR_STD_DEV \n Std. Dev. T Sensor : $SENSOR_STD_DEV \n ";
@@ -271,8 +275,11 @@ sub stabilize {
 		
 		if ($criterion_std_dev_INSTR * $criterion_std_dev_SENSOR * $criterion_setpoint) {
 			last;
+		elsif (defined $self->{config}->{max_stabilization_time} and ( (time() - $time0) >= $self->{config}->{max_stabilization_time} )) {
+			last;
 			print "\n";
 		}
+
 		else {
 			
 		}
