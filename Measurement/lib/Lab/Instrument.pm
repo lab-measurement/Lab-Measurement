@@ -256,6 +256,7 @@ sub _init_cache_handling {
 					my $self = shift;
 					
 					${__PACKAGE__::SELF} = $self;
+					${__PACKAGE__::SELF}->{fast_cache_value} = $_[0];
 			
 					# read_mode handling: do not execute if request is set:
 					if (defined $self->{requestID} or $self->connection()->is_blocked() )
@@ -270,9 +271,18 @@ sub _init_cache_handling {
 						{
 						return;
 						}
-				
+					
+					# skip get_sub if $self->{config}->{fast_cache} is set.	 					
+					if ( defined ${__PACKAGE__::SELF}->{config}->{fast_cache} and ${__PACKAGE__::SELF}->{config}->{fast_cache} > 0)
+						{
+						${__PACKAGE__::SELF}->device_cache({$cache_param => ${__PACKAGE__::SELF}->{fast_cache_value} });
+						return;
+						}
+						
+									
 					# call coresponding get-function in order to keep the cache up to date, if available
-					if ( ${__PACKAGE__::SELF}->can($get_sub))
+					
+					if ( ${__PACKAGE__::SELF}->can($get_sub) and not ${__PACKAGE__::SELF}->{config}->{no_cache})
 						{
 						my $var = ${__PACKAGE__::SELF}->$get_sub(); 
 						}
