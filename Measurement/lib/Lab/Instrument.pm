@@ -215,7 +215,7 @@ sub _init_cache_handling {
 	 my $self = shift;
 	 my $class = shift; 
 	 
-	 
+	
 	 no strict 'refs';
 	 
 	 # avoid to redefine the subs twice
@@ -236,9 +236,19 @@ sub _init_cache_handling {
 		
 		my $get_methode = *{$class."::".$get_sub};
 		my $set_methode = *{$class."::".$set_sub};
-			
+
+		
+		
 		if (  $class->can("set_".$cache_param) and exists &$set_methode )
 			{
+
+			# Change STDERR to undef, in order to avoid warnings from Hook::LexWrap and 
+			# and save original STDERR stream in SAVEERR to be able to restore original 
+			# behavior 
+			local (*SAVEERR);
+    		open SAVEERR, ">&STDERR";
+			open(STDERR, '>', undef);
+			
 			# wrap set-function: 
 			wrap ($class."::".$set_sub, 
 				# before set-functions is executed:
@@ -268,10 +278,22 @@ sub _init_cache_handling {
 						}
 					
 					});
+
+			# Restore Warnings:
+			open STDERR, ">&SAVEERR";
+			
 			}
 		
 		if (  $class->can("get_".$cache_param) and  exists &$get_methode  )
-			{	
+			{
+
+			# Change STDERR to undef, in order to avoid warnings from Hook::LexWrap and 
+			# and save original STDERR stream in SAVEERR to be able to restore original 
+			# behavior 
+			local (*SAVEERR);
+    		open SAVEERR, ">&STDERR";
+			open(STDERR, '>', undef);
+			
 			my $parameter = $cache_param;
 			
 			
@@ -359,8 +381,11 @@ sub _init_cache_handling {
 						${__PACKAGE__::SELF}->device_cache({$parameter => $_[-1]});
 						}
 					});
-				
+			
+			# Restore Warnings:	
+			open STDERR, ">&SAVEERR";
 			}
+
 		
 		}
 	 	
