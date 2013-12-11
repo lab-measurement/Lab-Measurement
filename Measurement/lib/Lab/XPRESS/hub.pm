@@ -1,9 +1,11 @@
 package Lab::XPRESS::hub;
 use Lab::Exception;
 use strict;
+use Exporter 'import';
 
 our $VERSION = '3.20';
 
+our @EXPORT = qw(DataFile Sweep Frame Instrument Connection);
 
 sub new {
 	my $proto = shift;
@@ -19,7 +21,7 @@ sub new {
 
 
 sub DataFile {
-	my $self = shift;
+	my $self = shift if ref($_[0]) eq __PACKAGE__;
 	my ($filenamebase,$foldername) = @_;
 	
 	use Lab::XPRESS::Data::XPRESS_DataFile;
@@ -30,7 +32,7 @@ sub DataFile {
 }
 
 sub Sweep {
-	my $self = shift;
+	my $self = shift if ref($_[0]) eq __PACKAGE__;
 	my $sweep = shift;
 	
 	$sweep = "Lab::XPRESS::Sweep::".$sweep;
@@ -42,7 +44,7 @@ sub Sweep {
 }
 
 sub Frame {
-	my $self = shift;
+	my $self = shift if ref($_[0]) eq __PACKAGE__;
 	
 	my $frame = "Lab::XPRESS::Sweep::Frame";
 	eval "require $frame; $frame->import(); 1;" 
@@ -54,7 +56,7 @@ sub Frame {
 }
 
 sub Instrument {
-	my $self = shift;
+	my $self = shift if ref($_[0]) eq __PACKAGE__;
 	my $instrument = shift;
 	
 	
@@ -68,7 +70,7 @@ sub Instrument {
 }
 
 sub Connection {
-	my $self = shift;
+	my $self = shift if ref($_[0]) eq __PACKAGE__;
 	my $connection = shift;
 	
 	$connection = "Lab::Connection::".$connection;
@@ -81,7 +83,7 @@ sub Connection {
 }
 
 sub show_available_objects {
-	my $self = shift;
+	my $self = shift if ref($_[0]) eq __PACKAGE__;
 	
 	my $xDIR = $INC{"Lab/XPRESS/hub.pm"};
 	$xDIR =~ s/hub.pm//g;
