@@ -5,7 +5,7 @@ use Exporter 'import';
 
 our $VERSION = '3.20';
 
-our @EXPORT = qw(DataFile Sweep Frame Instrument Connection);
+our @EXPORT_OK = qw(DataFile Sweep Frame Instrument Connection);
 
 sub new {
 	my $proto = shift;
