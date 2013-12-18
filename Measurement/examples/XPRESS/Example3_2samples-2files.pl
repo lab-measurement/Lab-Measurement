@@ -1,49 +1,48 @@
 
-#-------- 0. Create the hub ----------------
+#-------- 0. Import Lab::XPRESS -------------
 
-use Lab::XPRESS::hub;
-my $hub = new Lab::XPRESS::hub();
+use Lab::XPRESS;
 
 #-------- 1. Initialize Instruments --------
 
-my $voltage_source1 = $hub->Instrument('Yokogawa7651', 
+my $voltage_source1 = Instrument('Yokogawa7651', 
 	{
 	connection_type => 'VISA_GPIB',
 	gpib_address => 3,
 	gate_protect => 0
 	});
 
-my $multimeter1 = $hub->Instrument('Agilent34410A', 
+my $multimeter1 = Instrument('Agilent34410A', 
 	{
 	connection_type => 'VISA_GPIB',
 	gpib_address => 17,
 	nplc => 10					# integration time in number of powerline cylces [10*(1/50)]
 	});
 
-my $voltage_source2 = $hub->Instrument('Yokogawa7651', 
+my $voltage_source2 = Instrument('Yokogawa7651', 
 	{
 	connection_type => 'VISA_GPIB',
 	gpib_address => 5,
 	gate_protect => 0
 	});
 
-my $multimeter2 = $hub->Instrument('Agilent34410A', 
+my $multimeter2 = Instrument('Agilent34410A', 
 	{
 	connection_type => 'VISA_GPIB',
 	gpib_address => 11,
 	nplc => 10					# integration time in number of powerline cylces [10*(1/50)]
 	});
 
-my $magnet = $hub->Instrument('IPSWeiss1', 
+my $magnet = Instrument('IPSWeiss1', 
 	{
 	connection_type => 'Isobus',
 	isobus_address => 2,
-	base_connection => $hub->Connection('VISA_GPIB', {gpib_address => 24})
+	base_connection => Connection('VISA_GPIB', {gpib_address => 24})
 	});
 
 #-------- 3. Define the Sweeps -------------
 
-my $magnet_sweep = $hub->Sweep('Magnet', 
+my $magnet_sweep = Sweep('Magnet', 
 		{
 		instrument => $magnet,
 		points => [-10, -1, 1, 10],	# [starting point, intermediate steps, target] in Tesla
@@ -54,7 +53,7 @@ my $magnet_sweep = $hub->Sweep('Magnet',
 
 #-------- 3. Create a DataFile -------------
 
-my $DataFile1 = $hub->DataFile('MagnFieldSweep_sample1.dat');
+my $DataFile1 = DataFile('MagnFieldSweep_sample1.dat');
 
 $DataFile1->add_column('Field');
 $DataFile1->add_column('Voltage');
@@ -67,7 +66,7 @@ $DataFile1->add_plot({
 	'y-axis' => 'Resistance'
 	});
 
-my $DataFile2 = $hub->DataFile('MagnFieldSweep_sample2.dat');
+my $DataFile2 = DataFile('MagnFieldSweep_sample2.dat');
 
 $DataFile2->add_column('Field');
 $DataFile2->add_column('Voltage');
@@ -157,48 +156,47 @@ Those two files are populated with data, during the same sweep. Besides that, we
 
 =head1 The code
 
-=head2 The hub and Instrument initialization
+=head2 Instrument initialization
 
-	#-------- 0. Create the hub ----------------
+	#-------- 0. Import Lab::XPRESS -------------
 
-	use Lab::XPRESS::hub;
-	my $hub = new Lab::XPRESS::hub();
+	use Lab::XPRESS;
 	
 	#-------- 1. Initialize Instruments --------
 	
-	my $voltage_source1 = $hub->Instrument('Yokogawa7651', 
+	my $voltage_source1 = Instrument('Yokogawa7651', 
 		{
 		connection_type => 'VISA_GPIB',
 		gpib_address => 3,
 		gate_protect => 0
 		});
 	
-	my $multimeter1 = $hub->Instrument('Agilent34410A', 
+	my $multimeter1 = Instrument('Agilent34410A', 
 		{
 		connection_type => 'VISA_GPIB',
 		gpib_address => 17,
 		nplc => 10					# integration time in number of powerline cylces [10*(1/50)]
 		});
 	
-	my $voltage_source2 = $hub->Instrument('Yokogawa7651', 
+	my $voltage_source2 = Instrument('Yokogawa7651', 
 		{
 		connection_type => 'VISA_GPIB',
 		gpib_address => 5,
 		gate_protect => 0
 		});
 	
-	my $multimeter2 = $hub->Instrument('Agilent34410A', 
+	my $multimeter2 = Instrument('Agilent34410A', 
 		{
 		connection_type => 'VISA_GPIB',
 		gpib_address => 11,
 		nplc => 10					# integration time in number of powerline cylces [10*(1/50)]
 		});
 	
-	my $magnet = $hub->Instrument('IPSWeiss1', 
+	my $magnet = Instrument('IPSWeiss1', 
 		{
 		connection_type => 'IsoBus',
 		isobus_address => 2,
-		base_connection => $hub->Connection('VISA_GPIB', {gpib_address => 24})
+		base_connection => Connection('VISA_GPIB', {gpib_address => 24})
 		});
 
 Certainly, it does not come as a surprise to you, that for a magnetic field sweep, we need a instrument, which can control the magnet.
@@ -211,7 +209,7 @@ but are still individualy accessible using the isobus_address. In order to provi
 
 	#-------- 3. Define the Sweeps -------------
 	
-	my $magnet_sweep = $hub->Sweep('Magnet', 
+	my $magnet_sweep = Sweep('Magnet', 
 		{
 		instrument => $magnet,
 		points => [-10, -1, 1, 10],	# [starting point, intermediate steps, target] in Tesla
@@ -231,7 +229,7 @@ Since we define the parameter 'backsweep' to be 1, the sweep will automatically 
 	
 	#-------- 3. Create a DataFile -------------
 
-	my $DataFile1 = $hub->DataFile('MagnFieldSweep_sample1.dat');
+	my $DataFile1 = DataFile('MagnFieldSweep_sample1.dat');
 	
 	$DataFile1->add_column('Field');
 	$DataFile1->add_column('Voltage');
@@ -244,7 +242,7 @@ Since we define the parameter 'backsweep' to be 1, the sweep will automatically 
 		'y-axis' => 'Resistance'
 		});
 	
-	my $DataFile2 = $hub->DataFile('MagnFieldSweep_sample2.dat');
+	my $DataFile2 = DataFile('MagnFieldSweep_sample2.dat');
 	
 	$DataFile2->add_column('Field');
 	$DataFile2->add_column('Voltage');

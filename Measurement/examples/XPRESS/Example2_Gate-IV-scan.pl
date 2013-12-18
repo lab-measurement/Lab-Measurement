@@ -1,25 +1,24 @@
 #-------- 0. Create the hub ----------------
 
-use Lab::XPRESS::hub;
-my $hub = new Lab::XPRESS::hub();
+use Lab::XPRESS;
 
 #-------- 1. Initialize Instruments --------
 
-my $voltage_source = $hub->Instrument('Yokogawa7651', 
+my $voltage_source = Instrument('Yokogawa7651', 
 	{
 	connection_type => 'VISA_GPIB',
 	gpib_address => 3,
 	gate_protect => 0
 	});
 
-my $multimeter = $hub->Instrument('Agilent34410A', 
+my $multimeter = Instrument('Agilent34410A', 
 	{
 	connection_type => 'VISA_GPIB',
 	gpib_address => 17,
 	nplc => 10					# integration time in number of powerline cylces [10*(1/50)]
 	});
 
-my $gate = $hub->Instrument('Yokogawa7651', 
+my $gate = Instrument('Yokogawa7651', 
 	{
 	connection_type => 'VISA_GPIB',
 	gpib_address => 6,
@@ -31,7 +30,7 @@ my $gate = $hub->Instrument('Yokogawa7651',
 	});
 
 #-------- 3. Define the Sweeps -------------
-my $gate_sweep = $hub->Sweep('Voltage', 
+my $gate_sweep = Sweep('Voltage', 
 	{
 	mode => 'step',
 	instrument => $gate,
@@ -40,7 +39,7 @@ my $gate_sweep = $hub->Sweep('Voltage',
 	rate => [5e-3],			# [rate to approach start, sweeping rate for measurement] in Volts/s
 	});
 
-my $source_sweep = $hub->Sweep('Voltage', 
+my $source_sweep = Sweep('Voltage', 
 	{
 	instrument => $voltage_source,
 	points => [-5e-3, 5e-3],	# [starting point, target] in Volts
@@ -52,7 +51,7 @@ my $source_sweep = $hub->Sweep('Voltage',
 
 #-------- 3. Create a DataFile -------------
 
-my $DataFile = $hub->DataFile('Gate_IV_sample1.dat');
+my $DataFile = DataFile('Gate_IV_sample1.dat');
 
 $DataFile->add_column('GateVoltage');
 $DataFile->add_column('Voltage');
@@ -94,7 +93,7 @@ $DataFile->add_measurement($my_measurement);
 
 $voltage_sweep->add_DataFile($DataFile);
 
-my $frame = $hub->Frame();
+my $frame = Frame();
 $frame->add_master($gate_sweep);
 $frame->add_slave($gate_sweep);
 
@@ -132,30 +131,29 @@ In the following, we will focus the new parts of our script and discuss it's mea
 
 =head1 The code
 
-=head2 The hub and Instrument initialization
+=head2 Instrument initialization
 
-	#-------- 0. Create the hub ----------------
+	#-------- 0. Import Lab::XPRESS -------------
 	
-	use Lab::XPRESS::hub;
-	my $hub = new Lab::XPRESS::hub();
+	use Lab::XPRESS;
 	
 	#-------- 1. Initialize Instruments --------
 	
-	my $voltage_source = $hub->Instrument('Yokogawa7651', 
+	my $voltage_source = Instrument('Yokogawa7651', 
 		{
 		connection_type => 'VISA_GPIB',
 		gpib_address => 3,
 		gate_protect => 0
 		});
 	
-	my $multimeter = $hub->Instrument('Agilent34410A', 
+	my $multimeter = Instrument('Agilent34410A', 
 		{
 		connection_type => 'VISA_GPIB',
 		gpib_address => 17,
 		nplc => 10					# integration time in number of powerline cylces [10*(1/50)]
 		});
 	
-	my $gate = $hub->Instrument('Yokogawa7651', 
+	my $gate = Instrument('Yokogawa7651', 
 		{
 		connection_type => 'VISA_GPIB',
 		gpib_address => 6,
@@ -166,8 +164,8 @@ In the following, we will focus the new parts of our script and discuss it's mea
 		gp_max_units_per_second => 10e-3
 		});
 
-In this first part of this script, we are doing more or less the same as in Example 1. Creating a hub with the first two lines.
-Then, initializing the instruments we need, which are provided to us by the hub. Now what's new is, that we initialize here a third instrument,
+In this first part of this script, we are doing more or less the same as in Example 1. Import the Lab::XPRESS library, 
+then initialize the instruments we need. Now what's new is, that we initialize here a third instrument,
 the gate, which is again a Yokogawa7651. No big deal, so far. New is, that we are using the gate protection mode this time.
 It's turned on by C<<gate_protect => 1>>. With C<<gp_min_units => -10>> and C<<gp_max_units => 15>> we define the lower and upper limits, which we do not
 want to be exceeded by the source instrument. So if the Yokogawa is in voltage sourcing mode (which we expect to be for now), 
@@ -178,7 +176,7 @@ With C<<gp_max_units_per_second => 10e-3>> we define the highest possible sweep 
 =head2 Sweep Objects
 
 	#-------- 3. Define the Sweeps -------------
-	my $gate_sweep = $hub->Sweep('Voltage', 
+	my $gate_sweep = Sweep('Voltage', 
 		{
 		mode => 'step',
 		instrument => $gate,
@@ -187,7 +185,7 @@ With C<<gp_max_units_per_second => 10e-3>> we define the highest possible sweep 
 		rate => [5e-3],			# [rate to approach start, sweeping rate for measurement] in Volts/s
 		});
 
-	my $source_sweep = $hub->Sweep('Voltage', 
+	my $source_sweep = Sweep('Voltage', 
 		{
 		instrument => $voltage_source,
 		points => [-5e-3, 5e-3],	# [starting point, target] in Volts
@@ -198,7 +196,7 @@ With C<<gp_max_units_per_second => 10e-3>> we define the highest possible sweep 
 		});
 
 In this experiment, we want to measure the current through our sample, depending on two parameters: the source-drain voltage and the gate voltage.
-Of course, that means we need instead of only one sweep, now two sweeps. And as you see, we created a second sweep, which we calles $gate_sweep.
+Of course, that means we need instead of only one sweep, now two sweeps. And as you see, we created a second sweep, which we called $gate_sweep.
 Unlike $source_sweep, this one is in mode 'step'. This means, that instead of sweeping and measuring simultaniously, the instrument will sweep, stop, make a new 
 data value, sweep to the next step ... and so on. And in our case it will be: go to the next step, make an IV-curve and so on. Therefore we have to define the parameter stepwidth,
 while the rates parameter defines the rate, which is used to approach the steps.
@@ -207,7 +205,7 @@ while the rates parameter defines the rate, which is used to approach the steps.
 	
 	#-------- 3. Create a DataFile -------------
 
-	my $DataFile = $hub->DataFile('Gate_IV_sample1.dat');
+	my $DataFile = DataFile('Gate_IV_sample1.dat');
 
 	$DataFile->add_column('GateVoltage');
 	$DataFile->add_column('Voltage');
@@ -259,12 +257,12 @@ We still remember those two lines. But why is the DataFile only connected to the
 Thats because the voltage sweep is the one, during which the actual measurements take place. 
 But to define which sweep acts first, and which one is controlled by the other one, we introduce a new object. The Frame:
 	
-	my $frame = $hub->Frame();
+	my $frame = Frame();
 
 You can assign masters and slaves in a frame, just like this:
 
 	$frame->add_master($gate_sweep);
-	$frame->add_slave($gate_sweep);
+	$frame->add_slave($source_sweep);
 
 The master, has to be a sweep-object, which is in mode 'step' or 'list', here $gate_sweep. Each frame can have only one master.
 For the slave, you have more freedom. You can put as many slaves as you want into the frame, just by calling add_slave multiple times.

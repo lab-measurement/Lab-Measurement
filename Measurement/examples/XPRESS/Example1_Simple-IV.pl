@@ -1,19 +1,18 @@
 
-#-------- 0. Create the hub ----------------
+#-------- 0. Import Lab::XPRESS ----------------
 
-use Lab::XPRESS::hub;
-my $hub = new Lab::XPRESS::hub();
+use Lab::XPRESS;
 
 #-------- 1. Initialize Instruments --------
 
-my $voltage_source = $hub->Instrument('Yokogawa7651', 
+my $voltage_source = Instrument('Yokogawa7651', 
 	{
 	connection_type => 'VISA_GPIB',
 	gpib_address => 3,
 	gate_protect => 0
 	});
 
-my $multimeter = $hub->Instrument('Agilent34410A', 
+my $multimeter = Instrument('Agilent34410A', 
 	{
 	connection_type => 'VISA_GPIB',
 	gpib_address => 17,
@@ -22,7 +21,7 @@ my $multimeter = $hub->Instrument('Agilent34410A',
 
 #-------- 3. Define the Sweeps -------------
 
-my $voltage_sweep = $hub->Sweep('Voltage', 
+my $voltage_sweep = Sweep('Voltage', 
 	{
 	instrument => $voltage_source,
 	points => [-5e-3, 5e-3],	# [starting point, target] in Volts
@@ -32,7 +31,7 @@ my $voltage_sweep = $hub->Sweep('Voltage',
 
 #-------- 3. Create a DataFile -------------
 
-my $DataFile = $hub->DataFile('IVcurve_sample1.dat');
+my $DataFile = DataFile('IVcurve_sample1.dat');
 
 $DataFile->add_column('Voltage');
 $DataFile->add_column('Current');
@@ -113,35 +112,32 @@ It's really that easy! In the following we would like to show you how to obtain 
 
 =head1 Step by step tutorial - How to write an IV-curve measurement
 
-=head2 0. The hub
+=head2 0. Import Lab::XPRESS
 
-The hub is actually not an ingredient. In the metaphor of a recipe, the hub is rather the grocer, who supplies you with fresh ingredients. 
-And every good chef needs his very own grocer, right? So let's see how to create a hub in your script:
+First thing to do in a script: write the following line
 
-	use Lab::XPRESS::hub;
-	my $hub = new Lab::XPRESS::hub();
+	use Lab::XPRESS;
 
-The first line is the PERL way to import a library. The second line, actually creates the hub as an object, and assigns this object to the variable $hub. 
-Now, since we have the hub, it will be easy to obtain the rest.
+This is how you import the Lab::XPRESS library. For basic usage, that's typically everything you need. So you're now ready to start...
 
 =head2 1. Measurement instruments
 
 For the measurment we need a voltage source and a multimeter to measure the current through our device. Physically the equipment is already next to the computer and connected via National Instruments GPIB interface.
 But how do we get it into the script? Here is, how it's done for the voltage source (We chose a Yokogawa7651): 
 
-	my $voltage_source = $hub->Instrument('Yokogawa7651', 
+	my $voltage_source = Instrument('Yokogawa7651', 
 		{
 		connection_type => 'VISA_GPIB',
 		gpib_address => 5,
 		gate_protect => 0
 		});
 
-As mentioned before, we receive the ingredients for our script (and therefore also instruments) from the hub. The function $hub->Instrument() returns the Instrument as a Lab::Measurement object, which we assign to the variable $voltage_source. As first parameter, we have to pass the name of the instrument. 
+The function Instrument() returns the Instrument as a Lab::Measurement object, which we assign to the variable $voltage_source. As first parameter, we have to pass the name of the instrument. 
 The second parameter, the part wrapped in {}, is the configuration hash. This hash should always contain at least the connection_type (here VISA_GPIB) and depending on the connection a corresponding address. Here we use, furthermore, the parameter gate_protect. Gate protection is a really great feature, which comes with Lab::Mesurement, that can help you protecting your samples. 
 But since this is no gate, we don't want to use it now. We just turn it off by setting the parameter to 0. The next example will introduce a gate, and explain the feature in more detail.
 However, the hash can contain more than that. The available options and parameters can be found in the particular instrument driver documentations. Let's try it on the example of our multimeter:
 
-	my $multimeter = $hub->Instrument('Agilent34410A', 
+	my $multimeter = Instrument('Agilent34410A', 
 		{
 		connection_type => 'VISA_GPIB',
 		gpib_address => 3,
@@ -154,9 +150,9 @@ Those are enough instruments for this simple experiment. Let's get the next ingr
 =head2 2. Sweep Objects
 
 Sweeps are executable objects, which define the basic character of the experiment. Which variable is beeing changed during the experiment, and at which range? How fast is it changed? How often will the experiment be repeated?
-To create a Sweep Object works very similar to initializing an instrument:
+To create a Sweep Object works very similar to initializing an instrument, but this time using the function Sweep():
 
-	my $voltage_sweep = $hub->Sweep('Voltage', 
+	my $voltage_sweep = Sweep('Voltage', 
 		{
 		instrument => $voltage_source,
 		points => [-5e-3, 5e-3],	# [starting point, target] in Volts
@@ -172,11 +168,11 @@ Besides that, there are many other parameters and options available to character
 
 =head2 3. The DataFile
 
-In order to log our measurements, we need a DataFile object. It can be obtained using the hub:
+In order to log our measurements, we need a DataFile object. It can be obtained using the function DataFile():
 
-	my $DataFile = $hub->DataFile('IVcurve_sample1.dat');
+	my $DataFile = DataFile('IVcurve_sample1.dat');
 
-where we have to pass the desired filename as argument to the function $hub->DataFile(). Furthermore, columns have to be defined. For the purpose of the IV-curve, the following 3 are enough.
+where we have to pass the desired filename as first argument. Furthermore, columns have to be defined. For the purpose of the IV-curve, the following 3 are enough.
 
 	$DataFile->add_column('Voltage');
 	$DataFile->add_column('Current');
