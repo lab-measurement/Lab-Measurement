@@ -1,6 +1,9 @@
 History of Lab::VISA
 ====================
 
+Lab::VISA 3.01
+  * add support for viGpibControlREN
+
 Lab::VISA 3.00
   * fix remaining non-unicode texts
 

@@ -1,7 +1,7 @@
 /*$Id$*/
 
 %perlcode %{
-$Lab::VISA::VERSION="3.00";
+$Lab::VISA::VERSION="3.01";
 %}
 
 %module "Lab::VISA"
