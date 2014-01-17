@@ -38,6 +38,7 @@ my $build = Module::Build->new(
 	'scripts/lab-makeoverview.pl',
 	'scripts/lab-metainfo.pl',
 	'scripts/lab-plotter.pl', 
+	'scripts/lab-update.pl', 
 	'lib/Lab/XPRESS/Xpression.pl',
 	'lib/Lab/XPRESS/Xpression/bin/vieWx.pl' ],
     create_readme     => 0,
