@@ -1,11 +1,13 @@
 package Lab::Instrument::Agilent34420A;
-our $VERSION = '3.20';
+our $VERSION = '3.19';
 
 use strict;
 use Lab::Instrument;
+use Lab::MultiChannelInstrument;
 use Time::HiRes qw (usleep);
+use Data::Dumper;
 
-our @ISA = ("Lab::Instrument");
+our @ISA = ("Lab::MultiChannelInstrument", "Lab::Instrument");
 
 our %fields = (
 	supported_connections => [ 'VISA', 'VISA_GPIB', 'GPIB', 'DEBUG' ],
@@ -17,14 +19,33 @@ our %fields = (
 		timeout => 2,
 	},
 
-	device_settings => { 
+	device_settings => {
 		pl_freq => 50,
+		
+		channels => {
+			Ch1 => 1,
+			Ch2 => 2
+		},
+		channel_default => 'Ch1',
+		channel => undef
 	},
 	
 	device_cache =>{
-		id => "Agilent34420A",
+		function => undef,
+		range => undef,
+		autorange => undef,
+		nplc => undef,
+		resolution => undef,
+		value => undef,
+		channel => undef
 		# TO DO: add range and resolution + get/setter
-	}
+	},
+	
+	device_cache_order => ['function', 'range', 'autorange', 'nplc'],
+	
+		
+	multichannel_shared_cache => ['function', 'nplc','channel' ],
+		
 
 );
 
@@ -33,6 +54,8 @@ sub new {
 	my $class = ref($proto) || $proto;
 	my $self = $class->SUPER::new(@_);
 	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
+	
+	
 	return $self;
 }
 
@@ -75,7 +98,15 @@ sub selftest {
 
 sub set_function { # basic
 	my $self = shift;
-	my ($function) = $self->_check_args( \@_, ['function'] );
+	
+	# any parameters given?
+	if (not defined @_[0]) 
+		{
+		print Lab::Exception::CorruptParameter->new( error => "no values given in ".ref($self)." \n" );
+		return;
+		}
+	
+	my ($function, $tail) = $self->_check_args( \@_, ['function'] );
 	
 	# \nAgilent 34420A:\n
 	# Expected values for function are:\n
@@ -84,35 +115,20 @@ sub set_function { # basic
 	# sense2:voltage:dc, sense2:voltage:dc:ratio, sense2:voltage:dc:difference, sense2:resistance or sense2:Fresistance --> to set input channel 2 only\n
 	# 
 	
-	if (not defined $function)
-		{
-		$function = $self->query("FUNCTION?");
-		if ( $function =~ /([\w:]+)/ ) {$self->{config}->{function} = $1; return $1;}
-		}
+	
 		
 	$function =~ s/\s+//g; #remove all whitespaces
 	$function = "\L$function"; # transform all uppercase letters to lowercase letters
 	
-	# check if a specific channel was selected
-	my $channel;
-	if ($function =~ /^(sense1):(.*)/)
-		{
-		$channel = "sense1:";
-		$function = $2;
-		$self->set_channel(1);
-		}
-	elsif ($function =~ /^(sense2):(.*)/)
-		{
-		$channel = "sense2:";
-		$function = $2;
-		$self->set_channel(2);
-		}
-	
+	return if $function eq $self->get_function({read_mode => 'cache'});
 	
 	if ($function =~ /^(voltage:dc|voltage|volt:dc|volt|voltage:dc:ratio|voltage:ratio|volt:dc:ratio|volt:ratio|voltage:dc:diff|voltage:diff|volt:dc:diff|volt:diff)$/ or $function =~ /^(resistance|fresistance|res|fres)$/)
 		{
-		$function = $self->query(sprintf("FUNCTION '%s'; FUNCTION?", $function));
-		if ( $function =~ /([\w:]+)/ ) {$self->{config}->{function} = $1; return "$channel$1";}	
+		$function = $self->write(sprintf("FUNCTION '%s'", $function), $tail);
+		$self->get_range({channel => 1});
+		$self->get_range({channel => 2}) if $function =~ /^(voltage:dc|voltage|volt:dc|volt)$/ ;
+		$self->get_nplc();
+		$self->get_resolution();
 		}
 	else
 		{
@@ -123,13 +139,46 @@ sub set_function { # basic
 }
 
 sub get_function {
-	my $self = shift;
-	return $self->set_function();
+	my $self = shift;	
+	
+	my ($tail)  = $self->_check_args(\@_);
+		
+	my $function = $self->query("FUNCTION?", $tail);
+	
+	if ( $function =~ /([\w:]+)/ )
+		{
+		my $function = $1;
+		$function =~ s/\s+//g; #remove all whitespaces
+		$function = "\L$function"; # transform all uppercase letters to lowercase letters
+		return $function;
+		}
+		
 }
 
 sub set_range { # basic
 	my $self = shift;
-	my ($function, $range) = $self->_check_args( \@_, ['function', 'range'] );
+	
+	# any parameters given?
+	if (not defined @_[0]) 
+		{
+		print Lab::Exception::CorruptParameter->new( error => "no values given in ".ref($self)." \n" );
+		return;
+		}
+	
+	my (  $range, $function, $channel, $tail) = $self->_check_args( \@_, ['range', 'function',  'channel'] );
+	
+	if (not defined $channel) {
+		$channel = $self->{channel} || $self->get_channel({read_mode => 'cache'});
+	}
+	
+	
+	if ( not defined $function)
+		{
+		$function = $self->get_function({read_mode => 'cache'}, $tail);
+		}
+	$function =~ s/\s+//g; #remove all whitespaces
+	$function = "\L$function"; # transform all uppercase letters to lowercase letters
+	
 	
 	
 	# \nAgilent 34420A:\n
@@ -143,27 +192,16 @@ sub set_range { # basic
 	# sense2:voltage:dc --> 1mV...10V
 	# resistance and Fresistance -->  1...1e6 Ohm
 	
+
 	
-	if ( not defined $function  and not defined $range)
-		{
-		$function = $self->set_function();
-		$range = $self->query(sprintf("%s:RANGE?", $function));
-		$self->{config}->{range} = $range;
-		return $range;
-		}
+	
 		
-	$function =~ s/\s+//g; #remove all whitespaces
-	$function = "\L$function"; # transform all uppercase letters to lowercase letters
-	if ( ($function =~ /^(voltage:dc|voltage|volt:dc|volt|sense1:voltage:dc|sense1:voltage|sense1:volt:dc|sense1:volt|sense2:voltage:dc|sense2:voltage|sense2:volt:dc|sense2:volt|voltage:dc:ratio|voltage:ratio|volt:dc:ratio|volt:ratio|voltage:dc:diff|voltage:diff|volt:dc:diff|volt:diff)$/ or $function =~ /^(resistance|fresistance|res|fres)$/) and not defined $range)
-		{
-		$range = $self->query(sprintf("%s:RANGE?", $function));
-		$self->{config}->{range} = $range;
-		return $range;
-		}
-	
 	# check data
-	if ( $function =~ /^(voltage:dc|voltage|volt:dc|volt|sense1:voltage:dc|sense1:voltage|sense1:volt:dc|sense1:volt|sense2:voltage:dc|sense2:voltage|sense2:volt:dc|sense2:volt|voltage:dc:ratio|voltage:ratio|volt:dc:ratio|volt:ratio|voltage:dc:diff|voltage:diff|volt:dc:diff|volt:diff)$/ ) {
-		if ( abs($range) > 100 ) {
+	if ( $function =~ /^(voltage:dc|voltage|volt:dc|volt|voltage:dc:ratio|voltage:ratio|volt:dc:ratio|volt:ratio|voltage:dc:diff|voltage:diff|volt:dc:diff|volt:diff)$/ ) {
+		if ( $channel == 1 and abs($range) > 100 ) {
+			Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34420A:\nunexpected value for RANGE in sub set_range. Expected values are for sense1:voltage:dc  1mV...100V and for sense2:voltage:dc 1mV...10V\n");
+		}
+		if ( $channel == 2 and abs($range) > 10 ) {
 			Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34420A:\nunexpected value for RANGE in sub set_range. Expected values are for sense1:voltage:dc  1mV...100V and for sense2:voltage:dc 1mV...10V\n");
 		}
 	}
@@ -173,33 +211,122 @@ sub set_range { # basic
 		}
 	}
 	else {
-		Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34420A:\nunexpected value for FUNCTION in sub set_range. Expected values are:\nvoltage:dc, resistance or Fresistance --> to set both input channels\nsense1:voltage:dc, sense1:voltage:dc:ratio, sense1:voltage:dc:difference, sense1:resistance or sense1:Fresistance --> to set input channel 1 only\nsense2:voltage:dc, sense2:voltage:dc:ratio, sense2:voltage:dc:difference, sense2:resistance or sense2:Fresistance --> to set input channel 2 only\n");
+		Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34420A:\nunexpected value for FUNCTION in sub set_range. Expected values are:\nvoltage:dc, voltage, volt, resistance or fresistance \n");
 		}
+		
+		
+	# check which channel is currently 
 	
 	# set range
-	if ( $range =~ /^(MIN|min|MAX|max|DEF|def)$/) {		
-		$range = $self->query(sprintf("%s:RANGE %s; RANGE?", $function, $range));
-		$self->{config}->{range} = $range;
-		return $range;
-	}
-	elsif ($range =~ /^(AUTO|auto)$/) {
-		$range = "RANGE=AUTO , ".$self->query(sprintf("%s:RANGE:AUTO ON; RANGE?", $function));
-		$self->{config}->{range} = $range;
-		return $range;
-	}
-	else {
-		$range = $self->query(sprintf("%s:RANGE %e; RANGE?", $function, $range));
-		$self->{config}->{range} = $range;
-		return $range;
+	if ( $range =~ /^(MIN|min|MAX|max|DEF|def)$/) 
+		{	
+		$self->set_autorange('OFF', $function , $tail);
+		return $self->write(sprintf("SENSE%d:%s:RANGE %s", $channel, $function, $range), $tail);
+		}
+	elsif ($range =~ /^(AUTO|auto)$/) 
+		{
+		return $self->set_autorange('ON', $function, $tail);
+		}
+	else 
+		{
+			
+		return if ($range == $self->get_range({read_mode =>'cache'}));
+		$self->set_autorange('OFF', $function,  $tail);
+		return $self->write(sprintf("SENSE%d:%s:RANGE %e", $channel, $function, $range), $tail);
+		}
+
+}
+
+
+
+sub get_range {
+	my $self = shift;	
+	
+	my ($function, $channel, $tail)  = $self->_check_args( \@_ , ['function', 'channel'] );	
+	
+		
+	if (not defined $channel) {
+		$channel = $self->{channel} || $self->get_channel({read_mode => 'cache'});
 	}
 		
-	
+	if ( not defined $function )
+		{
+		$function = $self->get_function({read_mode => 'cache'}, $tail);
+		}
 
+	if (not ($function =~ /^(voltage:dc|voltage|volt:dc|volt|sense1:voltage:dc|sense1:voltage|sense1:volt:dc|sense1:volt|sense2:voltage:dc|sense2:voltage|sense2:volt:dc|sense2:volt|voltage:dc:ratio|voltage:ratio|volt:dc:ratio|volt:ratio|voltage:dc:diff|voltage:diff|volt:dc:diff|volt:diff)$/ or $function =~ /^(resistance|fresistance|res|fres)$/)) {
+		Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34420A:\nunexpected value for FUNCTION ($function) in sub get_nplc. Expected values are:\nvoltage:dc, resistance or Fresistance --> to set both input channels\nsense1:voltage:dc, sense1:voltage:dc:ratio, sense1:voltage:dc:difference, sense1:resistance or sense1:Fresistance --> to set input channel 1 only\nsense2:voltage:dc, sense2:voltage:dc:ratio, sense2:voltage:dc:difference, sense2:resistance or sense2:Fresistance --> to set input channel 2 only\n");
+	}
+	if ($channel != 1 or $channel != 2) {
+		Lab::Exception::CorruptParameter->throw( error => "Unexpected value for channel. Allowed values are 1 or 2.");
+	}
+		
+	return $self->query(sprintf("SENSE%d:%s:RANGE?", $channel, $function), $tail);
+		
+}
+
+sub set_autorange {
+	my $self = shift;
+	
+	# any parameters given?
+	if (not defined @_[0]) 
+		{
+		print Lab::Exception::CorruptParameter->new( error => "no values given in ".ref($self)." \n" );
+		return;
+		}
+	
+	my ( $autorange, $function, $channel, $tail) = $self->_check_args( \@_, ['autorange', 'function', 'channel'] );
+	
+	if (not defined $channel) {
+		$channel = $self->{channel} || $self->get_channel({read_mode => 'cache'});
+	}
+	
+	if ( not defined $function )
+		{
+		$function = $self->get_function({read_mode => 'cache'}, $tail);
+		}
+	
+	$autorange =~ s/\s+//g; #remove all whitespaces
+	$autorange = "\U$autorange"; # transform all lowercase letters to uppercase letters
+	if ( $autorange =~ /ON|OFF/ )
+		{
+		$self->write(sprintf("SENSE%d:%s:RANGE:AUTO %s", $channel, $function, $autorange), $tail);
+		}
+	else
+		{
+		print Lab::Exception::CorruptParameter->new( error => "unexpected value for AUTORANGE given in sub set_autorange ($autorange). expected values are 'ON' and 'OFF'.\n" );
+		return;
+		}
+	
+}
+
+sub get_autorange {
+	my $self = shift;
+	
+	my ($function, $channel, $tail)  = $self->_check_args( \@_ , ['function', 'channel'] );	
+	
+	if (not defined $channel) {
+		$channel = $self->{channel} || $self->get_channel({read_mode => 'cache'});
+	}
+	
+	if ( not defined $function )
+		{
+		$function = $self->get_function({read_mode => 'cache'}, $tail);
+		}
+		
+	$self->query(sprintf("SENSE%d:%s:RANGE:AUTO?", $channel, $function), $tail);
+	
 }
 
 sub set_nplc { # basic
 	my $self = shift;
-	my ($function, $nplc) = $self->_check_args( \@_, ['function', 'nplc'] );
+	
+	# any parameters given?
+	if (not defined @_[0]) 
+		{
+		print Lab::Exception::CorruptParameter->new( error => "no values given in ".ref($self)." \n" );
+		return;
+		}
 	
 	# Agilent 34420A:\n
 	# Expected values for function are:\n
@@ -211,44 +338,34 @@ sub set_nplc { # basic
 	# unexpected value for NPLC in sub set_nplc. 
 	# Expected values are between 0.02 ... 200 power-line-cycles (50Hz).
 	
-	if ( not defined $function  and not defined $nplc)
+	
+	my ( $nplc, $function,  $tail) = $self->_check_args( \@_, ['nplc', 'function' ] );
+	
+	return if ($nplc == $self->get_nplc({read_mode => 'cache'}) );
+	
+	if ( not defined $function )
 		{
-		$function = $self->set_function();
-		}
-	elsif ( not defined $nplc and $function =~ /^([+-]?([0-9]+)(\.[0-9]+)?((e|E)([+-]?[0-9]+))?)$/ )
-		{
-		$nplc = $function;
-		$function = $self->set_function();
+		$function = $self->get_function({read_mode => 'cache'}, $tail);
 		}
 	
 	$function =~ s/\s+//g; #remove all whitespaces
 	$function = "\L$function"; # transform all uppercase letters to lowercase letters
 	if ( $function =~ /AC|ac/ )
 		{
-		warn "WARNING: cannot set nplc for ".$self->get_id()." in ac measurement mode.";
+		warn "WARNING: cannot set nplc for ".$self->get_id($tail)." in ac measurement mode.";
 		return;
-		}
-	
-	if (($function =~ /^(voltage:dc|voltage|volt:dc|volt|sense1:voltage:dc|sense1:voltage|sense1:volt:dc|sense1:volt|sense2:voltage:dc|sense2:voltage|sense2:volt:dc|sense2:volt|voltage:dc:ratio|voltage:ratio|volt:dc:ratio|volt:ratio|voltage:dc:diff|voltage:diff|volt:dc:diff|volt:diff)$/ or $function =~ /^(resistance|fresistance|res|fres)$/) and not defined $nplc)
-		{
-		$nplc = $self->query(sprintf("%s:NPLC?", $function));
-		$self->{config}->{nplc} = $nplc;
-		return $nplc;
-		}
+		}	
 	
 	if ( $function =~  /^(voltage:dc|voltage|volt:dc|volt|sense1:voltage:dc|sense1:voltage|sense1:volt:dc|sense1:volt|sense2:voltage:dc|sense2:voltage|sense2:volt:dc|sense2:volt|voltage:dc:ratio|voltage:ratio|volt:dc:ratio|volt:ratio|voltage:dc:diff|voltage:diff|volt:dc:diff|volt:diff)$/ or $function =~ /^(resistance|fresistance|res|fres)$/)
 		{
 		if ($nplc >= 0.02 and $nplc <= 200 ) #
 			{
-			$nplc = $self->query(sprintf("%s:NPLC %.3f; NPLC?", $function, $nplc));
-			$self->{config}->{nplc} = $nplc;
-			return $nplc;
+			return $self->write(sprintf("%s:NPLC %.3f", $function, $nplc), $tail);
 			}
 		elsif ($nplc =~ /^(MIN|min|MAX|max|DEF|def)$/) 
 			{
-			$nplc = $self->query(sprintf("%s:NPLC %s; NPLC?", $function, $nplc));
-			$self->{config}->{nplc} = $nplc;
-			return $nplc;
+			$self->write(sprintf("%s:NPLC %s", $function, $nplc), $tail);
+			$self->get_resolution();
 			}
 		else 
 			{
@@ -264,10 +381,36 @@ sub set_nplc { # basic
 
 }
 
+sub get_nplc { # basic
+	my $self = shift;
+	
+	my ($function, $tail)  = $self->_check_args( \@_ , ['function'] );	
+	
+	if ( not defined $function )
+		{
+		$function = $self->get_function({read_mode => 'cache'});
+		}
+	
+	if (($function =~ /^(voltage:dc|voltage|volt:dc|volt|sense1:voltage:dc|sense1:voltage|sense1:volt:dc|sense1:volt|sense2:voltage:dc|sense2:voltage|sense2:volt:dc|sense2:volt|voltage:dc:ratio|voltage:ratio|volt:dc:ratio|volt:ratio|voltage:dc:diff|voltage:diff|volt:dc:diff|volt:diff)$/ or $function =~ /^(resistance|fresistance|res|fres)$/))
+		{
+		return $self->query(sprintf("%s:NPLC?", $function));
+		}
+	else
+		{
+		Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34420A:\nunexpected value for FUNCTION ($function) in sub get_nplc. Expected values are:\nvoltage:dc, resistance or Fresistance --> to set both input channels\nsense1:voltage:dc, sense1:voltage:dc:ratio, sense1:voltage:dc:difference, sense1:resistance or sense1:Fresistance --> to set input channel 1 only\nsense2:voltage:dc, sense2:voltage:dc:ratio, sense2:voltage:dc:difference, sense2:resistance or sense2:Fresistance --> to set input channel 2 only\n");
+		}
+	}
+
 sub set_resolution{ # basic
 	
 	my $self = shift;
-	my ($function, $resolution) = $self->_check_args( \@_, ['function', 'resolution'] );
+	
+	# any parameters given?
+	if (not defined @_[0]) 
+		{
+		print Lab::Exception::CorruptParameter->new( error => "no values given in ".ref($self)." \n" );
+		return;
+		}
 	
 	# Agilent 34420A:\n
 	# Expected values for FUNCTION are:\n
@@ -279,11 +422,15 @@ sub set_resolution{ # basic
 	# unexpected value for resOLUTION 
 	# Expected values are between 0.0001xRANGE ... 0.00000022xRANGE
 	
-	if ( not defined $function  and not defined $resolution)
-		{
-		$function = $self->set_function();
-		}
+	my ($resolution, $function,  $tail) = $self->_check_args( \@_, ['resolution', 'function' ] );
 	
+	return if ($resolution == $self->get_resolution({read_mode => 'cache'}) );
+	
+	if ( not defined $function )
+		{
+		$function = $self->get_function({read_mode => 'cache'}, $tail);
+		}
+		
 	$function =~ s/\s+//g; #remove all whitespaces
 	$function = "\L$function"; # transform all uppercase letters to lowercase letters
 	if ( $function =~ /AC|ac/ )
@@ -291,51 +438,27 @@ sub set_resolution{ # basic
 		warn "WARNING: cannot set resolution for ".$self->get_id()." in ac measurement mode.";
 		return;
 		}
-		
-		
-	if (not defined $function and not defined $resolution) #return settings
-		{
-		$function = $self->set_function();
-		$resolution = $self->query("$function:resOLUTION?");
-		$self->{config}->{resolution} = $resolution;
-		return $resolution;
-		}
-	elsif( not defined $resolution and $function =~ /\b\d+(e\d+|E\d+|exp\d+|EXP\d+)?\b/) # get selected function
-		{
-		$resolution = $function;
-		$function = $self->set_function();
-		}			
-	elsif (($function =~ /^(voltage:dc|voltage|volt:dc|volt|sense1:voltage:dc|sense1:voltage|sense1:volt:dc|sense1:volt|sense2:voltage:dc|sense2:voltage|sense2:volt:dc|sense2:volt|voltage:dc:ratio|voltage:ratio|volt:dc:ratio|volt:ratio|voltage:dc:diff|voltage:diff|volt:dc:diff|volt:diff)$/ or $function =~ /^(resistance|fresistance|res|fres)$/) and not defined $resolution)
-		{
-		$resolution = $self->query(sprintf("%s:resOLUTION?", $function));
-		$self->{config}->{resolution} = $resolution;
-		return $resolution;
-		}
-		
 	
 	
-		
+	# get resolution:	
 	if ( $function =~ /^(voltage:dc|voltage|volt:dc|volt|sense1:voltage:dc|sense1:voltage|sense1:volt:dc|sense1:volt|sense2:voltage:dc|sense2:voltage|sense2:volt:dc|sense2:volt|voltage:dc:ratio|voltage:ratio|volt:dc:ratio|volt:ratio|voltage:dc:diff|voltage:diff|volt:dc:diff|volt:diff)$/ or $function =~ /^(resistance|fresistance|res|fres)$/ )
 		{
-		my $range = $self->set_range($function);
-		$self->set_range($function, $range); # switch off autorange function if activated.
+		my $range = $self->get_range($function, {read_mode => 'cache'}, $tail);
+		$self->set_autorange('OFF', $function); # switch off autorange function if activated.
 	
 		if ($resolution >= 0.0001*$range and $resolution <= 0.00000022*$range ) 
 			{
-			$resolution = $self->query(sprintf("%s:res %.3f; res?", $function, $resolution));
-			$self->{config}->{resolution} = $resolution;
-			return $resolution;
+			$self->write(sprintf("%s:res %.3f", $function, $resolution), $tail);
 			}		
 		elsif ($resolution =~ /^(MIN|min|MAX|max|DEF|def)$/) 
 			{
-			$resolution = $self->query(sprintf("%s:res %s; res?", $function, $resolution));
-			$self->{config}->{resolution} = $resolution;
-			return $resolution;
+			$self->write(sprintf("%s:res %s", $function, $resolution), $tail);
 			}
 		else 
 			{
 			Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34420A:\nunexpected value for resOLUTION in sub set_resolution. Expected values are between 0.0001xRANGE ... 0.0000022xRANGE.");
 			}	
+		$self->get_nplc();
 		}
 	else
 		{
@@ -346,27 +469,41 @@ sub set_resolution{ # basic
 	
 }
 
+sub get_resolution{ # basic	
+	my $self = shift;
+	
+	my ($function, $tail)  = $self->_check_args( \@_ , ['function'] );	
+	
+	if ( not defined $function )
+		{
+		$function = $self->get_function({read_mode => 'cache'});
+		}		
+
+	
+	if (($function =~ /^(voltage:dc|voltage|volt:dc|volt|sense1:voltage:dc|sense1:voltage|sense1:volt:dc|sense1:volt|sense2:voltage:dc|sense2:voltage|sense2:volt:dc|sense2:volt|voltage:dc:ratio|voltage:ratio|volt:dc:ratio|volt:ratio|voltage:dc:diff|voltage:diff|volt:dc:diff|volt:diff)$/ or $function =~ /^(resistance|fresistance|res|fres)$/))
+		{
+		return $self->query(sprintf("%s:resOLUTION?", $function), $tail);
+		}	
+}
+
+
 sub set_channel{ # basic
 	my $self = shift;
-	my ($terminal) = $self->_check_args( \@_, ['channel'] );
+	my ($terminal, $tail) = $self->_check_args( \@_, ['channel'] );
 	
-	my $function = $self->set_function();
+	my $function = $self->get_function({read_mode => 'cache'}, $tail);	
 	$function =~ s/\s+//g; #remove all whitespaces
 	$function = "\L$function"; # transform all uppercase letters to lowercase letters
 	
 	if ($function =~ /(voltage:dc|voltage|volt:dc|volt|sense1:voltage:dc|sense1:voltage|sense1:volt:dc|sense1:volt|sense2:voltage:dc|sense2:voltage|sense2:volt:dc|sense2:volt)/)
 		{
-		if (not defined $terminal)
+		if ($self->get_channel({read_mode => 'cache'}, $tail) != $terminal)
 			{
-			$terminal = $self->query("ROUTE:TERMINALS?");
-			$self->{config}->{terminal} = $terminal;
-			return $terminal;
+			return;
 			}
-		elsif ($terminal == 1 or $terminal == 2)
+		elsif ( ( $terminal == 1 or $terminal == 2))
 			{
-			$terminal = $self->query(sprintf("ROUTE:TERMINALS FRONT%d; TERMINALS?",$terminal));
-			$self->{config}->{terminal} = $terminal;
-			return $terminal;
+			$self->write(sprintf("ROUTE:TERMINALS FRONT%d",$terminal), $tail);
 			}
 		else
 			{
@@ -378,6 +515,31 @@ sub set_channel{ # basic
 		Lab::Exception::CorruptParameter->throw( error => "Can't route CHANNEL in resistance/Fresistance mode.");
 		}	
 	
+}
+
+sub get_channel {
+	my $self = shift;
+	my ($tail) = $self->_check_args( \@_ );
+	
+	my $function = $self->get_function({read_mode => 'cache'}, $tail);
+	$function =~ s/\s+//g; #remove all whitespaces
+	$function = "\L$function"; # transform all uppercase letters to lowercase letters
+	
+	if ($function =~ /(voltage:dc|voltage|volt:dc|volt|sense1:voltage:dc|sense1:voltage|sense1:volt:dc|sense1:volt|sense2:voltage:dc|sense2:voltage|sense2:volt:dc|sense2:volt)/)
+		{
+		my $result = $self->query("ROUTE:TERMINALS?");
+		if ($result eq "FRON") {
+			return 1;
+			}
+		elsif ($result eq "FRON2") {
+			return 2;
+			}
+		}
+	else
+		{
+		Lab::Exception::CorruptParameter->throw( error => "Can't route CHANNEL in resistance/Fresistance mode.");
+		}	
+
 }
 
 sub set_averaging { # to be implemented
@@ -399,190 +561,117 @@ sub set_averaging { # to be implemented
 sub get_value { # basic
 	my $self = shift;
 
-	my ($channel, $function, $range, $int_value,  $read_mode) = $self->_check_args( \@_, ['channel', 'function', 'range', 'int_value',  'read_mode'] );
+	# parameter == hash??	
+	my ($channel, $function, $range, $nplc, $resolution, $tail) = $self->_check_args(\@_, ['channel', 'function', 'range', 'nplc', 'resolution']);
 	
-	my $cmd;
-	
-	# fast measuremnt:
-	# --------------------------------------------- #
-	# if ( not defined $function && not defined $range && not defined $int_value)
-		# {
-		# $self->{value} = $self->query(":READ?");
-		# return $self->{value};
-		# }
-		
-		
-	# measure with specific settings:
-	# --------------------------------------------- #
-	
-	#$range = 'DEF' unless (defined $range);	
-	#$int_value = 'DEF' unless (defined $int_value);					
-	#$function = $self->get_function() unless (defined $function);
-	if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'value'})
-		{
-     	return $self->{'device_cache'}->{'value'};
-		}
-	elsif ( $read_mode eq 'fetch' and $self->{'request'} == 1 )
-		{
-		$self->{'request'} = 0;
-		return $self->device_cache()->{value} = $self->read();
-		}
-		
-	if (defined $channel) {
-		$self->set_channel($channel);
+	my ($int_time, $int_mode);
+
+	if (defined $nplc) {
+		$int_mode = "nplc";
+		$int_time = $nplc
 	}
-	if (defined $function) 
+	elsif (defined $resolution) {
+		$int_mode = "res";
+		$int_time = $resolution
+	}
+	elsif (defined $resolution and defined $nplc) {
+		Lab::Exception::CorruptParameter->throw( error => "NPLC and resolution may not be defined concurrently.");
+	}
+	
+	if (not defined $channel) {
+		$channel = $self->{channel} || $self->get_channel({read_mode => 'cache'});
+	}	
+
+	$self->set_channel($channel, $tail);
+			
+	if (not defined $function) 
 		{
-		$function =~ s/\s+//g; #remove all whitespaces
-		$function = "\L$function"; # transform all uppercase letters to lowercase letters
-		if (not $function =~ /^(voltage:dc|voltage|volt:dc|volt|voltage:dc:ratio|voltage:ratio|volt:dc:ratio|volt:ratio|voltage:dc:diff|voltage:diff|volt:dc:diff|volt:diff|resistance|resisitance|res|res|Fresistance|fresistance|fres|fres)$/)
-			{
-			Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34420A:\nunexpected value for FUNCTION in sub get_value. Expected values are voltage:dc|voltage|volt:dc|volt|voltage:dc:ratio|voltage:ratio|volt:dc:ratio|volt:ratio|voltage:dc:diff|voltage:diff|volt:dc:diff|volt:diff|resistance|resisitance|res|res|Fresistance|fresistance|fres|fres");
-			}
-		else 
-			{
-			$cmd .= ":FUNCTION '$function';";
-			}
+		$function = $self->get_function({read_mode => 'cache'}, $tail);
 		}
-	else 
+	
+	$function =~ s/\s+//g; #remove all whitespaces
+	$function = "\L$function"; # transform all uppercase letters to lowercase letters
+		
+	if (not $function =~ /^(voltage:dc|voltage|volt:dc|volt|voltage:dc:ratio|voltage:ratio|volt:dc:ratio|volt:ratio|voltage:dc:diff|voltage:diff|volt:dc:diff|volt:diff|resistance|resisitance|res|res|Fresistance|fresistance|fres|fres)$/)
 		{
-		$function = $self->get_function();
+		Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34420A:\nunexpected value for FUNCTION in sub get_value. Expected values are voltage:dc|voltage|volt:dc|volt|voltage:dc:ratio|voltage:ratio|volt:dc:ratio|volt:ratio|voltage:dc:diff|voltage:diff|volt:dc:diff|volt:diff|resistance|resisitance|res|res|Fresistance|fresistance|fres|fres");
 		}
+	
 	# check input parameter
 	
-	if (defined $range) 
+	if (not defined $range) 
 		{
-		$range =~ s/\s+//g; #remove all whitespaces
-		if ( $function =~ $function =~ /^(voltage:dc|voltage|volt:dc|volt|voltage:dc:ratio|voltage:ratio|volt:dc:ratio|volt:ratio|voltage:dc:diff|voltage:diff|volt:dc:diff|volt:diff)$/) 
+		$range = $self->get_range({read_mode => 'cache'}, $tail);
+		}
+	
+	$range =~ s/\s+//g; #remove all whitespaces
+	if ( $function =~ $function =~ /^(voltage:dc|voltage|volt:dc|volt|voltage:dc:ratio|voltage:ratio|volt:dc:ratio|volt:ratio|voltage:dc:diff|voltage:diff|volt:dc:diff|volt:diff)$/) 
+		{
+		if ( abs($range) > 100 and not $range =~ /^(MIN|min|MAX|max|DEF|def|AUTO|auto)$/) 
 			{
-			if ( abs($range) > 100 and not $range =~ /^(MIN|min|MAX|max|DEF|def|AUTO|auto)$/) 
-				{
-				Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34420A:\nunexpected value for RANGE in sub get_value. Expected values are for voltage and resistance mode  0.1...100V or 0...1e6 Ohms respectivly");
-				}
+			Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34420A:\nunexpected value for RANGE in sub get_value. Expected values are for voltage and resistance mode  0.1...100V or 0...1e6 Ohms respectivly");
 			}
-		elsif ( $function =~ /^(resistance|resisitance|res|res|Fresistance|fresistance|fres|fres)$/ ) 
+		}
+	elsif ( $function =~ /^(resistance|resisitance|res|res|Fresistance|fresistance|fres|fres)$/ ) 
+		{
+		if ( abs($range) > 1e6 and not $range =~ /^(MIN|min|MAX|max|DEF|def|AUTO|auto)$/) 
 			{
-			if ( abs($range) > 1e6 and not $range =~ /^(MIN|min|MAX|max|DEF|def|AUTO|auto)$/) 
-				{
-				Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34420A:\nunexpected value for RANGE in sub get_value. Expected values are for voltage and resistance mode  0.1...100V or 0...1e6 Ohms respectivly");
-				}
+			Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34420A:\nunexpected value for RANGE in sub get_value. Expected values are for voltage and resistance mode  0.1...100V or 0...1e6 Ohms respectivly");
 			}
-		else
+		}	
+	
+	
+	
+	$int_mode =~ s/\s+//g; #remove all whitespaces
+	$int_mode = "\L$int_mode"; # transform all uppercase letters to lowercase letters
+	if ( $int_mode =~ /resolution|res/ )
+		{
+		$int_mode = "res";
+		if ( $int_time < 0.22e-6*$range and not $int_time =~ /^(MIN|min|MAX|max|DEF|def)$/)
 			{
-			$cmd .= ":".(split(/:/,$function))[0].":RANGE $range;";  	
+			Lab::Exception::CorruptParameter->throw( error => "unexpected value for RESOLUTION in sub get_value. Expected values are from 0.22e-6xRANGE ... 30e-6xRANGE.");
+			}
+		}
+	elsif ( $int_mode eq "nplc" )
+		{
+		if (  ($int_time < 0.02 or $int_time > 200) and not $int_time =~ /^(MIN|min|MAX|max|DEF|def)$/)
+			{
+			Lab::Exception::CorruptParameter->throw( error => "unexpected value for NPLC in sub get_value. Expected values are from 0.02 ... 200.");
+			}
+		}
+	elsif ( defined $int_time )  
+		{
+		$int_mode = 'nplc';
+		if (  ($int_time < 0.02 or $int_time > 200) and not $int_time =~ /^(MIN|min|MAX|max|DEF|def)$/)
+			{
+			Lab::Exception::CorruptParameter->throw( error => "unexpected value for NPLC in sub get_value. Expected values are from 0.02 ... 200.");
 			}
 		}
 	
-	if (defined $int_value)
-		{
-		$int_value =~ s/\s+//g; #remove all whitespaces
-		$int_value = "\L$int_value"; # transform all uppercase letters to lowercase letters
-		
-		if ( $int_value =~ /^(res=)(.*)/ )
+	
+	$self->set_function($function, $tail);
+	
+	$self->set_range($range);
+	
+	
+	if ( $int_mode eq 'res' )
 			{
-			$int_value = $2;
-			if ( $int_value < 0.00000022*$range and not $int_value =~ /^(MIN|min|MAX|max|DEF|def)$/)
-				{
-				Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34420A:\nunexpected value for resOLUTION in sub get_value. Expected values are from 0.22e-6xRANGE ... 0.0001xRANGE.");
-				}
-			else 
-				{
-				$cmd .= ":".(split(/:/,$function))[0].":RES $int_value;";
-				}
+			$self->set_resolution($int_time);
+			#$self->write( ":SENS:$function:ZERO:AUTO OFF; RES $int_time");	
 			}
-		elsif ( $int_value =~ /^(nplc=)(.*)/ )
+	elsif ( $int_mode eq 'nplc' )
 			{
-			$int_value = $2;
-			if (  ($int_value < 0.02 or $int_value > 200) and not $int_value =~ /^(MIN|min|MAX|max|DEF|def)$/)
-				{
-				Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34420A:\nunexpected value for NPLCin sub get_value. Expected values are from 0.02 ... 200.");
-				}
-			else 
-				{
-				$cmd .= ":".(split(/:/,$function))[0].":NPLC $int_value;";
-				}
+			$self->set_nplc($int_time);
+			#$self->write( ":SENS:$function:ZERO:AUTO OFF; NPLC $int_time");	
 			}
-		else
-			{
-			if ( ($int_value < 0.02 or $int_value > 200) and not $int_value =~ /^(MIN|min|MAX|max|DEF|def)$/)
-				{
-				Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34410A:\nunexpected value for INTEGratioN TIME in sub get_value. Expected values are from 0.02 ... 200 power line cycles.");
-				}
-			else 
-				{
-				$cmd .= ":".(split(/:/,$function))[0].":NPLC $int_value;";
-				}
-			}
-		}
 	
-	$cmd .= ":READ?";
-	
-	#print "\n\n$cmd\n\n";
-
-		
-	if($read_mode eq 'request')
-		{
-    	if ($self->{'request'} != 0) 
-			{
-    		$self->read();
-			}
-    	$self->write($cmd);
-    	$self->{'request'} = 1;
-		return undef;
-		
-		}
-    else
-		{
-		$self->{'request'} = 0;
-    	my $result = $self->query($cmd);
-		$result =~ s/^R//;
-		return $self->device_cache()->{value} = $result;	
-		}
-	
-	
-	
-	
-	# # check if a specific channel was selected
-	# my $channel;
-	# if ($function =~ /^(sense1):(.*)/)
-		# {
-		# $channel = ",(\@FRONT1)";
-		# $function = $2;
-		# $self->set_channel(1);
-		# }
-	# elsif ($function =~ /^(sense2):(.*)/)
-		# {
-		# $channel = ",(\@FRONT2)";
-		# $function = $2;
-		# $self->set_channel(2);
-		# }
-		
-		
-	
-	# # get_value	
-	# if ( $int_mode eq 'res' )
-		# {
-		# $self->write(":FUNCTION '$function'; :SENS:$function:ZERO:AUTO OFF; :$function:RANGE $range;  res $int_value");
-		# $self->{value} = $self->query(":READ?");	
-		# return $self->{value};
-		# }
-	# elsif ( $int_mode eq 'nplc' )
-		# {
-		# $self->write(":FUNCTION '$function'; :SENS:$function:ZERO:AUTO OFF; :$function:RANGE $range; NPLC $int_value");
-		# $self->{value} = $self->query(":READ?");	
-		# return $self->{value};
-		# }
-	# else
-		# {
-		# $self->{value} = $self->query(":READ?");	
-		# return $self->{value};
-		# }
+	return $self->request( ":read?", $tail);
 			
 }
 
 sub config_measurement { # basic
 	my $self = shift;
-	my ($function, $nop, $nplc, $range, $trigger) = $self->_check_args( \@_, ['function', 'nop', 'nplc', 'range', 'trigger'] );
+	my ($function, $nop, $nplc, $range, $trigger, $tail) = $self->_check_args( \@_, ['function', 'nop', 'nplc', 'range', 'trigger'] );
 	
 	# check input data
 	if ( not defined $trigger )
@@ -613,15 +702,15 @@ sub config_measurement { # basic
 	
 	# set function
 	
-	print "set_function: ".$self->set_function($function)."\n";
+	print "set_function: ".$self->set_function($function, $tail)."\n";
 		
 	
 	# set range
-	print "set_range: ".$self->set_range($function,$range)."\n";
+	print "set_range: ".$self->set_range($range, $function, $tail)."\n";
 	
 	
 	# set nplc/tc
-	print "set_nplc: ".$self->set_nplc($function,$nplc)."\n";
+	print "set_nplc: ".$self->set_nplc($nplc, $function, $tail)."\n";
 	my $time = $nop*$nplc/50;
 	print "TIME for measurement trace => $time\n";
 	
@@ -685,7 +774,7 @@ sub get_data { # basic
 
 sub _set_triggersource { # internal only
 	my $self = shift;
-	my ($source) = $self->_check_args( \@_, ['value'] );
+	my ($source, $tail) = $self->_check_args( \@_, ['value'] );
 	
 	if ( not defined $source) 
 		{
@@ -705,7 +794,7 @@ sub _set_triggersource { # internal only
 
 sub _set_triggercount { # internal only
 	my $self = shift;
-	my ($count) = $self->_check_args( \@_, ['value'] );
+	my ($count, $tail) = $self->_check_args( \@_, ['value'] );
 	
 	if ( not defined $count) 
 		{
@@ -724,7 +813,7 @@ sub _set_triggercount { # internal only
 	
 sub _set_triggerdelay { # internal only
 	my $self = shift;
-	my ($delay) = $self->_check_args( \@_, ['value'] );
+	my ($delay, $tail) = $self->_check_args( \@_, ['value'] );
 	
 	if ( not defined $delay) 
 		{
@@ -755,7 +844,7 @@ sub _set_triggerdelay { # internal only
 	
 sub _set_samplecount { # internal only
 	my $self = shift;
-	my ($count) = $self->_check_args( \@_, ['value'] );
+	my ($count, $tail) = $self->_check_args( \@_, ['value'] );
 	
 	if ( not defined $count) 
 		{
@@ -783,7 +872,7 @@ sub _set_samplecount { # internal only
 
 sub display_text { # basic
     my $self=shift;
-    my ($text) = $self->_check_args( \@_, ['text'] );
+    my ($text, $tail) = $self->_check_args( \@_, ['text'] );
     
     if ($text) {
         $self->write(qq(DISPlay:TEXT "$text"));
@@ -1013,7 +1102,7 @@ FUNCTION can be one of the measurement methods of the Agilent34420A.
 
 =head2 set_range
 
-	$agilent->set_range($function,$range);
+	$agilent->set_range($range, $function);
 
 Set a new value for the predefined RANGE for the measurement function $function of the Agilent34420A nanovoltmeter.
 
@@ -1043,7 +1132,7 @@ C<DEF> will be set, if no value is given.
 
 =head2 set_nplc
 
-	$agilent->set_nplc($function,$nplc);
+	$agilent->set_nplc($nplc, $function);
 
 Set a new value for the predefined C<NUMBER of POWER LINE CYCLES> for the measurement function $function of the Agilent34420A nanovoltmeter.
 
@@ -1075,7 +1164,7 @@ Assuming $nplc to be 20 and assuming a netfrequency of 50Hz this results in an i
 
 =head2 set_resolution
 
-	$agilent->set_resolution($function,$resolution);
+	$agilent->set_resolution($resolution, $function);
 
 Set a new value for the predefined C<resOLUTION> for the measurement function $function of the Agilent34420A nanovoltmeter.
 
