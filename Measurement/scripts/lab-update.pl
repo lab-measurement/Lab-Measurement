@@ -7,7 +7,6 @@ use Archive::Tar;
 use File::HomeDir;
 use File::Path 'rmtree';
 use File::Find;
-use Term::Menus;
 
 our $APPDATA_DIR;
 
@@ -18,8 +17,22 @@ sub init_program {
 	
 	my $homedir = File::HomeDir->my_data;
 
-	if ( $^O eq 'MSWin32' ) {
-		$APPDATA_DIR = $homedir."/LMupdate";
+	if ( $^O eq 'MSWin32' or 'MacOS' ) {
+		$APPDATA_DIR = $homedir."/lab";
+		if (! -d $APPDATA_DIR) {
+			mkdir($APPDATA_DIR) or die $!;
+		}
+		$APPDATA_DIR = $homedir."/lab/update";
+		if (! -d $APPDATA_DIR) {
+			mkdir($APPDATA_DIR);
+		}
+	}
+	else {
+		$APPDATA_DIR = $homedir."/.lab";
+		if (! -d $APPDATA_DIR) {
+			mkdir($APPDATA_DIR) or die $!;
+		}
+		$APPDATA_DIR = $homedir."/.lab/update";
 		if (! -d $APPDATA_DIR) {
 			mkdir($APPDATA_DIR);
 		}
@@ -123,6 +136,10 @@ sub install_archive {
 	if ( $^O eq 'MSWin32' ) {
 		$output .= `Build`;
 		$output .= `Build install`;
+	}
+	else {
+		$output .= `./Build`;
+		$output .= `./Build install`;
 	}
 	print "done \n";
 	
