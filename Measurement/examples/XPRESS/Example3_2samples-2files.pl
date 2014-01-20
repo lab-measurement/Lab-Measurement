@@ -298,7 +298,7 @@ The answer is in the following code:
 			}, 2);						#<---- This will be directed to DataFile2
 	};
 
-Of course, both DataFiles should have measurment instructions, since both have to know how to collect the data for a single measurement line.
+Of course, both DataFiles should have measurement instructions, since both have to know how to collect the data for a single measurement line.
 So we got $my_measurement1 and $my_measurement1. By adding the integers 1 or 2 at the end of the LOG instruction, we can specify to which file these data-values 
 should be directed. There is also the option to put the data via LOG into space 0. This data will be available in both files. 
 In this example, we retrieve and log the magnetic field only once in $my_measurement1, since it should be more or less the same for both samples. 

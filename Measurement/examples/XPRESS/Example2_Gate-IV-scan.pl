@@ -1,4 +1,4 @@
-#-------- 0. Create the hub ----------------
+#-------- 0. Import Lab::XPRESS -------------
 
 use Lab::XPRESS;
 
