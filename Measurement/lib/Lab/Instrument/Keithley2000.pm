@@ -19,11 +19,9 @@ our %fields = (
 	},
 
 	device_settings => { 
-		read_default => 'device'
 	},
 	
 	device_cache =>{
-		id => 'Keithley2000',
 
 	}
 

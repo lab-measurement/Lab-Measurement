@@ -35,12 +35,12 @@ our %fields = (
 	},
 
 	device_settings => { 
+		id => 'Oxford IPS',
 		has_switchheater => 0,
 		read_default => 'device'
 	},
 	
 	device_cache =>{
-		id => 'Oxford IPS',
 		targetfield => undef,
 		rate => undef,
 		field => undef,

@@ -25,11 +25,9 @@ our %fields = (
 	},
 
 	device_settings => {
-		read_default => 'device'
 	},
 
 	device_cache => {
-		id => 'SignalRecovery726x',
 		imode => undef,
 		vmode => undef,
 		fet => undef,

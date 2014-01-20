@@ -97,7 +97,6 @@ our %fields = (
 	},
 	
 	device_cache =>{
-		id => 'PD11042',
 		position => undef,
 		target => undef,
 	},

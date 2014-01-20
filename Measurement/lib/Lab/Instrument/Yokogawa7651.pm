@@ -36,12 +36,10 @@ our %fields = (
 		
 		stepsize		=> 0.01,
 
-        read_default => 'device'
 	},
 	
 	
 	device_cache => {
-        id => 'Yokogawa7651',
 		function			=> undef, 
 		range			=> undef,
 		level			=> undef,
@@ -70,9 +68,9 @@ sub _device_init {
 
 sub set_voltage {   
     my $self=shift;
-    my ($voltage) = $self->_check_args( \@_, ['voltage'] );
+    my ($voltage, $tail) = $self->_check_args( \@_, ['voltage'] );
     
-    my $function = $self->get_function({'read_mode' => 'cache'});
+    my $function = $self->get_function({'read_mode' => 'cache'}, $tail);
 
     if( $function !~ /voltage/i ){
     	Lab::Exception::CorruptParameter->throw(
@@ -80,36 +78,36 @@ sub set_voltage {
     }
     
     
-    return $self->set_level($voltage, @_);
+    return $self->set_level($voltage, $tail);
 }
 
 
 sub set_current {   
     my $self=shift;
-    my ($current) = $self->_check_args( \@_, ['current'] );
+    my ($current, $tail) = $self->_check_args( \@_, ['current'] );
 
-	my $function = $self->get_function();
+	my $function = $self->get_function({'read_mode' => 'cache'}, $tail);
 
     if( $function !~ /current/i ){
     	Lab::Exception::CorruptParameter->throw(
     	error=>"Source is in mode $function. Can't set current level.");
     }
 
-    $self->set_level($current, @_);
+    $self->set_level($current, $tail);
 }
 
 sub set_setpoint {  
     my $self=shift;
-    my ($value) = $self->_check_args( \@_, ['value'] );
+    my ($value, $tail) = $self->_check_args( \@_, ['value'] );
     my $cmd=sprintf("S%+.4e",$value);
-    $self->write($cmd,error_check=>1);
+    $self->write($cmd, {error_check=>1}, $tail);
 }
 
 sub _set_level {    
     my $self=shift;
-    my ($value) = $self->_check_args( \@_, ['value'] );
+    my ($value, $tail) = $self->_check_args( \@_, ['value'] );
     
-    my $range=$self->get_range({read_mode => 'cache'});
+    my $range=$self->get_range({read_mode => 'cache'}, $tail);
 	
     
     if ( $value > $range || $value < -$range ){
@@ -118,7 +116,7 @@ sub _set_level {
         
     my $cmd=sprintf("S%ee",$value);
     
-    $self->write( $cmd, error_check => 1 );
+    $self->write( $cmd, {error_check => 1} , $tail);
     
     return $self->{'device_cache'}->{'level'} = $value;
     
@@ -126,14 +124,16 @@ sub _set_level {
 
 sub start_program { 
     my $self=shift;
+    my ($tail) = $self->_check_args( \@_);
     my $cmd=sprintf("PRS");
-    $self->write( $cmd );
+    $self->write( $cmd , $tail);
 }
 
 sub end_program { 
     my $self=shift;
+    my ($tail) = $self->_check_args( \@_);
     my $cmd=sprintf("PRE");
-    $self->write( $cmd );
+    $self->write( $cmd , $tail);
 }
 
 sub execute_program {   
@@ -142,23 +142,24 @@ sub execute_program {
     # 2 RUN
     #3 Continue
     my $self=shift;
-    my ($value) = $self->_check_args( \@_, ['value'] );
+    my ($value, $tail) = $self->_check_args( \@_, ['value'] );
     my $cmd=sprintf("RU%d",$value);
-    $self->write( $cmd );
+    $self->write( $cmd , $tail);
 }
 
 sub trg {   
     my $self = shift;
-    $self->execute_program(2);
+    my ($tail) = $self->_check_args( \@_);
+    $self->execute_program(2, $tail);
 }
 
 sub config_sweep{   
     my $self = shift;
-    my ($target, $rate, $time) = $self->_check_args( \@_, ['points', 'rate', 'time'] );
+    my ($target, $rate, $time, $tail) = $self->_check_args( \@_, ['points', 'rate', 'time'] );
 
 
     # get current position:
-    my $start = $self->get_value(); 
+    my $start = $self->get_value($tail); 
 
     my $duration;
 
@@ -222,21 +223,21 @@ sub config_sweep{
     # calculate duration and the number of points for the sweep:
       
     
-    $self->set_output(1);    
-    $self->set_run_mode('single');
+    $self->set_output(1, $tail);    
+    $self->set_run_mode('single', $tail);
     
     # Test if $target in range and start programming the device:
-    my $range=$self->get_range();
+    my $range=$self->get_range({read_mode => 'cache'},$tail);
         # programming sweep target:
-        $self->start_program();
+        $self->start_program($tail);
         if ($target>$range)
             {
-            $self->end_program();
+            $self->end_program($tail);
             Lab::Exception::CorruptParameter->throw( error=>  "SWEEP-TARGET $target exceeds selected RANGE $range. Change SWEEP-TARGET to MAX within RANGE.");
             }
         elsif ($target< -$range) 
             {
-            $self->end_program();
+            $self->end_program($tail);
             Lab::Exception::CorruptParameter->throw( error=>  "SWEEP-TARGET $target exceeds selected RANGE $range. Change SWEEP-TARGET to MAX within RANGE.");
             }
 
@@ -253,7 +254,7 @@ sub config_sweep{
             {
             $self->set_setpoint($start+($target-$start)/$sections*$i);
             }
-        $self->end_program();
+        $self->end_program($tail);
 
         # programming sweep duration:
         if ($duration < 0.1) {
@@ -266,7 +267,7 @@ sub config_sweep{
             $duration = 3600;
             
         }
-        $self->set_time($duration,$duration);
+        $self->set_time($duration,$duration, $tail);
     
     # calculate trace
 
@@ -275,29 +276,32 @@ sub config_sweep{
 
 sub configure_sweep{    
 	my $self=shift;
-    my ($target, $time, $rate) = $self->_check_args( \@_, ['points', 'time', 'rate'] );
+    my ($target, $time, $rate, $tail) = $self->_check_args( \@_, ['points', 'time', 'rate'] );
 	
-    $self->config_sweep($target, $rate, $time);
+    $self->config_sweep($target, $rate, $time, $tail);
 }
 
 
 sub wait_done{  
 	my $self = shift;
+    my ($tail) = $self->_check_args( \@_);
 	
-	$self->wait();
+	$self->wait($tail);
 	
 	
 }
 
 sub abort{  
     my $self=shift;
-    $self->execute_program(0);
+    my ($tail) = $self->_check_args( \@_);
+    $self->execute_program(0, $tail);
 }
 
 sub active {    
     my $self = shift;
+    my ($tail) = $self->_check_args( \@_);
     
-    if (  $self->get_status("execution") == 0) 
+    if (  $self->get_status("execution", $tail) == 0) 
         {
         return 0;
         }
@@ -310,6 +314,7 @@ sub active {
 
 sub wait {  
     my $self = shift;
+    my ($tail) = $self->_check_args( \@_);
     my $flag = 1;
     local $| = 1;
     
@@ -317,8 +322,8 @@ sub wait {
     while(1)
         {
         #my $status = $self->get_status();
-        my $status = $self->get_status();
-		my $current_level = $self->get_level();
+        my $status = $self->get_status($tail);
+		my $current_level = $self->get_level($tail);
         if ( $flag <= 1.1 and $flag >= 0.9 )
             {
             print "\t\t\t\t\t\t\t\t\t\r";
@@ -343,26 +348,26 @@ sub wait {
 
 sub _sweep_to_level {   
     my $self = shift;
-    my ($target, $time) = $self->_check_args( \@_, ['points', 'time'] );
+    my ($target, $time, $tail) = $self->_check_args( \@_, ['points', 'time'] );
 
 			
 	# print "Yokogawa7651.pm: configuring sweep $target $time\n";
     $self->config_sweep({points => $target,
-                        time => $time});
+                        time => $time}, $tail);
 						
 
 
 	# print "Yokogawa7651.pm: executing program\n";
-    $self->execute_program(2);
+    $self->execute_program(2, $tail);
     
 	# print "Yokogawa7651.pm: waiting until done\n";
-    $self->wait();
+    $self->wait($tail);
     
 	# print "Yokogawa7651.pm: reading out source level\n";
-	my $current = $self->get_level( from_device => 1);
+	my $current = $self->get_level($tail);
 	# print "Yokogawa7651.pm: source level is $current\n";
 	
-	my $eql=$self->get_gp_equal_level();
+	my $eql=$self->get_gp_equal_level($tail);
 
 	# my $difference=$current-$target;
 	# print "Yokogawa7651.pm: c $current t $target d $difference e $eql\n";
@@ -380,22 +385,12 @@ sub _sweep_to_level {
 sub get_function{   
 	my $self = shift;
 	
-	my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
-
-    if (not defined $read_mode or not $read_mode =~ /device|cache/)
-    {
-        $read_mode = $self->device_settings()->{read_default};
-    }
-	
-    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'function'})
-    {
-     	return $self->{'device_cache'}->{'function'};
-    }    
+	my ($tail) = $self->_check_args( \@_ );  
     
     my $cmd="OD";
-    my $result=$self->query($cmd);
+    my $result=$self->query($cmd, $tail);
     if($result=~/^...([VA])/){
-    	return $self->{'device_cache'}->{'function'} = ( $1 eq "V" ) ? "voltage" : "current";
+    	return ( $1 eq "V" ) ? "voltage" : "current";
     }
     else{
     	Lab::Exception::CorruptParameter->throw( "Output of command OD is not valid. \n" );

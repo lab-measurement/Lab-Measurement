@@ -25,6 +25,7 @@ our %fields = (
 	},
 
 	device_settings => { 
+		id => 'Oxford ITC',
 		read_default => 'device',
 		channels => {
 			Ch1 => 1,
@@ -36,7 +37,6 @@ our %fields = (
 	},
 	
 	device_cache =>{
-		id => 'Oxford ITC',
 		T => undef,
 		proportional => undef,
 		integral => undef,

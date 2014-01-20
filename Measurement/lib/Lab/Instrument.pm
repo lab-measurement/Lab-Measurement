@@ -38,6 +38,7 @@ our %fields = (
 
 	# default device settings/user supplied settings. see accessor method.
 	device_settings => {
+		id => undef,
 		wait_status => 10e-6, # sec
 		wait_query => 10e-6, # sec
 		query_length => 300, # bytes
@@ -45,7 +46,7 @@ our %fields = (
 	},
 	
 	device_cache => {
-		'id' => undef
+		
 	},
 
 	device_cache_order => [],
@@ -839,13 +840,14 @@ sub check_errors {
 sub set_id {
 	my $self = shift;	
 	my ($id) = $self->_check_args( \@_, ['id'] );
-	$self->device_cache({'id' => $id});	
+	$self->device_settings({'id' => $id});	
 	
 }
 
 sub get_id {
 	my $self = shift;
-	return $self->device_cache('id');	
+	my @name = split(/::/, ref($self));
+	return $self->device_settings('id') || pop(@name);	
 }
 
 sub write {

@@ -26,7 +26,6 @@ our %fields = (
 	
 	
 	device_cache => {
-        id => 'Lakeshore33x',
 		T => undef,
 		setpoint => undef,
 		range => undef,

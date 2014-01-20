@@ -42,7 +42,6 @@ our %fields = (
 	},
 	
 	device_cache =>{
-		id => 'ProStep4',
 		position => undef,
 		target => undef,
 	},

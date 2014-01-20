@@ -39,7 +39,7 @@ our %fields = (
 	
 	# If class does not provide set_$var for those, AUTOLOAD will take care.
 	device_cache => {
-		function			=> "VOLT", # 'VOLT' - voltage, 'CURR' - current
+		function			=> undef,
 		range			=> undef,
 		level			=> undef,
 		output					=> undef,

@@ -30,7 +30,6 @@ our %fields = (
 	},
 	
 	device_cache =>{
-		'id' => 'Agilent34410A',
 		'function' => undef,
 		'range' => undef,
 		'nplc' => undef,
