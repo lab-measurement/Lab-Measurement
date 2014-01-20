@@ -217,12 +217,6 @@ sub term_restore_backup {
 	
 	my $term = shift;
 	
-
-	my $banner = "-"x33;
-	$banner .= "\n";
-	$banner .= "The following Backups are available: \n";
-	print $banner;
-	
 	opendir (DIR, "ARCHIVE");
 	my @backups = readdir DIR;
 	close DIR;
@@ -230,12 +224,22 @@ sub term_restore_backup {
 	shift(@backups);
 	shift(@backups);
 	
-	my $reply = $term->get_reply(
-		prompt => "Please enter your choice: ",
-		choices => \@backups
-	);
+	if (@backups) {
+		my $banner = "-"x33;
+		$banner .= "\n";
+		$banner .= "The following Backups are available: \n";
+		print $banner;
 	
-	restore_backup($reply);
+		my $reply = $term->get_reply(
+			prompt => "Please enter your choice: ",
+			choices => \@backups
+		);
+	
+		restore_backup($reply);
+	}
+	else {
+		print "Sorry, there are no backups available!";
+	}
 }
 
 sub restore_backup {
