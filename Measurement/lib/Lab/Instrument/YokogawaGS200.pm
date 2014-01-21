@@ -166,11 +166,11 @@ sub set_level_auto {
 
 sub program_run {
     my $self=shift;
-    my $cmd = shift;
+    my ($cmd,$tail) = $self->_check_args( \@_,['command']);
     
-    $self->write( ":PROG:LOAD $cmd" ) if $cmd;
+    $self->write( ":PROG:LOAD $cmd",$tail) if $cmd;
     
-    $self->write(":PROG:RUN");
+    $self->write(":PROG:RUN",$tail);
     
 }
 
@@ -188,10 +188,11 @@ sub program_continue {
     
 }
 
-sub program_halt{
-	my $self=shift;
-	my $cmd=":PROGram:HALT";
-	$self->write("$cmd");
+sub program_halt {
+    my $self=shift;
+    my ($tail) = $self->_check_args( \@_);
+    
+    $self->write( ":PROG:HALT",$tail);
 }
 
 sub start_program{
@@ -294,6 +295,18 @@ sub _sweep_to_level {
     $self->{'device_cache'}->{'level'} = $target;
     
     return $target;
+}
+
+sub trg {   
+    my $self = shift;
+    my ($tail) = $self->_check_args( \@_);
+    $self->program_run($tail);
+}
+
+sub abort{  
+    my $self=shift;
+    my ($tail) = $self->_check_args( \@_);
+    $self->program_halt($tail);
 }
 
 sub get_voltage {
