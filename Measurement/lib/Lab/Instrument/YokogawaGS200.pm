@@ -194,101 +194,37 @@ sub program_halt{
 	$self->write("$cmd");
 }
 
-sub start_program{
-	my $self = shift;
-	my ($tail) = $self->_check_args( \@_);
-	
-	$self->write(":PROG:EDIT:START",$tail);
-}
-
-sub end_program{
-	my $self = shift;
-	my ($tail) = $self->_check_args( \@_);
-	
-	$self->write(":PROG:EDIT:END",$tail);
-}
-
-sub set_setpoint{
-	my $self=shift;
-    my ($value, $tail) = $self->_check_args( \@_, ['value'] );
-    my $cmd=sprintf(":SOUR:LEV %+.4e",$value);
-    $self->write($cmd, {error_check=>1}, $tail);
-}
-
-sub config_sweep{
-    my $self = shift;
-    my ($start, $target, $duration,$sections ,$tail) = $self->check_sweep_config( \@_ );
+sub _sweep_to_level {
+    my $self=shift;
+    my $target=shift;
+    my $time=shift;
     
-    $self->write(":PROG:REP 0",$tail);
-    $self->set_output(1,$tail);
-    
-    $self->start_program($tail);
-            
-    for (my $i = 1; $i <= $sections; $i++)
-            {
-            $self->set_setpoint($start+($target-$start)/$sections*$i);
-            }
-    $self->end_program($tail);
-    
-    $self->set_time($duration,$duration,$tail);
     
     $self->write("*CLS");
-	$self->write(":STAT:ENAB 64");
-	
-}
-
-sub set_time { # internal use only
-    my $self=shift;
-    my ($sweep_time,$interval_time,$tail) = $self->_check_args( \@_, ['sweep_time','interval_time'] );
-        if ($sweep_time<$self->device_settings()->{min_sweep_time}) {
-        print Lab::Exception::CorruptParameter->new( error=>  " Sweep Time: $sweep_time smaller than $self->device_settings()->{min_sweep_time} sec!\n Sweep time set to $self->device_settings()->{min_sweep_time} sec");
-        $sweep_time=$self->device_settings()->{min_sweep_time}}
-    elsif ($sweep_time>$self->device_settings()->{max_sweep_time}) {
-        print Lab::Exception::CorruptParameter->new( error=>  " Sweep Time: $sweep_time> $self->device_settings()->{max_sweep_time} sec!\n Sweep time set to $self->device_settings()->{max_sweep_time} sec");
-        $sweep_time=$self->device_settings()->{max_sweep_time}
-    };
-    if ($interval_time<$self->device_settings()->{min_sweep_time}) {
-        print Lab::Exception::CorruptParameter->new( error=>  " Interval Time: $interval_time smaller than $self->device_settings()->{min_sweep_time} sec!\n Interval time set to $self->device_settings()->{min_sweep_time} sec");
-        $interval_time=$self->device_settings()->{min_sweep_time}}
-    elsif ($interval_time>$self->device_settings()->{max_sweep_time}) {
-        print Lab::Exception::CorruptParameter->new( error=>  " Interval Time: $interval_time> $self->device_settings()->{max_sweep_time} sec!\n Interval time set to $self->device_settings()->{max_sweep_time} sec");
-        $interval_time=$self->device_settings()->{max_sweep_time}
-    };
-    $self->write(":PROG:SLOP $sweep_time",$tail);
-    $self->write(":PROG:INT $interval_time",$tail);
+    $self->write(":PROG:REP 0");
+    $self->write(":PROG:SLOP $time");
+    $self->write(":PROG:INT $time");
+    $self->write(":PROG:EDIT:START");
+    $self->write(":SOUR:LEV $target");
+    $self->write(":PROG:EDIT:END");
+    $self->write(":STAT:ENAB 64");
+    $self->write(":PROG:RUN");
     
-}
 
-sub wait{
-	my $self = shift;
-	
+    $self->check_errors();
+    
 
-	
-	while (($self->connection()->serial_poll())[1] ne "1"){
+    # print ( ($self->connection()->serial_poll())[1] . "\n" );
+
+    
+    while (($self->connection()->serial_poll())[1] ne "1"){
     	#print ( ($self->connection()->serial_poll())[1] ."\n" );
     	sleep 1;
     }
-	
-}
-
-sub _sweep_to_level {
-    my $self = shift;
-    my ($target, $time, $tail) = $self->_check_args( \@_, ['points', 'time'] );
-
-			
-    $self->config_sweep({points => $target, time => $time}, $tail);
-						
-	$self->program_run();
     
-    my $current = $self->get_level($tail);
-		
-	my $eql=$self->get_gp_equal_level($tail);
-
-	
-	if( abs($current-$target) > $eql ){
-		print "YokogawaGS200.pm: error current neq target\n";
+    if( ! $self->get_level( from_device => 1) == $target){
     	Lab::Exception::CorruptParameter->throw(
-    	"Sweep failed: $target not equal to $current. \n")
+    	"Sweep failed.")
     }
     
     $self->{'device_cache'}->{'level'} = $target;
