@@ -136,7 +136,7 @@ sub create_InfoFile {
 	
 	foreach my $instrument (@{Lab::Instrument::REGISTERED_INSTRUMENTS})
 		{
-		print $LOG $instrument->get_id() , "\n\n";
+		print $LOG $instrument->get_id()." ( ".$instrument->get_name()." )" , "\n\n";
 		print $LOG $instrument->sprint_config(), "\n";
 		print $LOG "-" x 100, "\n\n";
 		}

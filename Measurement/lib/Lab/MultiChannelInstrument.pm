@@ -182,6 +182,7 @@ sub sprint_config {
 		}
 		
 	while ( my ($chk, $chv) = each %{$self->{channels}}) {
+		$device_cache->{'multichannel_variables'}->{$chk}->{'name'} = $chv->get_name();
 		while ( my ($k, $v) = each %{$self->{channels}->{$chk}->{device_cache}}) 
 			{
 			if ( any { $_ eq $k } @{$self->{multichannel_shared_cache}} )
@@ -200,7 +201,7 @@ sub sprint_config {
 	$Data::Dumper::Varname = "connection_settings_";
 	$Data::Dumper::Maxdepth = 1;
 	if (defined $self->connection()) {
-	$config .= Dumper $self->connection();
+		$config .= Dumper $self->connection();
 	}
 	return $config;
 }
@@ -254,6 +255,9 @@ sub AUTOLOAD {
 	}
 	elsif( defined $self->{channels}->{$self->{device_settings}->{channel_default}} and $self->{channels}->{$self->{device_settings}->{channel_default}}->can($name) ) {
 		return $self->{channels}->{$self->{device_settings}->{channel_default}}->$name(@_);
+	}
+	elsif( defined $self->{channels}->{$self->{device_settings}->{channel_default}} and exists $self->{channels}->{$self->{device_settings}->{channel_default}}->{$name} ) {
+		return $self->{channels}->{$self->{device_settings}->{channel_default}}->{$name};
 	}
 	else {
 		Lab::Exception::Warning->throw( error => "AUTOLOAD in " . __PACKAGE__ . " couldn't access field '${name}'.\n" );
