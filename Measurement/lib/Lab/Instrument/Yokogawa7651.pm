@@ -155,7 +155,7 @@ sub trg {
 
 sub config_sweep{   
     my $self = shift;
-    my ($start, $target, $duration,$sections ,$tail) = $self->check_sweep_config( \@_ );
+    my ($start, $target, $duration,$sections ,$tail) = $self->check_sweep_config(@_);
 
     $self->set_output(1, $tail);    
     $self->set_run_mode('single', $tail);

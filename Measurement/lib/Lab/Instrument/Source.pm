@@ -205,7 +205,7 @@ sub check_sweep_config{
 
 
     # get current position:
-    my $start = $self->get_value($tail); 
+    my $start = $self->get_level($tail); 
 
     my $duration;
 

@@ -218,7 +218,7 @@ sub set_setpoint{
 
 sub config_sweep{
     my $self = shift;
-    my ($start, $target, $duration,$sections ,$tail) = $self->check_sweep_config( \@_ );
+    my ($start, $target, $duration,$sections ,$tail) = $self->check_sweep_config(@_);
     
     $self->write(":PROG:REP 0",$tail);
     $self->set_output(1,$tail);
@@ -347,17 +347,53 @@ sub get_current {
 }
 
 sub get_level {
-    my $self=shift;
-    my $options = undef;
-	if (ref $_[0] eq 'HASH') { $options=shift }	else { $options={@_} }
-	
-    if( $options->{'from_device'}){
-     	my $lvl = $self->query( ":SOURce:LEVel?" );
-     	return $lvl;
-    }
-    else{
-		return $self->device_cache()->{'level'};
-    }
+    my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
+    my $cmd = ":SOUR:LEV?";
+
+    if (not defined $read_mode or not $read_mode =~ /device|cache|request|fetch/)
+		{
+        $read_mode = $self->device_settings()->{read_default};
+		}
+    
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'level'})
+		{
+        return $self->{'device_cache'}->{'level'};
+		}  
+	elsif($read_mode eq 'request' and $self->{request} == 0 )
+		{
+		$self->{request} = 1;
+        $self->write($cmd);
+		return;
+		}
+	elsif($read_mode eq 'request' and $self->{request} == 1 )
+		{
+		$result = $self->read();
+        $self->write($cmd);
+		return;
+		}
+	elsif ($read_mode eq 'fetch' and $self->{request} == 1)
+		{
+		$self->{request} = 0;
+        $result = $self->read();
+		}
+	else
+		{
+		if ( $self->{request} == 1 )
+			{
+			$result = $self->read();
+			$self->{request} = 0;
+			$result = $self->query($cmd);
+			}
+		else
+			{
+			$result = $self->query($cmd);
+			}
+		}
+       
+   
+    $result=~/....([\+\-\d\.E]*)/;
+    return $self->{'device_cache'}->{'level'} = $1;
+    
 }
 
 sub get_function{
