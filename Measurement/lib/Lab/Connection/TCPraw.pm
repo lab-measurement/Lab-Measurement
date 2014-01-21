@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 package Lab::Connection::TCPraw;
-our $VERSION = '3.20';
+our $VERSION = '3.30';
 
 use strict;
 use Scalar::Util qw(weaken);

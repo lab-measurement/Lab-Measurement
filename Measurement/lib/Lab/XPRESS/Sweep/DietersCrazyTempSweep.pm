@@ -1,6 +1,6 @@
 package Lab::XPRESS::Sweep::DietersCrazyTempSweep;
 
-our $VERSION = '3.20';
+our $VERSION = '3.30';
 
 use Lab::XPRESS::Sweep::Sweep;
 use Time::HiRes qw/usleep/, qw/time/;

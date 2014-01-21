@@ -3,7 +3,7 @@ package Lab::Instrument::YokogawaGS200;
 use strict;
 use warnings;
 
-our $VERSION = '3.20';
+our $VERSION = '3.30';
 
 use feature "switch";
 use Lab::Instrument;

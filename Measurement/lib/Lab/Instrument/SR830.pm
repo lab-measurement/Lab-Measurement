@@ -1,5 +1,5 @@
 package Lab::Instrument::SR830;
-our $VERSION = '3.20';
+our $VERSION = '3.30';
 
 
 use strict;
