@@ -7,6 +7,7 @@ use Archive::Tar;
 use File::HomeDir;
 use File::Path 'rmtree';
 use File::Find;
+use CPAN;
 
 our $APPDATA_DIR;
 
@@ -60,6 +61,11 @@ sub install_from_repository {
 
 	my $filename = download($url, 'TEMP');
 	install_archive($filename);
+}
+
+sub install_from_cpan {
+	backup_Lab();
+	CPAN::Shell->force('install', "Lab::Measurement");
 }
 
 sub find_Lab_installation_path {
@@ -194,7 +200,8 @@ sub term_main {
 	print $banner;
 	
 	my $list=[
-		'Install / Update newest Lab Measurement from Repository',
+		'Install latest Lab Measurement Version from Repository',
+		'Install latest stable Lab Measurement Version from CPAN',
 		'Restore backup from older Lab Measurement installation',
 		'Exit'
 		];
@@ -207,8 +214,9 @@ sub term_main {
 
 
 	if ($reply eq @{$list}[0]) { install_from_repository(); } 
-	if ($reply eq @{$list}[1]) { term_restore_backup($term); } 
-	elsif ($reply eq @{$list}[2]) { exit; } 
+	if ($reply eq @{$list}[1]) { install_from_cpan(); } 
+	if ($reply eq @{$list}[2]) { term_restore_backup($term); } 
+	elsif ($reply eq @{$list}[3]) { exit; } 
 }
 
 sub term_restore_backup {
