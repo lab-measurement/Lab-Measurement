@@ -200,6 +200,11 @@ sub set_level {
 	}
 }
 
+sub get_value { 
+    my $self = shift;
+
+    return $self->get_level(@_); 
+}
 
 sub check_sweep_config{
 	my $self = shift;
