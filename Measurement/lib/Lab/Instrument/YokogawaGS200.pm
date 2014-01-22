@@ -414,17 +414,53 @@ sub get_function{
 }
 
 sub get_range{
-	my $self=shift;
-	my $options = undef;
-	if (ref $_[0] eq 'HASH') { $options=shift }	else { $options={@_} }
+	my $self = shift;
+    my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
+    my $cmd = ":SOUR:RANG?";
 	
-    if( $options->{'from_device'}){
-    	my $cmd=":SOURce:RANGe?";
-    	return $self->query( $cmd );
-    }
-    else{
-		return $self->device_cache()->{'range'};
-    }
+	if (not defined $read_mode or not $read_mode =~ /device|cache|request|fetch/)
+		{
+        $read_mode = $self->device_settings()->{read_default};
+		}
+    
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'range'})
+		{
+        return $self->{'device_cache'}->{'range'};
+		}  
+	elsif($read_mode eq 'request' and $self->{request} == 0 )
+		{
+		$self->{request} = 1;
+        $self->write($cmd);
+		return;
+		}
+	elsif($read_mode eq 'request' and $self->{request} == 1 )
+		{
+		$result = $self->read();
+        $self->write($cmd);
+		return;
+		}
+	elsif ($read_mode eq 'fetch' and $self->{request} == 1)
+		{
+		$self->{request} = 0;
+        $result = $self->read();
+		}
+	else
+		{
+		if ( $self->{request} == 1 )
+			{
+			$result = $self->read();
+			$self->{request} = 0;
+			$result = $self->query($cmd);
+			}
+		else
+			{
+			$result = $self->query($cmd);
+			}
+		}
+       
+   
+    return $self->{'device_cache'}->{'range'} = $result;
+
 }
 
 
