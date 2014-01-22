@@ -44,6 +44,9 @@ our %fields = (
 		level			=> undef,
 		output					=> undef,
 	},
+	
+	device_cache_order => ['function','range'],
+	request => 0
 );
 
 sub new {
@@ -233,8 +236,8 @@ sub config_sweep{
     
     $self->set_time($duration,$duration,$tail);
     
-    $self->write("*CLS");
-	$self->write(":STAT:ENAB 64");
+    $self->write("*CLS",$tail);
+	$self->write(":STAT:ENAB 64",$tail);
 	
 }
 
