@@ -350,7 +350,7 @@ sub active {
     my $self = shift;
     my ($tail) = $self->_check_args( \@_);
     
-    return not $self->get_status("EOP", $tail) == 0);     
+    return not $self->get_status("EOP", $tail);     
 
 }
 
