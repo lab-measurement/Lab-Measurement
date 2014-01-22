@@ -417,6 +417,7 @@ sub get_range{
 	my $self = shift;
     my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
     my $cmd = ":SOUR:RANG?";
+    my $result;
 	
 	if (not defined $read_mode or not $read_mode =~ /device|cache|request|fetch/)
 		{
