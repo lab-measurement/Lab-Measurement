@@ -293,7 +293,7 @@ sub check_sweep_config{
             }
             
            
-	return ($start,$target,$duration,$sections);			
+	return ($start,$target,$duration,$sections,$tail);			
 
 }
 
