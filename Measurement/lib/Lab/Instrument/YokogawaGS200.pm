@@ -293,8 +293,6 @@ sub wait{
             last;
             }
         }
-	my $self = shift;
-	
 	
 }
 
