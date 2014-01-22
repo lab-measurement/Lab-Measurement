@@ -31,6 +31,8 @@ our %fields = (
 		gp_equal_level => 0,
 		fast_set => undef,
 		autorange => 0, 	# silently ignored by instruments (or drivers) which don't support autorange
+		
+		read_default => 'cache'
 	},
 
 	# Config hash passed to subchannel objects, or to $self->configure()
@@ -205,7 +207,7 @@ sub check_sweep_config{
 
 
     # get current position:
-    my $start = $self->get_level($tail); 
+    my $start = $self->get_level({read_mode => 'device'},$tail); 
 
     my $duration;
 
