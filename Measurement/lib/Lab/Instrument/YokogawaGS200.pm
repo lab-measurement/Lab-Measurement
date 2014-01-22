@@ -265,13 +265,36 @@ sub set_time { # internal use only
 
 sub wait{
 	my $self = shift;
-	
+    my ($tail) = $self->_check_args( \@_);
+    my $flag = 1;
+    local $| = 1;
+    
+    
+    while(1)
+        {
+		my $current_level = $self->get_level($tail);
+        if ( $flag <= 1.1 and $flag >= 0.9 )
+            {
+            print "\t\t\t\t\t\t\t\t\t\r";
+            print $self->get_id()." is sweeping ($current_level )\r";
 
+            }
+        elsif ( $flag <= 0 )
+            {
+            print "\t\t\t\t\t\t\t\t\t\r";
+            print $self->get_id()." is          ($current_level ) \r";
+            $flag = 2;
+            }
+        $flag -= 0.5;
+        if ( ! $self->active($tail)) 
+            {
+            print "\t\t\t\t\t\t\t\t\t\r";
+            $| = 0;
+            last;
+            }
+        }
+	my $self = shift;
 	
-	while (($self->connection()->serial_poll())[1] ne "1"){
-    	#print ( ($self->connection()->serial_poll())[1] ."\n" );
-    	sleep 1;
-    }
 	
 }
 
