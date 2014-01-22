@@ -61,6 +61,8 @@ sub new {
     return $self;
 }
 
+
+
 sub set_voltage {
     my $self=shift;
     my $voltage=shift;
@@ -224,6 +226,8 @@ sub config_sweep{
     my ($start, $target, $duration,$sections ,$tail) = $self->check_sweep_config(@_);
     
     $self->write(":PROG:REP 0",$tail);
+    $self->write("*CLS",$tail);
+    $self->write("STAT:ENAB 128",$tail);
     $self->set_output(1,$tail);
     
     $self->start_program($tail);
@@ -271,7 +275,7 @@ sub wait{
     
     while(1)
         {
-        my $status = $self->get_status();
+        #my $status = $self->get_status();
         
 		my $current_level = $self->get_level({read_mode => 'device'},$tail);
         if ( $flag <= 1.1 and $flag >= 0.9 )
@@ -353,7 +357,7 @@ sub active {
     my $self = shift;
     my ($tail) = $self->_check_args( \@_);
     
-    if($self->get_status("EOP", $tail) == 1){
+    if($self->get_status("EES", $tail) == 1){
     	return 0;
     }
     else{
@@ -368,12 +372,12 @@ sub get_status{
     
     # For the status we read the extended event register
     
-    my $status=int($self->query(':STAT:EVEN?',$tail));
+    my $status=int($self->query('*STB?',$tail));
     #printf "Status: %i",$status;
     
-    my @flags=qw/EOM OVR EOT ECF TSE SCG EOS EOP RFP NONE LLO LHI TRP EMR NONE NONE/;
+    my @flags=qw/NONE EES ESB MAV NONE EAV MSS NONE/;
     my $result = {};
-    for (0..15) {
+    for (0..7) {
         $result->{$flags[$_]}=$status & 1;
         $status>>=1;
     }
