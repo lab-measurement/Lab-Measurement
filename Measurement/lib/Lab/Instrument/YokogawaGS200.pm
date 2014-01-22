@@ -347,6 +347,7 @@ sub get_current {
 }
 
 sub get_level {
+	my $self = shift;
     my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
     my $cmd = ":SOUR:LEV?";
 
