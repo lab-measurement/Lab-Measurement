@@ -325,14 +325,39 @@ sub get_voltage {
     return $self->get_level(@_);
 }
 
+sub active {    
+    my $self = shift;
+    my ($tail) = $self->_check_args( \@_);
+    
+    if (  $self->get_status("EOP", $tail) == 0) 
+        {
+        return 1;
+        }
+    else
+        {
+        return 0;
+        }
+
+}
+
 sub get_status{
 	my $self=shift;
+    my ($request,$tail) = $self->_check_args( \@_, ['request']);
+    
+    # For the status we read the extended event register
+    
+    my $status=$self->query(':STAT:EVEN?',$tail);
+    
+    my @flags=qw/
+        EOM OVR EOT ECF TSE SCG EOS EOP RFP NONE LLO LHI TRP EMR NONE NONE/;
+    my $result = {};
+    for (0..15) {
+        $result->{$flags[$_]}=$status & 256;
+        $status<<=1;
+    }
+    return $result->{$request} if defined $request;
+    return $result;
 	
-	my $request = shift;
-	my $status = {};
-	(undef, $status->{EXT_EVT_SUM}, $status->{ERROR}, undef, $status->{MSG_AVAIL}, $status->{EVT_SUMM}, undef, undef ) = $self->connection()->serial_poll();
-	return $status->{$request} if defined $request;
-	return $status;
 	
 }
 
