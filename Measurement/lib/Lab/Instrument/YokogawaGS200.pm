@@ -8,7 +8,7 @@ our $VERSION = '3.30';
 use feature "switch";
 use Lab::Instrument;
 use Lab::Instrument::Source;
-
+use Data::Dumper;
 
 our @ISA=('Lab::Instrument::Source');
 
@@ -169,10 +169,9 @@ sub set_level_auto {
 
 sub program_run {
     my $self=shift;
-    my ($cmd,$tail) = $self->_check_args( \@_,['command']);
-    
-    $self->write( ":PROG:LOAD $cmd",$tail) if $cmd;
-    
+    my ($tail) = $self->_check_args( \@_);
+       
+    print "Run program\n";
     $self->write(":PROG:RUN",$tail);
     
 }
@@ -201,21 +200,22 @@ sub program_halt {
 sub start_program{
 	my $self = shift;
 	my ($tail) = $self->_check_args( \@_);
-	
+	#print "Start program\n";
 	$self->write(":PROG:EDIT:START",$tail);
 }
 
 sub end_program{
 	my $self = shift;
 	my ($tail) = $self->_check_args( \@_);
-	
+	#print "End program\n";
 	$self->write(":PROG:EDIT:END",$tail);
 }
 
 sub set_setpoint{
 	my $self=shift;
     my ($value, $tail) = $self->_check_args( \@_, ['value'] );
-    my $cmd=sprintf(":SOUR:LEV %+.4e",$value);
+    my $cmd=sprintf(":SOUR:LEV $value");
+    #print "Do $cmd";
     $self->write($cmd, {error_check=>1}, $tail);
 }
 
@@ -227,17 +227,16 @@ sub config_sweep{
     $self->set_output(1,$tail);
     
     $self->start_program($tail);
-            
+    #print "Program:\n";        
     for (my $i = 1; $i <= $sections; $i++)
             {
             $self->set_setpoint($start+($target-$start)/$sections*$i);
+            printf "setpoint: %+.4e\n",$start+($target-$start)/$sections*$i
             }
     $self->end_program($tail);
     
     $self->set_time($duration,$duration,$tail);
     
-    $self->write("*CLS",$tail);
-	$self->write(":STAT:ENAB 64",$tail);
 	
 }
 
@@ -272,7 +271,9 @@ sub wait{
     
     while(1)
         {
-		my $current_level = $self->get_level($tail);
+        my $status = $self->get_status();
+        
+		my $current_level = $self->get_level({read_mode => 'device'},$tail);
         if ( $flag <= 1.1 and $flag >= 0.9 )
             {
             print "\t\t\t\t\t\t\t\t\t\r";
@@ -286,7 +287,8 @@ sub wait{
             $flag = 2;
             }
         $flag -= 0.5;
-        if ( ! $self->active($tail)) 
+        
+        if ($self->active($tail) == 0) 
             {
             print "\t\t\t\t\t\t\t\t\t\r";
             $| = 0;
@@ -324,6 +326,7 @@ sub _sweep_to_level {
 sub trg {   
     my $self = shift;
     my ($tail) = $self->_check_args( \@_);
+    $self->write("*CLS",$tail);
     $self->program_run($tail);
 }
 
@@ -350,7 +353,12 @@ sub active {
     my $self = shift;
     my ($tail) = $self->_check_args( \@_);
     
-    return not $self->get_status("EOP", $tail);     
+    if($self->get_status("EOP", $tail) == 1){
+    	return 0;
+    }
+    else{
+    	return 1;
+    }     
 
 }
 
@@ -360,15 +368,16 @@ sub get_status{
     
     # For the status we read the extended event register
     
-    my $status=$self->query(':STAT:EVEN?',$tail);
+    my $status=int($self->query(':STAT:EVEN?',$tail));
+    #printf "Status: %i",$status;
     
-    my @flags=qw/
-        EOM OVR EOT ECF TSE SCG EOS EOP RFP NONE LLO LHI TRP EMR NONE NONE/;
+    my @flags=qw/EOM OVR EOT ECF TSE SCG EOS EOP RFP NONE LLO LHI TRP EMR NONE NONE/;
     my $result = {};
     for (0..15) {
-        $result->{$flags[$_]}=$status & 32768;
-        $status<<=1;
+        $result->{$flags[$_]}=$status & 1;
+        $status>>=1;
     }
+    #print "EOP: $result->{'EOP'}\n";
     return $result->{$request} if defined $request;
     return $result;
 	
@@ -435,8 +444,7 @@ sub get_level {
 		}
        
    
-    $result=~/....([\+\-\d\.E]*)/;
-    return $self->{'device_cache'}->{'level'} = $1;
+    return $self->{'device_cache'}->{'level'} = $result;
     
 }
 
