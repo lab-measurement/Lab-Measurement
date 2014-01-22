@@ -352,14 +352,7 @@ sub active {
     my $self = shift;
     my ($tail) = $self->_check_args( \@_);
     
-    if (  $self->get_status("EOP", $tail) == 0) 
-        {
-        return 1;
-        }
-    else
-        {
-        return 0;
-        }
+    return not $self->get_status("EOP", $tail) == 0);     
 
 }
 
@@ -375,7 +368,7 @@ sub get_status{
         EOM OVR EOT ECF TSE SCG EOS EOP RFP NONE LLO LHI TRP EMR NONE NONE/;
     my $result = {};
     for (0..15) {
-        $result->{$flags[$_]}=$status & 256;
+        $result->{$flags[$_]}=$status & 32768;
         $status<<=1;
     }
     return $result->{$request} if defined $request;
