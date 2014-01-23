@@ -1,7 +1,7 @@
 
-#-------- 0. Import Lab::XPRESS ----------------
+#-------- 0. Import Lab::Measurement -------
 
-use Lab::XPRESS;
+use Lab::Measurement;
 
 #-------- 1. Initialize Instruments --------
 
@@ -112,13 +112,13 @@ It's really that easy! In the following we would like to show you how to obtain 
 
 =head1 Step by step tutorial - How to write an IV-curve measurement
 
-=head2 0. Import Lab::XPRESS
+=head2 0. Import Lab::Measurement
 
 First thing to do in a script: write the following line
 
-	use Lab::XPRESS;
+	use Lab::Measurement;
 
-This is how you import the Lab::XPRESS library. For basic usage, that's typically everything you need. So you're now ready to start...
+This is how you import the Lab::Measurement library. For basic usage, that's typically everything you need. So you're now ready to start...
 
 =head2 1. Measurement instruments
 
