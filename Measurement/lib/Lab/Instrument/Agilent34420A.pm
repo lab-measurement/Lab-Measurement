@@ -1,5 +1,5 @@
 package Lab::Instrument::Agilent34420A;
-our $VERSION = '3.30';
+our $VERSION = '3.31';
 
 use strict;
 use Lab::Instrument;
@@ -257,7 +257,7 @@ sub get_range {
 	if (not ($function =~ /^(voltage:dc|voltage|volt:dc|volt|sense1:voltage:dc|sense1:voltage|sense1:volt:dc|sense1:volt|sense2:voltage:dc|sense2:voltage|sense2:volt:dc|sense2:volt|voltage:dc:ratio|voltage:ratio|volt:dc:ratio|volt:ratio|voltage:dc:diff|voltage:diff|volt:dc:diff|volt:diff)$/ or $function =~ /^(resistance|fresistance|res|fres)$/)) {
 		Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34420A:\nunexpected value for FUNCTION ($function) in sub get_nplc. Expected values are:\nvoltage:dc, resistance or Fresistance --> to set both input channels\nsense1:voltage:dc, sense1:voltage:dc:ratio, sense1:voltage:dc:difference, sense1:resistance or sense1:Fresistance --> to set input channel 1 only\nsense2:voltage:dc, sense2:voltage:dc:ratio, sense2:voltage:dc:difference, sense2:resistance or sense2:Fresistance --> to set input channel 2 only\n");
 	}
-	if ($channel != 1 or $channel != 2) {
+	if ($channel != 1 and $channel != 2) {
 		Lab::Exception::CorruptParameter->throw( error => "Unexpected value for channel. Allowed values are 1 or 2.");
 	}
 		

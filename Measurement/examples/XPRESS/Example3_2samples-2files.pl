@@ -1,7 +1,7 @@
 
-#-------- 0. Import Lab::XPRESS -------------
+#-------- 0. Import Lab::Measurement -------
 
-use Lab::XPRESS;
+use Lab::Measurement;
 
 #-------- 1. Initialize Instruments --------
 
@@ -158,9 +158,9 @@ Those two files are populated with data, during the same sweep. Besides that, we
 
 =head2 Instrument initialization
 
-	#-------- 0. Import Lab::XPRESS -------------
+	#-------- 0. Import Lab::Measurement -------
 
-	use Lab::XPRESS;
+	use Lab::Measurement;
 	
 	#-------- 1. Initialize Instruments --------
 	

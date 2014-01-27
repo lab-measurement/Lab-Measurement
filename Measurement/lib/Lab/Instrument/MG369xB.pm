@@ -1,5 +1,5 @@
 package Lab::Instrument::MG369xB;
-our $VERSION = '3.30';
+our $VERSION = '3.31';
 
 use strict;
 use Lab::Instrument;

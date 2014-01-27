@@ -1,10 +1,15 @@
 
 package Lab::Measurement;
-our $VERSION = '3.30';
+our $VERSION = '3.31';
 
 use strict;
 use warnings;
 #use encoding::warnings;
+
+use Exporter 'import';
+use Lab::XPRESS::hub qw(DataFile Sweep Frame Instrument Connection);
+our @EXPORT = qw(DataFile Sweep Frame Instrument Connection);
+
 use Data::Dumper;
 use Lab::Data::Writer;
 use Lab::Data::Meta;

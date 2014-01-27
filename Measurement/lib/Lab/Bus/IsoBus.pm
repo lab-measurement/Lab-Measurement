@@ -2,7 +2,7 @@
 
 
 package Lab::Bus::IsoBus;
-our $VERSION = '3.30';
+our $VERSION = '3.31';
 
 use strict;
 use Lab::Connection;

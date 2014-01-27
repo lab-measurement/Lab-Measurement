@@ -1,6 +1,6 @@
-#-------- 0. Import Lab::XPRESS -------------
+#-------- 0. Import Lab::Measurement -------
 
-use Lab::XPRESS;
+use Lab::Measurement;
 
 #-------- 1. Initialize Instruments --------
 
@@ -133,9 +133,9 @@ In the following, we will focus the new parts of our script and discuss it's mea
 
 =head2 Instrument initialization
 
-	#-------- 0. Import Lab::XPRESS -------------
+	#-------- 0. Import Lab::Measurement -------
 	
-	use Lab::XPRESS;
+	use Lab::Measurement;
 	
 	#-------- 1. Initialize Instruments --------
 	
@@ -164,7 +164,7 @@ In the following, we will focus the new parts of our script and discuss it's mea
 		gp_max_units_per_second => 10e-3
 		});
 
-In this first part of this script, we are doing more or less the same as in Example 1. Import the Lab::XPRESS library, 
+In this first part of this script, we are doing more or less the same as in Example 1. Import the Lab::Measurement library, 
 then initialize the instruments we need. Now what's new is, that we initialize here a third instrument,
 the gate, which is again a Yokogawa7651. No big deal, so far. New is, that we are using the gate protection mode this time.
 It's turned on by C<<gate_protect => 1>>. With C<<gp_min_units => -10>> and C<<gp_max_units => 15>> we define the lower and upper limits, which we do not
