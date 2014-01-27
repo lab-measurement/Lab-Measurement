@@ -227,7 +227,6 @@ sub config_sweep{
     
     $self->write(":PROG:REP 0",$tail);
     $self->write("*CLS",$tail);
-    $self->write("STAT:ENAB 128",$tail);
     $self->set_output(1,$tail);
     
     $self->start_program($tail);
@@ -357,6 +356,7 @@ sub active {
     my $self = shift;
     my ($tail) = $self->_check_args( \@_);
     
+    $self->write("STAT:ENAB 128",$tail);
     if($self->get_status("EES", $tail) == 1){
     	return 0;
     }
@@ -406,7 +406,7 @@ sub get_level {
     my ($tail) = $self->_check_args(\@_);
     my $cmd = ":SOUR:LEV?";
 
-	return $self->query($cmd,$tail);
+	return $self->request($cmd,$tail);
 }
 
 sub get_function{
