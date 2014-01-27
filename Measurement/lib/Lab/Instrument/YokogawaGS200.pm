@@ -8,7 +8,7 @@ our $VERSION = '3.30';
 use feature "switch";
 use Lab::Instrument;
 use Lab::Instrument::Source;
-
+use Data::Dumper;
 
 our @ISA=('Lab::Instrument::Source');
 
@@ -44,6 +44,9 @@ our %fields = (
 		level			=> undef,
 		output					=> undef,
 	},
+	
+	device_cache_order => ['function','range'],
+	request => 0
 );
 
 sub new {
@@ -57,6 +60,8 @@ sub new {
     
     return $self;
 }
+
+
 
 sub set_voltage {
     my $self=shift;
@@ -166,10 +171,9 @@ sub set_level_auto {
 
 sub program_run {
     my $self=shift;
-    my ($cmd,$tail) = $self->_check_args( \@_,['command']);
-    
-    $self->write( ":PROG:LOAD $cmd",$tail) if $cmd;
-    
+    my ($tail) = $self->_check_args( \@_);
+       
+    print "Run program\n";
     $self->write(":PROG:RUN",$tail);
     
 }
@@ -198,21 +202,22 @@ sub program_halt {
 sub start_program{
 	my $self = shift;
 	my ($tail) = $self->_check_args( \@_);
-	
+	#print "Start program\n";
 	$self->write(":PROG:EDIT:START",$tail);
 }
 
 sub end_program{
 	my $self = shift;
 	my ($tail) = $self->_check_args( \@_);
-	
+	#print "End program\n";
 	$self->write(":PROG:EDIT:END",$tail);
 }
 
 sub set_setpoint{
 	my $self=shift;
     my ($value, $tail) = $self->_check_args( \@_, ['value'] );
-    my $cmd=sprintf(":SOUR:LEV %+.4e",$value);
+    my $cmd=sprintf(":SOUR:LEV $value");
+    #print "Do $cmd";
     $self->write($cmd, {error_check=>1}, $tail);
 }
 
@@ -221,20 +226,21 @@ sub config_sweep{
     my ($start, $target, $duration,$sections ,$tail) = $self->check_sweep_config(@_);
     
     $self->write(":PROG:REP 0",$tail);
+    $self->write("*CLS",$tail);
+    $self->write("STAT:ENAB 128",$tail);
     $self->set_output(1,$tail);
     
     $self->start_program($tail);
-            
+    #print "Program:\n";        
     for (my $i = 1; $i <= $sections; $i++)
             {
             $self->set_setpoint($start+($target-$start)/$sections*$i);
+            printf "setpoint: %+.4e\n",$start+($target-$start)/$sections*$i
             }
     $self->end_program($tail);
     
     $self->set_time($duration,$duration,$tail);
     
-    $self->write("*CLS");
-	$self->write(":STAT:ENAB 64");
 	
 }
 
@@ -262,13 +268,37 @@ sub set_time { # internal use only
 
 sub wait{
 	my $self = shift;
-	
+    my ($tail) = $self->_check_args( \@_);
+    my $flag = 1;
+    local $| = 1;
+    
+    
+    while(1)
+        {
+        #my $status = $self->get_status();
+        
+		my $current_level = $self->get_level({read_mode => 'device'},$tail);
+        if ( $flag <= 1.1 and $flag >= 0.9 )
+            {
+            print "\t\t\t\t\t\t\t\t\t\r";
+            print $self->get_id()." is sweeping ($current_level )\r";
 
-	
-	while (($self->connection()->serial_poll())[1] ne "1"){
-    	#print ( ($self->connection()->serial_poll())[1] ."\n" );
-    	sleep 1;
-    }
+            }
+        elsif ( $flag <= 0 )
+            {
+            print "\t\t\t\t\t\t\t\t\t\r";
+            print $self->get_id()." is          ($current_level ) \r";
+            $flag = 2;
+            }
+        $flag -= 0.5;
+        
+        if ($self->active($tail) == 0) 
+            {
+            print "\t\t\t\t\t\t\t\t\t\r";
+            $| = 0;
+            last;
+            }
+        }
 	
 }
 
@@ -300,6 +330,7 @@ sub _sweep_to_level {
 sub trg {   
     my $self = shift;
     my ($tail) = $self->_check_args( \@_);
+    $self->write("*CLS",$tail);
     $self->program_run($tail);
 }
 
@@ -322,14 +353,38 @@ sub get_voltage {
     return $self->get_level(@_);
 }
 
+sub active {    
+    my $self = shift;
+    my ($tail) = $self->_check_args( \@_);
+    
+    if($self->get_status("EES", $tail) == 1){
+    	return 0;
+    }
+    else{
+    	return 1;
+    }     
+
+}
+
 sub get_status{
 	my $self=shift;
+    my ($request,$tail) = $self->_check_args( \@_, ['request']);
+    
+    # For the status we read the extended event register
+    
+    my $status=int($self->query('*STB?',$tail));
+    #printf "Status: %i",$status;
+    
+    my @flags=qw/NONE EES ESB MAV NONE EAV MSS NONE/;
+    my $result = {};
+    for (0..7) {
+        $result->{$flags[$_]}=$status & 1;
+        $status>>=1;
+    }
+    #print "EOP: $result->{'EOP'}\n";
+    return $result->{$request} if defined $request;
+    return $result;
 	
-	my $request = shift;
-	my $status = {};
-	(undef, $status->{EXT_EVT_SUM}, $status->{ERROR}, undef, $status->{MSG_AVAIL}, $status->{EVT_SUMM}, undef, undef ) = $self->connection()->serial_poll();
-	return $status->{$request} if defined $request;
-	return $status;
 	
 }
 
@@ -347,8 +402,10 @@ sub get_current {
 }
 
 sub get_level {
+	my $self = shift;
     my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
     my $cmd = ":SOUR:LEV?";
+    my $result;
 
     if (not defined $read_mode or not $read_mode =~ /device|cache|request|fetch/)
 		{
@@ -391,8 +448,7 @@ sub get_level {
 		}
        
    
-    $result=~/....([\+\-\d\.E]*)/;
-    return $self->{'device_cache'}->{'level'} = $1;
+    return $self->{'device_cache'}->{'level'} = $result;
     
 }
 
@@ -412,17 +468,54 @@ sub get_function{
 }
 
 sub get_range{
-	my $self=shift;
-	my $options = undef;
-	if (ref $_[0] eq 'HASH') { $options=shift }	else { $options={@_} }
+	my $self = shift;
+    my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
+    my $cmd = ":SOUR:RANG?";
+    my $result;
 	
-    if( $options->{'from_device'}){
-    	my $cmd=":SOURce:RANGe?";
-    	return $self->query( $cmd );
-    }
-    else{
-		return $self->device_cache()->{'range'};
-    }
+	if (not defined $read_mode or not $read_mode =~ /device|cache|request|fetch/)
+		{
+        $read_mode = $self->device_settings()->{read_default};
+		}
+    
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'range'})
+		{
+        return $self->{'device_cache'}->{'range'};
+		}  
+	elsif($read_mode eq 'request' and $self->{request} == 0 )
+		{
+		$self->{request} = 1;
+        $self->write($cmd);
+		return;
+		}
+	elsif($read_mode eq 'request' and $self->{request} == 1 )
+		{
+		$result = $self->read();
+        $self->write($cmd);
+		return;
+		}
+	elsif ($read_mode eq 'fetch' and $self->{request} == 1)
+		{
+		$self->{request} = 0;
+        $result = $self->read();
+		}
+	else
+		{
+		if ( $self->{request} == 1 )
+			{
+			$result = $self->read();
+			$self->{request} = 0;
+			$result = $self->query($cmd);
+			}
+		else
+			{
+			$result = $self->query($cmd);
+			}
+		}
+       
+   
+    return $self->{'device_cache'}->{'range'} = $result;
+
 }
 
 

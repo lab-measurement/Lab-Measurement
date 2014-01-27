@@ -353,11 +353,7 @@ sub get_level {
     return $self->{'device_cache'}->{'level'} = $1;
 }
 
-sub get_value { 
-    my $self = shift;
 
-    return $self->get_level(@_); 
-}
 
 sub get_voltage{    
 	my $self=shift;
