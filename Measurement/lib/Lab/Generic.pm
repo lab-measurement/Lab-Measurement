@@ -1,6 +1,6 @@
 package Lab::Generic;
 
-our $VERSION = '3.30';
+our $VERSION = '3.31';
 
 use Term::ReadKey;
 
