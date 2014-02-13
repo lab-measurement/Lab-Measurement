@@ -1046,15 +1046,14 @@ sub check_loop_duration {
 	my $delta_time = ($self->{loop}->{t1}-$self->{loop}->{t0}) + $self->{loop}->{overtime};
 
 	
-	
-	while((@{$self->{config}->{interval}}[$self->{sequence}] - $delta_time) > 0.2)
-		{
-		my $time0 = time();
-		if (defined $self->{config}->{instrument} and $self->{config}->{instrument}->can("active")) 
-			{ 
-				$self->{config}->{instrument}->active();
+	if (defined $self->{config}->{instrument} and $self->{config}->{instrument}->can("active")) 
+		{ 
+		while((@{$self->{config}->{interval}}[$self->{sequence}] - $delta_time) > 0.2)
+			{
+			my $time0 = time();
+			$self->{config}->{instrument}->active();
+			$delta_time = $delta_time +((time() - $time0));
 			}
-		$delta_time = $delta_time +((time() - $time0));
 		}
 
 	if ($delta_time > @{$self->{config}->{interval}}[$self->{sequence}])
