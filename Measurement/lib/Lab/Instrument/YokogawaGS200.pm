@@ -227,7 +227,6 @@ sub config_sweep{
     
     $self->write(":PROG:REP 0",$tail);
     $self->write("*CLS",$tail);
-    $self->write("STAT:ENAB 128",$tail);
     $self->set_output(1,$tail);
     
     $self->start_program($tail);
@@ -357,6 +356,7 @@ sub active {
     my $self = shift;
     my ($tail) = $self->_check_args( \@_);
     
+    $self->write("STAT:ENAB 128",$tail);
     if($self->get_status("EES", $tail) == 1){
     	return 0;
     }
@@ -370,7 +370,7 @@ sub get_status{
 	my $self=shift;
     my ($request,$tail) = $self->_check_args( \@_, ['request']);
     
-    # For the status we read the extended event register
+    # The status byte is read
     
     my $status=int($self->query('*STB?',$tail));
     #printf "Status: %i",$status;
@@ -403,119 +403,28 @@ sub get_current {
 
 sub get_level {
 	my $self = shift;
-    my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
+    my ($tail) = $self->_check_args(\@_);
     my $cmd = ":SOUR:LEV?";
-    my $result;
 
-    if (not defined $read_mode or not $read_mode =~ /device|cache|request|fetch/)
-		{
-        $read_mode = $self->device_settings()->{read_default};
-		}
-    
-    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'level'})
-		{
-        return $self->{'device_cache'}->{'level'};
-		}  
-	elsif($read_mode eq 'request' and $self->{request} == 0 )
-		{
-		$self->{request} = 1;
-        $self->write($cmd);
-		return;
-		}
-	elsif($read_mode eq 'request' and $self->{request} == 1 )
-		{
-		$result = $self->read();
-        $self->write($cmd);
-		return;
-		}
-	elsif ($read_mode eq 'fetch' and $self->{request} == 1)
-		{
-		$self->{request} = 0;
-        $result = $self->read();
-		}
-	else
-		{
-		if ( $self->{request} == 1 )
-			{
-			$result = $self->read();
-			$self->{request} = 0;
-			$result = $self->query($cmd);
-			}
-		else
-			{
-			$result = $self->query($cmd);
-			}
-		}
-       
-   
-    return $self->{'device_cache'}->{'level'} = $result;
-    
+	return $self->request($cmd,$tail);
 }
 
 sub get_function{
 	my $self=shift;	
-	my $options = undef;
-	if (ref $_[0] eq 'HASH') { $options=shift }	else { $options={@_} }
+    my ($tail) = $self->_check_args(\@_);	
 	
-    if( $options->{'from_device'}){
-    	my $cmd=":SOURce:FUNCtion?";
-    	return $self->query( $cmd );
-    }
-    else{
-		return $self->device_cache()->{'function'};
-    }
-		
+   	my $cmd=":SOURce:FUNCtion?";
+   	return $self->query($cmd, $tail);
 }
+
 
 sub get_range{
 	my $self = shift;
-    my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
-    my $cmd = ":SOUR:RANG?";
-    my $result;
+    my ($tail) = $self->_check_args(\@_);	
 	
-	if (not defined $read_mode or not $read_mode =~ /device|cache|request|fetch/)
-		{
-        $read_mode = $self->device_settings()->{read_default};
-		}
-    
-    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'range'})
-		{
-        return $self->{'device_cache'}->{'range'};
-		}  
-	elsif($read_mode eq 'request' and $self->{request} == 0 )
-		{
-		$self->{request} = 1;
-        $self->write($cmd);
-		return;
-		}
-	elsif($read_mode eq 'request' and $self->{request} == 1 )
-		{
-		$result = $self->read();
-        $self->write($cmd);
-		return;
-		}
-	elsif ($read_mode eq 'fetch' and $self->{request} == 1)
-		{
-		$self->{request} = 0;
-        $result = $self->read();
-		}
-	else
-		{
-		if ( $self->{request} == 1 )
-			{
-			$result = $self->read();
-			$self->{request} = 0;
-			$result = $self->query($cmd);
-			}
-		else
-			{
-			$result = $self->query($cmd);
-			}
-		}
-       
-   
-    return $self->{'device_cache'}->{'range'} = $result;
-
+    my $cmd = ":SOUR:RANG?";
+	return $self->query($cmd,$tail);
+			
 }
 
 
@@ -572,16 +481,9 @@ sub set_output {
 
 sub get_output {
     my $self=shift;
+    my ($tail) = $self->_check_args(\@_);	
     
-    my $options = undef;
-	if (ref $_[0] eq 'HASH') { $options=shift }	else { $options={@_} }
-	
-    if( $options->{'from_device'}){
-     	$self->query( ":OUTP?" );
-     	return;
-    }
-    
-    return $self->{"device_cache"}->{"output"};
+    return $self->query(":OUTP?",$tail);
 }
 
 
