@@ -5,9 +5,9 @@ our $VERSION = '3.31';
 
 use strict;
 
+#use POSIX; # added for int() function
 use Lab::Generic;
 use Time::HiRes qw (usleep sleep);
-use POSIX; # added for int() function
 
 use Carp;
 use Data::Dumper;

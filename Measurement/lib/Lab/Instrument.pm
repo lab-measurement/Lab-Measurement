@@ -5,6 +5,7 @@ use warnings;
 
 our $VERSION = '3.31';
 
+#use POSIX; # added for int() function
 use Lab::Generic;
 use Lab::Exception;
 use Lab::Connection;
@@ -15,7 +16,6 @@ use Class::ISA qw(self_and_super_path);
 use Hook::LexWrap;
 
 use Time::HiRes qw (usleep sleep);
-use POSIX; # added for int() function
 
 our @ISA = ('Lab::Generic');
 

@@ -5,16 +5,17 @@ our $VERSION = '3.31';
 
 use strict;
 
+use Lab::Generic;
 use Lab::Exception;
 use Time::HiRes qw (usleep sleep);
-use POSIX; # added for int() function
+#use POSIX; # added for int() function
 use Scalar::Util qw(weaken);
 use Carp qw(croak cluck);
 use Data::Dumper;
 our $AUTOLOAD;
 
 
-our @ISA = ();
+our @ISA = ('Lab::Generic');
 
 
 # this holds a list of references to all the bus objects that are floating around in memory,
@@ -40,7 +41,7 @@ sub new {
 	my $config = undef;
 	if (ref $_[0] eq 'HASH') { $config=shift } # try to be flexible about options as hash/hashref
 	else { $config={@_} }
-	my $self={};
+	my $self=$class->SUPER::new(@_);
 	bless ($self, $class);
 	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
 

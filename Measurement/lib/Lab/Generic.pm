@@ -4,19 +4,20 @@ our $VERSION = '3.31';
 
 use Term::ReadKey;
 
+@{Lab::Generic::OBJECTS} = ();
 
 sub new { 
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
 	
 	my $self={};
+	push(@{Lab::Generic::OBJECTS}, $self);
+	
 	bless ($self, $class);
-	
 	return $self;
-	
 }
 
-
+sub abort {}
 
 
 sub print {
@@ -266,4 +267,20 @@ sub seconds2time {
 	
 	return $formated;
 }
+
+package Lab::GenericSignals;
+
+use sigtrap 'handler' => \&abort_all, qw(normal-signals error-signals);
+
+sub abort_all {  
+  foreach my $object (@{Lab::Generic::OBJECTS}) {
+		$object->abort();		
+	}
+	@{Lab::Generic::OBJECTS} = ();	
+}
+
+END {  
+  abort_all();
+}
+
 1;

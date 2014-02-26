@@ -6,12 +6,15 @@ use Time::HiRes qw/usleep/, qw/time/;
 use POSIX qw(ceil);
 use Term::ReadKey;
 use Storable qw(dclone);
+use Lab::Generic;
 use Lab::XPRESS::Sweep::Dummy;
 use Lab::XPRESS::Utilities::Utilities;
 use Lab::Exception;
 use strict;
 use Storable qw(dclone);
 use Carp qw(cluck croak);
+
+our @ISA = ('Lab::Generic');
 
 our $PAUSE = 0;
 our $ACTIVE_SWEEPS = ();
@@ -24,7 +27,7 @@ our $AUTOLOAD;
 sub new {
     my $proto = shift;
     my $class = ref($proto) || $proto;    
-	my $self = bless {}, $class;
+	my $self = $class->SUPER::new(@_);
 	
 	$self->{default_config} = {
 		instrument => undef,
@@ -107,8 +110,9 @@ sub new {
 	$self->{pause} = 0;	
 	$self->{active} = 0;
 	$self->{repetition} = 0;	
-			
-    return $self;
+	
+	
+    return bless $self, $class;
 }
 
 sub prepaire_config {
@@ -513,7 +517,7 @@ sub start {
 	
 	# link break signals to default functions:
 	$SIG{BREAK} = \&enable_pause;
-	$SIG{INT} = \&abort;
+	#$SIG{INT} = \&abort;
 
 	for ( my $i = 1; ($i <= $self->{config}->{repetitions}) or ($self->{config}->{repetitions} < 0); $i++)
 		{
@@ -945,8 +949,7 @@ sub active {
 }
 
 sub abort {
-
-	print "abort\n";
+	
 	foreach my $sweep (@{$ACTIVE_SWEEPS})
 		{
 		$sweep->exit();
