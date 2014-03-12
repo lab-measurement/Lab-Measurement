@@ -47,10 +47,12 @@ sub reset
     $self->write('RST');
 }
 
-sub set_cw
+sub set_frq
 {
     my $self = shift;
-    my $freq = shift;
+
+    my ($freq, $tail) = $self->_check_args( \@_, ['value'] );
+    
     $freq /= 1000000;
     $self->write("F0 $freq MH ACW");
 }
@@ -58,9 +60,24 @@ sub set_cw
 sub set_power
 {
     my $self = shift;
-    my $power = shift;
+
+    my ($power, $tail) = $self->_check_args( \@_, ['value'] );
 
     $self->write("L0 $power DM");
+}
+
+sub get_frq
+{
+    my $self = shift;
+    my $frq = $self->query("OF0");
+    return $frq*1000000;
+}
+
+sub get_power
+{
+    my $self = shift;
+    my $power = $self->query("OL0");
+    return $power;
 }
 
 sub power_on
