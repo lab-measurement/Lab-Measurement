@@ -10,6 +10,7 @@ use 5.010;
 
 use Lab::Instrument;
 use Lab::Instrument::Source;
+use Data::Dumper;
 
 
 our @ISA=('Lab::Instrument::Source');
@@ -157,6 +158,7 @@ sub config_sweep{
     my $self = shift;
     my ($start, $target, $duration,$sections ,$tail) = $self->check_sweep_config(@_);
 
+
     $self->set_output(1, $tail);    
     $self->set_run_mode('single', $tail);
     
@@ -225,7 +227,7 @@ sub wait {
     while(1)
         {
         #my $status = $self->get_status();
-        my $status = $self->get_status($tail);
+        my $execution = $self->get_status('execution');
 		my $current_level = $self->get_level($tail);
         if ( $flag <= 1.1 and $flag >= 0.9 )
             {
@@ -240,7 +242,7 @@ sub wait {
             $flag = 2;
             }
         $flag -= 0.5;
-        if ( $status->{'execution'} == 0) 
+        if ( $execution == 0) 
             {
             print "\t\t\t\t\t\t\t\t\t\r";
             $| = 0;
@@ -348,10 +350,10 @@ sub get_level {
 			}
 		}
        
-   
     $result=~/....([\+\-\d\.E]*)/;
     return $self->{'device_cache'}->{'level'} = $1;
 }
+
 
 
 
