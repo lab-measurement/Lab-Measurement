@@ -4,7 +4,7 @@ use Lab::Measurement;
 
 #-------- 1. Initialize Instruments --------
 
-my $voltage_source = Instrument('Yokogawa7651', 
+my $bias = Instrument('Yokogawa7651', 
 	{
 	connection_type => 'VISA_GPIB',
 	gpib_address => 3,
@@ -29,7 +29,7 @@ my $gate = Instrument('Yokogawa7651',
 	gp_max_units_per_second => 10e-3
 	});
 
-#-------- 3. Define the Sweeps -------------
+#-------- 2. Define the Sweeps -------------
 my $gate_sweep = Sweep('Voltage', 
 	{
 	mode => 'step',
@@ -39,9 +39,9 @@ my $gate_sweep = Sweep('Voltage',
 	rate => [5e-3],			# [rate to approach start, sweeping rate for measurement] in Volts/s
 	});
 
-my $source_sweep = Sweep('Voltage', 
+my $bias_sweep = Sweep('Voltage', 
 	{
-	instrument => $voltage_source,
+	instrument => $bias,
 	points => [-5e-3, 5e-3],	# [starting point, target] in Volts
 	rate => [0.1, 0.5e-3],		# [rate to approach start, sweeping rate for measurement] in Volts/s
 	interval => 1, 				# measurement interval in s
@@ -54,7 +54,7 @@ my $source_sweep = Sweep('Voltage',
 my $DataFile = DataFile('Gate_IV_sample1.dat');
 
 $DataFile->add_column('GateVoltage');
-$DataFile->add_column('Voltage');
+$DataFile->add_column('BiasVoltage');
 $DataFile->add_column('Current');
 $DataFile->add_column('Resistance');
 
@@ -63,7 +63,7 @@ $DataFile->add_plot({
 	'type'	  => 'pm3d'
 
 	'x-axis'  => 'GateVoltage',
-	'y-axis'  => 'Voltage',
+	'y-axis'  => 'BiasVoltage',
 	'cb-axis' => 'Current'
 	});
 
@@ -75,13 +75,13 @@ my $my_measurement = sub {
 	my $sweep = shift;
 
 	my $gate_voltage = $gate->get_value();
-	my $voltage = $voltage_source->get_value();
+	my $bias_voltage = $bias->get_value();
 	my $current = $multimeter->get_value()*1e-7;
 	my $resistance = ($current != 0) ? $voltage/$current : '?';
 
 	$sweep->LOG({
 		GateVoltage => $gate_voltage,
-		Voltage => $voltage,
+		Voltage => $bias_voltage,
 		Current => $current,
 		Resistance => $resistance
 		});
@@ -95,11 +95,9 @@ $voltage_sweep->add_DataFile($DataFile);
 
 my $frame = Frame();
 $frame->add_master($gate_sweep);
-$frame->add_slave($gate_sweep);
+$frame->add_slave($bias_sweep);
 
-$voltage_sweep->start();
-
-
+$frame->start();
 
 1;
 
@@ -134,30 +132,30 @@ In the following, we will focus the new parts of our script and discuss it's mea
 =head2 Instrument initialization
 
 	#-------- 0. Import Lab::Measurement -------
-	
+
 	use Lab::Measurement;
-	
+
 	#-------- 1. Initialize Instruments --------
-	
-	my $voltage_source = Instrument('Yokogawa7651', 
+
+	my $bias = Instrument('Yokogawa7651', 
 		{
 		connection_type => 'VISA_GPIB',
 		gpib_address => 3,
 		gate_protect => 0
 		});
-	
+
 	my $multimeter = Instrument('Agilent34410A', 
 		{
 		connection_type => 'VISA_GPIB',
 		gpib_address => 17,
 		nplc => 10					# integration time in number of powerline cylces [10*(1/50)]
 		});
-	
+
 	my $gate = Instrument('Yokogawa7651', 
 		{
 		connection_type => 'VISA_GPIB',
 		gpib_address => 6,
-	
+
 		gate_protect => 1,
 		gp_min_units => -10,
 		gp_max_units => 15,
@@ -175,19 +173,19 @@ With C<<gp_max_units_per_second => 10e-3>> we define the highest possible sweep 
 
 =head2 Sweep Objects
 
-	#-------- 3. Define the Sweeps -------------
+	#-------- 2. Define the Sweeps -------------
 	my $gate_sweep = Sweep('Voltage', 
 		{
 		mode => 'step',
 		instrument => $gate,
 		points => [-5, 5],	# [starting point, target] in Volts
-		stepwidth => [0.1],	# stepwidth in volts
+		stepwidth => [0.1],
 		rate => [5e-3],			# [rate to approach start, sweeping rate for measurement] in Volts/s
 		});
 
-	my $source_sweep = Sweep('Voltage', 
+	my $bias_sweep = Sweep('Voltage', 
 		{
-		instrument => $voltage_source,
+		instrument => $bias,
 		points => [-5e-3, 5e-3],	# [starting point, target] in Volts
 		rate => [0.1, 0.5e-3],		# [rate to approach start, sweeping rate for measurement] in Volts/s
 		interval => 1, 				# measurement interval in s
@@ -208,16 +206,16 @@ while the rates parameter defines the rate, which is used to approach the steps.
 	my $DataFile = DataFile('Gate_IV_sample1.dat');
 
 	$DataFile->add_column('GateVoltage');
-	$DataFile->add_column('Voltage');
+	$DataFile->add_column('BiasVoltage');
 	$DataFile->add_column('Current');
 	$DataFile->add_column('Resistance');
-	
-	
+
+
 	$DataFile->add_plot({
 		'type'	  => 'pm3d'
-	
+
 		'x-axis'  => 'GateVoltage',
-		'y-axis'  => 'Voltage',
+		'y-axis'  => 'BiasVoltage',
 		'cb-axis' => 'Current'
 		});
 
@@ -227,18 +225,20 @@ in the plot later on.
 
 =head2 4. The measurement instructions
 
+#-------- 4. Measurement Instructions -------
+
 	my $my_measurement = sub {
-	
+
 		my $sweep = shift;
-	
+
 		my $gate_voltage = $gate->get_value();
-		my $voltage = $voltage_source->get_value();
+		my $bias_voltage = $bias->get_value();
 		my $current = $multimeter->get_value()*1e-7;
 		my $resistance = ($current != 0) ? $voltage/$current : '?';
-	
+
 		$sweep->LOG({
 			GateVoltage => $gate_voltage,
-			Voltage => $voltage,
+			Voltage => $bias_voltage,
 			Current => $current,
 			Resistance => $resistance
 			});
@@ -250,10 +250,13 @@ Again, almost nothing new here. But its getting really interesting in the next p
 
 Ok now we are finally, at the heart of this lesson! That's where most of the logic takes place, so we will do it step by step.
 
+	#-------- 5. Put everything together -------
+
 	$DataFile->add_measurement($my_measurement);
+
 	$voltage_sweep->add_DataFile($DataFile);
 
-We still remember those two lines. But why is the DataFile only connected to the voltage sweep, and not to the gate sweep? 
+We still remember the first two lines. But why is the DataFile only connected to the voltage sweep, and not to the gate sweep? 
 Thats because the voltage sweep is the one, during which the actual measurements take place. 
 But to define which sweep acts first, and which one is controlled by the other one, we introduce a new object. The Frame:
 	
@@ -262,7 +265,7 @@ But to define which sweep acts first, and which one is controlled by the other o
 You can assign masters and slaves in a frame, just like this:
 
 	$frame->add_master($gate_sweep);
-	$frame->add_slave($source_sweep);
+	$frame->add_slave($bias_sweep);
 
 The master, has to be a sweep-object, which is in mode 'step' or 'list', here $gate_sweep. Each frame can have only one master.
 For the slave, you have more freedom. You can put as many slaves as you want into the frame, just by calling add_slave multiple times.
@@ -276,12 +279,6 @@ Last but not least, as always, you have to start the whole thing. But this time 
 
 Otherwise the script won't do anything. 
 And that's it!
-
-
-
-
-
-
 
 
 =cut
