@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-Lab::VISA - Perl interface to National Instruments VISA library
+Lab::VISA - Perl interface to the National Instruments VISA library
 
 =head1 SYNOPSIS
 
@@ -16,25 +16,20 @@ With this library you can easily control the instruments in your lab (multimeter
 sources, magnet sources, pulse generators etc.) with Perl. You can perform
 complicated measurement jobs with just some Perl loops.
 
-It comes even better: The general L<Lab::Instrument|Lab::Instrument> class reduces the
-communication overhead to minimal C<read>, C<write> and C<query> methods.
-And on top of this, there are specialized instrument classes (virtual instruments) such as
-L<Lab::Instrument::HP34401A|Lab::Instrument::HP34401A>, that offer
-even more high level comfort with methods as C<read_voltage>.
-Everything is prepared so that you can just start the measurement.
+Lab::VISA provides a low-level interace; it is one of the possible backends for
+the high-level measurement control package Lab::Measurement [1].
 
-The L<Lab::Tools|Lab::Tools> package offers classes to simplify the task
-to log data to files and to maintain this data.
-
-This manpage describes the perl syntax of the API. Each function is explained
-with some sentences which I cited from [1]. See this manual for further
+This document describes the perl syntax of the API. Each function is explained
+with some sentences cited from [2]. See this manual for further
 documentation on the library.
 
 Installation instructions can be found in L<Lab::VISA::Installation>.
 
 A general tutorial for using Lab::VISA and assorted packages is located in L<Lab::VISA::Tutorial>.
 
-[1] NI-VISA Programmer Reference Manual. Part Number 370132C-01.
+[1] http://www.labmeasurement.de/
+
+[2] NI-VISA Programmer Reference Manual. Part Number 370132C-01.
 
 =head1 FUNCTIONS
 
@@ -176,10 +171,10 @@ This project was indicated to me only recently by a Lab::VISA user. It looks ver
 
 =head1 AUTHOR/COPYRIGHT
 
-This swig-based interface is
-
- (c) 2004-2006 Daniel Schröer
- (c) 2007-2010 Daniel Schröer, Andreas Hüttel, Daniela Taubert, and others 
+ This swig-based interface is
+  (c) 2004-2006 Daniel Schröer
+  (c) 2007-2010 Daniel Schröer, Andreas K. Hüttel, Daniela Taubert, and others 
+  (c) 2011-2014 Andreas K. Hüttel
 
 It is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 
