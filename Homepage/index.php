@@ -48,12 +48,12 @@ your Instrument object (see below) gets different initialization parameters.</p>
 <i>Lab::Instrument</i> and <i>Lab::Measurement</i>. The former silently handles all the 
 protocol overhead. You can write commands to an instrument and read the result. Drivers 
 for specific devices are included, implementing their specific command syntax; more can 
-easily be added to provide high-level functions. The latter includes tools for metadata 
-handling (what was that amplifier setting in the measurement again?!), data plotting, and 
-similar.</p>
+easily be added to provide high-level functions. The latter includes tools to automatically 
+generate measurement loops, for metadata handling (what was that amplifier setting in the 
+measurement again?!), data plotting, and similar.</p>
 
 <p>These classes together are distributed as the Lab::Measurement system.
-Designed to make data aquisition fun!</p>
+Designed to make measuring fun!</p>
 
 <h2>News</h2>
 
@@ -89,8 +89,8 @@ foreach ($rss->items as $item ) {
 <h2>How to obtain</h2>
 <p>
 Lab::Measurement is free software and can be <a href="http://search.cpan.org/dist/Lab-Measurement/">downloaded 
-from CPAN</a>. The <a href="https://www.gitorious.org/lab-measurement/">source code archive is 
-hosted at Gitorious</a>, where you can also obtain the newest pre-release code and 
+from CPAN</a>. The <a href="https://github.com/lab-measurement/lab-measurement">source code archive can 
+be found at Github</a>, where you can also obtain the newest pre-release code and 
 browse the version history. If you would like to contribute, just send us your patches, 
 merge requests, ... :) For browsing the code we also have a direct 
 <a href="/gitweb/?p=labmeasurement;a=summary">gitweb access</a>.
@@ -110,9 +110,10 @@ right place to give feedback and ask for help.</p>
 
 <h2>Status</h2>
 <p>Lab::Measurement is a the result of a full restructuring of the code of its predecessor
-Lab::VISA. By now it has reached a sufficient stability, and we recommend everyone to upgrade.
-Some high-level drivers from Lab::VISA have not been ported yet, but that will be addressed 
-soon...<p>
+Lab::VISA. Recently, Lab::XPRESS, a completely new interface providing automated measurement loops
+and much more has been added. The code is still in flux, which is why we recommend to check
+the XPRESS example scripts on the <a href="docs/index.html">documentation page</a>. Also, if you
+want to use the code, it definitely helps to get in touch with us and contribute patches.<p>
 
 <p>Lab::Measurement and its predecessor Lab::VISA are currently developed and employed at <a
 href="http://www.nano.physik.uni-muenchen.de/">nanophysics group, LMU M&uuml;nchen</a> and <a
@@ -127,8 +128,9 @@ continued by <a href="http://www.akhuettel.de/">Andreas K.
 H&uuml;ttel</a>, Daniela Taubert, and Daniel Schr&ouml;er. Most of the documentation was
 written by Daniel Schr&ouml;er. In 2011, the code was refactored mostly by Florian Olbrich
 to include the Bus and Connection layers; subsequently the name of the entire package collection
-was changed to Lab::Measurement. Currently development is continued by Christian Butschkow, Stefan
-Geissler, and Alois Dirnaichner.
+was changed to Lab::Measurement. David Kalok and Hermann Kraus have contributed additional code.
+Currently development, especially also concerning the new Lab::XPRESS layer, is continued by 
+Christian Butschkow, Stefan Geissler, Alexei Iankilevitch, and Alois Dirnaichner.
 </p>
 
 </body>
