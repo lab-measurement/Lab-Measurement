@@ -79,12 +79,7 @@ sub print {
 # IO Channel Output: prepare and forward data to channel
 sub out_channel {		
   my $self = shift;
-	my $chan = shift;
-
-  # my $DATA = Lab::GenericIO::data_prepare($self, @_); # supply everything including $self!
-	# if (not defined $DATA || ref($DATA) ne 'HASH') {return;} # ...?	
-	# # Write
-	# Lab::GenericIO::channel_write($chan, $DATA);
+	my $chan = shift;  
 	
 	Lab::GenericIO::channel_write($chan, $self, @_);
 }
@@ -317,6 +312,7 @@ $IO_CHANNELS->{MESSAGE} = [];
 $IO_CHANNELS->{ERROR} = [];
 $IO_CHANNELS->{WARNING} = [];
 $IO_CHANNELS->{DEBUG} = [];
+$IO_CHANNELS->{PROGRESS} = [];
 
 init();
 
