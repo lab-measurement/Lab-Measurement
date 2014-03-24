@@ -32,7 +32,7 @@ our %fields = (
 		fast_set => undef,
 		autorange => 0, 	# silently ignored by instruments (or drivers) which don't support autorange
 		
-		read_default => 'cache'
+		read_default => 'device'
 	},
 
 	# Config hash passed to subchannel objects, or to $self->configure()

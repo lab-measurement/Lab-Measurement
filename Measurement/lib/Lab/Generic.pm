@@ -2,23 +2,23 @@ package Lab::Generic;
 
 our $VERSION = '3.31';
 
+use strict;
 use Term::ReadKey;
 
-@{Lab::Generic::OBJECTS} = ();
+our @OBJECTS = ();
 
 sub new { 
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
 	
 	my $self={};
-	push(@{Lab::Generic::OBJECTS}, $self);
+	push(@OBJECTS, $self);
 	
 	bless ($self, $class);
 	return $self;
 }
 
 sub abort {}
-
 
 sub print {
 	my $self = shift;
@@ -76,10 +76,35 @@ sub print {
 }
 
 
+# IO Channel Output: prepare and forward data to channel
+sub out_channel {		
+  my $self = shift;
+	my $chan = shift;
 
-
-
-
+  # my $DATA = Lab::GenericIO::data_prepare($self, @_); # supply everything including $self!
+	# if (not defined $DATA || ref($DATA) ne 'HASH') {return;} # ...?	
+	# # Write
+	# Lab::GenericIO::channel_write($chan, $DATA);
+	
+	Lab::GenericIO::channel_write($chan, $self, @_);
+}
+# IO Channel aliases
+sub out_message {
+  my $self = shift;
+	$self->out_channel('MESSAGE', @_);  
+}
+sub out_error {
+  my $self = shift;
+  $self->out_channel('ERROR', @_);
+}
+sub out_warning {
+  my $self = shift;
+ $self->out_channel('WARNING', @_);
+}
+sub out_debug {
+  my $self = shift;
+	$self->out_channel('DEBUG', @_);
+}
 
 sub _check_args {
 	my $self = shift;
@@ -163,7 +188,7 @@ sub my_usleep {
 	my $sleeptime = shift;
 	my $self = shift;
 	my $user_command = shift;
-	if ( $sleep_time >= 5 )
+	if ( $sleeptime >= 5 )
 		{
 		countdown($sleeptime, $self, $user_command); 
 		}
@@ -281,6 +306,122 @@ sub abort_all {
 
 END {  
   abort_all();
+}
+
+package Lab::GenericIO;
+
+our $DEFAULT = 'Lab::IO::Interface::Term';
+
+our $IO_CHANNELS;
+$IO_CHANNELS->{MESSAGE} = [];
+$IO_CHANNELS->{ERROR} = [];
+$IO_CHANNELS->{WARNING} = [];
+$IO_CHANNELS->{DEBUG} = [];
+
+init();
+
+# init: initialize default interface (terminal)
+sub init {  
+  my $interface = interface_load($DEFAULT);
+	interface_bind($interface);
+}
+
+# interface_load: import, create and return interface from class
+sub interface_load {  
+	my $class = shift;
+		
+	eval "require $class; $class->import(); 1;" 
+		or die "Could not load interface class $class\n($@)\n";
+	return $class->new();
+}
+
+# interface_bind: bind all available interface channels to IO_CHANNELS
+sub interface_bind {  
+	my $interface = shift;	
+	for my $chan (keys %{$IO_CHANNELS}) {	  
+	  if ($interface->valid_channel($chan)) {		  
+		  channel_bind_interface($chan, $interface);
+		}
+	}
+}
+
+# channel_bind_interface: bind interface to single channel
+sub channel_bind_interface {  
+	my $chan = shift;
+	my $interface = shift;	
+	if (not defined $chan || not defined $interface) {print "CBI-01: Missing arguments!\n"; return;}
+	
+  if (exists $IO_CHANNELS->{$chan}) {
+    if ($interface->valid_channel($chan)) {
+			push (@{$IO_CHANNELS->{$chan}}, $interface);
+		}
+		else {print "CBI-03: Interface $interface doesn't support $chan!"; return;}	
+  }
+  else {print "CBI-02: Channel $chan doesn't exist!"; return;}	
+}
+
+# channel_write: create DATA object -> channel_data_write (chan, DATA)
+sub channel_write {
+  my $chan = shift;
+	
+	my $DATA = data_prepare(@_); # supply everything including $self!
+	if (not defined $DATA || ref($DATA) ne 'HASH') {print "CW-01: Oops!"; return;} # ...?	
+	
+	channel_data_write($chan, $DATA);
+}
+
+# channel_data_write: send DATA object to channel
+sub channel_data_write {  
+	my $chan = shift;
+	my $DATA = shift;
+	if (not defined $chan || not defined $DATA) {print "CDW-01: Missing arguments!\n"; return;}
+	
+  if (exists $IO_CHANNELS->{$chan}) {	  
+		foreach my $interface (@{$IO_CHANNELS->{$chan}}) {				
+		  $interface->receive($chan, $DATA);
+		}
+  }
+	else {print "CW-02: Channel $chan doesn't exist!"; return;}	
+}
+
+# out_prepare: return DATA object
+sub data_prepare {
+  my $object = shift;
+	my ($msg, $class, $params, $options) = Lab::Generic->_check_args(\@_, ['msg', 'class', 'params', 'options']);
+	
+	my $base_class = "Lab::IO::Data";
+	my $DATA;
+	
+	# Case A: custom class
+	if (defined $class) {
+	  $class = $base_class."::".$class;
+	  my $require = $class =~ /^(\S+)(::\w+)$/ ? $1 : $class;
+		eval "require $require; $require->import(); 1;";
+		# Error -> revert to base class
+		if($@) {
+		  $msg = "Could not load custom data class $class (from $require): $@";
+			undef $class;
+			undef $params;
+		}
+		# OK -> create custom object
+		else {		  
+			$DATA = $class->new();
+		}
+	}
+	# Case B: generic class (explicit complementary IF on purpose -> catches error in A)
+	if (not defined $class) {
+	  eval "require $base_class; $base_class->import(); 1;" or die "Could not load base data class $base_class\n($@)\n";
+	  $DATA = $base_class->new();
+	}
+	# DATA object exists in any case -> pass msg / params
+	if (defined $msg) {$DATA->{msg} = $msg;}
+	if (defined $params) {$DATA->{params} = $params;}	
+	if (defined $options) {$DATA->{options} = $options;}
+	# Object & Caller
+	$DATA->{object} = $object;	
+	($DATA->{package}, $DATA->{filename}, $DATA->{line}, $DATA->{subroutine}) = caller(2); # +1 out_prepare; +1 out_channel
+	# Done
+	return $DATA;
 }
 
 1;
