@@ -34,9 +34,22 @@ sub message {
 	
 	#print "Same channel? ", ($self->same_channel('MESSAGE') ? 'Yes' : 'No'), "\n";
 	#print "Same object? ", ($self->same_object($DATA) ? 'Yes' : 'No'), "\n";	
-	
+
 	if(!$self->same_object($DATA) || !$self->same_channel('MESSAGE')) {
-	  $self->header("MESSAGE from ".ref($DATA->{object}).":", 'bold blue on white');
+
+		my $object_ref = (defined $DATA->{object}) ? ref($DATA->{object}) : undef;
+		my $object_name = (defined $DATA->{object} && $DATA->{object}->can('get_name')) ? $DATA->{object}->get_name() : undef;
+		my $package = $DATA->{trace}->frame(0)->package();
+
+		my $header_msg = "MESSAGE ";
+		
+		if ($package ne $object_ref) { $header_msg .= "in $package "; }
+		if (defined $object_ref) { $header_msg .= "from $object_ref "; }
+		if (defined $object_name) { $header_msg .= "($object_name)"}
+
+		$header_msg .= ":";
+
+	  	$self->header($header_msg, 'bold blue on white');
 	}	
 	$self->process_common($DATA);
 }
@@ -65,9 +78,11 @@ sub warning {
 sub debug {
   my $self = shift;	
 	my $DATA = shift;	
-	
-	$self->print("DEBUG from ".ref($DATA->{object}).":\n", 'green on_white');
-	$self->process_common($DATA);
+
+	if ($Lab::Generic::CLOptions::DEBUG) {
+		$self->header("DEBUG from ".ref($DATA->{object}).":", 'green on_white');
+		$self->process_common($DATA);	
+	}
 }
 
 sub header {
@@ -75,8 +90,8 @@ sub header {
 	my $text = shift;
 	my $style = shift;
 	
-	print STDOUT Term::ANSIScreen::colored("$text", $style);
-	print STDOUT "\n";
+	print ${Lab::GenericIO::STDOUT} Term::ANSIScreen::colored("$text", $style);
+	print ${Lab::GenericIO::STDOUT} "\n";
 }
 
 sub process_common {
@@ -91,7 +106,7 @@ sub process_common {
 			$self->params_dump($DATA);
 		}
 	}
-	print "\n";
+	$self->print("\n");
 }
 
 sub params_dump {
@@ -121,7 +136,7 @@ sub print {
 	# else {
 	  # print STDOUT "$string\n";
 	# }
-	print STDOUT "$string\n";
+	print ${Lab::GenericIO::STDOUT} "$string\n";
 }
 
 1;

@@ -18,6 +18,17 @@ sub new {
 	return $self;
 }
 
+sub set_name {
+	my $self = shift;	
+	my ($name) = $self->_check_args( \@_, ['name'] );
+	$self->{name} = $name;	
+}
+
+sub get_name {
+	my $self = shift;
+	return $self->{name};	
+}
+
 sub abort {}
 
 sub print {
@@ -288,6 +299,7 @@ sub seconds2time {
 	return $formated;
 }
 
+
 package Lab::GenericSignals;
 
 use sigtrap 'handler' => \&abort_all, qw(normal-signals error-signals);
@@ -305,6 +317,8 @@ END {
 
 package Lab::GenericIO;
 
+use Devel::StackTrace;
+
 our $DEFAULT = 'Lab::IO::Interface::Term';
 
 our $IO_CHANNELS;
@@ -316,10 +330,24 @@ $IO_CHANNELS->{PROGRESS} = [];
 
 init();
 
-# init: initialize default interface (terminal)
+# init
 sub init {  
-  my $interface = interface_load($DEFAULT);
+
+	# load and bind default interfaces:
+	my $interface = interface_load($DEFAULT);
 	interface_bind($interface);
+
+	#Backup STDOUT and STDERR:
+	our $STDOUT = *STDOUT;
+	our $STDERR = *STDERR;
+
+	#tie STDOUT AND STDERR to custom handles:
+
+	tie *OUT_HANDLE, 'Lab::GenericIO::STDoutHandle';
+	*STDOUT = *OUT_HANDLE;
+
+	tie *ERR_HANDLE, 'Lab::GenericIO::STDerrHandle';
+	*STDERR = *ERR_HANDLE;
 }
 
 # interface_load: import, create and return interface from class
@@ -416,8 +444,76 @@ sub data_prepare {
 	# Object & Caller
 	$DATA->{object} = $object;	
 	($DATA->{package}, $DATA->{filename}, $DATA->{line}, $DATA->{subroutine}) = caller(2); # +1 out_prepare; +1 out_channel
+	# Create Stacktrace
+	$DATA->{trace} = new Devel::StackTrace(
+		ignore_package => ['Lab::GenericIO', 'Lab::Generic', 'Lab::GenericIO::STDoutHandle', 'Lab::GenericIO::STDerrHandle']
+		);
+
 	# Done
 	return $DATA;
 }
+
+# Handle to replace STDOUT (routes messages on STDOUT to MESSAGE channel):
+package Lab::GenericIO::STDoutHandle;
+
+use Symbol qw<geniosym>;
+
+use base qw<Tie::Handle>;
+
+sub TIEHANDLE { return bless geniosym, __PACKAGE__ }
+
+sub PRINT {
+
+	shift;
+	my $string = join("", @_);
+
+	Lab::GenericIO::channel_write("MESSAGE", undef, $string);
+}
+
+sub PRINTF {
+
+	shift;
+	my $format = shift;
+
+	my $string = sprintf "$format", @_;
+
+	Lab::GenericIO::channel_write("MESSAGE", undef, $string);
+}
+
+# Handle to replace STDERR (routes messages on STDERR to ERROR channel):
+package Lab::GenericIO::STDerrHandle;
+
+use Symbol qw<geniosym>;
+
+use base qw<Tie::Handle>;
+
+sub TIEHANDLE { return bless geniosym, __PACKAGE__ }
+
+sub PRINT {
+
+	shift;
+	my $string = join("", @_);
+
+	Lab::GenericIO::channel_write("ERROR", undef, $string);
+}
+
+sub PRINTF {
+
+	shift;
+	my $format = shift;
+
+	my $string = sprintf "$format", @_;
+
+	Lab::GenericIO::channel_write("ERROR", undef, $string);
+}
+
+# Process Command Line Options (i.e. flag -d | -debug):
+package Lab::Generic::CLOptions;
+
+use Getopt::Long;
+
+our $DEBUG = 0;
+
+GetOptions("debug|d" => \$DEBUG);
 
 1;
