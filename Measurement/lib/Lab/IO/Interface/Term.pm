@@ -17,9 +17,11 @@ sub new {
 	my @size = GetTerminalSize(STDOUT);
 	$self->{cols} = $size[0] - 1;
 	$self->{rows} = $size[1];
-	#$self->{rowfill} = (" " x $self->{cols})."\r";
+		
+	$self->{last_header} = '';	
+	$self->{last_ln} = 1;
 	
-	$self->{last_header} = '';
+	$self->{sticky_rows} = {};
 	
 	$self->{CHANNELS} = {
 		'MESSAGE' => \&message
@@ -31,18 +33,23 @@ sub new {
 }
 
 sub output {
-  if(ref(@_[0]) eq __PACKAGE__) {shift;}
+  #if(ref(@_[0]) eq __PACKAGE__) {shift;}
+	my $self = shift;
+	my $string = join("", @_);
 		
-	print ${Lab::GenericIO::STDOUT} join("", @_);
+	print ${Lab::GenericIO::STDOUT} $string;	
+		
+	$self->{last_ln} = ($string =~ m/\n\r?$/ ? 1 : 0);		
 }
 
+# -----------------------------------------------
 sub message {
   my $self = shift;	
 	my $DATA = shift;
-	my $chan = 'MESSAGE';
+	my $chan = 'MESSAGE';	
 	
   $self->header($DATA, $chan, 'bold blue on white');	
-	$self->process_common($DATA);
+	$self->process_common($DATA);	
 }
 
 sub error {
@@ -67,20 +74,17 @@ sub debug {
   my $self = shift;	
 	my $DATA = shift;	
 	my $chan = 'DEBUG';
-	
-	#if (!$Lab::Generic::CLOptions::DEBUG) {return;}
 		
 	$self->header($DATA, $chan, 'green on white');
 	$self->process_common($DATA);	
 }
 
+# -----------------------------------------------
 sub header {
   my $self = shift;
 	my $DATA = shift;
 	my $chan = shift;
-	my $style = shift;
-	
-	#if($self->same_object($DATA) && $self->same_channel($chan)) {return;}
+	my $style = shift;		
 	
 	my $object_ref = (defined $DATA->{object}) ? ref($DATA->{object}) : undef;
 	my $object_name = (defined $DATA->{object} && $DATA->{object}->can('get_name')) ? $DATA->{object}->get_name() : undef;
@@ -94,13 +98,11 @@ sub header {
 
 	$header_msg .= ":";
 	
-	#output "Compare '$header_msg' and '".$self->{last_header}."': ".($header_msg eq $self->{last_header} ? "Yes" : "No")."\n";
 	if($header_msg eq $self->{last_header}) {return;}
 	$self->{last_header} = $header_msg;
-	
-	output "\n" ;
-	output( Term::ANSIScreen::colored("$header_msg", $style) );
-	output( "\n" );
+		
+	if(!$self->{last_ln}) {$self->output("\n");}
+	$self->output("\n", Term::ANSIScreen::colored("$header_msg", $style), "\n");	
 }
 
 sub process_common {
@@ -114,8 +116,7 @@ sub process_common {
   	if (exists $DATA->{options}->{dump} && $DATA->{options}->{dump}) {
 			$self->params_dump($DATA);
 		}
-	}
-	#$self->output("\n");
+	}	
 }
 
 sub params_dump {
@@ -126,10 +127,17 @@ sub params_dump {
 	my $string;
 	for my $param (keys %{$DATA->{params}}) {
 		$string = " - $param: ".$DATA->{params}->{$param}."\n";		
-	  output($string);
+	  $self->output($string);
 	}
 }
 
-
+# -----------------------------------------------
+sub new_sticky {
+  my $self = shift;
+	my $id = shift;
+	my $content = shift;
+		
+	$self->{sticky_rows}->{$id} = $content;
+}
 
 1;

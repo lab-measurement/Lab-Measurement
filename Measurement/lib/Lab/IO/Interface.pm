@@ -19,23 +19,23 @@ sub receive {
   my $self = shift;
 	my $chan = shift;
 	my $DATA = shift;
-	if (not defined $chan) {print "Receive: Missing channel id!\n"; return;}
-	if (not defined $DATA || ref($DATA) != 'HASH') {print "Receive: Missing data object!\n"; return;}	
+	if (not defined $chan) {return;} #{print "Receive: Missing channel id!\n"; return;}
+	if (not defined $DATA || ref($DATA) != 'HASH') {return;} #{print "Receive: Missing data object!\n"; return;}	
 	
   if (exists $self->{CHANNELS}->{$chan} && defined $self->{CHANNELS}->{$chan}) {	  
 		$self->{CHANNELS}->{$chan}->($self, $DATA);
 		$self->{last_object} = $DATA->{object};
 		$self->{last_channel} = $chan;
   }
-  else {print "Receive: Channel $chan not supported!"; return;}	
+  else {return;} #{print "Receive: Channel $chan not supported!"; return;}	
 }
 
 # print: prototype
-sub print {
-  my $self = shift;
-	my $msg = shift;
-	print "$msg\n";
-}
+# sub print {
+  # my $self = shift;
+	# my $msg = shift;
+	# print "$msg\n";
+# }
 
 sub valid_channel {
   my $self = shift;
