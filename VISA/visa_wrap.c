@@ -1850,54 +1850,6 @@ SWIGCLASS_STATIC int swig_magic_readonly(pTHX_ SV *SWIGUNUSEDPARM(sv), MAGIC *SW
 #ifdef __cplusplus
 extern "C" {
 #endif
-XS(_wrap_viVxiServantResponse) {
-  {
-    ViSession arg1 ;
-    ViInt16 arg2 ;
-    ViUInt32 arg3 ;
-    unsigned long val1 ;
-    int ecode1 = 0 ;
-    short val2 ;
-    int ecode2 = 0 ;
-    unsigned long val3 ;
-    int ecode3 = 0 ;
-    int argvi = 0;
-    ViStatus result;
-    dXSARGS;
-    
-    if ((items < 3) || (items > 3)) {
-      SWIG_croak("Usage: viVxiServantResponse(vi,mode,resp);");
-    }
-    ecode1 = SWIG_AsVal_unsigned_SS_long SWIG_PERL_CALL_ARGS_2(ST(0), &val1);
-    if (!SWIG_IsOK(ecode1)) {
-      SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "viVxiServantResponse" "', argument " "1"" of type '" "ViSession""'");
-    } 
-    arg1 = (ViSession)(val1);
-    ecode2 = SWIG_AsVal_short SWIG_PERL_CALL_ARGS_2(ST(1), &val2);
-    if (!SWIG_IsOK(ecode2)) {
-      SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "viVxiServantResponse" "', argument " "2"" of type '" "ViInt16""'");
-    } 
-    arg2 = (ViInt16)(val2);
-    ecode3 = SWIG_AsVal_unsigned_SS_long SWIG_PERL_CALL_ARGS_2(ST(2), &val3);
-    if (!SWIG_IsOK(ecode3)) {
-      SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "viVxiServantResponse" "', argument " "3"" of type '" "ViUInt32""'");
-    } 
-    arg3 = (ViUInt32)(val3);
-    result = (ViStatus)viVxiServantResponse(arg1,arg2,arg3);
-    ST(argvi) = SWIG_From_long  SWIG_PERL_CALL_ARGS_1((long)(result)); argvi++ ;
-    
-    
-    
-    XSRETURN(argvi);
-  fail:
-    
-    
-    
-    SWIG_croak_null();
-  }
-}
-
-
 XS(_wrap_viGpibControlREN) {
   {
     ViSession arg1 ;
@@ -2541,7 +2493,6 @@ static swig_variable_info swig_variables[] = {
 {0,0,0,0}
 };
 static swig_command_info swig_commands[] = {
-{"Lab::VISAc::viVxiServantResponse", _wrap_viVxiServantResponse},
 {"Lab::VISAc::viGpibControlREN", _wrap_viGpibControlREN},
 {"Lab::VISAc::viOpenDefaultRM", _wrap_viOpenDefaultRM},
 {"Lab::VISAc::viOpen", _wrap_viOpen},
@@ -4774,41 +4725,6 @@ XS(SWIG_init) {
   /*@SWIG:/usr/share/swig/2.0.9/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "VI_ATTR_SYNC_MXI_ALLOW_EN", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_unsigned_SS_long  SWIG_PERL_CALL_ARGS_1((unsigned long)((0x3FFF0161UL))));
-    SvREADONLY_on(sv);
-  } while(0) /*@SWIG@*/;
-  /*@SWIG:/usr/share/swig/2.0.9/perl5/perltypemaps.swg,65,%set_constant@*/ do {
-    SV *sv = get_sv((char*) SWIG_prefix "VI_EVENT_VXI_DEV_CMD", TRUE | 0x2 | GV_ADDMULTI);
-    sv_setsv(sv, SWIG_From_unsigned_SS_long  SWIG_PERL_CALL_ARGS_1((unsigned long)((0xBFFF200FUL))));
-    SvREADONLY_on(sv);
-  } while(0) /*@SWIG@*/;
-  /*@SWIG:/usr/share/swig/2.0.9/perl5/perltypemaps.swg,65,%set_constant@*/ do {
-    SV *sv = get_sv((char*) SWIG_prefix "VI_ATTR_VXI_DEV_CMD_TYPE", TRUE | 0x2 | GV_ADDMULTI);
-    sv_setsv(sv, SWIG_From_unsigned_SS_long  SWIG_PERL_CALL_ARGS_1((unsigned long)((0x3FFF4037UL))));
-    SvREADONLY_on(sv);
-  } while(0) /*@SWIG@*/;
-  /*@SWIG:/usr/share/swig/2.0.9/perl5/perltypemaps.swg,65,%set_constant@*/ do {
-    SV *sv = get_sv((char*) SWIG_prefix "VI_ATTR_VXI_DEV_CMD_VALUE", TRUE | 0x2 | GV_ADDMULTI);
-    sv_setsv(sv, SWIG_From_unsigned_SS_long  SWIG_PERL_CALL_ARGS_1((unsigned long)((0x3FFF4038UL))));
-    SvREADONLY_on(sv);
-  } while(0) /*@SWIG@*/;
-  /*@SWIG:/usr/share/swig/2.0.9/perl5/perltypemaps.swg,65,%set_constant@*/ do {
-    SV *sv = get_sv((char*) SWIG_prefix "VI_VXI_DEV_CMD_TYPE_16", TRUE | 0x2 | GV_ADDMULTI);
-    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1((int)((16))));
-    SvREADONLY_on(sv);
-  } while(0) /*@SWIG@*/;
-  /*@SWIG:/usr/share/swig/2.0.9/perl5/perltypemaps.swg,65,%set_constant@*/ do {
-    SV *sv = get_sv((char*) SWIG_prefix "VI_VXI_DEV_CMD_TYPE_32", TRUE | 0x2 | GV_ADDMULTI);
-    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1((int)((32))));
-    SvREADONLY_on(sv);
-  } while(0) /*@SWIG@*/;
-  /*@SWIG:/usr/share/swig/2.0.9/perl5/perltypemaps.swg,65,%set_constant@*/ do {
-    SV *sv = get_sv((char*) SWIG_prefix "VI_VXI_RESP_NONE", TRUE | 0x2 | GV_ADDMULTI);
-    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1((int)((0))));
-    SvREADONLY_on(sv);
-  } while(0) /*@SWIG@*/;
-  /*@SWIG:/usr/share/swig/2.0.9/perl5/perltypemaps.swg,65,%set_constant@*/ do {
-    SV *sv = get_sv((char*) SWIG_prefix "VI_VXI_RESP_PROT_ERROR", TRUE | 0x2 | GV_ADDMULTI);
-    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1((int)((-1))));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
   /*@SWIG:/usr/share/swig/2.0.9/perl5/perltypemaps.swg,65,%set_constant@*/ do {

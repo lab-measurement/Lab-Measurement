@@ -1,6 +1,10 @@
 History of Lab::VISA
 ====================
 
+Lab::VISA 3.02
+  * remove support for VXI SERVANT ressouces (they are NI specific, and using that
+    code leads to a runtime error in 64bit VISA)
+
 Lab::VISA 3.01
   * add support for viGpibControlREN
 

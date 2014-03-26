@@ -604,21 +604,6 @@ typedef ViStatus (_VI_FUNCH * ViHndlr)
 
 #define VI_ATTR_SYNC_MXI_ALLOW_EN   (0x3FFF0161UL) /* ViBoolean, read/write */
 
-/* This is for VXI SERVANT resources */
-
-#define VI_EVENT_VXI_DEV_CMD        (0xBFFF200FUL)
-#define VI_ATTR_VXI_DEV_CMD_TYPE    (0x3FFF4037UL) /* ViInt16, read-only */
-#define VI_ATTR_VXI_DEV_CMD_VALUE   (0x3FFF4038UL) /* ViUInt32, read-only */
-
-#define VI_VXI_DEV_CMD_TYPE_16      (16)
-#define VI_VXI_DEV_CMD_TYPE_32      (32)
-
-ViStatus _VI_FUNC viVxiServantResponse(ViSession vi, ViInt16 mode, ViUInt32 resp);
-/* mode values include VI_VXI_RESP16, VI_VXI_RESP32, and the next 2 values */
-#define VI_VXI_RESP_NONE            (0)
-#define VI_VXI_RESP_PROT_ERROR      (-1)
-
-
 /* This allows extended Serial support on Win32 and on NI ENET Serial products */
 
 #define VI_ATTR_ASRL_DISCARD_NULL   (0x3FFF00B0UL)
