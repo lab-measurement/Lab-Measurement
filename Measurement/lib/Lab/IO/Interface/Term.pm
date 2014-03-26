@@ -19,6 +19,8 @@ sub new {
 	$self->{rows} = $size[1];
 	#$self->{rowfill} = (" " x $self->{cols})."\r";
 	
+	$self->{last_header} = '';
+	
 	$self->{CHANNELS} = {
 		'MESSAGE' => \&message
 	 ,'ERROR' => \&error
@@ -28,70 +30,77 @@ sub new {
 	return $self;
 }
 
+sub output {
+  if(ref(@_[0]) eq __PACKAGE__) {shift;}
+		
+	print ${Lab::GenericIO::STDOUT} join("", @_);
+}
+
 sub message {
   my $self = shift;	
 	my $DATA = shift;
+	my $chan = 'MESSAGE';
 	
-	#print "Same channel? ", ($self->same_channel('MESSAGE') ? 'Yes' : 'No'), "\n";
-	#print "Same object? ", ($self->same_object($DATA) ? 'Yes' : 'No'), "\n";	
-
-	if(!$self->same_object($DATA) || !$self->same_channel('MESSAGE')) {
-
-		my $object_ref = (defined $DATA->{object}) ? ref($DATA->{object}) : undef;
-		my $object_name = (defined $DATA->{object} && $DATA->{object}->can('get_name')) ? $DATA->{object}->get_name() : undef;
-		my $package = $DATA->{trace}->frame(0)->package();
-
-		my $header_msg = "MESSAGE ";
-		
-		if ($package ne $object_ref) { $header_msg .= "in $package "; }
-		if (defined $object_ref) { $header_msg .= "from $object_ref "; }
-		if (defined $object_name) { $header_msg .= "($object_name)"}
-
-		$header_msg .= ":";
-
-	  	$self->header($header_msg, 'bold blue on white');
-	}	
+  $self->header($DATA, $chan, 'bold blue on white');	
 	$self->process_common($DATA);
 }
 
 sub error {
   my $self = shift;	
 	my $DATA = shift;	
+	my $chan = 'ERROR';
 	
-	#print "Same channel? ", ($self->same_channel('ERROR') ? 'Yes' : 'No'), "\n";
-	#print "Same object? ", ($self->same_object($DATA) ? 'Yes' : 'No'), "\n";	
-	
-	if(!$self->same_object($DATA) || !$self->same_channel('ERROR')) {
-	  $self->header("ERROR from ".ref($DATA->{object}).":", 'bold red on white');
-	}	
+	$self->header($DATA, $chan, 'bold red on white');	
 	$self->process_common($DATA);
 }
 
 sub warning {
   my $self = shift;	
 	my $DATA = shift;	
+	my $chan = 'WARNING';
 	
-	$self->print("WARNING from ".ref($DATA->{object}).":\n", 'yellow on_white');
+	$self->header($DATA, $chan, 'bold yellow on white');	
 	$self->process_common($DATA);
 }
 
 sub debug {
   my $self = shift;	
 	my $DATA = shift;	
-
-	if ($Lab::Generic::CLOptions::DEBUG) {
-		$self->header("DEBUG from ".ref($DATA->{object}).":", 'green on_white');
-		$self->process_common($DATA);	
-	}
+	my $chan = 'DEBUG';
+	
+	#if (!$Lab::Generic::CLOptions::DEBUG) {return;}
+		
+	$self->header($DATA, $chan, 'green on white');
+	$self->process_common($DATA);	
 }
 
 sub header {
   my $self = shift;
-	my $text = shift;
+	my $DATA = shift;
+	my $chan = shift;
 	my $style = shift;
 	
-	print ${Lab::GenericIO::STDOUT} Term::ANSIScreen::colored("$text", $style);
-	print ${Lab::GenericIO::STDOUT} "\n";
+	#if($self->same_object($DATA) && $self->same_channel($chan)) {return;}
+	
+	my $object_ref = (defined $DATA->{object}) ? ref($DATA->{object}) : undef;
+	my $object_name = (defined $DATA->{object} && $DATA->{object}->can('get_name')) ? $DATA->{object}->get_name() : undef;
+	my $package = $DATA->{trace}->frame(0)->package();
+
+	my $header_msg = "$chan";
+		
+	if ($package ne $object_ref) { $header_msg .= " in $package"; }
+	if (defined $object_ref) { $header_msg .= " from $object_ref"; }
+	if (defined $object_name) { $header_msg .= " ($object_name)"; }
+
+	$header_msg .= ":";
+	
+	#output "Compare '$header_msg' and '".$self->{last_header}."': ".($header_msg eq $self->{last_header} ? "Yes" : "No")."\n";
+	if($header_msg eq $self->{last_header}) {return;}
+	$self->{last_header} = $header_msg;
+	
+	output "\n" ;
+	output( Term::ANSIScreen::colored("$header_msg", $style) );
+	output( "\n" );
 }
 
 sub process_common {
@@ -99,14 +108,14 @@ sub process_common {
 	my $DATA = shift;
 	
 	my $msg = $DATA->msg_parsed();
-	$self->print($msg);
+	$self->output($msg);
 	
 	if (exists $DATA->{options}) {
   	if (exists $DATA->{options}->{dump} && $DATA->{options}->{dump}) {
 			$self->params_dump($DATA);
 		}
 	}
-	$self->print("\n");
+	#$self->output("\n");
 }
 
 sub params_dump {
@@ -116,27 +125,11 @@ sub params_dump {
 	
 	my $string;
 	for my $param (keys %{$DATA->{params}}) {
-		$string = " - $param: ".$DATA->{params}->{$param};		
-	  $self->print($string);
+		$string = " - $param: ".$DATA->{params}->{$param}."\n";		
+	  output($string);
 	}
 }
 
-sub print {
-  my $self = shift;
-	my $string = shift;
-	my $style = shift;
-	
-	# if (defined $style) {
-		# my $cols = $self->{cols};
-		# while ($string =~ /(.{1,$cols})/g) {
-			# print STDOUT Term::ANSIScreen::colored($self->{rowfill}, $style);
-			# print STDOUT Term::ANSIScreen::colored("$1\n", $style);
-		# }
-	# }
-	# else {
-	  # print STDOUT "$string\n";
-	# }
-	print ${Lab::GenericIO::STDOUT} "$string\n";
-}
+
 
 1;

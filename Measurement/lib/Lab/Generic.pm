@@ -388,6 +388,8 @@ sub channel_bind_interface {
 sub channel_write {
   my $chan = shift;
 	
+	if($chan eq 'DEBUG' && !$Lab::Generic::CLOptions::DEBUG) {return;}
+	
 	my $DATA = data_prepare(@_); # supply everything including $self!
 	if (not defined $DATA || ref($DATA) ne 'HASH') {print "CW-01: Oops!"; return;} # ...?	
 	
