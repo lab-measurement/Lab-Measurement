@@ -28,11 +28,6 @@ sub new {
 	
 	$self->{init_output} = 1;	
 	
-	### test
-	$self->sticky_add('test', '######### STICKY ROW #########');
-	$self->sticky_add('test2', '######### SECOND ROW #########');
-	### test
-	
 	$self->{CHANNELS} = {
 		'MESSAGE' => \&message
 	 ,'ERROR' => \&error
@@ -68,8 +63,12 @@ sub message {
 	my $DATA = shift;
 	my $chan = 'MESSAGE';	
 	
-  $self->header($DATA, $chan, 'bold blue on white');	
-	$self->process_common($DATA);	
+	$common = $self->process_options($DATA, $chan);
+	
+	if($common) {
+		$self->header($DATA, $chan, 'bold blue on white');	
+		$self->process_common($DATA);
+	}
 }
 
 sub error {
@@ -100,6 +99,21 @@ sub debug {
 }
 
 # -----------------------------------------------
+sub process_options {
+  my $self = shift;
+	my $DATA = shift;
+	my $chan = shift;
+	
+	if(exists $DATA->{options}) {
+	  if(exists $DATA->{options}->{sticky_id}) {
+		  $self->sticky_process($DATA, $chan);
+			return 0;
+		}
+	}
+	
+	return 1;
+}
+
 sub header {
   my $self = shift;
 	my $DATA = shift;
@@ -151,26 +165,78 @@ sub params_dump {
 	}
 }
 
-# -----------------------------------------------
-sub sticky_add {
+# ---------- STICKY -----------------------------
+sub sticky_process {
+  my $self = shift;
+	my $DATA = shift;
+	my $chan = shift;
+	
+	my $id = $DATA->{options}->{sticky_id};
+	if(exists $DATA->{options}->{sticky_cmd}) {
+	  if($DATA->{options}->{sticky_cmd} eq 'finish') {
+		  $self->sticky_remove($id, 1);
+		}
+		elsif($DATA->{options}->{sticky_cmd} eq 'remove') {
+		  $self->sticky_remove($id, 0);
+		}
+	}
+	else {
+	  my $msg = $DATA->msg_parsed();
+		$self->sticky_set($id, $msg);
+	}
+}
+
+sub sticky_set {
   my $self = shift;
 	my $id = shift;
 	my $content = shift;
-	  	
-	$self->{sticky_rows}->{$id} = $content;		# create/replace
-	push @{$self->{sticky_order}}, $id;
+
+	my $exists = exists $self->{sticky_rows}->{$id};	
+  
+	$content = $self->sticky_format($content);	
+	$self->{sticky_rows}->{$id} = $content;
+	
+	if(!$exists) {
+	  push @{$self->{sticky_order}}, \$self->{sticky_rows}->{$id};
+	}
+	
+	$self->sticky_rows();		# refresh
 }
 
 sub sticky_remove {
   my $self = shift;
 	my $id = shift;
+	my $make_inline = shift;	
 	
-	if(exists $self->{sticky_rows}->{$id}) {delete $self->{sticky_rows}->{$id};}
-	for my $i (0 .. scalar $#{@{$self->{sticky_order}}}) {
-	  if($self->{sticky_order}[$i] eq $id) {
-		  splice @{$self->{sticky_order}}, $i;
+	if(!exists $self->{sticky_rows}->{$id}) {return;}	
+	my $content = $self->{sticky_rows}->{$id};
+		
+	my $index;	
+	for my $i (0 .. $#{$self->{sticky_order}}) {	  
+	  if($self->{sticky_order}[$i] eq \$self->{sticky_rows}->{$id}) {
+		  $index = $i;
 		}
-	}	
+	}
+	if(defined $index) {splice @{$self->{sticky_order}}, $i, 1;}
+  delete $self->{sticky_rows}->{$id};	
+	
+	if($make_inline) {
+	  if(!$self->{last_ln}) {print ${Lab::GenericIO::STDOUT} "\n";}
+	  $self->output($content, "\n");
+	}
+	else {
+	  $self->sticky_rows();
+	}
+}
+
+sub sticky_format {
+  my $self = shift;
+	my $content = shift;
+	
+	$content =~ s/\n//g;
+	$content = substr $content, 0, $self->{cols};
+	
+	return $content;
 }
 
 sub sticky_rows {
@@ -179,6 +245,7 @@ sub sticky_rows {
 	my $rownum = scalar @{$self->{sticky_order}};
 	if(!$rownum) {return;}		# nothing to do	
 		
+	print ${Lab::GenericIO::STDOUT} loadpos;
 	print ${Lab::GenericIO::STDOUT} cldown;
 	
 	if(!$self->{last_ln}) {print ${Lab::GenericIO::STDOUT} "\n";}
@@ -186,10 +253,8 @@ sub sticky_rows {
 	print ${Lab::GenericIO::STDOUT} down($rownum);	
 	
 	foreach(@{$self->{sticky_order}}) {	  
-	  print ${Lab::GenericIO::STDOUT} "\r";
-		if(exists $self->{sticky_rows}->{$_}) {
-		  print ${Lab::GenericIO::STDOUT} $self->{sticky_rows}->{$_};
-		}
+	  print ${Lab::GenericIO::STDOUT} "\r";		
+		print ${Lab::GenericIO::STDOUT} ${$_};		
 		print ${Lab::GenericIO::STDOUT} up(1);
 	}
 	
