@@ -13,6 +13,8 @@ sub new {
 	
 	my $self = $class->SUPER::new(@_);
 	
+	$|++;
+	
 	# Terminal size
 	my @size = GetTerminalSize(STDOUT);
 	$self->{cols} = $size[0] - 1;
@@ -21,7 +23,15 @@ sub new {
 	$self->{last_header} = '';	
 	$self->{last_ln} = 1;
 	
-	$self->{sticky_rows} = {};
+	$self->{sticky_rows} = {};	
+	$self->{sticky_order} = [];
+	
+	$self->{init_output} = 1;	
+	
+	### test
+	$self->sticky_add('test', '######### STICKY ROW #########');
+	$self->sticky_add('test2', '######### SECOND ROW #########');
+	### test
 	
 	$self->{CHANNELS} = {
 		'MESSAGE' => \&message
@@ -36,10 +46,20 @@ sub output {
   #if(ref(@_[0]) eq __PACKAGE__) {shift;}
 	my $self = shift;
 	my $string = join("", @_);
-		
+
+	if($self->{init_output}) {
+	  print ${Lab::GenericIO::STDOUT} savepos;
+		$self->{init_output} = 0;
+	}
+	
+	print ${Lab::GenericIO::STDOUT} loadpos;
+  print ${Lab::GenericIO::STDOUT} cldown;	
 	print ${Lab::GenericIO::STDOUT} $string;	
-		
-	$self->{last_ln} = ($string =~ m/\n\r?$/ ? 1 : 0);		
+  print ${Lab::GenericIO::STDOUT} savepos;	
+	
+	$self->{last_ln} = ($string =~ m/\n\r?$/ ? 1 : 0);	
+  
+	$self->sticky_rows();
 }
 
 # -----------------------------------------------
@@ -116,7 +136,7 @@ sub process_common {
   	if (exists $DATA->{options}->{dump} && $DATA->{options}->{dump}) {
 			$self->params_dump($DATA);
 		}
-	}	
+	}		
 }
 
 sub params_dump {
@@ -132,12 +152,49 @@ sub params_dump {
 }
 
 # -----------------------------------------------
-sub new_sticky {
+sub sticky_add {
   my $self = shift;
 	my $id = shift;
 	my $content = shift;
+	  	
+	$self->{sticky_rows}->{$id} = $content;		# create/replace
+	push @{$self->{sticky_order}}, $id;
+}
+
+sub sticky_remove {
+  my $self = shift;
+	my $id = shift;
+	
+	if(exists $self->{sticky_rows}->{$id}) {delete $self->{sticky_rows}->{$id};}
+	for my $i (0 .. scalar $#{@{$self->{sticky_order}}}) {
+	  if($self->{sticky_order}[$i] eq $id) {
+		  splice @{$self->{sticky_order}}, $i;
+		}
+	}	
+}
+
+sub sticky_rows {
+  my $self = shift;
+	
+	my $rownum = scalar @{$self->{sticky_order}};
+	if(!$rownum) {return;}		# nothing to do	
 		
-	$self->{sticky_rows}->{$id} = $content;
+	print ${Lab::GenericIO::STDOUT} cldown;
+	
+	if(!$self->{last_ln}) {print ${Lab::GenericIO::STDOUT} "\n";}
+	
+	print ${Lab::GenericIO::STDOUT} down($rownum);	
+	
+	foreach(@{$self->{sticky_order}}) {	  
+	  print ${Lab::GenericIO::STDOUT} "\r";
+		if(exists $self->{sticky_rows}->{$_}) {
+		  print ${Lab::GenericIO::STDOUT} $self->{sticky_rows}->{$_};
+		}
+		print ${Lab::GenericIO::STDOUT} up(1);
+	}
+	
+	print ${Lab::GenericIO::STDOUT} down($rownum);
+	print ${Lab::GenericIO::STDOUT} "\r";	
 }
 
 1;
