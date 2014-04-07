@@ -66,34 +66,38 @@ sub get_frq{
 }
 
 sub set_power {
-    my $self=shift;
+	my $self=shift;
 	my ($power) = $self->_check_args( \@_, ['value'] );
-
-    $self->write("POWer:LEVel $power DBM");
+	$self->write("POWer:LEVel $power DBM");
 }
 
 sub get_power {
 	my $self = shift;
-	
 	return $self->query("POWer:LEVel?");
 }
 
 sub set_pulselength {
 	my $self = shift;
+	my ($length) = $self->_check_args( \@_, ['value'] );
+	$self->write("PULM:WIDT $length s");
 }
 
 sub get_pulselength {
 	my $self = shift;
-	return 0;
+	my $length = $self->query("PULM:WIDT?");
+	return $length;
 }
 
 sub set_pulseperiod {
 	my $self = shift;
+	my ($period) = $self->_check_args( \@_, ['value'] );
+	$self->write("PULM:PER $period s");
 }
 
 sub get_pulseperiod {
 	my $self = shift;
-	return 0;
+	my $period = $self->query("PULM:PER?");
+	return $period;
 }
 
 
@@ -137,10 +141,15 @@ sub disable_external_am {
 
 sub enable_internal_pulsemod {
     my $self=shift;
+    $self->write("PULM:SOUR INT");
+    $self->write("PULM:DOUB:STAT OFF");
+    $self->write("PULM:MODE SING");
+    $self->write("PULM:STAT ON");
 }
 
 sub disable_internal_pulsemod {
     my $self=shift;
+    $self->write("PULM:STAT OFF");
 }
 
 1;
