@@ -78,6 +78,25 @@ sub get_power {
 	return $self->query("POWer:LEVel?");
 }
 
+sub set_pulselength {
+	my $self = shift;
+}
+
+sub get_pulselength {
+	my $self = shift;
+	return 0;
+}
+
+sub set_pulseperiod {
+	my $self = shift;
+}
+
+sub get_pulseperiod {
+	my $self = shift;
+	return 0;
+}
+
+
 sub power_on {
     my $self=shift;
     $self->write('OUTP:STATe ON');
@@ -114,6 +133,14 @@ sub enable_external_am {
 sub disable_external_am {
     my $self=shift;
     $self->write("AM:STATe OFF");
+}
+
+sub enable_internal_pulsemod {
+    my $self=shift;
+}
+
+sub disable_internal_pulsemod {
+    my $self=shift;
 }
 
 1;
