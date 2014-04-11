@@ -22,7 +22,7 @@ sub new {
 		points	=>	[],
 		rate => [1],
 		mode	=> 'step',
-		allowed_instruments => ['Lab::Instrument::HP83732A','Lab::Instrument::MG369xB'],
+		allowed_instruments => ['Lab::Instrument::HP83732A','Lab::Instrument::MG369xB','Lab::Instrument::RSSMB100A'],
 		allowed_sweep_modes => ['list', 'step'],
 		number_of_points => [undef]
 		};
