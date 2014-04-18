@@ -77,6 +77,7 @@ lib/Lab/Instrument/OI_ITC503.pm
 lib/Lab/Instrument/OI_Mercury.pm
 lib/Lab/Instrument/PD11042.pm
 lib/Lab/Instrument/ProStep4.pm
+lib/Lab/Instrument/RSSMB100A.pm
 lib/Lab/Instrument/Source.pm
 lib/Lab/Instrument/SpectrumSCPI.pm
 lib/Lab/Instrument/SR830.pm
@@ -111,6 +112,8 @@ lib/Lab/XPRESS/Sweep/Frequency.pm
 lib/Lab/XPRESS/Sweep/Magnet.pm
 lib/Lab/XPRESS/Sweep/Motor.pm
 lib/Lab/XPRESS/Sweep/Power.pm
+lib/Lab/XPRESS/Sweep/PulseLength.pm
+lib/Lab/XPRESS/Sweep/PulsePeriod.pm
 lib/Lab/XPRESS/Sweep/Repeater.pm
 lib/Lab/XPRESS/Sweep/Sweep.pm
 lib/Lab/XPRESS/Sweep/Temperature.pm

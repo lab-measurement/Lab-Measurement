@@ -1,5 +1,5 @@
 package Lab::Instrument::Cryogenic_SMS;
-our $VERSION = '3.31';
+our $VERSION = '3.32';
 
 use strict;
 use Lab::Instrument;
