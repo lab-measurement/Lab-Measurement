@@ -5,6 +5,7 @@ sub new {
 	my $class = ref($proto) || $proto;	
 	
 	my $self = {};
+	my $self->{data} = {};
 	if (defined ${$class."::msg"}) {$self->{msg} = ${$class."::msg"};}
 	
 	return bless $self, $class;
@@ -17,7 +18,7 @@ sub msg_parsed {
 	if (not defined $self->{msg}) {return '';}
 	my $msg = $self->{msg}; # copy
 	
-	if (not defined $self->{params}) {
+	if (not defined $self->{data}->{params}) {
 	  $msg =~ s/%(\w+)%/\?$1\?/g;
 	  return $msg;
 	}
@@ -25,8 +26,8 @@ sub msg_parsed {
 	my $value;
 	while ($msg =~ /%(\w+)%/) {
 		$param_name = $1;
-		if(exists $self->{params}->{$param_name} && !ref($self->{params}->{$param_name})) {
-		  $value = $self->{params}->{$param_name};
+		if(exists $self->{data}->{params}->{$param_name} && !ref($self->{data}->{params}->{$param_name})) {
+		  $value = $self->{data}->{params}->{$param_name};
 			$msg =~ s/%$param_name%/'$value'/;
 		}
 		else {

@@ -111,6 +111,10 @@ sub out_debug {
   my $self = shift;
 	$self->out_channel('DEBUG', @_);
 }
+sub out_progress {
+  my $self = shift;
+	$self->out_channel('PROGRESS', @_);
+}
 
 sub _check_args {
 	my $self = shift;
@@ -413,8 +417,8 @@ sub channel_data_write {
 # out_prepare: return DATA object
 sub data_prepare {
   my $object = shift;
-	my ($msg, $class, $params, $options) = Lab::Generic->_check_args(\@_, ['msg', 'class', 'params', 'options']);
-	
+	my ($msg, $class, $tail) = Lab::Generic->_check_args(\@_, ['msg', 'class']);
+		
 	my $base_class = "Lab::IO::Data";
 	my $DATA;
 	
@@ -426,8 +430,7 @@ sub data_prepare {
 		# Error -> revert to base class
 		if($@) {
 		  $msg = "Could not load custom data class $class (from $require): $@";
-			undef $class;
-			undef $params;
+			undef $class;			
 		}
 		# OK -> create custom object
 		else {		  
@@ -441,8 +444,7 @@ sub data_prepare {
 	}
 	# DATA object exists in any case -> pass msg / params
 	if (defined $msg) {$DATA->{msg} = $msg;}
-	if (defined $params) {$DATA->{params} = $params;}	
-	if (defined $options) {$DATA->{options} = $options;}
+	if (defined $tail) {$DATA->{data} = $tail;}
 	# Object & Caller
 	$DATA->{object} = $object;	
 	($DATA->{package}, $DATA->{filename}, $DATA->{line}, $DATA->{subroutine}) = caller(2); # +1 out_prepare; +1 out_channel

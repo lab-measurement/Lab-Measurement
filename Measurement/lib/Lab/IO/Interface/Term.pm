@@ -26,6 +26,18 @@ sub new {
 	$self->{sticky_rows} = {};	
 	$self->{sticky_order} = [];
 	
+	$self->{progress_bars} = {};
+	$self->{progress_defaults} = {
+	  'valueMin' => 0
+	 ,'valueMax' => 100
+	 ,'value'		 => 0
+	 ,'unit'		 => '%'
+	 ,'textBefore' => ''
+	 ,'textAfter' => ''
+	 ,'charBack' => '-'
+	 ,'charFront' => '#'
+	};
+	
 	$self->{init_output} = 1;	
 	
 	$self->{CHANNELS} = {
@@ -33,82 +45,116 @@ sub new {
 	 ,'ERROR' => \&error
 	 ,'WARNING' => \&warning
 	 ,'DEBUG' => \&debug
+	 ,'PROGRESS' => \&progress
 	};
 	return $self;
 }
 
-sub output {
-  #if(ref(@_[0]) eq __PACKAGE__) {shift;}
+sub output {  
 	my $self = shift;
 	my $string = join("", @_);
 
-	if($self->{init_output}) {
-	  print ${Lab::GenericIO::STDOUT} savepos;
-		$self->{init_output} = 0;
-	}
+	$self->output_init();
 	
 	print ${Lab::GenericIO::STDOUT} loadpos;
   print ${Lab::GenericIO::STDOUT} cldown;	
 	print ${Lab::GenericIO::STDOUT} $string;	
   print ${Lab::GenericIO::STDOUT} savepos;	
 	
-	$self->{last_ln} = ($string =~ m/\n\r?$/ ? 1 : 0);	
+	$self->{last_ln} = ($string =~ m/\n\r?$/ ? 1 : 0);
   
 	$self->sticky_rows();
+}
+
+sub output_init {
+  my $self = shift;
+	
+	if($self->{init_output}) {
+	  print ${Lab::GenericIO::STDOUT} savepos;
+		$self->{init_output} = 0;
+	}
 }
 
 # -----------------------------------------------
 sub message {
   my $self = shift;	
-	my $DATA = shift;
-	my $chan = 'MESSAGE';	
+	my $DATA = shift;		
 	
-	$common = $self->process_options($DATA, $chan);
-	
-	if($common) {
-		$self->header($DATA, $chan, 'bold blue on white');	
-		$self->process_common($DATA);
-	}
+	$self->process_common($DATA, {
+	  'channel' => 'MESSAGE'
+	 ,'header_style' => 'bold blue on white'
+	});	
 }
 
 sub error {
   my $self = shift;	
-	my $DATA = shift;	
-	my $chan = 'ERROR';
+	my $DATA = shift;		
 	
-	$self->header($DATA, $chan, 'bold red on white');	
-	$self->process_common($DATA);
+	$self->process_common($DATA, {
+	  'channel' => 'ERROR'
+	 ,'header_style' => 'bold red on white'
+	});	
 }
 
 sub warning {
   my $self = shift;	
 	my $DATA = shift;	
-	my $chan = 'WARNING';
 	
-	$self->header($DATA, $chan, 'bold yellow on white');	
-	$self->process_common($DATA);
+	$self->process_common($DATA, {
+	  'channel' => 'WARNING'
+	 ,'header_style' => 'bold yellow on white'
+	});	
 }
 
 sub debug {
   my $self = shift;	
-	my $DATA = shift;	
-	my $chan = 'DEBUG';
+	my $DATA = shift;		
 		
-	$self->header($DATA, $chan, 'green on white');
-	$self->process_common($DATA);	
+	$self->process_common($DATA, {
+	  'channel' => 'DEBUG'
+	 ,'header_style' => 'green on white'
+	});
+}
+
+sub progress {
+	my $self = shift;
+	my $DATA = shift;
+		
+	$self->progress_process($DATA->{data});
 }
 
 # -----------------------------------------------
+sub process_common {
+  my $self = shift;
+	my $DATA = shift;
+	my $cfg = shift;
+	
+	# options
+	my $proceed = $self->process_options($DATA, $cfg);
+	if(!$proceed) {return;}
+	
+	# header
+	$self->header($DATA, $cfg);
+	
+	# body
+	my $msg = $DATA->msg_parsed();
+	$self->output($msg);
+		
+	# params dump
+	if (defined $DATA->{data}->{dump} && $DATA->{data}->{dump}) {
+		$self->params_dump($DATA);
+	}
+		
+}
+
 sub process_options {
   my $self = shift;
 	my $DATA = shift;
-	my $chan = shift;
-	
-	if(exists $DATA->{options}) {
-	  if(exists $DATA->{options}->{sticky_id}) {
-		  $self->sticky_process($DATA, $chan);
-			return 0;
-		}
+	my $cfg = shift;
+		
+	if(defined $DATA->{data}->{sticky}) {
+		$self->sticky_process($DATA, $cfg);
+		return 0;
 	}
 	
 	return 1;
@@ -117,14 +163,13 @@ sub process_options {
 sub header {
   my $self = shift;
 	my $DATA = shift;
-	my $chan = shift;
-	my $style = shift;		
+	my $cfg = shift;	
 	
 	my $object_ref = (defined $DATA->{object}) ? ref($DATA->{object}) : undef;
 	my $object_name = (defined $DATA->{object} && $DATA->{object}->can('get_name')) ? $DATA->{object}->get_name() : undef;
 	my $package = $DATA->{trace}->frame(0)->package();
 
-	my $header_msg = "$chan";
+	my $header_msg = "\"".$cfg->{channel}."\"";
 		
 	if ($package ne $object_ref) { $header_msg .= " in $package"; }
 	if (defined $object_ref) { $header_msg .= " from $object_ref"; }
@@ -134,23 +179,11 @@ sub header {
 	
 	if($header_msg eq $self->{last_header}) {return;}
 	$self->{last_header} = $header_msg;
-		
+	
+	my $style = (defined $cfg->{header_style} ? $cfg->{header_style} : 'black on white');
+	
 	if(!$self->{last_ln}) {$self->output("\n");}
 	$self->output("\n", Term::ANSIScreen::colored("$header_msg", $style), "\n");	
-}
-
-sub process_common {
-  my $self = shift;
-	my $DATA = shift;
-	
-	my $msg = $DATA->msg_parsed();
-	$self->output($msg);
-	
-	if (exists $DATA->{options}) {
-  	if (exists $DATA->{options}->{dump} && $DATA->{options}->{dump}) {
-			$self->params_dump($DATA);
-		}
-	}		
 }
 
 sub params_dump {
@@ -169,14 +202,16 @@ sub params_dump {
 sub sticky_process {
   my $self = shift;
 	my $DATA = shift;
-	my $chan = shift;
+	my $cfg = shift;
 	
-	my $id = $DATA->{options}->{sticky_id};
-	if(exists $DATA->{options}->{sticky_cmd}) {
-	  if($DATA->{options}->{sticky_cmd} eq 'finish') {
+	if(not defined $DATA->{data}->{sticky} || not defined $DATA->{data}->{sticky}->{id}) {return;}
+	my $id = $DATA->{data}->{sticky}->{id};
+	
+	if(defined $DATA->{data}->{sticky}->{cmd}) {
+	  if($DATA->{data}->{sticky}->{cmd} eq 'finish') {
 		  $self->sticky_remove($id, 1);
 		}
-		elsif($DATA->{options}->{sticky_cmd} eq 'remove') {
+		elsif($DATA->{data}->{sticky}->{cmd} eq 'remove') {
 		  $self->sticky_remove($id, 0);
 		}
 	}
@@ -215,13 +250,14 @@ sub sticky_remove {
 	for my $i (0 .. $#{$self->{sticky_order}}) {	  
 	  if($self->{sticky_order}[$i] eq \$self->{sticky_rows}->{$id}) {
 		  $index = $i;
+			last;
 		}
 	}
-	if(defined $index) {splice @{$self->{sticky_order}}, $i, 1;}
+	if(defined $index) {splice @{$self->{sticky_order}}, $index, 1;}
   delete $self->{sticky_rows}->{$id};	
 	
-	if($make_inline) {
-	  if(!$self->{last_ln}) {print ${Lab::GenericIO::STDOUT} "\n";}
+	if($make_inline) {	  
+	  if(!$self->{last_ln}) {$self->output("\n");}
 	  $self->output($content, "\n");
 	}
 	else {
@@ -244,7 +280,9 @@ sub sticky_rows {
 	
 	my $rownum = scalar @{$self->{sticky_order}};
 	if(!$rownum) {return;}		# nothing to do	
-		
+	
+	$self->output_init();
+	
 	print ${Lab::GenericIO::STDOUT} loadpos;
 	print ${Lab::GenericIO::STDOUT} cldown;
 	
@@ -260,6 +298,105 @@ sub sticky_rows {
 	
 	print ${Lab::GenericIO::STDOUT} down($rownum);
 	print ${Lab::GenericIO::STDOUT} "\r";	
+}
+
+# ---------- PROGRESS BAR -----------------------
+sub progress_process {
+  my $self = shift;
+	my $params = shift;
+	
+	if(not defined $params->{id}) {return;}
+  my $id = $params->{id};
+	
+	if(defined $params->{cmd}) {
+	  if($params->{cmd} eq 'finish') {
+		  $self->progress_remove($id, 1);
+		}
+		elsif($params->{cmd} eq 'remove') {
+		  $self->progress_remove($id, 0);
+		}
+	}
+	else {
+	  my $bar = $self->progress_build($id, $params);
+		$self->progress_set($id, $bar);
+	}
+}
+
+sub progress_config {
+  my $self = shift;
+	my $id = shift;
+	my $config = shift;
+	
+	my $current_config = (defined $self->{progress_bars}->{$id} ? $self->{progress_bars}->{$id} : $self->{progress_defaults});	
+	for my $option (keys %{$current_config}) {	  
+		if(not defined $config->{$option}) {
+		  $config->{$option} = $current_config->{$option};
+		}
+	}
+	
+	# CHECK VALUES HERE!!!
+	
+	# done
+	$self->{progress_bars}->{$id} = $config;	
+	return $config;
+}
+
+sub progress_build {
+  my $self = shift;
+	my $id = shift;	
+	my $config = shift;
+	
+	$config = $self->progress_config($id, $config);	
+	
+	my $chars = $self->{cols};
+	
+	# static text
+	$chars -= length($config->{textBefore});
+	$chars -= length($config->{textAfter});
+	
+	# placeholder for "[valueMin|"
+	my $valueMin_length = length($config->{valueMin});
+	$chars -= ($valueMin_length + 2);	
+	# placeholder for "|valueMax]"
+	my $valueMax_length = length($config->{valueMax});
+	$chars -= ($valueMax_length + 2);
+			
+	# $chars now holds number of chars available for the bar itself -> divide it into front/back according to value	
+	my $lengthFront = sprintf("%d", $chars * $config->{value} / ($config->{valueMax} - $config->{valueMin}));
+	my $lengthBack = $chars - $lengthFront;
+	
+	# value
+	my $value = $config->{value}.$config->{unit};
+	my $value_length = length($value);
+	my $value_pos = sprintf("%d", ($chars - $value_length)/2);
+	
+	# build
+	my $bar = '';	
+	$bar .= $config->{textBefore};
+	$bar .= "[".$config->{valueMin}."|";
+  $bar .= $config->{charFront} x $lengthFront;
+	$bar .= $config->{charBack} x $lengthBack;
+	$bar .= "|".$config->{valueMax}."]";
+	$bar .= $config->{textAfter};
+	
+	return $bar;
+}
+
+sub progress_set {
+  my $self = shift;
+	my $id = shift;
+	my $bar = shift;
+	
+	$self->sticky_set($id, $bar);	
+}
+
+sub progress_remove {
+  my $self = shift;
+	my $id = shift;
+	my $make_inline = shift;
+	
+	delete $self->{progress_bars}->{$id};		
+	$self->sticky_remove($id, $make_inline);
 }
 
 1;
