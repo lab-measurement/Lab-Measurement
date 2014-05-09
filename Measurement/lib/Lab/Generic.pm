@@ -398,6 +398,8 @@ sub channel_write {
 	if (not defined $DATA || ref($DATA) ne 'HASH') {print "CW-01: Oops!"; return;} # ...?	
 	
 	channel_data_write($chan, $DATA);
+
+	if ($chan eq 'ERROR') {exit;}
 }
 
 # channel_data_write: send DATA object to channel
@@ -421,7 +423,6 @@ sub data_prepare {
 		
 	my $base_class = "Lab::IO::Data";
 	my $DATA;
-	
 	# Case A: custom class
 	if (defined $class) {
 	  $class = $base_class."::".$class;
@@ -439,6 +440,7 @@ sub data_prepare {
 	}
 	# Case B: generic class (explicit complementary IF on purpose -> catches error in A)
 	if (not defined $class) {
+	  my $trace = $DATA->{trace} = new Devel::StackTrace();
 	  eval "require $base_class; $base_class->import(); 1;" or die "Could not load base data class $base_class\n($@)\n";
 	  $DATA = $base_class->new();
 	}

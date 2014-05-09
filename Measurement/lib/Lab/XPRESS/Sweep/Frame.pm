@@ -5,11 +5,14 @@ our $VERSION = '3.31';
 use Time::HiRes qw/usleep/, qw/time/;
 use strict;
 use Lab::Exception;
+use Lab::Generic;
+
+our @ISA = ('Lab::Generic');
 
 sub new {
     my $proto = shift;
     my $class = ref($proto) || $proto;
-	my $self = {};
+	my $self = $class->SUPER::new(@_);
     bless ($self, $class);
 	
 	$self->{slave_counter} = 0;
@@ -36,8 +39,9 @@ sub start {
 sub abort {
 	my $self = shift;
 	
-	$self->{master}->abort();
-	
+	if (defined $self->{master}) {
+		$self->{master}->abort();
+	}
 }
 
 sub pause {

@@ -90,19 +90,31 @@ sub error {
   my $self = shift;	
 	my $DATA = shift;		
 	
+	my $trace = "simple";
+	if (${Lab::Generic::CLOptions::DEBUG} == 1) {
+		$trace = "verbose";
+	}
+
 	$self->process_common($DATA, {
 	  'channel' => 'ERROR'
 	 ,'header_style' => 'bold red on white'
+	 ,'trace' => $trace
 	});	
 }
 
 sub warning {
   my $self = shift;	
-	my $DATA = shift;	
+	my $DATA = shift;
+
+	my $trace = "simple";
+	if (${Lab::Generic::CLOptions::DEBUG} == 1) {
+		$trace = "verbose";
+	}	
 	
 	$self->process_common($DATA, {
 	  'channel' => 'WARNING'
 	 ,'header_style' => 'bold yellow on white'
+	 ,'trace' => $trace
 	});	
 }
 
@@ -143,6 +155,23 @@ sub process_common {
 	# params dump
 	if (defined $DATA->{data}->{dump} && $DATA->{data}->{dump}) {
 		$self->params_dump($DATA);
+	}
+
+	# trace
+	if ($cfg->{trace} eq "simple") {
+		$self->output("\n\n");
+		my $frame = $DATA->{trace}->prev_frame();
+
+		$self->output($self->stackFrame_to_string($frame), "\n");
+	}
+	elsif ($cfg->{trace} eq "verbose") {
+		$self->output("\n\n");
+		$self->output("-- StackTrace: -- \n\n");
+		my $pos = $DATA->{trace}->frame_count();
+		while(my $frame = $DATA->{trace}->next_frame()) { 
+			$self->output("#$pos)  ", $self->stackFrame_to_string($frame), "\n");
+			$pos --;
+		}
 	}
 		
 }
@@ -196,6 +225,28 @@ sub params_dump {
 		$string = " - $param: ".$DATA->{params}->{$param}."\n";		
 	  $self->output($string);
 	}
+}
+
+sub stackFrame_to_string {
+  my $self = shift;
+    my $frame = shift;
+
+    my $string = $frame->subroutine()."(";
+    my @args = $frame->args();
+    foreach my $arg (@args) {
+    	
+    	if (ref($arg) ne "") {
+    		$string .= ref($arg).", ";
+    	}
+    	else {
+    		$string .= "'$arg', ";
+    	}
+    }
+
+    $string .= ") ";
+	$string .= "called at ".$frame->filename." line ".$frame->line;
+
+	return $string;
 }
 
 # ---------- STICKY -----------------------------

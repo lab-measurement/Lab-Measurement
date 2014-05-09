@@ -5,7 +5,7 @@ sub new {
 	my $class = ref($proto) || $proto;	
 	
 	my $self = {};
-	my $self->{data} = {};
+	$self->{data} = {};
 	if (defined ${$class."::msg"}) {$self->{msg} = ${$class."::msg"};}
 	
 	return bless $self, $class;

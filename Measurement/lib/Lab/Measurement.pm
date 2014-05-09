@@ -5,6 +5,7 @@ our $VERSION = '3.31';
 use strict;
 use warnings;
 #use encoding::warnings;
+use Lab::Generic;
 
 use Exporter 'import';
 use Lab::XPRESS::hub qw(DataFile Sweep Frame Instrument Connection);
