@@ -441,7 +441,7 @@ sub data_prepare {
 	# Case B: generic class (explicit complementary IF on purpose -> catches error in A)
 	if (not defined $class) {
 	  my $trace = $DATA->{trace} = new Devel::StackTrace();
-	  eval "require $base_class; $base_class->import(); 1;" or die "Could not load base data class $base_class\n($@)\n";
+	  eval "require $base_class; $base_class->import(); 1;" or die "Could not load base data class $base_class\n($@): $msg\n";
 	  $DATA = $base_class->new();
 	}
 	# DATA object exists in any case -> pass msg / params
