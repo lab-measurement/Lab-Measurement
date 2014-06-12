@@ -41,11 +41,23 @@ sub set_frequency {
     $self->write("FREQ $freq");
 }
 
+sub set_frq{
+	my $self = shift;
+	my ($freq) = $self->_check_args( \@_, ['value'] );
+	$self->set_frequency($freq);
+}
+
 sub get_frequency {
     my $self = shift;
     my $freq=$self->query("FREQ?");
     chomp $freq;
     return $freq; # frequency in Hz
+}
+
+sub get_frq{
+	my $self = shift;
+	my $freq = $self->get_frequency();
+	return $freq;
 }
 
 sub set_amplitude {
