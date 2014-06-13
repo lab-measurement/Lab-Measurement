@@ -36,11 +36,11 @@ sub empty_buffer{
       for (my $i=0;$i<$times;$i++) {
 		 eval { $self->read( brutal => 1 ) };
       }
-    }
-    else{
+    } else {
       while($self->read( brutal => 1 )){
 	print "Cleaning buffer."
       }
+    }
 }
 
 sub set_frequency {
