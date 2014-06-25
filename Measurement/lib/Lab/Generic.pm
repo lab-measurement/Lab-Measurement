@@ -272,6 +272,8 @@ package Lab::GenericSignals;
 
 use sigtrap 'handler' => \&abort_all, qw(normal-signals error-signals);
 
+our $VERSION = '3.32';
+
 sub abort_all {  
   foreach my $object (@{Lab::Generic::OBJECTS}) {
 		$object->abort();		

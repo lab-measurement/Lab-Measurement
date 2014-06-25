@@ -301,7 +301,10 @@ sub device_cache {
 package DeviceCache;
 require Tie::Hash;
 use List::MoreUtils qw{ any };
- 
+
+our $VERSION = '3.32';
+
+
 	our @ISA = 'Tie::ExtraHash';
 
 	sub TIEHASH  {
