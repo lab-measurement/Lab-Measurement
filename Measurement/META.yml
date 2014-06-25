@@ -187,6 +187,9 @@ provides:
   Lab::Instrument::OI_Mercury:
     file: lib/Lab/Instrument/OI_Mercury.pm
     version: 3.32
+  Lab::Instrument::OI_Triton:
+    file: lib/Lab/Instrument/OI_Triton.pm
+    version: 3.32
   Lab::Instrument::PD11042:
     file: lib/Lab/Instrument/PD11042.pm
     version: 3.32
