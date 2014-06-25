@@ -47,9 +47,9 @@ my $build = Module::Build->new(
     meta_merge        => {
         resources       => {
             homepage      => 'http://www.labmeasurement.de/',
-            bugtracker    => 'https://www.labmeasurement.de/bugs/',
+            bugtracker    => 'https://github.com/lab-measurement/lab-measurement/issues',
             MailingList   => 'https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-measurement-users',
-            repository    => 'git://gitorious.org/lab-measurement/lab.git',
+            repository    => 'https://github.com/lab-measurement/lab-measurement.git',
         }
     },
 );
