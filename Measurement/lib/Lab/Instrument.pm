@@ -122,6 +122,8 @@ sub new {
 #
 sub _construct {	# _construct(__PACKAGE__);
 	(my $self, my $package) = (shift, shift);
+	$self->out_debug("Function: _construct \n");
+	
 	my $class = ref($self);
 	my $fields = undef;
 	{
@@ -177,6 +179,7 @@ sub _construct {	# _construct(__PACKAGE__);
 	#
 	
 	if( $class eq $package && $class ne 'Lab::Instrument' ) {
+	    $self->out_debug("Initialising $package derived by Lab::Instrument\n");
 		$self->_setconnection();
 		
 		# Match the device hash with the device
@@ -247,8 +250,8 @@ sub _init_cache_handling {
 			# and save original STDERR stream in SAVEERR to be able to restore original 
 			# behavior 
 			local (*SAVEERR);
-    		open SAVEERR, ">&STDERR";
-			open(STDERR, '>', undef);
+    		#open SAVEERR, ">&STDERR";
+			#open(STDERR, '>', undef);
 			
 			# wrap set-function: 
 			wrap ($class."::".$set_sub, 
@@ -291,7 +294,7 @@ sub _init_cache_handling {
 					});
 
 			# Restore Warnings:
-			open STDERR, ">&SAVEERR";
+			#open STDERR, ">&SAVEERR";
 			
 			}
 		
@@ -302,8 +305,8 @@ sub _init_cache_handling {
 			# and save original STDERR stream in SAVEERR to be able to restore original 
 			# behavior 
 			local (*SAVEERR);
-    		open SAVEERR, ">&STDERR";
-			open(STDERR, '>', undef);
+    		#open SAVEERR, ">&STDERR";
+			#open(STDERR, '>', undef);
 			
 			my $parameter = $cache_param;
 			
@@ -323,7 +326,6 @@ sub _init_cache_handling {
 					my @args = @_;
 					pop @args;
 					my ($read_mode, $tail) = $self->_check_args(\@args, ['read_mode']);
-					
 					
 					# do not read if request has been set. set read_mode to cache if cache is available	
 					if ( $self->connection()->is_blocked() == 1 )
@@ -394,7 +396,7 @@ sub _init_cache_handling {
 					});
 			
 			# Restore Warnings:	
-			open STDERR, ">&SAVEERR";
+			#open STDERR, ">&SAVEERR";
 			}
 
 		
@@ -691,7 +693,8 @@ sub _checkconnection { # Connection object or connection_type string (as in Lab:
 
 sub _setconnection { # $self->setconnection() create new or use existing connection
 	my $self=shift;
-
+	
+	$self->out_debug("Function: _setconnection\n");
 	#
 	# fill in unset connection parameters with the defaults from $self->connections_settings to $self->config
 	#
@@ -716,6 +719,9 @@ sub _setconnection { # $self->setconnection() create new or use existing connect
 #		Lab::Exception::CorruptParameter->throw( error => 'Received no connection object!\n' );
 #	}
 	elsif( defined $self->config('connection_type') ) {
+		
+		$self->out_debug("Setting up Connection using given connection_type (".$self->config('connection_type').")\n");
+		
 		$connection_type = $self->config('connection_type');
 
 		if( $connection_type !~ /^[A-Za-z0-9_\-\:]*$/ ) { Lab::Exception::CorruptParameter->throw( error => "Given connection type is does not look like a valid module name.\n"); };

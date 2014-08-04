@@ -573,15 +573,5 @@ return "$Stunden:$Minuten:$Sekunden  $Monatstag.$Monat.$Jahr\n";
 
 }
 
-sub DESTROY {
-	my ($self) = @_;
-	print "DESTROY: execute abort()\n";
-	$self->abort();
-}
 
-sub END {
-	my ($self) = @_;
-	print "END: execute abort()\n";
-	$self->abort();
-}
 1;

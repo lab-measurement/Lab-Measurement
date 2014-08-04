@@ -1044,7 +1044,7 @@ sub check_loop_duration {
 	
 	if ( ($self->{loop}->{t1}-$self->{loop}->{t0}) > @{$self->{config}->{interval}}[$self->{sequence}])
 		{
-		warn "WARNING: Measurement Loop takes more time (".($self->{loop}->{t1}-$self->{loop}->{t0}).") than specified by measurement intervall (@{$self->{config}->{sequence}}[$self->{iterator}]).\n";
+		$self->out_warning( "WARNING: Measurement Loop takes more time (".($self->{loop}->{t1}-$self->{loop}->{t0}).") than specified by measurement intervall (@{$self->{config}->{sequence}}[$self->{iterator}]).\n");
 		}
 	my $delta_time = ($self->{loop}->{t1}-$self->{loop}->{t0}) + $self->{loop}->{overtime};
 
