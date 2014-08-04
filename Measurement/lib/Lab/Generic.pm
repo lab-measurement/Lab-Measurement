@@ -306,6 +306,11 @@ sub seconds2time {
 
 package Lab::GenericSignals;
 
+$SIG{__WARN__} = sub {
+	my $message = shift;
+	Lab::GenericIO::channel_write("WARNING", undef, $message);
+};
+
 use sigtrap 'handler' => \&abort_all, qw(normal-signals error-signals);
 
 sub abort_all {  
