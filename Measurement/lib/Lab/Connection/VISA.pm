@@ -5,7 +5,7 @@
 # This one digests VISA resource names
 #
 package Lab::Connection::VISA;
-our $VERSION = '3.32';
+our $VERSION = '3.40';
 
 use strict;
 use Lab::Bus::VISA;

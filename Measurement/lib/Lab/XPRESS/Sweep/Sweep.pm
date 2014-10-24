@@ -1,6 +1,6 @@
 package Lab::XPRESS::Sweep::Sweep;
 
-our $VERSION = '3.32';
+our $VERSION = '3.40';
 
 use Time::HiRes qw/usleep/, qw/time/;
 use POSIX qw(ceil);

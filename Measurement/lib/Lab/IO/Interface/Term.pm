@@ -1,5 +1,7 @@
 package Lab::IO::Interface::Term;
 
+our $VERSION='3.40';
+
 use Lab::IO::Interface;
 use if ($^O eq "MSWin32"), Win32::Console::ANSI;
 use Term::ReadKey;

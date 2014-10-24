@@ -1,5 +1,7 @@
 package Lab::IO::Data;
 
+our $VERSION='3.40';
+
 sub new { 
 	my $proto = shift;
 	my $class = ref($proto) || $proto;	

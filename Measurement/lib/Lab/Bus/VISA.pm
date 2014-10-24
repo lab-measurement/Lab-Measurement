@@ -2,7 +2,7 @@
 
 
 package Lab::Bus::VISA;
-our $VERSION = '3.32';
+our $VERSION = '3.40';
 
 use strict;
 use Lab::VISA;

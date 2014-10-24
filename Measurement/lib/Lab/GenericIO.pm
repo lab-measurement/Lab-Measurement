@@ -1,5 +1,7 @@
 package Lab::GenericIO;
 
+our $VERSION='3.40';
+
 use Devel::StackTrace;
 
 our $DEFAULT = 'Lab::IO::Interface::Term';

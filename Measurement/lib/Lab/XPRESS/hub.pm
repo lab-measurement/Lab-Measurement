@@ -3,7 +3,7 @@ use Lab::Exception;
 use strict;
 use Exporter 'import';
 
-our $VERSION = '3.32';
+our $VERSION = '3.40';
 
 our @EXPORT_OK = qw(DataFile Sweep Frame Instrument Connection);
 

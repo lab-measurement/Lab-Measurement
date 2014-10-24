@@ -1,5 +1,7 @@
 package Lab::IO::Interface;
 
+our $VERSION='3.40';
+
 use Lab::Generic;
 
 our @ISA = ('Lab::Generic');

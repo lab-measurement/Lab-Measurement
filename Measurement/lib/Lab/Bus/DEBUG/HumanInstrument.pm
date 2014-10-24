@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 package Lab::Bus::DEBUG::HumanInstrument;
-our $VERSION = '3.32';
+our $VERSION = '3.40';
 
 use strict;
 use base "Wx::App";
