@@ -1,0 +1,471 @@
+% This file is $Id: poster.tex 6297 2014-10-24 12:29:09Z andreas $.
+
+\NeedsTeXFormat{LaTeX2e}
+
+\documentclass[portrait]{a0poster}
+
+\usepackage{epsfig}
+\usepackage{color}
+\usepackage{transparent}
+\usepackage{wallpaper}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{calc}
+\usepackage{bm}
+\usepackage[utf8]{inputenc}
+\usepackage{textcomp}
+\usepackage{mathptmx}
+\usepackage[scaled=.90]{helvet}
+\usepackage{courier}
+\usepackage{listings}
+
+\hyphenation{re-so-na-tors na-no-tubes}
+
+\pagestyle{empty}
+\TileWallPaper{10.234cm}{11.594cm}{images/dokutitle}
+
+\setlength{\parskip}{5pt plus 2pt minus 1pt}
+\setlength{\parindent}{0pt}
+
+\frenchspacing
+\sloppy
+
+\renewcommand{\familydefault}{\sfdefault}
+
+% some color definitions
+\definecolor{darkblue}{rgb}{0, 0, 0.5}
+\definecolor{lightblue}{rgb}{0, 0, 0.8}
+\definecolor{lightgray}{gray}{0.75}
+
+\newcommand{\blue}{\color[rgb]{0.2,0.2,1}}
+\newcommand{\lightblue}{\color{lightblue}}
+\newcommand{\red}{\color{red}}
+\newcommand{\darkgreen}{\color[rgb]{0,0.65,0}}
+
+% Delft blauw 
+\definecolor{background}{rgb}{1,1,1}
+\definecolor{text}{rgb}{0, 0, 0.3}
+\definecolor{heading}{rgb}{0, 0, 0.8}
+
+\definecolor{invheading}{rgb}{0.8,0.8,1}
+
+\pagecolor{black}
+
+\lstset{
+  basicstyle=\ttfamily,
+  identifierstyle=\color[rgb]{0,0,0.5},
+  stringstyle=\color[rgb]{0,0.5,0}\textit,
+  commentstyle=\color{red}\textbf
+}
+
+
+
+
+% large heading in text
+\newcommand{\heading}[1]{
+  {\color{heading}\boldmath\textbf{\huge #1}}\\[\medskipamount]
+}
+
+% small heading in text
+\newcommand{\smallheading}[1]{
+  {\color{heading}\textbf{\Large #1}}\\
+}
+
+% very small heading in text
+\newcommand{\verysmallheading}[1]{
+  {\color{heading}\textbf{\large #1}}\\
+}
+
+% white bar across the column
+\newcommand{\whitebar}{%
+\vspace*{0.5cm}
+\hspace*{-1.5cm}
+\fcolorbox{white}{white}{\rule{30cm}{-0.7cm}}
+
+\vspace*{1cm}
+}
+
+% white background for plots etc.
+\newcommand{\whitebg}[1]{
+ {
+  \setlength{\fboxsep}{5mm}
+  \setlength{\fboxrule}{1pt}
+  \fcolorbox{black}{white}{\color{black}{#1}}
+ }
+}
+
+% place a figure
+\newcommand{\placefigure}[1]{ 
+ {
+  \vspace{-0.4cm}
+  \begin{center}
+  \hspace*{-1cm}\begin{minipage}{0.96\textwidth}
+   \whitebg{
+     \epsfig{#1,width=0.96\textwidth}
+   }
+   \vspace*{-1cm}
+   {\\}
+  \end{minipage}
+  \end{center} 
+  \vspace{-1cm}
+ }
+}
+
+% place a listing
+\newcommand{\placelisting}[1]{ 
+ {
+  \vspace{-0.2cm}
+  \begin{center}
+  \hspace*{-1cm}\begin{minipage}{0.96\textwidth}
+   \footnotesize \renewcommand{\baselinestretch}{0.85}
+   \whitebg{
+   \parbox{0.97\textwidth}{
+    \lstinputlisting[language=Perl]{#1}
+   }
+   }
+   \renewcommand{\baselinestretch}{1}
+   \vspace*{-1cm}
+   {\\}
+  \end{minipage}
+  \end{center} 
+  \vspace{-1cm}
+ }
+}
+
+% place a listing
+\newcommand{\placesmalllisting}[1]{ 
+ {
+  \vspace{-0.2cm}
+  \begin{center}
+  \hspace*{-1cm}\begin{minipage}{0.96\textwidth}
+   \scriptsize \renewcommand{\baselinestretch}{0.8}
+   \whitebg{
+   \parbox{0.97\textwidth}{
+    \lstinputlisting[language=Perl]{#1}
+   }
+   }
+   \renewcommand{\baselinestretch}{1}
+   \vspace*{-1cm}
+   {\\}
+  \end{minipage}
+  \end{center} 
+  \vspace{-1cm}
+ }
+}
+
+
+
+
+\begin{document}
+
+\color{text}
+\Large
+%
+\newlength{\seplength}
+\newlength{\headerheight}
+\newlength{\columnheight}
+\newlength{\columnheighta}
+\newlength{\columnheightb}
+%
+\setlength{\columnheight}{104cm}           % value for portrait 3-col mode
+\setlength{\columnheighta}{\columnheight-6cm}
+\setlength{\columnheightb}{\columnheight+6.5cm}
+\setlength{\columnwidth}{0.31\textwidth}   % value for portrait 3-col mode
+%
+\setlength{\fboxsep}{10mm}
+\setlength{\fboxrule}{0mm}
+%
+%
+%
+% the page header
+%
+\hspace*{-1cm}\begin{minipage}[t][][t]{\textwidth-2\fboxsep-8\fboxrule}
+\color{invheading}
+\begin{center}
+{
+\VERYHuge \vspace*{-0.6cm}
+\textsf{\textbf{
+Lab::Measurement -- measurement control with Perl
+}}
+}
+\\[\baselineskip]
+\begin{tabular}{ccc}
+\parbox{5cm}{\vspace*{-1cm}
+\begin{center}
+\epsfig{file=images/logo-ur,height=4.5cm}
+\end{center}
+}
+&
+\parbox{70cm}{
+\begin{center} 
+{
+\vspace*{-0.5cm}
+\huge 
+A. Dirnaichner$^1$, C. Butschkow$^1$, A. Iankilevitch$^1$, S. Gei\ss{}ler$^1$, 
+and A. K. Hüttel$^1$
+}
+\\[\medskipamount]
+\it 
+\Large
+$^1$Institute for Experimental and Applied
+Physics, University of Regensburg, 93040 Regensburg, Germany\\
+\end{center}
+\vspace*{0.5cm}
+}
+&
+\parbox{5cm}{\vspace*{-1cm}
+\begin{center}
+\epsfig{file=images/logo-sfb689,height=4.5cm}
+\end{center}
+}
+\end{tabular}
+\end{center}
+\end{minipage}
+\vspace*{9mm}
+
+
+
+
+
+%
+% begin of first row first column
+\fcolorbox{white}{background}{
+\begin{minipage}[t][\columnheighta-2\fboxsep-2\fboxrule][t]
+  {\columnwidth-2\fboxsep-2\fboxrule} \rule{0pt}{0pt}\\
+  \begin{minipage}{\textwidth}
+%
+%
+
+\vspace*{0.9cm}
+\heading{Flexible measurement needed?!}
+
+\vspace*{-1cm}
+\begin{itemize}
+\item
+Tired of following your wires in square meters of LabVIEW diagrams?
+\item
+Tired of clumsy string handling and low-level driver functions
+in your looong C program?
+\item
+Use a text processing language to manage your measurement! Use Perl!
+\end{itemize}
+
+\placelisting{srs_read.pl}
+
+\vspace{3cm}
+\heading{Safe measurement needed?!}
+\vspace{-1cm}
+\begin{itemize}
+\item
+Your sample only survives small voltage steps. You make a typo. 
+Your sample dies. Noooooooo!
+\item
+Use `gateprotect' for voltage sources: pre-defined limits for sweep speed, step
+size, range
+\item
+Voltage sweeps, not steps, whenever needed
+\end{itemize}
+
+\placelisting{gateprotect.pl}
+
+
+\vspace{3cm}
+\heading{Overview needed?!}
+\placefigure{file=images/no-overview}
+
+
+\begin{itemize}
+\item
+{\tt make\_overview.pl}
+\item
+Autogenerates a \LaTeX\ file and images, e.g. for all data in a directory
+\item
+Includes comments, axis labels, ...
+\item
+``Generate measurement log from data files''
+\end{itemize}
+
+\vspace{1cm}
+\placefigure{file=images/overview}
+
+
+%
+%
+%
+\end{minipage}
+%
+\end{minipage}}
+% end of first row first column
+%
+%
+%
+%
+% begin of first row second column
+\fcolorbox{white}{background}{
+\begin{minipage}[t][\columnheighta-2\fboxsep-2\fboxrule][t]
+  {\columnwidth-2\fboxsep-2\fboxrule} \rule{0pt}{0pt}\\
+  \begin{minipage}{\textwidth}
+%
+%
+%
+%
+
+\vspace*{0.9cm}
+\heading{Currently supported hardware}
+
+\vspace*{-3mm}
+\placefigure{file=images/hardware}
+Hardware driver backends: 
+\begin{itemize}
+\item
+LinuxGPIB and all hardware supported by it
+\item
+Linux USB-TMC kernel driver
+ \item 
+NI-VISA (Windows and Linux) and all hardware supported by it
+ \item
+Oxford Instruments IsoBus
+ \item
+Raw TCP connection, generic network socket
+ \item
+RS232 serial port
+\end{itemize}
+
+\vspace{0.5cm}{\normalsize
+High-level drivers at the moment (more are {\it very} easy to add):
+\begin{quote}
+ ABB TRMC2; 
+ Agilent 34401A, 34420A, 3458A, 83732A, U2000;
+ Anritsu MG369xB;
+ Oxford Instruments ILM210, IPS, ITC503;
+ Roh\-de \& Schwarz FSV7;
+ Signal Recovery 726x;
+ Stanford Research SR830;
+ Trinamic PD11042;
+ Yokogawa 7651, GS200
+\end{quote}
+
+High-level drivers in preparation:
+\begin{quote}
+ Agilent 34411A, 34970A, 8360;
+ Keithley 2000, 2400, 6221;
+ Knick S252;
+ Lakeshore 336, 370;
+ Oxford Instruments Triton, Mercury;
+ Stanford Research SR620, SR780, SIM928
+\end{quote}
+\renewcommand{\baselinestretch}{1}}
+ 
+\vspace*{0.9cm}
+\heading{Internal architecture}
+
+\vspace*{-3mm}
+\placefigure{file=images/structure}
+\begin{itemize}
+ \item
+ Lab::Bus --- hardware driver encapsulation
+ \item
+ Lab::Connection --- thin glue layer
+ \item
+ Lab::Instrument --- high-level drivers, 
+ accessed by measurement script
+\end{itemize}
+
+
+
+\vspace*{2cm}
+\heading{Key facts}
+\vspace*{-2cm}
+\begin{itemize}
+ \item
+ open source / free software\\[-5cm]
+ \item 
+ http://www.labmeasurement.de/
+ \hfill\epsfig{file=images/qrcode-labmeasurement,width=5cm}
+ \item
+ license: same as Perl (GPL-2 / Artistic)
+ \item
+ releases on CPAN, development on Github
+ \item
+ contributors welcome!
+\end{itemize}
+
+
+
+
+
+
+\vspace*{3cm}
+\begin{minipage}{\textwidth}
+\verysmallheading{Results obtained using Lab::Measurement / Lab::VISA}
+{\renewcommand{\baselinestretch}{0.4}\normalsize
+\begin{itemize}
+\item D. Schr\"oer, {\it et al.}, Phys. Rev. B {\bf 76}, 075306 (2007).
+\item D. Preusche, A. K. H\"uttel, {\it et al.}, J. Appl. Phys. {\bf 106},
+084314 (2009).
+\item D. Taubert, {\it et al.}, Phys. Rev. B {\bf 82}, 161416(R) (2010).
+\item D. Taubert, {\it et al.}, Phys. Rev. B {\bf 83}, 235404 (2011).
+\item D. Taubert, {\it et al.}, J. Appl. Phys. {\bf 109}, 102412 (2011).
+\item D. Taubert, {\it et al.}, Rev. Sci. Instrum. {\bf 82}, 123905 (2011).
+\item M. Gaass, A. K. H\"uttel, {\it et al.}, Phys. Rev. Lett. {\bf 107}, 176808
+(2011).
+\item C. Butschkow, {\it et al.}, submitted, arXiv:1110.5507 (2011).
+\item D. R. Schmid, A. K. H\"uttel, {\it et al.}, New J. Phys. {\bf 14}, 083024 
+(2012).
+\item G. Granger, {\it et al.}, Nature Physics {\bf 8}, 522 (2012).
+
+
+\end{itemize}
+\renewcommand{\baselinestretch}{1}}
+\end{minipage}
+
+
+
+%
+%
+%
+%
+\end{minipage}
+\end{minipage}}
+% end of second column
+%
+%
+%
+%
+%
+%begin third column
+\fcolorbox{white}{background}{
+\begin{minipage}[t][\columnheighta-2\fboxsep-2\fboxrule][t]
+  {\columnwidth-2\fboxsep-2\fboxrule} \rule{0pt}{0pt}\\
+  \begin{minipage}{\textwidth}
+%
+%
+%
+%
+
+\vspace*{0.9cm}
+\heading{Real world example}
+\vspace*{-3mm}
+\placesmalllisting{biasfield.pl}
+
+
+
+ \end{minipage}
+
+\end{minipage}}  % end of first row third column
+%
+%
+%
+
+\vspace*{0.5cm}
+\begin{center}\color{invheading}\large
+\hspace*{-4cm}We gratefully acknowlegde funding by the DFG via the Emmy Noether grant
+Hu1808/1-1 ``Carbon nanotubes as electronical and nano-electromechanical hybrid systems in
+the quantum limit'',
+\\ \hspace*{-4cm}
+the collaborative research centre SFB 689 ``Spin phenomena in reduced dimensions'', and
+the graduate research school GRK 1570  ``Electronic properties of
+carbon based nanostructures''.
+\end{center}
+
+\end{document}
