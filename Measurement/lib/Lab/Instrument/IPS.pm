@@ -364,6 +364,12 @@ sub get_field { # basic
 
 	my ($tail) = $self->_check_args( \@_ );
 
+	my $persistent_mode = $self->get_persistent_mode({read_mode => 'cache'});
+
+	if ($persistent_mode) {
+		return $self->get_persistent_field();
+	}
+
     my $result = $self->query("R7\r", $tail);
 	$result =~ s/R//g;
 	return $result;	
@@ -375,6 +381,8 @@ sub set_persistent_mode {
 	
 	my ($mode,$tail) = $self->_check_args(\@_,['mode']);
 	
+	$self->out_debug("Function: set_persistent_mode \n");
+	
 	return 0 if not $self->{device_settings}->{has_switchheater};
 	
 	my $switch = $self->get_switchheater();
@@ -382,7 +390,9 @@ sub set_persistent_mode {
 	#print "We are in mode $current_mode \n";
 	
 	if($mode == 1) {
-
+		
+		$self->out_debug("Going into persistent mode ... \n");
+		
 		$self->hold();
 		$self->set_switchheater(0);
 		
@@ -392,6 +402,8 @@ sub set_persistent_mode {
 		
 	}
 	elsif($mode == 0 and  $switch == 2) {
+		
+		$self->out_debug("Leaving persistent mode ... \n");
 		
 		my $setpoint = $self->get_persistent_field();
 	
@@ -416,10 +428,12 @@ sub get_persistent_mode {
 	my $self=shift;
 	my ($tail) = $self->_check_args( \@_ );
 	
+	$self->out_debug("Function: get_persistent_mode \n");
+	
 	return 0 if not $self->{device_settings}->{has_switchheater};
 		
     my $sh = $self->get_switchheater();
-	my $field = $self->get_field();
+	my $field = $self->get_field({read_mode => 'cache'});
 	
 	# Are we really in persistent mode?
 	

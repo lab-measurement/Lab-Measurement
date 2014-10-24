@@ -24,6 +24,7 @@ sub new {
 		points	=>	[0,10],
 		duration	=> [1],
 		stepwidth => 1,
+		pid => undef,
 		mode	=> 'continuous',
 		allowed_instruments => ['Lab::Instrument::ITC', 'Lab::Instrument::TCD'],
 		allowed_sweep_modes => ['continuous', 'step', 'list'],
@@ -69,6 +70,20 @@ sub check_config_paramters {
 			$self->{config}->{backsweep} = 0;
 			}
 		}
+	
+	if (defined $self->{config}->{pid}) {
+		if (ref($self->{config}->{pid}) eq 'ARRAY') {
+			if (ref(@{$self->{config}->{pid}}[0]) ne 'ARRAY') {
+				$self->{config}->{pid} = [$self->{config}->{pid}];
+			}
+		}
+		else {
+			$self->{config}->{pid} = [[$self->{config}->{pid}]];
+		}
+	}
+	else {
+		$self->{config}->{pid} = [undef];
+	}
 	
 	# Set loop-Interval to Measurement-Interval:
 	$self->{loop}->{interval} = $self->{config}->{interval};
@@ -138,6 +153,9 @@ sub halt {
 }
 
 sub stabilize {
+
+	use Term::ReadKey;
+	
 	my $self = shift;
 	my $setpoint = shift;
 	
@@ -156,7 +174,18 @@ sub stabilize {
 	my $criterion_setpoint = 0;
 	my $criterion_std_dev_INSTR = 0;
 	my $criterion_std_dev_SENSOR = 1;
-
+	
+	my $pid = shift @{$self->{config}->{pid}};
+	if (defined $pid) {
+		
+		my $p = shift @{$pid};
+		my $i = shift @{$pid};
+		my $d = shift @{$pid};
+		
+		$self->{config}->{instrument}->set_PID($p, $i, $d);
+			
+		
+	}
 	
 	$self->{config}->{instrument}->set_heatercontrol('AUTO');
 	$self->{config}->{instrument}->set_T($setpoint);
@@ -165,13 +194,13 @@ sub stabilize {
 	
 	my $time0 = time();
 
-	print "Stabilize Temperature at $setpoint K ... \n\n";
+	print "Stabilize Temperature at $setpoint K ... (Press 'c' to skip)\n\n";
 	#my $line1  = "\rElapsed: $elapsed_time \n Current Temp INSTR: @T_INSTR[-1] \n Current Temp SENSOR: @T_SENSOR[-1] \n ";
 	#my $line2 = "Current Median: @MEDIAN_INSTR[-1] \n Std. Dev. T Instr. : $INSTR_STD_DEV \n Std. Dev. T Sensor : $SENSOR_STD_DEV \n ";
 	#my $line3 = "CRIT SETPOINT: $criterion_setpoint \n CRIT Std. Dev. T Instr. : $criterion_std_dev_INSTR \n CRIT Std. Dev. T Sensor : $criterion_std_dev_SENSOR \n ";
 	print " Time    "." | "." TEMP "." | "."SENS "." | "."MED_I"." | "."ISD "." | "."SSD "." | "."C1"." | "."C2"." | "."C3"." \n";
 	
-	
+	ReadMode('cbreak');
 	while (1) {
 	
 		#----------COLLECT DATA--------------------
@@ -269,12 +298,13 @@ sub stabilize {
 		
 		
 		
-		my $output = $elapsed_time." | ".sprintf("%3.3f",@T_INSTR[-1])." | ".sprintf("%3.3f", @T_SENSOR[-1])." | ".sprintf("%3.3f", @MEDIAN_INSTR[-1])." | ".sprintf("%2.3f", $INSTR_STD_DEV)." | ".sprintf("%2.3f", $SENSOR_STD_DEV)." | ".$criterion_setpoint." | ".$criterion_std_dev_INSTR." | ".$criterion_std_dev_SENSOR."\r";
+		my $output = $elapsed_time." | ".sprintf("%3.3f",@T_INSTR[-1])." | ".sprintf("%3.3f", @T_SENSOR[-1])." | ".sprintf("%3.3f", @MEDIAN_INSTR[-1])." | ".sprintf("%2.3f", $INSTR_STD_DEV)." | ".sprintf("%2.3f", $SENSOR_STD_DEV)." | ".$criterion_setpoint." | ".$criterion_std_dev_INSTR." | ".$criterion_std_dev_SENSOR;
 		
 		print $output;
 		
 		if ($criterion_std_dev_INSTR * $criterion_std_dev_SENSOR * $criterion_setpoint) {
 			last;
+		}
 		elsif (defined $self->{config}->{max_stabilization_time} and ( (time() - $time0) >= $self->{config}->{max_stabilization_time} )) {
 			last;
 			print "\n";
@@ -284,10 +314,17 @@ sub stabilize {
 			
 		}
 
-		
+		my $char = ReadKey(1e-5);
+		if ( defined $char and $char eq 'c')
+		{
+			last;
+		}
 		sleep ($self->{config}->{stabilize_measurement_interval});
+		
+		print "\r";
+		
 	}
-	
+	ReadMode('normal');
 	$| = 0;
 	
 	print "\nTemperature stabilized at $setpoint K \n";
