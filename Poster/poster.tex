@@ -201,7 +201,7 @@ Lab::Measurement -- measurement control with Perl
 {
 \vspace*{-0.5cm}
 \huge 
-A. Dirnaichner$^1$, C. Butschkow$^1$, A. Iankilevitch$^1$, S. Gei\ss{}ler$^1$, 
+C. Butschkow$^1$, A. Iankilevitch$^1$, S. Gei\ss{}ler$^1$, A. Dirnaichner$^1$, 
 and A. K. Hüttel$^1$
 }
 \\[\medskipamount]
@@ -369,7 +369,7 @@ High-level drivers in preparation:
  \item
  Lab::Instrument --- instrument-level logic, sending/receiving command strings
  \item 
- Sweep, Frame --- classes for nested loop measurements
+ Lab::XPRESS --- sweep and frame classes for nested loop measurements
 \end{itemize}
 
 
@@ -384,15 +384,12 @@ High-level drivers in preparation:
  http://www.labmeasurement.de/
  \hfill\epsfig{file=images/qrcode-labmeasurement,width=5cm}
  \item
- license: same as Perl (GPL-2 / Artistic)
+ license: same as Perl (GPL-1+ or Artistic)
  \item
  releases on CPAN, development on Github
  \item
  contributors welcome!
 \end{itemize}
-
-
-
 
 
 
@@ -432,34 +429,34 @@ High-level drivers in preparation:
 
 \vspace*{3cm}
 \begin{minipage}{\textwidth}
-\verysmallheading{Results obtained using Lab::Measurement / Lab::VISA}
-{\renewcommand{\baselinestretch}{0.3}\scriptsize
+\verysmallheading{Results obtained using Lab::Measurement}
+{\renewcommand{\baselinestretch}{0.3}\footnotesize
 \begin{itemize}
-\item D. Schr\"oer, {\it et al.}, Phys. Rev. B {\bf 76}, 075306 (2007).
-\item D. Preusche, A. K. H\"uttel, {\it et al.}, J. Appl. Phys. {\bf 106},
-084314 (2009).
-\item D. Taubert, {\it et al.}, Phys. Rev. B {\bf 82}, 161416(R) (2010).
-\item D. Taubert, {\it et al.}, Phys. Rev. B {\bf 83}, 235404 (2011).
-\item D. Taubert, {\it et al.}, J. Appl. Phys. {\bf 109}, 102412 (2011).
-\item D. Taubert, {\it et al.}, Rev. Sci. Instrum. {\bf 82}, 123905 (2011).
-\item M. Gaass, A. K. H\"uttel, {\it et al.}, Phys. Rev. Lett. {\bf 107}, 176808
-(2011).
-\item C. Butschkow, {\it et al.}, submitted, arXiv:1110.5507 (2011).
-\item D. R. Schmid, A. K. H\"uttel, {\it et al.}, New J. Phys. {\bf 14}, 083024 
-(2012).
-\item G. Granger, {\it et al.}, Nature Physics {\bf 8}, 522 (2012).
-\item P. L. Stiller, A. K. Hüttel, {\it et al.}, physica status solidi(b) 
-{\bf 250}, 2518 (2013).
-\item A. Kumar, A. K. Hüttel, {\it et al.}, Phys. Rev. B {\bf 89}, 075428 
-(2014).
-\item M. Gaass, A. K. Hüttel, {\it et al.}, Phys. Rev. B {\bf 89}, 241405(R) 
+\item D. R. Schmid, A. K. Hüttel, {\it et al.}, submitted, arXiv:1407.2114 
 (2014).
 \item D. R. Schmid, A. K. Hüttel, {\it et al.}, submitted, arXiv:1312.6586 
 (2014).
-\item 
-D. R. Schmid, A. K. Hüttel, {\it et al.}, submitted, arXiv:1407.2114 (2014).
-\item
-S. Ratz, A. K. Hüttel, {\it et al.}, submitted, arXiv:1408.5000 (2014).
+\item S. Ratz, A. K. Hüttel, {\it et al.}, New J. Phys. (accepted) (2014).
+\item M. Gaass, A. K. Hüttel, {\it et al.}, Phys. Rev. B {\bf 89}, 241405(R) 
+(2014).
+\item A. Kumar, A. K. Hüttel, {\it et al.}, Phys. Rev. B {\bf 89}, 075428 
+(2014).
+\item P. L. Stiller, A. K. Hüttel, {\it et al.}, physica status solidi(b) 
+{\bf 250}, 2518 (2013).
+\item G. Granger, {\it et al.}, Nature Physics {\bf 8}, 522 (2012).
+\item D. R. Schmid, A. K. H\"uttel, {\it et al.}, New J. Phys. {\bf 14}, 083024 
+(2012).
+\item C. Butschkow, {\it et al.}, submitted, arXiv:1110.5507 (2011).
+\item M. Gaass, A. K. H\"uttel, {\it et al.}, Phys. Rev. Lett. {\bf 107}, 176808
+(2011).
+\item D. Taubert, {\it et al.}, Rev. Sci. Instrum. {\bf 82}, 123905 (2011).
+\item D. Taubert, {\it et al.}, J. Appl. Phys. {\bf 109}, 102412 (2011).
+\item D. Taubert, {\it et al.}, Phys. Rev. B {\bf 83}, 235404 (2011).
+\item D. Taubert, {\it et al.}, Phys. Rev. B {\bf 82}, 161416(R) (2010).
+\item D. Preusche, A. K. H\"uttel, {\it et al.}, J. Appl. Phys. {\bf 106},
+084314 (2009).
+\item D. Schr\"oer, {\it et al.}, Phys. Rev. B {\bf 76}, 075306 (2007).
+
 \end{itemize}
 \renewcommand{\baselinestretch}{1}}
 \end{minipage}
