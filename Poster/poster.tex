@@ -252,41 +252,8 @@ Use a text processing language to manage your measurement! Use Perl!
 
 \placelisting{srs_read.pl}
 
-\vspace{3cm}
-\heading{Safe measurement needed?!}
-\vspace{-1cm}
-\begin{itemize}
-\item
-Your sample only survives small voltage steps. You make a typo. 
-Your sample dies. Noooooooo!
-\item
-Use `gateprotect' for voltage sources: pre-defined limits for sweep speed, step
-size, range
-\item
-Voltage sweeps, not steps, whenever needed
-\end{itemize}
-
-\placelisting{gateprotect.pl}
 
 
-\vspace{3cm}
-\heading{Overview needed?!}
-\placefigure{file=images/no-overview}
-
-
-\begin{itemize}
-\item
-{\tt make\_overview.pl}
-\item
-Autogenerates a \LaTeX\ file and images, e.g. for all data in a directory
-\item
-Includes comments, axis labels, ...
-\item
-``Generate measurement log from data files''
-\end{itemize}
-
-\vspace{1cm}
-\placefigure{file=images/overview}
 
 
 %
@@ -420,7 +387,14 @@ High-level drivers in preparation:
 \vspace*{-3mm}
 \placesmalllisting{Example2_Gate-IV-scan.pl}
 
-
+\vspace*{2cm}
+\begin{itemize}
+ \item 
+ two nested loops: \\
+ gate voltage $V_g$ and bias voltage $V_{sd}$
+ \item
+ read out multimeter for each point
+\end{itemize}
 
 
 
@@ -430,7 +404,7 @@ High-level drivers in preparation:
 \vspace*{3cm}
 \begin{minipage}{\textwidth}
 \verysmallheading{Results obtained using Lab::Measurement}
-{\renewcommand{\baselinestretch}{0.3}\footnotesize
+{\renewcommand{\baselinestretch}{0.2}\footnotesize
 \begin{itemize}
 \item D. R. Schmid, A. K. Hüttel, {\it et al.}, submitted, arXiv:1407.2114 
 (2014).
