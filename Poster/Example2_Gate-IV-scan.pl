@@ -90,7 +90,6 @@ my $my_measurement = sub {
 #-------- 5. Put everything together -------
 
 $DataFile->add_measurement($my_measurement);
-
 $voltage_sweep->add_DataFile($DataFile);
 
 my $frame = Frame();
@@ -98,5 +97,3 @@ $frame->add_master($gate_sweep);			# the outer, slow loop
 $frame->add_slave($bias_sweep);				# the inner, fast loop
 
 $frame->start();
-
-1;

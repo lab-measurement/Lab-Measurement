@@ -252,6 +252,73 @@ Use a text processing language to manage your measurement! Use Perl!
 
 \placelisting{srs_read.pl}
 
+\vspace*{2cm}
+\vspace*{0.9cm}
+\heading{Currently supported hardware}
+
+\vspace*{-3mm}
+\placefigure{file=images/hardware}
+Hardware driver backends: 
+\begin{itemize}
+\item
+LinuxGPIB and all hardware supported by it
+\item
+Linux USB-TMC kernel driver
+ \item 
+NI-VISA (Windows and Linux) and all hardware supported by it
+ \item
+Oxford Instruments IsoBus
+ \item
+Raw TCP connection, generic network socket
+ \item
+RS232 serial port
+\end{itemize}
+
+\vspace{0.5cm}{\large
+High-level drivers at the moment (more are {\it very} easy to add):
+\begin{quote}
+ ABB TRMC2; 
+ Agilent 34401A, 34420A, 3458A, 83732A, U2000;
+ Anritsu MG369xB;
+ Oxford Instruments ILM210, IPS, ITC503;
+ Roh\-de \& Schwarz FSV7, SMB100A, ZVB;
+ Signal Recovery 726x;
+ Stanford Research SR830;
+ Trinamic PD11042;
+ Yokogawa 7651, GS200
+\end{quote}
+
+High-level drivers in preparation:
+\begin{quote}
+ Agilent 34411A, 34970A, 8360;
+ Keithley 2000, 2400, 6221;
+ Knick S252;
+ Lakeshore 336, 370;
+ Oxford Instruments Triton, Mercury;
+ Stanford Research SR620, SR780, SIM928
+\end{quote}
+\renewcommand{\baselinestretch}{1}}
+ 
+
+
+\vspace*{2cm}
+\heading{Key facts}
+\vspace*{-2cm}
+\begin{itemize}
+ \item
+ open source / free software\\[-5cm]
+ \item 
+ http://www.labmeasurement.de/
+ \hfill\epsfig{file=images/qrcode-labmeasurement,width=5cm}
+ \item
+ license: same as Perl (GPL-1+ or Artistic)
+ \item
+ releases on CPAN, development on Github
+ \item
+ contributors and cooperations welcome!
+\end{itemize}
+
+
 
 
 
@@ -278,52 +345,6 @@ Use a text processing language to manage your measurement! Use Perl!
 %
 
 \vspace*{0.9cm}
-\heading{Currently supported hardware}
-
-\vspace*{-3mm}
-\placefigure{file=images/hardware}
-Hardware driver backends: 
-\begin{itemize}
-\item
-LinuxGPIB and all hardware supported by it
-\item
-Linux USB-TMC kernel driver
- \item 
-NI-VISA (Windows and Linux) and all hardware supported by it
- \item
-Oxford Instruments IsoBus
- \item
-Raw TCP connection, generic network socket
- \item
-RS232 serial port
-\end{itemize}
-
-\vspace{0.5cm}{\normalsize
-High-level drivers at the moment (more are {\it very} easy to add):
-\begin{quote}
- ABB TRMC2; 
- Agilent 34401A, 34420A, 3458A, 83732A, U2000;
- Anritsu MG369xB;
- Oxford Instruments ILM210, IPS, ITC503;
- Roh\-de \& Schwarz FSV7;
- Signal Recovery 726x;
- Stanford Research SR830;
- Trinamic PD11042;
- Yokogawa 7651, GS200
-\end{quote}
-
-High-level drivers in preparation:
-\begin{quote}
- Agilent 34411A, 34970A, 8360;
- Keithley 2000, 2400, 6221;
- Knick S252;
- Lakeshore 336, 370;
- Oxford Instruments Triton, Mercury;
- Stanford Research SR620, SR780, SIM928
-\end{quote}
-\renewcommand{\baselinestretch}{1}}
- 
-\vspace*{0.9cm}
 \heading{Internal architecture}
 
 \vspace*{-3mm}
@@ -339,24 +360,23 @@ High-level drivers in preparation:
  Lab::XPRESS --- sweep and frame classes for nested loop measurements
 \end{itemize}
 
-
+\vspace*{2cm}
+\vspace*{0.9cm}
+\heading{Real world example}
+\vspace*{-3mm}
+\placesmalllisting{Example2_Gate-IV-scan.pl}
 
 \vspace*{2cm}
-\heading{Key facts}
-\vspace*{-2cm}
 \begin{itemize}
- \item
- open source / free software\\[-5cm]
  \item 
- http://www.labmeasurement.de/
- \hfill\epsfig{file=images/qrcode-labmeasurement,width=5cm}
+ two nested loops: \\
+ gate voltage $V_g$ and bias voltage $V_{sd}$
  \item
- license: same as Perl (GPL-1+ or Artistic)
- \item
- releases on CPAN, development on Github
- \item
- contributors welcome!
+ read out multimeter for each point
 \end{itemize}
+
+
+
 
 
 
@@ -383,35 +403,32 @@ High-level drivers in preparation:
 %
 
 \vspace*{0.9cm}
-\heading{Real world example}
-\vspace*{-3mm}
-\placesmalllisting{Example2_Gate-IV-scan.pl}
+\heading{Data and metadata}
 
-\vspace*{2cm}
+\vspace*{-1cm}
 \begin{itemize}
- \item 
- two nested loops: \\
- gate voltage $V_g$ and bias voltage $V_{sd}$
- \item
- read out multimeter for each point
+\item
+per measurement, two files generated
+\item
+``data'': tab-separated text file, GnuPlot format
+\item
+``metadata'': all available information about device settings
 \end{itemize}
-
-
-
-
 
 
 \vspace*{3cm}
 \begin{minipage}{\textwidth}
-\verysmallheading{Results obtained using Lab::Measurement}
-{\renewcommand{\baselinestretch}{0.2}\footnotesize
+\smallheading{Results obtained using Lab::Measurement}
+{\renewcommand{\baselinestretch}{0.2}\normalsize
 \begin{itemize}
+\item A. Dirnaichner, A. K. Hüttel, {\it et al.}, submitted, arXiv:1502.02005 
+(2015).
 \item D. R. Schmid, A. K. Hüttel, {\it et al.}, submitted, arXiv:1407.2114 
 (2014).
 \item D. R. Schmid, A. K. Hüttel, {\it et al.}, submitted, arXiv:1312.6586 
 (2014).
-\item S. Ratz, A. K. Hüttel, {\it et al.}, New J. Phys. (accepted) (2014).
-\item M. Gaass, A. K. Hüttel, {\it et al.}, Phys. Rev. B {\bf 89}, 241405(R) 
+\item S. Ratz, A. K. Hüttel, {\it et al.}, New J. Phys. {\bf 16}, 123040 (2014).
+\item M. Gaass, A. K. Hüttel, {\it et al.}, Phys. Rev. B {\bf 89}, 241405(R)
 (2014).
 \item A. Kumar, A. K. Hüttel, {\it et al.}, Phys. Rev. B {\bf 89}, 075428 
 (2014).
