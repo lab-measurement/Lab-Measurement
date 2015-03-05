@@ -153,6 +153,26 @@
  }
 }
 
+% place a text
+\newcommand{\placetext}[1]{ 
+ {
+  \vspace{-0.2cm}
+  \begin{center}
+  \hspace*{-1cm}\begin{minipage}{0.96\textwidth}
+   \footnotesize \renewcommand{\baselinestretch}{0.85}
+   \whitebg{
+   \parbox{0.97\textwidth}{
+    \lstinputlisting{#1}
+   }
+   }
+   \renewcommand{\baselinestretch}{1}
+   \vspace*{-1cm}
+   {\\}
+  \end{minipage}
+  \end{center} 
+ }
+}
+
 
 
 
@@ -362,21 +382,20 @@ High-level drivers in preparation:
 
 \vspace*{2cm}
 \vspace*{0.9cm}
-\heading{Real world example}
-\vspace*{-3mm}
-\placesmalllisting{Example2_Gate-IV-scan.pl}
-
+\heading{Example instrument driver}
+\vspace*{-2cm}
+\begin{itemize}
+ \item 
+ Rohde \& Schwarz SMB100A signal generator
+\end{itemize}
+\placesmalllisting{RSSMB100A.pm}
 \vspace*{2cm}
 \begin{itemize}
  \item 
- two nested loops: \\
- gate voltage $V_g$ and bias voltage $V_{sd}$
+ GPIB? Ethernet? doesn't matter here!
  \item
- read out multimeter for each point
+ fast implementation of instrument functions
 \end{itemize}
-
-
-
 
 
 
@@ -403,16 +422,35 @@ High-level drivers in preparation:
 %
 
 \vspace*{0.9cm}
+\heading{Real world example}
+\vspace*{-3mm}
+\placesmalllisting{Example2_Gate-IV-scan.pl}
+
+\vspace*{2cm}
+\begin{itemize}
+ \item 
+ two nested loops: \\
+ gate voltage $V_g$ and bias voltage $V_{sd}$
+ \item
+ read out multimeter for each point
+\end{itemize}
+
+\vspace*{0.9cm}
 \heading{Data and metadata}
 
 \vspace*{-1cm}
+each measurement generates subdirectory
+\placetext{ls.txt}
+\vspace*{0.5cm}
 \begin{itemize}
 \item
-per measurement, two files generated
+archival copy of the measurement script
 \item
-``data'': tab-separated text file, GnuPlot format
+configuration of all controlled devices
 \item
-``metadata'': all available information about device settings
+data, tab-separated GnuPlot format
+\item
+automated plot (identical to live view)
 \end{itemize}
 
 
