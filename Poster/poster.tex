@@ -373,9 +373,9 @@ High-level drivers in preparation:
  \item
  Lab::Bus --- hardware driver encapsulation
  \item
- Lab::Connection --- thin glue layer
+ Lab::Connection --- thin glue layer, one connection per instrument
  \item
- Lab::Instrument --- instrument-level logic, sending/receiving command strings
+ Lab::Instrument --- instrument-level logic, sen\-ding / receiving command strings
  \item 
  Lab::XPRESS --- sweep and frame classes for nested loop measurements
 \end{itemize}
@@ -392,9 +392,12 @@ High-level drivers in preparation:
 \vspace*{2cm}
 \begin{itemize}
  \item 
- GPIB? Ethernet? doesn't matter here!
+ GPIB? Ethernet? doesn't matter here, the connection code takes care of that!
  \item
- fast implementation of instrument functions
+ fast implementation of many different instrument functions
+ \item
+ additional features possible, e.g. ``device cache'': stores device parameters
+ if setting a value is fast but reading it out is slow / impossible
 \end{itemize}
 
 
@@ -422,7 +425,7 @@ High-level drivers in preparation:
 %
 
 \vspace*{0.9cm}
-\heading{Real world example}
+\heading{Real world measurement}
 \vspace*{-3mm}
 \placesmalllisting{Example2_Gate-IV-scan.pl}
 
@@ -454,16 +457,16 @@ automated plot (identical to live view)
 \end{itemize}
 
 
-\vspace*{3cm}
+\vspace*{2cm}
 \begin{minipage}{\textwidth}
 \smallheading{Results obtained using Lab::Measurement}
-{\renewcommand{\baselinestretch}{0.2}\normalsize
+{\renewcommand{\baselinestretch}{0.2}\footnotesize
 \begin{itemize}
 \item A. Dirnaichner, A. K. Hüttel, {\it et al.}, submitted, arXiv:1502.02005 
 (2015).
 \item D. R. Schmid, A. K. Hüttel, {\it et al.}, submitted, arXiv:1407.2114 
 (2014).
-\item D. R. Schmid, A. K. Hüttel, {\it et al.}, submitted, arXiv:1312.6586 
+\item D. R. Schmid, A. K. Hüttel, {\it et al.}, accepted by Phys. Rev. B, arXiv:1312.6586 
 (2014).
 \item S. Ratz, A. K. Hüttel, {\it et al.}, New J. Phys. {\bf 16}, 123040 (2014).
 \item M. Gaass, A. K. Hüttel, {\it et al.}, Phys. Rev. B {\bf 89}, 241405(R)
