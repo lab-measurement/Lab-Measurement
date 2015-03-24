@@ -6,14 +6,12 @@ use Lab::Instrument::Source;
 use Data::Dumper;
 
 our @ISA=('Lab::Instrument::Source');
-our $maxchannels=16;
+
 
 our %fields = (
-	supported_connections => [ 'LinuxGPIB' ],
+	supported_connections => ['DEBUG'],
 	
-	connection_settings => {
-		connection_type => 'none',
-	},
+	connection_settings => {},
 
 	device_settings => {
 		gate_protect            => 1,
@@ -28,8 +26,8 @@ our %fields = (
 	
 	device_cache => {
 		function			=> "Voltage", 
-		range			=> undef,
-		level			=> undef,
+		range			=> 10,
+		level			=> 0,
 		output					=> undef,
 	},
 	
@@ -48,37 +46,57 @@ sub new {
     	$v='undef' if !defined($v);
         print "DS:   $k -> $v\n";
     }
-    for (my $i=1; $i<=$maxchannels; $i++) {
-      my $tmp="last_volt_$i";
-      $self->{$tmp}=0;
-      $tmp="last_range_$i";
-      $self->{$tmp}=1;
-    }
+
     return $self
 }
 
-sub _set_voltage {
-    my $self=shift;
-    my $voltage=shift;
-    my $args = {};
-	if (ref $_[0] eq 'HASH') { $args=shift } else { $args={@_} }
-    my $channel = $args->{'channel'} || $self->default_channel();
-
-    my $tmp="last_volt_$channel";
-    $self->{$tmp}=$voltage;
-    print "DS: _setting virtual voltage $channel to $voltage\n";
-    return $voltage;
+sub _device_init {
+	my $self = shift;
+	return;
 }
 
-sub _get_voltage {
-    my $self=shift;
-    my $args = {};
-	if (ref $_[0] eq 'HASH') { $args=shift } else { $args={@_} }
-    my $channel = $args->{'channel'} || $self->default_channel();
 
-    my $tmp="last_volt_$channel";
-    print "DS: _getting virtual voltage $channel: $$self{$tmp}\n";
-    return $self->{$tmp};
+sub config_sweep {
+    my $self = shift;
+    my ($start, $target, $duration,$sections ,$tail) = $self->check_sweep_config(@_);
+    
+    
+    print "Dummy Source sweep configuration.\n";        
+    print "Duration: $duration\n";        
+    $self->{'sweeptime'} = $duration;
+}
+
+sub trg {
+    print "Dummy Source received trigger.\n"
+}
+
+sub wait{
+    my $self = shift;
+    print "Dummy Source is sweeping.\n";
+    sleep($self->{'sweeptime'});
+}
+
+
+
+sub _set_level {
+    my $self = shift;
+    my ($value, $tail) = $self->_check_args( \@_, ['value'] );
+
+    return $self->{'device_cache'}->{'level'} = $value;
+}
+
+sub _get_level {
+    my $self=shift;
+
+    return $self->{'device_cache'}->{'level'};
+}
+
+sub active{
+    return 0;
+}
+
+sub abort{
+    return 0;
 }
 
 sub set_range {

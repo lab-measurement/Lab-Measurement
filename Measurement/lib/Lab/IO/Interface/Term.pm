@@ -7,12 +7,14 @@ use if ($^O eq "MSWin32"), Win32::Console::ANSI;
 use Term::ReadKey;
 use Term::ANSIScreen qw/:color :cursor :screen :keyboard/;
 
-our @ISA = ('Lab::IO::Interface');
+#our @ISA = ('Lab::IO::Interface');
+use Lab::Generic;
+use parent ("Lab::IO::Interface");
 
 sub new { 
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
-	
+
 	my $self = $class->SUPER::new(@_);
 	
 	$|++;
@@ -115,7 +117,7 @@ sub warning {
 	
 	$self->process_common($DATA, {
 	  'channel' => 'WARNING'
-	 ,'header_style' => 'bold yellow on white'
+	 ,'header_style' => 'yellow on white'
 	 ,'trace' => $trace
 	});	
 }

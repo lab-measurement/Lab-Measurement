@@ -55,7 +55,6 @@ sub new {
 	my $self = $class->SUPER::new(@_);
 	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
 
-	# already called in Lab::Instrument::Source, but call it again to respect default values in local channel_defaultconfig
 	$self->configure($self->config());
     
     return $self;

@@ -91,7 +91,6 @@ sub print {
 sub out_channel {		
   my $self = shift;
 	my $chan = shift;  
-	
 	Lab::GenericIO::channel_write($chan, $self, @_);
 }
 # IO Channel aliases
@@ -303,5 +302,6 @@ sub seconds2time {
 	return $formated;
 }
 
+use Lab::GenericIO;
 
 1;

@@ -98,15 +98,10 @@ sub configure_voltage_dc {
 }
 
 sub configure_voltage_dc_trigger {
-	my $self=shift;
+    my $self=shift;
 	
-	my ($range,$tint,$count,$delay) = $self->_check_args( \@_, ['range','tint','count','delay'] );
-    
-    my $range=shift; # in V, or "AUTO", "MIN", "MAX"
-    my $tint=shift;  # integration time in sec, "DEFAULT", "MIN", "MAX"
-    my $count=shift;
-    my $delay=shift; # in seconds, 'MIN'
-    
+    my ($range,$tint,$count,$delay) = $self->_check_args( \@_, ['range','tint','count','delay'] );
+        
     $count=1 if !defined($count);
     Lab::Exception::CorruptParameter->throw( error => "Sample count has to be an integer between 1 and 512\n" )
     	if($count !~ /^[0-9]*$/ || $count < 1 || $count > 16777215); 

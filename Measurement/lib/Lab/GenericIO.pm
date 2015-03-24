@@ -3,6 +3,9 @@ package Lab::GenericIO;
 our $VERSION='3.40';
 
 use Devel::StackTrace;
+use Lab::Generic;
+use Lab::GenericIO::STDoutHandle;
+use Lab::GenericIO::STDerrHandle;
 
 our $DEFAULT = 'Lab::IO::Interface::Term';
 
@@ -21,7 +24,12 @@ sub init {
 	# load and bind default interfaces:
 	my $interface = interface_load($DEFAULT);
 	interface_bind($interface);
-
+	
+	$SIG{__WARN__} = sub {
+	    my $message = shift;
+	    channel_write("WARNING", undef, $message);
+	};
+	
 	#Backup STDOUT and STDERR:
 	our $STDOUT = *STDOUT;
 	our $STDERR = *STDERR;
@@ -38,7 +46,7 @@ sub init {
 # interface_load: import, create and return interface from class
 sub interface_load {  
 	my $class = shift;
-		
+
 	eval "require $class; $class->import(); 1;" 
 		or die "Could not load interface class $class\n($@)\n";
 	return $class->new();
@@ -140,3 +148,4 @@ sub data_prepare {
 	return $DATA;
 }
 
+1;

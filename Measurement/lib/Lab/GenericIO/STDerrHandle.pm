@@ -10,6 +10,7 @@ use base qw<Tie::Handle>;
 sub TIEHANDLE { return bless geniosym, __PACKAGE__ }
 
 sub PRINT {
+	$DB::single = 1;	
 
 	shift;
 	my $string = join("", @_);

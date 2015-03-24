@@ -10,7 +10,7 @@ sub new {
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
 	
-	my $self = $class->SUPER::new(@_);
+	my $self = Lab::Generic::new($class, @_);
 	$self->{CHANNELS};
 	$self->{last_object};
 	$self->{last_channel};
