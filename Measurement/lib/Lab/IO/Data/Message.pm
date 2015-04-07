@@ -7,6 +7,7 @@ our @ISA = ('Lab::IO::Data');
 
 # Test
 package Lab::IO::Data::Message::Test;
+our $VERSION='3.41';
 our @ISA = ('Lab::IO::Data::Message');
 our $msg = 'Static message test!';
 
