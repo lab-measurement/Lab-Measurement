@@ -26,7 +26,7 @@ sub new {
 		stepwidth => 1,
 		pid => undef,
 		mode	=> 'continuous',
-		allowed_instruments => ['Lab::Instrument::ITC', 'Lab::Instrument::TCD'],
+		allowed_instruments => ['Lab::Instrument::ITC', 'Lab::Instrument::TCD', 'Lab::Instrument::OI_ITC503'],
 		allowed_sweep_modes => ['continuous', 'step', 'list'],
 		
 		sensor => undef,
