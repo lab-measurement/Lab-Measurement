@@ -1,6 +1,6 @@
 package Lab::IO::Data::Error;
 
-our $VERSION='3.40';
+our $VERSION='3.41';
 
 use Lab::IO::Data;
 our @ISA = ('Lab::IO::Data');

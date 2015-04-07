@@ -1,6 +1,6 @@
 package Lab::XPRESS::Data::XPRESS_logger;
 
-our $VERSION = '3.40';
+our $VERSION = '3.41';
 
 use Time::HiRes qw/usleep/, qw/time/;
 use strict;
