@@ -146,7 +146,6 @@ lib/Lab/XPRESS/Xpression/res/XRC/main_frame.xrc
 lib/Lab/XPRESS/Xpression/res/XRC/panel_column.xrc
 lib/Lab/XPRESS/Xpression/res/XRC/panel_plotInstance.xrc
 META.json
-META.yml
 README
 scripts/lab-makefilelist.pl
 scripts/lab-makemakefile.pl
@@ -156,3 +155,4 @@ scripts/lab-plotter.pl
 scripts/lab-update.pl
 TODO
 'utilities/labview/LV Socket Com.vi'
+META.yml
