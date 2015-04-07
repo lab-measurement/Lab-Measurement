@@ -8,21 +8,25 @@ use Lab::Instrument;
 our @ISA = ("Lab::Instrument");
 
 my %fields = (
-	supported_connections => [ 'IsoBus', 'LinuxGPIB' ],
+    supported_connections => [ 'IsoBus', 'LinuxGPIB' ],
 
-	device_settings => {
-	}
+    connection_settings => {},
+    device_settings => {
+	t_sensor => 3,
+    },
 );
 
 sub new {
-	my $proto = shift;
-	my $class = ref($proto) || $proto;
-	my $self = $class->SUPER::new(@_);
-	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
-	printf "The ITC driver is work in progress. You have been warned.\n";
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
+    my $self = $class->SUPER::new(@_);
+    $self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
+printf "The ITC driver is work in progress. You have been warned.\n";
+$self->device_settings()->{t_sensor} = 3;
 
-	return $self;
+return $self;
 }
+
 
 
 
@@ -32,10 +36,10 @@ sub _device_init {
 	# Dont clear the instrument since that may make it unresponsive.
 	# Instead, set the communication protocol to "Normal", which should
 	# also clear all communication buffers.
-	$self->write("Q0\r");
-
 	$self->connection()->SetTermChar(chr(13));
 	$self->connection()->EnableTermChar(1);
+	$self->write("Q0\r");
+
 	$self->set_control(3); # Enable remote control, but leave the front panel unlocked
 }
 
@@ -113,6 +117,8 @@ sub set_control {
 	}
 	
 	my $result=$self->query("C${mode}\r",@_);
+	sleep(1);
+
 }
 	
 
@@ -122,6 +128,63 @@ sub itc_set_communications_protocol {
     my $self=shift;
     my $mode=shift;
     $self->write("Q$mode\r");
+}
+
+sub set_T{
+    my $self = shift;
+    my $temp = shift;
+    my $t_sensor = $self->device_settings()->{t_sensor};
+    $DB::single = 1;
+
+    if($temp < 1.5 && $t_sensor == 3){
+	$t_sensor = 2;
+    }
+    elsif($temp >= 1.5 && $t_sensor == 2){
+	$t_sensor = 3;
+    }
+
+    $self->itc_set_heater_auto(0);
+    $self->itc_set_heater_sensor($t_sensor);
+    $self->itc_set_heater_auto(1);
+    $self->itc_set_PID_auto(1);
+    $self->itc_T_set_point($temp);
+
+
+    printf "Set temperature $temp with sensor $t_sensor.\n";
+    $self->device_settings()->{t_sensor} = $t_sensor;
+
+}
+
+sub get_value{
+    my $self = shift;
+    my $t_sensor = $self->device_settings()->{t_sensor};
+
+
+    my $temp = $self->itc_read_parameter($t_sensor);
+    $temp = $self->itc_read_parameter($t_sensor);
+    $temp = $self->itc_read_parameter($t_sensor);
+
+    if($temp < 1.5 && $t_sensor == 3){
+	$t_sensor = 2;
+	$temp = $self->itc_read_parameter($t_sensor);
+	$temp = $self->itc_read_parameter($t_sensor);
+	$temp = $self->itc_read_parameter($t_sensor);
+	printf "Switching to sensor $t_sensor at temperature $temp\n";
+	}
+    elsif($temp >= 1.5 && $t_sensor == 2){
+	$t_sensor = 3;
+	$temp = $self->itc_read_parameter($t_sensor);
+	$temp = $self->itc_read_parameter($t_sensor);
+	$temp = $self->itc_read_parameter($t_sensor);
+	printf "Switching to sensor $t_sensor at temperature $temp\n";
+    }
+
+    printf "Read temperature $temp with sensor $t_sensor.\n";
+
+    $self->device_settings()->{t_sensor} = $t_sensor;
+
+    return $temp;
+
 }
 
 sub itc_read_parameter {
@@ -162,6 +225,22 @@ sub itc_examine {
     my $self=shift;
     $self->query("X\r");
 }   
+
+sub set_heatercontrol{
+    my $self = shift;
+    my $mode = shift;
+
+    if($mode == 'MAN'){
+	$self->itc_set_heater_auto(0);
+    }
+    elsif($mode == 'AUTO'){
+	$self->itc_set_heater_auto(1);
+    }
+    else{
+	printf "set_heatercontrol received an invalid parameter: $mode";
+    }
+
+}
 
 sub itc_set_heater_auto {
 # 0 Heater Manual, Gas Manual;
