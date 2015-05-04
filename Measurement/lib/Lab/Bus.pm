@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 package Lab::Bus;
-our $VERSION = '3.40';
+our $VERSION = '3.41';
 
 use strict;
 

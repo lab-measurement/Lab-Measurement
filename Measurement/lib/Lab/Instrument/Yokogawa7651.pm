@@ -4,7 +4,8 @@ use warnings;
 use strict;
 use Time::HiRes qw/usleep/;
 
-our $VERSION = '3.30';
+our $VERSION = '3.41';
+
 use 5.010;
 
 

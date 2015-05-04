@@ -1,5 +1,5 @@
 package Lab::Instrument::TemperatureDiode::SI420;
-our $VERSION = '3.40';
+our $VERSION = '3.41';
 
 use strict;
 use Math::Complex;
