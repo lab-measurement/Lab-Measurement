@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use Time::HiRes qw/usleep/;
 
-our $VERSION = '3.40';
+our $VERSION = '3.30';
 use 5.010;
 
 
@@ -27,7 +27,7 @@ our %fields = (
 
 	device_settings => {
 		gate_protect            => 1,
-		gp_equal_level          => 1e-5,
+		#gp_equal_level          => 1e-5,
 		gp_max_units_per_second  => 0.005,
 		gp_max_units_per_step    => 0.001,
 		gp_max_step_per_second  => 5,
@@ -226,7 +226,8 @@ sub wait {
     
     while(1)
         {
-        my $execution = $self->get_status('execution', $tail);
+        #my $status = $self->get_status();
+        my $execution = $self->get_status('execution');
 		my $current_level = $self->get_level($tail);
         if ( $flag <= 1.1 and $flag >= 0.9 )
             {
@@ -307,14 +308,12 @@ sub get_level {
 	my $cmd="OD";
 	my $result;
     
-    my ($tail) = $self->_check_args( \@_, [] );
-       
-    $result = $self->request($cmd, $tail);
+    my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
 
-    if (defined $result) {
-        $result=~/....([\+\-\d\.E]*)/;
-        return $1;
-    }
+    if (not defined $read_mode or not $read_mode =~ /device|cache|request|fetch/)
+		{
+        $read_mode = $self->device_settings()->{read_default};
+		}
     
     if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'level'})
 		{
@@ -360,47 +359,43 @@ sub get_level {
 
 sub get_voltage{    
 	my $self=shift;
-
-    my ($tail) = $self->_check_args( \@_, [] );
 	
-	my $function = $self->get_function($tail);
+	my $function = $self->get_function();
 
     if( $function !~ /voltage/i){
     	Lab::Exception::CorruptParameter->throw(
     	error=>"Source is in mode $function. Can't get voltage level.");
     }
 
-    return $self->get_level($tail);
+    return $self->get_level(@_);
 }
 
 sub get_current{    
 	my $self=shift;
-
-    my ($tail) = $self->_check_args( \@_, [] );
 	
-	my $function = $self->get_function($tail);
+	my $function = $self->get_function();
 
     if( $function !~ /current/i){
     	Lab::Exception::CorruptParameter->throw(
     	error=>"Source is in mode $function. Can't get current level.");
     }
 
-    return $self->get_level($tail);
+    return $self->get_level(@_);
 }
 
 sub set_function {  
     my $self = shift;
-    my ($function, $tail) = $self->_check_args( \@_, ['function'] );
+    my ($function) = $self->_check_args( \@_, ['function'] );
     
     if( $function !~ /(current|voltage)/i ){
     	Lab::Exception::CorruptParameter->throw( "$function is not a valid source mode. Choose 1 or 5 for current and voltage mode respectively. \n" );
     }
 
-    if ($self->get_function($tail) eq $function) {
+    if ($self->get_function() eq $function) {
         return $function;
     }
 
-    if ($self->get_output($tail) and $self->device_settings()->{gate_protect}) {
+    if ($self->get_output() and $self->device_settings()->{gate_protect}) {
         Lab::Exception::Warning->throw('Cannot switch function in gate-protection mode while output is activated.');
     }
     
@@ -408,15 +403,16 @@ sub set_function {
     
     my $cmd=sprintf("F%de",$my_function);
     
-    $self->write( $cmd, $tail );
+    $self->write( $cmd );
+    return $self->{'device_cache'}->{'function'} = $function;
     
 }
 
 sub set_range { 
     my $self=shift;
-    my ($range, $tail) = $self->_check_args( \@_, ['range'] );
+    my ($range) = $self->_check_args( \@_, ['range'] );
 	
-    my $function = $self->get_function($tail);
+    my $function = $self->get_function();
 	
 	
     if( $function =~ /voltage/i ){
@@ -455,15 +451,26 @@ sub set_range {
       
     my $cmd = sprintf("R%ue",$range);
     
-    $self->write($cmd, $tail);
+    $self->write($cmd);
+    return $self->{'device_cache'}->{'range'} = $self->get_range();
 }
 
 sub get_info {  
     my $self=shift;
 
-    my ($tail) = $self->_check_args( \@_, [] );
+    my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
 
-    $self->write("OS", $tail);
+    if (not defined $read_mode or not $read_mode =~ /device|cache/)
+    {
+        $read_mode = $self->device_settings()->{read_default};
+    }
+    
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'info'})
+    {
+        return $self->{'device_cache'}->{'info'};
+    }  
+
+    $self->write("OS");
     my @info;
     for (my $i=0;$i<=10;$i++){
         my $line=$self->connection()->Read( read_length => 300 );
@@ -473,14 +480,24 @@ sub get_info {
         push(@info,sprintf($line));
     }
 	
-    return @info;
+    return @{$self->{'device_cache'}->{'info'}} = @info;
 }
 
 sub get_range{  
     my $self=shift;
     
-    my ($tail) = $self->_check_args( \@_, [] );
+    my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
 
+    if (not defined $read_mode or not $read_mode =~ /device|cache/)
+    {
+        $read_mode = $self->device_settings()->{read_default};
+    }
+    
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'range'})
+    {
+        return $self->{'device_cache'}->{'range'};
+    } 
+    
     my $range=($self->get_info())[1];
     my $function = $self->get_function();
     
@@ -516,7 +533,7 @@ sub get_range{
     	Lab::Exception::CorruptParameter->throw( "$range is not a valid source range. Read the documentation for a list of allowed ranges in mode $function.\n" );
     }
         
-    return $range;
+    return $self->{'device_cache'}->{'range'} = $range;
 }
 
 sub set_run_mode {  
@@ -560,7 +577,7 @@ sub set_time { # internal use only
 
 sub set_output {   
     my $self = shift;
-    my ($value, $tail) = $self->_check_args( \@_, ['value'] );
+    my ($value) = $self->_check_args( \@_, ['value'] );
 
     my $current_level = undef; # for internal use only
     
@@ -605,6 +622,7 @@ sub set_output {
         Lab::Exception::CorruptParameter->throw("$value is not a valid output status (on = 1 | off = 0)");
     }
 
+    return $self->{'device_cache'}->{'output'} = $self->get_output();
     
 }
     
@@ -612,10 +630,20 @@ sub set_output {
 sub get_output {   
     my $self=shift;
     
-    my ($tail) = $self->_check_args( \@_, [] ); 
+    my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
+
+    if (not defined $read_mode or not $read_mode =~ /device|cache/)
+    {
+        $read_mode = $self->device_settings()->{read_default};
+    }
     
-    my $output = $self->get_status('output');
-    return $output/128;  
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'output'})
+    {
+        return $self->{'device_cache'}->{'output'};
+    }   
+    
+    my $res = $self->get_status();
+    return $self->{'device_cache'}->{'output'} = $res->{'output'}/128;  
 }
 
 sub initialize {  
@@ -642,13 +670,26 @@ sub set_voltage_limit {
 
 sub get_voltage_limit {
 	my $self = shift;
-	my ($tail) = $self->_check_args( \@_, [] ); 
+	
+	my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
+
+    if (not defined $read_mode or not $read_mode =~ /device|cache/)
+    {
+        $read_mode = $self->device_settings()->{read_default};
+    }
+    
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'voltage_limit'})
+    {
+        return $self->{'device_cache'}->{'voltage_limit'};
+    }  
+	
+
 	# read from device:
-	my $limit = @{$self->get_info($tail)}[3];
+	my $limit = @{$self->get_info()}[3];
 
 	my @limit = split(/LA/, $limit);
 	@limit = split(/LV/, $limit[0]);
-	return $limit[1];
+	return $self->{'device_cache'}->{'voltage_limit'} = $limit[1];
 	
 }
 
@@ -665,13 +706,24 @@ sub set_current_limit {
 sub get_current_limit {
 	my $self = shift;
 	
-	my ($tail) = $self->_check_args( \@_, [] ); 
+	my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
+
+    if (not defined $read_mode or not $read_mode =~ /device|cache/)
+    {
+        $read_mode = $self->device_settings()->{read_default};
+    }
+    
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'current_limit'})
+    {
+        return $self->{'device_cache'}->{'current_limit'};
+    }  
+	
 
 	# read from device:
-	my $limit = @{$self->get_info($tail)}[3];
+	my $limit = @{$self->get_info()}[3];
 
 	my @limit = split(/LA/, $limit);
-	return $limit[1];
+	return $self->{'device_cache'}->{'current_limit'} = $limit[1];
 	
 }
 
