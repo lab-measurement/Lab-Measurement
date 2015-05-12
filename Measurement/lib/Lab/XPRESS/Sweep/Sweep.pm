@@ -158,7 +158,7 @@ sub prepaire_config {
 	
 	
 
-	$self->{config_original} = deep_copy($self->{config});
+	$self->{config_original} = dclone($self->{config});
 	
 
 	
@@ -1374,6 +1374,9 @@ sub AUTOLOAD {
 		# The elements of the hash could not be accessed correctly.
 		# The workaround is to tempsave the hashref and put it back in
 		# place. This should be only temporary though.
+		
+		# NOTE: changed the creation of config_original (in prepare_config function), so it is a copy 
+		# 		of {config} unsing dclone instead of deep_copy. I think this adresses the issue above. 
 
 		my $instrument = $self->{config}->{instrument};
 		
