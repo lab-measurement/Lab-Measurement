@@ -497,7 +497,7 @@ sub set_channel{ # basic
 	
 	if ($function =~ /(voltage:dc|voltage|volt:dc|volt|sense1:voltage:dc|sense1:voltage|sense1:volt:dc|sense1:volt|sense2:voltage:dc|sense2:voltage|sense2:volt:dc|sense2:volt)/)
 		{
-		if ($self->get_channel({read_mode => 'cache'}, $tail) != $terminal)
+		if ($self->get_channel({read_mode => 'cache'}, $tail) == $terminal)
 			{
 			return;
 			}
