@@ -263,7 +263,7 @@ sub init_limits {
 	print "----------------------------\n";
 	print "1.) Define the REFERENCE POINT:\n\n";
 	print "--> Move the motor position to the REFERENCE POINT.\n";
-	print "--> Enter an angle between -180 ... +180 deg.\n";
+	print "--> Enter a (relative) angle between -180 ... +180 deg.\n";
 	print "--> Repeat until you have reached the position you want to define as the REFERENCE POINT.\n";
 	print "--> Enter 'REF' to confirm the actual position as the REFERENCE POINT.\n\n";
 	
@@ -282,7 +282,7 @@ sub init_limits {
 			}
 		elsif ($value =~ /^[+-]?\d+$/ and $value >= -180 and $value <= 180)
 			{
-			$self->move($value, {mode => 'ABS'});
+			$self->move($value, {mode => 'REL'});
 			$self->wait();
 			}
 		else
