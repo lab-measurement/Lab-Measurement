@@ -4,6 +4,7 @@ our $VERSION = '3.41';
 
 use Lab::XPRESS::Sweep::Sweep;
 use Time::HiRes qw/usleep/, qw/time/;
+use Statistics::Descriptive;
 use strict;
 
 our @ISA=('Lab::XPRESS::Sweep::Sweep');
@@ -25,6 +26,11 @@ sub new {
 		mode	=> 'continuous',
 		allowed_instruments => [undef],
 		allowed_sweep_modes => ['continuous'],
+
+		stabilize => 0,
+		sensor => undef,
+		std_dev_sensor => 1e-6,
+		stabilize_observation_time => 3*60,
 		};
 	
 	if (ref(@args[0]->{duration}) ne "ARRAY") {
@@ -47,6 +53,8 @@ sub new {
 	$self->{DataFile_counter} = 0;	
 	$self->{DataFiles} = ();
 
+	$self->{stabilize}->{data} = ();
+
     return $self;
 }
 
@@ -64,6 +72,16 @@ sub check_config_paramters {
 	# Set loop-Interval to Measurement-Interval:
 	$self->{loop}->{interval} = $self->{config}->{interval};
 
+	# check correct initialization of stabilize
+	if ($self->{config}->{stabilize} == 1) {
+		if (not defined $self->{config}->{sensor}) {
+			$self->out_error('Stabilization activated, but no sensor defined!');
+		}
+		#elsif ($self->{config}->{sensor}->can('isa') and not $self->{config}->{sensor}->can('get_value')) {
+		#	$self->out_error('The defined sensor has no get_value routine, which is needed for stabilization. Is the sensor object a LM instrument?');
+		#}
+	}
+
 }
 
 sub exit_loop {
@@ -73,6 +91,10 @@ sub exit_loop {
 		{
 		if (not defined @{$self->{config}->{points}}[$self->{sequence}+1])
 			{
+			if ($self->{config}->{stabilize} == 1) {
+				$self->out_message({sticky => {id => $self.'_stab_status', cmd => 'finish'}});
+				$self->out_message('Reached maximum stabilization time.');
+			}
 			return 1;
 			}
 
@@ -80,6 +102,29 @@ sub exit_loop {
 		$self->{sequence} ++;
 		return 0;
 		}
+	elsif ($self->{config}->{stabilize} == 1) {
+		push(@{$self->{stabilize}->{data}}, $self->{config}->{sensor}->get_value());
+		
+		my $SENSOR_STD_DEV_PRINT = '-'x10;
+		
+		if ($self->{Time} >= $self->{config}->{stabilize_observation_time}) {
+			shift(@{$self->{stabilize}->{data}});
+
+			my $stat = Statistics::Descriptive::Full->new();
+			$stat->add_data($self->{stabilize}->{data});
+			my $SENSOR_STD_DEV = $stat->standard_deviation();
+			$SENSOR_STD_DEV_PRINT = sprintf('%.3e', $SENSOR_STD_DEV);
+			
+			if ($SENSOR_STD_DEV <= $self->{config}->{std_dev_sensor}) {
+				$self->out_message({sticky => {id => $self.'_stab_status', cmd => 'finish'}});
+				$self->out_message('Reached stabilization criterion.');
+				return 1;
+			}
+		}
+		
+		my $status = "ELAPSED: ".sprintf('%.2f',$self->{Time})." / CURRENT_STDD: ".$SENSOR_STD_DEV_PRINT." / TARGET_STDD: ".sprintf('%.3e', $self->{config}->{std_dev_sensor});
+		$self->out_message({msg => $status, sticky => {id => $self.'_stab_status'}});
+	}
 	else
 		{
 		return 0;
@@ -88,7 +133,7 @@ sub exit_loop {
 
 sub get_value {
 	my $self = shift;
-	return $self->{time};
+	return $self->{Time};
 }
 
 sub go_to_sweep_start {
@@ -115,12 +160,9 @@ sub halt {
 
 =head1 SYNOPSIS
 
-	use Lab::XPRESS::hub;
-	my $hub = new Lab::XPRESS::hub();
+	use Lab::Measurement;
 	
-	
-	
-	my $repeater = $hub->Sweep('Time',
+	my $time_sweep = Sweep('Time',
 		{
 		duration => 5
 		});
@@ -138,12 +180,25 @@ The Lab::XPRESS::Sweep::Time class implements a simple time controlled repeater 
 =head1 CONSTRUCTOR
 	
 
-	my $repeater = $hub->Sweep('Time',
+	my $time_sweep = Sweep('Time',
 		{
-		repetitions => 5
+		duration => 5,
+		interval => 0.5
 		});
 
-Instantiates a new Repeater.
+Instantiates a new Time-Sweep with a duration of 5 seconds and a Measurement interval of 5 seconds.
+To operate in the stabilization mode make an instant like the following:
+	
+	my $time_sweep = Sweep('Time',
+		{
+		stabilize => 1,		
+		sensor => $DIGITAL_MULTIMETER,
+		std_dev_sensor => 1e-6,
+		stabilize_observation_time => 3*60,
+
+		duration => 20*60,
+		interval => 0.5
+		});
 
 .
 
@@ -151,13 +206,14 @@ Instantiates a new Repeater.
 
 
 
-=head2 duration [int] (default = 1)
+=head2 duration [float] (default = 1)
 	
 duration for the time controlled repeater. Default value is 1, negative values indicate a infinit number of repetitions.
+In stabilization mode, the duration gives the maximum duration which is waited before the sweep gets interrupted even though the stabilization criterion hasn't been reached yet.
 
 .
 
-=head2 interval [int] (default = 1)
+=head2 interval [float] (default = 1)
 	
 interval in seconds for taking measurement points.
 
@@ -170,17 +226,38 @@ Just an ID.
 .
 
 
-=head2 delay_before_loop [int] (default = 0)
+=head2 delay_before_loop [float] (default = 0)
 
 defines the time in seconds to wait after the starting point has been reached.
 
 .
 
 
-=head2 delay_after_loop [int] (default = 0)
+=head2 delay_after_loop [float] (default = 0)
 
 Defines the time in seconds to wait after the sweep has been finished. This delay will be executed before an optional backsweep or optional repetitions of the sweep.
 
+
+=head2 stabilize [int] (default = 0)
+
+1 = Activate stabilization mode. In this mode the sweep will be interrupted when a stabilization criterion is reached or when the duration expires, whatever is reached first.
+The variable to stabilize on is the value which is returned by the get_value function corresponding to the instrument handle given to the parameter 'sensor'. The stabilization criterion can be set in 'std_dev_sensor' as a number which has the same unit as the variable, that is supposed to stabilize.
+When the standard deviation of a time series of the stabilization variable falls below 'std_dev_sensor', the sweep ends. The length of the time window, which is used to calculate the standard deviation is given by 'stabilize_observation_time'. The standarad deviation is not being calculated by the sweep, before the time window isn't filled with data completely.
+Therefore, the sweep will never last less than 'stabilize_observation_time', unless 'duration' < 'stabilize_observation_time'.
+
+0 = Deactivate stabilization mode.
+
+=head2 sensor [Lab::Instrument] (default = undef)
+
+See 'stabilize'.
+
+=head2 std_dev_sensor [float] (default = 1e-6),
+
+See 'stabilize'.
+
+=head stabilize_observation_time [float] (default = 3*60)
+
+See 'stabilize'.
 .
 
 =head1 CAVEATS/BUGS
