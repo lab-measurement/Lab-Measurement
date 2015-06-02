@@ -2,11 +2,11 @@
 # Hence termchar => \n. For Isobus connection, no additional termchar must be added. Hence IsoEnableTermChar => 0.
 
 package Lab::Instrument::IPS;
-our $VERSION = '3.41';
+our $VERSION = '3.40';
 
 use strict;
 use Time::HiRes qw/usleep/, qw/time/;
-use Lab::VISA;
+#use Lab::VISA;
 use Lab::Instrument;
 
 
@@ -74,10 +74,12 @@ sub get_version { # internal only
 }
 
 
-sub _init_magnet { # internal only
+sub _device_init { # internal only
 	my $self=shift;
 	my $magnet = shift;
-	
+
+	$self->connection()->SetTermChar(chr(13));
+	$self->connection()->EnableTermChar(1);	
 	$self->{SWEEP_CONFIG_ARMED} = 0;
 	$self->_set_control(3);
 		
@@ -184,10 +186,10 @@ sub _set_control { # internal only
 # 1 Remote & Locked
 # 2 Local & Unlocked
 # 3 Remote & Unlocked
-    my $self=shift;
+    	my $self=shift;
 	my ($mode,$tail) = $self->_check_args( \@_, ['mode'] );
 	
-   $self->query("C$mode\r",$tail);
+   	$self->query("C$mode\r",$tail);
 }
 
 sub _set_mode { # internal only
@@ -474,7 +476,7 @@ sub wait { # basic
             {
             print "\t\t\t\t\t\t\t\t\t\r";
             print $self->get_id()." is sweeping ($current_field )\r";
-            #usleep(5e5);
+            usleep(5e5);
             }
         elsif ( $flag <= 0 )
             {
@@ -502,6 +504,7 @@ sub active {  # basic
 	$self->_check_magnet();
 	
 	my $status = $self->query("X\r");
+	#print "status is $status\n";
 	my $sweepstatus = substr($status,11,1); # MAGNET is SWEEPING if $sweepstatus > 0
 	
 	if (!$sweepstatus and (@{$self->{SWEEP_QUEUE}}[1])) 
@@ -514,7 +517,7 @@ sub active {  # basic
 		{
 		$self->query("A0\r"); #Set Magnet-status to hold when no more sweeps in queue.
 		}
-	
+	#print "Sweepstatus is $sweepstatus\n";
 	return $sweepstatus;
 	
 	}
@@ -740,7 +743,6 @@ sub config_sweep { # basic
 		}
 	
 	# rounding of the received values.
-	
 	my $len = @sweep_points;	
 	for (my $i; $i < $len; $i++) {
 		@sweep_points[$i] = sprintf("%.5f", @sweep_points[$i]);
