@@ -15,6 +15,7 @@ sub abort_all {
 		$object->abort();		
 	}
 	@{Lab::Generic::OBJECTS} = ();	
+	exit;
 }
 
 END {  

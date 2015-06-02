@@ -822,7 +822,7 @@ sub sweep_to_field {
 	my @rates;
 	
 	if (abs($target) > $self->{LIMITS}->{magneticfield}) {
-		Lab::Exception::CorruptParameter->throw( error =>  "Target-Field exceed maximum field value! \n" );
+		$self->out_error("Target-Field exceeds maximum field value! \n" );
 	}
 	if (not defined $rate) {
 		$rate = @{$self->{LIMITS}->{rate_intervall_limits}}[0];

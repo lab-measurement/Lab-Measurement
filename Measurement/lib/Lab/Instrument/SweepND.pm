@@ -1,20 +1,17 @@
-package Lab::XPRESS::Sweep::Sweep;
+package Lab::XPRESS::Sweep::SweepND;
 
-our $VERSION = '3.41';
 
 use Time::HiRes qw/usleep/, qw/time/;
 use POSIX qw(ceil);
 use Term::ReadKey;
 use Storable qw(dclone);
-use Lab::Generic;
 use Lab::XPRESS::Sweep::Dummy;
 use Lab::XPRESS::Utilities::Utilities;
+use Lab::Generic;
 use Lab::Exception;
 use strict;
 use Storable qw(dclone);
 use Carp qw(cluck croak);
-
-our @ISA = ('Lab::Generic');
 
 our $PAUSE = 0;
 our $ACTIVE_SWEEPS = ();
@@ -23,6 +20,8 @@ our $ACTIVE_SWEEPS = ();
 our $AUTOLOAD;
 
 
+our @ISA = ('Lab::Generic');
+
 
 sub new {
     my $proto = shift;
@@ -30,6 +29,9 @@ sub new {
 	my $self = $class->SUPER::new(@_);
 	
 	$self->{default_config} = {
+		dimension => 1,
+		convinience => 1,
+
 		instrument => undef,
 		allowed_instruments => [undef],
 
@@ -110,18 +112,14 @@ sub new {
 	$self->{pause} = 0;	
 	$self->{active} = 0;
 	$self->{repetition} = 0;	
-	
-	
-    return bless $self, $class;
+			
+    return $self;
 }
 
 sub prepaire_config {
 	my $self = shift;
 
-
-	# deep Copy original Config Data:
 	
-
 	# correct typing errors:
 	$self->{config}->{mode}  =~ s/\s+//g; #remove all whitespaces
 	$self->{config}->{mode}  =~ "\L$self->{config}->{mode}"; # transform all uppercase letters to lowercase letters
@@ -130,10 +128,43 @@ sub prepaire_config {
 		$self->{config}->{mode} = 'continuous';
 		}
 	
+	# get current position:
+	my $current_position; 
+	if ( $self->{config}->{dimension} == 1 ) 
+		{
+		$current_position = $self->get_value();
+		}
+	
+	
+	
 	# make an Array out of single values if necessary:
+	if ( ref($self->{config}->{instrument}) ne 'ARRAY' )
+		{
+		$self->{config}->{instrument} = [$self->{config}->{instrument}];
+		}
+	
+	
+	if ( $self->{config}->{dimension} > 1 ) 
+			{
+			$current_position = $self->get_value();
+			}
+			
 	if ( ref($self->{config}->{points}) ne 'ARRAY' )
 		{
 		$self->{config}->{points} = [$self->{config}->{points}];
+		}
+	foreach ( @{$self->{config}->{points}})
+		{
+		if ( ref($_) ne 'ARRAY' )
+			{
+			$_ = [$_];
+			}
+		my $dim = @{$_};
+		
+		if ( $dim != $self->{config}->{dimension})
+			{
+			die "die dimension ist nicht richtig\n";
+			}
 		}
 	if ( ref($self->{config}->{rate}) ne 'ARRAY' )
 		{
@@ -208,7 +239,7 @@ sub prepaire_config {
 		{
 		push(@{$self->{config}->{rate}}, @{$self->{config}->{rate}}[-1]);
 		}
-		
+
 	while ( ($length_duration = @{$self->{config}->{duration}}) < $length_points )
 		{
 		push(@{$self->{config}->{duration}}, @{$self->{config}->{duration}}[-1]);
@@ -237,32 +268,47 @@ sub prepaire_config {
 	my $length_duration = @{$self->{config}->{duration}};
 	my $length_stepwidth = @{$self->{config}->{stepwidth}};
 	my $length_number_of_points = @{$self->{config}->{number_of_points}};
-		
 	
 	
-	
-	# evaluate sweep sign:
-	foreach my $i (0..$length_points-2)
+	# add current position to Points-Array:
+	if (ref($current_position) ne 'ARRAY')
 		{
-		if ( @{$self->{config}->{points}}[$i] - @{$self->{config}->{points}}[$i+1] < 0 )
+		$current_position = [$current_position];
+		}
+	
+	my $dim = @{$current_position};
+
+	if( $dim != $self->{config}->{dimension})
+		{
+		die "dimension von der get_value entspricht nicht der für den sweep angegeben Dimension";	
+		}
+	unshift (@{$self->{config}->{points}}, $current_position);	
+	
+	
+
+	# calculate direction vector:
+	foreach my $i (0..$length_points-1)
+		{
+		my @direction;
+		my $length = 0;
+		foreach my $n (0..$self->{config}->{dimension}-1)
 			{
-			@{$self->{config}->{sweepsigns}}[$i] = 1;
+			$direction[$n] = @{@{$self->{config}->{points}}[$i+1]}[$n] - @{@{$self->{config}->{points}}[$i]}[$n];
+			$length += ($direction[$n])**2;
 			}
-		elsif ( @{$self->{config}->{points}}[$i] - @{$self->{config}->{points}}[$i+1] > 0 )
+		$length = sqrt($length);
+		foreach my $n (0..$self->{config}->{dimension}-1)
 			{
-			@{$self->{config}->{sweepsigns}}[$i] = -1;
+			$direction[$n] = ($length != 0) ? $direction[$n]/$length : 1;
 			}
-		else
-			{
-			@{$self->{config}->{sweepsigns}}[$i] = 0;
-			} 
+
+		@{$self->{config}->{direction}}[$i] = \@direction;
 		}
 		
 			
 	
 	
-	# add current position to Points-Array:
-	unshift (@{$self->{config}->{points}}, $self->get_value());
+
 	
 	
 	
@@ -284,14 +330,26 @@ sub prepaire_config {
 		{					
 		foreach my $i (0..$length_points-1)
 			{
-				@{$self->{config}->{rate}}[$i] = abs(@{$self->{config}->{points}}[$i+1] - @{$self->{config}->{points}}[$i])/@{$self->{config}->{duration}}[$i];
+			my $vector_length = 0;
+			foreach my $n (0..$self->{config}->{dimension}-1)
+				{
+				$vector_length += (@{@{$self->{config}->{points}}[$i+1]}[$n] - @{@{$self->{config}->{points}}[$i]}[$n])**2;	
+				}
+			$vector_length = sqrt($vector_length);
+			@{$self->{config}->{rate}}[$i] = $vector_length/@{$self->{config}->{duration}}[$i];
 			}
 		}
 	elsif ( defined @{$self->{config}->{rate}}[0])
-		{				
-		foreach my $i (0..$length_points-1) 
+		{	
+		foreach my $i (0..$length_points-1)
 			{
-			@{$self->{config}->{duration}}[$i] = abs(@{$self->{config}->{points}}[$i+1] - @{$self->{config}->{points}}[$i])/@{$self->{config}->{rate}}[$i];
+			my $vector_length = 0;
+			foreach my $n (0..$self->{config}->{dimension}-1)
+				{
+				$vector_length += (@{@{$self->{config}->{points}}[$i+1]}[$n] - @{@{$self->{config}->{points}}[$i]}[$n])**2;	
+				}
+			$vector_length = sqrt($vector_length);
+			@{$self->{config}->{duration}}[$i] = $vector_length/@{$self->{config}->{rate}}[$i];
 			}
 		}
 			
@@ -306,17 +364,29 @@ sub prepaire_config {
 	elsif ( defined @{$self->{config}->{number_of_points}}[0])
 		{	
 		unshift (@{$self->{config}->{number_of_points}}, 1);
-		foreach my $i (1..$length_points-1) 
-			{					
-			@{$self->{config}->{stepwidth}}[$i-1] = abs(@{$self->{config}->{points}}[$i+1] - @{$self->{config}->{points}}[$i])/@{$self->{config}->{number_of_points}}[$i];
+		foreach my $i (0..$length_points-1)
+			{
+			my $vector_length = 0;
+			foreach my $n (0..$self->{config}->{dimension}-1)
+				{
+				$vector_length += (@{@{$self->{config}->{points}}[$i+1]}[$n] - @{@{$self->{config}->{points}}[$i]}[$n])**2;	
+				}
+			$vector_length = sqrt($vector_length);
+			@{$self->{config}->{stepwidth}}[$i-1] = $vector_length/@{$self->{config}->{number_of_points}}[$i];
 			}
 		}
 	elsif ( defined @{$self->{config}->{stepwidth}}[0])
-		{				
-		foreach my $i (1..$length_points-1)
+		{	
+		foreach my $i (0..$length_points-1)
 			{
-			@{$self->{config}->{number_of_points}}[$i-1] = abs(@{$self->{config}->{points}}[$i+1] - @{$self->{config}->{points}}[$i])/@{$self->{config}->{stepwidth}}[$i];
-			}
+			my $vector_length = 0;
+			foreach my $n (0..$self->{config}->{dimension}-1)
+				{
+				$vector_length += (@{@{$self->{config}->{points}}[$i+1]}[$n] - @{@{$self->{config}->{points}}[$i]}[$n])**2;	
+				}
+			$vector_length = sqrt($vector_length);
+			@{$self->{config}->{number_of_points}}[$i-1] = $vector_length/@{$self->{config}->{stepwidth}}[$i];
+			}			
 		}		
 	shift @{$self->{config}->{points}};
 	
@@ -343,39 +413,47 @@ sub prepaire_config {
 		# calculate each point/rate/stepsign/duration in step-sweep:
 		my $temp_points = ();
 		my $temp_rate = ();
-		my $temp_sweepsigns = ();
 		my $temp_duration = ();
+		my $temp_direction = ();
 		
 		foreach my $i (0..$length_points-2) 
 			{
-			my $nop = abs((@{$self->{config}->{points}}[$i+1] - @{$self->{config}->{points}}[$i])/ @{$self->{config}->{stepwidth}}[$i]);
+			my $vector_length = 0;
+			foreach my $n (0..$self->{config}->{dimension}-1)
+				{
+				$vector_length += (@{@{$self->{config}->{points}}[$i+1]}[$n] - @{@{$self->{config}->{points}}[$i]}[$n])**2;	
+				}
+			$vector_length = sqrt($vector_length);
+			my $nop = $vector_length/@{$self->{config}->{stepwidth}}[$i];
 			$nop = ceil($nop); 
 			   
 			my $point = @{$self->{config}->{points}}[$i];
 			for(my $j = 0; $j <= $nop; $j++) 
 				{
-				if ( $point != @{$temp_points}[-1] or not defined @{$temp_points}[-1]) 
+				if ( @{$point} !~~ @{$temp_points}[-1] or not defined @{$temp_points}[-1]) 
 					{
 					push (@{$temp_points}, $point);
 					push (@{$temp_rate}, @{$self->{config}->{rate}}[$i+1]);
 					push (@{$temp_duration}, @{$self->{config}->{duration}}[$i+1]/@{$self->{config}->{number_of_points}}[$i]);
-					push (@{$temp_sweepsigns}, @{$self->{config}->{sweepsigns}}[$i]);
+					push (@{$temp_direction}, @{$self->{config}->{direction}}[$i]);
 					}
-				$point += @{$self->{config}->{stepwidth}}[$i]*@{$self->{config}->{sweepsigns}}[$i];
+				foreach my $n (0..$self->{config}->{dimension}-1)
+					{
+					@{$point}[$n] += @{@{$self->{config}->{stepwidth}}[$i]}[$n]*@{@{$self->{config}->{direction}}[$i+1]}[$n];
+					}
 				}
 			@{$temp_points}[-1] = @{$self->{config}->{points}}[$i+1];
 			}
 		pop @{$temp_rate};
 		pop @{$temp_duration};
-		pop @{$temp_sweepsigns};
+		pop @{$temp_direction};
 		unshift ( @{$temp_rate},@{$self->{config}->{rate}}[0]) ;
 		unshift ( @{$temp_duration}, @{$self->{config}->{duration}}[0]);
-		#unshift ( @{$temp_sweepsigns}, @{$self->{config}->{sweepsigns}}[0]);
 		
 		$self->{config}->{points} = $temp_points;
 		$self->{config}->{rate} = $temp_rate;		
 		$self->{config}->{duration} = $temp_duration;		
-		$self->{config}->{sweepsigns} = $temp_sweepsigns;
+		$self->{config}->{direction} = $temp_direction;
 		}		
 	elsif ( $self->{config}->{mode} eq 'list' )
 		{	
@@ -386,22 +464,32 @@ sub prepaire_config {
 			}
 		}
 	
-	
-	
-	
 	# check if instrument is supported:
-	if (defined @{$self->{config}->{allowed_instruments}}[0] and not (grep {$_ eq ref($self->{config}->{instrument}) } @{$self->{config}->{allowed_instruments}}) ) {
-		die "inconsistent definition of sweep_config_data: Instrument (ref($self->{config}->{instrument})) is not supported by Sweep."
-	}
-	
-	
-	
-	
-	# check if sweep-mode is supported:
-	if (defined @{$self->{config}->{allowed_sweep_modes}}[0] and not (grep {$_ eq $self->{config}->{mode} } @{$self->{config}->{allowed_sweep_modes}}) ) {
-		die "inconsistent definition of sweep_config_data: Sweep mode $self->{config}->{mode} is not supported by Sweep."
-	}
+	foreach my $instrument (@{$self->{config}->{instrument}})
+		{
+		if (defined @{$self->{config}->{allowed_instruments}}[0] and not (grep {$_ eq ref($instrument) } @{$self->{config}->{allowed_instruments}}) ) {
+			die "inconsistent definition of sweep_config_data: Instrument (ref($self->{config}->{instrument})) is not supported by Sweep."
+			}
+		}
 
+
+	# check if sweep-mode is supported:
+		if (defined @{$self->{config}->{allowed_sweep_modes}}[0] and not (grep {$_ eq $self->{config}->{mode} } @{$self->{config}->{allowed_sweep_modes}}) ) {
+			die "inconsistent definition of sweep_config_data: Sweep mode $self->{config}->{mode} is not supported by Sweep."
+		}
+
+
+
+	# for convinience remove one level of points-array:
+	if ($self->{config}->{convinience} == 1 and $self->{config}->{dimension} == 1) {
+		my @temp_points;
+		foreach my $point (@{$self->{config}->{points}}) 
+			{
+			push(@temp_points, @{$point}[0]);
+			}
+		$self->{config}->{points} = \@temp_points;
+		$self->{config}->{instrument} = @{$self->{config}->{instrument}}[0];
+	}
 	
 	
 	
@@ -498,6 +586,7 @@ sub start {
 				my $filenamebase = $DataFile->{filenamebase};
 
 				my $new_filenamebase = $self->add_filename_extensions($filenamebase);
+				
 				if($new_filenamebase ne $DataFile->{file} )
 					{
 					$DataFile->change_filenamebase($new_filenamebase);
@@ -517,7 +606,7 @@ sub start {
 	
 	# link break signals to default functions:
 	$SIG{BREAK} = \&enable_pause;
-	#$SIG{INT} = \&abort;
+	$SIG{INT} = \&abort;
 
 	for ( my $i = 1; ($i <= $self->{config}->{repetitions}) or ($self->{config}->{repetitions} < 0); $i++)
 		{
@@ -537,7 +626,7 @@ sub start {
 			$self->start_continuous_sweep();
 			}
 		$self->{Time_start} = time();
-		$self->{Date_start}, $self->{TimeStamp_start} = timestamp();
+		$self->{Date_start}, $self->{TimeStamp_start} = $self->timestamp();
 		$self->{loop}->{t0} = $self->{Time_start};
 		
 		$self->{active} = 1;
@@ -552,7 +641,7 @@ sub start {
 				$self->delay($self->{config}->{delay_in_loop});
 				}			
 			$self->{Time} = time()-$self->{Time_start};
-			$self->{Date}, $self->{TimeStamp} = timestamp();
+			$self->{Date}, $self->{TimeStamp} = $self->timestamp();
 			
 			
 			# Master mode: call slave measurements if defined
@@ -875,10 +964,7 @@ sub enable_pause {
 sub pause {
 	my $self = shift;
 	print "\n\nPAUSE: continue with <ENTER>\n";
-	ReadMode('normal');
 	<>;
-	ReadMode('cbreak');
-	$PAUSE = 0;
 } 
 
 sub finish {
@@ -939,8 +1025,6 @@ sub finish {
 				}
 			}
 		}	
-	
-	ReadMode('normal');
 } 
 
 sub active {
@@ -949,7 +1033,7 @@ sub active {
 }
 
 sub abort {
-	
+
 	foreach my $sweep (@{$ACTIVE_SWEEPS})
 		{
 		$sweep->exit();
@@ -1013,6 +1097,52 @@ sub exit_loop {
 	return shift;
 }
 
+# sub check_loop_duration {
+
+	# my $self = shift;
+	
+	# my $char = ReadKey(1e-5);
+	# if ( defined $char )
+		# {
+		# $self->user_command($char);
+		# }
+	
+	# if ( @{$self->{config}->{interval}}[$self->{sequence}] == 0 )
+		# {
+		# return 0;
+		# }
+		
+	# if ( $self->{config}->{mode} =~ /step|list/ )
+		# {
+		# return 0;
+		# }
+	
+	# $self->{loop}->{t1} = time();
+	
+	# if ( not defined $self->{loop}->{t0} )
+		# {
+		# $self->{loop}->{t0} = time();
+		# return 0;
+		# }
+	
+	
+	# my $delta_time = ($self->{loop}->{t1}-$self->{loop}->{t0}) + $self->{loop}->{overtime};
+	# if ($delta_time > @{$self->{config}->{interval}}[$self->{sequence}])
+		# {
+		# $self->{loop}->{overtime} = $delta_time - @{$self->{config}->{interval}}[$self->{sequence}];
+		# $delta_time = @{$self->{config}->{interval}}[$self->{sequence}];			
+		# warn "WARNING: Measurement Loop takes more time ($self->{loop}->{overtime}) than specified by measurement intervall (@{$self->{config}->{sequence}}[$self->{iterator}]).\n";
+		# }
+	# else
+		# {
+		# $self->{loop}->{overtime} = 0;
+		# }
+	# usleep((@{$self->{config}->{interval}}[$self->{sequence}]-$delta_time)*1e6);
+	# $self->{loop}->{t0} = time();
+	# return $delta_time;
+	
+# }
+
 sub check_loop_duration {
 
 	my $self = shift;
@@ -1049,12 +1179,12 @@ sub check_loop_duration {
 	my $delta_time = ($self->{loop}->{t1}-$self->{loop}->{t0}) + $self->{loop}->{overtime};
 
 	
-	if (defined $self->{config}->{instrument} and $self->{config}->{instrument}->can("active")) 
+	if (defined @{$self->{config}->{instrument}}[0] and @{$self->{config}->{instrument}}[0]->can("active")) 
 		{ 
 		while((@{$self->{config}->{interval}}[$self->{sequence}] - $delta_time) > 0.2)
 			{
 			my $time0 = time();
-			$self->{config}->{instrument}->active();
+			@{$self->{config}->{instrument}}[0]->active();
 			$delta_time = $delta_time +((time() - $time0));
 			}
 		}
@@ -1355,7 +1485,7 @@ sub deep_copy {
 sub AUTOLOAD {
 
 	my $self = shift;
-	my $type = ref($self) or croak "\$self is not an object";
+	my $type = ref($self); #or croak "\$self is not an object";
 	my $value = undef;
 
 	my $name = $AUTOLOAD;
@@ -1369,17 +1499,6 @@ sub AUTOLOAD {
 		}
 	}
 	elsif( $name =~ qr/^(set_)(.*)$/ ) {
-	
-		# There is a problem with deep copying of the instrument hash.
-		# The elements of the hash could not be accessed correctly.
-		# The workaround is to tempsave the hashref and put it back in
-		# place. This should be only temporary though.
-		
-		# NOTE: changed the creation of config_original (in prepare_config function), so it is a copy 
-		# 		of {config} unsing dclone instead of deep_copy. I think this adresses the issue above. 
-
-		my $instrument = $self->{config}->{instrument};
-		
 		if(exists $self->{config_original}->{$2}){
 			if ($self->active()) {
 				print Lab::Exception::Warning->new( error => "WARNING: Cannot set parameter while sweep is active \n");
@@ -1389,15 +1508,11 @@ sub AUTOLOAD {
 				$self->{config_original}->{$2} = @_[0];
 			}
 			else {
-				$self->{config_original}->{$2} = deep_copy(\@_);
+				$self->{config_original}->{$2} = dclone(\@_);
 			}
 
-			$self->{config} = deep_copy($self->{config_original});
-			#use Data::Dumper;
+			$self->{config} = dclone($self->{config_original});
 
-			#print Dumper $self->{config};
-			
-			$self->{config}->{instrument} = $instrument;
 			$self->prepaire_config();
 		}
 		else{
@@ -1433,165 +1548,3 @@ sub AUTOLOAD {
 
 
 1;
-
-
-=head1 NAME
-
-	Lab::XPRESS::Sweep::Sweep - base class for Sweeps
-
-.
-
-=head1 SYNOPSIS
-
-	Lab::XPRESS::Sweep::Sweep is meant to be used as a base class for inheriting Sweeps.
-	It should not be used directly. 
-
-.
-
-=head1 DESCRIPTION
-
-The Lab::XPRESS::Sweep::Sweep class implements major parts of the Lab::XPRESS framework, a modular way for easy scripting measurements in perl and Lab::Measurement.
-Direct usage of this class would not result in any action. However it constitutes the fundament for more spezialized subclass Sweeps e.g. Lab::XPRESS::Sweep::Magnet. 
-.
-
-=head1 SWEEP PARAMETERS
-
-The configuration parameters are described in the particular subclasses (e.g. Lab::XPRESS::Sweep::Magnet). 
-
-.
-
-=head1 METHODS
-
-=head2 add_DataFile [Lab::XPRESS::Data::XPRESS_DataFile object]
-
-use this method to assign a DataFile object with a sweep if it operates as a slave or as a individual sweep. The sweep will call the user-defined measurment routine assigned with the DataFile.
-Sweeps accept multiple DataFile objects when add_DataFile is used repeatedly. 
-
-.
-
-=head2 start
-
-use this method to execute the sweep.
-
-.
-
-=head2 get_value 
-
-returns by default the current value of the points array or the current step. The method is intended to be overloaded by Sweep-Subclasses, in order to return the current value of the sweeping instrument.
-
-.
-
-
-=head2 LOG [hash, int (default = 0)]
-
-use this method to store the data collected by user-defined measurment routine in the DataFile object.
-
-The hash has to look like this: $column_name => $value
-The column_name has to be one of the previously defined columnames in the DataFile object.
-
-When using multiple DataFile objects within one sweep, you can direct the data hash one of the DataFiles by the second parameter (int). If this parameter is set to 0 (default) the data hash will be directed to all DataFile objects.
-
-Examples:
-	$sweep->LOG({
-		'voltage' => 10,
-		'current' => 1e-6,
-		'reistance' => $R
-	});
-
-OR:
-
-	$sweep->LOG({'voltage' => 10});
-	$sweep->LOG({'current' => 1e-6});
-	$sweep->LOG({'reistance' => $R});
-
-for two DataFiles:
-
-	# this value will be logged in both DataFiles
-	$sweep->LOG({'voltage' => 10},0); 
-
-	# this values will be logged in DataFile 1
-	$sweep->LOG({
-		'current' => 1e-6,
-		'reistance' => $R1
-	},1); 
-
-	# this values will be logged in DataFile 2
-	$sweep->LOG({
-		'current' => 10e-6,
-		'reistance' => $R2
-	},2); 
-
-.
-
-=head2 last
-
-use this method, in order to stop the current sweep. Example:
-	
-	# Stop a voltage Sweep if device current exeeds a critical limit.
-
-	if ($current > $high_limit) {
-		$voltage_sweep->last();
-	}
-
-.
-
-=head1 HOW TO DEVELOP SUBCLASS OF Lab::XPRESS::Sweep::Sweep
-
-
-preefine the default_config hash values in method 'new':
-
-	sub new {
-	    my $proto = shift;
-		my @args=@_;
-	    my $class = ref($proto) || $proto; 
-		my $self->{default_config} = {
-			id => 'Magnet_sweep',
-			filename_extension => 'B=',
-			interval	=> 1,
-			points	=>	[],
-			duration	=> [],
-			mode	=> 'continuous',
-			allowed_instruments => ['Lab::Instrument::IPS', 'Lab::Instrument::IPSWeiss1', 'Lab::Instrument::IPSWeiss2', 'Lab::Instrument::IPSWeissDillFridge'],
-			allowed_sweep_modes => ['continuous', 'list', 'step'],
-			number_of_points => [undef]
-			};
-			
-		$self = $class->SUPER::new($self->{default_config},@args);	
-		bless ($self, $class);
-		
-	    return $self;
-	}
-
-
-the following methodes have to be overloaded in the subclass:
-
-	sub go_to_sweep_start{}
-	sub start_continuous_sweep{}
-	sub go_to_next_step{}
-	sub exit_loop{}
-	sub get_value{}
-	sub exit{}
-
-additionally see one of the present Sweep-Subclasses.
-
-
-.
-
-
-=head1 CAVEATS/BUGS
-
-probably some
-
-.
-
-
-=head1 AUTHOR/COPYRIGHT
-
-Christian Butschkow and Stefan Geißler
-
-This library is free software; you can redistribute it and/or modify it under the same
-terms as Perl itself.
-
-.
-
-=cut

@@ -6,16 +6,18 @@ use Time::HiRes qw/usleep/, qw/time/;
 use Math::Trig;
 use Lab::Instrument::IPS;
 use Lab::XPRESS::hub;
+use Lab::Generic;
+
+our @ISA = ('Lab::Generic');
 
 
 
 sub new {	
 	
 	my $proto = shift;
-    my @args=@_;
-    my $class = ref($proto) || $proto;
-    my $self = {};
-    bless ($self, $class);
+	my $class = ref($proto) || $proto;
+	my $self = $class->SUPER::new(@_);
+	my @args = @_;
 	
 	my $hub = new Lab::XPRESS::hub();
 	
@@ -170,12 +172,23 @@ sub get_value {
 	
 sub get_field {
 	my $self = shift;
-	my $mode = shift;
+	my ($mode, $tail) = $self->_check_args(\@_, ['mode']);;
 	my @field;
+	
+	
+	if ($tail->{read_mode} eq 'request') {
+		$self->{IPS_x}->get_field({read_mode => 'request'});
+		$self->{IPS_y}->get_field({read_mode => 'request'});
+		$self->{IPS_z}->get_field({read_mode => 'request'});
+	}
 	
 	my $x = $self->{IPS_x}->get_field();
 	my $y = $self->{IPS_y}->get_field();
 	my $z = $self->{IPS_z}->get_field();
+	
+	if (not defined $mode) {
+		$mode = 's';
+	}
 	
 	if ( $mode =~ /^(spherical|SPHERICAL|s|s)$/ )
 		{
@@ -190,7 +203,7 @@ sub get_field {
 		# returns X, Y, Z:
 		$self->{value} = [$x, $y, $z];
 		}
-	else
+	elsif ( $mode =~ /^(all|ALL|A|a)$/ )
 		{
 		# returns BR, PHI, THETA, X, Y, Z:
 		my ( $r, $phi, $theta ) = cartesian_to_spherical($x, $y, $z);		
@@ -232,13 +245,8 @@ sub change_plane {
 
 sub config_CIRC_sweep {
 	my $self = shift;
-	my $B_R = shift;
-	my $phi_start = shift;
-	my $phi_stop = shift;
-	my $v_phi = shift;
-	my $interval = shift;
-	my $resolution = shift;
 
+	my ($B_R, $phi_start, $phi_stop, $v_phi, $interval, $resolution) = $self->_check_args( \@_, ['b_r', 'phi_start', 'phi_stop', 'rate', 'interval', 'resolution'] );
 	
 	if ( not defined $interval )
 		{
@@ -274,6 +282,33 @@ sub config_CIRC_sweep {
 	my @vx = @$vx;
 	my @vy = @$vy;
 	my @vz = @$vz;
+	
+	# my $l = @x;
+	
+	# use Lab::XPRESS::Data::XPRESS_DataFile;
+	
+	# my $file = new Lab::XPRESS::Data::XPRESS_DataFile('test.dat');
+	# $file->add_column('X');
+	# $file->add_column('Y');
+	# $file->add_column('Z');
+	# $file->add_column('VX');
+	# $file->add_column('VY');
+	# $file->add_column('VZ');
+	
+	# for (my $i = 0; $i < $l; $i++) {
+		
+		# $file->LOG({
+			# 'X' => $x[$i],
+			# 'Y' => $y[$i],
+			# 'Z' => $z[$i],
+			# 'VX' => $vx[$i],
+			# 'VY' => $vy[$i],
+			# 'VZ' => $vz[$i],
+		# });
+	# }
+	
+	# exit;
+	
 	
 	my ($x_c, $y_c, $z_c) = $self->get_field('C');
 	if (($x_c, $y_c, $z_c) != ($x[0], $y[0], $z[0]))
@@ -326,12 +361,8 @@ sub config_CIRC_sweep {
 
 sub config_DIR_sweep {
 	my $self = shift;
-	my $B_R = shift;
-	my $theta = shift;
-	my $phi = shift;
-	my $rate = shift;
-	my $interval = shift;
-	my $mode = shift;
+	
+	my ($B_R, $theta, $phi, $rate, $interval, $mode) = $self->_check_args( \@_, ['b_r', 'theta', 'phi', 'rate', 'interval', 'mode'] );
 	
 	my ( $x_1, $y_1, $z_1);
 	
@@ -543,13 +574,13 @@ sub create_basic_trace {
 		$vy[$i] = abs(($y[($i == $len-1) ? $i : $i+1] - $y[($i == $len-1) ? $i-1 : $i])/(($resolution/$v)));
 		$vz[$i] = abs(($z[($i == $len-1) ? $i : $i+1] - $z[($i == $len-1) ? $i-1 : $i])/(($resolution/$v)));
 		}
-	 open LOG2, ">test2.dat";	
-	 my $len = @x;
-	 for ( my $i =0; $i < $len; $i++)
-	  {
-	  print LOG2 $x[$i]."\t".$y[$i]."\t".$z[$i]."\t".$vx[$i]."\t".$vy[$i]."\t".$vz[$i]."\n";
-	  }
-	 close LOG2;
+	 #open LOG2, ">test2.dat";	
+	 #my $len = @x;
+	 #for ( my $i =0; $i < $len; $i++)
+	 # {
+	 # print LOG2 $x[$i]."\t".$y[$i]."\t".$z[$i]."\t".$vx[$i]."\t".$vy[$i]."\t".$vz[$i]."\n";
+	 # }
+	 #close LOG2;
 	
 	
 		

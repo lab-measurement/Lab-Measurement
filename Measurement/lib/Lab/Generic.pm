@@ -303,5 +303,5 @@ sub seconds2time {
 }
 
 use Lab::GenericIO;
-
+use Lab::GenericSignals;
 1;
