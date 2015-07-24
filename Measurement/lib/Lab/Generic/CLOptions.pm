@@ -6,5 +6,7 @@ our $VERSION='3.41';
 use Getopt::Long;
 
 our $DEBUG = 0;
+our $IO_INTERFACE = undef;
 
-GetOptions("debug|d" => \$DEBUG);
+GetOptions( "debug|d" => \$DEBUG,
+            "terminal|t=s" => \$IO_INTERFACE);

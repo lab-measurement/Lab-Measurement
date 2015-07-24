@@ -1,5 +1,7 @@
 package Lab::Generic;
 
+require Lab::Generic::CLOptions;
+
 our $VERSION = '3.41';
 
 use strict;
@@ -7,26 +9,26 @@ use Term::ReadKey;
 
 our @OBJECTS = ();
 
-sub new { 
+sub new {
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
-	
+
 	my $self={};
 	push(@OBJECTS, $self);
-	
+
 	bless ($self, $class);
 	return $self;
 }
 
 sub set_name {
-	my $self = shift;	
+	my $self = shift;
 	my ($name) = $self->_check_args( \@_, ['name'] );
-	$self->{name} = $name;	
+	$self->{name} = $name;
 }
 
 sub get_name {
 	my $self = shift;
-	return $self->{name};	
+	return $self->{name};
 }
 
 sub abort {}
@@ -35,10 +37,10 @@ sub print {
 	my $self = shift;
 	my @data = @_;
 	my ($package, $filename, $line, $subroutine) = caller(1);
-	
+
 	if ( ref(@data[0]) eq 'HASH' )
 		{
-		while ( my ($k,$v) = each %{@data[0]} ) 
+		while ( my ($k,$v) = each %{@data[0]} )
 			{
 			my $line = "$k => ";
 			$line.= $self->print($v);
@@ -82,21 +84,21 @@ sub print {
 				{
 				print @data[0]."\n";
 				}
-		}	
-		
+		}
+
 }
 
 
 # IO Channel Output: prepare and forward data to channel
-sub out_channel {		
+sub out_channel {
   my $self = shift;
-	my $chan = shift;  
+	my $chan = shift;
 	Lab::GenericIO::channel_write($chan, $self, @_);
 }
 # IO Channel aliases
 sub out_message {
   my $self = shift;
-	$self->out_channel('MESSAGE', @_);  
+	$self->out_channel('MESSAGE', @_);
 }
 sub out_error {
   my $self = shift;
@@ -119,17 +121,17 @@ sub _check_args {
 	my $self = shift;
 	my $args = shift;
 	my $params = shift;
-	
+
 	my $arguments = {};
 
 	my $i = 0;
-	foreach my $arg (@{$args}) 
+	foreach my $arg (@{$args})
 	{
 		if ( ref($arg) ne "HASH" )
 			{
 			if ( defined @{$params}[$i] )
 				{
-				$arguments->{@{$params}[$i]} = $arg;				
+				$arguments->{@{$params}[$i]} = $arg;
 				}
 			$i++;
 			}
@@ -140,12 +142,12 @@ sub _check_args {
 			}
 	}
 
-			
+
 	my @return_args = ();
-	
-	foreach my $param (@{$params}) 
+
+	foreach my $param (@{$params})
 		{
-		if (exists $arguments->{$param}) 
+		if (exists $arguments->{$param})
 			{
 			push (@return_args, $arguments->{$param});
 			delete $arguments->{$param};
@@ -158,34 +160,34 @@ sub _check_args {
 
 	foreach my $param ('from_device', 'from_cache') 	# Delete Standard option parameters from $arguments hash if not defined in device driver function
 		{
-		if (exists $arguments->{$param}) 
+		if (exists $arguments->{$param})
 			{
 			delete $arguments->{$param};
 			}
 		}
-		
+
 
 	push(@return_args, $arguments);
-	# if (scalar(keys %{$arguments}) > 0) 
+	# if (scalar(keys %{$arguments}) > 0)
 		# {
 		# my $errmess = "Unknown parameter given in $self :";
-		# while ( my ($k,$v) = each %{$arguments} ) 
+		# while ( my ($k,$v) = each %{$arguments} )
 			# {
 			# $errmess .= $k." => ".$v."\t";
 			# }
 		# print Lab::Exception::Warning->new( error => $errmess);
 		# }
-			
+
 	return @return_args;
 }
-	
+
 sub my_sleep {
 	my $sleeptime = shift;
 	my $self = shift;
 	my $user_command = shift;
 	if ( $sleeptime >= 5 )
 		{
-		countdown($sleeptime*1e6, $self, $user_command); 
+		countdown($sleeptime*1e6, $self, $user_command);
 		}
 	else
 		{
@@ -199,7 +201,7 @@ sub my_usleep {
 	my $user_command = shift;
 	if ( $sleeptime >= 5 )
 		{
-		countdown($sleeptime, $self, $user_command); 
+		countdown($sleeptime, $self, $user_command);
 		}
 	else
 		{
@@ -209,12 +211,12 @@ sub my_usleep {
 
 sub countdown {
 	my $self = shift;
-	my $duration = shift;	
+	my $duration = shift;
 	my $user_command = shift;
 
 	ReadMode('cbreak');
 
-	$duration /= 1e6;	
+	$duration /= 1e6;
 	my $hours = int($duration/3600);
 	my $minutes = int(($duration-$hours*3600)/60);
 	my $seconds = $duration -$hours*3600 - $minutes*60;
@@ -225,12 +227,12 @@ sub countdown {
 
 	my $message = "Waiting for ";
 
-	if ($hours > 1) { $message .= "$hours hours "; } 
-	elsif ($hours == 1) { $message .= "one hour "; } 
-	if ($minutes > 1) { $message .= "$minutes minutes "; } 
-	elsif ($minutes == 1) { $message .= "one minute "; } 
+	if ($hours > 1) { $message .= "$hours hours "; }
+	elsif ($hours == 1) { $message .= "one hour "; }
+	if ($minutes > 1) { $message .= "$minutes minutes "; }
+	elsif ($minutes == 1) { $message .= "one minute "; }
 	if ($seconds > 1) { $message .= "$seconds seconds "; }
-	elsif ($seconds == 1) { $message .= "one second "; } 
+	elsif ($seconds == 1) { $message .= "one second "; }
 
 	$message .= "\n";
 
@@ -239,7 +241,7 @@ sub countdown {
 	while (($t_0+$duration-time()) > 0) {
 
 		my $char = ReadKey(1);
-		
+
 		if (defined($char) && $char eq 'c') {
 			last;
 		}
@@ -254,28 +256,28 @@ sub countdown {
 				user_command($char);
 				}
 			}
-		
+
 		my $left = ($t_0+$duration-time());
 		my $hours = int($left/3600);
 		my $minutes = int(($left-$hours*3600)/60);
 		my $seconds = $left -$hours*3600 - $minutes*60;
-		
+
 		print sprintf("%02d:%02d:%02d", $hours, $minutes, $seconds);
 		print "\r";
 		#sleep(1);
-	
-	}  
+
+	}
 	ReadMode('normal');
 	$| = 0;
 	print "\n\nGO!\n";
-	
+
 }
 
 sub timestamp {
 
 	my ($Sekunden, $Minuten, $Stunden, $Monatstag, $Monat,
     $Jahr, $Wochentag, $Jahrestag, $Sommerzeit) = localtime(time);
-	
+
 	$Monat+=1;
 	$Jahrestag+=1;
 	$Monat = $Monat < 10 ? $Monat = "0".$Monat : $Monat;
@@ -284,21 +286,21 @@ sub timestamp {
 	$Minuten = $Minuten < 10 ? $Minuten = "0".$Minuten : $Minuten;
 	$Sekunden = $Sekunden < 10 ? $Sekunden = "0".$Sekunden : $Sekunden;
 	$Jahr+=1900;
-	
+
 	return   "$Monatstag.$Monat.$Jahr", "$Stunden:$Minuten:$Sekunden";
 
 }
 
 sub seconds2time {
 	my $duration = shift;
-	
+
 	my $hours = int($duration/3600);
 	my $minutes = int(($duration-$hours*3600)/60);
 	my $seconds = $duration -$hours*3600 - $minutes*60;
-	
+
 	my $formated = $hours."h ".$minutes."m ".$seconds."s ";
-	
-	
+
+
 	return $formated;
 }
 
