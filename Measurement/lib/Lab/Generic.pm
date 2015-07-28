@@ -1,6 +1,6 @@
 package Lab::Generic;
 
-require Lab::Generic::CLOptions;
+use Lab::Generic::CLOptions;
 
 our $VERSION = '3.41';
 

@@ -15,21 +15,21 @@ $IO_CHANNELS->{ERROR} = [];
 $IO_CHANNELS->{WARNING} = [];
 $IO_CHANNELS->{DEBUG} = [];
 $IO_CHANNELS->{PROGRESS} = [];
-
-init();
-
 # init
+if (defined ${Lab::Generic::CLOptions::IO_INTERFACE}) {
+	init(${Lab::Generic::CLOptions::IO_INTERFACE});
+}
+else {
+	init($DEFAULT);	
+}
+
+
 sub init {
 
 	# load and bind default interfaces:
-	my $interface = undef;
-
-	if (defined ${Lab::CLOptions::IO_INTERFACE}) {
-		$interface = interface_load(${Lab::CLOptions::IO_INTERFACE});
-	}
-	else {
-		$interface = interface_load($DEFAULT);
-	}
+	my $interface = shift;
+	
+	$interface = interface_load($interface);
 
 	interface_bind($interface);
 
