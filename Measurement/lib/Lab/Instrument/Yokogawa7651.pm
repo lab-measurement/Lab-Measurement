@@ -11,6 +11,7 @@ use 5.010;
 
 use Lab::Instrument;
 use Lab::Instrument::Source;
+use Data::Dumper;
 
 
 our @ISA=('Lab::Instrument::Source');
@@ -157,6 +158,7 @@ sub trg {
 sub config_sweep{   
     my $self = shift;
     my ($start, $target, $duration,$sections ,$tail) = $self->check_sweep_config(@_);
+
 
     $self->set_output(1, $tail);    
     $self->set_run_mode('single', $tail);
@@ -314,7 +316,45 @@ sub get_level {
         $read_mode = $self->device_settings()->{read_default};
 		}
     
+    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'level'})
+		{
+        return $self->{'device_cache'}->{'level'};
+		}  
+	elsif($read_mode eq 'request' and $self->{request} == 0 )
+		{
+		$self->{request} = 1;
+        $self->write($cmd);
+		return;
+		}
+	elsif($read_mode eq 'request' and $self->{request} == 1 )
+		{
+		$result = $self->read();
+        $self->write($cmd);
+		return;
+		}
+	elsif ($read_mode eq 'fetch' and $self->{request} == 1)
+		{
+		$self->{request} = 0;
+        $result = $self->read();
+		}
+	else
+		{
+		if ( $self->{request} == 1 )
+			{
+			$result = $self->read();
+			$self->{request} = 0;
+			$result = $self->query($cmd);
+			}
+		else
+			{
+			$result = $self->query($cmd);
+			}
+		}
+       
+    $result=~/....([\+\-\d\.E]*)/;
+    return $self->{'device_cache'}->{'level'} = $1;
 }
+
 
 
 
