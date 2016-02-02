@@ -71,8 +71,10 @@ lib/Lab/Instrument/HP83732A.pm
 lib/Lab/Instrument/IPS.pm
 lib/Lab/Instrument/ITC.pm
 lib/Lab/Instrument/Keithley2000.pm
+lib/Lab/Instrument/Keithley2400.pm
 lib/Lab/Instrument/KnickS252.pm
 lib/Lab/Instrument/LabViewHeater.pm
+lib/Lab/Instrument/Lakeshore224.pm
 lib/Lab/Instrument/Lakeshore33x.pm
 lib/Lab/Instrument/MagnetSupply.pm
 lib/Lab/Instrument/MG369xB.pm
@@ -88,6 +90,7 @@ lib/Lab/Instrument/RSSMB100A.pm
 lib/Lab/Instrument/Source.pm
 lib/Lab/Instrument/SpectrumSCPI.pm
 lib/Lab/Instrument/SR830.pm
+lib/Lab/Instrument/SweepND.pm
 lib/Lab/Instrument/TCD.pm
 lib/Lab/Instrument/TemperatureControl.pm
 lib/Lab/Instrument/TemperatureControl/TLK43.pm
@@ -97,6 +100,7 @@ lib/Lab/Instrument/TemperatureDiode/SI420.pm
 lib/Lab/Instrument/TRMC2.pm
 lib/Lab/Instrument/U2000.pm
 lib/Lab/Instrument/Vectormagnet.pm
+lib/Lab/Instrument/VM_DIR.pm
 lib/Lab/Instrument/Yokogawa7651.pm
 lib/Lab/Instrument/YokogawaGS200.pm
 lib/Lab/IO/Data.pm
@@ -106,6 +110,7 @@ lib/Lab/IO/Data/Message.pm
 lib/Lab/IO/Data/Warning.pm
 lib/Lab/IO/Interface.pm
 lib/Lab/IO/Interface/Term.pm
+lib/Lab/IO/Interface/Void.pm
 lib/Lab/Measurement.pm
 lib/Lab/Measurement/Changes.pod
 lib/Lab/Measurement/Developer/Write-A-Source-Driver.pod
@@ -146,6 +151,7 @@ lib/Lab/XPRESS/Xpression/res/XRC/main_frame.xrc
 lib/Lab/XPRESS/Xpression/res/XRC/panel_column.xrc
 lib/Lab/XPRESS/Xpression/res/XRC/panel_plotInstance.xrc
 META.json
+META.yml
 README
 scripts/lab-makefilelist.pl
 scripts/lab-makemakefile.pl
@@ -155,4 +161,3 @@ scripts/lab-plotter.pl
 scripts/lab-update.pl
 TODO
 'utilities/labview/LV Socket Com.vi'
-META.yml
