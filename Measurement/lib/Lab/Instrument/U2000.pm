@@ -1,5 +1,5 @@
 package Lab::Instrument::U2000;
-our $VERSION = '3.41';
+our $VERSION = '3.500';
 #TODO: Error handling. Neither timeouts nor errors are handled correctly.
 # Error reporting from the kernel driver is bad.
 

@@ -1,5 +1,5 @@
 package Lab::Instrument::PD11042;
-our $VERSION = '3.41';
+our $VERSION = '3.500';
 
 use strict;
 use Time::HiRes qw/usleep/, qw/time/;

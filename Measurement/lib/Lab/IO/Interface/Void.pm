@@ -1,6 +1,6 @@
 package Lab::IO::Interface::Void;
 
-our $VERSION='3.41';
+our $VERSION='3.500';
 
 use Lab::IO::Interface;
 

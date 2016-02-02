@@ -1,7 +1,7 @@
 # Handle to replace STDERR (routes messages on STDERR to ERROR channel):
 package Lab::GenericIO::STDerrHandle;
 
-our $VERSION='3.41';
+our $VERSION='3.500';
 
 use Symbol qw<geniosym>;
 
