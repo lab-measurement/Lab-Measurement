@@ -51,7 +51,7 @@ and remember for later.
 
 Install Microsoft Visual Studio (large download!). You need C support.
 
-From now on run all commandline programs during installation only from the "Visual Studio Command line",
+From now on run all commandline programs during installation only from the "Visual Studio Native 64bit Console",
 which can be found in the Start menu.
 
 =item
@@ -66,7 +66,7 @@ Make sure to activate the check box to include perl directory in PATH variable.
 
 =item *
 
-Find and edit C:\Perl\lib\CORE\config.h: Find the following line 
+Find and edit C:\Perl64\lib\CORE\config.h: Find the following line 
 
   #define PERL_STATIC_INLINE static __inline__
 
