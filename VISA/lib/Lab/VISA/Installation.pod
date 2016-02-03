@@ -12,7 +12,137 @@ Lab::VISA has been tested to work on Linux and Windows, both
 with ActiveState Perl and the Microsoft VC++ Compiler, and Strawberry Perl
 with the included gcc compiler.
 
-=head1 Installation on Windows XP with ActiveState Perl 
+
+=head1 Installation on Windows 10 64bit with ActiveState Perl 64bit
+
+=over
+
+=item
+
+Work with administrator account during installation.
+
+=item
+
+Install VISA (and GPIB drivers) if necessary.
+
+=over
+
+=item *
+
+Download current VISA release from NI (need 64bit version)
+
+=item *
+
+Run installer
+
+=item *
+
+Check location of visa64.lib (eg. C:\Programme\IVI Foundation\VISA\Win64\lib\msc\visa64.lib)
+and remember for later.
+
+=item *
+
+Check directory of visa.h (eg. C:\Programme\IVI Foundation\VISA\Win64\include)
+and remember for later.
+
+=back
+
+=item
+
+Install Microsoft Visual Studio (large download!). You need C support.
+
+From now on run all commandline programs during installation only from the "Visual Studio Command line",
+which can be found in the Start menu.
+
+=item
+
+Install ActivePerl 64bit
+
+=over
+
+=item *
+
+Make sure to activate the check box to include perl directory in PATH variable.
+
+=item *
+
+Find and edit C:\Perl\lib\CORE\config.h: Find the following line 
+
+  #define PERL_STATIC_INLINE static __inline__
+
+and replace it with 
+
+  #define PERL_STATIC_INLINE static __inline
+
+(i.e., remove the last two underscores)
+
+=back
+
+=item
+
+Install gnuplot (not mandatory)
+
+=over
+
+=item *
+
+Download from L<http://sourceforge.net/project/showfiles.php?group_id=2055> (gp425win32.zip)
+
+=item *
+
+Extract and put it somewhere
+
+=item *
+
+Add directory containing C<pgnuplot.exe> to path:
+My Computer => Properties => Advanced => Environment Variables
+
+=back
+
+=item
+
+Install dependencies of our perl modules. Depending on how familiar you are
+with the perl infrastructure, the easiest might be to use PPM, the Perl Package Manager
+included with ActivePerl.
+
+=item
+
+Install Lab::VISA
+
+=over
+
+=item *
+
+Unzip/copy sources
+
+=item *
+
+In file C<Makefile.PL> adapt the LIBS and INC settings according to your installation
+(the location looked up above). This is what worked for me:
+
+    'LIBS' => ['-"lC:\\Programme\\IVI Foundation\\VISA\\Win64\\lib\\msc\\visa64.lib"']
+    'INC'  => '"-IC:\\Programme\\IVI Foundation\\VISA\\Win64\\include"'    
+
+=item *
+
+Run the following commands in the source directory
+
+    perl Makefile.PL CC=cl
+    dmake
+    copy visa_wrap.obj visa_wrap.o
+    dmake
+    dmake install
+
+=back
+
+=item
+
+Have fun!
+
+=back
+
+
+=head1 Installation on Windows XP 32bit with ActiveState Perl 
 
 =over
 
