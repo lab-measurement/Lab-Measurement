@@ -12,15 +12,15 @@ our @ISA = ('Lab::Generic');
 
 
 
-sub new {	
-	
+sub new {
+
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
 	my $self = $class->SUPER::new(@_);
 	my @args = @_;
-	
+
 	my $hub = new Lab::XPRESS::hub();
-	
+
 	# init the three IPS-instuments for the 3d-vector magnet:
 	if ( $args[0] =~ /GPIB|gpib/ )
 		{
@@ -28,7 +28,7 @@ sub new {
 		my $gpib_address_x = 1;
 		my $gpib_address_y = 2;
 		my $gpib_address_z = 3;
-	
+
 		$self->{IPS_x}=new Lab::Instrument::IPS({
 			'connection_type' => 'VISA_GPIB',
 			'gpib_address' => $gpib_address_x});
@@ -38,10 +38,10 @@ sub new {
 		$self->{IPS_z}=new Lab::Instrument::IPS({
 			'connection_type' => 'VISA_GPIB',
 			'gpib_address' => $gpib_address_z});
-		}	
+		}
 	else
 		{
-				
+
 		$self->{IPS_x}=new Lab::Instrument::IPS({
 			'connection' => $hub->Connection('VISA_RS232', {
 			'rs232_address' => 7})});
@@ -52,28 +52,28 @@ sub new {
 			'connection' => $hub->Connection('VISA_RS232', {
 			'rs232_address' => 9})});
 		}
-	
+
 	# set limits:
-	$self->{IPS_x}->{LIMITS} = { 'magneticfield' => 1, 'field_intervall_limits' => [1], 'rate_intervall_limits' => [1]};
-	$self->{IPS_y}->{LIMITS} = { 'magneticfield' => 1, 'field_intervall_limits' => [1], 'rate_intervall_limits' => [1]};
-	$self->{IPS_z}->{LIMITS} = { 'magneticfield' => 1, 'field_intervall_limits' => [1], 'rate_intervall_limits' => [1]};
-	
+	$self->{IPS_x}->{LIMITS} = { 'magneticfield' => 1, 'field_intervall_limits' => [0, 1], 'rate_intervall_limits' => [0.6, 0.01]};
+	$self->{IPS_y}->{LIMITS} = { 'magneticfield' => 1, 'field_intervall_limits' => [0, 1], 'rate_intervall_limits' => [0.6, 0.01]};
+	$self->{IPS_z}->{LIMITS} = { 'magneticfield' => 1, 'field_intervall_limits' => [0, 1], 'rate_intervall_limits' => [0.6, 0.01]};
+
 	# init magnets:
 	$self->{IPS_x}->_init_magnet();
 	$self->{IPS_y}->_init_magnet();
 	$self->{IPS_z}->_init_magnet();
-	
-	
+
+
 	# set ID:
 	$self->{IPS_x}->{ID} = 'IPS_x';
     $self->{IPS_y}->{ID} = 'IPS_Y';
 	$self->{IPS_z}->{ID} = 'IPS_Z';
-	
+
 	# set xy-plane as the initial sweeping plane:
 	$self->{KAPPA} = 0;
 	$self->{RHO} = 0;
 	$self->{STARTING_SPEED} = 0.6;
-	
+
 
 	# register instrument:
 	push ( @{${Lab::Instrument::INSTRUMENTS}}, $self );
@@ -90,34 +90,34 @@ sub get_config_data {
 
 sub abort {
 	my $self = shift;
-	
+
 	$self->{IPS_x}->abort();
 	$self->{IPS_y}->abort();
 	$self->{IPS_z}->abort();
-	
+
 	return;
-	
+
 }
 
 sub trg {
 	my $self = shift;
-	
+
 	$self->{IPS_x}->trg();
 	$self->{IPS_y}->trg();
 	$self->{IPS_z}->trg();
-	
+
 	return;
 }
 
 sub active {
 	# returns a value > 0 if MAGNET is SWEEPING. Else MAGNET is not sweeping.
 	my $self = shift;
-	
+
 	my $active_x = $self->{IPS_x}->active();
 	my $active_y = $self->{IPS_y}->active();
 	my $active_z = $self->{IPS_z}->active();
-	
-	
+
+
 	if ( $active_x or $active_y or $active_z )
 		{
 		return 1;
@@ -134,9 +134,9 @@ sub wait {
 	my $self = shift;
 	my $seconds = shift;
 	my $min = 0.5;
-	
+
 	my $time_0 = time();
-	
+
 	if ( not defined $seconds )
 		{
 		while($self->active())
@@ -161,7 +161,7 @@ sub wait {
 				}
 			}
 		return 0;
-		}	
+		}
 
 }
 
@@ -169,27 +169,27 @@ sub get_value {
 	my $self = shift;
 	return $self->get_field(@_);
 	}
-	
+
 sub get_field {
 	my $self = shift;
 	my ($mode, $tail) = $self->_check_args(\@_, ['mode']);;
 	my @field;
-	
-	
+
+
 	if ($tail->{read_mode} eq 'request') {
 		$self->{IPS_x}->get_field({read_mode => 'request'});
 		$self->{IPS_y}->get_field({read_mode => 'request'});
 		$self->{IPS_z}->get_field({read_mode => 'request'});
 	}
-	
+
 	my $x = $self->{IPS_x}->get_field();
 	my $y = $self->{IPS_y}->get_field();
 	my $z = $self->{IPS_z}->get_field();
-	
+
 	if (not defined $mode) {
 		$mode = 's';
 	}
-	
+
 	if ( $mode =~ /^(spherical|SPHERICAL|s|s)$/ )
 		{
 		# returns BR, PHI, THETA:
@@ -206,13 +206,13 @@ sub get_field {
 	elsif ( $mode =~ /^(all|ALL|A|a)$/ )
 		{
 		# returns BR, PHI, THETA, X, Y, Z:
-		my ( $r, $phi, $theta ) = cartesian_to_spherical($x, $y, $z);		
+		my ( $r, $phi, $theta ) = cartesian_to_spherical($x, $y, $z);
 		$phi = ($phi*180)/pi;
 		$theta = ($theta*180)/pi;
 		$r = (($theta <= 90) and ($phi > -90 and $phi <= 90) ) ? $r : -$r;
 		$self->{value} = [$r, $theta, $phi, $x, $y, $z];
 		}
-		
+
 	if ( wantarray() )
 		{
 		return @{$self->{value}};
@@ -229,9 +229,9 @@ sub change_plane {
 	my $kappa = shift;
 	my $rho = shift;
 	my $starting_speed = shift;
-	if (defined $kappa) 
+	if (defined $kappa)
 		{
-		$self->{KAPPA} = $kappa;	
+		$self->{KAPPA} = $kappa;
 		}
 	if (defined $rho)
 		{
@@ -247,19 +247,19 @@ sub config_CIRC_sweep {
 	my $self = shift;
 
 	my ($B_R, $phi_start, $phi_stop, $v_phi, $interval, $resolution) = $self->_check_args( \@_, ['b_r', 'phi_start', 'phi_stop', 'rate', 'interval', 'resolution'] );
-	
+
 	if ( not defined $interval )
 		{
 		$interval = 1;
-		}		
-	if ( not defined $v_phi ) 
+		}
+	if ( not defined $v_phi )
 		{
 		$v_phi = 1;
-		}		
+		}
 	if ( not defined $resolution )
 		{
 		$resolution = ($v_phi/60)*2*$interval;
-		}	
+		}
 	if ( not defined $phi_start )
 		{
 		$phi_start = -180;
@@ -272,9 +272,9 @@ sub config_CIRC_sweep {
 		{
 		die "B_R is mandatory value in sub config_CIRC_sweep\n";
 		}
-	
-	
-	
+
+
+
 	my ($x,$y,$z,$vx,$vy,$vz)  = $self->create_basic_trace($B_R, $phi_start, $phi_stop, $v_phi, $resolution);
 	my @x = @$x;
 	my @y = @$y;
@@ -282,11 +282,11 @@ sub config_CIRC_sweep {
 	my @vx = @$vx;
 	my @vy = @$vy;
 	my @vz = @$vz;
-	
+
 	# my $l = @x;
-	
+
 	# use Lab::XPRESS::Data::XPRESS_DataFile;
-	
+
 	# my $file = new Lab::XPRESS::Data::XPRESS_DataFile('test.dat');
 	# $file->add_column('X');
 	# $file->add_column('Y');
@@ -294,9 +294,9 @@ sub config_CIRC_sweep {
 	# $file->add_column('VX');
 	# $file->add_column('VY');
 	# $file->add_column('VZ');
-	
+
 	# for (my $i = 0; $i < $l; $i++) {
-		
+
 		# $file->LOG({
 			# 'X' => $x[$i],
 			# 'Y' => $y[$i],
@@ -306,10 +306,10 @@ sub config_CIRC_sweep {
 			# 'VZ' => $vz[$i],
 		# });
 	# }
-	
+
 	# exit;
-	
-	
+
+
 	my ($x_c, $y_c, $z_c) = $self->get_field('C');
 	if (($x_c, $y_c, $z_c) != ($x[0], $y[0], $z[0]))
 		{
@@ -319,12 +319,12 @@ sub config_CIRC_sweep {
 		$self->wait();
 		print " done\n";
 		}
-	
+
 	my @X = $self->{IPS_x}->config_sweep( \@x, \@vx, $interval );
 	my @Y = $self->{IPS_y}->config_sweep( \@y, \@vy, $interval );
 	my @Z = $self->{IPS_z}->config_sweep( \@z, \@vz, $interval );
-	
-	
+
+
 
 	my @r;
 	my @phi;
@@ -354,19 +354,19 @@ sub config_CIRC_sweep {
 		$theta[$i] = ($theta[$i]*180)/pi;
 		$dphi[$i] = $phi[$i] - $phi[0];
 		}
-	
-	return \@r,\@theta,\@phi,\@dphi,\@X,\@Y,\@Z;	
-	
+
+	return \@r,\@theta,\@phi,\@dphi,\@X,\@Y,\@Z;
+
 }
 
 sub config_DIR_sweep {
 	my $self = shift;
-	
+
 	my ($B_R, $theta, $phi, $rate, $interval, $mode) = $self->_check_args( \@_, ['b_r', 'theta', 'phi', 'rate', 'interval', 'mode'] );
-	
+
 	my ( $x_1, $y_1, $z_1);
-	
-	
+
+
 	if ($mode =~ /^(cartesian|CARTESIAN|c|C)$/)
 		{
 		$x_1 = $B_R;
@@ -382,35 +382,35 @@ sub config_DIR_sweep {
 	else {
 		die "Give mode for magnetic field sweep in Vectormagnet is not supported. \n";
 	}
-	
+
 	if ( not defined $interval )
 		{
 		$interval = 1;
 		}
-	
+
 	if ( ($x_1**2+$y_1**2+$z_1**2) > 1.01 )
 		{
 		die "unexpected values in sub config_DIR_sweep. Magnetude of target magnetic field > 1 Tesla.";
 		}
-	
+
 	if ($rate <= 0)
 		{
 		die "unexpected value for RATE ($rate) in sub config_DIR_sweep.";
 		}
-	
-	
+
+
 	# get current magnetic field:
 	my ($x_0,$y_0,$z_0) = $self->get_field('C');
-	
-	
+
+
 	#calculate sweep parameter:
 	my $trace_length = (($x_1-$x_0)**2 + ($y_1-$y_0)**2 + ($z_1-$z_0)**2)**0.5;
 	my $sweep_time = $trace_length / $rate;
 	my $rate_x;
 	my $rate_y;
 	my $rate_z;
-	
-	if ($sweep_time == 0) 
+
+	if ($sweep_time == 0)
 		{
 		$rate_x = 0.1;
 		$rate_y = 0.1;
@@ -422,14 +422,14 @@ sub config_DIR_sweep {
 		$rate_y = abs(($y_1-$y_0)/$sweep_time);
 		$rate_z = abs(($z_1-$z_0)/$sweep_time);
 		}
-	
-	# config sweep:	
+
+	# config sweep:
 	my @X = $self->{IPS_x}->config_sweep($x_1, $rate_x, $interval);
 	my @Y = $self->{IPS_y}->config_sweep($y_1, $rate_y, $interval);
 	my @Z = $self->{IPS_z}->config_sweep($z_1, $rate_z, $interval);
-	
-	
-	
+
+
+
 	# calculate trace:
 	my @r;
 	my @phi;
@@ -459,10 +459,10 @@ sub config_DIR_sweep {
 		$theta[$i] = ($theta[$i]*180)/pi;
 		$dphi[$i] = $phi[$i] - $phi[0];
 		}
-		
+
 	printf("Vectormagnet: estimate total duration for sweep: %dm %ds\n",(($len/60)*$interval), ((($len/60)*$interval)%1)*60);
-	return \@r,\@theta,\@phi,\@dphi,\@X,\@Y,\@Z;	
-	
+	return \@r,\@theta,\@phi,\@dphi,\@X,\@Y,\@Z;
+
 
 }
 
@@ -497,11 +497,11 @@ sub Trafo_RHO {
 	my $x = shift;
 	my $y = shift;
 	my $z = shift;
-	
+
 	my $X = $x*cos(pi*$self->{RHO}/180) + $y*cos(pi*($self->{RHO}+90)/180);
 	my $Y = $x*cos(pi*($self->{RHO}-90)/180) + $y*cos(pi*$self->{RHO}/180);
 	my $Z = $z;
-	
+
 	return $X,$Y,$Z;
 
 }
@@ -511,11 +511,11 @@ sub Trafo_KAPPA {
 	my $x = shift;
 	my $y = shift;
 	my $z = shift;
-	
+
 	my $X = $x*cos(pi*$self->{KAPPA}/180) + $z*cos(pi*(90-$self->{KAPPA})/180);
 	my $Y = $y;
 	my $Z = $x*cos(pi*($self->{KAPPA}-90)/180) + $z*cos(-1*pi*$self->{KAPPA}/180);
-	
+
 	return $X,$Y,$Z;
 
 }
@@ -527,15 +527,15 @@ sub create_basic_trace {
 	my $phi_stop = shift;
 	my $v = shift;
 	my $resolution = shift;
-	
-	
+
+
 	# resoltion:
 	if ( not defined $resolution or not defined $v or not defined $phi_start or not defined $phi_stop or not defined $R)
 		{
 		die "ERROR in sub 'create_basic_trace'. Some of the parameters are not defined.";
 		}
 
-	# calculate magnet sweep trace points:	
+	# calculate magnet sweep trace points:
 	my @x;
 	my @y;
 	my @z;
@@ -544,7 +544,7 @@ sub create_basic_trace {
 	print "Res = ".$resolution."\n";
 	for (my $i=$phi_start; $i < $phi_stop; $i+= $resolution)
 		{
-		
+
 		$x[$n] = $R*cos(pi*($i)/180);
 		$y[$n] = $R*sin(pi*($i)/180);
 		$z[$n] = 0;
@@ -553,8 +553,8 @@ sub create_basic_trace {
 		($x[$n], $y[$n], $z[$n]) = $self->Trafo_RHO($x[$n], $y[$n], $z[$n]);
 		$n++;
 		}
-	
-	
+
+
 	# Add Phi_stop (final value) to points array
 	$x[$n] = $R*cos(pi*($phi_stop)/180);
 	$y[$n] = $R*sin(pi*($phi_stop)/180);
@@ -562,7 +562,7 @@ sub create_basic_trace {
 	#print $x[$n]."\t".$y[$n]."\t".$z[$n]."\n";
 	($x[$n],$y[$n],$z[$n]) = $self->Trafo_KAPPA($x[$n], $y[$n], $z[$n]);
 	($x[$n], $y[$n], $z[$n]) = $self->Trafo_RHO($x[$n], $y[$n], $z[$n]);
-	
+
 	# calculate magnet sweep rate:
 	my @vx;
 	my @vy;
@@ -574,17 +574,17 @@ sub create_basic_trace {
 		$vy[$i] = abs(($y[($i == $len-1) ? $i : $i+1] - $y[($i == $len-1) ? $i-1 : $i])/(($resolution/$v)));
 		$vz[$i] = abs(($z[($i == $len-1) ? $i : $i+1] - $z[($i == $len-1) ? $i-1 : $i])/(($resolution/$v)));
 		}
-	 #open LOG2, ">test2.dat";	
+	 #open LOG2, ">test2.dat";
 	 #my $len = @x;
 	 #for ( my $i =0; $i < $len; $i++)
 	 # {
 	 # print LOG2 $x[$i]."\t".$y[$i]."\t".$z[$i]."\t".$vx[$i]."\t".$vy[$i]."\t".$vz[$i]."\n";
 	 # }
 	 #close LOG2;
-	
-	
-		
-	return \@x,\@y,\@z,\@vx,\@vy,\@vz;	
+
+
+
+	return \@x,\@y,\@z,\@vx,\@vy,\@vz;
 
 }
 
