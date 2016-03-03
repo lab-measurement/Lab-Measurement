@@ -24,7 +24,7 @@ our %fields = (
 		timeout => 2,
 	},
 
-	device_settings => { 
+	device_settings => {
 		id => 'Oxford ITC',
 		read_default => 'device',
 		channels => {
@@ -35,7 +35,7 @@ our %fields = (
 		channel_default => 'Ch1',
 		channel => undef
 	},
-	
+
 	device_cache =>{
 		T => undef,
 		proportional => undef,
@@ -43,7 +43,7 @@ our %fields = (
 		derivative => undef
 
 	},
-	
+
 	multichannel_shared_cache => [
 		"id", "proportional", "integral", "derivative" ],
 
@@ -54,7 +54,7 @@ sub new {
 	my $class = ref($proto) || $proto;
 	my $self = $class->SUPER::new(@_);
 	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
-	
+
 	return $self;
 }
 
@@ -66,10 +66,10 @@ sub _device_init {
 }
 
 sub _get_parameter { # internal only
-# 0 Demand SET TEMPERATURE     
-# 1 Sensor 1 Temperature     
-# 2 Sensor 2 Temperature     
-# 3 Sensor 3 Temperature     
+# 0 Demand SET TEMPERATURE
+# 1 Sensor 1 Temperature
+# 2 Sensor 2 Temperature
+# 3 Sensor 3 Temperature
 # 4 Temperature Error (+ve when SET>Measured)
 # 5 Heater O/P (as % of current limit)
 # 6 Heater O/P (as Volts, approx)
@@ -83,12 +83,12 @@ sub _get_parameter { # internal only
 
     my $self=shift;
     my ($parameter, $tail) = $self->_check_args( \@_, ['parameter'] );
-	
+
 	if ( $parameter != 0 and $parameter != 1 and  $parameter != 2 and $parameter != 3 and $parameter != 4 and $parameter != 5 and $parameter != 6 and $parameter != 7 and $parameter != 8 and $parameter != 9 and $parameter != 10 and $parameter != 11 and $parameter != 12 and $parameter != 13)
 		{
 		Lab::Exception::CorruptParameter->throw( error => "unexpected value for MODE in sub read_parameter. Expected values are:\n 0 --> Demand SET TEMPERATURE\n 1 --> Sensor 1 Temperature\n 2 --> Sensor 2 Temperature\n 3 --> Sensor 3 Temperature\n 4 --> Temperature Error (+ve when SET>Measured)\n 5 --> Heater O/P (as % of current limit)\n 6 --> Heater O/P (as Volts, approx)\n 7 --> Gas Flow O/P (arbitratry units)\n 8 --> Proportional Band\n 9 --> Integral Action Time\n10 --> Derivative Actionb Time\n11 --> Channel 1 Freq/4\n12 --> Channel 2 Freq/4\n13 --> Channel 3 Freq/4");
 		}
-	
+
     my $cmd=sprintf("R%d\r",$parameter);
     my $result=$self->query($cmd, $tail);
     chomp $result;
@@ -104,33 +104,33 @@ sub get_value {
 sub get_T { # basic
 	my $self=shift;
 	my ($sensor, $tail) = $self->_check_args( \@_, ['channel'] );
-	
+
 	if ($sensor != 1 and $sensor != 2 and $sensor != 3)
 		{
 		$sensor = $self->{channel} || 1;
 		}
-		
+
 	my $cmd=sprintf("R%d\r",$sensor);
-		
+
 	my $result = $self->request($cmd);
 	chomp $result;
 	$result =~ s/^R//;
 	return $result;
 
 }
-	
+
 
 
 sub set_T { # basic
-#  Setpoint 
+#  Setpoint
     my $self=shift;
     my ($value, $tail) = $self->_check_args( \@_, ['value'] );
-	
+
 	if ( not defined $value or $value > 200 or $value < 0)
 		{
 		Lab::Exception::CorruptParameter->throw( error => "unexpected value for SETPOINT in sub set_T. Expected values are between 0 .. 200 K");
 		}
-		
+
     $value=sprintf("%.3f",$value);
     $self->query("T$value\r", $tail);
 }
@@ -140,16 +140,16 @@ sub _get_version { # internal only
 	my ($tail) = $self->_check_args( \@_, [] );
 	return $self->query("V\r", $tail);
 }
-  
+
 sub _get_status { # internal only
 # Examine Status
     my $self = shift;
 	my ($tail) = $self->_check_args( \@_, [] );
-	
+
 	my $result = $self->query("X\r");
-	
+
 	$result =~ m/^X([0-9])A([0-9])C([0-9])S([0-9]{1,2})H([0-9])L([0-9])$/;
-	
+
 	$result = {
 		status => $1,
 		auto => $2,
@@ -158,15 +158,15 @@ sub _get_status { # internal only
 		heater_control => $5,
 		auto_pid => $6
 	};
-	
+
 	if (wantarray()) {
 		return ($1, $2, $3, $4, $5, $6)
 	}
 	else {
 		return $result;
 	}
-	
-}   
+
+}
 
 sub _set_control { # don't use it if you get an error message during reading out sensors:"Cading Sensor"; # internal only
 # 0 Local & Locked
@@ -175,7 +175,7 @@ sub _set_control { # don't use it if you get an error message during reading out
 # 3 Remote & Unlocked
     my $self=shift;
     my ($mode, $tail) = $self->_check_args( \@_, ['mode'] );
-	
+
 	if ( $mode != 0 and $mode != 1 and $mode != 2 and $mode != 3 )
 		{
 		Lab::Exception::CorruptParameter->throw( error => "unexpected value for MODE in sub _set_control. Expected values are:\n 0 --> Local & Locked\n 1 --> Remote & Locked\n 2 --> Local & Unlocked\n 3 --> Remote & Unlocked");
@@ -191,12 +191,12 @@ sub _set_communicationsprotocol { # internal only
 # 2 Sends <LF> after each <CR>
     my $self=shift;
     my ($mode, $tail) = $self->_check_args( \@_, ['mode'] );
-	
+
 	if ( $mode != 0 and $mode != 2 )
 		{
 		Lab::Exception::CorruptParameter->throw( error => "unexpected value for MODE in sub set_comunicationsprotocol. Expected values are:\n 0 --> Normal (default)\n 2 --> Sends <LF> after each <CR>");
 		}
-	
+
     $self->write("Q$mode\r", $tail); #no aswer from ITC expected
 }
 
@@ -207,7 +207,7 @@ sub set_heatercontrol { # basic
 # 3 Heater Auto, Gas Auto
     my $self=shift;
     my ($mode, $tail) = $self->_check_args( \@_, ['mode'] );
-		
+
 	if ( $mode =~/\b(MANUAL|manual|MAN|man)\b/ )
 		{
 		$self->query("A0\r", $tail);
@@ -220,14 +220,14 @@ sub set_heatercontrol { # basic
 		{
 		Lab::Exception::CorruptParameter->throw( error => "unexpected value for MODE in sub set_heatercontrol. Expected values are:\n 0 --> Heater Manual, Gas Manual\n 1 --> Heater Auto");
 		}
-	
+
 }
 
 sub set_proportional { # internal only
     my $self=shift;
     my ($value, $tail) = $self->_check_args( \@_, ['value'] );
-	
-    $value=sprintf("%d",$value);
+
+    $value=sprintf("%.3f",$value);
     $self->query("P$value\r", $tail);
 }
 
@@ -241,8 +241,8 @@ sub get_proportional {
 sub set_integral { # internal only
     my $self=shift;
     my ($value, $tail) = $self->_check_args( \@_, ['value'] );
-	
-    $value=sprintf("%d",$value);
+
+    $value=sprintf("%.1f",$value);
     $self->query("I$value\r", $tail);
 }
 
@@ -256,8 +256,8 @@ sub get_integral {
 sub set_derivative { # internal only
     my $self=shift;
     my ($value, $tail) = $self->_check_args( \@_, ['value'] );
-	
-    $value=sprintf("%d",$value);
+
+    $value=sprintf("%.1f",$value); 
     $self->query("D$value\r", $tail);
 }
 
@@ -271,8 +271,8 @@ sub get_derivative {
 sub set_PID { # basic
 	my $self = shift;
 	my ($P, $I, $D) = $self->_check_args( \@_, ['P', 'I', 'D'] );
-	
-	
+
+
 	if ((defined $P) and ( $P eq "auto" or $P eq "AUTO" ))
 		{
 		$self->query("L1\r"); # enable AUTO-PID
@@ -285,7 +285,7 @@ sub set_PID { # basic
 		{
 		Lab::Exception::CorruptParameter->throw( error => "unexpected values for PID in sub set_PID. Exactly three arguments are required.");
 		}
-	else 
+	else
 		{
 		$self->query("L0\r"); # disable AUTO-PID
 		$self->set_proportional($P);
@@ -306,7 +306,7 @@ sub set_heatersensor { # basic
 		{
 		Lab::Exception::CorruptParameter->throw( error => "unexpected value for SENSOR in sub set_heatersensor. Expected values are:\n 1 --> Sensor #1\n 2 --> Sensor #2\n 3 --> Sensor #3");
 		}
-	
+
     $self->query("H$sensor\r", $tail);
 }
 
@@ -323,12 +323,12 @@ sub _set_heaterlimit { # internal only
 # 0 dynamical varying limit
     my $self=shift;
     my ($limit, $tail) = $self->_check_args( \@_, ['value'] );
-	
+
 	if ( not defined $limit or $limit > 40 or $limit < 0)
 		{
 		Lab::Exception::CorruptParameter->throw( error => "unexpected value for LIMIT in sub _set_heaterlimit. Expected values are between 0 .. 40 V");
 		}
- 
+
     $self->query("M$limit\r", $tail);
 }
 
@@ -341,14 +341,14 @@ sub set_heateroutput { # basic
 		{
 		Lab::Exception::CorruptParameter->throw( error => "unexpected value for OUTPUT in sub set_heateroutput. Expected values are between 0 .. 999. (100 == 10.0% * HEATERLIMIT.)");
 		}
-	
+
     $self->query("O$value\r", $tail);
 }
 
 sub get_heateroutput {
 	my $self = shift;
 	my ($tail) = $self->_check_args( \@_, [] );
-	
+
 	return $self->_get_parameter(5);
 }
 
@@ -363,7 +363,7 @@ sub get_heateroutput {
 
 
 #sub itc_sweep {
-# 0 Stop Sweep 
+# 0 Stop Sweep
 # 1 Start Sweep
 #nn=2P-1 Sweeping to step P
 #nn=2P Sweeping to step P
@@ -391,21 +391,21 @@ sub get_heateroutput {
 #    my $setpoint=shift; #K Sweep Stop Point
 #    my $sweeptime=shift; #Min. Total Sweep Time
 #    my $holdtime=shift; #sec. Hold Time
-    
+
 #    if ($setpoint<0. or $setpoint >9.9){printf "Cannot reach setpoint: $setpoint\n";die};
-    
+
 #    $self->itc_set_pointer(1,1);
 #    $setpoint=sprintf("%1.4f",$setpoint);
 #    $self->query("s$setpoint\r");
 
 #    $self->itc_set_pointer(1,2);
 #   $sweeptime=sprintf("%.4f",$sweeptime);
-#    $self->query("s$sweeptime\r");    
-    
+#    $self->query("s$sweeptime\r");
+
 #    $self->itc_set_pointer(1,3);
 #    $holdtime=sprintf("%.4f",$holdtime);
 #    $self->query("s$holdtime\r");
-    
+
 #    $self->itc_set_pointer(0,0);
 #}
 
@@ -444,8 +444,8 @@ The Lab::Instrument::ITC class implements an interface to the Oxford Instruments
 
 	my $itc=new Lab::Instrument::ITC($isobus,$addr);
 
-Instantiates a new ITC object, for example attached to the IsoBus device 
-(of type C<Lab::Instrument::IsoBus>) C<$IsoBus>, with IsoBus address C<$addr>. 
+Instantiates a new ITC object, for example attached to the IsoBus device
+(of type C<Lab::Instrument::IsoBus>) C<$IsoBus>, with IsoBus address C<$addr>.
 All constructor forms of C<Lab::Instrument> are available.
 
 .
