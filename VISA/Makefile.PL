@@ -35,9 +35,6 @@ else {
 
 
 WriteMakefile(
-#   'clean'             => {
-#       FILES => 'VISA.pm visa_wrap.c'
-#   },
     %visa_options,
     'NAME'              => 'Lab::VISA',
     'VERSION_FROM'      => 'VISA.pm',
