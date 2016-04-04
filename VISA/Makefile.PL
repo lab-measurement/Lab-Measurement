@@ -1,35 +1,41 @@
 #!/usr/bin/perl
-
+use warnings;
 use strict;
 use ExtUtils::MakeMaker;
 
-# If you have Swig installed, un-comment the next line 
-# to re-create the wrapper code.
-# If you do so, also un-comment the 'clean' section below
-# to delete the swig-generated files when doing 'make clean'.
-# TODO: should just check if swig is in the path
+my %visa_options = ();
 
-# system("swig -perl5 -module Lab::VISA visa.i");
+if ($^O =~ /MSWin32/) {
+    # The location of 'visa32.lib' differs for 32- and 64-bit Windows.
+    my $lib64 = "C:\\Program Files (x86)\\IVI Foundation\\VISA\\WinNT\\lib\\msc\\visa32.lib";
+    my $inc64 = "C:\\Program Files (x86)\\IVI Foundation\\VISA\\WinNT\\include";
+    my $lib32 = "C:\\Program Files\\IVI Foundation\\VISA\\WinNT\\lib\\msc\\visa32.lib";
+    my $inc32 = "C:\\Program Files\\IVI Foundation\\VISA\\WinNT\\Include";
+    my $lib;
+    my $inc;
+    if (-e $lib32) {
+	$lib = $lib32;
+	$inc = $inc32;
+    }
+    elsif (-e $lib64) {
+	$lib = $lib64;
+	$inc = $inc64;
+    }
+    
+    if ($lib) {
+	$visa_options{LIBS} = "\"-l${lib}\"";
+	$visa_options{INC} = "\"-I${inc}\"";
+    }
+}
+else {
+    # Linux
+    $visa_options{LIBS} = '-lvisa';
+    $visa_options{INC} = '-I/usr/local/include';
+}
+
 
 WriteMakefile(
-#   'clean'             => {
-#       FILES => 'VISA.pm visa_wrap.c'
-#   },
-
-# Important: you have to adjust the 'LIBS' and 'INC' paths according to your local setup!
-# The correct values may depend on your exact version of LabView, VISA, GPIB drivers, 
-# the phase of the moon and the local neutrino density...
-# First two lines are for Windows, second two lines are for Linux.
-# TODO: find out how to figure these out automatically.
-
-    (($^O =~ /MSWin32/)
-    ?   ('LIBS'         => ['"-lC:\\Program Files (x86)\\IVI Foundation\\VISA\\WinNT\\lib\\msc\\visa32.lib"'],
-         'INC'          => '"-IC:\\Program Files (x86)\\IVI Foundation\\VISA\\WinNT\\include"',
-        )
-    :   ('LIBS'         => ['-lvisa'],
-         'INC'          => '-I/usr/local/include/',
-        )
-    ),
+    %visa_options,
     'NAME'              => 'Lab::VISA',
     'VERSION_FROM'      => 'VISA.pm',
     'OBJECT'            => q/$(O_FILES)/,
