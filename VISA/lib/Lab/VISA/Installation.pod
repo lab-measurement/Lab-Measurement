@@ -6,358 +6,44 @@
 
 Lab::VISA::Installation - Installation guide for Lab::VISA
 
-=head1 Introduction
-
-Lab::VISA has been tested to work on Linux and Windows, both
-with ActiveState Perl and the Microsoft VC++ Compiler, and Strawberry Perl
-with the included gcc compiler.
-
-
-=head1 Installation on Windows 10 64bit with ActiveState Perl 64bit
+=head1 Installation on Windows
 
 =over
 
-=item
+=item * Install a B<32-bit version>  of L<Strawberry Perl|http://strawberryperl.com/download/5.20.3.3/strawberry-perl-5.20.3.3-32bit.msi>. Note
+that version 5.22 is not supported (see the comments below). 
 
-Work with administrator account during installation.
+=item * Install NI-VISA and the drivers required for your instruments. E.g. for GPIB you need the NI IEEE-488.2 driver.
 
-=item
+=item * L<Download|https://github.com/lab-measurement/lab-measurement/archive/master.zip> and extract Lab::VISA from github.
 
-Install VISA (and GPIB drivers) if necessary.
+=item * Build and install with
+
+ cpanm .\lab-measurement-master\VISA
+
+=item * Have fun!
+
+=back
+
+=head2 Notes
+
+On 64-bit windows one needs a 32-bit version of perl with GNU binutils version
+<= 2.24. Otherwise linking with the NI-VISA library will fail. The reason for this
+are the following bugs in the GNU binutils:
 
 =over
 
-=item *
+=item * L<binutils bug 16598|https://sourceware.org/bugzilla/show_bug.cgi?id=16598>
 
-Download current VISA release from NI (need 64bit version)
-
-=item *
-
-Run installer
-
-=item *
-
-Check location of visa64.lib (eg. C:\Programme\IVI Foundation\VISA\Win64\lib\msc\visa64.lib)
-and remember for later.
-
-=item *
-
-Check directory of visa.h (eg. C:\Programme\IVI Foundation\VISA\Win64\include)
-and remember for later.
+=item * L<binutils bug 17910|https://sourceware.org/bugzilla/show_bug.cgi?id=17910>
 
 =back
 
-=item
-
-Install Microsoft Visual Studio (large download!). You need C support.
-
-From now on run all commandline programs during installation only from the "Visual Studio Native 64bit Console",
-which can be found in the Start menu.
-
-=item
-
-Install ActivePerl 64bit
-
-=over
-
-=item *
-
-Make sure to activate the check box to include perl directory in PATH variable.
-
-=item *
-
-Find and edit C:\Perl64\lib\CORE\config.h: Find the following line 
-
-  #define PERL_STATIC_INLINE static __inline__
-
-and replace it with 
-
-  #define PERL_STATIC_INLINE static __inline
-
-(i.e., remove the last two underscores)
-
-=back
-
-=item
-
-Install gnuplot (not mandatory) from L<http://www.gnuplot.info/>
-
-=over
-
-=item *
-
-Add directory containing C<pgnuplot.exe> to path (if not done automatically):
-My Computer => Properties => Advanced => Environment Variables
-
-=back
-
-=item
-
-Install dependencies of our perl modules. Depending on how familiar you are
-with the perl infrastructure, the easiest might be to use PPM, the Perl Package Manager
-included with ActivePerl.
-
-=item
-
-Install Lab::VISA
-
-=over
-
-=item *
-
-Unzip/copy sources
-
-=item *
-
-In file C<Makefile.PL> adapt the LIBS and INC settings according to your installation
-(the location looked up above). I.e., 
-
-    'LIBS' => ['-"lC:\\Program Files\\IVI Foundation\\VISA\\Win64\\lib\\msc\\visa64.lib"']
-    'INC'  => '"-IC:\\Program Files\\IVI Foundation\\VISA\\Win64\\include"'    
-
-=item *
-
-Run the following commands in the source directory
-
-    perl Makefile.PL CC=cl
-    dmake
-    copy visa_wrap.obj visa_wrap.o
-    dmake
-    dmake install
-
-=back
-
-=item
-
-Have fun!
-
-=back
-
-
-=head1 Installation on Windows XP 32bit with ActiveState Perl 
-
-=over
-
-=item
-
-Work with administrator account during installation.
-
-=item
-
-Install VISA (and GPIB drivers) if necessary.
-
-=over
-
-=item *
-
-Download current VISA release from NI (tested with 4.4.1, 4.5.0)
-
-=item *
-
-Run installer
-
-=item *
-
-Check location of visa32.lib (eg. C:\Programme\IVI Foundation\VISA\WinNT\lib\msc\visa32.lib)
-and remember for later.
-
-=back
-
-=item
-
-Install Microsoft Visual C++ from L<http://www.microsoft.com/express/Downloads/>
-
-From now on run all commandline programs during installation only from the "Visual Studio Command line",
-which can be found in the Start menu.
-
-=item
-
-Install Perl.
-
-=over
-
-=item *
-
-Tested with ActivePerl from L<http://www.activestate.com/Products/activeperl/index.mhtml>
-
-=item *
-
-Make sure to include Perl Package Manager.
-
-=item *
-
-Make sure to activate the check box to include perl directory in PATH variable.
-
-=back
-
-=item
-
-Install gnuplot (not mandatory)
-
-=over
-
-=item *
-
-Download from L<http://sourceforge.net/project/showfiles.php?group_id=2055> (gp425win32.zip)
-
-=item *
-
-Extract and put it somewhere
-
-=item *
-
-Add directory containing C<pgnuplot.exe> to path:
-My Computer => Properties => Advanced => Environment Variables
-
-=back
-
-=item
-
-Install dependencies of our perl modules. Depending on how familiar you are
-with the perl infrastructure, the easiest might be to use PPM, the Perl Package Manager
-included with ActivePerl.
-
-=item
-
-Install Lab::VISA
-
-=over
-
-=item *
-
-Unzip/copy sources
-
-=item *
-
-In file C<Makefile.PL> adapt the LIBS and INC settings according to your installation
-(the location looked up above). This is what worked for me:
-
-    'LIBS' => ['-"lC:\\Programme\\IVI Foundation\\VISA\\WinNT\\lib\\msc\\visa32.lib"']
-    'INC'  => '"-IC:\\Programme\\IVI Foundation\\VISA\\WinNT\\include"'
-
-You can find the LIBS folder by checking the registry key "InstDir" in folder 
-	"HKEY_LOCAL_MACHINE\SOFTWARE\National Instruments\NI-VISA for Windows 95/NT".
-
-=item *
-
-Run the following commands in the source directory
-
-    perl Makefile.PL
-    nmake
-    nmake install
-
-=back
-
-=item
-
-Have fun!
-
-=back
-
-=head1 Installation on Windows XP with Strawberry Perl
-
-Strawberry Perl is a Perl distribution for Windows that most closely
-mimics a Perl installation under Linux. It comes with gcc compiler, dmake
-and the other relevant tools included.
-
-Lab::VISA should in principle install out of the box with just the command
-
-	cpan Lab::VISA
-
-executed on the commandline. Unfortunately there is a bug in ExtUtils::MakeMaker
-(L<see here|https://rt.cpan.org/Ticket/Display.html?id=49026>) that prevents this.
-Two possible workarounds are explained below.
-
-=over
-
-=item
-
-Have Windows and Strawberry Perl installed
-
-=item
-
-Install NI-VISA
-
-=over
-
-=item
-
-Download 361mb file C<visa462full.exe> from L<NI's website|http://sine.ni.com/psp/app/doc/p/id/psp-411>
-
-=item
-
-Install only 'Run Time Support' (I chose all items below that; it's not much)
-
-=back
-
-=item
-
-Locate msc version of C<visa32.lib> and C<visa.h> and adjust C<Makefile.PL>. This is what
-worked for me:
-
-    'LIBS' => q("-lC:/Programme/IVI Foundation/VISA/WinNT/lib/msc/visa32.lib"),
-    'INC'  => q("-IC:/Programme/IVI Foundation/VISA/WinNT/include"),
-
-=item
-
-Work around the bug (known to be present in ExtUtils-MakerMaker-6.56)
-
-=over
-
-=item
-
-Option 1: Patch ExtUtils::MakeMaker
-
-=over
-
-=item
-
-Apply the change described at L<https://rt.cpan.org/Ticket/Display.html?id=49026>
-to the file C<Kid.pm> of your installation of ExtUtils::MakeMaker
-  
-=item
-
-C<perl Makefile.PL>
-
-=back
-
-=item
-
-Option 2: Edit generated Makefile
-
-If you don't like to modify the installed version of ExtUtils::MakeMaker, you can edit the
-generated Makefile. These changes will be lost after executing C<perl Makefile.PL> again though.
-This option is recommended if you just want to install Lab::VISA.
-
-=over
-
-=item
-
-C<perl Makefile.PL>
-
-=item
-
-In the generated file C<Makefile>:
-
-Find the two lines containing the words C<EXTRALIBS> and C<LDLOADLIBS>. Add the C<"C:\path\to\visa32.lib"> to each of
-of these lines. On my system they read:
-
- EXTRALIBS = "C:\Programme\IVI Foundation\VISA\WinNT\lib\msc\visa32.lib" C:\strawberry\c\lib\libmoldname.a ...
- LDLOADLIBS = "C:\Programme\IVI Foundation\VISA\WinNT\lib\msc\visa32.lib" C:\strawberry\c\lib\libmoldname.a ...
-
-=back
-
-=back
-
-=item
-
-C<dmake>
-
-=item
-
-C<dmake install>
-
-=back
+These are fixed in the most recent version of the binutils. Once this version
+(2.26) is included in Strawberry Perl, it should be possible to use a 64-bit
+version of perl.
+
+It is not possible to use either 32-bit or 64-bit versions of Strawberry Perl 5.22 as this version uses binutils 2.25. 
 
 =head1 Installation on Linux
 
