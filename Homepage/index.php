@@ -55,6 +55,13 @@ measurement again?!), data plotting, and similar.</p>
 <p>These classes together are distributed as the Lab::Measurement system.
 Designed to make measuring fun!</p>
 
+<h2>Contact</h2>
+<ul>
+  <li> Join the <a href="http://webchat.freenode.net/?channels=labmeasurement">
+  #labmeasurement</a> Channel on IRC </li>
+  <li> Join our <a href="https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-measurement-users">  Mailinglist </a> </li>
+</ul>
+
 <h2>News</h2>
 
 <p>
@@ -104,9 +111,6 @@ using Lab::Measurement</a> (outdated). Detailed <a href="docs/installation.html"
 instructions</a> are provided as well. In addition, there's also a collection
 of <a href="backends.html">back-end specific documentation and links</a>.
 </p>
-<p>The mailing list<a
-    href="https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-measurement-users">lab-measurement-users</a> is the
-right place to give feedback and ask for help.</p>
 
 <h2>Status</h2>
 <p>Lab::Measurement is a the result of a full restructuring of the code of its predecessor
