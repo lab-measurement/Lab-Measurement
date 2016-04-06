@@ -17,8 +17,7 @@ see the documentation of these packages for more details.
 
 =over
 
-=item * Install a B<32-bit version>  of Strawberry Perl: L<http://strawberryperl.com/download/5.20.3.3/strawberry-perl-5.20.3.3-32bit.msi>. Note
-that version 5.22 is not supported (see the comments below). 
+=item * Install L<Strawberry Perl|http://strawberryperl.com/download/5.20.3.3/strawberry-perl-5.20.3.3-32bit.msi>. If you want to use NI-VISA, see the comments on supported perl versions in L<Lab::VISA's installation guide|http://labmeasurement.de/docs/VISA-Installation.html>
 
 =item * Install gnuplot (not mandatory)
 
@@ -33,15 +32,10 @@ My Computer => Properties => Advanced => Environment Variables
 
 =back
 
-=item * Install NI-VISA and the NI IEEE-488.2 driver.
+=item * L<Download|https://github.com/lab-measurement/lab-measurement/archive/master.zip> and extract Lab::Measurement from github
 
-=item * Download Lab::Measurement from
-L<https://github.com/lab-measurement/lab-measurement/archive/master.zip> and
-extract. 
+=item * Build and install with
 
-Build and install with
-
- cpanm .\lab-measurement-master\VISA
  cpanm .\lab-measurement-master\Measurement
 
 Have fun!
