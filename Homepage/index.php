@@ -52,8 +52,12 @@ easily be added to provide high-level functions. The latter includes tools to au
 generate measurement loops, for metadata handling (what was that amplifier setting in the 
 measurement again?!), data plotting, and similar.</p>
 
-<p>These classes together are distributed as the Lab::Measurement system.
-Designed to make measuring fun!</p>
+<p>
+While <i>Lab::Measurement</i> has built-in support for devices connected, e.g., via
+ethernet or serial port, you may want to additionally install driver backends such as
+<a href="http://search.cpan.org/dist/Lab-VISA/"><i>Lab::VISA</i></a> or
+<a href="http://linux-gpib.sourceforge.net/" target="_blank"><i>LinuxGPIB</i></a>.
+</p>
 
 <h2>Contact</h2>
 <ul>
