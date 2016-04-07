@@ -39,14 +39,17 @@ WriteMakefile(
     'NAME'              => 'Lab::VISA',
     'VERSION_FROM'      => 'VISA.pm',
     'OBJECT'            => q/$(O_FILES)/,
+    'PREREQ_PM'         => {
+        'DynaLoader'    => 0,     # first released with perl 5
+        'Exporter'      => 0,     # first released with perl 5
+    },
     'META_MERGE'        => {
         resources => {
             homepage    =>      'https://www.labmeasurement.de/',
-            bugtracker  =>      'https://www.labmeasurement.de/bugs/',
+            bugtracker  =>      'https://github.com/lab-measurement/lab-measurement/issues',
             MailingList =>      'lab-measurement-users@mailman.uni-regensburg.de',
         },
     },
-
     'ABSTRACT_FROM'     => 'VISA.pod',
     'AUTHOR'            => ['Daniel Schröer <schroeer@cpan.org>', 'Andreas K. Hüttel <mail@akhuettel.de>'],
 
