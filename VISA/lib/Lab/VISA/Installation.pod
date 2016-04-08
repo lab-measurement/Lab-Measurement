@@ -15,11 +15,9 @@ that version 5.22 is not supported (see the comments below).
 
 =item * Install NI-VISA and the drivers required for your instruments. E.g. for GPIB you need the NI IEEE-488.2 driver.
 
-=item * L<Download|https://github.com/lab-measurement/lab-measurement/archive/master.zip> and extract Lab::VISA from github.
-
 =item * Build and install with
 
- cpanm .\lab-measurement-master\VISA
+ cpanm Lab::VISA
 
 =item * Have fun!
 
