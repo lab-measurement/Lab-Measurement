@@ -508,30 +508,22 @@ sub get_range{
 	    #    printf "rangenr=$range_nr\n";
     }
     
-    if($function =~ /voltage/i){
-    	given ($range) {
-    		when( /2/ ){ $range = 0.012; }
-    		when( /3/ ){ $range = 0.12; }
-    		when( /4/ ){ $range = 1.2; }
-    		when( /5/ ){ $range = 12; }
-    		when( /6/ ){ $range = 32; }
-    		default {
-    			Lab::Exception::CorruptParameter->throw( "$range is not a valid voltage range. Read the documentation for a list of allowed ranges in mode $function.\n")
-    		}
-    	}
+    if ($function =~ /voltage/i) {
+	    $range =~ /2/ ? $range = 0.012 :
+	    $range =~ /3/ ? $range = 0.12 :
+	    $range =~ /4/ ? $range = 1.2 :
+	    $range =~ /5/ ? $range = 12 :
+	    $range =~ /6/ ? $range = 0.012 :
+	    Lab::Exception::CorruptParameter->throw ("$range is not a valid voltage range. Read the documentation for a list of allowed ranges in mode $function.\n");
     }
-    elsif($function =~ /current/i){
-    	given($range){
-    		when( /4/ ){ $range = 0.0012; }
-    		when( /5/ ){ $range = 0.012; }
-    		when( /6/ ){ $range = 0.12; }
-    		default {
-    			Lab::Exception::CorruptParameter->throw( "$range is not a valid current range. Read the documentation for a list of allowed ranges in mode $function.\n" )
-    		}
-    	}
+    elsif ($function =~ /current/i) {
+	    $range =~ /4/ ? $range = 0.0012 :
+	    $range =~ /5/ ? $range = 0.012 :
+	    $range =~ /6/ ? $range = 0.12 :
+	    Lab::Exception::CorruptParameter->throw ("$range is not a valid current range. Read the documentation for a list of allowed ranges in mode $function.\n");
     }
-    else{
-    	Lab::Exception::CorruptParameter->throw( "$range is not a valid source range. Read the documentation for a list of allowed ranges in mode $function.\n" );
+    else {
+	    Lab::Exception::CorruptParameter->throw( "$range is not a valid source range. Read the documentation for a list of allowed ranges in mode $function.\n" );
     }
         
     return $self->{'device_cache'}->{'range'} = $range;

@@ -165,27 +165,14 @@ sub read_temperature {
 	}
 
 	return undef unless defined($Temp = $self->read_address_int( $self->MemTable()->{'Measurement'} ));
-	given( $Temp ) {
-		when(10001) {
-			warn("Warning: Measurement exception $Temp received. Sensor disconnected.\n");
-			return undef;
-		}
-		when(10000) {
-			warn("Warning: Measurement exception $Temp received. Measuring value underrange.\n");
-			return undef;
-		}
-		when(-10000) {
-			warn("Warning: Measurement exception $Temp received. Measuring value overrange.\n");
-			return undef;
-		}
-		when(10003) {
-			warn("Warning: Measurement exception $Temp received. Measured variable not available.\n");
-			return undef;
-		}
-		default {
-			return $Temp / 10**$dP;
-		}
-	}
+	
+	$Temp ==  10001 ? warn("Warning: Measurement exception $Temp received. Sensor disconnected.\n") :
+	$Temp ==  10000 ? warn("Warning: Measurement exception $Temp received. Measuring value underrange.\n") :
+	$Temp == -10000 ? warn("Warning: Measurement exception $Temp received. Measuring value overrange.\n") :
+	$Temp ==  10003 ? warn("Warning: Measurement exception $Temp received. Measured variable not available.\n") :
+	return $Temp / 10**$dP;
+	
+	return undef;
 }
 
 
