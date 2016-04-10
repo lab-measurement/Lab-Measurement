@@ -469,3 +469,5 @@ sub get_volt {
 
 
 #sub sample_select {}	# only  in conjunction with the sample switch port
+
+1;

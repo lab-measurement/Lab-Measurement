@@ -39,12 +39,12 @@ sub new {
 	# $self->print();
 		
 	
-	if ( not defined @{$self->{DATA}[0][0]}[0] )
+	if ( not @{$self->{DATA}[0][0]}[0] )
 		{
 		warn "WARNING: No Data in File $filename.";
 		return -1;
 		}
-	elsif ( not defined @{$self->{COL_NAMES}} )
+	elsif ( not @{$self->{COL_NAMES}} )
 		{
 		warn "WARNING: No ColumnNames defined in $filename.";
 		return -1;
@@ -89,7 +89,7 @@ sub read_file {
 			}
 		elsif ( $_ =~ m/^([^0-9a-z]+)?\n$/ )
 			{
-			if( defined @{$self->{DATA}[0][0]}[0] ) 
+			if( @{$self->{DATA}[0][0]}[0] ) 
 				{
 				$block++;
 				}
@@ -2672,7 +2672,7 @@ sub calc {
 	my $self = shift;
 		
 		
-	if ( not defined @{$self->{EXP_PARTS}}[0] )
+	if ( not @{$self->{EXP_PARTS}}[0] )
 		{
 		warn "WARNING in sub calc: No expression to calculate given. Ignor and return self.";
 		return $self;

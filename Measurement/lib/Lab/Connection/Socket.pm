@@ -40,3 +40,5 @@ sub SetTermChar { # the character as string
   #my $result=$self->bus()->connection_settermchar($self->connection_handle(), $termchar);
   return 1;
 }
+
+1;

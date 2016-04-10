@@ -78,3 +78,5 @@ sub set_mode{
 	my $result= $self->query("SET_MODE $remote,$pid");
 	return $result;
 };
+
+1;

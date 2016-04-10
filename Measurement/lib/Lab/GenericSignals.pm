@@ -22,3 +22,4 @@ END {
   abort_all();
 }
 
+1;

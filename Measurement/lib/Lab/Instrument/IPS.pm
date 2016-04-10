@@ -88,8 +88,9 @@ sub _device_init { # internal only
 		{
 		#print "Try to switch on the SWITCHHEATER ...";
 		$self->set_persistent_mode(0);
-		
-		if ($self->get_switchheater() ~~ [0,2])
+
+		my $switchheater = $self->get_switchheater();
+		if ($switchheater == 0 || $switchheater == 2)
 			{
 			Lab::Exception::CorruptParameter->throw( error =>  "PSU != Magnet --> SWITCHHEATER cannot be switched on." );
 			}
@@ -141,27 +142,28 @@ sub _device_init { # internal only
 
 
 sub set_switchheater { # internal only
-# 0 Heater Off                  (close switch)
-# 1 Heater On if PSU=Magnet     (open switch)
-#  (only perform operation
-#   if recorded magnet current==present power supply output current)
-# 2 Heater On, no Checks        (open switch)
-    my $self=shift;
-    my ($mode,$tail) = $self->_check_args( \@_, ['value'] );
+	# 0 Heater Off                  (close switch)
+	# 1 Heater On if PSU=Magnet     (open switch)
+	#  (only perform operation
+	#   if recorded magnet current==present power supply output current)
+	# 2 Heater On, no Checks        (open switch)
+	my $self=shift;
+	my ($mode,$tail) = $self->_check_args( \@_, ['value'] );
 	
 	warn "Try to use switchheater: No switchheater installed!" if not $self->{device_settings}->{has_switchheater};
 	
 	#print "Trying to switch switchheater to mode $mode\n";
 	
 	if ($mode == 0){
-		while (not $self->get_switchheater() ~~ [0,2] ){
+		my $switchheater = $self->get_switchheater();
+		while (!($switchheater == 0 || $switchheater == 2)){
 			$self->query("H$mode\r",$tail);
 			sleep(1);
 		}
 	}
-	elsif($mode == 1){
+	elsif($mode == 1) {
 		while(not $self->get_switchheater() == 1){
-	
+			
 			$self->query("H$mode\r",$tail);
 			sleep(1);
 		}
@@ -169,7 +171,7 @@ sub set_switchheater { # internal only
 	else{
 		print Lab::Exception::Warning->new("Mode $mode is not allowed for the switchheater. Select 0 (off) or 1 (on).");
 	}
-    sleep(10);  # wait for heater to open the switch	
+	sleep(10);  # wait for heater to open the switch	
 }
 
 sub get_switchheater { # internal only
@@ -263,10 +265,10 @@ sub _set_activity { # internal only
 # 1 To Set Point
 # 2 To Zero
 # 4 Clamp (clamp the power supply output)
-    my $self=shift;
+	my $self=shift;
 	my ($mode,$tail) = $self->_check_args( \@_, ['mode'] );
 	
-	if (not $mode ~~ [0,1,2,4])
+	if (not 0 <= $mode && $mode <= 4)
 		{
 		Lab::Exception::CorruptParameter->throw( error =>  "unexpected value for MODE in sub _set_activity. Expected values are:\n\n 0 --> Hold\n 1 --> To Set Point\n 2 --> To Zero\n 4 --> Clamp (clamp the power supply output)");
 		}

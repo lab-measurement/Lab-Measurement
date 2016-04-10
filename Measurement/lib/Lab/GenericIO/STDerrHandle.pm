@@ -28,3 +28,4 @@ sub PRINTF {
 	Lab::GenericIO::channel_write("ERROR", undef, $string);
 }
 
+1;

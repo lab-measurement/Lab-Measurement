@@ -31,7 +31,7 @@ sub new {
 	bless ($self, $class);
 	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
 
-	while ( my ($k,$v) = each $config ) {
+	while ( my ($k,$v) = each %{$config}) {
 		$self->{$k} = $v;
 	}
 	

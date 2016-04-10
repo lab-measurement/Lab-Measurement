@@ -1,6 +1,3 @@
-#!/usr/bin/perl -w
-
-
 package Lab::Bus::USBtmc;
 our $VERSION = '3.500';
 

@@ -27,3 +27,4 @@ sub PRINTF {
 	Lab::GenericIO::channel_write("MESSAGE", undef, $string);
 }
 
+1;
