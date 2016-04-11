@@ -348,7 +348,7 @@ sub convert_time {
 
 1;
 
-
+=encoding utf8
 
 =head1 NAME
 

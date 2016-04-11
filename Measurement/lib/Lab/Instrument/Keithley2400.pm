@@ -1685,6 +1685,8 @@ C<DEF> will be set, if no value is given.
 Switch device OUTPUT ON/OFF or set new OUTPUT value.
 If no parameter is given, the current device output value will be returned.
 
+=over
+
 =item $value
 
 VALUE can be any numeric value within the current range setting or ON/OFF to switch the device OUTPUT ON/OFF.
@@ -1699,6 +1701,8 @@ VALUE can be any numeric value within the current range setting or ON/OFF to swi
 
 Returns the current device output value or state.
 If no parameter is given, the current device output value will be returned.
+
+=over
 
 =item <$mode>
 

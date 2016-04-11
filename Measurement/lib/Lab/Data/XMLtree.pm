@@ -512,6 +512,8 @@ sub _magic_set_perlnode {
 
 __END__
 
+=encoding utf8
+
 =head1 NAME
 
 Lab::Data::XMLtree - Handle and store XML and perl data structures with precise declaration.

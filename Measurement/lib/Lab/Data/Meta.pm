@@ -140,6 +140,8 @@ sub get_abs_path {
 
 __END__
 
+=encoding utf8
+
 =head1 NAME
 
 Lab::Data::Meta - Meta data for datasets

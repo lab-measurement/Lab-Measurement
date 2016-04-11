@@ -550,7 +550,9 @@ Sysfs settings for timeout not supported, yet.
 
 L<Lab::Bus>
 
-=item and many more...
+=item
+
+and many more...
 
 =back
 

@@ -976,6 +976,7 @@ sub _set_buffer_storageinterval { # internal / advanced use only
 	
 1;
 
+=encoding utf8
 
 =head1 NAME
 
@@ -1090,7 +1091,6 @@ CHANNEL can be:
 	'MP-'  --> Magnitude and signal Phase\n 
 	'ALL-' --> X,Y, Magnitude and signal Phase\n
 
-=over 4
 
 =item $number_of_points
 
@@ -1304,6 +1304,7 @@ Preset Signal Recovery 7260 / 7265 Lock-in Amplifier
 	  AC-GAIN == 1 --> 10 dB gain of the signal channel amplifier\n
 	  ...
 	  AC-GAIN == 9 --> 90 dB gain of the signal channel amplifier\n
+
 =back
 
 .

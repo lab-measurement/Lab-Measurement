@@ -6,6 +6,8 @@
 
 =head2 Lab::Bus and Lab::Connection classes
 
+=over
+
 =item * 
 Initial support for the USBtmc Linux kernel driver
 
@@ -15,7 +17,11 @@ GPIB termination characters are now handled identically in LinuxGPIB and VISA_GP
 =item *
 New VISA_RS232 connection which takes all arguments as RS232
 
+=back
+
 =head2 Lab::Instrument classes
+
+=over
 
 =item *
 HP34420A nanovoltmeter re-added
@@ -29,11 +35,16 @@ Re-named the Oxford Instruments IPS12010 driver to OI_IPS, since it works with n
 =item *
 New driver: Trinamic PD-110-42 stepper motor
 
+=back
+
 =head2 Lab::Measurement classes
+
+=over
 
 =item *
 Started refactoring the keyboard handling code
 
+=back
 
 =head1 Lab::Measurement 3.00 (initial release)
 

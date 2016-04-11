@@ -341,6 +341,8 @@ sub get_gnuplot_pipe {
 
 __END__
 
+=encoding utf8
+
 =head1 NAME
 
 Lab::Data::Plotter - Plot data with Gnuplot

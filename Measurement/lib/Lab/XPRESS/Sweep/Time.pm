@@ -150,7 +150,7 @@ sub halt {
 1;
 
 
-
+=encoding utf8
 
 =head1 NAME
 
@@ -255,7 +255,7 @@ See 'stabilize'.
 
 See 'stabilize'.
 
-=head stabilize_observation_time [float] (default = 3*60)
+=head2 stabilize_observation_time [float] (default = 3*60)
 
 See 'stabilize'.
 .

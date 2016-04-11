@@ -52,6 +52,8 @@ my $a=<stdin>;
 
 __END__
 
+=encoding utf8
+
 =head1 NAME
 
 plotter.pl - Plot data with GnuPlot

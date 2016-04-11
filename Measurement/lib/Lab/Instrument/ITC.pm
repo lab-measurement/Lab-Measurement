@@ -423,6 +423,8 @@ sub get_heateroutput {
 
 1;
 
+=encoding utf8
+
 =head1 NAME
 
 	Lab::Instrument::ITC - Oxford Instruments ITC Intelligent Temperature Control

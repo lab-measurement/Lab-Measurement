@@ -541,7 +541,9 @@ L<Lab::Bus>
 
 L<Lab::Bus::MODBUS>
 
-=item and many more...
+=item
+
+and many more...
 
 =back
 

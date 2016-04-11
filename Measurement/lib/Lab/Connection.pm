@@ -480,7 +480,7 @@ Probably few. Mostly because there's not a lot to be done here. Please report.
 
 =item * L<Lab::Connection::MODBUS>
 
-=item and all the others...
+=item * and all the others...
 
 =back
 

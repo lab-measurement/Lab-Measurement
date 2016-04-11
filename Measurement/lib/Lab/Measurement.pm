@@ -280,6 +280,8 @@ sub log {
 
 __END__
 
+=encoding utf8
+
 =head1 NAME
 
 Lab::Measurement - Log, describe and plot data on the fly

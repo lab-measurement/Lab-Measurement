@@ -63,7 +63,7 @@ sub _get_temperature() {
 
 1;
 
-
+=encoding utf8
 
 =head1 NAME
 

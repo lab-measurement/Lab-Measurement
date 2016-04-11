@@ -181,6 +181,8 @@ sub get_range{
 
 1;
 
+=encoding utf8
+
 =head1 NAME
 
 Lab::Instrument::KnickS252 - Knick S 252 DC source

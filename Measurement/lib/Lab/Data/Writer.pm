@@ -265,6 +265,8 @@ sub import_gpplus {
 
 __END__
 
+=encoding utf8
+
 =head1 NAME
 
 Lab::Data::Writer - Write data to disk
