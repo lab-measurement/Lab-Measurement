@@ -23,7 +23,7 @@ File::Find::find({
 
 s/^lib.// for @files;
 
-# Skip modules with special dependencies
+# Skip modules with special dependencies.
 
 sub skip_modules {
 	for my $skip(@_) {
@@ -35,17 +35,33 @@ sub skip_modules {
 }
 
 diag("checking installed modules");
-	
+
 my %depencencies = (
-	'Wx::App' => [qw(Lab/Bus/DEBUG.pm Lab/Bus/DEBUG/HumanInstrument.pm)],
+	'Wx::App' => ['Lab/Bus/DEBUG.pm', 'Lab/Bus/DEBUG/HumanInstrument.pm'],
+	
 	'PDL' => ['Lab/Data/PDL.pm'],
+	
 	'Statistics::LineFit' => ['Lab/XPRESS/Data/XPRESS_dataset.pm'],
-	'Statistics::Descriptive' => [qw(Lab/XPRESS/Sweep/Temperature.pm Lab/XPRESS/Sweep/Time.pm)],
-	'Device::SerialPort' => [qw(Lab/Bus/RS232.pm Lab/Bus/MODBUS_RS232.pm Lab/Instrument/TemperatureControl/TLK43.pm)],
-	'Math::Interpolate' => [qw(Lab/XPRESS/Data/XPRESS_dataset.pm)],
-	'LinuxGpib' => [qw(Lab/Bus/LinuxGPIB.pm Lab/Connection/LinuxGPIB.pm)],
-	'Lab::VISA' => [qw(VISA Lab/Bus/IsoBus.pm Lab/Connection/DEBUG.pm
-	Lab/Connection/IsoBus.pm)],
+	
+	'Statistics::Descriptive' => ['Lab/XPRESS/Sweep/Temperature.pm',
+				      'Lab/XPRESS/Sweep/Time.pm',
+				      'Lab/XPRESS/Sweep/Temperature.pm',
+				      'Lab/XPRESS/Sweep/Time.pm'],
+	
+	'Device::SerialPort' => ['Lab/Bus/RS232.pm Lab/Bus/MODBUS_RS232.pm',
+				 'Lab/Instrument/TemperatureControl/TLK43.pm',
+				 'Lab/Bus/RS232.pm', 'Lab/Bus/MODBUS_RS232.pm'
+	],
+	
+	'Math::Interpolate' => ['Lab/XPRESS/Data/XPRESS_dataset.pm'],
+	
+	'IPC::Run' => ['Lab/XPRESS/Xpression/PlotterGUI_bidirectional.pm', 
+		       'Lab/XPRESS/Xpression/bidirectional_gnuplot_pipe.pm'],
+	
+	'LinuxGpib' => ['Lab/Bus/LinuxGPIB.pm', 'Lab/Connection/LinuxGPIB.pm'],
+	
+	'Lab::VISA' => ['VISA', 'Lab/Bus/IsoBus.pm', 'Lab/Connection/DEBUG.pm',
+			'Lab/Connection/IsoBus.pm'],
     );
 
 for my $module (keys %depencencies) {
@@ -70,5 +86,6 @@ if (! eval "require 'sys/ioctl.ph'; 1") {
 plan tests => scalar @files;
 
 for my $file (@files) {
+	diag ("trying to load $file ...");
 	is(require $file, 1, "load $file");
 }
