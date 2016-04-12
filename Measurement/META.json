@@ -7,7 +7,7 @@
       "Stefan Geissler <stefan.geissler@physik.uni-r.de>"
    ],
    "dynamic_config" : 1,
-   "generated_by" : "Module::Build version 0.4205",
+   "generated_by" : "Module::Build version 0.421",
    "license" : [
       "perl_5"
    ],
@@ -39,7 +39,7 @@
             "Hook::LexWrap" : "0",
             "Module::Build" : "0",
             "Term::ANSIScreen" : "0",
-            "Term::ReadKey" : "0",
+            "Term::ReadKey" : "2.32",
             "Time::HiRes" : "0",
             "XML::DOM" : "0",
             "XML::Generator" : "0",
@@ -485,20 +485,12 @@
          "file" : "lib/Lab/XPRESS/Sweep/Sweep.pm",
          "version" : "3.500"
       },
-      "Lab::XPRESS::Sweep::SweepND" : {
-         "file" : "lib/Lab/Instrument/SweepND.pm",
-         "version" : "3.500"
-      },
       "Lab::XPRESS::Sweep::Temperature" : {
          "file" : "lib/Lab/XPRESS/Sweep/Temperature.pm",
          "version" : "3.500"
       },
       "Lab::XPRESS::Sweep::Time" : {
          "file" : "lib/Lab/XPRESS/Sweep/Time.pm",
-         "version" : "3.500"
-      },
-      "Lab::XPRESS::Sweep::VM_DIR" : {
-         "file" : "lib/Lab/Instrument/VM_DIR.pm",
          "version" : "3.500"
       },
       "Lab::XPRESS::Sweep::Voltage" : {
@@ -538,7 +530,7 @@
       "repository" : {
          "url" : "https://github.com/lab-measurement/lab-measurement.git"
       },
-      "x_mailingList" : "https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-measurement-users"
+      "x_MailingList" : "https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-measurement-users"
    },
    "version" : "3.500"
 }

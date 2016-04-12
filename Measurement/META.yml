@@ -12,7 +12,7 @@ conflicts:
   Lab::Instrument: '< 2.91'
   Lab::Tools: '< 2.91'
 dynamic_config: 1
-generated_by: 'Module::Build version 0.4205, CPAN::Meta::Converter version 2.150001'
+generated_by: 'Module::Build version 0.421, CPAN::Meta::Converter version 2.142690'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -346,17 +346,11 @@ provides:
   Lab::XPRESS::Sweep::Sweep:
     file: lib/Lab/XPRESS/Sweep/Sweep.pm
     version: '3.500'
-  Lab::XPRESS::Sweep::SweepND:
-    file: lib/Lab/Instrument/SweepND.pm
-    version: '3.500'
   Lab::XPRESS::Sweep::Temperature:
     file: lib/Lab/XPRESS/Sweep/Temperature.pm
     version: '3.500'
   Lab::XPRESS::Sweep::Time:
     file: lib/Lab/XPRESS/Sweep/Time.pm
-    version: '3.500'
-  Lab::XPRESS::Sweep::VM_DIR:
-    file: lib/Lab/Instrument/VM_DIR.pm
     version: '3.500'
   Lab::XPRESS::Sweep::Voltage:
     file: lib/Lab/XPRESS/Sweep/Voltage.pm
@@ -388,16 +382,16 @@ requires:
   Hook::LexWrap: '0'
   Module::Build: '0'
   Term::ANSIScreen: '0'
-  Term::ReadKey: '0'
+  Term::ReadKey: '2.32'
   Time::HiRes: '0'
   XML::DOM: '0'
   XML::Generator: '0'
   XML::Twig: '0'
   encoding::warnings: '0'
 resources:
+  MailingList: https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-measurement-users
   bugtracker: https://github.com/lab-measurement/lab-measurement/issues
   homepage: http://www.labmeasurement.de/
   license: http://dev.perl.org/licenses/
-  mailingList: https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-measurement-users
   repository: https://github.com/lab-measurement/lab-measurement.git
 version: '3.500'

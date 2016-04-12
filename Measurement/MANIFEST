@@ -90,7 +90,6 @@ lib/Lab/Instrument/RSSMB100A.pm
 lib/Lab/Instrument/Source.pm
 lib/Lab/Instrument/SpectrumSCPI.pm
 lib/Lab/Instrument/SR830.pm
-lib/Lab/Instrument/SweepND.pm
 lib/Lab/Instrument/TCD.pm
 lib/Lab/Instrument/TemperatureControl.pm
 lib/Lab/Instrument/TemperatureControl/TLK43.pm
@@ -100,7 +99,6 @@ lib/Lab/Instrument/TemperatureDiode/SI420.pm
 lib/Lab/Instrument/TRMC2.pm
 lib/Lab/Instrument/U2000.pm
 lib/Lab/Instrument/Vectormagnet.pm
-lib/Lab/Instrument/VM_DIR.pm
 lib/Lab/Instrument/Yokogawa7651.pm
 lib/Lab/Instrument/YokogawaGS200.pm
 lib/Lab/IO/Data.pm
