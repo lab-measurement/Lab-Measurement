@@ -1,6 +1,9 @@
 History of Lab::VISA
 ====================
 
+Lab::VISA 3.04
+  * minor documentation improvements
+
 Lab::VISA 3.03
   * improvements to build on 64bit Windows, documentation for Windows installation
 
