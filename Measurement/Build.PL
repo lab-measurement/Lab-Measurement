@@ -23,7 +23,7 @@ my $build = Module::Build->new(
         'File::Basename'     => 0,
         'File::Copy'         => 0,
         'encoding::warnings' => 0,
-        'Term::ReadKey'      => 0,
+        'Term::ReadKey'      => '2.32',
         'Clone'              => '0.31',
 	    'Module::Build'      => '0',
     },
