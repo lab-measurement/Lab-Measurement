@@ -11,25 +11,19 @@ Lab::VISA - Perl interface to the National Instruments VISA library
 =head1 DESCRIPTION
 
 This library offers a Perl interface to National Instruments' NI-VISA library.
-
-With this library you can easily control the instruments in your lab (multimeters, voltage
-sources, magnet sources, pulse generators etc.) with Perl. You can perform
-complicated measurement jobs with just some Perl loops.
-
 Lab::VISA provides a low-level interace; it is one of the possible backends for
 the high-level measurement control package Lab::Measurement [1].
 
-This document describes the perl syntax of the API. Each function is explained
+This document describes the Perl syntax of the API. Each function is explained
 with some sentences cited from [2]. See this manual for further
 documentation on the library.
 
-Installation instructions can be found in L<Lab::VISA::Installation>.
-
-A general tutorial for using Lab::VISA and assorted packages is located in L<Lab::VISA::Tutorial>.
+Installation instructions for Lab::VISA can be found in L<Lab::VISA::Installation>.
 
 [1] http://www.labmeasurement.de/
 
 [2] NI-VISA Programmer Reference Manual. Part Number 370132C-01.
+    http://www.ni.com/pdf/manuals/370132c.pdf
 
 =head1 FUNCTIONS
 
@@ -147,8 +141,7 @@ synchronous write operation can occur at any one time.
 
 =head1 CAVEATS/BUGS
 
-Not all API functions are supported. Only GPIB, serial
-and TCP/IP connections have been tested so far.
+Not all API functions are supported. Only GPIB, serial, and TCP/IP connections have been tested so far.
 
 =head1 SEE ALSO
 
@@ -176,9 +169,9 @@ This project was indicated to me only recently by a Lab::VISA user. It looks ver
   (c) 2007-2010 Daniel Schröer, Andreas K. Hüttel, Daniela Taubert, and others 
   (c) 2011-2014 Andreas K. Hüttel
 
-It is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
+ It is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 
-For the rest National Instruments or the VXI Consortium will probably have a word to say. See
-National Instrument's license for the NI-VISA library.
+ For the rest National Instruments or the VXI Consortium will probably have a word to say. See
+ National Instrument's license for the NI-VISA library.
 
 =cut
