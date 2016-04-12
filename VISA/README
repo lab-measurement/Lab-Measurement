@@ -1,59 +1,47 @@
-=head1 Lab::VISA 
+=pod
 
-This library offers a perl interface to National Instrument's NI-VISA 
+=head1 NAME
+
+Lab::VISA - Perl interface to the National Instruments VISA library
+
+=head1 DESCRIPTION
+
+This library offers a Perl interface to National Instruments' NI-VISA 
 library. 
 
-With this library you can easily control the instruments in your lab 
-(multimeters, voltage sources, magnet sources, pulse generators etc.) 
-with Perl. You can perform complicated measurement jobs with just some 
-Perl loops. 
+It is one of the possible backends for the high-level measurement control 
+package L<Lab::Measurement>, but can also be used on its own.
 
-Even better: The L<Lab::Instrument|Lab::Instrument> class reduces the communication 
-overhead to simple read, write and query methods. On top of this, there 
-are specialized instrument classes (virtual instruments) such as 
-L<Lab::Instrument::HP34401A|Lab::Instrument::HP34401A>, that offer even more high level comfort with 
-methods such as read_voltage. 
-
-The L<Lab::Tools|Lab::Tools> package offers classes to simplify the task of logging 
-data to disk and maintaining this data.
-
-L<Lab::VISA> is known to work with GPIB, TCPIP and serial connections. Other interfaces
-supported by the NI-VISA library are likely to work as well.
+L<Lab::VISA> is known to work with GPIB, TCP/IP and serial connections. Other interfaces
+supported by the NI-VISA library are likely to work as well. The library
+has been tested on both on Linux and on Windows.
 
 =head1 INSTALLATION
-
-This library has been tested to work on Linux and Windows. 
 
 Detailed installation instructions are given in L<Lab::VISA::Installation>.
 
 =head1 FURTHER SUPPORT
 
-A general introduction to using Lab::Visa is given in L<Lab::VISA::Tutorial>.
-A powerpoint presentation is available at Tutorial/Talk/Lab-VISA.ppt.
-The examples shown therein are located in the C<Tutorial> directory of this package.
-A description of the various APIs can be found in the respective POD sections, i.e.
-at L<Lab::VISA|Lab::VISA>.
-
 In case you encounter any problems, you are encouraged to use a
 public forum for discussion. This way future users will be able to take
 advantage of your findings.
 
-Lab::VISA now has a L<homepage|http://www.labvisa.de/>.
-
-There is a mailing list set up for Lab::VISA at
+There is a mailing list set up, also for Lab::VISA, at
 L<https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-measurement-users>
 
 Bugs can be reported to
-L<https://www.labmeasurement.de/bugs/>
+L<https://github.com/lab-measurement/lab-measurement/issues>
 
 You will also find that the authors of this package are always happy to receive feedback.
 
 =head1 COPYRIGHT AND LICENCE
 
- (c) 2004-2006 Daniel Schröer
- (c) 2007-2010 Daniel Schröer, Andreas K. Hüttel, Daniela Taubert, and others
- (c) 2013      Andreas K. Hüttel
+ This swig-based interface is
+  (c) 2004-2006 Daniel Schröer
+  (c) 2007-2010 Daniel Schröer, Andreas K. Hüttel, Daniela Taubert, and others 
+  (c) 2011-2014 Andreas K. Hüttel
 
-This library is free software; you can redistribute it and/or modify it 
-under the same terms as Perl itself. 
+ It is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 
+ For the rest National Instruments or the VXI Consortium will probably have a word to say. See
+ National Instrument's license for the NI-VISA library.
