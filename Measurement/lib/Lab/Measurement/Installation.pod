@@ -42,47 +42,54 @@ My Computer => Properties => Advanced => Environment Variables
 
 =head1 Installation on Linux
 
-As a Linux user you will probably be able to figure out most things yourself. 
+=over
+
+=item * Install cpanm and gnuplot (you can use your package manager).
+
+=item * If you want to use a GPIB Bus you need the Linux-GPIB drivers, library
+and Perl bindings. On some distros (e.g. Gentoo) you can use the package
+manager to install it and skip the following.
 
 =over
 
-=item
+=item * Install the kernel headers. E.g. on Debian you do  
 
-Install the dependencies
+ apt-get install linux-headers-`uname -r`
 
-Best you'll use your distribution package management. You need
 
- XML::Generator
- XML::DOM
- XML::Twig
- YAML
- ... and GnuPlot
+=item * Download the
+L<Linux-GPIB sources|http://sourceforge.net/projects/linux-gpib/files/>
+(tested with the 4.0.2 release) and build with the usual procedure:
 
-=item
+ tar -xf linux-gpib-4.0.2.tar.gz && cd linux-gpib-4.0.2
+ ./configure
+ make
 
-Install Lab::Measurement
 
-=over
+install as root with
 
-=item *
+ make install
+ 
+=item * Install the perl bindings with
 
-Unzip/copy sources
+ (as root) cpanm ./language/perl
+ 
+=item * FIXME: add udev rule
 
-=item *
+=back 
 
-Run the following commands in the source directory
+=item * Install Lab::Measurement:
 
-    perl Build.PL
-    perl Build
-    perl Build install
+ (as root) cpanm Lab::Measurement
 
-=back
-
-=item
-
-Have fun!
+=item * Have fun!
 
 =back
+
+=head2 Notes
+
+If you want to install Lab::Measurement into your home directory you can use
+the L<local::lib> package.
 
 =head1 COPYRIGHT AND LICENCE
 
