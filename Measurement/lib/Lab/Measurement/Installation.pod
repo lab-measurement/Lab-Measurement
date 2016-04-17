@@ -46,41 +46,14 @@ My Computer => Properties => Advanced => Environment Variables
 
 =item * Install cpanm and gnuplot (you can use your package manager).
 
-=item * If you want to use a GPIB Bus you need the Linux-GPIB drivers, library
-and Perl bindings. On some distros (e.g. Gentoo) you can use the package
-manager to install it and skip the following.
+=item * If you want to use GPIB, you need the
+L<Linux-GPIB|http://linux-gpib.sourceforge.net> drivers, library
+and Perl bindings. See our short
+L<installation and configuration guide|http://www.labmeasurement.de/docs/Measurement-Backends.html>.
 
-=over
+=item * Install Lab::Measurement (as root):
 
-=item * Install the kernel headers. E.g. on Debian you do  
-
- apt-get install linux-headers-`uname -r`
-
-
-=item * Download the
-L<Linux-GPIB sources|http://sourceforge.net/projects/linux-gpib/files/>
-(tested with the 4.0.2 release) and build with the usual procedure:
-
- tar -xf linux-gpib-4.0.2.tar.gz && cd linux-gpib-4.0.2
- ./configure
- make
-
-
-install as root with
-
- make install
- 
-=item * Install the perl bindings with
-
- (as root) cpanm ./language/perl
- 
-=item * FIXME: add udev rule
-
-=back 
-
-=item * Install Lab::Measurement:
-
- (as root) cpanm Lab::Measurement
+ cpanm Lab::Measurement
 
 =item * Have fun!
 
