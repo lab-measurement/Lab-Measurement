@@ -68,7 +68,7 @@ install as root with
 
 For our measurements we primarily use NI's
 L<GPIB-USB-HS|http://sine.ni.com/nips/cds/view/p/lang/de/nid/201586>. This
-adapter is supported out of the box by Linux-GPIB without any
+controller is supported out of the box by Linux-GPIB without any
 additional proprietary firmware. 
 
 You need a configuration file F</etc/gpib.conf> :
@@ -96,6 +96,7 @@ You need a configuration file F</etc/gpib.conf> :
  }
 
 
+FIXME: udev rule
 
 To test the installation, you can use the C<ibtest> program, which is part of
 the Linux-GPIB installation.
