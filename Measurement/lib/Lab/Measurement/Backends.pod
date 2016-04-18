@@ -38,40 +38,41 @@ in the kernel driver interface.
 =head2 Installing Linux-GPIB
 
 Note that on Gentoo Linux-GPIB is packaged. On distros where this is not the
-case you can use the following steps. For full details, consult Linux-GPIB's F<INSTALL> file.
+case you can use the following steps. For more details, consult Linux-GPIB's
+F<INSTALL> file. This guide was tested with Linux-GPIB versions 4.0.2 and
+4.0.3 on Debian 8.
 
 =over
 
-=item * Install the kernel headers. For example on Debian you do  
+=item * Install the kernel headers, cpanm, gcc and make. On Debian you can run
+this command as root:
 
- apt-get install linux-headers-`uname -r`
+ apt-get install linux-headers-`uname -r` build-essential cpanminus 
 
 =item * Download the
 L<Linux-GPIB sources|http://sourceforge.net/projects/linux-gpib/files/>
-(tested with the 4.0.2 release) and build with the usual procedure:
+ and build with the usual procedure:
 
  tar -xf linux-gpib-4.0.2.tar.gz && cd linux-gpib-4.0.2
  ./configure
  make
 
-install as root with
+install as root by running:
 
  make install
 
-=item * Install the Perl bindings as root with
+=item * Install the Perl bindings as root:
 
  cpanm ./language/perl
 
 =back 
 
-=head2 Example Configuration for the GPIB-USB-HS
+=head2 Example Configuration for the GPIB-USB-HS controller
 
-For our measurements we primarily use NI's
-L<GPIB-USB-HS|http://sine.ni.com/nips/cds/view/p/lang/de/nid/201586>. This
-controller is supported out of the box by Linux-GPIB without any
+NI's L<GPIB-USB-HS|http://sine.ni.com/nips/cds/view/p/lang/de/nid/201586> is supported out of the box by Linux-GPIB without any
 additional proprietary firmware. 
 
-You need a configuration file F</etc/gpib.conf> :
+You need a configuration file F</etc/gpib.conf>:
 
  interface {
         minor = 0       /* board index, minor = 0 uses /dev/gpib0, minor = 1 uses /dev/gpib1, etc. */
@@ -96,10 +97,19 @@ You need a configuration file F</etc/gpib.conf> :
  }
 
 
-FIXME: udev rule
+To load the kernel driver during boot, add C<ni_usb_gpib> to
+F</etc/modules>. 
 
-To test the installation, you can use the C<ibtest> program, which is part of
-the Linux-GPIB installation.
+After connecting the controller via usb, you will still have to run
+C<gpib_config> as root. To automate this, create an udev rule
+F</etc/udev/rules.d/98-gpib-more.rules> with contents:
+ 
+ SUBSYSTEMS=="usb", ATTRS{idVendor}=="3923", ATTRS{idProduct}=="709b",\
+ ACTION=="add", RUN+="/usr/bin/logger Configured NI USB-GPIB-HS",\
+ RUN+="/etc/hotplug/usb/ni_usb_gpib"
+
+
+Now, you can use the interactive C<ibtest> and C<ibterm> programs to test the installation.
 
 
 

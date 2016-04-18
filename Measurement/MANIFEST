@@ -113,6 +113,7 @@ lib/Lab/Measurement.pm
 lib/Lab/Measurement/Changes.pod
 lib/Lab/Measurement/Developer/Write-A-Source-Driver.pod
 lib/Lab/Measurement/Installation.pod
+lib/Lab/Measurement/Backends.pod
 lib/Lab/Measurement/KeyboardHandling.pm
 lib/Lab/Measurement/Ladediagramm.pm
 lib/Lab/Measurement/Tutorial.pod

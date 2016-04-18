@@ -48,8 +48,8 @@ My Computer => Properties => Advanced => Environment Variables
 
 =item * If you want to use GPIB, you need the
 L<Linux-GPIB|http://linux-gpib.sourceforge.net> drivers, library
-and Perl bindings. See our short
-L<installation and configuration guide|http://www.labmeasurement.de/docs/Measurement-Backends.html>.
+and Perl bindings. See the short installation and configuration guide in
+L<Lab::Measurement::Backends>.
 
 =item * Install Lab::Measurement (as root):
 
