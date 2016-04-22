@@ -10,6 +10,8 @@
 /Measurement/Build.bat
 /Measurement/pod2htmd.tmp
 /Measurement/pod2htmi.tmp
+/Measurement/META.yml
+/Measurement/META.json
 /Measurement/MYMETA.yml
 /Measurement/MYMETA.json
 /Measurement/MANIFEST.bak
