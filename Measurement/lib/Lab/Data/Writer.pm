@@ -1,6 +1,7 @@
 package Lab::Data::Writer;
 our $VERSION = '3.500';
 
+use Lab::Generic;
 use strict;
 use encoding::warnings;
 use Data::Dumper;

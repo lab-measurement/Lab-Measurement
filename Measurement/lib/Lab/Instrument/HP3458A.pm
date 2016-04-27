@@ -3,6 +3,7 @@
 package Lab::Instrument::HP3458A;
 our $VERSION = '3.500';
 
+use Lab::Generic;
 use strict;
 use Lab::Instrument;
 use Lab::Instrument::Multimeter;
@@ -71,7 +72,7 @@ sub configure_voltage_dc {
 	    $range_cmd = sprintf("FUNC DCV %e",abs($range));
     }
     elsif($range !~ /^(MIN|MAX)$/) {
-    	Lab::Exception::CorruptParameter->throw( error => "Range has to be set to a decimal value or 'AUTO', 'MIN' or 'MAX' in " . (caller(0))[3] . "\n" );	
+    	croak("Range has to be set to a decimal value or 'AUTO', 'MIN' or 'MAX' in " . (caller(0))[3]  );	
     }
     
     if(!defined($tint) || $tint eq 'DEFAULT') {
@@ -88,7 +89,7 @@ sub configure_voltage_dc {
     	$tint = 1000;
     }
     elsif($tint !~ /^(MIN|MAX)$/) {
-		Lab::Exception::CorruptParameter->throw( error => "Integration time has to be set to a positive value or 'AUTO', 'MIN' or 'MAX' in " . (caller(0))[3] . "\n" )    	
+		croak("Integration time has to be set to a positive value or 'AUTO', 'MIN' or 'MAX' in " . (caller(0))[3]  )    	
     }
     
 	# do it
@@ -103,11 +104,11 @@ sub configure_voltage_dc_trigger {
     my ($range,$tint,$count,$delay) = $self->_check_args( \@_, ['range','tint','count','delay'] );
         
     $count=1 if !defined($count);
-    Lab::Exception::CorruptParameter->throw( error => "Sample count has to be an integer between 1 and 512\n" )
+    croak("Sample count has to be an integer between 1 and 512" )
     	if($count !~ /^[0-9]*$/ || $count < 1 || $count > 16777215); 
 
 	$delay=0 if !defined($delay);
-    Lab::Exception::CorruptParameter->throw( error => "Trigger delay has to be a positive decimal value\n" )
+    croak("Trigger delay has to be a positive decimal value" )
     	if($count !~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/);
 	
 
@@ -142,7 +143,7 @@ sub configure_voltage_dc_trigger_highspeed {
 	    #$range = sprintf("%e",abs($range));
     }
     elsif($range !~ /^(MIN|MAX)$/) {
-    	Lab::Exception::CorruptParameter->throw( error => "Range has to be set to a decimal value or 'AUTO', 'MIN' or 'MAX' in " . (caller(0))[3] . "\n" );	
+    	croak("Range has to be set to a decimal value or 'AUTO', 'MIN' or 'MAX' in " . (caller(0))[3]  );	
     }
     
     if($tint eq 'DEFAULT' || !defined($tint)) {
@@ -159,15 +160,15 @@ sub configure_voltage_dc_trigger_highspeed {
     	$tint = 1000;
     }
     elsif($tint !~ /^(MIN|MAX)$/) {
-		Lab::Exception::CorruptParameter->throw( error => "Integration time has to be set to a positive value or 'AUTO', 'MIN' or 'MAX' in " . (caller(0))[3] . "\n" )    	
+		croak("Integration time has to be set to a positive value or 'AUTO', 'MIN' or 'MAX' in " . (caller(0))[3]  )    	
     }
 
     $count=1 if !defined($count);
-    Lab::Exception::CorruptParameter->throw( error => "Sample count has to be an integer between 1 and 512\n" )
+    croak("Sample count has to be an integer between 1 and 512" )
     	if($count !~ /^[0-9]*$/ || $count < 1 || $count > 16777215); 
 
 	$delay=0 if !defined($delay);
-    Lab::Exception::CorruptParameter->throw( error => "Trigger delay has to be a positive decimal value\n" )
+    croak("Trigger delay has to be a positive decimal value" )
     	if($count !~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/);
 
 	$self->write( "PRESET FAST", error_check => 1 );
@@ -185,7 +186,7 @@ sub configure_voltage_dc_trigger_highspeed {
 sub triggered_read {
     my $self=shift;
 	my $args = scalar(@_)%2==0 ? {@_} : ( ref($_[0]) eq 'HASH' ? $_[0] : undef );
-	Lab::Exception::CorruptParameter->throw( "Illegal parameter hash given!\n" ) if !defined($args);
+	croak("Illegal parameter hash given!" ) if !defined($args);
 	
 	$args->{'timeout'} = $args->{'timeout'} || undef;
 
@@ -202,7 +203,7 @@ sub triggered_read {
 sub triggered_read_raw {
     my $self=shift;
 	my $args = scalar(@_)%2==0 ? {@_} : ( ref($_[0]) eq 'HASH' ? $_[0] : undef );
-	Lab::Exception::CorruptParameter->throw( "Illegal parameter hash given!\n" ) if !defined($args);
+	croak("Illegal parameter hash given!" ) if !defined($args);
 	
 	my $read_until_length=$args->{'read_until_length'};
 	my $value='';
@@ -259,7 +260,7 @@ sub set_oformat {
 	my $format=shift;
 	
 	if( $format !~ /^\s*(ASCII|1|SINT|2|DINT|3|SREAD|4|DREAL|5)\s*$/ ) {
-		Lab::Exception::CorruptParameter->throw( "Invalid OFORMAT specified." );
+		croak("Invalid OFORMAT specified." );
 	}
 	$format = $1;
 	
@@ -271,7 +272,7 @@ sub set_oformat {
 sub get_oformat {
 	my $self=shift;
 	my $args = scalar(@_)%2==0 ? {@_} : ( ref($_[0]) eq 'HASH' ? $_[0] : undef );
-	Lab::Exception::CorruptParameter->throw( "Illegal parameter hash given!\n" ) if !defined($args);
+	croak("Illegal parameter hash given!" ) if !defined($args);
 
 	if($args->{direct_read} || !defined $self->device_cache()->{oformat}) {
 		return $self->device_cache()->{oformat} = $self->query('OFORMAT?', $args);
@@ -307,7 +308,7 @@ sub set_autozero {
 		$cval = 0;
 	}
 	else {
-		Lab::Exception::CorruptParameter->throw( error => (caller(0))[3] . " can be set to 'ON'/1, 'OFF'/0 or 'ONCE'. Received '${enable}'\n" );
+		croak((caller(0))[3] . " can be set to 'ON'/1, 'OFF'/0 or 'ONCE'. Received '${enable}'" );
 	}
 	$self->write( $command, error_check=>1, @_ );
 			
@@ -340,7 +341,7 @@ sub autocalibration {
     my $mode=shift;
     
     if($mode !~ /^(ALL|0|DCV|1|DIG|2|OHMS|4)$/i) {
-    	Lab::Exception::CorruptParameter->throw("preset(): Illegal preset mode given: $mode\n");
+    	croak("preset(): Illegal preset mode given: $mode");
     }    
     
     $self->write("ACAL \U$mode\E", @_);
@@ -363,7 +364,7 @@ sub set_display_state {
     	$self->write("DISP OFF", @_);
     }
     else {
-    	Lab::Exception::CorruptParameter->throw( "set_display_state(): Illegal parameter.\n" );
+    	croak("set_display_state(): Illegal parameter." );
     }
 }
 
@@ -377,7 +378,7 @@ sub set_display_text {
     my $self=shift;
     my $text=shift;
     if( $text !~ /^[A-Za-z0-9\ \!\#\$\%\&\'\(\)\^\\\/\@\;\:\[\]\,\.\+\-\=\<\>\?\_]*$/ ) { # characters allowed by the 3458A
-    	Lab::Exception::CorruptParameter->throw( "set_display_text(): Illegal characters in given text.\n" );
+    	croak("set_display_text(): Illegal characters in given text." );
     }
     $self->write("DISP MSG,\"$text\"");
     
@@ -407,7 +408,7 @@ sub get_error {
 			return ($1, $2); # ($code, $message)
 		}
 		else {
-			Lab::Exception::DeviceError->throw("Reading the error status of the device failed in " . (caller(0))[3] . ". Something's going wrong here.\n");
+			croak("Reading the error status of the device failed in " . (caller(0))[3] . ". Something's going wrong here.");
 		}
 	}
 	else {
@@ -423,7 +424,7 @@ sub preset {
     my $self=shift;
     my $preset=shift;
     if($preset !~ /^(FAST|0|NORM|1|DIG|2)$/i) {
-    	Lab::Exception::CorruptParameter->throw("preset(): Illegal preset mode given: $preset\n");
+    	croak("preset(): Illegal preset mode given: $preset");
     }
     
     $self->write("PRESET \U$preset\E", @_);
@@ -585,24 +586,7 @@ queue. Errors are retrieved in first-in-first out (FIFO) order.
 
 =head2 check_errors
 
-    $instrument->check_errors($last_command);
-    
-    # try
-    eval { $instrument->check_errors($last_command) };
-    # catch
-    if ( my $e = Exception::Class->caught('Lab::Exception::DeviceError')) {
-        warn "Errors from device!";
-        @errors = $e->error_list();
-        @devtype = $e->device_class();
-        $command = $e->command();		
-    } else {
-        $e = Exception::Class->caught();
-        ref $e ? $e->rethrow; die $e;
-    }
-
-Uses get_error() to check the device for occured errors. Reads all present error and throws a
-Lab::Exception::DeviceError. The list of errors, the device class and the last issued command(s)
-(if the script provided them) are enclosed.
+See L<Lab::Instrument/"check_errors">.
 
 =head2 set_nplc
 

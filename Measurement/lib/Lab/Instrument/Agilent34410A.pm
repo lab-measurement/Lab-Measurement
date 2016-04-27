@@ -3,6 +3,7 @@
 package Lab::Instrument::Agilent34410A;
 our $VERSION = '3.500';
 
+use Lab::Generic;
 use strict;
 use Time::HiRes qw (usleep);
 use Lab::Instrument;
@@ -82,7 +83,7 @@ sub set_function { # basic
 	# any parameters given?
 	if (not defined @_[0]) 
 		{
-		print Lab::Exception::CorruptParameter->new( error => "no values given in ".ref($self)." \n" );
+		carp("no values given in ".ref($self) );
 		return;
 		}
 	
@@ -99,7 +100,7 @@ sub set_function { # basic
 		}
 	else
 		{
-		Lab::Exception::CorruptParameter->throw( error => "Agilent 34410A:\n\nAgilent 34410A:\nunexpected value for FUNCTION in sub set_function. Expected values are VOLTAGE:DC, VOLTAGE:AC, CURRENT:DC, CURRENT:AC, RESISTANCE or FRESISTANCE.\n" );
+		croak("Agilent 34410A:\n\nAgilent 34410A:\nunexpected value for FUNCTION in sub set_function. Expected values are VOLTAGE:DC, VOLTAGE:AC, CURRENT:DC, CURRENT:AC, RESISTANCE or FRESISTANCE." );
 		}	
 	
 }
@@ -127,7 +128,7 @@ sub set_range { # basic
 	# any parameters given?
 	if (not defined @_[0]) 
 		{
-		print Lab::Exception::CorruptParameter->new( error => "no values given in ".ref($self)." \n" );
+		carp("no values given in ".ref($self) );
 		return;
 		}
 		
@@ -149,7 +150,7 @@ sub set_range { # basic
 			}
 		else
 			{
-			print Lab::Exception::CorruptParameter->new( error => "no valid value for parameter 'range' given.\n" );
+			carp("no valid value for parameter 'range' given." );
 			return;
 			}
 		}
@@ -159,21 +160,21 @@ sub set_range { # basic
 	# check if value of paramter 'range' is valid:
 	if ( $function =~ /^(voltage|volt|voltage:ac|volt:ac|voltage:dc|volt:dc)$/ ) {
 		if ( abs($range) > 1000 ) {
-			Lab::Exception::CorruptParameter->throw( error => "unexpected value for RANGE in sub set_range. Expected values are for CURRENT, VOLTAGE and RESISTANCE mode -3...+3A, 0.1...1000V or 0...1e9 Ohms respectivly");
+			croak("unexpected value for RANGE in sub set_range. Expected values are for CURRENT, VOLTAGE and RESISTANCE mode -3...+3A, 0.1...1000V or 0...1e9 Ohms respectivly");
 		}
 	}
 	elsif ( $function =~ /^(current|curr|current:ac|curr:ac|current:dc|curr:dc)$/) { 	
 		if ( abs($range) > 3 ) {
-			Lab::Exception::CorruptParameter->throw( error => "unexpected value for RANGE in sub set_range. Expected values are for CURRENT, VOLTAGE and RESISTANCE mode -3...+3A, 0.1...1000V or 0...1e9 Ohms respectivly");
+			croak("unexpected value for RANGE in sub set_range. Expected values are for CURRENT, VOLTAGE and RESISTANCE mode -3...+3A, 0.1...1000V or 0...1e9 Ohms respectivly");
 		}
 	}
 	elsif ( $function =~ /^(resisitance|res|fresistance|fres)$/) { 
 		if ( $range < 0 or $range > 1e9 ) {
-			Lab::Exception::CorruptParameter->throw( error => "unexpected value for RANGE in sub set_range. Expected values are for CURRENT, VOLTAGE and RESISTANCE mode -3...+3A, 0.1...1000V or 0...1e9 Ohms respectivly");
+			croak("unexpected value for RANGE in sub set_range. Expected values are for CURRENT, VOLTAGE and RESISTANCE mode -3...+3A, 0.1...1000V or 0...1e9 Ohms respectivly");
 		}
 	}
 	else {
-		Lab::Exception::CorruptParameter->throw( error => "unexpected value for FUNCTION in sub set_range. Expected values are VOLTAGE:DC, VOLTAGE:AC, CURRENT:DC, CURRENT:AC, RESISTANCE or FRESISTANCE.");
+		croak("unexpected value for FUNCTION in sub set_range. Expected values are VOLTAGE:DC, VOLTAGE:AC, CURRENT:DC, CURRENT:AC, RESISTANCE or FRESISTANCE.");
 		}
 	
 	
@@ -189,7 +190,7 @@ sub set_range { # basic
 		}
 	else 
 		{
-		Lab::Exception::CorruptParameter->throw( error => "anything's wrong in sub set_range!!");
+		croak("anything's wrong in sub set_range!!");
 		}
 		
 	
@@ -218,7 +219,7 @@ sub get_range {
 		}				
 	else
 		{
-		Lab::Exception::CorruptParameter->throw( error => "unexpected parameter $function.");
+		croak("unexpected parameter $function.");
 		}
 		
 }
@@ -230,7 +231,7 @@ sub set_nplc { # basic
 	# any parameters given?
 	if (not defined @_[0]) 
 		{
-		print Lab::Exception::CorruptParameter->new( error => "no values given in ".ref($self)." \n" );
+		carp("no values given in ".ref($self) );
 		return;
 		}
 		
@@ -251,7 +252,7 @@ sub set_nplc { # basic
 			}
 		else
 			{
-			print Lab::Exception::CorruptParameter->new( error => "no valid value for parameter 'nplc' given.\n" );
+			carp("no valid value for parameter 'nplc' given." );
 			return;
 			}
 		}
@@ -259,7 +260,7 @@ sub set_nplc { # basic
 	# check if value of paramter 'nplc' is valid:
 	if (($nplc < 0.006 or $nplc > 100) and not $nplc =~ /^(min|max|def)$/ ) 
 			{
-			Lab::Exception::CorruptParameter->throw( error => "unexpected value for NPLC in sub set_nplc. Expected values are between 0.006 ... 100 power-line-cycles (50Hz).");
+			croak("unexpected value for NPLC in sub set_nplc. Expected values are between 0.006 ... 100 power-line-cycles (50Hz).");
 			}
 			
 			
@@ -270,7 +271,7 @@ sub set_nplc { # basic
 		}
 	else
 		{
-		Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34410A:\nunexpected value for FUNCTION in sub set_nplc. Expected values are VOLTAGE:DC, CURRENT:DC, RESISTANCE or FRESISTANCE.");
+		croak("\nAgilent 34410A:\nunexpected value for FUNCTION in sub set_nplc. Expected values are VOLTAGE:DC, CURRENT:DC, RESISTANCE or FRESISTANCE.");
 		}	
 	
 
@@ -299,7 +300,7 @@ sub get_nplc {
 		}				
 	else
 		{
-		Lab::Exception::CorruptParameter->throw( error => "unexpected parameter $function.");
+		croak("unexpected parameter $function.");
 		}
 }
 
@@ -309,7 +310,7 @@ sub set_resolution{ # basic
 	# any parameters given?
 	if (not defined @_[0]) 
 		{
-		print Lab::Exception::CorruptParameter->new( error => "no values given in ".ref($self)." \n" );
+		carp("no values given in ".ref($self) );
 		return;
 		}
 		
@@ -330,7 +331,7 @@ sub set_resolution{ # basic
 			}
 		else
 			{
-			print Lab::Exception::CorruptParameter->new( error => "no valid value for parameter 'resolution' given.\n" );
+			carp("no valid value for parameter 'resolution' given." );
 			return;
 			}
 		}
@@ -339,7 +340,7 @@ sub set_resolution{ # basic
 	my $range = $self->get_range($function, {read_mode => 'device'});
 	if ( $resolution < 0.3e-6*$range and not $resolution =~ /^(min|max|def)$/ ) 
 			{
-			Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34410A:\nunexpected value for RESOLUTION in sub set_resolution. Expected values have to be greater than 0.3e-6*RANGE.");
+			croak("\nAgilent 34410A:\nunexpected value for RESOLUTION in sub set_resolution. Expected values have to be greater than 0.3e-6*RANGE.");
 			}
 	
 	
@@ -352,7 +353,7 @@ sub set_resolution{ # basic
 		}
 	else
 		{
-		Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34410A:\nunexpected value for FUNCTION in sub set_resolution. Expected values are VOLTAGE:DC, CURRENT:DC, RESISTANCE or FRESISTANCE.");
+		croak("\nAgilent 34410A:\nunexpected value for FUNCTION in sub set_resolution. Expected values are VOLTAGE:DC, CURRENT:DC, RESISTANCE or FRESISTANCE.");
 		}	
 		
 }
@@ -382,7 +383,7 @@ sub get_resolution{
 		}				
 	else
 		{
-		Lab::Exception::CorruptParameter->throw( error => "unexpected parameter $function.");
+		croak("unexpected parameter $function.");
 		}
 }
 
@@ -393,7 +394,7 @@ sub set_tc { # basic
 	# any parameters given?
 	if (not defined @_[0]) 
 		{
-		print Lab::Exception::CorruptParameter->new( error => "no values given in ".ref($self)." \n" );
+		carp("no values given in ".ref($self) );
 		return;
 		}
 		
@@ -414,7 +415,7 @@ sub set_tc { # basic
 			}
 		else
 			{
-			print Lab::Exception::CorruptParameter->new( error => "no valid value for parameter 'tc' given.\n" );
+			carp("no valid value for parameter 'tc' given." );
 			return;
 			}
 		}
@@ -422,7 +423,7 @@ sub set_tc { # basic
 	# check if value of paramter 'tc' is valid:
 	if ( ($tc < 1e-4 or $tc > 1) and not $tc =~ /^(min|max|def)$/ ) 
 			{
-			Lab::Exception::CorruptParameter->throw( error => "unexpected value for APERTURE in sub set_tc. Expected values are between 1e-4 ... 1 sec.");
+			croak("unexpected value for APERTURE in sub set_tc. Expected values are between 1e-4 ... 1 sec.");
 			}
 	
 	# set tc:
@@ -432,7 +433,7 @@ sub set_tc { # basic
 		}
 	else
 		{	
-		Lab::Exception::CorruptParameter->throw( error => "unexpected value for FUNCTION in sub set_tc. Expected values are VOLTAGE:DC, CURRENT:DC, RESISTANCE or FRESISTANCE.");
+		croak("unexpected value for FUNCTION in sub set_tc. Expected values are VOLTAGE:DC, CURRENT:DC, RESISTANCE or FRESISTANCE.");
 		}
 	
 
@@ -462,7 +463,7 @@ sub get_tc{
 		}				
 	else
 		{
-		Lab::Exception::CorruptParameter->throw( error => "unexpected parameter $function.");
+		croak("unexpected parameter $function.");
 		}
 }
 
@@ -473,7 +474,7 @@ sub set_bw { # basic
 	# any parameters given?
 	if (not defined @_[0]) 
 		{
-		print Lab::Exception::CorruptParameter->new( error => "no values given in ".ref($self)." \n" );
+		carp("no values given in ".ref($self) );
 		return;
 		}
 		
@@ -494,7 +495,7 @@ sub set_bw { # basic
 			}
 		else
 			{
-			print Lab::Exception::CorruptParameter->new( error => "no valid value for parameter 'bw' given.\n" );
+			carp("no valid value for parameter 'bw' given." );
 			return;
 			}
 		}
@@ -502,7 +503,7 @@ sub set_bw { # basic
 	# check if value of paramter 'bw' is valid:
 	if ( ($bw < 3 or $bw > 200) and not $bw =~ /^(min|max|def)$/ ) 
 			{
-			Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34410A:\nunexpected value for BANDWIDTH in sub set_bw. Expected values are between 3 ... 200 Hz.");
+			croak("\nAgilent 34410A:\nunexpected value for BANDWIDTH in sub set_bw. Expected values are between 3 ... 200 Hz.");
 			}
 	
 	# set bw:
@@ -512,7 +513,7 @@ sub set_bw { # basic
 		}
 	else
 		{	
-		Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34410A:\nunexpected value for FUNCTION in sub set_bw. Expected values are VOLTAGE:AC or CURRENT:AC.");
+		croak("\nAgilent 34410A:\nunexpected value for FUNCTION in sub set_bw. Expected values are VOLTAGE:AC or CURRENT:AC.");
 		}
 		
 
@@ -580,21 +581,21 @@ sub get_value { # basic
 		{
 		if ( abs($range) > 1000 and not $range =~ /^(min|max|def|auto)$/) 
 			{
-			Lab::Exception::CorruptParameter->throw( error => "unexpected value for RANGE in sub get_value. Expected values are for CURRENT, VOLTAGE and RESISTANCE mode -3...+3A, 0.1...1000V or 0...1e9 Ohms respectivly");
+			croak("unexpected value for RANGE in sub get_value. Expected values are for CURRENT, VOLTAGE and RESISTANCE mode -3...+3A, 0.1...1000V or 0...1e9 Ohms respectivly");
 			}
 		}
 	elsif ($function =~ /^(current|curr|current:ac|curr:ac|current:dc|curr:dc)$/) 
 		{	
 		if ( abs($range) > 3 and not $range =~ /^(min|max|def|auto)$/) 
 			{
-			Lab::Exception::CorruptParameter->throw( error => "unexpected value for RANGE in sub get_value. Expected values are for CURRENT, VOLTAGE and RESISTANCE mode -3...+3A, 0.1...1000V or 0...1e9 Ohms respectivly");
+			croak("unexpected value for RANGE in sub get_value. Expected values are for CURRENT, VOLTAGE and RESISTANCE mode -3...+3A, 0.1...1000V or 0...1e9 Ohms respectivly");
 			}
 		}
 	elsif ( $function =~ /^(resisitance|res|fresistance|fres)$/ ) 
 		{
 		if ( abs($range) > 1e9 and not $range =~ /^(min|max|def|auto)$/) 
 			{
-			Lab::Exception::CorruptParameter->throw( error => "unexpected value for RANGE in sub get_value. Expected values are for CURRENT, VOLTAGE and RESISTANCE mode -3...+3A, 0.1...1000V or 0...1e9 Ohms respectivly");
+			croak("unexpected value for RANGE in sub get_value. Expected values are for CURRENT, VOLTAGE and RESISTANCE mode -3...+3A, 0.1...1000V or 0...1e9 Ohms respectivly");
 			}
 		}
 	
@@ -607,21 +608,21 @@ sub get_value { # basic
 		$int_mode = "res";
 		if ( $int_time < 0.3e-6*$range and not $int_time =~ /^(MIN|min|MAX|max|DEF|def)$/)
 			{
-			Lab::Exception::CorruptParameter->throw( error => "unexpected value for RESOLUTION in sub get_value. Expected values are from 0.3e-6xRANGE ... 30e-6xRANGE.");
+			croak("unexpected value for RESOLUTION in sub get_value. Expected values are from 0.3e-6xRANGE ... 30e-6xRANGE.");
 			}
 		}
 	elsif ( $int_mode eq "tc" )
 		{
 		if ( ($int_time < 1e-4 or $int_time > 1) and not $int_time =~ /^(MIN|min|MAX|max|DEF|def)$/)
 			{
-			Lab::Exception::CorruptParameter->throw( error => "unexpected value for INTEGRATION TIME in sub get_value. Expected values are from 1e-4 ... 1 sec.");
+			croak("unexpected value for INTEGRATION TIME in sub get_value. Expected values are from 1e-4 ... 1 sec.");
 			}
 		}
 	elsif ( $int_mode eq "nplc" )
 		{
 		if (  ($int_time < 0.01 or $int_time > 100) and not $int_time =~ /^(MIN|min|MAX|max|DEF|def)$/)
 			{
-			Lab::Exception::CorruptParameter->throw( error => "unexpected value for NPLC in sub get_value. Expected values are from 0.01 ... 100.");
+			croak("unexpected value for NPLC in sub get_value. Expected values are from 0.01 ... 100.");
 			}
 		}
 	elsif ( defined $int_time )  
@@ -629,7 +630,7 @@ sub get_value { # basic
 		$int_mode = 'nplc';
 		if (  ($int_time < 0.01 or $int_time > 100) and not $int_time =~ /^(MIN|min|MAX|max|DEF|def)$/)
 			{
-			Lab::Exception::CorruptParameter->throw( error => "unexpected value for NPLC in sub get_value. Expected values are from 0.01 ... 100.");
+			croak("unexpected value for NPLC in sub get_value. Expected values are from 0.01 ... 100.");
 			}
 		}
 		
@@ -682,7 +683,7 @@ sub config_measurement { # basic
 		}
 	if ( not defined $time )
 		{
-		Lab::Exception::CorruptParameter->throw( error => "too view arguments given in sub config_measurement. Expected arguments are FUNCTION, #POINTS, TIME, <RANGE>, <TRIGGERSOURCE>");
+		croak("too view arguments given in sub config_measurement. Expected arguments are FUNCTION, #POINTS, TIME, <RANGE>, <TRIGGERSOURCE>");
 		}
 	
 	print "--------------------------------------\n";
@@ -790,14 +791,16 @@ sub get_data { # basic
 		}
 	else 
 		{
-		Lab::Exception::CorruptParameter->throw( error => "unexpected value for number of readINGS in sub get_data. Expected values are from 1 ... 50000 or ALL.");
+		croak("unexpected value for number of readINGS in sub get_data. Expected values are from 1 ... 50000 or ALL.");
 		}
 	
 }
 
 sub abort { # basic
 	my $self=shift;
-    $self->write( "ABOR");
+	if ($self->connection) {
+		$self->write( "ABOR");
+	}
 }
 
 sub wait { # basic
@@ -858,7 +861,7 @@ sub _set_triggersource { # internal
 		}
 	else
 		{
-		Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34410A:\nunexpected value for TRIGGER_SOURCE in sub _set_triggersource. Expected values are:\n IMM  --> immediate trigger signal\n EXT  --> external trigger\n BUS  --> software trigger signal via bus\n INT  --> internal trigger signal\n");
+		croak("\nAgilent 34410A:\nunexpected value for TRIGGER_SOURCE in sub _set_triggersource. Expected values are:\n IMM  --> immediate trigger signal\n EXT  --> external trigger\n BUS  --> software trigger signal via bus\n INT  --> internal trigger signal");
 		}
 		
 }
@@ -886,7 +889,7 @@ sub _set_triggercount { # internal
 		}
 	else
 		{
-		Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34410A:\nunexpected value for COUNT in sub _set_triggercount. Expected values are between 1 ... 50.000\n");
+		croak("\nAgilent 34410A:\nunexpected value for COUNT in sub _set_triggercount. Expected values are between 1 ... 50.000");
 		}
 
 }
@@ -919,7 +922,7 @@ sub _set_triggerdelay { # internal
 		}
 	else
 		{
-		Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34410A:\nunexpected value for DELAY in sub _set_triggerdelay. Expected values are between 1 ... 3600, or 'MIN = 0', 'MAX = 3600' or 'AUTO'\n");
+		croak("\nAgilent 34410A:\nunexpected value for DELAY in sub _set_triggerdelay. Expected values are between 1 ... 3600, or 'MIN = 0', 'MAX = 3600' or 'AUTO'");
 		}
 	}
 	
@@ -939,7 +942,7 @@ sub _set_samplecount { # internal
 	
 	elsif ( $count < 0 or $count >= 50000)
 		{
-		Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34410A:\nunexpected value for COUNT in sub _set_samplecount. Expected values are between 1 ... 50.000\n");
+		croak("\nAgilent 34410A:\nunexpected value for COUNT in sub _set_samplecount. Expected values are between 1 ... 50.000");
 		}
 	else
 		{
@@ -980,7 +983,7 @@ sub _set_sampledelay { # internal
 	
 	else
 		{
-		Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34410A:\nunexpected value for DELAY in sub _set_sampledelay. Expected values are between 1 ... 3600, or 'MIN = 0', 'MAX = 3600'\n");
+		croak("\nAgilent 34410A:\nunexpected value for DELAY in sub _set_sampledelay. Expected values are between 1 ... 3600, or 'MIN = 0', 'MAX = 3600'");
 		}
 		
 	

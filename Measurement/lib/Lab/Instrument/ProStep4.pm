@@ -1,6 +1,7 @@
 package Lab::Instrument::ProStep4;
 our $VERSION = '3.500';
 
+use Lab::Generic;
 use strict;
 use Time::HiRes qw/usleep/, qw/time/;
 use Lab::Instrument;
@@ -109,7 +110,7 @@ sub move{
 		}
 	if ( not $mode =~/ABS|abs|REL|rel/  )
 		{
-		Lab::Exception::CorruptParameter->throw( error => "unexpected value for <MODE> in sub move. expected values are ABS and REL.");
+		croak("unexpected value for <MODE> in sub move. expected values are ABS and REL.");
 		}
 	if ( not defined $speed )
 		{
@@ -117,11 +118,11 @@ sub move{
 		}
 	if ( not defined $position )
 		{
-		Lab::Exception::CorruptParameter->throw( error => $self->get_id().": No target given in sub move! ");
+		croak($self->get_id().": No target given in sub move! ");
 		}
 	elsif (not $position =~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/)
 		{
-		Lab::Exception::CorruptParameter->throw( error => $self->get_id().": Illegal Value given for POSITION in sub move!");
+		croak($self->get_id().": Illegal Value given for POSITION in sub move!");
 		}
 		
 		
@@ -129,7 +130,7 @@ sub move{
 	$speed = abs($speed);
 	if ( $speed > $self->device_settings()->{speed_max})
 		{
-		print new Lab::Exception::CorruptParameter( error => "Warning in sub move: <SPEED> = $speed is too high. Reduce <SPEED> to its maximum value defined by internal limit settings of $self->device_settings()->{speed_max}");
+		carp("Warning in sub move: <SPEED> = $speed is too high. Reduce <SPEED> to its maximum value defined by internal limit settings of $self->device_settings()->{speed_max}");
 		$speed = $self->device_settings()->{speed_max};
 		}
 		
@@ -142,7 +143,7 @@ sub move{
 		{
 		if ($position < $self->device_settings()->{lower_limit} or $position > $self->device_settings()->{upper_limit})
 			{
-			Lab::Exception::CorruptParameter->throw( error => "unexpected value for NEW POSITION in sub move. Expected values are between ".$self->device_settings()->{lower_limit}." ... ".$self->device_settings()->{upper_limit});
+			croak("unexpected value for NEW POSITION in sub move. Expected values are between ".$self->device_settings()->{lower_limit}." ... ".$self->device_settings()->{upper_limit});
 			}
 		$self->device_cache()->{target} = $position;
 		$self->_save_motorlog($CP, $position);
@@ -153,7 +154,7 @@ sub move{
 		{
 		if($CP+$position < $self->device_settings()->{lower_limit} or $CP+$position > $self->device_settings()->{upper_limit})
 			{
-			Lab::Exception::CorruptParameter->throw( error => "ERROR in sub move.Can't execute move; TARGET POSITION (".($CP+$position).") is out of valid limits (".$self->device_settings()->{lower_limit}." ... ".$self->device_settings()->{upper_limit}.")");
+			croak("ERROR in sub move.Can't execute move; TARGET POSITION (".($CP+$position).") is out of valid limits (".$self->device_settings()->{lower_limit}." ... ".$self->device_settings()->{upper_limit}.")");
 			}
 		$self->device_cache()->{target} = $CP+$position;
 		$self->_save_motorlog($CP, $CP+$position);

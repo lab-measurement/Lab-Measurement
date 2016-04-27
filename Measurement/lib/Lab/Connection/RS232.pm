@@ -16,9 +16,9 @@
 package Lab::Connection::RS232;
 our $VERSION = '3.500';
 
+use Lab::Generic;
 use Lab::Connection;
 use strict;
-use Lab::Exception;
 
 our @ISA = ("Lab::Connection");
 
@@ -39,7 +39,7 @@ sub new {
 
 	# Parameter checking
 	if (!defined $self->config('port')) {
-		Lab::Exception::CorruptParameter->throw( error => "No RS232 port specified! I can't work like this.\n" );
+		croak("No RS232 port specified! I can't work like this." );
 	}
 
 	return $self;

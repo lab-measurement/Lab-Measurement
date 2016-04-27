@@ -44,7 +44,7 @@ our $VERSION = '3.500';
 use strict;
 use warnings;
 use encoding::warnings;
-use Carp;
+use Lab::Generic;
 
 require Exporter;
 
@@ -310,7 +310,7 @@ sub _getset_node_list_from_string {
     my $nodes_string_backup = $nodes_string;
     if (!defined($nodes_string) || $nodes_string eq "")
     {
-        Lab::Exception::CorruptParameter->throw( error => "Missing parameter in XMLtree::_getset_node_list_from_string(): 'nodes_string'\n" );
+        croak("Missing parameter in XMLtree::_getset_node_list_from_string(): 'nodes_string'" );
     }
 
     my @parms=@_;

@@ -6,6 +6,7 @@ use Time::HiRes qw/usleep/;
 
 our $VERSION = '3.500';
 
+use Lab::Generic;
 use 5.010;
 
 
@@ -75,8 +76,7 @@ sub set_voltage {
     my $function = $self->get_function({'read_mode' => 'cache'}, $tail);
 
     if( $function !~ /voltage/i ){
-    	Lab::Exception::CorruptParameter->throw(
-    	error=>"Source is in mode $function. Can't set voltage level.");
+    	croak("Source is in mode $function. Can't set voltage level.");
     }
     
     
@@ -91,8 +91,7 @@ sub set_current {
 	my $function = $self->get_function({'read_mode' => 'cache'}, $tail);
 
     if( $function !~ /current/i ){
-    	Lab::Exception::CorruptParameter->throw(
-    	error=>"Source is in mode $function. Can't set current level.");
+    	croak("Source is in mode $function. Can't set current level.");
     }
 
     $self->set_level($current, $tail);
@@ -113,7 +112,7 @@ sub _set_level {
 	
     
     if ( $value > $range || $value < -$range ){
-        Lab::Exception::CorruptParameter->throw("The desired source level $value is not within the source range $range \n");
+        croak("The desired source level $value is not within the source range $range");
     }
         
     my $cmd=sprintf("S%ee",$value);
@@ -280,11 +279,10 @@ sub _sweep_to_level {
 	
 	if( abs($current-$target) > $eql ){
 		print "Yokogawa7651.pm: error current neq target\n";
-    	Lab::Exception::CorruptParameter->throw(
-    	"Sweep failed: $target not equal to $current. \n")
+    	croak("Sweep failed: $target not equal to $current.")
     }
     
-	# print "Yokogawa7651.pm: reaching return from _sweep_to_level\n";
+	# print "Yokogawa7651.pm: reaching return from _sweep_to_level";
     return $self->device_cache()->{'level'} = $target;
 }
 
@@ -299,7 +297,7 @@ sub get_function{
     	return ( $1 eq "V" ) ? "voltage" : "current";
     }
     else{
-    	Lab::Exception::CorruptParameter->throw( "Output of command OD is not valid. \n" );
+    	croak("Output of command OD is not valid." );
     }
     
 }
@@ -364,8 +362,7 @@ sub get_voltage{
 	my $function = $self->get_function();
 
     if( $function !~ /voltage/i){
-    	Lab::Exception::CorruptParameter->throw(
-    	error=>"Source is in mode $function. Can't get voltage level.");
+    	croak("Source is in mode $function. Can't get voltage level.");
     }
 
     return $self->get_level(@_);
@@ -377,8 +374,7 @@ sub get_current{
 	my $function = $self->get_function();
 
     if( $function !~ /current/i){
-    	Lab::Exception::CorruptParameter->throw(
-    	error=>"Source is in mode $function. Can't get current level.");
+    	croak("Source is in mode $function. Can't get current level.");
     }
 
     return $self->get_level(@_);
@@ -389,7 +385,7 @@ sub set_function {
     my ($function) = $self->_check_args( \@_, ['function'] );
     
     if( $function !~ /(current|voltage)/i ){
-    	Lab::Exception::CorruptParameter->throw( "$function is not a valid source mode. Choose 1 or 5 for current and voltage mode respectively. \n" );
+    	croak("$function is not a valid source mode. Choose 1 or 5 for current and voltage mode respectively." );
     }
 
     if ($self->get_function() eq $function) {
@@ -397,7 +393,7 @@ sub set_function {
     }
 
     if ($self->get_output() and $self->device_settings()->{gate_protect}) {
-        Lab::Exception::Warning->throw('Cannot switch function in gate-protection mode while output is activated.');
+        croak('Cannot switch function in gate-protection mode while output is activated.');
     }
     
     my $my_function = ($function =~ /current/i) ? 5 : 1;
@@ -424,7 +420,7 @@ sub set_range {
         elsif ($range <= 30) {$range = 6;}
         else 
             { 
-            Lab::Exception::CorruptParameter->throw( error=>  "unexpected value for RANGE in sub set_range. Expected values are between 10mV ... 30V and 1mA ... 100mA for voltage and current mode.");
+            croak("unexpected value for RANGE in sub set_range. Expected values are between 10mV ... 30V and 1mA ... 100mA for voltage and current mode.");
             }
     }
     elsif($function =~ /current/i){
@@ -433,11 +429,11 @@ sub set_range {
         elsif ($range <= 100e-3) {$range = 6;}      
         else 
             { 
-            Lab::Exception::CorruptParameter->throw( error=>  "unexpected value for RANGE in sub set_range. Expected values are between 10mV ... 30V and 1mA ... 100mA for voltage and current mode.");
+            croak("unexpected value for RANGE in sub set_range. Expected values are between 10mV ... 30V and 1mA ... 100mA for voltage and current mode.");
             }
     }
     else{
-    	Lab::Exception::CorruptParameter->throw( "$range is not a valid source range. Read the documentation for a list of allowed ranges in mode $function.\n" );
+    	croak("$range is not a valid source range. Read the documentation for a list of allowed ranges in mode $function." );
     }
       #fixed voltage mode
       # 2   10mV
@@ -514,16 +510,16 @@ sub get_range{
 	    $range =~ /4/ ? $range = 1.2 :
 	    $range =~ /5/ ? $range = 12 :
 	    $range =~ /6/ ? $range = 0.012 :
-	    Lab::Exception::CorruptParameter->throw ("$range is not a valid voltage range. Read the documentation for a list of allowed ranges in mode $function.\n");
+	    croak ("$range is not a valid voltage range. Read the documentation for a list of allowed ranges in mode $function.");
     }
     elsif ($function =~ /current/i) {
 	    $range =~ /4/ ? $range = 0.0012 :
 	    $range =~ /5/ ? $range = 0.012 :
 	    $range =~ /6/ ? $range = 0.12 :
-	    Lab::Exception::CorruptParameter->throw ("$range is not a valid current range. Read the documentation for a list of allowed ranges in mode $function.\n");
+	    croak ("$range is not a valid current range. Read the documentation for a list of allowed ranges in mode $function.");
     }
     else {
-	    Lab::Exception::CorruptParameter->throw( "$range is not a valid source range. Read the documentation for a list of allowed ranges in mode $function.\n" );
+	    croak("$range is not a valid source range. Read the documentation for a list of allowed ranges in mode $function." );
     }
         
     return $self->{'device_cache'}->{'range'} = $range;
@@ -539,7 +535,7 @@ sub set_run_mode {
     if ($value eq 'repeat' or $value eq 'REPEAT') {$value = 0;}
     if ($value eq 'single' or $value eq 'SINGLE') {$value = 1;}
 
-    if ($value!=0 and $value!=1) { Lab::Exception::CorruptParameter->throw( error=>"Run Mode $value not defined\n" ); }
+    if ($value!=0 and $value!=1) { croak("Run Mode $value not defined" ); }
     my $cmd=sprintf("M%u",$value);
     $self->write($cmd);
 }
@@ -549,17 +545,17 @@ sub set_time { # internal use only
     my ($sweep_time,$interval_time,$tail) = $self->_check_args( \@_, ['sweep_time','interval_time'] );
     
     if ($sweep_time<$self->device_settings()->{min_sweep_time}) {
-        print Lab::Exception::CorruptParameter->new( error=>  " Sweep Time: $sweep_time smaller than $self->device_settings()->{min_sweep_time} sec!\n Sweep time set to $self->device_settings()->{min_sweep_time} sec");
+        carp(" Sweep Time: $sweep_time smaller than $self->device_settings()->{min_sweep_time} sec!\n Sweep time set to $self->device_settings()->{min_sweep_time} sec");
         $sweep_time=$self->device_settings()->{min_sweep_time}}
     elsif ($sweep_time>$self->device_settings()->{max_sweep_time}) {
-        print Lab::Exception::CorruptParameter->new( error=>  " Sweep Time: $sweep_time> $self->device_settings()->{max_sweep_time} sec!\n Sweep time set to $self->device_settings()->{max_sweep_time} sec");
+        carp(" Sweep Time: $sweep_time> $self->device_settings()->{max_sweep_time} sec!\n Sweep time set to $self->device_settings()->{max_sweep_time} sec");
         $sweep_time=$self->device_settings()->{max_sweep_time}
     };
     if ($interval_time<$self->device_settings()->{min_sweep_time}) {
-        print Lab::Exception::CorruptParameter->new( error=>  " Interval Time: $interval_time smaller than $self->device_settings()->{min_sweep_time} sec!\n Interval time set to $self->device_settings()->{min_sweep_time} sec");
+        carp(" Interval Time: $interval_time smaller than $self->device_settings()->{min_sweep_time} sec!\n Interval time set to $self->device_settings()->{min_sweep_time} sec");
         $interval_time=$self->device_settings()->{min_sweep_time}}
     elsif ($interval_time>$self->device_settings()->{max_sweep_time}) {
-        print Lab::Exception::CorruptParameter->new( error=>  " Interval Time: $interval_time> $self->device_settings()->{max_sweep_time} sec!\n Interval time set to $self->device_settings()->{max_sweep_time} sec");
+        carp(" Interval Time: $interval_time> $self->device_settings()->{max_sweep_time} sec!\n Interval time set to $self->device_settings()->{max_sweep_time} sec");
         $interval_time=$self->device_settings()->{max_sweep_time}
     };
     my $cmd=sprintf("PI%.1f",$interval_time);
@@ -612,7 +608,7 @@ sub set_output {
         
         }
     else {
-        Lab::Exception::CorruptParameter->throw("$value is not a valid output status (on = 1 | off = 0)");
+        croak("$value is not a valid output status (on = 1 | off = 0)");
     }
 
     return $self->{'device_cache'}->{'output'} = $self->get_output();
@@ -760,7 +756,7 @@ sub autorange() {
 		$self->{'autorange'} = 1;
 	}
 	else {
-		Lab::Exception::CorruptParameter->throw( error=>"Illegal value for autorange(), only 1 or 0 accepted.\n" );
+		croak("Illegal value for autorange(), only 1 or 0 accepted." );
 	}
 }
 

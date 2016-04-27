@@ -1,6 +1,7 @@
 package Lab::Instrument::OI_ITC503;
 our $VERSION = '3.500';
 
+use Lab::Generic;
 use strict;
 use feature "switch";
 use Lab::Instrument;
@@ -54,18 +55,10 @@ sub parse_error {
 	
 	my $status_char = substr($device_msg, 0, 1);
 	if ($status_char eq '?' ) {
-		Lab::Exception::DeviceError->throw(
-			error => "ITC503 returned error '$device_msg' on command '$cmd'\n",
-			device_class => ref $self,
-			command => $cmd,
-			raw_message => $device_msg );
+		croak("ITC503 returned error '$device_msg' on command '$cmd'");
 	}
 	elsif (defined $cmd_char && $status_char ne $cmd_char ) {
-		Lab::Exception::DeviceError->throw(
-			error => "Received an unexpected answer from ITC503. Expected '$cmd_char' prefix, received '$status_char' on command '$cmd'\n",
-			device_class => ref $self,
-			command => $cmd,
-			raw_message => $device_msg );
+		croak("Received an unexpected answer from ITC503. Expected '$cmd_char' prefix, received '$status_char' on command '$cmd', raw_message: $device_msg");
 	}
 }
 
@@ -103,7 +96,7 @@ sub set_control {
 	$mode =~ /^\s*(0|1|2|3)\s*$/  ? $mode = $1 :
 	$mode =~ /^\s*(locked)\s*$/   ? $mode = 1  :
 	$mode =~ /^\s*(unlocked)\s*$/ ? $mode = 3  :
-        Lab::Exception::CorruptParameter->throw( "Invalid control mode specified." );
+        croak("Invalid control mode specified." );
 	
 	my $result=$self->query("C${mode}\r",@_);
 	sleep(1);

@@ -3,11 +3,11 @@
 package Lab::Connection::TCPraw;
 our $VERSION = '3.500';
 
+use Lab::Generic;
 use strict;
 use Scalar::Util qw(weaken);
 use Time::HiRes qw (usleep sleep);
 use Lab::Connection::GPIB;
-use Lab::Exception;
 
 our @ISA = ("Lab::Connection::Socket");
 

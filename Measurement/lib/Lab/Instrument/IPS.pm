@@ -4,6 +4,7 @@
 package Lab::Instrument::IPS;
 our $VERSION = '3.500';
 
+use Lab::Generic;
 use strict;
 use Time::HiRes qw/usleep/, qw/time/;
 #use Lab::VISA;
@@ -92,7 +93,7 @@ sub _device_init { # internal only
 		my $switchheater = $self->get_switchheater();
 		if ($switchheater == 0 || $switchheater == 2)
 			{
-			Lab::Exception::CorruptParameter->throw( error =>  "PSU != Magnet --> SWITCHHEATER cannot be switched on." );
+			croak("PSU != Magnet --> SWITCHHEATER cannot be switched on." );
 			}
 		#print "done\n!";
 		}
@@ -169,7 +170,7 @@ sub set_switchheater { # internal only
 		}
 	}
 	else{
-		print Lab::Exception::Warning->new("Mode $mode is not allowed for the switchheater. Select 0 (off) or 1 (on).");
+		carp("Mode $mode is not allowed for the switchheater. Select 0 (off) or 1 (on).");
 	}
 	sleep(10);  # wait for heater to open the switch	
 }
@@ -207,7 +208,7 @@ sub _set_mode { # internal only
 	
 	if ($mode != 0 and $mode != 1 and $mode != 4 and $mode != 5 and $mode != 8 and $mode != 9)
 		{
-		Lab::Exception::CorruptParameter->throw( error => "unexpected value for MODE in sub _set_mode. Expected values are:\n\n\tDisplay\tMagnet Sweep\n 0\tAmps\tFast\n 1\tTesla\tFast\n 4\tAmps\tSlow\n 5\tTesla\tSlow\n 8\tAmps\tUnaffected\n 9\tTesla\tUnaffected");
+		croak("unexpected value for MODE in sub _set_mode. Expected values are:\n\n\tDisplay\tMagnet Sweep\n 0\tAmps\tFast\n 1\tTesla\tFast\n 4\tAmps\tSlow\n 5\tTesla\tSlow\n 8\tAmps\tUnaffected\n 9\tTesla\tUnaffected");
 		}
 		
     $self->query("M$mode\r");
@@ -228,7 +229,7 @@ sub _set_communicationsprotocol { # internal only
 	
 	if ($mode != 0 and $mode != 2 and $mode != 4 and $mode != 6)
 		{
-		Lab::Exception::CorruptParameter->throw( error =>  "unexpected value for MODE in sub _set_communicationsprotocol. Expected values are:\n\n 0 --> Normal (default)\n 2 --> Sends <LF> after each <CR>\n 4 --> Extended Resolution\n 6 --> Extended Resolution. Sends <LF> after each <CR>.");
+		croak("unexpected value for MODE in sub _set_communicationsprotocol. Expected values are:\n\n 0 --> Normal (default)\n 2 --> Sends <LF> after each <CR>\n 4 --> Extended Resolution\n 6 --> Extended Resolution. Sends <LF> after each <CR>.");
 		}
     
 	$self->write("Q$mode\r"); #no aswer from IPS expected
@@ -270,7 +271,7 @@ sub _set_activity { # internal only
 	
 	if (not 0 <= $mode && $mode <= 4)
 		{
-		Lab::Exception::CorruptParameter->throw( error =>  "unexpected value for MODE in sub _set_activity. Expected values are:\n\n 0 --> Hold\n 1 --> To Set Point\n 2 --> To Zero\n 4 --> Clamp (clamp the power supply output)");
+		croak("unexpected value for MODE in sub _set_activity. Expected values are:\n\n 0 --> Hold\n 1 --> To Set Point\n 2 --> To Zero\n 4 --> Clamp (clamp the power supply output)");
 		}
 		
     $self->query("A$mode\r");
@@ -347,7 +348,7 @@ sub get_parameter { # advanced
 	
 	if ($parameter != 0 and $parameter != 1 and $parameter != 2 and $parameter != 3 and $parameter != 4 and $parameter != 5 and $parameter != 6 and $parameter != 7 and $parameter != 8 and $parameter != 9 and $parameter != 10 and $parameter != 15 and $parameter != 16 and $parameter != 17 and $parameter != 18 and $parameter != 19 and $parameter != 20 and $parameter != 21 and $parameter != 22 and $parameter != 23 and $parameter != 24)
 		{
-		Lab::Exception::CorruptParameter->throw( error =>  "\n 0 --> Demand current (output current)     amp\n 1 --> Measured power supply voltage       volt\n 2 --> Measured magnet current             amp\n 3 --> -\n 4 --> -\n 5 --> Set point (target current)          amp\n 6 --> Current sweep rate                  amp/min\n 7 --> Demand field (output field)         tesla\n 8 --> Set point (target field)            tesla\n 9 --> Field sweep rate                    tesla/minute\n10 --> - 14 -\n15 --> Software voltage limit              volt\n16 --> Persistent magnet current           amp\n17 --> Trip current                        amp\n18 --> Persistent magnet field             tesla\n19 --> Trip field                          tesla\n20 --> Switch heater current               milliamp\n21 --> Safe current limit, most negative   amp\n22 --> Safe current limit, most positive   amp\n23 --> Lead resistance                     milliohm\n24 --> Magnet inductance                   henry" );
+		croak("\n 0 --> Demand current (output current)     amp\n 1 --> Measured power supply voltage       volt\n 2 --> Measured magnet current             amp\n 3 --> -\n 4 --> -\n 5 --> Set point (target current)          amp\n 6 --> Current sweep rate                  amp/min\n 7 --> Demand field (output field)         tesla\n 8 --> Set point (target field)            tesla\n 9 --> Field sweep rate                    tesla/minute\n10 --> - 14 -\n15 --> Software voltage limit              volt\n16 --> Persistent magnet current           amp\n17 --> Trip current                        amp\n18 --> Persistent magnet field             tesla\n19 --> Trip field                          tesla\n20 --> Switch heater current               milliamp\n21 --> Safe current limit, most negative   amp\n22 --> Safe current limit, most positive   amp\n23 --> Lead resistance                     milliohm\n24 --> Magnet inductance                   henry" );
 		}
 
 	my $result=$self->query("R$parameter\r");
@@ -385,7 +386,7 @@ sub set_persistent_mode {
 	
 	my ($mode,$tail) = $self->_check_args(\@_,['mode']);
 	
-	$self->out_debug("Function: set_persistent_mode \n");
+	carp("Function: set_persistent_mode");
 	
 	return 0 if not $self->{device_settings}->{has_switchheater};
 	
@@ -395,7 +396,7 @@ sub set_persistent_mode {
 	
 	if($mode == 1) {
 		
-		$self->out_debug("Going into persistent mode ... \n");
+		carp("Going into persistent mode ...");
 		
 		$self->hold();
 		$self->set_switchheater(0);
@@ -407,7 +408,7 @@ sub set_persistent_mode {
 	}
 	elsif($mode == 0 and  $switch == 2) {
 		
-		$self->out_debug("Leaving persistent mode ... \n");
+		carp("Leaving persistent mode ...");
 		
 		my $setpoint = $self->get_persistent_field();
 	
@@ -432,7 +433,7 @@ sub get_persistent_mode {
 	my $self=shift;
 	my ($tail) = $self->_check_args( \@_ );
 	
-	$self->out_debug("Function: get_persistent_mode \n");
+	carp("Function: get_persistent_mode");
 	
 	return 0 if not $self->{device_settings}->{has_switchheater};
 		
@@ -720,7 +721,7 @@ sub config_sweep { # basic
 
 	if (not defined $rate)
 		{
-		Lab::Exception::CorruptParameter->throw( error =>  "too view parameters given in sub config_sweep. Expected parameters are FIELD, RATE, <INTERVAL>." );
+		croak("too view parameters given in sub config_sweep. Expected parameters are FIELD, RATE, <INTERVAL>." );
 		}
 		
 	
@@ -758,7 +759,7 @@ sub config_sweep { # basic
 			
 	if ( (my $i = @sweep_points ) != ( my $j = @sweep_rates ) )
 		{
-		Lab::Exception::CorruptParameter->throw( error =>  "Sweep-points-list and Sweep-rates-list must have the same length!.\n" );
+		croak("Sweep-points-list and Sweep-rates-list must have the same length!." );
 		}
 		
 	# get current field
@@ -772,7 +773,7 @@ sub config_sweep { # basic
 		{
 		if (my $status = $self->_check_limits(@sweep_points[$i], @sweep_points[$i+1], @sweep_rates[$i]))
 			{
-			Lab::Exception::CorruptParameter->throw( error =>  $status );
+			croak($status );
 			}
 		}
 			
@@ -824,7 +825,7 @@ sub sweep_to_field {
 	my @rates;
 	
 	if (abs($target) > $self->{LIMITS}->{magneticfield}) {
-		$self->out_error("Target-Field exceeds maximum field value! \n" );
+		croak("Target-Field exceeds maximum field value!" );
 	}
 	if (not defined $rate) {
 		$rate = @{$self->{LIMITS}->{rate_intervall_limits}}[0];

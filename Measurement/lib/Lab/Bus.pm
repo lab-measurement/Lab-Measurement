@@ -6,11 +6,9 @@ our $VERSION = '3.500';
 use strict;
 
 use Lab::Generic;
-use Lab::Exception;
 use Time::HiRes qw (usleep sleep);
 #use POSIX; # added for int() function
 use Scalar::Util qw(weaken);
-use Carp qw(croak cluck);
 use Data::Dumper;
 our $AUTOLOAD;
 
@@ -129,14 +127,13 @@ sub config {	# $value = self->config($key);
 sub AUTOLOAD {
 
 	my $self = shift;
-	my $type = ref($self) or croak "$self is not an object";
+	my $type = ref($self) or croak("$self is not an object");
 
 	my $name = $AUTOLOAD;
 	$name =~ s/.*://; # strip fully qualified portion
 
 	unless (exists $self->{_permitted}->{$name} ) {
-		cluck("AUTOLOAD in " . __PACKAGE__ . " couldn't access field '${name}'.\n");
-		Lab::Exception::Error->throw( error => "AUTOLOAD in " . __PACKAGE__ . " couldn't access field '${name}'.\n");
+		croak("AUTOLOAD in " . __PACKAGE__ . " couldn't access field '${name}'.");
 	}
 
 	if (@_) {

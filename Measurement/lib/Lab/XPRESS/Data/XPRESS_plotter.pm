@@ -2,6 +2,7 @@ package Lab::XPRESS::Data::XPRESS_plotter;
 
 our $VERSION = '3.500';
 
+use Lab::Generic;
 use strict;
 use Time::HiRes qw/gettimeofday tv_interval/;
 use Time::HiRes qw/usleep/, qw/time/;

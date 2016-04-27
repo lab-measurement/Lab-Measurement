@@ -1,6 +1,7 @@
 package Lab::Instrument::SignalRecovery726x;
 our $VERSION = '3.500';
 
+use Lab::Generic;
 use strict;
 use Time::HiRes qw/usleep/, qw/time/;
 use Lab::Instrument;
@@ -85,7 +86,7 @@ sub set_imode { # basic setting
 		$self->write($cmd);	
 	}
 	else {
-		Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\nunexpected value for IMODE in sub set_imode. Expected values are:\n 0 --> Current Mode OFF\n 1 --> High Bandwidth Current Mode\n 2 --> Low Noise Current Mode\n" ); }
+		croak("\nSIGNAL REOCOVERY 726x:\nunexpected value for IMODE in sub set_imode. Expected values are:\n 0 --> Current Mode OFF\n 1 --> High Bandwidth Current Mode\n 2 --> Low Noise Current Mode" ); }
 		
 	}
 
@@ -112,7 +113,7 @@ sub set_vmode { # basic setting
 		$self->write($cmd);
 	}
 	else {
-		Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\nunexpected value for VMODE in sub set_vmode. Expected values are:\n 0 --> Both inputs grounded (testmode)\n 1 --> A input only\n 2 --> -B input only\n 3 --> A-B differential mode\n" ); }
+		croak("\nSIGNAL REOCOVERY 726x:\nunexpected value for VMODE in sub set_vmode. Expected values are:\n 0 --> Both inputs grounded (testmode)\n 1 --> A input only\n 2 --> -B input only\n 3 --> A-B differential mode" ); }
 		
 	}
 
@@ -137,7 +138,7 @@ sub set_fet { # basic setting
 		$self->write($cmd);
 	}
 	else {
-		Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\nunexpected value in sub set_fet. Expected values are:\n 0 --> Bipolar device, 10 kOhm input impedance, 2nV/sqrt(Hz) voltage noise at 1 kHz\n 1 --> FET, 10 MOhm input impedance, 5nV/sqrt(Hz) voltage noise at 1 kHz\n" ); }
+		croak("\nSIGNAL REOCOVERY 726x:\nunexpected value in sub set_fet. Expected values are:\n 0 --> Bipolar device, 10 kOhm input impedance, 2nV/sqrt(Hz) voltage noise at 1 kHz\n 1 --> FET, 10 MOhm input impedance, 5nV/sqrt(Hz) voltage noise at 1 kHz" ); }
 		
 	}
 
@@ -163,7 +164,7 @@ sub set_float { # basic setting
 		$self->write($cmd);
 	}
 	else {
-		Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\nunexpected value in sub set_float. Expected values are:\n 0 --> input conector shield set to GROUND\n 1 --> input conector shield set to FLOAT\n" ); }
+		croak("\nSIGNAL REOCOVERY 726x:\nunexpected value in sub set_float. Expected values are:\n 0 --> input conector shield set to GROUND\n 1 --> input conector shield set to FLOAT" ); }
 		
 	}
 
@@ -188,7 +189,7 @@ sub set_cp { # basic setting
 		$self->write($cmd);
 	}
 	else {
-		Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\nunexpected value in sub set_cp. Expected values are:\n 0 --> input coupling mode AC\n 1 --> input coupling mode DC\n" ); }
+		croak("\nSIGNAL REOCOVERY 726x:\nunexpected value in sub set_cp. Expected values are:\n 0 --> input coupling mode AC\n 1 --> input coupling mode DC" ); }
 		
 	}
 
@@ -238,7 +239,7 @@ sub set_sen { # basic setting
 		}
 		
 	else {
-		Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\nunexpected value for SENSITIVITY in sub set_sen. Expected values are: \n\n SENSITIVITY (IMODE == 0) --> 2nV, 5nV, 10nV, 20nV, 50nV, 100nV, 200nV, 500nV, 1uV, 2uV, 5uV, 10uV, 20uV, 50uV, 100uV, 200uV, 500uV, 1mV, 2mV, 5mV, 10mV, 20mV, 50mV, 100mV, 200mV, 500mV, 1V\n\n SENSITIVITY (IMODE == 1) --> 2fA, 5fA, 10fA, 20fA, 50fA, 100fA, 200fA, 500fA, 1pA, 2pA, 5pA, 10pA, 20pA, 50pA, 100pA, 200pA, 500pA, 1nA, 2nA, 5nA, 10nA, 20nA, 50nA, 100nA, 200nA, 500nA, 1uA\n\n SENSITIVITY (IMODE == 2) --> 2fA, 5fA, 10fA, 20fA, 50fA, 100fA, 200fA, 500fA, 1pA, 2pA, 5pA, 10pA, 20pA, 50pA, 100pA, 200pA, 500pA, 1nA, 2nA, 5nA, 10nA\n" );
+		croak("\nSIGNAL REOCOVERY 726x:\nunexpected value for SENSITIVITY in sub set_sen. Expected values are: \n\n SENSITIVITY (IMODE == 0) --> 2nV, 5nV, 10nV, 20nV, 50nV, 100nV, 200nV, 500nV, 1uV, 2uV, 5uV, 10uV, 20uV, 50uV, 100uV, 200uV, 500uV, 1mV, 2mV, 5mV, 10mV, 20mV, 50mV, 100mV, 200mV, 500mV, 1V\n\n SENSITIVITY (IMODE == 1) --> 2fA, 5fA, 10fA, 20fA, 50fA, 100fA, 200fA, 500fA, 1pA, 2pA, 5pA, 10pA, 20pA, 50pA, 100pA, 200pA, 500pA, 1nA, 2nA, 5nA, 10nA, 20nA, 50nA, 100nA, 200nA, 500nA, 1uA\n\n SENSITIVITY (IMODE == 2) --> 2fA, 5fA, 10fA, 20fA, 50fA, 100fA, 200fA, 500fA, 1pA, 2pA, 5pA, 10pA, 20pA, 50pA, 100pA, 200pA, 500pA, 1nA, 2nA, 5nA, 10nA" );
 		}
 
 	}
@@ -283,7 +284,7 @@ sub set_acgain { # basic setting
 		$self->write($cmd);
 	}
 	else { 
-		Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\nunexpected value for AC-GAIN in sub set_acgain. Expected values are:\n AC-GAIN == 0 -->  0 dB gain of the signal channel amplifier\n AC-GAIN == 1 --> 10 dB gain of the signal channel amplifier\n ...\n AC-GAIN == 9 --> 90 dB gain of the signal channel amplifier\n" );
+		croak("\nSIGNAL REOCOVERY 726x:\nunexpected value for AC-GAIN in sub set_acgain. Expected values are:\n AC-GAIN == 0 -->  0 dB gain of the signal channel amplifier\n AC-GAIN == 1 --> 10 dB gain of the signal channel amplifier\n ...\n AC-GAIN == 9 --> 90 dB gain of the signal channel amplifier" );
 	}
 	
 	
@@ -304,7 +305,7 @@ sub set_linefilter { # basic setting
 	if ( not defined $linefrequency ) { $linefrequency = 1;} # 1-->50Hz
 	elsif ($linefrequency eq "50Hz") { $linefrequency = 1;}
 	elsif ($linefrequency eq "60Hz") { $linefrequency = 0;} # 0 --> 60Hz
-	else { Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\nunexpected value for LINEFREQUENCY in sub set_linefilter. Expected values are '50Hz' or '60Hz'." );}
+	else { croak("\nSIGNAL REOCOVERY 726x:\nunexpected value for LINEFREQUENCY in sub set_linefilter. Expected values are '50Hz' or '60Hz'." );}
 	
 	# LINE-FILTER == 0 --> OFF\n
 	# LINE-FILTER == 1 --> enable 50Hz/60Hz notch filter\n
@@ -317,7 +318,7 @@ sub set_linefilter { # basic setting
 		$self->write($cmd);
 	}
 	else {
-		Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\nunexpected value for FILTER in sub set_linefilter. Expected values are:\n LINE-FILTER == 0 --> OFF\n LINE-FILTER == 1 --> enable 50Hz/60Hz notch filter\n LINE-FILTER == 2 --> enable 100Hz/120Hz notch filter\n LINE-FILTER == 3 --> enable 50Hz/60Hz and 100Hz/120Hz notch filter\n" ); 
+		croak("\nSIGNAL REOCOVERY 726x:\nunexpected value for FILTER in sub set_linefilter. Expected values are:\n LINE-FILTER == 0 --> OFF\n LINE-FILTER == 1 --> enable 50Hz/60Hz notch filter\n LINE-FILTER == 2 --> enable 100Hz/120Hz notch filter\n LINE-FILTER == 3 --> enable 50Hz/60Hz and 100Hz/120Hz notch filter" ); 
 	}
 		
 	}
@@ -345,7 +346,7 @@ sub set_refchannel { # basic setting
 	if ($value eq "INT" ) { $value = 0; }
 	elsif ( $value eq "EXT LOGIC") { $value = 1; }
 	elsif ( $value eq "EXT") { $value = 2; }		
-	else { Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\nunexpected value for REFERENCE CHANEL in sub set_refchennel. Expected values are:\n INT --> internal reference input mode\n EXT LOGIC --> external rear panel TTL input\n EXT --> external front panel analog input\n" ); }
+	else { croak("\nSIGNAL REOCOVERY 726x:\nunexpected value for REFERENCE CHANEL in sub set_refchennel. Expected values are:\n INT --> internal reference input mode\n EXT LOGIC --> external rear panel TTL input\n EXT --> external front panel analog input" ); }
 		
 	my $cmd = sprintf("IE %d", $value);
 		$self->write($cmd);
@@ -388,7 +389,7 @@ sub set_refpha{ # basic setting
 	if ($value >= 0 && $value <= 360) {
 		$self->write(sprintf("REFP %d", $value*1e3));
 	}
-	else { Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\nunexpected value for REFERENCE PHASE in sub set_refpha. Expected values must be in the range 0..360" ); }
+	else { croak("\nSIGNAL REOCOVERY 726x:\nunexpected value for REFERENCE PHASE in sub set_refpha. Expected values must be in the range 0..360" ); }
 	 }
 
 sub get_refpha { # basic setting
@@ -417,7 +418,7 @@ sub set_ouputfilter_slope {  # basic setting
 	elsif ($value eq "12dB") {$value = 1;}
 	elsif ($value eq "18dB") {$value = 2;}
 	elsif ($value eq "24dB") {$value = 3;}
-	else { Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\nunexpected value for SLOPE in sub set_ouputfilter_slope. Expected values are:\n  6dB -->  6dB/octave slope of output filter\n 12dB --> 12dB/octave slope of output filter\n 18dB --> 18dB/octave slope of output filter\n 24dB --> 24dB/octave slope of output filter\n" ); }
+	else { croak("\nSIGNAL REOCOVERY 726x:\nunexpected value for SLOPE in sub set_ouputfilter_slope. Expected values are:\n  6dB -->  6dB/octave slope of output filter\n 12dB --> 12dB/octave slope of output filter\n 18dB --> 18dB/octave slope of output filter\n 24dB --> 24dB/octave slope of output filter" ); }
 		
 	my $cmd = sprintf("SLOPE %d", $value);
 	$self->write($cmd);
@@ -476,7 +477,7 @@ sub set_tc { # basic setting
 		$self->write($cmd);
 	}		
 	else {
-		Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\nunexpected value for TIME CONSTANT in set_tc. Filter Time Constant TC can be:\n10us, 20us, 40us, 80us, 160us, 320us, 640us, 5ms, 10ms, 20ms, 50ms, 100ms, 200ms, 500ms, 1s, 2s, 5s, 10s, 20s, 50s, 100s, 200s, 500s, 1ks, 2ks, 5ks, 10ks, 20ks, 50ks, 100ks\n" ); 
+		croak("\nSIGNAL REOCOVERY 726x:\nunexpected value for TIME CONSTANT in set_tc. Filter Time Constant TC can be:\n10us, 20us, 40us, 80us, 160us, 320us, 640us, 5ms, 10ms, 20ms, 50ms, 100ms, 200ms, 500ms, 1s, 2s, 5s, 10s, 20s, 50s, 100s, 200s, 500s, 1ks, 2ks, 5ks, 10ks, 20ks, 50ks, 100ks" ); 
 	}
 			
 	}
@@ -508,7 +509,7 @@ sub set_offset { # basic setting 	<-----Hier muessen Fehler noch besser abgefang
 		my @temp = split(/,/,$self->query("XOF"));
 		$offset[0] = $temp[1]/100;
 		if ($offset[0] != $x_value) {
-			Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\ncouldn't set X chanel output offset" );
+			croak("\nSIGNAL REOCOVERY 726x:\ncouldn't set X chanel output offset" );
 			}
 		}
 		
@@ -518,7 +519,7 @@ sub set_offset { # basic setting 	<-----Hier muessen Fehler noch besser abgefang
 		my @temp = split(/,/,$self->query("YOF"));
 		$offset[1] = $temp[1]/100;
 		if ($offset[1] != $y_value) {
-			Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\ncouldn't set Y chanel output offset" );
+			croak("\nSIGNAL REOCOVERY 726x:\ncouldn't set Y chanel output offset" );
 			}
 		}
 		
@@ -527,7 +528,7 @@ sub set_offset { # basic setting 	<-----Hier muessen Fehler noch besser abgefang
 		my @temp = split(/,/,$self->query("XOF"));
 		$offset[0] = $temp[0];
 		if ($offset[0] != 0) {
-			Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\ncouldn't set X chanel output offset" );
+			croak("\nSIGNAL REOCOVERY 726x:\ncouldn't set X chanel output offset" );
 			} 
 		}
 		
@@ -536,7 +537,7 @@ sub set_offset { # basic setting 	<-----Hier muessen Fehler noch besser abgefang
 		my @temp = split(/,/,$self->query("YOF"));
 		$offset[1] = $temp[0];
 		if ($offset[1] != 0) {
-			Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\ncouldn't set Y chanel output offset" );
+			croak("\nSIGNAL REOCOVERY 726x:\ncouldn't set Y chanel output offset" );
 			}
 		}
 		
@@ -576,7 +577,7 @@ sub set_osc { # basic setting
 		}
 			
 	}
-	else { Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\n\nSIGNAL REOCOVERY 726x:\nunexpected value for OSCILLATOR OUTPUT in sub set_osc. Expected values must be in the range 0..5V." ); }
+	else { croak("\nSIGNAL REOCOVERY 726x:\n\nSIGNAL REOCOVERY 726x:\nunexpected value for OSCILLATOR OUTPUT in sub set_osc. Expected values must be in the range 0..5V." ); }
 	}
 
 sub get_osc {
@@ -612,7 +613,7 @@ sub set_frq { # basic setting
 	if ($value > 0 && $value <= 250000) {
 		$self->write(sprintf("OF %d", $value*1e3));
 		}
-	else { Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\n\nSIGNAL REOCOVERY 726x:\nunexpected value for OSCILLATOR FREQUENCY in sub set_frq. Expected values must be in the range 0..250kHz" ); }	 
+	else { croak("\nSIGNAL REOCOVERY 726x:\n\nSIGNAL REOCOVERY 726x:\nunexpected value for OSCILLATOR FREQUENCY in sub set_frq. Expected values must be in the range 0..250kHz" ); }	 
 	
 	}
 	 
@@ -717,7 +718,7 @@ sub get_value { # basic
 		($self->{'device_cache'}->{'value'}->{'X'}, $self->{'device_cache'}->{'value'}->{'Y'}, $self->{'device_cache'}->{'value'}->{'MAG'}, $self->{'device_cache'}->{'value'}->{'PHA'})  = split(",",$result);
 		return $self->{'device_cache'}->{'value'};
 		}	
-	else { Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\nCHANNEL can be:\n X   --> X channel output\n Y   --> Y channel output\n MAG --> Magnitude\n PHA --> Signale phase\n XY  --> X and Y channel output\n MP  --> Magnitude and signal Phase\n ALL --> X,Y, Magnitude and signal Phase\n" ); }
+	else { croak("\nSIGNAL REOCOVERY 726x:\nCHANNEL can be:\n X   --> X channel output\n Y   --> Y channel output\n MAG --> Magnitude\n PHA --> Signale phase\n XY  --> X and Y channel output\n MP  --> Magnitude and signal Phase\n ALL --> X,Y, Magnitude and signal Phase" ); }
 	}
 
 sub config_measurement { # basic
@@ -746,7 +747,7 @@ sub config_measurement { # basic
 	elsif ($channel eq "PHA-") { $channel = 8; } # only PHA channel; Sensitivity not logged --> floating point read out not possible!
 	elsif ($channel eq "MP-") { $channel = 12; } # only MP channel; Sensitivity not logged --> floating point read out not possible!
 	elsif($channel eq "ALL-") { $channel = 15; } # only XYMP channel; Sensitivity not logged --> floating point read out not possible!
-	else { Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\nunexpected value for DATA CHANNELS in sub config_measurement. Expected values are:\n X   --> X channel output\n XY  --> X and Y channel output\n MAG   --> MAG channel output\n PHA   --> PHA channel output\n MP  --> MAG and PHA channel output\n ALL --> X,Y, Magnitude and signal Phase\n \n X-   --> X channel output without Sensitivity \n XY-  --> X and Y channel output without Sensitivity\n MAG-   --> MAG channel output without Sensitivity\n PHA-   --> PHA channel output without Sensitivity\n MP-  --> MAG and PHA channel output without Sensitivity\n ALL- --> X,Y, Magnitude and signal Phase without Sensitivity\n" );}	$self->_set_buffer_datachannels($channel);
+	else { croak("\nSIGNAL REOCOVERY 726x:\nunexpected value for DATA CHANNELS in sub config_measurement. Expected values are:\n X   --> X channel output\n XY  --> X and Y channel output\n MAG   --> MAG channel output\n PHA   --> PHA channel output\n MP  --> MAG and PHA channel output\n ALL --> X,Y, Magnitude and signal Phase\n \n X-   --> X channel output without Sensitivity \n XY-  --> X and Y channel output without Sensitivity\n MAG-   --> MAG channel output without Sensitivity\n PHA-   --> PHA channel output without Sensitivity\n MP-  --> MAG and PHA channel output without Sensitivity\n ALL- --> X,Y, Magnitude and signal Phase without Sensitivity" );}	$self->_set_buffer_datachannels($channel);
 	
 	print "SIGNAL REOCOVERY 726x: set channels: ".$self->_set_buffer_datachannels($channel);
 	
@@ -790,7 +791,7 @@ sub get_data { # basic
 		}
 	
 	my $status=Lab::VISA::viSetAttribute($self->{vi}->{instr},  $Lab::VISA::VI_ATTR_TMO_VALUE, $timeout);
-	if ($status != $Lab::VISA::VI_SUCCESS) { Lab::Exception::CorruptParameter->throw( error => "Error while setting baud: $status" );}
+	if ($status != $Lab::VISA::VI_SUCCESS) { croak("Error while setting baud: $status" );}
 	
 	my @channels = split(",",$channel_list{int($self->query("CBD"))});
 	#if ($channels == 17) { $channels = 1; }
@@ -836,7 +837,7 @@ sub get_data { # basic
 	
 	# set Time-Out for READ	back to default value
 	my $status=Lab::VISA::viSetAttribute($self->{vi}->{instr},  $Lab::VISA::VI_ATTR_TMO_VALUE, 3000);
-	if ($status != $Lab::VISA::VI_SUCCESS) { Lab::Exception::CorruptParameter->throw( error => "Error while setting baud: $status" );}
+	if ($status != $Lab::VISA::VI_SUCCESS) { croak("Error while setting baud: $status" );}
 	
 	return @data;
 	
@@ -941,7 +942,7 @@ sub _set_buffer_length { # internal / advanced use only
 	elsif ($channels == 31) { $channels = 5; }
 	
 	# check buffer size
-	if ($nop > int(32000/$channels)) { Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\n\nSIGNAL REOCOVERY 726x:\ncan't init BUFFER. Buffersize is too small for the given NUMBER OF POINTS and NUMBER OF CHANNELS to store.\n POINTS x (CHANNELS+1) cant exceed 32000.\n" );}
+	if ($nop > int(32000/$channels)) { croak("\nSIGNAL REOCOVERY 726x:\n\nSIGNAL REOCOVERY 726x:\ncan't init BUFFER. Buffersize is too small for the given NUMBER OF POINTS and NUMBER OF CHANNELS to store.\n POINTS x (CHANNELS+1) cant exceed 32000." );}
 	
 	$self->write(sprintf("LEN %d", $nop));
 	return my $return = $self->query("LEN");
@@ -959,7 +960,7 @@ sub _set_buffer_storageinterval { # internal / advanced use only
 		}
 	
 	if ( $interval < 5e-3 or $interval > 1e6) {
-		Lab::Exception::CorruptParameter->throw( error => "\nSIGNAL REOCOVERY 726x:\nunexpected value for INTERVAL in sub set_buffer_interval. Expected values are between 5ms...1E6s with a resolution of 5ms." );
+		croak("\nSIGNAL REOCOVERY 726x:\nunexpected value for INTERVAL in sub set_buffer_interval. Expected values are between 5ms...1E6s with a resolution of 5ms." );
 		}
 	
 	$self->write(sprintf("STR %d", $interval*1e3));

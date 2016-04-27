@@ -2,6 +2,7 @@ package Lab::XPRESS::Sweep::Power;
 
 our $VERSION = '3.500';
 
+use Lab::Generic;
 use Lab::XPRESS::Sweep::Sweep;
 use Time::HiRes qw/usleep/, qw/time/;
 use strict;

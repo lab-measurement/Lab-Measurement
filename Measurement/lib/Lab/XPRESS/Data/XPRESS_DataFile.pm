@@ -9,6 +9,7 @@ use Lab::XPRESS::Sweep::Sweep;
 
 our $VERSION = '3.500';
 
+use Lab::Generic;
 our $counter = 0;
 our $GLOBAL_PATH = "./";
 our $GLOBAL_FOLDER = undef;
@@ -203,7 +204,7 @@ sub add_column {
 
 	if (eval "return exists &Lab::XPRESS::Sweep::Sweep::$col;") 
 		{
-		Lab::Exception::Warning->throw("$col is not an alowed column name. Sorry. \n");
+		croak("$col is not an alowed column name. Sorry.");
 		}
 	
 	if ( not defined $col)

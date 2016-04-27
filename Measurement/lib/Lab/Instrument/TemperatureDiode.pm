@@ -3,9 +3,8 @@ our $VERSION = '3.500';
 
 use strict;
 use Math::Complex;
-use Lab::Exception;
 use Scalar::Util qw(weaken);
-use Carp qw(croak cluck);
+use Lab::Generic;
 use Data::Dumper;
 our $AUTOLOAD;
 
@@ -37,11 +36,11 @@ sub new {
 	
 	if (not defined $self->instrument()) 
 		{
-		Lab::Exception::Error->throw(error => $self->get_id().": No intrument for temperature measurment defined!");
+		croak($self->get_id().": No intrument for temperature measurment defined!");
 		}
 	elsif (not ref($self->instrument()) =~ /^(Lab::Instrument)/)
 		{
-		Lab::Exception::Error->throw(error => $self->get_id().": Object for temperature measurement is not an instrument!");
+		croak($self->get_id().": Object for temperature measurement is not an instrument!");
 		}
 	
 	return $self;
@@ -187,7 +186,7 @@ sub _check_args {
 			{
 			$errmess .= $k." => ".$v."\t";
 			}
-		print Lab::Exception::Warning->new( error => $errmess);
+		carp($errmess);
 		}
 			
 	return @return_args;
@@ -202,8 +201,7 @@ sub AUTOLOAD {
 	$name =~ s/.*://; # strip fully qualified portion
 
 	unless (exists $self->{_permitted}->{$name} ) {
-		cluck("AUTOLOAD in " . __PACKAGE__ . " couldn't access field '${name}'.\n");
-		Lab::Exception::Error->throw( error => "AUTOLOAD in " . __PACKAGE__ . " couldn't access field '${name}'.\n");
+		croak("AUTOLOAD in " . __PACKAGE__ . " couldn't access field '${name}'.");
 	}
 
 	if (@_) {

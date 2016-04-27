@@ -1,6 +1,7 @@
 package Lab::Instrument::Cryogenic_SMS;
 our $VERSION = '3.500';
 
+use Lab::Generic;
 use strict;
 use Lab::Instrument;
 #use Lab::Instrument::MagnetSupply;

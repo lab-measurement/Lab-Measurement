@@ -13,11 +13,11 @@
 package Lab::Connection::VISA_GPIB;
 our $VERSION = '3.500';
 
+use Lab::Generic;
 use strict;
 use Lab::VISA;
 use Lab::Bus::VISA;
 use Lab::Connection::GPIB;
-use Lab::Exception;
 
 
 our @ISA = ("Lab::Connection::GPIB");
@@ -60,7 +60,7 @@ sub _setbus {
 	my $bus_class = $self->bus_class();
 
 	no strict 'refs';
-	$self->bus($bus_class->new($self->config())) || Lab::Exception::Error->throw( error => "Failed to create bus $bus_class in " . __PACKAGE__ . "::_setbus.\n");
+	$self->bus($bus_class->new($self->config())) || croak("Failed to create bus $bus_class in " . __PACKAGE__ . "::_setbus.");
 	use strict;
 
 	#

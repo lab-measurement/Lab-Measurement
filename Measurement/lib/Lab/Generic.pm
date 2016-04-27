@@ -1,13 +1,16 @@
 package Lab::Generic;
 
-use Lab::Generic::CLOptions;
-
 our $VERSION = '3.500';
 
 use strict;
 use Term::ReadKey;
-
+use Lab::GenericSignals;
+use Carp;
+use Exporter qw(import);
+use Lab::CARP_NOT qw/@CARP_NOT/;
+our @EXPORT = qw/carp croak @CARP_NOT/;
 our @OBJECTS = ();
+$Carp::RefArgFormatter = sub {ref $_[0];};
 
 sub new {
 	my $proto = shift;
@@ -89,33 +92,6 @@ sub print {
 }
 
 
-# IO Channel Output: prepare and forward data to channel
-sub out_channel {
-  my $self = shift;
-	my $chan = shift;
-	Lab::GenericIO::channel_write($chan, $self, @_);
-}
-# IO Channel aliases
-sub out_message {
-  my $self = shift;
-	$self->out_channel('MESSAGE', @_);
-}
-sub out_error {
-  my $self = shift;
-  $self->out_channel('ERROR', @_);
-}
-sub out_warning {
-  my $self = shift;
- $self->out_channel('WARNING', @_);
-}
-sub out_debug {
-  my $self = shift;
-	$self->out_channel('DEBUG', @_);
-}
-sub out_progress {
-  my $self = shift;
-	$self->out_channel('PROGRESS', @_);
-}
 
 sub _check_args {
 	my $self = shift;
@@ -175,7 +151,7 @@ sub _check_args {
 			# {
 			# $errmess .= $k." => ".$v."\t";
 			# }
-		# print Lab::Exception::Warning->new( error => $errmess);
+		# carp($errmess);
 		# }
 
 	return @return_args;
@@ -303,7 +279,4 @@ sub seconds2time {
 
 	return $formated;
 }
-
-use Lab::GenericIO;
-use Lab::GenericSignals;
 1;

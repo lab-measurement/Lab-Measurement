@@ -46,6 +46,10 @@
 # dont distribute the real world scripts
 ^examples/RealWorld
 
+# auto generated
+^lib/Lab/CARP_NOT.pm
+
+
 # not ported yet
 ^lib/Lab/Instrument/SignalRecovery726x.pm
 

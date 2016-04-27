@@ -4,6 +4,7 @@
 package Lab::Instrument::Keithley2400;
 our $VERSION = '3.500';
 
+use Lab::Generic;
 use strict;
 use Lab::Instrument;
 use Lab::Instrument::Source;
@@ -112,7 +113,7 @@ sub set_output {
         
         }
     else {
-        Lab::Exception::CorruptParameter->throw("$value is not a valid output status (on = 1 | off = 0)");
+        croak("$value is not a valid output status (on = 1 | off = 0)");
     }
 
     return $self->{'device_cache'}->{'output'} = $self->get_output();   
@@ -148,7 +149,7 @@ sub set_output_offstate { # advanced settings
 		return $self->query(":OUTPUT:SMODE $offstate; :OUTPUT:SMODE?");
 		}
 	else {
-		Lab::Exception::CorruptParameter->throw("unexpected value for OUTPUT OFF STATE in sub set_output_off_state. Expected values are HIMPEDANCE, NORMAL, ZERO or GUARD.");
+		croak("unexpected value for OUTPUT OFF STATE in sub set_output_off_state. Expected values are HIMPEDANCE, NORMAL, ZERO or GUARD.");
 		}
 }
 
@@ -167,7 +168,7 @@ sub set_sense_terminals {# advanced settings
 		return $self->query(sprintf(":ROUTE:TERMINALS %s; :ROUTE:TERMINALS?",$terminals));
 		}
 	else {
-		Lab::Exception::CorruptParameter->throw("unexpected value for TERMINAL in sub set_terminals. Expected values are FRONT or REAR.");
+		croak("unexpected value for TERMINAL in sub set_terminals. Expected values are FRONT or REAR.");
 		}
 }
 
@@ -179,7 +180,7 @@ sub set_sense_concurrent {# advanced settings
 		return $self->query(sprintf(":SENSE:FUNCTION:CONCURRENT %s; CONCURRENT?",$value));
 		}
 	else {
-		Lab::Exception::CorruptParameter->throw("unexpected value in sub set_concurrent. Expected values are ON, OFF, 1 or 0.");
+		croak("unexpected value in sub set_concurrent. Expected values are ON, OFF, 1 or 0.");
 		}
 }
 
@@ -232,7 +233,7 @@ sub set_sense_onfunction {# advanced settings
 			return;
 			}
 		else {
-			Lab::Exception::CorruptParameter->throw("unexpected value in sub set_onfunction. Expected values are CURRENT, VOLTAGE, RESISTNCE and ALL.");
+			croak("unexpected value in sub set_onfunction. Expected values are CURRENT, VOLTAGE, RESISTNCE and ALL.");
 			}
 		}
 		
@@ -265,7 +266,7 @@ sub set_sense_resistancemode {# advanced settings
 		$self->write(sprintf(":SENSE:RESISTANCE:MODE %s",$mode));
 	}
 	else {
-		Lab::Exception::CorruptParameter->throw("unexpected value for MODE in sub set_resistancemode. Expected values are AUTO or MAN.");
+		croak("unexpected value for MODE in sub set_resistancemode. Expected values are AUTO or MAN.");
 		}
 }
 
@@ -277,7 +278,7 @@ sub set_sense_resistance_zerocompensated {# advanced settings
 		$self->query(sprintf(":SENSE:RES:OCOM %s; OCOM?",$zerocompensation ));
 	}
 	else {
-		Lab::Exception::CorruptParameter->throw("unexpected value for ZEROCOMPENSTION in sub set_resistance_zerocompensated. Expected values are ON, OFF, 1 or 0.");
+		croak("unexpected value for ZEROCOMPENSTION in sub set_resistance_zerocompensated. Expected values are ON, OFF, 1 or 0.");
 		}
 }
 
@@ -300,7 +301,7 @@ sub set_sense_range {# basic setting
 			$range = sprintf("%.5f", $range);
 			}		
 		else {
-			Lab::Exception::CorruptParameter->throw("unexpected value for 'RANGE' in sub set_sense_range. Expected values are between -1.05 and 1.05.");
+			croak("unexpected value for 'RANGE' in sub set_sense_range. Expected values are between -1.05 and 1.05.");
 			}
 		}
 	
@@ -314,7 +315,7 @@ sub set_sense_range {# basic setting
 			$range = sprintf("%.1f", $range);
 			}		
 		else {
-			Lab::Exception::CorruptParameter->throw("unexpected value for 'RANGE' in sub set_sense_range. Expected values are between -210 and 210.");
+			croak("unexpected value for 'RANGE' in sub set_sense_range. Expected values are between -210 and 210.");
 			}
 		}
 	
@@ -329,12 +330,12 @@ sub set_sense_range {# basic setting
 			$range = sprintf("%.1f", $range);
 			}
 		else {
-			Lab::Exception::CorruptParameter->throw("unexpected value in sub set_sense_range for 'RANGE'. Expected values are between 0 and 2.1E8.");
+			croak("unexpected value in sub set_sense_range for 'RANGE'. Expected values are between 0 and 2.1E8.");
 			}
 		}
 			
 	else {
-		Lab::Exception::CorruptParameter->throw("unexpected value for FUNCTION in sub set_range. Function can be CURRENT[:DC], VOLTAGE[:DC] or RESISTANCE");
+		croak("unexpected value for FUNCTION in sub set_range. Function can be CURRENT[:DC], VOLTAGE[:DC] or RESISTANCE");
 	}
 	
 	
@@ -354,7 +355,7 @@ sub set_sense_range {# basic setting
 		
 		if ( $range > $self->set_complience($function) )
 			{
-			print Lab::Exception::CorruptParameter->new("Error setting RANGE. Can't exceed Complience.");
+			carp("Error setting RANGE. Can't exceed Complience.");
 			$range = $self->set_complience($function);
 			}
 		$cmd = sprintf(":SENSE:$function:RANGE $range; RANGE?");		
@@ -392,20 +393,20 @@ sub set_compliance {# basic setting
 	if ($function =~ /\b(CURRENT|CURR|current|curr)\b/) {
 		if ($complience < -210 or $complience > 210 )
 			{
-			Lab::Exception::CorruptParameter->throw("unexpected value for COMPLIENCE in sub set_comlience. Expected values are between -210 and +210V.");
+			croak("unexpected value for COMPLIENCE in sub set_comlience. Expected values are between -210 and +210V.");
 			}
 		}
 	
 	elsif($function =~ /\b(VOLTAGE|VOLT|voltage|volt)\b/){		
 		if ($complience < -1.05 or $complience > 1.05 )
 			{
-			Lab::Exception::CorruptParameter->throw("unexpected value for COMPLIENCE in sub set_comlience. Expected values are between -1.05 and +1.05A.");
+			croak("unexpected value for COMPLIENCE in sub set_comlience. Expected values are between -1.05 and +1.05A.");
 			}
 		}
 		
 	# check if $complience is valid with respect to the selected RANGE; $comlience >= 0.1%xRANGE	
 	#if ($complience < 0.001*$self->query(sprintf(":SENSE:%s:RANGE?",$function))){
-	#	Lab::Exception::CorruptParameter->throw("unexpected value for COMPLIENCE in sub set_complience. COMPLIENCE must be greater than 0.001xRANGE.");
+	#	croak("unexpected value for COMPLIENCE in sub set_complience. COMPLIENCE must be greater than 0.001xRANGE.");
 	#	}
 	
 	# set complience
@@ -446,14 +447,14 @@ sub set_sense_nplc {# basic setting
 			chomp $function;
 			}
 		else {
-			Lab::Exception::CorruptParameter->throw("unexpected value for FUNCTION in sub set_sense_nplc. Expected values are CURRENT:AC, CURRENT:DC, VOLTAGE:AC, VOLTAGE:DC, RESISTANCE, FRESISTANCE, TEMPERATURE");
+			croak("unexpected value for FUNCTION in sub set_sense_nplc. Expected values are CURRENT:AC, CURRENT:DC, VOLTAGE:AC, VOLTAGE:DC, RESISTANCE, FRESISTANCE, TEMPERATURE");
 		}
 		
 		}
 	
 	
 	if (($nplc < 0.01 && $nplc > 1000) and not $nplc =~ /\b(MAX|max|MIN|min|DEF|def)\b/ ) {
-		Lab::Exception::CorruptParameter->throw("unexpected value for NPLC in sub set_sense_nplc. Expected values are between 0.01 and 1000 POWER LINE CYCLES or MIN/MAX/DEF.");
+		croak("unexpected value for NPLC in sub set_sense_nplc. Expected values are between 0.01 and 1000 POWER LINE CYCLES or MIN/MAX/DEF.");
 		}
 	
 		
@@ -478,11 +479,11 @@ sub set_sense_nplc {# basic setting
 			return $self->query(sprintf(":SENSE:%s:NPLC %e; NPLC?", $function, $nplc));
 			}
 		else {
-			Lab::Exception::CorruptParameter->throw("unexpected value for NPLC in sub set_sense_nplc. Expected values are between 0.01 and 10 POWER LINE CYCLES or MIN/MAX/DEF.");
+			croak("unexpected value for NPLC in sub set_sense_nplc. Expected values are between 0.01 and 10 POWER LINE CYCLES or MIN/MAX/DEF.");
 			}
 		}
 	else {
-		Lab::Exception::CorruptParameter->throw("unexpected value for FUNCTION in sub set_sense_nplc. Expected values are CURRENT:AC, CURRENT:DC, VOLTAGE:AC, VOLTAGE:DC, RESISTANCE, FRESISTANCE, TEMPERATURE");
+		croak("unexpected value for FUNCTION in sub set_sense_nplc. Expected values are CURRENT:AC, CURRENT:DC, VOLTAGE:AC, VOLTAGE:DC, RESISTANCE, FRESISTANCE, TEMPERATURE");
 		}
 }
 
@@ -525,12 +526,12 @@ sub set_sense_averaging {# advanced settings
 		elsif ( not defined $filter) {
 			return $self->query(sprintf(":SENSE:AVERAGE:TCONTROL MOV; COUNT %d; STATE ON; COUNT?", $count));
 		}
-		else { Lab::Exception::CorruptParameter->throw("unexpected value for FILTER in sub set_averaging. Expected values are REPEAT or MOVING.");}
+		else { croak("unexpected value for FILTER in sub set_averaging. Expected values are REPEAT or MOVING.");}
 	}
 	elsif ($count =~/\b(OFF|off|0)\b/) {
 		return $self->query(sprintf(":SENSE:AVERAGE:STATE OFF; TCONTROL MOV; STATE?"));
 	}
-	else { Lab::Exception::CorruptParameter->throw("unexpected value for COUNT in sub set_averaging. Expected values are between 1 and 100 or 0 or OFF to turn off averaging");}	
+	else { croak("unexpected value for COUNT in sub set_averaging. Expected values are between 1 and 100 or 0 or OFF to turn off averaging");}	
 }
 
 
@@ -549,7 +550,7 @@ sub set_source_autooutputoff {# advanced settings
 	elsif (not defined $mode) {
 		return $self->query(":SOURCE:CLEAR:AUTO OFF; :SOURCE:CLEAR:AUTO?");
 		}
-	else { Lab::Exception::CorruptParameter->throw("unexpected value for MODE in sub set_sourceautooutputoff. Expected values are ON, OFF, 1 or 0.");}
+	else { croak("unexpected value for MODE in sub set_sourceautooutputoff. Expected values are ON, OFF, 1 or 0.");}
 }
 
 
@@ -563,9 +564,9 @@ sub set_source_sourcingmode {# advanced settings
 		if ( $mode =~ /\b(FIXED|FIX|fixed|fix)\b/ or $mode  =~/\b(LIST|list)\b/  or $mode =~ /\b(SWEEP|SWE|sweep|swe)\b/ ) {
 			return $self->query(sprintf(":SOURCE:%s:MODE %s; :SOURCE:%s:MODE?", $function, $mode, $function));
 			}
-		else { Lab::Exception::CorruptParameter->throw("unexpected value for MODE in sub set_sourcingmode. Expected values are FIXED, LIST or SWEEP.");}
+		else { croak("unexpected value for MODE in sub set_sourcingmode. Expected values are FIXED, LIST or SWEEP.");}
 		}
-	else { Lab::Exception::CorruptParameter->throw("unexpected value for FUNCTION in sub set_sourcingmode. Expected values are CURRENT or VOLTAGE.");}
+	else { croak("unexpected value for FUNCTION in sub set_sourcingmode. Expected values are CURRENT or VOLTAGE.");}
 }
 
 sub set_source_range {# basic setting
@@ -589,7 +590,7 @@ sub set_source_range {# basic setting
 		if (($range >= -1.05 && $range <= 1.05) || $range eq "AUTO")
 			{$range = sprintf("%.5f", $range);}
 		else {
-			Lab::Exception::CorruptParameter->throw("unexpected value in sub set_source_range for 'RANGE'. Expected values are between -1.05 and 1.05.");
+			croak("unexpected value in sub set_source_range for 'RANGE'. Expected values are between -1.05 and 1.05.");
 			}
 		}
 	
@@ -597,12 +598,12 @@ sub set_source_range {# basic setting
 		if (($range >= -210 && $range <= 210) || $range eq "AUTO")
 			{$range = sprintf("%.1f", $range);}
 		else {
-			Lab::Exception::CorruptParameter->throw("unexpected value in sub set_source_range for 'RANGE'. Expected values are between -210 and 210.");
+			croak("unexpected value in sub set_source_range for 'RANGE'. Expected values are between -210 and 210.");
 			}
 		}
 			
 	else {
-		Lab::Exception::CorruptParameter->throw("unexpected value in sub set_source_range. Function can be CURRENT or VOLTAGE");
+		croak("unexpected value in sub set_source_range. Function can be CURRENT or VOLTAGE");
 	}
 	
 	
@@ -656,7 +657,7 @@ sub _set_source_amplitude {# internal/advanced use only
 		# check if new value is within the current range
 		if ( $value <= $self->set_source_range($function) )
 			{
-			print Lab::Exception::CorruptParameter->new("WARNING: setting new OUTPUT value. Value not within current range setting. Change range setting to fit with new output setting.");
+			carp("WARNING: setting new OUTPUT value. Value not within current range setting. Change range setting to fit with new output setting.");
 			$self->set_source_range($function, $value);
 			}
 		
@@ -682,7 +683,7 @@ sub _set_source_amplitude {# internal/advanced use only
 			return $self->query(sprintf(":SOURCE:%s:TRIGGERED %e; TRIGGERED?", $function, $value));
 			}
 		}
-	else { Lab::Exception::CorruptParameter->throw("unexpected value in sub _set_source_amplitude. Expected values are between -210.. +210 V or -1.05..+1.05 A");}		
+	else { croak("unexpected value in sub _set_source_amplitude. Expected values are between -210.. +210 V or -1.05..+1.05 A");}		
 }
 
 sub set_source_voltagelimit { # advanced settings
@@ -705,7 +706,7 @@ sub set_source_voltagelimit { # advanced settings
 		}
 	else 
 		{
-		Lab::Exception::CorruptParameter->throw("unexpected value for VOLTAGE LIMIT in sub set_source_voltagelimit. Expected values are between -210..+210 V.");
+		croak("unexpected value for VOLTAGE LIMIT in sub set_source_voltagelimit. Expected values are between -210..+210 V.");
 		}
 
 }
@@ -735,7 +736,7 @@ sub _set_source_delay {# internal/advanced use only
 		{
 		return $self->query(":SOURCE:DELAY:AUTO ON; :SOURCE:DELAY:AUTO?");	
 		}
-	else { Lab::Exception::CorruptParameter->throw("unexpected value for DELAY in sub _set_source_delay. Expected values are between 0..999.9999 or AUTO");}
+	else { croak("unexpected value for DELAY in sub _set_source_delay. Expected values are between 0..999.9999 or AUTO");}
 }
 
 sub init_source{ #
@@ -777,7 +778,7 @@ sub set_source_function {# basic setting
 	if ( $function =~ /\b(CURRENT|CURR|current|curr)\b/ or $function =~ /\b(VOLTAGE|VOLT|voltage|volt)\b/ ) {
 		return $self->query(sprintf(":SOURCE:FUNCTION:MODE %s; :SOURCE:FUNCTION:MODE?", $function));
 		}
-	else { Lab::Exception::CorruptParameter->throw($self->get_id().": unexpected value for MODE in sub set_sourcemode. Expected values are ON, OFF, 1 or 0.");}
+	else { croak($self->get_id().": unexpected value for MODE in sub set_sourcemode. Expected values are ON, OFF, 1 or 0.");}
 }
 
 sub get_source_function {
@@ -837,7 +838,7 @@ sub config_sweep {
 	
 	if (not $self->get_output())
 		{
-		Lab::Exception::Error->throw(error => $self->get_id()." :Can't configure a sweep when output is off!");
+		croak($self->get_id()." :Can't configure a sweep when output is off!");
 		}
 	
 	my $nplc_max = 10;
@@ -846,7 +847,7 @@ sub config_sweep {
 	my $start = $self->get_level($function);
 	
 	if (defined $time and defined $rate) {
-		$self->out_error('Please give either a time OR rate. Not both!');
+		croak('Please give either a time OR rate. Not both!');
 	}
 	elsif (defined $rate and not defined $time) {
 		$time = abs($start-$target)/$rate;
@@ -912,7 +913,7 @@ sub wait { # basic
 		}
 
 	#my $status=Lab::VISA::viSetAttribute($self->{vi}->{instr},  $Lab::VISA::VI_ATTR_TMO_VALUE, $timeout);
-	#if ($status != $Lab::VISA::VI_SUCCESS) { Lab::Exception::CorruptParameter->throw("Error while setting baud: $status");}
+	#if ($status != $Lab::VISA::VI_SUCCESS) { croak("Error while setting baud: $status");}
 	
 		
 	print "waiting for data ... \n";
@@ -922,7 +923,7 @@ sub wait { # basic
 		}
 		
 	#my $status=Lab::VISA::viSetAttribute($self->{vi}->{instr},  $Lab::VISA::VI_ATTR_TMO_VALUE, 3000);
-	#if ($status != $Lab::VISA::VI_SUCCESS) { Lab::Exception::CorruptParameter->throw("Error while setting baud: $status");}
+	#if ($status != $Lab::VISA::VI_SUCCESS) { croak("Error while setting baud: $status");}
 }
 
 sub active { # basic
@@ -993,7 +994,7 @@ sub get_value { # basic setting
 		$result = $self->query(":MEASURE:".$function."?");
 		}
 	else {
-		Lab::Exception::CorruptParameter->throw("unexpected value for 'function' in sub get_value. Function can be CURRENT:AC, CURRENT:DC, VOLTAGE:AC, VOLTAGE:DC, RESISTANCE, FRESISTANCE, PERIOD, FREQUENCY, TEMPERATURE, DIODE");
+		croak("unexpected value for 'function' in sub get_value. Function can be CURRENT:AC, CURRENT:DC, VOLTAGE:AC, VOLTAGE:DC, RESISTANCE, FRESISTANCE, PERIOD, FREQUENCY, TEMPERATURE, DIODE");
 		}
 
 	my @result = split(/,/,$result);
@@ -1044,7 +1045,7 @@ sub config_measurement{ #
 	my $nplc = ($time*50)/$nop;
 	if ($nplc < 0.01) 
 		{
-		Lab::Exception::CorruptParameter->throw("unexpected value for TIME in sub config_measurement. Expected values are between 0.21 ... 20000 sec.");
+		croak("unexpected value for TIME in sub config_measurement. Expected values are between 0.21 ... 20000 sec.");
 		}
 	print "nplc = ".$self->set_sense_nplc($nplc)."\n";
 	$self->_set_source_delay(0);
@@ -1073,7 +1074,7 @@ sub config_sweep2 {# basic setting
 		}
 	else
 		{
-		Lab::Exception::CorruptParameter->throw("unexpected value for TIME in sub config_sweep. Expected values are between 2 ... 9999.");
+		croak("unexpected value for TIME in sub config_sweep. Expected values are between 2 ... 9999.");
 		}
 		
 	my $function = $self->query(":SOURCE:FUNCTION:MODE?");
@@ -1251,7 +1252,7 @@ sub _set_sweep_ranging {# internal/advanced use only
 	if ( $ranging =~ /\b(BEST|best|FIXED|FIX|fixed|fix|AUTO|auto)\b/ ) {
 		return $self->query(sprintf(":SOURCE:SWEEP:RANGING %s; :SOURCE:SWEEP:RANGING?", $ranging));
 	}
-	else { Lab::Exception::CorruptParameter->throw("unexpected vlaue for RANGING in sub _set_sweep_ranging. Expected values are BEST, FIXED or AUTO.");}
+	else { croak("unexpected vlaue for RANGING in sub _set_sweep_ranging. Expected values are BEST, FIXED or AUTO.");}
 }
 
 sub _set_sweep_spacing {# internal/advanced use only
@@ -1261,7 +1262,7 @@ sub _set_sweep_spacing {# internal/advanced use only
 	if ( $spacing =~ /\b(LINEAR|LIN|linear|lin|LOGARITHMIC|LOG|logarithmic|log)\b/ ) {
 		return $self->query(sprintf(":SOURCE:SWEEP:SPACING %s; :SOURCE:SWEEP:SPACING?", $spacing));
 	}
-	else { Lab::Exception::CorruptParameter->throw("unexpected vlaue for SPACING in sub set_sweep_spaceing. Expected values are LIN or LOG.");}
+	else { croak("unexpected vlaue for SPACING in sub set_sweep_spaceing. Expected values are LIN or LOG.");}
 }
 
 sub _set_sweep_start {# internal/advanced use only
@@ -1274,16 +1275,16 @@ sub _set_sweep_start {# internal/advanced use only
 		$function = $self->query(":SOURCE:FUNCTION:MODE?");
 		chomp $function;
 	}
-	else { Lab::Exception::CorruptParameter->throw("unexpected value in sub _set_sweep_start. Expected values are between -210.. +210 V or -1.05..+1.05 A");}
+	else { croak("unexpected value in sub _set_sweep_start. Expected values are between -210.. +210 V or -1.05..+1.05 A");}
 	
 
 	
 	
 	if ($function=~ /\b(CURRENT|CURR|current|curr)\b/ and ($start < -1.05 or $start > 1.05 )) {
-		Lab::Exception::CorruptParameter->throw("unexpected value in sub _set_sweep_start. Expected values are between -1.05 and 1.05.");		
+		croak("unexpected value in sub _set_sweep_start. Expected values are between -1.05 and 1.05.");		
 		}
 	elsif($function =~ /\b(VOLTAGE|VOLT|voltage|volt)\b/ and ($start < -210 or $start > 210)){		
-		Lab::Exception::CorruptParameter->throw("unexpected value in sub _set_sweep_start. Expected values are between -210 and 210.");
+		croak("unexpected value in sub _set_sweep_start. Expected values are between -210 and 210.");
 		}		
 	elsif ($function =~ /\b(VOLTAGE|VOLT|voltage|volt)\b/ or $function=~ /\b(CURRENT|CURR|current|curr)\b/)
 		{
@@ -1292,7 +1293,7 @@ sub _set_sweep_start {# internal/advanced use only
 		}
 	else
 		{
-		Lab::Exception::CorruptParameter->throw("unexpected value in sub _set_sweep_start. Function can be CURRENT or VOLTAGE, startvalue is expected to be between -1.05...+1.05A or -210...+210V");
+		croak("unexpected value in sub _set_sweep_start. Function can be CURRENT or VOLTAGE, startvalue is expected to be between -1.05...+1.05A or -210...+210V");
 		}	
 }
 
@@ -1306,14 +1307,14 @@ sub _set_sweep_stop {# internal/advanced use only
 		$function = $self->query(":SOURCE:FUNCTION:MODE?");
 		chomp $function;
 	}
-	else { Lab::Exception::CorruptParameter->throw("unexpected value in sub _set_sweep_stop. Expected values are between -210.. +210 V or -1.05..+1.05 A");}
+	else { croak("unexpected value in sub _set_sweep_stop. Expected values are between -210.. +210 V or -1.05..+1.05 A");}
 	
 	
 	if ($function=~ /\b(CURRENT|CURR|current|curr)\b/ and ($stop < -1.05 or $stop > 1.05 )) {
-		Lab::Exception::CorruptParameter->throw("unexpected value in sub _set_sweep_start. Expected values are between -1.05 and 1.05.");		
+		croak("unexpected value in sub _set_sweep_start. Expected values are between -1.05 and 1.05.");		
 		}
 	elsif($function =~ /\b(VOLTAGE|VOLT|voltage|volt)\b/ and ($stop < -210 or $stop > 210)){		
-		Lab::Exception::CorruptParameter->throw("unexpected value in sub _set_sweep_start. Expected values are between -210 and 210.");
+		croak("unexpected value in sub _set_sweep_start. Expected values are between -210 and 210.");
 		}		
 	elsif ($function =~ /\b(VOLTAGE|VOLT|voltage|volt)\b/ or $function=~ /\b(CURRENT|CURR|current|curr)\b/)
 		{
@@ -1322,7 +1323,7 @@ sub _set_sweep_stop {# internal/advanced use only
 		}
 	else
 		{
-		Lab::Exception::CorruptParameter->throw("unexpected value in sub _set_sweep_stop. Function can be CURRENT or VOLTAGE, startvalue is expected to be between -1.05...+1.05A or -210...+210V");
+		croak("unexpected value in sub _set_sweep_stop. Function can be CURRENT or VOLTAGE, startvalue is expected to be between -1.05...+1.05A or -210...+210V");
 		}
 }
 
@@ -1336,18 +1337,18 @@ sub _set_sweep_step {# internal/advanced use only
 		$function = $self->query(":SOURCE:FUNCTION:MODE?");
 		chomp $function;
 	}
-	else { Lab::Exception::CorruptParameter->throw("unexpected value in sub _set_sweep_step. Expected values are between -420.. +420V or -2.1..+2.1A");}
+	else { croak("unexpected value in sub _set_sweep_step. Expected values are between -420.. +420V or -2.1..+2.1A");}
 	
 
 	
 	if ($function =~ /\b(CURRENT|CURR|current|curr)\b/ and ($step < -2.1 or $step > 2.1 )) {
-		Lab::Exception::CorruptParameter->throw("unexpected value in sub _set_sweep_step. Expected values are between -2.1 and 2.1A.");		
+		croak("unexpected value in sub _set_sweep_step. Expected values are between -2.1 and 2.1A.");		
 	}
 	elsif($function =~ /\b(VOLTAGE|VOLT|voltage|volt)\b/ and ($step < -420 or $step > 420)){		
-		Lab::Exception::CorruptParameter->throw("unexpected value in sub _set_sweep_step. Expected values are between -420 and 420A.");
+		croak("unexpected value in sub _set_sweep_step. Expected values are between -420 and 420A.");
 	}		
 	else {
-		Lab::Exception::CorruptParameter->throw("unexpected value in sub _set_sweep_step. Function can be CURRENT or VOLTAGE, startvalue is expected to be between -420.. +420V or -2.1..+2.1A");
+		croak("unexpected value in sub _set_sweep_step. Function can be CURRENT or VOLTAGE, startvalue is expected to be between -420.. +420V or -2.1..+2.1A");
 	}
 	
 	# check if step matches to start and stop values
@@ -1355,7 +1356,7 @@ sub _set_sweep_step {# internal/advanced use only
 	my $stop = $self->query(":SOURCE:%s:STOP?");
 	
 	if (int(($stop-$start)/$step) != ($stop-$start)/$step) {
-		Lab::Exception::CorruptParameter->throw("ERROR in sub _set_sweep_step. STOP-START/STEP must be an integer value.");
+		croak("ERROR in sub _set_sweep_step. STOP-START/STEP must be an integer value.");
 		}
 	
 	# set startvalue for sweep
@@ -1372,7 +1373,7 @@ sub _set_sweep_nop {# internal/advanced use only
 		$self->_set_trigger_count($nop);
 		return $self->query(sprintf(":SOURCE:SWEEP:POINTS %d; POINTS?",$nop));
 	}
-	else { Lab::Exception::CorruptParameter->throw("unexpected value in sub _set_sweep_step. Expected values are between 1..2500");}	
+	else { croak("unexpected value in sub _set_sweep_step. Expected values are between 1..2500");}	
 }
 
 
@@ -1409,7 +1410,7 @@ sub _init_buffer { # internal/advanced use only
 		return $return_nop;
 		}
 	else{
-		Lab::Exception::CorruptParameter->throw("unexpected value in sub set_nop_for_buffer. Must be between 2 and 2500.");
+		croak("unexpected value in sub set_nop_for_buffer. Must be between 2 and 2500.");
 		}
 }
 
@@ -1427,7 +1428,7 @@ sub _read_buffer { # internal/advanced use only
 	
 	# enlarge Query-TIMEOUT
 	my $status=Lab::VISA::viSetAttribute($self->{vi}->{instr},  $Lab::VISA::VI_ATTR_TMO_VALUE, 20000);
-	if ($status != $Lab::VISA::VI_SUCCESS) { Lab::Exception::CorruptParameter->throw("Error while setting baud: $status");}
+	if ($status != $Lab::VISA::VI_SUCCESS) { croak("Error while setting baud: $status");}
 	
 	# read data
 	print "please wait while reading DATA ... \n";
@@ -1437,7 +1438,7 @@ sub _read_buffer { # internal/advanced use only
 	
 	# Query-TIMEOUT back to default value
 	my $status=Lab::VISA::viSetAttribute($self->{vi}->{instr},  $Lab::VISA::VI_ATTR_TMO_VALUE, 3000);
-	if ($status != $Lab::VISA::VI_SUCCESS) { Lab::Exception::CorruptParameter->throw("Error while setting baud: $status");}
+	if ($status != $Lab::VISA::VI_SUCCESS) { croak("Error while setting baud: $status");}
 	
 	# split data ( more than one onfunction )
 	if ( $num_of_onfunctions > 1 )
@@ -1489,7 +1490,7 @@ sub _set_trigger_count{# internal/advanced use only
 		return $self->query(sprintf(":TRIGGER:COUNT %d; COUNT?",$triggercount));
 		}
 	else {
-		Lab::Exception::CorruptParameter->throw("unexpected value for TRIGGERCOUNT in  sub _set_trigger_count. Must be between 1 and 2500.");
+		croak("unexpected value for TRIGGERCOUNT in  sub _set_trigger_count. Must be between 1 and 2500.");
 		}
 }
 
@@ -1513,7 +1514,7 @@ sub _set_trigger_delay{# internal/advanced use only
 		return $self->query(sprintf(":TRIGGER:DELAY %s; DELAY?",$triggerdelay));
 		}
 	else {
-		Lab::Exception::CorruptParameter->throw("unexpected value for TRIGGERDELAY in  sub _set_trigger_delay. Must be between 0 and 999999.999sec.");
+		croak("unexpected value for TRIGGERDELAY in  sub _set_trigger_delay. Must be between 0 and 999999.999sec.");
 		}		
 }
 
@@ -1525,7 +1526,7 @@ sub _set_timer { # internal/advanced use only
 		$self->write(sprintf(":ARM:TIMER %.3f",$timer));
 		}
 	else {
-		Lab::Exception::CorruptParameter->throw("unexpected value for TIMER in  sub _set_timer. Must be between 0 and 999999.999sec.");
+		croak("unexpected value for TIMER in  sub _set_timer. Must be between 0 and 999999.999sec.");
 		}
 }
 

@@ -1,10 +1,10 @@
 package Lab::XPRESS::hub;
-use Lab::Exception;
 use strict;
 use Exporter 'import';
 
 our $VERSION = '3.500';
 
+use Lab::Generic;
 our @EXPORT_OK = qw(DataFile Sweep Frame Instrument Connection);
 
 sub new {
@@ -26,7 +26,7 @@ sub DataFile {
 	
 	use Lab::XPRESS::Data::XPRESS_DataFile;
 	my $xFile = new Lab::XPRESS::Data::XPRESS_DataFile($filenamebase,$foldername)
-		or die Lab::Exception::CorruptParameter->throw( error => "Can't open file $filenamebase\n" );
+		or die croak("Can't open file $filenamebase" );
 	return $xFile;
 		
 }
@@ -37,7 +37,7 @@ sub Sweep {
 	
 	$sweep = "Lab::XPRESS::Sweep::".$sweep;
 	eval "require $sweep; $sweep->import(); 1;" 
-		or do Lab::Exception::CorruptParameter->throw( error => $@ );
+		or croak($@ );
 
 	return $sweep->new(@_);
 
@@ -48,8 +48,8 @@ sub Frame {
 	
 	my $frame = "Lab::XPRESS::Sweep::Frame";
 	eval "require $frame; $frame->import(); 1;" 
-		or do Lab::Exception::CorruptParameter->throw( error => $@ );
-		#or do Lab::Exception::CorruptParameter->throw( error => "Can't locate module $frame\n" );
+		or croak($@ );
+		#or croak("Can't locate module $frame" );
 
 	return $frame->new(@_);
 
@@ -62,11 +62,11 @@ sub Instrument {
 	
 	$instrument = "Lab::Instrument::".$instrument;
 	eval "require $instrument; $instrument->import(); 1;" 
-		or do Lab::Exception::CorruptParameter->throw( error => $@ );
-		#or do Lab::Exception::CorruptParameter->throw( error => "Can't locate module $instrument\n" );
-
+	    or croak($@ );
+	#or croak("Can't locate module $instrument" );
+	
 	return $instrument->new(@_);
-
+	
 }
 
 sub Connection {
@@ -75,11 +75,11 @@ sub Connection {
 	
 	$connection = "Lab::Connection::".$connection;
 	eval "require $connection; $connection->import(); 1;"
-		or do Lab::Exception::CorruptParameter->throw( error => $@ );
-		#or do Lab::Exception::CorruptParameter->throw( error => "Can't locate module $connection\n" );
+		or croak($@ );
+		#or croak("Can't locate module $connection" );
 		
 	return $connection->new(@_);
-		
+	
 }
 
 sub show_available_objects {

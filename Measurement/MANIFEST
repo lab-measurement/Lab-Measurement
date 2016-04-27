@@ -22,6 +22,7 @@ examples/XPRESS/Example1_Simple-IV.pl
 examples/XPRESS/Example2_Gate-IV-scan.pl
 examples/XPRESS/Example3_2samples-2files.pl
 examples/XPRESS/Example4_3d-scan.pl
+lib/Lab/LexWrap.pm
 lib/Lab/Bus.pm
 lib/Lab/Bus/DEBUG.pm
 lib/Lab/Bus/DEBUG/HumanInstrument.pm
@@ -50,13 +51,7 @@ lib/Lab/Data/PDL.pm
 lib/Lab/Data/Plotter.pm
 lib/Lab/Data/Writer.pm
 lib/Lab/Data/XMLtree.pm
-lib/Lab/Exception.pm
-lib/Lab/Exception/Base.pm
 lib/Lab/Generic.pm
-lib/Lab/Generic/CLOptions.pm
-lib/Lab/GenericIO.pm
-lib/Lab/GenericIO/STDerrHandle.pm
-lib/Lab/GenericIO/STDoutHandle.pm
 lib/Lab/GenericSignals.pm
 lib/Lab/Instrument.pm
 lib/Lab/Instrument/Agilent34410A.pm
@@ -101,14 +96,6 @@ lib/Lab/Instrument/U2000.pm
 lib/Lab/Instrument/Vectormagnet.pm
 lib/Lab/Instrument/Yokogawa7651.pm
 lib/Lab/Instrument/YokogawaGS200.pm
-lib/Lab/IO/Data.pm
-lib/Lab/IO/Data/Debug.pm
-lib/Lab/IO/Data/Error.pm
-lib/Lab/IO/Data/Message.pm
-lib/Lab/IO/Data/Warning.pm
-lib/Lab/IO/Interface.pm
-lib/Lab/IO/Interface/Term.pm
-lib/Lab/IO/Interface/Void.pm
 lib/Lab/Measurement.pm
 lib/Lab/Measurement/Changes.pod
 lib/Lab/Measurement/Developer/Write-A-Source-Driver.pod

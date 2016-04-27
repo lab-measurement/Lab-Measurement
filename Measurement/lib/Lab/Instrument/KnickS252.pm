@@ -5,6 +5,7 @@ use Lab::Instrument::Source;
 
 our $VERSION="3.500";
 
+use Lab::Generic;
 our @ISA=('Lab::Instrument::Source');
 
 our %fields = (
@@ -66,7 +67,7 @@ sub _set_level {
     my $range=$self->get_range();
     
     if ( $value > $range || $value < -$range ){
-        Lab::Exception::CorruptParameter->throw("The desired source level $value is not within the source range $range \n");
+        croak("The desired source level $value is not within the source range $range");
     }
 
     my $cmd=sprintf("X OUT %e\n",$voltage);    
@@ -145,7 +146,7 @@ sub set_range {
         elsif ($range <= 20) {$range = 20;}
         else 
             { 
-            Lab::Exception::CorruptParameter->throw( error=>  "unexpected value for RANGE in sub set_range. Expected values are 5V or 20V");
+            croak("unexpected value for RANGE in sub set_range. Expected values are 5V or 20V");
             }
 
     my $cmd = "P RANGE $range\n";

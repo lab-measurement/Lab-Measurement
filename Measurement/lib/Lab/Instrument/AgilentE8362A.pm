@@ -4,6 +4,7 @@ use warnings;
 
 our $VERSION = '3.500';
 
+use Lab::Generic;
 use feature "switch";
 use Lab::Instrument;
 use Lab::Instrument::Source;
@@ -87,8 +88,7 @@ sub set_level {
         return $self->{'device_cache'}->{'level'} = $value;
     }
     else{
-        Lab::Exception::CorruptParameter->throw(
-        error=>"Level $value is out of current range $srcrange.");
+        croak("Level $value is out of current range $srcrange.");
     }
     
     

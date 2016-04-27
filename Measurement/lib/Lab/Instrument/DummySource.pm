@@ -1,6 +1,7 @@
 package Lab::Instrument::DummySource;
 our $VERSION = '3.500';
 
+use Lab::Generic;
 use strict;
 use Lab::Instrument::Source;
 use Data::Dumper;

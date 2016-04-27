@@ -11,10 +11,9 @@ use Scalar::Util qw(weaken);
 use Time::HiRes qw (usleep sleep);
 use Lab::Bus;
 use Data::Dumper;
-use Carp;
+use Lab::Generic;
 use Lab::Bus::DEBUG::HumanInstrument;
 
-use Lab::Exception
 
 our @ISA = ("Lab::Bus");
 
@@ -114,15 +113,11 @@ ENDMSG
 
 	if( $result =~ /^(T!).*/) {
 		$result = substr($result, 2);
-		Lab::Exception::Timeout->throw(
-			error => "Timeout in " . __PACKAGE__ . "::connection_read().\n",
-			data => $result,
-		);
+		croak("Timeout in " . __PACKAGE__ . "::connection_read(), input: $result");
 	}
 	elsif( $result =~ /^(E!).*/) {
 		$result = substr($result, 2);
-		Lab::Exception::Error->throw(
-			error => "Error in " . __PACKAGE__ . "::connection_read().\n",
+		croak("Error in " . __PACKAGE__ . "::connection_read().",
 		);
 	}
 
@@ -141,7 +136,7 @@ sub connection_write { # @_ = ( $connection_handle, $args = { command, wait_stat
 	else { $args={@_} }
 
 	my $command = $args->{'command'} || undef;
-	if (!defined $command) { Lab::Exception::CorruptParameter->throw( error => "No command given to " . __PACKAGE__ . "::connection_write\n"); }
+	if (!defined $command) { croak("No command given to " . __PACKAGE__ . "::connection_write"); }
 	my $brutal = $args->{'brutal'} || $self->brutal();
 	my $read_length = $args->{'read_length'} || $self->read_length();
 	my $wait_status = $args->{'wait_status'} || $self->wait_status();
@@ -171,15 +166,13 @@ ENDMSG
 	chomp($user_return);
 
 	if(!defined $command) {
-		Lab::Exception::CorruptParameter->throw(
-			error => "No command given to " . __PACKAGE__ . "::connection_write().\n",
+		croak("No command given to " . __PACKAGE__ . "::connection_write().",
 		);
 	}
 	else {
 
 		if ( $user_return eq 'E' ) {
-			Lab::Exception::Error->throw(
-				error => "Error in " . __PACKAGE__ . "::connection_write() while executing $command.",
+			croak("Error in " . __PACKAGE__ . "::connection_write() while executing $command.",
 			);
 		}
 

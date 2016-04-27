@@ -16,7 +16,7 @@
 /Measurement/MYMETA.json
 /Measurement/MANIFEST.bak
 /Measurement/Lab-Measurement-*.tar.gz
-
+/Measurement/lib/Lab/CARP_NOT.pm
 # /Homepage/
 /Homepage/docs
 /Homepage/docs-1.x

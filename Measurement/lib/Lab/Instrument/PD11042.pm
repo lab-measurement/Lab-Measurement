@@ -1,6 +1,7 @@
 package Lab::Instrument::PD11042;
 our $VERSION = '3.500';
 
+use Lab::Generic;
 use strict;
 use Time::HiRes qw/usleep/, qw/time/;
 use Lab::Instrument;
@@ -113,7 +114,7 @@ sub new {
 	# my $status;
 	# termchar is imho disabled by default
 	# $status=Lab::VISA::viSetAttribute($self->{vi}->{config}->{RS232}->{vi}->{instr}, $Lab::VISA::VI_ATTR_TERMCHAR_EN, $Lab::VISA::VI_FALSE);
-	# if ($status != $Lab::VISA::VI_SUCCESS) { Lab::Exception::CorruptParameter->throw( error =>  "Error while setting termchar enabled: $status");}	
+	# if ($status != $Lab::VISA::VI_SUCCESS) { croak("Error while setting termchar enabled: $status");}	
 	# not sure what the echo setting by default is, let's test
 	# $self->{vi}->{config}->{RS232_Echo} = 'OFF';
 
@@ -271,7 +272,7 @@ sub move{
 		}
 	if ( not $mode =~/ABS|abs|REL|rel/  )
 		{
-		Lab::Exception::CorruptParameter->throw( error => "unexpected value for <MODE> in sub move. expected values are ABS and REL.");
+		croak("unexpected value for <MODE> in sub move. expected values are ABS and REL.");
 		}
 	if ( not defined $speed )
 		{
@@ -279,11 +280,11 @@ sub move{
 		}
 	if ( not defined $position )
 		{
-		Lab::Exception::CorruptParameter->throw( error => $self->get_id().": No target given in sub move! ");
+		croak($self->get_id().": No target given in sub move! ");
 		}
 	elsif (not $position =~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/)
 		{
-		Lab::Exception::CorruptParameter->throw( error => $self->get_id().": Illegal Value given for POSITION in sub move!");
+		croak($self->get_id().": Illegal Value given for POSITION in sub move!");
 		}
 	
 	
@@ -291,7 +292,7 @@ sub move{
 	$speed = abs($speed);
 	if ( $speed > $self->device_settings()->{speed_max})
 		{
-		print new Lab::Exception::CorruptParameter( error => "Warning in sub move: <SPEED> = $speed is too high. Reduce <SPEED> to its maximum value defined by internal limit settings of ". $self->device_settings()->{speed_max});
+		carp("Warning in sub move: <SPEED> = $speed is too high. Reduce <SPEED> to its maximum value defined by internal limit settings of ". $self->device_settings()->{speed_max});
 		$speed = $self->device_settings()->{speed_max};
 		}
 	
@@ -305,7 +306,7 @@ sub move{
 		{
 		if ($position < $self->device_settings()->{lower_limit} or $position > $self->device_settings()->{upper_limit})
 			{
-			Lab::Exception::CorruptParameter->throw( error =>  "unexpected value for NEW POSITION in sub move. Expected values are between $limits{'LOWER'} ... $limits{'UPPER'}");
+			croak("unexpected value for NEW POSITION in sub move. Expected values are between $limits{'LOWER'} ... $limits{'UPPER'}");
 			}
 		$self->device_cache()->{target} = $position;
 		$self->_save_motorlog($CP, $position);
@@ -315,7 +316,7 @@ sub move{
 	elsif ( $mode eq "REL" or $mode eq "rel" or $mode eq "RELATIVE" or $mode eq "relative") {
 		if($CP+$position < $self->device_settings()->{lower_limit} or $CP+$position > $self->device_settings()->{upper_limit})
 			{
-			Lab::Exception::CorruptParameter->throw( error =>  "ERROR in sub move.Can't execute move; TARGET POSITION (".($CP+$position).") is out of valid limits (".$limits{'LOWER'}." ... ".$limits{'UPPER'}.")");
+			croak("ERROR in sub move.Can't execute move; TARGET POSITION (".($CP+$position).") is out of valid limits (".$limits{'LOWER'}." ... ".$limits{'UPPER'}.")");
 			}
 			
 		$self->device_cache()->{target} = $CP+$position;

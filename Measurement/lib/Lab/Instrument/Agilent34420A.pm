@@ -1,6 +1,7 @@
 package Lab::Instrument::Agilent34420A;
 our $VERSION = '3.500';
 
+use Lab::Generic;
 use strict;
 use Lab::Instrument;
 use Lab::MultiChannelInstrument;
@@ -102,7 +103,7 @@ sub set_function { # basic
 	# any parameters given?
 	if (not defined @_[0]) 
 		{
-		print Lab::Exception::CorruptParameter->new( error => "no values given in ".ref($self)." \n" );
+		carp("no values given in ".ref($self) );
 		return;
 		}
 	
@@ -132,7 +133,7 @@ sub set_function { # basic
 		}
 	else
 		{
-		Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34420A:\nunexpected value for FUNCTION in sub set_function. Expected values are:\nvoltage:dc, resistance or Fresistance --> to set both input channels\nsense1:voltage:dc, sense1:voltage:dc:ratio, sense1:voltage:dc:difference, sense1:resistance or sense1:Fresistance --> to set input channel 1 only\nsense2:voltage:dc, sense2:voltage:dc:ratio, sense2:voltage:dc:difference, sense2:resistance or sense2:Fresistance --> to set input channel 2 only\n");
+		croak("\nAgilent 34420A:\nunexpected value for FUNCTION in sub set_function. Expected values are:\nvoltage:dc, resistance or Fresistance --> to set both input channels\nsense1:voltage:dc, sense1:voltage:dc:ratio, sense1:voltage:dc:difference, sense1:resistance or sense1:Fresistance --> to set input channel 1 only\nsense2:voltage:dc, sense2:voltage:dc:ratio, sense2:voltage:dc:difference, sense2:resistance or sense2:Fresistance --> to set input channel 2 only");
 		}
 	
 	
@@ -161,7 +162,7 @@ sub set_range { # basic
 	# any parameters given?
 	if (not defined @_[0]) 
 		{
-		print Lab::Exception::CorruptParameter->new( error => "no values given in ".ref($self)." \n" );
+		carp("no values given in ".ref($self) );
 		return;
 		}
 	
@@ -199,19 +200,19 @@ sub set_range { # basic
 	# check data
 	if ( $function =~ /^(voltage:dc|voltage|volt:dc|volt|voltage:dc:ratio|voltage:ratio|volt:dc:ratio|volt:ratio|voltage:dc:diff|voltage:diff|volt:dc:diff|volt:diff)$/ ) {
 		if ( $channel == 1 and abs($range) > 100 ) {
-			Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34420A:\nunexpected value for RANGE in sub set_range. Expected values are for sense1:voltage:dc  1mV...100V and for sense2:voltage:dc 1mV...10V\n");
+			croak("\nAgilent 34420A:\nunexpected value for RANGE in sub set_range. Expected values are for sense1:voltage:dc  1mV...100V and for sense2:voltage:dc 1mV...10V");
 		}
 		if ( $channel == 2 and abs($range) > 10 ) {
-			Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34420A:\nunexpected value for RANGE in sub set_range. Expected values are for sense1:voltage:dc  1mV...100V and for sense2:voltage:dc 1mV...10V\n");
+			croak("\nAgilent 34420A:\nunexpected value for RANGE in sub set_range. Expected values are for sense1:voltage:dc  1mV...100V and for sense2:voltage:dc 1mV...10V");
 		}
 	}
 	elsif ( $function =~ /^(resistance|fresistance|res|fres)$/) {
 		if ( $range < 0 or $range > 1e6 ) {
-			Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34420A:\nunexpected value for RANGE in sub set_range. Expected values are for resistance and Fresistance mode  1...1e6 Ohm.");
+			croak("\nAgilent 34420A:\nunexpected value for RANGE in sub set_range. Expected values are for resistance and Fresistance mode  1...1e6 Ohm.");
 		}
 	}
 	else {
-		Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34420A:\nunexpected value for FUNCTION in sub set_range. Expected values are:\nvoltage:dc, voltage, volt, resistance or fresistance \n");
+		croak("\nAgilent 34420A:\nunexpected value for FUNCTION in sub set_range. Expected values are:\nvoltage:dc, voltage, volt, resistance or fresistance");
 		}
 		
 		
@@ -255,10 +256,10 @@ sub get_range {
 		}
 
 	if (not ($function =~ /^(voltage:dc|voltage|volt:dc|volt|sense1:voltage:dc|sense1:voltage|sense1:volt:dc|sense1:volt|sense2:voltage:dc|sense2:voltage|sense2:volt:dc|sense2:volt|voltage:dc:ratio|voltage:ratio|volt:dc:ratio|volt:ratio|voltage:dc:diff|voltage:diff|volt:dc:diff|volt:diff)$/ or $function =~ /^(resistance|fresistance|res|fres)$/)) {
-		Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34420A:\nunexpected value for FUNCTION ($function) in sub get_nplc. Expected values are:\nvoltage:dc, resistance or Fresistance --> to set both input channels\nsense1:voltage:dc, sense1:voltage:dc:ratio, sense1:voltage:dc:difference, sense1:resistance or sense1:Fresistance --> to set input channel 1 only\nsense2:voltage:dc, sense2:voltage:dc:ratio, sense2:voltage:dc:difference, sense2:resistance or sense2:Fresistance --> to set input channel 2 only\n");
+		croak("\nAgilent 34420A:\nunexpected value for FUNCTION ($function) in sub get_nplc. Expected values are:\nvoltage:dc, resistance or Fresistance --> to set both input channels\nsense1:voltage:dc, sense1:voltage:dc:ratio, sense1:voltage:dc:difference, sense1:resistance or sense1:Fresistance --> to set input channel 1 only\nsense2:voltage:dc, sense2:voltage:dc:ratio, sense2:voltage:dc:difference, sense2:resistance or sense2:Fresistance --> to set input channel 2 only");
 	}
 	if ($channel != 1 and $channel != 2) {
-		Lab::Exception::CorruptParameter->throw( error => "Unexpected value for channel. Allowed values are 1 or 2.");
+		croak("Unexpected value for channel. Allowed values are 1 or 2.");
 	}
 		
 	return $self->query(sprintf("SENSE%d:%s:RANGE?", $channel, $function), $tail);
@@ -271,7 +272,7 @@ sub set_autorange {
 	# any parameters given?
 	if (not defined @_[0]) 
 		{
-		print Lab::Exception::CorruptParameter->new( error => "no values given in ".ref($self)." \n" );
+		carp("no values given in ".ref($self) );
 		return;
 		}
 	
@@ -294,7 +295,7 @@ sub set_autorange {
 		}
 	else
 		{
-		print Lab::Exception::CorruptParameter->new( error => "unexpected value for AUTORANGE given in sub set_autorange ($autorange). expected values are 'ON' and 'OFF'.\n" );
+		carp("unexpected value for AUTORANGE given in sub set_autorange ($autorange). expected values are 'ON' and 'OFF'." );
 		return;
 		}
 	
@@ -324,7 +325,7 @@ sub set_nplc { # basic
 	# any parameters given?
 	if (not defined @_[0]) 
 		{
-		print Lab::Exception::CorruptParameter->new( error => "no values given in ".ref($self)." \n" );
+		carp("no values given in ".ref($self) );
 		return;
 		}
 	
@@ -369,12 +370,12 @@ sub set_nplc { # basic
 			}
 		else 
 			{
-			Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34420A:\nunexpected value for NPLC in sub set_nplc. Expected values are between 0.02 ... 200 power-line-cycles (50Hz).");
+			croak("\nAgilent 34420A:\nunexpected value for NPLC in sub set_nplc. Expected values are between 0.02 ... 200 power-line-cycles (50Hz).");
 			}	
 		}
 	else
 		{
-		Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34420A:\nunexpected value for FUNCTION in sub set_nplc. Expected values are:\nvoltage:dc, resistance or Fresistance --> to set both input channels\nsense1:voltage:dc, sense1:voltage:dc:ratio, sense1:voltage:dc:difference, sense1:resistance or sense1:Fresistance --> to set input channel 1 only\nsense2:voltage:dc, sense2:voltage:dc:ratio, sense2:voltage:dc:difference, sense2:resistance or sense2:Fresistance --> to set input channel 2 only\n");
+		croak("\nAgilent 34420A:\nunexpected value for FUNCTION in sub set_nplc. Expected values are:\nvoltage:dc, resistance or Fresistance --> to set both input channels\nsense1:voltage:dc, sense1:voltage:dc:ratio, sense1:voltage:dc:difference, sense1:resistance or sense1:Fresistance --> to set input channel 1 only\nsense2:voltage:dc, sense2:voltage:dc:ratio, sense2:voltage:dc:difference, sense2:resistance or sense2:Fresistance --> to set input channel 2 only");
 		}
 	
 	
@@ -397,7 +398,7 @@ sub get_nplc { # basic
 		}
 	else
 		{
-		Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34420A:\nunexpected value for FUNCTION ($function) in sub get_nplc. Expected values are:\nvoltage:dc, resistance or Fresistance --> to set both input channels\nsense1:voltage:dc, sense1:voltage:dc:ratio, sense1:voltage:dc:difference, sense1:resistance or sense1:Fresistance --> to set input channel 1 only\nsense2:voltage:dc, sense2:voltage:dc:ratio, sense2:voltage:dc:difference, sense2:resistance or sense2:Fresistance --> to set input channel 2 only\n");
+		croak("\nAgilent 34420A:\nunexpected value for FUNCTION ($function) in sub get_nplc. Expected values are:\nvoltage:dc, resistance or Fresistance --> to set both input channels\nsense1:voltage:dc, sense1:voltage:dc:ratio, sense1:voltage:dc:difference, sense1:resistance or sense1:Fresistance --> to set input channel 1 only\nsense2:voltage:dc, sense2:voltage:dc:ratio, sense2:voltage:dc:difference, sense2:resistance or sense2:Fresistance --> to set input channel 2 only");
 		}
 	}
 
@@ -408,7 +409,7 @@ sub set_resolution{ # basic
 	# any parameters given?
 	if (not defined @_[0]) 
 		{
-		print Lab::Exception::CorruptParameter->new( error => "no values given in ".ref($self)." \n" );
+		carp("no values given in ".ref($self) );
 		return;
 		}
 	
@@ -456,13 +457,13 @@ sub set_resolution{ # basic
 			}
 		else 
 			{
-			Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34420A:\nunexpected value for resOLUTION in sub set_resolution. Expected values are between 0.0001xRANGE ... 0.0000022xRANGE.");
+			croak("\nAgilent 34420A:\nunexpected value for resOLUTION in sub set_resolution. Expected values are between 0.0001xRANGE ... 0.0000022xRANGE.");
 			}	
 		$self->get_nplc();
 		}
 	else
 		{
-		Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34420A:\nunexpected value for FUNCTION in sub set_resolution. Expected values are:\nvoltage:dc, resistance or Fresistance --> to set both input channels\nsense1:voltage:dc, sense1:voltage:dc:ratio, sense1:voltage:dc:difference, sense1:resistance or sense1:Fresistance --> to set input channel 1 only\nsense2:voltage:dc, sense2:voltage:dc:ratio, sense2:voltage:dc:difference, sense2:resistance or sense2:Fresistance --> to set input channel 2 only\n");
+		croak("\nAgilent 34420A:\nunexpected value for FUNCTION in sub set_resolution. Expected values are:\nvoltage:dc, resistance or Fresistance --> to set both input channels\nsense1:voltage:dc, sense1:voltage:dc:ratio, sense1:voltage:dc:difference, sense1:resistance or sense1:Fresistance --> to set input channel 1 only\nsense2:voltage:dc, sense2:voltage:dc:ratio, sense2:voltage:dc:difference, sense2:resistance or sense2:Fresistance --> to set input channel 2 only");
 		}
 	
 	
@@ -507,12 +508,12 @@ sub set_channel{ # basic
 			}
 		else
 			{
-			Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34420A:\nunexpected value for CHANNEL in sub set_channel. Expected values are:\n 1 --> for channel 1\n 2 --> for channel 2\n");
+			croak("\nAgilent 34420A:\nunexpected value for CHANNEL in sub set_channel. Expected values are:\n 1 --> for channel 1\n 2 --> for channel 2");
 			}
 		}
 	else
 		{
-		Lab::Exception::CorruptParameter->throw( error => "Can't route CHANNEL in resistance/Fresistance mode.");
+		croak("Can't route CHANNEL in resistance/Fresistance mode.");
 		}	
 	
 }
@@ -537,7 +538,7 @@ sub get_channel {
 		}
 	else
 		{
-		Lab::Exception::CorruptParameter->throw( error => "Can't route CHANNEL in resistance/Fresistance mode.");
+		croak("Can't route CHANNEL in resistance/Fresistance mode.");
 		}	
 
 }
@@ -575,7 +576,7 @@ sub get_value { # basic
 		$int_time = $resolution
 	}
 	elsif (defined $resolution and defined $nplc) {
-		Lab::Exception::CorruptParameter->throw( error => "NPLC and resolution may not be defined concurrently.");
+		croak("NPLC and resolution may not be defined concurrently.");
 	}
 	
 	if (not defined $channel) {
@@ -594,7 +595,7 @@ sub get_value { # basic
 		
 	if (not $function =~ /^(voltage:dc|voltage|volt:dc|volt|voltage:dc:ratio|voltage:ratio|volt:dc:ratio|volt:ratio|voltage:dc:diff|voltage:diff|volt:dc:diff|volt:diff|resistance|resisitance|res|res|Fresistance|fresistance|fres|fres)$/)
 		{
-		Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34420A:\nunexpected value for FUNCTION in sub get_value. Expected values are voltage:dc|voltage|volt:dc|volt|voltage:dc:ratio|voltage:ratio|volt:dc:ratio|volt:ratio|voltage:dc:diff|voltage:diff|volt:dc:diff|volt:diff|resistance|resisitance|res|res|Fresistance|fresistance|fres|fres");
+		croak("\nAgilent 34420A:\nunexpected value for FUNCTION in sub get_value. Expected values are voltage:dc|voltage|volt:dc|volt|voltage:dc:ratio|voltage:ratio|volt:dc:ratio|volt:ratio|voltage:dc:diff|voltage:diff|volt:dc:diff|volt:diff|resistance|resisitance|res|res|Fresistance|fresistance|fres|fres");
 		}
 	
 	# check input parameter
@@ -609,14 +610,14 @@ sub get_value { # basic
 		{
 		if ( abs($range) > 100 and not $range =~ /^(MIN|min|MAX|max|DEF|def|AUTO|auto)$/) 
 			{
-			Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34420A:\nunexpected value for RANGE in sub get_value. Expected values are for voltage and resistance mode  0.1...100V or 0...1e6 Ohms respectivly");
+			croak("\nAgilent 34420A:\nunexpected value for RANGE in sub get_value. Expected values are for voltage and resistance mode  0.1...100V or 0...1e6 Ohms respectivly");
 			}
 		}
 	elsif ( $function =~ /^(resistance|resisitance|res|res|Fresistance|fresistance|fres|fres)$/ ) 
 		{
 		if ( abs($range) > 1e6 and not $range =~ /^(MIN|min|MAX|max|DEF|def|AUTO|auto)$/) 
 			{
-			Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34420A:\nunexpected value for RANGE in sub get_value. Expected values are for voltage and resistance mode  0.1...100V or 0...1e6 Ohms respectivly");
+			croak("\nAgilent 34420A:\nunexpected value for RANGE in sub get_value. Expected values are for voltage and resistance mode  0.1...100V or 0...1e6 Ohms respectivly");
 			}
 		}	
 	
@@ -629,14 +630,14 @@ sub get_value { # basic
 		$int_mode = "res";
 		if ( $int_time < 0.22e-6*$range and not $int_time =~ /^(MIN|min|MAX|max|DEF|def)$/)
 			{
-			Lab::Exception::CorruptParameter->throw( error => "unexpected value for RESOLUTION in sub get_value. Expected values are from 0.22e-6xRANGE ... 30e-6xRANGE.");
+			croak("unexpected value for RESOLUTION in sub get_value. Expected values are from 0.22e-6xRANGE ... 30e-6xRANGE.");
 			}
 		}
 	elsif ( $int_mode eq "nplc" )
 		{
 		if (  ($int_time < 0.02 or $int_time > 200) and not $int_time =~ /^(MIN|min|MAX|max|DEF|def)$/)
 			{
-			Lab::Exception::CorruptParameter->throw( error => "unexpected value for NPLC in sub get_value. Expected values are from 0.02 ... 200.");
+			croak("unexpected value for NPLC in sub get_value. Expected values are from 0.02 ... 200.");
 			}
 		}
 	elsif ( defined $int_time )  
@@ -644,7 +645,7 @@ sub get_value { # basic
 		$int_mode = 'nplc';
 		if (  ($int_time < 0.02 or $int_time > 200) and not $int_time =~ /^(MIN|min|MAX|max|DEF|def)$/)
 			{
-			Lab::Exception::CorruptParameter->throw( error => "unexpected value for NPLC in sub get_value. Expected values are from 0.02 ... 200.");
+			croak("unexpected value for NPLC in sub get_value. Expected values are from 0.02 ... 200.");
 			}
 		}
 	
@@ -688,7 +689,7 @@ sub config_measurement { # basic
 		}
 	if ( not defined $nop )
 		{
-		Lab::Exception::CorruptParameter->throw( error => "too view arguments given in sub config_measurement. Expected arguments are FUNCTION, #POINTS, NPLC, <RANGE>, <TRIGGERSOURCE>");
+		croak("too view arguments given in sub config_measurement. Expected arguments are FUNCTION, #POINTS, NPLC, <RANGE>, <TRIGGERSOURCE>");
 		}
 	
 	print "--------------------------------------\n";
@@ -785,7 +786,7 @@ sub _set_triggersource { # internal only
 	
 	if ( $source =~/^(IMM|imm|EXT|ext|BUS|bus)$/ )
 		{
-		Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34420A:\nunexpected value for TRIGGER_SOURCE in sub _set_triggersource. Expected values are:\n IMM  --> immediate trigger signal\n EXT  --> external trigger\n BUS  --> software trigger signal via bus\n");
+		croak("\nAgilent 34420A:\nunexpected value for TRIGGER_SOURCE in sub _set_triggersource. Expected values are:\n IMM  --> immediate trigger signal\n EXT  --> external trigger\n BUS  --> software trigger signal via bus");
 		}
 	$source = $self->query(sprintf("TRIGGER:SOURCE %s; SOURCE?", $source));
 	
@@ -805,7 +806,7 @@ sub _set_triggercount { # internal only
 	
 	if ( $count < 0 or $count >= 50000)
 		{
-		Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34420A:\nunexpected value for COUNT in sub _set_triggercount. Expected values are between 1 ... 50.000\n");
+		croak("\nAgilent 34420A:\nunexpected value for COUNT in sub _set_triggercount. Expected values are between 1 ... 50.000");
 		}
 	
 	return $self->query(sprintf("TRIGGER:COUNT %d; COUNT?", $count));	
@@ -824,7 +825,7 @@ sub _set_triggerdelay { # internal only
 	
 	if ( ($delay < 0 or $delay > 3600) and $delay =~ /^(MIN|min|MAX|max|DEF|def)$/)
 		{
-		Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34420A:\nunexpected value for DELAY in sub _set_triggerdelay. Expected values are between 1 ... 3600, or 'MIN = 0', 'MAX = 3600' or 'AUTO'\n");
+		croak("\nAgilent 34420A:\nunexpected value for DELAY in sub _set_triggerdelay. Expected values are between 1 ... 3600, or 'MIN = 0', 'MAX = 3600' or 'AUTO'");
 		}
 		
 	if ( $delay =~ /^(AUTO|auto)$/)
@@ -855,7 +856,7 @@ sub _set_samplecount { # internal only
 	
 	elsif ( $count < 0 or $count > 1024)
 		{
-		Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34420A:\nunexpected value for COUNT in sub _set_samplecount. Expected values are between 1 ... 1024\n");
+		croak("\nAgilent 34420A:\nunexpected value for COUNT in sub _set_samplecount. Expected values are between 1 ... 1024");
 		}
 	else
 		{

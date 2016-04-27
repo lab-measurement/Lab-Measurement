@@ -11,7 +11,7 @@ use Lab::Instrument;
 use Lab::Bus::MODBUS_RS232;
 use feature "switch";
 use Data::Dumper;
-use Carp;
+use Lab::Generic;
 
 our @ISA = ("Lab::Instrument");
 

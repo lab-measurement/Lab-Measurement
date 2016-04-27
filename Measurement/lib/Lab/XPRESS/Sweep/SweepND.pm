@@ -8,10 +8,8 @@ use Storable qw(dclone);
 use Lab::XPRESS::Sweep::Dummy;
 use Lab::XPRESS::Utilities::Utilities;
 use Lab::Generic;
-use Lab::Exception;
 use strict;
 use Storable qw(dclone);
-use Carp qw(cluck croak);
 
 our $PAUSE = 0;
 our $ACTIVE_SWEEPS = ();
@@ -578,7 +576,7 @@ sub start {
 	if (not defined @{$self->{slaves}}[0]) {
 		
 		if ($self->{DataFile_counter} <= 0) {
-			print new Lab::Exception::Warning(error => "Attention: ".ref($self)." has no DataFile ! \n");
+			carp("Attention: ".ref($self)." has no DataFile !");
 		}
 
 		if (defined @{$self->{filename_extensions}}[0]) {
@@ -1174,7 +1172,7 @@ sub check_loop_duration {
 	
 	if ( ($self->{loop}->{t1}-$self->{loop}->{t0}) > @{$self->{config}->{interval}}[$self->{sequence}])
 		{
-		$self->out_warning( "WARNING: Measurement Loop takes more time (".($self->{loop}->{t1}-$self->{loop}->{t0}).") than specified by measurement intervall (@{$self->{config}->{sequence}}[$self->{iterator}]).\n");
+		carp("WARNING: Measurement Loop takes more time (".($self->{loop}->{t1}-$self->{loop}->{t0}).") than specified by measurement intervall (@{$self->{config}->{sequence}}[$self->{iterator}]).");
 		}
 	my $delta_time = ($self->{loop}->{t1}-$self->{loop}->{t0}) + $self->{loop}->{overtime};
 
@@ -1244,7 +1242,7 @@ sub LOG {
 		my $file = ( defined $args[1] ) ? $args[1] : 0;
 		if ( not defined @{$self->{DataFiles}}[$args[1]-1] )
 			{
-			Lab::Exception::Warning->throw("DataFile $file is not defined! \n");
+			croak("DataFile $file is not defined!");
 			}
 		while ( my ($key,$value) = each %{$args[0]} ) 
 			{
@@ -1257,7 +1255,7 @@ sub LOG {
 		my $file = ( defined $args[2] ) ? $args[2] : 0;
 		if ( not defined @{$self->{DataFiles}}[$args[2]-1] )
 			{
-			Lab::Exception::Warning->throw("DataFile $file is not defined! \n");
+			croak("DataFile $file is not defined!");
 			}
 		@{$self->{LOG}}[$file]->{$args[0]} = $args[1];
 		}
@@ -1278,7 +1276,7 @@ sub set_autolog {
 		@{$self->{DataFiles}}[$file-1]->set_autolog($value);
 	}
 	else {
-		print new Lab::Exception::Warning("DataFile $file is not defined! \n");
+		carp("DataFile $file is not defined!");
 	}
 
 
@@ -1299,7 +1297,7 @@ sub skip_LOG {
 		@{$self->{DataFiles}}[$file-1]->skiplog();
 	}
 	else {
-		print new Lab::Exception::Warning("DataFile $file is not defined! \n");
+		carp("DataFile $file is not defined!");
 	}
 
 
@@ -1322,7 +1320,7 @@ sub write_LOG {
 		@{$self->{DataFiles}}[$file-1]->LOG($self->create_LOG_HASH($file));
 	}
 	else {
-		print new Lab::Exception::Warning("DataFile $file is not defined! \n");
+		carp("DataFile $file is not defined!");
 	}
 
 
@@ -1346,11 +1344,11 @@ sub create_LOG_HASH {
 			else {
 				if (exists @{$self->{LOG}}[$file]->{$column} or exists @{$self->{LOG}}[0]->{$column})
 					{
-					print new Lab::Exception::Warning("Value for Paramter $column undefined\n");
+					carp("Value for Paramter $column undefined");
 					}
 				else
 					{
-					print new Lab::Exception::Warning("Paramter $column not found. Maybe a typing error??\n");
+					carp("Paramter $column not found. Maybe a typing error??");
 					}
 				$LOG_HASH->{$column} = '?';
 			}
@@ -1366,7 +1364,7 @@ sub add_slave {
 	
 	if (not  $self->{config}->{mode} =~ /step|list/  )
 		{
-		Lab::Exception::Warning->throw(error => "Can't add slave to master-sweep which is not in mode list or step.");
+		croak("Can't add slave to master-sweep which is not in mode list or step.");
 		}
 	
 	my $type = ref($slave);
@@ -1374,11 +1372,11 @@ sub add_slave {
 		{
 		if (not defined $slave->{master})
 			{
-			Lab::Exception::Warning->throw(error => 'No master defined in Frame.');
+			croak('No master defined in Frame.');
 			}
 		elsif (not defined @{$slave->{master}->{slaves}}[0])
 			{
-			Lab::Exception::Warning->throw(error => 'No slave(s) defined in Frame.');
+			croak('No slave(s) defined in Frame.');
 			}
 
 		push ( @{$self->{slaves}}, $slave->{master} );
@@ -1391,7 +1389,7 @@ sub add_slave {
 		{
 		if (defined $slave->{master})
 		{
-			Lab::Exception::Warning->throw(error => "Cannot add slave sweep with an already defined master sweep .");
+			croak("Cannot add slave sweep with an already defined master sweep .");
 		}
 
 		if ($slave->{DataFile_counter} <= 0 and not defined @{$slave->{slaves}}[-1]) {
@@ -1418,7 +1416,7 @@ sub add_slave {
 		}
 	else
 		{
-		Lab::Exception::Warning->throw(error => "slave object is of type $type. Cannot add slave.");
+		croak("slave object is of type $type. Cannot add slave.");
 		}
 
 	$slave->{master} = $self;
@@ -1501,7 +1499,7 @@ sub AUTOLOAD {
 	elsif( $name =~ qr/^(set_)(.*)$/ ) {
 		if(exists $self->{config_original}->{$2}){
 			if ($self->active()) {
-				print Lab::Exception::Warning->new( error => "WARNING: Cannot set parameter while sweep is active \n");
+				carp("WARNING: Cannot set parameter while sweep is active");
 				return;
 			}
 			if (@_ == 1) {
@@ -1516,12 +1514,12 @@ sub AUTOLOAD {
 			$self->prepaire_config();
 		}
 		else{
-			print Lab::Exception::Warning->new( error => "WARNING: Parameter $2 does not exist \n");
+			carp("WARNING: Parameter $2 does not exist");
 		}
 	}
 
 	else {
-		Lab::Exception::Warning->throw( error => "AUTOLOAD in " . __PACKAGE__ . " couldn't access field '${name}'.\n" );
+		croak("AUTOLOAD in " . __PACKAGE__ . " couldn't access field '${name}'." );
 	}
 }
 

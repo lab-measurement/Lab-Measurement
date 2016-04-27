@@ -15,9 +15,9 @@
 package Lab::Connection::GPIB;
 our $VERSION = '3.500';
 
+use Lab::Generic;
 use Lab::Connection;
 use strict;
-use Lab::Exception;
 
 our @ISA = ("Lab::Connection");
 
@@ -41,7 +41,7 @@ sub new {
 
 # 	# Parameter checking
 # 	if( !defined $self->config('gpib_address') || $self->config('gpib_address') !~ /^[0-9]*$/ ) {
-# 		Lab::Exception::CorruptParameter->throw( error => "No GPIB address specified! I can't work like this.\n" );
+# 		croak("No GPIB address specified! I can't work like this." );
 # 	}
 
 	return $self;

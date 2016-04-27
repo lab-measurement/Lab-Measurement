@@ -1,9 +1,9 @@
 package Lab::Connection::Socket;
 our $VERSION = '3.500';
 
+use Lab::Generic;
 use Lab::Bus::Socket;
 use Lab::Connection;
-use Lab::Exception;
 
 our @ISA = ("Lab::Connection");
 

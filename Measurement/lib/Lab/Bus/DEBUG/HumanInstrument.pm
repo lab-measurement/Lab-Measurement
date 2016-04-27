@@ -3,6 +3,7 @@
 package Lab::Bus::DEBUG::HumanInstrument;
 our $VERSION = '3.500';
 
+use Lab::Generic;
 use strict;
 use base "Wx::App";
 use Wx qw(wxTE_MULTILINE wxDefaultPosition);

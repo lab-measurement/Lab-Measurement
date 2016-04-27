@@ -48,23 +48,23 @@ sub new {
 
     if (!defined($params{sample}))
     {
-        Lab::Exception::CorruptParameter->throw( error => "Missing parameter in Lab::Mesaurement(): 'sample'\n" );
+        croak("Missing parameter in Lab::Mesaurement(): 'sample'" );
     }
     if (!defined($params{filename}) && !defined($params{filename_base}))
     {
-        Lab::Exception::CorruptParameter->throw( error => "Missing parameter in Lab::Mesaurement(): 'filename' or 'filename_base'\n" );
+        croak("Missing parameter in Lab::Mesaurement(): 'filename' or 'filename_base'" );
     }
     if (!defined($params{columns}))
     {
-        Lab::Exception::CorruptParameter->throw( error => "Missing parameter in Lab::Mesaurement(): 'columns'\n" );
+        croak("Missing parameter in Lab::Mesaurement(): 'columns'" );
     }
     if (!defined($params{axes}))
     {
-        Lab::Exception::CorruptParameter->throw( error => "Missing parameter in Lab::Mesaurement(): 'axes'\n" );
+        croak("Missing parameter in Lab::Mesaurement(): 'axes'" );
     }
     if (!defined($params{plots}))
     {
-        Lab::Exception::CorruptParameter->throw( error => "Missing parameter in Lab::Mesaurement(): 'plots'\n" );
+        croak("Missing parameter in Lab::Mesaurement(): 'plots'" );
     }
     # initialize terminal if requested
     $self->{termctl}=0;

@@ -10,7 +10,7 @@ use Scalar::Util qw(weaken);
 use Time::HiRes qw (usleep sleep);
 use Lab::Bus;
 use Data::Dumper;
-use Carp;
+use Lab::Generic;
 
 our @ISA = ("Lab::Bus");
 
@@ -49,7 +49,7 @@ sub new {
 	}
 
 	my ($status,$rm)=Lab::VISA::viOpenDefaultRM();
-	if ($status != $Lab::VISA::VI_SUCCESS) { Lab::Exception::VISAError->throw( error => 'Cannot open resource manager: $status\n' ) }
+	if ($status != $Lab::VISA::VI_SUCCESS) { croak('Cannot open resource manager: $status' ) }
 	$self->default_rm($rm);
 	
 	
@@ -95,11 +95,11 @@ sub connection_new { # @_ = ({ resource_name => $resource_name })
 		
 	my $resource_name = $args->{'resource_name'};
 
-	Lab::Exception::CorruptParameter->throw( error => 'No resource name given to Lab::Bus::VISA::connection_new().\n' ) if(!exists $args->{'resource_name'});
-	Lab::Exception::CorruptParameter->throw( error => 'Invalid resource name given to Lab::Bus::VISA::connection_new().\n' ) if(!$self->_check_resource_name($args->{'resource_name'}));
+	croak('No resource name given to Lab::Bus::VISA::connection_new().' ) if(!exists $args->{'resource_name'});
+	croak('Invalid resource name given to Lab::Bus::VISA::connection_new().' ) if(!$self->_check_resource_name($args->{'resource_name'}));
 
 	( $status, $connection_handle ) = Lab::VISA::viOpen( $self->default_rm(), $args->{'resource_name'}, $Lab::VISA::VI_NULL, $Lab::VISA::VI_NULL);
-	if ($status != $Lab::VISA::VI_SUCCESS) { Lab::Exception::VISAError->throw( error => "Cannot open VISA instrument \"$resource_name\". Status: $status", status => $status ); };
+	if ($status != $Lab::VISA::VI_SUCCESS) { croak("Cannot open VISA instrument \"$resource_name\". Status: $status"); };
 
 	
 	return $connection_handle;
@@ -136,18 +136,10 @@ sub connection_read { # @_ = ( $connection_handle, $args = { read_length, brutal
 	#exit;
 
 	if ( ! ( $status ==  $Lab::VISA::VI_SUCCESS || $status == $Lab::VISA::VI_SUCCESS_TERM_CHAR || $status == $Lab::VISA::VI_ERROR_TMO || $status > 0) ) {
-		Lab::Exception::VISAError->throw(
-			error => "Error in Lab::Bus::VISA::connection_read() while executing $command, Status $status",
-			status => $status,
-		);
+		croak("Error in Lab::Bus::VISA::connection_read() while executing $command, Status $status");
 	}
 	elsif ( $status == $Lab::VISA::VI_ERROR_TMO && !$brutal ) {
-		Lab::Exception::VISATimeout->throw(
-			error => "Timeout in Lab::Bus::VISA::connection_read() while executing $command\n",
-			status => $status,
-			command => $command,
-			data => $result,
-		);
+		croak("Timeout in Lab::Bus::VISA::connection_read() while executing $command, status:  $status, data: $result");
 	}
 	
 	if ( defined $timeout )
@@ -180,8 +172,7 @@ sub connection_write { # @_ = ( $connection_handle, $args = { command, wait_stat
 	my $read_cnt = undef;
 
 	if(!defined $command) {
-		Lab::Exception::CorruptParameter->throw(
-			error => "No command given to " . __PACKAGE__ . "::connection_write().\n",
+		croak("No command given to " . __PACKAGE__ . "::connection_write().",
 		);
 	}
 	else {
@@ -194,10 +185,7 @@ sub connection_write { # @_ = ( $connection_handle, $args = { command, wait_stat
         sleep($wait_status);
 
 		if ( $status != $Lab::VISA::VI_SUCCESS ) {
-			Lab::Exception::VISAError->throw(
-				error => "Error in Lab::Bus::VISA::connection_write() while executing $command, Status $status",
-				status => $status,
-			);
+			croak("Error in Lab::Bus::VISA::connection_write() while executing $command, Status $status");
 		}
 
 		return $write_cnt;
@@ -256,8 +244,7 @@ sub serial_poll {
 	# my $ib_bits=$self->ParseIbstatus($ibstatus);
 	#
 	# if($ib_bits->{'ERR'}==1) {
-	# 	Lab::Exception::GPIBError->throw(
-	#		error => sprintf("ibrsp (serial poll) failed with status %x\n", $ibstatus) . Dumper($ib_bits),
+	# 	croak(#		error => sprintf("ibrsp (serial poll) failed with status %x", $ibstatus) . Dumper($ib_bits),
 	#		ibsta => $ibstatus,
 	#		ibsta_hash => $ib_bits,
 	#	);
@@ -275,7 +262,7 @@ sub timeout {
 	my $result=Lab::VISA::viSetAttribute($connection_handle, $Lab::VISA::VI_ATTR_TMO_VALUE, $timeout*1e3);
 	if ($result != $Lab::VISA::VI_SUCCESS) 
 		{ 
-		print new Lab::Exception::VISAError(error => "Error while setting Visa Attribute Timeout. $result \n");
+		carp("Error while setting Visa Attribute Timeout. $result");
 		
 		}
 	return $result;
@@ -293,7 +280,7 @@ sub set_visa_attribute {
 		my $result=Lab::VISA::viSetAttribute($connection_handle, $attribute, $value);
 		if ($result != $Lab::VISA::VI_SUCCESS) 
 			{	 
-			print new Lab::Exception::VISAError(error => "Error while setting Visa Attribute $attribute. $result \n");
+			carp("Error while setting Visa Attribute $attribute. $result");
 			}
 		return $result;
 		}
@@ -369,19 +356,6 @@ Options:
 none
 
 
-=head1 Thrown Exceptions
-
-Lab::Bus::VISA throws
-
-  Lab::Exception::VISAError
-    fields:
-    'status', the raw ibsta status byte received from linux-gpib
-
-  Lab::Exception::VISATimeout
-    fields:
-    'data', this is meant to contain the data that (maybe) has been read/obtained/generated despite and up to the timeout.
-    ... and all the fields of Lab::Exception::GPIBError
-
 =head1 METHODS
 
 =head2 connection_new
@@ -410,9 +384,8 @@ Sends $command to the instrument specified by the handle, and waits $wait_status
 
   $visa->connection_read( $InstrumentHandle, { command => $command, read_length => $read_length, brutal => 0/1 } );
 
-Sends $Command to the instrument specified by the handle. Reads back a maximum of $readlength bytes. If a timeout or
-an error occurs, Lab::Exception::VISAError or Lab::Exception::VISATimeout are thrown, respectively. The Timeout object
-carries the data received up to the timeout event, accessible through $Exception->Data().
+Sends $Command to the instrument specified by the handle. Reads back a maximum of $readlength bytes. Throws if a timeout or
+an error occurs.
 
 Setting C<Brutal> to a true value will result in timeouts being ignored, and the gathered data returned without error.
 
