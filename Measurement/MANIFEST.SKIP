@@ -33,8 +33,6 @@
 # coding documentation not for distribution
 \bdoc\b
 
-# need to take care of the tests later
-\bt
 
 
 # drivers and modules that are not ready yet for release
@@ -55,3 +53,5 @@
 
 # not ready yet
 ^lib/Lab/Instrument/AgilentE8362A.pm
+^lib/Lab/XPRESS/Sweep/SweepND.pm
+^lib/Lab/XPRESS/Sweep/VM_DIR.pm
