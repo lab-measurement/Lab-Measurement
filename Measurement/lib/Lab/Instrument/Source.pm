@@ -442,13 +442,13 @@ sub get_level {
 }
 
 
-sub get_range() {
+sub get_range {
 	my $self=shift;
 	
 	croak("The unimplemented method stub ".__PACKAGE__."::get_range() has been called. I can't work like this." );
 }
 
-sub set_range() {
+sub set_range {
 	my $self=shift;
 	
 	croak("The unimplemented method stub ".__PACKAGE__."::set_range() has been called. I can't work like this." );
