@@ -6,49 +6,9 @@ provides an interface to several instrumentation control backends, as e.g. Linux
 National Instruments' NI-VISA library. Dedicated instrument driver classes relieve the
 user from taking care for internal details.
 
+See http://www.labmeasurement.de/ for further information, including
+installation instructions.
 
-INSTALLATION
-
-To install this module type the following:
-
-   perl Build.PL
-   perl Build
-   perl Build install
-
-
-DEPENDENCIES
-
-This package requires these other modules and libraries:
-
-  Clone
-  Cwd
-  Data::Dumper
-  Encode
-  Exception::Class
-  File::Basename
-  File::Copy
-  Switch
-  Term::ReadKey
-  Time::HiRes
-  XML::DOM
-  XML::Generator
-  XML::Twig
-  encoding::warnings
-
-In addition, you will require at least one backend hardware driver. Supported options are
-at the moment
-
-  Device::SerialPort
-  Lab::VISA
-  LinuxGpib
-  Win32::SerialPort
-
-
-ADDITIONAL INFORMATION
-
-... can be found at the homepage of the package, http://www.labmeasurement.de/
-
-  
 COPYRIGHT AND LICENCE
 
 Copyright (c) 
