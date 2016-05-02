@@ -7,11 +7,13 @@ our $VERSION = '3.500';
 
 #use POSIX; # added for int() function
 use Lab::Generic;
+use Lab::Exception;
 use Lab::Connection;
+use Carp qw(cluck croak);
 use Data::Dumper;
 use Clone qw(clone);
 use Class::ISA qw(self_and_super_path);
-use Lab::LexWrap;
+use Hook::LexWrap;
 
 use Time::HiRes qw (usleep sleep);
 
@@ -120,6 +122,8 @@ sub new {
 #
 sub _construct {	# _construct(__PACKAGE__);
 	(my $self, my $package) = (shift, shift);
+	$self->out_debug("Function: _construct \n");
+	
 	my $class = ref($self);
 	my $fields = undef;
 	{
@@ -175,6 +179,7 @@ sub _construct {	# _construct(__PACKAGE__);
 	#
 	
 	if( $class eq $package && $class ne 'Lab::Instrument' ) {
+	    $self->out_debug("Initialising $package derived by Lab::Instrument\n");
 		$self->_setconnection();
 		
 		# Match the device hash with the device
@@ -240,6 +245,14 @@ sub _init_cache_handling {
 		
 		if (  $class->can("set_".$cache_param) and exists &$set_methode )
 			{
+
+			# Change STDERR to undef, in order to avoid warnings from Hook::LexWrap and 
+			# and save original STDERR stream in SAVEERR to be able to restore original 
+			# behavior 
+			local (*SAVEERR);
+    		#open SAVEERR, ">&STDERR";
+			#open(STDERR, '>', undef);
+			
 			# wrap set-function: 
 			wrap ($class."::".$set_sub, 
 				# before set-functions is executed:
@@ -280,11 +293,22 @@ sub _init_cache_handling {
 					
 					});
 
+			# Restore Warnings:
+			#open STDERR, ">&SAVEERR";
+			
 			}
 		
 		if (  $class->can("get_".$cache_param) and  exists &$get_methode  )
 			{
-				my $parameter = $cache_param;
+
+			# Change STDERR to undef, in order to avoid warnings from Hook::LexWrap and 
+			# and save original STDERR stream in SAVEERR to be able to restore original 
+			# behavior 
+			local (*SAVEERR);
+    		#open SAVEERR, ">&STDERR";
+			#open(STDERR, '>', undef);
+			
+			my $parameter = $cache_param;
 			
 			
 			# wrap get-function: 
@@ -361,7 +385,7 @@ sub _init_cache_handling {
 						}
 										
 					# refresh cache value
-					if ( not defined $_[-1] or ref ($_[-1]) eq 'Lab::LexWrap::Cleanup' )
+					if ( not defined $_[-1] or ref ($_[-1]) eq 'Hook::LexWrap::Cleanup' )
 						{
 						return;
 						}			
@@ -370,6 +394,9 @@ sub _init_cache_handling {
 						${__PACKAGE__::SELF}->device_cache({$parameter => $_[-1]});
 						}
 					});
+			
+			# Restore Warnings:	
+			#open STDERR, ">&SAVEERR";
 			}
 
 		
@@ -494,16 +521,16 @@ sub _getset_key{
 	
 	#print Dumper $self->device_cache();
 	
-	croak("No field with name $ckey in device_cache!" ) if !exists $self->device_cache()->{$ckey};
+	Lab::Exception::CorruptParameter->throw( "No field with name $ckey in device_cache!\n" ) if !exists $self->device_cache()->{$ckey};
 	if( !defined $self->device_cache()->{$ckey} and !defined $self->config()->{$ckey}  ) {	
 		my $subname = 'get_' . $ckey;
-		croak("No get method defined for device_cache field $ckey!") if ! $self->can($subname);
+		Lab::Exception::CorruptParameter->throw("No get method defined for device_cache field $ckey! \n") if ! $self->can($subname);
 		my $result = $self->$subname( );
 		}
 	else {
 		my $subname = 'set_' . $ckey;
 		print Dumper $self->device_cache() if ! $self->can($subname);
-		croak("No set method defined for device_cache field $ckey!") if ! $self->can($subname);
+		Lab::Exception::CorruptParameter->throw("No set method defined for device_cache field $ckey!\n") if ! $self->can($subname);
 		my $result = $self->$subname($self->device_cache()->{$ckey});
 	}
 	
@@ -614,7 +641,7 @@ sub configure {
 	my $config=shift;
 
 	if( ref($config) ne 'HASH' ) {
-		croak('Given Configuration is not a hash.');
+		Lab::Exception::CorruptParameter->throw( error=>'Given Configuration is not a hash.');
 	}
 	else {
 		#
@@ -665,7 +692,9 @@ sub _checkconnection { # Connection object or connection_type string (as in Lab:
 
 
 sub _setconnection { # $self->setconnection() create new or use existing connection
-	my $self=shift;	
+	my $self=shift;
+	
+	$self->out_debug("Function: _setconnection\n");
 	#
 	# fill in unset connection parameters with the defaults from $self->connections_settings to $self->config
 	#
@@ -684,21 +713,25 @@ sub _setconnection { # $self->setconnection() create new or use existing connect
 			$self->connection($self->config('connection'));
 			
 		}
-		else { croak("Received invalid connection object!" ); }
+		else { Lab::Exception::CorruptParameter->throw( error => "Received invalid connection object!\n" ); }
 	}
 #	else {
-#		croak('Received no connection object!' );
+#		Lab::Exception::CorruptParameter->throw( error => 'Received no connection object!\n' );
 #	}
 	elsif( defined $self->config('connection_type') ) {
+		
+		$self->out_debug("Setting up Connection using given connection_type (".$self->config('connection_type').")\n");
+		
 		$connection_type = $self->config('connection_type');
 
-		if( $connection_type !~ /^[A-Za-z0-9_\-\:]*$/ ) { croak("Given connection type is does not look like a valid module name."); };
+		if( $connection_type !~ /^[A-Za-z0-9_\-\:]*$/ ) { Lab::Exception::CorruptParameter->throw( error => "Given connection type is does not look like a valid module name.\n"); };
 
 		if( $connection_type eq 'none' ) {
 			if( grep(/^none$/, @{$self->supported_connections()}) == 1 ) {
 				return;
 			} else {
-				croak("Sorry, this instrument cannot work without a connection."
+				Lab::Exception::Error->throw(
+					error => 	"Sorry, this instrument cannot work without a connection.\n"
 				);
 			};
 		};
@@ -706,8 +739,9 @@ sub _setconnection { # $self->setconnection() create new or use existing connect
 		$full_connection = "Lab::Connection::" . $connection_type;
 		eval("require ${full_connection};");
 		if ($@) {
-			croak("Sorry, I was not able to load the connection ${full_connection}." .
-							"The error received from the connections was\n===\n$@\n==="
+			Lab::Exception::Error->throw(
+				error => 	"Sorry, I was not able to load the connection ${full_connection}.\n" .
+							"The error received from the connections was\n===\n$@\n===\n"
 			);
 		}
 
@@ -718,14 +752,14 @@ sub _setconnection { # $self->setconnection() create new or use existing connect
 
 			# yep - pass all the parameters on to the connection, it will take the ones it needs.
 			# This way connection setup can be handled generically. Conflicting parameter names? Let's try it.
-			$self->connection( $full_connection->new ($config) ) || croak("Failed to create connection $full_connection!" );
+			$self->connection( $full_connection->new ($config) ) || Lab::Exception::Error->throw( error => "Failed to create connection $full_connection!\n" );
 
 			use strict;
 		}
-		else { croak("Given Connection not supported!"); }
+		else { Lab::Exception::CorruptParameter->throw( error => "Given Connection not supported!\n"); }
 	}
 	else {
-		croak("Neither a connection nor a connection type was supplied.");	}
+		Lab::Exception::CorruptParameter->throw( error => "Neither a connection nor a connection type was supplied.\n");	}
 
 
 
@@ -771,7 +805,7 @@ sub get_error {
 #
 sub get_status {
 	my $self=shift;
-	croak("get_status() not implemented for " . ref($self) . "." );
+	Lab::Exception::Unimplemented->throw( "get_status() not implemented for " . ref($self) . ".\n" );
 	return undef;
 }
 
@@ -789,8 +823,12 @@ sub check_errors {
 		}
 
 		if(@errors || $code == -1) {
-			croak("An Error occured in the device while executing the command: $command, device_class: ", ref $self,
-			      ", command: $command, error_list: @errors");
+			Lab::Exception::DeviceError->throw (
+				error => "An Error occured in the device while executing the command: $command \n",
+				device_class => ref $self,
+				command => $command,
+				error_list => \@errors,
+			)
 		}
 	}
 	return 0;
@@ -831,7 +869,7 @@ sub write {
 	my $self=shift;
 	my $command= scalar(@_)%2 == 0 && ref $_[1] ne 'HASH' ? undef : shift;  # even sized parameter list and second parm no hashref? => Assume parameter hash
 	my $args = scalar(@_)%2==0 ? {@_} : ( ref($_[0]) eq 'HASH' ? $_[0] : undef );
-	croak("Illegal parameter hash given!" ) if !defined($args);
+	Lab::Exception::CorruptParameter->throw( "Illegal parameter hash given!\n" ) if !defined($args);
 
 	$args->{'command'} = $command if defined $command;
 	
@@ -846,7 +884,7 @@ sub write {
 sub read {
 	my $self=shift;
 	my $args = scalar(@_)%2==0 ? {@_} : ( ref($_[0]) eq 'HASH' ? $_[0] : undef );
-	croak("Illegal parameter hash given!" ) if !defined($args);
+	Lab::Exception::CorruptParameter->throw( "Illegal parameter hash given!\n" ) if !defined($args);
 	
 	my $result = $self->connection()->Read($args);
 	$self->check_errors('Just a plain and simple read.') if $args->{error_check};
@@ -901,7 +939,7 @@ sub query {
 	
 	if ( not defined $args->{'command'} )
 		{
-		croak("No 'command' given!" );
+		Lab::Exception::CorruptParameter->throw( "No 'command' given!\n" );
 		}
 	
 		
@@ -935,7 +973,7 @@ sub parse_optional {
 
 	my $optional= scalar(@_)%2 == 0 && ref $_[1] ne 'HASH' ? undef : shift;  # even sized parameter list and second parm no hashref? => Assume parameter hash
 	my $args = scalar(@_)%2==0 ? {@_} : ( ref($_[0]) eq 'HASH' ? $_[0] : undef );
-	croak("Illegal parameter hash given!" ) if !defined($args);
+	Lab::Exception::CorruptParameter->throw( "Illegal parameter hash given!\n" ) if !defined($args);
 	
 	return $optional, $args;
 }
@@ -961,7 +999,7 @@ sub device_settings {
 		$value = {@_};
 	}
 	else {  # uneven sized list - don't know what to do with that one
-		croak("Corrupt parameters given to " . __PACKAGE__ . "::device_settings()." );
+		Lab::Exception::CorruptParameter->throw( error => "Corrupt parameters given to " . __PACKAGE__ . "::device_settings().\n" );
 	}
 
 	#warn "Keys present: \n" . Dumper($self->{device_settings}) . "\n";
@@ -997,7 +1035,7 @@ sub device_cache {
 		$value = {@_};
 	}
 	else {  # uneven sized list - don't know what to do with that one
-		croak("Corrupt parameters given to " . __PACKAGE__ . "::device_cache()." );
+		Lab::Exception::CorruptParameter->throw( error => "Corrupt parameters given to " . __PACKAGE__ . "::device_cache().\n" );
 	}
 
 	#warn "Keys present: \n" . Dumper($self->{device_settings}) . "\n";
@@ -1031,7 +1069,7 @@ sub connection_settings {
 		$value = {@_};
 	}
 	else {  # uneven sized list - don't know what to do with that one
-		croak("Corrupt parameters given to " . __PACKAGE__ . "::connection_settings()." );
+		Lab::Exception::CorruptParameter->throw( error => "Corrupt parameters given to " . __PACKAGE__ . "::connection_settings().\n" );
 	}
 
 	if(ref($value) =~ /HASH/) {  # it's a hash - merge into current settings
@@ -1104,7 +1142,7 @@ sub _check_args {
 			# {
 			# $errmess .= $k." => ".$v."\t";
 			# }
-		# carp($errmess);
+		# print Lab::Exception::Warning->new( error => $errmess);
 		# }
 		
 	if (wantarray)
@@ -1184,7 +1222,7 @@ sub AUTOLOAD {
 			return $self->getset($1,$2,"device_cache",@_);
 		}
 		else{
-			croak("AUTOLOAD could not find var for getter/setter: $name");
+			Lab::Exception::Warning->throw( error => "AUTOLOAD could not find var for getter/setter: $name \n");
 		}
 	}
 	elsif( exists $self->{'device_settings'}->{$name} ) {
@@ -1195,7 +1233,7 @@ sub AUTOLOAD {
 		}
 	}
 	else {
-		croak("AUTOLOAD in " . __PACKAGE__ . " couldn't access field '${name}'." );
+		Lab::Exception::Warning->throw( error => "AUTOLOAD in " . __PACKAGE__ . " couldn't access field '${name}'.\n" );
 	}
 }
 
@@ -1213,12 +1251,12 @@ sub getset{
 	my $subfield = shift;
 	if( $gs eq 'set_' ) {
 				my $value = shift;
-				if( !defined $value || ref($value) ne "" ) { croak("No or no scalar value given to generic set function $AUTOLOAD in " . __PACKAGE__ . "::AUTOLOAD()." ); }
-				if( @_ > 0 ) { croak("Too many values given to generic set function $AUTOLOAD " . __PACKAGE__ . "::AUTOLOAD()." ); }
+				if( !defined $value || ref($value) ne "" ) { Lab::Exception::CorruptParameter->throw( error => "No or no scalar value given to generic set function $AUTOLOAD in " . __PACKAGE__ . "::AUTOLOAD().\n" ); }
+				if( @_ > 0 ) { Lab::Exception::CorruptParameter->throw( error => "Too many values given to generic set function $AUTOLOAD " . __PACKAGE__ . "::AUTOLOAD().\n" ); }
 				return $self->{$subfield}->{$varname} = $value;
 			}
 			else {
-				if( @_ > 0 ) { croak("Too many values given to generic get function $AUTOLOAD " . __PACKAGE__ . "::AUTOLOAD()." ); }
+				if( @_ > 0 ) { Lab::Exception::CorruptParameter->throw( error => "Too many values given to generic get function $AUTOLOAD " . __PACKAGE__ . "::AUTOLOAD().\n" ); }
 				return $self->{$subfield}->{$varname};
 			}
 }
@@ -1394,8 +1432,9 @@ Reads a result of C<ReadLength> from the instrument and returns it. Returns an
 exception on error.
 
 If the parameter C<brutal> is set, a timeout in the connection will not result
-in an exception thrown, but will return the data obtained until the timeout
-without further comment.
+in an Exception thrown, but will return the data obtained until the timeout
+without further comment. Be aware that this data is also contained in the the
+timeout exception object (see C<Lab::Exception>).
 
 Generally, all options are passed to the connection/bus, so additional named
 options may be supported based on the  connection and bus and can be passed as a
@@ -1455,13 +1494,16 @@ The 'ERROR'-key has to be implemented in every device driver!
 	# try
 	eval { $instrument->check_errors($last_command) };
 	# catch
-	if ($@) {
+	if ( my $e = Exception::Class->caught('Lab::Exception::DeviceError')) {
 		warn "Errors from device!";
-                warn "$@";
+		@errors = $e->error_list();
+		@devtype = $e->device_class();
+		$command = $e->command();		
 	}
 
 Uses get_error() to check the device for occured errors. Reads all present
-errors and throws an exception.
+errors and throws a Lab::Exception::DeviceError. The list of errors, the device
+class and the last issued command(s) (if the script provided them) are enclosed.
 
 =head2 _check_args
 

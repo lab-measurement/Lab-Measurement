@@ -2,7 +2,6 @@ package Lab::XPRESS::Data::XPRESS_dataset;
 
 our $VERSION = '3.500';
 
-use Lab::Generic;
 use strict;
 use Math::Trig;
 use Statistics::LineFit;

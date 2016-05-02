@@ -6,7 +6,6 @@ use warnings;
 
 
 our $VERSION = '3.500';
-use Lab::Generic;
 use 5.010;
 
 our @ISA=('Lab::Instrument');

@@ -5,7 +5,6 @@ use Time::HiRes qw/usleep/, qw/time/;
 
 our $VERSION = '3.500';
 
-use Lab::Generic;
 # collection of some usefull subroutines:
 
 sub my_sleep {

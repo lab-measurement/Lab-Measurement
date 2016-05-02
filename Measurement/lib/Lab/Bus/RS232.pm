@@ -3,7 +3,6 @@
 package Lab::Bus::RS232;
 our $VERSION = '3.500';
 
-use Lab::Generic;
 use strict;
 use warnings;
 
@@ -98,7 +97,7 @@ sub new {
 		$self->client()->stopbits($self->config('stopbits')) if (defined $self->config('stopbits'));
 	}
 	else {
-		croak("Error initializing the serial interface" );
+		Lab::Exception::Error->throw( error => "Error initializing the serial interface\n" );
 	}
 
 	return $self;
@@ -189,7 +188,8 @@ sub _direct_write { # _direct_write( command => $cmd )   this is for inheriting 
 
 
 	if(!defined $command) {
-		croak("No command given to " . __PACKAGE__ . "::connection_write().",
+		Lab::Exception::CorruptParameter->throw(
+			error => "No command given to " . __PACKAGE__ . "::connection_write().\n",
 		);
 	}
 	else {
@@ -198,10 +198,13 @@ sub _direct_write { # _direct_write( command => $cmd )   this is for inheriting 
 
 
 	if(!$status && !$brutal) {
-		croak("Error in " . __PACKAGE__ . "::connection_write() while executing $command: write failed with status $status.");
+		Lab::Exception::RS232Error->throw(
+			error => "Error in " . __PACKAGE__ . "::connection_write() while executing $command: write failed.\n",
+			status => $status,
+		);
 	}
 	elsif($brutal) {
-		carp("(brutal=>Ignored) error in " . __PACKAGE__ . "::connection_write() while executing $command: write failed.");
+		warn "(brutal=>Ignored) error in " . __PACKAGE__ . "::connection_write() while executing $command: write failed.\n";
 	}
 
 	return 1;

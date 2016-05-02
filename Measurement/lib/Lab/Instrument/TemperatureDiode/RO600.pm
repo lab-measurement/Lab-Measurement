@@ -1,7 +1,6 @@
 package Lab::Instrument::TemperatureDiode::SI420;
 our $VERSION = '3.500';
 
-use Lab::Generic;
 use strict;
 use Math::Complex;
 use Lab::Instrument::TemperatureDiode;

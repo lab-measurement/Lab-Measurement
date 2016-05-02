@@ -1,7 +1,6 @@
 package Lab::Measurement::Ladediagramm;
 our $VERSION = '3.500';
 
-use Lab::Generic;
 use strict;
 use Lab::Measurement;
 

@@ -2,7 +2,6 @@ package Lab::XPRESS::Sweep::Temperature;
 
 our $VERSION = '3.500';
 
-use Lab::Generic;
 use Lab::XPRESS::Sweep::Sweep;
 use Statistics::Descriptive;
 use Time::HiRes qw/usleep/;

@@ -1,6 +1,5 @@
 package Lab::Instrument::OI_Triton;
 our $VERSION = '3.500';
-use Lab::Generic;
 use strict;
 use Lab::Instrument;
 

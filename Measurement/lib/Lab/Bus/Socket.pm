@@ -4,12 +4,12 @@
 package Lab::Bus::Socket;
 our $VERSION = '3.500';
 
-use Lab::Generic;
 use strict;
 use Scalar::Util qw(weaken);
 use Time::HiRes qw (usleep sleep);
 use Lab::Bus;
 use Data::Dumper;
+use Carp;
 use IO::Socket;
 use IO::Select;
 
@@ -106,7 +106,8 @@ sub connection_write { # @_ = ( $connection_handle, $args = { command, wait_stat
 	my $brutal = $args->{'brutal'} || $self->brutal();
 	my $read_length = $args->{'read_length'} || $self->read_length();
 	if(!defined $command) {
-		croak("No command given to " . __PACKAGE__ . "::connection_write().",
+		Lab::Exception::CorruptParameter->throw(
+			error => "No command given to " . __PACKAGE__ . "::connection_write().\n",
 		);
 	}
 	else {
@@ -118,7 +119,8 @@ sub connection_write { # @_ = ( $connection_handle, $args = { command, wait_stat
 			$sock->send($command) or die "$! sending command";
 		}
 		else {	
-			croak("Socket write time out",
+			Lab::Exception::Timeout->throw(
+				error => "Socket write time out\n",
 			);
     	}
 	}
@@ -141,7 +143,8 @@ sub connection_read { # @_ = ( $connection_handle, $args = { read_length, brutal
 	
 
 	if(!defined $sock) {
-		croak("No Socket given to " . __PACKAGE__ . "::connection_read().",
+		Lab::Exception::CorruptParameter->throw(
+			error => "No Socket given to " . __PACKAGE__ . "::connection_read().\n",
 		);
 	}
 	else {
@@ -150,7 +153,8 @@ sub connection_read { # @_ = ( $connection_handle, $args = { read_length, brutal
     		$sock->recv($result,$read_length);
 		}
 		else {	
-			croak("Socket read time out",
+			Lab::Exception::Timeout->throw(
+				error => "Socket read time out\n",
 			);
     	}
 	};

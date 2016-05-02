@@ -6,7 +6,7 @@ our $VERSION = '3.500';
 use strict;
 use Scalar::Util qw(weaken);
 use Lab::Instrument;
-use Lab::Generic;
+use Carp;
 use Data::Dumper;
 use Lab::Instrument::Multimeter;
 
@@ -175,7 +175,8 @@ sub get_error {
 			return ($1, $2); # ($code, $message)
 		}
 		else {
-			croak("Reading the error status of the device failed in Instrument::HP34401A::get_error(). Something's going wrong here.",
+			Lab::Exception::DeviceError->throw(
+				error => "Reading the error status of the device failed in Instrument::HP34401A::get_error(). Something's going wrong here.\n",
 			)	
 		}
 	}
@@ -209,7 +210,7 @@ sub set_display_state {
     	$self->write("DISP OFF", @_);
     }
     else {
-    	croak("set_display_state(): Illegal parameter." );
+    	Lab::Exception::CorruptParameter->throw( "set_display_state(): Illegal parameter.\n" );
     }
 }
 
@@ -217,7 +218,7 @@ sub set_display_text {
     my $self=shift;
     my $text=shift;
     if( $text !~ /^[A-Za-z0-9\ \!\#\$\%\&\'\(\)\^\\\/\@\;\:\[\]\,\.\+\-\=\<\>\?\_]*$/ ) { # characters allowed by the 3458A
-    	croak("set_display_text(): Illegal characters in given text." );
+    	Lab::Exception::CorruptParameter->throw( "set_display_text(): Illegal characters in given text.\n" );
     }
     $self->write("DISP:TEXT $text");
     
@@ -269,7 +270,7 @@ sub autozero {
 			$command = "ZERO:AUTO OFF";
 		}
 		else {
-			croak("HP34401A::autozero() can be set to 'ON'/1, 'OFF'/0 or 'ONCE'. Received '${enable}'" );
+			Lab::Exception::CorruptParameter->throw( error => "HP34401A::autozero() can be set to 'ON'/1, 'OFF'/0 or 'ONCE'. Received '${enable}'\n" );
 		}
 		$self->write( $command, error_check => 1 );
 	}	
@@ -290,7 +291,7 @@ sub _configure_voltage_dc {
 	    #$range = sprintf("%e",abs($range));
     }
     elsif($range !~ /^(MIN|MAX)$/) {
-    	croak("Range has to be set to a decimal value or 'AUTO', 'MIN' or 'MAX' in HP34401A::configure_voltage_dc()" );	
+    	Lab::Exception::CorruptParameter->throw( error => "Range has to be set to a decimal value or 'AUTO', 'MIN' or 'MAX' in HP34401A::configure_voltage_dc()\n" );	
     }
     
     if($tint =~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/) {
@@ -298,7 +299,7 @@ sub _configure_voltage_dc {
     	$tint*=$self->pl_freq(); 
     }
     elsif($tint !~ /^(MIN|MAX|DEFAULT)$/) {
-		croak("Integration time has to be set to a positive value or 'AUTO', 'MIN' or 'MAX' in HP34401A::configure_voltage_dc()" )    	
+		Lab::Exception::CorruptParameter->throw( error => "Integration time has to be set to a positive value or 'AUTO', 'MIN' or 'MAX' in HP34401A::configure_voltage_dc()\n" )    	
     }
     
     if(!defined($res_cmd)) {
@@ -323,11 +324,11 @@ sub configure_voltage_dc_trigger {
     ### Check the parameters for errors 
     
     $count=1 if !defined($count);
-    croak("Sample count has to be an integer between 1 and 512" )
+    Lab::Exception::CorruptParameter->throw( error => "Sample count has to be an integer between 1 and 512\n" )
     	if($count !~ /^[0-9]*$/ || $count < 1 || $count > 512); 
 
 	$delay=0 if !defined($delay);
-    croak("Trigger delay has to be a positive decimal value" )
+    Lab::Exception::CorruptParameter->throw( error => "Trigger delay has to be a positive decimal value\n" )
     	if($count !~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/);
     	
     if(!defined($tint)){
@@ -337,11 +338,11 @@ sub configure_voltage_dc_trigger {
     	# Convert seconds to PLC (power line cycles)
     	$tint*=$self->pl_freq(); 
     	if( $tint > 200 || $tint < 0.02){
-    		croak("Integration time out of bounds (int. time = $tint) in HP34401A::configure_voltage_dc()" )
+    		Lab::Exception::CorruptParameter->throw( error => "Integration time out of bounds (int. time = $tint) in HP34401A::configure_voltage_dc()\n" )
     	}
     }
     elsif($tint !~ /^(MIN|MAX)$/ ) {
-		croak("Integration time has to be set to a positive value, 'MIN' or 'MAX' in HP34401A::configure_voltage_dc()" )    	
+		Lab::Exception::CorruptParameter->throw( error => "Integration time has to be set to a positive value, 'MIN' or 'MAX' in HP34401A::configure_voltage_dc()\n" )    	
     }
     
     if(!defined($range)) {
@@ -351,7 +352,7 @@ sub configure_voltage_dc_trigger {
 	    $range = sprintf("%e",abs($range));
     }
     elsif($range !~ /^(MIN|MAX)$/) {
-    	croak("Range has to be set to a decimal value or 'AUTO', 'MIN' or 'MAX' in HP34401A::configure_voltage_dc()" );	
+    	Lab::Exception::CorruptParameter->throw( error => "Range has to be set to a decimal value or 'AUTO', 'MIN' or 'MAX' in HP34401A::configure_voltage_dc()\n" );	
     }
         
     if(!defined($res_cmd)) {

@@ -2,7 +2,6 @@
 package Lab::Instrument::Multimeter;
 our $VERSION = '3.500';
 
-use Lab::Generic;
 use strict;
 use Lab::Instrument;
 
@@ -36,20 +35,20 @@ sub id {
 sub get_range{
 	my $self = shift;
 	
-	croak("The unimplemented method stub ".__PACKAGE__."::get_range() has been called. I can't work like this." );
+	Lab::Exception::DriverError->throw( "The unimplemented method stub ".__PACKAGE__."::get_range() has been called. I can't work like this.\n" );
 }
 
 sub set_range{
 	my $self = shift;
 	
-	croak("The unimplemented method stub ".__PACKAGE__."::set_range() has been called. I can't work like this." );
+	Lab::Exception::DriverError->throw( "The unimplemented method stub ".__PACKAGE__."::set_range() has been called. I can't work like this.\n" );
 }
 
 
 sub get_level {
     my $self = shift;
 	
-	croak("The unimplemented method stub ".__PACKAGE__."::set_level() has been called. I can't work like this." );
+	Lab::Exception::DriverError->throw( "The unimplemented method stub ".__PACKAGE__."::set_level() has been called. I can't work like this.\n" );
 }
 
 

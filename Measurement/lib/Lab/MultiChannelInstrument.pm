@@ -4,6 +4,7 @@ our $VERSION = '3.500';
 use strict;
 use Lab::Generic;
 use List::MoreUtils qw{ any };
+use Carp qw(cluck croak);
 use Class::ISA qw(self_and_super_path);
 use Clone qw(clone);
 use Data::Dumper;
@@ -54,7 +55,7 @@ sub new {
 	my @isa = Class::ISA::super_path($class);
 	our @ISA = $isa[2];	
 	eval "require $ISA[0]; @ISA->import(); 1;" 
-		or croak($@ );
+		or do Lab::Exception::Warning->throw( error => $@ );
 		
 	
 	# create instrument channels:
@@ -89,7 +90,7 @@ sub new {
 		
 	if ( not defined $self->{device_settings}->{channel_default} or not exists $self->{channels}->{$self->{device_settings}->{channel_default}} )
 		{
-		croak("\n\nMultiChannelDevice: default channel '".$self->{device_settings}->{channel_default}."' is not defined or does not exist!" );
+		Lab::Exception::Warning->throw( error => "\n\nMultiChannelDevice: default channel '".$self->{device_settings}->{channel_default}."' is not defined or does not exist!\n\n" );
 		}
 		
 	$self->register_instrument();
@@ -161,7 +162,7 @@ sub channel {
 		}
 	else
 		{
-		croak("\n\nMultiChannelInstrument: Channel '".$channel."' is not defined.");
+		Lab::Exception::CorruptParameter->throw(error=>"\n\nMultiChannelInstrument: Channel '".$channel."' is not defined.\n\n");
 		}
 }
 
@@ -259,7 +260,7 @@ sub AUTOLOAD {
 		return $self->{channels}->{$self->{device_settings}->{channel_default}}->{$name};
 	}
 	else {
-		croak("AUTOLOAD in " . __PACKAGE__ . " couldn't access field '${name}'." );
+		Lab::Exception::Warning->throw( error => "AUTOLOAD in " . __PACKAGE__ . " couldn't access field '${name}'.\n" );
 	}
 }
 
@@ -280,7 +281,7 @@ sub device_cache {
 		$value = {@_};
 	}
 	else {  # uneven sized list - don't know what to do with that one
-		croak("Corrupt parameters given to " . __PACKAGE__ . "::device_cache()." );
+		Lab::Exception::CorruptParameter->throw( error => "Corrupt parameters given to " . __PACKAGE__ . "::device_cache().\n" );
 	}
 
 	#warn "Keys present: \n" . Dumper($self->{device_settings}) . "\n";

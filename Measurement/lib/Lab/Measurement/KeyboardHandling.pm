@@ -3,7 +3,6 @@
 package Lab::Measurement::KeyboardHandling;
 our $VERSION = '3.500';
 
-use Lab::Generic;
 use Term::ReadKey;
 
 my $labkey_initialized=0;

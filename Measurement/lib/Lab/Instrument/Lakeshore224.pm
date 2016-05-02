@@ -1,7 +1,6 @@
 package Lab::Instrument::Lakeshore224;
 our $VERSION = '3.500';
 
-use Lab::Generic;
 use strict;
 
 use Lab::Instrument;
@@ -82,7 +81,7 @@ sub get_T {
 	my $self = shift;
 	my ($tail) = $self->_check_args(\@_, []);
 	
-	carp('Get T for channel: '.$self->{channel});
+	$self->out_debug('Get T for channel: '.$self->{channel}."\n");
 	
 	return $self->query('KRDG? '.$self->{channel}, $tail);
 }
@@ -103,7 +102,7 @@ sub set_leds {
 	my ($state, $tail) = $self->_check_args( \@_, ['state'] );
 	
 	if (defined $state and ($state != 1 and $state != 0)) {
-		carp('State has to be 1 or 0');
+		$self->out_warning('State has to be 1 or 0');
 		return;
 	}
 		
@@ -163,17 +162,17 @@ sub set_filter {
     my ($on_off, $points, $window, $tail) = $self->_check_args( \@_, ['on_off', 'points', 'window'] );
 	
 		if (defined $on_off and ($on_off != 1 and $on_off != 0)) {
-		carp('on_off has to be 1 or 0');
+		$self->out_warning('on_off has to be 1 or 0');
 		return;
 	}
 	
 		if (defined $points and ($points < 2 or $points > 64)) {
-		carp('Valid range for points is 2 to 64');
+		$self->out_warning('Valid range for points is 2 to 64');
 		return;
 	}
 	
 		if (defined $window and ($window < 1 or $window > 10)) {
-		carp('Valid range for window is 1 to 10');
+		$self->out_warning('Valid range for window is 1 to 10');
 		return;
 	}
 	
@@ -196,7 +195,7 @@ sub set_mode {
 	my ($state, $tail) = $self->_check_args( \@_, ['state'] );
 	
 	if (defined $state and ($state < 1 or $state > 2)) {
-		carp('State has to be 0 (local), 1 (remote) or 2 (remote with local lockout)');
+		$self->out_warning('State has to be 0 (local), 1 (remote) or 2 (remote with local lockout)');
 		return;
 	}
 		
@@ -219,7 +218,7 @@ sub set_lock {
 	my ($state, $tail) = $self->_check_args( \@_, ['state'] );
 	
 	if (defined $state and ($state !=0 and $state !=1)) {
-		carp('State has to be 0 (unlocked) or 1 (locked)');
+		$self->out_warning('State has to be 0 (unlocked) or 1 (locked)');
 		return;
 	}
 		
@@ -243,22 +242,22 @@ sub set_alarm {
 	my ($on_off, $high_setpoint, $low_setpoint, $deadband, $latch_enable, $audible, $display, $tail)=$self->_check_args(\@_, ['on_off', 'high_setpoint', 'low_setpoint', 'deadband', 'latch_enable', 'audible', 'display'] );
 	
 		if (defined $on_off and ($on_off != 1 and $on_off != 0)) {
-		carp('on_off has to be 1 or 0');
+		$self->out_warning('on_off has to be 1 or 0');
 		return;
 	}
 	
 		if (defined $latch_enable and ($latch_enable != 1 or $latch_enable != 0)) {
-		carp('latch_enable has to be 1 or 0');
+		$self->out_warning('latch_enable has to be 1 or 0');
 		return;
 	}
 	
 		if (defined $audible and ($audible != 1 and $audible != 0)) {
-		carp('audible has to be 1 or 0');
+		$self->out_warning('audible has to be 1 or 0');
 		return;
 	}
 	
 		if (defined $display and ($display != 1 or $display != 0)) {
-		carp('display has to be 1 or 0');
+		$self->out_warning('display has to be 1 or 0');
 		return;
 	}
 	

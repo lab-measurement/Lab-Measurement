@@ -7,7 +7,7 @@ use strict;
 use Time::HiRes qw (usleep sleep);
 use Lab::Connection;
 use Data::Dumper;
-use Lab::Generic;
+use Carp;
 
 our @ISA = ("Lab::Connection");
 

@@ -10,7 +10,7 @@ use Scalar::Util qw(weaken);
 use Time::HiRes qw (usleep sleep);
 use Lab::Bus;
 use Data::Dumper;
-use Lab::Generic;
+use Carp;
 
 our @ISA = ("Lab::Bus");
 
@@ -119,7 +119,8 @@ sub connection_write { # @_ = ( $connection_handle, $args = { command, wait_stat
 	
 
 	if(!defined $command) {
-		croak("No command given to " . __PACKAGE__ . "::connection_write().",
+		Lab::Exception::CorruptParameter->throw(
+			error => "No command given to " . __PACKAGE__ . "::connection_write().\n",
 		);
 	}
 	else {

@@ -7,10 +7,10 @@
 package Lab::Connection::VISA;
 our $VERSION = '3.500';
 
-use Lab::Generic;
 use strict;
 use Lab::Bus::VISA;
 use Lab::Connection;
+use Lab::Exception;
 
 
 our @ISA = ("Lab::Connection");

@@ -8,7 +8,6 @@ use Time::HiRes qw/usleep/, qw/time/;
 our $VERSION = '3.500';
 
 
-use Lab::Generic;
 sub new {
     my $proto = shift;
     my $class = ref($proto) || $proto;

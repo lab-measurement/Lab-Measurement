@@ -4,6 +4,7 @@ our $VERSION = '3.500';
 
 use Time::HiRes qw/usleep/, qw/time/;
 use strict;
+use Lab::Exception;
 use Lab::Generic;
 
 our @ISA = ('Lab::Generic');
@@ -27,7 +28,7 @@ sub start {
 	
 	if ( not defined $self->{master} )
 		{
-		croak("no master defined");
+		Lab::Exception::Warning->throw(error => "no master defined");
 		}
 	else {
 		$self->{master}->start();
@@ -54,7 +55,7 @@ sub add_master {
 	my $type = ref($self->{master});
 	if ( not $type =~ /^Lab::XPRESS::Sweep/ )
 		{
-		croak("Master is not of type Lab::XPRESS::Sweep . ");
+		Lab::Exception::Warning->throw(error => "Master is not of type Lab::XPRESS::Sweep . ");
 		}
 	return $self;
 }
@@ -65,7 +66,7 @@ sub add_slave {
 	
 	if ( not defined $self->{master} )
 		{
-		croak("no master defined when called add_slave().");
+		Lab::Exception::Warning->throw(error => "no master defined when called add_slave().");
 		}
 	
 	$self->{master}->add_slave($slave);

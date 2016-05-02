@@ -3,7 +3,6 @@
 package Lab::Instrument::AH2700A;
 our $VERSION = '3.500';
 
-use Lab::Generic;
 use strict;
 use Time::HiRes qw (usleep);
 use Lab::Instrument;
@@ -60,7 +59,7 @@ sub set_frq {
 	
 	if ( $frq < 50 or $frq > 20000 )
 		{ 
-		croak("bad frequency-parameter!");
+		Lab::Exception::CorruptParameter->throw( error => "bad frequency-parameter!\n");
 		}
 	else
 		{
@@ -89,7 +88,7 @@ sub set_aver {
 	
 	if ( $aver < 0 or $aver > 15 )
 		{ 
-		croak("bad average-parameter!");
+		Lab::Exception::CorruptParameter->throw( error => "bad average-parameter!\n");
 		}
 	else
 		{
@@ -121,7 +120,7 @@ sub set_bias {
 		}
 	else
 		{
-		croak("bad bias-parameter!");
+		Lab::Exception::CorruptParameter->throw( error => "bad bias-parameter!\n");
 		}
 		
 }
@@ -145,7 +144,7 @@ sub set_bright {
 	
 	if ( ( $bright1 ne 'ALL' or $bright1 ne 'C' or $bright1 ne 'LOS' or $bright1 ne 'OT' ) and ( $bright2 < 0 or $bright2 > 9 ) )
 		{
-		croak("bad brightness-parameter!");
+		Lab::Exception::CorruptParameter->throw( error => "bad brightness-parameter!\n");
 		}
 	if ( $bright1 eq 'ALL' )
 		{ 
@@ -186,7 +185,7 @@ sub set_cable {
 	
 	if (not $cab1 =~ m/L|RES|I|C/ )
 		{
-		croak("bad cable-parameter!");
+		Lab::Exception::CorruptParameter->throw( error => "bad cable-parameter!\n");
 		}
 	else
 		{ 
@@ -222,7 +221,7 @@ sub set_cont {
 	
 	if ( $cont > 10 )
 		{ 
-		croak("number of measurements higher than 10!");
+		Lab::Exception::CorruptParameter->throw( error => "number of measurements higher than 10!\n");
 		}
 	else
 		{
@@ -297,7 +296,7 @@ sub get_single {
 	if ( $result =~ /^(\d+)/ and $result != /00/)
 		{
 		$values->{E} = $1;
-		carp("Error in get_single. Errorcode = ".$values->{E});
+		print new Lab::Exception::Warning( error => "Error in get_single. Errorcode = ".$values->{E}."\n");
 		}
 	
 			
@@ -435,7 +434,7 @@ sub set_units {
 	
 	if (not $units =~ m/NS|DS|KO|GO|JP/ )
 		{
-		croak("bad units-parameter!");
+		Lab::Exception::CorruptParameter->throw( error => "bad units-parameter!\n");
 		}
 	else
 		{ 

@@ -1,6 +1,5 @@
 package Lab::Instrument::U2000;
 our $VERSION = '3.500';
-use Lab::Generic;
 #TODO: Error handling. Neither timeouts nor errors are handled correctly.
 # Error reporting from the kernel driver is bad.
 
@@ -71,7 +70,7 @@ sub set_trigger {
     }
     
     if ($self->{average_on} && ($type eq "INT" || $type eq "EXT")) {
-        croak("Can't switch to internal or external trigger while average mode is on. Change mode using set_mode(\"NORM\"). Error in U2000::set_trigger()." );
+        Lab::Exception::CorruptParameter->throw( error => "Can't switch to internal or external trigger while average mode is on. Change mode using set_mode(\"NORM\"). Error in U2000::set_trigger(). \n" );
     }
     if ($type eq "INT" || $type eq "EXT" || $type eq "IMM")
     {
@@ -79,9 +78,9 @@ sub set_trigger {
         $self->{trigger_mode} = $type;
     } elsif ($type eq "BUS")
     {
-        croak("'BUS' trigger mode is not supported by this library in U2000::set_trigger()" );
+        Lab::Exception::CorruptParameter->throw( error => "'BUS' trigger mode is not supported by this library in U2000::set_trigger()\n" );
     } elsif ($type ne "AUTO") {
-        croak("Unknown trigger mode in HP34401A::set_trigger()" );
+        Lab::Exception::CorruptParameter->throw( error => "Unknown trigger mode in HP34401A::set_trigger()\n" );
     }
     
     
@@ -162,7 +161,7 @@ sub set_mode
             $self->{trigger_mode} = "INT";
         }
     } else {
-        croak("Unknown  mode in HP34401A::set_mode()" );
+        Lab::Exception::CorruptParameter->throw( error => "Unknown  mode in HP34401A::set_mode()\n" );
     }
     $self->{average_on} = $mode eq "AVER";
     $self->write("DET:FUNC $mode");
@@ -200,7 +199,7 @@ sub set_sample_rate
     {
         $self->write("MRAT FAST");
     } else {
-        croak("Unsuppoerted sample rate in HP34401A::set_sample_rate()" );
+        Lab::Exception::CorruptParameter->throw( error => "Unsuppoerted sample rate in HP34401A::set_sample_rate()\n" );
     }
 }
 

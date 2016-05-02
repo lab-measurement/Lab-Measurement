@@ -1,7 +1,6 @@
 package Lab::Instrument::HP83732A;
 our $VERSION = '3.500';
 
-use Lab::Generic;
 use strict;
 use Lab::Instrument;
 use Time::HiRes qw (usleep);

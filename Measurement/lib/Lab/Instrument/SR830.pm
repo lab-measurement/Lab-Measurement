@@ -5,7 +5,7 @@ our $VERSION = '3.500';
 use strict;
 use Lab::Instrument;
 use Data::Dumper;
-use Lab::Generic;
+use Carp;
 use Time::HiRes qw (usleep);
 
 our @ISA = ("Lab::Instrument");

@@ -5,7 +5,6 @@ use warnings;
 
 our $VERSION = '3.500';
 
-use Lab::Generic;
 use feature "switch";
 use Lab::Instrument;
 use Lab::Instrument::Source;
@@ -70,7 +69,8 @@ sub set_voltage {
     my $function = $self->get_function({read_mode => 'cache'});
 
     if($function ne 'VOLT'){
-    	croak("Source is in mode $function. Can't set voltage level.");
+    	Lab::Exception::CorruptParameter->throw(
+    	error=>"Source is in mode $function. Can't set voltage level.");
     }
     
     
@@ -84,11 +84,13 @@ sub set_voltage_auto {
     my $function = $self->get_function();
 
     if($function ne 'VOLT'){
-    	croak("Source is in mode $function. Can't set voltage level.");
+    	Lab::Exception::CorruptParameter->throw(
+    	error=>"Source is in mode $function. Can't set voltage level.");
     }
     
     if( abs($voltage) > 32.){
-    	croak("Source is not capable of voltage level > 32V. Can't set voltage level.");
+    	Lab::Exception::CorruptParameter->throw(
+    	error=>"Source is not capable of voltage level > 32V. Can't set voltage level.");
     }
     
     $self->set_level_auto($voltage, @_);
@@ -101,11 +103,13 @@ sub set_current_auto {
     my $function = $self->get_function();
 
     if($function ne 'CURR'){
-    	croak("Source is in mode $function. Can't set current level.");
+    	Lab::Exception::CorruptParameter->throw(
+    	error=>"Source is in mode $function. Can't set current level.");
     }
     
     if( abs($current) > 0.200){
-    	croak("Source is not capable of current level > 200mA. Can't set current level.");
+    	Lab::Exception::CorruptParameter->throw(
+    	error=>"Source is not capable of current level > 200mA. Can't set current level.");
     }
     
     $self->set_level_auto($current, @_);
@@ -118,7 +122,8 @@ sub set_current {
 	my $function = $self->get_function();
 
     if($self->get_function() ne 'CURR'){
-    	croak("Source is in mode $function. Can't set current level.");
+    	Lab::Exception::CorruptParameter->throw(
+    	error=>"Source is in mode $function. Can't set current level.");
     }
 
     $self->set_level($current, @_);
@@ -140,7 +145,8 @@ sub _set_level {
 		return $self->{'device_cache'}->{'level'} = $value;
     }
     else{
-    	croak("Level $value is out of curren range $srcrange.");
+    	Lab::Exception::CorruptParameter->throw(
+    	error=>"Level $value is out of curren range $srcrange.");
     }
 	
 	
@@ -240,17 +246,17 @@ sub set_time { # internal use only
     my $self=shift;
     my ($sweep_time,$interval_time,$tail) = $self->_check_args( \@_, ['sweep_time','interval_time'] );
         if ($sweep_time<$self->device_settings()->{min_sweep_time}) {
-        carp(" Sweep Time: $sweep_time smaller than $self->device_settings()->{min_sweep_time} sec!\n Sweep time set to $self->device_settings()->{min_sweep_time} sec");
+        print Lab::Exception::CorruptParameter->new( error=>  " Sweep Time: $sweep_time smaller than $self->device_settings()->{min_sweep_time} sec!\n Sweep time set to $self->device_settings()->{min_sweep_time} sec");
         $sweep_time=$self->device_settings()->{min_sweep_time}}
     elsif ($sweep_time>$self->device_settings()->{max_sweep_time}) {
-        carp(" Sweep Time: $sweep_time> $self->device_settings()->{max_sweep_time} sec!\n Sweep time set to $self->device_settings()->{max_sweep_time} sec");
+        print Lab::Exception::CorruptParameter->new( error=>  " Sweep Time: $sweep_time> $self->device_settings()->{max_sweep_time} sec!\n Sweep time set to $self->device_settings()->{max_sweep_time} sec");
         $sweep_time=$self->device_settings()->{max_sweep_time}
     };
     if ($interval_time<$self->device_settings()->{min_sweep_time}) {
-        carp(" Interval Time: $interval_time smaller than $self->device_settings()->{min_sweep_time} sec!\n Interval time set to $self->device_settings()->{min_sweep_time} sec");
+        print Lab::Exception::CorruptParameter->new( error=>  " Interval Time: $interval_time smaller than $self->device_settings()->{min_sweep_time} sec!\n Interval time set to $self->device_settings()->{min_sweep_time} sec");
         $interval_time=$self->device_settings()->{min_sweep_time}}
     elsif ($interval_time>$self->device_settings()->{max_sweep_time}) {
-        carp(" Interval Time: $interval_time> $self->device_settings()->{max_sweep_time} sec!\n Interval time set to $self->device_settings()->{max_sweep_time} sec");
+        print Lab::Exception::CorruptParameter->new( error=>  " Interval Time: $interval_time> $self->device_settings()->{max_sweep_time} sec!\n Interval time set to $self->device_settings()->{max_sweep_time} sec");
         $interval_time=$self->device_settings()->{max_sweep_time}
     };
     $self->write(":PROG:SLOP $sweep_time",$tail);
@@ -310,7 +316,8 @@ sub _sweep_to_level {
 	
 	if( abs($current-$target) > $eql ){
 		print "YokogawaGS200.pm: error current neq target\n";
-    	croak("Sweep failed: $target not equal to $current.")
+    	Lab::Exception::CorruptParameter->throw(
+    	"Sweep failed: $target not equal to $current. \n")
     }
     
     $self->{'device_cache'}->{'level'} = $target;
@@ -337,7 +344,8 @@ sub get_voltage {
 	my $function = $self->get_function();
 
     if(! $function eq 'VOLT'){
-    	croak("Source is in mode $function. Can't get voltage level.");
+    	Lab::Exception::CorruptParameter->throw(
+    	error=>"Source is in mode $function. Can't get voltage level.");
     }
 
     return $self->get_level(@_);
@@ -385,7 +393,8 @@ sub get_current {
     my $function = $self->get_function();
     
     if(!$self->get_function() eq 'CURR'){
-    	croak("Source is in mode $function. Can't get current level.");
+    	Lab::Exception::CorruptParameter->throw(
+    	error=>"Source is in mode $function. Can't get current level.");
     }
    	
     return $self->get_level(@_);
@@ -431,7 +440,7 @@ sub set_function {
     	return $self->{'device_cache'}->{'function'} = $func;	
     }
     else{
-    	croak("source function $func not defined for this device." ); 
+    	Lab::Exception::CorruptParameter->throw( error=>"source function $func not defined for this device.\n" ); 
     }    
             
 }
@@ -462,7 +471,8 @@ sub set_output {
     	$value = 0;
     }
     else{
-    	croak("set_output accepts only on or off (case non-sensitive) and 1 or 0. $value is not valid.");
+    	Lab::Exception::CorruptParameter->throw(
+    			error=>"set_output accepts only on or off (case non-sensitive) and 1 or 0. $value is not valid.");
     }
     
     return $self->{"device_cache"}->{"output"} = $self->write( ":OUTP $value" );
@@ -482,7 +492,7 @@ sub set_voltage_limit {
     my $cmd = ":SOURce:PROTection:VOLTage $value";
     
     if($value > 30. || $value < 1. ){
-    	croak("The voltage limit $value is not within the allowed range." );
+    	Lab::Exception::CorruptParameter->throw( error=>"The voltage limit $value is not within the allowed range.\n" );
     }
     
     $self->connection()->write( $cmd );
@@ -497,7 +507,7 @@ sub set_current_limit {
     my $cmd = ":SOURce:PROTection:CURRent $value";
     
     if($value > 0.2 || $value < 0.001 ){
-    	croak("The current limit $value is not within the allowed range." );
+    	Lab::Exception::CorruptParameter->throw( error=>"The current limit $value is not within the allowed range.\n" );
     }
     
     $self->connection()->write( $cmd );

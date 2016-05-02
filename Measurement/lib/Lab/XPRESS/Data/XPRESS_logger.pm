@@ -2,7 +2,6 @@ package Lab::XPRESS::Data::XPRESS_logger;
 
 our $VERSION = '3.500';
 
-use Lab::Generic;
 use Time::HiRes qw/usleep/, qw/time/;
 use strict;
 

@@ -9,11 +9,11 @@
 package Lab::Connection::LinuxGPIB;
 our $VERSION = '3.500';
 
-use Lab::Generic;
 use strict;
 use Scalar::Util qw(weaken);
 use Time::HiRes qw (usleep sleep);
 use Lab::Connection::GPIB;
+use Lab::Exception;
 
 eval { require LinuxGpib; LinuxGpib->import(); };
 die("Failed to load LinuxGpib in Lab::Connection::LinuxGPIB!\n$@") if ($@);

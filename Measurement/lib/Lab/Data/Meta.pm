@@ -4,7 +4,7 @@ package Lab::Data::Meta;
 our $VERSION = '3.500';
 
 use strict;
-use Lab::Generic;
+use Carp;
 use Lab::Data::XMLtree;
 use File::Basename;
 use Cwd 'abs_path';

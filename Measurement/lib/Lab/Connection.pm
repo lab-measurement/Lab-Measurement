@@ -8,6 +8,8 @@ use strict;
 #use POSIX; # added for int() function
 use Lab::Generic;
 use Time::HiRes qw (usleep sleep);
+
+use Carp;
 use Data::Dumper;
 our $AUTOLOAD;
 
@@ -218,7 +220,7 @@ sub configure {
 	my $config=shift;
 
 	if( ref($config) ne 'HASH' ) {
-		croak('Given Configuration is not a hash.');
+		Lab::Exception::CorruptParameter->throw( error=>'Given Configuration is not a hash.');
 	}
 	else {
 		#
@@ -275,10 +277,10 @@ sub _setbus { # $self->setbus() create new or use existing bus
 	my $bus_class = $self->bus_class();
 
 	$self->bus(eval("require $bus_class; new $bus_class(\$self->config());")) ||
-        croak("Failed to create bus $bus_class in " . __PACKAGE__ .
+        Lab::Exception::Error->throw( error => "Failed to create bus $bus_class in " . __PACKAGE__ .
             "::_setbus. Error message was:".
             "\n\n----------------------------------------------\n\n".
-            "$@\n----------------------------------------------");
+            "$@\n----------------------------------------------\n");
 
 	# again, pass it all.
 	$self->connection_handle( $self->bus()->connection_new( $self->config() ));
@@ -319,7 +321,7 @@ sub AUTOLOAD {
 	$name =~ s/.*://; # strip fully qualified portion
 
 	unless (exists $self->{_permitted}->{$name} ) {
-		croak("AUTOLOAD in " . __PACKAGE__ . " couldn't access field '${name}'.");
+		Lab::Exception::Error->throw( error => "AUTOLOAD in " . __PACKAGE__ . " couldn't access field '${name}'.\n");
 	}
 
 	if (@_) {
