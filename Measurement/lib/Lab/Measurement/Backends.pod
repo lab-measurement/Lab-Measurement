@@ -38,32 +38,35 @@ in the kernel driver interface.
 =head2 Installing Linux-GPIB
 
 Note that on Gentoo Linux-GPIB is packaged. On distros where this is not the
-case you can use the following steps. For more details, consult Linux-GPIB's
-F<INSTALL> file. This guide was tested with Linux-GPIB versions 4.0.2 and
-4.0.3 on Debian 8.
+case, you can use the following steps. For more details, consult Linux-GPIB's
+F<INSTALL> file. This guide was tested on Debian 8 with Linux-GPIB versions 4.0.2 and 4.0.3 .
 
 =over
 
 =item * Install the kernel headers, cpanm, gcc and make. On Debian you can run
-this command as root:
+this command:
 
- apt-get install linux-headers-`uname -r` build-essential cpanminus 
+ root # apt-get install linux-headers-`uname -r` build-essential cpanminus 
 
 =item * Download the
 L<Linux-GPIB sources|http://sourceforge.net/projects/linux-gpib/files/>
  and build with the usual procedure:
 
- tar -xf linux-gpib-4.0.2.tar.gz && cd linux-gpib-4.0.2
- ./configure
- make
+ user $ tar -xf linux-gpib-4.0.2.tar.gz && cd linux-gpib-4.0.2
+ user $ ./configure
+ user $ make
 
-install as root by running:
+install the library and kernel drivers:
 
- make install
+ root # make install
 
-=item * Install the Perl bindings as root:
+=item * Add your user to the gpib group.
 
- cpanm ./language/perl
+ root # adduser user gpib 
+
+=item * Install the Perl bindings:
+
+ root # cpanm ./language/perl
 
 =back 
 
