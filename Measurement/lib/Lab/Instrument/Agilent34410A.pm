@@ -293,13 +293,16 @@ sub get_nplc {
 	$function =~ s/\s+//g; #remove all whitespaces
 	$function = "\L$function"; # transform all uppercase letters to lowercase letters
 	
-	if ( $function  =~ /^(voltage|volt|voltage:ac|volt:ac|voltage:dc|volt:dc|current|curr|current:ac|curr:ac|current:dc|curr:dc|resisitance|res|fresistance|fres)$/ )
+	if ( $function  =~ /^(voltage|volt|voltage:dc|volt:dc|current|curr|current:dc|curr:dc|resisitance|res|fresistance|fres)$/ )
 		{
 		return $self->query( "$function:NPLC?", $tail);
-		}				
-	else
-		{
-		Lab::Exception::CorruptParameter->throw( error => "unexpected parameter $function.");
+		}
+	else {
+		# nplc is cached, so get_nplc is always called in the
+		# constructor and we can't throw an exception here.
+		return undef;
+		
+		# Lab::Exception::CorruptParameter->throw( error => "unexpected parameter $function.");
 		}
 }
 
@@ -456,13 +459,12 @@ sub get_tc{
 	$function =~ s/\s+//g; #remove all whitespaces
 	$function = "\L$function"; # transform all uppercase letters to lowercase letters
 	
-	if ( $function  =~ /^(voltage|volt|voltage:ac|volt:ac|voltage:dc|volt:dc|current|curr|current:ac|curr:ac|current:dc|curr:dc|resisitance|res|fresistance|fres)$/ )
+	if ( $function  =~ /^(voltage|volt|voltage:dc|volt:dc|current|curr|current:dc|curr:dc|resisitance|res|fresistance|fres)$/ )
 		{
 		return $self->query( "$function:APERTURE?", $tail);
 		}				
-	else
-		{
-		Lab::Exception::CorruptParameter->throw( error => "unexpected parameter $function.");
+	else {
+		return undef;
 		}
 }
 
