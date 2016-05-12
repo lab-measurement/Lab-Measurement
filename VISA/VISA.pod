@@ -1,5 +1,7 @@
 =pod
 
+=encoding utf8
+
 =head1 NAME
 
 Lab::VISA - Perl interface to the National Instruments VISA library
