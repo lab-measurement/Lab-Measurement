@@ -55,6 +55,11 @@ sub process_element {
     my $html;
     $parser->output_string(\$html);
     $parser->parse_file($podfile);
+    
+    if ($parser->any_errata_seen ()) {
+	    die "file '$podfile' has POD errors";
+    }
+    
     open OUTFILE, ">", "$$self{docdir}/$basename.html" or die;
         print OUTFILE $self->_get_header($title);
         print OUTFILE qq(<h1><a href="index.html">$sections[0]</a>: <span class="basename">$bnt</span></h1>\n);
@@ -133,6 +138,7 @@ sub new {
     $self->html_header('');
     $self->html_footer('');
     $self->html_h_level(2);
+    $self->complain_stderr (1);
     return $self;
 }
 
