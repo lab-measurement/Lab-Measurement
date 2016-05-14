@@ -58,6 +58,7 @@ toc:
               - Measurement/lib/Lab/Instrument/HP34401A.pm
               - Measurement/lib/Lab/Instrument/HP34420A.pm
               - Measurement/lib/Lab/Instrument/HP3458A.pm
+              - Measurement/lib/Lab/Instrument/Agilent34410A.pm
           - Voltage sources:
               - Measurement/lib/Lab/Instrument/Source.pm
               - Measurement/lib/Lab/Instrument/DummySource.pm

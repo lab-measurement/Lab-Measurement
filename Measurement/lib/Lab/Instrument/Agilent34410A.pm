@@ -1038,31 +1038,28 @@ sub beep { # basic
 
 =head1 NAME
 
-	Lab::Instrument::Agilent34410A - HP/Agilent 34410A or 34411A digital multimeter
-
-.
+	Lab::Instrument::Agilent34410A - HP/Agilent/Keysight 34410A or 34411A
+    digital multimeter 
 
 =head1 SYNOPSIS
 
 	use Lab::Instrument::Agilent34410A;
-	my $hp=new Lab::Instrument::Agilent34410A(0,22);
-	print $agilent->get_value();
+	my $multimeter = Lab::Instrument::Agilent34410A->new(%options);
 
-.
+	print $multimeter->get_value();
 
 =head1 DESCRIPTION
 
 The Lab::Instrument::Agilent34410A class implements an interface to the 34410A and 34411A digital multimeters by
-Agilent (formerly HP). Note that the module Lab::Instrument::Agilent34410A still works for those older multimeter 
+Agilent (now Keysight, formerly HP). Note that the module
+=Lab::Instrument::Agilent34410A still works for those older and newer multimeter 
 models.
 
 .
 
 =head1 CONSTRUCTOR
 
-	my $hp=new(\%options);
-
-.
+	my $multimeter = Lab::Instrument::Agilent34410A->new(%options);
 
 =head1 METHODS
 
@@ -1090,11 +1087,11 @@ Request a measurement value. If optinal paramters are defined, some device param
 
 C<FUNCTION> can be one of the measurement methods of the Agilent34410A.
 
-	"current:dc" --> DC current measurement 
-	"current:ac" --> AC current measurement 
-	"voltage:dc" --> DC voltage measurement 
-	"voltage:ac" --> AC voltage measurement 
-	"resistance" --> resistance measurement (2-wire)
+	"current:dc"  --> DC current measurement 
+	"current:ac"  --> AC current measurement 
+	"voltage:dc"  --> DC voltage measurement 
+	"voltage:ac"  --> AC voltage measurement 
+	"resistance"  --> resistance measurement (2-wire)
 	"fresistance" --> resistance measurement (4-wire)
 
 =item <$range>
