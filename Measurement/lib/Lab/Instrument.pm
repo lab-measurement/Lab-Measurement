@@ -1506,15 +1506,47 @@ errors and throws a Lab::Exception::DeviceError. The list of errors, the device
 class and the last issued command(s) (if the script provided them) are enclosed.
 
 =head2 _check_args
+ 
+Parse the arguments given to a method. The typical use is like this:
 
-	my ($arg_1, $arg_2, ... ) = $instrument->_check_args(\@args, @arg_names );
-	
-	This methode is expected to be used to deal with the different possibilities a user can pass arguments when calling an instruments methode.
-	@args are the users arguments. The expected arguments of a specific methode may be $arg_1 and $arg_2.
-	Using the old style calling a methode, you have to pass the two arguments in the right order.
-	Using the new style, you can pass the arguments as a HASH using the arguments' names @arg_names. You don't have to take care of the right order in this case.
-	Furthermore the methode triggers a waring if it finds unknown parameter in the arguments hash ( this is to cathch typos in the script ).
-	
+ sub my_method () {
+     my $self = shift;
+     my ($arg_1, $arg_2, $tail) = $self->_check_args(\@_, ['arg1', 'arg2']);
+     ...
+ }
+
+There are now two ways, how a user can give arguments to C<my_method>. Both of
+the following calls will assign C<$value1> to C<$arg1> and C<$value2> to C<$arg2>.
+
+=over
+
+=item old style:
+
+ $instrument->my_method($value1, $value2, $tail);
+
+=item new style:
+
+ $instrument->my_method({arg1 => $value1, arg2 => $value2});
+
+Remaining key-value pairs will be consumed by C<$tail>. For example, after
+
+ $instrument->my_method({arg1 => $value1, arg2 => $value2, x => $value_x});
+
+C<$tail> will hold the hashref C<< {x => $value_x} >>.
+
+Multiple hashrefs given to C<my_method> are concatenated.
+
+For a method without named arguments, you can either use
+
+ my $(tail) = $self->_check_args(\@_, []);
+
+or
+
+ my $(tail) = $self->_check_args(\@);
+
+
+=back
+ 
 
 =head1 CAVEATS/BUGS
 
