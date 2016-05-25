@@ -1586,3 +1586,77 @@ terms as Perl itself.
 
 =cut
 
+my $mnemonic_regex = qr/(?<mnemonic>:[a-z][a-z0-9_]*)/i;
+
+# For the first part, the colon is optional.
+my $start_mnemonic_regex = qr/(?<mnemonic>:?[a-z][a-z0-9_]*)/i;
+
+my $keyword_regex = qr/\[$mnemonic_regex\]|$mnemonic_regex/;
+
+my $start_regex = qr/\[$start_mnemonic_regex\]|$start_mnemonic_regex/;
+
+sub parse {
+	my $text = shift;
+	my @mnemonics;
+	if ($text !~ /^($start_regex)/g) {
+		die "does not match first regex";
+	}
+	push @mnemonics, {
+		value => $+{mnemonic},
+		optional => $1 ne $+{mnemonic},
+	};
+	
+	my $pos = pos($text);
+	while ($text =~ /\G($keyword_regex)/g) {
+		push @mnemonics, {
+			value => $+{mnemonic},
+			optional => $1 ne $+{mnemonic},
+		};
+		$pos = pos($text);
+	}
+	if ($pos != length($text)) {
+		die "trailing garbage";
+	}
+	
+	my $non_optional = grep({not $_->{optional}} @mnemonics);
+	
+	if ($non_optional == 0) {
+		die "all optional";
+	}
+
+	my @result = ("");
+	    
+	for my $mnemonic (@mnemonics) {
+		my @new_result;
+		for my $result (@result) {
+			push @new_result, $result . $mnemonic->{value};
+		}
+		if ($mnemonic->{optional}) {
+			push @result, @new_result;
+		}
+		else {
+			@result = @new_result;
+		}
+	}
+		
+	return @result;
+}
+
+my @array = parse('x');
+
+sub compare {
+	my $a = shift;
+	my $b = shift;
+	
+	my @a = split(/:/, $a, -1);
+	my @b = split(/:/, $b, -1);
+
+	if (@a != @b) {
+		die "lengths not equal";
+	}
+	while (@a) {
+		if (shift(@a) ne shift(@b)) {
+			die "not equal";
+		}
+	}
+}
