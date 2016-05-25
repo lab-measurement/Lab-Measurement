@@ -1595,7 +1595,7 @@ my $keyword_regex = qr/\[$mnemonic_regex\]|$mnemonic_regex/;
 
 my $start_regex = qr/\[$start_mnemonic_regex\]|$start_mnemonic_regex/;
 
-sub parse {
+sub _scpi_parse_keyword {
 	my $text = shift;
 	my @mnemonics;
 	if ($text !~ /^($start_regex)/g) {
@@ -1612,6 +1612,7 @@ sub parse {
 			value => $+{mnemonic},
 			optional => $1 ne $+{mnemonic},
 		};
+		# FIXME: match mit /\G$/ am ende statt pos?
 		$pos = pos($text);
 	}
 	if ($pos != length($text)) {
@@ -1642,9 +1643,22 @@ sub parse {
 	return @result;
 }
 
-my @array = parse('x');
+sub _scpi_shortform {
+	my $string = shift;
+	if (length($string) <= 4) {
+		return $string;
+	}
+	
+	if (substr($string, 3, 1) =~ /[aeiou]/i) {
+		return substr($string, 0, 3);
+	}
+	else {
+		return substr($string, 0, 4);
+	}
+}
 
-sub compare {
+# Return 1 for equal, 0 if not.
+sub _scpi_compare_headers {
 	my $a = shift;
 	my $b = shift;
 	
@@ -1652,11 +1666,44 @@ sub compare {
 	my @b = split(/:/, $b, -1);
 
 	if (@a != @b) {
-		die "lengths not equal";
+		return 0;
 	}
 	while (@a) {
-		if (shift(@a) ne shift(@b)) {
-			die "not equal";
+		my $a = shift @a;
+		my $b = shift @b;
+		$a = "\L$a";
+		$b = "\L$b";
+		if ($b ne $a and $b ne _scpi_shortform($a)) {
+			return 0;
 		}
 	}
+	return 1;
 }
+
+# Return 1 for match, 0 for no match.
+sub _scpi_match_keyword {
+	my $keyword = shift;
+	my $header = shift;
+
+	my @combinations = _scpi_parse_keyword($keyword);
+	for my $combination (@combinations) {
+		if (_scpi_compare_headers($combination, $header)) {
+			return 1;
+		}
+	}
+	return 0;
+}
+
+sub scpi_match_keywords {
+	my $self = shift;
+	my $keyword_ref = shift;
+	my @keywords = @{$keyword_ref};
+	my $param = shift;
+	for my $keyword (@keywords) {
+		if (_scpi_match_keyword($keyword, $param)) {
+			return 1;
+		}
+	}
+	return 0;
+}
+
