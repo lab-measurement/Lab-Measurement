@@ -27,6 +27,7 @@ toc:
           - Measurement/lib/Lab/Data/Meta.pm
           - Measurement/lib/Lab/Data/XMLtree.pm
           - Measurement/lib/Lab/Data/Plotter.pm
+          - Measurement/lib/Lab/SCPI.pm
       - XPRESS:
           - Examples:
               - Measurement/examples/XPRESS/Example1_Simple-IV.pl
