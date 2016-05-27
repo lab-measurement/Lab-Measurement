@@ -188,8 +188,6 @@ sub _construct {	# _construct(__PACKAGE__);
 		# to the device.
 		$self->_device_init(); # enable device communication if necessary
 		$self->_set_config_parameters(); # transfer configuration to device
-		$self->_refresh_cache();
-		#$self->_cache_init();  # transfer configuration to/from device
 		
 	}
 	
@@ -481,39 +479,6 @@ sub _set_config_parameters {
 }
 
 
-sub _refresh_cache {
-	my $self = shift;
-	
-	my @order = @{$self->device_cache_order()};
-	my @keys = keys %{$self->device_cache()};
-	
-	
-	foreach my $ckey (@order)
-		{
-		my $subname = 'get_' . $ckey;
-		if ( defined $self->config($ckey) and $self->can($subname) )
-			{
-			my $result = $self->$subname();
-			@keys = grep { $_ ne $ckey } @keys;
-			}		
-		}		
-	
-		
-	foreach my $ckey (@keys)
-		{
-		my $subname = 'get_' . $ckey;
-		if ( $self->can($subname) )
-			{
-			my $result = $self->$subname();
-			}		
-		}
-
-}
-
-
-
-
-
 # old; replaced by _refresh_cache and _set_config_parameters
 sub _getset_key{
 	my $self = shift;
@@ -543,6 +508,7 @@ sub _getset_key{
 # field names. Contained fields for which have no corresponding getter/setter/device_cache entry exists will result in an exception thrown.
 #
 # old; replaced by _refresh_cache and _set_config_parameters
+# still used in Yokogawa7651, Agilent34410A and SignalRecovery726x
 sub _cache_init {
 	my $self = shift;
 	my $subname = shift;
@@ -581,55 +547,6 @@ sub _cache_init {
 }
 
 
-
-#
-# Sync the device cache with the device. 
-# Options: 
-# 	Preference of the sync: 'device' (default) or 'driver'
-#	Name of variable to sync.											  
-#
-# not in use
-sub device_sync{
-	my $self = shift;
-	
-	my $pref = shift || 'device';
-	
-			
-	if( $self->device_cache()){
-		if($pref eq 'driver'){		
-			if($_[0]){
-				$self->${\('set_'.$_[0])}($self->device_cache({$_[0]}));
-				return 1;
-			}		
-			else{
-				my $count = 0;
-				foreach my $key (keys %{$self->device_cache()} ){
-					$self->${\('set_'.$key)}($self->device_cache($key));
-					$count += 1;
-				}				
-				return $count;
-			}
-		}
-		else{
-			if($_[0]){
-				$self->device_cache($_[0]) = $self->${\('get_'.$_[0])}( device_cache => 1 );
-				return 1;
-			}
-			else{
-				my $count = 0;
-				foreach my $key (keys %{$self->device_cache()} ){
-					$self->device_cache($key) = $self->${\('get_'.$key)}( device_cache => 1 );
-					$count += 1;
-				}				
-				return $count;
-			}
-		}
-	}
-				
-
-				
-
-}
 
 
 
