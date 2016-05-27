@@ -1135,15 +1135,6 @@ sub _check_args {
 		
 
 	push(@return_args, $arguments);
-	# if (scalar(keys %{$arguments}) > 0) 
-		# {
-		# my $errmess = "Unknown parameter given in $self :";
-		# while ( my ($k,$v) = each %{$arguments} ) 
-			# {
-			# $errmess .= $k." => ".$v."\t";
-			# }
-		# print Lab::Exception::Warning->new( error => $errmess);
-		# }
 		
 	if (wantarray)
 		{
@@ -1156,8 +1147,30 @@ sub _check_args {
 			
 	
 }
-	
 
+sub _check_args_strict {
+	my $self = shift;
+	my $args = shift;
+	my $params = shift;
+
+	my @result = $self->_check_args ($args, $params);
+	
+	my $num_params = @result - 1;
+	
+	for (my $i = 0; $i < $num_params; ++$i) {
+		if (not defined $result[$i]) {
+			croak ("missing mandatory argument '$params->[$i]'");
+		}
+	}
+	
+	if (wantarray) {
+		return @result;
+	}
+	else {
+		return $result[0];
+	}
+}
+	
 
 #
 # config gets it's own accessor - convenient access like $self->config('GPIB_Paddress') instead of $self->config()->{'GPIB_Paddress'}
@@ -1346,7 +1359,7 @@ sub function_list_index{
 # 
 # 
 
-1;
+
 
 
 
@@ -1538,15 +1551,21 @@ Multiple hashrefs given to C<my_method> are concatenated.
 
 For a method without named arguments, you can either use
 
- my $(tail) = $self->_check_args(\@_, []);
+ my ($tail) = $self->_check_args(\@_, []);
 
 or
 
- my $(tail) = $self->_check_args(\@);
-
+ my ($tail) = $self->_check_args(\@);
 
 =back
- 
+
+=head2 _check_args_strict
+
+Like C<_check_args>, but makes all declared arguments mandatory.
+
+If an argument does not
+receive a non-undef value, this will throw an exception. Thus, the returned
+array will never contain undefined values.
 
 =head1 CAVEATS/BUGS
 
@@ -1586,3 +1605,5 @@ terms as Perl itself.
 
 =cut
 
+
+1;

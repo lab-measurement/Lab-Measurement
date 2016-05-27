@@ -70,37 +70,32 @@ sub reset { # basic
 }
 
 
+sub assert_function {
+	my $self = shift;
+	my @keywords = @_;
 
+	my $function = $self->get_function({read_mode => 'cache'});
+	if (scpi_match($function, @keywords) == 0) {
+		Lab::Exception::CorruptParameter->throw("invalid function: allowed choices are: @keywords");
+	}
+	return $function;
+}
 
-# ------------------------------- SENSE ---------------------------------------------------------
+# ------------------------------- SENSE ---------------------------------
 
+my @valid_functions = (qw/current[:dc] current:ac voltage[:dc] voltage[:ac]/,
+		       qw/resistance fresistance/);
 
 sub set_function { # basic
 	my $self = shift;
 	
+	my ($function, $tail) = $self->_check_args_strict(\@_, ['function']);
 	
-	# any parameters given?
-	if (not defined @_[0]) 
-		{
-		print Lab::Exception::CorruptParameter->new( error => "no values given in ".ref($self)." \n" );
-		return;
-		}
-	
-	# parameter == hash??
-	my ($function, $tail) = $self->_check_args( \@_, ['function'] );
-	
-	
-	#set function:
-	$function =~ s/\s+//g; #remove all whitespaces
-	$function = "\L$function"; # transform all uppercase letters to lowercase letters
-	if ( $function =~ /^(current|curr|current:ac|curr:ac|current:dc|curr:dc|voltage|volt|voltage:ac|volt:ac|voltage:dc|volt:dc|resisitance|res|fresistance|fres)$/)
-		{
-		$self->write( sprintf("FUNCTION '%s'", $function), $tail);
-		}
-	else
-		{
+	if (not scpi_match($function, @valid_functions)) {
 		Lab::Exception::CorruptParameter->throw( error => "Agilent 34410A:\n\nAgilent 34410A:\nunexpected value for FUNCTION in sub set_function. Expected values are VOLTAGE:DC, VOLTAGE:AC, CURRENT:DC, CURRENT:AC, RESISTANCE or FRESISTANCE.\n" );
-		}	
+	}
+	
+	$self->write("FUNCTION '$function'", $tail);
 	
 }
 
@@ -108,7 +103,7 @@ sub get_function {
 	my $self = shift;
 	
 	# read from cache or from device?
-	my ($tail) = $self->_check_args( \@_);
+	my ($tail) = $self->_check_args( \@_, []);
 	
 			
 	# read from device:
@@ -117,57 +112,28 @@ sub get_function {
 		{
 		return $1;
 		}
+	# FIXME: throw here?
 }
 
 sub set_range { # basic
 	my $self = shift;
 	
-		
-		
-	# any parameters given?
-	if (not defined @_[0]) 
-		{
-		print Lab::Exception::CorruptParameter->new( error => "no values given in ".ref($self)." \n" );
-		return;
-		}
-		
-	# parameter == hash??
-	my ($function, $range, $tail) = $self->_check_args( \@_, ['function', 'range'] );
+	my ($range, $tail) = $self->_check_args_strict(\@_, ['range']);
 	
-	$tail->{channel} = 'sense1';
-	$function =~ s/\s+//g; #remove all whitespaces
-	$function = "\L$function"; # transform all uppercase letters to lowercase letters
-		
-	# parameter 'range' as 'function' given?
-	if (not defined $range)
-		{		
-		if ( $function =~ /\b\d+(e\d+|E\d+|exp\d+|EXP\d+)?\b/ )
-			{
-			$range = $function;
-			$function = $self->get_function({read_mode => 'cache'});
-			$function = "\L$function"; # transform all uppercase letters to lowercase letters
-			}
-		else
-			{
-			print Lab::Exception::CorruptParameter->new( error => "no valid value for parameter 'range' given.\n" );
-			return;
-			}
-		}
-	
-			
+	my $function = $self->get_function({read_mode => 'cache'});
 	
 	# check if value of paramter 'range' is valid:
-	if ( $function =~ /^(voltage|volt|voltage:ac|volt:ac|voltage:dc|volt:dc)$/ ) {
+	if (scpi_match($function, qw/voltage[:dc] voltage:ac/)) {
 		if ( abs($range) > 1000 ) {
 			Lab::Exception::CorruptParameter->throw( error => "unexpected value for RANGE in sub set_range. Expected values are for CURRENT, VOLTAGE and RESISTANCE mode -3...+3A, 0.1...1000V or 0...1e9 Ohms respectivly");
 		}
 	}
-	elsif ( $function =~ /^(current|curr|current:ac|curr:ac|current:dc|curr:dc)$/) { 	
+	elsif (scpi_match($function, qw/current[:dc] current:ac/)) {
 		if ( abs($range) > 3 ) {
 			Lab::Exception::CorruptParameter->throw( error => "unexpected value for RANGE in sub set_range. Expected values are for CURRENT, VOLTAGE and RESISTANCE mode -3...+3A, 0.1...1000V or 0...1e9 Ohms respectivly");
 		}
 	}
-	elsif ( $function =~ /^(resisitance|res|fresistance|fres)$/) { 
+	elsif (scpi_match($function, qw/resistance fresistance/)) { 
 		if ( $range < 0 or $range > 1e9 ) {
 			Lab::Exception::CorruptParameter->throw( error => "unexpected value for RANGE in sub set_range. Expected values are for CURRENT, VOLTAGE and RESISTANCE mode -3...+3A, 0.1...1000V or 0...1e9 Ohms respectivly");
 		}
@@ -191,236 +157,83 @@ sub set_range { # basic
 		{
 		Lab::Exception::CorruptParameter->throw( error => "anything's wrong in sub set_range!!");
 		}
-		
-	
+}
 
+sub _init_getter {
+	my $self = shift;
+	my ($tail) = $self->_check_args(\@_, []);
+	return ($self, $tail);
 }
 
 sub get_range {
-	my $self = shift;	
+	my ($self, $tail) = _init_getter(@_);
 	
-		
-	# read from cache or from device?
-	my ($function, $tail) = $self->_check_args( \@_, ['function'] );	
+	my $function = $self->assert_function(@valid_functions);
 	
-		
-	if (not defined $function) 
-		{
-		$function = $self->get_function({read_mode => 'cache'});
-		}
-    
-	
-	$function =~ s/\s+//g; #remove all whitespaces
-	$function = "\L$function"; # transform all uppercase letters to lowercase letters
-	if ( $function  =~ /^(voltage|volt|voltage:ac|volt:ac|voltage:dc|volt:dc|current|curr|current:ac|curr:ac|current:dc|curr:dc|resisitance|res|fresistance|fres)$/ )
-		{
-		return $self->query( "$function:RANGE?", $tail);
-		}				
-	else
-		{
-		Lab::Exception::CorruptParameter->throw( error => "unexpected parameter $function.");
-		}
-		
+	return $self->query( "$function:RANGE?", $tail);
 }
+
+my @valid_dc_functions = qw/current[:dc] voltage[:dc] resistance fresistance/;
 
 sub set_nplc { # basic
 	my $self = shift;
 	
-	
-	# any parameters given?
-	if (not defined @_[0]) 
-		{
-		print Lab::Exception::CorruptParameter->new( error => "no values given in ".ref($self)." \n" );
-		return;
-		}
-		
-	# parameter == hash??
-	my ($function, $nplc, $tail) = $self->_check_args( \@_, ['function', 'nplc'] );	
-	
-	$function =~ s/\s+//g; #remove all whitespaces
-	$function = "\L$function"; # transform all uppercase letters to lowercase letters
-		
-	# parameter 'nplc' as 'function' given?
-	if (not defined $nplc)
-		{		
-		if ( $function =~ /\b\d+(e\d+|E\d+|exp\d+|EXP\d+)?\b/ )
-			{
-			$nplc = $function;
-			$function = $self->get_function({read_mode => 'cache'});
-			$function = "\L$function"; # transform all uppercase letters to lowercase letters
-			}
-		else
-			{
-			print Lab::Exception::CorruptParameter->new( error => "no valid value for parameter 'nplc' given.\n" );
-			return;
-			}
-		}
+	my ($nplc, $tail) = $self->_check_args_strict(\@_, ['nplc']);
 	
 	# check if value of paramter 'nplc' is valid:
-	if (($nplc < 0.006 or $nplc > 100) and not $nplc =~ /^(min|max|def)$/ ) 
+	if (($nplc < 0.006 or $nplc > 100) and not $nplc =~ /^(min|max|def)$/) 
 			{
 			Lab::Exception::CorruptParameter->throw( error => "unexpected value for NPLC in sub set_nplc. Expected values are between 0.006 ... 100 power-line-cycles (50Hz).");
 			}
 			
-			
 	# set nplc:
-	if ($function =~ /^(current|curr|current:dc|curr:dc|voltage|volt|voltage:dc|volt:dc|resisitance|res|fresistance|fres)$/ )
-		{		
-		$self->write( "$function:NPLC $nplc", $tail);
-		}
-	else
-		{
-		Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34410A:\nunexpected value for FUNCTION in sub set_nplc. Expected values are VOLTAGE:DC, CURRENT:DC, RESISTANCE or FRESISTANCE.");
-		}	
+	my $function = $self->assert_function(@valid_dc_functions);
 	
-
+	$self->write( "$function:NPLC $nplc", $tail);
 }
 
 sub get_nplc {
-	my $self = shift;	
+	my ($self, $tail) = _init_getter(@_);
+
+	my $function = $self->assert_function(@valid_dc_functions);
 	
-	# read from cache or from device?
-	my ($function, $tail) = $self->_check_args( \@_, ['function'] );	
-	
-		
-	if (not defined $function) 
-		{
-		$function = $self->get_function({read_mode => 'cache'});
-		}
-    
-		
-	# read from device:			
-	$function =~ s/\s+//g; #remove all whitespaces
-	$function = "\L$function"; # transform all uppercase letters to lowercase letters
-	
-	if ( $function  =~ /^(voltage|volt|voltage:dc|volt:dc|current|curr|current:dc|curr:dc|resisitance|res|fresistance|fres)$/ )
-		{
-		return $self->query( "$function:NPLC?", $tail);
-		}
-	else {
-		# nplc is cached, so get_nplc is always called in the
-		# constructor and we can't throw an exception here.
-		return undef;
-		
-		# Lab::Exception::CorruptParameter->throw( error => "unexpected parameter $function.");
-		}
+	return $self->query( "$function:NPLC?", $tail);
 }
 
 sub set_resolution{ # basic
 	my $self = shift;
-	
-	# any parameters given?
-	if (not defined @_[0]) 
-		{
-		print Lab::Exception::CorruptParameter->new( error => "no values given in ".ref($self)." \n" );
-		return;
-		}
+	my ($resolution, $tail) = $self->_check_args_strict(\@_, ['resolution']);	
+	my $function = $self->assert_function(@valid_dc_functions);
 		
-	# parameter == hash??
-	my ($function, $resolution, $tail) = $self->_check_args( \@_, ['function', 'resolution'] );	
-	
-	$function =~ s/\s+//g; #remove all whitespaces
-	$function = "\L$function"; # transform all uppercase letters to lowercase letters
-		
-	# parameter 'resolution' as 'function' given?
-	if (not defined $resolution)
-		{		
-		if ( $function =~ /\b\d+(e\d+|E\d+|exp\d+|EXP\d+)?\b/ )
-			{
-			$resolution = $function;
-			$function = $self->get_function({read_mode => 'cache'});
-			$function = "\L$function"; # transform all uppercase letters to lowercase letters
-			}
-		else
-			{
-			print Lab::Exception::CorruptParameter->new( error => "no valid value for parameter 'resolution' given.\n" );
-			return;
-			}
-		}
-	
 	# check if value of paramter 'resolution' is valid:
-	my $range = $self->get_range($function, {read_mode => 'device'});
+	# FIXME: wiso read_mode 'device' ???
+	my $range = $self->get_range({read_mode => 'device'});
+	
 	if ( $resolution < 0.3e-6*$range and not $resolution =~ /^(min|max|def)$/ ) 
 			{
 			Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34410A:\nunexpected value for RESOLUTION in sub set_resolution. Expected values have to be greater than 0.3e-6*RANGE.");
 			}
 	
-	
-	# set resolution:
-	if ($function =~ /^(current|curr|current:dc|curr:dc|voltage|volt|voltage:dc|volt:dc|resisitance|res|fresistance|fres)$/ )
-		{	
-		
-		$self->set_range($function, $range); # switch off autorange function if activated.
-		$self->write( "$function:RES $resolution", $tail);
-		}
-	else
-		{
-		Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34410A:\nunexpected value for FUNCTION in sub set_resolution. Expected values are VOLTAGE:DC, CURRENT:DC, RESISTANCE or FRESISTANCE.");
-		}	
+	# switch off autorange function if activated.
+	$self->set_range($range); 
+	$self->write("$function:RES $resolution", $tail);
 		
 }
 
-sub get_resolution{
-	my $self = shift;	
+sub get_resolution {
+	my ($self, $tail) = _init_getter(@_);
+
+	my $function = assert_function(@valid_functions);
 	
-	# read from cache or from device?
-	my ($function, $tail) = $self->_check_args( \@_, ['function'] );	
-	
-    	
-	# make sure, that $read_mode has a defined value:
-	if (not defined $function) 
-		{
-		$function = $self->get_function({read_mode => 'cache'});
-		}
-    
-	
-	
-	# read from device:	
-	$function =~ s/\s+//g; #remove all whitespaces
-	$function = "\L$function"; # transform all uppercase letters to lowercase letters
-	
-	if ( $function  =~ /^(voltage|volt|voltage:ac|volt:ac|voltage:dc|volt:dc|current|curr|current:ac|curr:ac|current:dc|curr:dc|resisitance|res|fresistance|fres)$/ )
-		{
-		return $self->query( "$function:RES?", $tail);
-		}				
-	else
-		{
-		Lab::Exception::CorruptParameter->throw( error => "unexpected parameter $function.");
-		}
+	return $self->query("$function:RES?", $tail);
 }
 
 sub set_tc { # basic
 	my $self = shift;
 	
+	my ($tc, $tail) = $self->_check_args_strict(\@_, ['tc']);
 	
-	# any parameters given?
-	if (not defined @_[0]) 
-		{
-		print Lab::Exception::CorruptParameter->new( error => "no values given in ".ref($self)." \n" );
-		return;
-		}
-		
-	# parameter == hash??
-	my ($function, $tc, $tail) = $self->_check_args( \@_, ['function', 'tc'] );
-	
-	$function =~ s/\s+//g; #remove all whitespaces
-	$function = "\L$function"; # transform all uppercase letters to lowercase letters
-		
-	# parameter 'tc' as 'function' given?
-	if (not defined $tc)
-		{		
-		if ( $function =~ /\b\d+(e\d+|E\d+|exp\d+|EXP\d+)?\b/ )
-			{
-			$tc = $function;
-			$function = $self->get_function({read_mode => 'cache'});
-			$function = "\L$function"; # transform all uppercase letters to lowercase letters
-			}
-		else
-			{
-			print Lab::Exception::CorruptParameter->new( error => "no valid value for parameter 'tc' given.\n" );
-			return;
-			}
-		}
+	my $function = $self->assert_function(@valid_dc_functions);
 	
 	# check if value of paramter 'tc' is valid:
 	if ( ($tc < 1e-4 or $tc > 1) and not $tc =~ /^(min|max|def)$/ ) 
@@ -429,78 +242,25 @@ sub set_tc { # basic
 			}
 	
 	# set tc:
-	if ($function =~ /^(current|curr|current:dc|curr:dc|voltage|volt|voltage:dc|volt:dc|resisitance|res|fresistance|fres)$/ )
-		{
-		$self->write( ":$function:APERTURE $tc; APERTURE:ENABLED 1", $tail);
-		}
-	else
-		{	
-		Lab::Exception::CorruptParameter->throw( error => "unexpected value for FUNCTION in sub set_tc. Expected values are VOLTAGE:DC, CURRENT:DC, RESISTANCE or FRESISTANCE.");
-		}
-	
-
+	$self->write(":$function:APERTURE $tc; APERTURE:ENABLED 1", $tail);
 }
 
-sub get_tc{
-	my $self = shift;	
+sub get_tc {
+	my ($self, $tail) = _init_getter(@_);
 
-	# read from cache or from device?
-	my ($function, $tail) = $self->_check_args( \@_, ['function'] );	
+	my $function = $self->assert_function(@valid_dc_functions);
 	
-    	
-	# make sure, that $read_mode has a defined value:
-	if (not defined $function) 
-		{
-		$function = $self->get_function({read_mode => 'cache'});
-		}
-    
-	
-	# read from device:	
-	$function =~ s/\s+//g; #remove all whitespaces
-	$function = "\L$function"; # transform all uppercase letters to lowercase letters
-	
-	if ( $function  =~ /^(voltage|volt|voltage:dc|volt:dc|current|curr|current:dc|curr:dc|resisitance|res|fresistance|fres)$/ )
-		{
-		return $self->query( "$function:APERTURE?", $tail);
-		}				
-	else {
-		return undef;
-		}
+	return $self->query( "$function:APERTURE?", $tail);
 }
+
+my @valid_ac_functions = qw/current:ac voltage:ac/;
 
 sub set_bw { # basic
 	my $self = shift;
+	my ($bw, $tail) = $self->_check_args_strict(\@_, ['bandwidth']);
 	
+	my $function = $self->assert_function(@valid_ac_functions);
 	
-	# any parameters given?
-	if (not defined @_[0]) 
-		{
-		print Lab::Exception::CorruptParameter->new( error => "no values given in ".ref($self)." \n" );
-		return;
-		}
-		
-	# parameter == hash??
-	my ($function, $bw, $tail) = $self->_check_args( \@_, ['function', 'bandwidth'] );	
-	
-	$function =~ s/\s+//g; #remove all whitespaces
-	$function = "\L$function"; # transform all uppercase letters to lowercase letters
-	
-	# parameter 'bw' as 'function' given?
-	if (not defined $bw)
-		{		
-		if ( $function =~ /\b\d+(e\d+|E\d+|exp\d+|EXP\d+)?\b/ )
-			{
-			$bw = $function;
-			$function = $self->get_function({read_mode => 'cache'});
-			$function = "\L$function"; # transform all uppercase letters to lowercase letters
-			}
-		else
-			{
-			print Lab::Exception::CorruptParameter->new( error => "no valid value for parameter 'bw' given.\n" );
-			return;
-			}
-		}
-		
 	# check if value of paramter 'bw' is valid:
 	if ( ($bw < 3 or $bw > 200) and not $bw =~ /^(min|max|def)$/ ) 
 			{
@@ -508,162 +268,23 @@ sub set_bw { # basic
 			}
 	
 	# set bw:
-	if ( $function =~ /^(current:ac|curr:ac|voltage:ac|volt:ac|)$/ )
-		{
-		$self->write( "$function:BANDWIDTH $bw", $tail);
-		}
-	else
-		{	
-		Lab::Exception::CorruptParameter->throw( error => "\nAgilent 34410A:\nunexpected value for FUNCTION in sub set_bw. Expected values are VOLTAGE:AC or CURRENT:AC.");
-		}
-		
-
+	$self->write("$function:BANDWIDTH $bw", $tail);
 }
 
 sub get_bw {
-	my $self = shift;
+	my ($self, $tail) = _init_getter(@_);
+
+	my $function = $self->assert_function(@valid_ac_functions);
 	
-	# read from cache or from device?
-	my ($function, $tail) = $self->_check_args( \@_, ['function'] );	
-	
-	
-	# make sure, that $read_mode has a defined value:
-	if (not defined $function) 
-		{
-		$function = $self->get_function({read_mode => 'cache'});
-		}
-    
-	
-	# read from device:	
-	$function =~ s/\s+//g; #remove all whitespaces
-	$function = "\L$function"; # transform all uppercase letters to lowercase letters
-	
-	if ( $function =~ /^(voltage:ac|volt:ac|current:ac|curr:ac)$/ )
-		{
-		return $self->query( "$function:BANDWIDTH?", $tail);
-		}				
-	else
-		{
-		return undef;
-		}
+	return $self->query( "$function:BANDWIDTH?", $tail);
 }
-
-
-
-
 
 # ----------------------------- TAKE DATA ---------------------------------------------------------
 
 
-sub get_value { # basic
-	my $self = shift;
-	
-	
-
-	
-	# parameter == hash??	
-	my ($function, $range, $integration, $tail) = $self->_check_args(\@_, ['function', 'range', 'integration']);
-	my ($int_time, $int_mode) = $self->_check_args($integration, ['value', 'mode']);
-	
-			
-	
-	# read from device:	
-	$range='DEF' unless (defined $range);		
-	
-	# check input parameter
-	$function =~ s/\s+//g; #remove all whitespaces
-	$function = "\L$function"; # transform all uppercase letters to lowercase letters
-	if ( $function =~ /request|fetch|cache|device/ ) # for convinience: get_value('fetch')
-		{
-		$tail->{read_mode} = $function;
-		$function = undef;
-		}
-	if ( $function =~ /^(voltage|volt|voltage:ac|volt:ac|voltage:dc|volt:dc)$/ ) 
-		{
-		if ( abs($range) > 1000 and not $range =~ /^(min|max|def|auto)$/) 
-			{
-			Lab::Exception::CorruptParameter->throw( error => "unexpected value for RANGE in sub get_value. Expected values are for CURRENT, VOLTAGE and RESISTANCE mode -3...+3A, 0.1...1000V or 0...1e9 Ohms respectivly");
-			}
-		}
-	elsif ($function =~ /^(current|curr|current:ac|curr:ac|current:dc|curr:dc)$/) 
-		{	
-		if ( abs($range) > 3 and not $range =~ /^(min|max|def|auto)$/) 
-			{
-			Lab::Exception::CorruptParameter->throw( error => "unexpected value for RANGE in sub get_value. Expected values are for CURRENT, VOLTAGE and RESISTANCE mode -3...+3A, 0.1...1000V or 0...1e9 Ohms respectivly");
-			}
-		}
-	elsif ( $function =~ /^(resisitance|res|fresistance|fres)$/ ) 
-		{
-		if ( abs($range) > 1e9 and not $range =~ /^(min|max|def|auto)$/) 
-			{
-			Lab::Exception::CorruptParameter->throw( error => "unexpected value for RANGE in sub get_value. Expected values are for CURRENT, VOLTAGE and RESISTANCE mode -3...+3A, 0.1...1000V or 0...1e9 Ohms respectivly");
-			}
-		}
-	
-	
-	
-	$int_mode =~ s/\s+//g; #remove all whitespaces
-	$int_mode = "\L$int_mode"; # transform all uppercase letters to lowercase letters
-	if ( $int_mode =~ /resolution|res/ )
-		{
-		$int_mode = "res";
-		if ( $int_time < 0.3e-6*$range and not $int_time =~ /^(MIN|min|MAX|max|DEF|def)$/)
-			{
-			Lab::Exception::CorruptParameter->throw( error => "unexpected value for RESOLUTION in sub get_value. Expected values are from 0.3e-6xRANGE ... 30e-6xRANGE.");
-			}
-		}
-	elsif ( $int_mode eq "tc" )
-		{
-		if ( ($int_time < 1e-4 or $int_time > 1) and not $int_time =~ /^(MIN|min|MAX|max|DEF|def)$/)
-			{
-			Lab::Exception::CorruptParameter->throw( error => "unexpected value for INTEGRATION TIME in sub get_value. Expected values are from 1e-4 ... 1 sec.");
-			}
-		}
-	elsif ( $int_mode eq "nplc" )
-		{
-		if (  ($int_time < 0.01 or $int_time > 100) and not $int_time =~ /^(MIN|min|MAX|max|DEF|def)$/)
-			{
-			Lab::Exception::CorruptParameter->throw( error => "unexpected value for NPLC in sub get_value. Expected values are from 0.01 ... 100.");
-			}
-		}
-	elsif ( defined $int_time )  
-		{
-		$int_mode = 'nplc';
-		if (  ($int_time < 0.01 or $int_time > 100) and not $int_time =~ /^(MIN|min|MAX|max|DEF|def)$/)
-			{
-			Lab::Exception::CorruptParameter->throw( error => "unexpected value for NPLC in sub get_value. Expected values are from 0.01 ... 100.");
-			}
-		}
-		
-	# fastest way to get a value:
-
-	
-	
-	# get_value	
-	if ( defined $function and $function ne "" )
-		{
-		if ( $int_mode eq 'res' )
-			{
-			$self->write( ":FUNCTION '$function'; :SENS:$function:ZERO:AUTO OFF; :$function:RANGE $range;  RES $int_time");	
-			}
-		elsif ( $int_mode eq 'tc' )
-			{
-			$self->write( ":FUNCTION '$function'; :SENS:$function:ZERO:AUTO OFF; :$function:RANGE $range; :$function:APER $int_time; APERTURE:ENABLED 1");	
-			}
-		elsif ( $int_mode eq 'nplc' )
-			{
-			$self->write( ":FUNCTION '$function'; :SENS:$function:ZERO:AUTO OFF; :$function:RANGE $range; NPLC $int_time");	
-			}
-		else
-			{
-			$self->write( ":FUNCTION '$function';");
-			}
-		}
-	
-	return $self->request( ":read?", $tail);
-	
-		
-	
+sub get_value {
+	my ($self, undef, $tail) = _init_getter(@_);
+	return $self->request(":read?", $tail);
 }
 
 sub config_measurement { # basic
@@ -716,7 +337,7 @@ sub config_measurement { # basic
 	}
 	
 	# perfome AUTOZERO and then disable 
-	if ( $function =~ /^(CURRENT|current|CURR|curr|CURRENT:DC|current:dc|CURR:DC|curr:dc|VOLTAGE|voltage|VOLT|volt|VOLTAGE:DC|voltage:dc|VOLT:DC|volt:dc|RESISTANCE|resisitance|RES|res|FRESISTANCE|fresistance|FRES|fres)$/) {
+	if ( $function =~ /^(CURRENT|current|CURR|curr|CURRENT:DC|current:dc|CURR:DC|curr:dc|VOLTAGE|voltage|VOLT|volt|VOLTAGE:DC|voltage:dc|VOLT:DC|volt:dc|RESISTANCE|resistance|RES|res|FRESISTANCE|fresistance|FRES|fres)$/) {
 		print "set_AUTOZERO OFF\n"; $self->write( sprintf("SENS:%s:ZERO:AUTO OFF",$function));
 	}
 	
