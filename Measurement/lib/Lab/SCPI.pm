@@ -42,8 +42,9 @@ Leading and trailing whitespace is removed from the first argument, before
 
 =head3 Keyword Structure
 
-See Sec. 6 "Program Headers" in the SCPI spec. The colon is optional for the
-first mnemonic. There must be at least one non-optional mnemonic in the
+See Sec. 6 "Program Headers" in the SCPI spec. Always give the long form of a
+keyword; the short form will be derived automatically. The colon is optional
+for the first mnemonic. There must be at least one non-optional mnemonic in the
 keyword.
 
 C<scpi_match> will throw, if it is given an invalid keyword.
