@@ -35,7 +35,7 @@ but is shorter, more descriptive, and less error-prone.
 
 Return true, if C<$header> matches any of the given keywords.
 
-Leading and trailing whitespace is removed from the first argument before
+Leading and trailing whitespace is removed from the first argument, before
  matching against the keywords. 
 
 =cut

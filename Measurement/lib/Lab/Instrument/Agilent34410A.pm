@@ -3,6 +3,7 @@
 package Lab::Instrument::Agilent34410A;
 our $VERSION = '3.500';
 
+use warnings;
 use strict;
 use Time::HiRes qw (usleep);
 use Lab::Instrument;
