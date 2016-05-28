@@ -19,24 +19,34 @@ This module exports a single function:
 
 =head2 scpi_match($header, @keywords)
 
-The call		   
+Return true, if C<$header> matches any of the SCPI keywords given in C<@keywords>.
 
- if (scpi_match($header, qw/voltage[:aperture]/)) {
-     ...
- }
+=head3 Examples
 
-can be used instead of
+The calls
 
- if ($header =~ /^(voltage:aperture|voltage:aper|voltage|volt:aperture|volt:aper|volt)$/i) {
-     ...
- }
+ scpi_match($header, 'voltage[:APERture]')
+ scpi_match($header, qw/voltage CURRENT resistance/)
+ scpi_match($header, '[:abcdef]:ghi[:jkl]')
 
-but is shorter, more descriptive, and less error-prone.
+are convenient replacements for
 
-Return true, if C<$header> matches any of the given keywords.
+ $header =~ /^(voltage:aperture|voltage:aper|voltage|volt:aperture|volt:aper|volt)$/i
+ $header =~ /^(voltage|volt|current|curr|resistance|res)$/i
+ $header =~ /^(:abcdef:ghi:jkl|:abcdef:ghi|:abcd:ghi:jkl|:abcd:ghi|:ghi:jkl|:ghi)$/i
+
+respectively.
 
 Leading and trailing whitespace is removed from the first argument, before
- matching against the keywords. 
+ matching against the keywords.
+
+=head3 Keyword Structure
+
+See Sec. 6 "Program Headers" in the SCPI spec. The colon is optional for the
+first mnemonic. There must be at least one non-optional mnemonic in the
+keyword.
+
+C<scpi_match> will throw, if it is given an invalid keyword.
 
 =cut
 
