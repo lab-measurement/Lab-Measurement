@@ -1,4 +1,21 @@
-#!/usr/bin/perl
+=head1 NAME
+
+Lab::Instrument::Agilent34410A -- HP/Agilent/Keysight 34410A or 34411A digital
+multimeter
+
+=head1 SYNOPSIS
+
+ use Lab::Instrument::Agilent34410A;
+ my $multimeter = Lab::Instrument::Agilent34410A->new(%options);
+
+ print $multimeter->get_value();
+
+=head1 DESCRIPTION
+
+The Lab::Instrument::Agilent34410A class implements an interface to the 34410A
+and 34411A digital multimeters by Agilent (now Keysight, formerly HP).
+
+=cut
 
 package Lab::Instrument::Agilent34410A;
 our $VERSION = '3.500';
@@ -43,6 +60,14 @@ our %fields = (
 
 );
 
+=head1 METHODS
+
+=head2 new(%options)
+
+This method is described in L<Lab::Measurement::Tutorial> and
+L<Lab::Instrument>.
+
+=cut
 
 sub new {
 	my $proto = shift;
@@ -55,6 +80,14 @@ sub new {
 	return $self;
 }
 
+=head2 get_error
+
+ my ($err_num, $err_msg) = $agilent->get_error();
+
+Query the multimeter's error queue. Up to 20 errors can be stored in the
+queue. Errors are retrieved in first-in-first out (FIFO) order.
+
+=cut
 
 sub get_error {
     my $self=shift;
@@ -64,13 +97,29 @@ sub get_error {
     return ($err_num,$err_msg);
 }
 
+=head2 reset
+
+ $agilent->reset();
+
+Reset the multimeter to its power-on configuration.
+
+=cut
+
 sub reset { # basic
     my $self=shift;
     $self->write( "*RST");
 	$self->_cache_init();
 }
 
+=head2 assert_function(@keywords)
 
+Throw if the instrument is not in one of the operating modes give in
+C<@keywords>. See L<Lab::SCPI> for the keyword syntax.
+
+=cut
+
+
+# to be moved into Lab::Instrument::Multimeter??
 sub assert_function {
 	my $self = shift;
 	my @keywords = @_;
@@ -324,12 +373,12 @@ sub config_measurement { # basic
 		
 	
 	# set range
-	print "set_range: ".$self->set_range($function,$range)."\n";
+	print "set_range: ".$self->set_range($range)."\n";
 	
 	
 	# set integration time
 	my $tc = $time/$nop;
-	print "set_tc: ".$self->set_tc($function,$tc)."\n";
+	print "set_tc: ".$self->set_tc($tc)."\n";
 	
 	
 	# set auto high impedance (>10GOhm) for VOLTAGE:DC for ranges 100mV, 1V, 10V
@@ -658,24 +707,7 @@ sub beep { # basic
 
 
 
-=head1 NAME
 
-	Lab::Instrument::Agilent34410A - HP/Agilent/Keysight 34410A or 34411A
-    digital multimeter 
-
-=head1 SYNOPSIS
-
-	use Lab::Instrument::Agilent34410A;
-	my $multimeter = Lab::Instrument::Agilent34410A->new(%options);
-
-	print $multimeter->get_value();
-
-=head1 DESCRIPTION
-
-The Lab::Instrument::Agilent34410A class implements an interface to the 34410A and 34411A digital multimeters by
-Agilent (now Keysight, formerly HP). Note that the module
-=Lab::Instrument::Agilent34410A still works for those older and newer multimeter 
-models.
 
 .
 
@@ -1181,20 +1213,11 @@ Issue a single beep immediately.
 
 .
 
-=head2 get_error
 
-	($err_num,$err_msg)=$agilent->get_error();
-
-query the multimeter's error queue. Up to 20 errors can be stored in the
-queue. Errors are retrieved in first-in-first out (FIFO) order.
 
 .
 
-=head2 reset
 
-	$agilent->reset();
-
-Reset the multimeter to its power-on configuration.
 
 .
 
