@@ -381,15 +381,16 @@ sub _init_cache_handling {
 						{
 						return;
 						}
-										
+					my $retval = $_[-1];
 					# refresh cache value
-					if ( not defined $_[-1] or ref ($_[-1]) eq 'Hook::LexWrap::Cleanup' )
+					if ( not defined $retval or ref($retval) eq 'Hook::LexWrap::Cleanup' )
 						{
 						return;
 						}			
 					else
-						{
-						${__PACKAGE__::SELF}->device_cache({$parameter => $_[-1]});
+					{
+						my $cache_value = wantarray ? $retval->[0] : $retval;
+						${__PACKAGE__::SELF}->device_cache({$parameter => $cache_value});
 						}
 					});
 			
