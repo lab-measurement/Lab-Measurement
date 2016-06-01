@@ -180,6 +180,12 @@ sub set_function { # basic
 	
 }
 
+=head2 get_function()
+
+Return the current measurement function.
+
+=cut
+
 sub get_function {
 	my $self = shift;
 	
@@ -196,6 +202,32 @@ sub get_function {
 	# FIXME: throw here?
 }
 
+sub _invalid_range {
+	my $range = shift;
+	Lab::Exception::CorruptParameter->throw( error => "set_range: unexpected value '$range' for RANGE. Expected values are for CURRENT, VOLTAGE and RESISTANCE mode -3...+3A, 0.1...1000V or 0...1e9 Ohms respectivly");
+}
+
+sub _check_range {
+	my $function = shift;
+	my $range = shift;
+	
+	if (scpi_match($function, qw/voltage[:dc] voltage:ac/)
+	    and abs($range) > 1000) {
+		_invalid_range($range);
+	}
+	elsif (scpi_match($function, qw/current[:dc] current:ac/)
+	    and abs($range) > 3) {
+		_invalid_range($range);
+	}
+	elsif (scpi_match($function, qw/resistance fresistance/)
+	       and ($range < 0 or $range > 1e9)) { 
+		_invalid_range($range);
+	}
+	else {
+		Lab::Exception::CorruptParameter->throw( error => "set_range: Unexpected function '$function'. Expected values are VOLTAGE:DC, VOLTAGE:AC, CURRENT:DC, CURRENT:AC, RESISTANCE or FRESISTANCE.");
+	}
+}
+	
 sub set_range { # basic
 	my $self = shift;
 	
@@ -204,29 +236,13 @@ sub set_range { # basic
 	my $function = $self->get_function({read_mode => 'cache'});
 	
 	# check if value of paramter 'range' is valid:
-	if (scpi_match($function, qw/voltage[:dc] voltage:ac/)) {
-		if ( abs($range) > 1000 ) {
-			Lab::Exception::CorruptParameter->throw( error => "unexpected value for RANGE in sub set_range. Expected values are for CURRENT, VOLTAGE and RESISTANCE mode -3...+3A, 0.1...1000V or 0...1e9 Ohms respectivly");
-		}
+
+	if ($range !~ /^(min|max|def)$/i) {
+		_check_range($function, $range);
 	}
-	elsif (scpi_match($function, qw/current[:dc] current:ac/)) {
-		if ( abs($range) > 3 ) {
-			Lab::Exception::CorruptParameter->throw( error => "unexpected value for RANGE in sub set_range. Expected values are for CURRENT, VOLTAGE and RESISTANCE mode -3...+3A, 0.1...1000V or 0...1e9 Ohms respectivly");
-		}
-	}
-	elsif (scpi_match($function, qw/resistance fresistance/)) { 
-		if ( $range < 0 or $range > 1e9 ) {
-			Lab::Exception::CorruptParameter->throw( error => "unexpected value for RANGE in sub set_range. Expected values are for CURRENT, VOLTAGE and RESISTANCE mode -3...+3A, 0.1...1000V or 0...1e9 Ohms respectivly");
-		}
-	}
-	else {
-		Lab::Exception::CorruptParameter->throw( error => "unexpected value for FUNCTION in sub set_range. Expected values are VOLTAGE:DC, VOLTAGE:AC, CURRENT:DC, CURRENT:AC, RESISTANCE or FRESISTANCE.");
-		}
-	
-	
 	
 	# set range
-	if ( $range =~ /^(min|max|def)$/ or $range =~ /\b\d+(e\d+|E\d+|exp\d+|EXP\d+)?\b/) 
+	if ( $range =~ /^(min|max|def)$/i or $range =~ /\b\d+(e\d+|E\d+|exp\d+|EXP\d+)?\b/) 
 		{		
 		$self->write( "$function:RANGE $range", $tail);
 		}
