@@ -82,6 +82,20 @@ sub new {
 	return $self;
 }
 
+=head2 get_value
+
+Perform data aquisition.
+
+ my $value = $multimeter->get_value();
+
+=cut
+
+sub get_value {
+	my ($self, $tail) = _init_getter(@_);
+	return $self->request(":read?", $tail);
+}
+
+
 =head2 get_error
 
  my ($err_num, $err_msg) = $agilent->get_error();
@@ -137,6 +151,21 @@ sub assert_function {
 
 my @valid_functions = (qw/current[:dc] current:ac voltage[:dc] voltage[:ac]/,
 		       qw/resistance fresistance/);
+
+=head2 set_function($function)
+
+Set a new value for the measurement function of the Agilent34410A.
+
+C<$function> can be one of the measurement methods of the Agilent34410A.
+
+	"current:dc" --> DC current measurement 
+	"current:ac" --> AC current measurement 
+	"voltage:dc" --> DC voltage measurement 
+	"voltage:ac" --> AC voltage measurement 
+	"resistance" --> resistance measurement (2-wire)
+	"fresistance" --> resistance measurement (4-wire)
+
+=cut
 
 sub set_function { # basic
 	my $self = shift;
@@ -275,7 +304,7 @@ sub set_resolution{ # basic
 sub get_resolution {
 	my ($self, $tail) = _init_getter(@_);
 
-	my $function = assert_function(@valid_functions);
+	my $function = $self->assert_function(@valid_functions);
 	
 	return $self->query("$function:RES?", $tail);
 }
@@ -333,11 +362,6 @@ sub get_bw {
 
 # ----------------------------- TAKE DATA ---------------------------------------------------------
 
-
-sub get_value {
-	my ($self, $tail) = _init_getter(@_);
-	return $self->request(":read?", $tail);
-}
 
 sub config_measurement { # basic
 	my $self = shift;
@@ -708,119 +732,6 @@ sub beep { # basic
 1;
 
 
-
-
-
-
-
-=head1 CONSTRUCTOR
-
-	my $multimeter = Lab::Instrument::Agilent34410A->new(%options);
-
-=head1 METHODS
-
-=head2 get_value
-
-	old style:
-	$value=$agilent->get_value(<$function>,<$range>,<$integration>);
-	
-	new style:
-	$value=$agilent->get_value({
-		'function' => <$function>,
-		'range' => <$range>,
-		'integration' => {
-			'mode' => <int_mode>,
-			'value' => <int_value>
-			}
-		});
-
-Request a measurement value. If optinal paramters are defined, some device paramters can be preset before the request for a measurement value is sent to the device.
-
-=over 4
-
-
-=item <$function>
-
-C<FUNCTION> can be one of the measurement methods of the Agilent34410A.
-
-	"current:dc"  --> DC current measurement 
-	"current:ac"  --> AC current measurement 
-	"voltage:dc"  --> DC voltage measurement 
-	"voltage:ac"  --> AC voltage measurement 
-	"resistance"  --> resistance measurement (2-wire)
-	"fresistance" --> resistance measurement (4-wire)
-
-=item <$range>
-
-C<RANGE> is given in terms of amps, volts or ohms and can be C<-3...+3A | MIN | MAX | DEF | AUTO>, C<100mV...1000V | MIN | MAX | DEF | AUTO> or C<0...1e9 | MIN | MAX | DEF | AUTO>.	
-C<DEF> is default C<AUTO> activates the AUTORANGE-mode.
-C<DEF> will be set, if no value is given.
-
-=item <$integration>
-
-C<INTEGRATION> controlles the integration mode and the integration time. It is composed of two parts:
-
-	1.) Integration mode:
-		
-		'tc='    -->  Integration-Time- or Aperture-MODE
-		'nplc='  -->  Number of Power Line Cycles MODE
-		'res='   -->  Resolution-MODE
-		
-If no Integration mode is given, the 'Number of Power Line Cycles MODE' will be selected as default.
-		
-	2.) Integration Time:
-		
-		Floating point number or MIN, MAX, DEF. 
-
-For detailed information about the valid range for the integration time see
-L<set_tc>, L<set_resolution>, L<set_nplc>
-
-Examples:
-	
-	a) $integration = 'tc=0.2'
-		-->  Integration mode = Integration-Time- or Aperture-MODE
-		-->  Integration Time = 0.2 seconds
-		
-	b) $integration = 'nplc=5'
-		-->  Integration mode = Number of Power Line Cycles MODE
-		-->  Integration Time = 5 Powerline cycles = 5 * 1/50 Hz = 0.1 seconds
-		
-	c) $integration = 'res=0.00001'
-		-->  Integration mode = Resolution-MODE
-		-->  Integration Time = will be choosen automaticly to guarantee the requested resolution
-	
-	d) $integration = '1'
-		-->  Integration mode = Number of Power Line Cycles MODE
-		-->  Integration Time = 1 Powerline cycles = 1 * 1/50 Hz = 0.02 seconds
-
-
-=back
-
-.
-
-=head2 get_T
-
-	old style:
-	$value=$agilent->get_value($sensor);
-	
-	new style:
-	$value=$agilent->get_value({
-		'sensor' => $sensor
-		});
-
-Make a measurement defined by $function with the previously specified range
-and integration time.
-
-=over 4
-
-=item $sensor
-
-	SENSOR  can be one of the Temperature-Diodes defined in Lab::Instrument::TemperatureDiodes.
-
-=back
-
- 
-
 =head2 config_measurement
 
 	old style:
@@ -928,32 +839,6 @@ If $readings is not defined, the default value "ALL" will be used.
 
 .
 
-=head2 set_function
-
-	old style:
-	$agilent->set_function($function);
-	
-	new style:
-	$agilent->set_function({
-		'function' => $function
-		});
-
-Set a new value for the measurement function of the Agilent34410A.
-
-=over 4
-
-=item $function
-
-C<FUNCTION> can be one of the measurement methods of the Agilent34410A.
-
-	"current:dc" --> DC current measurement 
-	"current:ac" --> AC current measurement 
-	"voltage:dc" --> DC voltage measurement 
-	"voltage:ac" --> AC voltage measurement 
-	"resistance" --> resistance measurement (2-wire)
-	"fresistance" --> resistance measurement (4-wire)
-
-=back
 
 .
 
