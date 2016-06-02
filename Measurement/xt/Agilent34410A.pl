@@ -41,20 +41,35 @@ is($function, 'VOLT', 'cached get_function returns VOLT');
 
 # set_range / get_range
 sub range_test {
-	for my $value (@_) {
+	for my $array_ref (@_) {
+		my $value = $array_ref->[0];
+		my $expected = $array_ref->[1];
+		
 		$multimeter->set_range($value);
 		my $result = $multimeter->get_range();
-		ok($result == $value, "set_range($value)");
-		
+		ok($expected == $result,
+		   "set_range($value) result: $result");
 	}
 }
 
 #fixme: def min max are broken??
-range_test(qw/0.1 1 1000/);
+range_test([0.1, 0.1], [1, 1], [1000,1000], ['def', 10], ['min', 0.1],
+	   ['max', 1000]);
 
 # in current mode
 $multimeter->set_function('current');
-range_test(qw/1 3/);
+range_test([1, 1],[3, 3]);
+
+# autoranging
+$multimeter->set_range('auto');
+my $autorange = $multimeter->get_autorange();
+is($autorange, 1, "autorange");
+
+# disable autoranging
+$multimeter->set_range('1');
+$autorange = $multimeter->get_autorange();
+is($autorange, 0, "autorange off");
+
 
 # set_nplc / get_nplc
 $multimeter->set_function('volt');

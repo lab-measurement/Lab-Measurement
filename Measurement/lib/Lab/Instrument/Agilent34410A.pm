@@ -221,23 +221,26 @@ sub _check_range {
 	my $function = shift;
 	my $range = shift;
 	
-	if (scpi_match($function, qw/voltage[:dc] voltage:ac/)
-	    and abs($range) > 1000) {
-		_invalid_range($range);
+	if (scpi_match($function, qw/voltage[:dc] voltage:ac/)) {
+		if (abs($range) > 1000) {
+			_invalid_range($range);
+		}
 	}
-	elsif (scpi_match($function, qw/current[:dc] current:ac/)
-	    and abs($range) > 3) {
-		_invalid_range($range);
+	elsif (scpi_match($function, qw/current[:dc] current:ac/)) {
+		if (abs($range) > 3) {
+			_invalid_range($range);
+		}
 	}
-	elsif (scpi_match($function, qw/resistance fresistance/)
-	       and ($range < 0 or $range > 1e9)) { 
-		_invalid_range($range);
+	elsif (scpi_match($function, qw/resistance fresistance/)) {
+	        if ($range < 0 or $range > 1e9) { 
+			_invalid_range($range);
+		}
 	}
 	else {
 		Lab::Exception::CorruptParameter->throw( error => "set_range: Unexpected function '$function'. Expected values are VOLTAGE:DC, VOLTAGE:AC, CURRENT:DC, CURRENT:AC, RESISTANCE or FRESISTANCE.");
 	}
 }
-	
+
 sub set_range { # basic
 	my $self = shift;
 	
@@ -247,7 +250,7 @@ sub set_range { # basic
 	
 	# check if value of paramter 'range' is valid:
 
-	if ($range !~ /^(min|max|def)$/i) {
+	if ($range !~ /^(min|max|def|auto)$/i) {
 		_check_range($function, $range);
 	}
 	
@@ -283,7 +286,20 @@ sub get_range {
 	
 	my $function = $self->assert_function(@valid_functions);
 	
-	return $self->query( "$function:RANGE?", $tail);
+	return $self->query("$function:RANGE?", $tail);
+}
+
+=head2 get_autorange()
+
+Return non-zero, if autoranging is enabled.
+
+=cut
+    
+sub get_autorange {
+	my ($self, $tail) = _init_getter(@_);
+	my $function = $self->assert_function(@valid_functions);
+
+	return $self->query("$function:RANGE:AUTO?");
 }
 
 my @valid_dc_functions = qw/current[:dc] voltage[:dc] resistance fresistance/;
