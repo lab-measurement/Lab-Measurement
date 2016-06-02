@@ -245,7 +245,6 @@ sub set_range { # basic
 	my $self = shift;
 	
 	my ($range, $tail) = $self->_check_args_strict(\@_, ['range']);
-	
 	my $function = $self->get_function({read_mode => 'cache'});
 	
 	# check if value of paramter 'range' is valid:
@@ -853,7 +852,7 @@ sub _set_triggerdelay { # internal
 		return $delay;
 		}
 	
-	if ( ($delay >= 0 or $delay <= 3600) or $delay =~ /^(MIN|min|MAX|max|DEF|def)$/)
+	if ($delay =~ /^(min|max|def)$/i or $delay >= 0 or $delay <= 3600)
 		{
 		$delay = $self->query( "TRIGGER:DELAY $delay; DELAY?");
 		$self->{config}->{triggerdely} = $delay;
