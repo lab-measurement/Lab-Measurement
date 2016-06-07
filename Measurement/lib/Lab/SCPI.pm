@@ -17,16 +17,16 @@ parameters against keywords.
 
 This module exports a single function:
 
-=head2 scpi_match($header, @keywords)
+=head2 scpi_match($header, $keyword)
 
-Return true, if C<$header> matches any of the SCPI keywords given in C<@keywords>.
+Return true, if C<$header> matches the SCPI keyword expression C<$keyword>.
 
 =head3 Examples
 
 The calls
 
  scpi_match($header, 'voltage[:APERture]')
- scpi_match($header, qw/voltage CURRENT resistance/)
+ scpi_match($header, 'voltage|CURRENT|resistance')
  scpi_match($header, '[:abcdef]:ghi[:jkl]')
 
 are convenient replacements for
@@ -38,7 +38,7 @@ are convenient replacements for
 respectively.
 
 Leading and trailing whitespace is removed from the first argument, before
- matching against the keywords.
+ matching against the keyword.
 
 =head3 Keyword Structure
 
@@ -53,8 +53,10 @@ C<scpi_match> will throw, if it is given an invalid keyword.
 
 sub scpi_match {
 	my $header = shift;
-	for my $keyword (@_) {
-		if (match_keyword($header, $keyword)) {
+	my $keyword = shift;
+	my @keywords = split '\|', $keyword, -1; 
+	for my $part (@keywords) {
+		if (match_keyword($header, $part)) {
 			return 1;
 		}
 	}

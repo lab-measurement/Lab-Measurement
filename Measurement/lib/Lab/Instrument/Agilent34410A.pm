@@ -127,10 +127,10 @@ sub reset { # basic
 	$self->_cache_init();
 }
 
-=head2 assert_function(@keywords)
+=head2 assert_function($keyword)
 
-Throw if the instrument is not in one of the operating modes give in
-C<@keywords>. See L<Lab::SCPI> for the keyword syntax.
+Throw if the instrument is not in one of the operating modes given in
+C<$keyword>. See L<Lab::SCPI> for the keyword syntax.
 
 =cut
 
@@ -138,19 +138,19 @@ C<@keywords>. See L<Lab::SCPI> for the keyword syntax.
 # to be moved into Lab::Instrument::Multimeter??
 sub assert_function {
 	my $self = shift;
-	my @keywords = @_;
+	my $keyword = shift;
 
 	my $function = $self->get_function({read_mode => 'cache'});
-	if (scpi_match($function, @keywords) == 0) {
-		Lab::Exception::CorruptParameter->throw("invalid function: allowed choices are: @keywords");
+	if (scpi_match($function, $keyword) == 0) {
+		Lab::Exception::CorruptParameter->throw("invalid function: allowed choices are: $keyword");
 	}
 	return $function;
 }
 
 # ------------------------------- SENSE ---------------------------------
 
-my @valid_functions = (qw/current[:dc] current:ac voltage[:dc] voltage[:ac]/,
-		       qw/resistance fresistance/);
+my $valid_functions = 
+    'current[:dc]|current:ac|voltage[:dc]|voltage[:ac]|resistance|fresistance';
 
 =head2 set_function($function)
 
@@ -172,7 +172,7 @@ sub set_function { # basic
 	
 	my ($function, $tail) = $self->_check_args_strict(\@_, ['function']);
 	
-	if (not scpi_match($function, @valid_functions)) {
+	if (not scpi_match($function, $valid_functions)) {
 		Lab::Exception::CorruptParameter->throw( error => "Agilent 34410A:\n\nAgilent 34410A:\nunexpected value for FUNCTION in sub set_function. Expected values are VOLTAGE:DC, VOLTAGE:AC, CURRENT:DC, CURRENT:AC, RESISTANCE or FRESISTANCE.\n" );
 	}
 	
@@ -221,17 +221,17 @@ sub _check_range {
 	my $function = shift;
 	my $range = shift;
 	
-	if (scpi_match($function, qw/voltage[:dc] voltage:ac/)) {
+	if (scpi_match($function, 'voltage[:dc]|voltage:ac')) {
 		if (abs($range) > 1000) {
 			_invalid_range($range);
 		}
 	}
-	elsif (scpi_match($function, qw/current[:dc] current:ac/)) {
+	elsif (scpi_match($function, 'current[:dc]|current:ac')) {
 		if (abs($range) > 3) {
 			_invalid_range($range);
 		}
 	}
-	elsif (scpi_match($function, qw/resistance fresistance/)) {
+	elsif (scpi_match($function, 'resistance|fresistance')) {
 	        if ($range < 0 or $range > 1e9) { 
 			_invalid_range($range);
 		}
@@ -249,24 +249,23 @@ sub set_range { # basic
 	
 	# check if value of paramter 'range' is valid:
 
-	if ($range !~ /^(min|max|def|auto)$/i) {
+	if (not scpi_match($range, 'min|max|def|auto')) {
 		_check_range($function, $range);
 	}
 	
 	# set range
-	if ( $range =~ /^(min|max|def)$/i or $range =~ /\b\d+(e\d+|E\d+|exp\d+|EXP\d+)?\b/) 
-		{		
+	if (scpi_match($range, 'min|max|def')
+	    or $range =~ /\b\d+(e\d+|E\d+|exp\d+|EXP\d+)?\b/) {		
 		$self->write( "$function:RANGE $range", $tail);
-		}
-	elsif ($range =~ /^(auto)$/) 
-		{
+	}
+	elsif (scpi_match($range, 'auto')) {
 		$self->write( sprintf("%s:RANGE:AUTO ON", $function), $tail);
-		}
-	else 
-		{
+	}
+	else {
 		Lab::Exception::CorruptParameter->throw( error => "anything's wrong in sub set_range!!");
-		}
-}
+	}
+}	
+	    
 
 sub _init_getter {
 	my $self = shift;
@@ -283,7 +282,7 @@ Return the range of the used measurement function.
 sub get_range {
 	my ($self, $tail) = _init_getter(@_);
 	
-	my $function = $self->assert_function(@valid_functions);
+	my $function = $self->assert_function($valid_functions);
 	
 	return $self->query("$function:RANGE?", $tail);
 }
@@ -296,12 +295,12 @@ Return non-zero, if autoranging is enabled.
     
 sub get_autorange {
 	my ($self, $tail) = _init_getter(@_);
-	my $function = $self->assert_function(@valid_functions);
+	my $function = $self->assert_function($valid_functions);
 
 	return $self->query("$function:RANGE:AUTO?");
 }
 
-my @valid_dc_functions = qw/current[:dc] voltage[:dc] resistance fresistance/;
+my $valid_dc_functions = 'current[:dc]|voltage[:dc]|resistance|fresistance';
 
 =head2 set_nplc($nplc)
 
@@ -344,7 +343,7 @@ sub set_nplc { # basic
 			}
 			
 	# set nplc:
-	my $function = $self->assert_function(@valid_dc_functions);
+	my $function = $self->assert_function($valid_dc_functions);
 	
 	$self->write( "$function:NPLC $nplc", $tail);
 }
@@ -358,7 +357,7 @@ Return the value of C<nplc> for the used measurement function.
 sub get_nplc {
 	my ($self, $tail) = _init_getter(@_);
 
-	my $function = $self->assert_function(@valid_dc_functions);
+	my $function = $self->assert_function($valid_dc_functions);
 	
 	return $self->query( "$function:NPLC?", $tail);
 }
@@ -380,7 +379,7 @@ C<DEF> will be set, if no value is given.
 sub set_resolution{ # basic
 	my $self = shift;
 	my ($resolution, $tail) = $self->_check_args_strict(\@_, ['resolution']);	
-	my $function = $self->assert_function(@valid_dc_functions);
+	my $function = $self->assert_function($valid_dc_functions);
 		
 	# check if value of paramter 'resolution' is valid:
 	# FIXME: wiso read_mode 'device' ???
@@ -406,7 +405,7 @@ Return the resolution of the used measurement function.
 sub get_resolution {
 	my ($self, $tail) = _init_getter(@_);
 
-	my $function = $self->assert_function(@valid_functions);
+	my $function = $self->assert_function($valid_functions);
 	
 	return $self->query("$function:RES?", $tail);
 }
@@ -444,7 +443,7 @@ sub set_tc { # basic
 	
 	my ($tc, $tail) = $self->_check_args_strict(\@_, ['tc']);
 	
-	my $function = $self->assert_function(@valid_dc_functions);
+	my $function = $self->assert_function($valid_dc_functions);
 	
 	# check if value of paramter 'tc' is valid:
 	if ( ($tc < 1e-4 or $tc > 1) and not $tc =~ /^(min|max|def)$/ ) 
@@ -465,12 +464,12 @@ Return the C<INTEGRATION TIME> of the used measurement function.
 sub get_tc {
 	my ($self, $tail) = _init_getter(@_);
 
-	my $function = $self->assert_function(@valid_dc_functions);
+	my $function = $self->assert_function($valid_dc_functions);
 	
 	return $self->query( "$function:APERTURE?", $tail);
 }
 
-my @valid_ac_functions = qw/current:ac voltage:ac/;
+my $valid_ac_functions = 'current:ac|voltage:ac';
 
 =head2 set_bw($bw)
 
@@ -485,7 +484,7 @@ sub set_bw { # basic
 	my $self = shift;
 	my ($bw, $tail) = $self->_check_args_strict(\@_, ['bandwidth']);
 	
-	my $function = $self->assert_function(@valid_ac_functions);
+	my $function = $self->assert_function($valid_ac_functions);
 	
 	# check if value of paramter 'bw' is valid:
 	if ( ($bw < 3 or $bw > 200) and not $bw =~ /^(min|max|def)$/ ) 
@@ -507,7 +506,7 @@ C<VOLTAGE:AC> or C<CURRENT:AC>.
 sub get_bw {
 	my ($self, $tail) = _init_getter(@_);
 
-	my $function = $self->assert_function(@valid_ac_functions);
+	my $function = $self->assert_function($valid_ac_functions);
 	
 	return $self->query( "$function:BANDWIDTH?", $tail);
 }
