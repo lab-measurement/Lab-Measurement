@@ -14,6 +14,7 @@ my $function;
 
 my $multimeter = Instrument('Agilent34410A', {connection_type => 'LinuxGPIB',
 					      gpib_address => 17});
+$multimeter->reset();
 
 #reset
 $multimeter->set_function('volt:ac');
@@ -34,10 +35,6 @@ $function = $multimeter->get_function();
 is($function, 'VOLT:AC', 'function changed to volt:ac');
 $multimeter->set_function('VOLT');
 # get_function
-
-# print Dumper $multimeter->device_cache();
-# $multimeter->reset_device_cache();
-# print Dumper $multimeter->device_cache();
 
 $function = $multimeter->get_function();
 is($function, 'VOLT', 'get_function returns VOLT');
@@ -115,5 +112,5 @@ $multimeter->set_bw(200);
 my $bw = $multimeter->get_bw();
 ok($bw == 200, "$bw");
 
-
+$multimeter->reset();
 done_testing();
