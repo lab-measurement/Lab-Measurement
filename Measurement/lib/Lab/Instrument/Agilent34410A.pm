@@ -124,7 +124,7 @@ Reset the multimeter to its power-on configuration.
 sub reset { # basic
     my $self=shift;
     $self->write( "*RST");
-	$self->_cache_init();
+    $self->reset_device_cache();
 }
 
 =head2 assert_function($keyword)
@@ -142,7 +142,7 @@ sub assert_function {
 
 	my $function = $self->get_function({read_mode => 'cache'});
 	if (scpi_match($function, $keyword) == 0) {
-		Lab::Exception::CorruptParameter->throw("invalid function: allowed choices are: $keyword");
+		Lab::Exception::CorruptParameter->throw("invalid function '$function': allowed choices are: $keyword");
 	}
 	return $function;
 }

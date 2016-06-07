@@ -412,7 +412,6 @@ sub _init_cache_handling {
 }
 
 
-
 sub register_instrument {
 	my $self = shift;
 	
@@ -509,7 +508,7 @@ sub _getset_key{
 # field names. Contained fields for which have no corresponding getter/setter/device_cache entry exists will result in an exception thrown.
 #
 # old; replaced by _refresh_cache and _set_config_parameters
-# still used in Yokogawa7651, Agilent34410A and SignalRecovery726x
+# still used in Yokogawa7651 and SignalRecovery726x
 sub _cache_init {
 	my $self = shift;
 	my $subname = shift;
@@ -966,6 +965,16 @@ sub device_cache {
 	}
 	else {  # it's a key - return the corresponding value
 		return $self->{'device_cache'}->{$value};
+	}
+}
+
+
+
+sub reset_device_cache {
+	my $self = shift;
+	my @cache_params = keys %{$self->{'device_cache'}};
+	for my $param (@cache_params) {
+		$self->device_cache($param => undef);
 	}
 }
 

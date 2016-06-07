@@ -10,8 +10,17 @@ use Test::More;
 use Lab::Measurement;
 use Scalar::Util qw(looks_like_number);
 
+my $function;
+
 my $multimeter = Instrument('Agilent34410A', {connection_type => 'LinuxGPIB',
 					      gpib_address => 17});
+
+#reset
+$multimeter->set_function('volt:ac');
+$multimeter->reset();
+$function = $multimeter->get_function();
+is($function, 'VOLT', 'function is VOLT after reset');
+
 
 # get_value
 
@@ -21,10 +30,14 @@ ok(looks_like_number($value), "get_value");
 # set_function / get_function
 
 $multimeter->set_function('volt:ac');
-my $function = $multimeter->get_function();
+$function = $multimeter->get_function();
 is($function, 'VOLT:AC', 'function changed to volt:ac');
 $multimeter->set_function('VOLT');
 # get_function
+
+# print Dumper $multimeter->device_cache();
+# $multimeter->reset_device_cache();
+# print Dumper $multimeter->device_cache();
 
 $function = $multimeter->get_function();
 is($function, 'VOLT', 'get_function returns VOLT');
