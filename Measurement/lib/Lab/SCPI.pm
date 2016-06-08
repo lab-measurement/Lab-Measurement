@@ -17,33 +17,46 @@ parameters against keywords.
 
 This module exports a single function:
 
-=head2 scpi_match($header, @keywords)
+=head2 scpi_match($header, $keyword)
 
-The call		   
+Return true, if C<$header> matches the SCPI keyword expression C<$keyword>.
 
- if (scpi_match($header, qw/voltage[:aperture]/)) {
-     ...
- }
+=head3 Examples
 
-can be used instead of
+The calls
 
- if ($header =~ /^(voltage:aperture|voltage:aper|voltage|volt:aperture|volt:aper|volt)$/i) {
-     ...
- }
+ scpi_match($header, 'voltage[:APERture]')
+ scpi_match($header, 'voltage|CURRENT|resistance')
+ scpi_match($header, '[:abcdef]:ghi[:jkl]')
 
-but is shorter, more descriptive, and less error-prone.
+are convenient replacements for
 
-Return true, if C<$header> matches any of the given keywords.
+ $header =~ /^(voltage:aperture|voltage:aper|voltage|volt:aperture|volt:aper|volt)$/i
+ $header =~ /^(voltage|volt|current|curr|resistance|res)$/i
+ $header =~ /^(:abcdef:ghi:jkl|:abcdef:ghi|:abcd:ghi:jkl|:abcd:ghi|:ghi:jkl|:ghi)$/i
 
-Leading and trailing whitespace is removed from the first argument before
- matching against the keywords. 
+respectively.
+
+Leading and trailing whitespace is removed from the first argument, before
+ matching against the keyword.
+
+=head3 Keyword Structure
+
+See Sec. 6 "Program Headers" in the SCPI spec. Always give the long form of a
+keyword; the short form will be derived automatically. The colon is optional
+for the first mnemonic. There must be at least one non-optional mnemonic in the
+keyword.
+
+C<scpi_match> will throw, if it is given an invalid keyword.
 
 =cut
 
 sub scpi_match {
 	my $header = shift;
-	for my $keyword (@_) {
-		if (match_keyword($header, $keyword)) {
+	my $keyword = shift;
+	my @keywords = split '\|', $keyword, -1; 
+	for my $part (@keywords) {
+		if (match_keyword($header, $part)) {
 			return 1;
 		}
 	}

@@ -188,8 +188,6 @@ sub _construct {	# _construct(__PACKAGE__);
 		# to the device.
 		$self->_device_init(); # enable device communication if necessary
 		$self->_set_config_parameters(); # transfer configuration to device
-		$self->_refresh_cache();
-		#$self->_cache_init();  # transfer configuration to/from device
 		
 	}
 	
@@ -383,15 +381,16 @@ sub _init_cache_handling {
 						{
 						return;
 						}
-										
+					my $retval = $_[-1];
 					# refresh cache value
-					if ( not defined $_[-1] or ref ($_[-1]) eq 'Hook::LexWrap::Cleanup' )
+					if ( not defined $retval or ref($retval) eq 'Hook::LexWrap::Cleanup' )
 						{
 						return;
 						}			
 					else
-						{
-						${__PACKAGE__::SELF}->device_cache({$parameter => $_[-1]});
+					{
+						my $cache_value = wantarray ? $retval->[0] : $retval;
+						${__PACKAGE__::SELF}->device_cache({$parameter => $cache_value});
 						}
 					});
 			
@@ -411,7 +410,6 @@ sub _init_cache_handling {
 
  
 }
-
 
 
 sub register_instrument {
@@ -481,39 +479,6 @@ sub _set_config_parameters {
 }
 
 
-sub _refresh_cache {
-	my $self = shift;
-	
-	my @order = @{$self->device_cache_order()};
-	my @keys = keys %{$self->device_cache()};
-	
-	
-	foreach my $ckey (@order)
-		{
-		my $subname = 'get_' . $ckey;
-		if ( defined $self->config($ckey) and $self->can($subname) )
-			{
-			my $result = $self->$subname();
-			@keys = grep { $_ ne $ckey } @keys;
-			}		
-		}		
-	
-		
-	foreach my $ckey (@keys)
-		{
-		my $subname = 'get_' . $ckey;
-		if ( $self->can($subname) )
-			{
-			my $result = $self->$subname();
-			}		
-		}
-
-}
-
-
-
-
-
 # old; replaced by _refresh_cache and _set_config_parameters
 sub _getset_key{
 	my $self = shift;
@@ -543,6 +508,7 @@ sub _getset_key{
 # field names. Contained fields for which have no corresponding getter/setter/device_cache entry exists will result in an exception thrown.
 #
 # old; replaced by _refresh_cache and _set_config_parameters
+# still used in Yokogawa7651 and SignalRecovery726x
 sub _cache_init {
 	my $self = shift;
 	my $subname = shift;
@@ -581,55 +547,6 @@ sub _cache_init {
 }
 
 
-
-#
-# Sync the device cache with the device. 
-# Options: 
-# 	Preference of the sync: 'device' (default) or 'driver'
-#	Name of variable to sync.											  
-#
-# not in use
-sub device_sync{
-	my $self = shift;
-	
-	my $pref = shift || 'device';
-	
-			
-	if( $self->device_cache()){
-		if($pref eq 'driver'){		
-			if($_[0]){
-				$self->${\('set_'.$_[0])}($self->device_cache({$_[0]}));
-				return 1;
-			}		
-			else{
-				my $count = 0;
-				foreach my $key (keys %{$self->device_cache()} ){
-					$self->${\('set_'.$key)}($self->device_cache($key));
-					$count += 1;
-				}				
-				return $count;
-			}
-		}
-		else{
-			if($_[0]){
-				$self->device_cache($_[0]) = $self->${\('get_'.$_[0])}( device_cache => 1 );
-				return 1;
-			}
-			else{
-				my $count = 0;
-				foreach my $key (keys %{$self->device_cache()} ){
-					$self->device_cache($key) = $self->${\('get_'.$key)}( device_cache => 1 );
-					$count += 1;
-				}				
-				return $count;
-			}
-		}
-	}
-				
-
-				
-
-}
 
 
 
@@ -1052,6 +969,16 @@ sub device_cache {
 }
 
 
+
+sub reset_device_cache {
+	my $self = shift;
+	my @cache_params = keys %{$self->{'device_cache'}};
+	for my $param (@cache_params) {
+		$self->device_cache($param => undef);
+	}
+}
+
+
 #
 # accessor for connection_settings
 #
@@ -1135,15 +1062,6 @@ sub _check_args {
 		
 
 	push(@return_args, $arguments);
-	# if (scalar(keys %{$arguments}) > 0) 
-		# {
-		# my $errmess = "Unknown parameter given in $self :";
-		# while ( my ($k,$v) = each %{$arguments} ) 
-			# {
-			# $errmess .= $k." => ".$v."\t";
-			# }
-		# print Lab::Exception::Warning->new( error => $errmess);
-		# }
 		
 	if (wantarray)
 		{
@@ -1156,8 +1074,30 @@ sub _check_args {
 			
 	
 }
-	
 
+sub _check_args_strict {
+	my $self = shift;
+	my $args = shift;
+	my $params = shift;
+
+	my @result = $self->_check_args ($args, $params);
+	
+	my $num_params = @result - 1;
+	
+	for (my $i = 0; $i < $num_params; ++$i) {
+		if (not defined $result[$i]) {
+			croak ("missing mandatory argument '$params->[$i]'");
+		}
+	}
+	
+	if (wantarray) {
+		return @result;
+	}
+	else {
+		return $result[0];
+	}
+}
+	
 
 #
 # config gets it's own accessor - convenient access like $self->config('GPIB_Paddress') instead of $self->config()->{'GPIB_Paddress'}
@@ -1346,7 +1286,7 @@ sub function_list_index{
 # 
 # 
 
-1;
+
 
 
 
@@ -1538,15 +1478,21 @@ Multiple hashrefs given to C<my_method> are concatenated.
 
 For a method without named arguments, you can either use
 
- my $(tail) = $self->_check_args(\@_, []);
+ my ($tail) = $self->_check_args(\@_, []);
 
 or
 
- my $(tail) = $self->_check_args(\@);
-
+ my ($tail) = $self->_check_args(\@);
 
 =back
- 
+
+=head2 _check_args_strict
+
+Like C<_check_args>, but makes all declared arguments mandatory.
+
+If an argument does not
+receive a non-undef value, this will throw an exception. Thus, the returned
+array will never contain undefined values.
 
 =head1 CAVEATS/BUGS
 
@@ -1586,3 +1532,5 @@ terms as Perl itself.
 
 =cut
 
+
+1;

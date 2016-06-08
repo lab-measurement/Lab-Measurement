@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use 5.010;
 
-use Test::More tests => 20;
+use Test::More tests => 24;
 use Lab::SCPI;
 
 my @tests;
@@ -33,6 +33,13 @@ push @tests, ['timer', 'time', 0];
 push @tests, ['timer', 'tim', 1];
 push @tests, ['time', 'time', 1];
 push @tests, ['time', 'tim', 0];
+
+# alternation
+$keyword = 'abcdef|ghijkl';
+push @tests, [$keyword, 'abcd', 1];
+push @tests, [$keyword, 'ghij', 1];
+push @tests, [$keyword, 'defghi', 0];
+push @tests, [$keyword, 'abcdef|ghijkl', 0];
 
 
 for my $test (@tests) {
