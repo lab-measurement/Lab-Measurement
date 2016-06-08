@@ -3,23 +3,19 @@
 package Lab::Bus::DEBUG;
 our $VERSION = '3.500';
 
+use warnings;
 use strict;
-use threads;
-use threads::shared;
-use Thread::Semaphore;
+use 5.010;
+
 use Scalar::Util qw(weaken);
 use Time::HiRes qw (usleep sleep);
 use Lab::Bus;
 use Data::Dumper;
 use Carp;
-use Lab::Bus::DEBUG::HumanInstrument;
 
-use Lab::Exception
+use Lab::Exception;
 
-our @ISA = ("Lab::Bus");
-
-our $thr = undef;
-
+use parent 'Lab::Bus';
 
 our %fields = (
 	brutal => 0,	# brutal as default?
@@ -29,7 +25,6 @@ our %fields = (
 	query_length=>300, # bytes
 	query_long_length=>10240, #bytes
 	read_length => 1000, # bytesx
-
 	instrument_index => 0,
 );
 
@@ -48,15 +43,6 @@ sub new {
 		$Lab::Bus::BusList{$self->type()}->{$i} = $self;
 		weaken($Lab::Bus::BusList{$self->type()}->{$i});
 	}
-
-	# This is not and will be no gui application, so start the gui main loop in a thread.
-	# A little process communication will soon follow...
-	print "Starting 'human instrument' console.\n";
-	my $human_console = new Lab::Bus::DEBUG::HumanInstrument();
-	$thr = threads->create( sub { $human_console->MainLoop(); print "NOOOOO!"; } );
-
-
-	$thr->detach();
 
 	return $self;
 }
@@ -188,7 +174,13 @@ ENDMSG
 	}
 }
 
+sub timeout {
+	my $self=shift;
+	my $connection_handle=shift;
+	my $timo=shift;
 
+	say "DEBUG Bus: setting timeout to '$timo'";
+}
 
 sub connection_query { # @_ = ( $connection_handle, $args = { command, read_length, wait_status, wait_query, brutal }
 	my $self = shift;

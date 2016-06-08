@@ -1,11 +1,13 @@
 package Lab::Instrument::DummySource;
 our $VERSION = '3.500';
 
+use warnings;
 use strict;
-use Lab::Instrument::Source;
+use 5.010;
+
 use Data::Dumper;
 
-our @ISA=('Lab::Instrument::Source');
+use parent 'Lab::Instrument::Source';
 
 
 our %fields = (
@@ -14,11 +16,11 @@ our %fields = (
 	connection_settings => {},
 
 	device_settings => {
-		gate_protect            => 1,
-		gp_equal_level          => 1e-5,
-		gp_max_units_per_second  => 0.002,
-		gp_max_units_per_step    => 0.001,
-		gp_max_step_per_second  => 2,
+		# gate_protect            => 1,
+		# gp_equal_level          => 1e-5,
+		# gp_max_units_per_second  => 0.002,
+		# gp_max_units_per_step    => 0.001,
+		# gp_max_step_per_second  => 2,
 
 		max_sweep_time=>3600,
 		min_sweep_time=>0.1,
@@ -56,15 +58,15 @@ sub _device_init {
 }
 
 
-sub config_sweep {
-    my $self = shift;
-    my ($start, $target, $duration,$sections ,$tail) = $self->check_sweep_config(@_);
+# sub config_sweep {
+#     my $self = shift;
+#     my ($start, $target, $duration,$sections ,$tail) = $self->check_sweep_config(@_);
     
     
-    print "Dummy Source sweep configuration.\n";        
-    print "Duration: $duration\n";        
-    $self->{'sweeptime'} = $duration;
-}
+#     print "Dummy Source sweep configuration.\n";        
+#     print "Duration: $duration\n";        
+#     $self->{'sweeptime'} = $duration;
+# }
 
 sub trg {
     print "Dummy Source received trigger.\n"
@@ -81,11 +83,11 @@ sub wait{
 sub _set_level {
     my $self = shift;
     my ($value, $tail) = $self->_check_args( \@_, ['value'] );
-
+    say "DS: setting level to $value";
     return $self->{'device_cache'}->{'level'} = $value;
 }
 
-sub _get_level {
+sub get_level {
     my $self=shift;
 
     return $self->{'device_cache'}->{'level'};

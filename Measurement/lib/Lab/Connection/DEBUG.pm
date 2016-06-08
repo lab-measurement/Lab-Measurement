@@ -9,7 +9,7 @@ use Lab::Connection;
 use Data::Dumper;
 use Carp;
 
-our @ISA = ("Lab::Connection");
+use parent 'Lab::Connection';
 
 
 our %fields = (
@@ -21,7 +21,6 @@ our %fields = (
 	query_length=>300, # bytes
 	query_long_length=>10240, #bytes
 	read_length => 1000, # bytesx
-
 	instrument_index => 0,
 );
 
