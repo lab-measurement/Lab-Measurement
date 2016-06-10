@@ -37,8 +37,6 @@ sub skip_modules {
 diag("checking installed modules");
 
 my %depencencies = (
-	'Wx::App' => ['Lab/Bus/DEBUG.pm', 'Lab/Bus/DEBUG/HumanInstrument.pm'],
-	
 	'PDL' => ['Lab/Data/PDL.pm'],
 	
 	'Statistics::LineFit' => ['Lab/XPRESS/Data/XPRESS_dataset.pm'],
@@ -60,8 +58,7 @@ my %depencencies = (
 	
 	'LinuxGpib' => ['Lab/Bus/LinuxGPIB.pm', 'Lab/Connection/LinuxGPIB.pm'],
 	
-	'Lab::VISA' => ['VISA', 'Lab/Bus/IsoBus.pm', 'Lab/Connection/DEBUG.pm',
-			'Lab/Connection/IsoBus.pm'],
+	'Lab::VISA' => ['VISA', 'Lab/Bus/IsoBus.pm', 'Lab/Connection/IsoBus.pm'],
     );
 
 for my $module (keys %depencencies) {
