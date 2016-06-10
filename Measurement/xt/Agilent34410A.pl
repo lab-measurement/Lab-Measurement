@@ -116,18 +116,4 @@ my $bw = $multimeter->get_bw();
 ok($bw == 200, "$bw");
 
 
-#trigger
-$multimeter->reset();
-
-$multimeter->config_measurement('voltage', 20, 4);
-
-for (my $i = 0; $i < 20; ++$i) {
-	$multimeter->trg();
-}
-
-my @data = $multimeter->get_data(20);
-is(scalar @data, 20, "read 20 points");
-
-
-$multimeter->reset();
 done_testing();
