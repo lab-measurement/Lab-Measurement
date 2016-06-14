@@ -69,6 +69,7 @@ toc:
               - Measurement/lib/Lab/Instrument/Keithley2400.pm
           - Lock-in amplifiers:
               - Measurement/lib/Lab/Instrument/SR830.pm
+              - Measurement/lib/Lab/Instrument/SR830/AuxIn.pm
               - Measurement/lib/Lab/Instrument/SignalRecovery726x.pm
           - RF generators:
               - Measurement/lib/Lab/Instrument/HP83732A.pm
@@ -103,7 +104,6 @@ toc:
       - Bus classes:
           - Measurement/lib/Lab/Bus.pm
           - Measurement/lib/Lab/Bus/DEBUG.pm
-          - Measurement/lib/Lab/Bus/DEBUG/HumanInstrument.pm
           - Measurement/lib/Lab/Bus/LinuxGPIB.pm
           - Measurement/lib/Lab/Bus/RS232.pm
           - Measurement/lib/Lab/Bus/MODBUS_RS232.pm
