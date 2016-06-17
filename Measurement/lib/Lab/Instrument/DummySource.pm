@@ -87,6 +87,12 @@ sub _set_level {
     return $self->{'device_cache'}->{'level'} = $value;
 }
 
+sub set_voltage {
+	my $self = shift;
+	my ($voltage, $tail) = $self->_check_args(\@_, ['voltage']);
+	return $self->set_level($voltage, $tail);
+}
+
 sub get_level {
     my $self=shift;
 

@@ -309,10 +309,10 @@ sub sweep_to_level {
 	my ($target, $time, $stepsize, $args) =
 	    $self->_check_args(\@_, ['target', 'time', 'stepsize']);
 
-	say "sweep_to_level: stepsize: $stepsize";
 	if (not defined $target || ref($target) eq 'HASH') {
 		Lab::Exception::CorruptParameter->throw( error=>'No target voltage given.');
 	}
+
 	# Check correct channel setup
 	
 	$self->_check_gate_protect();
@@ -338,7 +338,7 @@ sub sweep_to_level {
 	
 	my $spsec = $self->get_gp_max_step_per_second();
 	
-	my $current = $self->get_level( from_device => 1 );
+	my $current = $self->get_level();
 	
 	if ($target == $current ){
 		return $target;
@@ -363,7 +363,6 @@ sub sweep_to_level {
 	else {
 			
 		my $steptime = $time / (abs($current - $target)/$upstep);
-		say "sweep_to_level: steptime: $steptime";
 		while (1) {
 			if(abs($target - $current) <= $upstep){
 				$self->_set_level($target, $args);

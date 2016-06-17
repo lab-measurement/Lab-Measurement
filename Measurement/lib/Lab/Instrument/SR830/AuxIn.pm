@@ -15,12 +15,11 @@ Research SR830 Lock-In Amplifier.
 This class provides access to the four DC inputs of the SR830. You have to
 provide a C<channel> (1..4) parameter in the constructor. 
 
-To use several channels in the same measurement, you have to share the
-connection between the instrument objects:
+B<To use multiple virtual instruments, which use the same physical device, you have to share the connection between the virtual instruments:>
 
  use Lab::Measurement;
 
- # Create the shared connection. 
+ # Create the shared connection.
  my $connection = Connection('LinuxGPIB', {gpib_address => 8});
  
  # Array of instrument objects. Each element belongs to one of the four

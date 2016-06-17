@@ -4,8 +4,10 @@ our $VERSION = '3.500';
 
 use Lab::XPRESS::Sweep::Sweep;
 use Time::HiRes qw/usleep/, qw/time/;
+use warnings;
 use strict;
-
+use 5.010;
+use Carp;
 our @ISA=('Lab::XPRESS::Sweep::Sweep');
 
 
@@ -23,7 +25,7 @@ sub new {
 		duration	=> [],
 		mode	=> 'continuous',
 		jump => 0,
-		allowed_instruments => ['Lab::Instrument::Yokogawa7651', 'Lab::Instrument::Keithley2400','Lab::Instrument::YokogawaGS200', 'Lab::Instrument::DummySource'],
+		allowed_instruments => ['Lab::Instrument::Yokogawa7651', 'Lab::Instrument::Keithley2400','Lab::Instrument::YokogawaGS200', 'Lab::Instrument::DummySource', 'Lab::Instrument::SR830::AuxOut'],
 		allowed_sweep_modes => ['continuous', 'list', 'step'],
 		number_of_points => [undef]
 		};
@@ -41,12 +43,26 @@ sub go_to_sweep_start {
 	
 	# go to start:
 	print "going to start ... ";
-	$self->{config}->{instrument}->config_sweep({
-		'points' => @{$self->{config}->{points}}[$self->{iterator}], 
-		'rate' => @{$self->{config}->{rate}}[$self->{iterator}]
-		});
-	$self->{config}->{instrument}->trg();
-	$self->{config}->{instrument}->wait();
+	if ($self->{config}->{mode} =~ /step|list/
+	    && $self->{config}->{jump}) {
+		my $target = $self->{config}{points}[$self->{iterator}];
+		my $rate = $self->{config}{rate}[$self->{iterator}];
+		my $current = $self->{config}{instrument}->get_level();
+		my $stepwidth = $self->{config}{stepwidth}[$self->{iterator}];
+		if (not defined $stepwidth) {
+			croak "no 'stepwidth' defined for sweep with mode 'step'";
+		}
+		my $time = abs(($target - $current) / $rate);
+		$self->{config}{instrument}->sweep_to_level($target, $time, $stepwidth);
+	}
+	else {
+		$self->{config}->{instrument}->config_sweep({
+			'points' => @{$self->{config}->{points}}[$self->{iterator}], 
+			'rate' => @{$self->{config}->{rate}}[$self->{iterator}]
+							    });
+		$self->{config}->{instrument}->trg();
+		$self->{config}->{instrument}->wait();
+	}
 	print "done\n";
 	
 }
