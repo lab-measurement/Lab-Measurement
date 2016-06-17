@@ -1,6 +1,7 @@
 package Lab::Instrument::Source;
 use strict;
 use warnings;
+use 5.010;
 
 our $VERSION = '3.500';
 
@@ -306,10 +307,11 @@ sub sweep_to_level {
 	my $self = shift;
 
 	my ($target, $time, $stepsize, $args) =
-	    _check_args(\@_, ['target', 'time', 'stepsize']);
+	    $self->_check_args(\@_, ['target', 'time', 'stepsize']);
 
+	say "sweep_to_level: stepsize: $stepsize";
 	if (not defined $target || ref($target) eq 'HASH') {
-		Lab::Exception::CorruptParameter->throw( error=>'No voltage given.');
+		Lab::Exception::CorruptParameter->throw( error=>'No target voltage given.');
 	}
 	# Check correct channel setup
 	
@@ -317,9 +319,18 @@ sub sweep_to_level {
 	
 	# Make sure stepsize is within gate_protect boundaries. 
 
+	# Returns undef if gate_protect is unset.
 	my $upstep = $self->get_gp_max_units_per_step();
 
-	if (defined $stepsize && $upstep > $stepsize) {
+	if ((not defined $upstep) && (not defined $stepsize)) {
+		Lab::Exception::CorruptParameter->throw( error=>'Need either gp_max_units_per_step or stepsize parameter.');
+	}
+	
+	if (not defined $upstep) {
+		$upstep = $stepsize;
+	}
+	
+	if (defined $stepsize && defined $upstep && $upstep > $stepsize) {
 		$upstep = $stepsize;
 	}
 	
@@ -327,39 +338,47 @@ sub sweep_to_level {
 	
 	my $spsec = $self->get_gp_max_step_per_second();
 	
-	my $current = $self->get_level( from_device => 1 )+ 0.;
+	my $current = $self->get_level( from_device => 1 );
 	
-	if( $target == $current ){
+	if ($target == $current ){
 		return $target;
 	}
 	
-	if( $self->device_settings()->{"gate_protect"} && $time ){
-		$time = ( abs($target - $current)/$time < $apsec ) ? $time : abs($target-$current)/$apsec;
+	if ($self->device_settings()->{gate_protect} && $time ) {
+		if (abs($target - $current) > $apsec * $time) {
+			# we need to increase time to stay within the
+			# max_units_per_second limit.
+			$time = abs($target - $current) / $apsec;
+		}
 	}	
-	elsif(!defined($time)){
-		$time = (abs($target-$current)+0.)/$apsec;
+	elsif (not defined($time)){
+		$time = abs($target-$current) / $apsec;
 	}
 	
-	# sweep to current
+	# Sweep to current.
 
-	if($self->can("_sweep_to_level")) {
+	if ($self->can("_sweep_to_level")) {
 		return $self->_sweep_to_level($target,$time,$args);
 	}
-	else{
+	else {
 			
-		my $steptime = $time / ( abs($current - $target)/$upstep );
-		
-		unless( $current != $target){
-			if( abs($target-$current) <= $upstep ){
+		my $steptime = $time / (abs($current - $target)/$upstep);
+		say "sweep_to_level: steptime: $steptime";
+		while (1) {
+			if(abs($target - $current) <= $upstep){
 				$self->_set_level($target, $args);
+				last;
 			}
-			my $next = ($target - $current > 0) 
-				? $self->_set_level( $target+$upstep, $args) 
-				: $self->_set_level( $target-$upstep, $args);
-			sleep($steptime);
-			labkey_check();
 			
-			$current = $next;		
+			my $step = $upstep;
+			
+			if ($target < $current) {
+				$step *= -1.;
+			}
+			
+			$current = $self->_set_level($current + $step, $args);
+			
+			usleep(1e6 * $steptime);
 		}
 		return $current;			
 	}
