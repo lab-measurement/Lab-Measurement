@@ -304,26 +304,23 @@ sub check_sweep_config{
 
 sub sweep_to_level {
 	my $self = shift;
-	my $target = shift;
-	
-	my($time, $args) = $self->parse_optional(@_);
-	
-	if(!defined $target || ref($target) eq 'HASH') {
+
+	my ($target, $time, $stepsize, $args) =
+	    _check_args(\@_, ['target', 'time', 'stepsize']);
+
+	if (not defined $target || ref($target) eq 'HASH') {
 		Lab::Exception::CorruptParameter->throw( error=>'No voltage given.');
 	}
-	
 	# Check correct channel setup
 	
 	$self->_check_gate_protect();
 	
 	# Make sure stepsize is within gate_protect boundaries. 
-	
-	my $stepsize = $args->{stepsize} || $self->get_stepsize();
+
 	my $upstep = $self->get_gp_max_units_per_step();
-	$upstep = $stepsize if $stepsize < $upstep;
-	
-	if(!defined $stepsize){
-		Lab::Exception::CorruptParameter->throw( 'No stepsize given. Please specify either stepsize or gp_max_units_per_step.');
+
+	if (defined $stepsize && $upstep > $stepsize) {
+		$upstep = $stepsize;
 	}
 	
 	my $apsec = $self->get_gp_max_units_per_second();
