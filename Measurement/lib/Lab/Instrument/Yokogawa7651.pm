@@ -513,7 +513,7 @@ sub get_range{
 	    $range =~ /3/ ? $range = 0.12 :
 	    $range =~ /4/ ? $range = 1.2 :
 	    $range =~ /5/ ? $range = 12 :
-	    $range =~ /6/ ? $range = 0.012 :
+	    $range =~ /6/ ? $range = 32 :
 	    Lab::Exception::CorruptParameter->throw ("$range is not a valid voltage range. Read the documentation for a list of allowed ranges in mode $function.\n");
     }
     elsif ($function =~ /current/i) {
