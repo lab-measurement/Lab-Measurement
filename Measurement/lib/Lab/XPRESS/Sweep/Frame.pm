@@ -1,6 +1,6 @@
 package Lab::XPRESS::Sweep::Frame;
 
-our $VERSION = '3.500';
+our $VERSION = '3.510';
 
 use Time::HiRes qw/usleep/, qw/time/;
 use strict;

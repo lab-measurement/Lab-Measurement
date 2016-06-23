@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use 5.010;
 
-our $VERSION = '3.500';
+our $VERSION = '3.510';
 
 use Lab::Exception;
 use Lab::Instrument;

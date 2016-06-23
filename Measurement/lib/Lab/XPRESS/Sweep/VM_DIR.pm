@@ -1,6 +1,6 @@
 package Lab::XPRESS::Sweep::VM_DIR;
 
-our $VERSION = '3.500';
+our $VERSION = '3.510';
 
 use Lab::XPRESS::Sweep::SweepND;
 use Time::HiRes qw/usleep/, qw/time/;

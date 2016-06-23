@@ -5,7 +5,7 @@ use IPC::Run qw( start pump finish timeout );
 use Time::HiRes qw/gettimeofday tv_interval/;
 use Time::HiRes qw/usleep/, qw/time/;
 
-our $VERSION = '3.500';
+our $VERSION = '3.510';
 
 
 sub new {

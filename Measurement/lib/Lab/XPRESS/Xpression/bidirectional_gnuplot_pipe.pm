@@ -3,7 +3,7 @@ package Lab::XPRESSION::Xpress::bidirectional_gnuplot_pipe;
 use IPC::Run qw( start pump finish timeout );
 use strict;
 
-our $VERSION = '3.500';
+our $VERSION = '3.510';
 
 
 sub new {

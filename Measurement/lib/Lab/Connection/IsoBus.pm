@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 package Lab::Connection::IsoBus;
-our $VERSION = '3.500';
+our $VERSION = '3.510';
 
 use strict;
 use Lab::Bus::VISA;

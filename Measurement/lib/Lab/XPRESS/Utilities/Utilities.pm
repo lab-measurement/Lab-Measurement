@@ -3,7 +3,7 @@
 use Term::ReadKey;
 use Time::HiRes qw/usleep/, qw/time/;
 
-our $VERSION = '3.500';
+our $VERSION = '3.510';
 
 # collection of some usefull subroutines:
 

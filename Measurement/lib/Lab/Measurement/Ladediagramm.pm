@@ -1,5 +1,5 @@
 package Lab::Measurement::Ladediagramm;
-our $VERSION = '3.500';
+our $VERSION = '3.510';
 
 use strict;
 use Lab::Measurement;

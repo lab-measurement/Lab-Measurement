@@ -5,7 +5,7 @@ use Lab::Instrument;
 use warnings;
 
 
-our $VERSION = '3.500';
+our $VERSION = '3.510';
 use 5.010;
 
 our @ISA=('Lab::Instrument');
