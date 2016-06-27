@@ -3,7 +3,7 @@ use strict;
 use Lab::Instrument;
 use Lab::Instrument::Source;
 
-our $VERSION="3.510";
+our $VERSION="3.511";
 
 our @ISA=('Lab::Instrument::Source');
 

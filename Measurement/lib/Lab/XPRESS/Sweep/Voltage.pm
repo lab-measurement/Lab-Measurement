@@ -1,6 +1,6 @@
 package Lab::XPRESS::Sweep::Voltage;
 
-our $VERSION = '3.510';
+our $VERSION = '3.511';
 
 use Lab::XPRESS::Sweep::Sweep;
 use Time::HiRes qw/usleep/, qw/time/;

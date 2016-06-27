@@ -1,5 +1,5 @@
 package Lab::Instrument::HP83732A;
-our $VERSION = '3.510';
+our $VERSION = '3.511';
 
 use strict;
 use Lab::Instrument;

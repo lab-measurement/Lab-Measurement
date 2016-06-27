@@ -61,7 +61,7 @@ use warnings;
 use strict;
 use 5.010;
 
-our $VERSION = '3.510';
+our $VERSION = '3.511';
 
 use Lab::Instrument;
 use Data::Dumper;
