@@ -9,7 +9,7 @@ use strict;
 
 use lib qw(../lib);
 use Data::Dumper;
-use Test::More tests => 16;
+use Test::More tests => 23;
 
 use Lab::Measurement;
 use Scalar::Util qw(looks_like_number);
@@ -61,7 +61,7 @@ $level = $input2->get_value();
 
 ok(relative_error($level, 2.222) < 1/100, 'voltage at input 2');
 
-# test a one dimensional sweep
+# sweep with "mode => step"
 
 my $sweep = Sweep('Voltage', {
 	instrument => $output1,
@@ -75,10 +75,9 @@ my $sweep = Sweep('Voltage', {
 my $expected_value = 1;
 my $DataFile = DataFile('Somefile');
 
-my $my_measurement = sub {
+my $step_measurement = sub {
 	my $sweep = shift;
 	my $value = $output1->get_level();
-	say "value: $value";
 	is($value, $expected_value, "sweep is at $expected_value");
 	if ($value != 1.01) {
 		# we need this check, as this function seems to be called twice
@@ -87,10 +86,41 @@ my $my_measurement = sub {
 	}
 };
 
-$DataFile->add_measurement($my_measurement);
+$DataFile->add_measurement($step_measurement);
 $sweep->add_DataFile($DataFile);
 $sweep->start;
 	
+# sweep with "mode => list"
+my @points = qw/0.125 0.25 0.5 1 2 4 8/;
+$sweep = Sweep('Voltage', {
+	instrument => $output1,
+	mode => 'list',
+	jump => 1,
+	points => \@points,
+	stepwidth => [0.1],
+	rate => [1],
+		  });
+
+$DataFile = DataFile('Somefile');
+
+my $point_index = 0;
+
+my $list_measurement = sub {
+	my $sweep = shift;
+	my $value = $output1->get_level();
+	my $expected_value = $points[$point_index];
+	is($value, $expected_value, "sweep is at $expected_value");
+	if ($value != 8) {
+		# we need this check, as this function seems to be called twice
+		# for the final value.
+		++$point_index;
+	}
+};
+
+$DataFile->add_measurement($list_measurement);
+$sweep->add_DataFile($DataFile);
+$output1->_set_level(0);
+$sweep->start;
 
 sub relative_error {
 	my $a = shift;
