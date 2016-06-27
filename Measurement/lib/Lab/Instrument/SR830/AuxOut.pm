@@ -29,8 +29,10 @@ B<To use multiple virtual instruments, which use the same physical device, you h
 					gate_protect => 0});
 
 You can now use C<$gate> and C<$bias> to build XPRESS L<Voltage
-Sweeps|Lab::XPRESS::Sweep::Voltage>. This
-device only supports sweeps with C<< mode => 'step' >> and C<< jump => 1 >>.
+Sweeps|Lab::XPRESS::Sweep::Voltage>. The SR830 does not have hardware support
+for continuous voltage sweeps. Thus, the C<mode> parameter of the sweep must be
+set to C<'step'> or C<'list'> and the C<jump> parameter must be set to
+C<1>. Example sweep configuration:
 
  my $gate_sweep = Sweep('Voltage',
  		       {
@@ -61,7 +63,7 @@ use warnings;
 use strict;
 use 5.010;
 
-our $VERSION = '3.511';
+our $VERSION = '3.510';
 
 use Lab::Instrument;
 use Data::Dumper;
