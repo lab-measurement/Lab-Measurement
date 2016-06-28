@@ -283,7 +283,7 @@ sub get_single {
 		my $timeout = @{$time_table_highf->{$average}}[0] + @{$time_table_highf->{$average}}[1] / $frequency;
 	
 	if (not defined $tail->{timeout} ) {
-		$tail->{timeout} = 20;
+		$tail->{timeout} = 100;
 	} 
 	
 	my $result = $self->request( sprintf("SI"), $tail);
