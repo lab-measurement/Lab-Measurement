@@ -10,10 +10,13 @@ use Test::More;
 use Lab::Measurement;
 use Scalar::Util qw(looks_like_number);
 
+use TestLib;
+
 my $function;
 
-my $multimeter = Instrument('Agilent34410A', {connection_type => 'LinuxGPIB',
-					      gpib_address => 17});
+my $multimeter = Instrument('Agilent34410A', {
+	connection_type => get_gpib_connection_type(),
+	gpib_address => 17});
 
 #reset
 $multimeter->set_function('volt:ac');
@@ -97,12 +100,6 @@ ok ($nplc == 2, "nplc");
 # ok ($resolution == 2, "resolution $resolution");
 
 # get_tc / set_tc
-
-sub relative_error {
-	my $a = shift;
-	my $b = shift;
-	return abs(($b - $a) / $b);
-}
 
 $multimeter->set_tc(0.5);
 my $tc = $multimeter->get_tc();

@@ -14,7 +14,9 @@ use Test::More tests => 23;
 use Lab::Measurement;
 use Scalar::Util qw(looks_like_number);
 
-my $connection = Connection('LinuxGPIB', {gpib_address => 8});
+use TestLib;
+
+my $connection = Connection(get_gpib_connection_type(), {gpib_address => 8});
 
 my $input1 = Instrument('SR830::AuxIn', {
 	connection => $connection,
@@ -121,9 +123,3 @@ $DataFile->add_measurement($list_measurement);
 $sweep->add_DataFile($DataFile);
 $output1->_set_level(0);
 $sweep->start;
-
-sub relative_error {
-	my $a = shift;
-	my $b = shift;
-	return abs(($b - $a) / $b);
-}
