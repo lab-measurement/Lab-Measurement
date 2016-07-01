@@ -11,10 +11,13 @@ use Test::More tests => 47;
 use Lab::Measurement;
 use Scalar::Util qw(looks_like_number);
 
+use TestLib;
+
 my $query;
-my $yoko = Instrument('Yokogawa7651', {connection_type => 'LinuxGPIB',
-				       gpib_address => 11,
-				       gate_protect => 0,});
+my $yoko = Instrument('Yokogawa7651', {
+	connection_type => get_gpib_connection_type(),
+	gpib_address => 11,
+	gate_protect => 0,});
 
 # function
 
@@ -184,16 +187,3 @@ $yoko->_set_level(0.99);
 
 diag("testing sweep with 'mode => continuous'");
 $sweep->start;
-
-
-sub relative_error {
-	my $a = shift;
-	my $b = shift;
-	return abs(($b - $a) / $b);
-}
-
-sub float_equal {
-	my $a = shift;
-	my $b = shift;
-	return (relative_error($a, $b) < 1e-6);
-}
