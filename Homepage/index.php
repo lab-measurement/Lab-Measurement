@@ -147,13 +147,16 @@ Alexei Iankilevitch; current development is pushed ahead by Simon Reinhardt.
 <h2>Acknowledgments</h2>
 <p>The continued improvement of Lab::Measurement was supported by the
 <a href="http://www.dfg.de/en/" target="_blank">Deutsche Forschungsgemeinschaft</a>
-via grants Hu 1808/1 (Emmy Noether program) and collaborative research centre 
-<a href="http://www-app.uni-regensburg.de/Fakultaeten/Physik/sfb689/" target="_blank">SFB 689</a>.
+via grants Hu 1808/1 (Emmy Noether program), collaborative research centre 
+<a href="http://www-app.uni-regensburg.de/Fakultaeten/Physik/sfb689/" target="_blank">SFB 689</a>,
+and graduate research school <a href="http://www.physik.uni-regensburg.de/forschung/gk_carbonano/"
+target="_blank">GRK 1570</a>.
 </p>
 
 <p>
-<img src="logo-sfb689.png" height="150" alt="SFB 689 logo"> 
 <img src="logo-emmy.png" height="150" alt="Emmy Noether logo">
+<img src="logo-sfb689.png" height="150" alt="SFB 689 logo"> 
+<img src="logo-grk.png" height="150" alt="GRK 1570 logo"> 
 </p>
 
 </body>
