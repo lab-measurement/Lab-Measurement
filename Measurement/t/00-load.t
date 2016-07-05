@@ -72,10 +72,6 @@ for my $module (keys %depencencies) {
 }
 
 
-# FIXME! these do not compile
-skip_modules('Lab/Measurement/Ladediagramm.pm',
-	      'Lab/Instrument/KnickS252.pm');
-
 if (! eval "require 'sys/ioctl.ph'; 1") {
 	skip_modules('Lab/Bus/USBtmc.pm');
 }
