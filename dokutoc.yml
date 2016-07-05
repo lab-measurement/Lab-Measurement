@@ -13,8 +13,6 @@ toc:
           - Measurement/examples/Simple/query_id.pl
           - Measurement/examples/Simple/isobus_query_id.pl
           - Measurement/examples/Simple/srs_read.pl
-          - Measurement/examples/QuantumDot/gatesweep.pl
-          - Measurement/examples/QuantumDot/biasfield.pl
       - Utility scripts:
           - Measurement/scripts/lab-plotter.pl
           - Measurement/scripts/lab-makefilelist.pl
