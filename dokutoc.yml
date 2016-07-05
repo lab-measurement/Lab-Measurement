@@ -62,7 +62,6 @@ toc:
               - Measurement/lib/Lab/Instrument/DummySource.pm
               - Measurement/lib/Lab/Instrument/Yokogawa7651.pm
               - Measurement/lib/Lab/Instrument/YokogawaGS200.pm
-              - Measurement/lib/Lab/Instrument/KnickS252.pm
               - Measurement/lib/Lab/Instrument/Keithley2400.pm
           - Lock-in amplifiers:
               - Measurement/lib/Lab/Instrument/SR830.pm
