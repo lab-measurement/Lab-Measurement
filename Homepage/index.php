@@ -28,19 +28,19 @@
       scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:100px; height:21px;" allowTransparency="true"></iframe>
 </div>
 
-<p>Lab::Measurement allows to perform test and measurement tasks with Perl
+<p>Lab::Measurement allows to perform test and measurement tasks with Perl 5
 scripts. It provides an interface to several instrumentation control backends,
 as e.g. <a href="http://linux-gpib.sourceforge.net/">Linux-GPIB</a> or National Instruments' <a
 href="http://sine.ni.com/psp/app/doc/p/id/psp-411">NI-VISA library</a>.
 Dedicated instrument driver classes relieve the user from taking care
-for internal details and make data aquisition as easy as
+of internal details and make data aquisition as easy as
 <pre class="titleclaim">$voltage = $multimeter-&gt;get_voltage();</pre>
 </p>
 
-<p>The Lab::Measurement software stack comprises several parts that are built
+<p>The Lab::Measurement software stack consists of several parts that are built
 on top of each other. This modularization allows support for a wide range of hardware
 on different operating systems. As hardware drivers vary in API details, each 
-supported one is encapsulated into perl modules of types <i>Lab::Bus</i> and 
+supported one is encapsulated into Perl modules of types <i>Lab::Bus</i> and 
 <i>Lab::Connection</i>. Normally you won't have to care about this; at most, 
 your Instrument object (see below) gets different initialization parameters.</p>
 
@@ -54,7 +54,8 @@ measurement again?!), data plotting, and similar.</p>
 
 <p>
 While <i>Lab::Measurement</i> has built-in support for devices connected, e.g., via
-ethernet or serial port, you may want to additionally install driver backends such as
+ethernet, serial port, or the Linux USB Test&amp;Measurement kernel driver, you 
+may want to additionally install driver backends such as
 <a href="http://search.cpan.org/dist/Lab-VISA/"><i>Lab::VISA</i></a> or
 <a href="http://linux-gpib.sourceforge.net/" target="_blank"><i>LinuxGPIB</i></a>.
 </p>
@@ -62,8 +63,8 @@ ethernet or serial port, you may want to additionally install driver backends su
 <h2>Contact</h2>
 <ul>
   <li> Join the <a href="http://webchat.freenode.net/?channels=labmeasurement">
-  #labmeasurement</a> Channel on IRC </li>
-  <li> Join our <a href="https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-measurement-users">  Mailinglist </a> </li>
+  #labmeasurement</a> channel on Freenode IRC </li>
+  <li> Join our <a href="https://www-mailman.uni-regensburg.de/mailman/listinfo/lab-measurement-users"> mailing list</a></li>
 </ul>
 
 <h2>News</h2>
@@ -118,15 +119,17 @@ of <a href="backends.html">back-end specific documentation and links</a>.
 
 <h2>Status</h2>
 <p>Lab::Measurement is a the result of a full restructuring of the code of its predecessor
-Lab::VISA. Recently, Lab::XPRESS, a completely new interface providing automated measurement loops
-and much more has been added. The code is still in flux, which is why we recommend to check
-the XPRESS example scripts on the <a href="docs/index.html">documentation page</a>. Also, if you
-want to use the code, it definitely helps to get in touch with us and contribute patches.<p>
+Lab::VISA. Some time ago a new high-level interface, named Lab::XPRESS, was added. It provides for example
+automated measurement loops; check the XPRESS example scripts on the <a href="docs/index.html">documentation page</a>. 
+This has now stabilized and replaced the previous Lab::Measurement high level interface fully in our applications. Since the old
+high level interface is not being used anymore, starting with upcoming 3.600 release we
+will remove it to keep the package size maintainable. In general, if you want to use Lab::Measurement,
+it definitely helps to get in touch with us and contribute patches.<p>
 
-<p>Lab::Measurement and its predecessor Lab::VISA are currently developed and employed at <a
-href="http://www.nano.physik.uni-muenchen.de/">nanophysics group, LMU M&uuml;nchen</a> and <a
-href="http://www.physik.uni-regensburg.de/forschung/strunk/">mesoscopic physics group, Uni 
-Regensburg</a>. Users have reported further applications in academic and industrial r&amp;d 
+<p>Lab::Measurement is currently developed and employed at the <a
+href="http://www.physik.uni-regensburg.de/forschung/huettel/">carbon nanotube transport and nanomechanics 
+group, Uni Regensburg</a>. Previously it has been used at, e.g., LMU München and Weizmann Institute of Science, 
+and we have heard about further applications in industrial r&amp;d 
 environments. Feel free to try it, to hack, and to send us your improvements and bugfixes.</p>
 
 <h2>Authors and history</h2>
@@ -136,9 +139,21 @@ continued by <a href="http://www.akhuettel.de/">Andreas K.
 H&uuml;ttel</a>, Daniela Taubert, and Daniel Schr&ouml;er. Most of the documentation was
 written by Daniel Schr&ouml;er. In 2011, the code was refactored mostly by Florian Olbrich
 to include the Bus and Connection layers; subsequently the name of the entire package collection
-was changed to Lab::Measurement. David Kalok and Hermann Kraus have contributed additional code.
-Currently development, especially also concerning the new Lab::XPRESS layer, is continued by 
-Christian Butschkow, Stefan Geissler, Alexei Iankilevitch, and Alois Dirnaichner.
+was changed to Lab::Measurement. David Kalok, Hermann Kraus, and Alois Dirnaichner have contributed 
+additional code. The new Lab::XPRESS layer was contributed by  Christian Butschkow, Stefan Geissler and 
+Alexei Iankilevitch; current development is pushed ahead by Simon Reinhardt.
+</p>
+
+<h2>Acknowledgments</h2>
+<p>The continued improvement of Lab::Measurement was supported by the
+<a href="http://www.dfg.de/en/" target="_blank">Deutsche Forschungsgemeinschaft</a>
+via grants Hu 1808/1 (Emmy Noether program) and collaborative research centre 
+<a href="http://www-app.uni-regensburg.de/Fakultaeten/Physik/sfb689/" target="_blank">SFB 689</a>.
+</p>
+
+<p>
+<img src="logo-sfb689.png" height="150" alt="SFB 689 logo"> 
+<img src="logo-emmy.png" height="150" alt="Emmy Noether logo">
 </p>
 
 </body>
