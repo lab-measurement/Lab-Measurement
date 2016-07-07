@@ -2,6 +2,7 @@
 package Lab::Instrument::YokogawaGS200;
 use strict;
 use warnings;
+use 5.010;
 
 our $VERSION = '3.511';
 
@@ -9,6 +10,7 @@ use feature "switch";
 use Lab::Instrument;
 use Lab::Instrument::Source;
 use Data::Dumper;
+use Lab::SCPI;
 
 our @ISA=('Lab::Instrument::Source');
 
@@ -214,9 +216,9 @@ sub end_program{
 
 sub set_setpoint{
 	my $self=shift;
-    my ($value, $tail) = $self->_check_args( \@_, ['value'] );
+	my ($value, $tail) = $self->_check_args( \@_, ['value'] );
     my $cmd=sprintf(":SOUR:LEV $value");
-    #print "Do $cmd";
+	#print "Do $cmd";
     $self->write($cmd, {error_check=>1}, $tail);
 }
 
@@ -304,14 +306,14 @@ sub _sweep_to_level {
     my $self = shift;
     my ($target, $time, $tail) = $self->_check_args( \@_, ['points', 'time'] );
 
-			
     $self->config_sweep({points => $target, time => $time}, $tail);
 						
-	$self->program_run();
-    
+    $self->program_run($tail);
+
+    $self->wait($tail);
     my $current = $self->get_level($tail);
 		
-	my $eql=$self->get_gp_equal_level($tail);
+	my $eql=$self->get_gp_equal_level();
 
 	
 	if( abs($current-$target) > $eql ){
@@ -433,8 +435,8 @@ sub set_function {
     my $func=shift;
     
     
-    if( $func =~ /^(CURR|VOLT)$/ ){
-    	my $cmd=":SOURce:FUNCtion ".$func;
+    if (scpi_match($func, 'current|voltage')) {
+	my $cmd=":SOURce:FUNCtion ".$func;
     	#print "$cmd\n";
     	$self->write( $cmd );
     	return $self->{'device_cache'}->{'function'} = $func;	
