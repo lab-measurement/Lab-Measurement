@@ -1,7 +1,7 @@
 # Process Command Line Options (i.e. flag -d | -debug):
 package Lab::Generic::CLOptions;
 
-our $VERSION='3.511';
+our $VERSION='3.512';
 
 use Getopt::Long;
 

@@ -1,6 +1,6 @@
 package Lab::XPRESS::Data::XPRESS_dataset;
 
-our $VERSION = '3.511';
+our $VERSION = '3.512';
 
 use strict;
 use Math::Trig;

@@ -2,7 +2,7 @@
 
 
 package Lab::Exception::Base;
-our $VERSION = '3.511';
+our $VERSION = '3.512';
 
 #
 # This is for comfy optional adding of custom methods via our own exception base class later

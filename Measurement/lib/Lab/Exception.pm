@@ -2,7 +2,7 @@
 
 
 package Lab::Exception;
-our $VERSION = '3.511';
+our $VERSION = '3.512';
 
 
 #

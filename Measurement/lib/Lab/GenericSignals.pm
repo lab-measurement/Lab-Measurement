@@ -1,7 +1,7 @@
 
 package Lab::GenericSignals;
 
-our $VERSION='3.511';
+our $VERSION='3.512';
 
 $SIG{__WARN__} = sub {
 	my $message = shift;

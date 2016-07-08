@@ -1,6 +1,6 @@
 package Lab::IO::Data;
 
-our $VERSION='3.511';
+our $VERSION='3.512';
 
 sub new { 
 	my $proto = shift;

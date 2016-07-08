@@ -1,5 +1,5 @@
 package Lab::Instrument::OI_ITC503;
-our $VERSION = '3.511';
+our $VERSION = '3.512';
 
 use strict;
 use feature "switch";
