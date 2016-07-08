@@ -208,7 +208,8 @@ sub get_value {
 }
 
 sub check_sweep_config{
-	my $self = shift;
+    my $self = shift;
+    $self->_check_gate_protect();
     my ($target, $rate, $time, $tail) = $self->_check_args( \@_, ['points', 'rate', 'time'] );
 
 
@@ -402,51 +403,60 @@ sub is_me_channel{
 # or volt_per_sec / steps_per_sec is not given
 
 sub _check_gate_protect{
-	my $self =shift;
-	my $mode = shift;
-	
-	if( $self->device_settings()->{'gate_protect'}){
-	# Check if one of gp_max_units_per_second or gp_max_step_per_second is given
-	
-		my $apsec = $self->device_settings()->{gp_max_units_per_second};
-		my $apstep = $self->device_settings()->{gp_max_units_per_step};
-		my $spsec = $self->device_settings()->{gp_max_step_per_second};
-	
-		# Make sure the gate protect vars are correctly set and consistent	
-			
-		if( (!defined($apstep) || $apstep<=0 ) ) {
-			Lab::Exception::CorruptParameter->throw(error=>"To use gate protection, you have to gp_max_units_per_step (now: $apstep) to a positive, non-zero value.");
-		}
-				
-				
-		if ( (defined($apsec) && $apsec > 0) && (!defined($spsec) || $spsec < 0 )){
-			$spsec = $apsec/$apstep; 
-		}
-		elsif( (defined($spsec) && $spsec >0) && (!defined($apsec) || $apsec < 0 ) ){
-			$apsec = $spsec*$apstep;
-		}
-		elsif( (! defined($apsec) || $apsec <= 0) && (!defined($spsec) || $spsec < 0 )){
-			Lab::Exception::CorruptParameter->throw(
-			"Please supply one of either gp_max_units_per_second or gp_max_steps_per_second.");
-		}
-		else{
-			if($apsec <= $spsec*$apstep){
-				$spsec = $apsec/$apstep;
-			}
-			else{
-				$apsec	= $spsec*$apstep;
-			}
-		}
-	
-	$self->device_settings()->{gp_max_units_per_second} = $apsec;
-	$self->device_settings()->{gp_max_units_per_step} = $apstep;
-	$self->device_settings()->{gp_max_step_per_second} = $spsec;
-	
+    my $self =shift;
+    my $mode = shift;
+    my $device_settings = $self->device_settings();
+    
+    if (!$device_settings->{gate_protect}) {
+	return;
+    }
+    # Check if one of gp_max_units_per_second or gp_max_step_per_second is given
+    
+    my $apsec = $device_settings->{gp_max_units_per_second};
+    my $apstep = $device_settings->{gp_max_units_per_step};
+    my $spsec = $device_settings->{gp_max_step_per_second};
+    
+    # Make sure the gate protect vars are correctly set and consistent	
+    
+    if( (!defined($apstep) || $apstep<=0 ) ) {
+	Lab::Exception::CorruptParameter->throw(error=>"To use gate protection, you have to gp_max_units_per_step (now: $apstep) to a positive, non-zero value.");
+    }
+    
+    
+    if ( (defined($apsec) && $apsec > 0) && (!defined($spsec) || $spsec < 0 )){
+	$spsec = $apsec/$apstep; 
+    }
+    elsif( (defined($spsec) && $spsec >0) && (!defined($apsec) || $apsec < 0 ) ){
+	$apsec = $spsec*$apstep;
+    }
+    elsif( (! defined($apsec) || $apsec <= 0) && (!defined($spsec) || $spsec < 0 )){
+	Lab::Exception::CorruptParameter->throw(
+	    "Please supply one of either gp_max_units_per_second or gp_max_steps_per_second.");
+    }
+    else{
+	if($apsec <= $spsec*$apstep){
+	    $spsec = $apsec/$apstep;
 	}
-	
-	
-	
-	
+	else{
+	    $apsec	= $spsec*$apstep;
+	}
+    }
+    
+    $device_settings->{gp_max_units_per_second} = $apsec;
+    $device_settings->{gp_max_units_per_step} = $apstep;
+    $device_settings->{gp_max_step_per_second} = $spsec;
+
+    # gp_max_units and gp_min_units are mandatory
+    my $gp_max_units = $device_settings->{gp_max_units};
+    my $gp_min_units = $device_settings->{gp_min_units};
+    
+    if (not defined $gp_max_units or not defined $gp_min_units) {
+	Lab::Exception::CorruptParameter->throw("Missing gate_protect parameters for \"gp_max_units\" or \"gp_min_units\".\nYou must provide those during instrument initialization.\nIf you do not want to use the gate_protect feature,\nyou have to set gate_protect to 0.");
+    }
+    
+    if ($gp_max_units <= $gp_min_units) {
+	Lab::Exception::CorruptParameter->throw("value of \"gp_max_units\" is smaller or equal to value of \"gp_min_units\"");
+    }
 }
 
 
