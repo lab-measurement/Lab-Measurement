@@ -3,26 +3,27 @@
 use strict;
 use Lab::Instrument::Yokogawa7651;
 
-unless (@ARGV > 0) {
+unless ( @ARGV > 0 ) {
     print "Usage: $0 GPIB-address [Target-voltage]\n";
     exit;
 }
 
-my ($gpib,$goto)=@ARGV;
+my ( $gpib, $goto ) = @ARGV;
 
-my $source=new Lab::Instrument::Yokogawa7651(
-        connection_type=>'VISA_GPIB',
-        gpib_address => $gpib,
-        gpib_board=>0,
-	gate_protect=>1,
-	gp_max_units_per_second=>0.05,
-	gp_max_step_per_second=>10,
-	gp_max_units_per_step=>0.005
+my $source = new Lab::Instrument::Yokogawa7651(
+    connection_type         => 'VISA_GPIB',
+    gpib_address            => $gpib,
+    gpib_board              => 0,
+    gate_protect            => 1,
+    gp_max_units_per_second => 0.05,
+    gp_max_step_per_second  => 10,
+    gp_max_units_per_step   => 0.005
 );
 
-if (defined $goto) {
+if ( defined $goto ) {
     $source->set_voltage($goto);
-} else {
+}
+else {
     print $source->get_voltage();
 }
 

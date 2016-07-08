@@ -6,26 +6,29 @@ use Lab::Connection::VISA_RS232;
 
 ################################
 
-unless (@ARGV > 0) {
+unless ( @ARGV > 0 ) {
     print "Usage: $0 isobus-address\n";
-    print "You will have to modify this script to use the correct base connection for your setup.\n";
+    print
+"You will have to modify this script to use the correct base connection for your setup.\n";
     exit;
 }
 
-my $iba=$ARGV[0];
+my $iba = $ARGV[0];
 
 print "Querying ID of instrument at IsoBus address $iba\n";
 
-my $i=new Lab::Instrument(
-	connection_type=>'IsoBus',
-	isobus_addres => $iba,
-	base_connection=>new Lab::Conection::VISA_RS232({ 
-	        rs232_address => 1,
-	        baud_rate => 9600,
-	}),
+my $i = new Lab::Instrument(
+    connection_type => 'IsoBus',
+    isobus_addres   => $iba,
+    base_connection => new Lab::Conection::VISA_RS232(
+        {
+            rs232_address => 1,
+            baud_rate     => 9600,
+        }
+    ),
 );
 
-my $id=$i->query('*IDN?');
+my $id = $i->query('*IDN?');
 
 print "Query result: \"$id\"\n";
 

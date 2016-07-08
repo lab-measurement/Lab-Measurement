@@ -5,11 +5,9 @@ use Lab::Instrument::OI_Triton;
 
 ################################
 
-my $t=new Lab::Instrument::OI_Triton(
-	connection_type=>'Socket',
-);
+my $t = new Lab::Instrument::OI_Triton( connection_type => 'Socket', );
 
-my $temp=$t->get_temperature(7);
+my $temp = $t->get_temperature(7);
 
 print "MC temperature is $temp K\n";
 
