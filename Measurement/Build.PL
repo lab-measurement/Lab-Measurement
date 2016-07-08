@@ -39,9 +39,9 @@ my $build = Module::Build->new(
 	'lib/Lab/XPRESS/Xpression/bin/vieWx.pl' ],
     create_readme     => 0,
     dist_author       => ['Andreas K. Hüttel <mail@akhuettel.de>',
-                          'Alois Dirnaichner <alois.dirnaichner@physik.uni-r.de>',
 			  'Christian Butschkow <christian.butschkow@physik.uni-r.de>',
-			  'Stefan Geissler <stefan.geissler@physik.uni-r.de>'
+			  'Alexei Iankilevitch <alexei.iankilevitch@physik.uni-r.de>', 
+			  'Simon Reinhardt <simon.reinhardt@stud.uni-regensburg.de>'
                          ],
     meta_merge        => {
         resources       => {
