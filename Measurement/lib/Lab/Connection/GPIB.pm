@@ -21,34 +21,30 @@ use Lab::Exception;
 
 our @ISA = ("Lab::Connection");
 
-
 our %fields = (
-	bus_class => undef, # 'Lab::Bus::LinuxGPIB', 'Lab::Bus::VISA', ...
-	gpib_address	=> undef,
-	gpib_saddress => undef, # secondary address, if needed
-	brutal => 0,	# brutal as default?
-	wait_status=>0, # sec;
-	wait_query=>10e-6, # sec;
-	read_length=>1000, # bytes
+    bus_class     => undef,    # 'Lab::Bus::LinuxGPIB', 'Lab::Bus::VISA', ...
+    gpib_address  => undef,
+    gpib_saddress => undef,    # secondary address, if needed
+    brutal        => 0,        # brutal as default?
+    wait_status   => 0,        # sec;
+    wait_query    => 10e-6,    # sec;
+    read_length   => 1000,     # bytes
 );
 
-
 sub new {
-	my $proto = shift;
-	my $class = ref($proto) || $proto;
-	my $self = $class->SUPER::new(@_); # getting fields and _permitted from parent class
-	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
+    my $self =
+      $class->SUPER::new(@_);  # getting fields and _permitted from parent class
+    $self->${ \( __PACKAGE__ . '::_construct' ) }(__PACKAGE__);
 
 # 	# Parameter checking
 # 	if( !defined $self->config('gpib_address') || $self->config('gpib_address') !~ /^[0-9]*$/ ) {
 # 		Lab::Exception::CorruptParameter->throw( error => "No GPIB address specified! I can't work like this.\n" );
 # 	}
 
-	return $self;
+    return $self;
 }
-
-
-
 
 #
 # These are the method stubs you have to overwrite when implementing the GPIB connection for your
@@ -62,29 +58,29 @@ sub new {
 # 	return 0;
 # }
 
-
 # sub Write { # @_ = ( command => $cmd, wait_status => $wait_status, brutal => 1/0 )
 # 	return 0; # status true/false
 # }
-
 
 # sub Read { # @_ = ( read_length => $read_length, brutal => 1/0 )
 # 	return 0; # result
 # }
 # now comes GPIB-specific stuff
 
-sub EnableTermChar { # 0/1 off/on
-  my $self=shift;
-  my $enable=shift;
-  my $result=$self->bus()->connection_enabletermchar($self->connection_handle(), $enable);
-  return $result;
+sub EnableTermChar {    # 0/1 off/on
+    my $self   = shift;
+    my $enable = shift;
+    my $result = $self->bus()
+      ->connection_enabletermchar( $self->connection_handle(), $enable );
+    return $result;
 }
 
-sub SetTermChar { # the character as string
-  my $self=shift;
-  my $termchar=shift;
-  my $result=$self->bus()->connection_settermchar($self->connection_handle(), $termchar);
-  return $result;
+sub SetTermChar {       # the character as string
+    my $self     = shift;
+    my $termchar = shift;
+    my $result   = $self->bus()
+      ->connection_settermchar( $self->connection_handle(), $termchar );
+    return $result;
 }
 
 #
@@ -92,22 +88,20 @@ sub SetTermChar { # the character as string
 # Returns an array with index 0=>LSB, 8=>MSB of the status byte
 #
 sub serial_poll {
-	use bytes;
-	my $self=shift;
-	my $statbyte = $self->bus()->serial_poll($self->connection_handle());
-	my @stat = ();
-	
-	for (my $i=0; $i<8; $i++) {
-		$stat[$i] = 0x01 & ($statbyte >> $i);
-	}
-	return @stat;
-	#return (split(//, unpack('b*', pack('N',$self->bus()->serial_poll($self->connection_handle())))))[-8..-1];
+    use bytes;
+    my $self     = shift;
+    my $statbyte = $self->bus()->serial_poll( $self->connection_handle() );
+    my @stat     = ();
+
+    for ( my $i = 0 ; $i < 8 ; $i++ ) {
+        $stat[$i] = 0x01 & ( $statbyte >> $i );
+    }
+    return @stat;
+
+#return (split(//, unpack('b*', pack('N',$self->bus()->serial_poll($self->connection_handle())))))[-8..-1];
 }
 
-
 1;
-
-
 
 =pod
 

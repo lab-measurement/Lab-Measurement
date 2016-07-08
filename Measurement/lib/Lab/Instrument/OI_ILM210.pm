@@ -5,31 +5,27 @@ use Lab::Instrument;
 
 our @ISA = ("Lab::Instrument");
 
-our %fields = (
-	supported_connections => [ 'IsoBus' ],
-);
-
+our %fields = ( supported_connections => ['IsoBus'], );
 
 sub new {
-	my $proto = shift;
-	my $class = ref($proto) || $proto;
-	my $self = $class->SUPER::new(@_);
-	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__); 
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
+    my $self  = $class->SUPER::new(@_);
+    $self->${ \( __PACKAGE__ . '::_construct' ) }(__PACKAGE__);
 
-	return $self;
+    return $self;
 }
 
-
 sub get_level {
-  my $self = shift;
-  my $channel = shift;
-  $channel = "1" unless defined($channel);
-  
-  my $level=$self->query("R$channel");
-  $level=~s/^R//;
-  $level/=10;
-  return $level;  
-};
+    my $self    = shift;
+    my $channel = shift;
+    $channel = "1" unless defined($channel);
+
+    my $level = $self->query("R$channel");
+    $level =~ s/^R//;
+    $level /= 10;
+    return $level;
+}
 
 1;
 

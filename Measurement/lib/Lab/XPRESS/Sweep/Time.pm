@@ -7,148 +7,169 @@ use Time::HiRes qw/usleep/, qw/time/;
 use Statistics::Descriptive;
 use strict;
 
-our @ISA=('Lab::XPRESS::Sweep::Sweep');
-
-
+our @ISA = ('Lab::XPRESS::Sweep::Sweep');
 
 sub new {
     my $proto = shift;
-	my @args=@_;
-    my $class = ref($proto) || $proto; 
-	
-	# define default values for the config parameters:
-	my $self->{default_config} = {
-		id => 'Time_sweep',
-		interval	=> 1,
-		points	=>	[0], #[0,10],
-		duration	=> undef,
-		stepwidth => 1,
-		mode	=> 'continuous',
-		allowed_instruments => [undef],
-		allowed_sweep_modes => ['continuous'],
+    my @args  = @_;
+    my $class = ref($proto) || $proto;
 
-		stabilize => 0,
-		sensor => undef,
-		std_dev_sensor => 1e-6,
-		stabilize_observation_time => 3*60,
-		};
-	
-	if (ref(@args[0]->{duration}) ne "ARRAY") {
-		@args[0]->{duration} = [@args[0]->{duration}];
-	}
-	
-	foreach my $d (@{@args[0]->{duration}}) 
-			{
-			push(@{$self->{default_config}->{points}}, $d);
-			}
-	# create self from Sweep basic class:
-	$self = $class->SUPER::new($self->{default_config},@args);	
-	bless ($self, $class);
-	
-	
-	# check and adjust config values if necessary:
-	$self->check_config_paramters();
-	
-	# init mandatory parameters:		
-	$self->{DataFile_counter} = 0;	
-	$self->{DataFiles} = ();
+    # define default values for the config parameters:
+    my $self->{default_config} = {
+        id                  => 'Time_sweep',
+        interval            => 1,
+        points              => [0],              #[0,10],
+        duration            => undef,
+        stepwidth           => 1,
+        mode                => 'continuous',
+        allowed_instruments => [undef],
+        allowed_sweep_modes => ['continuous'],
 
-	$self->{stabilize}->{data} = ();
+        stabilize                  => 0,
+        sensor                     => undef,
+        std_dev_sensor             => 1e-6,
+        stabilize_observation_time => 3 * 60,
+    };
+
+    if ( ref( @args[0]->{duration} ) ne "ARRAY" ) {
+        @args[0]->{duration} = [ @args[0]->{duration} ];
+    }
+
+    foreach my $d ( @{ @args[0]->{duration} } ) {
+        push( @{ $self->{default_config}->{points} }, $d );
+    }
+
+    # create self from Sweep basic class:
+    $self = $class->SUPER::new( $self->{default_config}, @args );
+    bless( $self, $class );
+
+    # check and adjust config values if necessary:
+    $self->check_config_paramters();
+
+    # init mandatory parameters:
+    $self->{DataFile_counter} = 0;
+    $self->{DataFiles}        = ();
+
+    $self->{stabilize}->{data} = ();
 
     return $self;
 }
 
 sub check_config_paramters {
-	my $self = shift;
-	
-		
-	# No Backsweep allowed; adjust number of Repetitions if Backsweep is 1:
-	if ( $self->{config}->{backsweep} == 1 )
-		{
-		$self->{config}->{repetitions} /= 2;
-		$self->{config}->{backsweep} = 0;
-		}
-	
-	# Set loop-Interval to Measurement-Interval:
-	$self->{loop}->{interval} = $self->{config}->{interval};
+    my $self = shift;
 
-	# check correct initialization of stabilize
-	if ($self->{config}->{stabilize} == 1) {
-		if (not defined $self->{config}->{sensor}) {
-			$self->out_error('Stabilization activated, but no sensor defined!');
-		}
-		#elsif ($self->{config}->{sensor}->can('isa') and not $self->{config}->{sensor}->can('get_value')) {
-		#	$self->out_error('The defined sensor has no get_value routine, which is needed for stabilization. Is the sensor object a LM instrument?');
-		#}
-	}
+    # No Backsweep allowed; adjust number of Repetitions if Backsweep is 1:
+    if ( $self->{config}->{backsweep} == 1 ) {
+        $self->{config}->{repetitions} /= 2;
+        $self->{config}->{backsweep} = 0;
+    }
+
+    # Set loop-Interval to Measurement-Interval:
+    $self->{loop}->{interval} = $self->{config}->{interval};
+
+    # check correct initialization of stabilize
+    if ( $self->{config}->{stabilize} == 1 ) {
+        if ( not defined $self->{config}->{sensor} ) {
+            $self->out_error('Stabilization activated, but no sensor defined!');
+        }
+
+#elsif ($self->{config}->{sensor}->can('isa') and not $self->{config}->{sensor}->can('get_value')) {
+#	$self->out_error('The defined sensor has no get_value routine, which is needed for stabilization. Is the sensor object a LM instrument?');
+#}
+    }
 
 }
 
 sub exit_loop {
-	my $self = shift;
+    my $self = shift;
 
-	if ( @{$self->{config}->{points}}[$self->{sequence}] > 0 and $self->{iterator} >= (@{$self->{config}->{points}}[$self->{sequence}]/@{$self->{config}->{interval}}[$self->{sequence}]) )
-		{
-		if (not defined @{$self->{config}->{points}}[$self->{sequence}+1])
-			{
-			if ($self->{config}->{stabilize} == 1) {
-				$self->out_message({sticky => {id => $self.'_stab_status', cmd => 'finish'}});
-				$self->out_message('Reached maximum stabilization time.');
-			}
-			return 1;
-			}
+    if (
+        @{ $self->{config}->{points} }[ $self->{sequence} ] > 0
+        and $self->{iterator} >= (
+            @{ $self->{config}->{points} }[ $self->{sequence} ] /
+              @{ $self->{config}->{interval} }[ $self->{sequence} ]
+        )
+      )
+    {
+        if (
+            not defined @{ $self->{config}->{points} }[ $self->{sequence} + 1 ]
+          )
+        {
+            if ( $self->{config}->{stabilize} == 1 ) {
+                $self->out_message(
+                    {
+                        sticky =>
+                          { id => $self . '_stab_status', cmd => 'finish' }
+                    }
+                );
+                $self->out_message('Reached maximum stabilization time.');
+            }
+            return 1;
+        }
 
-		$self->{iterator} = 0;
-		$self->{sequence} ++;
-		return 0;
-		}
-	elsif ($self->{config}->{stabilize} == 1) {
-		push(@{$self->{stabilize}->{data}}, $self->{config}->{sensor}->get_value());
-		
-		my $SENSOR_STD_DEV_PRINT = '-'x10;
-		
-		if ($self->{Time} >= $self->{config}->{stabilize_observation_time}) {
-			shift(@{$self->{stabilize}->{data}});
+        $self->{iterator} = 0;
+        $self->{sequence}++;
+        return 0;
+    }
+    elsif ( $self->{config}->{stabilize} == 1 ) {
+        push(
+            @{ $self->{stabilize}->{data} },
+            $self->{config}->{sensor}->get_value()
+        );
 
-			my $stat = Statistics::Descriptive::Full->new();
-			$stat->add_data($self->{stabilize}->{data});
-			my $SENSOR_STD_DEV = $stat->standard_deviation();
-			$SENSOR_STD_DEV_PRINT = sprintf('%.3e', $SENSOR_STD_DEV);
-			
-			if ($SENSOR_STD_DEV <= $self->{config}->{std_dev_sensor}) {
-				$self->out_message({sticky => {id => $self.'_stab_status', cmd => 'finish'}});
-				$self->out_message('Reached stabilization criterion.');
-				return 1;
-			}
-		}
-		
-		my $status = "ELAPSED: ".sprintf('%.2f',$self->{Time})." / CURRENT_STDD: ".$SENSOR_STD_DEV_PRINT." / TARGET_STDD: ".sprintf('%.3e', $self->{config}->{std_dev_sensor});
-		$self->out_message({msg => $status, sticky => {id => $self.'_stab_status'}});
-	}
-	else
-		{
-		return 0;
-		}
+        my $SENSOR_STD_DEV_PRINT = '-' x 10;
+
+        if ( $self->{Time} >= $self->{config}->{stabilize_observation_time} ) {
+            shift( @{ $self->{stabilize}->{data} } );
+
+            my $stat = Statistics::Descriptive::Full->new();
+            $stat->add_data( $self->{stabilize}->{data} );
+            my $SENSOR_STD_DEV = $stat->standard_deviation();
+            $SENSOR_STD_DEV_PRINT = sprintf( '%.3e', $SENSOR_STD_DEV );
+
+            if ( $SENSOR_STD_DEV <= $self->{config}->{std_dev_sensor} ) {
+                $self->out_message(
+                    {
+                        sticky =>
+                          { id => $self . '_stab_status', cmd => 'finish' }
+                    }
+                );
+                $self->out_message('Reached stabilization criterion.');
+                return 1;
+            }
+        }
+
+        my $status =
+            "ELAPSED: "
+          . sprintf( '%.2f', $self->{Time} )
+          . " / CURRENT_STDD: "
+          . $SENSOR_STD_DEV_PRINT
+          . " / TARGET_STDD: "
+          . sprintf( '%.3e', $self->{config}->{std_dev_sensor} );
+        $self->out_message(
+            { msg => $status, sticky => { id => $self . '_stab_status' } } );
+    }
+    else {
+        return 0;
+    }
 }
 
 sub get_value {
-	my $self = shift;
-	return $self->{Time};
+    my $self = shift;
+    return $self->{Time};
 }
 
 sub go_to_sweep_start {
-	my $self = shift;
-	
-	$self->{sequence} ++;
-	}
-	
-sub halt {
-	return shift;
+    my $self = shift;
+
+    $self->{sequence}++;
 }
 
+sub halt {
+    return shift;
+}
 
 1;
-
 
 =encoding utf8
 

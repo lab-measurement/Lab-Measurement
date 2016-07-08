@@ -12,519 +12,524 @@ use Lab::Instrument::Source;
 use Data::Dumper;
 use Lab::SCPI;
 
-our @ISA=('Lab::Instrument::Source');
+our @ISA = ('Lab::Instrument::Source');
 
 our %fields = (
-	supported_connections => [ 'VISA_GPIB', 'GPIB', 'VISA' ],
+    supported_connections => [ 'VISA_GPIB', 'GPIB', 'VISA' ],
 
-	# default settings for the supported connections
-	connection_settings => {
-		gpib_board => 0,
-		gpib_address => 22,
-	},
+    # default settings for the supported connections
+    connection_settings => {
+        gpib_board   => 0,
+        gpib_address => 22,
+    },
 
+    device_settings => {
 
-	device_settings => {
-	
-		gate_protect            => 1,
-		gp_equal_level          => 1e-5,
-		gp_max_units_per_second  => 0.05,
-		gp_max_units_per_step    => 0.005,
-		gp_max_step_per_second  => 10,
-		
-		stepsize		=> 0.01,  # default stepsize for sweep without gate protect
-	
-	 
-		max_sweep_time=>3600,
-		min_sweep_time=>0.1,
-	},
-	
-	# If class does not provide set_$var for those, AUTOLOAD will take care.
-	device_cache => {
-		function			=> undef,
-		range			=> undef,
-		level			=> undef,
-		output					=> undef,
-	},
-	
-	device_cache_order => ['function','range'],
-	request => 0
+        gate_protect            => 1,
+        gp_equal_level          => 1e-5,
+        gp_max_units_per_second => 0.05,
+        gp_max_units_per_step   => 0.005,
+        gp_max_step_per_second  => 10,
+
+        stepsize => 0.01,    # default stepsize for sweep without gate protect
+
+        max_sweep_time => 3600,
+        min_sweep_time => 0.1,
+    },
+
+    # If class does not provide set_$var for those, AUTOLOAD will take care.
+    device_cache => {
+        function => undef,
+        range    => undef,
+        level    => undef,
+        output   => undef,
+    },
+
+    device_cache_order => [ 'function', 'range' ],
+    request            => 0
 );
 
 sub new {
-	my $proto = shift;
-	my $class = ref($proto) || $proto;
-	my $self = $class->SUPER::new(@_);
-	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
+    my $self  = $class->SUPER::new(@_);
+    $self->${ \( __PACKAGE__ . '::_construct' ) }(__PACKAGE__);
 
-	$self->configure($self->config());
-    
+    $self->configure( $self->config() );
+
     return $self;
 }
 
-
-
 sub set_voltage {
-    my $self=shift;
-    my $voltage=shift;
-    
-    my $function = $self->get_function({read_mode => 'cache'});
+    my $self    = shift;
+    my $voltage = shift;
 
-    if($function ne 'VOLT'){
-    	Lab::Exception::CorruptParameter->throw(
-    	error=>"Source is in mode $function. Can't set voltage level.");
+    my $function = $self->get_function( { read_mode => 'cache' } );
+
+    if ( $function ne 'VOLT' ) {
+        Lab::Exception::CorruptParameter->throw(
+            error => "Source is in mode $function. Can't set voltage level." );
     }
-    
-    
-    return $self->set_level($voltage, @_);
+
+    return $self->set_level( $voltage, @_ );
 }
 
 sub set_voltage_auto {
-    my $self=shift;
-    my $voltage=shift;
-    
+    my $self    = shift;
+    my $voltage = shift;
+
     my $function = $self->get_function();
 
-    if($function ne 'VOLT'){
-    	Lab::Exception::CorruptParameter->throw(
-    	error=>"Source is in mode $function. Can't set voltage level.");
+    if ( $function ne 'VOLT' ) {
+        Lab::Exception::CorruptParameter->throw(
+            error => "Source is in mode $function. Can't set voltage level." );
     }
-    
-    if( abs($voltage) > 32.){
-    	Lab::Exception::CorruptParameter->throw(
-    	error=>"Source is not capable of voltage level > 32V. Can't set voltage level.");
+
+    if ( abs($voltage) > 32. ) {
+        Lab::Exception::CorruptParameter->throw( error =>
+"Source is not capable of voltage level > 32V. Can't set voltage level."
+        );
     }
-    
-    $self->set_level_auto($voltage, @_);
+
+    $self->set_level_auto( $voltage, @_ );
 }
 
 sub set_current_auto {
-    my $self=shift;
-    my $current=shift;
-    
+    my $self    = shift;
+    my $current = shift;
+
     my $function = $self->get_function();
 
-    if($function ne 'CURR'){
-    	Lab::Exception::CorruptParameter->throw(
-    	error=>"Source is in mode $function. Can't set current level.");
+    if ( $function ne 'CURR' ) {
+        Lab::Exception::CorruptParameter->throw(
+            error => "Source is in mode $function. Can't set current level." );
     }
-    
-    if( abs($current) > 0.200){
-    	Lab::Exception::CorruptParameter->throw(
-    	error=>"Source is not capable of current level > 200mA. Can't set current level.");
+
+    if ( abs($current) > 0.200 ) {
+        Lab::Exception::CorruptParameter->throw( error =>
+"Source is not capable of current level > 200mA. Can't set current level."
+        );
     }
-    
-    $self->set_level_auto($current, @_);
+
+    $self->set_level_auto( $current, @_ );
 }
 
 sub set_current {
-    my $self=shift;
-    my $current=shift;
+    my $self    = shift;
+    my $current = shift;
 
-	my $function = $self->get_function();
+    my $function = $self->get_function();
 
-    if($self->get_function() ne 'CURR'){
-    	Lab::Exception::CorruptParameter->throw(
-    	error=>"Source is in mode $function. Can't set current level.");
+    if ( $self->get_function() ne 'CURR' ) {
+        Lab::Exception::CorruptParameter->throw(
+            error => "Source is in mode $function. Can't set current level." );
     }
 
-    $self->set_level($current, @_);
+    $self->set_level( $current, @_ );
 }
 
 sub _set_level {
-    my $self=shift;
-    my $value=shift;
+    my $self     = shift;
+    my $value    = shift;
     my $srcrange = $self->get_range();
-    
-    (my $dec, my $exp) = ($srcrange =~ m/(^\d+)E([-\+]\d+)$/);
-        
+
+    ( my $dec, my $exp ) = ( $srcrange =~ m/(^\d+)E([-\+]\d+)$/ );
+
     $srcrange = eval("$dec*10**$exp+2*$dec*10**($exp-1)");
-        
-    if( abs($value) <= $srcrange ){
-    	my $cmd=sprintf(":SOURce:LEVel %f",$value);
-    	#print $cmd;
-		$self->write( $cmd );
-		return $self->{'device_cache'}->{'level'} = $value;
+
+    if ( abs($value) <= $srcrange ) {
+        my $cmd = sprintf( ":SOURce:LEVel %f", $value );
+
+        #print $cmd;
+        $self->write($cmd);
+        return $self->{'device_cache'}->{'level'} = $value;
     }
-    else{
-    	Lab::Exception::CorruptParameter->throw(
-    	error=>"Level $value is out of curren range $srcrange.");
+    else {
+        Lab::Exception::CorruptParameter->throw(
+            error => "Level $value is out of curren range $srcrange." );
     }
-	
-	
+
 }
 
 sub set_level_auto {
-    my $self=shift;
-    my $value=shift;
-    
-    my $cmd=sprintf(":SOURce:LEVel:AUTO %e",$value);
-	
-	$self->write( $cmd );
-	
-	$self->{'device_cache'}->{'range'} = $self->get_range( from_device => 1 );
+    my $self  = shift;
+    my $value = shift;
+
+    my $cmd = sprintf( ":SOURce:LEVel:AUTO %e", $value );
+
+    $self->write($cmd);
+
+    $self->{'device_cache'}->{'range'} = $self->get_range( from_device => 1 );
 
     return $self->{'device_cache'}->{'level'} = $value;
-	
+
 }
 
-
-
 sub program_run {
-    my $self=shift;
-    my ($tail) = $self->_check_args( \@_);
-       
+    my $self = shift;
+    my ($tail) = $self->_check_args( \@_ );
+
     print "Run program\n";
-    $self->write(":PROG:RUN",$tail);
-    
+    $self->write( ":PROG:RUN", $tail );
+
 }
 
 sub program_pause {
-    my $self=shift;   
-    
-    my $cmd=sprintf(":PROGram:PAUSe");
-	$self->write( "$cmd" );
+    my $self = shift;
+
+    my $cmd = sprintf(":PROGram:PAUSe");
+    $self->write("$cmd");
 }
+
 sub program_continue {
-    my $self=shift;
-    my $value=shift;
-    my $cmd=sprintf(":PROGram:CONTinue");
-	$self->write( "$cmd" );
-    
+    my $self  = shift;
+    my $value = shift;
+    my $cmd   = sprintf(":PROGram:CONTinue");
+    $self->write("$cmd");
+
 }
 
 sub program_halt {
-    my $self=shift;
-    my ($tail) = $self->_check_args( \@_);
-    
-    $self->write( ":PROG:HALT",$tail);
-}
-
-sub start_program{
-	my $self = shift;
-	my ($tail) = $self->_check_args( \@_);
-	#print "Start program\n";
-	$self->write(":PROG:EDIT:START",$tail);
-}
-
-sub end_program{
-	my $self = shift;
-	my ($tail) = $self->_check_args( \@_);
-	#print "End program\n";
-	$self->write(":PROG:EDIT:END",$tail);
-}
-
-sub set_setpoint{
-	my $self=shift;
-	my ($value, $tail) = $self->_check_args( \@_, ['value'] );
-    my $cmd=sprintf(":SOUR:LEV $value");
-	#print "Do $cmd";
-    $self->write($cmd, {error_check=>1}, $tail);
-}
-
-sub config_sweep{
     my $self = shift;
-    my ($start, $target, $duration,$sections ,$tail) = $self->check_sweep_config(@_);
-    
-    $self->write(":PROG:REP 0",$tail);
-    $self->write("*CLS",$tail);
-    $self->set_output(1,$tail);
-    
+    my ($tail) = $self->_check_args( \@_ );
+
+    $self->write( ":PROG:HALT", $tail );
+}
+
+sub start_program {
+    my $self = shift;
+    my ($tail) = $self->_check_args( \@_ );
+
+    #print "Start program\n";
+    $self->write( ":PROG:EDIT:START", $tail );
+}
+
+sub end_program {
+    my $self = shift;
+    my ($tail) = $self->_check_args( \@_ );
+
+    #print "End program\n";
+    $self->write( ":PROG:EDIT:END", $tail );
+}
+
+sub set_setpoint {
+    my $self = shift;
+    my ( $value, $tail ) = $self->_check_args( \@_, ['value'] );
+    my $cmd = sprintf(":SOUR:LEV $value");
+
+    #print "Do $cmd";
+    $self->write( $cmd, { error_check => 1 }, $tail );
+}
+
+sub config_sweep {
+    my $self = shift;
+    my ( $start, $target, $duration, $sections, $tail ) =
+      $self->check_sweep_config(@_);
+
+    $self->write( ":PROG:REP 0", $tail );
+    $self->write( "*CLS",        $tail );
+    $self->set_output( 1, $tail );
+
     $self->start_program($tail);
-    #print "Program:\n";        
-    for (my $i = 1; $i <= $sections; $i++)
-            {
-            $self->set_setpoint($start+($target-$start)/$sections*$i);
-            printf "setpoint: %+.4e\n",$start+($target-$start)/$sections*$i
-            }
+
+    #print "Program:\n";
+    for ( my $i = 1 ; $i <= $sections ; $i++ ) {
+        $self->set_setpoint( $start + ( $target - $start ) / $sections * $i );
+        printf "setpoint: %+.4e\n",
+          $start + ( $target - $start ) / $sections * $i;
+    }
     $self->end_program($tail);
-    
-    $self->set_time($duration,$duration,$tail);
-    
-	
+
+    $self->set_time( $duration, $duration, $tail );
+
 }
 
-sub set_time { # internal use only
-    my $self=shift;
-    my ($sweep_time,$interval_time,$tail) = $self->_check_args( \@_, ['sweep_time','interval_time'] );
-        if ($sweep_time<$self->device_settings()->{min_sweep_time}) {
-        print Lab::Exception::CorruptParameter->new( error=>  " Sweep Time: $sweep_time smaller than $self->device_settings()->{min_sweep_time} sec!\n Sweep time set to $self->device_settings()->{min_sweep_time} sec");
-        $sweep_time=$self->device_settings()->{min_sweep_time}}
-    elsif ($sweep_time>$self->device_settings()->{max_sweep_time}) {
-        print Lab::Exception::CorruptParameter->new( error=>  " Sweep Time: $sweep_time> $self->device_settings()->{max_sweep_time} sec!\n Sweep time set to $self->device_settings()->{max_sweep_time} sec");
-        $sweep_time=$self->device_settings()->{max_sweep_time}
-    };
-    if ($interval_time<$self->device_settings()->{min_sweep_time}) {
-        print Lab::Exception::CorruptParameter->new( error=>  " Interval Time: $interval_time smaller than $self->device_settings()->{min_sweep_time} sec!\n Interval time set to $self->device_settings()->{min_sweep_time} sec");
-        $interval_time=$self->device_settings()->{min_sweep_time}}
-    elsif ($interval_time>$self->device_settings()->{max_sweep_time}) {
-        print Lab::Exception::CorruptParameter->new( error=>  " Interval Time: $interval_time> $self->device_settings()->{max_sweep_time} sec!\n Interval time set to $self->device_settings()->{max_sweep_time} sec");
-        $interval_time=$self->device_settings()->{max_sweep_time}
-    };
-    $self->write(":PROG:SLOP $sweep_time",$tail);
-    $self->write(":PROG:INT $interval_time",$tail);
-    
+sub set_time {    # internal use only
+    my $self = shift;
+    my ( $sweep_time, $interval_time, $tail ) =
+      $self->_check_args( \@_, [ 'sweep_time', 'interval_time' ] );
+    if ( $sweep_time < $self->device_settings()->{min_sweep_time} ) {
+        print Lab::Exception::CorruptParameter->new( error =>
+" Sweep Time: $sweep_time smaller than $self->device_settings()->{min_sweep_time} sec!\n Sweep time set to $self->device_settings()->{min_sweep_time} sec"
+        );
+        $sweep_time = $self->device_settings()->{min_sweep_time};
+    }
+    elsif ( $sweep_time > $self->device_settings()->{max_sweep_time} ) {
+        print Lab::Exception::CorruptParameter->new( error =>
+" Sweep Time: $sweep_time> $self->device_settings()->{max_sweep_time} sec!\n Sweep time set to $self->device_settings()->{max_sweep_time} sec"
+        );
+        $sweep_time = $self->device_settings()->{max_sweep_time};
+    }
+    if ( $interval_time < $self->device_settings()->{min_sweep_time} ) {
+        print Lab::Exception::CorruptParameter->new( error =>
+" Interval Time: $interval_time smaller than $self->device_settings()->{min_sweep_time} sec!\n Interval time set to $self->device_settings()->{min_sweep_time} sec"
+        );
+        $interval_time = $self->device_settings()->{min_sweep_time};
+    }
+    elsif ( $interval_time > $self->device_settings()->{max_sweep_time} ) {
+        print Lab::Exception::CorruptParameter->new( error =>
+" Interval Time: $interval_time> $self->device_settings()->{max_sweep_time} sec!\n Interval time set to $self->device_settings()->{max_sweep_time} sec"
+        );
+        $interval_time = $self->device_settings()->{max_sweep_time};
+    }
+    $self->write( ":PROG:SLOP $sweep_time",   $tail );
+    $self->write( ":PROG:INT $interval_time", $tail );
+
 }
 
-sub wait{
-	my $self = shift;
-    my ($tail) = $self->_check_args( \@_);
-    my $flag = 1;
+sub wait {
+    my $self   = shift;
+    my ($tail) = $self->_check_args( \@_ );
+    my $flag   = 1;
     local $| = 1;
-    
-    
-    while(1)
-        {
-        #my $status = $self->get_status();
-        
-		my $current_level = $self->get_level({read_mode => 'device'},$tail);
-        if ( $flag <= 1.1 and $flag >= 0.9 )
-            {
-            print "\t\t\t\t\t\t\t\t\t\r";
-            print $self->get_id()." is sweeping ($current_level )\r";
 
-            }
-        elsif ( $flag <= 0 )
-            {
+    while (1) {
+
+        #my $status = $self->get_status();
+
+        my $current_level =
+          $self->get_level( { read_mode => 'device' }, $tail );
+        if ( $flag <= 1.1 and $flag >= 0.9 ) {
             print "\t\t\t\t\t\t\t\t\t\r";
-            print $self->get_id()." is          ($current_level ) \r";
+            print $self->get_id() . " is sweeping ($current_level )\r";
+
+        }
+        elsif ( $flag <= 0 ) {
+            print "\t\t\t\t\t\t\t\t\t\r";
+            print $self->get_id() . " is          ($current_level ) \r";
             $flag = 2;
-            }
+        }
         $flag -= 0.5;
-        
-        if ($self->active($tail) == 0) 
-            {
+
+        if ( $self->active($tail) == 0 ) {
             print "\t\t\t\t\t\t\t\t\t\r";
             $| = 0;
             last;
-            }
         }
-	
+    }
+
 }
 
 sub _sweep_to_level {
     my $self = shift;
-    my ($target, $time, $tail) = $self->_check_args( \@_, ['points', 'time'] );
+    my ( $target, $time, $tail ) =
+      $self->_check_args( \@_, [ 'points', 'time' ] );
 
-    $self->config_sweep({points => $target, time => $time}, $tail);
-						
+    $self->config_sweep( { points => $target, time => $time }, $tail );
+
     $self->program_run($tail);
 
     $self->wait($tail);
     my $current = $self->get_level($tail);
-		
-	my $eql=$self->get_gp_equal_level();
 
-	
-	if( abs($current-$target) > $eql ){
-		print "YokogawaGS200.pm: error current neq target\n";
-    	Lab::Exception::CorruptParameter->throw(
-    	"Sweep failed: $target not equal to $current. \n")
+    my $eql = $self->get_gp_equal_level();
+
+    if ( abs( $current - $target ) > $eql ) {
+        print "YokogawaGS200.pm: error current neq target\n";
+        Lab::Exception::CorruptParameter->throw(
+            "Sweep failed: $target not equal to $current. \n");
     }
-    
+
     $self->{'device_cache'}->{'level'} = $target;
-    
+
     return $target;
 }
 
-sub trg {   
+sub trg {
     my $self = shift;
-    my ($tail) = $self->_check_args( \@_);
-    $self->write("*CLS",$tail);
+    my ($tail) = $self->_check_args( \@_ );
+    $self->write( "*CLS", $tail );
     $self->program_run($tail);
 }
 
-sub abort{  
-    my $self=shift;
-    my ($tail) = $self->_check_args( \@_);
+sub abort {
+    my $self = shift;
+    my ($tail) = $self->_check_args( \@_ );
     $self->program_halt($tail);
 }
 
 sub get_voltage {
-    my $self=shift;
+    my $self = shift;
 
-	my $function = $self->get_function();
+    my $function = $self->get_function();
 
-    if(! $function eq 'VOLT'){
-    	Lab::Exception::CorruptParameter->throw(
-    	error=>"Source is in mode $function. Can't get voltage level.");
+    if ( !$function eq 'VOLT' ) {
+        Lab::Exception::CorruptParameter->throw(
+            error => "Source is in mode $function. Can't get voltage level." );
     }
 
     return $self->get_level(@_);
 }
 
-sub active {    
+sub active {
     my $self = shift;
-    my ($tail) = $self->_check_args( \@_);
-    
-    $self->write("STAT:ENAB 128",$tail);
-    if($self->get_status("EES", $tail) == 1){
-    	return 0;
+    my ($tail) = $self->_check_args( \@_ );
+
+    $self->write( "STAT:ENAB 128", $tail );
+    if ( $self->get_status( "EES", $tail ) == 1 ) {
+        return 0;
     }
-    else{
-    	return 1;
-    }     
+    else {
+        return 1;
+    }
 
 }
 
-sub get_status{
-	my $self=shift;
-    my ($request,$tail) = $self->_check_args( \@_, ['request']);
-    
+sub get_status {
+    my $self = shift;
+    my ( $request, $tail ) = $self->_check_args( \@_, ['request'] );
+
     # The status byte is read
-    
-    my $status=int($self->query('*STB?',$tail));
+
+    my $status = int( $self->query( '*STB?', $tail ) );
+
     #printf "Status: %i",$status;
-    
-    my @flags=qw/NONE EES ESB MAV NONE EAV MSS NONE/;
+
+    my @flags  = qw/NONE EES ESB MAV NONE EAV MSS NONE/;
     my $result = {};
-    for (0..7) {
-        $result->{$flags[$_]}=$status & 1;
-        $status>>=1;
+    for ( 0 .. 7 ) {
+        $result->{ $flags[$_] } = $status & 1;
+        $status >>= 1;
     }
+
     #print "EOP: $result->{'EOP'}\n";
     return $result->{$request} if defined $request;
     return $result;
-	
-	
+
 }
 
 sub get_current {
-    my $self=shift;
-    
+    my $self = shift;
+
     my $function = $self->get_function();
-    
-    if(!$self->get_function() eq 'CURR'){
-    	Lab::Exception::CorruptParameter->throw(
-    	error=>"Source is in mode $function. Can't get current level.");
+
+    if ( !$self->get_function() eq 'CURR' ) {
+        Lab::Exception::CorruptParameter->throw(
+            error => "Source is in mode $function. Can't get current level." );
     }
-   	
+
     return $self->get_level(@_);
 }
 
 sub get_level {
-	my $self = shift;
-    my ($tail) = $self->_check_args(\@_);
-    my $cmd = ":SOUR:LEV?";
+    my $self   = shift;
+    my ($tail) = $self->_check_args( \@_ );
+    my $cmd    = ":SOUR:LEV?";
 
-	return $self->request($cmd,$tail);
+    return $self->request( $cmd, $tail );
 }
 
-sub get_function{
-	my $self=shift;	
-    my ($tail) = $self->_check_args(\@_);	
-	
-   	my $cmd=":SOURce:FUNCtion?";
-   	return $self->query($cmd, $tail);
+sub get_function {
+    my $self = shift;
+    my ($tail) = $self->_check_args( \@_ );
+
+    my $cmd = ":SOURce:FUNCtion?";
+    return $self->query( $cmd, $tail );
 }
 
+sub get_range {
+    my $self = shift;
+    my ($tail) = $self->_check_args( \@_ );
 
-sub get_range{
-	my $self = shift;
-    my ($tail) = $self->_check_args(\@_);	
-	
     my $cmd = ":SOUR:RANG?";
-	return $self->query($cmd,$tail);
-			
+    return $self->query( $cmd, $tail );
+
 }
-
-
 
 sub set_function {
-    my $self=shift;
-    my $func=shift;
-    
-    
-    if (scpi_match($func, 'current|voltage')) {
-	my $cmd=":SOURce:FUNCtion ".$func;
-    	#print "$cmd\n";
-    	$self->write( $cmd );
-    	return $self->{'device_cache'}->{'function'} = $func;	
-    }
-    else{
-    	Lab::Exception::CorruptParameter->throw( error=>"source function $func not defined for this device.\n" ); 
-    }    
-            
-}
+    my $self = shift;
+    my $func = shift;
 
+    if ( scpi_match( $func, 'current|voltage' ) ) {
+        my $cmd = ":SOURce:FUNCtion " . $func;
+
+        #print "$cmd\n";
+        $self->write($cmd);
+        return $self->{'device_cache'}->{'function'} = $func;
+    }
+    else {
+        Lab::Exception::CorruptParameter->throw(
+            error => "source function $func not defined for this device.\n" );
+    }
+
+}
 
 sub set_range {
-    my $self=shift;
-    my $range=shift;
+    my $self  = shift;
+    my $range = shift;
 
-    
     my $srcf = $self->get_function();
-    
-	$self->write("SOURce:RANGe $range", error_check => 1);
-    return $self->{'device_cache'}->{'range'} = $self->get_range( from_device => 1);
-    		
+
+    $self->write( "SOURce:RANGe $range", error_check => 1 );
+    return $self->{'device_cache'}->{'range'} =
+      $self->get_range( from_device => 1 );
+
 }
 
-
-    
 sub set_output {
-    my $self=shift;
+    my $self  = shift;
     my $value = shift;
-    
-    if( $value =~ /(on|1)/i){
-    	$value = 1 ;
+
+    if ( $value =~ /(on|1)/i ) {
+        $value = 1;
     }
-    elsif( $value =~ /(off|0)/i){
-    	$value = 0;
+    elsif ( $value =~ /(off|0)/i ) {
+        $value = 0;
     }
-    else{
-    	Lab::Exception::CorruptParameter->throw(
-    			error=>"set_output accepts only on or off (case non-sensitive) and 1 or 0. $value is not valid.");
+    else {
+        Lab::Exception::CorruptParameter->throw( error =>
+"set_output accepts only on or off (case non-sensitive) and 1 or 0. $value is not valid."
+        );
     }
-    
-    return $self->{"device_cache"}->{"output"} = $self->write( ":OUTP $value" );
+
+    return $self->{"device_cache"}->{"output"} = $self->write(":OUTP $value");
 }
 
 sub get_output {
-    my $self=shift;
-    my ($tail) = $self->_check_args(\@_);	
-    
-    return $self->query(":OUTP?",$tail);
+    my $self = shift;
+    my ($tail) = $self->_check_args( \@_ );
+
+    return $self->query( ":OUTP?", $tail );
 }
 
-
 sub set_voltage_limit {
-    my $self=shift;
-    my $value=shift;
-    my $cmd = ":SOURce:PROTection:VOLTage $value";
-    
-    if($value > 30. || $value < 1. ){
-    	Lab::Exception::CorruptParameter->throw( error=>"The voltage limit $value is not within the allowed range.\n" );
+    my $self  = shift;
+    my $value = shift;
+    my $cmd   = ":SOURce:PROTection:VOLTage $value";
+
+    if ( $value > 30. || $value < 1. ) {
+        Lab::Exception::CorruptParameter->throw( error =>
+              "The voltage limit $value is not within the allowed range.\n" );
     }
-    
-    $self->connection()->write( $cmd );
-    
+
+    $self->connection()->write($cmd);
+
     return $self->device_cache()->{'voltage_limit'} = $value;
-    
+
 }
 
 sub set_current_limit {
-    my $self=shift;
-    my $value=shift;
-    my $cmd = ":SOURce:PROTection:CURRent $value";
-    
-    if($value > 0.2 || $value < 0.001 ){
-    	Lab::Exception::CorruptParameter->throw( error=>"The current limit $value is not within the allowed range.\n" );
+    my $self  = shift;
+    my $value = shift;
+    my $cmd   = ":SOURce:PROTection:CURRent $value";
+
+    if ( $value > 0.2 || $value < 0.001 ) {
+        Lab::Exception::CorruptParameter->throw( error =>
+              "The current limit $value is not within the allowed range.\n" );
     }
-    
-    $self->connection()->write( $cmd );
-    
+
+    $self->connection()->write($cmd);
+
     return $self->device_cache()->{'current_limit'} = $value;
-    
+
 }
 
+sub get_error {
+    my $self = shift;
 
-sub get_error{
-	my $self=shift;
-	
-	my $cmd = ":SYSTem:ERRor?";
-	
-	return $self->query( $cmd );
+    my $cmd = ":SYSTem:ERRor?";
+
+    return $self->query($cmd);
 }
 
 1;

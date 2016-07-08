@@ -1,7 +1,7 @@
 # Handle to replace STDERR (routes messages on STDERR to ERROR channel):
 package Lab::GenericIO::STDerrHandle;
 
-our $VERSION='3.512';
+our $VERSION = '3.512';
 
 use Symbol qw<geniosym>;
 
@@ -10,22 +10,22 @@ use base qw<Tie::Handle>;
 sub TIEHANDLE { return bless geniosym, __PACKAGE__ }
 
 sub PRINT {
-	$DB::single = 1;	
+    $DB::single = 1;
 
-	shift;
-	my $string = join("", @_);
+    shift;
+    my $string = join( "", @_ );
 
-	Lab::GenericIO::channel_write("ERROR", undef, $string);
+    Lab::GenericIO::channel_write( "ERROR", undef, $string );
 }
 
 sub PRINTF {
 
-	shift;
-	my $format = shift;
+    shift;
+    my $format = shift;
 
-	my $string = sprintf "$format", @_;
+    my $string = sprintf "$format", @_;
 
-	Lab::GenericIO::channel_write("ERROR", undef, $string);
+    Lab::GenericIO::channel_write( "ERROR", undef, $string );
 }
 
 1;

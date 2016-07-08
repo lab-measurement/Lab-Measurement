@@ -9,23 +9,24 @@ use Exporter 'import';
 our @EXPORT = qw/get_gpib_connection_type relative_error float_equal/;
 
 sub get_gpib_connection_type {
-	if ($^O eq 'MSWin32') {
-		return 'VISA_GPIB';
-	}
-	else {
-		return 'LinuxGPIB';
-	}
+    if ( $^O eq 'MSWin32' ) {
+        return 'VISA_GPIB';
+    }
+    else {
+        return 'LinuxGPIB';
+    }
 }
 
 sub relative_error {
-	my $a = shift;
-	my $b = shift;
-	return abs(($b - $a) / $b);
+    my $a = shift;
+    my $b = shift;
+    return abs( ( $b - $a ) / $b );
 }
 
 sub float_equal {
-	my $a = shift;
-	my $b = shift;
-	# 1e-14 is about 100 times bigger than the machine epsilon.
-	return (relative_error($a, $b) < 1e-14);
+    my $a = shift;
+    my $b = shift;
+
+    # 1e-14 is about 100 times bigger than the machine epsilon.
+    return ( relative_error( $a, $b ) < 1e-14 );
 }

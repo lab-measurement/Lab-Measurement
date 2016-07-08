@@ -8,136 +8,146 @@ use warnings;
 use strict;
 use 5.010;
 use Carp;
-our @ISA=('Lab::XPRESS::Sweep::Sweep');
-
-
-
+our @ISA = ('Lab::XPRESS::Sweep::Sweep');
 
 sub new {
-    my $proto = shift;
-	my @args=@_;
-    my $class = ref($proto) || $proto; 
-	my $self->{default_config} = {
-		id => 'Voltage_sweep',
-		filename_extension => 'V=',
-		interval	=> 1,
-		points	=>	[],
-		duration	=> [],
-		mode	=> 'continuous',
-		jump => 0,
-		allowed_instruments => ['Lab::Instrument::Yokogawa7651', 'Lab::Instrument::Keithley2400','Lab::Instrument::YokogawaGS200', 'Lab::Instrument::DummySource', 'Lab::Instrument::SR830::AuxOut'],
-		allowed_sweep_modes => ['continuous', 'list', 'step'],
-		number_of_points => [undef]
-		};
-		
-	$self = $class->SUPER::new( $self->{default_config} ,@args);	
-	bless ($self, $class);
-	
-	
-			
+    my $proto                  = shift;
+    my @args                   = @_;
+    my $class                  = ref($proto) || $proto;
+    my $self->{default_config} = {
+        id                  => 'Voltage_sweep',
+        filename_extension  => 'V=',
+        interval            => 1,
+        points              => [],
+        duration            => [],
+        mode                => 'continuous',
+        jump                => 0,
+        allowed_instruments => [
+            'Lab::Instrument::Yokogawa7651',  'Lab::Instrument::Keithley2400',
+            'Lab::Instrument::YokogawaGS200', 'Lab::Instrument::DummySource',
+            'Lab::Instrument::SR830::AuxOut'
+        ],
+        allowed_sweep_modes => [ 'continuous', 'list', 'step' ],
+        number_of_points    => [undef]
+    };
+
+    $self = $class->SUPER::new( $self->{default_config}, @args );
+    bless( $self, $class );
+
     return $self;
 }
 
 sub go_to_sweep_start {
-	my $self = shift;
-	
-	# go to start:
-	print "going to start ... ";
-	if ($self->{config}->{mode} =~ /step|list/
-	    && $self->{config}->{jump}) {
-		my $target = $self->{config}{points}[$self->{iterator}];
-		my $rate = $self->{config}{rate}[$self->{iterator}];
-		my $current = $self->{config}{instrument}->get_level();
-		my $stepwidth = $self->{config}{stepwidth}[$self->{iterator}];
-		if (not defined $stepwidth) {
-			croak "no 'stepwidth' defined for sweep with mode 'step'";
-		}
-		my $time = abs(($target - $current) / $rate);
-		$self->{config}{instrument}->sweep_to_level($target, $time, $stepwidth);
-	}
-	else {
-		$self->{config}->{instrument}->config_sweep({
-			'points' => @{$self->{config}->{points}}[$self->{iterator}], 
-			'rate' => @{$self->{config}->{rate}}[$self->{iterator}]
-							    });
-		$self->{config}->{instrument}->trg();
-		$self->{config}->{instrument}->wait();
-	}
-	print "done\n";
-	
+    my $self = shift;
+
+    # go to start:
+    print "going to start ... ";
+    if (   $self->{config}->{mode} =~ /step|list/
+        && $self->{config}->{jump} )
+    {
+        my $target    = $self->{config}{points}[ $self->{iterator} ];
+        my $rate      = $self->{config}{rate}[ $self->{iterator} ];
+        my $current   = $self->{config}{instrument}->get_level();
+        my $stepwidth = $self->{config}{stepwidth}[ $self->{iterator} ];
+        if ( not defined $stepwidth ) {
+            croak "no 'stepwidth' defined for sweep with mode 'step'";
+        }
+        my $time = abs( ( $target - $current ) / $rate );
+        $self->{config}{instrument}
+          ->sweep_to_level( $target, $time, $stepwidth );
+    }
+    else {
+        $self->{config}->{instrument}->config_sweep(
+            {
+                'points' => @{ $self->{config}->{points} }[ $self->{iterator} ],
+                'rate'   => @{ $self->{config}->{rate} }[ $self->{iterator} ]
+            }
+        );
+        $self->{config}->{instrument}->trg();
+        $self->{config}->{instrument}->wait();
+    }
+    print "done\n";
+
 }
 
 sub start_continuous_sweep {
-	my $self = shift;
-		
-	$self->{config}->{instrument}->config_sweep({
-		'points' => @{$self->{config}->{points}}[$self->{iterator}+1],
-		'rate' => @{$self->{config}->{rate}}[$self->{iterator}+1]
-		});
-	$self->{config}->{instrument}->trg();
-	}
-	
+    my $self = shift;
 
+    $self->{config}->{instrument}->config_sweep(
+        {
+            'points' => @{ $self->{config}->{points} }[ $self->{iterator} + 1 ],
+            'rate'   => @{ $self->{config}->{rate} }[ $self->{iterator} + 1 ]
+        }
+    );
+    $self->{config}->{instrument}->trg();
+}
 
 sub go_to_next_step {
-	my $self = shift;
-	
-	if ( $self->{config}->{jump} == 1 ){
-		$self->{config}->{instrument}->set_voltage(${$self->{config}->{points}}[$self->{iterator}]);
-	}
-	else{
-		$self->{config}->{instrument}->config_sweep({
-			'points' => @{$self->{config}->{points}}[$self->{iterator}],
-			'rate' => @{$self->{config}->{rate}}[$self->{iterator}]
-		});
-		$self->{config}->{instrument}->trg();
-		$self->{config}->{instrument}->wait();
-	}
+    my $self = shift;
+
+    if ( $self->{config}->{jump} == 1 ) {
+        $self->{config}->{instrument}
+          ->set_voltage( ${ $self->{config}->{points} }[ $self->{iterator} ] );
+    }
+    else {
+        $self->{config}->{instrument}->config_sweep(
+            {
+                'points' => @{ $self->{config}->{points} }[ $self->{iterator} ],
+                'rate'   => @{ $self->{config}->{rate} }[ $self->{iterator} ]
+            }
+        );
+        $self->{config}->{instrument}->trg();
+        $self->{config}->{instrument}->wait();
+    }
 }
 
 sub exit_loop {
-	my $self = shift;
-	if (not $self->{config}->{instrument}->active() )
-		{
-		if ( $self->{config}->{mode} =~ /step|list/ )
-			{	
-			if (not defined @{$self->{config}->{points}}[$self->{iterator}+1])
-				{
-				return 1;
-				}
-			}
-		if ( $self->{config}->{mode} eq "continuous" )
-			{	
-			if (not defined @{$self->{config}->{points}}[$self->{sequence}+2])
-				{
-				return 1;
-				}
-			$self->{sequence}++;
-			$self->{config}->{instrument}->config_sweep({
-				'points' => @{$self->{config}->{points}}[$self->{sequence}+1],
-				'rate' => @{$self->{config}->{rate}}[$self->{sequence}+1]
-				});
-			$self->{config}->{instrument}->trg();
-			}
-		return 0;
-		}
-	else
-		{
-		return 0;
-		}
+    my $self = shift;
+    if ( not $self->{config}->{instrument}->active() ) {
+        if ( $self->{config}->{mode} =~ /step|list/ ) {
+            if (
+                not
+                defined @{ $self->{config}->{points} }[ $self->{iterator} + 1 ]
+              )
+            {
+                return 1;
+            }
+        }
+        if ( $self->{config}->{mode} eq "continuous" ) {
+            if (
+                not
+                defined @{ $self->{config}->{points} }[ $self->{sequence} + 2 ]
+              )
+            {
+                return 1;
+            }
+            $self->{sequence}++;
+            $self->{config}->{instrument}->config_sweep(
+                {
+                    'points' =>
+                      @{ $self->{config}->{points} }[ $self->{sequence} + 1 ],
+                    'rate' =>
+                      @{ $self->{config}->{rate} }[ $self->{sequence} + 1 ]
+                }
+            );
+            $self->{config}->{instrument}->trg();
+        }
+        return 0;
+    }
+    else {
+        return 0;
+    }
 }
 
 sub get_value {
-	my $self = shift;
-	return $self->{config}->{instrument}->get_level();
+    my $self = shift;
+    return $self->{config}->{instrument}->get_level();
 }
-
 
 sub exit {
-	my $self = shift;
-	$self->{config}->{instrument}->abort();
+    my $self = shift;
+    $self->{config}->{instrument}->abort();
 }
-
 
 1;
 

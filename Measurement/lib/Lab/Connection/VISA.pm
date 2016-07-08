@@ -12,35 +12,32 @@ use Lab::Bus::VISA;
 use Lab::Connection;
 use Lab::Exception;
 
-
 our @ISA = ("Lab::Connection");
 
 our %fields = (
-	bus_class => 'Lab::Bus::VISA',
-	resource_name => undef,
-	wait_status=>0, # sec;
-	wait_query=>10e-6, # sec;
-	read_length=>1000, # bytes
+    bus_class     => 'Lab::Bus::VISA',
+    resource_name => undef,
+    wait_status   => 0,                  # sec;
+    wait_query    => 10e-6,              # sec;
+    read_length   => 1000,               # bytes
 );
 
-
 sub new {
-	my $proto = shift;
-	my $class = ref($proto) || $proto;
-	my $twin = undef;
-	my $self = $class->SUPER::new(@_); # getting fields and _permitted from parent class, parameter checks
-	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
+    my $twin  = undef;
+    my $self  = $class->SUPER::new(@_)
+      ;    # getting fields and _permitted from parent class, parameter checks
+    $self->${ \( __PACKAGE__ . '::_construct' ) }(__PACKAGE__);
 
-	return $self;
+    return $self;
 }
-
 
 1;
 
 #
 # That's all, all that was needed was the additional field "resource_name".
 #
-
 
 =pod
 

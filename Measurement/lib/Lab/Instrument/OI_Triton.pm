@@ -6,93 +6,97 @@ use Lab::Instrument;
 our @ISA = ("Lab::Instrument");
 
 our %fields = (
-	supported_connections => [ 'Socket', 'VISA' ],
+    supported_connections => [ 'Socket', 'VISA' ],
 
-	# default settings for the supported connections
-	connection_settings => {
-		remote_port=>33576,
-		remote_addr=>'triton',
-	},
+    # default settings for the supported connections
+    connection_settings => {
+        remote_port => 33576,
+        remote_addr => 'triton',
+    },
 );
 
 sub new {
-	my $proto = shift;
-	my $class = ref($proto) || $proto;
-	my $self = $class->SUPER::new(@_);
-	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__); 
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
+    my $self  = $class->SUPER::new(@_);
+    $self->${ \( __PACKAGE__ . '::_construct' ) }(__PACKAGE__);
 
-	return $self;
+    return $self;
 }
 
 sub get_temperature {
-  my $self = shift;
-  my $channel = shift;
-  $channel = "1" unless defined($channel);
+    my $self    = shift;
+    my $channel = shift;
+    $channel = "1" unless defined($channel);
 
-  my $temp=$self->query("READ:DEV:T$channel:TEMP:SIG:TEMP\n");
-  # typical response: STAT:DEV:T1:TEMP:SIG:TEMP:1.47628K
+    my $temp = $self->query("READ:DEV:T$channel:TEMP:SIG:TEMP\n");
 
-  $temp=~s/^.*:SIG:TEMP://;
-  $temp=~s/K.*$//;
-  return $temp;
-};
+    # typical response: STAT:DEV:T1:TEMP:SIG:TEMP:1.47628K
 
-sub enable_control{
-  my $self = shift;
-  my $temp = $self->query("SET:SYS:USER:NORM\n");
-  # typical response: STAT:SET:SYS:USER:NORM:VALID
-  return $temp;
-};
+    $temp =~ s/^.*:SIG:TEMP://;
+    $temp =~ s/K.*$//;
+    return $temp;
+}
 
-sub disable_control{
-  my $self = shift;
-  my $temp = $self->query("SET:SYS:USER:GUEST\n");
-  # typical response: STAT:SET:SYS:USER:GUEST:VALID
-  return $temp;
-};
+sub enable_control {
+    my $self = shift;
+    my $temp = $self->query("SET:SYS:USER:NORM\n");
 
-sub enable_temp_pid{
-  my $self = shift;
-  my $temp = $self->query("SET:DEV:T5:TEMP:LOOP:MODE:ON\n");
-  # typical response: STAT:SET:DEV:T5:TEMP:LOOP:MODE:ON:VALID
-  return $temp;
-};
+    # typical response: STAT:SET:SYS:USER:NORM:VALID
+    return $temp;
+}
 
-sub disable_temp_pid{
-  my $self = shift;
-  my $temp = $self->query("SET:DEV:T5:TEMP:LOOP:MODE:OFF\n");
-  # typical response: STAT:SET:DEV:T5:TEMP:LOOP:MODE:OFF:VALID
-  return $temp;
-};
+sub disable_control {
+    my $self = shift;
+    my $temp = $self->query("SET:SYS:USER:GUEST\n");
 
-sub get_T{
-  my $self = shift;
-  my $temp = $self->get_temperature("5");
-  return $temp;
-};
+    # typical response: STAT:SET:SYS:USER:GUEST:VALID
+    return $temp;
+}
 
+sub enable_temp_pid {
+    my $self = shift;
+    my $temp = $self->query("SET:DEV:T5:TEMP:LOOP:MODE:ON\n");
 
-sub waitfor_T{
-  my $self = shift;
-  my $target = shift;
-  my $now = 10000000;
+    # typical response: STAT:SET:DEV:T5:TEMP:LOOP:MODE:ON:VALID
+    return $temp;
+}
 
-  do {
-    sleep(10);
-    $now = get_T();
-    print "Waiting for T=$target ; current temperature is T=$now\n";
-  } unless (abs($now-$target)/$target < 0.05);
-};
+sub disable_temp_pid {
+    my $self = shift;
+    my $temp = $self->query("SET:DEV:T5:TEMP:LOOP:MODE:OFF\n");
 
-sub set_T{
-  my $self = shift;
-  my $temperature = shift;
-  my $temp = $self->query("SET:DEV:T5:TEMP:LOOP:TSET:$temperature\n");
-  # typical reply: STAT:SET:DEV:T5:TEMP:LOOP:TSET:0.1:VALID
-  waitfor_T($temperature);
-  waitfor_T($temperature);
-};
+    # typical response: STAT:SET:DEV:T5:TEMP:LOOP:MODE:OFF:VALID
+    return $temp;
+}
 
+sub get_T {
+    my $self = shift;
+    my $temp = $self->get_temperature("5");
+    return $temp;
+}
+
+sub waitfor_T {
+    my $self   = shift;
+    my $target = shift;
+    my $now    = 10000000;
+
+    do {
+        sleep(10);
+        $now = get_T();
+        print "Waiting for T=$target ; current temperature is T=$now\n";
+    } unless ( abs( $now - $target ) / $target < 0.05 );
+}
+
+sub set_T {
+    my $self        = shift;
+    my $temperature = shift;
+    my $temp        = $self->query("SET:DEV:T5:TEMP:LOOP:TSET:$temperature\n");
+
+    # typical reply: STAT:SET:DEV:T5:TEMP:LOOP:TSET:0.1:VALID
+    waitfor_T($temperature);
+    waitfor_T($temperature);
+}
 
 1;
 

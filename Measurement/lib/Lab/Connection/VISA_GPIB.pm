@@ -2,13 +2,12 @@
 
 #
 # GPIB Connection class for Lab::Bus::VISA
-# This one implements a GPIB-Standard connection on top of VISA (translates 
+# This one implements a GPIB-Standard connection on top of VISA (translates
 # GPIB parameters to VISA resource names, mostly, to be exchangeable with other GPIB
 # connections.
 #
 
 # TODO: Access to GPIB VISA attributes, device clear, ...
-
 
 package Lab::Connection::VISA_GPIB;
 our $VERSION = '3.512';
@@ -19,93 +18,99 @@ use Lab::Bus::VISA;
 use Lab::Connection::GPIB;
 use Lab::Exception;
 
-
 our @ISA = ("Lab::Connection::GPIB");
 
 our %fields = (
-	bus_class => 'Lab::Bus::VISA',
-	resource_name => undef,
-	wait_status=>0, # sec;
-	wait_query=>10e-6, # sec;
-	read_length=>1000, # bytes
-	gpib_board=>0,
-	gpib_address=>1,
-	timeout => 2,
+    bus_class     => 'Lab::Bus::VISA',
+    resource_name => undef,
+    wait_status   => 0,                  # sec;
+    wait_query    => 10e-6,              # sec;
+    read_length   => 1000,               # bytes
+    gpib_board    => 0,
+    gpib_address  => 1,
+    timeout       => 2,
 );
 
-
 sub new {
-	my $proto = shift;
-	my $class = ref($proto) || $proto;
-	my $twin = undef;
-	my $self = $class->SUPER::new(@_); # getting fields and _permitted from parent class, parameter checks
-	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
+    my $twin  = undef;
+    my $self  = $class->SUPER::new(@_)
+      ;    # getting fields and _permitted from parent class, parameter checks
+    $self->${ \( __PACKAGE__ . '::_construct' ) }(__PACKAGE__);
 
-
-
-	return $self;
+    return $self;
 }
-
 
 #
 # Translating from plain GPIB-driverish to VISAslang
 #
 
-
 #
 # adapting bus setup to VISA
 #
 sub _setbus {
-	my $self=shift;
-	my $bus_class = $self->bus_class();
+    my $self      = shift;
+    my $bus_class = $self->bus_class();
 
-	no strict 'refs';
-	$self->bus($bus_class->new($self->config())) || Lab::Exception::Error->throw( error => "Failed to create bus $bus_class in " . __PACKAGE__ . "::_setbus.\n");
-	use strict;
+    no strict 'refs';
+    $self->bus( $bus_class->new( $self->config() ) )
+      || Lab::Exception::Error->throw(
+            error => "Failed to create bus $bus_class in "
+          . __PACKAGE__
+          . "::_setbus.\n" );
+    use strict;
 
-	#
-	# build VISA resource name
-	#
-	my $resource_name = 'GPIB'.$self->gpib_board().'::'.$self->gpib_address();
-	$resource_name .= '::'.$self->gpib_saddress() if defined $self->gpib_saddress();
-	$resource_name .= '::INSTR';
-	$self->resource_name($resource_name);
-	$self->config()->{'resource_name'} = $resource_name;
-	
-	# again, pass it all.
-	$self->connection_handle( $self->bus()->connection_new( $self->config() ));
+    #
+    # build VISA resource name
+    #
+    my $resource_name =
+      'GPIB' . $self->gpib_board() . '::' . $self->gpib_address();
+    $resource_name .= '::' . $self->gpib_saddress()
+      if defined $self->gpib_saddress();
+    $resource_name .= '::INSTR';
+    $self->resource_name($resource_name);
+    $self->config()->{'resource_name'} = $resource_name;
 
-	return $self->bus();
+    # again, pass it all.
+    $self->connection_handle( $self->bus()->connection_new( $self->config() ) );
+
+    return $self->bus();
 }
 
 sub _configurebus {
-	my $self = shift;
-	
+    my $self = shift;
 
-	#
-	# set VISA Attributes:
-	#
-	
-	# termination character
-	if ( defined $self->config()->{termchar} )
-		{
-		if ($self->config()->{termchar} =~ m/^[0-9]+$/)
-		{
-			$self->config()->{termchar} = chr($self->config()->{termchar});
-		}
-		$self->bus()->set_visa_attribute($self->connection_handle(), $Lab::VISA::VI_ATTR_TERMCHAR_EN, $Lab::VISA::VI_TRUE);
-		$self->bus()->set_visa_attribute($self->connection_handle(), $Lab::VISA::VI_ATTR_TERMCHAR, ord($self->config()->{termchar}));
-		}
-	else
-		{
-		$self->bus()->set_visa_attribute($self->connection_handle(), $Lab::VISA::VI_ATTR_TERMCHAR_EN, $Lab::VISA::VI_FALSE);
-		}
-	
-	# read timeout
-	$self->bus()->set_visa_attribute($self->connection_handle(), $Lab::VISA::VI_ATTR_TMO_VALUE, $self->config()->{timeout}*1e3);
+    #
+    # set VISA Attributes:
+    #
+
+    # termination character
+    if ( defined $self->config()->{termchar} ) {
+        if ( $self->config()->{termchar} =~ m/^[0-9]+$/ ) {
+            $self->config()->{termchar} = chr( $self->config()->{termchar} );
+        }
+        $self->bus()->set_visa_attribute(
+            $self->connection_handle(),
+            $Lab::VISA::VI_ATTR_TERMCHAR_EN,
+            $Lab::VISA::VI_TRUE
+        );
+        $self->bus()->set_visa_attribute( $self->connection_handle(),
+            $Lab::VISA::VI_ATTR_TERMCHAR, ord( $self->config()->{termchar} ) );
+    }
+    else {
+        $self->bus()->set_visa_attribute(
+            $self->connection_handle(),
+            $Lab::VISA::VI_ATTR_TERMCHAR_EN,
+            $Lab::VISA::VI_FALSE
+        );
+    }
+
+    # read timeout
+    $self->bus()->set_visa_attribute( $self->connection_handle(),
+        $Lab::VISA::VI_ATTR_TMO_VALUE, $self->config()->{timeout} * 1e3 );
 
 }
-
 
 1;
 
@@ -115,32 +120,45 @@ sub _configurebus {
 
 # $self->connection_handle() is the VISA resource handle
 
-sub EnableTermChar { # 0/1 off/on
-  my $self=shift;
-  my $enable=shift;
-  my $result;
-#  print "e/d\n";
-  if ($enable==1) {
-#     print "enable ";
-     $result=Lab::VISA::viSetAttribute($self->connection_handle(), $Lab::VISA::VI_ATTR_TERMCHAR_EN, $Lab::VISA::VI_TRUE);
-  } else {
-#     print "disable ";
-     $result=Lab::VISA::viSetAttribute($self->connection_handle(), $Lab::VISA::VI_ATTR_TERMCHAR_EN, $Lab::VISA::VI_FALSE);
-  }
-#  print "result: $result\n";
-  return $result;
+sub EnableTermChar {    # 0/1 off/on
+    my $self   = shift;
+    my $enable = shift;
+    my $result;
+
+    #  print "e/d\n";
+    if ( $enable == 1 ) {
+
+        #     print "enable ";
+        $result = Lab::VISA::viSetAttribute(
+            $self->connection_handle(),
+            $Lab::VISA::VI_ATTR_TERMCHAR_EN,
+            $Lab::VISA::VI_TRUE
+        );
+    }
+    else {
+        #     print "disable ";
+        $result = Lab::VISA::viSetAttribute(
+            $self->connection_handle(),
+            $Lab::VISA::VI_ATTR_TERMCHAR_EN,
+            $Lab::VISA::VI_FALSE
+        );
+    }
+
+    #  print "result: $result\n";
+    return $result;
 }
 
-sub SetTermChar { # the character as string
-  my $self=shift;
-  my $termchar=shift;
-#  print "char\n";
-  my $result=Lab::VISA::viSetAttribute($self->connection_handle(), $Lab::VISA::VI_ATTR_TERMCHAR, ord($termchar));
-#  print "result: $result\n";
-  return $result;
+sub SetTermChar {    # the character as string
+    my $self     = shift;
+    my $termchar = shift;
+
+    #  print "char\n";
+    my $result = Lab::VISA::viSetAttribute( $self->connection_handle(),
+        $Lab::VISA::VI_ATTR_TERMCHAR, ord($termchar) );
+
+    #  print "result: $result\n";
+    return $result;
 }
-
-
 
 =pod
 

@@ -1,3 +1,4 @@
+
 =head1 NAME
 
 Lab::Instrument::SR830::AuxIn -- Aux Inputs of the Stanford
@@ -55,37 +56,38 @@ use Carp;
 our @ISA = ("Lab::Instrument");
 
 our %fields = (
-	channel => undef,
-	supported_connections => [ 'GPIB', 'VISA_GPIB', 'DEBUG'],
-    );
+    channel               => undef,
+    supported_connections => [ 'GPIB', 'VISA_GPIB', 'DEBUG' ],
+);
 
 sub new {
-	my $proto = shift;
-	my $class = ref($proto) || $proto;
-	my $self = $class->SUPER::new(@_);
-	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
-$self->empty_buffer();
-my $channel = $self->channel;
-if (not defined $channel) {
-	croak "need channel (1-4) in constructor for ", __PACKAGE__ ;
-}
-elsif ($channel !~ /^[1-4]$/) {
-	croak "channel '$channel' is not in the range (1..4)";
-}
-return $self;
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
+    my $self  = $class->SUPER::new(@_);
+    $self->${ \( __PACKAGE__ . '::_construct' ) }(__PACKAGE__);
+    $self->empty_buffer();
+    my $channel = $self->channel;
+    if ( not defined $channel ) {
+        croak "need channel (1-4) in constructor for ", __PACKAGE__;
+    }
+    elsif ( $channel !~ /^[1-4]$/ ) {
+        croak "channel '$channel' is not in the range (1..4)";
+    }
+    return $self;
 }
 
-sub empty_buffer{
-    my $self=shift;
+sub empty_buffer {
+    my $self = shift;
     my ($times) = $self->_check_args( \@_, ['times'] );
-    if ($times){
-      for (my $i=0;$i<$times;$i++) {
-		 eval { $self->read( brutal => 1 ) };
-      }
-    } else {
-      while($self->read( brutal => 1 )){
-	print "Cleaning buffer."
-      }
+    if ($times) {
+        for ( my $i = 0 ; $i < $times ; $i++ ) {
+            eval { $self->read( brutal => 1 ) };
+        }
+    }
+    else {
+        while ( $self->read( brutal => 1 ) ) {
+            print "Cleaning buffer.";
+        }
     }
 }
 
@@ -98,10 +100,10 @@ Return the input voltage.
 =cut
 
 sub get_value {
-	my $self = shift;
-	my ($tail) = $self->_check_args(\@_, []);
-	my $channel = $self->channel;
-	return $self->query("OAUX? $channel");
+    my $self = shift;
+    my ($tail) = $self->_check_args( \@_, [] );
+    my $channel = $self->channel;
+    return $self->query("OAUX? $channel");
 }
-		
+
 1;

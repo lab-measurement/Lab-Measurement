@@ -5,26 +5,22 @@ our $VERSION = '3.512';
 use strict;
 use Lab::Instrument;
 
-
 our @ISA = ("Lab::Instrument");
 
 our %fields = (
-	supported_connections => [ ],
+    supported_connections => [],
 
-	device_settings => {
-	},
+    device_settings => {},
 
 );
 
-
 sub new {
-	my $proto = shift;
-	my $class = ref($proto) || $proto;
-	my $self = $class->SUPER::new(@_);
-	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
-	return $self;
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
+    my $self  = $class->SUPER::new(@_);
+    $self->${ \( __PACKAGE__ . '::_construct' ) }(__PACKAGE__);
+    return $self;
 }
-
 
 # template functions for inheriting classes
 
@@ -32,53 +28,51 @@ sub id {
     die "id not implemented for this instrument\n";
 }
 
-sub get_range{
-	my $self = shift;
-	
-	Lab::Exception::DriverError->throw( "The unimplemented method stub ".__PACKAGE__."::get_range() has been called. I can't work like this.\n" );
+sub get_range {
+    my $self = shift;
+
+    Lab::Exception::DriverError->throw( "The unimplemented method stub "
+          . __PACKAGE__
+          . "::get_range() has been called. I can't work like this.\n" );
 }
 
-sub set_range{
-	my $self = shift;
-	
-	Lab::Exception::DriverError->throw( "The unimplemented method stub ".__PACKAGE__."::set_range() has been called. I can't work like this.\n" );
-}
+sub set_range {
+    my $self = shift;
 
+    Lab::Exception::DriverError->throw( "The unimplemented method stub "
+          . __PACKAGE__
+          . "::set_range() has been called. I can't work like this.\n" );
+}
 
 sub get_level {
     my $self = shift;
-	
-	Lab::Exception::DriverError->throw( "The unimplemented method stub ".__PACKAGE__."::set_level() has been called. I can't work like this.\n" );
+
+    Lab::Exception::DriverError->throw( "The unimplemented method stub "
+          . __PACKAGE__
+          . "::set_level() has been called. I can't work like this.\n" );
 }
-
-
 
 sub selftest {
     die "selftest not implemented for this instrument\n";
 }
 
-
-sub configure_voltage_dc{
+sub configure_voltage_dc {
     die "configure_voltage_dc not implemented for this instrument\n";
 }
 
-
-sub configure_voltage_dc_trigger{
+sub configure_voltage_dc_trigger {
     die "configure_voltage_dc_trigger not implemented for this instrument\n";
 }
 
-
-sub triggered_read{
+sub triggered_read {
     die "triggered_read not implemented for this instrument\n";
 }
 
 sub get_error {
-	die "get_error not implemented for this instrument\n";
+    die "get_error not implemented for this instrument\n";
 }
 
-
 1;
-
 
 =pod
 

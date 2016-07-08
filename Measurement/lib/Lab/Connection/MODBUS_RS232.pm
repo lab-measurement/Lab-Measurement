@@ -14,37 +14,35 @@ use Lab::Exception;
 our @ISA = ("Lab::Connection");
 
 our %fields = (
-	bus_class => 'Lab::Bus::MODBUS_RS232',
-	wait_status=>0, # sec;
-	wait_query=>10e-6, # sec;
-	read_length=>1000, # bytes
+    bus_class   => 'Lab::Bus::MODBUS_RS232',
+    wait_status => 0,                          # sec;
+    wait_query  => 10e-6,                      # sec;
+    read_length => 1000,                       # bytes
 );
 
-
 sub new {
-	my $proto = shift;
-	my $class = ref($proto) || $proto;
-	my $self = $class->SUPER::new(@_); # getting fields and _permitted from parent class
-	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
+    my $self =
+      $class->SUPER::new(@_);  # getting fields and _permitted from parent class
+    $self->${ \( __PACKAGE__ . '::_construct' ) }(__PACKAGE__);
 
-	return $self;
+    return $self;
 }
-
 
 # this does not really make sense for MODBUS, as there are no "commands" and "responses"
 # disable for the time being
 # maybe makes sense: write value to one address, wait, read from another address.
 sub Query {
-	my $self=shift;
-	my $options=undef;
-	if (ref $_[0] eq 'HASH') { $options=shift }
-	else { $options={@_} }
+    my $self    = shift;
+    my $options = undef;
+    if   ( ref $_[0] eq 'HASH' ) { $options = shift }
+    else                         { $options = {@_} }
 
-	warn "Query is not implemented (and makes no sense) for MODBUS connections. Use Read. Ignoring.\n";
-	return undef;
+    warn
+"Query is not implemented (and makes no sense) for MODBUS connections. Use Read. Ignoring.\n";
+    return undef;
 }
-
-
 
 # 	return undef unless $self->slave_address($self->config()->{'slave_address'});
 # 	# check the configuration hash for a valid bus object or bus type, and set the bus
@@ -52,7 +50,7 @@ sub Query {
 # 		if($self->_checkbus($self->config()->{'Bus'})) {
 # 			$self->Bus($self->config()->{'Bus'});
 # 		}
-# 		else { 
+# 		else {
 # 			warn('Given Bus not supported');
 # 			return undef;
 # 		}
@@ -79,13 +77,9 @@ sub Query {
 # 		}
 # 	}
 
-
-
-
 #
 # Nothing to do, Read, Write, Query from Lab::Connection are sufficient.
 #
-
 
 =pod
 

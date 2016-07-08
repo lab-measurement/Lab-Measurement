@@ -8,82 +8,76 @@ use Lab::Bus::VISA;
 use Lab::Connection;
 use Lab::Exception;
 
-
 our @ISA = ("Lab::Connection");
 
 our %fields = (
-	bus_class => 'Lab::Bus::IsoBus',
-	isobus_address => undef,
-	wait_status=>0, # usec;
-	wait_query=>10e-6, # sec;
-	read_length=>1000, # bytes
+    bus_class      => 'Lab::Bus::IsoBus',
+    isobus_address => undef,
+    wait_status    => 0,                    # usec;
+    wait_query     => 10e-6,                # sec;
+    read_length    => 1000,                 # bytes
 );
 
-
 sub new {
-	my $proto = shift;
-	my $class = ref($proto) || $proto;
-	my $twin = undef;
-	my $self = $class->SUPER::new(@_); # getting fields and _permitted from parent class, parameter checks
-	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
+    my $twin  = undef;
+    my $self  = $class->SUPER::new(@_)
+      ;    # getting fields and _permitted from parent class, parameter checks
+    $self->${ \( __PACKAGE__ . '::_construct' ) }(__PACKAGE__);
 
-	return $self;
+    return $self;
 }
 
-sub _configurebus { # $self->setbus() create new or use existing bus
-	my $self=shift;
-	
+sub _configurebus {    # $self->setbus() create new or use existing bus
+    my $self = shift;
 
-	my $base = $self->config('base_connection');
-	
-	# add predefined connection settings to connection config:
-	# no overwriting of user defined connection settings
-	
-	my $new_config = $base->config();
-	for my $key ( keys %{$self->config()} )
-		{
-		if ( not defined $base->config($key) )
-			{
-			$new_config->{$key} = $self->config($key);
-			}
-		}
-	$new_config->{'base_connection'} = undef; # aviod recursive definition of bas_connection
-	$base->config($new_config);
-	$self->config('base_connection')->_configurebus();
-	
-		
+    my $base = $self->config('base_connection');
+
+    # add predefined connection settings to connection config:
+    # no overwriting of user defined connection settings
+
+    my $new_config = $base->config();
+    for my $key ( keys %{ $self->config() } ) {
+        if ( not defined $base->config($key) ) {
+            $new_config->{$key} = $self->config($key);
+        }
+    }
+    $new_config->{'base_connection'} =
+      undef;    # aviod recursive definition of bas_connection
+    $base->config($new_config);
+    $self->config('base_connection')->_configurebus();
+
 }
-
 
 sub block_connection {
-	my $self = shift;
-	
-		
-	$self->{connection_blocked} = 1;
-	$self->{config}->{base_connection}->block_connection();
-	
+    my $self = shift;
+
+    $self->{connection_blocked} = 1;
+    $self->{config}->{base_connection}->block_connection();
+
 }
 
 sub unblock_connection {
-	my $self = shift;
-	
-	$self->{connection_blocked} = undef;
-	$self->{config}->{base_connection}->unblock_connection();
-	
+    my $self = shift;
+
+    $self->{connection_blocked} = undef;
+    $self->{config}->{base_connection}->unblock_connection();
+
 }
 
 sub is_blocked {
-	my $self = shift;
-	
-	if ( $self->{connection_blocked} == 1 or  $self->{config}->{base_connection}->is_blocked() )
-		{
-		return 1;
-		}
-	else
-		{
-		return 0;
-		}
-	
+    my $self = shift;
+
+    if (   $self->{connection_blocked} == 1
+        or $self->{config}->{base_connection}->is_blocked() )
+    {
+        return 1;
+    }
+    else {
+        return 0;
+    }
+
 }
 
 1;
@@ -91,7 +85,6 @@ sub is_blocked {
 #
 # That's all, all that was needed was the additional field "isobus_address".
 #
-
 
 =pod
 

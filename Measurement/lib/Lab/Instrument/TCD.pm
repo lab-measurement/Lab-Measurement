@@ -9,171 +9,168 @@ use Lab::Instrument;
 our @ISA = ("Lab::Instrument");
 
 our %fields = (
-	supported_connections => ['VISA_RS232', 'RS232', 'IsoBus', 'DEBUG' ],
+    supported_connections => [ 'VISA_RS232', 'RS232', 'IsoBus', 'DEBUG' ],
 
-	connection_settings => {
-		baudrate => 9600,
-		databits => 8,
-		stopbits => 1,
-		parity => 'none',
-		handshake => 'none',
-		#rs232_echo => 'character',
-		termchar => "\r",
-		timeout => 1
-	},
+    connection_settings => {
+        baudrate  => 9600,
+        databits  => 8,
+        stopbits  => 1,
+        parity    => 'none',
+        handshake => 'none',
 
-	device_settings => {
-		read_default => 'device'
-	},
+        #rs232_echo => 'character',
+        termchar => "\r",
+        timeout  => 1
+    },
 
-	device_cache => {
-		id => 'Temperature Control',
-		#T => undef
-	}
+    device_settings => {
+        read_default => 'device'
+    },
+
+    device_cache => {
+        id => 'Temperature Control',
+
+        #T => undef
+      }
 
 );
 
 sub new {
-	my $proto = shift;
-	my $class = ref($proto) || $proto;
-	my $self = $class->SUPER::new(@_);
-	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__); 
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
+    my $self  = $class->SUPER::new(@_);
+    $self->${ \( __PACKAGE__ . '::_construct' ) }(__PACKAGE__);
 
     return $self;
 }
 
 sub get_value {
-	my $self = shift;
-	return $self->get_T(@_);
-	}
-	
-sub get_T{
-	my $self = shift;
-	my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
-	my $temperature = "xxxxxxxx";	
-	
-	if (not defined $read_mode or not $read_mode =~ /device|cache|request|fetch/)
+    my $self = shift;
+    return $self->get_T(@_);
+}
+
+sub get_T {
+    my $self = shift;
+    my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
+    my $temperature = "xxxxxxxx";
+
+    if (   not defined $read_mode
+        or not $read_mode =~ /device|cache|request|fetch/ )
     {
         $read_mode = $self->device_settings()->{read_default};
     }
 
-    if($read_mode eq 'cache' and defined $self->{'device_cache'}->{'T'})
-    {
-     	return $self->{'device_cache'}->{'T'};
-    } 
-    elsif($read_mode eq 'request')
-    {
-    	if ($self->{'request'} != 0) {
-    		eval "$self->read();";
-    	}
-    	while ( ($self->write("getTemp\r\n") < 0) )
-		{
-		#print "repeat sending\n";
-		}
-		$self->{'request'} = 1;
-	}
-	elsif ( $read_mode eq 'fetch' and $self->{'request'} == 1 )
-	{
-		$self->{'request'} = 0;
-		
-		my $temperature;
-		while ( 1 ) 
-			{
-			eval '$temperature = $self->read()';
-			if ($@) 
-				{
-				next;
-				}
-			elsif ( $temperature < 0 or $temperature > 1.5 ) {
-			#print "from cache";
-				return $self->{'device_cache'}->{'T'};
-			}
-			else {
-				chomp $temperature;
-				$self->{'device_cache'}->{'T'} = $temperature;
-				return $self->{'device_cache'}->{'T'};
-			}
-		}
-				
-	}
+    if ( $read_mode eq 'cache' and defined $self->{'device_cache'}->{'T'} ) {
+        return $self->{'device_cache'}->{'T'};
+    }
+    elsif ( $read_mode eq 'request' ) {
+        if ( $self->{'request'} != 0 ) {
+            eval "$self->read();";
+        }
+        while ( ( $self->write("getTemp\r\n") < 0 ) ) {
 
-	else {
-		for (my $i = 0; $i < 3; $i++)
-		{
-			$self->write("getTemp\r\n");
-			
-			for (my $j = 0; $j < 3; $j++)
-				{
-				eval '$temperature = $self->read()';
-				if ($@) 
-					{
-					next;
-					}
-				elsif ( $temperature < 0 or $temperature > 1.5 ) {
-				#print "from cache";
-					return $self->{'device_cache'}->{'T'};
-				}
-				else {
-					chomp $temperature;
-					$self->{'device_cache'}->{'T'} = $temperature;
-					return $self->{'device_cache'}->{'T'};
-				}
-			}
-			
-			
-		}
-		
-		return $self->{'device_cache'}->{'T'};
-	}
+            #print "repeat sending\n";
+        }
+        $self->{'request'} = 1;
+    }
+    elsif ( $read_mode eq 'fetch' and $self->{'request'} == 1 ) {
+        $self->{'request'} = 0;
+
+        my $temperature;
+        while (1) {
+            eval '$temperature = $self->read()';
+            if ($@) {
+                next;
+            }
+            elsif ( $temperature < 0 or $temperature > 1.5 ) {
+
+                #print "from cache";
+                return $self->{'device_cache'}->{'T'};
+            }
+            else {
+                chomp $temperature;
+                $self->{'device_cache'}->{'T'} = $temperature;
+                return $self->{'device_cache'}->{'T'};
+            }
+        }
+
+    }
+
+    else {
+        for ( my $i = 0 ; $i < 3 ; $i++ ) {
+            $self->write("getTemp\r\n");
+
+            for ( my $j = 0 ; $j < 3 ; $j++ ) {
+                eval '$temperature = $self->read()';
+                if ($@) {
+                    next;
+                }
+                elsif ( $temperature < 0 or $temperature > 1.5 ) {
+
+                    #print "from cache";
+                    return $self->{'device_cache'}->{'T'};
+                }
+                else {
+                    chomp $temperature;
+                    $self->{'device_cache'}->{'T'} = $temperature;
+                    return $self->{'device_cache'}->{'T'};
+                }
+            }
+
+        }
+
+        return $self->{'device_cache'}->{'T'};
+    }
 
 }
 
-sub set_T{
-	my $self = shift;
-	my ($temperature) = $self->_check_args( \@_, ['temperaure'] );
+sub set_T {
+    my $self = shift;
+    my ($temperature) = $self->_check_args( \@_, ['temperaure'] );
 
-	my $temp = $self->query("setTemp\r\n$temperature\r\n");
-	
-	chomp $temp;
-	#sleep(1);
-		
-	return $temp;
+    my $temp = $self->query("setTemp\r\n$temperature\r\n");
+
+    chomp $temp;
+
+    #sleep(1);
+
+    return $temp;
 }
 
-sub set_heateroff{
-	my $self = shift;
+sub set_heateroff {
+    my $self = shift;
 
-	$self->write("heaterOff\r\n");
-	
+    $self->write("heaterOff\r\n");
+
 }
 
 sub set_heatercontrol {
-	my $self = shift;
-	
-	return;
+    my $self = shift;
+
+    return;
 }
 
 # sub stabilize_T {
 # 	my $self = shift;
 # 	my $external_sensor = shift;
-	
+
 # 	my $T = $self->get_T();
 # 	my $Idc = $external_sensor->get_value();
-	
-# 	push(@{$self->{data_buffer_T}}, $T); 
+
+# 	push(@{$self->{data_buffer_T}}, $T);
 # 	push(@{$self->{data_buffer_Idc}}, $Idc);
-	
+
 # 	@{$self->{data_buffer_T}}= sort(@{$self->{data_buffer_T}});
 # 	@{$self->{data_buffer_Idc}} = sort(@{$self->{data_buffer_Idc}});
-	
+
 # 	my $length = @{$self->{data_buffer_T}};
-	
+
 # 	my $median_T = @{$self->{data_buffer_T}}[$length/2];
 # 	my $median_Idc = @{$self->{data_buffer_Idc}}[$length/2];
-	
+
 # 	my $range_T = abs(@{$self->{data_buffer_T}}[-1]-@{$self->{data_buffer_T}}[0]);
 # 	my $range_Idc = abs(@{$self->{data_buffer_Idc}}[-1]-@{$self->{data_buffer_Idc}}[0]);
-	
+
 # 	print "Legth of buffer = $length\n";
 # 	print "Median T = $median_T\n";
 # 	print "Range T = $range_T\n";
@@ -182,7 +179,7 @@ sub set_heatercontrol {
 # 	print "\n";
 # 	print "T = $T\n";
 # 	print "Idc = $Idc\n";
-	
+
 # 	if ( $length > 30 )
 # 		{
 # 		#print abs($median_T - @{$self->{data_buffer_T}}[-1])." ?= ".(0.01*$range_T)."\n";
@@ -196,21 +193,18 @@ sub set_heatercontrol {
 # 				}
 # 			return 1;
 # 			}
-			
-		
+
 # 		shift @{$self->{data_buffer_T}};
 # 		shift @{$self->{data_buffer_Idc}};
 # 		}
-		
+
 # 	print "===============================\n\n\n";
-	
+
 # 	return 1;
-	
+
 # }
 
 1;
-
-
 
 =head1 NAME
 

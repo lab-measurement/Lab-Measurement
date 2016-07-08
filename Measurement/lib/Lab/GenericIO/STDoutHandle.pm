@@ -1,7 +1,7 @@
 # Handle to replace STDOUT (routes messages on STDOUT to MESSAGE channel):
 package Lab::GenericIO::STDoutHandle;
 
-our $VERSION='3.512';
+our $VERSION = '3.512';
 
 use Symbol qw<geniosym>;
 
@@ -11,20 +11,20 @@ sub TIEHANDLE { return bless geniosym, __PACKAGE__ }
 
 sub PRINT {
 
-	shift;
-	my $string = join("", @_);
+    shift;
+    my $string = join( "", @_ );
 
-	Lab::GenericIO::channel_write("MESSAGE", undef, $string);
+    Lab::GenericIO::channel_write( "MESSAGE", undef, $string );
 }
 
 sub PRINTF {
 
-	shift;
-	my $format = shift;
+    shift;
+    my $format = shift;
 
-	my $string = sprintf "$format", @_;
+    my $string = sprintf "$format", @_;
 
-	Lab::GenericIO::channel_write("MESSAGE", undef, $string);
+    Lab::GenericIO::channel_write( "MESSAGE", undef, $string );
 }
 
 1;

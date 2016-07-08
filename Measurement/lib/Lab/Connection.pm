@@ -13,256 +13,236 @@ use Carp;
 use Data::Dumper;
 our $AUTOLOAD;
 
-
 our @ISA = ('Lab::Generic');
 
-
 our %fields = (
-	connection_handle => undef,
-	bus => undef, # set default here in child classes, e.g. bus => "GPIB"
-	bus_class => undef,
-	config => undef,
-	type => undef,	# e.g. 'GPIB'
-	ins_debug=>0,  # do we need additional output?
-	timeout=>1, # in seconds
+    connection_handle => undef,
+    bus       => undef,  # set default here in child classes, e.g. bus => "GPIB"
+    bus_class => undef,
+    config    => undef,
+    type      => undef,  # e.g. 'GPIB'
+    ins_debug => 0,      # do we need additional output?
+    timeout   => 1,      # in seconds
 );
 
-
 sub new {
-	my $proto = shift;
-	my $class = ref($proto) || $proto;
-	my $config = undef;
-	if (ref $_[0] eq 'HASH') { $config=shift } # try to be flexible about options as hash/hashref
-	else { $config={@_} }
-	my $self=$class->SUPER::new(@_);
-	bless ($self, $class);
-	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
+    my $proto  = shift;
+    my $class  = ref($proto) || $proto;
+    my $config = undef;
+    if ( ref $_[0] eq 'HASH' ) {
+        $config = shift;
+    }                    # try to be flexible about options as hash/hashref
+    else { $config = {@_} }
+    my $self = $class->SUPER::new(@_);
+    bless( $self, $class );
+    $self->${ \( __PACKAGE__ . '::_construct' ) }(__PACKAGE__);
 
-	$self->config($config);
-	
-	
+    $self->config($config);
 
-	return $self;
+    return $self;
 }
-
-
 
 #
 # generic methods - interface definition
 #
 
-
 sub Clear {
-	my $self=shift;
-	
-	# do nothing if connection is blocked
-	if ( $self->{blocked} )
-		{
-		return undef;
-		}
-	
-	return $self->bus()->connection_clear($self->connection_handle()) if ($self->bus()->can('connection_clear'));
-	# error message
-	warn "Clear function is not implemented in the bus ".ref($self->bus())."\n";
-}
+    my $self = shift;
 
+    # do nothing if connection is blocked
+    if ( $self->{blocked} ) {
+        return undef;
+    }
+
+    return $self->bus()->connection_clear( $self->connection_handle() )
+      if ( $self->bus()->can('connection_clear') );
+
+    # error message
+    warn "Clear function is not implemented in the bus "
+      . ref( $self->bus() ) . "\n";
+}
 
 sub Write {
-	my $self=shift;
-	my $options=undef;
-	if (ref $_[0] eq 'HASH') { $options=shift }
-	else { $options={@_} }
-	
-	# do nothing if connection is blocked
-	if ( $self->{connection_blocked} )
-		{
-		return undef;
-		}
-		
-	return $self->bus()->connection_write($self->connection_handle(), $options);
-}
+    my $self    = shift;
+    my $options = undef;
+    if   ( ref $_[0] eq 'HASH' ) { $options = shift }
+    else                         { $options = {@_} }
 
+    # do nothing if connection is blocked
+    if ( $self->{connection_blocked} ) {
+        return undef;
+    }
+
+    return $self->bus()
+      ->connection_write( $self->connection_handle(), $options );
+}
 
 sub Read {
-	my $self=shift;
-	my $options=undef;
-	if (ref $_[0] eq 'HASH') { $options=shift }
-	else { $options={@_} }
-	
-	# do nothing if connection is blocked
-	if ( $self->{connection_blocked} )
-		{
-		return undef;
-		}
+    my $self    = shift;
+    my $options = undef;
+    if   ( ref $_[0] eq 'HASH' ) { $options = shift }
+    else                         { $options = {@_} }
 
-	my $result = $self->bus()->connection_read($self->connection_handle(), $options);
-	
-	# cut off all termination characters:
-	my $temp = $/;
-	if ( ref($self->config('termchar')) eq "ARRAY" )
-		{
-		foreach my $term ( @{ $self->config('termchar') } )
-			{
-			$/ = $term;
-			chomp($result);
-			}
-		}
-	else
-		{
-		$/ =  $self->config('termchar');
-		chomp($result);
-		}
-	$/ = $temp;
-	
-	
-	return $result;
+    # do nothing if connection is blocked
+    if ( $self->{connection_blocked} ) {
+        return undef;
+    }
+
+    my $result =
+      $self->bus()->connection_read( $self->connection_handle(), $options );
+
+    # cut off all termination characters:
+    my $temp = $/;
+    if ( ref( $self->config('termchar') ) eq "ARRAY" ) {
+        foreach my $term ( @{ $self->config('termchar') } ) {
+            $/ = $term;
+            chomp($result);
+        }
+    }
+    else {
+        $/ = $self->config('termchar');
+        chomp($result);
+    }
+    $/ = $temp;
+
+    return $result;
 }
-
 
 sub BrutalRead {
-	my $self=shift;
-	my $options=undef;
-	if (ref $_[0] eq 'HASH') { $options=shift }
-	else { $options={@_} }
-	$options->{'brutal'} = 1;
-	
-	return $self->Read($options);
+    my $self    = shift;
+    my $options = undef;
+    if   ( ref $_[0] eq 'HASH' ) { $options = shift }
+    else                         { $options = {@_} }
+    $options->{'brutal'} = 1;
+
+    return $self->Read($options);
 }
-
-
 
 sub Query {
-	my $self=shift;
-	my $options=undef;
-	if (ref $_[0] eq 'HASH') { $options=shift }
-	else { $options={@_} }
+    my $self    = shift;
+    my $options = undef;
+    if   ( ref $_[0] eq 'HASH' ) { $options = shift }
+    else                         { $options = {@_} }
 
-	my $wait_query=$options->{'wait_query'} || $self->wait_query();
+    my $wait_query = $options->{'wait_query'} || $self->wait_query();
 
-	$self->Write( $options );
-	sleep($wait_query);
-	return $self->Read($options);
+    $self->Write($options);
+    sleep($wait_query);
+    return $self->Read($options);
 }
-
-
 
 sub LongQuery {
-	my $self=shift;
-	my $options=undef;
-	if (ref $_[0] eq 'HASH') { $options=shift }
-	else { $options={@_} }
+    my $self    = shift;
+    my $options = undef;
+    if   ( ref $_[0] eq 'HASH' ) { $options = shift }
+    else                         { $options = {@_} }
 
-	$options->{read_length} = 10240;
-	return $self->Query($options);
+    $options->{read_length} = 10240;
+    return $self->Query($options);
 }
-
 
 sub BrutalQuery {
-	my $self=shift;
-	my $options=undef;
-	if (ref $_[0] eq 'HASH') { $options=shift }
-	else { $options={@_} }
+    my $self    = shift;
+    my $options = undef;
+    if   ( ref $_[0] eq 'HASH' ) { $options = shift }
+    else                         { $options = {@_} }
 
-	$options->{brutal} = 1;
-	return $self->Query($options);
+    $options->{brutal} = 1;
+    return $self->Query($options);
 }
 
-
 sub timeout {
-	my $self=shift;
-	my $timo=shift;
-	
-	return $self->{'timeout'} if(!defined $timo);
-	
-	$self->{'timeout'} = $timo;
-	$self->bus()->timeout($self->connection_handle(), $timo) if defined($self->bus()); # if called by $self->configure() before the bus is created.
+    my $self = shift;
+    my $timo = shift;
+
+    return $self->{'timeout'} if ( !defined $timo );
+
+    $self->{'timeout'} = $timo;
+    $self->bus()->timeout( $self->connection_handle(), $timo )
+      if defined( $self->bus() )
+      ;    # if called by $self->configure() before the bus is created.
 }
 
 sub block_connection {
-	my $self = shift;
-	
-	$self->{connection_blocked} = 1;
-	
+    my $self = shift;
+
+    $self->{connection_blocked} = 1;
+
 }
 
 sub unblock_connection {
-	my $self = shift;
-	
-	$self->{connection_blocked} = undef;
-	
+    my $self = shift;
+
+    $self->{connection_blocked} = undef;
+
 }
 
 sub is_blocked {
-	my $self = shift;
-	
-	if ( $self->{connection_blocked} == 1 )
-		{
-		return 1;
-		}
-	else
-		{
-		return 0;
-		}
-	
-}
+    my $self = shift;
 
+    if ( $self->{connection_blocked} == 1 ) {
+        return 1;
+    }
+    else {
+        return 0;
+    }
+
+}
 
 #
 # infrastructure stuff below
 #
 
-
 #
 # Fill $self->device_settings() from config parameters
 #
 sub configure {
-	my $self=shift;
-	my $config=shift;
+    my $self   = shift;
+    my $config = shift;
 
-	if( ref($config) ne 'HASH' ) {
-		Lab::Exception::CorruptParameter->throw( error=>'Given Configuration is not a hash.');
-	}
-	else {
-		#
-		# fill matching fields definded in %fields from the configuration hash ($self->config )
-		#
-		for my $fields_key ( keys %{$self->{_permitted}} ) {
-			{	# restrict scope of "no strict"
-				no strict 'refs';
-				$self->$fields_key($config->{$fields_key}) if exists $config->{$fields_key};
-			}
-		}
-	}
+    if ( ref($config) ne 'HASH' ) {
+        Lab::Exception::CorruptParameter->throw(
+            error => 'Given Configuration is not a hash.' );
+    }
+    else {
+#
+# fill matching fields definded in %fields from the configuration hash ($self->config )
+#
+        for my $fields_key ( keys %{ $self->{_permitted} } ) {
+            {    # restrict scope of "no strict"
+                no strict 'refs';
+                $self->$fields_key( $config->{$fields_key} )
+                  if exists $config->{$fields_key};
+            }
+        }
+    }
 }
-
 
 #
 # Call this in inheriting class's constructors to conveniently initialize the %fields object data
 #
-sub _construct {	# _construct(__PACKAGE__);
-	(my $self, my $package) = (shift, shift);
-	my $class = ref($self);
-	my $fields = undef;
-	{
-		no strict 'refs';
-		$fields = *${\($package.'::fields')}{HASH};
-	}	
+sub _construct {    # _construct(__PACKAGE__);
+    ( my $self, my $package ) = ( shift, shift );
+    my $class  = ref($self);
+    my $fields = undef;
+    {
+        no strict 'refs';
+        $fields = *${ \( $package . '::fields' ) }{HASH};
+    }
 
-	foreach my $element (keys %{$fields}) {
-		$self->{_permitted}->{$element} = $fields->{$element};
-	}
-	@{$self}{keys %{$fields}} = values %{$fields};
-	
+    foreach my $element ( keys %{$fields} ) {
+        $self->{_permitted}->{$element} = $fields->{$element};
+    }
+    @{$self}{ keys %{$fields} } = values %{$fields};
 
-
-	if( $class eq $package ) {
-		$self->configure($self->config()); # so that _setbus has access to all the fields
-		$self->_setbus();
-		$self->configure($self->config()); # for configuration that needs the bus to be set (timeout())
-	}
+    if ( $class eq $package ) {
+        $self->configure( $self->config() )
+          ;    # so that _setbus has access to all the fields
+        $self->_setbus();
+        $self->configure( $self->config() )
+          ;    # for configuration that needs the bus to be set (timeout())
+    }
 }
-
-
 
 #
 # Method to handle bus creation generically. This is called by _construct().
@@ -272,74 +252,76 @@ sub _construct {	# _construct(__PACKAGE__);
 #
 # set $self->connection_handle
 #
-sub _setbus { # $self->setbus() create new or use existing bus
-	my $self=shift;
-	my $bus_class = $self->bus_class();
+sub _setbus {    # $self->setbus() create new or use existing bus
+    my $self      = shift;
+    my $bus_class = $self->bus_class();
 
-	$self->bus(eval("require $bus_class; new $bus_class(\$self->config());")) ||
-        Lab::Exception::Error->throw( error => "Failed to create bus $bus_class in " . __PACKAGE__ .
-            "::_setbus. Error message was:".
-            "\n\n----------------------------------------------\n\n".
-            "$@\n----------------------------------------------\n");
+    $self->bus( eval("require $bus_class; new $bus_class(\$self->config());") )
+      || Lab::Exception::Error->throw(
+            error => "Failed to create bus $bus_class in "
+          . __PACKAGE__
+          . "::_setbus. Error message was:"
+          . "\n\n----------------------------------------------\n\n"
+          . "$@\n----------------------------------------------\n" );
 
-	# again, pass it all.
-	$self->connection_handle( $self->bus()->connection_new( $self->config() ));
+    # again, pass it all.
+    $self->connection_handle( $self->bus()->connection_new( $self->config() ) );
 }
 
 sub _configurebus {
-	my $self = shift;
-		
-	return;
-}
+    my $self = shift;
 
+    return;
+}
 
 #
 # config gets it's own accessor - convenient access like $self->config('GPIB_Paddress') instead of $self->config()->{'GPIB_Paddress'}
 # with a hashref as argument, set $self->{'config'} to the given hashref.
 # without an argument it returns a reference to $self->config (just like AUTOLOAD would)
 #
-sub config {	# $value = self->config($key);
-	(my $self, my $key) = (shift, shift);
+sub config {    # $value = self->config($key);
+    ( my $self, my $key ) = ( shift, shift );
 
-	if(!defined $key) {
-		return $self->{'config'};
-	}
-	elsif(ref($key) =~ /HASH/) {
-		return $self->{'config'} = $key;
-	}
-	else {
-		return $self->{'config'}->{$key};
-	}
+    if ( !defined $key ) {
+        return $self->{'config'};
+    }
+    elsif ( ref($key) =~ /HASH/ ) {
+        return $self->{'config'} = $key;
+    }
+    else {
+        return $self->{'config'}->{$key};
+    }
 }
 
 sub AUTOLOAD {
 
-	my $self = shift;
-	my $type = ref($self) or croak "$self is not an object";
+    my $self = shift;
+    my $type = ref($self) or croak "$self is not an object";
 
-	my $name = $AUTOLOAD;
-	$name =~ s/.*://; # strip fully qualified portion
+    my $name = $AUTOLOAD;
+    $name =~ s/.*://;    # strip fully qualified portion
 
-	unless (exists $self->{_permitted}->{$name} ) {
-		Lab::Exception::Error->throw( error => "AUTOLOAD in " . __PACKAGE__ . " couldn't access field '${name}'.\n");
-	}
+    unless ( exists $self->{_permitted}->{$name} ) {
+        Lab::Exception::Error->throw( error => "AUTOLOAD in "
+              . __PACKAGE__
+              . " couldn't access field '${name}'.\n" );
+    }
 
-	if (@_) {
-		return $self->{$name} = shift;
-	} else {
-		return $self->{$name};
-	}
+    if (@_) {
+        return $self->{$name} = shift;
+    }
+    else {
+        return $self->{$name};
+    }
 }
 
 # needed so AUTOLOAD doesn't try to call DESTROY on cleanup and prevent the inherited DESTROY
 sub DESTROY {
-        my $self = shift;
-        $self -> SUPER::DESTROY if $self -> can ("SUPER::DESTROY");
+    my $self = shift;
+    $self->SUPER::DESTROY if $self->can("SUPER::DESTROY");
 }
 
-
 1;
-
 
 =pod
 
@@ -492,6 +474,5 @@ This library is free software; you can redistribute it and/or modify it under th
 terms as Perl itself.
 
 =cut
-
 
 1;

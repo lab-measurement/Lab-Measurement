@@ -6,117 +6,136 @@ use Lab::XPRESS::Sweep::SweepND;
 use Time::HiRes qw/usleep/, qw/time/;
 use strict;
 
-our @ISA=('Lab::XPRESS::Sweep::SweepND');
-
+our @ISA = ('Lab::XPRESS::Sweep::SweepND');
 
 sub new {
-    my $proto = shift;
-	my @args=@_;
-    my $class = ref($proto) || $proto;
-	my $self->{default_config} = {
-		id => 'VectorMagnet_sweep',
-		filename_extension => 'VM_DIR=',
-		dimension => 3,
-		convinience => 0,
-		interval	=> 1,
-		points	=>	[],
-		duration	=> [],
-		mode	=> 'continuous',
-		coordinate_system => 'cartesian', # or 'spherical'
-		allowed_instruments => ['Lab::Instrument::Vectormagnet', 'Lab::Instrument::VectormagnetNoY'],
-		allowed_sweep_modes => ['continuous', 'list', 'step'],
-		number_of_points => [undef]
-		};
+    my $proto                  = shift;
+    my @args                   = @_;
+    my $class                  = ref($proto) || $proto;
+    my $self->{default_config} = {
+        id                  => 'VectorMagnet_sweep',
+        filename_extension  => 'VM_DIR=',
+        dimension           => 3,
+        convinience         => 0,
+        interval            => 1,
+        points              => [],
+        duration            => [],
+        mode                => 'continuous',
+        coordinate_system   => 'cartesian',            # or 'spherical'
+        allowed_instruments => [
+            'Lab::Instrument::Vectormagnet',
+            'Lab::Instrument::VectormagnetNoY'
+        ],
+        allowed_sweep_modes => [ 'continuous', 'list', 'step' ],
+        number_of_points    => [undef]
+    };
 
-	$self = $class->SUPER::new($self->{default_config},@args);
-	bless ($self, $class);
+    $self = $class->SUPER::new( $self->{default_config}, @args );
+    bless( $self, $class );
     return $self;
 }
 
 sub go_to_sweep_start {
-	my $self = shift;
+    my $self = shift;
 
-	# go to start:
-	print "going to start ... ";
+    # go to start:
+    print "going to start ... ";
 
-	@{$self->{config}->{instrument}}[0]->config_DIR_sweep(@{@{$self->{config}->{points}}[0]},@{$self->{config}->{rate}}[0],1,$self->{config}->{coordinate_system});
-	@{$self->{config}->{instrument}}[0]->trg();
-	@{$self->{config}->{instrument}}[0]->wait();
+    @{ $self->{config}->{instrument} }[0]->config_DIR_sweep(
+        @{ @{ $self->{config}->{points} }[0] },
+        @{ $self->{config}->{rate} }[0],
+        1, $self->{config}->{coordinate_system}
+    );
+    @{ $self->{config}->{instrument} }[0]->trg();
+    @{ $self->{config}->{instrument} }[0]->wait();
 
-	print "done\n";
+    print "done\n";
 
 }
 
 sub start_continuous_sweep {
-	my $self = shift;
+    my $self = shift;
 
-	# continuous sweep:
-	@{$self->{config}->{instrument}}[0]->config_DIR_sweep(@{@{$self->{config}->{points}}[$self->{sequence}+1]},@{$self->{config}->{rate}}[$self->{sequence}+1],1,$self->{config}->{coordinate_system});
-	@{$self->{config}->{instrument}}[0]->trg();
+    # continuous sweep:
+    @{ $self->{config}->{instrument} }[0]->config_DIR_sweep(
+        @{ @{ $self->{config}->{points} }[ $self->{sequence} + 1 ] },
+        @{ $self->{config}->{rate} }[ $self->{sequence} + 1 ],
+        1,
+        $self->{config}->{coordinate_system}
+    );
+    @{ $self->{config}->{instrument} }[0]->trg();
 
 }
 
-
 sub go_to_next_step {
-	my $self = shift;
+    my $self = shift;
 
-
-	# step mode:
-	@{$self->{config}->{instrument}}[0]->config_DIR_sweep(@{@{$self->{config}->{points}}[$self->{iterator}]},@{$self->{config}->{rate}}[$self->{iterator}],1,$self->{config}->{coordinate_system});
-	@{$self->{config}->{instrument}}[0]->trg();
-	@{$self->{config}->{instrument}}[0]->wait();
+    # step mode:
+    @{ $self->{config}->{instrument} }[0]->config_DIR_sweep(
+        @{ @{ $self->{config}->{points} }[ $self->{iterator} ] },
+        @{ $self->{config}->{rate} }[ $self->{iterator} ],
+        1,
+        $self->{config}->{coordinate_system}
+    );
+    @{ $self->{config}->{instrument} }[0]->trg();
+    @{ $self->{config}->{instrument} }[0]->wait();
 
 }
 
 sub exit_loop {
-	my $self = shift;
-	if (not @{$self->{config}->{instrument}}[0]->active() )
-		{
-		if ( $self->{config}->{mode} =~ /step|list/ )
-			{
-			if (not defined @{$self->{config}->{points}}[$self->{iterator}+1])
-				{
-				return 1;
-				}
-			else
-				{
-				return 0;
-				}
-			}
-		elsif ( $self->{config}->{mode} eq "continuous" )
-			{
-			if (not defined @{$self->{config}->{points}}[$self->{sequence}+2])
-				{
-				return 1;
-				}
-			$self->{sequence}++;
-			@{$self->{config}->{instrument}}[0]->config_DIR_sweep(@{@{$self->{config}->{points}}[$self->{sequence}+1]},@{$self->{config}->{rate}}[$self->{sequence}+1],1,$self->{config}->{coordinate_system});
-			@{$self->{config}->{instrument}}[0]->trg();
+    my $self = shift;
+    if ( not @{ $self->{config}->{instrument} }[0]->active() ) {
+        if ( $self->{config}->{mode} =~ /step|list/ ) {
+            if (
+                not
+                defined @{ $self->{config}->{points} }[ $self->{iterator} + 1 ]
+              )
+            {
+                return 1;
+            }
+            else {
+                return 0;
+            }
+        }
+        elsif ( $self->{config}->{mode} eq "continuous" ) {
+            if (
+                not
+                defined @{ $self->{config}->{points} }[ $self->{sequence} + 2 ]
+              )
+            {
+                return 1;
+            }
+            $self->{sequence}++;
+            @{ $self->{config}->{instrument} }[0]->config_DIR_sweep(
+                @{ @{ $self->{config}->{points} }[ $self->{sequence} + 1 ] },
+                @{ $self->{config}->{rate} }[ $self->{sequence} + 1 ],
+                1,
+                $self->{config}->{coordinate_system}
+            );
+            @{ $self->{config}->{instrument} }[0]->trg();
 
-			}
+        }
 
-			return 0;
-		}
-	else
-		{
-		return 0;
-		}
+        return 0;
+    }
+    else {
+        return 0;
+    }
 }
 
 sub get_value {
-	my $self = shift;
+    my $self = shift;
 
-	my @field =  @{$self->{config}->{instrument}}[0]->get_field($self->{coordinate_system});
+    my @field = @{ $self->{config}->{instrument} }[0]
+      ->get_field( $self->{coordinate_system} );
 
-	return \@field;
+    return \@field;
 }
-
 
 sub exit {
-	my $self = shift;
-	@{$self->{config}->{instrument}}[0]->abort();
+    my $self = shift;
+    @{ $self->{config}->{instrument} }[0]->abort();
 }
-
 
 1;
 

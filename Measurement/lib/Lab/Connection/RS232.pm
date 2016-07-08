@@ -22,30 +22,28 @@ use Lab::Exception;
 
 our @ISA = ("Lab::Connection");
 
-
 our %fields = (
-	bus_class => 'Lab::Bus::RS232',
-	port => undef,
-	brutal => 0,
-	read_length=>1000, # bytes
+    bus_class   => 'Lab::Bus::RS232',
+    port        => undef,
+    brutal      => 0,
+    read_length => 1000,                # bytes
 );
 
-
 sub new {
-	my $proto = shift;
-	my $class = ref($proto) || $proto;
-	my $self = $class->SUPER::new(@_); # getting fields and _permitted from parent class
-	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
+    my $self =
+      $class->SUPER::new(@_);  # getting fields and _permitted from parent class
+    $self->${ \( __PACKAGE__ . '::_construct' ) }(__PACKAGE__);
 
-	# Parameter checking
-	if (!defined $self->config('port')) {
-		Lab::Exception::CorruptParameter->throw( error => "No RS232 port specified! I can't work like this.\n" );
-	}
+    # Parameter checking
+    if ( !defined $self->config('port') ) {
+        Lab::Exception::CorruptParameter->throw(
+            error => "No RS232 port specified! I can't work like this.\n" );
+    }
 
-	return $self;
+    return $self;
 }
-
-
 
 #
 # These are the method stubs you have to overwrite when implementing the RS232 connection for your
@@ -59,16 +57,13 @@ sub new {
 # 	return 0;
 # }
 
-
 # sub Write { # @_ = ( command => $cmd, wait_status => $wait_status, brutal => 1/0 )
 # 	return 0; # status true/false
 # }
 
-
 # sub Read { # @_ = ( read_length => $read_length, brutal => 1/0 )
 # 	return 0; # result
 # }
-
 
 # now comes RS232-specific stuff
 
@@ -76,8 +71,6 @@ sub new {
 # In some cases when this is not possible it can be done by a derived connection class.
 
 1;
-
-
 
 =pod
 

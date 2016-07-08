@@ -12,71 +12,66 @@ our @ISA = ('Lab::Generic');
 sub new {
     my $proto = shift;
     my $class = ref($proto) || $proto;
-	my $self = $class->SUPER::new(@_);
-    bless ($self, $class);
-	
-	$self->{slave_counter} = 0;
-	$self->{slaves} = ();
-	
-			
+    my $self  = $class->SUPER::new(@_);
+    bless( $self, $class );
+
+    $self->{slave_counter} = 0;
+    $self->{slaves}        = ();
+
     return $self;
 }
 
-
 sub start {
-	my $self = shift;
-	
-	if ( not defined $self->{master} )
-		{
-		Lab::Exception::Warning->throw(error => "no master defined");
-		}
-	else {
-		$self->{master}->start();
-	}
+    my $self = shift;
+
+    if ( not defined $self->{master} ) {
+        Lab::Exception::Warning->throw( error => "no master defined" );
+    }
+    else {
+        $self->{master}->start();
+    }
 
 }
 
 sub abort {
-	my $self = shift;
-	
-	if (defined $self->{master}) {
-		$self->{master}->abort();
-	}
+    my $self = shift;
+
+    if ( defined $self->{master} ) {
+        $self->{master}->abort();
+    }
 }
 
 sub pause {
-	return shift;
+    return shift;
 }
 
 sub add_master {
-	my $self = shift;	
-	$self->{master} = shift;
+    my $self = shift;
+    $self->{master} = shift;
 
-	my $type = ref($self->{master});
-	if ( not $type =~ /^Lab::XPRESS::Sweep/ )
-		{
-		Lab::Exception::Warning->throw(error => "Master is not of type Lab::XPRESS::Sweep . ");
-		}
-	return $self;
+    my $type = ref( $self->{master} );
+    if ( not $type =~ /^Lab::XPRESS::Sweep/ ) {
+        Lab::Exception::Warning->throw(
+            error => "Master is not of type Lab::XPRESS::Sweep . " );
+    }
+    return $self;
 }
 
 sub add_slave {
-	my $self = shift;
-	my $slave = shift;
-	
-	if ( not defined $self->{master} )
-		{
-		Lab::Exception::Warning->throw(error => "no master defined when called add_slave().");
-		}
-	
-	$self->{master}->add_slave($slave);
+    my $self  = shift;
+    my $slave = shift;
 
-	return $self;
+    if ( not defined $self->{master} ) {
+        Lab::Exception::Warning->throw(
+            error => "no master defined when called add_slave()." );
+    }
+
+    $self->{master}->add_slave($slave);
+
+    return $self;
 }
 
 1;
-
-
 
 =head1 NAME
 

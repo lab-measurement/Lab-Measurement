@@ -11,28 +11,27 @@ use Carp;
 
 use parent 'Lab::Connection';
 
-
 our %fields = (
-	bus_class => "Lab::Bus::DEBUG",
-	brutal => 0,	# brutal as default?
-	type => 'DEBUG',
-	wait_status=>10e-6, # sec;
-	wait_query=>10e-6, # sec;
-	query_length=>300, # bytes
-	query_long_length=>10240, #bytes
-	read_length => 1000, # bytesx
-	instrument_index => 0,
+    bus_class         => "Lab::Bus::DEBUG",
+    brutal            => 0,                   # brutal as default?
+    type              => 'DEBUG',
+    wait_status       => 10e-6,               # sec;
+    wait_query        => 10e-6,               # sec;
+    query_length      => 300,                 # bytes
+    query_long_length => 10240,               #bytes
+    read_length       => 1000,                # bytesx
+    instrument_index  => 0,
 );
 
-
 sub new {
-	my $proto = shift;
-	my $class = ref($proto) || $proto;
-	my $twin = undef;
-	my $self = $class->SUPER::new(@_); # getting fields and _permitted from parent class
-	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
+    my $twin  = undef;
+    my $self =
+      $class->SUPER::new(@_);  # getting fields and _permitted from parent class
+    $self->${ \( __PACKAGE__ . '::_construct' ) }(__PACKAGE__);
 
-	return $self;
+    return $self;
 }
 
 1;
@@ -58,6 +57,5 @@ This library is free software; you can redistribute it and/or modify it under th
 terms as Perl itself.
 
 =cut
-
 
 1;

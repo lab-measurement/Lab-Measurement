@@ -1,7 +1,6 @@
 package Lab::Instrument::SR830;
 our $VERSION = '3.512';
 
-
 use strict;
 use Lab::Instrument;
 use Data::Dumper;
@@ -10,209 +9,226 @@ use Time::HiRes qw (usleep);
 
 our @ISA = ("Lab::Instrument");
 
-our %fields = (
-	supported_connections => [ 'GPIB', 'VISA_GPIB' ],
-);
+our %fields = ( supported_connections => [ 'GPIB', 'VISA_GPIB' ], );
 
 sub new {
-	my $proto = shift;
-	my $class = ref($proto) || $proto;
-	my $self = $class->SUPER::new(@_);
-	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__); 
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
+    my $self  = $class->SUPER::new(@_);
+    $self->${ \( __PACKAGE__ . '::_construct' ) }(__PACKAGE__);
 
-	$self->empty_buffer();
-	return $self;
+    $self->empty_buffer();
+    return $self;
 }
-
 
 #
 # utility methods
 #
 
-sub empty_buffer{
-    my $self=shift;
+sub empty_buffer {
+    my $self = shift;
     my ($times) = $self->_check_args( \@_, ['times'] );
-    if ($times){
-      for (my $i=0;$i<$times;$i++) {
-		 eval { $self->read( brutal => 1 ) };
-      }
-    } else {
-      while($self->read( brutal => 1 )){
-	print "Cleaning buffer."
-      }
+    if ($times) {
+        for ( my $i = 0 ; $i < $times ; $i++ ) {
+            eval { $self->read( brutal => 1 ) };
+        }
+    }
+    else {
+        while ( $self->read( brutal => 1 ) ) {
+            print "Cleaning buffer.";
+        }
     }
 }
 
 sub set_frequency {
-    my ($self,$freq)=@_;
+    my ( $self, $freq ) = @_;
     $self->write("FREQ $freq");
 }
 
-sub set_frq{
-	my $self = shift;
-	my ($freq) = $self->_check_args( \@_, ['value'] );
-	$self->set_frequency($freq);
+sub set_frq {
+    my $self = shift;
+    my ($freq) = $self->_check_args( \@_, ['value'] );
+    $self->set_frequency($freq);
 }
 
 sub get_frequency {
     my $self = shift;
-    my $freq=$self->query("FREQ?");
+    my $freq = $self->query("FREQ?");
     chomp $freq;
-    return $freq; # frequency in Hz
+    return $freq;    # frequency in Hz
 }
 
-sub get_frq{
-	my $self = shift;
-	my $freq = $self->get_frequency();
-	return $freq;
+sub get_frq {
+    my $self = shift;
+    my $freq = $self->get_frequency();
+    return $freq;
 }
 
 sub set_amplitude {
-    my ($self,$ampl)=@_;
+    my ( $self, $ampl ) = @_;
     $self->write("SLVL $ampl");
-    my $realampl=$self->query("SLVL?");
+    my $realampl = $self->query("SLVL?");
     chomp $realampl;
-    return $realampl; # amplitude in V
+    return $realampl;    # amplitude in V
 }
 
 sub get_amplitude {
     my $self = shift;
-    my $ampl=$self->query("SLVL?");
+    my $ampl = $self->query("SLVL?");
     chomp $ampl;
-    return $ampl; # amplitude in V
+    return $ampl;        # amplitude in V
 }
 
 sub set_sens {
-    # set sensitivity to value equal to or greater than argument (in V), Range 2nV..1V
-    my ($self,$sens)=@_;
+
+# set sensitivity to value equal to or greater than argument (in V), Range 2nV..1V
+    my ( $self, $sens ) = @_;
     my $nr = 26;
 
-    if ($sens < 2E-9) { $nr = 0; }
-    elsif ($sens <= 5E-9 ) { $nr = 1; }
-    elsif ($sens <= 1E-8 ) { $nr = 2; }
-    elsif ($sens <= 2E-8 ) { $nr = 3; }
-    elsif ($sens <= 5E-8 ) { $nr = 4; }
-    elsif ($sens <= 1E-7 ) { $nr = 5; }
-    elsif ($sens <= 2E-7 ) { $nr = 6; }
-    elsif ($sens <= 5E-7 ) { $nr = 7; }
-    elsif ($sens <= 1E-6 ) { $nr = 8; }
-    elsif ($sens <= 2E-6 ) { $nr = 9; }
-    elsif ($sens <= 5E-6 ) { $nr = 10; }
-    elsif ($sens <= 1E-5 ) { $nr = 11; }
-    elsif ($sens <= 2E-5 ) { $nr = 12; }
-    elsif ($sens <= 5E-5 ) { $nr = 13; }
-    elsif ($sens <= 1E-4 ) { $nr = 14; }
-    elsif ($sens <= 2E-4 ) { $nr = 15; }
-    elsif ($sens <= 5E-4 ) { $nr = 16; }
-    elsif ($sens <= 1E-3 ) { $nr = 17; }
-    elsif ($sens <= 2E-3 ) { $nr = 18; }
-    elsif ($sens <= 5E-3 ) { $nr = 19; }
-    elsif ($sens <= 1E-2 ) { $nr = 20; }
-    elsif ($sens <= 2E-2 ) { $nr = 21; }
-    elsif ($sens <= 5E-2 ) { $nr = 22; }
-    elsif ($sens <= 1E-1 ) { $nr = 23; }
-    elsif ($sens <= 2E-1 ) { $nr = 24; }
-    elsif ($sens <= 5E-1 ) { $nr = 25; }
+    if    ( $sens < 2E-9 )  { $nr = 0; }
+    elsif ( $sens <= 5E-9 ) { $nr = 1; }
+    elsif ( $sens <= 1E-8 ) { $nr = 2; }
+    elsif ( $sens <= 2E-8 ) { $nr = 3; }
+    elsif ( $sens <= 5E-8 ) { $nr = 4; }
+    elsif ( $sens <= 1E-7 ) { $nr = 5; }
+    elsif ( $sens <= 2E-7 ) { $nr = 6; }
+    elsif ( $sens <= 5E-7 ) { $nr = 7; }
+    elsif ( $sens <= 1E-6 ) { $nr = 8; }
+    elsif ( $sens <= 2E-6 ) { $nr = 9; }
+    elsif ( $sens <= 5E-6 ) { $nr = 10; }
+    elsif ( $sens <= 1E-5 ) { $nr = 11; }
+    elsif ( $sens <= 2E-5 ) { $nr = 12; }
+    elsif ( $sens <= 5E-5 ) { $nr = 13; }
+    elsif ( $sens <= 1E-4 ) { $nr = 14; }
+    elsif ( $sens <= 2E-4 ) { $nr = 15; }
+    elsif ( $sens <= 5E-4 ) { $nr = 16; }
+    elsif ( $sens <= 1E-3 ) { $nr = 17; }
+    elsif ( $sens <= 2E-3 ) { $nr = 18; }
+    elsif ( $sens <= 5E-3 ) { $nr = 19; }
+    elsif ( $sens <= 1E-2 ) { $nr = 20; }
+    elsif ( $sens <= 2E-2 ) { $nr = 21; }
+    elsif ( $sens <= 5E-2 ) { $nr = 22; }
+    elsif ( $sens <= 1E-1 ) { $nr = 23; }
+    elsif ( $sens <= 2E-1 ) { $nr = 24; }
+    elsif ( $sens <= 5E-1 ) { $nr = 25; }
 
-    $self->write( "SENS $nr" );
+    $self->write("SENS $nr");
 
-	my $realsens = $self->query("SENS?");
-  	my @senses =	("2e-9", "5e-9", "10e-9", "20e-9", "50e-9", "100e-9", "200e-9", "500e-9", "1e-6", "2e-6", "5e-6", 
-   					 "10e-6", "20e-6", "50e-6", "100e-6", "200e-6", "500e-6", "1e-3", "2e-3", "5e-3", "10e-3", "20e-3", 
-					 "50e-3", "100e-3", "200e-3", "500e-3", "1");
-    return $senses[$realsens]; # in V
+    my $realsens = $self->query("SENS?");
+    my @senses   = (
+        "2e-9",   "5e-9",   "10e-9",  "20e-9",  "50e-9",  "100e-9",
+        "200e-9", "500e-9", "1e-6",   "2e-6",   "5e-6",   "10e-6",
+        "20e-6",  "50e-6",  "100e-6", "200e-6", "500e-6", "1e-3",
+        "2e-3",   "5e-3",   "10e-3",  "20e-3",  "50e-3",  "100e-3",
+        "200e-3", "500e-3", "1"
+    );
+    return $senses[$realsens];    # in V
 }
 
 sub get_sens {
-    my @senses = ("2e-9", "5e-9", "10e-9", "20e-9", "50e-9", "100e-9", "200e-9", "500e-9", "1e-6", "2e-6", "5e-6", 
-                  "10e-6", "20e-6", "50e-6", "100e-6", "200e-6", "500e-6", "1e-3", "2e-3", "5e-3", "10e-3", "20e-3", 
-                  "50e-3", "100e-3", "200e-3", "500e-3", "1");
+    my @senses = (
+        "2e-9",   "5e-9",   "10e-9",  "20e-9",  "50e-9",  "100e-9",
+        "200e-9", "500e-9", "1e-6",   "2e-6",   "5e-6",   "10e-6",
+        "20e-6",  "50e-6",  "100e-6", "200e-6", "500e-6", "1e-3",
+        "2e-3",   "5e-3",   "10e-3",  "20e-3",  "50e-3",  "100e-3",
+        "200e-3", "500e-3", "1"
+    );
     my $self = shift;
-    my $nr=$self->query("SENS?");
-    return $senses[$nr]; # in V
+    my $nr   = $self->query("SENS?");
+    return $senses[$nr];    # in V
 }
 
-
 #
-# Set sensitivity to 2x the current amplitude (or $minimum_sensitivity, if given) 
+# Set sensitivity to 2x the current amplitude (or $minimum_sensitivity, if given)
 # set_sens_auto( $minimum_sensitivity );
 #
-sub set_sens_auto{
-    my $self=shift;
-    my $minsens=shift || 0;
-    my $V=get_amplitude();
+sub set_sens_auto {
+    my $self    = shift;
+    my $minsens = shift || 0;
+    my $V       = get_amplitude();
+
     #print "V=$V\tminsens=$minsens\n";
     #my ($lix, $liy) = $self->read_xy();
-    if (abs($V)>=$minsens/2 ){
-        $self->set_sens(abs($V*2.));  
-        my ($lix, $liy) = $self->get_xy();
+    if ( abs($V) >= $minsens / 2 ) {
+        $self->set_sens( abs( $V * 2. ) );
+        my ( $lix, $liy ) = $self->get_xy();
     }
-    else{
-        $self->set_sens(abs($minsens));
-        my ($lix, $liy) = $self->get_xy();
-    }  
+    else {
+        $self->set_sens( abs($minsens) );
+        my ( $lix, $liy ) = $self->get_xy();
+    }
 }
 
 sub set_tc {
-     # set time constant to value greater than or equal to argument given, value in s
 
-    my ($self,$tc)=@_;
+# set time constant to value greater than or equal to argument given, value in s
+
+    my ( $self, $tc ) = @_;
     my $nr = 19;
 
-    if ($tc < 1E-5) { $nr = 0; }
-    elsif ($tc < 3E-5 ) { $nr = 1; }
-    elsif ($tc < 1E-4 ) { $nr = 2; }
-    elsif ($tc < 3E-4 ) { $nr = 3; }
-    elsif ($tc < 1E-3 ) { $nr = 4; }
-    elsif ($tc < 3E-3 ) { $nr = 5; }
-    elsif ($tc < 1E-2 ) { $nr = 6; }
-    elsif ($tc < 3E-2 ) { $nr = 7; }
-    elsif ($tc < 1E-1 ) { $nr = 8; }
-    elsif ($tc < 3E-1 ) { $nr = 9; }
-    elsif ($tc < 1 ) { $nr = 10; }
-    elsif ($tc < 3 ) { $nr = 11; }
-    elsif ($tc < 10 ) { $nr = 12; }
-    elsif ($tc < 30 ) { $nr = 13; }
-    elsif ($tc < 100 ) { $nr = 14; }
-    elsif ($tc < 300 ) { $nr = 15; }
-    elsif ($tc < 1000 ) { $nr = 16; }
-    elsif ($tc < 3000 ) { $nr = 17; }
-    elsif ($tc < 10000 ) { $nr = 18; }
+    if    ( $tc < 1E-5 )  { $nr = 0; }
+    elsif ( $tc < 3E-5 )  { $nr = 1; }
+    elsif ( $tc < 1E-4 )  { $nr = 2; }
+    elsif ( $tc < 3E-4 )  { $nr = 3; }
+    elsif ( $tc < 1E-3 )  { $nr = 4; }
+    elsif ( $tc < 3E-3 )  { $nr = 5; }
+    elsif ( $tc < 1E-2 )  { $nr = 6; }
+    elsif ( $tc < 3E-2 )  { $nr = 7; }
+    elsif ( $tc < 1E-1 )  { $nr = 8; }
+    elsif ( $tc < 3E-1 )  { $nr = 9; }
+    elsif ( $tc < 1 )     { $nr = 10; }
+    elsif ( $tc < 3 )     { $nr = 11; }
+    elsif ( $tc < 10 )    { $nr = 12; }
+    elsif ( $tc < 30 )    { $nr = 13; }
+    elsif ( $tc < 100 )   { $nr = 14; }
+    elsif ( $tc < 300 )   { $nr = 15; }
+    elsif ( $tc < 1000 )  { $nr = 16; }
+    elsif ( $tc < 3000 )  { $nr = 17; }
+    elsif ( $tc < 10000 ) { $nr = 18; }
 
     $self->write("OFLT $nr");
 
-    my @tc = ("10e-6", "30e-6", "100e-6", "300e-6", "1e-3", "3e-3", "10e-3", "30e-3", "100e-3", 
-              "300e-3", "1", "3", "10", "30", "100", "300", "1e3", "3e3", "10e3", "30e3");
-    my $realtc=$self->query( "OFLT?");
-    return $tc[$realtc]; # in sec
-
+    my @tc = (
+        "10e-6", "30e-6", "100e-6", "300e-6", "1e-3", "3e-3",
+        "10e-3", "30e-3", "100e-3", "300e-3", "1",    "3",
+        "10",    "30",    "100",    "300",    "1e3",  "3e3",
+        "10e3",  "30e3"
+    );
+    my $realtc = $self->query("OFLT?");
+    return $tc[$realtc];    # in sec
 
 }
 
 sub get_tc {
-    my @tc = ("10e-6", "30e-6", "100e-6", "300e-6", "1e-3", "3e-3", "10e-3", "30e-3", "100e-3", 
-              "300e-3", "1", "3", "10", "30", "100", "300", "1e3", "3e3", "10e3", "30e3");
+    my @tc = (
+        "10e-6", "30e-6", "100e-6", "300e-6", "1e-3", "3e-3",
+        "10e-3", "30e-3", "100e-3", "300e-3", "1",    "3",
+        "10",    "30",    "100",    "300",    "1e3",  "3e3",
+        "10e3",  "30e3"
+    );
 
     my $self = shift;
-    my $nr=$self->query( "OFLT?");
-    return $tc[$nr]; # in sec
+    my $nr   = $self->query("OFLT?");
+    return $tc[$nr];    # in sec
 }
 
 sub get_xy {
+
     # get value of X and Y channel (recorded simultaneously) as array
     my $self = shift;
-    my $tmp=$self->query("SNAP?1,2");
+    my $tmp  = $self->query("SNAP?1,2");
     chomp $tmp;
-    my @arr = split(/,/,$tmp);
+    my @arr = split( /,/, $tmp );
     return @arr;
 }
 
 sub get_rphi {
+
     # get value of amplitude and phase (recorded simultaneously) as array
     my $self = shift;
-    my $tmp=$self->query("SNAP?3,4");
+    my $tmp  = $self->query("SNAP?3,4");
     chomp $tmp;
-    my @arr = split(/,/,$tmp);
+    my @arr = split( /,/, $tmp );
     return @arr;
 }
 
@@ -221,23 +237,22 @@ sub get_channels {
     # get value of channel1 and channel2 as array
     my $self = shift;
 
-    $self->query( "OUTR?1");
-    $self->query( "OUTR?2");
-    my $x=$self->query( "OUTR?1");
-    my $y=$self->query( "OUTR?2" );
+    $self->query("OUTR?1");
+    $self->query("OUTR?2");
+    my $x = $self->query("OUTR?1");
+    my $y = $self->query("OUTR?2");
     chomp $x;
     chomp $y;
-    my @arr = ($x,$y);
+    my @arr = ( $x, $y );
     return @arr;
 }
 
 sub id {
-    my $self=shift;
+    my $self = shift;
     return $self->query('*IDN?');
 }
-              
-1;
 
+1;
 
 =pod
 

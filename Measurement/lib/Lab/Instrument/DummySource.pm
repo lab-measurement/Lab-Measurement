@@ -9,121 +9,116 @@ use Data::Dumper;
 
 use parent 'Lab::Instrument::Source';
 
-
 our %fields = (
-	supported_connections => ['DEBUG'],
-	
-	connection_settings => {},
+    supported_connections => ['DEBUG'],
 
-	device_settings => {
-		# gate_protect            => 1,
-		# gp_equal_level          => 1e-5,
-		# gp_max_units_per_second  => 0.002,
-		# gp_max_units_per_step    => 0.001,
-		# gp_max_step_per_second  => 2,
+    connection_settings => {},
 
-		max_sweep_time=>3600,
-		min_sweep_time=>0.1,
-	},
-	
-	device_cache => {
-		function			=> "Voltage", 
-		range			=> 10,
-		level			=> 0,
-		output					=> undef,
-	},
-	
-	device_cache_order => ['function','range'],
+    device_settings => {
+
+        # gate_protect            => 1,
+        # gp_equal_level          => 1e-5,
+        # gp_max_units_per_second  => 0.002,
+        # gp_max_units_per_step    => 0.001,
+        # gp_max_step_per_second  => 2,
+
+        max_sweep_time => 3600,
+        min_sweep_time => 0.1,
+    },
+
+    device_cache => {
+        function => "Voltage",
+        range    => 10,
+        level    => 0,
+        output   => undef,
+    },
+
+    device_cache_order => [ 'function', 'range' ],
 );
 
-
 sub new {
-	my $proto = shift;
-	my $class = ref($proto) || $proto;
-	my $self = $class->SUPER::new(@_);
-	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
+    my $self  = $class->SUPER::new(@_);
+    $self->${ \( __PACKAGE__ . '::_construct' ) }(__PACKAGE__);
 
     print "DS: Created dummy instrument with config\n";
-    while (my ($k,$v)=each %{$self->device_settings()}) {
-    	$v='undef' if !defined($v);
+    while ( my ( $k, $v ) = each %{ $self->device_settings() } ) {
+        $v = 'undef' if !defined($v);
         print "DS:   $k -> $v\n";
     }
 
-    return $self
+    return $self;
 }
 
 sub _device_init {
-	my $self = shift;
-	return;
+    my $self = shift;
+    return;
 }
-
 
 # sub config_sweep {
 #     my $self = shift;
 #     my ($start, $target, $duration,$sections ,$tail) = $self->check_sweep_config(@_);
-    
-    
-#     print "Dummy Source sweep configuration.\n";        
-#     print "Duration: $duration\n";        
+
+#     print "Dummy Source sweep configuration.\n";
+#     print "Duration: $duration\n";
 #     $self->{'sweeptime'} = $duration;
 # }
 
 sub trg {
-    print "Dummy Source received trigger.\n"
+    print "Dummy Source received trigger.\n";
 }
 
-sub wait{
+sub wait {
     my $self = shift;
     print "Dummy Source is sweeping.\n";
-    sleep($self->{'sweeptime'});
+    sleep( $self->{'sweeptime'} );
 }
-
-
 
 sub _set_level {
     my $self = shift;
-    my ($value, $tail) = $self->_check_args( \@_, ['value'] );
+    my ( $value, $tail ) = $self->_check_args( \@_, ['value'] );
     say "DS: setting level to $value";
     return $self->{'device_cache'}->{'level'} = $value;
 }
 
 sub set_voltage {
-	my $self = shift;
-	my ($voltage, $tail) = $self->_check_args(\@_, ['voltage']);
-	return $self->set_level($voltage, $tail);
+    my $self = shift;
+    my ( $voltage, $tail ) = $self->_check_args( \@_, ['voltage'] );
+    return $self->set_level( $voltage, $tail );
 }
 
 sub get_level {
-    my $self=shift;
+    my $self = shift;
 
     return $self->{'device_cache'}->{'level'};
 }
 
-sub active{
+sub active {
     return 0;
 }
 
-sub abort{
+sub abort {
     return 0;
 }
 
 sub set_range {
-    my $self=shift;
-    my $range=shift;
-    my $args={@_};
+    my $self    = shift;
+    my $range   = shift;
+    my $args    = {@_};
     my $channel = $args->{'channel'} || $self->default_channel();
 
-    my $tmp="last_range_$channel";
-    $self->{$tmp}=$range;
+    my $tmp = "last_range_$channel";
+    $self->{$tmp} = $range;
     print "DS: setting virtual range of channel $channel to $range\n";
 }
 
 sub get_range {
-    my $self=shift;
-    my $args={@_};
+    my $self    = shift;
+    my $args    = {@_};
     my $channel = $args->{'channel'} || $self->default_channel();
 
-    my $tmp="last_range_$channel";
+    my $tmp = "last_range_$channel";
     print "DS: getting virtual range: $$self{$tmp}\n";
     return $self->{$tmp};
 }

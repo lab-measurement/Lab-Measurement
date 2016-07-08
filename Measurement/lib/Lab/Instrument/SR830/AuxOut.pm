@@ -1,3 +1,4 @@
+
 =head1 NAME
 
 Lab::Instrument::SR830::AuxOut -- Aux Outputs of the Stanford
@@ -57,6 +58,7 @@ C<1>. Example sweep configuration:
  
  
 =cut
+
 package Lab::Instrument::SR830::AuxOut;
 
 use warnings;
@@ -72,59 +74,61 @@ use Carp;
 use parent qw/Lab::Instrument::Source/;
 
 our %fields = (
-	supported_connections => [ 'GPIB', 'VISA' ],
+    supported_connections => [ 'GPIB', 'VISA' ],
 
-	# default settings for the supported connections
-	connection_settings => {
-		gpib_board => 0,
-		gpib_address => undef,
-		timeout => 1
-	},
+    # default settings for the supported connections
+    connection_settings => {
+        gpib_board   => 0,
+        gpib_address => undef,
+        timeout      => 1
+    },
 
-	device_settings => {
-		gate_protect            => 1,
-		#gp_equal_level          => 1e-5,
-		gp_max_units_per_second  => 0.005,
-		gp_max_units_per_step    => 0.001,
-		gp_max_step_per_second  => 5,
+    device_settings => {
+        gate_protect => 1,
 
-		max_sweep_time=>3600,
-		min_sweep_time=>0.1,
-		
-		stepsize		=> 0.01,
+        #gp_equal_level          => 1e-5,
+        gp_max_units_per_second => 0.005,
+        gp_max_units_per_step   => 0.001,
+        gp_max_step_per_second  => 5,
 
-	},
+        max_sweep_time => 3600,
+        min_sweep_time => 0.1,
 
-	channel => undef,
-    );
+        stepsize => 0.01,
+
+    },
+
+    channel => undef,
+);
 
 sub new {
-	my $proto = shift;
-	my $class = ref($proto) || $proto;
-	my $self = $class->SUPER::new(@_);
-	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
-        $self->empty_buffer();
-	my $channel = $self->channel;
-	if (not defined $channel) {
-		croak "need channel (1-4) in constructor for ", __PACKAGE__ ;
-	}
-	elsif ($channel !~ /^[1-4]$/) {
-		croak "channel '$channel' is not in the range (1..4)";
-	}
-        return $self;
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
+    my $self  = $class->SUPER::new(@_);
+    $self->${ \( __PACKAGE__ . '::_construct' ) }(__PACKAGE__);
+    $self->empty_buffer();
+    my $channel = $self->channel;
+    if ( not defined $channel ) {
+        croak "need channel (1-4) in constructor for ", __PACKAGE__;
+    }
+    elsif ( $channel !~ /^[1-4]$/ ) {
+        croak "channel '$channel' is not in the range (1..4)";
+    }
+    return $self;
 }
 
-sub empty_buffer{
-    my $self=shift;
+sub empty_buffer {
+    my $self = shift;
     my ($times) = $self->_check_args( \@_, ['times'] );
-    if ($times){
-      for (my $i=0;$i<$times;$i++) {
-		 eval { $self->read( brutal => 1 ) };
-      }
-    } else {
-      while($self->read( brutal => 1 )){
-	print "Cleaning buffer."
-      }
+    if ($times) {
+        for ( my $i = 0 ; $i < $times ; $i++ ) {
+            eval { $self->read( brutal => 1 ) };
+        }
+    }
+    else {
+        while ( $self->read( brutal => 1 ) ) {
+            print "Cleaning buffer.";
+        }
     }
 }
 
@@ -137,18 +141,20 @@ C<$voltage> is bigger than 10.5 V.
 
 =cut
 
-sub _set_level {    
-    my $self=shift;
-    my ($value, $tail) = $self->_check_args( \@_, ['value'] );
-    
-    if (abs($value) > 10.5) {
-	    Lab::Exception::CorruptParameter->throw("The desired source level $value is not within the source range (10.5 V) \n");
+sub _set_level {
+    my $self = shift;
+    my ( $value, $tail ) = $self->_check_args( \@_, ['value'] );
+
+    if ( abs($value) > 10.5 ) {
+        Lab::Exception::CorruptParameter->throw(
+"The desired source level $value is not within the source range (10.5 V) \n"
+        );
     }
-    
-    my $cmd=sprintf("AUXV %d, %ee", $self->{channel}, $value);
-    
-    $self->write( $cmd, {error_check => 1} , $tail);
-    
+
+    my $cmd = sprintf( "AUXV %d, %ee", $self->{channel}, $value );
+
+    $self->write( $cmd, { error_check => 1 }, $tail );
+
     return $value;
 }
 
@@ -158,11 +164,11 @@ Equivalent to C<_set_level>.
 
 =cut
 
-sub set_voltage {   
-    my $self=shift;
-    my ($voltage, $tail) = $self->_check_args( \@_, ['voltage'] );
-    
-    return $self->set_level($voltage, $tail);
+sub set_voltage {
+    my $self = shift;
+    my ( $voltage, $tail ) = $self->_check_args( \@_, ['voltage'] );
+
+    return $self->set_level( $voltage, $tail );
 }
 
 =head2 set_level($voltage)
@@ -176,14 +182,14 @@ Query the current output voltage.
 =cut
 
 sub get_level {
-	my $self = shift;
-	my ($tail) = $self->_check_args(\@_, []);
-	my $channel = $self->channel;
-	return $self->query("AUXV? $channel", $tail);
+    my $self = shift;
+    my ($tail) = $self->_check_args( \@_, [] );
+    my $channel = $self->channel;
+    return $self->query( "AUXV? $channel", $tail );
 }
 
 sub active {
-	return 0;
+    return 0;
 }
 
 1;

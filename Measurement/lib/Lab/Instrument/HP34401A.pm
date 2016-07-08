@@ -10,438 +10,435 @@ use Carp;
 use Data::Dumper;
 use Lab::Instrument::Multimeter;
 
-
 our @ISA = ("Lab::Instrument::Multimeter");
 
 our %fields = (
-	supported_connections => [ 'GPIB' ],
+    supported_connections => ['GPIB'],
 
-	# default settings for the supported connections
-	connection_settings => {
-		gpib_board => 0,
-		gpib_address => undef,
-	},
+    # default settings for the supported connections
+    connection_settings => {
+        gpib_board   => 0,
+        gpib_address => undef,
+    },
 
-	device_settings => { 
-		pl_freq => 50,
-	},
-	
-	device_cache =>{			
-		# TO DO: add range and resolution + get/setter
-	}
+    device_settings => {
+        pl_freq => 50,
+    },
+
+    device_cache => {
+
+        # TO DO: add range and resolution + get/setter
+      }
 
 );
 
-
 sub new {
-	my $proto = shift;
-	my $class = ref($proto) || $proto;
-	my $self = $class->SUPER::new(@_);
-	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
-	return $self;
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
+    my $self  = $class->SUPER::new(@_);
+    $self->${ \( __PACKAGE__ . '::_construct' ) }(__PACKAGE__);
+    return $self;
 }
 
-
-# 
+#
 # first, all internal stuff
-# 
-
-
+#
 
 #
 # all methods that fill in general Multimeter methods
 #
 
-
-
-
 sub _display_clear {
-    my $self=shift;
-    $self->connection()->Write( command => "DISPlay:TEXT:CLEar");
+    my $self = shift;
+    $self->connection()->Write( command => "DISPlay:TEXT:CLEar" );
 }
 
 sub _id {
-    my $self=shift;
+    my $self = shift;
     return $self->query('*IDN?');
 }
 
 sub get_value {
-    my $self=shift;
-    my $value=$self->query('READ?');
+    my $self  = shift;
+    my $value = $self->query('READ?');
     chomp $value;
     return $value;
 }
 
-sub _device_init{
-	my $self = shift;
-	
-	
-	
+sub _device_init {
+    my $self = shift;
+
 }
 
 #
 # all methods that are called directly
 #
 
-
 sub get_resistance {
-    my $self=shift;
-    my ($range,$resolution)=@_;
-    
-    $range="DEF" unless (defined $range);
-    $resolution="DEF" unless (defined $resolution);
-    
-	my $cmd=sprintf("MEASure:SCALar:RESIStance? %s,%s",$range,$resolution);
-	my $value = $self->query($cmd);
+    my $self = shift;
+    my ( $range, $resolution ) = @_;
+
+    $range      = "DEF" unless ( defined $range );
+    $resolution = "DEF" unless ( defined $resolution );
+
+    my $cmd =
+      sprintf( "MEASure:SCALar:RESIStance? %s,%s", $range, $resolution );
+    my $value = $self->query($cmd);
     return $value;
 }
-
 
 sub get_4wresistance {
-    my $self=shift;
-    my ($range,$resolution)=@_;
-    
-    $range="DEF" unless (defined $range);
-    $resolution="DEF" unless (defined $resolution);
-    
-	my $cmd=sprintf("MEASure:SCALar:FRESIStance? %s,%s",$range,$resolution);
-	my $value = $self->query($cmd);
+    my $self = shift;
+    my ( $range, $resolution ) = @_;
+
+    $range      = "DEF" unless ( defined $range );
+    $resolution = "DEF" unless ( defined $resolution );
+
+    my $cmd =
+      sprintf( "MEASure:SCALar:FRESIStance? %s,%s", $range, $resolution );
+    my $value = $self->query($cmd);
     return $value;
 }
-
 
 sub get_voltage_dc {
-    my $self=shift;
-    my ($range,$resolution)=@_;
-    
-    $range="DEF" unless (defined $range);
-    $resolution="DEF" unless (defined $resolution);
-    
-    my $cmd=sprintf("MEASure:VOLTage:DC? %s,%s",$range,$resolution);
+    my $self = shift;
+    my ( $range, $resolution ) = @_;
+
+    $range      = "DEF" unless ( defined $range );
+    $resolution = "DEF" unless ( defined $resolution );
+
+    my $cmd = sprintf( "MEASure:VOLTage:DC? %s,%s", $range, $resolution );
     my $value = $self->query($cmd);
     return $value;
 }
-
 
 sub get_voltage_ac {
-    my $self=shift;
-    my ($range,$resolution)=@_;
-    
-    $range="DEF" unless (defined $range);
-    $resolution="DEF" unless (defined $resolution);
-    
-    my $cmd=sprintf("MEASure:VOLTage:AC? %s,%s",$range,$resolution);
+    my $self = shift;
+    my ( $range, $resolution ) = @_;
+
+    $range      = "DEF" unless ( defined $range );
+    $resolution = "DEF" unless ( defined $resolution );
+
+    my $cmd = sprintf( "MEASure:VOLTage:AC? %s,%s", $range, $resolution );
     my $value = $self->query($cmd);
     return $value;
 }
-
 
 sub get_current_dc {
-    my $self=shift;
-    my ($range,$resolution)=@_;
-    
-    $range="DEF" unless (defined $range);
-    $resolution="DEF" unless (defined $resolution);
-    
-    my $cmd=sprintf("MEASure:CURRent:DC? %s,%s",$range,$resolution);
+    my $self = shift;
+    my ( $range, $resolution ) = @_;
+
+    $range      = "DEF" unless ( defined $range );
+    $resolution = "DEF" unless ( defined $resolution );
+
+    my $cmd = sprintf( "MEASure:CURRent:DC? %s,%s", $range, $resolution );
     my $value = $self->query($cmd);
     return $value;
 }
 
-
 sub get_current_ac {
-    my $self=shift;
-    my ($range,$resolution)=@_;
-    
-    $range="DEF" unless (defined $range);
-    $resolution="DEF" unless (defined $resolution);
-    
-    my $cmd=sprintf("MEASure:CURRent:AC? %s,%s",$range,$resolution);
+    my $self = shift;
+    my ( $range, $resolution ) = @_;
+
+    $range      = "DEF" unless ( defined $range );
+    $resolution = "DEF" unless ( defined $resolution );
+
+    my $cmd = sprintf( "MEASure:CURRent:AC? %s,%s", $range, $resolution );
     my $value = $self->query($cmd);
     return $value;
 }
 
 sub beep {
-    my $self=shift;
+    my $self = shift;
     $self->write("SYSTem:BEEPer");
 }
 
-
 sub get_error {
-	my $self=shift;
-	my $error = $self->query( "SYST:ERR?" );
-	if($error !~ /\+0,/) {
-		if ($error =~ /^(\+[0-9]*)\,\"?(.*)\"?$/) {
-			return ($1, $2); # ($code, $message)
-		}
-		else {
-			return $error;
-		}
-	}
-	else {
-		return undef;
-	}
-}
-
-sub get_status{
-	my $self = shift;
-	
-	# This is to be implemented with code that queries the status bit
-
-	my $request = shift;
-	my $status = {};
-	
-	($status->{NOT_USED1}, $status->{NOT_USED2}, $status->{NOT_USED3}, $status->{CORR_DATA}, $status->{MSG_AVAIL}, $status->{EVNT}, $status->{SRQ}, $status->{NOT_USED4} ) = $self->connection()->serial_poll();
-	return $status->{$request} if defined $request;
-	return $status;
-}
-
-
-sub set_display_state {
-    my $self=shift;
-    my $value=shift;
-	
-    if($value==1 || $value =~ /on/i ) {
-    	$self->write("DISP ON", @_);
-    }
-    elsif($value==0 || $value =~ /off/i ) {
-    	$self->write("DISP OFF", @_);
+    my $self  = shift;
+    my $error = $self->query("SYST:ERR?");
+    if ( $error !~ /\+0,/ ) {
+        if ( $error =~ /^(\+[0-9]*)\,\"?(.*)\"?$/ ) {
+            return ( $1, $2 );    # ($code, $message)
+        }
+        else {
+            return $error;
+        }
     }
     else {
-    	Lab::Exception::CorruptParameter->throw( "set_display_state(): Illegal parameter.\n" );
+        return undef;
+    }
+}
+
+sub get_status {
+    my $self = shift;
+
+    # This is to be implemented with code that queries the status bit
+
+    my $request = shift;
+    my $status  = {};
+
+    (
+        $status->{NOT_USED1}, $status->{NOT_USED2}, $status->{NOT_USED3},
+        $status->{CORR_DATA}, $status->{MSG_AVAIL}, $status->{EVNT},
+        $status->{SRQ},       $status->{NOT_USED4}
+    ) = $self->connection()->serial_poll();
+    return $status->{$request} if defined $request;
+    return $status;
+}
+
+sub set_display_state {
+    my $self  = shift;
+    my $value = shift;
+
+    if ( $value == 1 || $value =~ /on/i ) {
+        $self->write( "DISP ON", @_ );
+    }
+    elsif ( $value == 0 || $value =~ /off/i ) {
+        $self->write( "DISP OFF", @_ );
+    }
+    else {
+        Lab::Exception::CorruptParameter->throw(
+            "set_display_state(): Illegal parameter.\n");
     }
 }
 
 sub set_display_text {
-    my $self=shift;
-    my $text=shift;
-    if( $text !~ /^[A-Za-z0-9\ \!\#\$\%\&\'\(\)\^\\\/\@\;\:\[\]\,\.\+\-\=\<\>\?\_]*$/ ) { # characters allowed by the 3458A
-    	Lab::Exception::CorruptParameter->throw( "set_display_text(): Illegal characters in given text.\n" );
+    my $self = shift;
+    my $text = shift;
+    if ( $text !~
+        /^[A-Za-z0-9\ \!\#\$\%\&\'\(\)\^\\\/\@\;\:\[\]\,\.\+\-\=\<\>\?\_]*$/ )
+    {    # characters allowed by the 3458A
+        Lab::Exception::CorruptParameter->throw(
+            "set_display_text(): Illegal characters in given text.\n");
     }
     $self->write("DISP:TEXT $text");
-    
+
     $self->check_errors();
 }
 
+sub set_range {
+    my $self = shift;
 
-
-sub set_range{
-	my $self = shift;
-	
-	# This is the range set function, to be implemented.
+    # This is the range set function, to be implemented.
 }
 
 sub reset {
-    my $self=shift;
-    $self->connection()->Write( command => "*CLS");
-    $self->connection()->Write( command => "*RST");
-#	$self->connection()->InstrumentClear($self->instrument_handle());
+    my $self = shift;
+    $self->connection()->Write( command => "*CLS" );
+    $self->connection()->Write( command => "*RST" );
+
+    #	$self->connection()->InstrumentClear($self->instrument_handle());
 }
 
+sub wait_done {
+    my $self = shift;
 
-sub wait_done{
-	my $self = shift;
-	
-	# wait until currently running program is finished.
-	
-	while (! $self->get_status()->{"EVNT"}){
-    	sleep 1;
+    # wait until currently running program is finished.
+
+    while ( !$self->get_status()->{"EVNT"} ) {
+        sleep 1;
     }
-	
-	
+
 }
 
 sub autozero {
-	my $self=shift;
-	my $enable=shift;
-	my $az_status=undef;
-	my $command = "";
-	
-	if(!defined $enable) {
-		# read autozero setting
-		$command = "ZERO:AUTO?";
-		$az_status=$self->query( $command, error_check => 1 );
-	}
-	else {
-		if ($enable =~ /^ONCE$/i) {
-			$command = "ZERO:AUTO ONCE";
-		}
-		elsif($enable =~ /^(ON|1)$/i) {
-			$command = "ZERO:AUTO ONCE";
-		}
-		elsif($enable =~ /^(OFF|0)$/i) {
-			$command = "ZERO:AUTO OFF";
-		}
-		else {
-			Lab::Exception::CorruptParameter->throw( error => "HP34401A::autozero() can be set to 'ON'/1, 'OFF'/0 or 'ONCE'. Received '${enable}'\n" );
-		}
-		$self->write( $command, error_check => 1 );
-	}	
-	
-	return $az_status;
+    my $self      = shift;
+    my $enable    = shift;
+    my $az_status = undef;
+    my $command   = "";
+
+    if ( !defined $enable ) {
+
+        # read autozero setting
+        $command = "ZERO:AUTO?";
+        $az_status = $self->query( $command, error_check => 1 );
+    }
+    else {
+        if ( $enable =~ /^ONCE$/i ) {
+            $command = "ZERO:AUTO ONCE";
+        }
+        elsif ( $enable =~ /^(ON|1)$/i ) {
+            $command = "ZERO:AUTO ONCE";
+        }
+        elsif ( $enable =~ /^(OFF|0)$/i ) {
+            $command = "ZERO:AUTO OFF";
+        }
+        else {
+            Lab::Exception::CorruptParameter->throw( error =>
+"HP34401A::autozero() can be set to 'ON'/1, 'OFF'/0 or 'ONCE'. Received '${enable}'\n"
+            );
+        }
+        $self->write( $command, error_check => 1 );
+    }
+
+    return $az_status;
 }
 
 sub configure_voltage_dc {
-	my $self=shift;
-    my $range=shift; # in V, or "AUTO", "MIN", "MAX"
-    my $tint=shift;  # integration time in sec, "DEFAULT", "MIN", "MAX"
-    my $res_cmd=shift;
-    
-    if($range eq 'AUTO' || !defined($range)) {
-    	$range='DEF';
+    my $self    = shift;
+    my $range   = shift;    # in V, or "AUTO", "MIN", "MAX"
+    my $tint    = shift;    # integration time in sec, "DEFAULT", "MIN", "MAX"
+    my $res_cmd = shift;
+
+    if ( $range eq 'AUTO' || !defined($range) ) {
+        $range = 'DEF';
     }
-    elsif($range =~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/) {
-	    #$range = sprintf("%e",abs($range));
+    elsif ( $range =~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/ ) {
+
+        #$range = sprintf("%e",abs($range));
     }
-    elsif($range !~ /^(MIN|MAX)$/) {
-    	Lab::Exception::CorruptParameter->throw( error => "Range has to be set to a decimal value or 'AUTO', 'MIN' or 'MAX' in HP34401A::configure_voltage_dc()\n" );	
+    elsif ( $range !~ /^(MIN|MAX)$/ ) {
+        Lab::Exception::CorruptParameter->throw( error =>
+"Range has to be set to a decimal value or 'AUTO', 'MIN' or 'MAX' in HP34401A::configure_voltage_dc()\n"
+        );
     }
-    
-    if($tint =~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/) {
-    	# Convert seconds to PLC (power line cycles)
-    	$tint*=$self->pl_freq(); 
+
+    if ( $tint =~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/ ) {
+
+        # Convert seconds to PLC (power line cycles)
+        $tint *= $self->pl_freq();
     }
-    elsif($tint !~ /^(MIN|MAX|DEFAULT)$/) {
-		Lab::Exception::CorruptParameter->throw( error => "Integration time has to be set to a positive value or 'AUTO', 'MIN' or 'MAX' in HP34401A::configure_voltage_dc()\n" )    	
+    elsif ( $tint !~ /^(MIN|MAX|DEFAULT)$/ ) {
+        Lab::Exception::CorruptParameter->throw( error =>
+"Integration time has to be set to a positive value or 'AUTO', 'MIN' or 'MAX' in HP34401A::configure_voltage_dc()\n"
+        );
     }
-    
-    if(!defined($res_cmd)) {
-    	$res_cmd='';
+
+    if ( !defined($res_cmd) ) {
+        $res_cmd = '';
     }
- 
-    
-    
-	# do it
-	$self->write( "CONF:VOLT:DC ${range} ${res_cmd}", error_check => 1 );
-	$self->write( "VOLT:DC:NPLC ${tint}", error_check => 1 ) if $res_cmd eq ''; # integration time implicitly set through resolution
+
+    # do it
+    $self->write( "CONF:VOLT:DC ${range} ${res_cmd}", error_check => 1 );
+    $self->write( "VOLT:DC:NPLC ${tint}",             error_check => 1 )
+      if $res_cmd eq '';    # integration time implicitly set through resolution
 }
 
 sub configure_voltage_dc_trigger {
-	my $self=shift;
-	
-	my ($range,$tint,$count,$delay,$res_cmd) = $self->_check_args( \@_, ['range','tint','count','delay','resolution'] );
-    
-    ### Check the parameters for errors 
-    
-    $count=1 if !defined($count);
-    Lab::Exception::CorruptParameter->throw( error => "Sample count has to be an integer between 1 and 512\n" )
-    	if($count !~ /^[0-9]*$/ || $count < 1 || $count > 512); 
+    my $self = shift;
 
-	$delay=0 if !defined($delay);
-    Lab::Exception::CorruptParameter->throw( error => "Trigger delay has to be a positive decimal value\n" )
-    	if($count !~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/);
-    	
-    	
-    if(!defined($tint)){
-    	$tint = "DEF";
-    }	
-    elsif($tint =~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/) {
-    	# Convert seconds to PLC (power line cycles)
-    	$tint*=$self->pl_freq(); 
-    	if( $tint > 100 || $tint < 0.02){
-    		Lab::Exception::CorruptParameter->throw( error => "Integration time out of bounds (int. time = $tint) in HP34401A::configure_voltage_dc()\n" )
-    	}
+    my ( $range, $tint, $count, $delay, $res_cmd ) = $self->_check_args( \@_,
+        [ 'range', 'tint', 'count', 'delay', 'resolution' ] );
+
+    ### Check the parameters for errors
+
+    $count = 1 if !defined($count);
+    Lab::Exception::CorruptParameter->throw(
+        error => "Sample count has to be an integer between 1 and 512\n" )
+      if ( $count !~ /^[0-9]*$/ || $count < 1 || $count > 512 );
+
+    $delay = 0 if !defined($delay);
+    Lab::Exception::CorruptParameter->throw(
+        error => "Trigger delay has to be a positive decimal value\n" )
+      if ( $count !~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/ );
+
+    if ( !defined($tint) ) {
+        $tint = "DEF";
     }
-    elsif($tint !~ /^(MIN|MAX|DEF)$/ ) {
-		Lab::Exception::CorruptParameter->throw( error => "Integration time has to be set to a positive value, 'DEFAULT', 'MIN' or 'MAX' in HP34401A::configure_voltage_dc()\n" )    	
+    elsif ( $tint =~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/ ) {
+
+        # Convert seconds to PLC (power line cycles)
+        $tint *= $self->pl_freq();
+        if ( $tint > 100 || $tint < 0.02 ) {
+            Lab::Exception::CorruptParameter->throw( error =>
+"Integration time out of bounds (int. time = $tint) in HP34401A::configure_voltage_dc()\n"
+            );
+        }
     }
-    
-    
-    if($range eq 'AUTO' || !defined($range)) {
-    	$range='DEF';
+    elsif ( $tint !~ /^(MIN|MAX|DEF)$/ ) {
+        Lab::Exception::CorruptParameter->throw( error =>
+"Integration time has to be set to a positive value, 'DEFAULT', 'MIN' or 'MAX' in HP34401A::configure_voltage_dc()\n"
+        );
     }
-    elsif($range =~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/) {
-	    $range = sprintf("%e",abs($range));
+
+    if ( $range eq 'AUTO' || !defined($range) ) {
+        $range = 'DEF';
     }
-    elsif($range !~ /^(MIN|MAX)$/) {
-    	Lab::Exception::CorruptParameter->throw( error => "Range has to be set to a decimal value or 'AUTO', 'MIN' or 'MAX' in HP34401A::configure_voltage_dc()\n" );	
+    elsif ( $range =~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/ ) {
+        $range = sprintf( "%e", abs($range) );
     }
-        
-    if(!defined($res_cmd)) {
-    	$res_cmd='';
+    elsif ( $range !~ /^(MIN|MAX)$/ ) {
+        Lab::Exception::CorruptParameter->throw( error =>
+"Range has to be set to a decimal value or 'AUTO', 'MIN' or 'MAX' in HP34401A::configure_voltage_dc()\n"
+        );
+    }
+
+    if ( !defined($res_cmd) ) {
+        $res_cmd = '';
     }
 
     $self->write( "CONF:VOLT:DC ${range} ${res_cmd}", error_check => 1 );
-    $self->write( "VOLT:DC:NPLC ${tint}", error_check => 1 ) if $res_cmd eq ''; # integration time implicitly set if resolution not given
-    
-    $self->write("*ESE 1", error_check => 1 );
-    $self->write("*CLS", error_check => 1 );
-        
-    $self->write( "TRIG:SOURce BUS", error_check => 1  );
+    $self->write( "VOLT:DC:NPLC ${tint}",             error_check => 1 )
+      if $res_cmd eq
+      '';    # integration time implicitly set if resolution not given
+
+    $self->write( "*ESE 1", error_check => 1 );
+    $self->write( "*CLS",   error_check => 1 );
+
+    $self->write( "TRIG:SOURce BUS",     error_check => 1 );
     $self->write( "SAMPle:COUNt $count", error_check => 1 );
-    $self->write( "TRIG:DELay $delay", error_check => 1 );
+    $self->write( "TRIG:DELay $delay",   error_check => 1 );
 
-    
 }
 
-sub read_trig{
-	my $self=shift;
-	
+sub read_trig {
+    my $self = shift;
 
-    $self->write( "*TRG");
+    $self->write("*TRG");
     $self->write("*OPC");
-	
+
 }
 
-sub fetch{
-	my $self = shift;
-	
-	my $value = $self->query( "FETCh?");
-	
+sub fetch {
+    my $self = shift;
 
+    my $value = $self->query("FETCh?");
 
     chomp $value;
 
-    my @valarray = split(",",$value);
+    my @valarray = split( ",", $value );
 
     return @valarray;
 }
 
-
-sub init{
-	my $self=shift;
-	$self->write("INIT");
-}	
+sub init {
+    my $self = shift;
+    $self->write("INIT");
+}
 
 sub triggered_read {
-    my $self=shift;
-	my $args=undef;
-	if (ref $_[0] eq 'HASH') { $args=shift }
-	else { $args={@_} }
-	
-	
-	
-	#$args->{'timeout'} = $args->{'timeout'} || $self->timeout();
+    my $self = shift;
+    my $args = undef;
+    if   ( ref $_[0] eq 'HASH' ) { $args = shift }
+    else                         { $args = {@_} }
+
+    #$args->{'timeout'} = $args->{'timeout'} || $self->timeout();
 
     $self->init();
     $self->read_trig();
     $self->wait_done();
-    my $value = $self->query( "FETCh?", $args);
-	
-
+    my $value = $self->query( "FETCh?", $args );
 
     chomp $value;
 
-    my @valarray = split(",",$value);
+    my @valarray = split( ",", $value );
 
     return @valarray;
 }
 
-
 sub scroll_message {
     use Time::HiRes (qw/usleep/);
-    my $self=shift;
-    my $message=shift || "            Lab::Measurement - designed to make measuring fun!            ";
-    for my $i (0..(length($message)-12)) {
-        $self->display_text(sprintf "%12.12s",substr($message,$i));
+    my $self    = shift;
+    my $message = shift
+      || "            Lab::Measurement - designed to make measuring fun!            ";
+    for my $i ( 0 .. ( length($message) - 12 ) ) {
+        $self->display_text( sprintf "%12.12s", substr( $message, $i ) );
         usleep(100000);
     }
     $self->display_clear();
 }
 
 1;
-
-
 
 =pod
 

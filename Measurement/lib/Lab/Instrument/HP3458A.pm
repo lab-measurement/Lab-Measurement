@@ -8,446 +8,494 @@ use Lab::Instrument;
 use Lab::Instrument::Multimeter;
 use Time::HiRes qw (usleep sleep);
 
-
 our @ISA = ("Lab::Instrument::Multimeter");
 
 our %fields = (
-	supported_connections => [ 'GPIB' ],
+    supported_connections => ['GPIB'],
 
-	# default settings for the supported connections
-	connection_settings => {
-		gpib_board => 0,
-		gpib_address => undef,
-	},
+    # default settings for the supported connections
+    connection_settings => {
+        gpib_board   => 0,
+        gpib_address => undef,
+    },
 
-	device_settings => {
-		pl_freq => 50,
-	},
-	
-	device_cache => {
-		autozero => undef,
-	},
+    device_settings => {
+        pl_freq => 50,
+    },
+
+    device_cache => {
+        autozero => undef,
+    },
 
 );
 
 sub new {
-	my $proto = shift;
-	my $class = ref($proto) || $proto;
-	my $self = $class->SUPER::new(@_);
-	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
-	
-	return $self;
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
+    my $self  = $class->SUPER::new(@_);
+    $self->${ \( __PACKAGE__ . '::_construct' ) }(__PACKAGE__);
+
+    return $self;
 }
 
 sub _device_init {
-	my $self = shift;
-	
-	#$self->connection()->SetTermChar("\r\n");
-	#$self->connection()->EnableTermChar(1);
-	#print "hallo\n";
-	$self->write("END 2", error_check=>1); # or ERRSTR? and other queries will time out, unless using a line/message end character
-	$self->write('TARM AUTO', error_check=>1); # keep measuring
-	$self->write('TRIG AUTO', error_check=>1); # keep measuring
-	$self->write('NRDGS 1,AUTO', error_check=>1); # keep measuring
-}
+    my $self = shift;
 
+    #$self->connection()->SetTermChar("\r\n");
+    #$self->connection()->EnableTermChar(1);
+    #print "hallo\n";
+    $self->write( "END 2", error_check => 1 )
+      ; # or ERRSTR? and other queries will time out, unless using a line/message end character
+    $self->write( 'TARM AUTO',    error_check => 1 );    # keep measuring
+    $self->write( 'TRIG AUTO',    error_check => 1 );    # keep measuring
+    $self->write( 'NRDGS 1,AUTO', error_check => 1 );    # keep measuring
+}
 
 #
 # utility methods
 #
 
-
 sub configure_voltage_dc {
-	my $self=shift;
+    my $self = shift;
 
-	my ($range,$tint) = $self->_check_args( \@_, ['range','tint'] );	
-	    
-	my $range_cmd = "FUNC DCV ";
-    
-    if($range eq 'AUTO' || !defined($range)) {
-    	$range_cmd='ARANGE ON';
+    my ( $range, $tint ) = $self->_check_args( \@_, [ 'range', 'tint' ] );
+
+    my $range_cmd = "FUNC DCV ";
+
+    if ( $range eq 'AUTO' || !defined($range) ) {
+        $range_cmd = 'ARANGE ON';
     }
-    elsif($range =~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/) {
-	    $range_cmd = sprintf("FUNC DCV %e",abs($range));
+    elsif ( $range =~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/ ) {
+        $range_cmd = sprintf( "FUNC DCV %e", abs($range) );
     }
-    elsif($range !~ /^(MIN|MAX)$/) {
-    	Lab::Exception::CorruptParameter->throw( error => "Range has to be set to a decimal value or 'AUTO', 'MIN' or 'MAX' in " . (caller(0))[3] . "\n" );	
+    elsif ( $range !~ /^(MIN|MAX)$/ ) {
+        Lab::Exception::CorruptParameter->throw( error =>
+"Range has to be set to a decimal value or 'AUTO', 'MIN' or 'MAX' in "
+              . ( caller(0) )[3]
+              . "\n" );
     }
-    
-    if(!defined($tint) || $tint eq 'DEFAULT') {
-    	$tint=10;
+
+    if ( !defined($tint) || $tint eq 'DEFAULT' ) {
+        $tint = 10;
     }
-    elsif($tint =~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/ && ( ($tint>=0 && $tint<=1000) || $tint==-1 ) ) {
-    	# Convert seconds to PLC (power line cycles)
-    	$tint*=$self->pl_freq(); 
+    elsif ( $tint =~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/
+        && ( ( $tint >= 0 && $tint <= 1000 ) || $tint == -1 ) )
+    {
+        # Convert seconds to PLC (power line cycles)
+        $tint *= $self->pl_freq();
     }
-    elsif($tint =~ /^MIN$/) {
-    	$tint = 0;
+    elsif ( $tint =~ /^MIN$/ ) {
+        $tint = 0;
     }
-    elsif($tint =~ /^MAX$/) {
-    	$tint = 1000;
+    elsif ( $tint =~ /^MAX$/ ) {
+        $tint = 1000;
     }
-    elsif($tint !~ /^(MIN|MAX)$/) {
-		Lab::Exception::CorruptParameter->throw( error => "Integration time has to be set to a positive value or 'AUTO', 'MIN' or 'MAX' in " . (caller(0))[3] . "\n" )    	
+    elsif ( $tint !~ /^(MIN|MAX)$/ ) {
+        Lab::Exception::CorruptParameter->throw( error =>
+"Integration time has to be set to a positive value or 'AUTO', 'MIN' or 'MAX' in "
+              . ( caller(0) )[3]
+              . "\n" );
     }
-    
-	# do it
-	$self->write( $range_cmd , error_check=>1);
-	$self->write( "NPLC ${tint}", error_check=>1);	
-	#$self->write( "NPLC ${tint}", { error_check=>1 });	
+
+    # do it
+    $self->write( $range_cmd,     error_check => 1 );
+    $self->write( "NPLC ${tint}", error_check => 1 );
+
+    #$self->write( "NPLC ${tint}", { error_check=>1 });
 }
 
 sub configure_voltage_dc_trigger {
-    my $self=shift;
-	
-    my ($range,$tint,$count,$delay) = $self->_check_args( \@_, ['range','tint','count','delay'] );
-        
-    $count=1 if !defined($count);
-    Lab::Exception::CorruptParameter->throw( error => "Sample count has to be an integer between 1 and 512\n" )
-    	if($count !~ /^[0-9]*$/ || $count < 1 || $count > 16777215); 
+    my $self = shift;
 
-	$delay=0 if !defined($delay);
-    Lab::Exception::CorruptParameter->throw( error => "Trigger delay has to be a positive decimal value\n" )
-    	if($count !~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/);
-	
+    my ( $range, $tint, $count, $delay ) =
+      $self->_check_args( \@_, [ 'range', 'tint', 'count', 'delay' ] );
 
-    $self->configure_voltage_dc($range, $tint);
+    $count = 1 if !defined($count);
+    Lab::Exception::CorruptParameter->throw(
+        error => "Sample count has to be an integer between 1 and 512\n" )
+      if ( $count !~ /^[0-9]*$/ || $count < 1 || $count > 16777215 );
 
+    $delay = 0 if !defined($delay);
+    Lab::Exception::CorruptParameter->throw(
+        error => "Trigger delay has to be a positive decimal value\n" )
+      if ( $count !~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/ );
 
-	#$self->write( "PRESET NORM" );
-	if ($count > 1){
-		$self->write( "INBUF ON", error_check => 1);
-	}
-	else{
-		$self->write( "INBUF OFF", error_check => 1);
-	}
-    $self->write( "TARM AUTO", error_check => 1 );
-    $self->write( "TRIG HOLD", error_check => 1 );
+    $self->configure_voltage_dc( $range, $tint );
+
+    #$self->write( "PRESET NORM" );
+    if ( $count > 1 ) {
+        $self->write( "INBUF ON", error_check => 1 );
+    }
+    else {
+        $self->write( "INBUF OFF", error_check => 1 );
+    }
+    $self->write( "TARM AUTO",          error_check => 1 );
+    $self->write( "TRIG HOLD",          error_check => 1 );
     $self->write( "NRDGS $count, AUTO", error_check => 1 );
-    $self->write( "TIMER $delay", error_check => 1 );
+    $self->write( "TIMER $delay",       error_check => 1 );
+
     #$self->write( "TRIG:DELay:AUTO OFF");
 }
 
 sub configure_voltage_dc_trigger_highspeed {
-	my $self=shift;
-    my $range=shift || 10; # in V, or "AUTO", "MIN", "MAX"
-    my $tint=shift || 1.4e-6;  # integration time in sec, "DEFAULT", "MIN", "MAX". Default of 1.4e-6 is the highest possible value for 100kHz sampling.
-    my $count=shift || 10000;
-    my $delay=shift; # in seconds, 'MIN'
+    my $self  = shift;
+    my $range = shift || 10;    # in V, or "AUTO", "MIN", "MAX"
+    my $tint  = shift
+      || 1.4e-6
+      ; # integration time in sec, "DEFAULT", "MIN", "MAX". Default of 1.4e-6 is the highest possible value for 100kHz sampling.
+    my $count = shift || 10000;
+    my $delay = shift;    # in seconds, 'MIN'
 
-    if($range eq 'AUTO' || !defined($range)) {
-    	$range='AUTO';
+    if ( $range eq 'AUTO' || !defined($range) ) {
+        $range = 'AUTO';
     }
-    elsif($range =~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/) {
-	    #$range = sprintf("%e",abs($range));
+    elsif ( $range =~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/ ) {
+
+        #$range = sprintf("%e",abs($range));
     }
-    elsif($range !~ /^(MIN|MAX)$/) {
-    	Lab::Exception::CorruptParameter->throw( error => "Range has to be set to a decimal value or 'AUTO', 'MIN' or 'MAX' in " . (caller(0))[3] . "\n" );	
-    }
-    
-    if($tint eq 'DEFAULT' || !defined($tint)) {
-    	$tint=1.4e-6;
-    }
-    elsif($tint =~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/ && ( ($tint>=0 && $tint<=1000) || $tint==-1 ) ) {
-    	# Convert seconds to PLC (power line cycles)
-    	#$tint*=$self->pl_freq(); 
-    }
-    elsif($tint =~ /^MIN$/) {
-    	$tint = 0;
-    }
-    elsif($tint =~ /^MAX$/) {
-    	$tint = 1000;
-    }
-    elsif($tint !~ /^(MIN|MAX)$/) {
-		Lab::Exception::CorruptParameter->throw( error => "Integration time has to be set to a positive value or 'AUTO', 'MIN' or 'MAX' in " . (caller(0))[3] . "\n" )    	
+    elsif ( $range !~ /^(MIN|MAX)$/ ) {
+        Lab::Exception::CorruptParameter->throw( error =>
+"Range has to be set to a decimal value or 'AUTO', 'MIN' or 'MAX' in "
+              . ( caller(0) )[3]
+              . "\n" );
     }
 
-    $count=1 if !defined($count);
-    Lab::Exception::CorruptParameter->throw( error => "Sample count has to be an integer between 1 and 512\n" )
-    	if($count !~ /^[0-9]*$/ || $count < 1 || $count > 16777215); 
+    if ( $tint eq 'DEFAULT' || !defined($tint) ) {
+        $tint = 1.4e-6;
+    }
+    elsif ( $tint =~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/
+        && ( ( $tint >= 0 && $tint <= 1000 ) || $tint == -1 ) )
+    {
+        # Convert seconds to PLC (power line cycles)
+        #$tint*=$self->pl_freq();
+    }
+    elsif ( $tint =~ /^MIN$/ ) {
+        $tint = 0;
+    }
+    elsif ( $tint =~ /^MAX$/ ) {
+        $tint = 1000;
+    }
+    elsif ( $tint !~ /^(MIN|MAX)$/ ) {
+        Lab::Exception::CorruptParameter->throw( error =>
+"Integration time has to be set to a positive value or 'AUTO', 'MIN' or 'MAX' in "
+              . ( caller(0) )[3]
+              . "\n" );
+    }
 
-	$delay=0 if !defined($delay);
-    Lab::Exception::CorruptParameter->throw( error => "Trigger delay has to be a positive decimal value\n" )
-    	if($count !~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/);
+    $count = 1 if !defined($count);
+    Lab::Exception::CorruptParameter->throw(
+        error => "Sample count has to be an integer between 1 and 512\n" )
+      if ( $count !~ /^[0-9]*$/ || $count < 1 || $count > 16777215 );
 
-	$self->write( "PRESET FAST", error_check => 1 );
-    $self->write( "TARM HOLD", error_check => 1);
-	$self->write( "APER ".$tint, error_check => 1 );
-    $self->write( "MFORMAT SINT", error_check => 1 );
-    $self->write( "OFORMAT SINT", error_check => 1 );
-    $self->write( "MEM FIFO", error_check => 1 );
+    $delay = 0 if !defined($delay);
+    Lab::Exception::CorruptParameter->throw(
+        error => "Trigger delay has to be a positive decimal value\n" )
+      if ( $count !~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/ );
+
+    $self->write( "PRESET FAST",        error_check => 1 );
+    $self->write( "TARM HOLD",          error_check => 1 );
+    $self->write( "APER " . $tint,      error_check => 1 );
+    $self->write( "MFORMAT SINT",       error_check => 1 );
+    $self->write( "OFORMAT SINT",       error_check => 1 );
+    $self->write( "MEM FIFO",           error_check => 1 );
     $self->write( "NRDGS $count, AUTO", error_check => 1 );
-    #$self->write( "TIMER $delay") if defined($delay);	
+
+    #$self->write( "TIMER $delay") if defined($delay);
 
 }
-	
 
 sub triggered_read {
-    my $self=shift;
-	my $args = scalar(@_)%2==0 ? {@_} : ( ref($_[0]) eq 'HASH' ? $_[0] : undef );
-	Lab::Exception::CorruptParameter->throw( "Illegal parameter hash given!\n" ) if !defined($args);
-	
-	$args->{'timeout'} = $args->{'timeout'} || undef;
+    my $self = shift;
+    my $args =
+      scalar(@_) % 2 == 0 ? {@_} : ( ref( $_[0] ) eq 'HASH' ? $_[0] : undef );
+    Lab::Exception::CorruptParameter->throw("Illegal parameter hash given!\n")
+      if !defined($args);
 
-    my $value = $self->query( "TRIG SGL", $args);
+    $args->{'timeout'} = $args->{'timeout'} || undef;
+
+    my $value = $self->query( "TRIG SGL", $args );
 
     chomp $value;
 
-    my @valarray = split("\n",$value);
+    my @valarray = split( "\n", $value );
 
     return @valarray;
 }
 
-
 sub triggered_read_raw {
-    my $self=shift;
-	my $args = scalar(@_)%2==0 ? {@_} : ( ref($_[0]) eq 'HASH' ? $_[0] : undef );
-	Lab::Exception::CorruptParameter->throw( "Illegal parameter hash given!\n" ) if !defined($args);
-	
-	my $read_until_length=$args->{'read_until_length'};
-	my $value='';
-	my $fragment=undef;
-	
-	{
-		use bytes;
-		$value=$self->query( "TARM SGL", $args);
-		my $tmp=length($value);
-		while(defined $read_until_length && length($value)<$read_until_length) {
-			$value .= $self->read($args);
-		}
-	}
-	
+    my $self = shift;
+    my $args =
+      scalar(@_) % 2 == 0 ? {@_} : ( ref( $_[0] ) eq 'HASH' ? $_[0] : undef );
+    Lab::Exception::CorruptParameter->throw("Illegal parameter hash given!\n")
+      if !defined($args);
+
+    my $read_until_length = $args->{'read_until_length'};
+    my $value             = '';
+    my $fragment          = undef;
+
+    {
+        use bytes;
+        $value = $self->query( "TARM SGL", $args );
+        my $tmp = length($value);
+        while ( defined $read_until_length
+            && length($value) < $read_until_length )
+        {
+            $value .= $self->read($args);
+        }
+    }
+
     return $value;
 }
 
 sub decode_SINT {
-	use bytes;
-	my $self=shift;
-	my $bytestring=shift;
-	my $iscale=shift || $self->query('ISCALE?');
-	
-	my @values = split( //, $bytestring);
-	my $ival=0;
-	my $val_revb=0;
-	my $tbyte=0;
-	my $value=0;
-	my @result_list=();
-	my $i=0;
-	for(my $v=0; $v<$#values;$v+=2) {
-		$ival = unpack('S',join('',$values[$v],$values[$v+1]));
+    use bytes;
+    my $self       = shift;
+    my $bytestring = shift;
+    my $iscale     = shift || $self->query('ISCALE?');
 
-		# flipping the bytes to MSB,...,LSB
-		$val_revb = 0;
-		for ($i=0; $i<2; $i++) {
-			$val_revb = $val_revb | (($ival>>$i*8 & 0x000000FF)<<((1-$i)*8));
-		}
+    my @values      = split( //, $bytestring );
+    my $ival        = 0;
+    my $val_revb    = 0;
+    my $tbyte       = 0;
+    my $value       = 0;
+    my @result_list = ();
+    my $i           = 0;
+    for ( my $v = 0 ; $v < $#values ; $v += 2 ) {
+        $ival = unpack( 'S', join( '', $values[$v], $values[ $v + 1 ] ) );
 
-		my $decval=0;
-		my $msb = ( $val_revb>>15 ) & 0x0001;
-		$decval = $msb==0 ? 0 : -1*(2**15);
-		for($i=14;$i>=0;$i--) {
-			$decval += ((($val_revb>>$i)&0x0001)*2)**$i;
-		}
-		push(@result_list,$decval*$iscale);
-	}
-	return @result_list;
+        # flipping the bytes to MSB,...,LSB
+        $val_revb = 0;
+        for ( $i = 0 ; $i < 2 ; $i++ ) {
+            $val_revb = $val_revb |
+              ( ( $ival >> $i * 8 & 0x000000FF ) << ( ( 1 - $i ) * 8 ) );
+        }
+
+        my $decval = 0;
+        my $msb    = ( $val_revb >> 15 ) & 0x0001;
+        $decval = $msb == 0 ? 0 : -1 * ( 2**15 );
+        for ( $i = 14 ; $i >= 0 ; $i-- ) {
+            $decval += ( ( ( $val_revb >> $i ) & 0x0001 ) * 2 )**$i;
+        }
+        push( @result_list, $decval * $iscale );
+    }
+    return @result_list;
 }
 
-
 sub set_oformat {
-	my $self=shift;
-	my $format=shift;
-	
-	if( $format !~ /^\s*(ASCII|1|SINT|2|DINT|3|SREAD|4|DREAL|5)\s*$/ ) {
-		Lab::Exception::CorruptParameter->throw( "Invalid OFORMAT specified." );
-	}
-	$format = $1;
-	
-	$self->write("OFORMAT $1");
-	
-	$self->check_errors();
+    my $self   = shift;
+    my $format = shift;
+
+    if ( $format !~ /^\s*(ASCII|1|SINT|2|DINT|3|SREAD|4|DREAL|5)\s*$/ ) {
+        Lab::Exception::CorruptParameter->throw("Invalid OFORMAT specified.");
+    }
+    $format = $1;
+
+    $self->write("OFORMAT $1");
+
+    $self->check_errors();
 }
 
 sub get_oformat {
-	my $self=shift;
-	my $args = scalar(@_)%2==0 ? {@_} : ( ref($_[0]) eq 'HASH' ? $_[0] : undef );
-	Lab::Exception::CorruptParameter->throw( "Illegal parameter hash given!\n" ) if !defined($args);
+    my $self = shift;
+    my $args =
+      scalar(@_) % 2 == 0 ? {@_} : ( ref( $_[0] ) eq 'HASH' ? $_[0] : undef );
+    Lab::Exception::CorruptParameter->throw("Illegal parameter hash given!\n")
+      if !defined($args);
 
-	if($args->{direct_read} || !defined $self->device_cache()->{oformat}) {
-		return $self->device_cache()->{oformat} = $self->query('OFORMAT?', $args);
-	}
-	else {
-		return $self->device_cache()->{oformat};		
-	}
+    if ( $args->{direct_read} || !defined $self->device_cache()->{oformat} ) {
+        return $self->device_cache()->{oformat} =
+          $self->query( 'OFORMAT?', $args );
+    }
+    else {
+        return $self->device_cache()->{oformat};
+    }
 }
 
 sub get_autozero {
-	my $self = shift;
-	
-	return $self->device_cache()->{autozero} = $self->query('AZERO?', @_, error_check => 0);
+    my $self = shift;
+
+    return $self->device_cache()->{autozero} =
+      $self->query( 'AZERO?', @_, error_check => 0 );
 }
 
 sub set_autozero {
-	my $self=shift;
-	my $enable=shift;
-	
-	my $command = "";
-	my $cval = undef;
-	
-	if ($enable =~ /^ONCE$/i) {
-		$command = "AZERO ONCE";
-		$cval = 0;
-	}
-	elsif($enable =~ /^(ON|1)$/i) {
-		$command = "AZERO ON";
-		$cval = 1;
-	}
-	elsif($enable =~ /^(OFF|0)$/i) {
-		$command = "AZERO OFF";
-		$cval = 0;
-	}
-	else {
-		Lab::Exception::CorruptParameter->throw( error => (caller(0))[3] . " can be set to 'ON'/1, 'OFF'/0 or 'ONCE'. Received '${enable}'\n" );
-	}
-	$self->write( $command, error_check=>1, @_ );
-			
-	$self->device_cache()->{autozero} = $cval;
+    my $self   = shift;
+    my $enable = shift;
+
+    my $command = "";
+    my $cval    = undef;
+
+    if ( $enable =~ /^ONCE$/i ) {
+        $command = "AZERO ONCE";
+        $cval    = 0;
+    }
+    elsif ( $enable =~ /^(ON|1)$/i ) {
+        $command = "AZERO ON";
+        $cval    = 1;
+    }
+    elsif ( $enable =~ /^(OFF|0)$/i ) {
+        $command = "AZERO OFF";
+        $cval    = 0;
+    }
+    else {
+        Lab::Exception::CorruptParameter->throw( error => ( caller(0) )[3]
+              . " can be set to 'ON'/1, 'OFF'/0 or 'ONCE'. Received '${enable}'\n"
+        );
+    }
+    $self->write( $command, error_check => 1, @_ );
+
+    $self->device_cache()->{autozero} = $cval;
 }
 
 sub get_voltage_dc {
-    my $self=shift;
-	
-	$self->write("DCV AUTO", @_);
-	$self->write("TARM SGL",@_);
+    my $self = shift;
+
+    $self->write( "DCV AUTO", @_ );
+    $self->write( "TARM SGL", @_ );
     return $self->read(@_);
 }
 
 sub set_nplc {
-    my $self=shift;
-    my $n=shift;   
-	
-    $self->write("NPLC $n", @_);
+    my $self = shift;
+    my $n    = shift;
+
+    $self->write( "NPLC $n", @_ );
 }
 
 sub selftest {
-    my $self=shift;
-	
-    $self->write("TEST", @_);
+    my $self = shift;
+
+    $self->write( "TEST", @_ );
 }
 
 sub autocalibration {
-    my $self=shift;
-    my $mode=shift;
-    
-    if($mode !~ /^(ALL|0|DCV|1|DIG|2|OHMS|4)$/i) {
-    	Lab::Exception::CorruptParameter->throw("preset(): Illegal preset mode given: $mode\n");
-    }    
-    
-    $self->write("ACAL \U$mode\E", @_);
+    my $self = shift;
+    my $mode = shift;
+
+    if ( $mode !~ /^(ALL|0|DCV|1|DIG|2|OHMS|4)$/i ) {
+        Lab::Exception::CorruptParameter->throw(
+            "preset(): Illegal preset mode given: $mode\n");
+    }
+
+    $self->write( "ACAL \U$mode\E", @_ );
 }
 
 sub reset {
-    my $self=shift;
-	
-    $self->write("PRESET NORM", @_);
+    my $self = shift;
+
+    $self->write( "PRESET NORM", @_ );
 }
 
 sub set_display_state {
-    my $self=shift;
-    my $value=shift;
-	
-    if($value==1 || $value =~ /on/i ) {
-    	$self->write("DISP ON", @_);
+    my $self  = shift;
+    my $value = shift;
+
+    if ( $value == 1 || $value =~ /on/i ) {
+        $self->write( "DISP ON", @_ );
     }
-    elsif($value==0 || $value =~ /off/i ) {
-    	$self->write("DISP OFF", @_);
+    elsif ( $value == 0 || $value =~ /off/i ) {
+        $self->write( "DISP OFF", @_ );
     }
     else {
-    	Lab::Exception::CorruptParameter->throw( "set_display_state(): Illegal parameter.\n" );
+        Lab::Exception::CorruptParameter->throw(
+            "set_display_state(): Illegal parameter.\n");
     }
 }
 
 sub display_clear {
-    my $self=shift;
-	
-    $self->write("DISP CLR", @_);
+    my $self = shift;
+
+    $self->write( "DISP CLR", @_ );
 }
 
 sub set_display_text {
-    my $self=shift;
-    my $text=shift;
-    if( $text !~ /^[A-Za-z0-9\ \!\#\$\%\&\'\(\)\^\\\/\@\;\:\[\]\,\.\+\-\=\<\>\?\_]*$/ ) { # characters allowed by the 3458A
-    	Lab::Exception::CorruptParameter->throw( "set_display_text(): Illegal characters in given text.\n" );
+    my $self = shift;
+    my $text = shift;
+    if ( $text !~
+        /^[A-Za-z0-9\ \!\#\$\%\&\'\(\)\^\\\/\@\;\:\[\]\,\.\+\-\=\<\>\?\_]*$/ )
+    {    # characters allowed by the 3458A
+        Lab::Exception::CorruptParameter->throw(
+            "set_display_text(): Illegal characters in given text.\n");
     }
     $self->write("DISP MSG,\"$text\"");
-    
+
     $self->check_errors();
 }
 
 sub beep {
+
     # It beeps!
-    my $self=shift;
-    $self->write("BEEP", @_);
+    my $self = shift;
+    $self->write( "BEEP", @_ );
 }
 
 sub get_status {
-	my $self=shift;
-	my $request = shift;
-	my $status = {};
-	($status->{PRG_COMPLETE}, $status->{LIMIT_EXCEEDED}, $status->{SRQ_EXECUTED}, $status->{POWER_ON}, $status->{READY}, $status->{ERROR}, $status->{SRQ}, $status->{DATA} ) = $self->connection()->serial_poll();
-	return $status->{$request} if defined $request;
-	return $status;
+    my $self    = shift;
+    my $request = shift;
+    my $status  = {};
+    (
+        $status->{PRG_COMPLETE}, $status->{LIMIT_EXCEEDED},
+        $status->{SRQ_EXECUTED}, $status->{POWER_ON},
+        $status->{READY},        $status->{ERROR},
+        $status->{SRQ},          $status->{DATA}
+    ) = $self->connection()->serial_poll();
+    return $status->{$request} if defined $request;
+    return $status;
 }
 
 sub get_error {
-	my $self=shift;
-	my $error = $self->query( "ERRSTR?", brutal => 1, @_ );
-	if($error !~ /0,\"NO ERROR\"/) {
-		if ($error =~ /^\+?([0-9]*)\,\"?([^\"].*[^\"])\"?$/m) {
-			return ($1, $2); # ($code, $message)
-		}
-		else {
-			Lab::Exception::DeviceError->throw("Reading the error status of the device failed in " . (caller(0))[3] . ". Something's going wrong here.\n");
-		}
-	}
-	else {
-		return (0);
-	}
+    my $self = shift;
+    my $error = $self->query( "ERRSTR?", brutal => 1, @_ );
+    if ( $error !~ /0,\"NO ERROR\"/ ) {
+        if ( $error =~ /^\+?([0-9]*)\,\"?([^\"].*[^\"])\"?$/m ) {
+            return ( $1, $2 );    # ($code, $message)
+        }
+        else {
+            Lab::Exception::DeviceError->throw(
+                    "Reading the error status of the device failed in "
+                  . ( caller(0) )[3]
+                  . ". Something's going wrong here.\n" );
+        }
+    }
+    else {
+        return (0);
+    }
 }
 
 sub preset {
+
     # Sets HP3458A into predefined configurations
     # 0 Fast
     # 1 Norm
-    # 2 DIG 
-    my $self=shift;
-    my $preset=shift;
-    if($preset !~ /^(FAST|0|NORM|1|DIG|2)$/i) {
-    	Lab::Exception::CorruptParameter->throw("preset(): Illegal preset mode given: $preset\n");
+    # 2 DIG
+    my $self   = shift;
+    my $preset = shift;
+    if ( $preset !~ /^(FAST|0|NORM|1|DIG|2)$/i ) {
+        Lab::Exception::CorruptParameter->throw(
+            "preset(): Illegal preset mode given: $preset\n");
     }
-    
-    $self->write("PRESET \U$preset\E", @_);
+
+    $self->write( "PRESET \U$preset\E", @_ );
 }
 
 sub get_id {
-    my $self=shift;
-    return $self->query('ID?', @_);
+    my $self = shift;
+    return $self->query( 'ID?', @_ );
 }
 
-sub trg{
-	my $self = shift;
-	$self->write('TRIG SGL', @_);
-	}
+sub trg {
+    my $self = shift;
+    $self->write( 'TRIG SGL', @_ );
+}
 
 sub get_value {
 
-    my $self=shift;
+    my $self = shift;
 
-    my $val=$self->read(@_);
+    my $val = $self->read(@_);
     chomp $val;
     return $val;
 }
-
 
 1;
 

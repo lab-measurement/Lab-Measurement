@@ -21,71 +21,69 @@ die("Failed to load LinuxGpib in Lab::Connection::LinuxGPIB!\n$@") if ($@);
 our @ISA = ("Lab::Connection::GPIB");
 
 our %fields = (
-	bus_class => 'Lab::Bus::LinuxGPIB',
-	wait_status=>0, # usec;
-	wait_query=>10e-6, # sec;
-	read_length=>1000, # bytes
-	timeout=>1, # seconds
+    bus_class   => 'Lab::Bus::LinuxGPIB',
+    wait_status => 0,                       # usec;
+    wait_query  => 10e-6,                   # sec;
+    read_length => 1000,                    # bytes
+    timeout     => 1,                       # seconds
 );
 
-
 sub new {
-	my $proto = shift;
-	my $class = ref($proto) || $proto;
-	my $twin = undef;
-	my $self = $class->SUPER::new(@_); # getting fields and _permitted from parent class
-	$self->${\(__PACKAGE__.'::_construct')}(__PACKAGE__);
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
+    my $twin  = undef;
+    my $self =
+      $class->SUPER::new(@_);  # getting fields and _permitted from parent class
+    $self->${ \( __PACKAGE__ . '::_construct' ) }(__PACKAGE__);
 
-	return $self;
+    return $self;
 }
 
 sub Write {
-	my $self=shift;
-	my $options=undef;
-	if (ref $_[0] eq 'HASH') { $options=shift }
-	else { $options={@_} }
-	
-	my $timeout = $options->{'timeout'} || $self->timeout();
-	$self->bus()->timeout($self->connection_handle(), $timeout);
-	
-	return $self->bus()->connection_write($self->connection_handle(), $options);
+    my $self    = shift;
+    my $options = undef;
+    if   ( ref $_[0] eq 'HASH' ) { $options = shift }
+    else                         { $options = {@_} }
+
+    my $timeout = $options->{'timeout'} || $self->timeout();
+    $self->bus()->timeout( $self->connection_handle(), $timeout );
+
+    return $self->bus()
+      ->connection_write( $self->connection_handle(), $options );
 }
 
-
 sub Read {
-	my $self=shift;
-	my $options=undef;
-	if (ref $_[0] eq 'HASH') { $options=shift }
-	else { $options={@_} }
-	
-	my $timeout = $options->{'timeout'} || $self->timeout();
-	$self->bus()->timeout($self->connection_handle(), $timeout);
+    my $self    = shift;
+    my $options = undef;
+    if   ( ref $_[0] eq 'HASH' ) { $options = shift }
+    else                         { $options = {@_} }
 
-	return $self->bus()->connection_read($self->connection_handle(), $options);
+    my $timeout = $options->{'timeout'} || $self->timeout();
+    $self->bus()->timeout( $self->connection_handle(), $timeout );
+
+    return $self->bus()
+      ->connection_read( $self->connection_handle(), $options );
 }
 
 sub Query {
-	my $self=shift;
-	my $options=undef;
-	if (ref $_[0] eq 'HASH') { $options=shift }
-	else { $options={@_} }
+    my $self    = shift;
+    my $options = undef;
+    if   ( ref $_[0] eq 'HASH' ) { $options = shift }
+    else                         { $options = {@_} }
 
-	my $wait_query=$options->{'wait_query'} || $self->wait_query();
-	my $timeout = $options->{'timeout'} || $self->timeout();
-	$self->bus()->timeout($self->connection_handle(), $timeout);
-	
-	$self->Write( $options );
-	usleep($wait_query);
-	return $self->Read($options);
+    my $wait_query = $options->{'wait_query'} || $self->wait_query();
+    my $timeout    = $options->{'timeout'}    || $self->timeout();
+    $self->bus()->timeout( $self->connection_handle(), $timeout );
+
+    $self->Write($options);
+    usleep($wait_query);
+    return $self->Read($options);
 }
-
 
 #
 # Query from Lab::Connection is sufficient
 # EnableTermChar, SetTermChar from Lab::Connection::GPIB are sufficient.
 #
-
-
 
 =pod
 

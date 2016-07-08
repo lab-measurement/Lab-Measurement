@@ -6,62 +6,56 @@ use Lab::XPRESS::Sweep::Sweep;
 use Time::HiRes qw/usleep/, qw/time/;
 use strict;
 
-
-our @ISA=('Lab::XPRESS::Sweep::Sweep');
-
-
+our @ISA = ('Lab::XPRESS::Sweep::Sweep');
 
 sub new {
-    my $proto = shift;
-	my @args=@_;
-    my $class = ref($proto) || $proto;
-	my $self->{default_config} = {
-		id => 'Repeater',
-		filename_extension => '#',
-		repetitions	=> 1,
-		stepwidth	=> 1,
-		points	=> [1],
-		rate	=> [1],
-		mode	=> 'list',
-		allowed_sweep_modes => ['list'],
-		backsweep	=>	0,
-		values => undef,
-		};
-		
-	$self = $class->SUPER::new($self->{default_config},@args);	
-	bless ($self, $class);
-	$self->{config}->{points} = [1];
-	$self->{config}->{duration} = [1];
+    my $proto                  = shift;
+    my @args                   = @_;
+    my $class                  = ref($proto) || $proto;
+    my $self->{default_config} = {
+        id                  => 'Repeater',
+        filename_extension  => '#',
+        repetitions         => 1,
+        stepwidth           => 1,
+        points              => [1],
+        rate                => [1],
+        mode                => 'list',
+        allowed_sweep_modes => ['list'],
+        backsweep           => 0,
+        values              => undef,
+    };
 
-	if(ref($self->{config}->{repetitions}) eq 'ARRAY') {
-		$self->{config}->{values} = $self->{config}->{repetitions};
-		$self->{config}->{repetitions} = scalar @{$self->{config}->{repetitions}};
-	}
-	
-	$self->{config}->{mode} = 'list';
-	$self->{loop}->{interval} = $self->{config}->{interval};
-			
-	$self->{DataFile_counter} = 0;
-	
-	$self->{DataFiles} = ();
-	
+    $self = $class->SUPER::new( $self->{default_config}, @args );
+    bless( $self, $class );
+    $self->{config}->{points}   = [1];
+    $self->{config}->{duration} = [1];
+
+    if ( ref( $self->{config}->{repetitions} ) eq 'ARRAY' ) {
+        $self->{config}->{values} = $self->{config}->{repetitions};
+        $self->{config}->{repetitions} =
+          scalar @{ $self->{config}->{repetitions} };
+    }
+
+    $self->{config}->{mode}   = 'list';
+    $self->{loop}->{interval} = $self->{config}->{interval};
+
+    $self->{DataFile_counter} = 0;
+
+    $self->{DataFiles} = ();
+
     return $self;
 }
 
-
-
 sub get_value {
-	my $self = shift;
-	
-	if (defined $self->{config}->{values}) {
-		return @{$self->{config}->{values}}[$self->{repetition} - 1]
-	}
-	else {
-		return $self->{repetition};
-	}
+    my $self = shift;
+
+    if ( defined $self->{config}->{values} ) {
+        return @{ $self->{config}->{values} }[ $self->{repetition} - 1 ];
+    }
+    else {
+        return $self->{repetition};
+    }
 }
-
-
 
 1;
 
