@@ -26,6 +26,6 @@ sub relative_error {
 sub float_equal {
 	my $a = shift;
 	my $b = shift;
-	# 1e-15 is about 10 times bigger than the machine epsilon.
+	# 1e-14 is about 100 times bigger than the machine epsilon.
 	return (relative_error($a, $b) < 1e-14);
 }
