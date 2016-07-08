@@ -33,8 +33,6 @@ my $build = Module::Build->new(
     },
     script_files => [ 'scripts/lab-makefilelist.pl',
 	'scripts/lab-makemakefile.pl',
-	'scripts/lab-makeoverview.pl',
-	'scripts/lab-metainfo.pl',
 	'scripts/lab-plotter.pl', 
 	'scripts/lab-update.pl', 
 	'lib/Lab/XPRESS/Xpression.pl',
