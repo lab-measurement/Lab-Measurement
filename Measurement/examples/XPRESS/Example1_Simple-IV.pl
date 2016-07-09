@@ -5,29 +5,36 @@ use Lab::Measurement;
 
 #-------- 1. Initialize Instruments --------
 
-my $voltage_source = Instrument('Yokogawa7651', 
-	{
-	connection_type => 'VISA_GPIB',
-	gpib_address => 3,
-	gate_protect => 0
-	});
+my $voltage_source = Instrument(
+    'Yokogawa7651',
+    {
+        connection_type => 'VISA_GPIB',
+        gpib_address    => 3,
+        gate_protect    => 0
+    }
+);
 
-my $multimeter = Instrument('Agilent34410A', 
-	{
-	connection_type => 'VISA_GPIB',
-	gpib_address => 17,
-	nplc => 10					# integration time in number of powerline cylces [10*(1/50)]
-	});
+my $multimeter = Instrument(
+    'Agilent34410A',
+    {
+        connection_type => 'VISA_GPIB',
+        gpib_address    => 17,
+        nplc => 10  # integration time in number of powerline cylces [10*(1/50)]
+    }
+);
 
 #-------- 3. Define the Sweeps -------------
 
-my $voltage_sweep = Sweep('Voltage', 
-	{
-	instrument => $voltage_source,
-	points => [-5e-3, 5e-3],	# [starting point, target] in Volts
-	rate => [0.1, 0.5e-3],		# [rate to approach start, sweeping rate for measurement] in Volts/s
-	interval => 1 				# measurement interval in s
-	});
+my $voltage_sweep = Sweep(
+    'Voltage',
+    {
+        instrument => $voltage_source,
+        points     => [ -5e-3, 5e-3 ],    # [starting point, target] in Volts
+        rate       => [ 0.1, 0.5e-3 ]
+        ,   # [rate to approach start, sweeping rate for measurement] in Volts/s
+        interval => 1    # measurement interval in s
+    }
+);
 
 #-------- 3. Create a DataFile -------------
 
@@ -37,29 +44,30 @@ $DataFile->add_column('Voltage');
 $DataFile->add_column('Current');
 $DataFile->add_column('Resistance');
 
+$DataFile->add_plot(
+    {
+        'x-axis' => 'Voltage',
+        'y-axis' => 'Current'
+    }
+);
 
-$DataFile->add_plot({
-	'x-axis' => 'Voltage',
-	'y-axis' => 'Current'
-	}
-	);
-
-	
 #-------- 4. Measurement Instructions -------
 
 my $my_measurement = sub {
 
-	my $sweep = shift;
+    my $sweep = shift;
 
-	my $voltage = $voltage_source->get_value();
-	my $current = $multimeter->get_value()*1e-7;
-	my $resistance = ($current != 0) ? $voltage/$current : '?';
+    my $voltage    = $voltage_source->get_value();
+    my $current    = $multimeter->get_value() * 1e-7;
+    my $resistance = ( $current != 0 ) ? $voltage / $current : '?';
 
-	$sweep->LOG({
-		Voltage => $voltage,
-		Current => $current,
-		Resistance => $resistance
-		});
+    $sweep->LOG(
+        {
+            Voltage    => $voltage,
+            Current    => $current,
+            Resistance => $resistance
+        }
+    );
 };
 
 #-------- 5. Put everything together -------
@@ -69,8 +77,6 @@ $DataFile->add_measurement($my_measurement);
 $voltage_sweep->add_DataFile($DataFile);
 
 $voltage_sweep->start();
-
-
 
 1;
 

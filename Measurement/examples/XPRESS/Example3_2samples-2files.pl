@@ -5,51 +5,65 @@ use Lab::Measurement;
 
 #-------- 1. Initialize Instruments --------
 
-my $voltage_source1 = Instrument('Yokogawa7651', 
-	{
-	connection_type => 'VISA_GPIB',
-	gpib_address => 3,
-	gate_protect => 0
-	});
+my $voltage_source1 = Instrument(
+    'Yokogawa7651',
+    {
+        connection_type => 'VISA_GPIB',
+        gpib_address    => 3,
+        gate_protect    => 0
+    }
+);
 
-my $multimeter1 = Instrument('Agilent34410A', 
-	{
-	connection_type => 'VISA_GPIB',
-	gpib_address => 17,
-	nplc => 10					# integration time in number of powerline cylces [10*(1/50)]
-	});
+my $multimeter1 = Instrument(
+    'Agilent34410A',
+    {
+        connection_type => 'VISA_GPIB',
+        gpib_address    => 17,
+        nplc => 10  # integration time in number of powerline cylces [10*(1/50)]
+    }
+);
 
-my $voltage_source2 = Instrument('Yokogawa7651', 
-	{
-	connection_type => 'VISA_GPIB',
-	gpib_address => 5,
-	gate_protect => 0
-	});
+my $voltage_source2 = Instrument(
+    'Yokogawa7651',
+    {
+        connection_type => 'VISA_GPIB',
+        gpib_address    => 5,
+        gate_protect    => 0
+    }
+);
 
-my $multimeter2 = Instrument('Agilent34410A', 
-	{
-	connection_type => 'VISA_GPIB',
-	gpib_address => 11,
-	nplc => 10					# integration time in number of powerline cylces [10*(1/50)]
-	});
+my $multimeter2 = Instrument(
+    'Agilent34410A',
+    {
+        connection_type => 'VISA_GPIB',
+        gpib_address    => 11,
+        nplc => 10  # integration time in number of powerline cylces [10*(1/50)]
+    }
+);
 
-my $magnet = Instrument('IPSWeiss1', 
-	{
-	connection_type => 'Isobus',
-	isobus_address => 2,
-	base_connection => Connection('VISA_GPIB', {gpib_address => 24})
-	});
+my $magnet = Instrument(
+    'IPSWeiss1',
+    {
+        connection_type => 'Isobus',
+        isobus_address  => 2,
+        base_connection => Connection( 'VISA_GPIB', { gpib_address => 24 } )
+    }
+);
 
 #-------- 3. Define the Sweeps -------------
 
-my $magnet_sweep = Sweep('Magnet', 
-		{
-		instrument => $magnet,
-		points => [-10, -1, 1, 10],	# [starting point, intermediate steps, target] in Tesla
-		rate => [1, 0.7, 0.2, 0.7],	# [rate to approach start, ... next section, ...,  ... target] in Tesla/min
-		interval => 1, 				# measurement interval in s
-		backsweep => 1
-		});
+my $magnet_sweep = Sweep(
+    'Magnet',
+    {
+        instrument => $magnet,
+        points     => [ -10, -1, 1, 10 ]
+        ,    # [starting point, intermediate steps, target] in Tesla
+        rate => [ 1, 0.7, 0.2, 0.7 ]
+        , # [rate to approach start, ... next section, ...,  ... target] in Tesla/min
+        interval  => 1,    # measurement interval in s
+        backsweep => 1
+    }
+);
 
 #-------- 3. Create a DataFile -------------
 
@@ -60,11 +74,12 @@ $DataFile1->add_column('Voltage');
 $DataFile1->add_column('Current');
 $DataFile1->add_column('Resistance');
 
-
-$DataFile1->add_plot({
-	'x-axis' => 'Field',
-	'y-axis' => 'Resistance'
-	});
+$DataFile1->add_plot(
+    {
+        'x-axis' => 'Field',
+        'y-axis' => 'Resistance'
+    }
+);
 
 my $DataFile2 = DataFile('MagnFieldSweep_sample2.dat');
 
@@ -73,48 +88,57 @@ $DataFile2->add_column('Voltage');
 $DataFile2->add_column('Current');
 $DataFile2->add_column('Resistance');
 
+$DataFile2->add_plot(
+    {
+        'x-axis' => 'Field',
+        'y-axis' => 'Resistance'
+    }
+);
 
-$DataFile2->add_plot({
-	'x-axis' => 'Field',
-	'y-axis' => 'Resistance'
-	});
-
-	
 #-------- 4. Measurement Instructions -------
 
 my $my_measurement1 = sub {
 
-	my $sweep = shift;
+    my $sweep = shift;
 
-	my $voltage = $voltage_source1->get_value();
-	my $current = $multimeter1->get_value()*1e-7;
-	my $resistance = ($current != 0) ? $voltage/$current : '?';
+    my $voltage    = $voltage_source1->get_value();
+    my $current    = $multimeter1->get_value() * 1e-7;
+    my $resistance = ( $current != 0 ) ? $voltage / $current : '?';
 
-	$sweep->LOG({
-		Field => $magnet->get_value()
-		}, 0);						#<---- 	0 is the general data space
-									#		values put here will be available in both DataFiles
+    $sweep->LOG(
+        {
+            Field => $magnet->get_value()
+        },
+        0
+    );    #<---- 	0 is the general data space
+          #		values put here will be available in both DataFiles
 
-	$sweep->LOG({
-		Voltage => $voltage,
-		Current => $current,
-		Resistance => $resistance
-		}, 1);						#<---- This will be directed to DataFile1
+    $sweep->LOG(
+        {
+            Voltage    => $voltage,
+            Current    => $current,
+            Resistance => $resistance
+        },
+        1
+    );    #<---- This will be directed to DataFile1
 };
 
 my $my_measurement2 = sub {
 
-	my $sweep = shift;
+    my $sweep = shift;
 
-	my $voltage = $voltage_source2->get_value();
-	my $current = $multimeter2->get_value()*1e-7;
-	my $resistance = ($current != 0) ? $voltage/$current : '?';
+    my $voltage    = $voltage_source2->get_value();
+    my $current    = $multimeter2->get_value() * 1e-7;
+    my $resistance = ( $current != 0 ) ? $voltage / $current : '?';
 
-	$sweep->LOG({
-		Voltage => $voltage,
-		Current => $current,
-		Resistance => $resistance
-		}, 2);						#<---- This will be directed to DataFile2
+    $sweep->LOG(
+        {
+            Voltage    => $voltage,
+            Current    => $current,
+            Resistance => $resistance
+        },
+        2
+    );    #<---- This will be directed to DataFile2
 };
 
 #-------- 5. Put everything together -------
@@ -126,8 +150,6 @@ $magnet_sweep->add_DataFile($DataFile1);
 $magnet_sweep->add_DataFile($DataFile2);
 
 $magnet_sweep->start();
-
-
 
 1;
 

@@ -5,143 +5,156 @@ use strict;
 
 #-------- 1. Initialize Instruments --------
 
-my $sens =-1e-9;
+my $sens = -1e-9;
 
-my $Biasvoltage=-0.01;
+my $Biasvoltage = -0.01;
 
-my $voltage_bias = Instrument('YokogawaGS200', 
+my $voltage_bias = Instrument(
+    'YokogawaGS200',
     {
-    connection_type => 'LinuxGPIB',
-    gpib_address => 2,
-    gate_protect => 0, 
-    });
-    
-my $voltage_backgate = Instrument('YokogawaGS200', 
-    {
-    connection_type => 'LinuxGPIB',
-    gpib_address => 1,
-    gate_protect => 0,
-    });
+        connection_type => 'LinuxGPIB',
+        gpib_address    => 2,
+        gate_protect    => 0,
+    }
+);
 
-my $srs = Instrument('SR830',
-	{
-     connection_type => 'LinuxGPIB',
-     gpib_address  => 14
-	});
-
-
-my $multimeter = Instrument('HP3458A', 
+my $voltage_backgate = Instrument(
+    'YokogawaGS200',
     {
-    connection_type => 'LinuxGPIB',
-    gpib_address => 22,
-    nplc => 5
-    });
-    
-our $FRQSRC = Instrument('HP83732A', 
+        connection_type => 'LinuxGPIB',
+        gpib_address    => 1,
+        gate_protect    => 0,
+    }
+);
+
+my $srs = Instrument(
+    'SR830',
     {
-    connection_type => 'LinuxGPIB',
-    gpib_address => 28,
-   
-    });
-    
+        connection_type => 'LinuxGPIB',
+        gpib_address    => 14
+    }
+);
+
+my $multimeter = Instrument(
+    'HP3458A',
+    {
+        connection_type => 'LinuxGPIB',
+        gpib_address    => 22,
+        nplc            => 5
+    }
+);
+
+our $FRQSRC = Instrument(
+    'HP83732A',
+    {
+        connection_type => 'LinuxGPIB',
+        gpib_address    => 28,
+
+    }
+);
+
 $voltage_bias->set_voltage($Biasvoltage);
 
 $FRQSRC->enable_external_am();
-    
+
 $FRQSRC->power_on();
 
 #-------- 3. Define the Sweeps -------------
 
-my $RF_power_sweep = Sweep('Power',
+my $RF_power_sweep = Sweep(
+    'Power',
     {
-    mode => 'step',
-    instrument => $FRQSRC,
-    points => [-15,5],
-    stepwidth => 5,
-    rate => [5],
-    delay_before_loop => 1
-    });
+        mode              => 'step',
+        instrument        => $FRQSRC,
+        points            => [ -15, 5 ],
+        stepwidth         => 5,
+        rate              => [5],
+        delay_before_loop => 1
+    }
+);
 
-my $gate_sweep = Sweep('Voltage', 
+my $gate_sweep = Sweep(
+    'Voltage',
     {
-    mode => 'step',
-    instrument => $voltage_backgate,
-    points => [5.73,5.81],    # [starting point, target]
-    stepwidth => [0.0004],
-    rate => [0.05, 0.05],      # [rate to approach start, sweeping rate for measurement] in Volts/s
-    jump => 1, 
-    delay_before_loop => 1         # delay before Sweep begins in s
-    });
+        mode       => 'step',
+        instrument => $voltage_backgate,
+        points     => [ 5.73, 5.81 ],      # [starting point, target]
+        stepwidth  => [0.0004],
+        rate       => [ 0.05, 0.05 ]
+        ,   # [rate to approach start, sweeping rate for measurement] in Volts/s
+        jump              => 1,
+        delay_before_loop => 1    # delay before Sweep begins in s
+    }
+);
 
-my $RF_frequency_sweep = Sweep('Frequency', 
+my $RF_frequency_sweep = Sweep(
+    'Frequency',
     {
-    mode => 'step',
-    instrument => $FRQSRC,
-    points => [114.5e6, 116.1e6],    # [starting point, target]
-    stepwidth => [1.5e3],
-    rate => [15000, 15000],      # [rate to approach start, sweeping rate for measurement] in Hz/s
-    delay_before_loop => 3
-    });
+        mode       => 'step',
+        instrument => $FRQSRC,
+        points     => [ 114.5e6, 116.1e6 ],    # [starting point, target]
+        stepwidth  => [1.5e3],
+        rate       => [ 15000, 15000 ]
+        ,    # [rate to approach start, sweeping rate for measurement] in Hz/s
+        delay_before_loop => 3
+    }
+);
 
-
-    
-    
 #-------- 3. Create a DataFile -------------
 
 my $DataFile = DataFile('Gate_RFsweep_AM.dat');
 
+$DataFile->add_column('Gate');
+$DataFile->add_column('RF_Frequency');
+$DataFile->add_column('Current');
+$DataFile->add_column('X');
+$DataFile->add_column('Y');
+$DataFile->add_column('R');
+$DataFile->add_column('RF_Power');
 
-  $DataFile->add_column('Gate');
-  $DataFile->add_column('RF_Frequency');
-  $DataFile->add_column('Current');
-  $DataFile->add_column('X');
-  $DataFile->add_column('Y');
-  $DataFile->add_column('R');
-  $DataFile->add_column('RF_Power');
-
-$DataFile->add_plot({
-    'type' => 'pm3d',
-    'x-axis' => 'Gate',
-    'y-axis' => 'RF_Frequency', 
-    'cb-axis' => 'Current',
-    'refresh' => 'block'
+$DataFile->add_plot(
+    {
+        'type'    => 'pm3d',
+        'x-axis'  => 'Gate',
+        'y-axis'  => 'RF_Frequency',
+        'cb-axis' => 'Current',
+        'refresh' => 'block'
     }
-    );
-    
+);
 
-$DataFile->add_plot({
-    'type' => 'pm3d',
-    'x-axis' => 'Gate',
-    'y-axis' => 'RF_Frequency', 
-    'cb-axis' => 'R',
-    'refresh' => 'block'
+$DataFile->add_plot(
+    {
+        'type'    => 'pm3d',
+        'x-axis'  => 'Gate',
+        'y-axis'  => 'RF_Frequency',
+        'cb-axis' => 'R',
+        'refresh' => 'block'
     }
-    );
+);
 
-    
 #-------- 4. Measurement Instructions -------
-
-
 
 my $my_measurement = sub {
 
     my $sweep = shift;
 
-    my $gate = $voltage_backgate->get_value({read_mode => 'cache'});
+    my $gate         = $voltage_backgate->get_value( { read_mode => 'cache' } );
     my $RF_Frequency = $FRQSRC->get_frq();
-    my $RF_Power = $FRQSRC->get_power();
-    my $current = $multimeter->get_value()*($sens);
-    my ($X , $Y) = $srs->get_xy();
-    
-    $sweep->LOG({
-        Gate => $gate,
-        RF_Frequency => $RF_Frequency,
-        Current => $current,
-        X => $X*($sens),
-	Y => $Y*($sens),
-	R => sqrt($X*$X+$Y*$Y)*($sens),
-	RF_Power => $RF_Power
-        });
+    my $RF_Power     = $FRQSRC->get_power();
+    my $current      = $multimeter->get_value() * ($sens);
+    my ( $X, $Y ) = $srs->get_xy();
+
+    $sweep->LOG(
+        {
+            Gate         => $gate,
+            RF_Frequency => $RF_Frequency,
+            Current      => $current,
+            X            => $X * ($sens),
+            Y            => $Y * ($sens),
+            R            => sqrt( $X * $X + $Y * $Y ) * ($sens),
+            RF_Power     => $RF_Power
+        }
+    );
 };
 
 #-------- 5. Put everything together -------
@@ -150,7 +163,7 @@ $DataFile->add_measurement($my_measurement);
 
 $RF_frequency_sweep->add_DataFile($DataFile);
 
-my $gateframe=Frame();
+my $gateframe = Frame();
 $gateframe->add_master($gate_sweep);
 $gateframe->add_slave($RF_frequency_sweep);
 
