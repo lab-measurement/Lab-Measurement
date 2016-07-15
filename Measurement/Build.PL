@@ -11,6 +11,7 @@ my $build = Module::Build->new(
     requires          => {
 	'Class::Method::Modifiers' => '2.12',
 	'Role::Tiny'               => '1.003004',
+	'YAML::XS'                 => '0.41',
 	'Exception::Class'   => '1.0',
         'Class::ISA'         => 0,
         'Hook::LexWrap'      => 0,
