@@ -1,9 +1,9 @@
-package Lab::Connection::DEBUG::Log;
+package Lab::Connection::LinuxGPIB::Log;
 use 5.010;
 use warnings;
 use strict;
 
-use parent 'Lab::Connection::DEBUG';
+use parent 'Lab::Connection::LinuxGPIB';
 
 use Role::Tiny::With;
 use Carp;
