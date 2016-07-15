@@ -6,28 +6,33 @@ use 5.010;
 
 use YAML::XS;
 use autodie;
+use Carp;
 
-sub decode_args {
-    my @args = @_;
-    shift @args;
-    if   ( ref $args[0] eq 'HASH' ) {
-	return $args[0]
-    }
-    else {
-	return {@args}
-    }
-}
+around 'new' => sub {
+    my $orig = shift;
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
+    my $twin  = undef;
 
-sub dump_hash {
-    my $self = shift;
-    my $options = shift;
+    # getting fields and _permitted from parent class
+    my $self = $class->$orig(@_); 
     
-    open my $fh, '>>', $self->log_file();
-    print {$fh} Dump($options);
+    $self->_construct($class);
+
+    # open the log file
+    my $log_file = $self->log_file();
+    if (not defined $log_file) {
+	croak 'missing "log_file" parameter in connection';
+    }
+
+    # FIXME: Currently it's not possible to have a file handle in %fields, as
+    # this breaks the dclone used in Sweep.pm. 
+    open my $fh, '>', $self->log_file();
     close $fh;
-}
 
+    return $self;
 
+};
 
 sub dump_ref {
     my $self = shift;
@@ -45,16 +50,14 @@ for my $method (
     around $method => sub {
 	my $orig = shift;
 	my $self = shift;
-	my @args = @_;
-	my $hash->{method} = $method;
-	$hash->{args} = \@args;
 	
 	my $retval =  $self->$orig(@_);
-	
-	$hash->{retval} = $retval;
-	$self->dump_ref($hash);
 
+	unshift @_, $retval;
+	unshift @_, $method;
 	
+	$self->dump_ref(\@_);
+
 	return $retval;
     };
 }
