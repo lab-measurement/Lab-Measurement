@@ -4,6 +4,7 @@ use warnings;
 use strict;
 use 5.010;
 
+use Class::Method::Modifiers;
 use YAML::XS qw/Dump LoadFile/;
 use autodie;
 use Carp;
@@ -59,29 +60,11 @@ sub process_call {
     return $retval;
 }
 
-sub Clear {
-    return process_call('Clear', @_);
+for my $method
+    (qw/Clear Write Read timeout block_connection unblock_connection/) {
+	around $method => sub {
+	    return process_call($method, @_);
+	}
 }
-
-sub Write {
-    return process_call('Write', @_);
-}
-
-sub Read {
-    return process_call('Read', @_);
-}
-
-sub timeout {
-    return process_call('timeout', @_);
-}
-
-sub block_connection {
-    return process_call('block_connection', @_);
-}
-
-sub unblock_connection {
-    return process_call('unblock_connection', @_);
-}
-
 
 1;
