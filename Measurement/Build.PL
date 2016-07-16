@@ -12,6 +12,7 @@ my $build = Module::Build->new(
 	'Class::Method::Modifiers' => '2.12',
 	'Role::Tiny'               => '1.003004',
 	'YAML::XS'                 => '0.41',
+	'Data::Compare'            => '1.23',
 	'Exception::Class'   => '1.0',
         'Class::ISA'         => 0,
         'Hook::LexWrap'      => 0,
