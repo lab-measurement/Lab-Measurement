@@ -11,6 +11,7 @@ use autodie;
 
 our %fields = (
     log_file => undef,
+    log_index => 0,
     );
 
 with 'Lab::Connection::Log';

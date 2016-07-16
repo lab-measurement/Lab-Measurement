@@ -52,12 +52,18 @@ for my $method (
 	my $self = shift;
 	
 	my $retval =  $self->$orig(@_);
-
+	
 	unshift @_, $retval;
 	unshift @_, $method;
+
+	my $index = $self->log_index();
+	
+	unshift @_, $index;
 	
 	$self->dump_ref(\@_);
 
+	$self->log_index(++$index);
+	
 	return $retval;
     };
 }
