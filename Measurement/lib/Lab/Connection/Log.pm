@@ -38,7 +38,7 @@ sub dump_ref {
     my $self = shift;
     my $ref = shift;
     open my $fh, '>>', $self->log_file();
-    print {$fh} Dump($ref);
+    say {$fh} Dump($ref);
     close $fh;
 }
 
@@ -46,7 +46,7 @@ sub dump_ref {
 # Write. Logging these would be redundant.
 
 for my $method (
-    qw/Clear Write Read timeout block_connection unblock_connection/) {
+    qw/Clear Write Read BrutalRead LongQuery BrutalQuery timeout block_connection unblock_connection is_blocked/) {
     around $method => sub {
 	my $orig = shift;
 	my $self = shift;
