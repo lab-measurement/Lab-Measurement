@@ -38,32 +38,37 @@ sub dump_ref {
     my $self = shift;
     my $ref = shift;
     open my $fh, '>>', $self->log_file();
-    say {$fh} Dump($ref);
+    print {$fh} Dump($ref);
+    print {$fh} "\n\n";
     close $fh;
 }
 
-# Part of the Lab::Connection interface is implemented via Read and
-# Write. Logging these would be redundant.
-
-for my $method (
-    qw/Clear Write Read BrutalRead LongQuery BrutalQuery timeout block_connection unblock_connection is_blocked/) {
+for my $method (qw/Clear Write Read Query BrutalRead LongQuery BrutalQuery
+ timeout block_connection unblock_connection is_blocked/) {
     around $method => sub {
 	my $orig = shift;
 	my $self = shift;
 	
 	my $retval =  $self->$orig(@_);
-	
-	unshift @_, $retval;
-	unshift @_, $method;
 
-	my $index = $self->log_index();
-	
-	unshift @_, $index;
-	
-	$self->dump_ref(\@_);
+	# Inside the around modifier, we need to skip 2 levels to get to the
+	# true caller.
+	my $caller = caller(2);
+	if ($caller !~ /Lab::Connection.*/) {
 
-	$self->log_index(++$index);
-	
+	    my $index = $self->log_index();
+	    
+	    my $log = [
+		{id => $index},
+		{method => $method},
+		{retval => $retval},
+		{'@_' => \@_},
+		];
+	    
+	    $self->dump_ref($log);
+
+	    $self->log_index(++$index);
+	}
 	return $retval;
     };
 }

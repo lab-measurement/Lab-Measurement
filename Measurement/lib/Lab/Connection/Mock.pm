@@ -47,12 +47,16 @@ sub process_call {
     my @args = @_;
 
     my $index = $self->log_index();
-
-    my $received = [$index, $method, @args];
+    
+    my $received = [
+	{id => $index},
+	{method => $method},
+	{'@_' =>  \@args},
+	];
+    
     my $expected = $self->log_list()->[$index];
 
-    my $retval = splice @{$expected}, 1, 1;
-
+    my $retval = (splice @{$expected}, 2, 1)->{retval};
     if (not Compare($received, $expected)) {
 	croak "Mock connection:\nreceived:\n------------------\n", Dump($received), "----------------\nexpected:\n", Dump($expected);
     }
@@ -62,15 +66,16 @@ sub process_call {
 }
 
 for my $method
-    (qw/Clear Write Read timeout block_connection unblock_connection/) {
-	    around $method => sub {
-		    my $orig = shift;
-		    return process_call($method, @_);
-	    };
+    (qw/Clear Write Read Query BrutalRead LongQuery BrutalQuery timeout
+block_connection unblock_connection is_blocked/) {
+	around $method => sub {
+	    my $orig = shift;
+	    return process_call($method, @_);
+	};
 }
 
 sub _setbus {
-	# no bus for this connection, so do nothing.
-	return;
+    # no bus for this connection, so do nothing.
+    return;
 }
 1;
