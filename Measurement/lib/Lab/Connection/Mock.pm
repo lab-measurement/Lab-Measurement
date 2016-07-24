@@ -74,11 +74,10 @@ sub compare_hashs {
 sub process_call {
     my $method = shift;
     my $self = shift;
-    my $first_arg = shift;
-
+    
     my $index = $self->log_index();
     
-    my $received = dump_method_call($index, $method, $first_arg);
+    my $received = dump_method_call($index, $method, @_);
     
     my $expected = $self->log_list()->[$index];
 

@@ -13,39 +13,47 @@ our @EXPORT = qw(dump_method_call);
 sub dump_method_call {
     my $id = shift;
     my $method = shift;
-    my $first_arg = shift;
+    my @args = @_;
 
     my $log = {
 	id => $id,
 	method => $method,
     };
-
-    if (not defined $first_arg) {
-	return $log;
-    }
     
     if ($method =~
 	/Clear|block_connection|unblock_connection|is_blocked/) {
-	# do nothing
-    }
-    elsif ($method eq 'timeout') {
-	$log->{timeout} = $first_arg;
-    }
-    elsif ($method =~
-	   /Write|Read|Query|BrutalRead|BrutalQuery|LongQuery|BrutalQuery/) {
-	if (not (ref $first_arg eq 'HASH'))  {
-	    croak "arg not a hashref";
-	}
-	if (not exists $first_arg->{command}) {
-	    croak "no command argument";
-	}
-	$log->{command} = $first_arg->{command};
-	# FIXME: readlength?
-    }
-    else {
-	die;
+	# These method take no arguments. 
+	return $log;
     }
 
+    if ($method eq 'timeout') {
+	# timeout takes a single argument.
+	$log->{timeout} = $args[0];
+	return $log;
+    }
+
+    # The remaining methods get either a flat hash or a hashref.
+    
+    my $config;
+    
+    if (ref $args[0] eq 'HASH') {
+	$config = $args[0];
+    }
+    else {
+	$config = {@args};
+    }
+
+    for my $param (qw/command read_length brutal wait_query/) {
+	if (defined $config->{$param}) {
+	    my $key = $config->{$param};
+	    if (ref $key) {
+		# Should never happen.
+		croak "$param is a ref";
+	    }
+	    $log->{$param} = $key;
+	}
+    }
+	    
     return $log;
 }
 

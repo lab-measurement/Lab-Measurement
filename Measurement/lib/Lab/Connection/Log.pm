@@ -59,7 +59,7 @@ for my $method (qw/Clear Write Read Query BrutalRead LongQuery BrutalQuery
 
 	    my $index = $self->log_index();
 	    
-	    my $log = dump_method_call($index, $method, $_[0]);
+	    my $log = dump_method_call($index, $method, @_);
 
 	    $log->{retval} = $retval;
 	    $self->dump_ref($log);
