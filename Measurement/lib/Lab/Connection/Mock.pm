@@ -6,11 +6,11 @@ use 5.010;
 
 use Class::Method::Modifiers;
 use YAML::XS qw/Dump LoadFile/;
+use Data::Dumper;
 use autodie;
 use Carp;
 
 use Lab::Connection::LogMethodCall qw/dump_method_call/;
-use Data::Compare;
 use parent 'Lab::Connection';
 
 our %fields = (
@@ -42,6 +42,35 @@ around 'new' => sub {
 	return $self;
 };
 
+sub compare_hashs {
+    my $a = shift;
+    my $b = shift;
+
+    
+    my @keys_a = keys %{$a};
+    my @keys_b = keys %{$b};
+
+    my $len_a = @keys_a;
+    my $len_b = @keys_b;
+
+    # compare size
+    if ($len_a != $len_b) {
+	return 1;
+    }
+    for my $key (@keys_a) {
+	if (ref $a->{$key}) {
+	    die "expected scalar";
+	}
+	if (not exists $b->{$key}) {
+	    return 1;
+	}
+	if ($a->{$key} ne $b->{$key}) {
+	    return 1;
+	}
+    }
+    return 0;
+}
+
 sub process_call {
     my $method = shift;
     my $self = shift;
@@ -55,8 +84,8 @@ sub process_call {
 
     my $retval = delete $expected->{retval};
     
-    if (not Compare($received, $expected)) {
-	croak "Mock connection:\nreceived:\n------------------\n", Dump($received), "----------------\nexpected:\n", Dump($expected);
+    if (compare_hashs($received, $expected)) {
+	croak "Mock connection:\nreceived:\n", Dump($received), "\nexpected:\n", Dump($expected);
     }
     
     $self->log_index(++$index);
