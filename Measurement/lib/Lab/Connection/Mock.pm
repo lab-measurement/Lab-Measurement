@@ -9,6 +9,7 @@ use YAML::XS qw/Dump LoadFile/;
 use autodie;
 use Carp;
 
+use Lab::Connection::LogMethodCall qw/dump_method_call/;
 use Data::Compare;
 use parent 'Lab::Connection';
 
@@ -44,19 +45,16 @@ around 'new' => sub {
 sub process_call {
     my $method = shift;
     my $self = shift;
-    my @args = @_;
+    my $first_arg = shift;
 
     my $index = $self->log_index();
     
-    my $received = [
-	{id => $index},
-	{method => $method},
-	{'@_' =>  \@args},
-	];
+    my $received = dump_method_call($index, $method, $first_arg);
     
     my $expected = $self->log_list()->[$index];
 
-    my $retval = (splice @{$expected}, 2, 1)->{retval};
+    my $retval = delete $expected->{retval};
+    
     if (not Compare($received, $expected)) {
 	croak "Mock connection:\nreceived:\n------------------\n", Dump($received), "----------------\nexpected:\n", Dump($expected);
     }

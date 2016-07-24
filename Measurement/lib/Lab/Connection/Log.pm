@@ -5,8 +5,11 @@ use Role::Tiny;
 use 5.010;
 
 use YAML::XS;
+use Data::Dumper;
 use autodie;
 use Carp;
+
+use Lab::Connection::LogMethodCall qw(dump_method_call);
 
 around 'new' => sub {
     my $orig = shift;
@@ -25,7 +28,7 @@ around 'new' => sub {
 	croak 'missing "log_file" parameter in connection';
     }
 
-    # FIXME: Currently it's not possible to have a file handle in %fields, as
+    # FIXME: Currently it's not possible to have a filehandle in %fields, as
     # this breaks the dclone used in Sweep.pm. 
     open my $fh, '>', $self->log_file();
     close $fh;
@@ -39,7 +42,6 @@ sub dump_ref {
     my $ref = shift;
     open my $fh, '>>', $self->log_file();
     print {$fh} Dump($ref);
-    print {$fh} "\n\n";
     close $fh;
 }
 
@@ -48,7 +50,6 @@ for my $method (qw/Clear Write Read Query BrutalRead LongQuery BrutalQuery
     around $method => sub {
 	my $orig = shift;
 	my $self = shift;
-	
 	my $retval =  $self->$orig(@_);
 
 	# Inside the around modifier, we need to skip 2 levels to get to the
@@ -58,13 +59,9 @@ for my $method (qw/Clear Write Read Query BrutalRead LongQuery BrutalQuery
 
 	    my $index = $self->log_index();
 	    
-	    my $log = [
-		{id => $index},
-		{method => $method},
-		{retval => $retval},
-		{'@_' => \@_},
-		];
-	    
+	    my $log = dump_method_call($index, $method, $_[0]);
+
+	    $log->{retval} = $retval;
 	    $self->dump_ref($log);
 
 	    $self->log_index(++$index);
