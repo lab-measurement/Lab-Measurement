@@ -15,9 +15,11 @@ use TestLib;
 
 my $query;
 my $yoko = Instrument('Yokogawa7651', {
-	connection_type => get_gpib_connection_type(),
-	gpib_address => 11,
-	gate_protect => 0,});
+    connection_type => get_gpib_connection_type(),
+    log_file => 'Yokogawa7651.yml',
+    gpib_address => 11,
+    gate_protect => 0,
+		      });
 
 # function
 

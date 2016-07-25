@@ -14,9 +14,13 @@ use TestLib;
 
 my $function;
 
+my $connection_type = get_gpib_connection_type();
+
 my $multimeter = Instrument('Agilent34410A', {
-	connection_type => get_gpib_connection_type(),
-	gpib_address => 17});
+    connection_type => $connection_type,
+    log_file => 'Agilent34410A.yml',
+    gpib_address => 17
+			    });
 
 #reset
 $multimeter->set_function('volt:ac');

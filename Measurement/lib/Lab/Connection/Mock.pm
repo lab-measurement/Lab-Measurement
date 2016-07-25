@@ -14,32 +14,48 @@ use Lab::Connection::LogMethodCall qw/dump_method_call/;
 use parent 'Lab::Connection';
 
 our %fields = (
-	log_file => undef,
-	log_index => 0,
-	log_list => undef,
+    log_file => undef,
+    log_index => 0,
+    log_list => undef,
     );
 
+# around 'configure' => sub {
+#     my $orig = shift;
+#     my $self = shift;
+    
+#     # open the log file
+#     my $log_file = $self->{config}->{log_file};
+#     if (not defined $log_file) {
+# 	croak 'missing "log_file" parameter in connection';
+#     }
+    
+#     my @logs = LoadFile($log_file);
+#     $self->log_list([@logs]);
+
+#     $self->$orig(@_);
+# };
+
 around 'new' => sub {
-	my $orig = shift;
-	my $proto = shift;
-	my $class = ref($proto) || $proto;
-	my $twin  = undef;
+    my $orig = shift;
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
+    my $twin  = undef;
 
-	# getting fields and _permitted from parent class
-	my $self = $class->$orig(@_); 
-	
-	$self->_construct($class);
+    # getting fields and _permitted from parent class
+    my $self = $class->$orig(@_); 
+    
+    $self->_construct($class);
 
-	# open the log file
-	my $log_file = $self->log_file();
-	if (not defined $log_file) {
-		croak 'missing "log_file" parameter in connection';
-	}
+    # open the log file
+    my $log_file = $self->log_file();
+    if (not defined $log_file) {
+	croak 'missing "log_file" parameter in connection';
+    }
 
-	my @logs = LoadFile($log_file);
-	$self->log_list([@logs]);
-	
-	return $self;
+    my @logs = LoadFile($log_file);
+    $self->log_list([@logs]);
+
+    return $self;
 };
 
 sub compare_hashs {
@@ -76,9 +92,13 @@ sub process_call {
     my $self = shift;
     
     my $index = $self->log_index();
+
+    if (not defined $self->log_list() and $method eq 'timeout') {
+	return $self->{config}->{timeout}
+    }
     
     my $received = dump_method_call($index, $method, @_);
-    
+
     my $expected = $self->log_list()->[$index];
 
     my $retval = delete $expected->{retval};
@@ -101,7 +121,7 @@ block_connection unblock_connection is_blocked/) {
 }
 
 sub _setbus {
-    # no bus for this connection, so do nothing.
+    # No bus for this connection, so do nothing.
     return;
 }
 1;
