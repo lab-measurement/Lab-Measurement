@@ -1,0 +1,7168 @@
+---
+command: OC
+id: 0
+method: Query
+retval: STS1=16
+---
+id: 1
+method: is_blocked
+retval: 0
+---
+id: 2
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 3
+method: Query
+retval: NDCV+01.0017E+0
+---
+id: 4
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 5
+method: Query
+retval: STS1=16
+---
+command: F5e
+id: 6
+method: Write
+retval: 1
+---
+id: 7
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 8
+method: Query
+retval: NDCA+0.10017E-3
+---
+id: 9
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 10
+method: Query
+retval: NDCA+0.10017E-3
+---
+id: 11
+method: is_blocked
+retval: 0
+---
+id: 12
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 13
+method: Query
+retval: NDCA+0.10017E-3
+---
+id: 14
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 15
+method: Query
+retval: STS1=0
+---
+command: F1e
+id: 16
+method: Write
+retval: 1
+---
+id: 17
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 18
+method: Query
+retval: NDCV+01.0017E-3
+---
+id: 19
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 20
+method: Query
+retval: NDCV+01.0017E-3
+---
+id: 21
+method: is_blocked
+retval: 0
+---
+id: 22
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 23
+method: Query
+retval: NDCV+01.0017E-3
+---
+command: R2e
+id: 24
+method: Write
+retval: 1
+---
+id: 25
+method: is_blocked
+retval: 0
+---
+command: OS
+id: 26
+method: Write
+retval: 1
+---
+id: 27
+method: Read
+read_length: 300
+retval: MDL7651REV1.05
+---
+id: 28
+method: Read
+read_length: 300
+retval: F1R2S+01.0017E-3E
+---
+id: 29
+method: Read
+read_length: 300
+retval: PI10.0SW10.0M1
+---
+id: 30
+method: Read
+read_length: 300
+retval: LV30LA120
+---
+id: 31
+method: Read
+read_length: 300
+retval: END
+---
+id: 32
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 33
+method: Query
+retval: NDCV+01.0017E-3
+---
+id: 34
+method: is_blocked
+retval: 0
+---
+command: OS
+id: 35
+method: Write
+retval: 1
+---
+id: 36
+method: Read
+read_length: 300
+retval: MDL7651REV1.05
+---
+id: 37
+method: Read
+read_length: 300
+retval: F1R2S+01.0017E-3E
+---
+id: 38
+method: Read
+read_length: 300
+retval: PI10.0SW10.0M1
+---
+id: 39
+method: Read
+read_length: 300
+retval: LV30LA120
+---
+id: 40
+method: Read
+read_length: 300
+retval: END
+---
+id: 41
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 42
+method: Query
+retval: NDCV+01.0017E-3
+---
+id: 43
+method: is_blocked
+retval: 0
+---
+command: OS
+id: 44
+method: Write
+retval: 1
+---
+id: 45
+method: Read
+read_length: 300
+retval: MDL7651REV1.05
+---
+id: 46
+method: Read
+read_length: 300
+retval: F1R2S+01.0017E-3E
+---
+id: 47
+method: Read
+read_length: 300
+retval: PI10.0SW10.0M1
+---
+id: 48
+method: Read
+read_length: 300
+retval: LV30LA120
+---
+id: 49
+method: Read
+read_length: 300
+retval: END
+---
+id: 50
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 51
+method: Query
+retval: NDCV+01.0017E-3
+---
+id: 52
+method: is_blocked
+retval: 0
+---
+id: 53
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 54
+method: Query
+retval: NDCV+01.0017E-3
+---
+command: R3e
+id: 55
+method: Write
+retval: 1
+---
+id: 56
+method: is_blocked
+retval: 0
+---
+command: OS
+id: 57
+method: Write
+retval: 1
+---
+id: 58
+method: Read
+read_length: 300
+retval: MDL7651REV1.05
+---
+id: 59
+method: Read
+read_length: 300
+retval: F1R3S+001.001E-3E
+---
+id: 60
+method: Read
+read_length: 300
+retval: PI10.0SW10.0M1
+---
+id: 61
+method: Read
+read_length: 300
+retval: LV30LA120
+---
+id: 62
+method: Read
+read_length: 300
+retval: END
+---
+id: 63
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 64
+method: Query
+retval: NDCV+001.001E-3
+---
+id: 65
+method: is_blocked
+retval: 0
+---
+command: OS
+id: 66
+method: Write
+retval: 1
+---
+id: 67
+method: Read
+read_length: 300
+retval: MDL7651REV1.05
+---
+id: 68
+method: Read
+read_length: 300
+retval: F1R3S+001.001E-3E
+---
+id: 69
+method: Read
+read_length: 300
+retval: PI10.0SW10.0M1
+---
+id: 70
+method: Read
+read_length: 300
+retval: LV30LA120
+---
+id: 71
+method: Read
+read_length: 300
+retval: END
+---
+id: 72
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 73
+method: Query
+retval: NDCV+001.001E-3
+---
+id: 74
+method: is_blocked
+retval: 0
+---
+command: OS
+id: 75
+method: Write
+retval: 1
+---
+id: 76
+method: Read
+read_length: 300
+retval: MDL7651REV1.05
+---
+id: 77
+method: Read
+read_length: 300
+retval: F1R3S+001.001E-3E
+---
+id: 78
+method: Read
+read_length: 300
+retval: PI10.0SW10.0M1
+---
+id: 79
+method: Read
+read_length: 300
+retval: LV30LA120
+---
+id: 80
+method: Read
+read_length: 300
+retval: END
+---
+id: 81
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 82
+method: Query
+retval: NDCV+001.001E-3
+---
+id: 83
+method: is_blocked
+retval: 0
+---
+id: 84
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 85
+method: Query
+retval: NDCV+001.001E-3
+---
+command: R4e
+id: 86
+method: Write
+retval: 1
+---
+id: 87
+method: is_blocked
+retval: 0
+---
+command: OS
+id: 88
+method: Write
+retval: 1
+---
+id: 89
+method: Read
+read_length: 300
+retval: MDL7651REV1.05
+---
+id: 90
+method: Read
+read_length: 300
+retval: F1R4S+0.00100E+0E
+---
+id: 91
+method: Read
+read_length: 300
+retval: PI10.0SW10.0M1
+---
+id: 92
+method: Read
+read_length: 300
+retval: LV30LA120
+---
+id: 93
+method: Read
+read_length: 300
+retval: END
+---
+id: 94
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 95
+method: Query
+retval: NDCV+0.00100E+0
+---
+id: 96
+method: is_blocked
+retval: 0
+---
+command: OS
+id: 97
+method: Write
+retval: 1
+---
+id: 98
+method: Read
+read_length: 300
+retval: MDL7651REV1.05
+---
+id: 99
+method: Read
+read_length: 300
+retval: F1R4S+0.00100E+0E
+---
+id: 100
+method: Read
+read_length: 300
+retval: PI10.0SW10.0M1
+---
+id: 101
+method: Read
+read_length: 300
+retval: LV30LA120
+---
+id: 102
+method: Read
+read_length: 300
+retval: END
+---
+id: 103
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 104
+method: Query
+retval: NDCV+0.00100E+0
+---
+id: 105
+method: is_blocked
+retval: 0
+---
+command: OS
+id: 106
+method: Write
+retval: 1
+---
+id: 107
+method: Read
+read_length: 300
+retval: MDL7651REV1.05
+---
+id: 108
+method: Read
+read_length: 300
+retval: F1R4S+0.00100E+0E
+---
+id: 109
+method: Read
+read_length: 300
+retval: PI10.0SW10.0M1
+---
+id: 110
+method: Read
+read_length: 300
+retval: LV30LA120
+---
+id: 111
+method: Read
+read_length: 300
+retval: END
+---
+id: 112
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 113
+method: Query
+retval: NDCV+0.00100E+0
+---
+id: 114
+method: is_blocked
+retval: 0
+---
+id: 115
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 116
+method: Query
+retval: NDCV+0.00100E+0
+---
+command: R5e
+id: 117
+method: Write
+retval: 1
+---
+id: 118
+method: is_blocked
+retval: 0
+---
+command: OS
+id: 119
+method: Write
+retval: 1
+---
+id: 120
+method: Read
+read_length: 300
+retval: MDL7651REV1.05
+---
+id: 121
+method: Read
+read_length: 300
+retval: F1R5S+00.0010E+0E
+---
+id: 122
+method: Read
+read_length: 300
+retval: PI10.0SW10.0M1
+---
+id: 123
+method: Read
+read_length: 300
+retval: LV30LA120
+---
+id: 124
+method: Read
+read_length: 300
+retval: END
+---
+id: 125
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 126
+method: Query
+retval: NDCV+00.0010E+0
+---
+id: 127
+method: is_blocked
+retval: 0
+---
+command: OS
+id: 128
+method: Write
+retval: 1
+---
+id: 129
+method: Read
+read_length: 300
+retval: MDL7651REV1.05
+---
+id: 130
+method: Read
+read_length: 300
+retval: F1R5S+00.0010E+0E
+---
+id: 131
+method: Read
+read_length: 300
+retval: PI10.0SW10.0M1
+---
+id: 132
+method: Read
+read_length: 300
+retval: LV30LA120
+---
+id: 133
+method: Read
+read_length: 300
+retval: END
+---
+id: 134
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 135
+method: Query
+retval: NDCV+00.0010E+0
+---
+id: 136
+method: is_blocked
+retval: 0
+---
+command: OS
+id: 137
+method: Write
+retval: 1
+---
+id: 138
+method: Read
+read_length: 300
+retval: MDL7651REV1.05
+---
+id: 139
+method: Read
+read_length: 300
+retval: F1R5S+00.0010E+0E
+---
+id: 140
+method: Read
+read_length: 300
+retval: PI10.0SW10.0M1
+---
+id: 141
+method: Read
+read_length: 300
+retval: LV30LA120
+---
+id: 142
+method: Read
+read_length: 300
+retval: END
+---
+id: 143
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 144
+method: Query
+retval: NDCV+00.0010E+0
+---
+id: 145
+method: is_blocked
+retval: 0
+---
+id: 146
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 147
+method: Query
+retval: NDCV+00.0010E+0
+---
+command: R6e
+id: 148
+method: Write
+retval: 1
+---
+id: 149
+method: is_blocked
+retval: 0
+---
+command: OS
+id: 150
+method: Write
+retval: 1
+---
+id: 151
+method: Read
+read_length: 300
+retval: MDL7651REV1.05
+---
+id: 152
+method: Read
+read_length: 300
+retval: F1R6S+000.001E+0E
+---
+id: 153
+method: Read
+read_length: 300
+retval: PI10.0SW10.0M1
+---
+id: 154
+method: Read
+read_length: 300
+retval: LV30LA120
+---
+id: 155
+method: Read
+read_length: 300
+retval: END
+---
+id: 156
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 157
+method: Query
+retval: NDCV+000.001E+0
+---
+id: 158
+method: is_blocked
+retval: 0
+---
+command: OS
+id: 159
+method: Write
+retval: 1
+---
+id: 160
+method: Read
+read_length: 300
+retval: MDL7651REV1.05
+---
+id: 161
+method: Read
+read_length: 300
+retval: F1R6S+000.001E+0E
+---
+id: 162
+method: Read
+read_length: 300
+retval: PI10.0SW10.0M1
+---
+id: 163
+method: Read
+read_length: 300
+retval: LV30LA120
+---
+id: 164
+method: Read
+read_length: 300
+retval: END
+---
+id: 165
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 166
+method: Query
+retval: NDCV+000.001E+0
+---
+id: 167
+method: is_blocked
+retval: 0
+---
+command: OS
+id: 168
+method: Write
+retval: 1
+---
+id: 169
+method: Read
+read_length: 300
+retval: MDL7651REV1.05
+---
+id: 170
+method: Read
+read_length: 300
+retval: F1R6S+000.001E+0E
+---
+id: 171
+method: Read
+read_length: 300
+retval: PI10.0SW10.0M1
+---
+id: 172
+method: Read
+read_length: 300
+retval: LV30LA120
+---
+id: 173
+method: Read
+read_length: 300
+retval: END
+---
+id: 174
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 175
+method: Query
+retval: NDCV+000.001E+0
+---
+id: 176
+method: is_blocked
+retval: 0
+---
+id: 177
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 178
+method: Query
+retval: NDCV+000.001E+0
+---
+command: R4e
+id: 179
+method: Write
+retval: 1
+---
+id: 180
+method: is_blocked
+retval: 0
+---
+command: OS
+id: 181
+method: Write
+retval: 1
+---
+id: 182
+method: Read
+read_length: 300
+retval: MDL7651REV1.05
+---
+id: 183
+method: Read
+read_length: 300
+retval: F1R4S+0.00100E+0E
+---
+id: 184
+method: Read
+read_length: 300
+retval: PI10.0SW10.0M1
+---
+id: 185
+method: Read
+read_length: 300
+retval: LV30LA120
+---
+id: 186
+method: Read
+read_length: 300
+retval: END
+---
+id: 187
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 188
+method: Query
+retval: NDCV+0.00100E+0
+---
+id: 189
+method: is_blocked
+retval: 0
+---
+command: OS
+id: 190
+method: Write
+retval: 1
+---
+id: 191
+method: Read
+read_length: 300
+retval: MDL7651REV1.05
+---
+id: 192
+method: Read
+read_length: 300
+retval: F1R4S+0.00100E+0E
+---
+id: 193
+method: Read
+read_length: 300
+retval: PI10.0SW10.0M1
+---
+id: 194
+method: Read
+read_length: 300
+retval: LV30LA120
+---
+id: 195
+method: Read
+read_length: 300
+retval: END
+---
+id: 196
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 197
+method: Query
+retval: NDCV+0.00100E+0
+---
+id: 198
+method: is_blocked
+retval: 0
+---
+id: 199
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 200
+method: Query
+retval: NDCV+0.00100E+0
+---
+id: 201
+method: is_blocked
+retval: 0
+---
+command: S1.234000e-01e
+id: 202
+method: Write
+retval: 1
+---
+id: 203
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 204
+method: Query
+retval: NDCV+0.12340E+0
+---
+id: 205
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 206
+method: Query
+retval: NDCV+0.12340E+0
+---
+id: 207
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 208
+method: Query
+retval: NDCV+0.12340E+0
+---
+id: 209
+method: is_blocked
+retval: 0
+---
+id: 210
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 211
+method: Query
+retval: NDCV+0.12340E+0
+---
+command: R5e
+id: 212
+method: Write
+retval: 1
+---
+id: 213
+method: is_blocked
+retval: 0
+---
+command: OS
+id: 214
+method: Write
+retval: 1
+---
+id: 215
+method: Read
+read_length: 300
+retval: MDL7651REV1.05
+---
+id: 216
+method: Read
+read_length: 300
+retval: F1R5S+00.1234E+0E
+---
+id: 217
+method: Read
+read_length: 300
+retval: PI10.0SW10.0M1
+---
+id: 218
+method: Read
+read_length: 300
+retval: LV30LA120
+---
+id: 219
+method: Read
+read_length: 300
+retval: END
+---
+id: 220
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 221
+method: Query
+retval: NDCV+00.1234E+0
+---
+id: 222
+method: is_blocked
+retval: 0
+---
+command: OS
+id: 223
+method: Write
+retval: 1
+---
+id: 224
+method: Read
+read_length: 300
+retval: MDL7651REV1.05
+---
+id: 225
+method: Read
+read_length: 300
+retval: F1R5S+00.1234E+0E
+---
+id: 226
+method: Read
+read_length: 300
+retval: PI10.0SW10.0M1
+---
+id: 227
+method: Read
+read_length: 300
+retval: LV30LA120
+---
+id: 228
+method: Read
+read_length: 300
+retval: END
+---
+id: 229
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 230
+method: Query
+retval: NDCV+00.1234E+0
+---
+id: 231
+method: is_blocked
+retval: 0
+---
+command: S9.900000e-01e
+id: 232
+method: Write
+retval: 1
+---
+id: 233
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 234
+method: Query
+retval: NDCV+00.9900E+0
+---
+id: 235
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 236
+method: Query
+retval: NDCV+00.9900E+0
+---
+id: 237
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 238
+method: Query
+retval: NDCV+00.9900E+0
+---
+id: 239
+method: is_blocked
+retval: 0
+---
+id: 240
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 241
+method: Query
+retval: STS1=0
+---
+id: 242
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 243
+method: Query
+retval: NDCV+00.9900E+0
+---
+command: O1
+id: 244
+method: Write
+retval: 1
+---
+command: E
+id: 245
+method: Write
+retval: 1
+---
+id: 246
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 247
+method: Query
+retval: STS1=24
+---
+id: 248
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 249
+method: Query
+retval: STS1=16
+---
+command: M1
+id: 250
+method: Write
+retval: 1
+---
+command: PRS
+id: 251
+method: Write
+retval: 1
+---
+command: S+1.0000e+00
+id: 252
+method: Write
+retval: 1
+---
+command: PRE
+id: 253
+method: Write
+retval: 1
+---
+command: PI0.1
+id: 254
+method: Write
+retval: 1
+---
+command: SW0.1
+id: 255
+method: Write
+retval: 1
+---
+command: RU2
+id: 256
+method: Write
+retval: 1
+---
+command: OC
+id: 257
+method: Query
+retval: STS1=26
+---
+id: 258
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 259
+method: Query
+retval: NDCV+00.9975E+0,P01
+---
+command: OC
+id: 260
+method: Query
+retval: STS1=16
+---
+id: 261
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 262
+method: Query
+retval: NDCV+01.0000E+0
+---
+id: 263
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 264
+method: Query
+retval: NDCV+01.0000E+0
+---
+id: 265
+method: is_blocked
+retval: 0
+---
+id: 266
+method: is_blocked
+retval: 0
+---
+id: 267
+method: is_blocked
+retval: 0
+---
+id: 268
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 269
+method: Query
+retval: NDCV+01.0000E+0
+---
+id: 270
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 271
+method: Query
+retval: NDCV+01.0000E+0
+---
+command: OC
+id: 272
+method: Query
+retval: STS1=16
+---
+id: 273
+method: is_blocked
+retval: 0
+---
+id: 274
+method: is_blocked
+retval: 0
+---
+id: 275
+method: is_blocked
+retval: 0
+---
+id: 276
+method: is_blocked
+retval: 0
+---
+command: S1.001000e+00e
+id: 277
+method: Write
+retval: 1
+---
+id: 278
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 279
+method: Query
+retval: NDCV+01.0010E+0
+---
+id: 280
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 281
+method: Query
+retval: NDCV+01.0010E+0
+---
+command: OC
+id: 282
+method: Query
+retval: STS1=16
+---
+id: 283
+method: is_blocked
+retval: 0
+---
+id: 284
+method: is_blocked
+retval: 0
+---
+id: 285
+method: is_blocked
+retval: 0
+---
+id: 286
+method: is_blocked
+retval: 0
+---
+command: S1.002000e+00e
+id: 287
+method: Write
+retval: 1
+---
+id: 288
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 289
+method: Query
+retval: NDCV+01.0020E+0
+---
+id: 290
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 291
+method: Query
+retval: NDCV+01.0020E+0
+---
+command: OC
+id: 292
+method: Query
+retval: STS1=16
+---
+id: 293
+method: is_blocked
+retval: 0
+---
+id: 294
+method: is_blocked
+retval: 0
+---
+id: 295
+method: is_blocked
+retval: 0
+---
+id: 296
+method: is_blocked
+retval: 0
+---
+command: S1.003000e+00e
+id: 297
+method: Write
+retval: 1
+---
+id: 298
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 299
+method: Query
+retval: NDCV+01.0030E+0
+---
+id: 300
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 301
+method: Query
+retval: NDCV+01.0030E+0
+---
+command: OC
+id: 302
+method: Query
+retval: STS1=16
+---
+id: 303
+method: is_blocked
+retval: 0
+---
+id: 304
+method: is_blocked
+retval: 0
+---
+id: 305
+method: is_blocked
+retval: 0
+---
+id: 306
+method: is_blocked
+retval: 0
+---
+command: S1.004000e+00e
+id: 307
+method: Write
+retval: 1
+---
+id: 308
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 309
+method: Query
+retval: NDCV+01.0040E+0
+---
+id: 310
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 311
+method: Query
+retval: NDCV+01.0040E+0
+---
+command: OC
+id: 312
+method: Query
+retval: STS1=16
+---
+id: 313
+method: is_blocked
+retval: 0
+---
+id: 314
+method: is_blocked
+retval: 0
+---
+id: 315
+method: is_blocked
+retval: 0
+---
+id: 316
+method: is_blocked
+retval: 0
+---
+command: S1.005000e+00e
+id: 317
+method: Write
+retval: 1
+---
+id: 318
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 319
+method: Query
+retval: NDCV+01.0050E+0
+---
+id: 320
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 321
+method: Query
+retval: NDCV+01.0050E+0
+---
+command: OC
+id: 322
+method: Query
+retval: STS1=16
+---
+id: 323
+method: is_blocked
+retval: 0
+---
+id: 324
+method: is_blocked
+retval: 0
+---
+id: 325
+method: is_blocked
+retval: 0
+---
+id: 326
+method: is_blocked
+retval: 0
+---
+command: S1.006000e+00e
+id: 327
+method: Write
+retval: 1
+---
+id: 328
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 329
+method: Query
+retval: NDCV+01.0060E+0
+---
+id: 330
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 331
+method: Query
+retval: NDCV+01.0060E+0
+---
+command: OC
+id: 332
+method: Query
+retval: STS1=16
+---
+id: 333
+method: is_blocked
+retval: 0
+---
+id: 334
+method: is_blocked
+retval: 0
+---
+id: 335
+method: is_blocked
+retval: 0
+---
+id: 336
+method: is_blocked
+retval: 0
+---
+command: S1.007000e+00e
+id: 337
+method: Write
+retval: 1
+---
+id: 338
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 339
+method: Query
+retval: NDCV+01.0070E+0
+---
+id: 340
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 341
+method: Query
+retval: NDCV+01.0070E+0
+---
+command: OC
+id: 342
+method: Query
+retval: STS1=16
+---
+id: 343
+method: is_blocked
+retval: 0
+---
+id: 344
+method: is_blocked
+retval: 0
+---
+id: 345
+method: is_blocked
+retval: 0
+---
+id: 346
+method: is_blocked
+retval: 0
+---
+command: S1.008000e+00e
+id: 347
+method: Write
+retval: 1
+---
+id: 348
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 349
+method: Query
+retval: NDCV+01.0080E+0
+---
+id: 350
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 351
+method: Query
+retval: NDCV+01.0080E+0
+---
+command: OC
+id: 352
+method: Query
+retval: STS1=16
+---
+id: 353
+method: is_blocked
+retval: 0
+---
+id: 354
+method: is_blocked
+retval: 0
+---
+id: 355
+method: is_blocked
+retval: 0
+---
+id: 356
+method: is_blocked
+retval: 0
+---
+command: S1.009000e+00e
+id: 357
+method: Write
+retval: 1
+---
+id: 358
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 359
+method: Query
+retval: NDCV+01.0090E+0
+---
+id: 360
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 361
+method: Query
+retval: NDCV+01.0090E+0
+---
+command: OC
+id: 362
+method: Query
+retval: STS1=16
+---
+id: 363
+method: is_blocked
+retval: 0
+---
+id: 364
+method: is_blocked
+retval: 0
+---
+id: 365
+method: is_blocked
+retval: 0
+---
+id: 366
+method: is_blocked
+retval: 0
+---
+command: S1.010000e+00e
+id: 367
+method: Write
+retval: 1
+---
+id: 368
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 369
+method: Query
+retval: NDCV+01.0100E+0
+---
+id: 370
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 371
+method: Query
+retval: NDCV+01.0100E+0
+---
+command: OC
+id: 372
+method: Query
+retval: STS1=16
+---
+id: 373
+method: is_blocked
+retval: 0
+---
+id: 374
+method: is_blocked
+retval: 0
+---
+id: 375
+method: is_blocked
+retval: 0
+---
+id: 376
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 377
+method: Query
+retval: NDCV+01.0100E+0
+---
+id: 378
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 379
+method: Query
+retval: NDCV+01.0100E+0
+---
+command: OC
+id: 380
+method: Query
+retval: STS1=16
+---
+id: 381
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 382
+method: Query
+retval: NDCV+01.0100E+0
+---
+id: 383
+method: is_blocked
+retval: 0
+---
+command: S0.000000e+00e
+id: 384
+method: Write
+retval: 1
+---
+id: 385
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 386
+method: Query
+retval: NDCV+00.0000E+0
+---
+id: 387
+method: is_blocked
+retval: 0
+---
+id: 388
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 389
+method: Query
+retval: STS1=16
+---
+id: 390
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 391
+method: Query
+retval: NDCV+00.0000E+0
+---
+command: O1
+id: 392
+method: Write
+retval: 1
+---
+command: E
+id: 393
+method: Write
+retval: 1
+---
+id: 394
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 395
+method: Query
+retval: STS1=16
+---
+id: 396
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 397
+method: Query
+retval: STS1=16
+---
+command: M1
+id: 398
+method: Write
+retval: 1
+---
+command: PRS
+id: 399
+method: Write
+retval: 1
+---
+command: S+1.2500e-01
+id: 400
+method: Write
+retval: 1
+---
+command: PRE
+id: 401
+method: Write
+retval: 1
+---
+command: PI1.0
+id: 402
+method: Write
+retval: 1
+---
+command: SW1.0
+id: 403
+method: Write
+retval: 1
+---
+command: RU2
+id: 404
+method: Write
+retval: 1
+---
+command: OC
+id: 405
+method: Query
+retval: STS1=26
+---
+id: 406
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 407
+method: Query
+retval: NDCV+00.0141E+0,P01
+---
+command: OC
+id: 408
+method: Query
+retval: STS1=26
+---
+id: 409
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 410
+method: Query
+retval: NDCV+00.0531E+0,P01
+---
+command: OC
+id: 411
+method: Query
+retval: STS1=26
+---
+id: 412
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 413
+method: Query
+retval: NDCV+00.0906E+0,P01
+---
+command: OC
+id: 414
+method: Query
+retval: STS1=26
+---
+id: 415
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 416
+method: Query
+retval: NDCV+00.1250E+0
+---
+command: OC
+id: 417
+method: Query
+retval: STS1=16
+---
+id: 418
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 419
+method: Query
+retval: NDCV+00.1250E+0
+---
+id: 420
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 421
+method: Query
+retval: NDCV+00.1250E+0
+---
+id: 422
+method: is_blocked
+retval: 0
+---
+id: 423
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 424
+method: Query
+retval: STS1=16
+---
+id: 425
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 426
+method: Query
+retval: NDCV+00.1250E+0
+---
+command: O1
+id: 427
+method: Write
+retval: 1
+---
+command: E
+id: 428
+method: Write
+retval: 1
+---
+id: 429
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 430
+method: Query
+retval: STS1=16
+---
+id: 431
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 432
+method: Query
+retval: STS1=16
+---
+command: M1
+id: 433
+method: Write
+retval: 1
+---
+command: PRS
+id: 434
+method: Write
+retval: 1
+---
+command: S+1.2500e-01
+id: 435
+method: Write
+retval: 1
+---
+command: PRE
+id: 436
+method: Write
+retval: 1
+---
+command: PI0.1
+id: 437
+method: Write
+retval: 1
+---
+command: SW0.1
+id: 438
+method: Write
+retval: 1
+---
+command: RU2
+id: 439
+method: Write
+retval: 1
+---
+command: OC
+id: 440
+method: Query
+retval: STS1=26
+---
+id: 441
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 442
+method: Query
+retval: NDCV+00.1250E+0,P01
+---
+command: OC
+id: 443
+method: Query
+retval: STS1=26
+---
+id: 444
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 445
+method: Query
+retval: NDCV+00.1250E+0
+---
+command: OC
+id: 446
+method: Query
+retval: STS1=16
+---
+id: 447
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 448
+method: Query
+retval: NDCV+00.1250E+0
+---
+id: 449
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 450
+method: Query
+retval: STS1=16
+---
+id: 451
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 452
+method: Query
+retval: NDCV+00.1250E+0
+---
+id: 453
+method: is_blocked
+retval: 0
+---
+id: 454
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 455
+method: Query
+retval: STS1=16
+---
+id: 456
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 457
+method: Query
+retval: NDCV+00.1250E+0
+---
+command: O1
+id: 458
+method: Write
+retval: 1
+---
+command: E
+id: 459
+method: Write
+retval: 1
+---
+id: 460
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 461
+method: Query
+retval: STS1=16
+---
+id: 462
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 463
+method: Query
+retval: STS1=16
+---
+command: M1
+id: 464
+method: Write
+retval: 1
+---
+command: PRS
+id: 465
+method: Write
+retval: 1
+---
+command: S+2.5000e-01
+id: 466
+method: Write
+retval: 1
+---
+command: PRE
+id: 467
+method: Write
+retval: 1
+---
+command: PI1.0
+id: 468
+method: Write
+retval: 1
+---
+command: SW1.0
+id: 469
+method: Write
+retval: 1
+---
+command: RU2
+id: 470
+method: Write
+retval: 1
+---
+command: OC
+id: 471
+method: Query
+retval: STS1=26
+---
+id: 472
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 473
+method: Query
+retval: NDCV+00.1359E+0,P01
+---
+command: OC
+id: 474
+method: Query
+retval: STS1=26
+---
+id: 475
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 476
+method: Query
+retval: NDCV+00.1656E+0,P01
+---
+command: OC
+id: 477
+method: Query
+retval: STS1=26
+---
+id: 478
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 479
+method: Query
+retval: NDCV+00.2047E+0,P01
+---
+command: OC
+id: 480
+method: Query
+retval: STS1=26
+---
+id: 481
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 482
+method: Query
+retval: NDCV+00.2422E+0,P01
+---
+command: OC
+id: 483
+method: Query
+retval: STS1=16
+---
+id: 484
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 485
+method: Query
+retval: NDCV+00.2500E+0
+---
+id: 486
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 487
+method: Query
+retval: STS1=16
+---
+id: 488
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 489
+method: Query
+retval: NDCV+00.2500E+0
+---
+id: 490
+method: is_blocked
+retval: 0
+---
+id: 491
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 492
+method: Query
+retval: STS1=16
+---
+id: 493
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 494
+method: Query
+retval: NDCV+00.2500E+0
+---
+command: O1
+id: 495
+method: Write
+retval: 1
+---
+command: E
+id: 496
+method: Write
+retval: 1
+---
+id: 497
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 498
+method: Query
+retval: STS1=16
+---
+id: 499
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 500
+method: Query
+retval: STS1=16
+---
+command: M1
+id: 501
+method: Write
+retval: 1
+---
+command: PRS
+id: 502
+method: Write
+retval: 1
+---
+command: S+5.0000e-01
+id: 503
+method: Write
+retval: 1
+---
+command: PRE
+id: 504
+method: Write
+retval: 1
+---
+command: PI2.0
+id: 505
+method: Write
+retval: 1
+---
+command: SW2.0
+id: 506
+method: Write
+retval: 1
+---
+command: RU2
+id: 507
+method: Write
+retval: 1
+---
+command: OC
+id: 508
+method: Query
+retval: STS1=26
+---
+id: 509
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 510
+method: Query
+retval: NDCV+00.2594E+0,P01
+---
+command: OC
+id: 511
+method: Query
+retval: STS1=26
+---
+id: 512
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 513
+method: Query
+retval: NDCV+00.2891E+0,P01
+---
+command: OC
+id: 514
+method: Query
+retval: STS1=26
+---
+id: 515
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 516
+method: Query
+retval: NDCV+00.3250E+0,P01
+---
+command: OC
+id: 517
+method: Query
+retval: STS1=26
+---
+id: 518
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 519
+method: Query
+retval: NDCV+00.3547E+0,P01
+---
+command: OC
+id: 520
+method: Query
+retval: STS1=26
+---
+id: 521
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 522
+method: Query
+retval: NDCV+00.3875E+0,P01
+---
+command: OC
+id: 523
+method: Query
+retval: STS1=26
+---
+id: 524
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 525
+method: Query
+retval: NDCV+00.4250E+0,P01
+---
+command: OC
+id: 526
+method: Query
+retval: STS1=26
+---
+id: 527
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 528
+method: Query
+retval: NDCV+00.4625E+0,P01
+---
+command: OC
+id: 529
+method: Query
+retval: STS1=26
+---
+id: 530
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 531
+method: Query
+retval: NDCV+00.4922E+0,P01
+---
+command: OC
+id: 532
+method: Query
+retval: STS1=16
+---
+id: 533
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 534
+method: Query
+retval: NDCV+00.5000E+0
+---
+id: 535
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 536
+method: Query
+retval: STS1=16
+---
+id: 537
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 538
+method: Query
+retval: NDCV+00.5000E+0
+---
+id: 539
+method: is_blocked
+retval: 0
+---
+id: 540
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 541
+method: Query
+retval: STS1=16
+---
+id: 542
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 543
+method: Query
+retval: NDCV+00.5000E+0
+---
+command: O1
+id: 544
+method: Write
+retval: 1
+---
+command: E
+id: 545
+method: Write
+retval: 1
+---
+id: 546
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 547
+method: Query
+retval: STS1=16
+---
+id: 548
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 549
+method: Query
+retval: STS1=16
+---
+command: M1
+id: 550
+method: Write
+retval: 1
+---
+command: PRS
+id: 551
+method: Write
+retval: 1
+---
+command: S+1.0000e+00
+id: 552
+method: Write
+retval: 1
+---
+command: PRE
+id: 553
+method: Write
+retval: 1
+---
+command: PI5.0
+id: 554
+method: Write
+retval: 1
+---
+command: SW5.0
+id: 555
+method: Write
+retval: 1
+---
+command: RU2
+id: 556
+method: Write
+retval: 1
+---
+command: OC
+id: 557
+method: Query
+retval: STS1=26
+---
+id: 558
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 559
+method: Query
+retval: NDCV+00.5088E+0,P01
+---
+command: OC
+id: 560
+method: Query
+retval: STS1=26
+---
+id: 561
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 562
+method: Query
+retval: NDCV+00.5375E+0,P01
+---
+command: OC
+id: 563
+method: Query
+retval: STS1=26
+---
+id: 564
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 565
+method: Query
+retval: NDCV+00.5675E+0,P01
+---
+command: OC
+id: 566
+method: Query
+retval: STS1=26
+---
+id: 567
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 568
+method: Query
+retval: NDCV+00.5975E+0,P01
+---
+command: OC
+id: 569
+method: Query
+retval: STS1=26
+---
+id: 570
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 571
+method: Query
+retval: NDCV+00.6275E+0,P01
+---
+command: OC
+id: 572
+method: Query
+retval: STS1=26
+---
+id: 573
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 574
+method: Query
+retval: NDCV+00.6575E+0,P01
+---
+command: OC
+id: 575
+method: Query
+retval: STS1=26
+---
+id: 576
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 577
+method: Query
+retval: NDCV+00.6875E+0,P01
+---
+command: OC
+id: 578
+method: Query
+retval: STS1=26
+---
+id: 579
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 580
+method: Query
+retval: NDCV+00.7175E+0,P01
+---
+command: OC
+id: 581
+method: Query
+retval: STS1=26
+---
+id: 582
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 583
+method: Query
+retval: NDCV+00.7475E+0,P01
+---
+command: OC
+id: 584
+method: Query
+retval: STS1=26
+---
+id: 585
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 586
+method: Query
+retval: NDCV+00.7775E+0,P01
+---
+command: OC
+id: 587
+method: Query
+retval: STS1=26
+---
+id: 588
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 589
+method: Query
+retval: NDCV+00.8075E+0,P01
+---
+command: OC
+id: 590
+method: Query
+retval: STS1=26
+---
+id: 591
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 592
+method: Query
+retval: NDCV+00.8375E+0,P01
+---
+command: OC
+id: 593
+method: Query
+retval: STS1=26
+---
+id: 594
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 595
+method: Query
+retval: NDCV+00.8675E+0,P01
+---
+command: OC
+id: 596
+method: Query
+retval: STS1=26
+---
+id: 597
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 598
+method: Query
+retval: NDCV+00.8975E+0,P01
+---
+command: OC
+id: 599
+method: Query
+retval: STS1=26
+---
+id: 600
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 601
+method: Query
+retval: NDCV+00.9275E+0,P01
+---
+command: OC
+id: 602
+method: Query
+retval: STS1=26
+---
+id: 603
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 604
+method: Query
+retval: NDCV+00.9575E+0,P01
+---
+command: OC
+id: 605
+method: Query
+retval: STS1=26
+---
+id: 606
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 607
+method: Query
+retval: NDCV+00.9875E+0,P01
+---
+command: OC
+id: 608
+method: Query
+retval: STS1=24
+---
+id: 609
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 610
+method: Query
+retval: NDCV+01.0000E+0
+---
+id: 611
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 612
+method: Query
+retval: STS1=16
+---
+id: 613
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 614
+method: Query
+retval: NDCV+01.0000E+0
+---
+id: 615
+method: is_blocked
+retval: 0
+---
+id: 616
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 617
+method: Query
+retval: NDCV+01.0000E+0
+---
+command: R5e
+id: 618
+method: Write
+retval: 1
+---
+id: 619
+method: is_blocked
+retval: 0
+---
+command: OS
+id: 620
+method: Write
+retval: 1
+---
+id: 621
+method: Read
+read_length: 300
+retval: MDL7651REV1.05
+---
+id: 622
+method: Read
+read_length: 300
+retval: F1R5S+01.0000E+0E
+---
+id: 623
+method: Read
+read_length: 300
+retval: PI5.0SW5.0M1
+---
+id: 624
+method: Read
+read_length: 300
+retval: LV30LA120
+---
+id: 625
+method: Read
+read_length: 300
+retval: END
+---
+id: 626
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 627
+method: Query
+retval: NDCV+01.0000E+0
+---
+id: 628
+method: is_blocked
+retval: 0
+---
+command: OS
+id: 629
+method: Write
+retval: 1
+---
+id: 630
+method: Read
+read_length: 300
+retval: MDL7651REV1.05
+---
+id: 631
+method: Read
+read_length: 300
+retval: F1R5S+01.0000E+0E
+---
+id: 632
+method: Read
+read_length: 300
+retval: PI5.0SW5.0M1
+---
+id: 633
+method: Read
+read_length: 300
+retval: LV30LA120
+---
+id: 634
+method: Read
+read_length: 300
+retval: END
+---
+id: 635
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 636
+method: Query
+retval: NDCV+01.0000E+0
+---
+id: 637
+method: is_blocked
+retval: 0
+---
+command: S9.900000e-01e
+id: 638
+method: Write
+retval: 1
+---
+id: 639
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 640
+method: Query
+retval: NDCV+00.9900E+0
+---
+id: 641
+method: is_blocked
+retval: 0
+---
+id: 642
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 643
+method: Query
+retval: STS1=16
+---
+id: 644
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 645
+method: Query
+retval: NDCV+00.9900E+0
+---
+command: O1
+id: 646
+method: Write
+retval: 1
+---
+command: E
+id: 647
+method: Write
+retval: 1
+---
+id: 648
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 649
+method: Query
+retval: STS1=16
+---
+id: 650
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 651
+method: Query
+retval: STS1=16
+---
+command: M1
+id: 652
+method: Write
+retval: 1
+---
+command: PRS
+id: 653
+method: Write
+retval: 1
+---
+command: S+1.0000e+00
+id: 654
+method: Write
+retval: 1
+---
+command: PRE
+id: 655
+method: Write
+retval: 1
+---
+command: PI1.0
+id: 656
+method: Write
+retval: 1
+---
+command: SW1.0
+id: 657
+method: Write
+retval: 1
+---
+command: RU2
+id: 658
+method: Write
+retval: 1
+---
+command: OC
+id: 659
+method: Query
+retval: STS1=26
+---
+id: 660
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 661
+method: Query
+retval: NDCV+00.9908E+0,P01
+---
+command: OC
+id: 662
+method: Query
+retval: STS1=26
+---
+id: 663
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 664
+method: Query
+retval: NDCV+00.9929E+0,P01
+---
+command: OC
+id: 665
+method: Query
+retval: STS1=26
+---
+id: 666
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 667
+method: Query
+retval: NDCV+00.9960E+0,P01
+---
+command: OC
+id: 668
+method: Query
+retval: STS1=26
+---
+id: 669
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 670
+method: Query
+retval: NDCV+00.9991E+0,P01
+---
+command: OC
+id: 671
+method: Query
+retval: STS1=16
+---
+id: 672
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 673
+method: Query
+retval: NDCV+01.0000E+0
+---
+id: 674
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 675
+method: Query
+retval: NDCV+01.0000E+0
+---
+id: 676
+method: is_blocked
+retval: 0
+---
+id: 677
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 678
+method: Query
+retval: STS1=16
+---
+id: 679
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 680
+method: Query
+retval: NDCV+01.0000E+0
+---
+command: O1
+id: 681
+method: Write
+retval: 1
+---
+command: E
+id: 682
+method: Write
+retval: 1
+---
+id: 683
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 684
+method: Query
+retval: STS1=16
+---
+id: 685
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 686
+method: Query
+retval: STS1=16
+---
+command: M1
+id: 687
+method: Write
+retval: 1
+---
+command: PRS
+id: 688
+method: Write
+retval: 1
+---
+command: S+1.0000e+00
+id: 689
+method: Write
+retval: 1
+---
+command: PRE
+id: 690
+method: Write
+retval: 1
+---
+command: PI0.1
+id: 691
+method: Write
+retval: 1
+---
+command: SW0.1
+id: 692
+method: Write
+retval: 1
+---
+command: RU2
+id: 693
+method: Write
+retval: 1
+---
+command: OC
+id: 694
+method: Query
+retval: STS1=26
+---
+id: 695
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 696
+method: Query
+retval: NDCV+01.0000E+0,P01
+---
+command: OC
+id: 697
+method: Query
+retval: STS1=26
+---
+id: 698
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 699
+method: Query
+retval: NDCV+01.0000E+0,P01
+---
+command: OC
+id: 700
+method: Query
+retval: STS1=16
+---
+id: 701
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 702
+method: Query
+retval: NDCV+01.0000E+0
+---
+id: 703
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 704
+method: Query
+retval: STS1=16
+---
+id: 705
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 706
+method: Query
+retval: NDCV+01.0000E+0
+---
+id: 707
+method: is_blocked
+retval: 0
+---
+id: 708
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 709
+method: Query
+retval: STS1=16
+---
+id: 710
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 711
+method: Query
+retval: NDCV+01.0000E+0
+---
+command: O1
+id: 712
+method: Write
+retval: 1
+---
+command: E
+id: 713
+method: Write
+retval: 1
+---
+id: 714
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 715
+method: Query
+retval: STS1=16
+---
+id: 716
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 717
+method: Query
+retval: STS1=16
+---
+command: M1
+id: 718
+method: Write
+retval: 1
+---
+command: PRS
+id: 719
+method: Write
+retval: 1
+---
+command: S+1.0010e+00
+id: 720
+method: Write
+retval: 1
+---
+command: PRE
+id: 721
+method: Write
+retval: 1
+---
+command: PI0.1
+id: 722
+method: Write
+retval: 1
+---
+command: SW0.1
+id: 723
+method: Write
+retval: 1
+---
+command: RU2
+id: 724
+method: Write
+retval: 1
+---
+command: OC
+id: 725
+method: Query
+retval: STS1=26
+---
+id: 726
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 727
+method: Query
+retval: NDCV+01.0009E+0,P01
+---
+command: OC
+id: 728
+method: Query
+retval: STS1=16
+---
+id: 729
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 730
+method: Query
+retval: NDCV+01.0010E+0
+---
+id: 731
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 732
+method: Query
+retval: STS1=16
+---
+id: 733
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 734
+method: Query
+retval: NDCV+01.0010E+0
+---
+id: 735
+method: is_blocked
+retval: 0
+---
+id: 736
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 737
+method: Query
+retval: STS1=16
+---
+id: 738
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 739
+method: Query
+retval: NDCV+01.0010E+0
+---
+command: O1
+id: 740
+method: Write
+retval: 1
+---
+command: E
+id: 741
+method: Write
+retval: 1
+---
+id: 742
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 743
+method: Query
+retval: STS1=16
+---
+id: 744
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 745
+method: Query
+retval: STS1=16
+---
+command: M1
+id: 746
+method: Write
+retval: 1
+---
+command: PRS
+id: 747
+method: Write
+retval: 1
+---
+command: S+1.0020e+00
+id: 748
+method: Write
+retval: 1
+---
+command: PRE
+id: 749
+method: Write
+retval: 1
+---
+command: PI0.1
+id: 750
+method: Write
+retval: 1
+---
+command: SW0.1
+id: 751
+method: Write
+retval: 1
+---
+command: RU2
+id: 752
+method: Write
+retval: 1
+---
+command: OC
+id: 753
+method: Query
+retval: STS1=26
+---
+id: 754
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 755
+method: Query
+retval: NDCV+01.0018E+0,P01
+---
+command: OC
+id: 756
+method: Query
+retval: STS1=16
+---
+id: 757
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 758
+method: Query
+retval: NDCV+01.0020E+0
+---
+id: 759
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 760
+method: Query
+retval: STS1=16
+---
+id: 761
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 762
+method: Query
+retval: NDCV+01.0020E+0
+---
+id: 763
+method: is_blocked
+retval: 0
+---
+id: 764
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 765
+method: Query
+retval: STS1=16
+---
+id: 766
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 767
+method: Query
+retval: NDCV+01.0020E+0
+---
+command: O1
+id: 768
+method: Write
+retval: 1
+---
+command: E
+id: 769
+method: Write
+retval: 1
+---
+id: 770
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 771
+method: Query
+retval: STS1=16
+---
+id: 772
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 773
+method: Query
+retval: STS1=16
+---
+command: M1
+id: 774
+method: Write
+retval: 1
+---
+command: PRS
+id: 775
+method: Write
+retval: 1
+---
+command: S+1.0030e+00
+id: 776
+method: Write
+retval: 1
+---
+command: PRE
+id: 777
+method: Write
+retval: 1
+---
+command: PI0.1
+id: 778
+method: Write
+retval: 1
+---
+command: SW0.1
+id: 779
+method: Write
+retval: 1
+---
+command: RU2
+id: 780
+method: Write
+retval: 1
+---
+command: OC
+id: 781
+method: Query
+retval: STS1=26
+---
+id: 782
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 783
+method: Query
+retval: NDCV+01.0028E+0,P01
+---
+command: OC
+id: 784
+method: Query
+retval: STS1=16
+---
+id: 785
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 786
+method: Query
+retval: NDCV+01.0030E+0
+---
+id: 787
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 788
+method: Query
+retval: STS1=16
+---
+id: 789
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 790
+method: Query
+retval: NDCV+01.0030E+0
+---
+id: 791
+method: is_blocked
+retval: 0
+---
+id: 792
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 793
+method: Query
+retval: STS1=16
+---
+id: 794
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 795
+method: Query
+retval: NDCV+01.0030E+0
+---
+command: O1
+id: 796
+method: Write
+retval: 1
+---
+command: E
+id: 797
+method: Write
+retval: 1
+---
+id: 798
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 799
+method: Query
+retval: STS1=16
+---
+id: 800
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 801
+method: Query
+retval: STS1=16
+---
+command: M1
+id: 802
+method: Write
+retval: 1
+---
+command: PRS
+id: 803
+method: Write
+retval: 1
+---
+command: S+1.0040e+00
+id: 804
+method: Write
+retval: 1
+---
+command: PRE
+id: 805
+method: Write
+retval: 1
+---
+command: PI0.1
+id: 806
+method: Write
+retval: 1
+---
+command: SW0.1
+id: 807
+method: Write
+retval: 1
+---
+command: RU2
+id: 808
+method: Write
+retval: 1
+---
+command: OC
+id: 809
+method: Query
+retval: STS1=26
+---
+id: 810
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 811
+method: Query
+retval: NDCV+01.0038E+0,P01
+---
+command: OC
+id: 812
+method: Query
+retval: STS1=16
+---
+id: 813
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 814
+method: Query
+retval: NDCV+01.0040E+0
+---
+id: 815
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 816
+method: Query
+retval: STS1=16
+---
+id: 817
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 818
+method: Query
+retval: NDCV+01.0040E+0
+---
+id: 819
+method: is_blocked
+retval: 0
+---
+id: 820
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 821
+method: Query
+retval: STS1=16
+---
+id: 822
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 823
+method: Query
+retval: NDCV+01.0040E+0
+---
+command: O1
+id: 824
+method: Write
+retval: 1
+---
+command: E
+id: 825
+method: Write
+retval: 1
+---
+id: 826
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 827
+method: Query
+retval: STS1=16
+---
+id: 828
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 829
+method: Query
+retval: STS1=16
+---
+command: M1
+id: 830
+method: Write
+retval: 1
+---
+command: PRS
+id: 831
+method: Write
+retval: 1
+---
+command: S+1.0050e+00
+id: 832
+method: Write
+retval: 1
+---
+command: PRE
+id: 833
+method: Write
+retval: 1
+---
+command: PI0.1
+id: 834
+method: Write
+retval: 1
+---
+command: SW0.1
+id: 835
+method: Write
+retval: 1
+---
+command: RU2
+id: 836
+method: Write
+retval: 1
+---
+command: OC
+id: 837
+method: Query
+retval: STS1=26
+---
+id: 838
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 839
+method: Query
+retval: NDCV+01.0049E+0,P01
+---
+command: OC
+id: 840
+method: Query
+retval: STS1=16
+---
+id: 841
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 842
+method: Query
+retval: NDCV+01.0050E+0
+---
+id: 843
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 844
+method: Query
+retval: STS1=16
+---
+id: 845
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 846
+method: Query
+retval: NDCV+01.0050E+0
+---
+id: 847
+method: is_blocked
+retval: 0
+---
+id: 848
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 849
+method: Query
+retval: STS1=16
+---
+id: 850
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 851
+method: Query
+retval: NDCV+01.0050E+0
+---
+command: O1
+id: 852
+method: Write
+retval: 1
+---
+command: E
+id: 853
+method: Write
+retval: 1
+---
+id: 854
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 855
+method: Query
+retval: STS1=16
+---
+id: 856
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 857
+method: Query
+retval: STS1=16
+---
+command: M1
+id: 858
+method: Write
+retval: 1
+---
+command: PRS
+id: 859
+method: Write
+retval: 1
+---
+command: S+1.0060e+00
+id: 860
+method: Write
+retval: 1
+---
+command: PRE
+id: 861
+method: Write
+retval: 1
+---
+command: PI0.1
+id: 862
+method: Write
+retval: 1
+---
+command: SW0.1
+id: 863
+method: Write
+retval: 1
+---
+command: RU2
+id: 864
+method: Write
+retval: 1
+---
+command: OC
+id: 865
+method: Query
+retval: STS1=26
+---
+id: 866
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 867
+method: Query
+retval: NDCV+01.0058E+0,P01
+---
+command: OC
+id: 868
+method: Query
+retval: STS1=16
+---
+id: 869
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 870
+method: Query
+retval: NDCV+01.0060E+0
+---
+id: 871
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 872
+method: Query
+retval: STS1=16
+---
+id: 873
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 874
+method: Query
+retval: NDCV+01.0060E+0
+---
+id: 875
+method: is_blocked
+retval: 0
+---
+id: 876
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 877
+method: Query
+retval: STS1=16
+---
+id: 878
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 879
+method: Query
+retval: NDCV+01.0060E+0
+---
+command: O1
+id: 880
+method: Write
+retval: 1
+---
+command: E
+id: 881
+method: Write
+retval: 1
+---
+id: 882
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 883
+method: Query
+retval: STS1=16
+---
+id: 884
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 885
+method: Query
+retval: STS1=16
+---
+command: M1
+id: 886
+method: Write
+retval: 1
+---
+command: PRS
+id: 887
+method: Write
+retval: 1
+---
+command: S+1.0070e+00
+id: 888
+method: Write
+retval: 1
+---
+command: PRE
+id: 889
+method: Write
+retval: 1
+---
+command: PI0.1
+id: 890
+method: Write
+retval: 1
+---
+command: SW0.1
+id: 891
+method: Write
+retval: 1
+---
+command: RU2
+id: 892
+method: Write
+retval: 1
+---
+command: OC
+id: 893
+method: Query
+retval: STS1=26
+---
+id: 894
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 895
+method: Query
+retval: NDCV+01.0069E+0,P01
+---
+command: OC
+id: 896
+method: Query
+retval: STS1=16
+---
+id: 897
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 898
+method: Query
+retval: NDCV+01.0070E+0
+---
+id: 899
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 900
+method: Query
+retval: STS1=16
+---
+id: 901
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 902
+method: Query
+retval: NDCV+01.0070E+0
+---
+id: 903
+method: is_blocked
+retval: 0
+---
+id: 904
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 905
+method: Query
+retval: STS1=16
+---
+id: 906
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 907
+method: Query
+retval: NDCV+01.0070E+0
+---
+command: O1
+id: 908
+method: Write
+retval: 1
+---
+command: E
+id: 909
+method: Write
+retval: 1
+---
+id: 910
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 911
+method: Query
+retval: STS1=16
+---
+id: 912
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 913
+method: Query
+retval: STS1=16
+---
+command: M1
+id: 914
+method: Write
+retval: 1
+---
+command: PRS
+id: 915
+method: Write
+retval: 1
+---
+command: S+1.0080e+00
+id: 916
+method: Write
+retval: 1
+---
+command: PRE
+id: 917
+method: Write
+retval: 1
+---
+command: PI0.1
+id: 918
+method: Write
+retval: 1
+---
+command: SW0.1
+id: 919
+method: Write
+retval: 1
+---
+command: RU2
+id: 920
+method: Write
+retval: 1
+---
+command: OC
+id: 921
+method: Query
+retval: STS1=26
+---
+id: 922
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 923
+method: Query
+retval: NDCV+01.0078E+0,P01
+---
+command: OC
+id: 924
+method: Query
+retval: STS1=16
+---
+id: 925
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 926
+method: Query
+retval: NDCV+01.0080E+0
+---
+id: 927
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 928
+method: Query
+retval: STS1=16
+---
+id: 929
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 930
+method: Query
+retval: NDCV+01.0080E+0
+---
+id: 931
+method: is_blocked
+retval: 0
+---
+id: 932
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 933
+method: Query
+retval: STS1=16
+---
+id: 934
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 935
+method: Query
+retval: NDCV+01.0080E+0
+---
+command: O1
+id: 936
+method: Write
+retval: 1
+---
+command: E
+id: 937
+method: Write
+retval: 1
+---
+id: 938
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 939
+method: Query
+retval: STS1=16
+---
+id: 940
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 941
+method: Query
+retval: STS1=16
+---
+command: M1
+id: 942
+method: Write
+retval: 1
+---
+command: PRS
+id: 943
+method: Write
+retval: 1
+---
+command: S+1.0090e+00
+id: 944
+method: Write
+retval: 1
+---
+command: PRE
+id: 945
+method: Write
+retval: 1
+---
+command: PI0.1
+id: 946
+method: Write
+retval: 1
+---
+command: SW0.1
+id: 947
+method: Write
+retval: 1
+---
+command: RU2
+id: 948
+method: Write
+retval: 1
+---
+command: OC
+id: 949
+method: Query
+retval: STS1=26
+---
+id: 950
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 951
+method: Query
+retval: NDCV+01.0088E+0,P01
+---
+command: OC
+id: 952
+method: Query
+retval: STS1=16
+---
+id: 953
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 954
+method: Query
+retval: NDCV+01.0090E+0
+---
+id: 955
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 956
+method: Query
+retval: STS1=16
+---
+id: 957
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 958
+method: Query
+retval: NDCV+01.0090E+0
+---
+id: 959
+method: is_blocked
+retval: 0
+---
+id: 960
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 961
+method: Query
+retval: STS1=16
+---
+id: 962
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 963
+method: Query
+retval: NDCV+01.0090E+0
+---
+command: O1
+id: 964
+method: Write
+retval: 1
+---
+command: E
+id: 965
+method: Write
+retval: 1
+---
+id: 966
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 967
+method: Query
+retval: STS1=16
+---
+id: 968
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 969
+method: Query
+retval: STS1=16
+---
+command: M1
+id: 970
+method: Write
+retval: 1
+---
+command: PRS
+id: 971
+method: Write
+retval: 1
+---
+command: S+1.0100e+00
+id: 972
+method: Write
+retval: 1
+---
+command: PRE
+id: 973
+method: Write
+retval: 1
+---
+command: PI0.1
+id: 974
+method: Write
+retval: 1
+---
+command: SW0.1
+id: 975
+method: Write
+retval: 1
+---
+command: RU2
+id: 976
+method: Write
+retval: 1
+---
+command: OC
+id: 977
+method: Query
+retval: STS1=26
+---
+id: 978
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 979
+method: Query
+retval: NDCV+01.0099E+0,P01
+---
+command: OC
+id: 980
+method: Query
+retval: STS1=16
+---
+id: 981
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 982
+method: Query
+retval: NDCV+01.0100E+0
+---
+id: 983
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 984
+method: Query
+retval: STS1=16
+---
+id: 985
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 986
+method: Query
+retval: NDCV+01.0100E+0
+---
+id: 987
+method: is_blocked
+retval: 0
+---
+id: 988
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 989
+method: Query
+retval: STS1=16
+---
+id: 990
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 991
+method: Query
+retval: NDCV+01.0100E+0
+---
+command: O1
+id: 992
+method: Write
+retval: 1
+---
+command: E
+id: 993
+method: Write
+retval: 1
+---
+id: 994
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 995
+method: Query
+retval: STS1=16
+---
+id: 996
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 997
+method: Query
+retval: STS1=16
+---
+command: M1
+id: 998
+method: Write
+retval: 1
+---
+command: PRS
+id: 999
+method: Write
+retval: 1
+---
+command: S+1.0100e+00
+id: 1000
+method: Write
+retval: 1
+---
+command: PRE
+id: 1001
+method: Write
+retval: 1
+---
+command: PI0.1
+id: 1002
+method: Write
+retval: 1
+---
+command: SW0.1
+id: 1003
+method: Write
+retval: 1
+---
+command: RU2
+id: 1004
+method: Write
+retval: 1
+---
+command: OC
+id: 1005
+method: Query
+retval: STS1=26
+---
+id: 1006
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1007
+method: Query
+retval: NDCV+01.0100E+0,P01
+---
+command: OC
+id: 1008
+method: Query
+retval: STS1=26
+---
+id: 1009
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1010
+method: Query
+retval: NDCV+01.0100E+0,P01
+---
+command: OC
+id: 1011
+method: Query
+retval: STS1=16
+---
+id: 1012
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1013
+method: Query
+retval: NDCV+01.0100E+0
+---
+id: 1014
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 1015
+method: Query
+retval: STS1=16
+---
+id: 1016
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1017
+method: Query
+retval: NDCV+01.0100E+0
+---
+id: 1018
+method: is_blocked
+retval: 0
+---
+id: 1019
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1020
+method: Query
+retval: NDCV+01.0100E+0
+---
+command: R5e
+id: 1021
+method: Write
+retval: 1
+---
+id: 1022
+method: is_blocked
+retval: 0
+---
+command: OS
+id: 1023
+method: Write
+retval: 1
+---
+id: 1024
+method: Read
+read_length: 300
+retval: MDL7651REV1.05
+---
+id: 1025
+method: Read
+read_length: 300
+retval: F1R5S+01.0100E+0E
+---
+id: 1026
+method: Read
+read_length: 300
+retval: PI0.1SW0.1M1
+---
+id: 1027
+method: Read
+read_length: 300
+retval: LV30LA120
+---
+id: 1028
+method: Read
+read_length: 300
+retval: END
+---
+id: 1029
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1030
+method: Query
+retval: NDCV+01.0100E+0
+---
+id: 1031
+method: is_blocked
+retval: 0
+---
+command: OS
+id: 1032
+method: Write
+retval: 1
+---
+id: 1033
+method: Read
+read_length: 300
+retval: MDL7651REV1.05
+---
+id: 1034
+method: Read
+read_length: 300
+retval: F1R5S+01.0100E+0E
+---
+id: 1035
+method: Read
+read_length: 300
+retval: PI0.1SW0.1M1
+---
+id: 1036
+method: Read
+read_length: 300
+retval: LV30LA120
+---
+id: 1037
+method: Read
+read_length: 300
+retval: END
+---
+id: 1038
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1039
+method: Query
+retval: NDCV+01.0100E+0
+---
+id: 1040
+method: is_blocked
+retval: 0
+---
+command: S9.900000e-01e
+id: 1041
+method: Write
+retval: 1
+---
+id: 1042
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1043
+method: Query
+retval: NDCV+00.9900E+0
+---
+id: 1044
+method: is_blocked
+retval: 0
+---
+id: 1045
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 1046
+method: Query
+retval: STS1=16
+---
+id: 1047
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1048
+method: Query
+retval: NDCV+00.9900E+0
+---
+command: O1
+id: 1049
+method: Write
+retval: 1
+---
+command: E
+id: 1050
+method: Write
+retval: 1
+---
+id: 1051
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 1052
+method: Query
+retval: STS1=24
+---
+id: 1053
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 1054
+method: Query
+retval: STS1=16
+---
+command: M1
+id: 1055
+method: Write
+retval: 1
+---
+command: PRS
+id: 1056
+method: Write
+retval: 1
+---
+command: S+1.0000e+00
+id: 1057
+method: Write
+retval: 1
+---
+command: PRE
+id: 1058
+method: Write
+retval: 1
+---
+command: PI10.0
+id: 1059
+method: Write
+retval: 1
+---
+command: SW10.0
+id: 1060
+method: Write
+retval: 1
+---
+command: RU2
+id: 1061
+method: Write
+retval: 1
+---
+command: OC
+id: 1062
+method: Query
+retval: STS1=26
+---
+id: 1063
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1064
+method: Query
+retval: NDCV+00.9900E+0,P01
+---
+command: OC
+id: 1065
+method: Query
+retval: STS1=26
+---
+id: 1066
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1067
+method: Query
+retval: NDCV+00.9901E+0,P01
+---
+command: OC
+id: 1068
+method: Query
+retval: STS1=26
+---
+id: 1069
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1070
+method: Query
+retval: NDCV+00.9902E+0,P01
+---
+command: OC
+id: 1071
+method: Query
+retval: STS1=26
+---
+id: 1072
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1073
+method: Query
+retval: NDCV+00.9903E+0,P01
+---
+command: OC
+id: 1074
+method: Query
+retval: STS1=26
+---
+id: 1075
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1076
+method: Query
+retval: NDCV+00.9903E+0,P01
+---
+command: OC
+id: 1077
+method: Query
+retval: STS1=26
+---
+id: 1078
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1079
+method: Query
+retval: NDCV+00.9904E+0,P01
+---
+command: OC
+id: 1080
+method: Query
+retval: STS1=26
+---
+id: 1081
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1082
+method: Query
+retval: NDCV+00.9905E+0,P01
+---
+command: OC
+id: 1083
+method: Query
+retval: STS1=26
+---
+id: 1084
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1085
+method: Query
+retval: NDCV+00.9905E+0,P01
+---
+command: OC
+id: 1086
+method: Query
+retval: STS1=26
+---
+id: 1087
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1088
+method: Query
+retval: NDCV+00.9906E+0,P01
+---
+command: OC
+id: 1089
+method: Query
+retval: STS1=26
+---
+id: 1090
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1091
+method: Query
+retval: NDCV+00.9907E+0,P01
+---
+command: OC
+id: 1092
+method: Query
+retval: STS1=26
+---
+id: 1093
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1094
+method: Query
+retval: NDCV+00.9907E+0,P01
+---
+command: OC
+id: 1095
+method: Query
+retval: STS1=26
+---
+id: 1096
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1097
+method: Query
+retval: NDCV+00.9908E+0,P01
+---
+command: OC
+id: 1098
+method: Query
+retval: STS1=26
+---
+id: 1099
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1100
+method: Query
+retval: NDCV+00.9909E+0,P01
+---
+command: OC
+id: 1101
+method: Query
+retval: STS1=26
+---
+id: 1102
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1103
+method: Query
+retval: NDCV+00.9910E+0,P01
+---
+command: OC
+id: 1104
+method: Query
+retval: STS1=26
+---
+id: 1105
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1106
+method: Query
+retval: NDCV+00.9910E+0,P01
+---
+command: OC
+id: 1107
+method: Query
+retval: STS1=26
+---
+id: 1108
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1109
+method: Query
+retval: NDCV+00.9911E+0,P01
+---
+command: OC
+id: 1110
+method: Query
+retval: STS1=26
+---
+id: 1111
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1112
+method: Query
+retval: NDCV+00.9912E+0,P01
+---
+command: OC
+id: 1113
+method: Query
+retval: STS1=26
+---
+id: 1114
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1115
+method: Query
+retval: NDCV+00.9912E+0,P01
+---
+command: OC
+id: 1116
+method: Query
+retval: STS1=26
+---
+id: 1117
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1118
+method: Query
+retval: NDCV+00.9913E+0,P01
+---
+command: OC
+id: 1119
+method: Query
+retval: STS1=26
+---
+id: 1120
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1121
+method: Query
+retval: NDCV+00.9914E+0,P01
+---
+command: OC
+id: 1122
+method: Query
+retval: STS1=26
+---
+id: 1123
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1124
+method: Query
+retval: NDCV+00.9915E+0,P01
+---
+command: OC
+id: 1125
+method: Query
+retval: STS1=26
+---
+id: 1126
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1127
+method: Query
+retval: NDCV+00.9915E+0,P01
+---
+command: OC
+id: 1128
+method: Query
+retval: STS1=26
+---
+id: 1129
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1130
+method: Query
+retval: NDCV+00.9916E+0,P01
+---
+command: OC
+id: 1131
+method: Query
+retval: STS1=26
+---
+id: 1132
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1133
+method: Query
+retval: NDCV+00.9917E+0,P01
+---
+command: OC
+id: 1134
+method: Query
+retval: STS1=26
+---
+id: 1135
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1136
+method: Query
+retval: NDCV+00.9917E+0,P01
+---
+command: OC
+id: 1137
+method: Query
+retval: STS1=26
+---
+id: 1138
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1139
+method: Query
+retval: NDCV+00.9918E+0,P01
+---
+command: OC
+id: 1140
+method: Query
+retval: STS1=26
+---
+id: 1141
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1142
+method: Query
+retval: NDCV+00.9919E+0,P01
+---
+command: OC
+id: 1143
+method: Query
+retval: STS1=26
+---
+id: 1144
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1145
+method: Query
+retval: NDCV+00.9920E+0,P01
+---
+command: OC
+id: 1146
+method: Query
+retval: STS1=26
+---
+id: 1147
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1148
+method: Query
+retval: NDCV+00.9921E+0,P01
+---
+command: OC
+id: 1149
+method: Query
+retval: STS1=26
+---
+id: 1150
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1151
+method: Query
+retval: NDCV+00.9922E+0,P01
+---
+command: OC
+id: 1152
+method: Query
+retval: STS1=26
+---
+id: 1153
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1154
+method: Query
+retval: NDCV+00.9922E+0,P01
+---
+command: OC
+id: 1155
+method: Query
+retval: STS1=26
+---
+id: 1156
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1157
+method: Query
+retval: NDCV+00.9923E+0,P01
+---
+command: OC
+id: 1158
+method: Query
+retval: STS1=26
+---
+id: 1159
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1160
+method: Query
+retval: NDCV+00.9924E+0,P01
+---
+command: OC
+id: 1161
+method: Query
+retval: STS1=26
+---
+id: 1162
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1163
+method: Query
+retval: NDCV+00.9924E+0,P01
+---
+command: OC
+id: 1164
+method: Query
+retval: STS1=26
+---
+id: 1165
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1166
+method: Query
+retval: NDCV+00.9925E+0,P01
+---
+command: OC
+id: 1167
+method: Query
+retval: STS1=26
+---
+id: 1168
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1169
+method: Query
+retval: NDCV+00.9926E+0,P01
+---
+command: OC
+id: 1170
+method: Query
+retval: STS1=26
+---
+id: 1171
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1172
+method: Query
+retval: NDCV+00.9927E+0,P01
+---
+command: OC
+id: 1173
+method: Query
+retval: STS1=26
+---
+id: 1174
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1175
+method: Query
+retval: NDCV+00.9927E+0,P01
+---
+command: OC
+id: 1176
+method: Query
+retval: STS1=26
+---
+id: 1177
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1178
+method: Query
+retval: NDCV+00.9928E+0,P01
+---
+command: OC
+id: 1179
+method: Query
+retval: STS1=26
+---
+id: 1180
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1181
+method: Query
+retval: NDCV+00.9929E+0,P01
+---
+command: OC
+id: 1182
+method: Query
+retval: STS1=26
+---
+id: 1183
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1184
+method: Query
+retval: NDCV+00.9929E+0,P01
+---
+command: OC
+id: 1185
+method: Query
+retval: STS1=26
+---
+id: 1186
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1187
+method: Query
+retval: NDCV+00.9930E+0,P01
+---
+command: OC
+id: 1188
+method: Query
+retval: STS1=26
+---
+id: 1189
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1190
+method: Query
+retval: NDCV+00.9931E+0,P01
+---
+command: OC
+id: 1191
+method: Query
+retval: STS1=26
+---
+id: 1192
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1193
+method: Query
+retval: NDCV+00.9932E+0,P01
+---
+command: OC
+id: 1194
+method: Query
+retval: STS1=26
+---
+id: 1195
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1196
+method: Query
+retval: NDCV+00.9932E+0,P01
+---
+command: OC
+id: 1197
+method: Query
+retval: STS1=26
+---
+id: 1198
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1199
+method: Query
+retval: NDCV+00.9933E+0,P01
+---
+command: OC
+id: 1200
+method: Query
+retval: STS1=26
+---
+id: 1201
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1202
+method: Query
+retval: NDCV+00.9934E+0,P01
+---
+command: OC
+id: 1203
+method: Query
+retval: STS1=26
+---
+id: 1204
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1205
+method: Query
+retval: NDCV+00.9935E+0,P01
+---
+command: OC
+id: 1206
+method: Query
+retval: STS1=26
+---
+id: 1207
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1208
+method: Query
+retval: NDCV+00.9935E+0,P01
+---
+command: OC
+id: 1209
+method: Query
+retval: STS1=26
+---
+id: 1210
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1211
+method: Query
+retval: NDCV+00.9936E+0,P01
+---
+command: OC
+id: 1212
+method: Query
+retval: STS1=26
+---
+id: 1213
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1214
+method: Query
+retval: NDCV+00.9937E+0,P01
+---
+command: OC
+id: 1215
+method: Query
+retval: STS1=26
+---
+id: 1216
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1217
+method: Query
+retval: NDCV+00.9937E+0,P01
+---
+command: OC
+id: 1218
+method: Query
+retval: STS1=26
+---
+id: 1219
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1220
+method: Query
+retval: NDCV+00.9938E+0,P01
+---
+command: OC
+id: 1221
+method: Query
+retval: STS1=26
+---
+id: 1222
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1223
+method: Query
+retval: NDCV+00.9939E+0,P01
+---
+command: OC
+id: 1224
+method: Query
+retval: STS1=26
+---
+id: 1225
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1226
+method: Query
+retval: NDCV+00.9940E+0,P01
+---
+command: OC
+id: 1227
+method: Query
+retval: STS1=26
+---
+id: 1228
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1229
+method: Query
+retval: NDCV+00.9941E+0,P01
+---
+command: OC
+id: 1230
+method: Query
+retval: STS1=26
+---
+id: 1231
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1232
+method: Query
+retval: NDCV+00.9941E+0,P01
+---
+command: OC
+id: 1233
+method: Query
+retval: STS1=26
+---
+id: 1234
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1235
+method: Query
+retval: NDCV+00.9942E+0,P01
+---
+command: OC
+id: 1236
+method: Query
+retval: STS1=26
+---
+id: 1237
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1238
+method: Query
+retval: NDCV+00.9943E+0,P01
+---
+command: OC
+id: 1239
+method: Query
+retval: STS1=26
+---
+id: 1240
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1241
+method: Query
+retval: NDCV+00.9943E+0,P01
+---
+command: OC
+id: 1242
+method: Query
+retval: STS1=26
+---
+id: 1243
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1244
+method: Query
+retval: NDCV+00.9944E+0,P01
+---
+command: OC
+id: 1245
+method: Query
+retval: STS1=26
+---
+id: 1246
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1247
+method: Query
+retval: NDCV+00.9945E+0,P01
+---
+command: OC
+id: 1248
+method: Query
+retval: STS1=26
+---
+id: 1249
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1250
+method: Query
+retval: NDCV+00.9946E+0,P01
+---
+command: OC
+id: 1251
+method: Query
+retval: STS1=26
+---
+id: 1252
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1253
+method: Query
+retval: NDCV+00.9947E+0,P01
+---
+command: OC
+id: 1254
+method: Query
+retval: STS1=26
+---
+id: 1255
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1256
+method: Query
+retval: NDCV+00.9948E+0,P01
+---
+command: OC
+id: 1257
+method: Query
+retval: STS1=26
+---
+id: 1258
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1259
+method: Query
+retval: NDCV+00.9948E+0,P01
+---
+command: OC
+id: 1260
+method: Query
+retval: STS1=26
+---
+id: 1261
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1262
+method: Query
+retval: NDCV+00.9949E+0,P01
+---
+command: OC
+id: 1263
+method: Query
+retval: STS1=26
+---
+id: 1264
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1265
+method: Query
+retval: NDCV+00.9950E+0,P01
+---
+command: OC
+id: 1266
+method: Query
+retval: STS1=26
+---
+id: 1267
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1268
+method: Query
+retval: NDCV+00.9951E+0,P01
+---
+command: OC
+id: 1269
+method: Query
+retval: STS1=26
+---
+id: 1270
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1271
+method: Query
+retval: NDCV+00.9952E+0,P01
+---
+command: OC
+id: 1272
+method: Query
+retval: STS1=26
+---
+id: 1273
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1274
+method: Query
+retval: NDCV+00.9953E+0,P01
+---
+command: OC
+id: 1275
+method: Query
+retval: STS1=26
+---
+id: 1276
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1277
+method: Query
+retval: NDCV+00.9954E+0,P01
+---
+command: OC
+id: 1278
+method: Query
+retval: STS1=26
+---
+id: 1279
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1280
+method: Query
+retval: NDCV+00.9955E+0,P01
+---
+command: OC
+id: 1281
+method: Query
+retval: STS1=26
+---
+id: 1282
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1283
+method: Query
+retval: NDCV+00.9956E+0,P01
+---
+command: OC
+id: 1284
+method: Query
+retval: STS1=26
+---
+id: 1285
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1286
+method: Query
+retval: NDCV+00.9956E+0,P01
+---
+command: OC
+id: 1287
+method: Query
+retval: STS1=26
+---
+id: 1288
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1289
+method: Query
+retval: NDCV+00.9957E+0,P01
+---
+command: OC
+id: 1290
+method: Query
+retval: STS1=26
+---
+id: 1291
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1292
+method: Query
+retval: NDCV+00.9958E+0,P01
+---
+command: OC
+id: 1293
+method: Query
+retval: STS1=26
+---
+id: 1294
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1295
+method: Query
+retval: NDCV+00.9959E+0,P01
+---
+command: OC
+id: 1296
+method: Query
+retval: STS1=26
+---
+id: 1297
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1298
+method: Query
+retval: NDCV+00.9960E+0,P01
+---
+command: OC
+id: 1299
+method: Query
+retval: STS1=26
+---
+id: 1300
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1301
+method: Query
+retval: NDCV+00.9960E+0,P01
+---
+command: OC
+id: 1302
+method: Query
+retval: STS1=26
+---
+id: 1303
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1304
+method: Query
+retval: NDCV+00.9961E+0,P01
+---
+command: OC
+id: 1305
+method: Query
+retval: STS1=26
+---
+id: 1306
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1307
+method: Query
+retval: NDCV+00.9962E+0,P01
+---
+command: OC
+id: 1308
+method: Query
+retval: STS1=26
+---
+id: 1309
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1310
+method: Query
+retval: NDCV+00.9962E+0,P01
+---
+command: OC
+id: 1311
+method: Query
+retval: STS1=26
+---
+id: 1312
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1313
+method: Query
+retval: NDCV+00.9963E+0,P01
+---
+command: OC
+id: 1314
+method: Query
+retval: STS1=26
+---
+id: 1315
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1316
+method: Query
+retval: NDCV+00.9964E+0,P01
+---
+command: OC
+id: 1317
+method: Query
+retval: STS1=26
+---
+id: 1318
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1319
+method: Query
+retval: NDCV+00.9965E+0,P01
+---
+command: OC
+id: 1320
+method: Query
+retval: STS1=26
+---
+id: 1321
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1322
+method: Query
+retval: NDCV+00.9965E+0,P01
+---
+command: OC
+id: 1323
+method: Query
+retval: STS1=26
+---
+id: 1324
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1325
+method: Query
+retval: NDCV+00.9966E+0,P01
+---
+command: OC
+id: 1326
+method: Query
+retval: STS1=26
+---
+id: 1327
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1328
+method: Query
+retval: NDCV+00.9967E+0,P01
+---
+command: OC
+id: 1329
+method: Query
+retval: STS1=26
+---
+id: 1330
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1331
+method: Query
+retval: NDCV+00.9967E+0,P01
+---
+command: OC
+id: 1332
+method: Query
+retval: STS1=26
+---
+id: 1333
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1334
+method: Query
+retval: NDCV+00.9968E+0,P01
+---
+command: OC
+id: 1335
+method: Query
+retval: STS1=26
+---
+id: 1336
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1337
+method: Query
+retval: NDCV+00.9969E+0,P01
+---
+command: OC
+id: 1338
+method: Query
+retval: STS1=26
+---
+id: 1339
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1340
+method: Query
+retval: NDCV+00.9970E+0,P01
+---
+command: OC
+id: 1341
+method: Query
+retval: STS1=26
+---
+id: 1342
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1343
+method: Query
+retval: NDCV+00.9970E+0,P01
+---
+command: OC
+id: 1344
+method: Query
+retval: STS1=26
+---
+id: 1345
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1346
+method: Query
+retval: NDCV+00.9971E+0,P01
+---
+command: OC
+id: 1347
+method: Query
+retval: STS1=26
+---
+id: 1348
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1349
+method: Query
+retval: NDCV+00.9972E+0,P01
+---
+command: OC
+id: 1350
+method: Query
+retval: STS1=26
+---
+id: 1351
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1352
+method: Query
+retval: NDCV+00.9972E+0,P01
+---
+command: OC
+id: 1353
+method: Query
+retval: STS1=26
+---
+id: 1354
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1355
+method: Query
+retval: NDCV+00.9973E+0,P01
+---
+command: OC
+id: 1356
+method: Query
+retval: STS1=26
+---
+id: 1357
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1358
+method: Query
+retval: NDCV+00.9974E+0,P01
+---
+command: OC
+id: 1359
+method: Query
+retval: STS1=26
+---
+id: 1360
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1361
+method: Query
+retval: NDCV+00.9975E+0,P01
+---
+command: OC
+id: 1362
+method: Query
+retval: STS1=26
+---
+id: 1363
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1364
+method: Query
+retval: NDCV+00.9975E+0,P01
+---
+command: OC
+id: 1365
+method: Query
+retval: STS1=26
+---
+id: 1366
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1367
+method: Query
+retval: NDCV+00.9976E+0,P01
+---
+command: OC
+id: 1368
+method: Query
+retval: STS1=26
+---
+id: 1369
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1370
+method: Query
+retval: NDCV+00.9977E+0,P01
+---
+command: OC
+id: 1371
+method: Query
+retval: STS1=26
+---
+id: 1372
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1373
+method: Query
+retval: NDCV+00.9977E+0,P01
+---
+command: OC
+id: 1374
+method: Query
+retval: STS1=26
+---
+id: 1375
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1376
+method: Query
+retval: NDCV+00.9978E+0,P01
+---
+command: OC
+id: 1377
+method: Query
+retval: STS1=26
+---
+id: 1378
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1379
+method: Query
+retval: NDCV+00.9979E+0,P01
+---
+command: OC
+id: 1380
+method: Query
+retval: STS1=26
+---
+id: 1381
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1382
+method: Query
+retval: NDCV+00.9980E+0,P01
+---
+command: OC
+id: 1383
+method: Query
+retval: STS1=26
+---
+id: 1384
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1385
+method: Query
+retval: NDCV+00.9980E+0,P01
+---
+command: OC
+id: 1386
+method: Query
+retval: STS1=26
+---
+id: 1387
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1388
+method: Query
+retval: NDCV+00.9981E+0,P01
+---
+command: OC
+id: 1389
+method: Query
+retval: STS1=26
+---
+id: 1390
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1391
+method: Query
+retval: NDCV+00.9982E+0,P01
+---
+command: OC
+id: 1392
+method: Query
+retval: STS1=26
+---
+id: 1393
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1394
+method: Query
+retval: NDCV+00.9982E+0,P01
+---
+command: OC
+id: 1395
+method: Query
+retval: STS1=26
+---
+id: 1396
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1397
+method: Query
+retval: NDCV+00.9983E+0,P01
+---
+command: OC
+id: 1398
+method: Query
+retval: STS1=26
+---
+id: 1399
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1400
+method: Query
+retval: NDCV+00.9984E+0,P01
+---
+command: OC
+id: 1401
+method: Query
+retval: STS1=26
+---
+id: 1402
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1403
+method: Query
+retval: NDCV+00.9985E+0,P01
+---
+command: OC
+id: 1404
+method: Query
+retval: STS1=26
+---
+id: 1405
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1406
+method: Query
+retval: NDCV+00.9986E+0,P01
+---
+command: OC
+id: 1407
+method: Query
+retval: STS1=26
+---
+id: 1408
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1409
+method: Query
+retval: NDCV+00.9987E+0,P01
+---
+command: OC
+id: 1410
+method: Query
+retval: STS1=26
+---
+id: 1411
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1412
+method: Query
+retval: NDCV+00.9988E+0,P01
+---
+command: OC
+id: 1413
+method: Query
+retval: STS1=26
+---
+id: 1414
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1415
+method: Query
+retval: NDCV+00.9989E+0,P01
+---
+command: OC
+id: 1416
+method: Query
+retval: STS1=26
+---
+id: 1417
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1418
+method: Query
+retval: NDCV+00.9989E+0,P01
+---
+command: OC
+id: 1419
+method: Query
+retval: STS1=26
+---
+id: 1420
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1421
+method: Query
+retval: NDCV+00.9990E+0,P01
+---
+command: OC
+id: 1422
+method: Query
+retval: STS1=26
+---
+id: 1423
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1424
+method: Query
+retval: NDCV+00.9991E+0,P01
+---
+command: OC
+id: 1425
+method: Query
+retval: STS1=26
+---
+id: 1426
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1427
+method: Query
+retval: NDCV+00.9991E+0,P01
+---
+command: OC
+id: 1428
+method: Query
+retval: STS1=26
+---
+id: 1429
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1430
+method: Query
+retval: NDCV+00.9992E+0,P01
+---
+command: OC
+id: 1431
+method: Query
+retval: STS1=26
+---
+id: 1432
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1433
+method: Query
+retval: NDCV+00.9993E+0,P01
+---
+command: OC
+id: 1434
+method: Query
+retval: STS1=26
+---
+id: 1435
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1436
+method: Query
+retval: NDCV+00.9994E+0,P01
+---
+command: OC
+id: 1437
+method: Query
+retval: STS1=26
+---
+id: 1438
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1439
+method: Query
+retval: NDCV+00.9994E+0,P01
+---
+command: OC
+id: 1440
+method: Query
+retval: STS1=26
+---
+id: 1441
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1442
+method: Query
+retval: NDCV+00.9995E+0,P01
+---
+command: OC
+id: 1443
+method: Query
+retval: STS1=26
+---
+id: 1444
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1445
+method: Query
+retval: NDCV+00.9996E+0,P01
+---
+command: OC
+id: 1446
+method: Query
+retval: STS1=26
+---
+id: 1447
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1448
+method: Query
+retval: NDCV+00.9996E+0,P01
+---
+command: OC
+id: 1449
+method: Query
+retval: STS1=26
+---
+id: 1450
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1451
+method: Query
+retval: NDCV+00.9997E+0,P01
+---
+command: OC
+id: 1452
+method: Query
+retval: STS1=26
+---
+id: 1453
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1454
+method: Query
+retval: NDCV+00.9998E+0,P01
+---
+command: OC
+id: 1455
+method: Query
+retval: STS1=26
+---
+id: 1456
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1457
+method: Query
+retval: NDCV+00.9999E+0,P01
+---
+command: OC
+id: 1458
+method: Query
+retval: STS1=26
+---
+id: 1459
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1460
+method: Query
+retval: NDCV+00.9999E+0,P01
+---
+command: OC
+id: 1461
+method: Query
+retval: STS1=26
+---
+id: 1462
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1463
+method: Query
+retval: NDCV+01.0000E+0
+---
+command: OC
+id: 1464
+method: Query
+retval: STS1=16
+---
+id: 1465
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1466
+method: Query
+retval: NDCV+01.0000E+0
+---
+id: 1467
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1468
+method: Query
+retval: NDCV+01.0000E+0
+---
+id: 1469
+method: is_blocked
+retval: 0
+---
+id: 1470
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 1471
+method: Query
+retval: STS1=16
+---
+id: 1472
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1473
+method: Query
+retval: NDCV+01.0000E+0
+---
+command: O1
+id: 1474
+method: Write
+retval: 1
+---
+command: E
+id: 1475
+method: Write
+retval: 1
+---
+id: 1476
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 1477
+method: Query
+retval: STS1=16
+---
+id: 1478
+method: is_blocked
+retval: 0
+---
+command: OC
+id: 1479
+method: Query
+retval: STS1=16
+---
+command: M1
+id: 1480
+method: Write
+retval: 1
+---
+command: PRS
+id: 1481
+method: Write
+retval: 1
+---
+command: S+1.0100e+00
+id: 1482
+method: Write
+retval: 1
+---
+command: PRE
+id: 1483
+method: Write
+retval: 1
+---
+command: PI10.0
+id: 1484
+method: Write
+retval: 1
+---
+command: SW10.0
+id: 1485
+method: Write
+retval: 1
+---
+command: RU2
+id: 1486
+method: Write
+retval: 1
+---
+id: 1487
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1488
+method: Query
+retval: NDCV+01.0000E+0,P01
+---
+command: OC
+id: 1489
+method: Query
+retval: STS1=26
+---
+command: OC
+id: 1490
+method: Query
+retval: STS1=26
+---
+command: OC
+id: 1491
+method: Query
+retval: STS1=26
+---
+command: OC
+id: 1492
+method: Query
+retval: STS1=26
+---
+command: OC
+id: 1493
+method: Query
+retval: STS1=26
+---
+command: OC
+id: 1494
+method: Query
+retval: STS1=26
+---
+command: OC
+id: 1495
+method: Query
+retval: STS1=26
+---
+command: OC
+id: 1496
+method: Query
+retval: STS1=26
+---
+command: OC
+id: 1497
+method: Query
+retval: STS1=26
+---
+command: OC
+id: 1498
+method: Query
+retval: STS1=26
+---
+command: OC
+id: 1499
+method: Query
+retval: STS1=26
+---
+command: OC
+id: 1500
+method: Query
+retval: STS1=26
+---
+command: OC
+id: 1501
+method: Query
+retval: STS1=26
+---
+command: OC
+id: 1502
+method: Query
+retval: STS1=26
+---
+command: OC
+id: 1503
+method: Query
+retval: STS1=26
+---
+command: OC
+id: 1504
+method: Query
+retval: STS1=26
+---
+command: OC
+id: 1505
+method: Query
+retval: STS1=26
+---
+command: OC
+id: 1506
+method: Query
+retval: STS1=26
+---
+command: OC
+id: 1507
+method: Query
+retval: STS1=26
+---
+command: OC
+id: 1508
+method: Query
+retval: STS1=26
+---
+command: OC
+id: 1509
+method: Query
+retval: STS1=26
+---
+command: OC
+id: 1510
+method: Query
+retval: STS1=26
+---
+command: OC
+id: 1511
+method: Query
+retval: STS1=26
+---
+command: OC
+id: 1512
+method: Query
+retval: STS1=26
+---
+command: OC
+id: 1513
+method: Query
+retval: STS1=26
+---
+id: 1514
+method: is_blocked
+retval: 0
+---
+command: OD
+id: 1515
+method: Query
+retval: NDCV+01.0010E+0,P01
+---
+command: OC
+id: 1516
+method: Query
+retval: STS1=26
+---
+command: OC
+id: 1517
+method: Query
+retval: STS1=26
+---
+command: OC
+id: 1518
+method: Query
+retval: STS1=26
+---
+command: OC
+id: 1519
+method: Query
+retval: STS1=26
+---
+command: OC
+id: 1520
+method: Query
+retval: STS1=26
+---
+command: OC
+id: 1521
+method: Query
+retval: STS1=26
+---
+command: OC
+id: 1522
+method: Query
+retval: STS1=26
+---
+command: OC
+id: 1523
+method: Query
+retval: STS1=26
+---
+command: OC
+id: 1524
+method: Query
+retval: STS1=26
+---
+command: OC
+id: 1525
+method: Query
+retval: STS1=26
+---
+command: OC
+id: 1526
+method: Query
+retval: STS1=26
+---
+command: OC
+id: 1527
+method: Query
+retval: STS1=26
+---
+command: OC
+id: 1528
+method: Query
+retval: STS1=26
+---
+command: OC
+id: 1529
+method: Query
+retval: STS1=26
+---
+command: OC
+id: 1530
+method: Query
+retval: STS1=26
+---
+command: OC
+id: 1531
+method: Query
+retval: STS1=26
+---
+command: OC
+id: 1532
+method: Query
+retval: STS1=26
+---
+command: OC
+id: 1533
+method: Query
+retval: STS1=26
+---
+command: OC
+id: 1534
+method: Query
+retval: STS1=26
+---
+command: OC
+id: 1535
+method: Query
+retval: STS1=26
