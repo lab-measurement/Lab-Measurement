@@ -59,9 +59,6 @@ for my $method (qw/Clear Write Read Query BrutalRead LongQuery BrutalQuery
 
 	    my $index = $self->log_index();
 
-	    if ($index == 1536) {
-		croak "index = 1536, method = $method";
-	    }
 	    my $log = dump_method_call($index, $method, @_);
 
 	    $log->{retval} = $retval;

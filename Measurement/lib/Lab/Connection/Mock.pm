@@ -19,22 +19,6 @@ our %fields = (
     log_list => undef,
     );
 
-# around 'configure' => sub {
-#     my $orig = shift;
-#     my $self = shift;
-    
-#     # open the log file
-#     my $log_file = $self->{config}->{log_file};
-#     if (not defined $log_file) {
-# 	croak 'missing "log_file" parameter in connection';
-#     }
-    
-#     my @logs = LoadFile($log_file);
-#     $self->log_list([@logs]);
-
-#     $self->$orig(@_);
-# };
-
 around 'new' => sub {
     my $orig = shift;
     my $proto = shift;
@@ -58,6 +42,8 @@ around 'new' => sub {
     return $self;
 };
 
+
+# If all values are scalars, we don't need stuff like Data::Compare.
 sub compare_hashs {
     my $a = shift;
     my $b = shift;
@@ -93,6 +79,7 @@ sub process_call {
     
     my $index = $self->log_index();
 
+    # Hack: $self->timeout is called early in Lab::Connection::configure.
     if (not defined $self->log_list() and $method eq 'timeout') {
 	return $self->{config}->{timeout}
     }
