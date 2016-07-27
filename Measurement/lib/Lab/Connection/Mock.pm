@@ -30,7 +30,7 @@ around 'new' => sub {
     
     $self->_construct($class);
 
-    # open the log file
+    # Open the log file.
     my $log_file = $self->log_file();
     if (not defined $log_file) {
 	croak 'missing "log_file" parameter in connection';
