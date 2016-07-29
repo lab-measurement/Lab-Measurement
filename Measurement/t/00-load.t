@@ -59,6 +59,7 @@ my %depencencies = (
 	'LinuxGpib' => ['Lab/Bus/LinuxGPIB.pm', 'Lab/Connection/LinuxGPIB.pm'],
 	
 	'Lab::VISA' => ['VISA', 'Lab/Bus/IsoBus.pm', 'Lab/Connection/IsoBus.pm'],
+	'YAML' => ['Lab/Data/XMLtree.pm'],
     );
 
 for my $module (keys %depencencies) {
