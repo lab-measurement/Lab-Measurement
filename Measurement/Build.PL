@@ -28,7 +28,9 @@ my $build = Module::Build->new(
         'encoding::warnings' => 0,
         'Term::ReadKey'      => '2.32',
         'Clone'              => '0.31',
-	    'Module::Build'      => '0',
+	'Module::Build'      => '0',
+	'YAML'               => 0,
+	'List::MoreUtils'    => 0,
     },
     conflicts         => {
         'Lab::Instrument'    => '< 2.91',
