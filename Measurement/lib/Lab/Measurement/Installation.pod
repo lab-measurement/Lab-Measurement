@@ -44,7 +44,8 @@ My Computer => Properties => Advanced => Environment Variables
 
 =over
 
-=item * Install cpanm and gnuplot (you can use your package manager).
+=item * Install cpanminus, make, gcc and gnuplot
+(you can use your package manager).
 
 =item * If you want to use GPIB, you need the
 L<Linux-GPIB|http://linux-gpib.sourceforge.net> drivers, library
