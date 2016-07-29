@@ -27,6 +27,7 @@ my $build = Module::Build->new(
         'Clone'              => '0.31',
 	'Module::Build'      => '0',
 	'List::MoreUtils' => 0,
+	'YAML' => 0,
     },
     conflicts         => {
         'Lab::Instrument'    => '< 2.91',
