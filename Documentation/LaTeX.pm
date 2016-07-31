@@ -1,7 +1,9 @@
 package Documentation::LaTeX;
 
 use strict;
-use base 'Documentation::LabVISAdoc';
+
+use parent 'Documentation::LabVISAdoc';
+    
 use File::Basename;
 use Cwd;
 
@@ -118,7 +120,7 @@ POSTAMBLE
 
 package MyPod2LaTeX;
 use strict;
-use base qw/ Pod::LaTeX /;
+use parent qw/ Pod::LaTeX /;
 
 sub verbatim {
   my $self = shift;

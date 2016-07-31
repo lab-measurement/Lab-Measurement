@@ -1,7 +1,7 @@
 package Documentation::HTML;
 
 use strict;
-use base 'Documentation::LabVISAdoc';
+use parent 'Documentation::LabVISAdoc';
 use File::Basename;
 use Syntax::Highlight::Engine::Simple::Perl;
 
@@ -130,7 +130,7 @@ FOOTER
 
 package MyPodXHTML;
 use strict;
-use base 'Pod::Simple::XHTML';
+use parent 'Pod::Simple::XHTML';
 #use HTML::Entities;
 
 sub new {
