@@ -33,7 +33,8 @@
 # coding documentation not for distribution
 \bdoc\b
 
-
+# do not distribute the unfinished instrument test framework here
+^xt
 
 # drivers and modules that are not ready yet for release
 
