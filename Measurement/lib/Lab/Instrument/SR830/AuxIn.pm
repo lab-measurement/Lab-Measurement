@@ -42,7 +42,7 @@ B<To use multiple virtual instruments, which use the same physical device, you h
 =cut
 
 package Lab::Instrument::SR830::AuxIn;
-our $VERSION = '3.512';
+our $VERSION = '3.513';
 
 use warnings;
 use strict;

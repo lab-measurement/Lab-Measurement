@@ -1,5 +1,5 @@
 package Lab::Instrument::SignalRecovery726x;
-our $VERSION = '3.512';
+our $VERSION = '3.513';
 
 use strict;
 use Time::HiRes qw/usleep/, qw/time/;

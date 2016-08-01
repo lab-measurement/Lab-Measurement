@@ -1,6 +1,6 @@
 package Lab::XPRESS::Sweep::Temperature;
 
-our $VERSION = '3.512';
+our $VERSION = '3.513';
 
 use Lab::XPRESS::Sweep::Sweep;
 use Statistics::Descriptive;

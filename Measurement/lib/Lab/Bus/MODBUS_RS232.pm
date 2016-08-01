@@ -12,7 +12,7 @@
 use strict;
 
 package Lab::Bus::MODBUS_RS232;
-our $VERSION = '3.512';
+our $VERSION = '3.513';
 
 use Lab::Bus::RS232;
 use Carp;

@@ -1,5 +1,5 @@
 package Lab::Bus::USBtmc;
-our $VERSION = '3.512';
+our $VERSION = '3.513';
 
 require "sys/ioctl.ph";
 

@@ -1,5 +1,5 @@
 package Lab::Instrument::Agilent34420A;
-our $VERSION = '3.512';
+our $VERSION = '3.513';
 
 use strict;
 use Lab::Instrument;

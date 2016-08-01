@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 package Lab::Connection;
-our $VERSION = '3.512';
+our $VERSION = '3.513';
 
 use strict;
 
