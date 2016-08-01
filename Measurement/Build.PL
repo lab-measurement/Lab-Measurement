@@ -9,7 +9,7 @@ my $build = Module::Build->new(
     dist_abstract     => 'Test and measure with Perl',
     license           => 'perl',
     requires          => {
-	'Class::Method::Modifiers' => '2.12',
+	'Class::Method::Modifiers' => '2.11',
 	'Role::Tiny'               => '1.003004',
 	'YAML::XS'                 => '0.41',
 	'Exception::Class'   => '1.0',
@@ -47,7 +47,8 @@ my $build = Module::Build->new(
 			  'Christian Butschkow <christian.butschkow@physik.uni-r.de>',
 			  'Alexei Iankilevitch <alexei.iankilevitch@physik.uni-r.de>', 
 			  'Simon Reinhardt <simon.reinhardt@stud.uni-regensburg.de>'
-                         ],
+    ],
+    recursive_test_files => 1,
     meta_merge        => {
         resources       => {
             homepage      => 'http://www.labmeasurement.de/',

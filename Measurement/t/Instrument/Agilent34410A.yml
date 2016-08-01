@@ -1,0 +1,666 @@
+---
+id: 0
+method: is_blocked
+retval: 0
+---
+command: FUNCTION 'volt:ac'
+id: 1
+method: Write
+retval: 1
+---
+id: 2
+method: is_blocked
+retval: 0
+---
+command: FUNCTION?
+id: 3
+method: Query
+retval: '"VOLT:AC"'
+---
+command: '*RST'
+id: 4
+method: Write
+retval: 1
+---
+id: 5
+method: is_blocked
+retval: 0
+---
+command: FUNCTION?
+id: 6
+method: Query
+retval: '"VOLT"'
+---
+command: :read?
+id: 7
+method: Query
+retval: '-3.37692983E-04'
+---
+id: 8
+method: is_blocked
+retval: 0
+---
+command: FUNCTION 'volt:ac'
+id: 9
+method: Write
+retval: 1
+---
+id: 10
+method: is_blocked
+retval: 0
+---
+command: FUNCTION?
+id: 11
+method: Query
+retval: '"VOLT:AC"'
+---
+id: 12
+method: is_blocked
+retval: 0
+---
+command: FUNCTION?
+id: 13
+method: Query
+retval: '"VOLT:AC"'
+---
+id: 14
+method: is_blocked
+retval: 0
+---
+command: FUNCTION 'VOLT'
+id: 15
+method: Write
+retval: 1
+---
+id: 16
+method: is_blocked
+retval: 0
+---
+command: FUNCTION?
+id: 17
+method: Query
+retval: '"VOLT"'
+---
+id: 18
+method: is_blocked
+retval: 0
+---
+command: FUNCTION?
+id: 19
+method: Query
+retval: '"VOLT"'
+---
+id: 20
+method: is_blocked
+retval: 0
+---
+id: 21
+method: is_blocked
+retval: 0
+---
+command: FUNCTION?
+id: 22
+method: Query
+retval: '"VOLT"'
+---
+id: 23
+method: is_blocked
+retval: 0
+---
+id: 24
+method: is_blocked
+retval: 0
+---
+id: 25
+method: is_blocked
+retval: 0
+---
+command: VOLT:RANGE 0.1
+id: 26
+method: Write
+retval: 1
+---
+id: 27
+method: is_blocked
+retval: 0
+---
+id: 28
+method: is_blocked
+retval: 0
+---
+command: VOLT:RANGE?
+id: 29
+method: Query
+retval: '+1.00000000E-01'
+---
+id: 30
+method: is_blocked
+retval: 0
+---
+id: 31
+method: is_blocked
+retval: 0
+---
+command: VOLT:RANGE?
+id: 32
+method: Query
+retval: '+1.00000000E-01'
+---
+id: 33
+method: is_blocked
+retval: 0
+---
+id: 34
+method: is_blocked
+retval: 0
+---
+command: VOLT:RANGE 1
+id: 35
+method: Write
+retval: 1
+---
+id: 36
+method: is_blocked
+retval: 0
+---
+id: 37
+method: is_blocked
+retval: 0
+---
+command: VOLT:RANGE?
+id: 38
+method: Query
+retval: '+1.00000000E+00'
+---
+id: 39
+method: is_blocked
+retval: 0
+---
+id: 40
+method: is_blocked
+retval: 0
+---
+command: VOLT:RANGE?
+id: 41
+method: Query
+retval: '+1.00000000E+00'
+---
+id: 42
+method: is_blocked
+retval: 0
+---
+id: 43
+method: is_blocked
+retval: 0
+---
+command: VOLT:RANGE 1000
+id: 44
+method: Write
+retval: 1
+---
+id: 45
+method: is_blocked
+retval: 0
+---
+id: 46
+method: is_blocked
+retval: 0
+---
+command: VOLT:RANGE?
+id: 47
+method: Query
+retval: '+1.00000000E+03'
+---
+id: 48
+method: is_blocked
+retval: 0
+---
+id: 49
+method: is_blocked
+retval: 0
+---
+command: VOLT:RANGE?
+id: 50
+method: Query
+retval: '+1.00000000E+03'
+---
+id: 51
+method: is_blocked
+retval: 0
+---
+id: 52
+method: is_blocked
+retval: 0
+---
+command: VOLT:RANGE def
+id: 53
+method: Write
+retval: 1
+---
+id: 54
+method: is_blocked
+retval: 0
+---
+id: 55
+method: is_blocked
+retval: 0
+---
+command: VOLT:RANGE?
+id: 56
+method: Query
+retval: '+1.00000000E+01'
+---
+id: 57
+method: is_blocked
+retval: 0
+---
+id: 58
+method: is_blocked
+retval: 0
+---
+command: VOLT:RANGE?
+id: 59
+method: Query
+retval: '+1.00000000E+01'
+---
+id: 60
+method: is_blocked
+retval: 0
+---
+id: 61
+method: is_blocked
+retval: 0
+---
+command: VOLT:RANGE min
+id: 62
+method: Write
+retval: 1
+---
+id: 63
+method: is_blocked
+retval: 0
+---
+id: 64
+method: is_blocked
+retval: 0
+---
+command: VOLT:RANGE?
+id: 65
+method: Query
+retval: '+1.00000000E-01'
+---
+id: 66
+method: is_blocked
+retval: 0
+---
+id: 67
+method: is_blocked
+retval: 0
+---
+command: VOLT:RANGE?
+id: 68
+method: Query
+retval: '+1.00000000E-01'
+---
+id: 69
+method: is_blocked
+retval: 0
+---
+id: 70
+method: is_blocked
+retval: 0
+---
+command: VOLT:RANGE max
+id: 71
+method: Write
+retval: 1
+---
+id: 72
+method: is_blocked
+retval: 0
+---
+id: 73
+method: is_blocked
+retval: 0
+---
+command: VOLT:RANGE?
+id: 74
+method: Query
+retval: '+1.00000000E+03'
+---
+id: 75
+method: is_blocked
+retval: 0
+---
+id: 76
+method: is_blocked
+retval: 0
+---
+command: VOLT:RANGE?
+id: 77
+method: Query
+retval: '+1.00000000E+03'
+---
+id: 78
+method: is_blocked
+retval: 0
+---
+command: FUNCTION 'current'
+id: 79
+method: Write
+retval: 1
+---
+id: 80
+method: is_blocked
+retval: 0
+---
+command: FUNCTION?
+id: 81
+method: Query
+retval: '"CURR"'
+---
+id: 82
+method: is_blocked
+retval: 0
+---
+id: 83
+method: is_blocked
+retval: 0
+---
+command: CURR:RANGE 1
+id: 84
+method: Write
+retval: 1
+---
+id: 85
+method: is_blocked
+retval: 0
+---
+id: 86
+method: is_blocked
+retval: 0
+---
+command: CURR:RANGE?
+id: 87
+method: Query
+retval: '+1.00000000E+00'
+---
+id: 88
+method: is_blocked
+retval: 0
+---
+id: 89
+method: is_blocked
+retval: 0
+---
+command: CURR:RANGE?
+id: 90
+method: Query
+retval: '+1.00000000E+00'
+---
+id: 91
+method: is_blocked
+retval: 0
+---
+id: 92
+method: is_blocked
+retval: 0
+---
+command: CURR:RANGE 3
+id: 93
+method: Write
+retval: 1
+---
+id: 94
+method: is_blocked
+retval: 0
+---
+id: 95
+method: is_blocked
+retval: 0
+---
+command: CURR:RANGE?
+id: 96
+method: Query
+retval: '+3.00000000E+00'
+---
+id: 97
+method: is_blocked
+retval: 0
+---
+id: 98
+method: is_blocked
+retval: 0
+---
+command: CURR:RANGE?
+id: 99
+method: Query
+retval: '+3.00000000E+00'
+---
+id: 100
+method: is_blocked
+retval: 0
+---
+id: 101
+method: is_blocked
+retval: 0
+---
+command: CURR:RANGE:AUTO ON
+id: 102
+method: Write
+retval: 1
+---
+id: 103
+method: is_blocked
+retval: 0
+---
+id: 104
+method: is_blocked
+retval: 0
+---
+command: CURR:RANGE?
+id: 105
+method: Query
+retval: '+3.00000000E+00'
+---
+id: 106
+method: is_blocked
+retval: 0
+---
+command: CURR:RANGE:AUTO?
+id: 107
+method: Query
+retval: '1'
+---
+id: 108
+method: is_blocked
+retval: 0
+---
+id: 109
+method: is_blocked
+retval: 0
+---
+command: CURR:RANGE 1
+id: 110
+method: Write
+retval: 1
+---
+id: 111
+method: is_blocked
+retval: 0
+---
+id: 112
+method: is_blocked
+retval: 0
+---
+command: CURR:RANGE?
+id: 113
+method: Query
+retval: '+1.00000000E+00'
+---
+id: 114
+method: is_blocked
+retval: 0
+---
+command: CURR:RANGE:AUTO?
+id: 115
+method: Query
+retval: '0'
+---
+id: 116
+method: is_blocked
+retval: 0
+---
+command: FUNCTION 'volt'
+id: 117
+method: Write
+retval: 1
+---
+id: 118
+method: is_blocked
+retval: 0
+---
+command: FUNCTION?
+id: 119
+method: Query
+retval: '"VOLT"'
+---
+id: 120
+method: is_blocked
+retval: 0
+---
+id: 121
+method: is_blocked
+retval: 0
+---
+command: VOLT:NPLC 2
+id: 122
+method: Write
+retval: 1
+---
+id: 123
+method: is_blocked
+retval: 0
+---
+id: 124
+method: is_blocked
+retval: 0
+---
+command: VOLT:NPLC?
+id: 125
+method: Query
+retval: '+2.00000000E+00'
+---
+id: 126
+method: is_blocked
+retval: 0
+---
+id: 127
+method: is_blocked
+retval: 0
+---
+command: VOLT:NPLC?
+id: 128
+method: Query
+retval: '+2.00000000E+00'
+---
+id: 129
+method: is_blocked
+retval: 0
+---
+id: 130
+method: is_blocked
+retval: 0
+---
+command: :VOLT:APERTURE 0.5; APERTURE:ENABLED 1
+id: 131
+method: Write
+retval: 1
+---
+id: 132
+method: is_blocked
+retval: 0
+---
+id: 133
+method: is_blocked
+retval: 0
+---
+command: VOLT:APERTURE?
+id: 134
+method: Query
+retval: '+5.00000753E-01'
+---
+id: 135
+method: is_blocked
+retval: 0
+---
+id: 136
+method: is_blocked
+retval: 0
+---
+command: VOLT:APERTURE?
+id: 137
+method: Query
+retval: '+5.00000753E-01'
+---
+id: 138
+method: is_blocked
+retval: 0
+---
+command: FUNCTION 'volt:ac'
+id: 139
+method: Write
+retval: 1
+---
+id: 140
+method: is_blocked
+retval: 0
+---
+command: FUNCTION?
+id: 141
+method: Query
+retval: '"VOLT:AC"'
+---
+id: 142
+method: is_blocked
+retval: 0
+---
+id: 143
+method: is_blocked
+retval: 0
+---
+command: VOLT:AC:BANDWIDTH 200
+id: 144
+method: Write
+retval: 1
+---
+id: 145
+method: is_blocked
+retval: 0
+---
+id: 146
+method: is_blocked
+retval: 0
+---
+command: VOLT:AC:BANDWIDTH?
+id: 147
+method: Query
+retval: '+2.00000000E+02'
+---
+id: 148
+method: is_blocked
+retval: 0
+---
+id: 149
+method: is_blocked
+retval: 0
+---
+command: VOLT:AC:BANDWIDTH?
+id: 150
+method: Query
+retval: '+2.00000000E+02'
+---
+command: ABOR
+id: 151
+method: Write
+retval: 1

@@ -14,7 +14,7 @@ use Lab::Connection::LogMethodCall qw/dump_method_call/;
 use parent 'Lab::Connection';
 
 our %fields = (
-    log_file => undef,
+    logfile => undef,
     log_index => 0,
     log_list => undef,
     );
@@ -31,12 +31,12 @@ around 'new' => sub {
     $self->_construct($class);
 
     # Open the log file.
-    my $log_file = $self->log_file();
-    if (not defined $log_file) {
-	croak 'missing "log_file" parameter in connection';
+    my $logfile = $self->logfile();
+    if (not defined $logfile) {
+	croak 'missing "logfile" parameter in connection';
     }
 
-    my @logs = LoadFile($log_file);
+    my @logs = LoadFile($logfile);
     $self->log_list([@logs]);
 
     return $self;

@@ -10,7 +10,7 @@ use Carp;
 use autodie;
 
 our %fields = (
-    log_file => undef,
+    logfile => undef,
     log_index => 0,
     );
 

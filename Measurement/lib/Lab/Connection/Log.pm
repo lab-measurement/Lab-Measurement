@@ -23,14 +23,14 @@ around 'new' => sub {
     $self->_construct($class);
 
     # open the log file
-    my $log_file = $self->log_file();
-    if (not defined $log_file) {
-	croak 'missing "log_file" parameter in connection';
+    my $logfile = $self->logfile();
+    if (not defined $logfile) {
+	croak 'missing "logfile" parameter in connection';
     }
 
     # FIXME: Currently it's not possible to have a filehandle in %fields, as
     # this breaks the dclone used in Sweep.pm. 
-    open my $fh, '>', $self->log_file();
+    open my $fh, '>', $self->logfile();
     close $fh;
 
     return $self;
@@ -40,7 +40,7 @@ around 'new' => sub {
 sub dump_ref {
     my $self = shift;
     my $ref = shift;
-    open my $fh, '>>', $self->log_file();
+    open my $fh, '>>', $self->logfile();
     print {$fh} Dump($ref);
     close $fh;
 }

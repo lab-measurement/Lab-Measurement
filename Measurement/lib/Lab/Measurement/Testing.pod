@@ -12,7 +12,7 @@ do this, you use a C<Log> connection:
 
  my $instr = Instrument('Agilent34410A', {
            connection_type => 'LinuxGPIB::Log',
-	   log_file => 'mylogfile.yml'
+	   logfile => 'mylogfile.yml'
            gpib_address => 17});
 
 
@@ -88,7 +88,7 @@ connection:
 
  my $instr = Instrument('Agilent34410A', {
            connection_type => 'Mock',
-	   log_file => 'mylogfile.yml'});
+	   logfile => 'mylogfile.yml'});
 
 
 The C<Mock> connection will croak, if the calls to it deviate from
