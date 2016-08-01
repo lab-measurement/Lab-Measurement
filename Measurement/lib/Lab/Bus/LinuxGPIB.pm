@@ -2,7 +2,7 @@
 
 
 package Lab::Bus::LinuxGPIB;
-our $VERSION = '3.513';
+our $VERSION = '3.514';
 
 use strict;
 use Scalar::Util qw(weaken);

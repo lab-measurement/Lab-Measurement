@@ -1,7 +1,7 @@
 #2012-10-12 Geissler / Butschkow
 
 package Lab::Instrument::TCD;
-our $VERSION = '3.513';
+our $VERSION = '3.514';
 
 use strict;
 use Lab::Instrument;

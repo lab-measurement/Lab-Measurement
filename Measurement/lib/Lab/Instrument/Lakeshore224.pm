@@ -1,5 +1,5 @@
 package Lab::Instrument::Lakeshore224;
-our $VERSION = '3.513';
+our $VERSION = '3.514';
 
 use strict;
 
