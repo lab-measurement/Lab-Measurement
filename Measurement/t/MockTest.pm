@@ -10,7 +10,6 @@ use Exporter 'import';
 our @EXPORT = qw/get_connection_type get_gpib_address relative_error
 get_logfile float_equal/;
 
-my $print_help;
 my $connection = 'Mock';
 my $gpib_address;
 my $logfile;
@@ -20,7 +19,7 @@ GetOptions(
     'connection|c=s' => \$connection,
     'gpib-address|g=i' => \$gpib_address,
     'file|f=s' => \$logfile,
-    'help|h' => \$print_help,
+    'help|h' => \$help,
     )
     or die "Error in GetOptions";
 
