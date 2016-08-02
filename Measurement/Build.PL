@@ -9,6 +9,7 @@ my $build = Module::Build->new(
     dist_abstract     => 'Test and measure with Perl',
     license           => 'perl',
     requires          => {
+	'perl'               => '5.14.0',
 	'Exception::Class'   => '1.0',
         'Class::ISA'         => 0,
         'Hook::LexWrap'      => 0,
