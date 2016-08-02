@@ -59,7 +59,7 @@ package MyPanel;
 #
 #################################################
 use Wx;
-use base 'Wx::Panel';
+use parent 'Wx::Panel';
 use vars qw(@ISA);
 
 @ISA = qw(Wx::Panel);
