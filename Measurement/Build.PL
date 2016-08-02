@@ -9,6 +9,7 @@ my $build = Module::Build->new(
     dist_abstract     => 'Test and measure with Perl',
     license           => 'perl',
     requires          => {
+	'perl'               => '5.14.0',      
 	'Class::Method::Modifiers' => '2.11',
 	'Role::Tiny'               => '1.003004',
 	'YAML::XS'                 => '0.41',
