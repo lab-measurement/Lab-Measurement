@@ -1,5 +1,5 @@
 package Lab::Instrument::ITC;
-our $VERSION = '3.514';
+our $VERSION = '3.515';
 
 use strict;
 use Lab::Instrument;
