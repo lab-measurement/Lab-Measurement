@@ -5,7 +5,7 @@ our $VERSION = '3.512';
 
 use Symbol qw<geniosym>;
 
-use base qw<Tie::Handle>;
+use parent 'Tie::Handle';
 
 sub TIEHANDLE { return bless geniosym, __PACKAGE__ }
 
