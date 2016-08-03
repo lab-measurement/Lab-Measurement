@@ -4,7 +4,7 @@ use 5.010;
 use warnings;
 use strict;
 
-use Getopt::Long;
+use Getopt::Long qw/:config no_ignore_case bundling/;
 use Exporter 'import';
 
 our @EXPORT = qw/get_connection_type get_gpib_address relative_error

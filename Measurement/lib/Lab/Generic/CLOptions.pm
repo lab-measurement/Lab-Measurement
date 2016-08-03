@@ -3,14 +3,14 @@ package Lab::Generic::CLOptions;
 
 our $VERSION = '3.512';
 
-#use Getopt::Long;
+use Getopt::Long qw/:config pass_through/;
 
 our $DEBUG        = 0;
 our $IO_INTERFACE = undef;
 
-# GetOptions(
-#     "debug|d"      => \$DEBUG,
-#     "terminal|t=s" => \$IO_INTERFACE
-# );
+GetOptions(
+    "debug|d"      => \$DEBUG,
+    "terminal|t=s" => \$IO_INTERFACE)
+    or die "error in CLOptions";
 
 1;
