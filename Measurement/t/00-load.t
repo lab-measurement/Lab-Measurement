@@ -56,7 +56,7 @@ my %depencencies = (
 	'IPC::Run' => ['Lab/XPRESS/Xpression/PlotterGUI_bidirectional.pm', 
 		       'Lab/XPRESS/Xpression/bidirectional_gnuplot_pipe.pm'],
 	
-	'LinuxGpib' => ['Lab/Bus/LinuxGPIB.pm', 'Lab/Connection/LinuxGPIB.pm'],
+	'LinuxGpib' => ['LinuxGPIB'],
 	
 	'Lab::VISA' => ['VISA', 'Lab/Bus/IsoBus.pm', 'Lab/Connection/IsoBus.pm'],
     );
