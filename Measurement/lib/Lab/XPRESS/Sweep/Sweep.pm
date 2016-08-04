@@ -2,6 +2,8 @@ package Lab::XPRESS::Sweep::Sweep;
 
 our $VERSION = '3.512';
 
+use Role::Tiny::With;
+
 use Time::HiRes qw/usleep/, qw/time/;
 use POSIX qw(ceil);
 use Term::ReadKey;
@@ -12,6 +14,7 @@ use Lab::XPRESS::Utilities::Utilities;
 use Lab::Exception;
 use strict;
 use Storable qw(dclone);
+
 use Carp qw(cluck croak);
 
 our @ISA = ('Lab::Generic');
@@ -1393,6 +1396,9 @@ sub AUTOLOAD {
               . " couldn't access field '${name}'.\n" );
     }
 }
+
+with 'Lab::XPRESS::Sweep::LogBlock';
+
 
 # sub timestamp {
 
