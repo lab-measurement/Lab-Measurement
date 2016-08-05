@@ -37,18 +37,6 @@ sub init {
         my $message = shift;
         channel_write( "WARNING", undef, $message );
     };
-
-    #Backup STDOUT and STDERR:
-    our $STDOUT = *STDOUT;
-    our $STDERR = *STDERR;
-
-    #tie STDOUT AND STDERR to custom handles:
-
-    tie *OUT_HANDLE, 'Lab::GenericIO::STDoutHandle';
-    *STDOUT = *OUT_HANDLE;
-
-    tie *ERR_HANDLE, 'Lab::GenericIO::STDerrHandle';
-    *STDERR = *ERR_HANDLE;
 }
 
 # interface_load: import, create and return interface from class
