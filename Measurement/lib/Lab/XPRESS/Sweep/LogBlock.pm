@@ -17,6 +17,20 @@ Lab::XPRESS::Sweep::LogBlock -- Sweep add-on for matrix logging.
 
 =head1 SYNOPSIS
 
+   # define your columns
+
+   # parameters controlled by the XPRESS sweeps
+   $DataFile->add_column('gate');
+   $DataFile->add_column('bias');
+
+   # parameters in the block, here we have a block with 2 columns.
+   $DataFile->add_column('frequency');
+   $DataFile->add_column('transmission');
+
+   # Define your sweeps ... 
+
+   # In your measurement subroutine: Get block and log
+   $matrix = $instrument->get_block(...)   
    $sweep->LogBlock(
 	prefix => [$gate, $bias],
 	block => $matrix);
@@ -38,7 +52,7 @@ List of parameters which shell be prefixed to each row of the block.
 
 =item file
 
-Number of the target data file (default: 0).
+Index of the target data file (default: 0).
 
 =back
     
