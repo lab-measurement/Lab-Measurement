@@ -65,6 +65,10 @@ sub output {
     print ${Lab::GenericIO::STDOUT} $string;
     print ${Lab::GenericIO::STDOUT} savepos;
 
+    # To make this compatible with TAP::Harness, make sure we don't have
+    # a colorcode in column 1.
+    print ${Lab::GenericIO::STDOUT} "\n";
+
     $self->{last_ln} = ( $string =~ m/\n\r?$/ ? 1 : 0 );
 
     $self->sticky_rows();
