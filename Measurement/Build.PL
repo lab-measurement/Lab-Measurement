@@ -33,6 +33,8 @@ my $build = Module::Build->new(
 	'YAML'               => 0,
 	'List::MoreUtils'    => 0,
     },
+    test_requires => {
+	'
     conflicts         => {
         'Lab::Instrument'    => '< 2.91',
         'Lab::Tools'         => '< 2.91',
