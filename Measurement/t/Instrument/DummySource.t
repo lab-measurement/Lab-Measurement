@@ -1,13 +1,11 @@
+#!perl
 use 5.010;
 use warnings;
 use strict;
-use lib qw(t/);
 use Data::Dumper;
 use Test::More tests => 2;
 
 use Lab::Measurement;
-
-use MockTest;
 
 my $source = Instrument('DummySource', {
     connection_type => 'DEBUG',
