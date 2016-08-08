@@ -34,7 +34,8 @@ my $build = Module::Build->new(
 	'List::MoreUtils'    => 0,
     },
     test_requires => {
-	'
+	'Test::Files' => 0,
+    },
     conflicts         => {
         'Lab::Instrument'    => '< 2.91',
         'Lab::Tools'         => '< 2.91',
