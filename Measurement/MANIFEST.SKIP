@@ -30,8 +30,11 @@
 \#$
 \b\.#
 
-# do not distribute NYTProf output
+# NYTProf profiling output
 nytprof
+
+# Devel::Cover output
+^cover_db
 
 # coding documentation not for distribution
 \bdoc\b
