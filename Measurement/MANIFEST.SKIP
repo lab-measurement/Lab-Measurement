@@ -30,6 +30,9 @@
 \#$
 \b\.#
 
+# do not distribute NYTProf output
+nytprof
+
 # coding documentation not for distribution
 \bdoc\b
 
