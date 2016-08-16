@@ -110,7 +110,7 @@ merge requests, ... :) For browsing the code we also have a direct
 
 <h2>Documentation</h2>
 <p>Quite some <a href="docs/index.html">documentation of Lab::Measurement</a>
-(<a href="docs/documentation.pdf">PDF format</a>) is available. This
+ is available. This
 documentation includes a <a href="docs/Measurement-Tutorial.html">tutorial on
 using Lab::Measurement</a> (outdated). Detailed <a href="docs/Measurement-Installation.html">installation
 instructions</a> are provided as well. In addition, there's also a collection
