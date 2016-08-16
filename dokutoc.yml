@@ -7,6 +7,7 @@ toc:
       - Measurement/lib/Lab/Measurement/Installation.pod
       - Measurement/lib/Lab/Measurement/Tutorial.pod
       - Measurement/lib/Lab/Measurement/Backends.pod
+      - Measurement/lib/Lab/Measurement/Contributing.pod
       - Measurement/lib/Lab/Measurement/Developer/Write-A-Source-Driver.pod
       - Measurement/lib/Lab/Measurement/Testing.pod
       - Example scripts:

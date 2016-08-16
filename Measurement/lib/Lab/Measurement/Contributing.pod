@@ -1,0 +1,69 @@
+=pod
+
+=head1 NAME
+
+Lab::Measurement::Contributing - How to contribute to Lab::Measurement
+
+=head1 How to contribute to Lab::Measurement
+
+L<Lab::Measurement> is a community-maintained Free Software
+Project. Improvements to the code, documentation and tests are always welcome.
+
+Below you find a list of instructions you should follow, when contributing to
+L<Lab::Measurement>'s development.
+
+=over
+
+=item
+
+If you plan major changes, discuss them as soon as possible with us. 
+
+
+=item
+
+Document each new feature.
+
+If you write new drivers, it is good to provide real-world measurements scripts
+in the F<example/> directory.
+
+=item
+
+Make sure that your commits do not break existing tests.
+
+Add tests if you introduce new features.
+
+The test for new drivers will need the Mock Connection. See
+L<Lab::Measurement::Testing>.
+
+=item
+
+Create a commit for each logically independent change.
+
+Once you have commited your changes,
+use B<git format-patch> and send the patches to our mailinglist.
+
+=item
+
+Do not introduce new non-Core dependencies. 
+
+=item
+
+Keep the LICENSE or COPYRIGHT section as is. For new packages, do not include
+these sections. The L<Lab::Measurement> distribution is
+licenced under the Perl 5 licence and there is no need to duplicate this
+information in the docs of each package.
+
+=item
+
+Do B<not> create an AUTHORS section.
+
+All source files of the L<Lab::Measurement> distribution are maintained by the
+community.
+
+Your name and mail address will be
+recorded in the commit messages of your patches.
+
+Do not touch existing AUTHORS sections.
+
+=back
+
