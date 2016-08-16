@@ -7,7 +7,7 @@ Lab::Measurement::Contributing - How to contribute to Lab::Measurement
 =head1 How to contribute to Lab::Measurement
 
 L<Lab::Measurement> is a community-maintained Free Software
-Project. Improvements to the code, documentation and tests are always welcome.
+Project. Improvements on the code, documentation and tests are always welcome.
 
 Below you find a list of instructions you should follow, when contributing to
 L<Lab::Measurement>'s development.
@@ -17,7 +17,6 @@ L<Lab::Measurement>'s development.
 =item
 
 If you plan major changes, discuss them as soon as possible with us. 
-
 
 =item
 
