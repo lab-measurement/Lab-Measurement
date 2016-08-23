@@ -97,6 +97,7 @@ sub parse_keyword {
 }
 
 =head2 scpi_shortform($keyword)
+
 returns the "short form" of the input keyword, according to the 
 SCPI spec. Note that the keyword can have an appended number,
 that needs to be preserved: sweep1 -> SWE1. Any trailing '?' is
@@ -119,6 +120,7 @@ the long form.
 
 Got to watch out for that "usually".  See scpi_canon for how to handle
 the more general case.
+
 =cut
 
 sub scpi_shortform ($)
@@ -200,6 +202,7 @@ sub match_keyword {
 }
 
 =head2 scpi_parse(string [,hash])
+
 $hash = scpi_parse(string [,hash])
 parse scpi command or response string, create
 a tree structure with hash keys for the mnemonic
@@ -359,12 +362,14 @@ sub _scpi_value($$)
 
 
 =head2  arrayref = scpi_parse_sequence(string[,arrayref])
+
 returns an array of hashes, each hash is a tree structure
 corresponding to a single scpi command (like scpi_parse)
-Useful for when the sequence of commands is significant
+Useful for when the sequence of commands is significant.
 
 If an arrayref is passed in, the parsed string results are
 appended as new entries.
+
 =cut
 
 sub   scpi_parse_sequence($;$)
@@ -499,6 +504,7 @@ sub   scpi_parse_sequence($;$)
 
 
 =head2 $canonhash = scpi_canon($hash[,$overridehash])
+
 revise a hash tree of scpi mnemonics to use
 the 'shorter' forms, in uppercase
 
@@ -509,6 +515,7 @@ shorter form. This is to allow shortening of mnemonics
 where the normal shortening rules don't work. 
 
 =cut
+
 sub scpi_canon($;$$);
 
 sub scpi_canon($;$$)
@@ -571,6 +578,7 @@ sub scpi_canon($;$$)
 }
     
 =head2 $flat = scpi_flat($thing[,$override])
+
 convert the tree structure  to a 'flat'
 key space:  h->{a}->{b}->{INPUT3} ->  f{A:B:INP3}, canonicalizing the keys
 This is useful for comparing values between two hash structures
