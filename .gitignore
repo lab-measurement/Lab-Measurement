@@ -41,6 +41,7 @@
 
 *~
 nytprof*
+*.patch
 
 /VISA/VISA_def.old
 /VISA/vc100.pdb
