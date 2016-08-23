@@ -16,18 +16,12 @@ L<Lab::Measurement>'s development.
 
 =item
 
-If you plan major changes, discuss them as soon as possible with us. 
-
-=item
-
 Document each new feature.
 
 If you write new drivers, it is good to provide real-world measurements scripts
 in the F<example/> directory.
 
 =item
-
-Make sure that your commits do not break existing tests.
 
 Add tests if you introduce new features.
 
@@ -43,18 +37,12 @@ use B<git format-patch> and send the patches to our mailinglist.
 
 =item
 
-Do not introduce new non-Core dependencies. 
-
-=item
-
 Keep the LICENSE or COPYRIGHT section as is. For new packages, do not include
 these sections. The L<Lab::Measurement> distribution is
 licenced under the Perl 5 licence and there is no need to duplicate this
 information in the docs of each package.
 
-=item
-
-Do B<not> create an AUTHORS section.
+Also, B<not> create an AUTHORS section.
 
 All source files of the L<Lab::Measurement> distribution are maintained by the
 community.
@@ -62,7 +50,7 @@ community.
 Your name and mail address will be
 recorded in the commit messages of your patches.
 
-Do not touch existing AUTHORS sections.
+For existing AUTHORS sections, the policy is to keep them unchanged.
 
 =back
 
