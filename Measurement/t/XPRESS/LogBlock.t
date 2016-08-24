@@ -1,11 +1,17 @@
+#!perl
 use 5.010;
 use warnings;
 use strict;
 
-use Test::More tests => 12;
+use lib 't';
+
+use Lab::Test tests => 12;
+use Test::More;
 use Test::Files;
+
 use File::Spec::Functions;
 use File::Path qw/remove_tree/;
+use File::Temp qw/tempdir/;
 
 use Lab::Measurement;
 
@@ -23,13 +29,14 @@ my $sweep = Sweep('Voltage', {
     rate => [0.1],
 		  });
 
-my @chars = ("A".."Z", "a".."z");
-my $folder = catfile('t', 'XPRESS', 'LogBlock_output_');
-$folder .= $chars[rand @chars] for 1..8;
+# We can't use a subdir of t/, as it would contain a copy of this script.
 
+my $folder = tempdir (cleanup => 1);
 say "folder: $folder";
+# ugly, but seems the only way to use temporary files
+$Lab::XPRESS::Data::XPRESS_DataFile::GLOBAL_PATH = $folder;
 my $file = 'blockfile';
-my $DataFile = DataFile($file, $folder);
+my $DataFile = DataFile($file);
 $DataFile->add_column('volt');
 $DataFile->add_column('f');
 $DataFile->add_column('transmission');
@@ -39,7 +46,7 @@ my $measurement = sub {
     my $sweep = shift;
     my $voltage = $sweep->get_value();
     my $block = [[1, 2], [2, 3], [3, 4]];
-    is($expected_voltage, $voltage, "voltage = $expected_voltage");
+    is_float($voltage, $expected_voltage, "voltage is set");
     $expected_voltage += 0.1;
     $sweep->LogBlock(
 	prefix => [$voltage],
@@ -88,11 +95,7 @@ my $expected = <<'EOF';
 1	3	4
 EOF
 
-$folder = $folder . '_000';
-$file = $file . '.dat';
-my $file_path = catfile($folder, $file);
+my $file_path = catfile($folder, 'MEAS_000', "${file}.dat");
 
 file_ok($file_path, $expected);
 
-# remove temporary test folder
-remove_tree($folder);

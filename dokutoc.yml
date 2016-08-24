@@ -8,7 +8,9 @@ toc:
       - Measurement/lib/Lab/Measurement/Tutorial.pod
       - Measurement/lib/Lab/Measurement/Backends.pod
       - Measurement/lib/Lab/Measurement/Developer/Write-A-Source-Driver.pod
-      - Measurement/lib/Lab/Measurement/Testing.pod
+      - Testing:
+          - Measurement/lib/Lab/Measurement/Testing.pod
+          - Measurement/t/Lab/Test.pm
       - Example scripts:
           - Measurement/examples/Simple/yoko_goto.pl
           - Measurement/examples/Simple/query_id.pl

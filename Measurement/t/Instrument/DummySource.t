@@ -3,8 +3,8 @@ use 5.010;
 use warnings;
 use strict;
 use Data::Dumper;
-use Test::More tests => 2;
-
+use lib 't';
+use Lab::Test tests => 2;
 use Lab::Measurement;
 
 my $source = Instrument('DummySource', {
@@ -21,7 +21,7 @@ $source->set_level($expected);
 
 my $level = $source->get_level();
 
-ok($expected == $level, "level set to $expected");
+is_num($level, $expected, "level is set");
 
 # set/get range
 
@@ -31,4 +31,4 @@ $source->set_range($expected);
 
 my $range = $source->get_range();
 
-ok($expected == $range, "range set to $expected");
+is_num($range, $expected, "range is set");
