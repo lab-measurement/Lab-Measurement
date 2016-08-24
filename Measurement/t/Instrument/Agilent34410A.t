@@ -31,7 +31,7 @@ is($function, 'VOLT', 'function is VOLT after reset');
 # get_value
 
 my $value = $multimeter->get_value();
-ok(looks_like_number($value), "get_value");
+looks_like_number_ok($value, "get_value returns a number");
 
 # set_function / get_function
 
@@ -63,8 +63,7 @@ sub range_test {
 		
 		$multimeter->set_range($value);
 		my $result = $multimeter->get_range();
-		ok($expected == $result,
-		   "set_range($value) result: $result");
+		is_num($result, $expected, "range set to $expected");
 	}
 }
 
@@ -79,19 +78,19 @@ range_test([1, 1],[3, 3]);
 # autoranging
 $multimeter->set_range('auto');
 my $autorange = $multimeter->get_autorange();
-is($autorange, 1, "autorange");
+is($autorange, 1, "autorange enabled");
 
 # disable autoranging
 $multimeter->set_range('1');
 $autorange = $multimeter->get_autorange();
-is($autorange, 0, "autorange off");
+is($autorange, 0, "autorange disabled");
 
 
 # set_nplc / get_nplc
 $multimeter->set_function('volt');
 $multimeter->set_nplc(2);
 my $nplc = $multimeter->get_nplc();
-ok ($nplc == 2, "nplc");
+is_num($nplc, 2, "nplc set to 2");
 
 # # get_resolution / set_resolution
 
@@ -103,13 +102,13 @@ ok ($nplc == 2, "nplc");
 
 $multimeter->set_tc(0.5);
 my $tc = $multimeter->get_tc();
-relative_error_is($tc, 0.5, 0.0001, "tc set to 0.5");
+is_relative_error($tc, 0.5, 0.0001, "tc set to 0.5");
 
 
 # get_bw / set_bw
 $multimeter->set_function('volt:ac');
 $multimeter->set_bw(200);
 my $bw = $multimeter->get_bw();
-float_is($bw, 200, "bw is set to 200");
+is_num($bw, 200, "bw is set to 200");
 
 

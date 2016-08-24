@@ -26,13 +26,16 @@ package Lab::Test;
 use 5.010;
 use warnings;
 use strict;
+use Scalar::Util qw/looks_like_number/;
 
 use parent 'Test::Builder::Module';
 
 our @EXPORT = qw/
 is_relative_error
+is_num
 is_float
 is_absolute_error
+looks_like_number_ok
 /;
 
 my $class = __PACKAGE__;
@@ -51,7 +54,7 @@ All of the following functions are exported by default.
 =head2 is_relative_error($got, $expect, $error, $name)
 
 Succeed if the relative error between C<$got> and C<$expect> is smaller or
-equal than C<$error>.
+equal than C<$error>. Relative error is defined as C<abs(($b - $a) / $b)>.
 
 =cut
 
@@ -106,6 +109,19 @@ sub is_absolute_error {
     my $test = abs($got - $expect) <= $error;
     return $tb->ok($test, $name) ||
 	$tb->diag("absolute error of $got and $expect is greater than $error");
+}
+
+=head2 looks_like_number_ok($number, $name)
+
+Checks if Scalar::Util's C<looks_like_number> returns true for C<$number>.
+
+=cut
+    
+sub looks_like_number_ok {
+    my ($number, $name) = @_;
+    my $tb = $class->builder;
+    return $tb->ok(looks_like_number($number), $name)
+	|| $tb->diag("'$number' does not look like a number");
 }
 
 1;

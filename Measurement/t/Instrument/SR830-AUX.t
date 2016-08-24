@@ -8,7 +8,8 @@ use warnings;
 use strict;
 
 use lib qw(t/);
-use Test::More tests => 4;
+use Lab::Test tests => 4;
+use Test::More;
 
 use Lab::Measurement;
 
@@ -50,17 +51,17 @@ $output2->set_level(2.222);
 
 # get output values:
 $level = $output1->get_level();
-is($level, 1.111, 'output 1 is set');
+is_num($level, 1.111, 'output 1 is set');
 
 $level = $output2->get_level();
-is($level, 2.222, 'output 2 is set');
+is_num($level, 2.222, 'output 2 is set');
 
 
 # read inputs
 $level = $input1->get_value();
 
-ok(relative_error($level, 1.111) < 1/50, 'voltage at input 1');
+is_relative_error($level, 1.111, 1/50, 'voltage is set at input 1');
 
 $level = $input2->get_value();
 
-ok(relative_error($level, 2.222) < 1/50, 'voltage at input 2');
+is_relative_error($level, 2.222, 1/50, 'voltage is set at input 2');
