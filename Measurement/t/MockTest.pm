@@ -6,9 +6,9 @@ use strict;
 
 use Getopt::Long qw/:config no_ignore_case bundling/;
 use Exporter 'import';
+use Lab::Test;
 
-our @EXPORT = qw/get_connection_type get_gpib_address relative_error
-get_logfile float_equal/;
+our @EXPORT = qw/get_connection_type get_gpib_address get_logfile/;
 
 my $connection = 'Mock';
 my $gpib_address;
@@ -70,19 +70,14 @@ sub get_gpib_address {
     return $default;
 }
 
-sub relative_error {
-    my $a = shift;
-    my $b = shift;
-    return abs( ( $b - $a ) / $b );
-}
 
-sub float_equal {
-    my $a = shift;
-    my $b = shift;
+# sub float_equal {
+#     my $a = shift;
+#     my $b = shift;
 
-    # 1e-14 is about 100 times bigger than the machine epsilon.
-    return ( relative_error( $a, $b ) < 1e-14 );
-}
+#     # 1e-14 is about 100 times bigger than the machine epsilon.
+#     return ( relative_error( $a, $b ) < 1e-14 );
+# }
 
 
 1;

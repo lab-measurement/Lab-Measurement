@@ -10,6 +10,7 @@ use Lab::Measurement;
 use Scalar::Util qw(looks_like_number);
 
 use MockTest;
+use Lab::Test;
 
 my $function;
 
@@ -102,13 +103,13 @@ ok ($nplc == 2, "nplc");
 
 $multimeter->set_tc(0.5);
 my $tc = $multimeter->get_tc();
-ok(relative_error($tc, 0.5) < 0.0001, "tc");
+relative_error_is($tc, 0.5, 0.0001, "tc set to 0.5");
 
 
 # get_bw / set_bw
 $multimeter->set_function('volt:ac');
 $multimeter->set_bw(200);
 my $bw = $multimeter->get_bw();
-ok($bw == 200, "$bw");
+float_is($bw, 200, "bw is set to 200");
 
 
