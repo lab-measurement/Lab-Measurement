@@ -4,8 +4,7 @@ Lab::Test -- Shared test routines for Lab::Measurement.
 
 =head1 SYNOPSIS
 
- use Lab::Test;
- use Test::More tests => 4;
+ use Lab::Test tests => 4;
 
  is_relative_error(10, 11, 0.2, "relative error of 10 and 11 is smaller than 20 percent");
  
@@ -40,10 +39,21 @@ looks_like_number_ok
 
 my $class = __PACKAGE__;
 
+my $DBL_MIN = 2.2250738585072014e-308;
+
+sub round_to_dbl_min {
+    my $x = shift;
+    return abs($x) < $DBL_MIN ? $DBL_MIN : $x;
+}
 
 sub relative_error {
     my $a = shift;
     my $b = shift;
+
+    # Avoid division by zero.
+    $a = round_to_dbl_min($a);
+    $b = round_to_dbl_min($b);
+    
     return abs(($b - $a) / $b);
 }
 
@@ -54,7 +64,12 @@ All of the following functions are exported by default.
 =head2 is_relative_error($got, $expect, $error, $name)
 
 Succeed if the relative error between C<$got> and C<$expect> is smaller or
-equal than C<$error>. Relative error is defined as C<abs(($b - $a) / $b)>.
+equal than C<$error>. Relative error is defined as
+C<abs(($got - $expect) / $expect)>.
+
+If the absolute value of C<$got> or C<$expect> is smaller than DBL_MIN, that
+number replaced with DBL_MIN before computing the relative error. This is done
+to avoid division by zero. Two denormals will always compare equal.
 
 =cut
 
@@ -63,7 +78,9 @@ sub is_relative_error {
     my $tb = $class->builder;
     my $test = relative_error($got, $expect) <= $error;
     return $tb->ok($test, $name) ||
-	$tb->diag("relative error of $got and $expect is greater than $error");
+	$tb->diag("relative error is greater than $error.\n",
+		  "Got: ", sprintf("%.17g", $got), "\n",
+		  "Expected: ", sprintf("%.17g", $expect));
 }
 
 
@@ -77,17 +94,21 @@ Check for C<$got == $expect>. This is unlike C<Test::More::is>, which tests for 
 sub is_num {
     my ($got, $expect, $name) = @_;
     my $tb = $class->builder;
-    return $tb->is_num($got, $expect, $name);
+    return $tb->ok($got == $expect, $name) ||
+	$tb->diag("Numbers not equal.\n",
+		  "Got: ", sprintf("%.17g", $got), "\n",
+		  "Expected: ", sprintf("%.17g", $expect));
 }
 
 =head2 is_float($got, $expect, $name)
 
+Compare floating point numbers.
+
 Equivalent to C<is_relative_error($got, $expect, 1e-14, $name)>.
 
-C<1e-14> is about 100 times bigger than the double-precision machine epsilon.
-
-This way, you can use this function to compare floating point numbers, which
-are tainted by multiple rounding operations.
+C<1e-14> is about 100 times bigger than DBL_EPSILON. 
+The test will succeed even if the numbers are tainted by multiple rounding
+operations.  
 
 =cut
 

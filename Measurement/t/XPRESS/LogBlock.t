@@ -1,9 +1,14 @@
+#!perl
 use 5.010;
 use warnings;
 use strict;
 
-use Test::More tests => 12;
+use lib 't';
+
+use Lab::Test tests => 12;
+use Test::More;
 use Test::Files;
+
 use File::Spec::Functions;
 use File::Path qw/remove_tree/;
 
@@ -39,7 +44,7 @@ my $measurement = sub {
     my $sweep = shift;
     my $voltage = $sweep->get_value();
     my $block = [[1, 2], [2, 3], [3, 4]];
-    is($expected_voltage, $voltage, "voltage = $expected_voltage");
+    is_float($voltage, $expected_voltage, "voltage is set");
     $expected_voltage += 0.1;
     $sweep->LogBlock(
 	prefix => [$voltage],

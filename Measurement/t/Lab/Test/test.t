@@ -5,7 +5,7 @@ use strict;
 use 5.010;
 
 use lib 't';
-use Test::Tester tests => 64;
+use Test::Tester tests => 60;
 use Lab::Test;
 
 # is_relative_error
@@ -21,7 +21,6 @@ check_test(
     {
 	ok => 0,
 	name => "is_relative_error",
-	diag => "relative error of 10 and 11 is greater than 0.09"
     });
 
 # is_num
@@ -53,7 +52,6 @@ check_test(
     {
 	ok => 0,
 	name => "is_float",
-	diag => "relative error of 1 and 1.00001 is greater than 1e-14"
     });
 
 
@@ -70,7 +68,6 @@ check_test(
     {
 	ok => 0,
 	name => "is_absolute_error",
-	diag => "absolute error of 10 and 11 is greater than 0.99"
     });
 
 # looks_like_number_ok
@@ -86,7 +83,6 @@ check_test(
     {
 	ok => 0,
 	name => "looks_like_number_ok",
-	diag => "'e10' does not look like a number"
     });
 
 
