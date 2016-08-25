@@ -84,54 +84,6 @@ sub connection_new {    # { gpib_address => primary address }
 
     $connection_handle =
       { valid => 1, type => "GPIB", gpib_handle => $gpib_handle };
-
-
-    # the first attempt to use the interface (after it is plugged in)
-    # seems to need this, otherwise it will fail...later attempts
-    # work. Perhaps this should be part of the LinuxGPIB code,
-    # but it seems unlikely to hurt, and it puts the interface into
-    # a known state before we start using it.
-
-    my $ibstatus = ibclr($gpib_handle); # clear interface
-
-
-    
-    my $ib_bits = $self->ParseIbstatus($ibstatus);
-
-    # 	foreach my $key ( keys %IbBits ) {
-    # 		print "$key: $ib_bits{$key}\n";
-    # 	}
-
-    # Todo: better Error checking
-    if ( $ib_bits->{'ERR'} == 1 ) {
-        if ( $ib_bits->{'TIMO'} == 1 ) {
-            Lab::Exception::GPIBTimeout->throw(
-                error => sprintf(
-                    "Timeout in "
-                      . __PACKAGE__
-                      . "::connection_new() while executing interface clear: ibclr failed with status %x\n",
-                    $ibstatus
-                  )
-                  . Dumper($ib_bits),
-                ibsta      => $ibstatus,
-                ibsta_hash => $ib_bits,
-            );
-        } else {
-            Lab::Exception::GPIBError->throw(
-                error => sprintf(
-                    "Error in "
-                      . __PACKAGE__
-                      . "::connection_new() while executing interface clear: ibclr failed with status %x\n",
-                    $ibstatus
-                  )
-		. Dumper($ib_bits),
-                ibsta      => $ibstatus,
-                ibsta_hash => $ib_bits,
-            );
-        }
-    }
-
-    
     return $connection_handle;
 }
 
