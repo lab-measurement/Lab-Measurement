@@ -5,7 +5,7 @@ use warnings;
 use Test::More;
 use Data::Dumper;
 
-plan tests => 2;
+plan tests => 4;
 
 BEGIN {
     # need these to make system() calls in testing while taint check on
@@ -211,3 +211,33 @@ my $href = {
 
 is_deeply($h,$href,'parse dpo4104');
 
+# try some special cases
+
+$h = scpi_parse(":FOO:BAR? a , zab, 22;BLEM #12ab ; *zip? 1.00 E -08 V; ");
+$href = {
+    FOO => {
+	'BAR?' => {
+	    _VALUE => 'a,zab,22',
+	},
+	'BLEM' => { _VALUE => '#12ab' },
+    },
+    '*zip?' => { _VALUE => '1.00 E -08 V'}
+};
+
+is_deeply($h,$href,'parse odd cases');
+
+my $sp = '';
+foreach my $c (0..9, 11..32) {
+    $sp .= chr($c);
+}
+
+$h = scpi_parse(":FOO${sp}abcd${sp};");
+
+
+$href = {
+    FOO => { _VALUE => 'abcd' }
+};
+
+is_deeply($h,$href,'full ieee488 whitespace range');
+
+   
