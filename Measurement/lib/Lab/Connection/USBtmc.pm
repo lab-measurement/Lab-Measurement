@@ -94,27 +94,32 @@ sub Clear {
 
 =head1 NAME
 
-Lab::Connection::LinuxGPIB - connection class which uses LinuxGPIB (libgpib0) as a backend.
+Lab::Connection::USBtmc - connection class which uses /dev/usbtmc as backend
 
 =head1 SYNOPSIS
 
-This is not called directly. To make a GPIB suppporting instrument use Lab::Connection::LinuxGPIB, set
+This is not called directly. To make a GPIB suppporting instrument use Lab::Connection::USBtmc, set
 the connection_type parameter accordingly:
 
-$instrument = new HP34401A(
-   connection_type => 'LinuxGPIB',
-   gpib_board => 0,
-   gpib_address => 14
+$instrument = new U2000(
+   connection_type => 'USBtmc',
+   usb_vendor => 0x3838,
+   usb_product => 0x1234,
 )
+
+Ways to indicate device:
+  tmc_address => number   (for /dev/usbtmcN)
+  visa_name => 'USB::0x1234::0x5678::serial:INSTR';
+  usb_vendor => 0x1234,  usb_product => 0x5678
 
 =head1 DESCRIPTION
 
-C<Lab::Connection::LinuxGPIB> provides a GPIB-type connection with the bus L<Lab::Bus::LinuxGPIB>,
-using L<Linux GPIB (aka libgpib0 in debian)|http://linux-gpib.sourceforge.net/> as backend.
+C<Lab::Connection::USBtmc> provides a GPIB-type connection with the bus L<Lab::Bus::USBtmc>,
+using L</dev/usbtmc* > as backend.
 
 It inherits from L<Lab::Connection::GPIB> and subsequently from L<Lab::Connection>.
 
-For L<Lab::Bus::LinuxGPIB>, the generic methods of L<Lab::Connection> suffice, so only a few defaults are set:
+For L<Lab::Bus::USBtmc>, the generic methods of L<Lab::Connection> suffice, so only a few defaults are set:
   wait_status=>0, # usec;
   wait_query=>10, # usec;
   read_length=>1000, # bytes
@@ -123,10 +128,9 @@ For L<Lab::Bus::LinuxGPIB>, the generic methods of L<Lab::Connection> suffice, s
 
 =head2 new
 
- my $connection = new Lab::Connection::LinuxGPIB(
-    gpib_board => 0,
-    gpib_address => $address,
-    gpib_saddress => $secondary_address
+ my $connection = new Lab::Connection::USBtmc(
+    usb_vendor => 0x1234,   # vendor id
+    usb_product => 0x5678,  # product id
  }
 
 =head1 METHODS
@@ -139,12 +143,12 @@ This just falls back on the methods inherited from L<Lab::Connection>.
 Provides unified access to the fields in initial @_ to all the child classes.
 E.g.
 
- $GPIB_Address=$instrument->Config(gpib_address);
+ $USB_product=$instrument->Config('usb_product');
 
 Without arguments, returns a reference to the complete $self->Config aka @_ of the constructor.
 
  $Config = $connection->Config();
- $GPIB_Address = $connection->Config()->{'gpib_address'};
+ $USB_product = $connection->Config()->{'usb_product'};
  
 =head1 CAVEATS/BUGS
 
