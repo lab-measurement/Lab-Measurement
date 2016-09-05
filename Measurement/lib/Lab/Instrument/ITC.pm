@@ -62,7 +62,7 @@ sub _device_init {
     my $self = shift;
 
     $self->_set_control(3);    # REMOTE & unlocked
-    $self->connection()->Clear();
+    $self->clear();
 }
 
 sub _get_parameter {           # internal only

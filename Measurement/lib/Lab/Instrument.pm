@@ -813,6 +813,11 @@ sub read {
     return $result;
 }
 
+sub clear {
+    my $self = shift;
+    $self->connection()->Clear();
+}
+
 sub request {
     my $self = shift;
     my ( $command, $args ) = $self->parse_optional(@_);

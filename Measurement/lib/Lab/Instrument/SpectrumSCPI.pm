@@ -24,7 +24,7 @@ sub new {
     my $class = ref($proto) || $proto;
     my $self  = $class->SUPER::new(@_);
     $self->${ \( __PACKAGE__ . '::_construct' ) }(__PACKAGE__);
-    $self->connection()->Clear();
+    $self->clear();
     return $self;
 }
 

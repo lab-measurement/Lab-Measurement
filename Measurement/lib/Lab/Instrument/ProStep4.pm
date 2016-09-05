@@ -68,7 +68,7 @@ sub _device_init {
     $self->query("C:\r\n");
     $self->InitEncoder( $STEPS_PER_ROUND, $RESOLUTION, $NULL );
     $self->InitRamp( $AXIS, $AA, $AE, $VA, $VE, $VM );
-    $self->connection()->Clear();
+    $self->clear();
 
     $self->init_limits();
 }
