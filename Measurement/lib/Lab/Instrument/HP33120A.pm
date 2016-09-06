@@ -2,14 +2,11 @@ package Lab::Instrument::HP33120A;
 
 use 5.006;
 use strict;
-use Scalar::Util qw(weaken);
 use warnings;
 use Lab::Instrument;
-use LinuxGpib ':all';
-use Time::HiRes qw (usleep sleep);
+use Try::Tiny;
 use Carp;
 use English;
-use Data::Dumper;
 
 =head1 NAME
 
@@ -125,15 +122,17 @@ sub new
 
 sub _device_init {
     
-    my $self = shift;
-    $self->write(
-	command => '*IDN?',
-	error_check => 0,
-	);
 
-    # if error on write, take offline and  reconnect
-    usleep($self->wait_query());
-    $self->{device_cache}->{id} = $self->read();
+    # when NI-GPIB-USB-HS initially plugged in, first write
+    # fails with timeout, so try a 'write nothing significant', let it
+    # fail, after that it should be okay
+
+    my $self = shift;
+    try { $self->write(
+	      command => ' ',
+	      );
+    } catch { 1; };
+
     
 }
 

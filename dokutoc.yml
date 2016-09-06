@@ -71,6 +71,7 @@ toc:
               - Measurement/lib/Lab/Instrument/SR830/AuxOut.pm	
               - Measurement/lib/Lab/Instrument/SignalRecovery726x.pm
           - RF generators:
+              - Measurement/lib/Lab/Instrument/HP33120A.pm
               - Measurement/lib/Lab/Instrument/HP83732A.pm
           - RF detectors:
               - Measurement/lib/Lab/Instrument/U2000.pm
