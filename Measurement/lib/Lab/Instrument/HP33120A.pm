@@ -84,28 +84,30 @@ our %fields =  (
 
 =head1 SYNOPSIS
 
-Quick summary of what the module does.
-
-Perhaps a little code snippet.
 
     use Lab::Instrument::HP33120A;
 
-    my $g = Lab::Instrument::HP33120A->new();
+    my $g = new Lab::Instrument::HP33120A (
+                connection_type => 'LinuxGPIB',
+                gpib_address => 10
+               );
     $g->set_frequency('3.78kHz');
     $g->set_shape('square');
 
     ...
 
 
-=head1 SUBROUTINES/METHODS
+=head1 Getting started, system control
 
 
-=head2 $g = Lab::Instrument::HP33120A->new(options);
+=head2 new
+
+$g = new Lab::Instrument::HP33120A->(%options);
+
       options:  gpib_board => 0,
                 gpib_address => 10,
                 connection_type => 'LinuxGPIB',
                 no_cache => 1,  # turn off cache
-
 
 =cut
 
@@ -120,9 +122,8 @@ sub new
 }
 
 
-sub _device_init {
-    
-
+sub _device_init 
+{
     # when NI-GPIB-USB-HS initially plugged in, first write
     # fails with timeout, so try a 'write nothing significant', let it
     # fail, after that it should be okay
@@ -136,8 +137,12 @@ sub _device_init {
     
 }
 
-=head2 $id = $g->get_id()
+=head2 get_id
+
+$id = $g->get_id();
+
 reads the *IDN? string from device
+
 =cut
     
 sub get_id
@@ -146,8 +151,541 @@ sub get_id
     return $self->query('*IDN?');
 }
 
-=head2 $shape = $g->get_shape()
+=head2 get_status
+
+%status = $g->get_status();
+
+return a hash with status bits
+{ ERROR => .., DATA=> .. 
+
+=cut
+
+sub get_status
+{
+    my $self = shift;
+    my $stb = $self->query("*STB?");
+    my $esr = $self->query("*ESR?");
+
+    my (%status);
+    $status{'DATA'} = ($stb & 0x10) == 0 ? 0 : 1;
+    $status{'ERROR'} = ($esr & 0x3C) == 0 ? 0 : 1;
+    $status{'QERR'} = ($esr & 0x04) == 0 ? 0:1;
+    $status{'DERR'} = ($esr & 0x08) == 0 ? 0:1;
+    $status{'EERR'} = ($esr & 0x10) == 0 ? 0:1;
+    $status{'CERR'} = ($esr & 0x20) == 0 ? 0:1;
+    $status{'PON'}  = ($esr & 0x80) == 0 ? 0:1;
+    $status{'OPC'}  = ($esr & 0x01) == 0 ? 0:1;
+    return %status;
+}
+
+
+
+=head2 get_error
+
+$errmsg = $g->get_error();
+
+Fetch the first error in the error queue.  Returns
+($code,$message); code == 0 means 'no error'
+
+=cut
+
+sub get_error
+{
+    my $self = shift;
+    my $err = $self->query("SYST:ERR?");
+    if ($err =~ /^\s*\+?0+\s*,/) {
+	return (0,'');  # no error
+    }
+
+    my ($code,$msg) = split(/,/,$err);
+    return ($code,$msg);
+}
+
+=head2 reset
+
+$g->reset();
+
+reset the function generator (*RST, *CLS)
+
+=cut
+
+our $rst_cache = {
+	shape => 'SIN',
+	frequency => 1000,
+	amplitude => 0.1,
+	offset => 0,
+	load => 50,
+	sync => 1,
+	vunit => 'VPP',
+
+	trigger_source => 'IMM',
+	display => 1,
+	am_depth => 100,
+	am_shape  => 'SIN',
+	am_frequency => 100,
+	am_source => 'INT',
+
+	fm_deviation => 100,
+	fm_shape => 'SIN',
+	fm_frequency => 10,
+
+	burst_cycles => 1,
+	burst_phase => 0,
+	burst_rate => 100,
+	burst_source => 'INT',
+
+	fsk_frequency => 100,
+	fsk_rate => 10,
+	fsk_source => 'INT',
+	
+	sweep_start_frequency => 100,
+	sweep_stop_frequency  => 1000,
+	sweep_spacing => 'LIN',
+	sweep_time => 1,
+		
+	modulation => 'NONE',
+};
+
+sub reset
+{
+    my $self = shift;
+
+    my $mod = $self->get_modulation({read_mode => 'cache'});
+    
+    $self->write('*RST');
+    $self->write('*CLS');
+    $self->wait_complete();
+
+    # set cache to *RST values
+
+    foreach my $k (keys(%{$rst_cache})) {
+	$self->{device_cache}->{$k} = $rst_cache->{$k};
+    }
+
+    if ($mod =~ /^SWE/i) {
+	$self->{device_cache}->{sweep_start_frequency} = 0.01;
+	$self->{device_cache}->{sweep_stop_frequency} = 15000000;
+    }
+    
+}
+
+
+=head2 get_trigger_slope
+
+$slope = $g->get_trigger_slope();
+
+fetch the trigger slope, returns POS or NEG
+=cut
+
+sub get_trigger_slope
+{
+    my $self = shift;
+    return $self->query('TRIG:SLOP?');
+}
+
+=head2 set_trigger_slope
+
+$g->set_trigger_slope($slope);
+
+set the slope of the signal used to trigger
+$slope = 'POS','+' or 'NEG','-'
+
+=cut
+
+sub set_trigger_slope
+{
+    my $self = shift;
+    my $in = shift;
+    my $sl;
+    if ($in =~ /^\s*[p+]/i) {
+	$sl = 'POS';
+    } elsif ($in =~ /^\s*[n\-]/i) {
+	$sl = 'NEG';
+    } else {
+	Lab::Exception::CorruptParameter->throw(
+	    "Invalid trigger slope '$in' [POS|NEG]\n");
+	return;
+    }
+    $self->write("TRIG:SLOP $sl");
+}
+
+
+=head2 wait_complete
+
+$g->wait_complete();
+
+Wait for operations to be completed
+
+TODO: probably need to revise, with a *OPC? checking loop
+
+=cut
+
+sub wait_complete
+{
+    my $self = shift;
+    $self->write('*WAI');
+}
+
+
+=head2 trigger
+
+$g->trigger();
+
+Send a bus trigger to the function generator, wait 
+until trigger complete.
+
+=cut
+
+
+sub trigger 
+{
+    my $self = shift;
+    $self->write('*TRG');
+    $self->wait_complete();
+}
+
+
+=head2 get_trigger_source
+
+$src = $g->get_trigger_source();
+
+fetch the 'trigger source' from the function generator.
+Possible values are 'IMM', 'BUS' or 'EXT'.  IMM => immediate
+self-triggering; BUS => gpib/serial trigger input, such as *TRG;
+EXT => external trigger input.
+
+=cut
+
+
+sub get_trigger_source
+{
+    my $self = shift;
+    return $self->query("TRIG:SOUR?");
+}
+
+=head2 set_trigger_source
+
+$g->set_trigger_source($src);
+
+Set the trigger source for the function generator. Possible
+values are 'IMM' (immediate, i.e., internal free-running self-trigger)
+'BUS' GPIB *TRG type triggering; 'EXT' trigger from external input.
+
+=cut
+
+sub set_trigger_source
+{
+    my $self = shift;
+    my $in = shift;
+    my $s;
+    if ($in =~ /^\s*IMM/i) {
+	$s = 'IMM';
+    } elsif ($in =~ /^\s*BUS/i) {
+	$s = 'BUS';
+    } elsif ($in =~ /^\s*EXT/i) {
+	$s = 'EXT';
+    } else {
+	Lab::Exception::CorruptParameter->throw(
+	    "Set_trigger_source invalid input '$in' [IMM|BUS|EXT]\n");
+	return;
+    }
+    $self->write("TRIG:SOUR $s");
+}
+
+
+
+=head2 set_display
+
+$g->set_display(BOOL);
+
+turn the display off (BOOL = false) or on (BOOL = true)
+
+=cut
+
+sub set_display
+{
+    my $self = shift;
+    my $in = shift;
+    my $state;
+    if ($in =~ /^\s*(1|on|t|y)/i) {
+	$state = 1;
+    } elsif ($in =~ /^\s*(0|of|f|n)/i) {
+	$state = 0;
+    } else {
+	Lab::Exception::CorruptParameter->throw(
+	    "Invalid display setting '$in' [ON|OFF]\n");
+	return;
+    }
+    $self->write("DISP $state");
+}
+
+=head2 get_display
+
+$display_on = $g->get_display();
+
+get the state of the display (boolean)
+
+=cut
+
+
+sub get_display
+{
+    my $self = shift;
+    return $self->query("DISP?");
+}
+
+=head2 set_text
+
+$g->set_text("text to show");
+
+display text on the function generator, in the place
+of the usual voltage/frequency/etc. Text is truncated
+at 11 chars, comma, semicolon, period are combined with
+char, so not counted in length
+
+=cut
+
+sub set_text
+{
+    my $self = shift;
+    my $in = shift;
+    $in =~ s/\'/''/g;
+    $self->write("DISP:TEXT '$in'");
+}
+
+=head2 get_text
+
+$mytext = $g->get_text();
+
+fetches the text shown on the display with set_text
+
+=cut
+
+sub get_text
+{
+    my $self = shift;
+    my $txt = $self->query('DISP:TEXT?');
+    my (@s) = _parseStrings($txt);
+    return $s[0];
+}
+
+=head2 clear_text
+
+$g->clear_text();
+
+remove the text from the display
+
+=cut
+
+sub clear_text
+{
+    my $self = shift;
+    $self->write("DISP:TEXT:CLE");
+}
+
+=head2 beep
+
+$g->beep();
+
+Cause the function generator to 'beep'
+
+=cut
+
+sub beep
+{
+    my $self = shift;
+    $self->write("SYST:BEEP");
+}
+
+=head2 get_sync
+
+$sync = $g->get_sync();
+
+fetch boolean value indicating whether 'sync' output on the
+front panel is enabled
+
+=cut
+	
+sub get_sync
+{
+    my $self = shift;
+    return $self->query("OUTP:SYNC?");
+}
+
+=head2 set_sync
+
+$g->set_sync($sync);
+
+enable or disable SYNC output on front panel. $sync is
+a boolean (1/true/yes/on) => sync output enabled
+
+=cut
+
+
+sub set_sync
+{
+    my $self = shift;
+    my $in = shift;
+    my $sync;
+    if ($in =~ /^\s*(1|on|t|y)/i) {
+	$sync = 1;
+    } elsif ($in =~ /^\s*(0|of|f|n)/i) {
+	$sync = 0;
+    } else {
+	Lab::Exception::CorruptParameter->throw(
+	    "Sync '$in' not recognized as boolean \n");
+	return;
+    }
+    $self->write("OUTP:SYNC $sync");
+}
+
+=head2 save_setup
+
+$g->save_setup($n);
+
+save function generator setup to internal non-volatile
+memory.  $n = 0..3.  
+
+NOTE: $n=0 is overwritten by the 'current
+setup' when the generator is turned off.
+ 
+=cut
+
+sub save_setup
+{
+    my $self = shift;
+    my $n = shift;
+    $n = int($n+0.5);
+    if ($n < 0 || $n > 3) {
+	Lab::Exception::CorruptParameter->throw(
+	    "Save '$n' out of range (0..3)\n");
+	return;
+    }
+    $self->write("*SAV $n");
+}
+
+=head2 recall_setup
+
+$g->recall_setup($n);
+
+restore function generator configuration from internal 
+non-volatile memory. $n=0..3
+
+=cut
+
+sub recall_setup
+{
+    my $self = shift;
+    my $n = shift;
+    $n = int($n+0.5);
+    if ($n < 0 || $n > 3) {
+	Lab::Exception::CorruptParameter->throw(
+	    "Recall '$n' out of range (0..3)\n");
+	return;
+    }
+    $self->write("*RCL $n");
+    # invalidate the cache
+    $self->reset_device_cache();
+}
+
+=head2 delete_setup
+
+$g->delete_setup($n);
+
+delete one of the internal non-volatile setups
+$n=0..3
+
+=cut
+
+
+sub delete_setup
+{
+    my $self = shift;
+    my $n = shift;
+    $n = int($n+0.5);
+    
+    if ($n < 0 || $n > 3) {
+	Lab::Exception::CorruptParameter->throw(
+	    "Delete '$n' out of range (0..3)\n");
+	return;
+    }
+    $self->write("MEM:STAT:DEL $n");
+}
+
+
+=head2 get_load
+
+$zload = $g->get_load();
+
+fetch the output load impedance of the generator. Possible 
+values are '50' and 'INF'. This does NOT make any physical
+changes in the generator, but affects the internal calculation
+of amplitudes.
+
+=cut
+
+
+sub get_load
+{
+    my $self = shift;
+    my $z = $self->query("OUTP:LOAD?");
+    $z = 'INF' if $z > 1000;
+    return $z;
+}
+
+=head2 set_load
+
+$g->set_load($z);
+
+Tell the function generator what load impedance the output
+is being terminated to, so that other characteristics can be
+correctly calculated.  Possible values are '50', 'INF', 'MIN', 'MAX'
+(can also use '50ohm', '0.05kohm', etc)
+
+=cut
+    
+sub set_load
+{
+    my $self = shift;
+    my $in = shift;
+    my $z;
+
+    if ($in =~ /^\s*inf/i) {
+	$z = 'INF';
+    } else {
+	my $zin = _parseNRf($in,'ohm');
+	if ($zin =~ /^ERR/i) {
+	    Lab::Exception::CorruptParameter->throw(
+		"Parse error in load impedance '$in': $zin\n");
+	    return;
+	}
+
+	if ($zin ne 'MIN' && $zin ne 'MAX') {
+	    if ($zin > 40 && $zin < 60) {
+		$z = 50;
+	    } elsif ($zin > 50e3) {
+		$z = 'INF';
+	    } else {
+		Lab::Exception::CorruptParameter->throw(
+		    "Invalid load impedance '$in' [MIN,MAX,INF,50]\n");
+		return;
+	    }
+	} else {
+	    $z = $zin;
+	}
+    }
+    $self->write("OUTP:LOAD $z");
+}
+
+
+=head1 Basic waveform output routines
+
+=head2 get_shape
+
+$shape = $g->get_shape();
+
 returns the waveform shape = SIN|SQU|TRI|RAMP|USER
+
 =cut
 
 sub get_shape
@@ -156,9 +694,13 @@ sub get_shape
     return $self->query('FUNC:SHAP?');
 }
 
-=head2 $g=>set_shape($shape)
+=head2 set_shape
+
+$g=>set_shape($shape);
+
 Sets the output function shape = SIN|SQU|TRI|RAMP|USER
-user = 'arbitary' waveform, separately selected
+USER = arbitary waveform, separately selected
+
 =cut
 
 
@@ -189,8 +731,12 @@ sub set_shape
     $self->write("FUNC:SHAP $s");
 }
 
-=head2 $f = $g->get_frequency()
+=head2 get_frequency
+
+$f = $g->get_frequency();
+
 reads the function generator frequency, in Hz
+
 =cut
     
 sub get_frequency
@@ -199,20 +745,31 @@ sub get_frequency
     return $self->query("FREQ?");
 }
 
-=head2 $g->set_frequency($f)
+=head2 set_frequency
+
+$g->set_frequency($f);
+
 sets the function generator frequency in Hz. The
 frequency limits are 10mHz to 15MHz . The frequency
 can be specified as a simple number (in Hz), MIN, MAX
 or a string in standard IEEE488-2 NRf format. 
-NOTE: if you use the 'Hz' unit, the standard is
-to interpret 'mHz' as megahertz. 
+NOTE: if you use the  Hz unit, the standard is
+to interpret mHz as megahertz. 
+
+=over
 
 set_frequency(10)    10Hz
+
 set_frequency('0.01kHz')  10Hz
+
 set_frequency('1mHz')    1E6 Hz
-set_frequency('10m')     10e-3 Hz (note, without Hz, 'm' means 'milli')
+
+set_frequency('10m')     10e-3 Hz (note, without Hz, `m' means `milli')
+
+=back
 
 The upper frequency limit depends on the function shape
+
 =cut
 
 
@@ -244,9 +801,13 @@ sub set_frequency
     $self->write("FREQ $f");
 }
 
-=head2 $dc = $g->get_duty_cycle()
+=head2 get_duty_cycle
+
+$dc = $g->get_duty_cycle()'
+
 fetch the duty cycle, in percent; only relevent for
 square waves
+
 =cut
 
 
@@ -256,10 +817,14 @@ sub get_duty_cycle
     return $self->query('PULS:DCYC?');
 }
 
-=head2 $g->set_duty_cycle(percent)
+=head2 set_duty_cycle
+
+$g->set_duty_cycle(percent);
+
 sets the square wave duty cycle,  in percent. The available
 range depends on frequency, so percent = 20..80 for  <= 5MHz
 and percent = 40..60 for higher frequencies
+
 =cut
 
 sub set_duty_cycle
@@ -292,10 +857,14 @@ sub set_duty_cycle
     $self->write("PULS:DCYC $dc");
 }
 
-=head2 $vamp = $g->get_amplitude()
+=head2 get_amplitude
+
+$vamp = $g->get_amplitude();
+
 fetch the function amplitude, default is amplitude in volts 
-peak-to-peak (vpp), but depending on the  units setting
-(see get_vunit()), might be Vrms or dBm.
+peak-to-peak (Vpp), but depending on the  units setting
+[see get_vunit()], so might be Vrms or dBm.
+
 =cut
 
 sub get_amplitude
@@ -304,25 +873,35 @@ sub get_amplitude
     return $self->query("volt?");
 }
 
-=head2 $g->set_amplitude($vamp)
+=head2 set_amplitude
+
+$g->set_amplitude($vamp);
+
 sets the function amplitude,  in units from the 
-'set_vunit()' call, default to Vpp.
+set_vunit() call, defaults to Vpp.
 
-Amplitude in volts, but can be either a number,
-or string with magnitude, MAX or MIN.
+The amplitude can be either a number,
+or string with magnitude (and optionally, units), 
+MAX or MIN.
 
-'100uV', '50mV' etc.  The minimum and maximum
+Examples: `100uV', `50mV', `123E-3', `20dBm', `5.5E1dBmV'.
+
+NOTE: attaching units with $vamp does not change vunit,
+so if vunit=`VPP' and you set $vamp=`5.5e1dBmV', you'll
+get 55mVpp. 
+
+The minimum and maximum
 amplitudes depend on the output load selection,
 the function shape, and the DC offset.
 
-Max output voltage is +-20V into 'high-Z' load,
+Max output voltage is +-20V into a high-Z load,
 +-10V into 50 ohm load.
 
 
 TODO: automatically adjust units based on 
 input text: 4Vpp, 3.5Vrms, 7.3dbm ...
 
-Since limits are rather hard to determine, should
+Since limits are rather hard to determine, you should
 check for errors after setting.
 
 =cut
@@ -332,7 +911,7 @@ sub set_amplitude
 {
     my $self = shift;
     my $in = shift; 
-    my $v = _parseNRf($in,'v','db');
+    my $v = _parseNRf($in,'v','db','dbv');
 
     if ($v =~ /^ERR/i) {
 	Lab::Exception::CorruptParameter->throw(
@@ -395,63 +974,14 @@ sub set_amplitude
     $self->write("VOLT $v");
 }
 
-=head2 $zload = $g->get_load()
-fetch the output load impedance of the generator. Possible 
-values are '50' and 'INF'.
-=cut
 
+=head2 get_vunit
 
-sub get_load
-{
-    my $self = shift;
-    my $z = $self->query("OUTP:LOAD?");
-    $z = 'INF' if $z > 1000;
-    return $z;
-}
+$unit = $g->get_vunit()
 
-=head2 $g->set_load($z)
-Tell the function generator what load impedance the output
-is being terminated to, so that other characteristics can be
-correctly calculated.  Possible values are '50', 'INF', 'MIN', 'MAX'
-(can also use '50ohm', '0.05kohm', etc)
-=cut
-    
-sub set_load
-{
-    my $self = shift;
-    my $in = shift;
-    my $z;
-
-    if ($in =~ /^\s*inf/i) {
-	$z = 'INF';
-    } else {
-	my $zin = _parseNRf($in,'ohm');
-	if ($zin =~ /^ERR/i) {
-	    Lab::Exception::CorruptParameter->throw(
-		"Parse error in load impedance '$in': $zin\n");
-	    return;
-	}
-
-	if ($zin ne 'MIN' && $zin ne 'MAX') {
-	    if ($zin > 40 && $zin < 60) {
-		$z = 50;
-	    } elsif ($zin > 50e3) {
-		$z = 'INF';
-	    } else {
-		Lab::Exception::CorruptParameter->throw(
-		    "Invalid load impedance '$in' [MIN,MAX,INF,50]\n");
-		return;
-	    }
-	} else {
-	    $z = $zin;
-	}
-    }
-    $self->write("OUTP:LOAD $z");
-}
-
-=head2 $unit = $g->get_vunit()
 Fetch the units that are being used to specify the output amplitude
 Possible values are VPP, VRMS, DBM, or DEF (default, VPP)
+
 =cut
 
 
@@ -461,9 +991,13 @@ sub get_vunit
     return $self->query("VOLT:UNIT?");
 }
 
-=head2 $g->set_vunit($unit)
+=head2 set_vunit
+
+$g->set_vunit($unit);
+
 Set the way that amplitudes are specified. Possible 
 values are Vpp, Vrms, dBm or DEF (default = Vpp)
+
 =cut
 
 sub set_vunit
@@ -489,8 +1023,12 @@ sub set_vunit
     $self->write("VOLT:UNIT $u");
 }
 
-=head2 $voff = $g->get_offset()
+=head2 get_offset
+
+$voff = $g->get_offset();
+
 Get the DC offset in volts (not affected by vunit)
+
 =cut
 
 
@@ -500,7 +1038,10 @@ sub get_offset
     return $self->query("VOLT:OFFS?");
 }
 
-=head2 $g->set_offset($voff)
+=head2 set_offset
+
+$g->set_offset($voff);
+
 Set the DC offset, either as a number (volts), as a string
 '100mV', '0.01kV' '1e3u', MIN or MAX.  The specification of
 the DC offset is not affected by the selection of vunit.
@@ -551,148 +1092,24 @@ sub set_offset
     $self->write("VOLT:OFFS $voff");
 }
 
-=head2 $sync = $g->get_sync()
-fetch boolean value indicating whether 'sync' output on the
-front panel is enabled
-=cut
-
-
-	
-sub get_sync
-{
-    my $self = shift;
-    return $self->query("OUTP:SYNC?");
-}
-
-=head2 $g->set_sync($sync)
-enable or disable SYNC output on front panel. $sync is
-a boolean (1/true/yes/on) => sync output enabled
-=cut
-
-
-sub set_sync
-{
-    my $self = shift;
-    my $in = shift;
-    my $sync;
-    if ($in =~ /^\s*(1|on|t|y)/i) {
-	$sync = 1;
-    } elsif ($in =~ /^\s*(0|of|f|n)/i) {
-	$sync = 0;
-    } else {
-	Lab::Exception::CorruptParameter->throw(
-	    "Sync '$in' not recognized as boolean \n");
-	return;
-    }
-    $self->write("OUTP:SYNC $sync");
-}
-
-=head2 $g->save_setup($n)
-save function generator setup to internal non-volatile
-memory.  $n = 0..3.  NOTE: $n=0 is overwritten by the 'current
-setup' when the generator is turned off. 
-=cut
-
-sub save_setup
-{
-    my $self = shift;
-    my $n = shift;
-    $n = int($n+0.5);
-    if ($n < 0 || $n > 3) {
-	Lab::Exception::CorruptParameter->throw(
-	    "Save '$n' out of range (0..3)\n");
-	return;
-    }
-    $self->write("*SAV $n");
-}
-
-=head2 $g->recall_setup($n)
-restore function generator configuration from internal 
-non-volatile memory. $n=0..3
-=cut
-
-sub recall_setup
-{
-    my $self = shift;
-    my $n = shift;
-    $n = int($n+0.5);
-    if ($n < 0 || $n > 3) {
-	Lab::Exception::CorruptParameter->throw(
-	    "Recall '$n' out of range (0..3)\n");
-	return;
-    }
-    $self->write("*RCL $n");
-    # invalidate the cache
-    $self->reset_device_cache();
-}
-
-=head2 $g->delete_setup($n)
-delete one of the internal non-volatile setups
-$n=0..3
-=cut
-
-
-sub delete_setup
-{
-    my $self = shift;
-    my $n = shift;
-    $n = int($n+0.5);
-    
-    if ($n < 0 || $n > 3) {
-	Lab::Exception::CorruptParameter->throw(
-	    "Delete '$n' out of range (0..3)\n");
-	return;
-    }
-    $self->write("MEM:STAT:DEL $n");
-}
-
-=head2 $src = $g->get_trigger_source()
-fetch the 'trigger source' from the function generator.
-Possible values are 'IMM', 'BUS' or 'EXT'.  IMM => immediate
-self-triggering; BUS => gpib/serial trigger input, such as *TRG;
-EXT => external trigger input.
-=cut
-
-
-sub get_trigger_source
-{
-    my $self = shift;
-    return $self->query("TRIG:SOUR?");
-}
-
-=head2 $g->set_trigger_source($src)
-Set the trigger source for the function generator. Possible
-values are 'IMM' (immediate, i.e., internal free-running self-trigger)
-'BUS' GPIB *TRG type triggering; 'EXT' trigger from external input.
-=cut
-
-sub set_trigger_source
-{
-    my $self = shift;
-    my $in = shift;
-    my $s;
-    if ($in =~ /^\s*IMM/i) {
-	$s = 'IMM';
-    } elsif ($in =~ /^\s*BUS/i) {
-	$s = 'BUS';
-    } elsif ($in =~ /^\s*EXT/i) {
-	$s = 'EXT';
-    } else {
-	Lab::Exception::CorruptParameter->throw(
-	    "Set_trigger_source invalid input '$in' [IMM|BUS|EXT]\n");
-	return;
-    }
-    $self->write("TRIG:SOUR $s");
-}
-
 
 # use a "special" cache for this, because we need to store
 # an array of names
 
-=head2 @list = $g->get_waveform_list()
+=head1 Arbitrary 'user' waveforms
+
+
+=head2 get_waveform_list
+
+@list = $g->get_waveform_list();
+
 Get a list of the available 'user' waveforms. Five of these
 are built-in, up to four are user-storable in non-volatile
 memory, and possibly VOLATILE for a waveform in volatile memory
+
+The names of the five built-in arbitrary waveforms are:
+SINC, NEG_RAMP, EXP_RISE, EXP_FALL, and CARDIAC.
+
 =cut
 
 sub get_waveform_list
@@ -714,8 +1131,12 @@ sub get_waveform_list
     return (@{$self->{waveform}->{user}});
 }
 
-=head2 $wname = $g->get_user_waveform()
-Fetches the name of the current 'user' waveform.
+=head2 get_user_waveform
+
+$wname = $g->get_user_waveform();
+
+Fetches the name of the currently selected 'user' waveform.
+
 =cut
 
 sub get_user_waveform
@@ -724,10 +1145,14 @@ sub get_user_waveform
     return $self->query("FUNC:USER?");
 }
 
-=head2 $g->set_user_waveform($wname)
+=head2 set_user_waveform
+
+$g->set_user_waveform($wname);
+
 Sets the name of the current 'user' waveform. This
 should be a name from the $g->get_waveform_list()
 set of nonvolatile waveforms, or 'VOLATILE'.
+
 =cut
 
 
@@ -759,22 +1184,37 @@ sub set_user_waveform
     $self->write("FUNC:USER $in");
 }
 
-=head2 $g->load_waveform(...)
+=head2 load_waveform
+
+$g->load_waveform(...);
 
 store waveform as 'volatile' data (can be used by selecting 'volatile'
-user waveform) perhaps for persistant storing.
+user waveform) perhaps for persistant storage.
+
+=over
 
 load_waveform(v1,v2,v3...)   voltages   |v(j)| <= 1
-load_waveform(d1,d2,d3...)   dac values |d(j)| < 2048
-load_waveform(\@array)
+
+load_waveform(d1,d2,d3...)   DAC values |d(j)| < 2048
+
+load_waveform(\@array)       voltages or DAC values
+
 load_waveform(waveform=>[voltage array ref]);
-load_waveform(dac=>[dac array ref]);
+
+load_waveform(dac=>[DAC array ref]);
+
+=back
 
 number of data points 8..16000
+
+In the first three cases above, where it is not specified "voltage"
+or "DAC" values, it is assumed to be voltages if the quantities are
+within the range -1..+1, and otherwise assumed to be DAC values. 
+
 =cut
 
 
-sub load_waveform($\[@%])
+sub load_waveform
 {
     my $self = shift;
     my $arg = shift;
@@ -853,9 +1293,13 @@ sub load_waveform($\[@%])
     $self->write($cmd);
 }
 
-=head2 $vavg = $g->get_waveform_average($name)
+=head2 get_waveform_average
+
+$vavg = $g->get_waveform_average($name);
+
 calculates and returns the 'average voltage' of 
-waveform $name (nonvolatile or VOLATILE)
+waveform $name (nonvolatile stored waveform, or VOLATILE)
+
 =cut
 
 
@@ -882,9 +1326,14 @@ sub get_waveform_average
     return $self->query("DATA:ATTR:AVER? $name");
 }
 
-=head2 $vcr = $g->get_waveform_crestfactor($name)
+=head2 get_waveform_crestfactor
+
+$vcr = $g->get_waveform_crestfactor($name);
+
+
 calculates and returns the voltage 'crest factor' 
 (ratio of Vpeak/Vrms) for the waveform stored in $name.
+
 =cut
 
     
@@ -911,8 +1360,11 @@ sub get_waveform_crestfactor
     return $self->query("DATA:ATTR:CFAC? $name");
 }
 
-=head2 $npts = $g->get_waveform_points($name)
+=head2 get_waveform_points
+
+$npts = $g->get_waveform_points($name)
 Returns the number of points in the waveform $name
+
 =cut
 
 sub get_waveform_points
@@ -938,9 +1390,13 @@ sub get_waveform_points
     return $self->query("DATA:ATTR:POIN? $name");
 }
 
-=head2 $vpp = $g->get_waveform_peak2peak($name)
+=head2 get_waveform_peak2peak
+
+$vpp = $g->get_waveform_peak2peak($name);
+
 calculates and returns the peak-to-peak voltage
 of waveform $name
+
 =cut
 
 
@@ -967,7 +1423,10 @@ sub get_waveform_peak2peak
     return $self->query("DATA:ATTR:PTP? $name");
 }
 
-=head2 $g->store_waveform($name)
+=head2 store_waveform
+
+$g->store_waveform($name);
+
 Stores the waveform in VOLATILE to non-volatile
 memory as $name.  Note that $name cannot be one
 of the 'hard-coded' names, is a maximum of 8 characters
@@ -975,9 +1434,10 @@ in length, must start with a-z, and contain only
 alphanumeric and underscore (_) characters. All
 names are converted to uppercase.
 
-There memory for 4 user waveforms to be stored, 
+There is memory for 4 user waveforms to be stored, 
 after which some must be deleted to allow further
 storage.
+
 =cut
 
 sub store_waveform
@@ -1018,9 +1478,13 @@ sub store_waveform
     $self->write("DATA:COPY $name");
 }
 
-=head2 $g->delete_waveform($name)
+=head2 delete_waveform
+
+$g->delete_waveform($name);
+
 Delete one of the non-volatile user waveforms (or VOLATILE).
 Note that the 5 'built-in' user waveforms cannot be deleted.
+
 =cut
 
 sub delete_waveform
@@ -1061,9 +1525,13 @@ sub delete_waveform
     $self->write("DATA:DEL $name");
 }
 
-=head2 $n = $g->get_waveform_free()
+=head2 get_waveform_free
+
+$n = $g->get_waveform_free();
+
 returns the number of 'free' user waveform storage 
 areas (0..4) that can be used for $g->store_waveform
+
 =cut
 
 sub get_waveform_free
@@ -1072,145 +1540,15 @@ sub get_waveform_free
     return $self->query('DATA:NVOL:FREE?');
 }
 
-=head2 $slope = $g->get_trigger_slope()
-fetch the trigger slope, returns POS or NEG
-=cut
 
-sub get_trigger_slope
-{
-    my $self = shift;
-    return $self->query('TRIG:SLOP?');
-}
+=head1 Modulation
 
-=head2 $g->set_trigger_slope(SLOPE)
-set the slope of the signal used to trigger
-SLOPE = POS/+ or NEG/-
-=cut
+=head2 get_modulation
 
-sub set_trigger_slope
-{
-    my $self = shift;
-    my $in = shift;
-    my $sl;
-    if ($in =~ /^\s*[p+]/i) {
-	$sl = 'POS';
-    } elsif ($in =~ /^\s*[n\-]/i) {
-	$sl = 'NEG';
-    } else {
-	Lab::Exception::CorruptParameter->throw(
-	    "Invalid trigger slope '$in' [POS|NEG]\n");
-	return;
-    }
-    $self->write("TRIG:SLOP $sl");
-}
+$mod = $g->get_modulation();
 
-
-=head2 $g->wait_complete()
-Wait for operations to be completed
-=cut
-
-sub wait_complete
-{
-    my $self = shift;
-    $self->write('*WAI');
-}
-
-
-=head2 $g->trigger()
-Send a bus 'trigger' to the function generator, wait 
-until trigger complete.
-=cut
-
-
-sub trigger 
-{
-    my $self = shift;
-    $self->write('*TRG');
-    $self->wait_complete();
-}
-
-=head2 $g->set_display(BOOL)
-turn the display off (BOOL = false) or on (BOOL = true)
-=cut
-
-sub set_display
-{
-    my $self = shift;
-    my $in = shift;
-    my $state;
-    if ($in =~ /^\s*(1|on|t)/i) {
-	$state = 1;
-    } elsif ($in =~ /^\s*(0|of|f)/i) {
-	$state = 0;
-    } else {
-	Lab::Exception::CorruptParameter->throw(
-	    "Invalid display setting '$in' [ON|OFF]\n");
-	return;
-    }
-    $self->write("DISP $state");
-}
-
-=head2 $display_on = $g->get_display()
-get the state of the display (boolean)
-=cut
-
-
-sub get_display
-{
-    my $self = shift;
-    return $self->query("DISP?");
-}
-
-=head2 $g->set_text("text to show")
-display text on the function generator, in the place
-of the usual voltage/frequency/etc. Text is truncated
-at 11 chars, comma, semicolon, period are combined with
-char, so not counted in length
-=cut
-
-
-sub set_text
-{
-    my $self = shift;
-    my $in = shift;
-    $in =~ s/\'/''/g;
-    $self->write("DISP:TEXT '$in'");
-}
-
-=head2 $mytext = $g->get_text()
-fetches the text shown on the display with set_text
-=cut
-
-sub get_text
-{
-    my $self = shift;
-    my $txt = $self->query('DISP:TEXT?');
-    my (@s) = _parseStrings($txt);
-    return $s[0];
-}
-
-=head2 $g->clear_text()
-remove the text from the display
-=cut
-
-sub clear_text
-{
-    my $self = shift;
-    $self->write("DISP:TEXT:CLE");
-}
-
-=head2 $g->beep()
-Cause the function generator to 'beep'
-=cut
-
-sub beep
-{
-    my $self = shift;
-    $self->write("SYST:BEEP");
-}
-
-=head2 $mod = $g->get_modulation()
 Fetch the type of modulation being used: NONE,AM,FM,BURST,FSK,SWEEP
+
 =cut
     
 sub get_modulation
@@ -1228,9 +1566,13 @@ sub get_modulation
 }
 
 
-=head2 $g->set_modulation($mod)
+=head2 set_modulation
+
+$g->set_modulation($mod);
+
 Set the type of modulation to use: NONE,AM,FM,BURST,FSK,SWEEP
 if $mod='' or 'off', selects NONE.
+
 =cut
 
 sub set_modulation
@@ -1276,8 +1618,12 @@ sub set_modulation
 
 
 
-=head2 $g->set_am_depth(percent)  
+=head2 set_am_depth
+
+$g->set_am_depth(percent);
+  
 set AM modulation depth percent: 0..120, MIN, MAX
+
 =cut
 
 sub set_am_depth
@@ -1301,8 +1647,12 @@ sub set_am_depth
     $self->write("AM:DEPT $d");
 }
 
-=head2 $depth = $g->get_am_depth();
+=head2 get_am_depth
+
+$depth = $g->get_am_depth();
+
 get the AM modulation depth, in percent
+
 =cut    
 
 sub get_am_depth
@@ -1312,9 +1662,13 @@ sub get_am_depth
 }
 
 
-=head2 $shape = $g->get_am_shape();
+=head2 get_am_shape
+
+$shape = $g->get_am_shape();
+
 gets the waveform used for AM modulation
 returns $shape = (SIN|SQU|TRI|RAMP|NOIS|USER)
+
 =cut
 
 sub get_am_shape
@@ -1323,9 +1677,13 @@ sub get_am_shape
     return $self->query("AM:INT:FUNC?");
 }
 
-=head2 $g->set_am_shape($shape)
+=head2 set_am_shape
+
+$g->set_am_shape($shape);
+
 sets the waveform used for AM modulation
 $shape = (SIN|SQU|TRI|RAMP|NOIS|USER)
+
 =cut
 
 sub set_am_shape
@@ -1355,8 +1713,12 @@ sub set_am_shape
     $self->write("AM:INT:FUNC $s");
 }
 
-=head2 $freq = $g->get_am_frequency()
+=head2 get_am_frequency
+
+$freq = $g->get_am_frequency();
+
 get the frequency of the AM modulation
+
 =cut
 
 sub get_am_frequency
@@ -1365,12 +1727,16 @@ sub get_am_frequency
     return $self->query("AM:INT:FREQ?")
 }
 
-=head2 $g->set_am_frequency($f)
+=head2 set_am_frequency
+
+$g->set_am_frequency($f);
+
 sets the frequency of AM modulation 
 $f = value in Hz,  10mHz..20kHz, MIN, MAX
 
 Note that $f can be a string, with suffixes, and that 
-'mHz' suffix -> MEGAHz   'm' suffix -> millihertz
+'mHz' suffix -> MEGAHz   'm' suffix with no 'Hz' -> millihertz
+
 =cut
 
 sub set_am_frequency
@@ -1396,8 +1762,12 @@ sub set_am_frequency
     $self->write("AM:INT:FREQ $f");
 }
 
-=head2 $source = $g->get_am_source()
+=head2 get_am_source
+
+$source = $g->get_am_source();
+
 get the source of the AM modulation signal: BOTH|EXT
+
 =cut
 
 sub get_am_source
@@ -1406,9 +1776,14 @@ sub get_am_source
     return $self->query("AM:SOUR?");
 }
 
-=head2 $g->set_am_source(BOTH|EXT)
+=head2 set_am_source
+
+$g->set_am_source(BOTH|EXT);
+
+
 set the source of the AM modulation; BOTH = internal+external
 EXT = external only.   INT = translated to BOTH
+
 =cut
 
 sub set_am_source
@@ -1431,8 +1806,12 @@ sub set_am_source
     $self->write("AM:SOUR $s");
 }
 
-=head2 $dev = $g->get_fm_deviation()
+=head2 get_fm_deviation
+
+$dev = $g->get_fm_deviation();
+
 fetch the FM modulation deviation, in Hz
+
 =cut
 
 sub get_fm_deviation
@@ -1441,7 +1820,10 @@ sub get_fm_deviation
     return $self->query("FM:DEV?");
 }
 
-=head2 $g->set_fm_deviation($dev)
+=head2 set_fm_deviation
+
+$g->set_fm_deviation($dev);
+
 Set the FM modulation deviation in Hz. $dev can be a simple
 number, in Hz, or a string with suffixes, or MIN or MAX.
 
@@ -1454,6 +1836,7 @@ carrier + deviation < peak frequency for carrier waveform + 100kHz
 So: 15.1MHz for sine and square
 200kHz for triangle and ramp
 5.1MHz for 'user' waveforms
+
 =cut
 
 sub set_fm_deviation
@@ -1479,9 +1862,13 @@ sub set_fm_deviation
 }
 
 
-=head2 $shape = $g->get_fm_shape();
+=head2 get_fm_shape
+
+$shape = $g->get_fm_shape();
+
 gets the waveform used for FM modulation
 returns $shape = (SIN|SQU|TRI|RAMP|NOIS|USER)
+
 =cut
 
 sub get_fm_shape
@@ -1490,7 +1877,10 @@ sub get_fm_shape
     return $self->query("FM:INT:FUNC?");
 }
 
-=head2 $g->set_fm_shape($shape)
+=head2 set_fm_shape
+
+$g->set_fm_shape($shape);
+
 sets the waveform used for FM modulation
 $shape = (SIN|SQU|TRI|RAMP|NOIS|USER)
 
@@ -1525,8 +1915,12 @@ sub set_fm_shape
     $self->write("FM:INT:FUNC $s");
 }
 
-=head2 $freq = $g->get_fm_frequency()
+=head2 get_fm_frequency
+
+$freq = $g->get_fm_frequency();
+
 get the frequency of the FM modulation, in Hz
+
 =cut
 
 sub get_fm_frequency
@@ -1535,7 +1929,10 @@ sub get_fm_frequency
     return $self->query("FM:INT:FREQ?")
 }
 
-=head2 $g->set_fm_frequency($f)
+=head2 set_fm_frequency
+
+$g->set_fm_frequency($f);
+
 sets the frequency of AM modulation 
 $f = value in Hz,  10mHz..10kHz, MIN, MAX
 
@@ -1567,8 +1964,12 @@ sub set_fm_frequency
     $self->write("FM:INT:FREQ $f");
 }
 
-=head2 $ncyc = $g->get_burst_cycles()
+=head2 get_burst_cycles
+
+$ncyc = $g->get_burst_cycles();
+
 Fetch the number of cycles in burst modulation
+
 =cut
 
 sub get_burst_cycles
@@ -1577,7 +1978,10 @@ sub get_burst_cycles
     return $self->query("BM:NCYC?");
 }
 
-=head2 $g->set_burst_cycles($ncyc)
+=head2 set_burst_cycles
+
+$g->set_burst_cycles($ncyc);
+
 Set the number of cycles in burst modulation. 
 $ncyc is an integer 1..50,000  or MIN or MAX or INF
 
@@ -1590,6 +1994,7 @@ is related to the carrier frequency.
 4..5MHz   min 5 cycles
 
 For carrier frequency <= 100Hz, cycles <= 500sec * carrier freq
+
 =cut
 
 sub set_burst_cycles
@@ -1640,9 +2045,13 @@ sub set_burst_cycles
     $self->write("BM:NCYC $ncyc");
 }
 
-=head2 $ph = $g->get_burst_phase()
+=head2 get_burst_phase
+
+$ph = $g->get_burst_phase();
+
 Fetches the starting phase of the burst, in degrees, when
 bursts are triggered. 
+
 =cut
 
 sub get_burst_phase
@@ -1651,11 +2060,15 @@ sub get_burst_phase
     return $self->query("BM:PHAS?");
 }
 
-=head2 $g->set_burst_phase($ph)
+=head2 set_burst_phase
+
+$g->set_burst_phase($ph);
+
 Sets the starting phase of burst, in degrees (or MIN or MAX)
 from -360 to 360 in 0.001 degree increments.
 
 phase examples: 30.1, '20deg', 'min', 'max'
+
 =cut
 
 sub set_burst_phase
@@ -1682,8 +2095,12 @@ sub set_burst_phase
     $self->write("BM:PHAS $ph");
 }
  
-=head2 $rate = $g->get_burst_rate()
+=head2 get_burst_rate
+
+$rate = $g->get_burst_rate();
+
 Fetch the burst rate (in Hz) for internally triggered bursts
+
 =cut   
 
 sub get_burst_rate
@@ -1692,7 +2109,10 @@ sub get_burst_rate
     return $self->query("BM:INT:RATE?");
 }
 
-=head2 $g->set_burst_rate($rate)
+=head2 set_burst_rate
+
+$g->set_burst_rate($rate);
+
 Set the burst rate (in Hz) for internally triggered bursts.
 $rate can be a simple number, or a string with the usual
 suffixes.  Note that 'mHz' (case independent) -> megahertz
@@ -1701,6 +2121,7 @@ while 'm' -> millihertz.   Rate 10mHz .. 50kHz  or MIN or MAX
 If the burst rate is too large for the carrier frequency and
 burst count, the function generator will (silently) adjust to
 continually retrigger.
+
 =cut
 
 sub set_burst_rate
@@ -1726,8 +2147,12 @@ sub set_burst_rate
     $self->write("BM:INT:RATE $f");
 }
 
-=head2 $source = $g->get_burst_source()
+=head2 get_burst_source
+
+$source = $g->get_burst_source();
+
 Fetch the source of the burst modulation: INT or EXT
+
 =cut
 
 sub get_burst_source
@@ -1736,9 +2161,13 @@ sub get_burst_source
     return $self->query("BM:SOUR?");
 }
 
-=head2 $g->set_burst_source($source)
+=head2 set_burst_source
+
+$g->set_burst_source($source);
+
 Set the source of burst modulation: $source = 'INT' or 'EXT'.
 If source is external, burst cycle count, rate, are ignored.
+
 =cut
 
 sub set_burst_source
@@ -1759,8 +2188,12 @@ sub set_burst_source
 }
 
 
-=head2 $freq = $g->get_fsk_frequency()
+=head2 get_fsk_frequency
+
+$freq = $g->get_fsk_frequency();
+
 get the FSK 'hop' frequency, in Hz
+
 =cut
 
 sub get_fsk_frequency
@@ -1769,7 +2202,10 @@ sub get_fsk_frequency
     return $self->query("FSK:FREQ?")
 }
 
-=head2 $g->set_fsk_frequency($f)
+=head2 set_fsk_frequency
+
+$g->set_fsk_frequency($f);
+
 sets the FSK 'hop' frequency 
 $f = value in Hz,  10mHz..15MHz, MIN, MAX
 (max freq 100kHz for TRIANGLE and RAMP shapes)
@@ -1806,9 +2242,13 @@ sub set_fsk_frequency
 }
 
 
-=head2 $rate = $g->get_fsk_rate()
+=head2 get_fsk_rate
+
+$rate = $g->get_fsk_rate();
+
 Fetch the rate at which fsk shifts between frequencies (in Hz) for 
 internally triggered modulation.
+
 =cut   
 
 sub get_fsk_rate
@@ -1817,9 +2257,13 @@ sub get_fsk_rate
     return $self->query("FSK:INT:RATE?");
 }
 
-=head2 $g->set_fsk_rate($rate)
+=head2 set_fsk_rate
+
+$g->set_fsk_rate($rate);
+
 Set the rate for fsk shifting between frequencies (in Hz) for 
 internally triggered modulation.
+
 $rate can be a simple number, or a string with the usual
 suffixes.  Note that 'mHz' (case independent) -> megahertz
 while 'm' -> millihertz.   Rate 10mHz .. 50kHz  or MIN or MAX
@@ -1850,8 +2294,12 @@ sub set_fsk_rate
 }
 
 
-=head2 $source = $g->get_fsk_source()
+=head2 get_fsk_source
+
+$source = $g->get_fsk_source();
+
 Fetch the source of the FSK modulation: INT or EXT
+
 =cut
 
 sub get_fsk_source
@@ -1860,9 +2308,13 @@ sub get_fsk_source
     return $self->query("FSK:SOUR?");
 }
 
-=head2 $g->set_fsk_source($source)
+=head2 set_fsk_source
+
+$g->set_fsk_source($source);
+
 Set the source of FSK modulation: $source = 'INT' or 'EXT'.
 If source is external, FSK rate is ignored.
+
 =cut
 
 sub set_fsk_source
@@ -1882,8 +2334,12 @@ sub set_fsk_source
     $self->write("FSK:SOUR $s");
 }
 
-=head2 $g->get_sweep_start_frequency()
+=head2 get_sweep_start_frequency
+
+$g->get_sweep_start_frequency();
+
 Fetch the starting frequency of the sweep, in Hz
+
 =cut
 
 sub get_sweep_start_frequency
@@ -1892,8 +2348,12 @@ sub get_sweep_start_frequency
     return $self->query("FREQ:STAR?");
 }
 
-=head2 $g->get_sweep_stop_frequency()
+=head2 get_sweep_stop_frequency
+
+$g->get_sweep_stop_frequency();
+
 Fetch the stopping frequency of the sweep, in Hz
+
 =cut
 
 sub get_sweep_stop_frequency
@@ -1902,7 +2362,10 @@ sub get_sweep_stop_frequency
     return $self->query("FREQ:STOP?");
 }
 
-=head2 $g->set_sweep_start_frequency($f)
+=head2 set_sweep_start_frequency
+
+$g->set_sweep_start_frequency($f);
+
 sets the frequency sweep  starting frequency 
 $f = value in Hz,  10mHz..15MHz, MIN, MAX
 
@@ -1937,7 +2400,10 @@ sub set_sweep_start_frequency
     $self->write("FREQ:STAR $f");
 }
 
-=head2 $g->set_sweep_stop_frequency($f)
+=head2 set_sweep_stop_frequency
+
+$g->set_sweep_stop_frequency($f);
+
 sets the frequency sweep  stopping frequency 
 $f = value in Hz,  10mHz..15MHz, MIN, MAX
 
@@ -1972,9 +2438,13 @@ sub set_sweep_stop_frequency
     $self->write("FREQ:STOP $f");
 }
 
-=head2 $spc = $g->get_sweep_spacing();
+=head2 get_sweep_spacing
+
+$spc = $g->get_sweep_spacing();
+
 Fetches the sweep 'spacing', returns 'LIN' or 'LOG' for linear
 or logarithmic spacing.
+
 =cut
 
 sub get_sweep_spacing
@@ -1983,8 +2453,12 @@ sub get_sweep_spacing
     return $self->query("SWE:SPAC?");
 }
 
-=head2 $g->set_sweep_spacing($spc)
+=head2 set_sweep_spacing
+
+$g->set_sweep_spacing($spc);
+
 Sets sweep to either LIN or LOG spacing
+
 =cut
 
 sub set_sweep_spacing
@@ -2005,8 +2479,12 @@ sub set_sweep_spacing
     $self->write("SWE:SPAC $s");
 }
 
-=head2 $time = $g->get_sweep_time();
+=head2 get_sweep_time
+
+$time = $g->get_sweep_time();
+
 Fetch the time (in seconds) to sweep from starting to stopping frequency.
+
 =cut
 
 sub get_sweep_time
@@ -2016,7 +2494,10 @@ sub get_sweep_time
 }
 
 
-=head2 $g->set_sweep_time($time)
+=head2 set_sweep_time
+
+$g->set_sweep_time($time);
+
 Sets the time to sweep between starting and stopping frequencies. The
 number of frequencies steps is internally calculated by the function
 generator.
@@ -2024,6 +2505,7 @@ generator.
 $time can be a simple number (in seconds) or a string with
 suffices such as "5ms" "0.03ks", or MIN or MAX. The range of sweep
 times is 1ms .. 500s
+
 =cut
 
 sub set_sweep_time
@@ -2046,117 +2528,6 @@ sub set_sweep_time
     }
     $self->write("SWE:TIME $t");
 }
-
-=head2 %status = $g->get_status()
-return a hash with status bits
-{ ERROR => .., DATA=> .. 
-=cut
-
-sub get_status
-{
-    my $self = shift;
-    my $stb = $self->query("*STB?");
-    my $esr = $self->query("*ESR?");
-
-    my (%status);
-    $status{'DATA'} = ($stb & 0x10) == 0 ? 0 : 1;
-    $status{'ERROR'} = ($esr & 0x3C) == 0 ? 0 : 1;
-    $status{'QERR'} = ($esr & 0x04) == 0 ? 0:1;
-    $status{'DERR'} = ($esr & 0x08) == 0 ? 0:1;
-    $status{'EERR'} = ($esr & 0x10) == 0 ? 0:1;
-    $status{'CERR'} = ($esr & 0x20) == 0 ? 0:1;
-    $status{'PON'}  = ($esr & 0x80) == 0 ? 0:1;
-    $status{'OPC'}  = ($esr & 0x01) == 0 ? 0:1;
-    return %status;
-}
-
-
-
-=head2 $errmsg = $g->get_error()
-Fetch the first error in the error queue.  Returns
-($code,$message); code == 0 means 'no error'
-.
-
-=cut
-
-sub get_error($)
-{
-    my $self = shift;
-    my $err = $self->query("SYST:ERR?");
-    if ($err =~ /^\s*\+?0+\s*,/) {
-	return (0,'');  # no error
-    }
-
-    my ($code,$msg) = split(/,/,$err);
-    return ($code,$msg);
-}
-
-=head2 $g->reset()
-reset the function generator (*RST, *CLS)
-=cut
-
-our $rst_cache = {
-	shape => 'SIN',
-	frequency => 1000,
-	amplitude => 0.1,
-	offset => 0,
-	load => 50,
-	sync => 1,
-	vunit => 'VPP',
-
-	trigger_source => 'IMM',
-	display => 1,
-	am_depth => 100,
-	am_shape  => 'SIN',
-	am_frequency => 100,
-	am_source => 'INT',
-
-	fm_deviation => 100,
-	fm_shape => 'SIN',
-	fm_frequency => 10,
-
-	burst_cycles => 1,
-	burst_phase => 0,
-	burst_rate => 100,
-	burst_source => 'INT',
-
-	fsk_frequency => 100,
-	fsk_rate => 10,
-	fsk_source => 'INT',
-	
-	sweep_start_frequency => 100,
-	sweep_stop_frequency  => 1000,
-	sweep_spacing => 'LIN',
-	sweep_time => 1,
-		
-	modulation => 'NONE',
-};
-
-sub reset
-{
-    my $self = shift;
-
-    my $mod = $self->get_modulation({read_mode => 'cache'});
-    
-    $self->write('*RST');
-    $self->write('*CLS');
-    $self->wait_complete();
-
-    # set cache to *RST values
-
-    foreach my $k (keys(%{$rst_cache})) {
-	$self->{device_cache}->{$k} = $rst_cache->{$k};
-    }
-
-    if ($mod =~ /^SWE/i) {
-	$self->{device_cache}->{sweep_start_frequency} = 0.01;
-	$self->{device_cache}->{sweep_stop_frequency} = 15000000;
-    }
-    
-}
-
-
-
 
 
 # parse a delimited set of strings, return an array of the strings
