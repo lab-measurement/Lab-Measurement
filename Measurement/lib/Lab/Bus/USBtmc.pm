@@ -1,8 +1,14 @@
 package Lab::Bus::USBtmc;
 our $VERSION = '3.512';
 
-require "sys/ioctl.ph";
 
+# "sys/ioctl.ph" throws a warning about FORTIFY_SOURCE, but
+# this alternate is (perhaps?) not present on all systems,
+# so do a workaround
+if (!defined(eval('require "linux/ioctl.ph";'))) {
+    require "sys/ioctl.ph";
+}
+    
 # Created using h2ph
 eval 'sub USBTMC_IOC_NR () {91;}' unless defined(&USBTMC_IOC_NR);
 eval 'sub USBTMC_IOCTL_INDICATOR_PULSE () { &_IO( &USBTMC_IOC_NR, 1);}'
@@ -68,7 +74,7 @@ sub connection_new {         # { tmc_address => primary address }
     my $fn;
     my $usb_vendor;
     my $usb_product;
-    my $usb_serial;          #TODO: Unsupported
+    my $usb_serial = '*';         
 
     if ( defined $args->{'tmc_address'}
         && $args->{'tmc_address'} =~ /^[0-9]*$/ )
@@ -76,19 +82,31 @@ sub connection_new {         # { tmc_address => primary address }
         $fn = "/dev/usbtmc" . $args->{'tmc_address'};
     }
     else {
+	# want the vendor/product as strings, hex values
         if (
             defined $args->{'visa_name'}
             && ( $args->{'visa_name'} =~
                 /USB::0x([0-9A-Fa-f]{4})::0x([0-9A-Fa-f]{4})::[^:]*::INSTR/ )
           )
         {
-            $usb_vendor  = hex($1);
-            $usb_product = hex($2);
+            $usb_vendor  = $1;
+            $usb_product = $2;
             $usb_serial  = $3;
         }
         else {
-            $usb_vendor  = hex( $args->{'usb_vendor'} );
-            $usb_product = hex( $args->{'usb_product'} );
+            $usb_vendor  = $args->{'usb_vendor'};
+	    if ($usb_vendor =~ /^\s*0x([\da-f]{4})/i) {
+		$usb_vendor = $1;
+	    } else {
+		$usb_vendor = sprintf('%04x',$usb_vendor);
+	    }
+            $usb_product = $args->{'usb_product'};
+	    if ($usb_product =~ /^\s*0x([\da-f]{4})/i) {
+		$usb_product = $1;
+	    } else {
+		$usb_product = sprintf('%04x',$usb_product);
+	    }
+	    $usb_serial = $args->{'usb_serial'};
         }
     }
 
@@ -99,29 +117,39 @@ sub connection_new {         # { tmc_address => primary address }
               . "::connection_new()\n", );
     }
 
-    foreach my $file ( glob("/dev/usbtmc*") ) {
-        if ( defined $fn ) { last; }
-        $file =~ /\/dev\/(.*)/;
-        open( SYS_FS_HANDLE, "<", "/sys/class/usb/$1/device/uevent" );
-        while (<SYS_FS_HANDLE>) {
-            if (   /PRODUCT=([0-9A-Fa-f]+)\/([0-9A-Fa-f]+)\//
-                && hex($1) == $usb_vendor
-                && hex($2) == $usb_product )
-            {
-                $fn = $file;
-                last;
-            }
-        }
-        close(SYS_FS_HANDLE);
-    }
+    
+    
+    # the /sys/class/ system isn't consistent, so use lsusb
+    # select matching serial; if usb_serial = '*' select first match.
 
+    if (!defined($fn)) {
+	open(LSUSB_HANDLE,"/usr/bin/lsusb -d ${usb_vendor}:${usb_product} -v 2>/dev/null |") ||
+	    Lab::Exception::CorruptParameter->throw(
+                error => "Error running lsusb to find USB TMC address given to "
+              . __PACKAGE__
+		. "::connection_new()\n", );
+	my $got = 0;
+	while (<LSUSB_HANDLE>) {
+	    if (!$got && /^\s*iSerial\s+\d+\s+([^\s]+)/i) {
+		$got = 1 if $usb_serial eq $1 || $usb_serial eq '*';
+		$self->{config}->{usb_serial} = $1;
+		next;
+	    }
+	    if ($got && /^\s*iInterface\s+(\d+)\s/i) {
+		$fn = "/dev/usbtmc$1";
+		last;
+	    }
+	}
+	close(LSUSB_HANDLE);
+    }
+		
     if ( !defined $fn ) {
         Lab::Exception::CorruptParameter->throw(
             error => sprintf(
-                "Could not find specified device 0x%04x/0x%04x in "
+                "Could not find specified device 0x%s/0x%s/%s in "
                   . __PACKAGE__
                   . "::connection_new()\n",
-                $usb_vendor, $usb_product
+                $usb_vendor, $usb_product,$usb_serial
             ),
         );
     }
@@ -524,27 +552,41 @@ Lab::Bus::USBtmc throws
 
   $tmc->connection_new({ tmc_address => $addr });
 
-Creates a new connection ("instrument handle") for this bus. The argument is a hash, whose contents depend on the bus type.
-For TMC at least 'tmc_address' is needed.
+Creates a new connection ("instrument handle") for this bus. The argument is a hash, whose contents 
+depend on the bus type.
+
+For TMC there are several ways to indicate which device is to be used 
+
+if more than one is given, it is the first one that is used:
+tmc_address => $addr         selects /dev/usbtmc$addr 
+visa_name=> 'USB::0xVVVV::0xPPPP::SSSSSS::INSTR';
+    where VVVV is the hex usb vendor number, PPPP is the hex usb product number, and SSSSSS is the serial
+    number string.  If SSSSSS is '*', then the first device found that matches vendor and product will be
+    used.
+usb_vendor=>'0xVVVV' or 0xVVVV    vendor number
+usb_product=>'0xPPPP' or 0xPPPP   product number
+usb_serial=>'SSSSSS'  or '*'      serial number, or wildcard.
+
+The usb_serial defaults to '*' if not specified. 
 
 The handle is usually stored in an instrument object and given to connection_read, connection_write etc.
 to identify and handle the calling instrument:
 
-  $InstrumentHandle = $GPIB->connection_new({ gpib_address => 13 });
-  $result = $GPIB->connection_read($self->InstrumentHandle(), { options });
+  $InstrumentHandle = $tmc->connection_new({ usb_vendor => 0x0699, usb_product => 0x1234 });
+  $result = $tmc->connection_read($self->InstrumentHandle(), { options });
 
 See C<Lab::Instrument::Read()>.
 
 =head2 connection_write
 
-  $GPIB->connection_write( $InstrumentHandle, { Cmd => $Command } );
+  $tmc->connection_write( $InstrumentHandle, { Cmd => $Command } );
 
 Sends $Command to the instrument specified by the handle.
 
 
 =head2 connection_read
 
-  $GPIB->connection_read( $InstrumentHandle, { Cmd => $Command, ReadLength => $readlength, Brutal => 0/1 } );
+  $tmc->connection_read( $InstrumentHandle, { Cmd => $Command, ReadLength => $readlength, Brutal => 0/1 } );
 
 Sends $Command to the instrument specified by the handle. Reads back a maximum of $readlength bytes. If a timeout or
 an error occurs, Lab::Exception::GPIBError or Lab::Exception::Timeout are thrown, respectively. The Timeout object
@@ -554,21 +596,21 @@ Setting C<Brutal> to a true value will result in timeouts being ignored, and the
 
 =head2 timeout
 
-  $GPIB->timeout( $connection_handle, $timeout );
+  $tmc->timeout( $connection_handle, $timeout );
 
-Sets the timeout in seconds for GPIB operations on the device/connection specified by $connection_handle.
+Sets the timeout in seconds for tmc operations on the device/connection specified by $connection_handle.
 
 =head2 config
 
 Provides unified access to the fields in initial @_ to all the child classes.
 E.g.
 
- $GPIB_Address=$instrument->config(gpib_address);
+ $tmc_serial = $instrument->config(usb_serial);
 
 Without arguments, returns a reference to the complete $self->config aka @_ of the constructor.
 
  $config = $bus->config();
- $GPIB_PAddress = $bus->config()->{'gpib_address'};
+ $tmc_serial = $bus->config()->{'usb_serial'};
 
 =head1 CAVEATS/BUGS
 
