@@ -10,6 +10,8 @@ use Lab::MooseInstrument 'getter_params';
 
 use namespace::autoclean;
 
+our $VERSION = '3.512';
+
 has 'device' => (
     is => 'ro',
     isa => 'Object',

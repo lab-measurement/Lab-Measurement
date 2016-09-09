@@ -36,6 +36,8 @@ our @EXPORT_OK = qw(getter_params setter_params);
 use namespace::autoclean 
     -except => 'import', -also => [@EXPORT_OK];
 
+our $VERSION = '3.512';
+
 # do not make imported functions available as methods.
 
 =head1 Methods

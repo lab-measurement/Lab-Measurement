@@ -13,6 +13,8 @@ use Carp;
 use Lab::Connection::LogMethodCall qw/dump_method_call/;
 use parent 'Lab::Connection';
 
+our $VERSION = '3.512';
+
 our %fields = (
     logfile => undef,
     log_index => 0,

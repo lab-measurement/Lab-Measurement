@@ -9,6 +9,8 @@ use Carp;
 
 use Data::Dumper;
 
+our $VERSION = '3.512';
+
 =pod
 
 =head1 NAME

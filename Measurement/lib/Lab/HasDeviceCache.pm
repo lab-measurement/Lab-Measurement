@@ -50,6 +50,7 @@ use Lab::MooseInstrument qw(getter_params);
 
 use namespace::autoclean;
 
+our $VERSION = '3.512';
 
 has 'device_cache' => (
     isa => 'Lab::DeviceCache',

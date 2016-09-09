@@ -9,6 +9,8 @@ use Role::Tiny::With;
 use Carp;
 use autodie;
 
+our $VERSION = '3.512';
+
 our %fields = (
     logfile => undef,
     log_index => 0,

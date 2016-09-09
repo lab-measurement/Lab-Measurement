@@ -43,17 +43,17 @@ B<To use multiple virtual instruments, which use the same physical device, you h
 =cut
 
 package Lab::Instrument::SR830::AuxIn;
-our $VERSION = '3.512';
 
 use warnings;
 use strict;
 use 5.010;
 
-use Lab::Instrument;
 use Data::Dumper;
 use Carp;
 
-our @ISA = ("Lab::Instrument");
+use parent 'Lab::Instrument';
+
+our $VERSION = '3.512';
 
 our %fields = (
     channel               => undef,
