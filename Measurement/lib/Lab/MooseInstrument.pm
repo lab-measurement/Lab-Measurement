@@ -31,7 +31,14 @@ use MooseX::Params::Validate;
 use Exporter 'import';
 
 
-our @EXPORT_OK = qw(getter_params setter_params);
+our @EXPORT_OK = qw(
+getter_params
+setter_params
+validated_getter
+validated_setter
+validated_channel_getter
+validated_channel_setter
+);
 
 use namespace::autoclean 
     -except => 'import', -also => [@EXPORT_OK];
@@ -67,6 +74,47 @@ sub getter_params {
 
 sub setter_params {
     return (%timeout);
+}
+
+sub validated_getter {
+    return validated_hash(
+	\@_,
+	getter_params()
+	);
+}
+
+sub validated_setter {
+    my ($self, %args) = validated_hash(
+	\@_,
+	setter_params(),
+	value => { isa => 'Str' },
+	);
+    my $value = delete $args{value};
+    return ($self, $value, %args);
+}
+
+my %channel_arg = (channel => { isa => 'Int', optional => 1, default => ''});
+
+sub validated_channel_getter {
+    my ($self, %args) = validated_hash(
+	\@_,
+	getter_params(),
+	%channel_arg
+	);
+    my $channel = delete $args{channel};
+    return ($self, $channel, %args);
+}
+
+sub validated_channel_setter {
+    my ($self, %args) = validated_hash(
+	\@_,
+	getter_params(),
+	%channel_arg,
+	value => { isa => 'Str' },
+	);
+    my $channel = delete $args{channel};
+    my $value = delete $args{value};
+    return ($self, $channel, $value, %args);
 }
 
 #

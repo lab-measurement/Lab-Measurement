@@ -1,16 +1,20 @@
 #!perl
-
-use Test::More tests => 15;
-
+use 5.010;
+use warnings;
+use strict;
+use Test::More tests => 22;
+use Test::Fatal;
 use Lab::MooseInstrument;
 
 #
 # Basic Usage
 #
+
 {
     package TestConnection;
     use Moose;
     use Test::More;
+    
     sub Clear {
 	ok(1, 'connection clear called')
     }
@@ -55,18 +59,16 @@ use Lab::MooseInstrument;
 {
     {
 	package MyDevice;
+
 	use Moose;
+	use Lab::MooseInstrument::Cache;
+	
 	extends 'Lab::MooseInstrument';
-	with 'Lab::HasDeviceCache';
+	
+	cache func1 => (getter => 'func1', isa => 'Str');
 
-	sub BUILD {
-	    my $self = shift;
-	    $self->cache_declare(
-		key1 => { getter => 'func1' },
-		key2 => { getter => 'func2' }
-		);
-	}
-
+	cache func2 => (getter => 'func2');
+	
 	sub func1 {
 	    return 'func1';
 	}
@@ -79,52 +81,103 @@ use Lab::MooseInstrument;
     my $connection = TestConnection->new();
     my $instr = MyDevice->new(connection => $connection);
     isa_ok($instr, 'MyDevice');
-
-    is($instr->cache_get(key => 'key1'), 'func1', 'cache calls getter');
-    $instr->cache_set(key => 'key1', value => 'new value');
-    is($instr->cache_get(key => 'key1'), 'new value', 'cache value replaced');
+    
+    is($instr->cached_func1(), 'func1', 'no value in cache: call getter');
+    
+    $instr->cached_func1('new value');
+    
+    is($instr->cached_func1(), 'new value', 'new value in cache');
     
 }
 
 #
-# Extend device cache in role
+# Extend device cache with subclass and roles
 #
+
 {
     {
 	package MyRole;
 	use Moose::Role;
-
-	sub BUILD {}
-	after 'BUILD' => sub {
-	    my $self = shift;
-	    $self->cache_declare(
-		key3 => {getter => 'func3'}
-		);
-	};
-
+	use Lab::MooseInstrument::Cache;
+	
+	cache func3 => (getter => 'func3');
+	
 	sub func3 {
 	    return 'func3';
 	}
     }
 
     {
+	package MyRole2;
+	use Moose::Role;
+	use Lab::MooseInstrument::Cache;
+	
+	cache func4 => (getter => 'func4');
+	
+	sub func4 {
+	    return 'func4';
+	}
+    }
+    
+    {
 	package MyDevice::Extended;
 	use Moose;
+	use Lab::MooseInstrument::Cache;
 	extends 'MyDevice';
-	with 'MyRole';
+	with 'MyRole', 'MyRole2';
+	
+	cache func_extended => (getter => 'func_extended');
+	
+	sub func_extended {
+	    return 'func_extended';
+	}
+	
     }
 
     my $connection = TestConnection->new();
     my $instr = MyDevice::Extended->new(connection => $connection);
     isa_ok($instr, 'MyDevice::Extended');
 
-    is($instr->cache_get(key => 'key1'), 'func1', 'cache calls getter');
-    $instr->cache_set(key => 'key1', value => 'new value');
-    is($instr->cache_get(key => 'key1'), 'new value', 'cache value replaced');
+    
+    is($instr->cached_func1(), 'func1', 'call cached func1');
 
-    is($instr->cache_get(key => 'key3'), 'func3', 'cache calls getter');
-    $instr->cache_set(key => 'key3', value => 'new value 3');
-    is($instr->cache_get(key => 'key3'), 'new value 3',
-       'cache value replaced');
+    is($instr->cached_func2(), 'func2', 'call cached func2');
 
+    is($instr->cached_func3(), 'func3', 'call cached func3');
+
+    is($instr->cached_func4(), 'func4', 'call cached func4');
+
+    is($instr->cached_func_extended(), 'func_extended',
+       'call cached func_extended');
+
+    # predicate and clearer
+
+    ok($instr->has_cached_func1(), "have cached func1");
+
+    $instr->clear_cached_func1();
+
+    ok((not $instr->has_cached_func1()),  "cleared cached func1");
+
+    is($instr->cached_func1(), 'func1', 'call builder after clear');
+    
+    # Illegal operations
+
+    ok(
+	exception {$instr->cached_func_uiaeuiaeuuiae();},
+	"unknown cache key throws"
+	);
+    
+    is(
+	exception {$instr->cached_func2([2]);},
+	undef,
+	"ArrayRef allowed for func2"
+	);
+
+    ok(
+	exception {$instr->cached_func1([1]);},
+	"ArrayRef throws for func1"
+	);
+
+    
+	
 }

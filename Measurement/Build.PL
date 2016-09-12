@@ -39,6 +39,7 @@ my $build = Module::Build->new(
     },
     test_requires => {
 	'Test::Files' => 0,
+	'Test::Fatal' => '0.012'
     },
     conflicts         => {
         'Lab::Instrument'    => '< 2.91',
