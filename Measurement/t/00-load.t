@@ -6,6 +6,7 @@ use 5.010;
 use strict;
 use warnings;
 use File::Find;
+use Module::Load;
 use Test::More;
 # Create file list
 
@@ -13,7 +14,11 @@ my @files;
 
 sub installed {
     my $module = shift;
-    return eval "use $module; 1";
+    eval {
+	autoload $module; 1;
+    } or return;
+
+    return 1;
 }
 
 File::Find::find({
@@ -26,7 +31,7 @@ s/^lib.// for @files;
 # Skip modules with special dependencies.
 
 sub skip_modules {
-    for my $skip(@_) {
+    for my $skip (@_) {
 	@files = grep {
 	    tr/\\/\//;
 	    index($_, $skip) == -1;
@@ -75,9 +80,15 @@ for my $module (keys %depencencies) {
 }
 
 
-if (! eval "require 'sys/ioctl.ph'; 1") {
+eval {
+    load 'sys/ioctl.ph';
+    diag("using sys/ioctl.ph");
+    1;
+    
+} or do {
+    diag("not using sys/ioctl.ph");
     skip_modules('Lab/Bus/USBtmc.pm');
-}
+};
 
 plan tests => scalar @files;
 

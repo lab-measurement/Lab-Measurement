@@ -3,10 +3,12 @@
 use strict;
 use warnings;
 use Test::More;
+use Module::Load;
 
-# Ensure a recent version of Test::Pod
-my $min_tp = 1.22;
-eval "use Test::Pod $min_tp";
-plan skip_all => "Test::Pod $min_tp required for testing POD" if $@;
+eval {
+    autoload Test::Pod; 1;
+} or do {
+    plan skip_all => "Test::Pod required for testing POD";
+};
 
 all_pod_files_ok();

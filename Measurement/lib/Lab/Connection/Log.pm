@@ -1,8 +1,13 @@
-package Lab::Connection::Log;
 # Role for connection logging.
 
-use Role::Tiny;
+package Lab::Connection::Log;
 use 5.010;
+use warnings;
+use strict;
+
+our $VERSION = '3.512';
+
+use Role::Tiny;
 
 use YAML::XS;
 use Data::Dumper;
