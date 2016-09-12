@@ -31,10 +31,12 @@ s/^lib.// for @files;
 # Skip modules with special dependencies.
 
 sub skip_modules {
-    for my $skip (@_) {
+    my @skip_modules = @_;
+    for my $skip (@skip_modules) {
 	@files = grep {
-	    tr/\\/\//;
-	    index($_, $skip) == -1;
+	    my $file = $_;
+	    $file =~ tr/\\/\//;
+	    index($file, $skip) == -1;
 	} @files;
     }
 }
