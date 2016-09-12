@@ -13,10 +13,6 @@ use English;
 Lab::Instrument::HP33120A - control HP33120A 15MHz function/arbitrary waveform
 generator.
 
-=head1 VERSION
-
-Version 0.01
-
 =cut
 
 our $VERSION = '3.512';
