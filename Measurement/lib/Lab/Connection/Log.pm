@@ -16,8 +16,6 @@ use Carp;
 
 use Lab::Connection::LogMethodCall qw(dump_method_call);
 
-our $VERSION = '3.512';
-
 around 'new' => sub {
     my $orig  = shift;
     my $proto = shift;

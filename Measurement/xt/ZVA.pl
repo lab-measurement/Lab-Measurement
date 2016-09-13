@@ -9,10 +9,24 @@ use Lab::Measurement;
 
 use Lab::MooseInstrument::ZVA;
 
-my $connection = Connection('LinuxGPIB', {gpib_address => 20});
+use Data::Dumper;
 
-my $zva = Lab::MooseInstrument::ZVA->new(connection => $connection);
+my $connection = Connection( 'LinuxGPIB::Log',
+    { gpib_address => 20, logfile => '/tmp/zva.yml' } );
+
+my $zva = Lab::MooseInstrument::ZVA->new( connection => $connection );
 
 say $zva->idn();
 
-say $zva->calculate_data_call_catalog_query();
+$zva->sense_frequency_start( value => 1e9 );
+
+$zva->sense_frequency_stop( value => 2e9 );
+
+$zva->sense_sweep_points( value => 1000 );
+
+for my $i ( 1 .. 20 ) {
+    say "sweep no $i";
+    my $data = $zva->sweep( timeout => 10, read_length => 1000000 );
+    $data->print_to_file( file => "/tmp/data$i", overwrite => 1 );
+}
+

@@ -16,7 +16,7 @@ sub sense_frequency_start_query {
     my ( $self, $channel, %args ) = validated_channel_getter(@_);
 
     return $self->cached_sense_frequency_start(
-        $self->query( command => 'SENS%s:FREQ:STAR?', $channel, %args ) );
+        $self->query( command => "SENS${channel}:FREQ:STAR?", %args ) );
 }
 
 sub sense_frequency_start {
@@ -34,7 +34,7 @@ sub sense_frequency_stop_query {
     my ( $self, $channel, %args ) = validated_channel_getter(@_);
 
     return $self->cached_sense_frequency_stop(
-        $self->query( command => 'SENS%s:FREQ:STOP?', $channel, %args ) );
+        $self->query( command => "SENS${channel}:FREQ:STOP?", %args ) );
 }
 
 sub sense_frequency_stop {

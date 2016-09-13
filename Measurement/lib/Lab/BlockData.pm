@@ -184,6 +184,47 @@ sub add_column {
     $self->_columns( ++$columns );
 }
 
+sub print_to_file {
+    my ( $self, %args ) = validated_hash(
+        \@_,
+        file      => { isa => 'Str' },
+        overwrite => { isa => 'Bool', default => 0 },
+        append    => { isa => 'Bool', default => 0 },
+    );
+
+    my $file      = $args{file};
+    my $overwrite = $args{overwrite};
+    my $append    = $args{append};
+
+    if ( not $self->has_matrix() ) {
+        croak "do not have matrix";
+    }
+
+    if ( $overwrite && $append ) {
+        croak "cannot use both overwrite and append options";
+    }
+
+    if ( !( $overwrite || $append ) && -f $file ) {
+        croak "file $file does already exist. Use a new filename!";
+    }
+
+    my $open_mode = $append ? '>>' : '>';
+
+    open my $fh, $open_mode, $file
+      or croak "cannot open file: $!";
+    my $matrix = $self->matrix;
+    for my $row ( @{$matrix} ) {
+        for my $real_number ( @{$row} ) {
+
+            # Avoid ascii -> binary -> ascii conversion.
+            printf {$fh} "%s ", $real_number;
+        }
+        print {$fh} "\n";
+    }
+    close $fh
+      or croak "cannot close";
+}
+
 __PACKAGE__->meta->make_immutable();
 
 1;

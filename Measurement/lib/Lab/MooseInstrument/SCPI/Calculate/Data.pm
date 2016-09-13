@@ -4,17 +4,14 @@ use Moose::Role;
 use MooseX::Params::Validate;
 use Lab::MooseInstrument::Cache;
 
-use Lab::MooseInstrument qw/getter_params setter_params/;
+use Lab::MooseInstrument qw/
+  channel_param
+  getter_params
+  validated_channel_getter
+  validated_channel_setter
+  /;
 
 use namespace::autoclean;
-
-sub _getter_args {
-    return validated_hash( \@_, getter_params() );
-}
-
-sub _setter_args {
-    return validated_hash( \@_, setter_params() );
-}
 
 cache calculate_data_call_catalog => (
     getter => 'calculate_data_call_catalog',
@@ -22,20 +19,25 @@ cache calculate_data_call_catalog => (
 );
 
 sub calculate_data_call_catalog {
-    my ( $self, %args ) = _getter_args(@_);
-    my $string = $self->query( command => 'CALC:DATA:CALL:CAT?', %args );
+    my ( $self, $channel, %args ) = validated_channel_getter(@_);
+
+    my $string =
+      $self->query( command => "CALC${channel}:DATA:CALL:CAT?", %args );
     $string =~ s/'//g;
-    my $result = [ split ',', $string ];
-    $self->cached_calculate_data_call_catalog($result);
+
+    return $self->cached_calculate_data_call_catalog( [ split ',', $string ] );
 }
 
 sub calculate_data_call {
-    my ( $self, %args ) =
-      validated_hash( \@_, getter_params(), format => { isa => 'Str' } );
+    my ( $self, %args ) = validated_hash( \@_, getter_params(), channel_param(),
+        format => { isa => 'Str', default => 'SDAT' } );
 
-    my $format = delete $args{format};
+    my $format  = delete $args{format};
+    my $channel = delete $args{channel};
 
-    return $self->query( command => 'CALC:DATA:CALL?', %args );
+    return $self->query( command => "CALC${channel}:DATA:CALL? $format",
+        %args );
+
 }
 
 1;

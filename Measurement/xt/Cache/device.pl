@@ -8,12 +8,10 @@ use Data::Dumper;
 
 my $instr = DeviceKid->new();
 
+say $instr->cache_get( key => 'lala' );
 
-say $instr->cache_get(key => 'lala');
+$instr->cache_set( key => 'lala', value => 'abc' );
 
-$instr->cache_set(key => 'lala', value => 'abc');
+say $instr->cache_get( key => 'lala' );
 
-
-say $instr->cache_get(key => 'lala');
-
-say $instr->cache_get(key => 'lala_kid');
+say $instr->cache_get( key => 'lala_kid' );

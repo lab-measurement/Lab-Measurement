@@ -32,6 +32,7 @@ use MooseX::Params::Validate;
 use Exporter 'import';
 
 our @EXPORT_OK = qw(
+  channel_param
   getter_params
   setter_params
   validated_getter
@@ -65,16 +66,24 @@ has 'connection' => (
     required => 1
 );
 
-my %command     = ( command     => { isa => 'Str' } );
-my %timeout     = ( timeout     => { isa => 'Num', optional => 1 } );
-my %read_length = ( read_length => { isa => 'Int', optional => 1 } );
+sub timeout_param {
+    return ( timeout => { isa => 'Num', optional => 1 } );
+}
+
+sub read_length_param {
+    return ( read_length => { isa => 'Int', optional => 1 } );
+}
+
+sub channel_param {
+    return ( channel => { isa => 'Int', optional => 1, default => '' } );
+}
 
 sub getter_params {
-    return ( %timeout, %read_length );
+    return ( timeout_param(), read_length_param() );
 }
 
 sub setter_params {
-    return (%timeout);
+    return ( timeout_param() );
 }
 
 sub validated_getter {
@@ -88,16 +97,15 @@ sub validated_setter {
     return ( $self, $value, %args );
 }
 
-my %channel_arg = ( channel => { isa => 'Int', optional => 1, default => '' } );
-
 sub validated_channel_getter {
-    my ( $self, %args ) = validated_hash( \@_, getter_params(), %channel_arg );
+    my ( $self, %args ) =
+      validated_hash( \@_, getter_params(), channel_param(), );
     my $channel = delete $args{channel};
     return ( $self, $channel, %args );
 }
 
 sub validated_channel_setter {
-    my ( $self, %args ) = validated_hash( \@_, getter_params(), %channel_arg,
+    my ( $self, %args ) = validated_hash( \@_, getter_params(), channel_param(),
         value => { isa => 'Str' }, );
     my $channel = delete $args{channel};
     my $value   = delete $args{value};
@@ -107,6 +115,8 @@ sub validated_channel_setter {
 #
 # Methods
 #
+
+my %command = ( command => { isa => 'Str' } );
 
 =head2 write
 

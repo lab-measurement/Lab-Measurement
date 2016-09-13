@@ -9,7 +9,7 @@ use TestConnection;
 use Device;
 my $connection = TestConnection->new();
 
-my $instr = Device->new(connection => $connection);
+my $instr = Device->new( connection => $connection );
 
-say  $instr->cache_get(key => 'id');
-say  $instr->cache_get(key => 'id');
+say $instr->cache_get( key => 'id' );
+say $instr->cache_get( key => 'id' );
