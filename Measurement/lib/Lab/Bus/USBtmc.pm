@@ -1,14 +1,13 @@
 package Lab::Bus::USBtmc;
 our $VERSION = '3.512';
 
-
 # "sys/ioctl.ph" throws a warning about FORTIFY_SOURCE, but
 # this alternate is (perhaps?) not present on all systems,
 # so do a workaround
-if (!defined(eval('require "linux/ioctl.ph";'))) {
+if ( !defined( eval('require "linux/ioctl.ph";') ) ) {
     require "sys/ioctl.ph";
 }
-    
+
 # Created using h2ph
 eval 'sub USBTMC_IOC_NR () {91;}' unless defined(&USBTMC_IOC_NR);
 eval 'sub USBTMC_IOCTL_INDICATOR_PULSE () { &_IO( &USBTMC_IOC_NR, 1);}'
@@ -74,7 +73,7 @@ sub connection_new {         # { tmc_address => primary address }
     my $fn;
     my $usb_vendor;
     my $usb_product;
-    my $usb_serial = '*';         
+    my $usb_serial = '*';
 
     if ( defined $args->{'tmc_address'}
         && $args->{'tmc_address'} =~ /^[0-9]*$/ )
@@ -82,7 +81,7 @@ sub connection_new {         # { tmc_address => primary address }
         $fn = "/dev/usbtmc" . $args->{'tmc_address'};
     }
     else {
-	# want the vendor/product as strings, hex values
+        # want the vendor/product as strings, hex values
         if (
             defined $args->{'visa_name'}
             && ( $args->{'visa_name'} =~
@@ -94,19 +93,21 @@ sub connection_new {         # { tmc_address => primary address }
             $usb_serial  = $3;
         }
         else {
-            $usb_vendor  = $args->{'usb_vendor'};
-	    if ($usb_vendor =~ /^\s*0x([\da-f]{4})/i) {
-		$usb_vendor = $1;
-	    } else {
-		$usb_vendor = sprintf('%04x',$usb_vendor);
-	    }
+            $usb_vendor = $args->{'usb_vendor'};
+            if ( $usb_vendor =~ /^\s*0x([\da-f]{4})/i ) {
+                $usb_vendor = $1;
+            }
+            else {
+                $usb_vendor = sprintf( '%04x', $usb_vendor );
+            }
             $usb_product = $args->{'usb_product'};
-	    if ($usb_product =~ /^\s*0x([\da-f]{4})/i) {
-		$usb_product = $1;
-	    } else {
-		$usb_product = sprintf('%04x',$usb_product);
-	    }
-	    $usb_serial = $args->{'usb_serial'};
+            if ( $usb_product =~ /^\s*0x([\da-f]{4})/i ) {
+                $usb_product = $1;
+            }
+            else {
+                $usb_product = sprintf( '%04x', $usb_product );
+            }
+            $usb_serial = $args->{'usb_serial'};
         }
     }
 
@@ -117,39 +118,38 @@ sub connection_new {         # { tmc_address => primary address }
               . "::connection_new()\n", );
     }
 
-    
-    
     # the /sys/class/ system isn't consistent, so use lsusb
     # select matching serial; if usb_serial = '*' select first match.
 
-    if (!defined($fn)) {
-	open(LSUSB_HANDLE,"/usr/bin/lsusb -d ${usb_vendor}:${usb_product} -v 2>/dev/null |") ||
-	    Lab::Exception::CorruptParameter->throw(
+    if ( !defined($fn) ) {
+        open( LSUSB_HANDLE,
+            "/usr/bin/lsusb -d ${usb_vendor}:${usb_product} -v 2>/dev/null |" )
+          || Lab::Exception::CorruptParameter->throw(
                 error => "Error running lsusb to find USB TMC address given to "
               . __PACKAGE__
-		. "::connection_new()\n", );
-	my $got = 0;
-	while (<LSUSB_HANDLE>) {
-	    if (!$got && /^\s*iSerial\s+\d+\s+([^\s]+)/i) {
-		$got = 1 if $usb_serial eq $1 || $usb_serial eq '*';
-		$self->{config}->{usb_serial} = $1;
-		next;
-	    }
-	    if ($got && /^\s*iInterface\s+(\d+)\s/i) {
-		$fn = "/dev/usbtmc$1";
-		last;
-	    }
-	}
-	close(LSUSB_HANDLE);
+              . "::connection_new()\n", );
+        my $got = 0;
+        while (<LSUSB_HANDLE>) {
+            if ( !$got && /^\s*iSerial\s+\d+\s+([^\s]+)/i ) {
+                $got = 1 if $usb_serial eq $1 || $usb_serial eq '*';
+                $self->{config}->{usb_serial} = $1;
+                next;
+            }
+            if ( $got && /^\s*iInterface\s+(\d+)\s/i ) {
+                $fn = "/dev/usbtmc$1";
+                last;
+            }
+        }
+        close(LSUSB_HANDLE);
     }
-		
+
     if ( !defined $fn ) {
         Lab::Exception::CorruptParameter->throw(
             error => sprintf(
                 "Could not find specified device 0x%s/0x%s/%s in "
                   . __PACKAGE__
                   . "::connection_new()\n",
-                $usb_vendor, $usb_product,$usb_serial
+                $usb_vendor, $usb_product, $usb_serial
             ),
         );
     }

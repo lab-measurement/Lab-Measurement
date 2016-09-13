@@ -10,7 +10,7 @@ our $IO_INTERFACE = undef;
 
 GetOptions(
     "debug|d"      => \$DEBUG,
-    "terminal|t=s" => \$IO_INTERFACE)
-    or die "error in CLOptions";
+    "terminal|t=s" => \$IO_INTERFACE
+) or die "error in CLOptions";
 
 1;

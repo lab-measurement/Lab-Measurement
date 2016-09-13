@@ -12,11 +12,11 @@ use autodie;
 our $VERSION = '3.512';
 
 our %fields = (
-    logfile => undef,
+    logfile   => undef,
     log_index => 0,
-    );
+);
 
 with 'Lab::Connection::Log';
 
 1;
-    
+

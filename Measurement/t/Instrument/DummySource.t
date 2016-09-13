@@ -7,11 +7,13 @@ use lib 't';
 use Lab::Test tests => 2;
 use Lab::Measurement;
 
-my $source = Instrument('DummySource', {
-    connection_type => 'DEBUG',
-    gate_protect => 0
-			});
-
+my $source = Instrument(
+    'DummySource',
+    {
+        connection_type => 'DEBUG',
+        gate_protect    => 0
+    }
+);
 
 # set/get level
 
@@ -21,7 +23,7 @@ $source->set_level($expected);
 
 my $level = $source->get_level();
 
-is_num($level, $expected, "level is set");
+is_num( $level, $expected, "level is set" );
 
 # set/get range
 
@@ -31,4 +33,4 @@ $source->set_range($expected);
 
 my $range = $source->get_range();
 
-is_num($range, $expected, "range is set");
+is_num( $range, $expected, "range is set" );

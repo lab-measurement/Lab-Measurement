@@ -6,7 +6,8 @@ use Test::More;
 use Module::Load;
 
 eval {
-    autoload Test::Pod; 1;
+    autoload Test::Pod;
+    1;
 } or do {
     plan skip_all => "Test::Pod required for testing POD";
 };

@@ -1,3 +1,4 @@
+
 =head1 NAME
 
 Lab::MooseInstrument - Base class for instrument drivers.
@@ -30,18 +31,18 @@ use MooseX::Params::Validate;
 
 use Exporter 'import';
 
-
 our @EXPORT_OK = qw(
-getter_params
-setter_params
-validated_getter
-validated_setter
-validated_channel_getter
-validated_channel_setter
+  getter_params
+  setter_params
+  validated_getter
+  validated_setter
+  validated_channel_getter
+  validated_channel_setter
 );
 
-use namespace::autoclean 
-    -except => 'import', -also => [@EXPORT_OK];
+use namespace::autoclean
+  -except => 'import',
+  -also   => [@EXPORT_OK];
 
 our $VERSION = '3.512';
 
@@ -59,17 +60,17 @@ supports these methods.
 =cut
 
 has 'connection' => (
-    is => 'ro',
-    isa => duck_type( [qw/Write Read Query Clear/] ),
+    is       => 'ro',
+    isa      => duck_type( [qw/Write Read Query Clear/] ),
     required => 1
 );
 
-my %command = (command => { isa => 'Str' });
-my %timeout = (timeout => { isa => 'Num', optional => 1 });
-my %read_length = (read_length => { isa => 'Int', optional => 1 });
+my %command     = ( command     => { isa => 'Str' } );
+my %timeout     = ( timeout     => { isa => 'Num', optional => 1 } );
+my %read_length = ( read_length => { isa => 'Int', optional => 1 } );
 
 sub getter_params {
-    return (%timeout, %read_length);
+    return ( %timeout, %read_length );
 }
 
 sub setter_params {
@@ -77,44 +78,30 @@ sub setter_params {
 }
 
 sub validated_getter {
-    return validated_hash(
-	\@_,
-	getter_params()
-	);
+    return validated_hash( \@_, getter_params() );
 }
 
 sub validated_setter {
-    my ($self, %args) = validated_hash(
-	\@_,
-	setter_params(),
-	value => { isa => 'Str' },
-	);
+    my ( $self, %args ) =
+      validated_hash( \@_, setter_params(), value => { isa => 'Str' }, );
     my $value = delete $args{value};
-    return ($self, $value, %args);
+    return ( $self, $value, %args );
 }
 
-my %channel_arg = (channel => { isa => 'Int', optional => 1, default => ''});
+my %channel_arg = ( channel => { isa => 'Int', optional => 1, default => '' } );
 
 sub validated_channel_getter {
-    my ($self, %args) = validated_hash(
-	\@_,
-	getter_params(),
-	%channel_arg
-	);
+    my ( $self, %args ) = validated_hash( \@_, getter_params(), %channel_arg );
     my $channel = delete $args{channel};
-    return ($self, $channel, %args);
+    return ( $self, $channel, %args );
 }
 
 sub validated_channel_setter {
-    my ($self, %args) = validated_hash(
-	\@_,
-	getter_params(),
-	%channel_arg,
-	value => { isa => 'Str' },
-	);
+    my ( $self, %args ) = validated_hash( \@_, getter_params(), %channel_arg,
+        value => { isa => 'Str' }, );
     my $channel = delete $args{channel};
-    my $value = delete $args{value};
-    return ($self, $channel, $value, %args);
+    my $value   = delete $args{value};
+    return ( $self, $channel, $value, %args );
 }
 
 #
@@ -130,12 +117,8 @@ Call the connection's C<Write> method. The timeout parameter is optional.
 =cut
 
 sub write {
-    my ($self, %args) = validated_hash(
-	\@_,
-	%command,
-	setter_params(),
-	);
-    
+    my ( $self, %args ) = validated_hash( \@_, %command, setter_params(), );
+
     return $self->connection()->Write(%args);
 }
 
@@ -149,11 +132,8 @@ optional.
 =cut
 
 sub read {
-    my ($self, %args) = validated_hash(
-	\@_,
-	getter_params()
-	);
-    
+    my ( $self, %args ) = validated_hash( \@_, getter_params() );
+
     return $self->connection()->Read(%args);
 }
 
@@ -167,12 +147,8 @@ are optional.
 =cut
 
 sub query {
-    my ($self, %args) = validated_hash(
-	\@_,
-	%command,
-	getter_params()
-	);
-    
+    my ( $self, %args ) = validated_hash( \@_, %command, getter_params() );
+
     return $self->connection()->Query(%args);
 }
 
@@ -192,8 +168,4 @@ sub clear {
 __PACKAGE__->meta->make_immutable();
 
 1;
-
-
-
-
 

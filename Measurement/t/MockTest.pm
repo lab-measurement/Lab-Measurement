@@ -16,12 +16,11 @@ my $logfile;
 my $help;
 
 GetOptions(
-    'connection|c=s' => \$connection,
+    'connection|c=s'   => \$connection,
     'gpib-address|g=i' => \$gpib_address,
-    'file|f=s' => \$logfile,
-    'help|h' => \$help,
-    )
-    or die "Error in GetOptions";
+    'file|f=s'         => \$logfile,
+    'help|h'           => \$help,
+) or die "Error in GetOptions";
 
 if ($help) {
     state_help();
@@ -44,32 +43,32 @@ Run the test. By default, it will run with a mock instrument.
                            default logfile provided by the test.
 ";
 }
+
 sub get_connection_type {
     return $connection;
 }
 
 sub get_logfile {
     my $file = shift;
-    if (not $file) {
-	die "no logfile argument given to get_logfile";
+    if ( not $file ) {
+        die "no logfile argument given to get_logfile";
     }
     if ($logfile) {
-	return $logfile;
+        return $logfile;
     }
     return $file;
 }
 
 sub get_gpib_address {
     my $default = shift;
-    if (not $default) {
-	die "no address argument given to get_gpib_address";
+    if ( not $default ) {
+        die "no address argument given to get_gpib_address";
     }
-    if (defined $gpib_address) {
-	return $gpib_address;
+    if ( defined $gpib_address ) {
+        return $gpib_address;
     }
     return $default;
 }
-
 
 # sub float_equal {
 #     my $a = shift;
@@ -78,6 +77,5 @@ sub get_gpib_address {
 #     # 1e-14 is about 100 times bigger than the machine epsilon.
 #     return ( relative_error( $a, $b ) < 1e-14 );
 # }
-
 
 1;

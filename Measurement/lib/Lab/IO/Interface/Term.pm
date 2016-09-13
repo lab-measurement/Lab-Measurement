@@ -237,7 +237,8 @@ sub header {
     my $style = (
         defined $cfg->{header_style}
         ? $cfg->{header_style}
-        : 'black on white' );
+        : 'black on white'
+    );
 
     if ( !$self->{last_ln} ) { $self->output("\n"); }
     $self->output( "\n", Term::ANSIScreen::colored( "$header_msg", $style ),
@@ -414,7 +415,8 @@ sub progress_config {
     my $current_config = (
         defined $self->{progress_bars}->{$id}
         ? $self->{progress_bars}->{$id}
-        : $self->{progress_defaults} );
+        : $self->{progress_defaults}
+    );
     for my $option ( keys %{$current_config} ) {
         if ( not defined $config->{$option} ) {
             $config->{$option} = $current_config->{$option};

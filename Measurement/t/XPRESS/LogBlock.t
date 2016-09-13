@@ -15,42 +15,50 @@ use File::Temp qw/tempdir/;
 
 use Lab::Measurement;
 
-my $source = Instrument('DummySource', {
-    connection_type => 'DEBUG',
-    gate_protect => 0
-			});
+my $source = Instrument(
+    'DummySource',
+    {
+        connection_type => 'DEBUG',
+        gate_protect    => 0
+    }
+);
 
-my $sweep = Sweep('Voltage', {
-    instrument => $source,
-    mode => 'step',
-    jump => 1,
-    points => [0,1],
-    stepwidth => [0.1],
-    rate => [0.1],
-		  });
+my $sweep = Sweep(
+    'Voltage',
+    {
+        instrument => $source,
+        mode       => 'step',
+        jump       => 1,
+        points     => [ 0, 1 ],
+        stepwidth  => [0.1],
+        rate       => [0.1],
+    }
+);
 
 # We can't use a subdir of t/, as it would contain a copy of this script.
 
-my $folder = tempdir (cleanup => 1);
+my $folder = tempdir( cleanup => 1 );
 say "folder: $folder";
+
 # ugly, but seems the only way to use temporary files
 $Lab::XPRESS::Data::XPRESS_DataFile::GLOBAL_PATH = $folder;
-my $file = 'blockfile';
+my $file     = 'blockfile';
 my $DataFile = DataFile($file);
 $DataFile->add_column('volt');
 $DataFile->add_column('f');
 $DataFile->add_column('transmission');
 
 my $expected_voltage = 0;
-my $measurement = sub {
-    my $sweep = shift;
+my $measurement      = sub {
+    my $sweep   = shift;
     my $voltage = $sweep->get_value();
-    my $block = [[1, 2], [2, 3], [3, 4]];
-    is_float($voltage, $expected_voltage, "voltage is set");
+    my $block   = [ [ 1, 2 ], [ 2, 3 ], [ 3, 4 ] ];
+    is_float( $voltage, $expected_voltage, "voltage is set" );
     $expected_voltage += 0.1;
     $sweep->LogBlock(
-	prefix => [$voltage],
-	block => $block);
+        prefix => [$voltage],
+        block  => $block
+    );
 };
 
 $DataFile->add_measurement($measurement);
@@ -95,7 +103,7 @@ my $expected = <<'EOF';
 1	3	4
 EOF
 
-my $file_path = catfile($folder, 'MEAS_000', "${file}.dat");
+my $file_path = catfile( $folder, 'MEAS_000', "${file}.dat" );
 
-file_ok($file_path, $expected);
+file_ok( $file_path, $expected );
 

@@ -570,8 +570,9 @@ sub _checkconnection
     if ( grep( /^ALL$/, @{ $self->supported_connections() } ) == 1 ) {
         return $connection;
     }
-    elsif ( $connection->isa('Lab::Connection::DEBUG')
-	or $connection->isa('Lab::Connection::Mock')) {
+    elsif ($connection->isa('Lab::Connection::DEBUG')
+        or $connection->isa('Lab::Connection::Mock') )
+    {
         return $connection;
     }
     else {

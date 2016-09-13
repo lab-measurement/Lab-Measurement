@@ -5,15 +5,15 @@ use warnings;
 use strict;
 
 use Carp;
-use English; # avoid editor nonsense with odd special variables
+use English;    # avoid editor nonsense with odd special variables
 use Exporter 'import';
 
 our $VERSION = '3.512';
 
-our @EXPORT = qw( scpi_match scpi_parse scpi_canon 
-                  scpi_flat scpi_parse_sequence );
+our @EXPORT = qw( scpi_match scpi_parse scpi_canon
+  scpi_flat scpi_parse_sequence );
 
-our $WS = qr/[\x00-\x09\x0b-\x20]/;        # whitespace std488-2 7.4.1.2 
+our $WS = qr/[\x00-\x09\x0b-\x20]/;    # whitespace std488-2 7.4.1.2
 
 =head1 NAME
 
@@ -126,10 +126,9 @@ the more general case.
 
 =cut
 
-sub scpi_shortform ($)
-{
+sub scpi_shortform ($) {
     my $string = shift;
-    $string =~ s/^${WS}*//;  # strip leading spaces
+    $string =~ s/^${WS}*//;    # strip leading spaces
     if ( length($string) <= 4 ) {
         return $string;
     }
@@ -138,8 +137,8 @@ sub scpi_shortform ($)
     # note that standard IEEE488 common mnemonics are length 4,
     # but some extensions result in longer common mnemonics
 
-    if ($string =~ /^\*/) {
-	return $string;
+    if ( $string =~ /^\*/ ) {
+        return $string;
     }
 
     # mnemonics can have following digits (ex: CHANNEL3)
@@ -148,19 +147,20 @@ sub scpi_shortform ($)
 
     # mnemonics in the form (letter)(letter|digit|underscore)*
     # but need to separate the "digit" part at end
-    
-    if ($string =~ /^([a-z]\w*[a-z_])(\d*)(\??)/i) {
-	$string = substr($1,0,4);
-	my $n = $2;
-	my $q = $3;
-	if ($string =~ /^...[aeiou]/i) {
-	    $string = substr($string,0,3);
-	}
-	return $string.$n.$q;
-    } else {  # not a standard form mnemonic, bail
-	return $string;
+
+    if ( $string =~ /^([a-z]\w*[a-z_])(\d*)(\??)/i ) {
+        $string = substr( $1, 0, 4 );
+        my $n = $2;
+        my $q = $3;
+        if ( $string =~ /^...[aeiou]/i ) {
+            $string = substr( $string, 0, 3 );
+        }
+        return $string . $n . $q;
     }
-    
+    else {    # not a standard form mnemonic, bail
+        return $string;
+    }
+
 }
 
 # Return 1 for equal, 0 if not.
@@ -223,16 +223,13 @@ the input hash.
 
 =cut 
 
-
-sub  scpi_parse($;$)
-{
+sub scpi_parse($;$) {
     my $str = shift;
-    my $d = shift;
+    my $d   = shift;
     $d = {} unless defined($d);
-    _gMem($str,0,$d,$d);
+    _gMem( $str, 0, $d, $d );
     return $d;
 }
-
 
 # "get Mnemonic"
 # recursive parse _gMem(string,level,treetop,treebranch)
@@ -240,132 +237,140 @@ sub  scpi_parse($;$)
 # of the scpi command are parsed: :lev0:lev1:lev2;lev2;lev2:lev3;lev3 ...
 
 sub _gMem($$$$);
- 
-sub  _gMem($$$$)
-{
-    my $str = shift;
+
+sub _gMem($$$$) {
+    my $str   = shift;
     my $level = shift;
-    my $dtop = shift;
-    my $d = shift;
-    
-    
-    if ($str =~ /^${WS}*(;|$)/) {
-	return '';
+    my $dtop  = shift;
+    my $d     = shift;
+
+    if ( $str =~ /^${WS}*(;|$)/ ) {
+        return '';
     }
 
     while (1) {
-	$str =~ s/^${WS}*//;
-	last if $str eq '';
-	
-	if ($level == 0) {
-	    if ($str =~ /^(\*\w+\??)${WS}*(;|$)/i) { #common
-		$dtop->{$1} = {} unless exists $dtop->{$1};
-		$str =  $POSTMATCH;
-		next;
-	    } elsif ($str =~ /^(\*\w+\??)${WS}+/i) {  # common with params
-		$dtop->{$1} = {} unless exists $dtop->{$1};
-		$str = _scpi_value($POSTMATCH,$dtop->{$1});
-		if ($str =~ /^${WS}*(;|$)/) {
-		    $str = $POSTMATCH;
-		    next;
-		} else {
-		    croak("parse error after common command");
-		}
-	    } elsif ($str =~ /^:/) {   # leading :
-		$d = $dtop;
-		$str =~ s/^://;
-	    }
-	} else {
-	    if ($str =~ /^\*/) {
-		croak("common command on level>0");
-	    }
-	    if ($str =~ /^:/) {
-		croak("leading : on level > 0");
-	    }
-	}
-	
-	$str =~ s/^${WS}*//;
-	last if $str eq '';
-	
-	if ($str =~ /^;/) { # another branch, same or top level
-	    $str =~ s/^;${WS}*//;
-	    last if $str eq '';
-	    my $nlev = $level;
-	    $nlev = 0 if $str =~ /^[\*\:]/;
-#	    print "level=$level nlev=$nlev str=$str\n";
-	    $str = _gMem($str,$nlev,$dtop,$d);
-	    next;
-	}
-	
-	if ($str =~ /^(\w+\??)${WS}*(;|$)/i) {   # leaf, no params
-	    $d->{$1} = {} unless exists $d->{$1};
-	    return $POSTMATCH;
-	} elsif ($str =~ /^(\w+)${WS}*:/i) { # branch, go down a level
-	    $d->{$1} = {} unless exists $d->{$1};
-	    $str = _gMem($POSTMATCH,$level+1,$dtop,$d->{$1});
-	} elsif ($str =~ /^(\w+\??)${WS}+/i) { # leaf with params
-	    $d->{$1} = {} unless exists $d->{$1};
-	    $str = $POSTMATCH;
-	    $str = _scpi_value($str,$d->{$1});
-	} else {
-	    croak("parse error on '$str'");
-	}
+        $str =~ s/^${WS}*//;
+        last if $str eq '';
+
+        if ( $level == 0 ) {
+            if ( $str =~ /^(\*\w+\??)${WS}*(;|$)/i ) {    #common
+                $dtop->{$1} = {} unless exists $dtop->{$1};
+                $str = $POSTMATCH;
+                next;
+            }
+            elsif ( $str =~ /^(\*\w+\??)${WS}+/i ) {      # common with params
+                $dtop->{$1} = {} unless exists $dtop->{$1};
+                $str = _scpi_value( $POSTMATCH, $dtop->{$1} );
+                if ( $str =~ /^${WS}*(;|$)/ ) {
+                    $str = $POSTMATCH;
+                    next;
+                }
+                else {
+                    croak("parse error after common command");
+                }
+            }
+            elsif ( $str =~ /^:/ ) {                      # leading :
+                $d = $dtop;
+                $str =~ s/^://;
+            }
+        }
+        else {
+            if ( $str =~ /^\*/ ) {
+                croak("common command on level>0");
+            }
+            if ( $str =~ /^:/ ) {
+                croak("leading : on level > 0");
+            }
+        }
+
+        $str =~ s/^${WS}*//;
+        last if $str eq '';
+
+        if ( $str =~ /^;/ ) {    # another branch, same or top level
+            $str =~ s/^;${WS}*//;
+            last if $str eq '';
+            my $nlev = $level;
+            $nlev = 0 if $str =~ /^[\*\:]/;
+
+            #	    print "level=$level nlev=$nlev str=$str\n";
+            $str = _gMem( $str, $nlev, $dtop, $d );
+            next;
+        }
+
+        if ( $str =~ /^(\w+\??)${WS}*(;|$)/i ) {    # leaf, no params
+            $d->{$1} = {} unless exists $d->{$1};
+            return $POSTMATCH;
+        }
+        elsif ( $str =~ /^(\w+)${WS}*:/i ) {        # branch, go down a level
+            $d->{$1} = {} unless exists $d->{$1};
+            $str = _gMem( $POSTMATCH, $level + 1, $dtop, $d->{$1} );
+        }
+        elsif ( $str =~ /^(\w+\??)${WS}+/i ) {      # leaf with params
+            $d->{$1} = {} unless exists $d->{$1};
+            $str = $POSTMATCH;
+            $str = _scpi_value( $str, $d->{$1} );
+        }
+        else {
+            croak("parse error on '$str'");
+        }
     }
     return $str;
 }
-    
 
-
-sub _scpi_value($$)
-{
+sub _scpi_value($$) {
     my $str = shift;
-    my $d = shift;
+    my $d   = shift;
 
     $d->{_VALUE} = '';
     my $lastsp = 0;
-    while ($str !~ /^${WS}*$/) {
-	$str =~ s/^${WS}*//;
+    while ( $str !~ /^${WS}*$/ ) {
+        $str =~ s/^${WS}*//;
 
-	if ($str =~ /^;/) {
-	    $d->{_VALUE} =~ s/\s*$// if $lastsp;
-	    
-	    return $str;
-	} elsif ($str =~ /^\#([1-9])/) {  # counted arbitrary
-	    my $nnd = $1;
-	    my $nd = substr($str,2,$nnd);
-	    $d->{_VALUE} .= substr($str,0,$nd+2+$nnd);
-	    $str = substr($str,$nd+2+$nnd);   
-	    $lastsp = 0;
-	} elsif ($str =~ /^\#0/) { #uncounted arbitrary
-	    $d->{_VALUE} .= $str;
-	    $str = '';
-	    return $str;
-	} elsif ($str =~ /^(\"(?:([^\"]+|\"\")*)\")${WS}*/) { # double q string
-	    $d->{_VALUE} .= $1.' ';
-	    $str = $POSTMATCH;
-	    $lastsp = 1;
-	} elsif ($str =~ /^(\'(?:([^\']+|\'\')*)\')${WS}*/) { # single q string
-	    $d->{_VALUE} .= $1.' ';
-	    $str = $POSTMATCH;
-	    $lastsp = 1;
-	} elsif ($str =~ /^([\w\-\+\.\%\!\#\~\=\*]+)${WS}*/i) { #words, numbers
-	    $d->{_VALUE} .= $1.' ';
-	    $str = $POSTMATCH;
-	    $lastsp = 1;
-	} else {
-	    croak("parse error, parameter not matched  with '$str'");
-	}
-	if ($str =~ /^${WS}*,/) { #parameter separator
-	    $str = $POSTMATCH;
-	    $d->{_VALUE} =~ s/${WS}*$// if $lastsp;
-	    $d->{_VALUE} .= ',';
-	    $lastsp = 0;
-	}
+        if ( $str =~ /^;/ ) {
+            $d->{_VALUE} =~ s/\s*$// if $lastsp;
+
+            return $str;
+        }
+        elsif ( $str =~ /^\#([1-9])/ ) {    # counted arbitrary
+            my $nnd = $1;
+            my $nd = substr( $str, 2, $nnd );
+            $d->{_VALUE} .= substr( $str, 0, $nd + 2 + $nnd );
+            $str = substr( $str, $nd + 2 + $nnd );
+            $lastsp = 0;
+        }
+        elsif ( $str =~ /^\#0/ ) {          #uncounted arbitrary
+            $d->{_VALUE} .= $str;
+            $str = '';
+            return $str;
+        }
+        elsif ( $str =~ /^(\"(?:([^\"]+|\"\")*)\")${WS}*/ ) {  # double q string
+            $d->{_VALUE} .= $1 . ' ';
+            $str    = $POSTMATCH;
+            $lastsp = 1;
+        }
+        elsif ( $str =~ /^(\'(?:([^\']+|\'\')*)\')${WS}*/ ) {  # single q string
+            $d->{_VALUE} .= $1 . ' ';
+            $str    = $POSTMATCH;
+            $lastsp = 1;
+        }
+        elsif ( $str =~ /^([\w\-\+\.\%\!\#\~\=\*]+)${WS}*/i ) {  #words, numbers
+            $d->{_VALUE} .= $1 . ' ';
+            $str    = $POSTMATCH;
+            $lastsp = 1;
+        }
+        else {
+            croak("parse error, parameter not matched  with '$str'");
+        }
+        if ( $str =~ /^${WS}*,/ ) {    #parameter separator
+            $str = $POSTMATCH;
+            $d->{_VALUE} =~ s/${WS}*$// if $lastsp;
+            $d->{_VALUE} .= ',';
+            $lastsp = 0;
+        }
     }
     $d->{_VALUE} =~ s/\s*$// if $lastsp;
     return $str;
 }
-
 
 =head2  arrayref = scpi_parse_sequence(string[,arrayref])
 
@@ -378,136 +383,148 @@ appended as new entries.
 
 =cut
 
-sub   scpi_parse_sequence($;$)
-{    
+sub scpi_parse_sequence($;$) {
     my $str = shift;
-    my $d = shift;
+    my $d   = shift;
     $d = [] unless defined($d);
 
     $str =~ s/^${WS}+//;
-    $str = ':'.$str unless $str =~ /^[\*:]/;
-    $str = $str.';' unless $str =~ /;$/;        #  :string; form
-	
+    $str = ':' . $str unless $str =~ /^[\*:]/;
+    $str = $str . ';' unless $str =~ /;$/;       #  :string; form
+
     my (@cur) = ();
     my $level = 0;
-    
+
     while (1) {
-	$str =~ s/^${WS}+//;
-	if ($str =~ /^;/) {
-	    $str =~ s/^;${WS}*//;
-	    my $ttop = {};
-	    my $t = $ttop;
-	    
+        $str =~ s/^${WS}+//;
+        if ( $str =~ /^;/ ) {
+            $str =~ s/^;${WS}*//;
+            my $ttop = {};
+            my $t    = $ttop;
 
-	    for (my $j=0; $j <= $#cur; $j++) {
-		my $k = $cur[$j];
-		if ($k eq '_VALUE') {
-		    $t->{$k} = $cur[$j+1];
-		    last;
-		} else {
-		    $t->{$k} = undef;
-		    $t->{$k} = {} if $j < $#cur;
-		    $t = $t->{$k};
-		}
-	    }
-	    push(@{$d},$ttop);
-	}
-	
-	last if $str eq '';
+            for ( my $j = 0 ; $j <= $#cur ; $j++ ) {
+                my $k = $cur[$j];
+                if ( $k eq '_VALUE' ) {
+                    $t->{$k} = $cur[ $j + 1 ];
+                    last;
+                }
+                else {
+                    $t->{$k} = undef;
+                    $t->{$k} = {} if $j < $#cur;
+                    $t       = $t->{$k};
+                }
+            }
+            push( @{$d}, $ttop );
+        }
 
-#	print "lev=$level str='$str'\n";
-	if ($level == 0) {
-	    # starting from prev command
-	    if ($str =~ /^\w/i) {  # prev  A:b  or A:b:_VALUE:v
-		pop(@cur);
-		my $v = pop(@cur);
-		if (defined($v) && $v eq '_VALUE') {
-		    pop(@cur);
-		} else {
-		    push(@cur,$v) if defined($v);
-		}
-		$level = 1;
-	    
-	    } else {		
-		if ($str =~ /^:/) {
-		    $str =~ s/^:${WS}*//;
-		}
-		@cur = ();
-		if ($str =~ /^(\*\w+\??)${WS}*;/i) {
-		    # common, no arg
-		    push(@cur,$1);
-		    $str = ';'.$POSTMATCH;
-		    
-		} elsif ($str =~ /^(\*\w+\??)${WS}+/i) {
-		    # common, arguments
-		    push(@cur,$1);
-		    my $tmp = {};
-		    $str = _scpi_value($POSTMATCH,$tmp);
-		    push(@cur,'_VALUE');
-		    push(@cur,$tmp->{_VALUE});
-		    
-		} elsif ($str =~ /^(\w+)${WS}*:/i) {
-		    # start of tree, more coming
-		    push(@cur,$1);
-		    $str = $POSTMATCH;
-		    $level=1;
-		    
-	       } elsif ($str =~ /^(\w+\??)${WS}*;/i) {
-		    # tree end
-		    push(@cur,"$1$2");
-		    $str = ';'.$POSTMATCH;
-		    
-		} elsif ($str =~ /^(\w+\??)${WS}*/i) {
-		    # tree end, args
-		    push(@cur, $1);
-		    my $tmp = {};
-		    $str = _scpi_value($POSTMATCH,$tmp);
-		    push(@cur,'_VALUE');
-		    push(@cur,$tmp->{_VALUE});
-		   
-		} else {
-		    croak("parse error str='$str'");
-		}
-	    }
-	    
-	}
- 
-	if ($level > 0) {  # level > 0
-	    if ($str =~ /^[\*:]/) {
-		croak("common|root at level > 0");
-	    }
-	    if ($str =~ /^(\w+)${WS}*:/i) {  #down another level
-		push(@cur,$1);
-		$str = $POSTMATCH;
-#		$level++;
-		
-	    } elsif ($str =~ /^(\w+\??)${WS}*;/i) { # end tree
-		push(@cur,$1);
-		$str = ';'.$POSTMATCH;
-		$level = 0;
-		
-	    } elsif ($str =~ /^(\w+\??)${WS}+/i) { #arguments
-	 
-		push(@cur,$1);
-		my $tmp = {};
-		$str = _scpi_value($POSTMATCH,$tmp);
-		push(@cur,'_VALUE');
-		push(@cur,$tmp->{_VALUE});
-		$level = 0;
-	       
-	    } else {
-		croak("parse error str='$str'");
-	    }
-	}
+        last if $str eq '';
+
+        #	print "lev=$level str='$str'\n";
+        if ( $level == 0 ) {
+
+            # starting from prev command
+            if ( $str =~ /^\w/i ) {    # prev  A:b  or A:b:_VALUE:v
+                pop(@cur);
+                my $v = pop(@cur);
+                if ( defined($v) && $v eq '_VALUE' ) {
+                    pop(@cur);
+                }
+                else {
+                    push( @cur, $v ) if defined($v);
+                }
+                $level = 1;
+
+            }
+            else {
+                if ( $str =~ /^:/ ) {
+                    $str =~ s/^:${WS}*//;
+                }
+                @cur = ();
+                if ( $str =~ /^(\*\w+\??)${WS}*;/i ) {
+
+                    # common, no arg
+                    push( @cur, $1 );
+                    $str = ';' . $POSTMATCH;
+
+                }
+                elsif ( $str =~ /^(\*\w+\??)${WS}+/i ) {
+
+                    # common, arguments
+                    push( @cur, $1 );
+                    my $tmp = {};
+                    $str = _scpi_value( $POSTMATCH, $tmp );
+                    push( @cur, '_VALUE' );
+                    push( @cur, $tmp->{_VALUE} );
+
+                }
+                elsif ( $str =~ /^(\w+)${WS}*:/i ) {
+
+                    # start of tree, more coming
+                    push( @cur, $1 );
+                    $str   = $POSTMATCH;
+                    $level = 1;
+
+                }
+                elsif ( $str =~ /^(\w+\??)${WS}*;/i ) {
+
+                    # tree end
+                    push( @cur, "$1$2" );
+                    $str = ';' . $POSTMATCH;
+
+                }
+                elsif ( $str =~ /^(\w+\??)${WS}*/i ) {
+
+                    # tree end, args
+                    push( @cur, $1 );
+                    my $tmp = {};
+                    $str = _scpi_value( $POSTMATCH, $tmp );
+                    push( @cur, '_VALUE' );
+                    push( @cur, $tmp->{_VALUE} );
+
+                }
+                else {
+                    croak("parse error str='$str'");
+                }
+            }
+
+        }
+
+        if ( $level > 0 ) {    # level > 0
+            if ( $str =~ /^[\*:]/ ) {
+                croak("common|root at level > 0");
+            }
+            if ( $str =~ /^(\w+)${WS}*:/i ) {    #down another level
+                push( @cur, $1 );
+                $str = $POSTMATCH;
+
+                #		$level++;
+
+            }
+            elsif ( $str =~ /^(\w+\??)${WS}*;/i ) {    # end tree
+                push( @cur, $1 );
+                $str   = ';' . $POSTMATCH;
+                $level = 0;
+
+            }
+            elsif ( $str =~ /^(\w+\??)${WS}+/i ) {     #arguments
+
+                push( @cur, $1 );
+                my $tmp = {};
+                $str = _scpi_value( $POSTMATCH, $tmp );
+                push( @cur, '_VALUE' );
+                push( @cur, $tmp->{_VALUE} );
+                $level = 0;
+
+            }
+            else {
+                croak("parse error str='$str'");
+            }
+        }
 
     }
 
-
-    
     return $d;
 }
-
-
 
 =head2 $canonhash = scpi_canon($hash[,$overridehash])
 
@@ -524,65 +541,65 @@ where the normal shortening rules don't work.
 
 sub scpi_canon($;$$);
 
-sub scpi_canon($;$$)
-{
-    my $h = shift;
+sub scpi_canon($;$$) {
+    my $h        = shift;
     my $override = shift;
-    my $top  = shift;
+    my $top      = shift;
     $override = {} unless defined $override;
-    $top = 1 unless defined $top;
+    $top      = 1  unless defined $top;
     my $n = {};
     my $s;
-    
-    foreach my $k (keys(%{$h})) {
-	
-	if ($k eq '_VALUE') {
-	    $n->{$k} = $h->{$k};
-	} else {
-	    if ($top) {
-		if ($k =~ /^(\*\w+\??)/i) { #common
-		    $n->{uc($1)} = undef;
-		    if (defined($h->{$k})) {
-			croak("common command with subcommand");
-		    }
-		    next;
-		}
-	    }
 
-	    
+    foreach my $k ( keys( %{$h} ) ) {
 
-	    if ($k =~ /^([a-z]\w*[a-z_])${WS}*(\d*)(\??)/i) {
-		my $m = $1;
-		my $num = $2;
-		$num = '' unless defined $num;
-		my $q = $3;
-		$q = '' unless defined $q;
-		
-		my $ov = 0;
-		foreach my $ko (keys(%{$override})) {
-		    if (uc($ko) eq uc($m)) {
-			$m = $ko;
-			$m =~ s/[a-z]\w*$//;  # remove trailing lowercase
-			$s = "$m$num$q";
-			$n->{$s} = scpi_canon($h->{$k},$override->{$ko},0);
-			$ov = 1;
-			last;
-		    }
-		}
-		next if $ov;
-		
-		$s = uc(scpi_shortform($m)).$num.$q;
-		$n->{$s} = scpi_canon($h->{$k},{},0); # no override lower too
-	    } else {
-		croak("parse error, mnemonic '$k'");
-	    }
-	    
-	}
-	
+        if ( $k eq '_VALUE' ) {
+            $n->{$k} = $h->{$k};
+        }
+        else {
+            if ($top) {
+                if ( $k =~ /^(\*\w+\??)/i ) {    #common
+                    $n->{ uc($1) } = undef;
+                    if ( defined( $h->{$k} ) ) {
+                        croak("common command with subcommand");
+                    }
+                    next;
+                }
+            }
+
+            if ( $k =~ /^([a-z]\w*[a-z_])${WS}*(\d*)(\??)/i ) {
+                my $m   = $1;
+                my $num = $2;
+                $num = '' unless defined $num;
+                my $q = $3;
+                $q = '' unless defined $q;
+
+                my $ov = 0;
+                foreach my $ko ( keys( %{$override} ) ) {
+                    if ( uc($ko) eq uc($m) ) {
+                        $m = $ko;
+                        $m =~ s/[a-z]\w*$//;    # remove trailing lowercase
+                        $s = "$m$num$q";
+                        $n->{$s} = scpi_canon( $h->{$k}, $override->{$ko}, 0 );
+                        $ov = 1;
+                        last;
+                    }
+                }
+                next if $ov;
+
+                $s = uc( scpi_shortform($m) ) . $num . $q;
+                $n->{$s} =
+                  scpi_canon( $h->{$k}, {}, 0 );    # no override lower too
+            }
+            else {
+                croak("parse error, mnemonic '$k'");
+            }
+
+        }
+
     }
     return $n;
 }
-    
+
 =head2 $flat = scpi_flat($thing[,$override])
 
 convert the tree structure  to a 'flat'
@@ -594,59 +611,57 @@ if $thing = array ref -> flat is an array ref to flat hashes
 
 =cut
 
-sub scpi_flat($;$)
-{
-    my $h = shift;
+sub scpi_flat($;$) {
+    my $h  = shift;
     my $ov = shift;
 
-    if (ref($h) eq 'HASH') {
-	my $f = {};
-	my $c = scpi_canon($h,$ov);
-	_scpi_fnode('',$f,$c);
-	return $f;
-    } elsif (ref($h) eq 'ARRAY') {
-	my $fa = [];
-	foreach my $hx (@{$h}) {
-	    my $f = {};
-	    my $c = scpi_canon($hx,$ov);
-	    _scpi_fnode('',$f,$c);
-	    push(@{$fa},$f);
-	}
-	return $fa;
-    } else {
-	croak("wrong type passed to scpi_flat:".ref($h));
+    if ( ref($h) eq 'HASH' ) {
+        my $f = {};
+        my $c = scpi_canon( $h, $ov );
+        _scpi_fnode( '', $f, $c );
+        return $f;
     }
-    
+    elsif ( ref($h) eq 'ARRAY' ) {
+        my $fa = [];
+        foreach my $hx ( @{$h} ) {
+            my $f = {};
+            my $c = scpi_canon( $hx, $ov );
+            _scpi_fnode( '', $f, $c );
+            push( @{$fa}, $f );
+        }
+        return $fa;
+    }
+    else {
+        croak( "wrong type passed to scpi_flat:" . ref($h) );
+    }
+
 }
 
 sub _scpi_fnode($$$);
-		
-sub _scpi_fnode($$$)
-{
-    my $fk = shift;
-    my $f = shift;
-    my $h = shift;
 
+sub _scpi_fnode($$$) {
+    my $fk = shift;
+    my $f  = shift;
+    my $h  = shift;
 
     my (@keys);
-    if (ref($h) eq '') {
-	$fk =~ s/\:_VALUE$//;
-	$f->{$fk} = $h;
-	return;
-    } else {
-	@keys = keys(%{$h});
-	if (@keys) {
-	    $fk .= ':' if $fk ne '';
-	    foreach my $k (@keys) {
-		_scpi_fnode("$fk$k",$f,$h->{$k});
-	    }
-	} else {
-	    $f->{$fk} = undef;
-	}
+    if ( ref($h) eq '' ) {
+        $fk =~ s/\:_VALUE$//;
+        $f->{$fk} = $h;
+        return;
+    }
+    else {
+        @keys = keys( %{$h} );
+        if (@keys) {
+            $fk .= ':' if $fk ne '';
+            foreach my $k (@keys) {
+                _scpi_fnode( "$fk$k", $f, $h->{$k} );
+            }
+        }
+        else {
+            $f->{$fk} = undef;
+        }
     }
 }
-
-
-
 
 1;

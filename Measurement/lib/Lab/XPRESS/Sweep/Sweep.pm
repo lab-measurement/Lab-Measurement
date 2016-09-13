@@ -1399,7 +1399,6 @@ sub AUTOLOAD {
 
 with 'Lab::XPRESS::Sweep::LogBlock';
 
-
 # sub timestamp {
 
 # my $self = shift;

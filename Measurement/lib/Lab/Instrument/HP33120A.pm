@@ -19,63 +19,63 @@ our $VERSION = '3.512';
 
 our @ISA = ("Lab::Instrument");
 
-our %fields =  (
-    supported_connections => [ 'GPIB'],
+our %fields = (
+    supported_connections => ['GPIB'],
 
     #default settings for connections
 
     connection_settings => {
-	gpib_board => 0,
-	gpib_address => undef,
+        gpib_board   => 0,
+        gpib_address => undef,
     },
 
     device_settings => {},
 
     scpi_override => {},
-    
+
     device_cache => {
-	id => undef,
-	shape => undef,
-	frequency => undef,
-	amplitude => undef,
-	offset => undef,
-	duty_cycle => undef,
-	load => undef,
-	sync => undef,
-	vunit => undef,
+        id         => undef,
+        shape      => undef,
+        frequency  => undef,
+        amplitude  => undef,
+        offset     => undef,
+        duty_cycle => undef,
+        load       => undef,
+        sync       => undef,
+        vunit      => undef,
 
-	user_waveform => undef,
-	trigger_source => undef,
-	trigger_slope => undef,
-	display => undef,
-	am_depth => undef,
-	am_shape  => undef,
-	am_frequency => undef,
-	am_source => undef,
+        user_waveform  => undef,
+        trigger_source => undef,
+        trigger_slope  => undef,
+        display        => undef,
+        am_depth       => undef,
+        am_shape       => undef,
+        am_frequency   => undef,
+        am_source      => undef,
 
-	fm_deviation => undef,
-	fm_shape => undef,
-	fm_frequency => undef,
+        fm_deviation => undef,
+        fm_shape     => undef,
+        fm_frequency => undef,
 
-	burst_cycles => undef,
-	burst_phase => undef,
-	burst_rate => undef,
-	burst_source => undef,
+        burst_cycles => undef,
+        burst_phase  => undef,
+        burst_rate   => undef,
+        burst_source => undef,
 
-	fsk_frequency => undef,
-	fsk_rate => undef,
-	fsk_source => undef,
-	
-	sweep_start_frequency => undef,
-	sweep_stop_frequency  => undef,
-	sweep_spacing => undef,
-	sweep_time => undef,
-		
-	modulation => undef,
+        fsk_frequency => undef,
+        fsk_rate      => undef,
+        fsk_source    => undef,
+
+        sweep_start_frequency => undef,
+        sweep_stop_frequency  => undef,
+        sweep_spacing         => undef,
+        sweep_time            => undef,
+
+        modulation => undef,
     },
 
     waveforms => {
-	user => [],
+        user => [],
     },
 );
 
@@ -108,8 +108,7 @@ $g = new Lab::Instrument::HP33120A->(%options);
 
 =cut
 
-sub new
-{
+sub new {
     my $proto = shift;
     my $class = ref($proto) || $proto;
     my $self  = $class->SUPER::new(@_);
@@ -118,20 +117,18 @@ sub new
     return $self;
 }
 
+sub _device_init {
 
-sub _device_init 
-{
     # when NI-GPIB-USB-HS initially plugged in, first write
     # fails with timeout, so try a 'write nothing significant', let it
     # fail, after that it should be okay
 
     my $self = shift;
-    try { $self->write(
-	      command => ' ',
-	      );
-    } catch { 1; };
+    try {
+        $self->write( command => ' ', );
+    }
+    catch { 1; };
 
-    
 }
 
 =head2 get_id
@@ -141,9 +138,8 @@ $id = $g->get_id();
 reads the *IDN? string from device
 
 =cut
-    
-sub get_id
-{
+
+sub get_id {
     my $self = shift;
     return $self->query('*IDN?');
 }
@@ -157,25 +153,22 @@ return a hash with status bits
 
 =cut
 
-sub get_status
-{
+sub get_status {
     my $self = shift;
-    my $stb = $self->query("*STB?");
-    my $esr = $self->query("*ESR?");
+    my $stb  = $self->query("*STB?");
+    my $esr  = $self->query("*ESR?");
 
     my (%status);
-    $status{'DATA'} = ($stb & 0x10) == 0 ? 0 : 1;
-    $status{'ERROR'} = ($esr & 0x3C) == 0 ? 0 : 1;
-    $status{'QERR'} = ($esr & 0x04) == 0 ? 0:1;
-    $status{'DERR'} = ($esr & 0x08) == 0 ? 0:1;
-    $status{'EERR'} = ($esr & 0x10) == 0 ? 0:1;
-    $status{'CERR'} = ($esr & 0x20) == 0 ? 0:1;
-    $status{'PON'}  = ($esr & 0x80) == 0 ? 0:1;
-    $status{'OPC'}  = ($esr & 0x01) == 0 ? 0:1;
+    $status{'DATA'}  = ( $stb & 0x10 ) == 0 ? 0 : 1;
+    $status{'ERROR'} = ( $esr & 0x3C ) == 0 ? 0 : 1;
+    $status{'QERR'}  = ( $esr & 0x04 ) == 0 ? 0 : 1;
+    $status{'DERR'}  = ( $esr & 0x08 ) == 0 ? 0 : 1;
+    $status{'EERR'}  = ( $esr & 0x10 ) == 0 ? 0 : 1;
+    $status{'CERR'}  = ( $esr & 0x20 ) == 0 ? 0 : 1;
+    $status{'PON'}   = ( $esr & 0x80 ) == 0 ? 0 : 1;
+    $status{'OPC'}   = ( $esr & 0x01 ) == 0 ? 0 : 1;
     return %status;
 }
-
-
 
 =head2 get_error
 
@@ -186,16 +179,15 @@ Fetch the first error in the error queue.  Returns
 
 =cut
 
-sub get_error
-{
+sub get_error {
     my $self = shift;
-    my $err = $self->query("SYST:ERR?");
-    if ($err =~ /^\s*\+?0+\s*,/) {
-	return (0,'');  # no error
+    my $err  = $self->query("SYST:ERR?");
+    if ( $err =~ /^\s*\+?0+\s*,/ ) {
+        return ( 0, '' );    # no error
     }
 
-    my ($code,$msg) = split(/,/,$err);
-    return ($code,$msg);
+    my ( $code, $msg ) = split( /,/, $err );
+    return ( $code, $msg );
 }
 
 =head2 reset
@@ -207,65 +199,63 @@ reset the function generator (*RST, *CLS)
 =cut
 
 our $rst_cache = {
-	shape => 'SIN',
-	frequency => 1000,
-	amplitude => 0.1,
-	offset => 0,
-	load => 50,
-	sync => 1,
-	vunit => 'VPP',
+    shape     => 'SIN',
+    frequency => 1000,
+    amplitude => 0.1,
+    offset    => 0,
+    load      => 50,
+    sync      => 1,
+    vunit     => 'VPP',
 
-	trigger_source => 'IMM',
-	display => 1,
-	am_depth => 100,
-	am_shape  => 'SIN',
-	am_frequency => 100,
-	am_source => 'INT',
+    trigger_source => 'IMM',
+    display        => 1,
+    am_depth       => 100,
+    am_shape       => 'SIN',
+    am_frequency   => 100,
+    am_source      => 'INT',
 
-	fm_deviation => 100,
-	fm_shape => 'SIN',
-	fm_frequency => 10,
+    fm_deviation => 100,
+    fm_shape     => 'SIN',
+    fm_frequency => 10,
 
-	burst_cycles => 1,
-	burst_phase => 0,
-	burst_rate => 100,
-	burst_source => 'INT',
+    burst_cycles => 1,
+    burst_phase  => 0,
+    burst_rate   => 100,
+    burst_source => 'INT',
 
-	fsk_frequency => 100,
-	fsk_rate => 10,
-	fsk_source => 'INT',
-	
-	sweep_start_frequency => 100,
-	sweep_stop_frequency  => 1000,
-	sweep_spacing => 'LIN',
-	sweep_time => 1,
-		
-	modulation => 'NONE',
+    fsk_frequency => 100,
+    fsk_rate      => 10,
+    fsk_source    => 'INT',
+
+    sweep_start_frequency => 100,
+    sweep_stop_frequency  => 1000,
+    sweep_spacing         => 'LIN',
+    sweep_time            => 1,
+
+    modulation => 'NONE',
 };
 
-sub reset
-{
+sub reset {
     my $self = shift;
 
-    my $mod = $self->get_modulation({read_mode => 'cache'});
-    
+    my $mod = $self->get_modulation( { read_mode => 'cache' } );
+
     $self->write('*RST');
     $self->write('*CLS');
     $self->wait_complete();
 
     # set cache to *RST values
 
-    foreach my $k (keys(%{$rst_cache})) {
-	$self->{device_cache}->{$k} = $rst_cache->{$k};
+    foreach my $k ( keys( %{$rst_cache} ) ) {
+        $self->{device_cache}->{$k} = $rst_cache->{$k};
     }
 
-    if ($mod =~ /^SWE/i) {
-	$self->{device_cache}->{sweep_start_frequency} = 0.01;
-	$self->{device_cache}->{sweep_stop_frequency} = 15000000;
+    if ( $mod =~ /^SWE/i ) {
+        $self->{device_cache}->{sweep_start_frequency} = 0.01;
+        $self->{device_cache}->{sweep_stop_frequency}  = 15000000;
     }
-    
+
 }
-
 
 =head2 get_trigger_slope
 
@@ -274,8 +264,7 @@ $slope = $g->get_trigger_slope();
 fetch the trigger slope, returns POS or NEG
 =cut
 
-sub get_trigger_slope
-{
+sub get_trigger_slope {
     my $self = shift;
     return $self->query('TRIG:SLOP?');
 }
@@ -289,23 +278,23 @@ $slope = 'POS','+' or 'NEG','-'
 
 =cut
 
-sub set_trigger_slope
-{
+sub set_trigger_slope {
     my $self = shift;
-    my $in = shift;
+    my $in   = shift;
     my $sl;
-    if ($in =~ /^\s*[p+]/i) {
-	$sl = 'POS';
-    } elsif ($in =~ /^\s*[n\-]/i) {
-	$sl = 'NEG';
-    } else {
-	Lab::Exception::CorruptParameter->throw(
-	    "Invalid trigger slope '$in' [POS|NEG]\n");
-	return;
+    if ( $in =~ /^\s*[p+]/i ) {
+        $sl = 'POS';
+    }
+    elsif ( $in =~ /^\s*[n\-]/i ) {
+        $sl = 'NEG';
+    }
+    else {
+        Lab::Exception::CorruptParameter->throw(
+            "Invalid trigger slope '$in' [POS|NEG]\n");
+        return;
     }
     $self->write("TRIG:SLOP $sl");
 }
-
 
 =head2 wait_complete
 
@@ -317,12 +306,10 @@ TODO: probably need to revise, with a *OPC? checking loop
 
 =cut
 
-sub wait_complete
-{
+sub wait_complete {
     my $self = shift;
     $self->write('*WAI');
 }
-
 
 =head2 trigger
 
@@ -333,14 +320,11 @@ until trigger complete.
 
 =cut
 
-
-sub trigger 
-{
+sub trigger {
     my $self = shift;
     $self->write('*TRG');
     $self->wait_complete();
 }
-
 
 =head2 get_trigger_source
 
@@ -353,9 +337,7 @@ EXT => external trigger input.
 
 =cut
 
-
-sub get_trigger_source
-{
+sub get_trigger_source {
     my $self = shift;
     return $self->query("TRIG:SOUR?");
 }
@@ -370,26 +352,26 @@ values are 'IMM' (immediate, i.e., internal free-running self-trigger)
 
 =cut
 
-sub set_trigger_source
-{
+sub set_trigger_source {
     my $self = shift;
-    my $in = shift;
+    my $in   = shift;
     my $s;
-    if ($in =~ /^\s*IMM/i) {
-	$s = 'IMM';
-    } elsif ($in =~ /^\s*BUS/i) {
-	$s = 'BUS';
-    } elsif ($in =~ /^\s*EXT/i) {
-	$s = 'EXT';
-    } else {
-	Lab::Exception::CorruptParameter->throw(
-	    "Set_trigger_source invalid input '$in' [IMM|BUS|EXT]\n");
-	return;
+    if ( $in =~ /^\s*IMM/i ) {
+        $s = 'IMM';
+    }
+    elsif ( $in =~ /^\s*BUS/i ) {
+        $s = 'BUS';
+    }
+    elsif ( $in =~ /^\s*EXT/i ) {
+        $s = 'EXT';
+    }
+    else {
+        Lab::Exception::CorruptParameter->throw(
+            "Set_trigger_source invalid input '$in' [IMM|BUS|EXT]\n");
+        return;
     }
     $self->write("TRIG:SOUR $s");
 }
-
-
 
 =head2 set_display
 
@@ -399,19 +381,20 @@ turn the display off (BOOL = false) or on (BOOL = true)
 
 =cut
 
-sub set_display
-{
+sub set_display {
     my $self = shift;
-    my $in = shift;
+    my $in   = shift;
     my $state;
-    if ($in =~ /^\s*(1|on|t|y)/i) {
-	$state = 1;
-    } elsif ($in =~ /^\s*(0|of|f|n)/i) {
-	$state = 0;
-    } else {
-	Lab::Exception::CorruptParameter->throw(
-	    "Invalid display setting '$in' [ON|OFF]\n");
-	return;
+    if ( $in =~ /^\s*(1|on|t|y)/i ) {
+        $state = 1;
+    }
+    elsif ( $in =~ /^\s*(0|of|f|n)/i ) {
+        $state = 0;
+    }
+    else {
+        Lab::Exception::CorruptParameter->throw(
+            "Invalid display setting '$in' [ON|OFF]\n");
+        return;
     }
     $self->write("DISP $state");
 }
@@ -424,9 +407,7 @@ get the state of the display (boolean)
 
 =cut
 
-
-sub get_display
-{
+sub get_display {
     my $self = shift;
     return $self->query("DISP?");
 }
@@ -442,10 +423,9 @@ char, so not counted in length
 
 =cut
 
-sub set_text
-{
+sub set_text {
     my $self = shift;
-    my $in = shift;
+    my $in   = shift;
     $in =~ s/\'/''/g;
     $self->write("DISP:TEXT '$in'");
 }
@@ -458,11 +438,10 @@ fetches the text shown on the display with set_text
 
 =cut
 
-sub get_text
-{
+sub get_text {
     my $self = shift;
-    my $txt = $self->query('DISP:TEXT?');
-    my (@s) = _parseStrings($txt);
+    my $txt  = $self->query('DISP:TEXT?');
+    my (@s)  = _parseStrings($txt);
     return $s[0];
 }
 
@@ -474,8 +453,7 @@ remove the text from the display
 
 =cut
 
-sub clear_text
-{
+sub clear_text {
     my $self = shift;
     $self->write("DISP:TEXT:CLE");
 }
@@ -488,8 +466,7 @@ Cause the function generator to 'beep'
 
 =cut
 
-sub beep
-{
+sub beep {
     my $self = shift;
     $self->write("SYST:BEEP");
 }
@@ -502,9 +479,8 @@ fetch boolean value indicating whether 'sync' output on the
 front panel is enabled
 
 =cut
-	
-sub get_sync
-{
+
+sub get_sync {
     my $self = shift;
     return $self->query("OUTP:SYNC?");
 }
@@ -518,20 +494,20 @@ a boolean (1/true/yes/on) => sync output enabled
 
 =cut
 
-
-sub set_sync
-{
+sub set_sync {
     my $self = shift;
-    my $in = shift;
+    my $in   = shift;
     my $sync;
-    if ($in =~ /^\s*(1|on|t|y)/i) {
-	$sync = 1;
-    } elsif ($in =~ /^\s*(0|of|f|n)/i) {
-	$sync = 0;
-    } else {
-	Lab::Exception::CorruptParameter->throw(
-	    "Sync '$in' not recognized as boolean \n");
-	return;
+    if ( $in =~ /^\s*(1|on|t|y)/i ) {
+        $sync = 1;
+    }
+    elsif ( $in =~ /^\s*(0|of|f|n)/i ) {
+        $sync = 0;
+    }
+    else {
+        Lab::Exception::CorruptParameter->throw(
+            "Sync '$in' not recognized as boolean \n");
+        return;
     }
     $self->write("OUTP:SYNC $sync");
 }
@@ -548,15 +524,14 @@ setup' when the generator is turned off.
  
 =cut
 
-sub save_setup
-{
+sub save_setup {
     my $self = shift;
-    my $n = shift;
-    $n = int($n+0.5);
-    if ($n < 0 || $n > 3) {
-	Lab::Exception::CorruptParameter->throw(
-	    "Save '$n' out of range (0..3)\n");
-	return;
+    my $n    = shift;
+    $n = int( $n + 0.5 );
+    if ( $n < 0 || $n > 3 ) {
+        Lab::Exception::CorruptParameter->throw(
+            "Save '$n' out of range (0..3)\n");
+        return;
     }
     $self->write("*SAV $n");
 }
@@ -570,17 +545,17 @@ non-volatile memory. $n=0..3
 
 =cut
 
-sub recall_setup
-{
+sub recall_setup {
     my $self = shift;
-    my $n = shift;
-    $n = int($n+0.5);
-    if ($n < 0 || $n > 3) {
-	Lab::Exception::CorruptParameter->throw(
-	    "Recall '$n' out of range (0..3)\n");
-	return;
+    my $n    = shift;
+    $n = int( $n + 0.5 );
+    if ( $n < 0 || $n > 3 ) {
+        Lab::Exception::CorruptParameter->throw(
+            "Recall '$n' out of range (0..3)\n");
+        return;
     }
     $self->write("*RCL $n");
+
     # invalidate the cache
     $self->reset_device_cache();
 }
@@ -594,21 +569,18 @@ $n=0..3
 
 =cut
 
-
-sub delete_setup
-{
+sub delete_setup {
     my $self = shift;
-    my $n = shift;
-    $n = int($n+0.5);
-    
-    if ($n < 0 || $n > 3) {
-	Lab::Exception::CorruptParameter->throw(
-	    "Delete '$n' out of range (0..3)\n");
-	return;
+    my $n    = shift;
+    $n = int( $n + 0.5 );
+
+    if ( $n < 0 || $n > 3 ) {
+        Lab::Exception::CorruptParameter->throw(
+            "Delete '$n' out of range (0..3)\n");
+        return;
     }
     $self->write("MEM:STAT:DEL $n");
 }
-
 
 =head2 get_load
 
@@ -621,11 +593,9 @@ of amplitudes.
 
 =cut
 
-
-sub get_load
-{
+sub get_load {
     my $self = shift;
-    my $z = $self->query("OUTP:LOAD?");
+    my $z    = $self->query("OUTP:LOAD?");
     $z = 'INF' if $z > 1000;
     return $z;
 }
@@ -640,40 +610,42 @@ correctly calculated.  Possible values are '50', 'INF', 'MIN', 'MAX'
 (can also use '50ohm', '0.05kohm', etc)
 
 =cut
-    
-sub set_load
-{
+
+sub set_load {
     my $self = shift;
-    my $in = shift;
+    my $in   = shift;
     my $z;
 
-    if ($in =~ /^\s*inf/i) {
-	$z = 'INF';
-    } else {
-	my $zin = _parseNRf($in,'ohm');
-	if ($zin =~ /^ERR/i) {
-	    Lab::Exception::CorruptParameter->throw(
-		"Parse error in load impedance '$in': $zin\n");
-	    return;
-	}
+    if ( $in =~ /^\s*inf/i ) {
+        $z = 'INF';
+    }
+    else {
+        my $zin = _parseNRf( $in, 'ohm' );
+        if ( $zin =~ /^ERR/i ) {
+            Lab::Exception::CorruptParameter->throw(
+                "Parse error in load impedance '$in': $zin\n");
+            return;
+        }
 
-	if ($zin ne 'MIN' && $zin ne 'MAX') {
-	    if ($zin > 40 && $zin < 60) {
-		$z = 50;
-	    } elsif ($zin > 50e3) {
-		$z = 'INF';
-	    } else {
-		Lab::Exception::CorruptParameter->throw(
-		    "Invalid load impedance '$in' [MIN,MAX,INF,50]\n");
-		return;
-	    }
-	} else {
-	    $z = $zin;
-	}
+        if ( $zin ne 'MIN' && $zin ne 'MAX' ) {
+            if ( $zin > 40 && $zin < 60 ) {
+                $z = 50;
+            }
+            elsif ( $zin > 50e3 ) {
+                $z = 'INF';
+            }
+            else {
+                Lab::Exception::CorruptParameter->throw(
+                    "Invalid load impedance '$in' [MIN,MAX,INF,50]\n");
+                return;
+            }
+        }
+        else {
+            $z = $zin;
+        }
     }
     $self->write("OUTP:LOAD $z");
 }
-
 
 =head1 Basic waveform output routines
 
@@ -685,8 +657,7 @@ returns the waveform shape = SIN|SQU|TRI|RAMP|USER
 
 =cut
 
-sub get_shape
-{
+sub get_shape {
     my $self = shift;
     return $self->query('FUNC:SHAP?');
 }
@@ -700,30 +671,35 @@ USER = arbitary waveform, separately selected
 
 =cut
 
-
-sub set_shape
-{
-    my $self = shift;
+sub set_shape {
+    my $self  = shift;
     my $shape = shift;
     my $s;
-    if ($shape =~ /^SIN/i) {
-	$s = 'SIN';
-    } elsif ($shape =~ /^SQU/i) {
-	$s = 'SQU';
-    } elsif ($shape =~ /^TRI/i) {
-	$s = 'TRI';
-    } elsif ($shape =~ /^RAMP/i) {
-	$s = 'RAMP';
-    } elsif ($shape =~ /^NOIS/i) {
-	$s = 'NOIS';
-    } elsif ($shape =~ /^DC/i) {
-	$s = 'DC';
-    } elsif ($shape =~ /^USER/i) {
-	$s = 'USER';
-    } else {
-	Lab::Exception::CorruptParameter->throw(
-	    "Invalid function shape '$shape'\n");
-	return;
+    if ( $shape =~ /^SIN/i ) {
+        $s = 'SIN';
+    }
+    elsif ( $shape =~ /^SQU/i ) {
+        $s = 'SQU';
+    }
+    elsif ( $shape =~ /^TRI/i ) {
+        $s = 'TRI';
+    }
+    elsif ( $shape =~ /^RAMP/i ) {
+        $s = 'RAMP';
+    }
+    elsif ( $shape =~ /^NOIS/i ) {
+        $s = 'NOIS';
+    }
+    elsif ( $shape =~ /^DC/i ) {
+        $s = 'DC';
+    }
+    elsif ( $shape =~ /^USER/i ) {
+        $s = 'USER';
+    }
+    else {
+        Lab::Exception::CorruptParameter->throw(
+            "Invalid function shape '$shape'\n");
+        return;
     }
     $self->write("FUNC:SHAP $s");
 }
@@ -735,9 +711,8 @@ $f = $g->get_frequency();
 reads the function generator frequency, in Hz
 
 =cut
-    
-sub get_frequency
-{
+
+sub get_frequency {
     my $self = shift;
     return $self->query("FREQ?");
 }
@@ -769,31 +744,29 @@ The upper frequency limit depends on the function shape
 
 =cut
 
-
-sub set_frequency
-{
+sub set_frequency {
     my $self = shift;
     my $freq = shift;
-    my $f = _parseNRf($freq,'hz');
+    my $f    = _parseNRf( $freq, 'hz' );
 
-    if ($f =~ /^ERR/i) {
-	Lab::Exception::CorruptParameter->throw(
-	    "Error parsing frequency '$freq': $f\n");
-	return;
+    if ( $f =~ /^ERR/i ) {
+        Lab::Exception::CorruptParameter->throw(
+            "Error parsing frequency '$freq': $f\n");
+        return;
     }
 
-    if ($f ne 'MIN' && $f ne 'MAX') {
-	$f = sprintf('%.11e',$f);
-	my $shape = $self->get_shape({read_mode => 'cache'});
-	my $maxf = 15e6;
-	$maxf = 100e3 if $shape eq 'RAMP' || $shape eq 'TRI';
-	$maxf = 5e6 if $shape eq 'USER';  # fix, points dependent
-	
-	if ($f < 100e-6 || $f > $maxf) {
-	    Lab::Exception::CorruptParameter->throw(
-		"Frequency '$freq' out of valid range 100uHz..${maxf}Hz\n");
-	    return;
-	}
+    if ( $f ne 'MIN' && $f ne 'MAX' ) {
+        $f = sprintf( '%.11e', $f );
+        my $shape = $self->get_shape( { read_mode => 'cache' } );
+        my $maxf = 15e6;
+        $maxf = 100e3 if $shape eq 'RAMP' || $shape eq 'TRI';
+        $maxf = 5e6 if $shape eq 'USER';    # fix, points dependent
+
+        if ( $f < 100e-6 || $f > $maxf ) {
+            Lab::Exception::CorruptParameter->throw(
+                "Frequency '$freq' out of valid range 100uHz..${maxf}Hz\n");
+            return;
+        }
     }
     $self->write("FREQ $f");
 }
@@ -807,9 +780,7 @@ square waves
 
 =cut
 
-
-sub get_duty_cycle 
-{
+sub get_duty_cycle {
     my $self = shift;
     return $self->query('PULS:DCYC?');
 }
@@ -824,32 +795,31 @@ and percent = 40..60 for higher frequencies
 
 =cut
 
-sub set_duty_cycle
-{
-    my $self = shift;    
-    my $in = shift;
-    my $dc = _parseNRf($in,'');
+sub set_duty_cycle {
+    my $self = shift;
+    my $in   = shift;
+    my $dc   = _parseNRf( $in, '' );
 
-    if ($dc =~ /^ERR/i) {
-	Lab::Exception::CorruptParameter->throw(
-	    "Error parsing duty-cycle '$in': $dc\n");
-	return;
+    if ( $dc =~ /^ERR/i ) {
+        Lab::Exception::CorruptParameter->throw(
+            "Error parsing duty-cycle '$in': $dc\n");
+        return;
     }
-    if ($dc ne 'MIN' && $dc ne 'MAX') {
-	my $f = $self->get_frequency({read_mode => 'cache'});
-   
-	$dc = int($dc+0.5);
-	my $dcmin = 20;
-	my $dcmax = 80;
-	if ($f > 5e6) {
-	    $dcmin = 40;
-	    $dcmax = 60;
-	}
-	if ($dc < $dcmin || $dc > $dcmax) {
-	    Lab::Exception::CorruptParameter->throw(
-		"Duty-cycle '$in' outside valid range ($dcmin..$dcmax)\n");
-	    return;
-	}
+    if ( $dc ne 'MIN' && $dc ne 'MAX' ) {
+        my $f = $self->get_frequency( { read_mode => 'cache' } );
+
+        $dc = int( $dc + 0.5 );
+        my $dcmin = 20;
+        my $dcmax = 80;
+        if ( $f > 5e6 ) {
+            $dcmin = 40;
+            $dcmax = 60;
+        }
+        if ( $dc < $dcmin || $dc > $dcmax ) {
+            Lab::Exception::CorruptParameter->throw(
+                "Duty-cycle '$in' outside valid range ($dcmin..$dcmax)\n");
+            return;
+        }
     }
     $self->write("PULS:DCYC $dc");
 }
@@ -864,8 +834,7 @@ peak-to-peak (Vpp), but depending on the  units setting
 
 =cut
 
-sub get_amplitude
-{
+sub get_amplitude {
     my $self = shift;
     return $self->query("volt?");
 }
@@ -903,74 +872,75 @@ check for errors after setting.
 
 =cut
 
-
-sub set_amplitude
-{
+sub set_amplitude {
     my $self = shift;
-    my $in = shift; 
-    my $v = _parseNRf($in,'v','db','dbv');
+    my $in   = shift;
+    my $v    = _parseNRf( $in, 'v', 'db', 'dbv' );
 
-    if ($v =~ /^ERR/i) {
-	Lab::Exception::CorruptParameter->throw(
-	    "Error parsing amplitude '$in': $v\n");
-	return;
+    if ( $v =~ /^ERR/i ) {
+        Lab::Exception::CorruptParameter->throw(
+            "Error parsing amplitude '$in': $v\n");
+        return;
     }
-    if ($v ne 'MIN' && $v ne 'MAX') {
-	$v = sprintf('%.4e',$v);
-	my $z = $self->get_load({read_mode => 'cache'});
-	my $u = $self->get_vunit({read_mode => 'cache'});
-	my $s = $self->get_shape({read_mode => 'cache'});
-	my $voff = $self->get_offset({read_mode => 'cache'});
-	
-	my $vpp;
-	if ($u eq 'VPP') {
-	    $vpp = $v;
-	} elsif ($u eq 'VRMS' || $u eq 'DBM') {
-	    my $vrms = $v;
-	    $vrms = 0.224 * (10**($v/20));
-	    if ($s eq 'SQU' ) {
-		$vpp = 2*$vrms;
-	    } elsif ($s eq 'DC') {
-		$vpp = $vrms;
-	    } elsif ($s eq 'SIN') {
-		$vpp = 2*sqrt(2)*$vrms;
-	    } elsif ($s eq 'TRI' || $s eq 'RAMP' ) {
-		$vpp = 2*sqrt(3)*$vrms;
-	    } elsif ($s eq 'NOIS') {
-		$vpp = 6.6*$vrms;  # a guess, 99.9% of the time
-	    } elsif ($s eq 'USER') {
-		$vpp = 2*sqrt(2)*$vrms; # a guess, fix later
-	    }
-	}
-	
-	    
-	
-	my $vmin = 100e-3;
-	my $vmax = 20;
-	$vmin = 50e-3 if $z == 50;
-	$vmax = 10 if $z == 50;
+    if ( $v ne 'MIN' && $v ne 'MAX' ) {
+        $v = sprintf( '%.4e', $v );
+        my $z = $self->get_load( { read_mode => 'cache' } );
+        my $u = $self->get_vunit( { read_mode => 'cache' } );
+        my $s = $self->get_shape( { read_mode => 'cache' } );
+        my $voff = $self->get_offset( { read_mode => 'cache' } );
 
-	if ($vpp < $vmin || $vpp > $vmax) {
-	    Lab::Exception::CorruptParameter->throw(
-		"Amplitude '$in' out of range ($vmin..$vmax)\n");
-	    return;
-	}
+        my $vpp;
+        if ( $u eq 'VPP' ) {
+            $vpp = $v;
+        }
+        elsif ( $u eq 'VRMS' || $u eq 'DBM' ) {
+            my $vrms = $v;
+            $vrms = 0.224 * ( 10**( $v / 20 ) );
+            if ( $s eq 'SQU' ) {
+                $vpp = 2 * $vrms;
+            }
+            elsif ( $s eq 'DC' ) {
+                $vpp = $vrms;
+            }
+            elsif ( $s eq 'SIN' ) {
+                $vpp = 2 * sqrt(2) * $vrms;
+            }
+            elsif ( $s eq 'TRI' || $s eq 'RAMP' ) {
+                $vpp = 2 * sqrt(3) * $vrms;
+            }
+            elsif ( $s eq 'NOIS' ) {
+                $vpp = 6.6 * $vrms;    # a guess, 99.9% of the time
+            }
+            elsif ( $s eq 'USER' ) {
+                $vpp = 2 * sqrt(2) * $vrms;    # a guess, fix later
+            }
+        }
 
-	if (abs($voff) > 2*$vpp) {
-	    Lab::Exception::CorruptParameter->throw(
-		"Amplitude '$in' gives |Voff| > 2Vpp\n");
-	    return;
-	}
-	if (abs($voff) + 0.5*$vpp > $vmax) {
-	    Lab::Exception::CorruptParameter->throw(
-		"Amplitude '$in' gives |Voff|+Vpp/2 > Vmax\n");
-	    return;
-	}
-	
+        my $vmin = 100e-3;
+        my $vmax = 20;
+        $vmin = 50e-3 if $z == 50;
+        $vmax = 10    if $z == 50;
+
+        if ( $vpp < $vmin || $vpp > $vmax ) {
+            Lab::Exception::CorruptParameter->throw(
+                "Amplitude '$in' out of range ($vmin..$vmax)\n");
+            return;
+        }
+
+        if ( abs($voff) > 2 * $vpp ) {
+            Lab::Exception::CorruptParameter->throw(
+                "Amplitude '$in' gives |Voff| > 2Vpp\n");
+            return;
+        }
+        if ( abs($voff) + 0.5 * $vpp > $vmax ) {
+            Lab::Exception::CorruptParameter->throw(
+                "Amplitude '$in' gives |Voff|+Vpp/2 > Vmax\n");
+            return;
+        }
+
     }
     $self->write("VOLT $v");
 }
-
 
 =head2 get_vunit
 
@@ -981,9 +951,7 @@ Possible values are VPP, VRMS, DBM, or DEF (default, VPP)
 
 =cut
 
-
-sub get_vunit
-{
+sub get_vunit {
     my $self = shift;
     return $self->query("VOLT:UNIT?");
 }
@@ -997,25 +965,28 @@ values are Vpp, Vrms, dBm or DEF (default = Vpp)
 
 =cut
 
-sub set_vunit
-{
+sub set_vunit {
     my $self = shift;
-    my $in = shift;
+    my $in   = shift;
     $in =~ s/^\s+//;
     $in =~ s/\s+$//;
     my $u;
-    if ($in =~ /pp/i) {
-	$u = 'VPP';
-    } elsif ($in =~ /rms/i) {
-	$u = 'VRMS';
-    } elsif ($in =~ /dbm/i) {
-	$u = 'DBM';
-    } elsif ($in =~ /def/i) {
-	$u = 'DEF';
-    } else {
-	Lab::Exception::CorruptParameter->throw(
-	    "Invalid vunit '$in' [VPP,VRMS,DBM,DEFAULT]\n");
-	return;
+    if ( $in =~ /pp/i ) {
+        $u = 'VPP';
+    }
+    elsif ( $in =~ /rms/i ) {
+        $u = 'VRMS';
+    }
+    elsif ( $in =~ /dbm/i ) {
+        $u = 'DBM';
+    }
+    elsif ( $in =~ /def/i ) {
+        $u = 'DEF';
+    }
+    else {
+        Lab::Exception::CorruptParameter->throw(
+            "Invalid vunit '$in' [VPP,VRMS,DBM,DEFAULT]\n");
+        return;
     }
     $self->write("VOLT:UNIT $u");
 }
@@ -1028,9 +999,7 @@ Get the DC offset in volts (not affected by vunit)
 
 =cut
 
-
-sub get_offset
-{
+sub get_offset {
     my $self = shift;
     return $self->query("VOLT:OFFS?");
 }
@@ -1048,47 +1017,44 @@ output load, amplitude, and function shape.
 
 =cut
 
-
-sub set_offset
-{
+sub set_offset {
     my $self = shift;
-    my $in = shift;
+    my $in   = shift;
 
-    my $voff = _parseNRf($in,'v');
-    if ($voff =~ /^ERR/) {
-	Lab::Exception::CorruptParameter->throw(
-	    "Error parsing '$in': $voff\n");
-	return;
+    my $voff = _parseNRf( $in, 'v' );
+    if ( $voff =~ /^ERR/ ) {
+        Lab::Exception::CorruptParameter->throw("Error parsing '$in': $voff\n");
+        return;
     }
-    if ($voff ne 'MIN' && $voff ne 'MAX') {
-	$voff = sprintf('%.4e',$voff);
-	my $u = $self->get_vunit({read_mode => 'cache'});
-	my $vpp;
-	if ($u ne 'VPP') {
-	    $self->set_vunit('VPP');
-	    $vpp = $self->get_amplitude({read_mode => 'device'});
-	    $self->set_vunit($u);
-	    $self->get_amplitude({read_mode => 'device'}); # reset cache
-	} else {
-	    $vpp = $self->get_amplitude({read_mode => 'cache'});
-	}
-	my $z = $self->get_load({read_mode => 'cache'});
-	my $vmax = 20;
-	$vmax = 10 if $z == 50;
-	if (abs($voff) > 2*$vpp) {
-	    Lab::Exception::CorruptParameter->throw(
-		"|Voffset| > 2*Vpp: $voff\n");
-	    return;
-	}
-	if (abs($voff)+0.5*$vpp > $vmax) {
-	    Lab::Exception::CorruptParameter->throw(
-		"|Voffset|+Vpp/2 > $vmax: Voffset = $voff\n");
-	    return;
-	}
+    if ( $voff ne 'MIN' && $voff ne 'MAX' ) {
+        $voff = sprintf( '%.4e', $voff );
+        my $u = $self->get_vunit( { read_mode => 'cache' } );
+        my $vpp;
+        if ( $u ne 'VPP' ) {
+            $self->set_vunit('VPP');
+            $vpp = $self->get_amplitude( { read_mode => 'device' } );
+            $self->set_vunit($u);
+            $self->get_amplitude( { read_mode => 'device' } );    # reset cache
+        }
+        else {
+            $vpp = $self->get_amplitude( { read_mode => 'cache' } );
+        }
+        my $z = $self->get_load( { read_mode => 'cache' } );
+        my $vmax = 20;
+        $vmax = 10 if $z == 50;
+        if ( abs($voff) > 2 * $vpp ) {
+            Lab::Exception::CorruptParameter->throw(
+                "|Voffset| > 2*Vpp: $voff\n");
+            return;
+        }
+        if ( abs($voff) + 0.5 * $vpp > $vmax ) {
+            Lab::Exception::CorruptParameter->throw(
+                "|Voffset|+Vpp/2 > $vmax: Voffset = $voff\n");
+            return;
+        }
     }
     $self->write("VOLT:OFFS $voff");
 }
-
 
 # use a "special" cache for this, because we need to store
 # an array of names
@@ -1109,23 +1075,22 @@ SINC, NEG_RAMP, EXP_RISE, EXP_FALL, and CARDIAC.
 
 =cut
 
-sub get_waveform_list
-{
+sub get_waveform_list {
     my $self = shift;
-    
-    my ($read_mode) = $self->_check_args(\@_,['read_mode']);
+
+    my ($read_mode) = $self->_check_args( \@_, ['read_mode'] );
     $read_mode = 'device' unless defined($read_mode);
-    
-    if ($read_mode eq 'cache' && 
-	$#{$self->{waveform}->{user}} >= 0 && 
-	!$self->{config}->{no_cache}) {
-	return (@{$self->{waveform}->{user}});
+
+    if (   $read_mode eq 'cache'
+        && $#{ $self->{waveform}->{user} } >= 0
+        && !$self->{config}->{no_cache} )
+    {
+        return ( @{ $self->{waveform}->{user} } );
     }
 
-   
     my $wfs = $self->query("DATA:CAT?");
     $self->{waveform}->{user} = [ _parseStrings($wfs) ];
-    return (@{$self->{waveform}->{user}});
+    return ( @{ $self->{waveform}->{user} } );
 }
 
 =head2 get_user_waveform
@@ -1136,8 +1101,7 @@ Fetches the name of the currently selected 'user' waveform.
 
 =cut
 
-sub get_user_waveform
-{
+sub get_user_waveform {
     my $self = shift;
     return $self->query("FUNC:USER?");
 }
@@ -1152,31 +1116,29 @@ set of nonvolatile waveforms, or 'VOLATILE'.
 
 =cut
 
-
-sub set_user_waveform
-{
+sub set_user_waveform {
     my $self = shift;
-    my $in = shift;
+    my $in   = shift;
     $in =~ s/^\s+//;
     $in =~ s/\s+$//;
 
-    if ($in !~ /^[a-z]\w+$/i || length($in) > 8) {
-	Lab::Exception::CorruptParameter->throw(
-	    "Invalid arbitrary waveform name '$in' (a-z,0-9,_; len < 9) \n");
-	return;
-    }	
+    if ( $in !~ /^[a-z]\w+$/i || length($in) > 8 ) {
+        Lab::Exception::CorruptParameter->throw(
+            "Invalid arbitrary waveform name '$in' (a-z,0-9,_; len < 9) \n");
+        return;
+    }
     $in = uc($in);
-    
-    my (@w) = $self->get_waveform_list({read_mode => 'cache'});
+
+    my (@w) = $self->get_waveform_list( { read_mode => 'cache' } );
 
     my $got = 0;
-    foreach my $wf (@w,'VOLATILE') {
-	$got++ if $wf eq $in;
+    foreach my $wf ( @w, 'VOLATILE' ) {
+        $got++ if $wf eq $in;
     }
-    if ($got == 0) {
-	Lab::Exception::CorruptParameter->throw(
-	    "Unknown USER waveform '$in' for set_user_waveform\n");
-	return;
+    if ( $got == 0 ) {
+        Lab::Exception::CorruptParameter->throw(
+            "Unknown USER waveform '$in' for set_user_waveform\n");
+        return;
     }
     $self->write("FUNC:USER $in");
 }
@@ -1210,82 +1172,83 @@ within the range -1..+1, and otherwise assumed to be DAC values.
 
 =cut
 
-
-sub load_waveform
-{
+sub load_waveform {
     my $self = shift;
-    my $arg = shift;
+    my $arg  = shift;
     my $fwfd;
     my $dac;
 
-    if (ref($arg) eq 'HASH') {
-	if (exists($arg->{waveform}) && ref($arg->{waveform}) eq 'ARRAY') {
-	    $fwfd = $arg->{waveform};
-	} elsif (exists($arg->{dac}) && ref($arg->{dac}) eq 'ARRAY') {
-	    $dac = $arg->{dac};
-	}
-    } else {
-	if (ref($arg) eq 'ARRAY') {
-	    $fwfd = $arg;
-	} elsif (ref($arg) eq '') {
-	    $fwfd = [$arg,@_];
-	}	
+    if ( ref($arg) eq 'HASH' ) {
+        if ( exists( $arg->{waveform} ) && ref( $arg->{waveform} ) eq 'ARRAY' )
+        {
+            $fwfd = $arg->{waveform};
+        }
+        elsif ( exists( $arg->{dac} ) && ref( $arg->{dac} ) eq 'ARRAY' ) {
+            $dac = $arg->{dac};
+        }
+    }
+    else {
+        if ( ref($arg) eq 'ARRAY' ) {
+            $fwfd = $arg;
+        }
+        elsif ( ref($arg) eq '' ) {
+            $fwfd = [ $arg, @_ ];
+        }
 
-
-	if (defined($fwfd)) {
-	    my ($minv,$maxv);
-	    foreach my $v (@{$fwfd}) {
-		$minv = $v unless defined($minv) && $minv < $v;
-		$maxv = $v unless defined($maxv) && $maxv > $v;
-	    }
-	    if ($minv < -1 && $maxv > 1) {
-		$dac = $fwfd;
-		$fwfd = undef;	    
-	    } 	    	    
-	}
+        if ( defined($fwfd) ) {
+            my ( $minv, $maxv );
+            foreach my $v ( @{$fwfd} ) {
+                $minv = $v unless defined($minv) && $minv < $v;
+                $maxv = $v unless defined($maxv) && $maxv > $v;
+            }
+            if ( $minv < -1 && $maxv > 1 ) {
+                $dac  = $fwfd;
+                $fwfd = undef;
+            }
+        }
     }
 
-    if (!defined($fwfd) && !defined($dac)) {
-	Lab::Exception::CorruptParameter->throw(
-	    "No waveform data\n");
-	return;
+    if ( !defined($fwfd) && !defined($dac) ) {
+        Lab::Exception::CorruptParameter->throw("No waveform data\n");
+        return;
     }
-    
+
     my $npts;
     my $cmd;
-    if (defined($dac)) {
-	$cmd = 'DATA:DAC VOLATILE';   # maybe use gpib data block?
-	$npts = $#{$dac} + 1;
-	for (my $j = 0; $j < $npts; $j++) {
-	    my $d = int($dac->[$j] + 0.5);
-	    if (abs($d) > 2047) {
-		Lab::Exception::CorruptParameter->throw(
-		    "Waveform DAC data point $j ($) out of range -2047..2047  \n");
-		return;
-	    }
-	    $cmd .= ','.$d;
-	}
-	
+    if ( defined($dac) ) {
+        $cmd  = 'DATA:DAC VOLATILE';    # maybe use gpib data block?
+        $npts = $#{$dac} + 1;
+        for ( my $j = 0 ; $j < $npts ; $j++ ) {
+            my $d = int( $dac->[$j] + 0.5 );
+            if ( abs($d) > 2047 ) {
+                Lab::Exception::CorruptParameter->throw(
+"Waveform DAC data point $j ($) out of range -2047..2047  \n"
+                );
+                return;
+            }
+            $cmd .= ',' . $d;
+        }
+
     }
 
-    if (defined($fwfd)) {
-	$cmd = 'DATA VOLATILE';
-	$npts = $#{$fwfd} + 1;
-	for (my $j = 0; $j < $npts; $j++) {
-	    my $v = sprintf('%.3f',$fwfd->[$j]);
-	    if (abs($v) > 1) {
-		Lab::Exception::CorruptParameter->throw(
-		    "Waveform data point $j ($v) out of range -1..1  \n");
-		return;
-	    }
-	    $cmd .= ",".$v;
-	}
+    if ( defined($fwfd) ) {
+        $cmd  = 'DATA VOLATILE';
+        $npts = $#{$fwfd} + 1;
+        for ( my $j = 0 ; $j < $npts ; $j++ ) {
+            my $v = sprintf( '%.3f', $fwfd->[$j] );
+            if ( abs($v) > 1 ) {
+                Lab::Exception::CorruptParameter->throw(
+                    "Waveform data point $j ($v) out of range -1..1  \n");
+                return;
+            }
+            $cmd .= "," . $v;
+        }
     }
 
-    if ($npts < 8 || $npts > 16000) {
-	Lab::Exception::CorruptParameter->throw(
-	    "Number of Waveform data points $npts out of range 8..16000  \n");
-	return;
+    if ( $npts < 8 || $npts > 16000 ) {
+        Lab::Exception::CorruptParameter->throw(
+            "Number of Waveform data points $npts out of range 8..16000  \n");
+        return;
     }
     $self->write($cmd);
 }
@@ -1299,27 +1262,25 @@ waveform $name (nonvolatile stored waveform, or VOLATILE)
 
 =cut
 
-
-sub get_waveform_average
-{
+sub get_waveform_average {
     my $self = shift;
     my $name = shift;
-    if (!defined($name)) {
-	return $self->query("DATA:ATTR:AVER?");
+    if ( !defined($name) ) {
+        return $self->query("DATA:ATTR:AVER?");
     }
-    my (@w) = $self->get_waveform_list({read_mode => 'cache'});
+    my (@w) = $self->get_waveform_list( { read_mode => 'cache' } );
 
     my $got = 0;
     $name = uc($name);
     foreach my $s (@w) {
-	$got++ if uc($s) eq $name;
-	last if $got;
+        $got++ if uc($s) eq $name;
+        last   if $got;
     }
-    if (!$got) {
-	Lab::Exception::CorruptParameter->throw(
-	    "No such stored waveform '$name' \n");
-	return;
-    }	
+    if ( !$got ) {
+        Lab::Exception::CorruptParameter->throw(
+            "No such stored waveform '$name' \n");
+        return;
+    }
     return $self->query("DATA:ATTR:AVER? $name");
 }
 
@@ -1333,27 +1294,25 @@ calculates and returns the voltage 'crest factor'
 
 =cut
 
-    
-sub get_waveform_crestfactor
-{
+sub get_waveform_crestfactor {
     my $self = shift;
     my $name = shift;
-    if (!defined($name)) {
-	return $self->query("DATA:ATTR:CFAC?");
+    if ( !defined($name) ) {
+        return $self->query("DATA:ATTR:CFAC?");
     }
-    my (@w) = $self->get_waveform_list({read_mode => 'cache'});
+    my (@w) = $self->get_waveform_list( { read_mode => 'cache' } );
 
     my $got = 0;
     $name = uc($name);
     foreach my $s (@w) {
-	$got++ if uc($s) eq $name;
-	last if $got;
+        $got++ if uc($s) eq $name;
+        last   if $got;
     }
-    if (!$got) {
-	Lab::Exception::CorruptParameter->throw(
-	    "No such stored waveform '$name' \n");
-	return;
-    }	
+    if ( !$got ) {
+        Lab::Exception::CorruptParameter->throw(
+            "No such stored waveform '$name' \n");
+        return;
+    }
     return $self->query("DATA:ATTR:CFAC? $name");
 }
 
@@ -1364,26 +1323,25 @@ Returns the number of points in the waveform $name
 
 =cut
 
-sub get_waveform_points
-{
+sub get_waveform_points {
     my $self = shift;
     my $name = shift;
-    if (!defined($name)) {
-	return $self->query("DATA:ATTR:POIN?");
+    if ( !defined($name) ) {
+        return $self->query("DATA:ATTR:POIN?");
     }
-    my (@w) = $self->get_waveform_list({read_mode => 'cache'});
+    my (@w) = $self->get_waveform_list( { read_mode => 'cache' } );
 
     my $got = 0;
     $name = uc($name);
     foreach my $s (@w) {
-	$got++ if uc($s) eq $name;
-	last if $got;
+        $got++ if uc($s) eq $name;
+        last   if $got;
     }
-    if (!$got) {
-	Lab::Exception::CorruptParameter->throw(
-	    "No such stored waveform '$name' \n");
-	return;
-    }	
+    if ( !$got ) {
+        Lab::Exception::CorruptParameter->throw(
+            "No such stored waveform '$name' \n");
+        return;
+    }
     return $self->query("DATA:ATTR:POIN? $name");
 }
 
@@ -1396,27 +1354,25 @@ of waveform $name
 
 =cut
 
-
-sub get_waveform_peak2peak
-{
+sub get_waveform_peak2peak {
     my $self = shift;
     my $name = shift;
-    if (!defined($name)) {
-	return $self->query("DATA:ATTR:PTP?");
+    if ( !defined($name) ) {
+        return $self->query("DATA:ATTR:PTP?");
     }
-    my (@w) = $self->get_waveform_list({read_mode => 'cache'});
+    my (@w) = $self->get_waveform_list( { read_mode => 'cache' } );
 
     my $got = 0;
     $name = uc($name);
     foreach my $s (@w) {
-	$got++ if uc($s) eq $name;
-	last if $got;
+        $got++ if uc($s) eq $name;
+        last   if $got;
     }
-    if (!$got) {
-	Lab::Exception::CorruptParameter->throw(
-	    "No such stored waveform '$name' \n");
-	return;
-    }	
+    if ( !$got ) {
+        Lab::Exception::CorruptParameter->throw(
+            "No such stored waveform '$name' \n");
+        return;
+    }
     return $self->query("DATA:ATTR:PTP? $name");
 }
 
@@ -1437,40 +1393,44 @@ storage.
 
 =cut
 
-sub store_waveform
-{
+sub store_waveform {
     my $self = shift;
     my $name = shift;
     $name =~ s/^\s+//;
     $name =~ s/\s+$//;
-    if ($name !~ /^[a-z]\w+$/i) {
-	Lab::Exception::CorruptParameter->throw(
-	    "Invalid waveform name '$name' [a-z][a-z,0-9,_]+\n");
-	return;
+    if ( $name !~ /^[a-z]\w+$/i ) {
+        Lab::Exception::CorruptParameter->throw(
+            "Invalid waveform name '$name' [a-z][a-z,0-9,_]+\n");
+        return;
     }
-    if (length($name) > 8) {
-	Lab::Exception::CorruptParameter->throw(
-	    "Invalid waveform name '$name' length > 8\n");
-	return;
+    if ( length($name) > 8 ) {
+        Lab::Exception::CorruptParameter->throw(
+            "Invalid waveform name '$name' length > 8\n");
+        return;
     }
     $name = uc($name);
-    if ($name eq 'SINC' || $name eq 'NEG_RAMP' || $name eq 'EXP_RISE' ||
-	$name eq 'EXP_FALL' || $name eq 'CARDIAC' || $name eq 'VOLATILE') {
-	Lab::Exception::CorruptParameter->throw(
-	    "Invalid waveform name '$name' for copy\n");
-	return;
+    if (   $name eq 'SINC'
+        || $name eq 'NEG_RAMP'
+        || $name eq 'EXP_RISE'
+        || $name eq 'EXP_FALL'
+        || $name eq 'CARDIAC'
+        || $name eq 'VOLATILE' )
+    {
+        Lab::Exception::CorruptParameter->throw(
+            "Invalid waveform name '$name' for copy\n");
+        return;
     }
-	
-    my (@w) = $self->get_waveform_list({read_mode => 'cache'});
+
+    my (@w) = $self->get_waveform_list( { read_mode => 'cache' } );
     my $got = 0;
     foreach my $s (@w) {
-	$got++ if uc($s) eq $name;
-	last if $got;
+        $got++ if uc($s) eq $name;
+        last   if $got;
     }
-    if (!$got && $#w == 9) {
-	Lab::Exception::CorruptParameter->throw(
-	    "Waveform storage is full, delete something \n");
-	return;
+    if ( !$got && $#w == 9 ) {
+        Lab::Exception::CorruptParameter->throw(
+            "Waveform storage is full, delete something \n");
+        return;
     }
     $self->write("DATA:COPY $name");
 }
@@ -1484,40 +1444,42 @@ Note that the 5 'built-in' user waveforms cannot be deleted.
 
 =cut
 
-sub delete_waveform
-{
+sub delete_waveform {
     my $self = shift;
     my $name = shift;
     $name =~ s/^\s+//;
     $name =~ s/\s+$//;
-    if ($name !~ /^[a-z]\w+$/i) {
-	Lab::Exception::CorruptParameter->throw(
-	    "Invalid waveform name '$name' [a-z][a-z,0-9,_]+\n");
-	return;
+    if ( $name !~ /^[a-z]\w+$/i ) {
+        Lab::Exception::CorruptParameter->throw(
+            "Invalid waveform name '$name' [a-z][a-z,0-9,_]+\n");
+        return;
     }
-    if (length($name) > 8) {
-	Lab::Exception::CorruptParameter->throw(
-	    "Invalid waveform name '$name' length > 8\n");
-	return;
+    if ( length($name) > 8 ) {
+        Lab::Exception::CorruptParameter->throw(
+            "Invalid waveform name '$name' length > 8\n");
+        return;
     }
     $name = uc($name);
-    if ($name eq 'SINC' || $name eq 'NEG_RAMP' || $name eq 'EXP_RISE' ||
-	$name eq 'EXP_FALL' || $name eq 'CARDIAC') {
-	Lab::Exception::CorruptParameter->throw(
-	    "Built-in waveform '$name' , not deletable\n");
-	return;
+    if (   $name eq 'SINC'
+        || $name eq 'NEG_RAMP'
+        || $name eq 'EXP_RISE'
+        || $name eq 'EXP_FALL'
+        || $name eq 'CARDIAC' )
+    {
+        Lab::Exception::CorruptParameter->throw(
+            "Built-in waveform '$name' , not deletable\n");
+        return;
     }
-	
-    my (@w) = $self->get_waveform_list({read_mode => 'cache'});
+
+    my (@w) = $self->get_waveform_list( { read_mode => 'cache' } );
     my $got = 0;
-    foreach my $s (@w,'VOLATILE') {
-	$got++ if uc($s) eq $name;
-	last if $got;
+    foreach my $s ( @w, 'VOLATILE' ) {
+        $got++ if uc($s) eq $name;
+        last   if $got;
     }
-    if (!$got) {
-	Lab::Exception::CorruptParameter->throw(
-	    "No such waveform '$name'\n");
-	return;
+    if ( !$got ) {
+        Lab::Exception::CorruptParameter->throw("No such waveform '$name'\n");
+        return;
     }
     $self->write("DATA:DEL $name");
 }
@@ -1531,12 +1493,10 @@ areas (0..4) that can be used for $g->store_waveform
 
 =cut
 
-sub get_waveform_free
-{
+sub get_waveform_free {
     my $self = shift;
     return $self->query('DATA:NVOL:FREE?');
 }
-
 
 =head1 Modulation
 
@@ -1547,21 +1507,19 @@ $mod = $g->get_modulation();
 Fetch the type of modulation being used: NONE,AM,FM,BURST,FSK,SWEEP
 
 =cut
-    
-sub get_modulation
-{
-    my $self = shift;
-    my $mod = 'NONE';
 
-    $mod = 'AM' if $self->query("AM:STAT?");
-    $mod = 'FM' if $self->query("FM:STAT?");
+sub get_modulation {
+    my $self = shift;
+    my $mod  = 'NONE';
+
+    $mod = 'AM'    if $self->query("AM:STAT?");
+    $mod = 'FM'    if $self->query("FM:STAT?");
     $mod = 'BURST' if $self->query("BM:STAT?");
-    $mod = 'FSK' if $self->query("FSK:STAT?");
+    $mod = 'FSK'   if $self->query("FSK:STAT?");
     $mod = 'SWEEP' if $self->query("SWE:STAT?");
-    
+
     return $mod;
 }
-
 
 =head2 set_modulation
 
@@ -1572,48 +1530,52 @@ if $mod='' or 'off', selects NONE.
 
 =cut
 
-sub set_modulation
-{
+sub set_modulation {
     my $self = shift;
-    my $in = shift;
+    my $in   = shift;
     $in = 'NONE' unless defined($in);
     $in = 'NONE' if $in eq '';
     $in =~ s/^\s+//;
     my $m;
 
-    if ($in =~ /^NO/i || $in =~ /^OF/i) {
-	$m = 'NONE';
-    } elsif ($in =~ /^AM/i) {
-	$m = 'AM';
-    } elsif ($in =~ /^FM/i) {
-	$m = 'FM';
-    } elsif ($in =~ /^BUR/i) {
-	$m = 'BM';
-    } elsif ($in =~ /^FSK/i) {
-	$m = 'FSK';
-    } elsif ($in =~ /^SWE/i) {
-	$m = 'SWE';
-    } else {
-	Lab::Exception::CorruptParameter->throw(
-	    "Invalid modulation type '$in', should be NONE|AM|FM|BURST|FSK|SWEEP\n");
-	return;
-    }	
+    if ( $in =~ /^NO/i || $in =~ /^OF/i ) {
+        $m = 'NONE';
+    }
+    elsif ( $in =~ /^AM/i ) {
+        $m = 'AM';
+    }
+    elsif ( $in =~ /^FM/i ) {
+        $m = 'FM';
+    }
+    elsif ( $in =~ /^BUR/i ) {
+        $m = 'BM';
+    }
+    elsif ( $in =~ /^FSK/i ) {
+        $m = 'FSK';
+    }
+    elsif ( $in =~ /^SWE/i ) {
+        $m = 'SWE';
+    }
+    else {
+        Lab::Exception::CorruptParameter->throw(
+"Invalid modulation type '$in', should be NONE|AM|FM|BURST|FSK|SWEEP\n"
+        );
+        return;
+    }
 
-    my $cm = $self->get_modulation({read_mode => 'cache'});
-    $cm = 'BM' if $cm eq 'BURST';
+    my $cm = $self->get_modulation( { read_mode => 'cache' } );
+    $cm = 'BM'  if $cm eq 'BURST';
     $cm = 'SWE' if $cm eq 'SWEEP';
-    if ($m eq 'NONE') {
-	$self->write("$cm:STAT 0");
-    } else {
-	if ($cm ne 'NONE') {
-	    $self->write("$cm:STAT 0");
-	}
-	$self->write("$m:STAT 1");
+    if ( $m eq 'NONE' ) {
+        $self->write("$cm:STAT 0");
+    }
+    else {
+        if ( $cm ne 'NONE' ) {
+            $self->write("$cm:STAT 0");
+        }
+        $self->write("$m:STAT 1");
     }
 }
-
-
-
 
 =head2 set_am_depth
 
@@ -1623,23 +1585,22 @@ set AM modulation depth percent: 0..120, MIN, MAX
 
 =cut
 
-sub set_am_depth
-{
+sub set_am_depth {
     my $self = shift;
-    my $in = shift;
-    my $d = _parseNRf($in);
-    if ($d =~ /^ERR:/) {
-	Lab::Exception::CorruptParameter->throw(
-	    "Invalid AM modulation depth '$in' $d\n");
-	return;
+    my $in   = shift;
+    my $d    = _parseNRf($in);
+    if ( $d =~ /^ERR:/ ) {
+        Lab::Exception::CorruptParameter->throw(
+            "Invalid AM modulation depth '$in' $d\n");
+        return;
     }
-    if ($d ne 'MIN' && $d ne 'MAX') {
-	$d = sprintf('%.1f',$d);
-	if ($d < 0 || $d > 120) {
-	    Lab::Exception::CorruptParameter->throw(
-		"Invalid AM modulation depth '$in' [0..120|MIN|MAX]\n");
-	    return;
-	}
+    if ( $d ne 'MIN' && $d ne 'MAX' ) {
+        $d = sprintf( '%.1f', $d );
+        if ( $d < 0 || $d > 120 ) {
+            Lab::Exception::CorruptParameter->throw(
+                "Invalid AM modulation depth '$in' [0..120|MIN|MAX]\n");
+            return;
+        }
     }
     $self->write("AM:DEPT $d");
 }
@@ -1652,12 +1613,10 @@ get the AM modulation depth, in percent
 
 =cut    
 
-sub get_am_depth
-{
+sub get_am_depth {
     my $self = shift;
     return $self->query("AM:DEPT?");
 }
-
 
 =head2 get_am_shape
 
@@ -1668,8 +1627,7 @@ returns $shape = (SIN|SQU|TRI|RAMP|NOIS|USER)
 
 =cut
 
-sub get_am_shape
-{
+sub get_am_shape {
     my $self = shift;
     return $self->query("AM:INT:FUNC?");
 }
@@ -1683,29 +1641,34 @@ $shape = (SIN|SQU|TRI|RAMP|NOIS|USER)
 
 =cut
 
-sub set_am_shape
-{
+sub set_am_shape {
     my $self = shift;
-    my $in = shift;
+    my $in   = shift;
     $in =~ s/^\s+//;
     my $s;
 
-    if ($in =~ /^sin/i) {
-	$s = 'SIN';
-    } elsif ($in =~ /^squ/i) {
-	$s = 'SQU';
-    } elsif ($in =~ /^tri/i) {
-	$s = 'TRI';
-    } elsif ($in =~ /^ram/i) {
-	$s = 'RAMP';
-    } elsif ($in =~ /^noi/i) {
-	$s = 'NOIS';
-    } elsif ($in =~ /^use/i) {
-	$s = 'USER';
-    } else {
-	Lab::Exception::CorruptParameter->throw(
-	    "Invalid AM modulation shape '$in' [SIN|SQU|TRI|RAMP|NOIS|USER]\n");
-	return;
+    if ( $in =~ /^sin/i ) {
+        $s = 'SIN';
+    }
+    elsif ( $in =~ /^squ/i ) {
+        $s = 'SQU';
+    }
+    elsif ( $in =~ /^tri/i ) {
+        $s = 'TRI';
+    }
+    elsif ( $in =~ /^ram/i ) {
+        $s = 'RAMP';
+    }
+    elsif ( $in =~ /^noi/i ) {
+        $s = 'NOIS';
+    }
+    elsif ( $in =~ /^use/i ) {
+        $s = 'USER';
+    }
+    else {
+        Lab::Exception::CorruptParameter->throw(
+            "Invalid AM modulation shape '$in' [SIN|SQU|TRI|RAMP|NOIS|USER]\n");
+        return;
     }
     $self->write("AM:INT:FUNC $s");
 }
@@ -1718,10 +1681,9 @@ get the frequency of the AM modulation
 
 =cut
 
-sub get_am_frequency
-{
+sub get_am_frequency {
     my $self = shift;
-    return $self->query("AM:INT:FREQ?")
+    return $self->query("AM:INT:FREQ?");
 }
 
 =head2 set_am_frequency
@@ -1736,25 +1698,24 @@ Note that $f can be a string, with suffixes, and that
 
 =cut
 
-sub set_am_frequency
-{
+sub set_am_frequency {
     my $self = shift;
-    my $in = shift;
-    
-    my $f = _parseNRf($in,'Hz');
+    my $in   = shift;
 
-    if ($f =~ /^ERR:/) {
-	Lab::Exception::CorruptParameter->throw(
-	    "Invalid AM modulation frequency '$in' $f\n");
-	return;
+    my $f = _parseNRf( $in, 'Hz' );
+
+    if ( $f =~ /^ERR:/ ) {
+        Lab::Exception::CorruptParameter->throw(
+            "Invalid AM modulation frequency '$in' $f\n");
+        return;
     }
 
-    if ($f ne 'MIN' && $f ne 'MAX') {
-	if ($f < 10e-3 || $f > 20e3) {
-	    Lab::Exception::CorruptParameter->throw(
-		"AM modulation frequency '$in' out of range 10mHz..20kHz\n");
-	    return;
-	}
+    if ( $f ne 'MIN' && $f ne 'MAX' ) {
+        if ( $f < 10e-3 || $f > 20e3 ) {
+            Lab::Exception::CorruptParameter->throw(
+                "AM modulation frequency '$in' out of range 10mHz..20kHz\n");
+            return;
+        }
     }
     $self->write("AM:INT:FREQ $f");
 }
@@ -1767,8 +1728,7 @@ get the source of the AM modulation signal: BOTH|EXT
 
 =cut
 
-sub get_am_source
-{
+sub get_am_source {
     my $self = shift;
     return $self->query("AM:SOUR?");
 }
@@ -1783,22 +1743,24 @@ EXT = external only.   INT = translated to BOTH
 
 =cut
 
-sub set_am_source
-{
+sub set_am_source {
     my $self = shift;
-    my $in = shift;
+    my $in   = shift;
     my $s;
 
-    if ($in =~ /^\s*BOTH/i) {
-	$s = 'BOTH';
-    } elsif ($in =~ /^\s*INT/i) {
-	$s = 'BOTH';
-    } elsif ($in =~ /^\s*EXT/i) {
-	$s = 'EXT';
-    } else {
-	Lab::Exception::CorruptParameter->throw(
-	    "Invalid AM modulation source '$in' [BOTH|EXT]\n");
-	return;
+    if ( $in =~ /^\s*BOTH/i ) {
+        $s = 'BOTH';
+    }
+    elsif ( $in =~ /^\s*INT/i ) {
+        $s = 'BOTH';
+    }
+    elsif ( $in =~ /^\s*EXT/i ) {
+        $s = 'EXT';
+    }
+    else {
+        Lab::Exception::CorruptParameter->throw(
+            "Invalid AM modulation source '$in' [BOTH|EXT]\n");
+        return;
     }
     $self->write("AM:SOUR $s");
 }
@@ -1811,8 +1773,7 @@ fetch the FM modulation deviation, in Hz
 
 =cut
 
-sub get_fm_deviation
-{
+sub get_fm_deviation {
     my $self = shift;
     return $self->query("FM:DEV?");
 }
@@ -1836,28 +1797,26 @@ So: 15.1MHz for sine and square
 
 =cut
 
-sub set_fm_deviation
-{
+sub set_fm_deviation {
     my $self = shift;
-    my $in = shift;
-    my $d = _parseNRf($in,'hz');
+    my $in   = shift;
+    my $d    = _parseNRf( $in, 'hz' );
 
-    if ($d ne 'MIN' && $d ne 'MAX') {
-	my $s = $self->get_shape({read_mode => 'cache'});
-	my $f = $self->get_frequency({read_mode => 'cache'});
-	my $fmax = 15.1e6;
-	$fmax = 200e3 if $s eq 'TRI' || $s eq 'RAMP';
-	$fmax = 5.1e6 if $s eq 'USER';
+    if ( $d ne 'MIN' && $d ne 'MAX' ) {
+        my $s = $self->get_shape( { read_mode => 'cache' } );
+        my $f = $self->get_frequency( { read_mode => 'cache' } );
+        my $fmax = 15.1e6;
+        $fmax = 200e3 if $s eq 'TRI' || $s eq 'RAMP';
+        $fmax = 5.1e6 if $s eq 'USER';
 
-	if ($d < 10e-3 || $d > $f || $d+$f > $fmax) {
-	    Lab::Exception::CorruptParameter->throw(
-		"FM modulation '$in' out of range\n");
-	    return;
-	}
+        if ( $d < 10e-3 || $d > $f || $d + $f > $fmax ) {
+            Lab::Exception::CorruptParameter->throw(
+                "FM modulation '$in' out of range\n");
+            return;
+        }
     }
     $self->write("FM:DEV $d");
 }
-
 
 =head2 get_fm_shape
 
@@ -1868,8 +1827,7 @@ returns $shape = (SIN|SQU|TRI|RAMP|NOIS|USER)
 
 =cut
 
-sub get_fm_shape
-{
+sub get_fm_shape {
     my $self = shift;
     return $self->query("FM:INT:FUNC?");
 }
@@ -1885,29 +1843,34 @@ NOTE: NOISE and DC cannot be used as FM carrier
 
 =cut
 
-sub set_fm_shape
-{
+sub set_fm_shape {
     my $self = shift;
-    my $in = shift;
+    my $in   = shift;
     $in =~ s/^\s+//;
     my $s;
 
-    if ($in =~ /^sin/i) {
-	$s = 'SIN';
-    } elsif ($in =~ /^squ/i) {
-	$s = 'SQU';
-    } elsif ($in =~ /^tri/i) {
-	$s = 'TRI';
-    } elsif ($in =~ /^ram/i) {
-	$s = 'RAMP';
-    } elsif ($in =~ /^noi/i) {
-	$s = 'NOIS';
-    } elsif ($in =~ /^use/i) {
-	$s = 'USER';
-    } else {
-	Lab::Exception::CorruptParameter->throw(
-	    "Invalid FM modulation shape '$in' [SIN|SQU|TRI|RAMP|NOIS|USER]\n");
-	return;
+    if ( $in =~ /^sin/i ) {
+        $s = 'SIN';
+    }
+    elsif ( $in =~ /^squ/i ) {
+        $s = 'SQU';
+    }
+    elsif ( $in =~ /^tri/i ) {
+        $s = 'TRI';
+    }
+    elsif ( $in =~ /^ram/i ) {
+        $s = 'RAMP';
+    }
+    elsif ( $in =~ /^noi/i ) {
+        $s = 'NOIS';
+    }
+    elsif ( $in =~ /^use/i ) {
+        $s = 'USER';
+    }
+    else {
+        Lab::Exception::CorruptParameter->throw(
+            "Invalid FM modulation shape '$in' [SIN|SQU|TRI|RAMP|NOIS|USER]\n");
+        return;
     }
     $self->write("FM:INT:FUNC $s");
 }
@@ -1920,10 +1883,9 @@ get the frequency of the FM modulation, in Hz
 
 =cut
 
-sub get_fm_frequency
-{
+sub get_fm_frequency {
     my $self = shift;
-    return $self->query("FM:INT:FREQ?")
+    return $self->query("FM:INT:FREQ?");
 }
 
 =head2 set_fm_frequency
@@ -1938,25 +1900,24 @@ but XmHz -> X megahz   Xm-> X millihz
 
 =cut
 
-sub set_fm_frequency
-{
+sub set_fm_frequency {
     my $self = shift;
-    my $in = shift;
-    
-    my $f = _parseNRf($in,'Hz');
+    my $in   = shift;
 
-    if ($f =~ /^ERR:/) {
-	Lab::Exception::CorruptParameter->throw(
-	    "Invalid FM modulation frequency '$in' $f\n");
-	return;
+    my $f = _parseNRf( $in, 'Hz' );
+
+    if ( $f =~ /^ERR:/ ) {
+        Lab::Exception::CorruptParameter->throw(
+            "Invalid FM modulation frequency '$in' $f\n");
+        return;
     }
 
-    if ($f ne 'MIN' && $f ne 'MAX') {
-	if ($f < 10e-3 || $f > 10e3) {
-	    Lab::Exception::CorruptParameter->throw(
-		"FM modulation frequency '$in' out of range 10mHz..10kHz\n");
-	    return;
-	}
+    if ( $f ne 'MIN' && $f ne 'MAX' ) {
+        if ( $f < 10e-3 || $f > 10e3 ) {
+            Lab::Exception::CorruptParameter->throw(
+                "FM modulation frequency '$in' out of range 10mHz..10kHz\n");
+            return;
+        }
     }
     $self->write("FM:INT:FREQ $f");
 }
@@ -1969,8 +1930,7 @@ Fetch the number of cycles in burst modulation
 
 =cut
 
-sub get_burst_cycles
-{
+sub get_burst_cycles {
     my $self = shift;
     return $self->query("BM:NCYC?");
 }
@@ -1994,51 +1954,58 @@ For carrier frequency <= 100Hz, cycles <= 500sec * carrier freq
 
 =cut
 
-sub set_burst_cycles
-{
+sub set_burst_cycles {
     my $self = shift;
-    my $in = shift;
+    my $in   = shift;
     my $ncyc;
-    if ($in =~ /^\s*min/i) {
-	$ncyc = 'MIN';
-    } elsif ($in =~ /\s*max/i) {
-	$ncyc = 'MAX';
-    } elsif ($in =~ /\s*inf/i) {
-	$ncyc = 'INF';
-    } elsif ($in =~ /\s*(\d+)/) {
-	$ncyc = $1;
-
-	my $f = $self->get_frequency({read_mode=>'cache'});
-	my $s = $self->get_shape({read_mode=>'cache'});
-
-	my $nmax = 50000;
-	$nmax = int(500*$f) if $f <= 100;
-	my $nmin = 1;
-	if ($s eq 'SIN' || $s eq 'SQU' || $s eq 'USER') {
-	    if ($f <= 1e6) {
-		$nmin = 1;
-	    } elsif ($f <= 2e6) {
-		$nmin = 2;
-	    } elsif ($f <= 3e6) {
-		$nmin = 3;
-	    } elsif ($f <= 4e6) {
-		$nmin = 4;
-	    } elsif ($f < 5e6) {
-		$nmin = 5;
-	    }
-	}
-
-	if ($ncyc < $nmin || $ncyc > $nmax) {
-	    Lab::Exception::CorruptParameter->throw(
-		"Burst count '$in' out of range\n");
-	    return;
-	}
-    } else {
-	Lab::Exception::CorruptParameter->throw(
-	    "Error parsing burst count '$in'\n");
-	return;
+    if ( $in =~ /^\s*min/i ) {
+        $ncyc = 'MIN';
     }
-    
+    elsif ( $in =~ /\s*max/i ) {
+        $ncyc = 'MAX';
+    }
+    elsif ( $in =~ /\s*inf/i ) {
+        $ncyc = 'INF';
+    }
+    elsif ( $in =~ /\s*(\d+)/ ) {
+        $ncyc = $1;
+
+        my $f = $self->get_frequency( { read_mode => 'cache' } );
+        my $s = $self->get_shape( { read_mode => 'cache' } );
+
+        my $nmax = 50000;
+        $nmax = int( 500 * $f ) if $f <= 100;
+        my $nmin = 1;
+        if ( $s eq 'SIN' || $s eq 'SQU' || $s eq 'USER' ) {
+            if ( $f <= 1e6 ) {
+                $nmin = 1;
+            }
+            elsif ( $f <= 2e6 ) {
+                $nmin = 2;
+            }
+            elsif ( $f <= 3e6 ) {
+                $nmin = 3;
+            }
+            elsif ( $f <= 4e6 ) {
+                $nmin = 4;
+            }
+            elsif ( $f < 5e6 ) {
+                $nmin = 5;
+            }
+        }
+
+        if ( $ncyc < $nmin || $ncyc > $nmax ) {
+            Lab::Exception::CorruptParameter->throw(
+                "Burst count '$in' out of range\n");
+            return;
+        }
+    }
+    else {
+        Lab::Exception::CorruptParameter->throw(
+            "Error parsing burst count '$in'\n");
+        return;
+    }
+
     $self->write("BM:NCYC $ncyc");
 }
 
@@ -2051,8 +2018,7 @@ bursts are triggered.
 
 =cut
 
-sub get_burst_phase
-{
+sub get_burst_phase {
     my $self = shift;
     return $self->query("BM:PHAS?");
 }
@@ -2068,30 +2034,29 @@ phase examples: 30.1, '20deg', 'min', 'max'
 
 =cut
 
-sub set_burst_phase
-{
+sub set_burst_phase {
     my $self = shift;
-    my $in = shift;
-    my $ph = _parseNRf($in,'deg');
+    my $in   = shift;
+    my $ph   = _parseNRf( $in, 'deg' );
 
-    if ($ph =~ /^ERR:/) {
-	Lab::Exception::CorruptParameter->throw(
-	    "Error parsing burst phase '$in' $ph\n");
-	return;
+    if ( $ph =~ /^ERR:/ ) {
+        Lab::Exception::CorruptParameter->throw(
+            "Error parsing burst phase '$in' $ph\n");
+        return;
     }
 
-    if ($ph ne 'MIN' && $ph ne 'MAX') {
-	$ph = sprintf("%.3f",$ph);
-	if ($ph < -360 || $ph > 360) {
-	    Lab::Exception::CorruptParameter->throw(
-		"Burst phase '$in' out of range -360..360\n");
-	    return;
-	}
+    if ( $ph ne 'MIN' && $ph ne 'MAX' ) {
+        $ph = sprintf( "%.3f", $ph );
+        if ( $ph < -360 || $ph > 360 ) {
+            Lab::Exception::CorruptParameter->throw(
+                "Burst phase '$in' out of range -360..360\n");
+            return;
+        }
     }
 
     $self->write("BM:PHAS $ph");
 }
- 
+
 =head2 get_burst_rate
 
 $rate = $g->get_burst_rate();
@@ -2100,8 +2065,7 @@ Fetch the burst rate (in Hz) for internally triggered bursts
 
 =cut   
 
-sub get_burst_rate
-{
+sub get_burst_rate {
     my $self = shift;
     return $self->query("BM:INT:RATE?");
 }
@@ -2121,25 +2085,23 @@ continually retrigger.
 
 =cut
 
-sub set_burst_rate
-{
+sub set_burst_rate {
     my $self = shift;
-    my $in = shift;
+    my $in   = shift;
 
-    my $f = _parseNRf($in,'Hz');
+    my $f = _parseNRf( $in, 'Hz' );
 
-    if ($f =~ /^ERR:/) {
-	Lab::Exception::CorruptParameter->throw(
-	    "Burst rate parse '$in' $f\n");
-	return;
+    if ( $f =~ /^ERR:/ ) {
+        Lab::Exception::CorruptParameter->throw("Burst rate parse '$in' $f\n");
+        return;
     }
 
-    if ($f ne 'MIN' && $f ne 'MAX') {
-	if ($f < 10e-3 || $f > 50e3) {
-	    Lab::Exception::CorruptParameter->throw(
-		"Burst rate '$in' out of range 10mHz..50kHz\n");
-	    return;
-	}
+    if ( $f ne 'MIN' && $f ne 'MAX' ) {
+        if ( $f < 10e-3 || $f > 50e3 ) {
+            Lab::Exception::CorruptParameter->throw(
+                "Burst rate '$in' out of range 10mHz..50kHz\n");
+            return;
+        }
     }
     $self->write("BM:INT:RATE $f");
 }
@@ -2152,8 +2114,7 @@ Fetch the source of the burst modulation: INT or EXT
 
 =cut
 
-sub get_burst_source
-{
+sub get_burst_source {
     my $self = shift;
     return $self->query("BM:SOUR?");
 }
@@ -2167,23 +2128,23 @@ If source is external, burst cycle count, rate, are ignored.
 
 =cut
 
-sub set_burst_source
-{
+sub set_burst_source {
     my $self = shift;
-    my $in = shift;
+    my $in   = shift;
     my $s;
-    if ($in =~ /^\s*IN/i) {
-	$s = 'INT';
-    } elsif ($in =~ /^\s*EX/i) {
-	$s = 'EXT';
-    } else {
-	Lab::Exception::CorruptParameter->throw(
-	    "Invalid burst source '$in', should be INT or EXT\n");
-	return;
+    if ( $in =~ /^\s*IN/i ) {
+        $s = 'INT';
+    }
+    elsif ( $in =~ /^\s*EX/i ) {
+        $s = 'EXT';
+    }
+    else {
+        Lab::Exception::CorruptParameter->throw(
+            "Invalid burst source '$in', should be INT or EXT\n");
+        return;
     }
     $self->write("BM:SOUR $s");
 }
-
 
 =head2 get_fsk_frequency
 
@@ -2193,10 +2154,9 @@ get the FSK 'hop' frequency, in Hz
 
 =cut
 
-sub get_fsk_frequency
-{
+sub get_fsk_frequency {
     my $self = shift;
-    return $self->query("FSK:FREQ?")
+    return $self->query("FSK:FREQ?");
 }
 
 =head2 set_fsk_frequency
@@ -2212,32 +2172,30 @@ but XmHz -> X megahz   Xm-> X millihz
 
 =cut
 
-sub set_fsk_frequency
-{
+sub set_fsk_frequency {
     my $self = shift;
-    my $in = shift;
-    
-    my $f = _parseNRf($in,'Hz');
+    my $in   = shift;
 
-    if ($f =~ /^ERR:/) {
-	Lab::Exception::CorruptParameter->throw(
-	    "Invalid FSK hop frequency '$in' $f\n");
-	return;
+    my $f = _parseNRf( $in, 'Hz' );
+
+    if ( $f =~ /^ERR:/ ) {
+        Lab::Exception::CorruptParameter->throw(
+            "Invalid FSK hop frequency '$in' $f\n");
+        return;
     }
 
-    if ($f ne 'MIN' && $f ne 'MAX') {
-	my $s = $self->get_shape({read_mode => 'cache'});
-	my $fmax = 15e6;
-	$fmax = 100e3 if $s eq 'TRI' || $s eq 'RAMP';
-	if ($f < 10e-3 || $f > $fmax) {
-	    Lab::Exception::CorruptParameter->throw(
-		"FSK hop frequency '$in' out of range\n");
-	    return;
-	}
+    if ( $f ne 'MIN' && $f ne 'MAX' ) {
+        my $s = $self->get_shape( { read_mode => 'cache' } );
+        my $fmax = 15e6;
+        $fmax = 100e3 if $s eq 'TRI' || $s eq 'RAMP';
+        if ( $f < 10e-3 || $f > $fmax ) {
+            Lab::Exception::CorruptParameter->throw(
+                "FSK hop frequency '$in' out of range\n");
+            return;
+        }
     }
     $self->write("FSK:FREQ $f");
 }
-
 
 =head2 get_fsk_rate
 
@@ -2248,8 +2206,7 @@ internally triggered modulation.
 
 =cut   
 
-sub get_fsk_rate
-{
+sub get_fsk_rate {
     my $self = shift;
     return $self->query("FSK:INT:RATE?");
 }
@@ -2267,29 +2224,26 @@ while 'm' -> millihertz.   Rate 10mHz .. 50kHz  or MIN or MAX
 
 =cut
 
-sub set_fsk_rate
-{
+sub set_fsk_rate {
     my $self = shift;
-    my $in = shift;
+    my $in   = shift;
 
-    my $f = _parseNRf($in,'Hz');
+    my $f = _parseNRf( $in, 'Hz' );
 
-    if ($f =~ /^ERR:/) {
-	Lab::Exception::CorruptParameter->throw(
-	    "FSK rate parse '$in' $f\n");
-	return;
+    if ( $f =~ /^ERR:/ ) {
+        Lab::Exception::CorruptParameter->throw("FSK rate parse '$in' $f\n");
+        return;
     }
 
-    if ($f ne 'MIN' && $f ne 'MAX') {
-	if ($f < 10e-3 || $f > 50e3) {
-	    Lab::Exception::CorruptParameter->throw(
-		"FSK rate '$in' out of range 10mHz..50kHz\n");
-	    return;
-	}
+    if ( $f ne 'MIN' && $f ne 'MAX' ) {
+        if ( $f < 10e-3 || $f > 50e3 ) {
+            Lab::Exception::CorruptParameter->throw(
+                "FSK rate '$in' out of range 10mHz..50kHz\n");
+            return;
+        }
     }
     $self->write("FSK:INT:RATE $f");
 }
-
 
 =head2 get_fsk_source
 
@@ -2299,8 +2253,7 @@ Fetch the source of the FSK modulation: INT or EXT
 
 =cut
 
-sub get_fsk_source
-{
+sub get_fsk_source {
     my $self = shift;
     return $self->query("FSK:SOUR?");
 }
@@ -2314,19 +2267,20 @@ If source is external, FSK rate is ignored.
 
 =cut
 
-sub set_fsk_source
-{
+sub set_fsk_source {
     my $self = shift;
-    my $in = shift;
+    my $in   = shift;
     my $s;
-    if ($in =~ /^\s*IN/i) {
-	$s = 'INT';
-    } elsif ($in =~ /^\s*EX/i) {
-	$s = 'EXT';
-    } else {
-	Lab::Exception::CorruptParameter->throw(
-	    "Invalid FSK source '$in', should be INT or EXT\n");
-	return;
+    if ( $in =~ /^\s*IN/i ) {
+        $s = 'INT';
+    }
+    elsif ( $in =~ /^\s*EX/i ) {
+        $s = 'EXT';
+    }
+    else {
+        Lab::Exception::CorruptParameter->throw(
+            "Invalid FSK source '$in', should be INT or EXT\n");
+        return;
     }
     $self->write("FSK:SOUR $s");
 }
@@ -2339,8 +2293,7 @@ Fetch the starting frequency of the sweep, in Hz
 
 =cut
 
-sub get_sweep_start_frequency
-{
+sub get_sweep_start_frequency {
     my $self = shift;
     return $self->query("FREQ:STAR?");
 }
@@ -2353,8 +2306,7 @@ Fetch the stopping frequency of the sweep, in Hz
 
 =cut
 
-sub get_sweep_stop_frequency
-{
+sub get_sweep_stop_frequency {
     my $self = shift;
     return $self->query("FREQ:STOP?");
 }
@@ -2374,25 +2326,24 @@ if fstart<fstop, sweep increases in frequency.
 
 =cut
 
-sub set_sweep_start_frequency
-{
+sub set_sweep_start_frequency {
     my $self = shift;
-    my $in = shift;
-    
-    my $f = _parseNRf($in,'Hz');
+    my $in   = shift;
 
-    if ($f =~ /^ERR:/) {
-	Lab::Exception::CorruptParameter->throw(
-	    "Invalid SWEEP start frequency '$in' $f\n");
-	return;
+    my $f = _parseNRf( $in, 'Hz' );
+
+    if ( $f =~ /^ERR:/ ) {
+        Lab::Exception::CorruptParameter->throw(
+            "Invalid SWEEP start frequency '$in' $f\n");
+        return;
     }
 
-    if ($f ne 'MIN' && $f ne 'MAX') {
-	if ($f < 10e-3 || $f > 15e6) {
-	    Lab::Exception::CorruptParameter->throw(
-		"SWEEP start frequency '$in' out of range (10mHz..15MHz)\n");
-	    return;
-	}
+    if ( $f ne 'MIN' && $f ne 'MAX' ) {
+        if ( $f < 10e-3 || $f > 15e6 ) {
+            Lab::Exception::CorruptParameter->throw(
+                "SWEEP start frequency '$in' out of range (10mHz..15MHz)\n");
+            return;
+        }
     }
     $self->write("FREQ:STAR $f");
 }
@@ -2412,25 +2363,24 @@ if fstart<fstop, sweep increases in frequency.
 
 =cut
 
-sub set_sweep_stop_frequency
-{
+sub set_sweep_stop_frequency {
     my $self = shift;
-    my $in = shift;
-    
-    my $f = _parseNRf($in,'Hz');
+    my $in   = shift;
 
-    if ($f =~ /^ERR:/) {
-	Lab::Exception::CorruptParameter->throw(
-	    "Invalid SWEEP stop frequency '$in' $f\n");
-	return;
+    my $f = _parseNRf( $in, 'Hz' );
+
+    if ( $f =~ /^ERR:/ ) {
+        Lab::Exception::CorruptParameter->throw(
+            "Invalid SWEEP stop frequency '$in' $f\n");
+        return;
     }
 
-    if ($f ne 'MIN' && $f ne 'MAX') {
-	if ($f < 10e-3 || $f > 15e6) {
-	    Lab::Exception::CorruptParameter->throw(
-		"SWEEP stop frequency '$in' out of range (10mHz..15MHz)\n");
-	    return;
-	}
+    if ( $f ne 'MIN' && $f ne 'MAX' ) {
+        if ( $f < 10e-3 || $f > 15e6 ) {
+            Lab::Exception::CorruptParameter->throw(
+                "SWEEP stop frequency '$in' out of range (10mHz..15MHz)\n");
+            return;
+        }
     }
     $self->write("FREQ:STOP $f");
 }
@@ -2444,8 +2394,7 @@ or logarithmic spacing.
 
 =cut
 
-sub get_sweep_spacing
-{
+sub get_sweep_spacing {
     my $self = shift;
     return $self->query("SWE:SPAC?");
 }
@@ -2458,20 +2407,21 @@ Sets sweep to either LIN or LOG spacing
 
 =cut
 
-sub set_sweep_spacing
-{
+sub set_sweep_spacing {
     my $self = shift;
-    my $in = shift;
+    my $in   = shift;
     my $s;
 
-    if ($in =~ /^\s*LIN/i) {
-	$s = 'LIN';
-    } elsif ($in =~ /^\s*LOG/i) {
-	$s = 'LOG';
-    } else {
-	Lab::Exception::CorruptParameter->throw(
-	    "invalid SWEEP spacing '$in', should be LIN or LOG\n");
-	return;
+    if ( $in =~ /^\s*LIN/i ) {
+        $s = 'LIN';
+    }
+    elsif ( $in =~ /^\s*LOG/i ) {
+        $s = 'LOG';
+    }
+    else {
+        Lab::Exception::CorruptParameter->throw(
+            "invalid SWEEP spacing '$in', should be LIN or LOG\n");
+        return;
     }
     $self->write("SWE:SPAC $s");
 }
@@ -2484,12 +2434,10 @@ Fetch the time (in seconds) to sweep from starting to stopping frequency.
 
 =cut
 
-sub get_sweep_time
-{
+sub get_sweep_time {
     my $self = shift;
     return $self->query("SWE:TIME?");
 }
-
 
 =head2 set_sweep_time
 
@@ -2505,64 +2453,61 @@ times is 1ms .. 500s
 
 =cut
 
-sub set_sweep_time
-{
+sub set_sweep_time {
     my $self = shift;
-    my $in = shift;
+    my $in   = shift;
 
-    my $t = _parseNRf($in,'s');
-    if ($t =~ /ERR/i) {
+    my $t = _parseNRf( $in, 's' );
+    if ( $t =~ /ERR/i ) {
         Lab::Exception::CorruptParameter->throw(
-		"Parse error in sweep time '$in': $t\n");
-	return;
+            "Parse error in sweep time '$in': $t\n");
+        return;
     }
-    if ($t ne 'MIN' && $t ne 'MAX') {
-	if ($t < 1e3 || $t > 500) {
-	    Lab::Exception::CorruptParameter->throw(
-		"SWEEP time '$in' out of range (1ms..500s)\n");
-	    return;
-	}
+    if ( $t ne 'MIN' && $t ne 'MAX' ) {
+        if ( $t < 1e3 || $t > 500 ) {
+            Lab::Exception::CorruptParameter->throw(
+                "SWEEP time '$in' out of range (1ms..500s)\n");
+            return;
+        }
     }
     $self->write("SWE:TIME $t");
 }
 
-
 # parse a delimited set of strings, return an array of the strings
 
-
-sub _parseStrings($)
-{
+sub _parseStrings($) {
     my $str = shift;
     $str =~ s/^\s+//;
     $str .= ' ,' if $str !~ /,\s*$/;
     my $x;
     my (@results) = ();
 
-    while ($str ne '') {
-	if ($str =~ /^\"(([^\"]|\"\")+)\"\s*,/i) {
-	    $x = $1;
-	    $x =~ s/\"\"/"/g;
-	    $str = $POSTMATCH;
-	    push (@results,$x);
-	} elsif ($str =~ /^\'(([^\']|\'\')+)\'\s*,/i) {
-	    $x = $1;
-	    $x =~ s/\'\'/'/g;
-	    $str = $POSTMATCH;
-	    push (@results,$x);
-	} elsif ($str =~ /^([^,]*[^,\s])\s*,/i) {
-	    $x = $1;
-	    $str = $POSTMATCH;
-	    push(@results,$x);
-	} else {
-	    carp("problems parsing strings '$str'");
-	    last;
-	}
-	$str =~ s/^\s+//;
+    while ( $str ne '' ) {
+        if ( $str =~ /^\"(([^\"]|\"\")+)\"\s*,/i ) {
+            $x = $1;
+            $x =~ s/\"\"/"/g;
+            $str = $POSTMATCH;
+            push( @results, $x );
+        }
+        elsif ( $str =~ /^\'(([^\']|\'\')+)\'\s*,/i ) {
+            $x = $1;
+            $x =~ s/\'\'/'/g;
+            $str = $POSTMATCH;
+            push( @results, $x );
+        }
+        elsif ( $str =~ /^([^,]*[^,\s])\s*,/i ) {
+            $x   = $1;
+            $str = $POSTMATCH;
+            push( @results, $x );
+        }
+        else {
+            carp("problems parsing strings '$str'");
+            last;
+        }
+        $str =~ s/^\s+//;
     }
     return (@results);
 }
-	    
-
 
 # parse a GPIB number with suffix, units
 # $result = _parseNRf($numberstring,$unit1[,$unit2,...])
@@ -2573,124 +2518,148 @@ sub _parseStrings($)
 # if problem, string returned starts 'ERR: ..message...'
 # see IEEE std 488-2 7.7.3
 
-sub _parseNRf($\[$@];@)
-{
+sub _parseNRf($\[$@];@) {
     my $in = shift;
-    $in = shift if ref($in) eq 'HASH'; # $self->_parseNRf handling...
+    $in = shift if ref($in) eq 'HASH';    # $self->_parseNRf handling...
     my $un = shift;
     $un = '' unless defined $un;
     my $us;
-    
-    if (ref($un) eq 'ARRAY') {
-	$us = $un;
-    } elsif (ref($un) eq 'SCALAR') {
-	$us = [$$un,@_];
-    } elsif (ref($un) eq '') {
-	$us = [$un,@_];
+
+    if ( ref($un) eq 'ARRAY' ) {
+        $us = $un;
+    }
+    elsif ( ref($un) eq 'SCALAR' ) {
+        $us = [ $$un, @_ ];
+    }
+    elsif ( ref($un) eq '' ) {
+        $us = [ $un, @_ ];
     }
     my $str = $in;
 
     $str =~ s/^\s+//;
     $str =~ s/\s+$//;
 
-    if ($str =~ /^MIN/i) {
-	return 'MIN';
+    if ( $str =~ /^MIN/i ) {
+        return 'MIN';
     }
-    if ($str =~ /^MAX/i) {
-	return 'MAX';
+    if ( $str =~ /^MAX/i ) {
+        return 'MAX';
     }
 
     my $mant = 0;
-    my $exp = 0;
-    if ($str =~ /^([+\-]?(\d+\.\d*|\d+|\d*\.\d+))\s*/i) {
-	$mant = $1;
-	$str = $POSTMATCH;
-	return $mant if $str eq '';
-	if ($str =~ /^e\s*([+\-]?\d+)\s*/i) {
-	    $exp = $1;
-	    $str = $POSTMATCH;
-	}
-	return $mant*(10**$exp) if $str eq '';
-    
-	my $kexp = $exp;
-	my $kstr = $str;
-	foreach my $u (@{$us}) {
-	    $u =~ s/^\s+//;
-	    $u =~ s/\s+$//;
-	    
-	    $str = $kstr;
-	    $exp = $kexp;
-	    if ($u =~ /^db/i) {   # db(magnitude_suffix)?(V|W|... unit)?
-		my $dbt = $POSTMATCH;
-		if ($str =~ /^dBex(${dbt})?$/i) {
-		    $exp += 18;
-		} elsif ($str =~ /^dBpe(${dbt})?$/i) {
-		    $exp += 15;
-		} elsif ($str =~ /^dBt(${dbt})?$/i) {
-		    $exp += 12;
-		} elsif ($str =~ /^dBg(${dbt})?$/i) {
-		    $exp += 9;
-		} elsif ($str =~ /^dBma(${dbt})$/i) {
-		    $exp += 6;
-		} elsif ($str =~ /^dBk(${dbt})?$/i) {
-		    $exp += 3;
-		} elsif ($str =~ /^dBm(${dbt})?$/i) {
-		    $exp -= 3;
-		} elsif ($str =~ /^dBu(${dbt})?$/i) {
-		    $exp -= 6;
-		} elsif ($str =~ /^dBn(${dbt})?$/i) {
-		    $exp -= 9;
-		} elsif ($str =~ /^dBp(${dbt})?$/i) {
-		    $exp -= 12;
-		} elsif ($str =~ /^dBf(${dbt})?$/i) {
-		    $exp -= 15;
-		} elsif ($str =~ /^dB${dbt}$/i) {
-		    $exp += 0;
-		} else {
-		    next;
-		}		
-	    } else {       # regular units stuff: (magnitude_suffix)(unit)?
-		if ($str =~ /^ex(${u})?$/i) {
-		    $exp += 18;
-		} elsif ($str =~ /^pe(${u})?$/i) {
-		    $exp += 15;
-		} elsif ($str =~ /^t(${u})?$/i) {
-		    $exp += 12;
-		} elsif ($str =~ /^g(${u})?$/i) {
-		    $exp += 9;
-		} elsif ($u =~ /(HZ|OHM)/i && $str =~ /^ma?(${u})$/i) {
-		    $exp += 6;
-		} elsif ($u =~ /A/i && $str =~ /^ma$/i) {
-		    $exp -= 3;
-		} elsif ($u !~ /(HZ|OHM)/i && $str =~ /^ma(${u})?$/i) {
-		    $exp += 6;
-		} elsif ($str =~ /^k(${u})?$/i) {
-		    $exp += 3;
-		} elsif ($str =~ /^m(${u})?$/i) {
-		    $exp -= 3;
-		} elsif ($str =~ /^u(${u})?$/i) {
-		    $exp -= 6;
-		} elsif ($str =~ /^n(${u})?$/i) {
-		    $exp -= 9;
-		} elsif ($str =~ /^p(${u})?$/i) {
-		    $exp -= 12;
-		} elsif ($str =~ /^f(${u})?$/i) {
-		    $exp -= 15;
-		} elsif ($str =~ /^${u}$/i) {
-		    $exp += 0;
-		} else {
-		    next;
-		}
-	    }
-	    return $mant * (10 ** $exp);
-	}	
-    }  
+    my $exp  = 0;
+    if ( $str =~ /^([+\-]?(\d+\.\d*|\d+|\d*\.\d+))\s*/i ) {
+        $mant = $1;
+        $str  = $POSTMATCH;
+        return $mant if $str eq '';
+        if ( $str =~ /^e\s*([+\-]?\d+)\s*/i ) {
+            $exp = $1;
+            $str = $POSTMATCH;
+        }
+        return $mant * ( 10**$exp ) if $str eq '';
+
+        my $kexp = $exp;
+        my $kstr = $str;
+        foreach my $u ( @{$us} ) {
+            $u =~ s/^\s+//;
+            $u =~ s/\s+$//;
+
+            $str = $kstr;
+            $exp = $kexp;
+            if ( $u =~ /^db/i ) {    # db(magnitude_suffix)?(V|W|... unit)?
+                my $dbt = $POSTMATCH;
+                if ( $str =~ /^dBex(${dbt})?$/i ) {
+                    $exp += 18;
+                }
+                elsif ( $str =~ /^dBpe(${dbt})?$/i ) {
+                    $exp += 15;
+                }
+                elsif ( $str =~ /^dBt(${dbt})?$/i ) {
+                    $exp += 12;
+                }
+                elsif ( $str =~ /^dBg(${dbt})?$/i ) {
+                    $exp += 9;
+                }
+                elsif ( $str =~ /^dBma(${dbt})$/i ) {
+                    $exp += 6;
+                }
+                elsif ( $str =~ /^dBk(${dbt})?$/i ) {
+                    $exp += 3;
+                }
+                elsif ( $str =~ /^dBm(${dbt})?$/i ) {
+                    $exp -= 3;
+                }
+                elsif ( $str =~ /^dBu(${dbt})?$/i ) {
+                    $exp -= 6;
+                }
+                elsif ( $str =~ /^dBn(${dbt})?$/i ) {
+                    $exp -= 9;
+                }
+                elsif ( $str =~ /^dBp(${dbt})?$/i ) {
+                    $exp -= 12;
+                }
+                elsif ( $str =~ /^dBf(${dbt})?$/i ) {
+                    $exp -= 15;
+                }
+                elsif ( $str =~ /^dB${dbt}$/i ) {
+                    $exp += 0;
+                }
+                else {
+                    next;
+                }
+            }
+            else {    # regular units stuff: (magnitude_suffix)(unit)?
+                if ( $str =~ /^ex(${u})?$/i ) {
+                    $exp += 18;
+                }
+                elsif ( $str =~ /^pe(${u})?$/i ) {
+                    $exp += 15;
+                }
+                elsif ( $str =~ /^t(${u})?$/i ) {
+                    $exp += 12;
+                }
+                elsif ( $str =~ /^g(${u})?$/i ) {
+                    $exp += 9;
+                }
+                elsif ( $u =~ /(HZ|OHM)/i && $str =~ /^ma?(${u})$/i ) {
+                    $exp += 6;
+                }
+                elsif ( $u =~ /A/i && $str =~ /^ma$/i ) {
+                    $exp -= 3;
+                }
+                elsif ( $u !~ /(HZ|OHM)/i && $str =~ /^ma(${u})?$/i ) {
+                    $exp += 6;
+                }
+                elsif ( $str =~ /^k(${u})?$/i ) {
+                    $exp += 3;
+                }
+                elsif ( $str =~ /^m(${u})?$/i ) {
+                    $exp -= 3;
+                }
+                elsif ( $str =~ /^u(${u})?$/i ) {
+                    $exp -= 6;
+                }
+                elsif ( $str =~ /^n(${u})?$/i ) {
+                    $exp -= 9;
+                }
+                elsif ( $str =~ /^p(${u})?$/i ) {
+                    $exp -= 12;
+                }
+                elsif ( $str =~ /^f(${u})?$/i ) {
+                    $exp -= 15;
+                }
+                elsif ( $str =~ /^${u}$/i ) {
+                    $exp += 0;
+                }
+                else {
+                    next;
+                }
+            }
+            return $mant * ( 10**$exp );
+        }
+    }
     return "ERR: '$str' number parsing problem";
-        
-}	
 
+}
 
-
-
-
-1; # End of Lab::Instrument::HP33120A
+1;    # End of Lab::Instrument::HP33120A

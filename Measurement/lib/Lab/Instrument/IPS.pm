@@ -887,10 +887,11 @@ sub sweep_to_field {
     while (1) {
         my $vergleichswert =
           ( ( $interval >= 0 ) ? 1 : -1 ) *
-          @{ $self->{LIMITS}->{field_intervall_limits} }
-          [ ( $interval * $sweep_direction >= 0 )
+          @{ $self->{LIMITS}->{field_intervall_limits} }[
+          ( $interval * $sweep_direction >= 0 )
           ? abs($interval) + 1
-          : abs($interval) ];
+          : abs($interval)
+          ];
         if ( $interval == 0 ) {
             $vergleichswert *= $sweep_direction;
         }

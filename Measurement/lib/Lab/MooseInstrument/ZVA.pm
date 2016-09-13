@@ -8,13 +8,13 @@ use namespace::autoclean;
 extends 'Lab::MooseInstrument';
 
 with qw(
-Lab::MooseInstrument::Common
+  Lab::MooseInstrument::Common
 
-Lab::MooseInstrument::SCPI::Calculate::Data
+  Lab::MooseInstrument::SCPI::Calculate::Data
 
-Lab::MooseInstrument::SCPI::Sense::Frequency
+  Lab::MooseInstrument::SCPI::Sense::Frequency
 
-Lab::MooseInstrument::SCPI::Initiate
+  Lab::MooseInstrument::SCPI::Initiate
 
 );
 
@@ -22,6 +22,5 @@ sub BUILD {
     my $self = shift;
     $self->clear();
 }
-
 
 1;

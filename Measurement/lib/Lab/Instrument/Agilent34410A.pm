@@ -79,7 +79,7 @@ sub new {
 
     # Perform initial device clear.
     $self->clear();
-    
+
     return $self;
 }
 
