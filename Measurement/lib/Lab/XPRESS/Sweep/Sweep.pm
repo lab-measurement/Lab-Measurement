@@ -75,8 +75,8 @@ sub new {
     my $type = ref $_[0];
 
     if ( $type =~ /HASH/ ) {
-        %{ $self->{config} } =
-          ( %{ $self->{config} }, %{ shift @_ }, %{ shift @_ } );
+        %{ $self->{config} }
+            = ( %{ $self->{config} }, %{ shift @_ }, %{ shift @_ } );
     }
 
     #for debugging: print config parameters:
@@ -115,10 +115,10 @@ sub prepaire_config {
     # correct typing errors:
     $self->{config}->{mode} =~ s/\s+//g;    #remove all whitespaces
     $self->{config}->{mode} =~ "\L$self->{config}->{mode}"
-      ;    # transform all uppercase letters to lowercase letters
-    if ( $self->{config}->{mode} =~
-        /continuous|contious|cont|continuouse|continouse|coninuos|continuose/ )
-    {
+        ;    # transform all uppercase letters to lowercase letters
+    if ( $self->{config}->{mode}
+        =~ /continuous|contious|cont|continuouse|continouse|coninuos|continuose/
+        ) {
         $self->{config}->{mode} = 'continuous';
     }
 
@@ -136,8 +136,8 @@ sub prepaire_config {
         $self->{config}->{stepwidth} = [ $self->{config}->{stepwidth} ];
     }
     if ( ref( $self->{config}->{number_of_points} ) ne 'ARRAY' ) {
-        $self->{config}->{number_of_points} =
-          [ $self->{config}->{number_of_points} ];
+        $self->{config}->{number_of_points}
+            = [ $self->{config}->{number_of_points} ];
     }
     if ( ref( $self->{config}->{interval} ) ne 'ARRAY' ) {
         $self->{config}->{interval} = [ $self->{config}->{interval} ];
@@ -156,53 +156,52 @@ sub prepaire_config {
     # Look for inconsistent sweep parameters:
     if ( $length_points < 2 and $self->{config}->{mode} ne 'list' ) {
         die
-"inconsistent definition of sweep_config_data: less than two elements defined in 'points'. You need at least a 'start' and a 'stop' point.";
+            "inconsistent definition of sweep_config_data: less than two elements defined in 'points'. You need at least a 'start' and a 'stop' point.";
     }
 
     if ( $length_rate > $length_points ) {
         die
-"inconsistent definition of sweep_config_data: number of elements in 'rate' larger than number of elements in 'points'.";
+            "inconsistent definition of sweep_config_data: number of elements in 'rate' larger than number of elements in 'points'.";
     }
     if ( $length_duration > $length_points ) {
         die
-"inconsistent definition of sweep_config_data: number of elements in 'duration' larger than number of elements in 'points'.";
+            "inconsistent definition of sweep_config_data: number of elements in 'duration' larger than number of elements in 'points'.";
     }
     if (    $length_stepwidth > $length_points - 1
-        and $self->{config}->{mode} ne 'list' )
-    {
+        and $self->{config}->{mode} ne 'list' ) {
         die
-"inconsistent definition of sweep_config_data: number of elements in 'stepwidth' larger than number of sweep sequences.";
+            "inconsistent definition of sweep_config_data: number of elements in 'stepwidth' larger than number of sweep sequences.";
     }
     if (    $length_number_of_points > $length_points - 1
-        and $self->{config}->{mode} ne 'list' )
-    {
+        and $self->{config}->{mode} ne 'list' ) {
         die
-"inconsistent definition of sweep_config_data: number of elements in 'number_of_points' larger than number of sweep sequences.";
+            "inconsistent definition of sweep_config_data: number of elements in 'number_of_points' larger than number of sweep sequences.";
     }    #
     if (    $length_interval > $length_points
-        and $self->{config}->{mode} ne 'list' )
-    {
+        and $self->{config}->{mode} ne 'list' ) {
         die
-"inconsistent definition of sweep_config_data: number of elements in 'interval' larger than number of sweep sequences.";
+            "inconsistent definition of sweep_config_data: number of elements in 'interval' larger than number of sweep sequences.";
     }
 
     # fill up Arrays to fit with given Points:
-    while ( ( $length_rate = @{ $self->{config}->{rate} } ) < $length_points ) {
-        push( @{ $self->{config}->{rate} }, @{ $self->{config}->{rate} }[-1] );
+    while ( ( $length_rate = @{ $self->{config}->{rate} } ) < $length_points )
+    {
+        push(
+            @{ $self->{config}->{rate} },
+            @{ $self->{config}->{rate} }[-1]
+        );
     }
 
-    while ( ( $length_duration = @{ $self->{config}->{duration} } ) <
-        $length_points )
-    {
+    while ( ( $length_duration = @{ $self->{config}->{duration} } )
+        < $length_points ) {
         push(
             @{ $self->{config}->{duration} },
             @{ $self->{config}->{duration} }[-1]
         );
     }
 
-    while ( ( $length_stepwidth = @{ $self->{config}->{stepwidth} } ) <
-        $length_points )
-    {
+    while ( ( $length_stepwidth = @{ $self->{config}->{stepwidth} } )
+        < $length_points ) {
         push(
             @{ $self->{config}->{stepwidth} },
             @{ $self->{config}->{stepwidth} }[-1]
@@ -210,18 +209,19 @@ sub prepaire_config {
     }
 
     while (
-        ( $length_number_of_points = @{ $self->{config}->{number_of_points} } )
-        < $length_points )
-    {
+        (
+            $length_number_of_points
+            = @{ $self->{config}->{number_of_points} }
+        ) < $length_points
+        ) {
         push(
             @{ $self->{config}->{number_of_points} },
             @{ $self->{config}->{number_of_points} }[-1]
         );
     }
 
-    while ( ( $length_interval = @{ $self->{config}->{interval} } ) <
-        $length_points )
-    {
+    while ( ( $length_interval = @{ $self->{config}->{interval} } )
+        < $length_points ) {
         push(
             @{ $self->{config}->{interval} },
             @{ $self->{config}->{interval} }[-1]
@@ -237,14 +237,12 @@ sub prepaire_config {
 
     # evaluate sweep sign:
     foreach my $i ( 0 .. $length_points - 2 ) {
-        if ( @{ $self->{config}->{points} }[$i] -
-            @{ $self->{config}->{points} }[ $i + 1 ] < 0 )
-        {
+        if (  @{ $self->{config}->{points} }[$i]
+            - @{ $self->{config}->{points} }[ $i + 1 ] < 0 ) {
             @{ $self->{config}->{sweepsigns} }[$i] = 1;
         }
-        elsif ( @{ $self->{config}->{points} }[$i] -
-            @{ $self->{config}->{points} }[ $i + 1 ] > 0 )
-        {
+        elsif ( @{ $self->{config}->{points} }[$i]
+            - @{ $self->{config}->{points} }[ $i + 1 ] > 0 ) {
             @{ $self->{config}->{sweepsigns} }[$i] = -1;
         }
         else {
@@ -257,60 +255,56 @@ sub prepaire_config {
 
     # calculate duration from rate and vise versa:
     if (    defined @{ $self->{config}->{rate} }[0]
-        and defined @{ $self->{config}->{duration} }[0] )
-    {
+        and defined @{ $self->{config}->{duration} }[0] ) {
         die
-'inconsistent definition of sweep_config_data: rate as well as duration defined. Use only one of both.';
+            'inconsistent definition of sweep_config_data: rate as well as duration defined. Use only one of both.';
     }
     elsif ( defined @{ $self->{config}->{duration} }[0]
-        and @{ $self->{config}->{duration} }[0] == 0 )
-    {
+        and @{ $self->{config}->{duration} }[0] == 0 ) {
         die 'bad definition of sweep parameters: duration == 0 not allowed';
     }
     elsif ( defined @{ $self->{config}->{rate} }[0]
-        and @{ $self->{config}->{rate} }[0] == 0 )
-    {
+        and @{ $self->{config}->{rate} }[0] == 0 ) {
         die 'bad definition of sweep parameters: rate == 0 not allowed';
     }
     elsif ( defined @{ $self->{config}->{duration} }[0] ) {
         foreach my $i ( 0 .. $length_points - 1 ) {
-            @{ $self->{config}->{rate} }[$i] =
-              abs( @{ $self->{config}->{points} }[ $i + 1 ] -
-                  @{ $self->{config}->{points} }[$i] ) /
-              @{ $self->{config}->{duration} }[$i];
+            @{ $self->{config}->{rate} }[$i]
+                = abs(@{ $self->{config}->{points} }[ $i + 1 ]
+                    - @{ $self->{config}->{points} }[$i] )
+                / @{ $self->{config}->{duration} }[$i];
         }
     }
     elsif ( defined @{ $self->{config}->{rate} }[0] ) {
         foreach my $i ( 0 .. $length_points - 1 ) {
-            @{ $self->{config}->{duration} }[$i] =
-              abs( @{ $self->{config}->{points} }[ $i + 1 ] -
-                  @{ $self->{config}->{points} }[$i] ) /
-              @{ $self->{config}->{rate} }[$i];
+            @{ $self->{config}->{duration} }[$i]
+                = abs(@{ $self->{config}->{points} }[ $i + 1 ]
+                    - @{ $self->{config}->{points} }[$i] )
+                / @{ $self->{config}->{rate} }[$i];
         }
     }
 
     # calculate stepwidth from Number_of_Points and vise versa:
     if (    defined @{ $self->{config}->{stepwidth} }[0]
-        and defined @{ $self->{config}->{number_of_points} }[0] )
-    {
+        and defined @{ $self->{config}->{number_of_points} }[0] ) {
         die
-'inconsistent definition of sweep_config_data: step as well as number_of_points defined. Use only one of both.';
+            'inconsistent definition of sweep_config_data: step as well as number_of_points defined. Use only one of both.';
     }
     elsif ( defined @{ $self->{config}->{number_of_points} }[0] ) {
         unshift( @{ $self->{config}->{number_of_points} }, 1 );
         foreach my $i ( 1 .. $length_points - 1 ) {
-            @{ $self->{config}->{stepwidth} }[ $i - 1 ] =
-              abs( @{ $self->{config}->{points} }[ $i + 1 ] -
-                  @{ $self->{config}->{points} }[$i] ) /
-              @{ $self->{config}->{number_of_points} }[$i];
+            @{ $self->{config}->{stepwidth} }[ $i - 1 ]
+                = abs(@{ $self->{config}->{points} }[ $i + 1 ]
+                    - @{ $self->{config}->{points} }[$i] )
+                / @{ $self->{config}->{number_of_points} }[$i];
         }
     }
     elsif ( defined @{ $self->{config}->{stepwidth} }[0] ) {
         foreach my $i ( 1 .. $length_points - 1 ) {
-            @{ $self->{config}->{number_of_points} }[ $i - 1 ] =
-              abs( @{ $self->{config}->{points} }[ $i + 1 ] -
-                  @{ $self->{config}->{points} }[$i] ) /
-              @{ $self->{config}->{stepwidth} }[$i];
+            @{ $self->{config}->{number_of_points} }[ $i - 1 ]
+                = abs(@{ $self->{config}->{points} }[ $i + 1 ]
+                    - @{ $self->{config}->{points} }[$i] )
+                / @{ $self->{config}->{stepwidth} }[$i];
         }
     }
     shift @{ $self->{config}->{points} };
@@ -318,19 +312,17 @@ sub prepaire_config {
     # Calculations and checks depending on the selected sweep mode:
     if ( $self->{config}->{mode} eq 'continuous' ) {
         if (   not defined @{ $self->{config}->{rate} }[0]
-            or not defined @{ $self->{config}->{duration} }[0] )
-        {
+            or not defined @{ $self->{config}->{duration} }[0] ) {
             die
-"inconsistent definition of sweep_config_data: for sweep_mode 'continuous' you have to define the rate or the duration for the sweep.";
+                "inconsistent definition of sweep_config_data: for sweep_mode 'continuous' you have to define the rate or the duration for the sweep.";
         }
     }
     elsif ( $self->{config}->{mode} eq 'step' ) {
         $self->{config}->{interval} = [0];
         if (   not defined @{ $self->{config}->{stepwidth} }[0]
-            or not defined @{ $self->{config}->{number_of_points} }[0] )
-        {
+            or not defined @{ $self->{config}->{number_of_points} }[0] ) {
             die
-"inconsistent definition of sweep_config_data: for sweep_mode 'step' you have to define the setp-size or the number_of_points.";
+                "inconsistent definition of sweep_config_data: for sweep_mode 'step' you have to define the setp-size or the number_of_points.";
         }
 
         # calculate each point/rate/stepsign/duration in step-sweep:
@@ -342,17 +334,16 @@ sub prepaire_config {
         foreach my $i ( 0 .. $length_points - 2 ) {
             my $nop = abs(
                 (
-                    @{ $self->{config}->{points} }[ $i + 1 ] -
-                      @{ $self->{config}->{points} }[$i]
+                          @{ $self->{config}->{points} }[ $i + 1 ]
+                        - @{ $self->{config}->{points} }[$i]
                 ) / @{ $self->{config}->{stepwidth} }[$i]
             );
             $nop = ceil($nop);
 
             my $point = @{ $self->{config}->{points} }[$i];
-            for ( my $j = 0 ; $j <= $nop ; $j++ ) {
+            for ( my $j = 0; $j <= $nop; $j++ ) {
                 if ( $point != @{$temp_points}[-1]
-                    or not defined @{$temp_points}[-1] )
-                {
+                    or not defined @{$temp_points}[-1] ) {
                     push( @{$temp_points}, $point );
                     push(
                         @{$temp_rate},
@@ -360,17 +351,16 @@ sub prepaire_config {
                     );
                     push(
                         @{$temp_duration},
-                        @{ $self->{config}->{duration} }[ $i + 1 ] /
-                          @{ $self->{config}->{number_of_points} }[$i]
+                        @{ $self->{config}->{duration} }[ $i + 1 ]
+                            / @{ $self->{config}->{number_of_points} }[$i]
                     );
                     push(
                         @{$temp_sweepsigns},
                         @{ $self->{config}->{sweepsigns} }[$i]
                     );
                 }
-                $point +=
-                  @{ $self->{config}->{stepwidth} }[$i] *
-                  @{ $self->{config}->{sweepsigns} }[$i];
+                $point += @{ $self->{config}->{stepwidth} }[$i]
+                    * @{ $self->{config}->{sweepsigns} }[$i];
             }
             @{$temp_points}[-1] = @{ $self->{config}->{points} }[ $i + 1 ];
         }
@@ -391,7 +381,7 @@ sub prepaire_config {
         $self->{config}->{interval} = [0];
         if ( not defined @{ $self->{config}->{rate} }[0] ) {
             die
-"inconsistent definition of sweep_config_data: 'rate' needs to be defined in sweep mode 'list'";
+                "inconsistent definition of sweep_config_data: 'rate' needs to be defined in sweep mode 'list'";
         }
     }
 
@@ -400,10 +390,9 @@ sub prepaire_config {
         defined @{ $self->{config}->{allowed_instruments} }[0]
         and not( grep { $_ eq ref( $self->{config}->{instrument} ) }
             @{ $self->{config}->{allowed_instruments} } )
-      )
-    {
+        ) {
         die
-"inconsistent definition of sweep_config_data: Instrument (ref($self->{config}->{instrument})) is not supported by Sweep.";
+            "inconsistent definition of sweep_config_data: Instrument (ref($self->{config}->{instrument})) is not supported by Sweep.";
     }
 
     # check if sweep-mode is supported:
@@ -411,10 +400,9 @@ sub prepaire_config {
         defined @{ $self->{config}->{allowed_sweep_modes} }[0]
         and not( grep { $_ eq $self->{config}->{mode} }
             @{ $self->{config}->{allowed_sweep_modes} } )
-      )
-    {
+        ) {
         die
-"inconsistent definition of sweep_config_data: Sweep mode $self->{config}->{mode} is not supported by Sweep.";
+            "inconsistent definition of sweep_config_data: Sweep mode $self->{config}->{mode} is not supported by Sweep.";
     }
 
     # adjust repetitions in case of Backsweep selected:
@@ -495,16 +483,17 @@ sub start {
     if ( not defined @{ $self->{slaves} }[0] ) {
 
         if ( $self->{DataFile_counter} <= 0 ) {
-            print new Lab::Exception::Warning(
-                error => "Attention: " . ref($self) . " has no DataFile ! \n" );
+            print new Lab::Exception::Warning( error => "Attention: "
+                    . ref($self)
+                    . " has no DataFile ! \n" );
         }
 
         if ( defined @{ $self->{filename_extensions} }[0] ) {
             foreach my $DataFile ( @{ $self->{DataFiles} } ) {
                 my $filenamebase = $DataFile->{filenamebase};
 
-                my $new_filenamebase =
-                  $self->add_filename_extensions($filenamebase);
+                my $new_filenamebase
+                    = $self->add_filename_extensions($filenamebase);
                 if ( $new_filenamebase ne $DataFile->{file} ) {
                     $DataFile->change_filenamebase($new_filenamebase);
                 }
@@ -526,12 +515,11 @@ sub start {
     #$SIG{INT} = \&abort;
 
     for (
-        my $i = 1 ;
+        my $i = 1;
         ( $i <= $self->{config}->{repetitions} )
-          or ( $self->{config}->{repetitions} < 0 ) ;
+            or ( $self->{config}->{repetitions} < 0 );
         $i++
-      )
-    {
+        ) {
         $self->{repetition}++;
         foreach my $file ( @{ $self->{DataFiles} } ) {
             $file->start_block();
@@ -568,8 +556,8 @@ sub start {
                 my $extension = $self->get_filename_extension();
                 foreach my $slave ( @{ $self->{slaves} } ) {
 
-                    my $extensions =
-                      dclone( \@{ $self->{filename_extensions} } );
+                    my $extensions
+                        = dclone( \@{ $self->{filename_extensions} } );
                     push( @{$extensions}, $extension );
 
                     $slave->{filename_extensions} = $extensions;
@@ -706,19 +694,19 @@ sub sweep_structure {
     if ( not defined $self->{master} ) {
         $self->estimate_total_sweep_duration();
 
-        $text .=
-"\n\n\n=====================================================================\n";
-        $text .=
-"===================  Master/Slave Sweep  ============================\n";
-        $text .=
-"=====================================================================\n\n\n";
+        $text
+            .= "\n\n\n=====================================================================\n";
+        $text
+            .= "===================  Master/Slave Sweep  ============================\n";
+        $text
+            .= "=====================================================================\n\n\n";
         $text .= "=========================\n";
         $text .= " Master = $self->{config}->{id}\n";
         $text .= "=========================\n";
         $text .= "\t|\n";
         $text .= "\t|\n";
-        $text .=
-          "\t|--> Instrument = " . ref( $self->{config}->{instrument} ) . "\n";
+        $text .= "\t|--> Instrument = "
+            . ref( $self->{config}->{instrument} ) . "\n";
 
         # while ( my ($key,$value) = each %{$self->{config}} )
         # {
@@ -744,14 +732,17 @@ sub sweep_structure {
             $text .= "\t|--> stepwidth = @{$self->{config}->{stepwidth}}\n";
         }
         $text .= "\t|--> rate = @{$self->{config_original}->{rate}}\n";
-        $text .= "\t|--> duration = @{$self->{config_original}->{duration}}\n";
-        $text .=
-"\t|--> Delays (before, in, after) loop = $self->{config}->{delay_before_loop}, $self->{config}->{delay_in_loop}, $self->{config}->{delay_after_loop}\n";
+        $text
+            .= "\t|--> duration = @{$self->{config_original}->{duration}}\n";
+        $text
+            .= "\t|--> Delays (before, in, after) loop = $self->{config}->{delay_before_loop}, $self->{config}->{delay_in_loop}, $self->{config}->{delay_after_loop}\n";
         $text .= "\t|--> Backsweep = $self->{config}->{backsweep}\n";
-        $text .=
-          "\t|--> Repetitions = $self->{config_original}->{repetitions}\n";
-        $text .= "\t|--> Estimated Duration = "
-          . seconds2time( $self->{config}->{estimated_sweep_duration} ) . "\n";
+        $text
+            .= "\t|--> Repetitions = $self->{config_original}->{repetitions}\n";
+        $text
+            .= "\t|--> Estimated Duration = "
+            . seconds2time( $self->{config}->{estimated_sweep_duration} )
+            . "\n";
         $text .= "\t|----------------------------------------------------\n";
 
         foreach my $slave ( @{ $self->{slaves} } ) {
@@ -763,42 +754,43 @@ sub sweep_structure {
             $text .= "\t\t|\n";
             $text .= "\t\t|\n";
             $text .= "\t\t|--> Instrument = "
-              . ref( $slave->{config}->{instrument} ) . "\n";
+                . ref( $slave->{config}->{instrument} ) . "\n";
             $text .= "\t\t|--> Mode = $slave->{config}->{mode}\n";
 
             if ( $slave->{config}->{mode} =~ /conti/ ) {
                 $text .= "\t\t|--> Interval = $slave->{config}->{interval}\n";
             }
-            $text .=
-              "\t\t|--> Points = @{$slave->{config_original}->{points}}\n";
+            $text
+                .= "\t\t|--> Points = @{$slave->{config_original}->{points}}\n";
             if ( $slave->{config}->{mode} =~ /step/ ) {
-                $text .=
-                  "\t\t|--> stepwidth = @{$slave->{config}->{stepwidth}}\n";
+                $text
+                    .= "\t\t|--> stepwidth = @{$slave->{config}->{stepwidth}}\n";
             }
             $text .= "\t\t|--> rate = @{$slave->{config_original}->{rate}}\n";
-            $text .=
-              "\t\t|--> duration = @{$slave->{config_original}->{duration}}\n";
-            $text .=
-"\t\t|--> Delays (before, in, after) loop = $slave->{config}->{delay_before_loop}, $slave->{config}->{delay_in_loop}, $slave->{config}->{delay_after_loop}\n";
+            $text
+                .= "\t\t|--> duration = @{$slave->{config_original}->{duration}}\n";
+            $text
+                .= "\t\t|--> Delays (before, in, after) loop = $slave->{config}->{delay_before_loop}, $slave->{config}->{delay_in_loop}, $slave->{config}->{delay_after_loop}\n";
             $text .= "\t\t|--> Backsweep = $slave->{config}->{backsweep}\n";
-            $text .=
-"\t\t|--> Repetitions = $slave->{config_original}->{repetitions}\n";
-            $text .=
-                "\t\t|--> Estimated Duration = "
-              . seconds2time( $slave->{config}->{estimated_sweep_duration} )
-              . "\n";
-            $text .=
-              "\t\t|----------------------------------------------------\n";
+            $text
+                .= "\t\t|--> Repetitions = $slave->{config_original}->{repetitions}\n";
+            $text
+                .= "\t\t|--> Estimated Duration = "
+                . seconds2time( $slave->{config}->{estimated_sweep_duration} )
+                . "\n";
+            $text
+                .= "\t\t|----------------------------------------------------\n";
         }
         $text .= "\n\n";
-        $text .=
-            "Estimated Duration for Master/Slave-Sweep: "
-          . seconds2time( $self->{config}->{estimated_sweep_duration_total} )
-          . "\n\n\n";
-        $text .=
-"=====================================================================\n";
-        $text .=
-"=====================================================================\n\n";
+        $text
+            .= "Estimated Duration for Master/Slave-Sweep: "
+            . seconds2time(
+            $self->{config}->{estimated_sweep_duration_total} )
+            . "\n\n\n";
+        $text
+            .= "=====================================================================\n";
+        $text
+            .= "=====================================================================\n\n";
 
         foreach my $slave ( @{ $self->{slaves} } ) {
             foreach my $file ( @{ $slave->{DataFiles} } ) {
@@ -832,20 +824,20 @@ sub add_filename_extensions {
 
     if ( $self->{config}->{separate_files} == 0 ) {
 
-        for ( my $i = 0 ; $i < $extension_length - 2 ; $i++ ) {
+        for ( my $i = 0; $i < $extension_length - 2; $i++ ) {
             $directory .= "/" . @{ $self->{filename_extensions} }[$i];
         }
 
-        for ( my $i = 0 ; $i < $extension_length - 1 ; $i++ ) {
+        for ( my $i = 0; $i < $extension_length - 1; $i++ ) {
             $filename .= "_" . @{ $self->{filename_extensions} }[$i];
         }
     }
     elsif ( $self->{config}->{separate_files} == 1 ) {
 
-        for ( my $i = 0 ; $i < $extension_length - 1 ; $i++ ) {
+        for ( my $i = 0; $i < $extension_length - 1; $i++ ) {
             $directory .= "/" . @{ $self->{filename_extensions} }[$i];
         }
-        for ( my $i = 0 ; $i < $extension_length ; $i++ ) {
+        for ( my $i = 0; $i < $extension_length; $i++ ) {
             $filename .= "_" . @{ $self->{filename_extensions} }[$i];
         }
     }
@@ -1018,47 +1010,48 @@ sub check_loop_duration {
         return 0;
     }
 
-    if ( ( $self->{loop}->{t1} - $self->{loop}->{t0} ) >
-        @{ $self->{config}->{interval} }[ $self->{sequence} ] )
-    {
+    if ( ( $self->{loop}->{t1} - $self->{loop}->{t0} )
+        > @{ $self->{config}->{interval} }[ $self->{sequence} ] ) {
         $self->out_warning( "WARNING: Measurement Loop takes more time ("
-              . ( $self->{loop}->{t1} - $self->{loop}->{t0} )
-              . ") than specified by measurement intervall (@{$self->{config}->{sequence}}[$self->{iterator}]).\n"
+                . ( $self->{loop}->{t1} - $self->{loop}->{t0} )
+                . ") than specified by measurement intervall (@{$self->{config}->{sequence}}[$self->{iterator}]).\n"
         );
     }
-    my $delta_time =
-      ( $self->{loop}->{t1} - $self->{loop}->{t0} ) + $self->{loop}->{overtime};
+    my $delta_time = ( $self->{loop}->{t1} - $self->{loop}->{t0} )
+        + $self->{loop}->{overtime};
 
     if ( defined $self->{config}->{instrument}
-        and $self->{config}->{instrument}->can("active") )
-    {
+        and $self->{config}->{instrument}->can("active") ) {
         while (
             (
-                @{ $self->{config}->{interval} }[ $self->{sequence} ] -
-                $delta_time
+                @{ $self->{config}->{interval} }[ $self->{sequence} ]
+                - $delta_time
             ) > 0.2
-          )
-        {
+            ) {
             my $time0 = time();
             $self->{config}->{instrument}->active();
             $delta_time = $delta_time + ( ( time() - $time0 ) );
         }
     }
 
-    if ( $delta_time > @{ $self->{config}->{interval} }[ $self->{sequence} ] ) {
-        $self->{loop}->{overtime} =
-          $delta_time - @{ $self->{config}->{interval} }[ $self->{sequence} ];
+    if ( $delta_time > @{ $self->{config}->{interval} }[ $self->{sequence} ] )
+    {
+        $self->{loop}->{overtime} = $delta_time
+            - @{ $self->{config}->{interval} }[ $self->{sequence} ];
         $delta_time = @{ $self->{config}->{interval} }[ $self->{sequence} ];
 
-#warn "WARNING: Measurement Loop takes more time ($self->{loop}->{overtime}) than specified by measurement intervall (@{$self->{config}->{sequence}}[$self->{iterator}]).\n";
+        #warn "WARNING: Measurement Loop takes more time ($self->{loop}->{overtime}) than specified by measurement intervall (@{$self->{config}->{sequence}}[$self->{iterator}]).\n";
     }
     else {
         $self->{loop}->{overtime} = 0;
     }
 
     usleep(
-        ( @{ $self->{config}->{interval} }[ $self->{sequence} ] - $delta_time )
-        * 1e6 );
+        (
+            @{ $self->{config}->{interval} }[ $self->{sequence} ]
+                - $delta_time
+        ) * 1e6
+    );
 
     $self->{loop}->{t0} = time();
     return $delta_time;
@@ -1097,7 +1090,8 @@ sub LOG {
     if ( ref( $args[0] ) eq "HASH" ) {
         my $file = ( defined $args[1] ) ? $args[1] : 0;
         if ( not defined @{ $self->{DataFiles} }[ $args[1] - 1 ] ) {
-            Lab::Exception::Warning->throw("DataFile $file is not defined! \n");
+            Lab::Exception::Warning->throw(
+                "DataFile $file is not defined! \n");
         }
         while ( my ( $key, $value ) = each %{ $args[0] } ) {
             @{ $self->{LOG} }[$file]->{$key} = $value;
@@ -1107,7 +1101,8 @@ sub LOG {
         # for old style: LOG("column_name", "value", "File")
         my $file = ( defined $args[2] ) ? $args[2] : 0;
         if ( not defined @{ $self->{DataFiles} }[ $args[2] - 1 ] ) {
-            Lab::Exception::Warning->throw("DataFile $file is not defined! \n");
+            Lab::Exception::Warning->throw(
+                "DataFile $file is not defined! \n");
         }
         @{ $self->{LOG} }[$file]->{ $args[0] } = $args[1];
     }
@@ -1127,7 +1122,8 @@ sub set_autolog {
         @{ $self->{DataFiles} }[ $file - 1 ]->set_autolog($value);
     }
     else {
-        print new Lab::Exception::Warning("DataFile $file is not defined! \n");
+        print new Lab::Exception::Warning(
+            "DataFile $file is not defined! \n");
     }
 
     return $self;
@@ -1146,7 +1142,8 @@ sub skip_LOG {
         @{ $self->{DataFiles} }[ $file - 1 ]->skiplog();
     }
     else {
-        print new Lab::Exception::Warning("DataFile $file is not defined! \n");
+        print new Lab::Exception::Warning(
+            "DataFile $file is not defined! \n");
     }
 
     return $self;
@@ -1165,10 +1162,11 @@ sub write_LOG {
     }
     elsif ( defined @{ $self->{DataFiles} }[ $file - 1 ] ) {
         @{ $self->{DataFiles} }[ $file - 1 ]
-          ->LOG( $self->create_LOG_HASH($file) );
+            ->LOG( $self->create_LOG_HASH($file) );
     }
     else {
-        print new Lab::Exception::Warning("DataFile $file is not defined! \n");
+        print new Lab::Exception::Warning(
+            "DataFile $file is not defined! \n");
     }
 
     return $self;
@@ -1181,8 +1179,8 @@ sub create_LOG_HASH {
 
     my $LOG_HASH = {};
 
-    foreach my $column ( @{ @{ $self->{DataFiles} }[ $file - 1 ]->{COLUMNS} } )
-    {
+    foreach
+        my $column ( @{ @{ $self->{DataFiles} }[ $file - 1 ]->{COLUMNS} } ) {
         if ( defined @{ $self->{LOG} }[$file]->{$column} ) {
             $LOG_HASH->{$column} = @{ $self->{LOG} }[$file]->{$column};
         }
@@ -1191,8 +1189,7 @@ sub create_LOG_HASH {
         }
         else {
             if (   exists @{ $self->{LOG} }[$file]->{$column}
-                or exists @{ $self->{LOG} }[0]->{$column} )
-            {
+                or exists @{ $self->{LOG} }[0]->{$column} ) {
                 print new Lab::Exception::Warning(
                     "Value for Paramter $column undefined\n");
             }
@@ -1214,7 +1211,7 @@ sub add_slave {
 
     if ( not $self->{config}->{mode} =~ /step|list/ ) {
         Lab::Exception::Warning->throw( error =>
-"Can't add slave to master-sweep which is not in mode list or step."
+                "Can't add slave to master-sweep which is not in mode list or step."
         );
     }
 
@@ -1238,16 +1235,15 @@ sub add_slave {
     elsif ( $type =~ /^Lab::XPRESS::Sweep/ ) {
         if ( defined $slave->{master} ) {
             Lab::Exception::Warning->throw( error =>
-"Cannot add slave sweep with an already defined master sweep ."
+                    "Cannot add slave sweep with an already defined master sweep ."
             );
         }
 
         if ( $slave->{DataFile_counter} <= 0
-            and not defined @{ $slave->{slaves} }[-1] )
-        {
+            and not defined @{ $slave->{slaves} }[-1] ) {
             while (1) {
                 print
-"\n XPRESS::FRAME: -- Added slave sweep has no DataFile! Continue anyway (y/n) ?\n";
+                    "\n XPRESS::FRAME: -- Added slave sweep has no DataFile! Continue anyway (y/n) ?\n";
                 my $answer = <>;
                 if ( $answer =~ /y|Y/ ) {
                     last;
@@ -1356,15 +1352,15 @@ sub AUTOLOAD {
         # The workaround is to tempsave the hashref and put it back in
         # place. This should be only temporary though.
 
-# NOTE: changed the creation of config_original (in prepare_config function), so it is a copy
-# 		of {config} unsing dclone instead of deep_copy. I think this adresses the issue above.
+        # NOTE: changed the creation of config_original (in prepare_config function), so it is a copy
+        # 		of {config} unsing dclone instead of deep_copy. I think this adresses the issue above.
 
         my $instrument = $self->{config}->{instrument};
 
         if ( exists $self->{config_original}->{$2} ) {
             if ( $self->active() ) {
                 print Lab::Exception::Warning->new( error =>
-                      "WARNING: Cannot set parameter while sweep is active \n"
+                        "WARNING: Cannot set parameter while sweep is active \n"
                 );
                 return;
             }
@@ -1392,8 +1388,8 @@ sub AUTOLOAD {
 
     else {
         Lab::Exception::Warning->throw( error => "AUTOLOAD in "
-              . __PACKAGE__
-              . " couldn't access field '${name}'.\n" );
+                . __PACKAGE__
+                . " couldn't access field '${name}'.\n" );
     }
 }
 

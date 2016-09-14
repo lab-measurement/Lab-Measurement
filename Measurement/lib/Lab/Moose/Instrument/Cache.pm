@@ -1,14 +1,14 @@
 
 =head1 NAME
 
-Lab::MooseInstrument::Cache - Add device cache functionality to MooseInstrument
+Lab::Moose::Instrument::Cache - Add device cache functionality to Moose::Instrument
 drivers.
 
 =head1 SYNOPSIS
 
 in your driver:
 
- use Lab::MooseInstrument::Cache;
+ use Lab::Moose::Instrument::Cache;
 
  cache 'foobar' => (getter => 'get_foobar');
 
@@ -45,7 +45,7 @@ The C<isa> argument is optional.
 
 =cut
 
-package Lab::MooseInstrument::Cache;
+package Lab::Moose::Instrument::Cache;
 use Moose::Role;
 use MooseX::Params::Validate;
 
@@ -54,7 +54,7 @@ our $VERSION = '3.520';
 Moose::Exporter->setup_import_methods( with_meta => ['cache'] );
 
 use namespace::autoclean -also =>
-  [qw/_add_cache_accessor _add_cache_attribute/];
+    [qw/_add_cache_accessor _add_cache_attribute/];
 
 sub _add_cache_attribute {
     my %args      = @_;

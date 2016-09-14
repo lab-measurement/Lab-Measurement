@@ -34,14 +34,14 @@ our %fields = (
 sub new {
     my $proto = shift;
     my $class = ref($proto) || $proto;
-    my $self =
-      $class->SUPER::new(@_);  # getting fields and _permitted from parent class
+    my $self  = $class->SUPER::new(@_)
+        ;    # getting fields and _permitted from parent class
     $self->${ \( __PACKAGE__ . '::_construct' ) }(__PACKAGE__);
 
-# 	# Parameter checking
-# 	if( !defined $self->config('gpib_address') || $self->config('gpib_address') !~ /^[0-9]*$/ ) {
-# 		Lab::Exception::CorruptParameter->throw( error => "No GPIB address specified! I can't work like this.\n" );
-# 	}
+    # 	# Parameter checking
+    # 	if( !defined $self->config('gpib_address') || $self->config('gpib_address') !~ /^[0-9]*$/ ) {
+    # 		Lab::Exception::CorruptParameter->throw( error => "No GPIB address specified! I can't work like this.\n" );
+    # 	}
 
     return $self;
 }
@@ -71,7 +71,7 @@ sub EnableTermChar {    # 0/1 off/on
     my $self   = shift;
     my $enable = shift;
     my $result = $self->bus()
-      ->connection_enabletermchar( $self->connection_handle(), $enable );
+        ->connection_enabletermchar( $self->connection_handle(), $enable );
     return $result;
 }
 
@@ -79,7 +79,7 @@ sub SetTermChar {       # the character as string
     my $self     = shift;
     my $termchar = shift;
     my $result   = $self->bus()
-      ->connection_settermchar( $self->connection_handle(), $termchar );
+        ->connection_settermchar( $self->connection_handle(), $termchar );
     return $result;
 }
 
@@ -93,12 +93,12 @@ sub serial_poll {
     my $statbyte = $self->bus()->serial_poll( $self->connection_handle() );
     my @stat     = ();
 
-    for ( my $i = 0 ; $i < 8 ; $i++ ) {
+    for ( my $i = 0; $i < 8; $i++ ) {
         $stat[$i] = 0x01 & ( $statbyte >> $i );
     }
     return @stat;
 
-#return (split(//, unpack('b*', pack('N',$self->bus()->serial_poll($self->connection_handle())))))[-8..-1];
+    #return (split(//, unpack('b*', pack('N',$self->bus()->serial_poll($self->connection_handle())))))[-8..-1];
 }
 
 1;

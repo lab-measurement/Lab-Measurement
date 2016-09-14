@@ -35,7 +35,7 @@ sub new {
     my $self  = $class->SUPER::new(@_);
     $self->${ \( __PACKAGE__ . '::_construct' ) }(__PACKAGE__);
     print
-"Oxford Instruments IPS superconducting magnet supply code is experimental.\n";
+        "Oxford Instruments IPS superconducting magnet supply code is experimental.\n";
     return $self;
 }
 
@@ -155,7 +155,7 @@ sub ips_get_sweepmode {
     my $self   = shift;
     my $result = $self->ips_get_status();
     $result =~ /.*M.([0-3])/
-      || die "OI_IPS::ips_get_sweepmode got illegal reply $result\n";
+        || die "OI_IPS::ips_get_sweepmode got illegal reply $result\n";
     $result = $1;
     return $result;
 }
@@ -251,12 +251,12 @@ sub ips_sweep_until_setpoint_reached {    #set, sweeprate
     my $DeltaB = $set - $B_now;
     if ($DeltaB) {
         my $sweepsign = int( $DeltaB / abs($DeltaB) );
-        my $TotalSweepTime =
-          int( abs($DeltaB) / $rate * 60 );    #sweeptime in seconds
+        my $TotalSweepTime
+            = int( abs($DeltaB) / $rate * 60 );    #sweeptime in seconds
         my $Time_Start = [ gettimeofday() ];
         my $sweepstart = 1;
         print
-"Sweeping from $B_now to $set at $rate T/min (total sweep time: $TotalSweepTime seconds)\n";
+            "Sweeping from $B_now to $set at $rate T/min (total sweep time: $TotalSweepTime seconds)\n";
         $| = 1;
         do {
             sleep(1);
@@ -279,7 +279,7 @@ sub ips_sweep_until_setpoint_reached {    #set, sweeprate
     print "Final field: $B_now\n";
     if ( abs( $B_now - $set ) > 0.00001 ) {
         die
-"B_GoToSet: field stopped changing but setpoint was not reached: got $B_now instead of $set\n";
+            "B_GoToSet: field stopped changing but setpoint was not reached: got $B_now instead of $set\n";
     }
     $self->ips_set_activity(0);    # Hold magnet
 }

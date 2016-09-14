@@ -35,7 +35,7 @@ for my $function (qw/current voltage/) {
 my @ranges        = qw/10e-3 100e-3 1 10 30/;
 my @return_ranges = qw/12e-3 120e-3 1.2 12 32/;
 
-for ( my $i = 0 ; $i < @ranges ; ++$i ) {
+for ( my $i = 0; $i < @ranges; ++$i ) {
     $yoko->set_range( $ranges[$i] );
     my $query = $yoko->get_range();
     ok( $query == $return_ranges[$i], "range set to " . $ranges[$i] );
@@ -117,7 +117,10 @@ my $list_measurement = sub {
     my $sweep          = shift;
     my $value          = $yoko->get_level( { read_mode => 'cache' } );
     my $expected_value = $points[$point_index];
-    ok( float_equal( $value, $expected_value ), "sweep is at $expected_value" );
+    ok(
+        float_equal( $value, $expected_value ),
+        "sweep is at $expected_value"
+    );
     if ( $expected_value != 1 ) {
 
         # we need this check, as this function seems to be called twice

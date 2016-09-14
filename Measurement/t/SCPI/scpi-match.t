@@ -46,7 +46,9 @@ for my $test (@tests) {
     my $header  = $test->[1];
     my $result  = $test->[2];
 
-    is( scpi_match( $header, $keyword ),
-        $result, "header = $header, keyword = $keyword, result = $result" );
+    is(
+        scpi_match( $header, $keyword ),
+        $result, "header = $header, keyword = $keyword, result = $result"
+    );
 }
 

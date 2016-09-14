@@ -31,7 +31,7 @@ our $INS_DEBUG = 0;    # do we need additional output?
 my @crctab = ();
 
 my $ConnSemaphore = Thread::Semaphore->new()
-  ;    # a semaphore to prevent simultaneous use of the bus by multiple threads
+    ; # a semaphore to prevent simultaneous use of the bus by multiple threads
 
 our %fields = (
     type           => 'RS232',
@@ -44,13 +44,13 @@ sub new {
     my $proto = shift;
     my $class = ref($proto) || $proto;
     my $twin  = undef;
-    my $self =
-      $class->SUPER::new(@_);  # getting fields and _permitted from parent class
+    my $self  = $class->SUPER::new(@_)
+        ;    # getting fields and _permitted from parent class
     $self->${ \( __PACKAGE__ . '::_construct' ) }(__PACKAGE__);
 
-# search for twin in %Lab::Bus::BusList. If there's none, place $self there and weaken it.
-# note to self: put this in base class/_construct if possible
-# note to self2: think about how to block access to this RS232 port for a plain Lab::Bus::RS232 bus.
+    # search for twin in %Lab::Bus::BusList. If there's none, place $self there and weaken it.
+    # note to self: put this in base class/_construct if possible
+    # note to self2: think about how to block access to this RS232 port for a plain Lab::Bus::RS232 bus.
     if ( $class eq __PACKAGE__ )
     {    # careful - do only if this is not a parent class constructor
         if ( $twin = $self->_search_twin() ) {
@@ -73,7 +73,7 @@ sub connection_new {
     my $args = undef;
     if ( ref $_[0] eq 'HASH' ) {
         $args = shift;
-    }                         # try to be flexible about options as hash/hashref
+    }    # try to be flexible about options as hash/hashref
     else { $args = {@_} }
 
     my $connection_handle = undef;
@@ -82,18 +82,21 @@ sub connection_new {
     if (   exists $args->{'slave_address'}
         && $args->{'slave_address'} =~ /[0-9]*/
         && $args->{'slave_address'} > 0
-        && $args->{'slave_address'} < 255 )
-    {
+        && $args->{'slave_address'} < 255 ) {
         $slave_address = $args->{'slave_address'};
     }
     else {
-        Lab::Exception::CorruptParameter->throw( error =>
-'No or invalid MODBUS Slave Address given. I can\'t work like this!',
+        Lab::Exception::CorruptParameter->throw(
+            error =>
+                'No or invalid MODBUS Slave Address given. I can\'t work like this!',
         );
     }
 
-    $connection_handle =
-      { valid => 1, type => "MODBUS_RS232", slave_address => $slave_address };
+    $connection_handle = {
+        valid         => 1,
+        type          => "MODBUS_RS232",
+        slave_address => $slave_address
+    };
 
     return $connection_handle;
 }
@@ -114,7 +117,7 @@ sub connection_read
     else { $args = {@_} }
 
     use bytes
-      ; # important! no unicode below, just plain 8-bit-encoding. We are receiving bytestrings via RS232, too much smart can blow us to hell.
+        ; # important! no unicode below, just plain 8-bit-encoding. We are receiving bytestrings via RS232, too much smart can blow us to hell.
 
     my $function    = int( $args->{'function'} )    || undef;
     my $mem_address = int( $args->{'mem_address'} ) || undef;
@@ -131,7 +134,8 @@ sub connection_read
         Lab::Exception::CorruptParameter->throw(
             error => 'Undefined or unimplemented function code', );
     }
-    if ( !defined $mem_address || $mem_address < 0 || $mem_address > 0xFFFF ) {
+    if ( !defined $mem_address || $mem_address < 0 || $mem_address > 0xFFFF )
+    {
         Lab::Exception::CorruptParameter->throw(
             error => 'Invalid memory address', );
     }
@@ -153,8 +157,8 @@ sub connection_read
     $ConnSemaphore->down();
     do {
         $self->SUPER::_direct_write( command => $Message );
-        @AnswerArr =
-          split( //, $self->SUPER::_direct_read( read_length => 'all' ) );
+        @AnswerArr
+            = split( //, $self->SUPER::_direct_read( read_length => 'all' ) );
         if ( scalar(@AnswerArr) == 0 ) {
             warn "Error, no answer received - retrying\n";
             $ErrCount++;
@@ -165,8 +169,8 @@ sub connection_read
             { # CRC over the message including its correct CRC results in a "CRC" of zero.
                 $ErrCount++;
                 $ErrCount < $self->max_crc_errors()
-                  ? warn "Error in MODBUS response - retrying\n"
-                  : warn "Error in MODBUS response\n";
+                    ? warn "Error in MODBUS response - retrying\n"
+                    : warn "Error in MODBUS response\n";
             }
             else {
                 warn "...Success\n" if $ErrCount > 0;
@@ -176,8 +180,8 @@ sub connection_read
     } until ( $Success == 1 || $ErrCount >= $self->max_crc_errors() );
     $ConnSemaphore->up();
     warn
-"Too many CRC errors, giving up after ${\$self->max_crc_errors()} times.\n"
-      unless $Success;
+        "Too many CRC errors, giving up after ${\$self->max_crc_errors()} times.\n"
+        unless $Success;
     return undef unless $Success;
 
     # formally correct - check response
@@ -186,7 +190,7 @@ sub connection_read
 
         # Now: warn and tell error code. Later: throw exception
         warn "Received MODBUS error message with error code"
-          . ord( $AnswerArr[2] ) . "\n";
+            . ord( $AnswerArr[2] ) . "\n";
     }
     elsif ( scalar(@AnswerArr) < ord( $AnswerArr[2] ) + 5 )
     {    # correct message length? carries all bytes it says it does?
@@ -228,7 +232,8 @@ sub connection_write
         Lab::Exception::CorruptParameter->throw(
             error => 'Undefined or unimplemented function code', );
     }
-    if ( !defined $mem_address || $mem_address < 0 || $mem_address > 0xFFFF ) {
+    if ( !defined $mem_address || $mem_address < 0 || $mem_address > 0xFFFF )
+    {
         Lab::Exception::CorruptParameter->throw(
             error => 'Invalid memory address', );
     }
@@ -249,8 +254,8 @@ sub connection_write
     $ConnSemaphore->down();
     do {
         $self->SUPER::_direct_write( command => $Message );
-        @AnswerArr =
-          split( //, $self->SUPER::_direct_read( read_length => 'all' ) );
+        @AnswerArr
+            = split( //, $self->SUPER::_direct_read( read_length => 'all' ) );
         if ( scalar(@AnswerArr) == 0 ) {
             warn "Error, no answer received - retrying\n";
             $ErrCount++;
@@ -261,8 +266,8 @@ sub connection_write
             { # CRC over the message including its correct CRC results in a "CRC" of zero
                 $ErrCount++;
                 $ErrCount < $self->max_crc_errors()
-                  ? warn "Error in MODBUS response - retrying\n"
-                  : warn "Error in MODBUS response\n";
+                    ? warn "Error in MODBUS response - retrying\n"
+                    : warn "Error in MODBUS response\n";
             }
             else {
                 warn "...Success\n" if $ErrCount > 0;
@@ -272,8 +277,8 @@ sub connection_write
     } until ( $Success == 1 || $ErrCount >= $self->max_crc_errors() );
     $ConnSemaphore->up();
     warn
-"Too many CRC errors, giving up after ${\$self->max_crc_errors()} times.\n"
-      unless $Success;
+        "Too many CRC errors, giving up after ${\$self->max_crc_errors()} times.\n"
+        unless $Success;
     return undef unless $Success;
 
     # formally correct - check response;
@@ -288,7 +293,7 @@ sub connection_write
     if ( $Success == 1 ) {
 
         # compare sent message and answer. equality signals success.
-        for ( my $i = 0 ; $i < scalar(@AnswerArr) ; $i++ ) {
+        for ( my $i = 0; $i < scalar(@AnswerArr); $i++ ) {
             if ( $AnswerArr[$i] ne $MessageArr[$i] ) {
                 $Success = 0;
                 $i       = scalar(@AnswerArr);
@@ -326,14 +331,14 @@ sub _crc_inittab () {
 
     my $crc_poly = $self->crc_poly();
 
-    for ( $i = 0 ; $i < 256 ; $i++ ) {
+    for ( $i = 0; $i < 256; $i++ ) {
         $crc = 0;
         $c   = $i;
 
-        for ( $j = 0 ; $j < 8 ; $j++ ) {
+        for ( $j = 0; $j < 8; $j++ ) {
 
-            if   ( ( $crc ^ $c ) & 0x0001 ) { $crc = ( $crc >> 1 ) ^ $crc_poly }
-            else                            { $crc = ( $crc >> 1 ) }
+            if ( ( $crc ^ $c ) & 0x0001 ) { $crc = ( $crc >> 1 ) ^ $crc_poly }
+            else                          { $crc = ( $crc >> 1 ) }
 
             $c = ( $c >> 1 );
         }
@@ -360,7 +365,7 @@ sub _MB_CRC
     my $tmp       = 0;
     my $i         = 0;
 
-    for ( $i = 0 ; $i < $size ; $i++ ) {
+    for ( $i = 0; $i < $size; $i++ ) {
         $tmp = $remainder ^ ( 0x00ff & $message[$i] );
         $remainder = ( $remainder >> 8 ) ^ $crctab[ $tmp & 0xff ];
     }

@@ -89,7 +89,7 @@ sub read_xml {
             return $class->new( $def, $perlnode_list );
         }
         warn
-"I'm having difficulties reading the file $xml_filename! Please help!\n";
+            "I'm having difficulties reading the file $xml_filename! Please help!\n";
     }
     warn "No file read!\n";
     return undef;
@@ -138,7 +138,9 @@ sub save_xml {
         $generator->xmldecl( encoding => 'ISO-8859-1' ),
         $generator->$rootname(
             @{
-                _write_node_list( $generator, $self->{___declaration}, $data )
+                _write_node_list(
+                    $generator, $self->{___declaration}, $data
+                )
             }
         ),
     );
@@ -153,7 +155,7 @@ sub save_yaml {
     my $save_hash;    #pseudo-geprüftes save
     for my $defnode_name ( keys %{ $self->{___declaration} } ) {
         $save_hash->{$defnode_name} = $data->{$defnode_name}
-          if ( $data->{$defnode_name} );
+            if ( $data->{$defnode_name} );
     }
     use YAML ();
     YAML::StoreFile( $filename, $save_hash );
@@ -169,8 +171,10 @@ sub AUTOLOAD {
     my $type  = ref($self) or croak "$self is not an object";
     my $name  = $AUTOLOAD;
     $name =~ s/.*://;
-    return _getset_node_list_from_string( $self, $self->{___declaration},
-        $name, @parms );
+    return _getset_node_list_from_string(
+        $self, $self->{___declaration},
+        $name, @parms
+    );
 }
 
 sub DESTROY {
@@ -203,15 +207,16 @@ sub _merge_node_lists {
     my $source_perlnode_list      = shift;
     for my $node_name ( keys %$defnode_list ) {
         if ( defined $source_perlnode_list->{$node_name} ) {
-            my ( $type, $key_name, $children_defnode_list ) =
-              _get_defnode_type( $defnode_list->{$node_name} );
+            my ( $type, $key_name, $children_defnode_list )
+                = _get_defnode_type( $defnode_list->{$node_name} );
 
-    # browse all elements of this $node_name (multiple if type is array or hash)
-    # if they have children, merge children's content as well
+            # browse all elements of this $node_name (multiple if type is array or hash)
+            # if they have children, merge children's content as well
             for my $key_val (
-                _magic_keys( $defnode_list, $source_perlnode_list, $node_name )
-              )
-            {
+                _magic_keys(
+                    $defnode_list, $source_perlnode_list, $node_name
+                )
+                ) {
                 if ($children_defnode_list) {
                     my $dp;
 
@@ -221,12 +226,13 @@ sub _merge_node_lists {
                             $defnode_list, $destination_perlnode_list,
                             $node_name,    $key_val
                         )
-                      )
-                    {
+                        ) {
                         $dp = {};
-                        _magic_set_perlnode( $defnode_list,
+                        _magic_set_perlnode(
+                            $defnode_list,
                             $destination_perlnode_list, $node_name, $key_val,
-                            $dp );
+                            $dp
+                        );
                     }
                     _merge_node_lists(
                         $children_defnode_list,
@@ -270,11 +276,11 @@ sub _parse_domnode_list {
 
             #names match? => allowed
             if (   ( $domnode->getNodeType() == ELEMENT_NODE )
-                && ( $domnode->getNodeName() eq $node_name ) )
-            {
+                && ( $domnode->getNodeName() eq $node_name ) ) {
+
                 #find child's attributes
-                my ( $type, $key, $children_defnode_list ) =
-                  _get_defnode_type( $defnode_list->{$node_name} );
+                my ( $type, $key, $children_defnode_list )
+                    = _get_defnode_type( $defnode_list->{$node_name} );
                 my $key_val;
                 if ( defined $key ) {
                     $key_val = $domnode->getAttribute($key);
@@ -293,14 +299,15 @@ sub _parse_domnode_list {
                 #get content for child
                 my $rr;
                 if ($children_defnode_list) {
-                    $rr = _parse_domnode_list( \@{ $domnode->getChildNodes() },
-                        $children_defnode_list );
+                    $rr = _parse_domnode_list(
+                        \@{ $domnode->getChildNodes() },
+                        $children_defnode_list
+                    );
                 }
                 else {
                     my ($text_node) = $domnode->getChildNodes();
                     if (   ( defined $text_node )
-                        && ( $text_node->getNodeType() == TEXT_NODE ) )
-                    {
+                        && ( $text_node->getNodeType() == TEXT_NODE ) ) {
                         $rr = encode( "iso-8859-1", $text_node->getData() );
                     }
                 }
@@ -323,11 +330,10 @@ sub _write_node_list {
     my $xmlnode_list;
     for my $node_name ( keys %$defnode_list ) {
         if ( defined $perlnode_list->{$node_name} ) {
-            my ( $type, $key_name, $children_defnode_list ) =
-              _get_defnode_type( $defnode_list->{$node_name} );
+            my ( $type, $key_name, $children_defnode_list )
+                = _get_defnode_type( $defnode_list->{$node_name} );
             for my $key_val (
-                _magic_keys( $defnode_list, $perlnode_list, $node_name ) )
-            {
+                _magic_keys( $defnode_list, $perlnode_list, $node_name ) ) {
                 my $perlnode_content;
                 if ($children_defnode_list) {
                     $perlnode_content = _write_node_list(
@@ -355,7 +361,9 @@ sub _write_node_list {
                 push(
                     @$xmlnode_list,
                     $generator->$node_name(
-                        ( defined $key_name ) ? { $key_name => $key_val } : {},
+                          ( defined $key_name )
+                        ? { $key_name => $key_val }
+                        : {},
                         @$perlnode_content
                     )
                 );
@@ -373,7 +381,7 @@ sub _getset_node_list_from_string {
     my $nodes_string_backup = $nodes_string;
     if ( !defined($nodes_string) || $nodes_string eq "" ) {
         Lab::Exception::CorruptParameter->throw( error =>
-"Missing parameter in XMLtree::_getset_node_list_from_string(): 'nodes_string'\n"
+                "Missing parameter in XMLtree::_getset_node_list_from_string(): 'nodes_string'\n"
         );
     }
 
@@ -385,8 +393,8 @@ sub _getset_node_list_from_string {
 
             #is the right node
             $nodes_string =~ s/^$node_name\_?//;
-            my ( $type, $key, $children ) =
-              _get_defnode_type( $defnode_list->{$node_name} );
+            my ( $type, $key, $children )
+                = _get_defnode_type( $defnode_list->{$node_name} );
             if ( $nodes_string gt "" ) {
 
                 #user wants deeper node
@@ -395,7 +403,7 @@ sub _getset_node_list_from_string {
                     $key_val = shift @parms;    # key must be given!
                 }
                 return ( defined $children )
-                  ? _getset_node_list_from_string(
+                    ? _getset_node_list_from_string(
                     _magic_get_perlnode(
                         $defnode_list, $perlnode_list,
                         $node_name,    $key_val,
@@ -405,12 +413,12 @@ sub _getset_node_list_from_string {
                     $children,
                     $nodes_string,
                     @parms
-                  )
-                  : undef;
+                    )
+                    : undef;
             }
             else {
-#wants to get/set this node
-#sollte bei ref(rückgabewert) !~ /SCALAR/ vielleicht eher eine liste von keys zurückgeben (hash) oder anzahl (array)
+                #wants to get/set this node
+                #sollte bei ref(rückgabewert) !~ /SCALAR/ vielleicht eher eine liste von keys zurückgeben (hash) oder anzahl (array)
                 if (@parms) {
                     my $param = shift @parms;
                     if ( ( ref $param ) =~ /HASH/ ) {
@@ -418,7 +426,8 @@ sub _getset_node_list_from_string {
 
                             #set mit hashref
                             #setzt einen ganzen tree, z.b. alle achsen
-                            return %{ $perlnode_list->{$node_name} } = %$param;
+                            return %{ $perlnode_list->{$node_name} }
+                                = %$param;
                         }
                     }
                     elsif ( ( ref $param ) =~ /ARRAY/ ) {
@@ -426,7 +435,8 @@ sub _getset_node_list_from_string {
 
                             #set mit arrayref
                             #z.b. alle blöcke
-                            return @{ $perlnode_list->{$node_name} } = @$param;
+                            return @{ $perlnode_list->{$node_name} }
+                                = @$param;
                         }
                     }
                     elsif ( !( ref $param ) ) {
@@ -445,16 +455,16 @@ sub _getset_node_list_from_string {
 
                                         #alle children auf einmal setzen
                                         return
-                                          %{ $perlnode_list->{$node_name}
-                                              ->{$param} } = %$nextparam;
+                                            %{ $perlnode_list->{$node_name}
+                                                ->{$param} } = %$nextparam;
                                     }
                                 }
                                 else {
                                     if ( !( ref $param ) ) {
 
-                                #skalaren wert für element ohne children setzen
+                                        #skalaren wert für element ohne children setzen
                                         return $perlnode_list->{$node_name}
-                                          ->{$param} = $nextparam;
+                                            ->{$param} = $nextparam;
                                     }
                                 }
                             }
@@ -464,14 +474,13 @@ sub _getset_node_list_from_string {
                                     defined(
                                         $perlnode_list->{$node_name}->{$param}
                                     )
-                                  )
-                                {
+                                    ) {
                                     return $perlnode_list->{$node_name}
-                                      ->{$param};
+                                        ->{$param};
                                 }
                                 else {
                                     warn
-"Attempt to access non-existing element $node_name(\"$param\")\n";
+                                        "Attempt to access non-existing element $node_name(\"$param\")\n";
                                     return undef;
                                 }
                             }
@@ -489,16 +498,16 @@ sub _getset_node_list_from_string {
 
                                         #alle children auf einmal setzen
                                         return
-                                          %{ $perlnode_list->{$node_name}
-                                              ->[$param] } = %$nextparam;
+                                            %{ $perlnode_list->{$node_name}
+                                                ->[$param] } = %$nextparam;
                                     }
                                 }
                                 else {
                                     if ( !( ref $param ) ) {
 
-                                #skalaren wert für element ohne children setzen
+                                        #skalaren wert für element ohne children setzen
                                         return $perlnode_list->{$node_name}
-                                          ->[$param] = $nextparam;
+                                            ->[$param] = $nextparam;
                                     }
                                 }
                             }
@@ -530,7 +539,7 @@ sub _getset_node_list_from_string {
         }
     }
     carp(
-"XMLtree warning: attempt to access undeclared element '$nodes_string_backup'"
+        "XMLtree warning: attempt to access undeclared element '$nodes_string_backup'"
     );
 }
 
@@ -565,14 +574,15 @@ sub _magic_keys {
     my $stype         = (@_) ? shift : 'SCALAR';
     my $atype         = (@_) ? shift : 'ARRAY';
     my $htype         = (@_) ? shift : 'HASH';
-    my ( $type, $key_name, $children_defnode_list ) =
-      _get_defnode_type( $defnode_list->{$node_name} );
+    my ( $type, $key_name, $children_defnode_list )
+        = _get_defnode_type( $defnode_list->{$node_name} );
     return
-        ( $type =~ /$stype/ ) ? ('SCALAR')
-      : ( $type =~ /$atype/ )
-      ? ( 0 .. ( -1 + @{ $perlnode_list->{$node_name} } ) )
-      : ( $type =~ /$htype/ ) ? ( sort keys %{ $perlnode_list->{$node_name} } )
-      :                         undef;
+          ( $type =~ /$stype/ ) ? ('SCALAR')
+        : ( $type =~ /$atype/ )
+        ? ( 0 .. ( -1 + @{ $perlnode_list->{$node_name} } ) )
+        : ( $type =~ /$htype/ )
+        ? ( sort keys %{ $perlnode_list->{$node_name} } )
+        : undef;
 }
 
 sub _magic_get_perlnode {
@@ -584,27 +594,27 @@ sub _magic_get_perlnode {
     my $atype         = (@_) ? shift : 'ARRAY';
     my $htype         = (@_) ? shift : 'HASH';
 
-    my ( $type, $key_name, $children_defnode_list ) =
-      _get_defnode_type( $defnode_list->{$node_name} );
+    my ( $type, $key_name, $children_defnode_list )
+        = _get_defnode_type( $defnode_list->{$node_name} );
 
     if ( $type =~ $stype ) {
         $perlnode_list->{$node_name} = undef
-          unless defined( $perlnode_list->{$node_name} );
+            unless defined( $perlnode_list->{$node_name} );
     }
     elsif ( $type =~ $htype ) {
         $perlnode_list->{$node_name}->{$key} = {}
-          unless defined( $perlnode_list->{$node_name}->{$key} );
+            unless defined( $perlnode_list->{$node_name}->{$key} );
     }
     elsif ( $type =~ $atype ) {
         $perlnode_list->{$node_name}->[$key] = {}
-          unless defined( $perlnode_list->{$node_name}->[$key] );
+            unless defined( $perlnode_list->{$node_name}->[$key] );
     }
 
     return
-        ( $type =~ $stype ) ? $perlnode_list->{$node_name}
-      : ( $type =~ $htype ) ? $perlnode_list->{$node_name}->{$key}
-      : ( $type =~ $atype ) ? $perlnode_list->{$node_name}->[$key]
-      :                       undef;
+          ( $type =~ $stype ) ? $perlnode_list->{$node_name}
+        : ( $type =~ $htype ) ? $perlnode_list->{$node_name}->{$key}
+        : ( $type =~ $atype ) ? $perlnode_list->{$node_name}->[$key]
+        :                       undef;
 }
 
 sub _magic_set_perlnode {
@@ -616,8 +626,8 @@ sub _magic_set_perlnode {
     my $stype         = (@_) ? shift : 'SCALAR';
     my $atype         = (@_) ? shift : 'ARRAY';
     my $htype         = (@_) ? shift : 'HASH';
-    my ( $type, $key_name, $children_defnode_list ) =
-      _get_defnode_type( $defnode_list->{$node_name} );
+    my ( $type, $key_name, $children_defnode_list )
+        = _get_defnode_type( $defnode_list->{$node_name} );
 
     if ( $type =~ /$stype/ ) {
         $perlnode_list->{$node_name} = $val;

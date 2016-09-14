@@ -56,8 +56,8 @@ sub set_trigger {
     my $args;
     if   ( ref $_[0] eq 'HASH' ) { $args = shift }
     else                         { $args = {@_} }
-    my $delay = $args->{'delay'};   #AUTO, MIN, MAX, DEF, -0.15s to +0.15s
-    my $level = $args->{'level'};   #DEF, MIN, MAX, sensor dependent range in dB
+    my $delay = $args->{'delay'}; #AUTO, MIN, MAX, DEF, -0.15s to +0.15s
+    my $level = $args->{'level'}; #DEF, MIN, MAX, sensor dependent range in dB
     my $hysteresis = $args->{'hysteresis'};    #DEF, MIN, MAX, 0 to 3dB
     my $holdoff    = $args->{'holdoff'};       #DEF, MIN, MAX, 1µs to 400ms
     my $slope      = $args->{'edge'};          #POS, NEG
@@ -71,7 +71,7 @@ sub set_trigger {
 
     if ( $self->{average_on} && ( $type eq "INT" || $type eq "EXT" ) ) {
         Lab::Exception::CorruptParameter->throw( error =>
-"Can't switch to internal or external trigger while average mode is on. Change mode using set_mode(\"NORM\"). Error in U2000::set_trigger(). \n"
+                "Can't switch to internal or external trigger while average mode is on. Change mode using set_mode(\"NORM\"). Error in U2000::set_trigger(). \n"
         );
     }
     if ( $type eq "INT" || $type eq "EXT" || $type eq "IMM" ) {
@@ -80,7 +80,7 @@ sub set_trigger {
     }
     elsif ( $type eq "BUS" ) {
         Lab::Exception::CorruptParameter->throw( error =>
-"'BUS' trigger mode is not supported by this library in U2000::set_trigger()\n"
+                "'BUS' trigger mode is not supported by this library in U2000::set_trigger()\n"
         );
     }
     elsif ( $type ne "AUTO" ) {
@@ -193,7 +193,7 @@ sub set_sample_rate {
     }
     else {
         Lab::Exception::CorruptParameter->throw( error =>
-              "Unsuppoerted sample rate in HP34401A::set_sample_rate()\n" );
+                "Unsuppoerted sample rate in HP34401A::set_sample_rate()\n" );
     }
 }
 

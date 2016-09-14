@@ -32,13 +32,13 @@ sub new {
     my $proto = shift;
     my $class = ref($proto) || $proto;
     my $twin  = undef;
-    my $self =
-      $class->SUPER::new(@_);  # getting fields and _permitted from parent class
+    my $self  = $class->SUPER::new(@_)
+        ;    # getting fields and _permitted from parent class
     $self->${ \( __PACKAGE__ . '::_construct' ) }(__PACKAGE__);
 
     # no twin search - just register
     if ( $class eq __PACKAGE__ )
-    {    # careful - do only if this is not a parent class constructor
+    {        # careful - do only if this is not a parent class constructor
         my $i = 0;
         while ( defined $Lab::Bus::BusList{ $self->type() }->{$i} ) { $i++; }
         $Lab::Bus::BusList{ $self->type() }->{$i} = $self;
@@ -131,9 +131,10 @@ sub connection_write
 
     my $command = $args->{'command'} || undef;
     if ( !defined $command ) {
-        Lab::Exception::CorruptParameter->throw( error => "No command given to "
-              . __PACKAGE__
-              . "::connection_write\n" );
+        Lab::Exception::CorruptParameter->throw(
+                  error => "No command given to "
+                . __PACKAGE__
+                . "::connection_write\n" );
     }
     my $brutal      = $args->{'brutal'}      || $self->brutal();
     my $read_length = $args->{'read_length'} || $self->read_length();
@@ -164,16 +165,16 @@ ENDMSG
 
     if ( !defined $command ) {
         Lab::Exception::CorruptParameter->throw(
-                error => "No command given to "
-              . __PACKAGE__
-              . "::connection_write().\n", );
+                  error => "No command given to "
+                . __PACKAGE__
+                . "::connection_write().\n", );
     }
     else {
 
         if ( $user_return eq 'E' ) {
             Lab::Exception::Error->throw( error => "Error in "
-                  . __PACKAGE__
-                  . "::connection_write() while executing $command.", );
+                    . __PACKAGE__
+                    . "::connection_write() while executing $command.", );
         }
 
         print "\n";

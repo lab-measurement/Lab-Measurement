@@ -23,9 +23,9 @@ sub DataFile {
     my ( $filenamebase, $foldername ) = @_;
 
     use Lab::XPRESS::Data::XPRESS_DataFile;
-    my $xFile =
-      new Lab::XPRESS::Data::XPRESS_DataFile( $filenamebase, $foldername )
-      or die Lab::Exception::CorruptParameter->throw(
+    my $xFile
+        = new Lab::XPRESS::Data::XPRESS_DataFile( $filenamebase, $foldername )
+        or die Lab::Exception::CorruptParameter->throw(
         error => "Can't open file $filenamebase\n" );
     return $xFile;
 
@@ -37,7 +37,7 @@ sub Sweep {
 
     $sweep = "Lab::XPRESS::Sweep::" . $sweep;
     eval "require $sweep; $sweep->import(); 1;"
-      or do Lab::Exception::CorruptParameter->throw( error => $@ );
+        or do Lab::Exception::CorruptParameter->throw( error => $@ );
 
     return $sweep->new(@_);
 
@@ -48,9 +48,9 @@ sub Frame {
 
     my $frame = "Lab::XPRESS::Sweep::Frame";
     eval "require $frame; $frame->import(); 1;"
-      or do Lab::Exception::CorruptParameter->throw( error => $@ );
+        or do Lab::Exception::CorruptParameter->throw( error => $@ );
 
-#or do Lab::Exception::CorruptParameter->throw( error => "Can't locate module $frame\n" );
+    #or do Lab::Exception::CorruptParameter->throw( error => "Can't locate module $frame\n" );
 
     return $frame->new(@_);
 
@@ -62,9 +62,9 @@ sub Instrument {
 
     $instrument = "Lab::Instrument::" . $instrument;
     eval "require $instrument; $instrument->import(); 1;"
-      or do Lab::Exception::CorruptParameter->throw( error => $@ );
+        or do Lab::Exception::CorruptParameter->throw( error => $@ );
 
-#or do Lab::Exception::CorruptParameter->throw( error => "Can't locate module $instrument\n" );
+    #or do Lab::Exception::CorruptParameter->throw( error => "Can't locate module $instrument\n" );
 
     return $instrument->new(@_);
 
@@ -76,9 +76,9 @@ sub Connection {
 
     $connection = "Lab::Connection::" . $connection;
     eval "require $connection; $connection->import(); 1;"
-      or do Lab::Exception::CorruptParameter->throw( error => $@ );
+        or do Lab::Exception::CorruptParameter->throw( error => $@ );
 
-#or do Lab::Exception::CorruptParameter->throw( error => "Can't locate module $connection\n" );
+    #or do Lab::Exception::CorruptParameter->throw( error => "Can't locate module $connection\n" );
 
     return $connection->new(@_);
 

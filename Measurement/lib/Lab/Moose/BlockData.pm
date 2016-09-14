@@ -1,4 +1,4 @@
-package Lab::BlockData;
+package Lab::Moose::BlockData;
 use 5.010;
 use Moose;
 use Moose::Util::TypeConstraints qw/:all/;
@@ -9,12 +9,12 @@ use Carp;
 use Data::Dumper;
 use namespace::autoclean -also => [
     qw/
-      _rows_equal
-      _get_vector_param
-      _is_vector
-      _is_num_vector
-      _is_matrix
-      /
+        _rows_equal
+        _get_vector_param
+        _is_vector
+        _is_num_vector
+        _is_matrix
+        /
 ];
 
 our $VERSION = '3.520';
@@ -115,9 +115,9 @@ sub BUILD {
         return;
     }
 
-    my $matrix  = $self->matrix();
-    if (not _is_matrix($matrix)) {
-	croak 'not a matrix';
+    my $matrix = $self->matrix();
+    if ( not _is_matrix($matrix) ) {
+        croak 'not a matrix';
     }
     my $rows    = @{$matrix};
     my $columns = @{ $matrix->[0] };
@@ -150,13 +150,15 @@ sub column {
         croak "calling method 'column' before adding data";
     }
 
-    my ($column) =
-      pos_validated_list( \@_, { isa => 'Int' } );
+    my ($column)
+        = pos_validated_list( \@_, { isa => 'Int' } );
     my $columns = $self->columns();
 
     if ( $column < 0 || $column >= $columns ) {
-        croak
-          sprintf( "column '$column' is out of range (0..%d)", $columns - 1 );
+        croak sprintf(
+            "column '$column' is out of range (0..%d)",
+            $columns - 1
+        );
     }
 
     my $matrix = $self->matrix();
@@ -172,13 +174,13 @@ sub column {
 sub _get_vector_param {
     my $args = shift;
 
-    my ($vector) =
-      pos_validated_list( $args, { isa => 'Ref'} );
-			  
-    if (not _is_num_vector($vector)) {
-	croak "argument ain't numeric vector";
+    my ($vector)
+        = pos_validated_list( $args, { isa => 'Ref' } );
+
+    if ( not _is_num_vector($vector) ) {
+        croak "argument ain't numeric vector";
     }
-    
+
     return $vector;
 }
 
@@ -197,8 +199,10 @@ sub add_row {
     my $entries = @{$row};
 
     if ( $columns != $entries ) {
-        croak sprintf( "expected row with %d entries, got %d entries",
-            $columns, $entries );
+        croak sprintf(
+            "expected row with %d entries, got %d entries",
+            $columns, $entries
+        );
     }
 
     my $matrix = $self->matrix();
@@ -226,8 +230,10 @@ sub add_column {
     my $entries = @column;
 
     if ( $rows != $entries ) {
-        croak sprintf( "expected column with %d entries, got %d entries",
-            $rows, $entries );
+        croak sprintf(
+            "expected column with %d entries, got %d entries",
+            $rows, $entries
+        );
     }
 
     my $matrix = $self->matrix();
@@ -268,7 +274,7 @@ sub print_to_file {
     my $open_mode = $append ? '>>' : '>';
 
     open my $fh, $open_mode, $file
-      or croak "cannot open file: $!";
+        or croak "cannot open file: $!";
     my $matrix = $self->matrix;
     for my $row ( @{$matrix} ) {
         for my $real_number ( @{$row} ) {
@@ -279,7 +285,7 @@ sub print_to_file {
         print {$fh} "\n";
     }
     close $fh
-      or croak "cannot close";
+        or croak "cannot close";
 }
 
 __PACKAGE__->meta->make_immutable();

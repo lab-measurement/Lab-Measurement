@@ -50,30 +50,21 @@ sub new {
         $self->{IPS_x} = new Lab::Instrument::IPS(
             {
                 'connection' => $hub->Connection(
-                    'VISA_RS232',
-                    {
-                        'rs232_address' => 7
-                    }
+                    'VISA_RS232', { 'rs232_address' => 7 }
                 )
             }
         );
         $self->{IPS_y} = new Lab::Instrument::IPS(
             {
                 'connection' => $hub->Connection(
-                    'VISA_RS232',
-                    {
-                        'rs232_address' => 8
-                    }
+                    'VISA_RS232', { 'rs232_address' => 8 }
                 )
             }
         );
         $self->{IPS_z} = new Lab::Instrument::IPS(
             {
                 'connection' => $hub->Connection(
-                    'VISA_RS232',
-                    {
-                        'rs232_address' => 9
-                    }
+                    'VISA_RS232', { 'rs232_address' => 9 }
                 )
             }
         );
@@ -238,7 +229,10 @@ sub get_field {
         my ( $r, $phi, $theta ) = cartesian_to_spherical( $x, $y, $z );
         $phi   = ( $phi * 180 ) / pi;
         $theta = ( $theta * 180 ) / pi;
-        $r = ( ( $theta <= 90 ) and ( $phi > -90 and $phi <= 90 ) ) ? $r : -$r;
+        $r
+            = ( ( $theta <= 90 ) and ( $phi > -90 and $phi <= 90 ) )
+            ? $r
+            : -$r;
         $self->{value} = [ $r, $theta, $phi, $x, $y, $z ];
     }
 
@@ -270,9 +264,11 @@ sub change_plane {
 sub config_CIRC_sweep {
     my $self = shift;
 
-    my ( $B_R, $phi_start, $phi_stop, $v_phi, $interval, $resolution ) =
-      $self->_check_args( \@_,
-        [ 'b_r', 'phi_start', 'phi_stop', 'rate', 'interval', 'resolution' ] );
+    my ( $B_R, $phi_start, $phi_stop, $v_phi, $interval, $resolution )
+        = $self->_check_args(
+        \@_,
+        [ 'b_r', 'phi_start', 'phi_stop', 'rate', 'interval', 'resolution' ]
+        );
 
     if ( not defined $interval ) {
         $interval = 1;
@@ -293,9 +289,10 @@ sub config_CIRC_sweep {
         die "B_R is mandatory value in sub config_CIRC_sweep\n";
     }
 
-    my ( $x, $y, $z, $vx, $vy, $vz ) =
-      $self->create_basic_trace( $B_R, $phi_start, $phi_stop, $v_phi,
-        $resolution );
+    my ( $x, $y, $z, $vx, $vy, $vz ) = $self->create_basic_trace(
+        $B_R, $phi_start, $phi_stop, $v_phi,
+        $resolution
+    );
     my @x  = @$x;
     my @y  = @$y;
     my @z  = @$z;
@@ -331,8 +328,10 @@ sub config_CIRC_sweep {
 
     my ( $x_c, $y_c, $z_c ) = $self->get_field('C');
     if ( ( $x_c, $y_c, $z_c ) != ( $x[0], $y[0], $z[0] ) ) {
-        $self->config_DIR_sweep( $x[0], $y[0], $z[0], $self->{STARTING_SPEED},
-            1, 'C' );
+        $self->config_DIR_sweep(
+            $x[0], $y[0], $z[0], $self->{STARTING_SPEED},
+            1,     'C'
+        );
         print "Goto starting point...";
         $self->trg();
         $self->wait();
@@ -353,7 +352,7 @@ sub config_CIRC_sweep {
     my $len   = ( $len_x >= $len_y ) ? $len_x : $len_y;
     $len = ( $len >= $len_z ) ? $len : $len_z;
 
-    for ( my $i = 0 ; $i < $len ; $i++ ) {
+    for ( my $i = 0; $i < $len; $i++ ) {
         if ( ( my $len_x = @X ) >= $i ) {
             push( @X, $X[-1] );
         }
@@ -363,8 +362,8 @@ sub config_CIRC_sweep {
         if ( ( my $len_z = @Z ) >= $i ) {
             push( @Z, $Z[-1] );
         }
-        ( $r[$i], $phi[$i], $theta[$i] ) =
-          cartesian_to_spherical( $X[$i], $Y[$i], $Z[$i] );
+        ( $r[$i], $phi[$i], $theta[$i] )
+            = cartesian_to_spherical( $X[$i], $Y[$i], $Z[$i] );
         $phi[$i]   = ( $phi[$i] * 180 ) / pi;
         $theta[$i] = ( $theta[$i] * 180 ) / pi;
         $dphi[$i]  = $phi[$i] - $phi[0];
@@ -377,9 +376,10 @@ sub config_CIRC_sweep {
 sub config_DIR_sweep {
     my $self = shift;
 
-    my ( $B_R, $theta, $phi, $rate, $interval, $mode ) =
-      $self->_check_args( \@_,
-        [ 'b_r', 'theta', 'phi', 'rate', 'interval', 'mode' ] );
+    my ( $B_R, $theta, $phi, $rate, $interval, $mode ) = $self->_check_args(
+        \@_,
+        [ 'b_r', 'theta', 'phi', 'rate', 'interval', 'mode' ]
+    );
 
     my ( $x_1, $y_1, $z_1 );
 
@@ -391,12 +391,14 @@ sub config_DIR_sweep {
     elsif ( not defined $mode or $mode =~ /^(spherical|SPHERICAL|s|S)$/ ) {
         $mode = 'spherical';
         $B_R  = abs($B_R);
-        ( $x_1, $y_1, $z_1 ) =
-          spherical_to_cartesian( $B_R, pi * $phi / 180, pi * $theta / 180 );
+        ( $x_1, $y_1, $z_1 ) = spherical_to_cartesian(
+            $B_R, pi * $phi / 180,
+            pi * $theta / 180
+        );
     }
     else {
         die
-"Give mode for magnetic field sweep in Vectormagnet is not supported. \n";
+            "Give mode for magnetic field sweep in Vectormagnet is not supported. \n";
     }
 
     if ( not defined $interval ) {
@@ -405,7 +407,7 @@ sub config_DIR_sweep {
 
     if ( ( $x_1**2 + $y_1**2 + $z_1**2 ) > 1.01 ) {
         die
-"unexpected values in sub config_DIR_sweep. Magnetude of target magnetic field > 1 Tesla.";
+            "unexpected values in sub config_DIR_sweep. Magnetude of target magnetic field > 1 Tesla.";
     }
 
     if ( $rate <= 0 ) {
@@ -416,8 +418,9 @@ sub config_DIR_sweep {
     my ( $x_0, $y_0, $z_0 ) = $self->get_field('C');
 
     #calculate sweep parameter:
-    my $trace_length =
-      ( ( $x_1 - $x_0 )**2 + ( $y_1 - $y_0 )**2 + ( $z_1 - $z_0 )**2 )**0.5;
+    my $trace_length
+        = ( ( $x_1 - $x_0 )**2 + ( $y_1 - $y_0 )**2 + ( $z_1 - $z_0 )**2 )
+        **0.5;
     my $sweep_time = $trace_length / $rate;
     my $rate_x;
     my $rate_y;
@@ -450,7 +453,7 @@ sub config_DIR_sweep {
     my $len   = ( $len_x >= $len_y ) ? $len_x : $len_y;
     $len = ( $len >= $len_z ) ? $len : $len_z;
 
-    for ( my $i = 0 ; $i < $len ; $i++ ) {
+    for ( my $i = 0; $i < $len; $i++ ) {
         if ( ( my $len_x = @X ) >= $i ) {
             push( @X, $X[-1] );
         }
@@ -460,8 +463,8 @@ sub config_DIR_sweep {
         if ( ( my $len_z = @Z ) >= $i ) {
             push( @Z, $Z[-1] );
         }
-        ( $r[$i], $phi[$i], $theta[$i] ) =
-          cartesian_to_spherical( $X[$i], $Y[$i], $Z[$i] );
+        ( $r[$i], $phi[$i], $theta[$i] )
+            = cartesian_to_spherical( $X[$i], $Y[$i], $Z[$i] );
         $phi[$i]   = ( $phi[$i] * 180 ) / pi;
         $theta[$i] = ( $theta[$i] * 180 ) / pi;
         $dphi[$i]  = $phi[$i] - $phi[0];
@@ -506,12 +509,10 @@ sub Trafo_RHO {
     my $y    = shift;
     my $z    = shift;
 
-    my $X =
-      $x * cos( pi * $self->{RHO} / 180 ) +
-      $y * cos( pi * ( $self->{RHO} + 90 ) / 180 );
-    my $Y =
-      $x * cos( pi * ( $self->{RHO} - 90 ) / 180 ) +
-      $y * cos( pi * $self->{RHO} / 180 );
+    my $X = $x * cos( pi * $self->{RHO} / 180 )
+        + $y * cos( pi * ( $self->{RHO} + 90 ) / 180 );
+    my $Y = $x * cos( pi * ( $self->{RHO} - 90 ) / 180 )
+        + $y * cos( pi * $self->{RHO} / 180 );
     my $Z = $z;
 
     return $X, $Y, $Z;
@@ -524,13 +525,11 @@ sub Trafo_KAPPA {
     my $y    = shift;
     my $z    = shift;
 
-    my $X =
-      $x * cos( pi * $self->{KAPPA} / 180 ) +
-      $z * cos( pi * ( 90 - $self->{KAPPA} ) / 180 );
+    my $X = $x * cos( pi * $self->{KAPPA} / 180 )
+        + $z * cos( pi * ( 90 - $self->{KAPPA} ) / 180 );
     my $Y = $y;
-    my $Z =
-      $x * cos( pi * ( $self->{KAPPA} - 90 ) / 180 ) +
-      $z * cos( -1 * pi * $self->{KAPPA} / 180 );
+    my $Z = $x * cos( pi * ( $self->{KAPPA} - 90 ) / 180 )
+        + $z * cos( -1 * pi * $self->{KAPPA} / 180 );
 
     return $X, $Y, $Z;
 
@@ -549,10 +548,9 @@ sub create_basic_trace {
         or not defined $v
         or not defined $phi_start
         or not defined $phi_stop
-        or not defined $R )
-    {
+        or not defined $R ) {
         die
-"ERROR in sub 'create_basic_trace'. Some of the parameters are not defined.";
+            "ERROR in sub 'create_basic_trace'. Some of the parameters are not defined.";
     }
 
     # calculate magnet sweep trace points:
@@ -562,16 +560,17 @@ sub create_basic_trace {
     my $n = 0;
     print "PHI STOP" . $phi_stop . "\n";
     print "Res = " . $resolution . "\n";
-    for ( my $i = $phi_start ; $i < $phi_stop ; $i += $resolution ) {
+    for ( my $i = $phi_start; $i < $phi_stop; $i += $resolution ) {
 
         $x[$n] = $R * cos( pi * ($i) / 180 );
         $y[$n] = $R * sin( pi * ($i) / 180 );
         $z[$n] = 0;
 
         #print $x[$n]."\t".$y[$n]."\t".$z[$n]."\n";
-        ( $x[$n], $y[$n], $z[$n] ) =
-          $self->Trafo_KAPPA( $x[$n], $y[$n], $z[$n] );
-        ( $x[$n], $y[$n], $z[$n] ) = $self->Trafo_RHO( $x[$n], $y[$n], $z[$n] );
+        ( $x[$n], $y[$n], $z[$n] )
+            = $self->Trafo_KAPPA( $x[$n], $y[$n], $z[$n] );
+        ( $x[$n], $y[$n], $z[$n] )
+            = $self->Trafo_RHO( $x[$n], $y[$n], $z[$n] );
         $n++;
     }
 
@@ -589,34 +588,34 @@ sub create_basic_trace {
     my @vy;
     my @vz;
     my $len = @x;
-    for ( my $i = 0 ; $i < $len ; $i++ ) {
+    for ( my $i = 0; $i < $len; $i++ ) {
         $vx[$i] = abs(
             (
-                $x[   ( $i == $len - 1 ) ? $i     : $i + 1 ] -
-                  $x[ ( $i == $len - 1 ) ? $i - 1 : $i ]
+                      $x[ ( $i == $len - 1 ) ? $i     : $i + 1 ]
+                    - $x[ ( $i == $len - 1 ) ? $i - 1 : $i ]
             ) / ( ( $resolution / $v ) )
         );
         $vy[$i] = abs(
             (
-                $y[   ( $i == $len - 1 ) ? $i     : $i + 1 ] -
-                  $y[ ( $i == $len - 1 ) ? $i - 1 : $i ]
+                      $y[ ( $i == $len - 1 ) ? $i     : $i + 1 ]
+                    - $y[ ( $i == $len - 1 ) ? $i - 1 : $i ]
             ) / ( ( $resolution / $v ) )
         );
         $vz[$i] = abs(
             (
-                $z[   ( $i == $len - 1 ) ? $i     : $i + 1 ] -
-                  $z[ ( $i == $len - 1 ) ? $i - 1 : $i ]
+                      $z[ ( $i == $len - 1 ) ? $i     : $i + 1 ]
+                    - $z[ ( $i == $len - 1 ) ? $i - 1 : $i ]
             ) / ( ( $resolution / $v ) )
         );
     }
 
-#open LOG2, ">test2.dat";
-#my $len = @x;
-#for ( my $i =0; $i < $len; $i++)
-# {
-# print LOG2 $x[$i]."\t".$y[$i]."\t".$z[$i]."\t".$vx[$i]."\t".$vy[$i]."\t".$vz[$i]."\n";
-# }
-#close LOG2;
+    #open LOG2, ">test2.dat";
+    #my $len = @x;
+    #for ( my $i =0; $i < $len; $i++)
+    # {
+    # print LOG2 $x[$i]."\t".$y[$i]."\t".$z[$i]."\t".$vx[$i]."\t".$vy[$i]."\t".$vz[$i]."\n";
+    # }
+    #close LOG2;
 
     return \@x, \@y, \@z, \@vx, \@vy, \@vz;
 

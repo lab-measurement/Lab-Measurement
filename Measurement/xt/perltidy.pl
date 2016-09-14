@@ -28,5 +28,5 @@ else {
     );
 }
 
-perltidy( argv => [ '-b', '-bext=/', @files ], );
+perltidy( perltidyrc => 'perltidyrc', argv => [ '-b', '-bext=/', @files ], );
 

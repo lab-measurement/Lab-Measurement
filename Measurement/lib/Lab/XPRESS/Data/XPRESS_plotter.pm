@@ -26,8 +26,8 @@ sub new {
 
     my %plot = %$plot;
 
-    $self->{PAUSE} =
-      -1;  # negative value ==> pause disabled, positive value ==> pause enabled
+    $self->{PAUSE} = -1
+        ; # negative value ==> pause disabled, positive value ==> pause enabled
 
     if ( $self->{plot}->{refresh} eq 'block' ) {
         $self->{PAUSE} = 1;
@@ -53,8 +53,8 @@ sub prepair_plot_config_data {
 
     # replace columnames by columnumbers:
     if ( exists $self->{COLUMN_NAMES}{ $self->{plot}->{'x-axis'} } ) {
-        $self->{plot}->{'x-axis'} =
-          $self->{COLUMN_NAMES}{ $self->{plot}->{'x-axis'} };
+        $self->{plot}->{'x-axis'}
+            = $self->{COLUMN_NAMES}{ $self->{plot}->{'x-axis'} };
     }
 
     my $temp = ();
@@ -83,13 +83,13 @@ sub prepair_plot_config_data {
     }
 
     if ( exists $self->{COLUMN_NAMES}{ $self->{plot}->{'z-axis'} } ) {
-        $self->{plot}->{'z-axis'} =
-          $self->{COLUMN_NAMES}{ $self->{plot}->{'z-axis'} };
+        $self->{plot}->{'z-axis'}
+            = $self->{COLUMN_NAMES}{ $self->{plot}->{'z-axis'} };
     }
 
     if ( exists $self->{COLUMN_NAMES}{ $self->{plot}->{'cb-axis'} } ) {
-        $self->{plot}->{'cb-axis'} =
-          $self->{COLUMN_NAMES}{ $self->{plot}->{'cb-axis'} };
+        $self->{plot}->{'cb-axis'}
+            = $self->{COLUMN_NAMES}{ $self->{plot}->{'cb-axis'} };
     }
 
 }
@@ -316,10 +316,9 @@ sub init_gnuplot {
 
     if (    not defined $plot{'z-axis'}
         and not defined $plot{'cb-axis'}
-        and $plot{'type'} eq 'pm3d' )
-    {
+        and $plot{'type'} eq 'pm3d' ) {
         die
-"Error while plotting data. Plot type = pm3d: z-axis and/or cb-axis are not defined.";
+            "Error while plotting data. Plot type = pm3d: z-axis and/or cb-axis are not defined.";
     }
 
     %{ $self->{plot} } = %plot;
@@ -379,9 +378,9 @@ sub start_plot {
 
     # create PLOT-command:
 
-#-------------------------------------------------------------------------------------------------#
-#---- y1-axis ------------------------------------------------------------------------------------#
-#-------------------------------------------------------------------------------------------------#
+    #-------------------------------------------------------------------------------------------------#
+    #---- y1-axis ------------------------------------------------------------------------------------#
+    #-------------------------------------------------------------------------------------------------#
     my $i = 1;
     $gp = "plot ";
     foreach my $y ( @{ $self->{plot}->{'y-axis'} } ) {
@@ -393,36 +392,35 @@ sub start_plot {
             $self->{plot}->{'type'} = 'point';
         }
 
-        if (
-            $self->{plot}->{'type'} =~ /\b(line|lines|LINE|LINES|L|l|ln|LN)\b/ )
-        {
+        if ( $self->{plot}->{'type'}
+            =~ /\b(line|lines|LINE|LINES|L|l|ln|LN)\b/ ) {
             if ( $block_num > 1 ) {
 
                 #my $parameter = $self->{plot}->{'x-axis'};
                 my $old_blocks    = $block_num - 2;
                 my $current_block = $block_num - 1;
-                $gp .=
-"'$filename' using X1:Y1$i every :::0::$old_blocks with lines,";
+                $gp
+                    .= "'$filename' using X1:Y1$i every :::0::$old_blocks with lines,";
                 $gp .= "'$filename' using X1:Y1$i every :::$current_block"
-                  . "::$current_block with lines,";
+                    . "::$current_block with lines,";
             }
             else {
                 #my $parameter = $self->{plot}->{'x-axis'};
                 $gp .= "'$filename' using X1:Y1$i with lines,";
             }
         }
-        elsif (
-            $self->{plot}->{'type'} =~ /\b(linetrace|LINETRACE|trace|TRACE)\b/ )
-        {
+        elsif ( $self->{plot}->{'type'}
+            =~ /\b(linetrace|LINETRACE|trace|TRACE)\b/ ) {
+
             #my $parameter = $self->{plot}->{'x-axis'};
-            my $block_old =
-              ( $block_num - 2 < 0 ) ? $block_num - 1 : $block_num - 2;
-            my $block_new =
-              ( $block_num - 1 < 0 ) ? $block_num : $block_num - 1;
+            my $block_old
+                = ( $block_num - 2 < 0 ) ? $block_num - 1 : $block_num - 2;
+            my $block_new
+                = ( $block_num - 1 < 0 ) ? $block_num : $block_num - 1;
             $gp .= "'$filename' using X1:Y1$i every :::$block_old"
-              . "::$block_old with lines,";
+                . "::$block_old with lines,";
             $gp .= "'$filename' using X1:Y1$i every :::$block_new"
-              . "::$block_new with points";
+                . "::$block_new with points";
         }
         elsif ( $self->{plot}->{'type'} =~ /\b(single|SINGLE)\b/ ) {
             if ( $block_num > 1 ) {
@@ -430,7 +428,7 @@ sub start_plot {
                 #my $parameter = $self->{plot}->{'x-axis'};
                 my $current_block = $block_num - 1;
                 $gp .= "'$filename' using X1:Y1$i every :::$current_block"
-                  . "::$current_block with lines,";
+                    . "::$current_block with lines,";
             }
             else {
                 #my $parameter = $self->{plot}->{'x-axis'};
@@ -443,7 +441,7 @@ sub start_plot {
                 #my $parameter = $self->{plot}->{'x-axis'};
                 foreach my $block ( 0 .. $block_num - 1 ) {
                     $gp .= "'$filename' using  X1:Y1$i every :::$block"
-                      . "::$block with lines lt $block ti 'M_$block',";
+                        . "::$block with lines lt $block ti 'M_$block',";
                 }
             }
             else {
@@ -451,18 +449,17 @@ sub start_plot {
                 $gp .= "'$filename' using  X1:Y1$i with lines,";
             }
         }
-        elsif ( $self->{plot}->{'type'} =~
-            /\b(points|point|POINTS|POINT|P|p|pt|PT)\b/ )
-        {
+        elsif ( $self->{plot}->{'type'}
+            =~ /\b(points|point|POINTS|POINT|P|p|pt|PT)\b/ ) {
             if ( $block_num > 1 ) {
 
                 #my $parameter = $self->{plot}->{'x-axis'};
                 my $old_blocks    = $block_num - 2;
                 my $current_block = $block_num - 1;
-                $gp .=
-"'$filename' using  X1:Y1$i every :::0::$old_blocks with lines,";
+                $gp
+                    .= "'$filename' using  X1:Y1$i every :::0::$old_blocks with lines,";
                 $gp .= "'$filename' using  X1:Y1$i every :::$current_block"
-                  . "::$current_block with points,";
+                    . "::$current_block with points,";
             }
             else {
                 #my $parameter = $self->{plot}->{'x-axis'};
@@ -475,8 +472,8 @@ sub start_plot {
         elsif ( $self->{plot}->{'type'} eq 'PlotterGUI' ) {
             $gp .= "'$self->{plot}->{filename}' ";
             $gp .= "using X1:Y1$i axis x1y1 ";
-            $gp .=
-"every LineIncrement:BlockIncrement:LineFrom:BlockFrom:LineTo:BlockTo ";
+            $gp
+                .= "every LineIncrement:BlockIncrement:LineFrom:BlockFrom:LineTo:BlockTo ";
             $gp .= "with @{$self->{plot}->{y_LineStyle}}[$i] ";
             if ( @{ $self->{plot}->{y_LineStyle} }[$i] =~ /lines/ ) {
                 $gp .= "linecolor '@{$self->{plot}->{y_LineColor}}[$i]' ";
@@ -492,54 +489,53 @@ sub start_plot {
         $i++;
     }
 
-#-------------------------------------------------------------------------------------------------#
-#---- y2-axis ------------------------------------------------------------------------------------#
-#-------------------------------------------------------------------------------------------------#
+    #-------------------------------------------------------------------------------------------------#
+    #---- y2-axis ------------------------------------------------------------------------------------#
+    #-------------------------------------------------------------------------------------------------#
     my $i = 1;
     foreach my $y ( @{ $self->{plot}->{'y2-axis'} } ) {
         if ( not defined $y ) {
             next;
         }
-        if (
-            $self->{plot}->{'type'} =~ /\b(line|lines|LINE|LINES|L|l|ln|LN)\b/ )
-        {
+        if ( $self->{plot}->{'type'}
+            =~ /\b(line|lines|LINE|LINES|L|l|ln|LN)\b/ ) {
             if ( $block_num > 1 ) {
 
                 #my $parameter = $self->{plot}->{'x-axis'};
                 my $old_blocks    = $block_num - 2;
                 my $current_block = $block_num - 1;
-                $gp .=
-"'$filename' using X1:Y2$i axis x1y2 every :::0::$old_blocks with lines,";
-                $gp .=
-                  "'$filename' using X1:Y2$i axis x1y2 every :::$current_block"
-                  . "::$current_block with lines,";
+                $gp
+                    .= "'$filename' using X1:Y2$i axis x1y2 every :::0::$old_blocks with lines,";
+                $gp
+                    .= "'$filename' using X1:Y2$i axis x1y2 every :::$current_block"
+                    . "::$current_block with lines,";
             }
             else {
                 #my $parameter = $self->{plot}->{'x-axis'};
                 $gp .= "'$filename' using X1:Y2$i axis x1y2 with lines,";
             }
         }
-        elsif (
-            $self->{plot}->{'type'} =~ /\b(linetrace|LINETRACE|trace|TRACE)\b/ )
-        {
+        elsif ( $self->{plot}->{'type'}
+            =~ /\b(linetrace|LINETRACE|trace|TRACE)\b/ ) {
+
             #my $parameter = $self->{plot}->{'x-axis'};
-            my $block_old =
-              ( $block_num - 2 < 0 ) ? $block_num - 1 : $block_num - 2;
-            my $block_new =
-              ( $block_num - 1 < 0 ) ? $block_num : $block_num - 1;
+            my $block_old
+                = ( $block_num - 2 < 0 ) ? $block_num - 1 : $block_num - 2;
+            my $block_new
+                = ( $block_num - 1 < 0 ) ? $block_num : $block_num - 1;
             $gp .= "'$filename' using X1:Y1$i axis x1y2 every :::$block_old"
-              . "::$block_old with lines,";
+                . "::$block_old with lines,";
             $gp .= "'$filename' using X1:Y1$i axis x1y2 every :::$block_new"
-              . "::$block_new with points";
+                . "::$block_new with points";
         }
         elsif ( $self->{plot}->{'type'} =~ /\b(single|SINGLE)\b/ ) {
             if ( $block_num > 1 ) {
 
                 #my $parameter = $self->{plot}->{'x-axis'};
                 my $current_block = $block_num - 1;
-                $gp .=
-                  "'$filename' using X1:Y2$i axis x1y2 every :::$current_block"
-                  . "::$current_block with lines,";
+                $gp
+                    .= "'$filename' using X1:Y2$i axis x1y2 every :::$current_block"
+                    . "::$current_block with lines,";
             }
             else {
                 #my $parameter = $self->{plot}->{'x-axis'};
@@ -551,9 +547,9 @@ sub start_plot {
 
                 #my $parameter = $self->{plot}->{'x-axis'};
                 foreach my $block ( 0 .. $block_num - 1 ) {
-                    $gp .=
-                        "'$filename' using  X1:Y2$i axis x1y2 every :::$block"
-                      . "::$block with lines lt $block ti 'M_$block',";
+                    $gp
+                        .= "'$filename' using  X1:Y2$i axis x1y2 every :::$block"
+                        . "::$block with lines lt $block ti 'M_$block',";
                 }
             }
             else {
@@ -561,19 +557,18 @@ sub start_plot {
                 $gp .= "'$filename' using X1:Y2$i axis x1y2 with lines,";
             }
         }
-        elsif ( $self->{plot}->{'type'} =~
-            /\b(points|point|POINTS|POINT|P|p|pt|PT)\b/ )
-        {
+        elsif ( $self->{plot}->{'type'}
+            =~ /\b(points|point|POINTS|POINT|P|p|pt|PT)\b/ ) {
             if ( $block_num > 1 ) {
 
                 #my $parameter = $self->{plot}->{'x-axis'};
                 my $old_blocks    = $block_num - 2;
                 my $current_block = $block_num - 1;
-                $gp .=
-"'$filename' using X1:Y2$i axis x1y2 every :::0::$old_blocks with lines,";
-                $gp .=
-                  "'$filename' using X1:Y2$i axis x1y2 every :::$current_block"
-                  . "::$current_block with points,";
+                $gp
+                    .= "'$filename' using X1:Y2$i axis x1y2 every :::0::$old_blocks with lines,";
+                $gp
+                    .= "'$filename' using X1:Y2$i axis x1y2 every :::$current_block"
+                    . "::$current_block with points,";
             }
             else {
                 #my $parameter = $self->{plot}->{'x-axis'};
@@ -734,8 +729,8 @@ sub bind_x {
     $gp .= 'bind x "';
 
     # draw background:
-    $gp .=
-"set obj 1001 rect from graph 0, graph 0 to graph 1, graph 1 front fc rgb 'grey' fs transparent solid 0.8; ";
+    $gp
+        .= "set obj 1001 rect from graph 0, graph 0 to graph 1, graph 1 front fc rgb 'grey' fs transparent solid 0.8; ";
     $gp .= "set label 1001 '';\\\n";
     print $gpipe $gp;
     usleep(1e4);
@@ -745,15 +740,15 @@ sub bind_x {
     my $m = 0;
     my $n = 0;
     foreach my $column (@columns) {
-        $gp .=
-            "set obj 100"
-          . ( $m * 4 + $n + 2 )
-          . " rect from graph (0.05+$n*(0.23)), graph ((1-0.05)-$m*(0.12)) to graph (0.05+$n*(0.23)+0.21), graph ((1-0.05)-$m*(0.12) - 0.1) front fc rgb '#2F3239'; ";
-        $gp .=
-            "set label 100"
-          . ( $m * 4 + $n + 2 ) . " '"
-          . $column
-          . "' at graph (0.05+$n*(0.23) + 0.1), graph ((1-0.05)-$m*(0.12)-0.05) front center tc rgb 'white'; \\\n";
+        $gp
+            .= "set obj 100"
+            . ( $m * 4 + $n + 2 )
+            . " rect from graph (0.05+$n*(0.23)), graph ((1-0.05)-$m*(0.12)) to graph (0.05+$n*(0.23)+0.21), graph ((1-0.05)-$m*(0.12) - 0.1) front fc rgb '#2F3239'; ";
+        $gp
+            .= "set label 100"
+            . ( $m * 4 + $n + 2 ) . " '"
+            . $column
+            . "' at graph (0.05+$n*(0.23) + 0.1), graph ((1-0.05)-$m*(0.12)-0.05) front center tc rgb 'white'; \\\n";
         print $gpipe $gp;
         usleep(2e4);
         $gp = "";
@@ -782,16 +777,16 @@ sub bind_x {
     $gp = "";
 
     foreach my $column (@columns) {
-        $gp .=
-            "if (( MOUSE_X < ( GPVAL_X_MIN + RANGE_X * "
-          . ( 0.05 + $n * 0.23 + 0.21 )
-          . " )) && ( MOUSE_X > ( GPVAL_X_MIN + RANGE_X * "
-          . ( 0.05 + $n * 0.23 )
-          . " )) && ( MOUSE_Y < ( GPVAL_Y_MIN + RANGE_Y * "
-          . ( ( 1 - 0.05 ) - $m * 0.12 )
-          . " )) && ( MOUSE_Y > ( GPVAL_Y_MIN + RANGE_Y * "
-          . ( ( 1 - 0.05 ) - $m * 0.12 - 0.1 )
-          . " ))) {";
+        $gp
+            .= "if (( MOUSE_X < ( GPVAL_X_MIN + RANGE_X * "
+            . ( 0.05 + $n * 0.23 + 0.21 )
+            . " )) && ( MOUSE_X > ( GPVAL_X_MIN + RANGE_X * "
+            . ( 0.05 + $n * 0.23 )
+            . " )) && ( MOUSE_Y < ( GPVAL_Y_MIN + RANGE_Y * "
+            . ( ( 1 - 0.05 ) - $m * 0.12 )
+            . " )) && ( MOUSE_Y > ( GPVAL_Y_MIN + RANGE_Y * "
+            . ( ( 1 - 0.05 ) - $m * 0.12 - 0.1 )
+            . " ))) {";
         $gp .= "LOOP = 0;";
         $gp .= "X1 = " . ( $m * 4 + $n + 1 ) . "; ";
         $gp .= "set xlabel COLUMN_" . ( $m * 4 + $n + 1 ) . "; ";
@@ -854,8 +849,8 @@ sub bind_y {
     $gp .= 'bind y "';
 
     # draw background:
-    $gp .=
-"set obj 2001 rect from graph 0, graph 0 to graph 1, graph 1 front fc rgb 'grey' fs transparent solid 0.8; ";
+    $gp
+        .= "set obj 2001 rect from graph 0, graph 0 to graph 1, graph 1 front fc rgb 'grey' fs transparent solid 0.8; ";
     $gp .= "set label 2001 '';\\\n";
     print $gpipe $gp;
     usleep(1e4);
@@ -865,15 +860,15 @@ sub bind_y {
     my $m = 0;
     my $n = 0;
     foreach my $column (@columns) {
-        $gp .=
-            "set obj 200"
-          . ( $m * 4 + $n + 2 )
-          . " rect from graph (0.05+$n*(0.23)), graph ((1-0.05)-$m*(0.12)) to graph (0.05+$n*(0.23)+0.21), graph ((1-0.05)-$m*(0.12) - 0.1) front fc rgb '#2F3239'; ";
-        $gp .=
-            "set label 200"
-          . ( $m * 4 + $n + 2 ) . " '"
-          . $column
-          . "' at graph (0.05+$n*(0.23) + 0.1), graph ((1-0.05)-$m*(0.12)-0.05) front center tc rgb 'white'; \\\n";
+        $gp
+            .= "set obj 200"
+            . ( $m * 4 + $n + 2 )
+            . " rect from graph (0.05+$n*(0.23)), graph ((1-0.05)-$m*(0.12)) to graph (0.05+$n*(0.23)+0.21), graph ((1-0.05)-$m*(0.12) - 0.1) front fc rgb '#2F3239'; ";
+        $gp
+            .= "set label 200"
+            . ( $m * 4 + $n + 2 ) . " '"
+            . $column
+            . "' at graph (0.05+$n*(0.23) + 0.1), graph ((1-0.05)-$m*(0.12)-0.05) front center tc rgb 'white'; \\\n";
         print $gpipe $gp;
         usleep(2e4);
         $gp = "";
@@ -902,16 +897,16 @@ sub bind_y {
     $gp = "";
 
     foreach my $column (@columns) {
-        $gp .=
-            "if (( MOUSE_X < ( GPVAL_X_MIN + RANGE_X * "
-          . ( 0.05 + $n * 0.23 + 0.21 )
-          . " )) && ( MOUSE_X > ( GPVAL_X_MIN + RANGE_X * "
-          . ( 0.05 + $n * 0.23 )
-          . " )) && ( MOUSE_Y < ( GPVAL_Y_MIN + RANGE_Y * "
-          . ( ( 1 - 0.05 ) - $m * 0.12 )
-          . " )) && ( MOUSE_Y > ( GPVAL_Y_MIN + RANGE_Y * "
-          . ( ( 1 - 0.05 ) - $m * 0.12 - 0.1 )
-          . " ))) {";
+        $gp
+            .= "if (( MOUSE_X < ( GPVAL_X_MIN + RANGE_X * "
+            . ( 0.05 + $n * 0.23 + 0.21 )
+            . " )) && ( MOUSE_X > ( GPVAL_X_MIN + RANGE_X * "
+            . ( 0.05 + $n * 0.23 )
+            . " )) && ( MOUSE_Y < ( GPVAL_Y_MIN + RANGE_Y * "
+            . ( ( 1 - 0.05 ) - $m * 0.12 )
+            . " )) && ( MOUSE_Y > ( GPVAL_Y_MIN + RANGE_Y * "
+            . ( ( 1 - 0.05 ) - $m * 0.12 - 0.1 )
+            . " ))) {";
         $gp .= "LOOP = 0;";
         $gp .= "Y11 = " . ( $m * 4 + $n + 1 ) . "; ";
         $gp .= "set ylabel COLUMN_" . ( $m * 4 + $n + 1 ) . "; ";
@@ -974,8 +969,8 @@ sub bind_z {
     $gp .= 'bind z "';
 
     # draw background:
-    $gp .=
-"set obj 3001 rect from graph 0, graph 0 to graph 1, graph 1 front fc rgb 'grey' fs transparent solid 0.8; ";
+    $gp
+        .= "set obj 3001 rect from graph 0, graph 0 to graph 1, graph 1 front fc rgb 'grey' fs transparent solid 0.8; ";
     $gp .= "set label 3001 '';\\\n";
     print $gpipe $gp;
     usleep(1e4);
@@ -985,15 +980,15 @@ sub bind_z {
     my $m = 0;
     my $n = 0;
     foreach my $column (@columns) {
-        $gp .=
-            "set obj 300"
-          . ( $m * 4 + $n + 2 )
-          . " rect from graph (0.05+$n*(0.23)), graph ((1-0.05)-$m*(0.12)) to graph (0.05+$n*(0.23)+0.21), graph ((1-0.05)-$m*(0.12) - 0.1) front fc rgb '#2F3239'; ";
-        $gp .=
-            "set label 300"
-          . ( $m * 4 + $n + 2 ) . " '"
-          . $column
-          . "' at graph (0.05+$n*(0.23) + 0.1), graph ((1-0.05)-$m*(0.12)-0.05) front center tc rgb 'white'; \\\n";
+        $gp
+            .= "set obj 300"
+            . ( $m * 4 + $n + 2 )
+            . " rect from graph (0.05+$n*(0.23)), graph ((1-0.05)-$m*(0.12)) to graph (0.05+$n*(0.23)+0.21), graph ((1-0.05)-$m*(0.12) - 0.1) front fc rgb '#2F3239'; ";
+        $gp
+            .= "set label 300"
+            . ( $m * 4 + $n + 2 ) . " '"
+            . $column
+            . "' at graph (0.05+$n*(0.23) + 0.1), graph ((1-0.05)-$m*(0.12)-0.05) front center tc rgb 'white'; \\\n";
         print $gpipe $gp;
         usleep(2e4);
         $gp = "";
@@ -1022,16 +1017,16 @@ sub bind_z {
     $gp = "";
 
     foreach my $column (@columns) {
-        $gp .=
-            "if (( MOUSE_X < ( GPVAL_X_MIN + RANGE_X * "
-          . ( 0.05 + $n * 0.23 + 0.21 )
-          . " )) && ( MOUSE_X > ( GPVAL_X_MIN + RANGE_X * "
-          . ( 0.05 + $n * 0.23 )
-          . " )) && ( MOUSE_Y < ( GPVAL_Y_MIN + RANGE_Y * "
-          . ( ( 1 - 0.05 ) - $m * 0.12 )
-          . " )) && ( MOUSE_Y > ( GPVAL_Y_MIN + RANGE_Y * "
-          . ( ( 1 - 0.05 ) - $m * 0.12 - 0.1 )
-          . " ))) {";
+        $gp
+            .= "if (( MOUSE_X < ( GPVAL_X_MIN + RANGE_X * "
+            . ( 0.05 + $n * 0.23 + 0.21 )
+            . " )) && ( MOUSE_X > ( GPVAL_X_MIN + RANGE_X * "
+            . ( 0.05 + $n * 0.23 )
+            . " )) && ( MOUSE_Y < ( GPVAL_Y_MIN + RANGE_Y * "
+            . ( ( 1 - 0.05 ) - $m * 0.12 )
+            . " )) && ( MOUSE_Y > ( GPVAL_Y_MIN + RANGE_Y * "
+            . ( ( 1 - 0.05 ) - $m * 0.12 - 0.1 )
+            . " ))) {";
         $gp .= "LOOP = 0;";
         $gp .= "Z = " . ( $m * 4 + $n + 1 ) . "; ";
         $gp .= "set zlabel COLUMN_" . ( $m * 4 + $n + 1 ) . "; ";
@@ -1094,8 +1089,8 @@ sub bind_c {
     $gp .= 'bind c "';
 
     # draw background:
-    $gp .=
-"set obj 4001 rect from graph 0, graph 0 to graph 1, graph 1 front fc rgb 'grey' fs transparent solid 0.8; ";
+    $gp
+        .= "set obj 4001 rect from graph 0, graph 0 to graph 1, graph 1 front fc rgb 'grey' fs transparent solid 0.8; ";
     $gp .= "set label 4001 '';\\\n";
     print $gpipe $gp;
     usleep(1e4);
@@ -1105,15 +1100,15 @@ sub bind_c {
     my $m = 0;
     my $n = 0;
     foreach my $column (@columns) {
-        $gp .=
-            "set obj 400"
-          . ( $m * 4 + $n + 2 )
-          . " rect from graph (0.05+$n*(0.23)), graph ((1-0.05)-$m*(0.12)) to graph (0.05+$n*(0.23)+0.21), graph ((1-0.05)-$m*(0.12) - 0.1) front fc rgb '#2F3239'; ";
-        $gp .=
-            "set label 400"
-          . ( $m * 4 + $n + 2 ) . " '"
-          . $column
-          . "' at graph (0.05+$n*(0.23) + 0.1), graph ((1-0.05)-$m*(0.12)-0.05) front center tc rgb 'white'; \\\n";
+        $gp
+            .= "set obj 400"
+            . ( $m * 4 + $n + 2 )
+            . " rect from graph (0.05+$n*(0.23)), graph ((1-0.05)-$m*(0.12)) to graph (0.05+$n*(0.23)+0.21), graph ((1-0.05)-$m*(0.12) - 0.1) front fc rgb '#2F3239'; ";
+        $gp
+            .= "set label 400"
+            . ( $m * 4 + $n + 2 ) . " '"
+            . $column
+            . "' at graph (0.05+$n*(0.23) + 0.1), graph ((1-0.05)-$m*(0.12)-0.05) front center tc rgb 'white'; \\\n";
         print $gpipe $gp;
         usleep(2e4);
         $gp = "";
@@ -1142,16 +1137,16 @@ sub bind_c {
     $gp = "";
 
     foreach my $column (@columns) {
-        $gp .=
-            "if (( MOUSE_X < ( GPVAL_X_MIN + RANGE_X * "
-          . ( 0.05 + $n * 0.23 + 0.21 )
-          . " )) && ( MOUSE_X > ( GPVAL_X_MIN + RANGE_X * "
-          . ( 0.05 + $n * 0.23 )
-          . " )) && ( MOUSE_Y < ( GPVAL_Y_MIN + RANGE_Y * "
-          . ( ( 1 - 0.05 ) - $m * 0.12 )
-          . " )) && ( MOUSE_Y > ( GPVAL_Y_MIN + RANGE_Y * "
-          . ( ( 1 - 0.05 ) - $m * 0.12 - 0.1 )
-          . " ))) {";
+        $gp
+            .= "if (( MOUSE_X < ( GPVAL_X_MIN + RANGE_X * "
+            . ( 0.05 + $n * 0.23 + 0.21 )
+            . " )) && ( MOUSE_X > ( GPVAL_X_MIN + RANGE_X * "
+            . ( 0.05 + $n * 0.23 )
+            . " )) && ( MOUSE_Y < ( GPVAL_Y_MIN + RANGE_Y * "
+            . ( ( 1 - 0.05 ) - $m * 0.12 )
+            . " )) && ( MOUSE_Y > ( GPVAL_Y_MIN + RANGE_Y * "
+            . ( ( 1 - 0.05 ) - $m * 0.12 - 0.1 )
+            . " ))) {";
         $gp .= "LOOP = 0;";
         $gp .= "CB = " . ( $m * 4 + $n + 1 ) . "; ";
         $gp .= "set cblabel COLUMN_" . ( $m * 4 + $n + 1 ) . "; ";
@@ -1206,7 +1201,7 @@ sub bind_s {
         # create directory if it doesn't exist:
         if ( not -d $directory ) {
             warn
-"directory given by  $self->{FILENAME} doesn't exist. Create directory $directory";
+                "directory given by  $self->{FILENAME} doesn't exist. Create directory $directory";
             mkdir $directory;
         }
 
@@ -1274,7 +1269,7 @@ sub save_plot {
     }
     else {
         warn
-"in function 'save_plot': file type $type not defined. Possible types are 'png' and 'eps'.";
+            "in function 'save_plot': file type $type not defined. Possible types are 'png' and 'eps'.";
     }
 
     return $self;
@@ -1340,33 +1335,33 @@ sub datazone {
 
     # info bar:
     my $gp = "set style rect fc lt -1 fs solid 0.15 noborder\n";
-    $gp .=
-        "set object 1 rect from "
-      . $x_min . ","
-      . ( $y_min + 0.03 * ( $y_max - $y_min ) ) . " to "
-      . $x_max . ","
-      . ( $y_min + 0.1 * ( $y_max - $y_min ) )
-      . " behind\n";
+    $gp
+        .= "set object 1 rect from "
+        . $x_min . ","
+        . ( $y_min + 0.03 * ( $y_max - $y_min ) ) . " to "
+        . $x_max . ","
+        . ( $y_min + 0.1 * ( $y_max - $y_min ) )
+        . " behind\n";
 
-    $gp .=
-        "set label 1 at "
-      . ( $x_min + 0.025 * ( $x_max - $x_min ) ) . ","
-      . ( $y_min + 0.06 *  ( $y_max - $y_min ) )
-      . " left\n";
+    $gp
+        .= "set label 1 at "
+        . ( $x_min + 0.025 * ( $x_max - $x_min ) ) . ","
+        . ( $y_min + 0.06 *  ( $y_max - $y_min ) )
+        . " left\n";
     $gp .= "set label 1 '$left'\n";
 
-    $gp .=
-        "set label 3 at "
-      . ( $x_min + 0.5 *  ( $x_max - $x_min ) ) . ","
-      . ( $y_min + 0.06 * ( $y_max - $y_min ) )
-      . " center\n";
+    $gp
+        .= "set label 3 at "
+        . ( $x_min + 0.5 *  ( $x_max - $x_min ) ) . ","
+        . ( $y_min + 0.06 * ( $y_max - $y_min ) )
+        . " center\n";
     $gp .= "set label 3 '$center'\n";
 
-    $gp .=
-        "set label 2 at "
-      . ( $x_min + 0.975 * ( $x_max - $x_min ) ) . ","
-      . ( $y_min + 0.06 *  ( $y_max - $y_min ) )
-      . " right\n";
+    $gp
+        .= "set label 2 at "
+        . ( $x_min + 0.975 * ( $x_max - $x_min ) ) . ","
+        . ( $y_min + 0.06 *  ( $y_max - $y_min ) )
+        . " right\n";
     $gp .= "set label 2 '$right'\n";
 
     print $gpipe $gp;

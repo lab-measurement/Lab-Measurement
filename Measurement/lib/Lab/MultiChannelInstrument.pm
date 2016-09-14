@@ -50,26 +50,24 @@ sub new {
     my @isa = Class::ISA::super_path($class);
     our @ISA = $isa[2];
     eval "require $ISA[0]; @ISA->import(); 1;"
-      or do Lab::Exception::Warning->throw( error => $@ );
+        or do Lab::Exception::Warning->throw( error => $@ );
 
     # create instrument channels:
-    while ( my ( $channel, $value ) =
-        each %{ $self->{device_settings}->{channels} } )
-    {
+    while ( my ( $channel, $value )
+        = each %{ $self->{device_settings}->{channels} } ) {
         $self->{channels}->{$channel} = $class->SUPER::new( $self->{config} );
 
         $self->{channels}->{$channel}->${ \( $ISA[0] . '::_construct' ) }
-          ($class);
+            ($class);
 
         $self->{channels}->{$channel}->{channel} = $value;
 
-# link shared cache values to the same cache-address in order to keep these parameters up to date for all channels (using a tied Hash):
+        # link shared cache values to the same cache-address in order to keep these parameters up to date for all channels (using a tied Hash):
         my $device_cache;
         tie %$device_cache, 'DeviceCache', $self;
 
-        while ( my ( $k, $v ) =
-            each %{ $self->{channels}->{$channel}->device_cache() } )
-        {
+        while ( my ( $k, $v )
+            = each %{ $self->{channels}->{$channel}->device_cache() } ) {
             $device_cache->{$k} = $v;
         }
         $self->{channels}->{$channel}->{device_cache} = $device_cache;
@@ -80,12 +78,11 @@ sub new {
 
     if (   not defined $self->{device_settings}->{channel_default}
         or not exists $self->{channels}
-        ->{ $self->{device_settings}->{channel_default} } )
-    {
+        ->{ $self->{device_settings}->{channel_default} } ) {
         Lab::Exception::Warning->throw(
-                error => "\n\nMultiChannelDevice: default channel '"
-              . $self->{device_settings}->{channel_default}
-              . "' is not defined or does not exist!\n\n" );
+                  error => "\n\nMultiChannelDevice: default channel '"
+                . $self->{device_settings}->{channel_default}
+                . "' is not defined or does not exist!\n\n" );
     }
 
     $self->register_instrument();
@@ -105,7 +102,8 @@ sub _construct {    # _construct(__PACKAGE__);
         {
             no strict 'refs';
             $fields = *${ \( $package . '::fields' ) }{HASH};
-            $fields = ( $fields, *${ \( $device_class . '::fields' ) }{HASH} );
+            $fields
+                = ( $fields, *${ \( $device_class . '::fields' ) }{HASH} );
         }
     }
     else {
@@ -119,31 +117,31 @@ sub _construct {    # _construct(__PACKAGE__);
 
             # # don't overwrite filled hash from ancestor
             $self->{device_settings} = {}
-              if !exists( $self->{device_settings} );
+                if !exists( $self->{device_settings} );
             for my $s_key ( keys %{ $fields->{'device_settings'} } ) {
-                $self->{device_settings}->{$s_key} =
-                  clone( $fields->{device_settings}->{$s_key} );
+                $self->{device_settings}->{$s_key}
+                    = clone( $fields->{device_settings}->{$s_key} );
             }
         }
         elsif ( $element eq 'connection_settings' ) {
 
             # don't overwrite filled hash from ancestor
             $self->{connection_settings} = {}
-              if !exists( $self->{connection_settings} );
+                if !exists( $self->{connection_settings} );
             for my $s_key ( keys %{ $fields->{connection_settings} } ) {
-                $self->{connection_settings}->{$s_key} =
-                  clone( $fields->{connection_settings}->{$s_key} );
+                $self->{connection_settings}->{$s_key}
+                    = clone( $fields->{connection_settings}->{$s_key} );
             }
         }
         elsif ( $element eq 'channels' ) {
             $self->{device_settings}->{channels} = $fields->{$element};
         }
         else {
-# handle the normal fields - can also be hash refs etc, so use clone to get a deep copy
+            # handle the normal fields - can also be hash refs etc, so use clone to get a deep copy
             $self->{$element} = clone( $fields->{$element} );
 
-#warn "here comes\n" if($element eq 'device_cache');
-#warn Dumper($Lab::Instrument::DummySource::fields) if($element eq 'device_cache');
+            #warn "here comes\n" if($element eq 'device_cache');
+            #warn Dumper($Lab::Instrument::DummySource::fields) if($element eq 'device_cache');
         }
         $self->{_permitted}->{$element} = 1;
     }
@@ -159,9 +157,9 @@ sub channel {
     }
     else {
         Lab::Exception::CorruptParameter->throw(
-                error => "\n\nMultiChannelInstrument: Channel '"
-              . $channel
-              . "' is not defined.\n\n" );
+                  error => "\n\nMultiChannelInstrument: Channel '"
+                . $channel
+                . "' is not defined.\n\n" );
     }
 }
 
@@ -179,11 +177,10 @@ sub sprint_config {
     }
 
     while ( my ( $chk, $chv ) = each %{ $self->{channels} } ) {
-        $device_cache->{'multichannel_variables'}->{$chk}->{'name'} =
-          $chv->get_name();
-        while ( my ( $k, $v ) =
-            each %{ $self->{channels}->{$chk}->{device_cache} } )
-        {
+        $device_cache->{'multichannel_variables'}->{$chk}->{'name'}
+            = $chv->get_name();
+        while ( my ( $k, $v )
+            = each %{ $self->{channels}->{$chk}->{device_cache} } ) {
             if ( any { $_ eq $k } @{ $self->{multichannel_shared_cache} } ) {
 
             }
@@ -213,8 +210,8 @@ sub register_instrument {
 sub unregister_instrument {
     my $self = shift;
 
-    @{Lab::Instrument::REGISTERED_INSTRUMENTS} =
-      grep { $_ ne $self } @{Lab::Instrument::REGISTERED_INSTRUMENTS};
+    @{Lab::Instrument::REGISTERED_INSTRUMENTS}
+        = grep { $_ ne $self } @{Lab::Instrument::REGISTERED_INSTRUMENTS};
 
 }
 
@@ -250,24 +247,22 @@ sub AUTOLOAD {
         defined $self->{channels}
         ->{ $self->{device_settings}->{channel_default} }
         and $self->{channels}->{ $self->{device_settings}->{channel_default} }
-        ->can($name) )
-    {
+        ->can($name) ) {
         return $self->{channels}
-          ->{ $self->{device_settings}->{channel_default} }->$name(@_);
+            ->{ $self->{device_settings}->{channel_default} }->$name(@_);
     }
     elsif (
         defined $self->{channels}
         ->{ $self->{device_settings}->{channel_default} }
         and exists $self->{channels}
-        ->{ $self->{device_settings}->{channel_default} }->{$name} )
-    {
+        ->{ $self->{device_settings}->{channel_default} }->{$name} ) {
         return $self->{channels}
-          ->{ $self->{device_settings}->{channel_default} }->{$name};
+            ->{ $self->{device_settings}->{channel_default} }->{$name};
     }
     else {
         Lab::Exception::Warning->throw( error => "AUTOLOAD in "
-              . __PACKAGE__
-              . " couldn't access field '${name}'.\n" );
+                . __PACKAGE__
+                . " couldn't access field '${name}'.\n" );
     }
 }
 
@@ -291,21 +286,21 @@ sub device_cache {
     }
     else {    # uneven sized list - don't know what to do with that one
         Lab::Exception::CorruptParameter->throw(
-                error => "Corrupt parameters given to "
-              . __PACKAGE__
-              . "::device_cache().\n" );
+                  error => "Corrupt parameters given to "
+                . __PACKAGE__
+                . "::device_cache().\n" );
     }
 
     #warn "Keys present: \n" . Dumper($self->{device_settings}) . "\n";
 
-    if ( ref($value) =~ /HASH/ ) {   # it's a hash - merge into current settings
+    if ( ref($value) =~ /HASH/ ) { # it's a hash - merge into current settings
         for my $ext_key ( keys %{$value} ) {
             $self->{'device_cache'}->{$ext_key} = $value->{$ext_key}
-              ;    # if( exists($self->device_cache()->{$ext_key}) );
+                ;    # if( exists($self->device_cache()->{$ext_key}) );
         }
         return $self->{'device_cache'};
     }
-    else {         # it's a key - return the corresponding value
+    else {           # it's a key - return the corresponding value
         return $self->{'device_cache'}->{$value};
     }
 }

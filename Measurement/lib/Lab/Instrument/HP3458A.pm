@@ -45,7 +45,7 @@ sub _device_init {
     #$self->connection()->EnableTermChar(1);
     #print "hallo\n";
     $self->write( "END 2", error_check => 1 )
-      ; # or ERRSTR? and other queries will time out, unless using a line/message end character
+        ; # or ERRSTR? and other queries will time out, unless using a line/message end character
     $self->write( 'TARM AUTO',    error_check => 1 );    # keep measuring
     $self->write( 'TRIG AUTO',    error_check => 1 );    # keep measuring
     $self->write( 'NRDGS 1,AUTO', error_check => 1 );    # keep measuring
@@ -70,17 +70,17 @@ sub configure_voltage_dc {
     }
     elsif ( $range !~ /^(MIN|MAX)$/ ) {
         Lab::Exception::CorruptParameter->throw( error =>
-"Range has to be set to a decimal value or 'AUTO', 'MIN' or 'MAX' in "
-              . ( caller(0) )[3]
-              . "\n" );
+                "Range has to be set to a decimal value or 'AUTO', 'MIN' or 'MAX' in "
+                . ( caller(0) )[3]
+                . "\n" );
     }
 
     if ( !defined($tint) || $tint eq 'DEFAULT' ) {
         $tint = 10;
     }
     elsif ( $tint =~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/
-        && ( ( $tint >= 0 && $tint <= 1000 ) || $tint == -1 ) )
-    {
+        && ( ( $tint >= 0 && $tint <= 1000 ) || $tint == -1 ) ) {
+
         # Convert seconds to PLC (power line cycles)
         $tint *= $self->pl_freq();
     }
@@ -92,9 +92,9 @@ sub configure_voltage_dc {
     }
     elsif ( $tint !~ /^(MIN|MAX)$/ ) {
         Lab::Exception::CorruptParameter->throw( error =>
-"Integration time has to be set to a positive value or 'AUTO', 'MIN' or 'MAX' in "
-              . ( caller(0) )[3]
-              . "\n" );
+                "Integration time has to be set to a positive value or 'AUTO', 'MIN' or 'MAX' in "
+                . ( caller(0) )[3]
+                . "\n" );
     }
 
     # do it
@@ -107,18 +107,18 @@ sub configure_voltage_dc {
 sub configure_voltage_dc_trigger {
     my $self = shift;
 
-    my ( $range, $tint, $count, $delay ) =
-      $self->_check_args( \@_, [ 'range', 'tint', 'count', 'delay' ] );
+    my ( $range, $tint, $count, $delay )
+        = $self->_check_args( \@_, [ 'range', 'tint', 'count', 'delay' ] );
 
     $count = 1 if !defined($count);
     Lab::Exception::CorruptParameter->throw(
         error => "Sample count has to be an integer between 1 and 512\n" )
-      if ( $count !~ /^[0-9]*$/ || $count < 1 || $count > 16777215 );
+        if ( $count !~ /^[0-9]*$/ || $count < 1 || $count > 16777215 );
 
     $delay = 0 if !defined($delay);
     Lab::Exception::CorruptParameter->throw(
         error => "Trigger delay has to be a positive decimal value\n" )
-      if ( $count !~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/ );
+        if ( $count !~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/ );
 
     $self->configure_voltage_dc( $range, $tint );
 
@@ -141,8 +141,8 @@ sub configure_voltage_dc_trigger_highspeed {
     my $self  = shift;
     my $range = shift || 10;    # in V, or "AUTO", "MIN", "MAX"
     my $tint  = shift
-      || 1.4e-6
-      ; # integration time in sec, "DEFAULT", "MIN", "MAX". Default of 1.4e-6 is the highest possible value for 100kHz sampling.
+        || 1.4e-6
+        ; # integration time in sec, "DEFAULT", "MIN", "MAX". Default of 1.4e-6 is the highest possible value for 100kHz sampling.
     my $count = shift || 10000;
     my $delay = shift;    # in seconds, 'MIN'
 
@@ -155,17 +155,17 @@ sub configure_voltage_dc_trigger_highspeed {
     }
     elsif ( $range !~ /^(MIN|MAX)$/ ) {
         Lab::Exception::CorruptParameter->throw( error =>
-"Range has to be set to a decimal value or 'AUTO', 'MIN' or 'MAX' in "
-              . ( caller(0) )[3]
-              . "\n" );
+                "Range has to be set to a decimal value or 'AUTO', 'MIN' or 'MAX' in "
+                . ( caller(0) )[3]
+                . "\n" );
     }
 
     if ( $tint eq 'DEFAULT' || !defined($tint) ) {
         $tint = 1.4e-6;
     }
     elsif ( $tint =~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/
-        && ( ( $tint >= 0 && $tint <= 1000 ) || $tint == -1 ) )
-    {
+        && ( ( $tint >= 0 && $tint <= 1000 ) || $tint == -1 ) ) {
+
         # Convert seconds to PLC (power line cycles)
         #$tint*=$self->pl_freq();
     }
@@ -177,20 +177,20 @@ sub configure_voltage_dc_trigger_highspeed {
     }
     elsif ( $tint !~ /^(MIN|MAX)$/ ) {
         Lab::Exception::CorruptParameter->throw( error =>
-"Integration time has to be set to a positive value or 'AUTO', 'MIN' or 'MAX' in "
-              . ( caller(0) )[3]
-              . "\n" );
+                "Integration time has to be set to a positive value or 'AUTO', 'MIN' or 'MAX' in "
+                . ( caller(0) )[3]
+                . "\n" );
     }
 
     $count = 1 if !defined($count);
     Lab::Exception::CorruptParameter->throw(
         error => "Sample count has to be an integer between 1 and 512\n" )
-      if ( $count !~ /^[0-9]*$/ || $count < 1 || $count > 16777215 );
+        if ( $count !~ /^[0-9]*$/ || $count < 1 || $count > 16777215 );
 
     $delay = 0 if !defined($delay);
     Lab::Exception::CorruptParameter->throw(
         error => "Trigger delay has to be a positive decimal value\n" )
-      if ( $count !~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/ );
+        if ( $count !~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/ );
 
     $self->write( "PRESET FAST",        error_check => 1 );
     $self->write( "TARM HOLD",          error_check => 1 );
@@ -206,10 +206,12 @@ sub configure_voltage_dc_trigger_highspeed {
 
 sub triggered_read {
     my $self = shift;
-    my $args =
-      scalar(@_) % 2 == 0 ? {@_} : ( ref( $_[0] ) eq 'HASH' ? $_[0] : undef );
+    my $args
+        = scalar(@_) % 2 == 0
+        ? {@_}
+        : ( ref( $_[0] ) eq 'HASH' ? $_[0] : undef );
     Lab::Exception::CorruptParameter->throw("Illegal parameter hash given!\n")
-      if !defined($args);
+        if !defined($args);
 
     $args->{'timeout'} = $args->{'timeout'} || undef;
 
@@ -224,10 +226,12 @@ sub triggered_read {
 
 sub triggered_read_raw {
     my $self = shift;
-    my $args =
-      scalar(@_) % 2 == 0 ? {@_} : ( ref( $_[0] ) eq 'HASH' ? $_[0] : undef );
+    my $args
+        = scalar(@_) % 2 == 0
+        ? {@_}
+        : ( ref( $_[0] ) eq 'HASH' ? $_[0] : undef );
     Lab::Exception::CorruptParameter->throw("Illegal parameter hash given!\n")
-      if !defined($args);
+        if !defined($args);
 
     my $read_until_length = $args->{'read_until_length'};
     my $value             = '';
@@ -238,8 +242,7 @@ sub triggered_read_raw {
         $value = $self->query( "TARM SGL", $args );
         my $tmp = length($value);
         while ( defined $read_until_length
-            && length($value) < $read_until_length )
-        {
+            && length($value) < $read_until_length ) {
             $value .= $self->read($args);
         }
     }
@@ -260,20 +263,20 @@ sub decode_SINT {
     my $value       = 0;
     my @result_list = ();
     my $i           = 0;
-    for ( my $v = 0 ; $v < $#values ; $v += 2 ) {
+    for ( my $v = 0; $v < $#values; $v += 2 ) {
         $ival = unpack( 'S', join( '', $values[$v], $values[ $v + 1 ] ) );
 
         # flipping the bytes to MSB,...,LSB
         $val_revb = 0;
-        for ( $i = 0 ; $i < 2 ; $i++ ) {
-            $val_revb = $val_revb |
-              ( ( $ival >> $i * 8 & 0x000000FF ) << ( ( 1 - $i ) * 8 ) );
+        for ( $i = 0; $i < 2; $i++ ) {
+            $val_revb = $val_revb
+                | ( ( $ival >> $i * 8 & 0x000000FF ) << ( ( 1 - $i ) * 8 ) );
         }
 
         my $decval = 0;
         my $msb    = ( $val_revb >> 15 ) & 0x0001;
         $decval = $msb == 0 ? 0 : -1 * ( 2**15 );
-        for ( $i = 14 ; $i >= 0 ; $i-- ) {
+        for ( $i = 14; $i >= 0; $i-- ) {
             $decval += ( ( ( $val_revb >> $i ) & 0x0001 ) * 2 )**$i;
         }
         push( @result_list, $decval * $iscale );
@@ -297,14 +300,16 @@ sub set_oformat {
 
 sub get_oformat {
     my $self = shift;
-    my $args =
-      scalar(@_) % 2 == 0 ? {@_} : ( ref( $_[0] ) eq 'HASH' ? $_[0] : undef );
+    my $args
+        = scalar(@_) % 2 == 0
+        ? {@_}
+        : ( ref( $_[0] ) eq 'HASH' ? $_[0] : undef );
     Lab::Exception::CorruptParameter->throw("Illegal parameter hash given!\n")
-      if !defined($args);
+        if !defined($args);
 
     if ( $args->{direct_read} || !defined $self->device_cache()->{oformat} ) {
-        return $self->device_cache()->{oformat} =
-          $self->query( 'OFORMAT?', $args );
+        return $self->device_cache()->{oformat}
+            = $self->query( 'OFORMAT?', $args );
     }
     else {
         return $self->device_cache()->{oformat};
@@ -314,8 +319,8 @@ sub get_oformat {
 sub get_autozero {
     my $self = shift;
 
-    return $self->device_cache()->{autozero} =
-      $self->query( 'AZERO?', @_, error_check => 0 );
+    return $self->device_cache()->{autozero}
+        = $self->query( 'AZERO?', @_, error_check => 0 );
 }
 
 sub set_autozero {
@@ -339,7 +344,7 @@ sub set_autozero {
     }
     else {
         Lab::Exception::CorruptParameter->throw( error => ( caller(0) )[3]
-              . " can be set to 'ON'/1, 'OFF'/0 or 'ONCE'. Received '${enable}'\n"
+                . " can be set to 'ON'/1, 'OFF'/0 or 'ONCE'. Received '${enable}'\n"
         );
     }
     $self->write( $command, error_check => 1, @_ );
@@ -411,9 +416,9 @@ sub display_clear {
 sub set_display_text {
     my $self = shift;
     my $text = shift;
-    if ( $text !~
-        /^[A-Za-z0-9\ \!\#\$\%\&\'\(\)\^\\\/\@\;\:\[\]\,\.\+\-\=\<\>\?\_]*$/ )
-    {    # characters allowed by the 3458A
+    if ( $text
+        !~ /^[A-Za-z0-9\ \!\#\$\%\&\'\(\)\^\\\/\@\;\:\[\]\,\.\+\-\=\<\>\?\_]*$/
+        ) {    # characters allowed by the 3458A
         Lab::Exception::CorruptParameter->throw(
             "set_display_text(): Illegal characters in given text.\n");
     }
@@ -452,9 +457,9 @@ sub get_error {
         }
         else {
             Lab::Exception::DeviceError->throw(
-                    "Reading the error status of the device failed in "
-                  . ( caller(0) )[3]
-                  . ". Something's going wrong here.\n" );
+                      "Reading the error status of the device failed in "
+                    . ( caller(0) )[3]
+                    . ". Something's going wrong here.\n" );
         }
     }
     else {

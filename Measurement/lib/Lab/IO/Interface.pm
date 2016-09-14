@@ -11,7 +11,7 @@ sub new {
     my $class = ref($proto) || $proto;
 
     my $self = Lab::Generic::new( $class, @_ )
-      ;    #<---- What is this???? Why not SUPER new?
+        ;    #<---- What is this???? Why not SUPER new?
     $self->{CHANNELS};
     $self->{last_object};
     $self->{last_channel};
@@ -30,13 +30,12 @@ sub receive {
     }    #{print "Receive: Missing data object!\n"; return;}
 
     if ( exists $self->{CHANNELS}->{$chan}
-        && defined $self->{CHANNELS}->{$chan} )
-    {
+        && defined $self->{CHANNELS}->{$chan} ) {
         $self->{CHANNELS}->{$chan}->( $self, $DATA );
         $self->{last_object}  = $DATA->{object};
         $self->{last_channel} = $chan;
     }
-    else { return; }   #{print "Receive: Channel $chan not supported!"; return;}
+    else { return; } #{print "Receive: Channel $chan not supported!"; return;}
 }
 
 # print: prototype
@@ -59,24 +58,25 @@ sub same_object {
     my $DATA   = shift;
     my $object = $DATA->{object};
 
-# print "Object compare between '".$self->{last_object}."' (".ref($self->{last_object}).") and '".$object."':\n";
-# print "Defined? ", (defined $self->{last_object} ? "Yes" : "No"), "\n";
-# print "Hash? ", (ref($self->{last_object}) ? "Yes" : "No"), "\n";
-# print "Same? ", ($object == $self->{last_object} ? "Yes" : "No"), "\n";
-# print "Result: ", (defined $self->{last_object} && ref($self->{last_object}) && $object == $self->{last_object} ? "Yes" : "No"), "\n";
+    # print "Object compare between '".$self->{last_object}."' (".ref($self->{last_object}).") and '".$object."':\n";
+    # print "Defined? ", (defined $self->{last_object} ? "Yes" : "No"), "\n";
+    # print "Hash? ", (ref($self->{last_object}) ? "Yes" : "No"), "\n";
+    # print "Same? ", ($object == $self->{last_object} ? "Yes" : "No"), "\n";
+    # print "Result: ", (defined $self->{last_object} && ref($self->{last_object}) && $object == $self->{last_object} ? "Yes" : "No"), "\n";
 
-    return ( defined $self->{last_object}
-          && ref( $self->{last_object} )
-          && $object == $self->{last_object} );
+    return (   defined $self->{last_object}
+            && ref( $self->{last_object} )
+            && $object == $self->{last_object} );
 }
 
 sub same_channel {
     my $self = shift;
     my $chan = shift;
 
-# print "Channel compare between '".$self->{last_channel}."' and '".$chan."': ", (defined $self->{last_channel} && $chan eq $self->{last_channel} ? "Yes" : "No"), "\n";
+    # print "Channel compare between '".$self->{last_channel}."' and '".$chan."': ", (defined $self->{last_channel} && $chan eq $self->{last_channel} ? "Yes" : "No"), "\n";
 
-    return ( defined $self->{last_channel} && $chan eq $self->{last_channel} );
+    return ( defined $self->{last_channel}
+            && $chan eq $self->{last_channel} );
 }
 
 1;

@@ -8,8 +8,9 @@ use Lab::MultiChannelInstrument;
 our @ISA = ( 'Lab::MultiChannelInstrument', 'Lab::Instrument' );
 
 our %fields = (
-    supported_connections =>
-      [ 'VISA', 'VISA_GPIB', 'GPIB', 'VISA_RS232', 'RS232', 'IsoBus', 'DEBUG' ],
+    supported_connections => [
+        'VISA', 'VISA_GPIB', 'GPIB', 'VISA_RS232', 'RS232', 'IsoBus', 'DEBUG'
+    ],
 
     # default settings for the supported connections
     connection_settings => {
@@ -45,7 +46,7 @@ our %fields = (
     },
 
     multichannel_shared_cache =>
-      [ "id", "proportional", "integral", "derivative" ],
+        [ "id", "proportional", "integral", "derivative" ],
 
 );
 
@@ -98,10 +99,9 @@ sub _get_parameter {           # internal only
         and $parameter != 10
         and $parameter != 11
         and $parameter != 12
-        and $parameter != 13 )
-    {
+        and $parameter != 13 ) {
         Lab::Exception::CorruptParameter->throw( error =>
-"unexpected value for MODE in sub read_parameter. Expected values are:\n 0 --> Demand SET TEMPERATURE\n 1 --> Sensor 1 Temperature\n 2 --> Sensor 2 Temperature\n 3 --> Sensor 3 Temperature\n 4 --> Temperature Error (+ve when SET>Measured)\n 5 --> Heater O/P (as % of current limit)\n 6 --> Heater O/P (as Volts, approx)\n 7 --> Gas Flow O/P (arbitratry units)\n 8 --> Proportional Band\n 9 --> Integral Action Time\n10 --> Derivative Actionb Time\n11 --> Channel 1 Freq/4\n12 --> Channel 2 Freq/4\n13 --> Channel 3 Freq/4"
+                "unexpected value for MODE in sub read_parameter. Expected values are:\n 0 --> Demand SET TEMPERATURE\n 1 --> Sensor 1 Temperature\n 2 --> Sensor 2 Temperature\n 3 --> Sensor 3 Temperature\n 4 --> Temperature Error (+ve when SET>Measured)\n 5 --> Heater O/P (as % of current limit)\n 6 --> Heater O/P (as Volts, approx)\n 7 --> Gas Flow O/P (arbitratry units)\n 8 --> Proportional Band\n 9 --> Integral Action Time\n10 --> Derivative Actionb Time\n11 --> Channel 1 Freq/4\n12 --> Channel 2 Freq/4\n13 --> Channel 3 Freq/4"
         );
     }
 
@@ -142,7 +142,7 @@ sub set_T {    # basic
 
     if ( not defined $value or $value > 200 or $value < 0 ) {
         Lab::Exception::CorruptParameter->throw( error =>
-"unexpected value for SETPOINT in sub set_T. Expected values are between 0 .. 200 K"
+                "unexpected value for SETPOINT in sub set_T. Expected values are between 0 .. 200 K"
         );
     }
 
@@ -196,7 +196,7 @@ sub _set_control
 
     if ( $mode != 0 and $mode != 1 and $mode != 2 and $mode != 3 ) {
         Lab::Exception::CorruptParameter->throw( error =>
-"unexpected value for MODE in sub _set_control. Expected values are:\n 0 --> Local & Locked\n 1 --> Remote & Locked\n 2 --> Local & Unlocked\n 3 --> Remote & Unlocked"
+                "unexpected value for MODE in sub _set_control. Expected values are:\n 0 --> Local & Locked\n 1 --> Remote & Locked\n 2 --> Local & Unlocked\n 3 --> Remote & Unlocked"
         );
     }
     my $cmd = sprintf( "C%d\r", $mode );
@@ -215,7 +215,7 @@ sub _set_communicationsprotocol {    # internal only
 
     if ( $mode != 0 and $mode != 2 ) {
         Lab::Exception::CorruptParameter->throw( error =>
-"unexpected value for MODE in sub set_comunicationsprotocol. Expected values are:\n 0 --> Normal (default)\n 2 --> Sends <LF> after each <CR>"
+                "unexpected value for MODE in sub set_comunicationsprotocol. Expected values are:\n 0 --> Normal (default)\n 2 --> Sends <LF> after each <CR>"
         );
     }
 
@@ -239,7 +239,7 @@ sub set_heatercontrol {                   # basic
     }
     else {
         Lab::Exception::CorruptParameter->throw( error =>
-"unexpected value for MODE in sub set_heatercontrol. Expected values are:\n 0 --> Heater Manual, Gas Manual\n 1 --> Heater Auto"
+                "unexpected value for MODE in sub set_heatercontrol. Expected values are:\n 0 --> Heater Manual, Gas Manual\n 1 --> Heater Auto"
         );
     }
 
@@ -302,7 +302,7 @@ sub set_PID {    # basic
     }
     elsif ( ( not defined $P or not defined $I or not defined $D ) ) {
         Lab::Exception::CorruptParameter->throw( error =>
-"unexpected values for PID in sub set_PID. Exactly three arguments are required."
+                "unexpected values for PID in sub set_PID. Exactly three arguments are required."
         );
     }
     else {
@@ -324,7 +324,7 @@ sub set_heatersensor {           # basic
 
     if ( $sensor != 1 and $sensor != 2 and $sensor != 3 ) {
         Lab::Exception::CorruptParameter->throw( error =>
-"unexpected value for SENSOR in sub set_heatersensor. Expected values are:\n 1 --> Sensor #1\n 2 --> Sensor #2\n 3 --> Sensor #3"
+                "unexpected value for SENSOR in sub set_heatersensor. Expected values are:\n 1 --> Sensor #1\n 2 --> Sensor #2\n 3 --> Sensor #3"
         );
     }
 
@@ -348,7 +348,7 @@ sub _set_heaterlimit {    # internal only
 
     if ( not defined $limit or $limit > 40 or $limit < 0 ) {
         Lab::Exception::CorruptParameter->throw( error =>
-"unexpected value for LIMIT in sub _set_heaterlimit. Expected values are between 0 .. 40 V"
+                "unexpected value for LIMIT in sub _set_heaterlimit. Expected values are between 0 .. 40 V"
         );
     }
 
@@ -363,7 +363,7 @@ sub set_heateroutput {    # basic
 
     if ( not defined $value or $value > 99.9 or $value < 0 ) {
         Lab::Exception::CorruptParameter->throw( error =>
-"unexpected value for OUTPUT in sub set_heateroutput. Expected values are between 0 .. 999. (100 == 10.0% * HEATERLIMIT.)"
+                "unexpected value for OUTPUT in sub set_heateroutput. Expected values are between 0 .. 999. (100 == 10.0% * HEATERLIMIT.)"
         );
     }
 

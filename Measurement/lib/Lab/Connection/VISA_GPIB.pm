@@ -36,7 +36,7 @@ sub new {
     my $class = ref($proto) || $proto;
     my $twin  = undef;
     my $self  = $class->SUPER::new(@_)
-      ;    # getting fields and _permitted from parent class, parameter checks
+        ;  # getting fields and _permitted from parent class, parameter checks
     $self->${ \( __PACKAGE__ . '::_construct' ) }(__PACKAGE__);
 
     return $self;
@@ -55,25 +55,26 @@ sub _setbus {
 
     no strict 'refs';
     $self->bus( $bus_class->new( $self->config() ) )
-      || Lab::Exception::Error->throw(
-            error => "Failed to create bus $bus_class in "
-          . __PACKAGE__
-          . "::_setbus.\n" );
+        || Lab::Exception::Error->throw(
+              error => "Failed to create bus $bus_class in "
+            . __PACKAGE__
+            . "::_setbus.\n" );
     use strict;
 
     #
     # build VISA resource name
     #
-    my $resource_name =
-      'GPIB' . $self->gpib_board() . '::' . $self->gpib_address();
+    my $resource_name
+        = 'GPIB' . $self->gpib_board() . '::' . $self->gpib_address();
     $resource_name .= '::' . $self->gpib_saddress()
-      if defined $self->gpib_saddress();
+        if defined $self->gpib_saddress();
     $resource_name .= '::INSTR';
     $self->resource_name($resource_name);
     $self->config()->{'resource_name'} = $resource_name;
 
     # again, pass it all.
-    $self->connection_handle( $self->bus()->connection_new( $self->config() ) );
+    $self->connection_handle(
+        $self->bus()->connection_new( $self->config() ) );
 
     return $self->bus();
 }
@@ -95,8 +96,10 @@ sub _configurebus {
             $Lab::VISA::VI_ATTR_TERMCHAR_EN,
             $Lab::VISA::VI_TRUE
         );
-        $self->bus()->set_visa_attribute( $self->connection_handle(),
-            $Lab::VISA::VI_ATTR_TERMCHAR, ord( $self->config()->{termchar} ) );
+        $self->bus()->set_visa_attribute(
+            $self->connection_handle(),
+            $Lab::VISA::VI_ATTR_TERMCHAR, ord( $self->config()->{termchar} )
+        );
     }
     else {
         $self->bus()->set_visa_attribute(
@@ -107,8 +110,10 @@ sub _configurebus {
     }
 
     # read timeout
-    $self->bus()->set_visa_attribute( $self->connection_handle(),
-        $Lab::VISA::VI_ATTR_TMO_VALUE, $self->config()->{timeout} * 1e3 );
+    $self->bus()->set_visa_attribute(
+        $self->connection_handle(),
+        $Lab::VISA::VI_ATTR_TMO_VALUE, $self->config()->{timeout} * 1e3
+    );
 
 }
 
@@ -153,8 +158,10 @@ sub SetTermChar {    # the character as string
     my $termchar = shift;
 
     #  print "char\n";
-    my $result = Lab::VISA::viSetAttribute( $self->connection_handle(),
-        $Lab::VISA::VI_ATTR_TERMCHAR, ord($termchar) );
+    my $result = Lab::VISA::viSetAttribute(
+        $self->connection_handle(),
+        $Lab::VISA::VI_ATTR_TERMCHAR, ord($termchar)
+    );
 
     #  print "result: $result\n";
     return $result;

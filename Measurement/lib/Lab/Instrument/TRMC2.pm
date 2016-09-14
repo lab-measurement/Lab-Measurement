@@ -17,12 +17,13 @@ our %fields = ( supported_connections => ['none'], );
 my $WAIT    = 0.3;    #sec. waiting time for each reading;
 my $mounted = 0;      # Ist sie schon mal angemeldet
 
-my $buffin = "C:\\Program Files\\Trmc2\\buffin.txt"; # Hierhin gehen die Befehle
-my $buffout =
-  "C:\\Program Files\\Trmc2\\buffout.txt";    # Hierher kommen die Antworten
+my $buffin
+    = "C:\\Program Files\\Trmc2\\buffin.txt";    # Hierhin gehen die Befehle
+my $buffout
+    = "C:\\Program Files\\Trmc2\\buffout.txt";  # Hierher kommen die Antworten
 
-my $TRMC2_LSP = 0.02;                         #Lower Setpoint Limit
-my $TRMC2_HSP = 1;                            #Upper Setpoint Limit
+my $TRMC2_LSP = 0.02;                           #Lower Setpoint Limit
+my $TRMC2_HSP = 1;                              #Upper Setpoint Limit
 
 sub new {
     my $proto = shift;
@@ -61,14 +62,14 @@ sub TRMC2off {
 
 sub TRMC2_Heater_Control_On {
 
-# Switch the Heater Control (The coupling heater and set point NOT the heater switch in the main menu)
-# 1 On
-# 0 Off
+    # Switch the Heater Control (The coupling heater and set point NOT the heater switch in the main menu)
+    # 1 On
+    # 0 Off
     my $self  = shift;
     my $state = shift;
     if ( $state != 0 && $state != 1 ) {
         die
-"TRMC heater control can be turned off or on by 0 and 1 not by $state\n";
+            "TRMC heater control can be turned off or on by 0 and 1 not by $state\n";
     }
     my $cmd = sprintf( "MAIN:ON=%d\0", $state );
     TRMC2_Write( $cmd, 0.3 );
@@ -152,7 +153,10 @@ sub TRMC2_get_T {    #------------Reads Out Temperature-------------
                      # 6 Cernox
     my $self   = shift;
     my $sensor = shift;
-    if ( $sensor < 0 || $sensor > 6 ) { die "Sensor# $sensor not available\n" }
+
+    if ( $sensor < 0 || $sensor > 6 ) {
+        die "Sensor# $sensor not available\n";
+    }
     my $cmd = sprintf("ALLMEAS?");
     my @value = TRMC2_Query( $cmd, 0.2 );
 
@@ -178,7 +182,10 @@ sub TRMC2_get_R {    #------------Reads Out Resistance-------------
                      # 6 Cernox
     my $self   = shift;
     my $sensor = shift;
-    if ( $sensor < 0 || $sensor > 6 ) { die "Sensor# $sensor not available\n" }
+
+    if ( $sensor < 0 || $sensor > 6 ) {
+        die "Sensor# $sensor not available\n";
+    }
     my $cmd = sprintf("ALLMEAS?");
     my @value = TRMC2_Query( $cmd, 0.2 );
 
@@ -205,7 +212,10 @@ sub TRMC2_get_RT
         # 6 Cernox
     my $self   = shift;
     my $sensor = shift;
-    if ( $sensor < 0 || $sensor > 6 ) { die "Sensor# $sensor not available\n" }
+
+    if ( $sensor < 0 || $sensor > 6 ) {
+        die "Sensor# $sensor not available\n";
+    }
     my $cmd = sprintf("ALLMEAS?");
     my @value = TRMC2_Query( $cmd, 0.2 );
 
@@ -261,8 +271,10 @@ sub TRMC2_Set_T_Sweep {    #------------Set T_Sweep-------------
 
     #printf $cmd;
     TRMC2_Write( $cmd, 0.5 );
-    $cmd = sprintf( "PROG_TABLE(%d)=%s;%s;%s\n",
-        0, $FrSetpoint, $FrSweeprate, $FrHoldtime );
+    $cmd = sprintf(
+        "PROG_TABLE(%d)=%s;%s;%s\n",
+        0, $FrSetpoint, $FrSweeprate, $FrHoldtime
+    );
 
     #printf $cmd;
     TRMC2_Write( $cmd, 0.5 );

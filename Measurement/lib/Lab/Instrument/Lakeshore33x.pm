@@ -58,7 +58,7 @@ sub get_T {
     }
     elsif ( not $channel =~ /\b(A|a|B|b)\b/ ) {
         die
-"unexpected value ($channel) for CHANNEL in sub get_T. Expected values are A or B.";
+            "unexpected value ($channel) for CHANNEL in sub get_T. Expected values are A or B.";
     }
 
     return $self->query( "KRDG? $channel", $tail );
@@ -80,7 +80,7 @@ sub get_setpoint {
     }
     elsif ( $loop != 1 and $loop != 2 ) {
         die
-"unexpected value ($loop) for LOOP in sub get_setpoint. Expected values are 1 or 2.";
+            "unexpected value ($loop) for LOOP in sub get_setpoint. Expected values are 1 or 2.";
     }
 
     return $self->query("SETP? $loop");
@@ -89,20 +89,20 @@ sub get_setpoint {
 sub set_setpoint {
     my $self = shift;
 
-    my ( $setpoint, $loop, $tail ) =
-      $self->_check_args( \@_, [ 'value', 'loop' ] );
+    my ( $setpoint, $loop, $tail )
+        = $self->_check_args( \@_, [ 'value', 'loop' ] );
 
     if ( not defined $loop ) {
         $loop = 1;
     }
     elsif ( $loop != 1 and $loop != 2 ) {
         die
-"unexpected value ($loop) for LOOP in sub set_T. Expected values are 1 or 2.";
+            "unexpected value ($loop) for LOOP in sub set_T. Expected values are 1 or 2.";
     }
 
     if ( $setpoint < 0 or $setpoint > 300 ) {
         die
-"unexpected value ($setpoint) for SETPOINT in sub set_T. Expected values are between 0...300 K.";
+            "unexpected value ($setpoint) for SETPOINT in sub set_T. Expected values are between 0...300 K.";
     }
 
     return $self->query( "SETP $loop,$setpoint; SETP? $loop", $tail );
@@ -127,7 +127,7 @@ sub set_range {
     }
     else {
         die
-"unexpected value ($range) for RANGE in sub set_range. Expected values are OFF, LOW, MEDIUM, HIGH.";
+            "unexpected value ($range) for RANGE in sub set_range. Expected values are OFF, LOW, MEDIUM, HIGH.";
     }
 
     # set range
@@ -154,7 +154,7 @@ sub get_range {
     }
     else {
         die
-"unexpected value ($range) for RANGE in sub set_range. Expected values are OFF, LOW, MEDIUM, HIGH.";
+            "unexpected value ($range) for RANGE in sub set_range. Expected values are OFF, LOW, MEDIUM, HIGH.";
     }
 }
 
@@ -166,14 +166,15 @@ sub set_control_mode {
 
     my $self = shift;
 
-    my ( $mode, $loop, $tail ) = $self->_check_args( \@_, [ 'value', 'loop' ] );
+    my ( $mode, $loop, $tail )
+        = $self->_check_args( \@_, [ 'value', 'loop' ] );
 
     if ( not defined $loop ) {
         $loop = 1;
     }
     elsif ( $loop != 1 and $loop != 2 ) {
         die
-"unexpected value ($loop) for LOOP in sub set_control_mode. Expected values are 1 or 2.";
+            "unexpected value ($loop) for LOOP in sub set_control_mode. Expected values are 1 or 2.";
     }
 
     if ( $mode =~ /\b(MANUAL|manual|MAN|man)\b/ ) {
@@ -196,7 +197,7 @@ sub set_control_mode {
     }
     else {
         die
-"unexpected value ($mode) for CONTROL MODE in sub set_controlmode. Expected values are MANUAL, ZONE, AUTO_PID, AUTO_PI, AUTO_P and OFF.";
+            "unexpected value ($mode) for CONTROL MODE in sub set_controlmode. Expected values are MANUAL, ZONE, AUTO_PID, AUTO_PI, AUTO_P and OFF.";
     }
 
     return $self->query("CMODE $loop,$mode; CMODE? $loop");
@@ -224,7 +225,7 @@ sub get_R {
     }
     elsif ( not $channel =~ /\b(A|a|B|b)\b/ ) {
         die
-"unexpected value ($channel) for CHANNEL in sub get_R. Expected values are A or B.";
+            "unexpected value ($channel) for CHANNEL in sub get_R. Expected values are A or B.";
     }
 
     return $self->query( "SRDG? $channel", $tail );
@@ -234,21 +235,23 @@ sub set_control_loop {
 
     my $self = shift;
 
-    my ( $channel, $loop, $units, $powerup, $display, $tail ) =
-      $self->_check_args( \@_,
-        [ 'channel', 'loop', 'units', 'powerup', 'display' ] );
+    my ( $channel, $loop, $units, $powerup, $display, $tail )
+        = $self->_check_args(
+        \@_,
+        [ 'channel', 'loop', 'units', 'powerup', 'display' ]
+        );
 
- # loop optinal parameter; Usually you alwas want to use control loop 1
- # units optinal parameter; 1 == Kelvin, 2 == Celsius, 3 == sensor units
- # powerup optinal parameter; 0 == power up enable off,  1 == power up enable on
- # display optinal parameter; 1 == current, 2 == power
+    # loop optinal parameter; Usually you alwas want to use control loop 1
+    # units optinal parameter; 1 == Kelvin, 2 == Celsius, 3 == sensor units
+    # powerup optinal parameter; 0 == power up enable off,  1 == power up enable on
+    # display optinal parameter; 1 == current, 2 == power
 
     if ( not defined $loop ) {
         $loop = 1;
     }
     elsif ( $loop != 1 and $loop != 2 ) {
         die
-"unexpected value ($loop) for LOOP in sub set_control_loop. Expected values are 1 or 2.";
+            "unexpected value ($loop) for LOOP in sub set_control_loop. Expected values are 1 or 2.";
     }
 
     if ( not defined $units ) {
@@ -265,7 +268,7 @@ sub set_control_loop {
     }
     elsif ( $units != 1 and $units != 2 and $units != 3 ) {
         die
-"unexpected value ($units) for UNITS in sub set_control_loop. Expected values are KELVIN, CELSIUS or SENSOR.";
+            "unexpected value ($units) for UNITS in sub set_control_loop. Expected values are KELVIN, CELSIUS or SENSOR.";
     }
 
     if ( not defined $powerup ) {
@@ -279,7 +282,7 @@ sub set_control_loop {
     }
     elsif ( $powerup != 0 and $powerup != 1 ) {
         die
-"unexpected value ($powerup) for POWERUP in sub set_control_loop. Expected values are ON or OFF.";
+            "unexpected value ($powerup) for POWERUP in sub set_control_loop. Expected values are ON or OFF.";
     }
 
     if ( not defined $display ) {
@@ -293,18 +296,19 @@ sub set_control_loop {
     }
     elsif ( $display != 1 and $display != 2 ) {
         die
-"unexpected value ($display) for DISPLAY in sub set_control_loop. Expected values are CURRENT or POWER.";
+            "unexpected value ($display) for DISPLAY in sub set_control_loop. Expected values are CURRENT or POWER.";
     }
 
     if ( not $channel =~ /\b(A|a|B|b)\b/ ) {
         die
-"unexpected value ($channel) for CHANNEL in sub set_control_loop. Expected values are 'A' or 'B'.";
+            "unexpected value ($channel) for CHANNEL in sub set_control_loop. Expected values are 'A' or 'B'.";
     }
 
     # set control loop:
     $loop = $self->query(
         "CSET $loop, $channel, $units, $powerup, $display; CSET? $loop",
-        $tail );
+        $tail
+    );
 
     my @loop = split( /, /, $loop );
     return @loop;
@@ -321,7 +325,7 @@ sub get_control_loop {
     }
     elsif ( $loop != 1 and $loop != 2 ) {
         die
-"unexpected value ($loop) for LOOP in sub set_control_loop. Expected values are 1 or 2.";
+            "unexpected value ($loop) for LOOP in sub set_control_loop. Expected values are 1 or 2.";
     }
 
     my $result = $self->query( "CSET? $loop", $tail );
@@ -334,20 +338,20 @@ sub set_input_curve {
 
     my $self = shift;
 
-    my ( $channel, $curve, $tail ) =
-      $self->_check_args( \@_, [ 'channel', 'curve' ] );
+    my ( $channel, $curve, $tail )
+        = $self->_check_args( \@_, [ 'channel', 'curve' ] );
 
     if ( not defined $curve and not defined $channel ) {
         die
-"too fiew parameters given in sub set_input_curve. Expected parameters are CHANNEL and CURVE.";
+            "too fiew parameters given in sub set_input_curve. Expected parameters are CHANNEL and CURVE.";
     }
     elsif ( not $channel =~ /\b(A|a|B|b)\b/ ) {
         die
-"unexpected value ($channel) for CHANNEL in sub set_input_curve. Expected values are 'A' or 'B'.";
+            "unexpected value ($channel) for CHANNEL in sub set_input_curve. Expected values are 'A' or 'B'.";
     }
     elsif ( $curve < 0 and $curve > 41 ) {
         die
-"unexpected value ($curve) for CURVE in sub set_input_curve. Expected values are between 0 ... 41.";
+            "unexpected value ($curve) for CURVE in sub set_input_curve. Expected values are between 0 ... 41.";
     }
     return $self->query("INCRV $channel,$curve; INCRV? $channel");
 }
@@ -358,7 +362,7 @@ sub get_input_curve {
 
     if ( not $channel =~ /\b(A|a|B|b)\b/ ) {
         die
-"unexpected value ($channel) for CHANNEL in sub set_input_curve. Expected values are 'A' or 'B'.";
+            "unexpected value ($channel) for CHANNEL in sub set_input_curve. Expected values are 'A' or 'B'.";
     }
 
     return $self->query( "INCRV? $channel", $tail );
@@ -383,7 +387,7 @@ sub set_remote {
     }
     else {
         die
-"unexpected value ($mode) for MODE in sub set_remote. Expected values are between LOCAL, REMOTE and LOCK.";
+            "unexpected value ($mode) for MODE in sub set_remote. Expected values are between LOCAL, REMOTE and LOCK.";
     }
 
     $mode = $self->query("MODE $mode; MODE?");
@@ -428,14 +432,13 @@ sub set_PID {
     my $P    = shift;
     my $I    = shift;
     my $D    = shift;
-    my $loop =
-      shift;   # optinal parameter; Usually you alwas want to use control loop 1
+    my $loop = shift
+        ;    # optinal parameter; Usually you alwas want to use control loop 1
 
     if (    not defined $loop
         and not defined $D
         and not defined $I
-        and not defined $P )
-    {
+        and not defined $P ) {
         $loop = 1;
         my $PID = $self->query("PID $loop, $P, $I, $D; PID?");
         chomp $PID;
@@ -447,8 +450,7 @@ sub set_PID {
     elsif ( not defined $loop
         and not defined $D
         and not defined $I
-        and ( $P == 1 or $P == 2 ) )
-    {
+        and ( $P == 1 or $P == 2 ) ) {
         $loop = $P;
         my $PID = $self->query("PID $loop, $P, $I, $D; PID?");
         chomp $PID;
@@ -459,14 +461,14 @@ sub set_PID {
     }
     elsif ( not defined $loop and not defined $D ) {
         die
-"too fiew parameters given in sub set_PID. Expected parameters are P, I, D.";
+            "too fiew parameters given in sub set_PID. Expected parameters are P, I, D.";
     }
     elsif ( not defined $loop ) {
         $loop = 1;
     }
     elsif ( $loop != 1 and $loop != 2 ) {
         die
-"unexpected value ($loop) for LOOP in sub set_PID. Expected values are between 1 and 2.";
+            "unexpected value ($loop) for LOOP in sub set_PID. Expected values are between 1 and 2.";
     }
     else {
         die "unexpected values in sub set_PID.";
@@ -474,15 +476,15 @@ sub set_PID {
 
     if ( $D < 0 or $D > 200 ) {
         die
-"unexpected value ($D) for D in sub set_PID. Expected values are between 0 and 200.";
+            "unexpected value ($D) for D in sub set_PID. Expected values are between 0 and 200.";
     }
     elsif ( $I < 0.1 or $I > 1000 ) {
         die
-"unexpected value ($I) for I in sub set_PID. Expected values are between 0.1 and 1000.";
+            "unexpected value ($I) for I in sub set_PID. Expected values are between 0.1 and 1000.";
     }
     elsif ( $P < 0.1 or $P > 1000 ) {
         die
-"unexpected value ($P) for P in sub set_PID. Expected values are between 0.1 and 1000.";
+            "unexpected value ($P) for P in sub set_PID. Expected values are between 0.1 and 1000.";
     }
     else {
         my $PID = $self->query("PID $loop, $P, $I, $D; PID? $loop");
@@ -505,12 +507,12 @@ sub set_zone {
     my $D          = shift;
     my $range      = shift;
     my $man_output = shift;    # optional parameter, usually zero
-    my $loop =
-      shift;   # optinal parameter; Usually you alwas want to use control loop 1
+    my $loop       = shift
+        ;    # optinal parameter; Usually you alwas want to use control loop 1
 
     if ( defined $zone and ( $zone < 1 or $zone > 10 ) ) {
         die
-"unexpected value ($zone) for ZONE in sub set_zone. Expected values are all integer values from 1 to 10.";
+            "unexpected value ($zone) for ZONE in sub set_zone. Expected values are all integer values from 1 to 10.";
     }
 
     if ( not defined $loop ) {
@@ -518,7 +520,7 @@ sub set_zone {
     }
     elsif ( $loop != 1 and $loop != 2 ) {
         die
-"unexpected value ($loop) for LOOP in sub set_zone. Expected values are 1 or 2.";
+            "unexpected value ($loop) for LOOP in sub set_zone. Expected values are 1 or 2.";
     }
 
     if ( not defined $man_output ) {
@@ -526,38 +528,37 @@ sub set_zone {
     }
     elsif ( $man_output < 0 or $man_output > 100 ) {
         die
-"unexpected value ($man_output) for MANUAL OUTPUT in sub set_zone. Expected values are between 0 ... 100 %.";
+            "unexpected value ($man_output) for MANUAL OUTPUT in sub set_zone. Expected values are between 0 ... 100 %.";
     }
 
     if (    not defined $range
         and not defined $D
         and not defined $I
         and not defined $P
-        and not defined $t_limit )
-    {
+        and not defined $t_limit ) {
         return;
     }
 
     if ( not defined $range ) {
         die
-"too fiew parameters given for sub set_zone. Expected parameters are ZONE, T_LIMIT, P, I, D, RANGE and optional <MAN_OUTPUT> and <LOOP>.";
+            "too fiew parameters given for sub set_zone. Expected parameters are ZONE, T_LIMIT, P, I, D, RANGE and optional <MAN_OUTPUT> and <LOOP>.";
     }
 
     if ( $t_limit < 0 or $t_limit > 300 ) {
         die
-"unexpected value ($t_limit) for T_LIMIT in sub set_zone. Expected values are between 0 and 300 K.";
+            "unexpected value ($t_limit) for T_LIMIT in sub set_zone. Expected values are between 0 and 300 K.";
     }
     elsif ( $D < 0 or $D > 200 ) {
         die
-"unexpected value ($D) for D in sub set_zone. Expected values are between 0 and 200.";
+            "unexpected value ($D) for D in sub set_zone. Expected values are between 0 and 200.";
     }
     elsif ( $I < 0.1 or $I > 1000 ) {
         die
-"unexpected value ($I) for I in sub set_zone. Expected values are between 0.1 and 1000.";
+            "unexpected value ($I) for I in sub set_zone. Expected values are between 0.1 and 1000.";
     }
     elsif ( $P < 0.1 or $P > 1000 ) {
         die
-"unexpected value ($P) for P in sub set_zone. Expected values are between 0.1 and 1000.";
+            "unexpected value ($P) for P in sub set_zone. Expected values are between 0.1 and 1000.";
     }
 
     if ( $range =~ /\b(OFF|off)\b/ ) {
@@ -574,12 +575,14 @@ sub set_zone {
     }
     else {
         die
-"unexpected value ($range) for RANGE in sub set_zone. Expected values are OFF, LOW, MEDIUM, HIGH.";
+            "unexpected value ($range) for RANGE in sub set_zone. Expected values are OFF, LOW, MEDIUM, HIGH.";
     }
 
     # set zone:
-    $zone = $self->query(
-        "ZONE $loop, $zone, $t_limit, $P, $I, $D, $man_output, $range; ZONE?");
+    $zone
+        = $self->query(
+        "ZONE $loop, $zone, $t_limit, $P, $I, $D, $man_output, $range; ZONE?"
+        );
     chomp $zone;
     chomp $zone;
     my @zone = split( /, /, $zone );
@@ -591,15 +594,15 @@ sub set_heateroutput {
 
     my $self   = shift;
     my $output = shift;
-    my $loop =
-      shift;   # optinal parameter; Usually you alwas want to use control loop 1
+    my $loop   = shift
+        ;    # optinal parameter; Usually you alwas want to use control loop 1
 
     if ( not defined $loop ) {
         $loop = 1;
     }
     elsif ( $loop != 1 and $loop != 2 ) {
         die
-"unexpected value ($loop) for LOOP in sub set_heater_output. Expected values are 1 or 2.";
+            "unexpected value ($loop) for LOOP in sub set_heater_output. Expected values are 1 or 2.";
     }
 
     if ( not defined $output ) {
@@ -616,7 +619,7 @@ sub set_heateroutput {
     }
     else {
         die
-"unexpected value ($output) for OUTPUT in sub set_heater_output. Expected values are between 0 ... 100 % of full heater range.";
+            "unexpected value ($output) for OUTPUT in sub set_heater_output. Expected values are between 0 ... 100 % of full heater range.";
     }
 
 }
@@ -640,7 +643,7 @@ sub set_input_sensor {
     }
     elsif ( not $channel =~ /\b(A|a|B|b)\b/ ) {
         die
-"unexpected value ($channel) for CHANNEL in sub set_input_sensor. Expected values are 'A' or 'B'.";
+            "unexpected value ($channel) for CHANNEL in sub set_input_sensor. Expected values are 'A' or 'B'.";
     }
 
     if ( not defined $sensor_type ) {
@@ -664,7 +667,7 @@ sub set_input_sensor {
     }
     elsif ( not( $sensor_type >= 1 and $sensor_type <= 12 ) ) {
         die
-"unexpected value ($sensor_type) for SENSOR_TYPE in sub set_input_sensor. Expected values are all integervalues between 0 ... 12.";
+            "unexpected value ($sensor_type) for SENSOR_TYPE in sub set_input_sensor. Expected values are all integervalues between 0 ... 12.";
     }
 
     if ( not defined $compensation ) {
@@ -678,7 +681,7 @@ sub set_input_sensor {
     }
     elsif ( $compensation != 0 and $compensation != 1 ) {
         die
-"unexpected value ($compensation) for COMPENSATION in sub set_input_sensor. Expected values are ON or OFF.";
+            "unexpected value ($compensation) for COMPENSATION in sub set_input_sensor. Expected values are ON or OFF.";
     }
 
     # set input sensor:
@@ -704,13 +707,14 @@ sub set_filter {
     # check input paramters:
     if ( defined $channel and not $channel =~ /\b(A|a|B|b)\b/ ) {
         die
-"unexpected value ($channel) for CHANNEL in sub set_filter. Expected values are between 'A' and 'B'.";
+            "unexpected value ($channel) for CHANNEL in sub set_filter. Expected values are between 'A' and 'B'.";
     }
 
-    if ( not defined $window and not defined $points and not defined $channel )
-    {
+    if (    not defined $window
+        and not defined $points
+        and not defined $channel ) {
         die
-"too fiew parameters given. Expected parameters are CHANNEL, POINTS, <WINDOW>";
+            "too fiew parameters given. Expected parameters are CHANNEL, POINTS, <WINDOW>";
     }
     elsif ( not defined $window and not defined $points ) {
         my $filter = $self->query("FILTER? $channel");
@@ -734,7 +738,7 @@ sub set_filter {
     }
     elsif ( $window < 1 or $window > 10 ) {
         die
-"unexpected value ($window) for WINDOW in sub set_filter. Expected values are between 1 .. 10 % of full scale reading limits.";
+            "unexpected value ($window) for WINDOW in sub set_filter. Expected values are between 1 .. 10 % of full scale reading limits.";
     }
 
     if ( $points =~ /\b(OFF|off)\b/ ) {
@@ -750,13 +754,13 @@ sub set_filter {
     }
     if ( $points < 2 or $points > 64 ) {
         die
-"unexpected value ($points) for POINTS in sub set_filter. Expected values are between 2 .. 64.";
+            "unexpected value ($points) for POINTS in sub set_filter. Expected values are between 2 .. 64.";
     }
 
     # set filter paramters:
 
-    my $filter =
-      $self->query("FILTER $channel,$active,$points,$window; FILTER? $channel");
+    my $filter = $self->query(
+        "FILTER $channel,$active,$points,$window; FILTER? $channel");
     chomp $filter;
     chomp $filter;
     my @filter = split( /, /, $filter );
@@ -776,24 +780,24 @@ sub config_sweep {
     my $self     = shift;
     my $setpoint = shift;
     my $rate     = shift;
-    my $loop =
-      shift;   # optinal parameter; Usually you alwas want to use control loop 1
+    my $loop     = shift
+        ;    # optinal parameter; Usually you alwas want to use control loop 1
 
     if ( not defined $loop ) {
         $loop = 1;
     }
     elsif ( $loop != 1 and $loop != 2 ) {
         die
-"unexpected value ($loop) for LOOP in sub config_sweep. Expected values are 1 or 2.";
+            "unexpected value ($loop) for LOOP in sub config_sweep. Expected values are 1 or 2.";
     }
 
     if ( not defined $rate or $rate < 0.1 or $rate > 100 ) {
         die
-"unexpected value ($rate) for RATE in sub config_sweep. Expected values are between 0...100 K/min.";
+            "unexpected value ($rate) for RATE in sub config_sweep. Expected values are between 0...100 K/min.";
     }
     elsif ( not defined $setpoint or $setpoint < 0 or $setpoint > 300 ) {
         die
-"unexpected value ($setpoint) for SETPOINT in sub config_sweep. Expected values are between 0...300 K.";
+            "unexpected value ($setpoint) for SETPOINT in sub config_sweep. Expected values are between 0...300 K.";
     }
 
     $rate     = $self->query("RAMP $loop,0,$rate; RAMP? $loop");
@@ -805,15 +809,15 @@ sub config_sweep {
 
 sub trg {
     my $self = shift;
-    my $loop =
-      shift;   # optinal parameter; Usually you alwas want to use control loop 1
+    my $loop = shift
+        ;    # optinal parameter; Usually you alwas want to use control loop 1
 
     if ( not defined $loop ) {
         $loop = 1;
     }
     elsif ( $loop != 1 and $loop != 2 ) {
         die
-"unexpected value ($loop) for LOOP in sub trg. Expected values are 1 or 2.";
+            "unexpected value ($loop) for LOOP in sub trg. Expected values are 1 or 2.";
     }
 
     my $rate = $self->query("RAMP? $loop");
@@ -826,15 +830,15 @@ sub trg {
 sub halt {
 
     my $self = shift;
-    my $loop =
-      shift;   # optinal parameter; Usually you alwas want to use control loop 1
+    my $loop = shift
+        ;    # optinal parameter; Usually you alwas want to use control loop 1
 
     if ( not defined $loop ) {
         $loop = 1;
     }
     elsif ( $loop != 1 and $loop != 2 ) {
         die
-"unexpected value ($loop) for LOOP in sub halt. Expected values are 1 or 2.";
+            "unexpected value ($loop) for LOOP in sub halt. Expected values are 1 or 2.";
     }
 
     my $rate = $self->query("RAMP? $loop");
@@ -857,15 +861,15 @@ sub halt {
 sub active {
 
     my $self = shift;
-    my $loop =
-      shift;   # optinal parameter; Usually you alwas want to use control loop 1
+    my $loop = shift
+        ;    # optinal parameter; Usually you alwas want to use control loop 1
 
     if ( not defined $loop ) {
         $loop = 1;
     }
     elsif ( $loop != 1 and $loop != 2 ) {
         die
-"unexpected value ($loop) for LOOP in sub active. Expected values are 1 or 2.";
+            "unexpected value ($loop) for LOOP in sub active. Expected values are 1 or 2.";
     }
 
     my $status = $self->query('RAMPST? $loop');
@@ -877,15 +881,15 @@ sub active {
 sub wait {
 
     my $self = shift;
-    my $loop =
-      shift;   # optinal parameter; Usually you alwas want to use control loop 1
+    my $loop = shift
+        ;    # optinal parameter; Usually you alwas want to use control loop 1
 
     if ( not defined $loop ) {
         $loop = 1;
     }
     elsif ( $loop != 1 and $loop != 2 ) {
         die
-"unexpected value ($loop) for LOOP in sub active. Expected values are 1 or 2.";
+            "unexpected value ($loop) for LOOP in sub active. Expected values are 1 or 2.";
     }
 
     print "waiting for the temperature sweep to end.";

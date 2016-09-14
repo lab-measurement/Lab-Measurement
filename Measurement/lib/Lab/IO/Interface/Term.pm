@@ -189,8 +189,10 @@ sub process_common {
         $self->output("-- StackTrace: -- \n\n");
         my $pos = $DATA->{trace}->frame_count();
         while ( my $frame = $DATA->{trace}->next_frame() ) {
-            $self->output( "#$pos)  ", $self->stackFrame_to_string($frame),
-                "\n" );
+            $self->output(
+                "#$pos)  ", $self->stackFrame_to_string($frame),
+                "\n"
+            );
             $pos--;
         }
     }
@@ -215,12 +217,12 @@ sub header {
     my $DATA = shift;
     my $cfg  = shift;
 
-    my $object_ref =
-      ( defined $DATA->{object} ) ? ref( $DATA->{object} ) : undef;
-    my $object_name =
-      ( defined $DATA->{object} && $DATA->{object}->can('get_name') )
-      ? $DATA->{object}->get_name()
-      : undef;
+    my $object_ref
+        = ( defined $DATA->{object} ) ? ref( $DATA->{object} ) : undef;
+    my $object_name
+        = ( defined $DATA->{object} && $DATA->{object}->can('get_name') )
+        ? $DATA->{object}->get_name()
+        : undef;
     my $package = $DATA->{trace}->frame(0)->package();
 
     my $header_msg = "\"" . $cfg->{channel} . "\"";
@@ -241,8 +243,10 @@ sub header {
     );
 
     if ( !$self->{last_ln} ) { $self->output("\n"); }
-    $self->output( "\n", Term::ANSIScreen::colored( "$header_msg", $style ),
-        "\n" );
+    $self->output(
+        "\n", Term::ANSIScreen::colored( "$header_msg", $style ),
+        "\n"
+    );
 }
 
 sub params_dump {
@@ -286,8 +290,7 @@ sub sticky_process {
     my $cfg  = shift;
 
     if (   not defined $DATA->{data}->{sticky}
-        || not defined $DATA->{data}->{sticky}->{id} )
-    {
+        || not defined $DATA->{data}->{sticky}->{id} ) {
         return;
     }
     my $id = $DATA->{data}->{sticky}->{id};
@@ -451,10 +454,12 @@ sub progress_build {
     my $valueMax_length = length( $config->{valueMax} );
     $chars -= ( $valueMax_length + 2 );
 
-# $chars now holds number of chars available for the bar itself -> divide it into front/back according to value
-    my $lengthFront = sprintf( "%d",
-        $chars * $config->{value} /
-          ( $config->{valueMax} - $config->{valueMin} ) );
+    # $chars now holds number of chars available for the bar itself -> divide it into front/back according to value
+    my $lengthFront = sprintf(
+        "%d",
+        $chars * $config->{value}
+            / ( $config->{valueMax} - $config->{valueMin} )
+    );
     my $lengthBack = $chars - $lengthFront;
 
     # value

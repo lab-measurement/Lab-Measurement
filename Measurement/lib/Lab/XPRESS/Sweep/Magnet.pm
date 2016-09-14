@@ -42,10 +42,9 @@ sub go_to_sweep_start {
 
     if ( $self->{config}->{use_persistentmode} ) {
         if ( !$self->{config}->{instrument}->{device_settings}
-            ->{has_switchheater} )
-        {
+            ->{has_switchheater} ) {
             warn
-"Persistent sweep mode requires a switchheater. Persistent sweep mode is switched off.\n";
+                "Persistent sweep mode requires a switchheater. Persistent sweep mode is switched off.\n";
             $self->{config}->{use_persistentmode} = 0;
         }
         else {
@@ -64,7 +63,7 @@ sub go_to_sweep_start {
     );
 
     $self->{config}->{instrument}->set_persistent_mode(1)
-      if $self->{config}->{use_persistentmode};
+        if $self->{config}->{use_persistentmode};
 
     print "done\n";
 
@@ -92,7 +91,7 @@ sub go_to_next_step {
     my $self = shift;
 
     $self->{config}->{instrument}->set_persistent_mode(0)
-      if $self->{config}->{use_persistentmode};
+        if $self->{config}->{use_persistentmode};
 
     # step mode:
     $self->{config}->{instrument}->config_sweep(
@@ -106,7 +105,7 @@ sub go_to_next_step {
     $self->{config}->{instrument}->wait();
 
     $self->{config}->{instrument}->set_persistent_mode(1)
-      if $self->{config}->{use_persistentmode};
+        if $self->{config}->{use_persistentmode};
 
 }
 
@@ -115,10 +114,8 @@ sub exit_loop {
     if ( not $self->{config}->{instrument}->active() ) {
         if ( $self->{config}->{mode} =~ /step|list/ ) {
             if (
-                not
-                defined @{ $self->{config}->{points} }[ $self->{iterator} + 1 ]
-              )
-            {
+                not defined @{ $self->{config}->{points} }
+                [ $self->{iterator} + 1 ] ) {
                 return 1;
             }
             else {
@@ -145,7 +142,7 @@ sub get_value {
 sub exit {
     my $self = shift;
     $self->{config}->{instrument}->set_persistent_mode(1)
-      if $self->{config}->{use_persistentmode};
+        if $self->{config}->{use_persistentmode};
     $self->{config}->{instrument}->abort();
 
 }

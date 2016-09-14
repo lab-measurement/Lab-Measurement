@@ -32,8 +32,8 @@ sub new {
     my $proto = shift;
     my $class = ref($proto) || $proto;
     my $twin  = undef;
-    my $self =
-      $class->SUPER::new(@_);  # getting fields and _permitted from parent class
+    my $self  = $class->SUPER::new(@_)
+        ;    # getting fields and _permitted from parent class
     $self->${ \( __PACKAGE__ . '::_construct' ) }(__PACKAGE__);
 
     return $self;
@@ -49,7 +49,7 @@ sub Write {
     $self->bus()->timeout( $self->connection_handle(), $timeout );
 
     return $self->bus()
-      ->connection_write( $self->connection_handle(), $options );
+        ->connection_write( $self->connection_handle(), $options );
 }
 
 sub Read {
@@ -62,7 +62,7 @@ sub Read {
     $self->bus()->timeout( $self->connection_handle(), $timeout );
 
     return $self->bus()
-      ->connection_read( $self->connection_handle(), $options );
+        ->connection_read( $self->connection_handle(), $options );
 }
 
 sub Query {

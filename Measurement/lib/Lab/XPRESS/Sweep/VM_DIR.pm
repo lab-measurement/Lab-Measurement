@@ -87,10 +87,8 @@ sub exit_loop {
     if ( not @{ $self->{config}->{instrument} }[0]->active() ) {
         if ( $self->{config}->{mode} =~ /step|list/ ) {
             if (
-                not
-                defined @{ $self->{config}->{points} }[ $self->{iterator} + 1 ]
-              )
-            {
+                not defined @{ $self->{config}->{points} }
+                [ $self->{iterator} + 1 ] ) {
                 return 1;
             }
             else {
@@ -99,15 +97,15 @@ sub exit_loop {
         }
         elsif ( $self->{config}->{mode} eq "continuous" ) {
             if (
-                not
-                defined @{ $self->{config}->{points} }[ $self->{sequence} + 2 ]
-              )
-            {
+                not defined @{ $self->{config}->{points} }
+                [ $self->{sequence} + 2 ] ) {
                 return 1;
             }
             $self->{sequence}++;
             @{ $self->{config}->{instrument} }[0]->config_DIR_sweep(
-                @{ @{ $self->{config}->{points} }[ $self->{sequence} + 1 ] },
+                @{
+                    @{ $self->{config}->{points} }[ $self->{sequence} + 1 ]
+                },
                 @{ $self->{config}->{rate} }[ $self->{sequence} + 1 ],
                 1,
                 $self->{config}->{coordinate_system}
@@ -127,7 +125,7 @@ sub get_value {
     my $self = shift;
 
     my @field = @{ $self->{config}->{instrument} }[0]
-      ->get_field( $self->{coordinate_system} );
+        ->get_field( $self->{coordinate_system} );
 
     return \@field;
 }

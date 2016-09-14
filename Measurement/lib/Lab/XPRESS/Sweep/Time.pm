@@ -70,12 +70,13 @@ sub check_config_paramters {
     # check correct initialization of stabilize
     if ( $self->{config}->{stabilize} == 1 ) {
         if ( not defined $self->{config}->{sensor} ) {
-            $self->out_error('Stabilization activated, but no sensor defined!');
+            $self->out_error(
+                'Stabilization activated, but no sensor defined!');
         }
 
-#elsif ($self->{config}->{sensor}->can('isa') and not $self->{config}->{sensor}->can('get_value')) {
-#	$self->out_error('The defined sensor has no get_value routine, which is needed for stabilization. Is the sensor object a LM instrument?');
-#}
+        #elsif ($self->{config}->{sensor}->can('isa') and not $self->{config}->{sensor}->can('get_value')) {
+        #	$self->out_error('The defined sensor has no get_value routine, which is needed for stabilization. Is the sensor object a LM instrument?');
+        #}
     }
 
 }
@@ -86,20 +87,19 @@ sub exit_loop {
     if (
         @{ $self->{config}->{points} }[ $self->{sequence} ] > 0
         and $self->{iterator} >= (
-            @{ $self->{config}->{points} }[ $self->{sequence} ] /
-              @{ $self->{config}->{interval} }[ $self->{sequence} ]
+                  @{ $self->{config}->{points} }[ $self->{sequence} ]
+                / @{ $self->{config}->{interval} }[ $self->{sequence} ]
         )
-      )
-    {
+        ) {
         if (
-            not defined @{ $self->{config}->{points} }[ $self->{sequence} + 1 ]
-          )
+            not
+            defined @{ $self->{config}->{points} }[ $self->{sequence} + 1 ] )
         {
             if ( $self->{config}->{stabilize} == 1 ) {
                 $self->out_message(
                     {
                         sticky =>
-                          { id => $self . '_stab_status', cmd => 'finish' }
+                            { id => $self . '_stab_status', cmd => 'finish' }
                     }
                 );
                 $self->out_message('Reached maximum stabilization time.');
@@ -119,7 +119,8 @@ sub exit_loop {
 
         my $SENSOR_STD_DEV_PRINT = '-' x 10;
 
-        if ( $self->{Time} >= $self->{config}->{stabilize_observation_time} ) {
+        if ( $self->{Time} >= $self->{config}->{stabilize_observation_time} )
+        {
             shift( @{ $self->{stabilize}->{data} } );
 
             my $stat = Statistics::Descriptive::Full->new();
@@ -131,7 +132,7 @@ sub exit_loop {
                 $self->out_message(
                     {
                         sticky =>
-                          { id => $self . '_stab_status', cmd => 'finish' }
+                            { id => $self . '_stab_status', cmd => 'finish' }
                     }
                 );
                 $self->out_message('Reached stabilization criterion.');
@@ -139,13 +140,13 @@ sub exit_loop {
             }
         }
 
-        my $status =
-            "ELAPSED: "
-          . sprintf( '%.2f', $self->{Time} )
-          . " / CURRENT_STDD: "
-          . $SENSOR_STD_DEV_PRINT
-          . " / TARGET_STDD: "
-          . sprintf( '%.3e', $self->{config}->{std_dev_sensor} );
+        my $status
+            = "ELAPSED: "
+            . sprintf( '%.2f', $self->{Time} )
+            . " / CURRENT_STDD: "
+            . $SENSOR_STD_DEV_PRINT
+            . " / TARGET_STDD: "
+            . sprintf( '%.3e', $self->{config}->{std_dev_sensor} );
         $self->out_message(
             { msg => $status, sticky => { id => $self . '_stab_status' } } );
     }

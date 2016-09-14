@@ -40,7 +40,7 @@ my $measurement = sub {
     my $voltage = $sweep->get_value();
 
     my $matrix =    # $vna->get_trace(...)
-      [ [ 1 + $voltage, 2 + $voltage ], [ 2, 4 ], [ 3, 6 ], [ 4, 8 ], ];
+        [ [ 1 + $voltage, 2 + $voltage ], [ 2, 4 ], [ 3, 6 ], [ 4, 8 ], ];
 
     $sweep->LogBlock(
         prefix => [$voltage],

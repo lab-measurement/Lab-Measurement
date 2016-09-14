@@ -33,12 +33,12 @@ use Scalar::Util qw/looks_like_number/;
 use parent 'Test::Builder::Module';
 
 our @EXPORT = qw/
-  is_relative_error
-  is_num
-  is_float
-  is_absolute_error
-  looks_like_number_ok
-  /;
+    is_relative_error
+    is_num
+    is_float
+    is_absolute_error
+    looks_like_number_ok
+    /;
 
 my $class = __PACKAGE__;
 
@@ -81,11 +81,11 @@ sub is_relative_error {
     my $tb = $class->builder;
     my $test = relative_error( $got, $expect ) <= $error;
     return $tb->ok( $test, $name )
-      || $tb->diag(
+        || $tb->diag(
         "relative error is greater than $error.\n",
         "Got: ", sprintf( "%.17g", $got ),
         "\n", "Expected: ", sprintf( "%.17g", $expect )
-      );
+        );
 }
 
 =head2 is_num($got, $expect, $name)
@@ -98,11 +98,11 @@ sub is_num {
     my ( $got, $expect, $name ) = @_;
     my $tb = $class->builder;
     return $tb->ok( $got == $expect, $name )
-      || $tb->diag(
+        || $tb->diag(
         "Numbers not equal.\n",
         "Got: ", sprintf( "%.17g", $got ),
         "\n", "Expected: ", sprintf( "%.17g", $expect )
-      );
+        );
 }
 
 =head2 is_float($got, $expect, $name)
@@ -134,7 +134,8 @@ sub is_absolute_error {
     my $tb   = $class->builder;
     my $test = abs( $got - $expect ) <= $error;
     return $tb->ok( $test, $name )
-      || $tb->diag("absolute error of $got and $expect is greater than $error");
+        || $tb->diag(
+        "absolute error of $got and $expect is greater than $error");
 }
 
 =head2 looks_like_number_ok($number, $name)
@@ -147,7 +148,7 @@ sub looks_like_number_ok {
     my ( $number, $name ) = @_;
     my $tb = $class->builder;
     return $tb->ok( looks_like_number($number), $name )
-      || $tb->diag("'$number' does not look like a number");
+        || $tb->diag("'$number' does not look like a number");
 }
 
 1;

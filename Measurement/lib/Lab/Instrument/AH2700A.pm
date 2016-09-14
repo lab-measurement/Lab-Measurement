@@ -131,8 +131,8 @@ sub set_bright {
     my $self = shift;
 
     # read from cache or from device?
-    my ( $bright1, $bright2, $tail ) =
-      $self->_check_args( \@_, [ 'bright1', 'bright2' ] );
+    my ( $bright1, $bright2, $tail )
+        = $self->_check_args( \@_, [ 'bright1', 'bright2' ] );
 
     if (
         (
@@ -142,8 +142,7 @@ sub set_bright {
             or $bright1 ne 'OT'
         )
         and ( $bright2 < 0 or $bright2 > 9 )
-      )
-    {
+        ) {
         Lab::Exception::CorruptParameter->throw(
             error => "bad brightness-parameter!\n" );
     }
@@ -177,7 +176,8 @@ sub set_cable {
     my $self = shift;
 
     # read from cache or from device?
-    my ( $cab1, $cab2, $tail ) = $self->_check_args( \@_, [ 'cab1', 'cab2' ] );
+    my ( $cab1, $cab2, $tail )
+        = $self->_check_args( \@_, [ 'cab1', 'cab2' ] );
 
     if ( not $cab1 =~ m/L|RES|I|C/ ) {
         Lab::Exception::CorruptParameter->throw(
@@ -196,7 +196,7 @@ sub get_cable {
 
     my @results;
 
-    for ( my $i = 0 ; $i < 4 ; $i++ ) {
+    for ( my $i = 0; $i < 4; $i++ ) {
         my $result = $self->read();
         push( @results, $result );
     }
@@ -272,9 +272,8 @@ sub get_single {
 
     };
 
-    my $timeout =
-      @{ $time_table_highf->{$average} }[0] +
-      @{ $time_table_highf->{$average} }[1] / $frequency;
+    my $timeout = @{ $time_table_highf->{$average} }[0]
+        + @{ $time_table_highf->{$average} }[1] / $frequency;
 
     if ( not defined $tail->{timeout} ) {
         $tail->{timeout} = 100;
@@ -289,9 +288,9 @@ sub get_single {
     if ( $result =~ /^(\d+)/ and $result != /00/ ) {
         $values->{E} = $1;
         print new Lab::Exception::Warning(
-                error => "Error in get_single. Errorcode = "
-              . $values->{E}
-              . "\n" );
+                  error => "Error in get_single. Errorcode = "
+                . $values->{E}
+                . "\n" );
     }
 
     if ( wantarray() ) {
@@ -343,8 +342,10 @@ sub set_field {
     my $self = shift;
 
     # read from cache or from device?
-    my ( $fi1, $fi2, $fi3, $fi4, $fi5, $fi6, $tail ) =
-      $self->_check_args( \@_, [ 'fi1', 'fi2', 'fi3', 'fi4', 'fi5', 'fi6' ] );
+    my ( $fi1, $fi2, $fi3, $fi4, $fi5, $fi6, $tail ) = $self->_check_args(
+        \@_,
+        [ 'fi1', 'fi2', 'fi3', 'fi4', 'fi5', 'fi6' ]
+    );
 
     $self->write(
         sprintf(
@@ -366,11 +367,13 @@ sub set_gpib {
     my $self = shift;
 
     # read from cache or from device?
-    my ( $gp1, $gp2, $gp3, $gp4, $gp5, $tail ) =
-      $self->_check_args( \@_, [ 'gp1', 'gp2', 'gp3', 'gp4', 'gp5' ] );
+    my ( $gp1, $gp2, $gp3, $gp4, $gp5, $tail )
+        = $self->_check_args( \@_, [ 'gp1', 'gp2', 'gp3', 'gp4', 'gp5' ] );
 
-    $self->write( sprintf( "GP %d,%d,%s,%s,%s", $gp1, $gp2, $gp3, $gp4, $gp5 ),
-        $tail );
+    $self->write(
+        sprintf( "GP %d,%d,%s,%s,%s", $gp1, $gp2, $gp3, $gp4, $gp5 ),
+        $tail
+    );
 
 }
 
@@ -393,8 +396,8 @@ sub set_date {
     my $self = shift;
 
     # read from cache or from device?
-    my ( $yr, $mo, $day, $tail ) =
-      $self->_check_args( \@_, [ 'yr', 'mo', 'day' ] );
+    my ( $yr, $mo, $day, $tail )
+        = $self->_check_args( \@_, [ 'yr', 'mo', 'day' ] );
 
     $self->write( sprintf( "STO %d,%d,%d", $yr, $mo, $day ), $tail );
 
@@ -411,8 +414,8 @@ sub set_time {
     my $self = shift;
 
     # read from cache or from device?
-    my ( $hr, $min, $sec, $tail ) =
-      $self->_check_args( \@_, [ 'hr', 'min', 'sec' ] );
+    my ( $hr, $min, $sec, $tail )
+        = $self->_check_args( \@_, [ 'hr', 'min', 'sec' ] );
 
     $self->write( sprintf( "STO %d,%d,%d", $hr, $min, $sec ), $tail );
 

@@ -1,18 +1,18 @@
 
 =head1 NAME
 
-Lab::MooseInstrument - Base class for instrument drivers.
+Lab::Moose::Instrument - Base class for instrument drivers.
 
 =head1 SYNOPSIS
 
-A complete device driver based on Lab::MooseInstrument:
+A complete device driver based on Lab::Moose::Instrument:
 
- package Lab::MooseInstrument::FooBar;
+ package Lab::Moose::Instrument::FooBar;
  use Moose;
  
- use Lab::MooseInstrument qw/validated_getter validated_setter/;
+ use Lab::Moose::Instrument qw/validated_getter validated_setter/;
 
- extends 'Lab::MooseInstrument';
+ extends 'Lab::Moose::Instrument';
 
  sub get_foo {
      my ($self, %args) = validated_getter(@_);
@@ -28,12 +28,12 @@ A complete device driver based on Lab::MooseInstrument:
 
 =head1 DESCRIPTION
 
-The Lab::MooseInstrument module is a thin wrapper around a connection object.
-All other Lab::MooseInstrument::* drivers inherit from this module.
+The Lab::Moose::Instrument module is a thin wrapper around a connection object.
+All other Lab::Moose::Instrument::* drivers inherit from this module.
 
 =cut
 
-package Lab::MooseInstrument;
+package Lab::Moose::Instrument;
 use 5.010;
 use Moose;
 use Moose::Util::TypeConstraints qw(duck_type);
@@ -42,20 +42,20 @@ use MooseX::Params::Validate;
 use Exporter 'import';
 
 our @EXPORT_OK = qw(
-  timeout_param
-  read_length_param
-  channel_param
-  getter_params
-  setter_params
-  validated_getter
-  validated_setter
-  validated_channel_getter
-  validated_channel_setter
+    timeout_param
+    read_length_param
+    channel_param
+    getter_params
+    setter_params
+    validated_getter
+    validated_setter
+    validated_channel_getter
+    validated_channel_setter
 );
 
 use namespace::autoclean
-  -except => 'import',
-  -also   => [@EXPORT_OK];
+    -except => 'import',
+    -also   => [@EXPORT_OK];
 
 our $VERSION = '3.520';
 
@@ -222,8 +222,8 @@ argument, which must be of 'Str' type.
 =cut
 
 sub validated_setter {
-    my ( $self, %args ) =
-      validated_hash( \@_, setter_params(), value => { isa => 'Str' }, );
+    my ( $self, %args )
+        = validated_hash( \@_, setter_params(), value => { isa => 'Str' }, );
     my $value = delete $args{value};
     return ( $self, $value, %args );
 }
@@ -237,8 +237,8 @@ Like C<validated_getter> with an additional C<channel_param> argument.
 =cut
 
 sub validated_channel_getter {
-    my ( $self, %args ) =
-      validated_hash( \@_, getter_params(), channel_param(), );
+    my ( $self, %args )
+        = validated_hash( \@_, getter_params(), channel_param(), );
     my $channel = delete $args{channel};
     return ( $self, $channel, %args );
 }
@@ -252,8 +252,10 @@ Like C<validated_setter> with an additional C<channel_param> argument.
 =cut
 
 sub validated_channel_setter {
-    my ( $self, %args ) = validated_hash( \@_, getter_params(), channel_param(),
-        value => { isa => 'Str' }, );
+    my ( $self, %args ) = validated_hash(
+        \@_, getter_params(), channel_param(),
+        value => { isa => 'Str' },
+    );
     my $channel = delete $args{channel};
     my $value   = delete $args{value};
     return ( $self, $channel, $value, %args );

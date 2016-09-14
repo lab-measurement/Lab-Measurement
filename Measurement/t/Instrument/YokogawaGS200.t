@@ -37,11 +37,13 @@ for my $function (qw/current voltage/) {
 my @ranges        = qw/10e-3 100e-3 1 10 30/;
 my @return_ranges = @ranges;
 
-for ( my $i = 0 ; $i < @ranges ; ++$i ) {
+for ( my $i = 0; $i < @ranges; ++$i ) {
     $yoko->set_range( $ranges[$i] );
     my $query = $yoko->get_range();
-    ok( $query == $return_ranges[$i],
-        "range: expected: " . $ranges[$i] . ", got: $query" );
+    ok(
+        $query == $return_ranges[$i],
+        "range: expected: " . $ranges[$i] . ", got: $query"
+    );
 }
 
 # level

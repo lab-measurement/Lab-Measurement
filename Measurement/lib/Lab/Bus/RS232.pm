@@ -51,38 +51,39 @@ sub new {
     my $proto = shift;
     my $class = ref($proto) || $proto;
     my $twin  = undef;
-    my $self =
-      $class->SUPER::new(@_);  # getting fields and _permitted from parent class
+    my $self  = $class->SUPER::new(@_)
+        ;    # getting fields and _permitted from parent class
     $self->${ \( __PACKAGE__ . '::_construct' ) }(__PACKAGE__);
 
     # parameter parsing
     $self->port( $self->config('port') ) if defined $self->config('port');
-    warn(   "No port supplied to RS232 bus. Assuming default port "
-          . $self->config('port')
-          . "\n" )
-      if ( !defined $self->config('port') );
+    warn(     "No port supplied to RS232 bus. Assuming default port "
+            . $self->config('port')
+            . "\n" )
+        if ( !defined $self->config('port') );
     $self->baudrate( $self->config('baudrate') )
-      if defined $self->config('baudrate');
-    $self->parity( $self->config('parity') ) if defined $self->config('parity');
+        if defined $self->config('baudrate');
+    $self->parity( $self->config('parity') )
+        if defined $self->config('parity');
     $self->databits( $self->config('databits') )
-      if defined $self->config('databits');
+        if defined $self->config('databits');
     $self->stopbits( $self->config('stopbits') )
-      if defined $self->config('stopbits');
+        if defined $self->config('stopbits');
     $self->handshake( $self->config('handshake') )
-      if defined $self->config('handshake');
+        if defined $self->config('handshake');
     $self->timeout( $self->config('timeout') )
-      if defined $self->config('timeout');
+        if defined $self->config('timeout');
 
-# search for twin in %Lab::Bus::BusList. If there's none, place $self there and weaken it.
+    # search for twin in %Lab::Bus::BusList. If there's none, place $self there and weaken it.
     if ( $class eq __PACKAGE__ )
     {    # careful - do only if this is not a parent class constructor
         if ( $twin = $self->_search_twin() ) {
             undef $self;
             warn "Existing Bus object of type "
-              . $self->type()
-              . " for port "
-              . $self->port()
-              . " found. Reusing.\n";
+                . $self->type()
+                . " for port "
+                . $self->port()
+                . " found. Reusing.\n";
             return $twin;    # ...and that's it.
         }
         else {
@@ -95,13 +96,13 @@ sub new {
     if ($WIN32) {
         $self->client(
             new Win32::SerialPort( $self->config('port') )
-              or warn "Could not open serial port\n"
+                or warn "Could not open serial port\n"
         );
     }
     else {
         $self->client(
             new Device::SerialPort( $self->config('port') )
-              or warn "Could not open serial port\n"
+                or warn "Could not open serial port\n"
         );
     }
 
@@ -111,15 +112,15 @@ sub new {
         $self->client()->purge_all;
         $self->client()->read_const_time( $self->timeout() );
         $self->client()->handshake( $self->config('handshake') )
-          if ( defined $self->config('handshake') );
+            if ( defined $self->config('handshake') );
         $self->client()->baudrate( $self->config('baudrate') )
-          if ( defined $self->config('baudrate') );
+            if ( defined $self->config('baudrate') );
         $self->client()->parity( $self->config('parity') )
-          if ( defined $self->config('parity') );
+            if ( defined $self->config('parity') );
         $self->client()->databits( $self->config('databits') )
-          if ( defined $self->config('databits') );
+            if ( defined $self->config('databits') );
         $self->client()->stopbits( $self->config('stopbits') )
-          if ( defined $self->config('stopbits') );
+            if ( defined $self->config('stopbits') );
     }
     else {
         Lab::Exception::Error->throw(
@@ -181,19 +182,20 @@ sub _direct_read
     }
     else {
         $result = $self->client()->read($read_length)
-          ; # note: taken from older code - is 4096 some strong limit? If yes, this needs more work.
+            ; # note: taken from older code - is 4096 some strong limit? If yes, this needs more work.
     }
 
     return $result;
 }
 
-sub connection_write {  # @_ = ( $connection_handle, $args = { command, brutal }
+sub connection_write
+{             # @_ = ( $connection_handle, $args = { command, brutal }
     my $self              = shift;
     my $connection_handle = shift;
     my $args              = undef;
     if ( ref $_[0] eq 'HASH' ) {
         $args = shift;
-    }                   # try to be flexible about options as hash/hashref
+    }         # try to be flexible about options as hash/hashref
     else { $args = {@_} }
 
     return $self->_direct_write($args);
@@ -214,9 +216,9 @@ sub _direct_write
 
     if ( !defined $command ) {
         Lab::Exception::CorruptParameter->throw(
-                error => "No command given to "
-              . __PACKAGE__
-              . "::connection_write().\n", );
+                  error => "No command given to "
+                . __PACKAGE__
+                . "::connection_write().\n", );
     }
     else {
         $status = $self->client()->write($command);
@@ -224,16 +226,16 @@ sub _direct_write
 
     if ( !$status && !$brutal ) {
         Lab::Exception::RS232Error->throw(
-            error => "Error in "
-              . __PACKAGE__
-              . "::connection_write() while executing $command: write failed.\n",
+                  error => "Error in "
+                . __PACKAGE__
+                . "::connection_write() while executing $command: write failed.\n",
             status => $status,
         );
     }
     elsif ($brutal) {
         warn "(brutal=>Ignored) error in "
-          . __PACKAGE__
-          . "::connection_write() while executing $command: write failed.\n";
+            . __PACKAGE__
+            . "::connection_write() while executing $command: write failed.\n";
     }
 
     return 1;
@@ -258,7 +260,8 @@ sub connection_query
 
     $self->connection_write( $connection_handle, $args );
 
-    usleep($wait_query);  #<---ensures that asked data presented from the device
+    usleep($wait_query)
+        ;    #<---ensures that asked data presented from the device
 
     $result = $self->connection_read( $connection_handle, $args );
     return $result;
@@ -269,7 +272,7 @@ sub connection_clear {
     my $connection_handle = shift;
 
     $self->connection_read( $connection_handle, read_length => 'all' )
-      ;                   # clear buffer
+        ;    # clear buffer
 
     return 1;
 }

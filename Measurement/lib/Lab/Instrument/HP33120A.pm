@@ -1023,7 +1023,8 @@ sub set_offset {
 
     my $voff = _parseNRf( $in, 'v' );
     if ( $voff =~ /^ERR/ ) {
-        Lab::Exception::CorruptParameter->throw("Error parsing '$in': $voff\n");
+        Lab::Exception::CorruptParameter->throw(
+            "Error parsing '$in': $voff\n");
         return;
     }
     if ( $voff ne 'MIN' && $voff ne 'MAX' ) {
@@ -1034,7 +1035,7 @@ sub set_offset {
             $self->set_vunit('VPP');
             $vpp = $self->get_amplitude( { read_mode => 'device' } );
             $self->set_vunit($u);
-            $self->get_amplitude( { read_mode => 'device' } );    # reset cache
+            $self->get_amplitude( { read_mode => 'device' } );   # reset cache
         }
         else {
             $vpp = $self->get_amplitude( { read_mode => 'cache' } );
@@ -1083,8 +1084,7 @@ sub get_waveform_list {
 
     if (   $read_mode eq 'cache'
         && $#{ $self->{waveform}->{user} } >= 0
-        && !$self->{config}->{no_cache} )
-    {
+        && !$self->{config}->{no_cache} ) {
         return ( @{ $self->{waveform}->{user} } );
     }
 
@@ -1179,8 +1179,8 @@ sub load_waveform {
     my $dac;
 
     if ( ref($arg) eq 'HASH' ) {
-        if ( exists( $arg->{waveform} ) && ref( $arg->{waveform} ) eq 'ARRAY' )
-        {
+        if ( exists( $arg->{waveform} )
+            && ref( $arg->{waveform} ) eq 'ARRAY' ) {
             $fwfd = $arg->{waveform};
         }
         elsif ( exists( $arg->{dac} ) && ref( $arg->{dac} ) eq 'ARRAY' ) {
@@ -1218,11 +1218,11 @@ sub load_waveform {
     if ( defined($dac) ) {
         $cmd  = 'DATA:DAC VOLATILE';    # maybe use gpib data block?
         $npts = $#{$dac} + 1;
-        for ( my $j = 0 ; $j < $npts ; $j++ ) {
+        for ( my $j = 0; $j < $npts; $j++ ) {
             my $d = int( $dac->[$j] + 0.5 );
             if ( abs($d) > 2047 ) {
                 Lab::Exception::CorruptParameter->throw(
-"Waveform DAC data point $j ($) out of range -2047..2047  \n"
+                    "Waveform DAC data point $j ($) out of range -2047..2047  \n"
                 );
                 return;
             }
@@ -1234,7 +1234,7 @@ sub load_waveform {
     if ( defined($fwfd) ) {
         $cmd  = 'DATA VOLATILE';
         $npts = $#{$fwfd} + 1;
-        for ( my $j = 0 ; $j < $npts ; $j++ ) {
+        for ( my $j = 0; $j < $npts; $j++ ) {
             my $v = sprintf( '%.3f', $fwfd->[$j] );
             if ( abs($v) > 1 ) {
                 Lab::Exception::CorruptParameter->throw(
@@ -1414,8 +1414,7 @@ sub store_waveform {
         || $name eq 'EXP_RISE'
         || $name eq 'EXP_FALL'
         || $name eq 'CARDIAC'
-        || $name eq 'VOLATILE' )
-    {
+        || $name eq 'VOLATILE' ) {
         Lab::Exception::CorruptParameter->throw(
             "Invalid waveform name '$name' for copy\n");
         return;
@@ -1464,8 +1463,7 @@ sub delete_waveform {
         || $name eq 'NEG_RAMP'
         || $name eq 'EXP_RISE'
         || $name eq 'EXP_FALL'
-        || $name eq 'CARDIAC' )
-    {
+        || $name eq 'CARDIAC' ) {
         Lab::Exception::CorruptParameter->throw(
             "Built-in waveform '$name' , not deletable\n");
         return;
@@ -1558,7 +1556,7 @@ sub set_modulation {
     }
     else {
         Lab::Exception::CorruptParameter->throw(
-"Invalid modulation type '$in', should be NONE|AM|FM|BURST|FSK|SWEEP\n"
+            "Invalid modulation type '$in', should be NONE|AM|FM|BURST|FSK|SWEEP\n"
         );
         return;
     }
@@ -1667,7 +1665,8 @@ sub set_am_shape {
     }
     else {
         Lab::Exception::CorruptParameter->throw(
-            "Invalid AM modulation shape '$in' [SIN|SQU|TRI|RAMP|NOIS|USER]\n");
+            "Invalid AM modulation shape '$in' [SIN|SQU|TRI|RAMP|NOIS|USER]\n"
+        );
         return;
     }
     $self->write("AM:INT:FUNC $s");
@@ -1869,7 +1868,8 @@ sub set_fm_shape {
     }
     else {
         Lab::Exception::CorruptParameter->throw(
-            "Invalid FM modulation shape '$in' [SIN|SQU|TRI|RAMP|NOIS|USER]\n");
+            "Invalid FM modulation shape '$in' [SIN|SQU|TRI|RAMP|NOIS|USER]\n"
+        );
         return;
     }
     $self->write("FM:INT:FUNC $s");
@@ -2092,7 +2092,8 @@ sub set_burst_rate {
     my $f = _parseNRf( $in, 'Hz' );
 
     if ( $f =~ /^ERR:/ ) {
-        Lab::Exception::CorruptParameter->throw("Burst rate parse '$in' $f\n");
+        Lab::Exception::CorruptParameter->throw(
+            "Burst rate parse '$in' $f\n");
         return;
     }
 

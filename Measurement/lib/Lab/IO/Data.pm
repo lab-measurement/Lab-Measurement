@@ -31,8 +31,7 @@ sub msg_parsed {
     while ( $msg =~ /%(\w+)%/ ) {
         $param_name = $1;
         if ( exists $self->{data}->{params}->{$param_name}
-            && !ref( $self->{data}->{params}->{$param_name} ) )
-        {
+            && !ref( $self->{data}->{params}->{$param_name} ) ) {
             $value = $self->{data}->{params}->{$param_name};
             $msg =~ s/%$param_name%/'$value'/;
         }

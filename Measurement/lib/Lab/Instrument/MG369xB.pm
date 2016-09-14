@@ -125,7 +125,7 @@ sub init_sweep_linear {
     }
 
     print
-      "$nr_of_steps $next_sweep_start $start $step_size $current_sweep_stop\n";
+        "$nr_of_steps $next_sweep_start $start $step_size $current_sweep_stop\n";
     $self->{next_sweep_start} = $next_sweep_start;
     $self->{stop}             = $stop;
     $self->{step_size}        = $step_size;
@@ -139,8 +139,8 @@ sub init_sweep_linear {
     # SSP = linear step sweep
     # SP0 = equally spaced steps
     # RSS = Reset śweep
-    my $cmd =
-"F1 $start MH F2 $current_sweep_stop MH SNS $nr_of_steps SPS SP0 SF1 SSP RSS";
+    my $cmd
+        = "F1 $start MH F2 $current_sweep_stop MH SNS $nr_of_steps SPS SP0 SF1 SSP RSS";
     print "Sending $cmd\n";
     $self->write($cmd);
     sleep(1);
@@ -150,8 +150,10 @@ sub sweep_next_step {
     my $self = shift;
     if ( $self->{step_nr} >= $self->{nr_of_steps} ) {
         if ( defined( $self->{next_sweep_start} ) ) {
-            $self->init_sweep_linear( $self->{next_sweep_start},
-                $self->{stop}, $self->{step_size} );
+            $self->init_sweep_linear(
+                $self->{next_sweep_start},
+                $self->{stop}, $self->{step_size}
+            );
         }
         else {
             # Output last point

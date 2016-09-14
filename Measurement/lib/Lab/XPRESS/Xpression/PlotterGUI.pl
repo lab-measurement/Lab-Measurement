@@ -162,10 +162,9 @@ sub init_gnuplot {
 
     if (    not defined $plot{Z}
         and not defined $plot{CB}
-        and $plot{type} eq 'pm3d' )
-    {
+        and $plot{type} eq 'pm3d' ) {
         die
-"Error while plotting data. Plot type = pm3d: z-axis and/or cb-axis are not defined.";
+            "Error while plotting data. Plot type = pm3d: z-axis and/or cb-axis are not defined.";
     }
 
     %{ $self->{plot} } = %plot;
@@ -194,9 +193,9 @@ sub plot_standard {
     my $gp    = "";
     my $gpipe = $self->{gpipe};
 
-#-------------------------------------------------------------------------------------------------#
-#---- y1-axis ------------------------------------------------------------------------------------#
-#-------------------------------------------------------------------------------------------------#
+    #-------------------------------------------------------------------------------------------------#
+    #---- y1-axis ------------------------------------------------------------------------------------#
+    #-------------------------------------------------------------------------------------------------#
 
     my $x = $self->{plot}->{X}->{column_number};
     $gp = "plot ";
@@ -208,8 +207,8 @@ sub plot_standard {
             $gp .= "$wave->{filename} ";
             $gp .= "using $x:$wave->{column_number} ";
             $gp .= "axis x1y1 ";
-            $gp .=
-"every $wave->{LineIncrement}:$wave->{BlockIncrement}:$wave->{LineFrom}:$wave->{BlockFrom}:$wave->{LineTo}:$wave->{BlockTo} ";
+            $gp
+                .= "every $wave->{LineIncrement}:$wave->{BlockIncrement}:$wave->{LineFrom}:$wave->{BlockFrom}:$wave->{LineTo}:$wave->{BlockTo} ";
             $gp .= "with $wave->{style} ";
             $gp .= "linecolor $wave->{color} ";
             if ( $wave->{style} =~ /line/ ) {
@@ -223,9 +222,9 @@ sub plot_standard {
         }
     }
 
-#-------------------------------------------------------------------------------------------------#
-#---- y2-axis ------------------------------------------------------------------------------------#
-#-------------------------------------------------------------------------------------------------#
+    #-------------------------------------------------------------------------------------------------#
+    #---- y2-axis ------------------------------------------------------------------------------------#
+    #-------------------------------------------------------------------------------------------------#
 
     foreach my $wave ( @{ $self->{plot}->{Y2}->{wave} } ) {
         if ( not defined $wave ) {
@@ -235,8 +234,8 @@ sub plot_standard {
             $gp .= "$wave->{filename} ";
             $gp .= "using $x:$wave->{column_number} ";
             $gp .= "axis x1y2 ";
-            $gp .=
-"every $wave->{LineIncrement}:$wave->{BlockIncrement}:$wave->{LineFrom}:$wave->{BlockFrom}:$wave->{LineTo}:$wave->{BlockTo} ";
+            $gp
+                .= "every $wave->{LineIncrement}:$wave->{BlockIncrement}:$wave->{LineFrom}:$wave->{BlockFrom}:$wave->{LineTo}:$wave->{BlockTo} ";
             $gp .= "with $wave->{style} ";
             $gp .= "linecolor $wave->{color} ";
             if ( $wave->{style} =~ /line/ ) {
@@ -286,12 +285,12 @@ sub plot_pm3d {
     if ( defined $self->{plot}->{Z} ) {
         $gp = "";
 
-#		$gp .= "splot '$filename' using $self->{plot}->{X}->{column_number}:@{$self->{plot}->{Y}->{wave}}[0]->{coolumn_number}:@{$self->{pot}->{Z}->{wave}}[0]->{column_number}; \n";
+        #		$gp .= "splot '$filename' using $self->{plot}->{X}->{column_number}:@{$self->{plot}->{Y}->{wave}}[0]->{coolumn_number}:@{$self->{pot}->{Z}->{wave}}[0]->{column_number}; \n";
     }
     elsif ( defined $self->{plot}->{'cb-axis'} ) {
         $gp = "";
 
-#		$gp .= "splot '$filename' using $self->{plot}->{X}->{column_number}:@{$self->{plot}->{Y}->{wave}}[0]->{coolumn_number}:@{$self->{pot}->{CB}->{wave}}[0]->{column_number}; \n";
+        #		$gp .= "splot '$filename' using $self->{plot}->{X}->{column_number}:@{$self->{plot}->{Y}->{wave}}[0]->{coolumn_number}:@{$self->{pot}->{CB}->{wave}}[0]->{column_number}; \n";
     }
 
     print $gpipe $gp;
@@ -332,8 +331,8 @@ sub names2numbers {
 
     # replace columnames by columnumbers:
     if ( exists $self->{plot}->{column_names}{ $self->{plot}->{'x-axis'} } ) {
-        $self->{plot}->{'x-axis'} =
-          $self->{plot}->{column_names}{ $self->{plot}->{'x-axis'} };
+        $self->{plot}->{'x-axis'}
+            = $self->{plot}->{column_names}{ $self->{plot}->{'x-axis'} };
     }
 
     my $temp = ();
@@ -363,13 +362,14 @@ sub names2numbers {
     }
 
     if ( exists $self->{plot}->{column_names}{ $self->{plot}->{'z-axis'} } ) {
-        $self->{plot}->{'z-axis'} =
-          $self->{plot}->{column_names}{ $self->{plot}->{'z-axis'} };
+        $self->{plot}->{'z-axis'}
+            = $self->{plot}->{column_names}{ $self->{plot}->{'z-axis'} };
     }
 
-    if ( exists $self->{plot}->{column_names}{ $self->{plot}->{'cb-axis'} } ) {
-        $self->{plot}->{'cb-axis'} =
-          $self->{plot}->{column_names}{ $self->{plot}->{'cb-axis'} };
+    if ( exists $self->{plot}->{column_names}{ $self->{plot}->{'cb-axis'} } )
+    {
+        $self->{plot}->{'cb-axis'}
+            = $self->{plot}->{column_names}{ $self->{plot}->{'cb-axis'} };
     }
 
 }

@@ -75,8 +75,8 @@ sub _device_init {
 
 sub InitEncoder {
     my $self = shift;
-    my ( $steps, $res, $null ) =
-      $self->_check_args( \@_, [ 'steps', 'res', 'null' ] );
+    my ( $steps, $res, $null )
+        = $self->_check_args( \@_, [ 'steps', 'res', 'null' ] );
 
     $self->write("encoder: $steps $res $null\r\n");
     my $result = $self->read( { read_length => 300 } );
@@ -87,8 +87,8 @@ sub InitEncoder {
 sub InitRamp {
     my $self = shift;
 
-    my ( $axis, $aa, $ae, $va, $ve, $vm ) =
-      $self->_check_args( \@_, [ 'axis', 'aa', 'ae', 'va', 've', 'vm' ] );
+    my ( $axis, $aa, $ae, $va, $ve, $vm )
+        = $self->_check_args( \@_, [ 'axis', 'aa', 'ae', 'va', 've', 'vm' ] );
 
     $self->write("tp: $axis $aa $ae $va $ve $vm\r\n");
     my $result = $self->read( { read_length => 100 } );
@@ -99,15 +99,15 @@ sub InitRamp {
 sub move {
     my $self = shift;
 
-    my ( $position, $speed, $mode ) =
-      $self->_check_args( \@_, [ 'position', 'speed', 'mode' ] );
+    my ( $position, $speed, $mode )
+        = $self->_check_args( \@_, [ 'position', 'speed', 'mode' ] );
 
     if ( not defined $mode ) {
         $mode = $self->device_settings()->{pos_mode};
     }
     if ( not $mode =~ /ABS|abs|REL|rel/ ) {
         Lab::Exception::CorruptParameter->throw( error =>
-"unexpected value for <MODE> in sub move. expected values are ABS and REL."
+                "unexpected value for <MODE> in sub move. expected values are ABS and REL."
         );
     }
     if ( not defined $speed ) {
@@ -121,14 +121,14 @@ sub move {
         not $position =~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/ )
     {
         Lab::Exception::CorruptParameter->throw( error => $self->get_id()
-              . ": Illegal Value given for POSITION in sub move!" );
+                . ": Illegal Value given for POSITION in sub move!" );
     }
 
     # this sets the upper limit for the positioning speed:
     $speed = abs($speed);
     if ( $speed > $self->device_settings()->{speed_max} ) {
         print new Lab::Exception::CorruptParameter( error =>
-"Warning in sub move: <SPEED> = $speed is too high. Reduce <SPEED> to its maximum value defined by internal limit settings of $self->device_settings()->{speed_max}"
+                "Warning in sub move: <SPEED> = $speed is too high. Reduce <SPEED> to its maximum value defined by internal limit settings of $self->device_settings()->{speed_max}"
         );
         $speed = $self->device_settings()->{speed_max};
     }
@@ -140,15 +140,13 @@ sub move {
     if (   $mode eq "ABS"
         or $mode eq "abs"
         or $mode eq "ABSOLUTE"
-        or $mode eq "absolute" )
-    {
+        or $mode eq "absolute" ) {
         if (   $position < $self->device_settings()->{lower_limit}
-            or $position > $self->device_settings()->{upper_limit} )
-        {
+            or $position > $self->device_settings()->{upper_limit} ) {
             Lab::Exception::CorruptParameter->throw( error =>
-"unexpected value for NEW POSITION in sub move. Expected values are between "
-                  . $self->device_settings()->{lower_limit} . " ... "
-                  . $self->device_settings()->{upper_limit} );
+                    "unexpected value for NEW POSITION in sub move. Expected values are between "
+                    . $self->device_settings()->{lower_limit} . " ... "
+                    . $self->device_settings()->{upper_limit} );
         }
         $self->device_cache()->{target} = $position;
         $self->_save_motorlog( $CP, $position );
@@ -159,18 +157,16 @@ sub move {
     elsif ($mode eq "REL"
         or $mode eq "rel"
         or $mode eq "RELATIVE"
-        or $mode eq "relative" )
-    {
+        or $mode eq "relative" ) {
         if (   $CP + $position < $self->device_settings()->{lower_limit}
-            or $CP + $position > $self->device_settings()->{upper_limit} )
-        {
+            or $CP + $position > $self->device_settings()->{upper_limit} ) {
             Lab::Exception::CorruptParameter->throw( error =>
                     "ERROR in sub move.Can't execute move; TARGET POSITION ("
-                  . ( $CP + $position )
-                  . ") is out of valid limits ("
-                  . $self->device_settings()->{lower_limit} . " ... "
-                  . $self->device_settings()->{upper_limit}
-                  . ")" );
+                    . ( $CP + $position )
+                    . ") is out of valid limits ("
+                    . $self->device_settings()->{lower_limit} . " ... "
+                    . $self->device_settings()->{upper_limit}
+                    . ")" );
         }
         $self->device_cache()->{target} = $CP + $position;
         $self->_save_motorlog( $CP, $CP + $position );
@@ -203,11 +199,11 @@ sub wait {
         my $current = $self->device_cache()->{position};
         if ( $flag <= 1.1 and $flag >= 0.9 ) {
             print $self->get_id()
-              . sprintf( " is sweeping (%.2f\370)\r", $current );
+                . sprintf( " is sweeping (%.2f\370)\r", $current );
         }
         elsif ( $flag <= 0 ) {
             print $self->get_id()
-              . sprintf( " is          (%.2f\370)\r", $current );
+                . sprintf( " is          (%.2f\370)\r", $current );
             $flag = 2;
         }
         $flag -= 0.1;
@@ -241,7 +237,7 @@ sub init_limits {
     if ( $self->read_motorinitdata() ) {
         while (1) {
             print
-"Motor-Init data found. Do you want to keep the reference point and the limits? (y/n) ";
+                "Motor-Init data found. Do you want to keep the reference point and the limits? (y/n) ";
             my $input = <>;
             chomp $input;
             if ( $input =~ /YES|yes|Y|y/ ) {
@@ -263,7 +259,7 @@ sub init_limits {
     print "----------------------------------------------\n";
     print "\n";
     print
-"This procedure will help you to initialize the Motor ProStep4 correctly.\n\n";
+        "This procedure will help you to initialize the Motor ProStep4 correctly.\n\n";
     print "Steps to go:\n";
     print "  1.) Define the REFERENCE POINT.\n";
     print "  2.) Define the LOWER and UPPER LIMITS for rotation.\n";
@@ -275,9 +271,9 @@ sub init_limits {
     print "--> Move the motor position to the REFERENCE POINT.\n";
     print "--> Enter a (relative) angle between -180 ... +180 deg.\n";
     print
-"--> Repeat until you have reached the position you want to define as the REFERENCE POINT.\n";
+        "--> Repeat until you have reached the position you want to define as the REFERENCE POINT.\n";
     print
-"--> Enter 'REF' to confirm the actual position as the REFERENCE POINT.\n\n";
+        "--> Enter 'REF' to confirm the actual position as the REFERENCE POINT.\n\n";
 
     while (1) {
         print "MOVE: ";
@@ -291,13 +287,14 @@ sub init_limits {
             my $result = $self->query("nullen\r\n");
             last;
         }
-        elsif ( $value =~ /^[+-]?\d+$/ and $value >= -180 and $value <= 180 ) {
+        elsif ( $value =~ /^[+-]?\d+$/ and $value >= -180 and $value <= 180 )
+        {
             $self->move( $value, { mode => 'REL' } );
             $self->wait();
         }
         else {
             print
-"Please move the motor position to the REFERENCE POINT. Enter an angle between -188\370 ... +180\370.\n";
+                "Please move the motor position to the REFERENCE POINT. Enter an angle between -188\370 ... +180\370.\n";
         }
     }
 
@@ -331,7 +328,7 @@ sub init_limits {
     print "--> Motor will move to LOWER LIMIT in steps of 10 deg\n";
     print "--> Motor will move to UPPER LIMIT in steps of 10 deg\n";
     print
-"--> Confirm each step with ENTER or type <STOP> to take the actual position as the limit value. \n\n";
+        "--> Confirm each step with ENTER or type <STOP> to take the actual position as the limit value. \n\n";
 
     print "Moving to LOWER LIMIT ...\n";
     while (1) {
@@ -436,14 +433,12 @@ sub get_position {
     my $result;
 
     if (   not defined $read_mode
-        or not $read_mode =~ /device|cache|request|fetch/ )
-    {
+        or not $read_mode =~ /device|cache|request|fetch/ ) {
         $read_mode = $self->device_settings()->{read_default};
     }
 
     if ( $read_mode eq 'cache'
-        and defined $self->{'device_cache'}->{'position'} )
-    {
+        and defined $self->{'device_cache'}->{'position'} ) {
         return $self->{'device_cache'}->{'position'};
     }
     elsif ( $read_mode eq 'request' and $self->{request} == 0 ) {
@@ -477,15 +472,16 @@ sub get_position {
             $self->{active} = 0;
             last;
         }
-        elsif ( $result =~
-            m/Soll\/Ist\/Speed_$AXIS:\s+([+-]?\d+)\s+([+-]?\d+)\s+([+-]?\d+)/ )
-        {
+        elsif ( $result
+            =~ m/Soll\/Ist\/Speed_$AXIS:\s+([+-]?\d+)\s+([+-]?\d+)\s+([+-]?\d+)/
+            ) {
             $self->device_cache()->{position} = $self->steps2angle($2);
             $self->{active} = 1;
             last;
         }
         else {
-            $result = $self->connection()->BrutalRead( { read_length => 100 } );
+            $result
+                = $self->connection()->BrutalRead( { read_length => 100 } );
         }
     }
 
@@ -499,13 +495,15 @@ sub save_motorinitdata {
     my $self = shift;
 
     open( DUMP, ">C:\\Perl\\site\\lib\\Lab\\Instrument\\ProStep4.ini" )
-      ;    #open for write, overwrite
+        ;    #open for write, overwrite
 
     print DUMP "POSITION: " . $self->device_cache()->{position} . "\n";
     print DUMP "TARGET: " . $self->device_cache()->{target} . "\n";
     print DUMP "SPEED_MAX: " . $self->device_settings()->{speed_max} . "\n";
-    print DUMP "UPPER_LIMIT: " . $self->device_settings()->{upper_limit} . "\n";
-    print DUMP "LOWER_LIMIT: " . $self->device_settings()->{lower_limit} . "\n";
+    print DUMP "UPPER_LIMIT: "
+        . $self->device_settings()->{upper_limit} . "\n";
+    print DUMP "LOWER_LIMIT: "
+        . $self->device_settings()->{lower_limit} . "\n";
     print DUMP "TIMESTAMP: " . time() . "\n";
 
     close(DUMP);
@@ -513,10 +511,10 @@ sub save_motorinitdata {
 
 sub _save_motorlog {
     my $self = shift;
-    my ( $init_pos, $end_pos ) =
-      $self->_check_args( \@_, [ 'init_pos', 'end_pos' ] );
+    my ( $init_pos, $end_pos )
+        = $self->_check_args( \@_, [ 'init_pos', 'end_pos' ] );
     open( DUMP, ">>C:\\Perl\\site\\lib\\Lab\\Instrument\\ProStep4.log" )
-      ;    #open for write, overwrite
+        ;    #open for write, overwrite
 
     print DUMP ( my_timestamp() ) . "\t move: $init_pos -> $end_pos \n";
 
@@ -527,8 +525,8 @@ sub read_motorinitdata {
     my $self = shift;
 
     if (
-        not open( DUMP, "<C:\\Perl\\site\\lib\\Lab\\Instrument\\ProStep4.ini" )
-      )
+        not
+        open( DUMP, "<C:\\Perl\\site\\lib\\Lab\\Instrument\\ProStep4.ini" ) )
     {
         return 0;
     }

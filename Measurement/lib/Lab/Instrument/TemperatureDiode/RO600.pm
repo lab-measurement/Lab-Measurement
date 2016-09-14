@@ -19,13 +19,14 @@ sub new {
 sub convert2Kelvin {
     my $value = shift;
 
-    if ( $value < 1725.8 and $value >= 1100.75 ) { # approximieren durch polynom
-        $value = ( -0.3199412263 + 5.7488447e-8 * ( $value**2 ) * log($value) -
-              8.840903e-11 * $value**3 )**(-1);
+    if ( $value < 1725.8 and $value >= 1100.75 )
+    {    # approximieren durch polynom
+        $value = (-0.3199412263 + 5.7488447e-8 * ( $value**2 ) * log($value)
+                - 8.840903e-11 * $value**3 )**(-1);
     }
     elsif ( $value >= 1725.82 and $value <= 29072.86 ) {
-        $value = ( -0.771272244 + 0.00010067892 * $value * log($value) -
-              1.071888e-9 * ( $value**2 ) * log($value) )**(-1);
+        $value = (-0.771272244 + 0.00010067892 * $value * log($value)
+                - 1.071888e-9 * ( $value**2 ) * log($value) )**(-1);
     }
     else {
         warn "no valid TEMPERATURE VALUE.";

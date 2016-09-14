@@ -32,8 +32,8 @@ our %fields = (
 sub new {
     my $proto = shift;
     my $class = ref($proto) || $proto;
-    my $self =
-      $class->SUPER::new(@_);  # getting fields and _permitted from parent class
+    my $self  = $class->SUPER::new(@_)
+        ;    # getting fields and _permitted from parent class
     $self->${ \( __PACKAGE__ . '::_construct' ) }(__PACKAGE__);
 
     # Parameter checking

@@ -80,7 +80,7 @@ sub empty_buffer {
     my $self = shift;
     my ($times) = $self->_check_args( \@_, ['times'] );
     if ($times) {
-        for ( my $i = 0 ; $i < $times ; $i++ ) {
+        for ( my $i = 0; $i < $times; $i++ ) {
             eval { $self->read( brutal => 1 ) };
         }
     }

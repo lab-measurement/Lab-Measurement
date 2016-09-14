@@ -29,7 +29,7 @@ sub new {
     $self->${ \( __PACKAGE__ . '::_construct' ) }(__PACKAGE__);
 
     print
-      "Temperature control support is experimental. You have been warned.\n";
+        "Temperature control support is experimental. You have been warned.\n";
     return $self;
 }
 

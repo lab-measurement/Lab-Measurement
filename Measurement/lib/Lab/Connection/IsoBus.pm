@@ -23,7 +23,7 @@ sub new {
     my $class = ref($proto) || $proto;
     my $twin  = undef;
     my $self  = $class->SUPER::new(@_)
-      ;    # getting fields and _permitted from parent class, parameter checks
+        ;  # getting fields and _permitted from parent class, parameter checks
     $self->${ \( __PACKAGE__ . '::_construct' ) }(__PACKAGE__);
 
     return $self;
@@ -43,8 +43,8 @@ sub _configurebus {    # $self->setbus() create new or use existing bus
             $new_config->{$key} = $self->config($key);
         }
     }
-    $new_config->{'base_connection'} =
-      undef;    # aviod recursive definition of bas_connection
+    $new_config->{'base_connection'}
+        = undef;    # aviod recursive definition of bas_connection
     $base->config($new_config);
     $self->config('base_connection')->_configurebus();
 
@@ -70,8 +70,7 @@ sub is_blocked {
     my $self = shift;
 
     if (   $self->{connection_blocked} == 1
-        or $self->{config}->{base_connection}->is_blocked() )
-    {
+        or $self->{config}->{base_connection}->is_blocked() ) {
         return 1;
     }
     else {

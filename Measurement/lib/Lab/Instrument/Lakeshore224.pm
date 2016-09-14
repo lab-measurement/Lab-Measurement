@@ -38,9 +38,7 @@ our %fields = (
         channel         => undef
     },
 
-    device_cache => {
-        T => undef
-    },
+    device_cache => { T => undef },
 
     device_cache_order => [],
 
@@ -135,8 +133,8 @@ sub get_filter {
 
 sub set_filter {
     my $self = shift;
-    my ( $on_off, $points, $window, $tail ) =
-      $self->_check_args( \@_, [ 'on_off', 'points', 'window' ] );
+    my ( $on_off, $points, $window, $tail )
+        = $self->_check_args( \@_, [ 'on_off', 'points', 'window' ] );
 
     if ( defined $on_off and ( $on_off != 1 and $on_off != 0 ) ) {
         $self->out_warning('on_off has to be 1 or 0');
@@ -169,7 +167,7 @@ sub set_mode {
 
     if ( defined $state and ( $state < 1 or $state > 2 ) ) {
         $self->out_warning(
-'State has to be 0 (local), 1 (remote) or 2 (remote with local lockout)'
+            'State has to be 0 (local), 1 (remote) or 2 (remote with local lockout)'
         );
         return;
     }
@@ -205,15 +203,17 @@ sub get_alarm {
 
 sub set_alarm {
     my $self = shift;
-    my ( $on_off, $high_setpoint, $low_setpoint, $deadband, $latch_enable,
-        $audible, $display, $tail )
-      = $self->_check_args(
+    my (
+        $on_off,  $high_setpoint, $low_setpoint, $deadband, $latch_enable,
+        $audible, $display,       $tail
+        )
+        = $self->_check_args(
         \@_,
         [
             'on_off',       'high_setpoint', 'low_setpoint', 'deadband',
             'latch_enable', 'audible',       'display'
         ]
-      );
+        );
 
     if ( defined $on_off and ( $on_off != 1 and $on_off != 0 ) ) {
         $self->out_warning('on_off has to be 1 or 0');
@@ -221,8 +221,7 @@ sub set_alarm {
     }
 
     if ( defined $latch_enable
-        and ( $latch_enable != 1 or $latch_enable != 0 ) )
-    {
+        and ( $latch_enable != 1 or $latch_enable != 0 ) ) {
         $self->out_warning('latch_enable has to be 1 or 0');
         return;
     }
@@ -238,7 +237,7 @@ sub set_alarm {
     }
 
     $self->write(
-"ALARM $self->{channel}, $on_off, $high_setpoint, $low_setpoint, $deadband, $latch_enable, $audible, $display",
+        "ALARM $self->{channel}, $on_off, $high_setpoint, $low_setpoint, $deadband, $latch_enable, $audible, $display",
         $tail
     );
 }

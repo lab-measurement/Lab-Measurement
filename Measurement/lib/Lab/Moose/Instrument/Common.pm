@@ -1,12 +1,12 @@
-package Lab::MooseInstrument::Common;
+package Lab::Moose::Instrument::Common;
 
 use Moose::Role;
 use MooseX::Params::Validate;
 
-use Lab::MooseInstrument qw/
-  validated_getter
-  validated_setter
-  /;
+use Lab::Moose::Instrument qw/
+    validated_getter
+    validated_setter
+    /;
 use Carp;
 
 use namespace::autoclean;

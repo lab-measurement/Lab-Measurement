@@ -173,7 +173,7 @@ sub heater_off {
 sub status {
     my $self = shift;
     my $result = $self->query( command => "U\n", read_length => 1000 );
-    for ( my $i = 1 ; $i <= 20 ; $i++ ) {
+    for ( my $i = 1; $i <= 20; $i++ ) {
         $result .= $self->query( command => "U\n", read_length => 1000 );
 
     }

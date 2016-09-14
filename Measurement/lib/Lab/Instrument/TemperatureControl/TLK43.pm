@@ -35,19 +35,19 @@ our %fields = (
         CurrentHB_closed => 0x020C,    # current for HB with closed circuit
         CurrentHB_open   => 0x020D,    # current for HB with open circuit
         State_Controller => 0x020F
-        ,  # state of controller (0: Off, 1: auto. Reg., 2: Tuning, 3: man. Reg.
+        , # state of controller (0: Off, 1: auto. Reg., 2: Tuning, 3: man. Reg.
         PreliminaryTarget => 0x0290,    # preliminary target value (TLK43)
-        AnalogueRepeat => 0x02A0,   # value to repeat on analogue output (TLK43)
+        AnalogueRepeat => 0x02A0, # value to repeat on analogue output (TLK43)
 
         # SP group (parameters relative to setpoint)
-        nSP  => 0x2800,             # number of programmable setpoints
-        SPAt => 0x2801,             # selects active setpoint
-        SP1  => 0x2802,             # setpoint 1
-        SP2  => 0x2803,             # setpoint 2
-        SP3  => 0x2804,             # setpoint 3
-        SP4  => 0x2805,             # setpoint 4
-        SPLL => 0x2806,             # low setpoint limit
-        SPHL => 0x2807,             # high setpoint limit
+        nSP  => 0x2800,           # number of programmable setpoints
+        SPAt => 0x2801,           # selects active setpoint
+        SP1  => 0x2802,           # setpoint 1
+        SP2  => 0x2803,           # setpoint 2
+        SP3  => 0x2804,           # setpoint 3
+        SP4  => 0x2805,           # setpoint 4
+        SPLL => 0x2806,           # low setpoint limit
+        SPHL => 0x2807,           # high setpoint limit
 
         # InP group (parameters relative to the measure input)
         HCFG => 0x2808,    # type of input with universal input configuration
@@ -58,18 +58,18 @@ our %fields = (
         dP   => 0x280C,    # decimal points (for measurement)
         Unit => 0x280D,    # 0=°C, 1=F
         FiL  => 0x280E,    # digital filter on input (OFF .. 20.0 sec)
-        OFSt =>
-          0x2810, # offset of measurement with dP decimal points (-1999..9999) ?
+        OFSt => 0x2810
+        ,    # offset of measurement with dP decimal points (-1999..9999) ?
         rot => 0x2811,    # rotation of the measuring straight line
         InE => 0x2812
-        ,    # "OPE" functioning in case of measuring error (0=OR, 1=Ur, 2=OUr)
-        OPE => 0x2813,    # output power in case of measuring error (-100..100)
-        dIF => 0x2858,    # digital input function
+        ,   # "OPE" functioning in case of measuring error (0=OR, 1=Ur, 2=OUr)
+        OPE => 0x2813,   # output power in case of measuring error (-100..100)
+        dIF => 0x2858,   # digital input function
 
         # O1 group (parameteres relative to output 1)
         O1F => 0x2814
-        ,    # functioning of output 1 (0=OFF, 1=1.rEg, 2=2.rEg, 3=Alno, 4=ALnc)
-        Aor1 => 0x2859,    # Beginning of analogue output 1 scale (0=0, 1=no_0)
+        ,  # functioning of output 1 (0=OFF, 1=1.rEg, 2=2.rEg, 3=Alno, 4=ALnc)
+        Aor1 => 0x2859,   # Beginning of analogue output 1 scale (0=0, 1=no_0)
         Ao1F => 0x285A
         , # functioning of analogue output 1 (0=OFF, 1=inp, 2=err, 3=r.SP, 4=r.SEr)
         Ao1L => 0x285B
@@ -79,8 +79,8 @@ our %fields = (
 
         # O2 group (parameteres relative to output 2)
         O2F => 0x2815
-        ,    # functioning of output 2 (0=OFF, 1=1.rEg, 2=2.rEg, 3=Alno, 4=ALnc)
-        Aor2 => 0x285D,    # Beginning of analogue output 2 scale (0=0, 1=no_0)
+        ,  # functioning of output 2 (0=OFF, 1=1.rEg, 2=2.rEg, 3=Alno, 4=ALnc)
+        Aor2 => 0x285D,   # Beginning of analogue output 2 scale (0=0, 1=no_0)
         Ao2F => 0x285E
         , # functioning of analogue output 2 (0=OFF, 1=inp, 2=err, 3=r.SP, 4=r.SEr)
         Ao2L => 0x285F
@@ -90,8 +90,8 @@ our %fields = (
 
         # O3 group (parameteres relative to output 3)
         O3F => 0x2816
-        ,    # functioning of output 3 (0=OFF, 1=1.rEg, 2=2.rEg, 3=Alno, 4=ALnc)
-        Aor3 => 0x2861,    # Beginning of analogue output 3 scale (0=0, 1=no_0)
+        ,  # functioning of output 3 (0=OFF, 1=1.rEg, 2=2.rEg, 3=Alno, 4=ALnc)
+        Aor3 => 0x2861,   # Beginning of analogue output 3 scale (0=0, 1=no_0)
         Ao3F => 0x2862
         , # functioning of analogue output 3 (0=OFF, 1=inp, 2=err, 3=r.SP, 4=r.SEr)
         Ao3L => 0x2863
@@ -101,7 +101,7 @@ our %fields = (
 
         # O4 group (parameters relative to output 4)
         O4F => 0x2817
-        ,    # functioning of output 4 (0=OFF, 1=1.rEg, 2=2.rEg, 3=Alno, 4=ALnc)
+        ,  # functioning of output 4 (0=OFF, 1=1.rEg, 2=2.rEg, 3=Alno, 4=ALnc)
 
         # Al1 group (parameteres relative to alarm 1
         OAL1 => 0x2818
@@ -117,29 +117,29 @@ our %fields = (
         , # High threshold band alarm AL1 or Maximum set alarm AL1 for high or low alarm (with dP, -1999..9999)
         HAL1 => 0x281E,    # Alarm AL1 hysteresis (with dP, 0=OFF..9999)
         AL1d =>
-          0x281F,    # Activation delay of alarm AL1 (with dP, 9=OFF..9999sec)
+            0x281F,  # Activation delay of alarm AL1 (with dP, 9=OFF..9999sec)
         AL1i => 0x2820
         ,    # Alarm AL1 activation in case of measuring error (0=no, 1=yes)
 
         # rEG group (parameters relative to controller
-        Cont => 0x283B,    # Control type (0=PID, 1=On.Fa, 2=On.FS, 3=nr, 4=3Pt)
-        Func => 0x283C,    # functioning mode output 1rEg (0=Heat, 1=Cool)
-        Auto => 0x283D,    # Autotuning Fast enable
-        SELF => 0x283E,    # Selftuning enable (0=No, 1=Yes)
-        HSEt => 0x283F,    # Hysteresis of ON/OFF Control (9999 ... -1999)
-        Pb   => 0x2840,    # Proportional band (0...9999)
-        Int  => 0x2841,    # Integral time (0=OFF...9999sec)
-        dEr  => 0x2842,    # Derivative time (0=OFF...9999sec)
-        FuOc => 0x2843,    # Fuzzy overshoot control (0.00...2.00)
-        tcr1 => 0x2833,    # Cycle time of output 1rEg (0.1...130sec)
-        Prat => 0x2845,    # Power ration 2rEg/1rEg (0.1...999.9)
-        tcr2 => 0x2846,    # Cycle time of 2rEg (0.1...130sec)
-        rS   => 0x2847,    # Manual reset (-100%...100%)
-        tcor => 0x2866,    # Time for motorised actuator run (4...1000sec)
+        Cont => 0x283B,  # Control type (0=PID, 1=On.Fa, 2=On.FS, 3=nr, 4=3Pt)
+        Func => 0x283C,  # functioning mode output 1rEg (0=Heat, 1=Cool)
+        Auto => 0x283D,  # Autotuning Fast enable
+        SELF => 0x283E,  # Selftuning enable (0=No, 1=Yes)
+        HSEt => 0x283F,  # Hysteresis of ON/OFF Control (9999 ... -1999)
+        Pb   => 0x2840,  # Proportional band (0...9999)
+        Int  => 0x2841,  # Integral time (0=OFF...9999sec)
+        dEr  => 0x2842,  # Derivative time (0=OFF...9999sec)
+        FuOc => 0x2843,  # Fuzzy overshoot control (0.00...2.00)
+        tcr1 => 0x2833,  # Cycle time of output 1rEg (0.1...130sec)
+        Prat => 0x2845,  # Power ration 2rEg/1rEg (0.1...999.9)
+        tcr2 => 0x2846,  # Cycle time of 2rEg (0.1...130sec)
+        rS   => 0x2847,  # Manual reset (-100%...100%)
+        tcor => 0x2866,  # Time for motorised actuator run (4...1000sec)
         SHrl =>
-          0x2867,    # Minimum value for motorised actuator control (0.1...10%)
+            0x2867, # Minimum value for motorised actuator control (0.1...10%)
         PoSI => 0x2868
-        ,    # Switch on position for motorised actuator (0=No, 1=close, 2=open)
+        ,  # Switch on position for motorised actuator (0=No, 1=close, 2=open)
         SLor => 0x2849,    # Gradient of rise ramp (0.00...99.99)
         durt => 0x284A,    # Duration time
         SLoF => 0x284B,    # Gradient of fall ramp
@@ -150,7 +150,7 @@ our %fields = (
         tHr1 => 0x286D,    # Split Range Power threshold of output 1rEG
         tHr2 => 0x286E,    # ... of output 2rEG
         OPS1 =>
-          0x286F,    # Power variation speed in output from 1rEG (0...50%/sec)
+            0x286F,  # Power variation speed in output from 1rEG (0...50%/sec)
         OPS2 => 0x2870,    # ... from 2rEG
         StP  => 0x284C,    # Soft-start power (-100, -101=OFF, 100)
         SSt  => 0x284D,    # Soft-start time (0=OFF...7.59 h.min)
@@ -160,8 +160,8 @@ our %fields = (
     },
 
     MemCache =>
-      {    # used by read_int_cached and write_int_cached to cache 16bit values
-      },
+        { # used by read_int_cached and write_int_cached to cache 16bit values
+        },
 );
 
 sub new {
@@ -169,8 +169,8 @@ sub new {
     my $class = ref($proto) || $proto;
     my $self  = $class->SUPER::new(@_);    # sets $self->config
     $self->_construct( __PACKAGE__, \%fields )
-      ;    # this sets up all the object fields out of the inheritance tree.
-           # also, it does generic connection setup.
+        ;    # this sets up all the object fields out of the inheritance tree.
+             # also, it does generic connection setup.
 
     return $self;
 }
@@ -181,29 +181,31 @@ sub read_temperature {
     my $Temp   = undef;
     my $dP     = 0;
 
-#return undef unless defined($dP = $self->read_int_cached({ mem_address => 'dP' }));
-    if ( !defined( $dP = $self->read_int_cached( { mem_address => 'dP' } ) ) ) {
+    #return undef unless defined($dP = $self->read_int_cached({ mem_address => 'dP' }));
+    if ( !defined( $dP = $self->read_int_cached( { mem_address => 'dP' } ) ) )
+    {
         print "Error in cached read of dP\n";
         return undef;
     }
 
     return undef
-      unless defined( $Temp =
-          $self->read_address_int( $self->MemTable()->{'Measurement'} ) );
+        unless defined( $Temp
+            = $self->read_address_int( $self->MemTable()->{'Measurement'} ) );
 
     $Temp == 10001
-      ? warn(
-        "Warning: Measurement exception $Temp received. Sensor disconnected.\n")
-      : $Temp == 10000 ? warn(
-"Warning: Measurement exception $Temp received. Measuring value underrange.\n"
-      )
-      : $Temp == -10000 ? warn(
-"Warning: Measurement exception $Temp received. Measuring value overrange.\n"
-      )
-      : $Temp == 10003 ? warn(
-"Warning: Measurement exception $Temp received. Measured variable not available.\n"
-      )
-      : return $Temp / 10**$dP;
+        ? warn(
+        "Warning: Measurement exception $Temp received. Sensor disconnected.\n"
+        )
+        : $Temp == 10000 ? warn(
+        "Warning: Measurement exception $Temp received. Measuring value underrange.\n"
+        )
+        : $Temp == -10000 ? warn(
+        "Warning: Measurement exception $Temp received. Measuring value overrange.\n"
+        )
+        : $Temp == 10003 ? warn(
+        "Warning: Measurement exception $Temp received. Measured variable not available.\n"
+        )
+        : return $Temp / 10**$dP;
 
     return undef;
 }
@@ -219,14 +221,13 @@ sub read_int_cached {    # { mem_address => $mem_address, ForceRead => (1,0) }
 
     if (   !$ForceRead
         && exists( $self->MemCache()->{$mem_address} )
-        && defined( $self->MemCache()->{$mem_address} ) )
-    {
+        && defined( $self->MemCache()->{$mem_address} ) ) {
         return $self->MemCache()->{$mem_address};
     }
     else {
         return undef
-          unless defined( $self->MemCache()->{$mem_address} =
-              $self->read_address_int($mem_address) );
+            unless defined( $self->MemCache()->{$mem_address}
+                = $self->read_address_int($mem_address) );
         return $self->MemCache()->{$mem_address};
     }
 }
@@ -242,7 +243,7 @@ sub write_int_cached
     }
 
     return undef
-      unless $self->write_address(
+        unless $self->write_address(
         { mem_address => $mem_address, mem_value => $mem_value } );
     return ( ( $self->MemCache()->{$mem_address} = $mem_value ) );
 }
@@ -262,12 +263,12 @@ sub set_setpoint {    # { Slot => (1..4), Value => Int }
         return undef;
     }
     else {
-        $TargetTemp = sprintf( "%.${dP}f", $TargetTemp ) *
-          10**$dP;    # rounding, shifting decimal places
+        $TargetTemp = sprintf( "%.${dP}f", $TargetTemp )
+            * 10**$dP;    # rounding, shifting decimal places
         return undef
-          if ( $TargetTemp > 32767 || $TargetTemp < -32768 )
-          ;    # still fitting in a signed 16bit int?
-               #$TargetTemp = ( $TargetTemp + 2**16  ) if $TargetTemp < 0;
+            if ( $TargetTemp > 32767 || $TargetTemp < -32768 )
+            ;    # still fitting in a signed 16bit int?
+                 #$TargetTemp = ( $TargetTemp + 2**16  ) if $TargetTemp < 0;
         return $self->write_address(
             {
                 mem_address => $self->MemTable()->{'Setpoint'} + $Slot - 1,
@@ -283,17 +284,18 @@ sub set_active_setpoint {    # $value
     my $Slot       = 1;
     my $dP         = 0;
     return undef
-      unless
-      defined( $Slot = $self->read_int_cached( { mem_address => 'SPAt' } ) );
+        unless defined( $Slot
+            = $self->read_int_cached( { mem_address => 'SPAt' } ) );
     return undef
-      unless defined( $dP = $self->read_int_cached( { mem_address => 'dP' } ) );
+        unless
+        defined( $dP = $self->read_int_cached( { mem_address => 'dP' } ) );
 
-    $TargetTemp = sprintf( "%.${dP}f", $TargetTemp ) *
-      10**$dP;               # rounding, shifting decimal places
+    $TargetTemp = sprintf( "%.${dP}f", $TargetTemp )
+        * 10**$dP;    # rounding, shifting decimal places
     return undef
-      if ( $TargetTemp > 32767 || $TargetTemp < -32768 )
-      ;    # still fitting in a signed 16bit int?
-           #$TargetTemp = ( $TargetTemp + 2**16  ) if $TargetTemp < 0;
+        if ( $TargetTemp > 32767 || $TargetTemp < -32768 )
+        ;    # still fitting in a signed 16bit int?
+             #$TargetTemp = ( $TargetTemp + 2**16  ) if $TargetTemp < 0;
     return $self->write_address(
         {
             mem_address => $self->MemTable()->{'SP1'} + $Slot - 1,
@@ -314,7 +316,10 @@ sub set_setpoint_slot {    # { Slot => (1..4) }
     }
     else {
         return $self->write_address(
-            { mem_address => $self->MemTable()->{'SPAt'}, mem_value => $Slot }
+            {
+                mem_address => $self->MemTable()->{'SPAt'},
+                mem_value   => $Slot
+            }
         );
     }
 }
@@ -325,7 +330,8 @@ sub set_Precision {    # $Precision
 
     return undef if ( $precision < 0 || $precision > 3 );
     return $self->write_address(
-        { mem_address => $self->MemTable()->{'sP'}, mem_value => $precision } );
+        { mem_address => $self->MemTable()->{'sP'}, mem_value => $precision }
+    );
 }
 
 sub set_speed
@@ -334,8 +340,8 @@ sub set_speed
     my $speed = shift;
 
     $speed = 100 if ( $speed =~ /off/i );
-    $speed = sprintf( "%.2f", $speed ) *
-      100;    # 2 decimal places hardwired, transferred as int
+    $speed = sprintf( "%.2f", $speed )
+        * 100;    # 2 decimal places hardwired, transferred as int
 
     $self->write_address(
         { mem_address => $self->MemTable()->{'SLoF'}, mem_value => $speed } );
@@ -350,8 +356,8 @@ sub set_speed_rising
     my $speed = shift;
 
     $speed = 100 if ( $speed =~ /off/i );
-    $speed = sprintf( "%.2f", $speed ) *
-      100;    # 2 decimal places hardwired, transferred as int
+    $speed = sprintf( "%.2f", $speed )
+        * 100;    # 2 decimal places hardwired, transferred as int
 
     return $self->write_address(
         { mem_address => $self->MemTable()->{'SLor'}, mem_value => $speed } );
@@ -363,8 +369,8 @@ sub set_speed_falling
     my $speed = shift;
 
     $speed = 100 if ( $speed =~ /off/i );
-    $speed = sprintf( "%.2f", $speed ) *
-      100;    # 2 decimal places hardwired, transferred as int
+    $speed = sprintf( "%.2f", $speed )
+        * 100;    # 2 decimal places hardwired, transferred as int
 
     return $self->write_address(
         { mem_address => $self->MemTable()->{'SLoF'}, mem_value => $speed } );
@@ -386,8 +392,7 @@ sub read_range
         || $mem_address > 0xFFFF
         || $mem_address < 0x0200
         || $MemCount > 4
-        || $MemCount <= 0 )
-    {
+        || $MemCount <= 0 ) {
         return undef;
     }
     else {
@@ -413,9 +418,13 @@ sub read_address_int {    # $Address
         return undef;
     }
     else {
-        @Result = $self->connection()
-          ->Read( function => 3, mem_address => $mem_address, MemCount => 1 );
-        if ( scalar(@Result) == 2 ) {  # correct answer has to be two bytes long
+        @Result = $self->connection()->Read(
+            function    => 3,
+            mem_address => $mem_address,
+            MemCount    => 1
+        );
+        if ( scalar(@Result) == 2 )
+        {    # correct answer has to be two bytes long
             $SignedValue = unpack( 'n!', join( '', @Result ) );
         }
         else {
@@ -441,8 +450,7 @@ sub write_address
         || $mem_address > 0xFFFF
         || $mem_address < 0x0200
         || $mem_value > 0xFFFF
-        || $mem_value < 0 )
-    {
+        || $mem_value < 0 ) {
         return undef;
     }
     else {

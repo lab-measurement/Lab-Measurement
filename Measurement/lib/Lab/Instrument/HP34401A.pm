@@ -28,7 +28,7 @@ our %fields = (
     device_cache => {
 
         # TO DO: add range and resolution + get/setter
-      }
+        }
 
 );
 
@@ -81,8 +81,8 @@ sub get_resistance {
     $range      = "DEF" unless ( defined $range );
     $resolution = "DEF" unless ( defined $resolution );
 
-    my $cmd =
-      sprintf( "MEASure:SCALar:RESIStance? %s,%s", $range, $resolution );
+    my $cmd
+        = sprintf( "MEASure:SCALar:RESIStance? %s,%s", $range, $resolution );
     my $value = $self->query($cmd);
     return $value;
 }
@@ -94,8 +94,8 @@ sub get_4wresistance {
     $range      = "DEF" unless ( defined $range );
     $resolution = "DEF" unless ( defined $resolution );
 
-    my $cmd =
-      sprintf( "MEASure:SCALar:FRESIStance? %s,%s", $range, $resolution );
+    my $cmd
+        = sprintf( "MEASure:SCALar:FRESIStance? %s,%s", $range, $resolution );
     my $value = $self->query($cmd);
     return $value;
 }
@@ -205,9 +205,9 @@ sub set_display_state {
 sub set_display_text {
     my $self = shift;
     my $text = shift;
-    if ( $text !~
-        /^[A-Za-z0-9\ \!\#\$\%\&\'\(\)\^\\\/\@\;\:\[\]\,\.\+\-\=\<\>\?\_]*$/ )
-    {    # characters allowed by the 3458A
+    if ( $text
+        !~ /^[A-Za-z0-9\ \!\#\$\%\&\'\(\)\^\\\/\@\;\:\[\]\,\.\+\-\=\<\>\?\_]*$/
+        ) {    # characters allowed by the 3458A
         Lab::Exception::CorruptParameter->throw(
             "set_display_text(): Illegal characters in given text.\n");
     }
@@ -265,7 +265,7 @@ sub autozero {
         }
         else {
             Lab::Exception::CorruptParameter->throw( error =>
-"HP34401A::autozero() can be set to 'ON'/1, 'OFF'/0 or 'ONCE'. Received '${enable}'\n"
+                    "HP34401A::autozero() can be set to 'ON'/1, 'OFF'/0 or 'ONCE'. Received '${enable}'\n"
             );
         }
         $self->write( $command, error_check => 1 );
@@ -289,7 +289,7 @@ sub configure_voltage_dc {
     }
     elsif ( $range !~ /^(MIN|MAX)$/ ) {
         Lab::Exception::CorruptParameter->throw( error =>
-"Range has to be set to a decimal value or 'AUTO', 'MIN' or 'MAX' in HP34401A::configure_voltage_dc()\n"
+                "Range has to be set to a decimal value or 'AUTO', 'MIN' or 'MAX' in HP34401A::configure_voltage_dc()\n"
         );
     }
 
@@ -300,7 +300,7 @@ sub configure_voltage_dc {
     }
     elsif ( $tint !~ /^(MIN|MAX|DEFAULT)$/ ) {
         Lab::Exception::CorruptParameter->throw( error =>
-"Integration time has to be set to a positive value or 'AUTO', 'MIN' or 'MAX' in HP34401A::configure_voltage_dc()\n"
+                "Integration time has to be set to a positive value or 'AUTO', 'MIN' or 'MAX' in HP34401A::configure_voltage_dc()\n"
         );
     }
 
@@ -311,26 +311,29 @@ sub configure_voltage_dc {
     # do it
     $self->write( "CONF:VOLT:DC ${range} ${res_cmd}", error_check => 1 );
     $self->write( "VOLT:DC:NPLC ${tint}",             error_check => 1 )
-      if $res_cmd eq '';    # integration time implicitly set through resolution
+        if $res_cmd eq
+        '';    # integration time implicitly set through resolution
 }
 
 sub configure_voltage_dc_trigger {
     my $self = shift;
 
-    my ( $range, $tint, $count, $delay, $res_cmd ) = $self->_check_args( \@_,
-        [ 'range', 'tint', 'count', 'delay', 'resolution' ] );
+    my ( $range, $tint, $count, $delay, $res_cmd ) = $self->_check_args(
+        \@_,
+        [ 'range', 'tint', 'count', 'delay', 'resolution' ]
+    );
 
     ### Check the parameters for errors
 
     $count = 1 if !defined($count);
     Lab::Exception::CorruptParameter->throw(
         error => "Sample count has to be an integer between 1 and 512\n" )
-      if ( $count !~ /^[0-9]*$/ || $count < 1 || $count > 512 );
+        if ( $count !~ /^[0-9]*$/ || $count < 1 || $count > 512 );
 
     $delay = 0 if !defined($delay);
     Lab::Exception::CorruptParameter->throw(
         error => "Trigger delay has to be a positive decimal value\n" )
-      if ( $count !~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/ );
+        if ( $count !~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/ );
 
     if ( !defined($tint) ) {
         $tint = "DEF";
@@ -341,13 +344,13 @@ sub configure_voltage_dc_trigger {
         $tint *= $self->pl_freq();
         if ( $tint > 100 || $tint < 0.02 ) {
             Lab::Exception::CorruptParameter->throw( error =>
-"Integration time out of bounds (int. time = $tint) in HP34401A::configure_voltage_dc()\n"
+                    "Integration time out of bounds (int. time = $tint) in HP34401A::configure_voltage_dc()\n"
             );
         }
     }
     elsif ( $tint !~ /^(MIN|MAX|DEF)$/ ) {
         Lab::Exception::CorruptParameter->throw( error =>
-"Integration time has to be set to a positive value, 'DEFAULT', 'MIN' or 'MAX' in HP34401A::configure_voltage_dc()\n"
+                "Integration time has to be set to a positive value, 'DEFAULT', 'MIN' or 'MAX' in HP34401A::configure_voltage_dc()\n"
         );
     }
 
@@ -359,7 +362,7 @@ sub configure_voltage_dc_trigger {
     }
     elsif ( $range !~ /^(MIN|MAX)$/ ) {
         Lab::Exception::CorruptParameter->throw( error =>
-"Range has to be set to a decimal value or 'AUTO', 'MIN' or 'MAX' in HP34401A::configure_voltage_dc()\n"
+                "Range has to be set to a decimal value or 'AUTO', 'MIN' or 'MAX' in HP34401A::configure_voltage_dc()\n"
         );
     }
 
@@ -369,8 +372,8 @@ sub configure_voltage_dc_trigger {
 
     $self->write( "CONF:VOLT:DC ${range} ${res_cmd}", error_check => 1 );
     $self->write( "VOLT:DC:NPLC ${tint}",             error_check => 1 )
-      if $res_cmd eq
-      '';    # integration time implicitly set if resolution not given
+        if $res_cmd eq
+        '';    # integration time implicitly set if resolution not given
 
     $self->write( "*ESE 1", error_check => 1 );
     $self->write( "*CLS",   error_check => 1 );
@@ -430,7 +433,7 @@ sub scroll_message {
     use Time::HiRes (qw/usleep/);
     my $self    = shift;
     my $message = shift
-      || "            Lab::Measurement - designed to make measuring fun!            ";
+        || "            Lab::Measurement - designed to make measuring fun!            ";
     for my $i ( 0 .. ( length($message) - 12 ) ) {
         $self->display_text( sprintf "%12.12s", substr( $message, $i ) );
         usleep(100000);

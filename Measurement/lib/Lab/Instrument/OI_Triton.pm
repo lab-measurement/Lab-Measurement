@@ -91,7 +91,7 @@ sub waitfor_T {
 sub set_T {
     my $self        = shift;
     my $temperature = shift;
-    my $temp        = $self->query("SET:DEV:T5:TEMP:LOOP:TSET:$temperature\n");
+    my $temp = $self->query("SET:DEV:T5:TEMP:LOOP:TSET:$temperature\n");
 
     # typical reply: STAT:SET:DEV:T5:TEMP:LOOP:TSET:0.1:VALID
     waitfor_T($temperature);

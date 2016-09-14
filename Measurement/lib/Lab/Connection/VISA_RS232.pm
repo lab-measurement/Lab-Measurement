@@ -33,7 +33,7 @@ sub new {
     my $twin  = undef;
 
     my $self = $class->SUPER::new(@_)
-      ;    # getting fields and _permitted from parent class, parameter checks
+        ;  # getting fields and _permitted from parent class, parameter checks
     $self->${ \( __PACKAGE__ . '::_construct' ) }(__PACKAGE__);
 
     return $self;
@@ -48,10 +48,10 @@ sub _setbus {
 
     no strict 'refs';
     $self->bus( $bus_class->new( $self->config() ) )
-      || Lab::Exception::Error->throw(
-            error => "Failed to create bus $bus_class in "
-          . __PACKAGE__
-          . "::_setbus.\n" );
+        || Lab::Exception::Error->throw(
+              error => "Failed to create bus $bus_class in "
+            . __PACKAGE__
+            . "::_setbus.\n" );
     use strict;
 
     #
@@ -69,7 +69,8 @@ sub _setbus {
     $self->config()->{'resource_name'} = $resource_name;
 
     # again, pass it all.
-    $self->connection_handle( $self->bus()->connection_new( $self->config() ) );
+    $self->connection_handle(
+        $self->bus()->connection_new( $self->config() ) );
 
     return $self->bus();
 
@@ -83,8 +84,10 @@ sub _configurebus {
     #
 
     # boudrate
-    $self->bus()->set_visa_attribute( $self->connection_handle(),
-        $Lab::VISA::VI_ATTR_ASRL_BAUD, $self->config()->{baudrate} );
+    $self->bus()->set_visa_attribute(
+        $self->connection_handle(),
+        $Lab::VISA::VI_ATTR_ASRL_BAUD, $self->config()->{baudrate}
+    );
 
     # databits
     $self->bus()->set_visa_attribute(
@@ -101,8 +104,10 @@ sub _configurebus {
     elsif ( $self->config()->{parity} eq 'mark' )  { $parity = 3; }
     elsif ( $self->config()->{parity} eq 'space' ) { $parity = 4; }
     else { $parity = $self->config()->{parity}; }
-    $self->bus()->set_visa_attribute( $self->connection_handle(),
-        $Lab::VISA::VI_ATTR_ASRL_PARITY, $parity );
+    $self->bus()->set_visa_attribute(
+        $self->connection_handle(),
+        $Lab::VISA::VI_ATTR_ASRL_PARITY, $parity
+    );
 
     # stop bits
     my $stopbits;
@@ -118,8 +123,10 @@ sub _configurebus {
     else {
         $stopbits = $self->config()->{stopbits};
     }
-    $self->bus()->set_visa_attribute( $self->connection_handle(),
-        $Lab::VISA::VI_ATTR_ASRL_STOP_BITS, $stopbits );
+    $self->bus()->set_visa_attribute(
+        $self->connection_handle(),
+        $Lab::VISA::VI_ATTR_ASRL_STOP_BITS, $stopbits
+    );
 
     # termination character
     if ( defined $self->config()->{termchar} ) {
@@ -131,8 +138,10 @@ sub _configurebus {
             $Lab::VISA::VI_ATTR_TERMCHAR_EN,
             $Lab::VISA::VI_TRUE
         );
-        $self->bus()->set_visa_attribute( $self->connection_handle(),
-            $Lab::VISA::VI_ATTR_TERMCHAR, ord( $self->config()->{termchar} ) );
+        $self->bus()->set_visa_attribute(
+            $self->connection_handle(),
+            $Lab::VISA::VI_ATTR_TERMCHAR, ord( $self->config()->{termchar} )
+        );
     }
     else {
         $self->bus()->set_visa_attribute(
@@ -143,8 +152,10 @@ sub _configurebus {
     }
 
     # read timeout
-    $self->bus()->set_visa_attribute( $self->connection_handle(),
-        $Lab::VISA::VI_ATTR_TMO_VALUE, $self->config()->{timeout} * 1e3 );
+    $self->bus()->set_visa_attribute(
+        $self->connection_handle(),
+        $Lab::VISA::VI_ATTR_TMO_VALUE, $self->config()->{timeout} * 1e3
+    );
 
 }
 

@@ -121,7 +121,7 @@ sub empty_buffer {
     my $self = shift;
     my ($times) = $self->_check_args( \@_, ['times'] );
     if ($times) {
-        for ( my $i = 0 ; $i < $times ; $i++ ) {
+        for ( my $i = 0; $i < $times; $i++ ) {
             eval { $self->read( brutal => 1 ) };
         }
     }
@@ -147,7 +147,7 @@ sub _set_level {
 
     if ( abs($value) > 10.5 ) {
         Lab::Exception::CorruptParameter->throw(
-"The desired source level $value is not within the source range (10.5 V) \n"
+            "The desired source level $value is not within the source range (10.5 V) \n"
         );
     }
 

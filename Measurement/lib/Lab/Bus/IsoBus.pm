@@ -30,13 +30,13 @@ sub new {
     my $proto = shift;
     my $class = ref($proto) || $proto;
     my $twin  = undef;
-    my $self =
-      $class->SUPER::new(@_);  # getting fields and _permitted from parent class
+    my $self  = $class->SUPER::new(@_)
+        ;    # getting fields and _permitted from parent class
     $self->${ \( __PACKAGE__ . '::_construct' ) }(__PACKAGE__);
 
-# search for twin in %Lab::Bus::BusList. If there's none, place $self there and weaken it.
+    # search for twin in %Lab::Bus::BusList. If there's none, place $self there and weaken it.
     if ( $class eq __PACKAGE__ )
-    {    # careful - do only if this is not a parent class constructor
+    {        # careful - do only if this is not a parent class constructor
         if ( $twin = $self->_search_twin() ) {
             undef $self;
             return $twin;    # ...and that's it.
@@ -48,19 +48,19 @@ sub new {
         }
     }
 
-# set the connection $self->base_connection to the parameters required by IsoBus
+    # set the connection $self->base_connection to the parameters required by IsoBus
     $self->base_connection( $self->config('base_connection') )
-      if defined $self->config('base_connection');
+        if defined $self->config('base_connection');
     $self->IsoEnableTermChar( $self->config('IsoEnableTermChar') )
-      if defined $self->config('IsoEnableTermChar');
+        if defined $self->config('IsoEnableTermChar');
     $self->IsoTermChar( $self->config('IsoTermChar') )
-      if defined $self->config('IsoTermChar');
+        if defined $self->config('IsoTermChar');
 
     # clear the connection if possible
 
-# we need to set the following RS232 options: 9600baud, 8 data bits, 1 stop bit, no parity, no flow control
-# what is the read terminator? we assume CR=13 here, but this is not set in stone
-# write terminator should I think always be CR=13=0x0d
+    # we need to set the following RS232 options: 9600baud, 8 data bits, 1 stop bit, no parity, no flow control
+    # what is the read terminator? we assume CR=13 here, but this is not set in stone
+    # write terminator should I think always be CR=13=0x0d
 
     return $self;
 }
@@ -125,17 +125,19 @@ sub connection_write
 
     if ( !defined $command ) {
         Lab::Exception::CorruptParameter->throw(
-                error => "No command given to "
-              . __PACKAGE__
-              . "::connection_write().\n", );
+                  error => "No command given to "
+                . __PACKAGE__
+                . "::connection_write().\n", );
     }
     else {
         if ( $self->config("IsoEnableTermChar") ) {
             $write_cnt = $self->base_connection->Write(
                 {
                     # build the format for an IsoBus command
-                    command => sprintf( "@%d%s%s",
-                        $connection_handle, $command, $self->IsoTermChar() ),
+                    command => sprintf(
+                        "@%d%s%s",
+                        $connection_handle, $command, $self->IsoTermChar()
+                    ),
                 }
             );
 
@@ -144,7 +146,8 @@ sub connection_write
             $write_cnt = $self->base_connection->Write(
                 {
                     # build the format for an IsoBus command
-                    command => sprintf( "@%d%s", $connection_handle, $command )
+                    command =>
+                        sprintf( "@%d%s", $connection_handle, $command )
                 }
             );
         }
@@ -175,7 +178,8 @@ sub connection_query
 
     $write_cnt = $self->connection_write($args);
 
-    usleep($wait_query);  #<---ensures that asked data presented from the device
+    usleep($wait_query)
+        ;    #<---ensures that asked data presented from the device
 
     $result = $self->connection_read($args);
     return $result;

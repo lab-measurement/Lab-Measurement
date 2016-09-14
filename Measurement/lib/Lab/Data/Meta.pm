@@ -44,8 +44,8 @@ my $declaration = {
             unit        => ['SCALAR'],
             label       => ['SCALAR'],    # evtl. weg
             description => ['SCALAR'],    # evtl. weg
-            min => ['SCALAR'],    # unnütz, aber von GPplus-Import unterstützt
-            max => ['SCALAR'],    # dito
+            min => ['SCALAR'],  # unnütz, aber von GPplus-Import unterstützt
+            max => ['SCALAR'],  # dito
         }
     ],
     axis => [

@@ -28,10 +28,10 @@ sub DATA_to_matrix {
     my $numlines;
     my $started = 0;
 
-#   0 - nicht gestartet: leerzeilen ignorieren, dann 1
-#   1 - gestartet: ersten block lesen (1 zeilenname, alle yvalues), dann 2
-#   2 - neuer block gestartet: 1 zeilenname lesen; spaltenname vergleichen, dann 3
-#   3 - innerhalb block größer erstem: spalten- und zeilenname vergleichen
+    #   0 - nicht gestartet: leerzeilen ignorieren, dann 1
+    #   1 - gestartet: ersten block lesen (1 zeilenname, alle yvalues), dann 2
+    #   2 - neuer block gestartet: 1 zeilenname lesen; spaltenname vergleichen, dann 3
+    #   3 - innerhalb block größer erstem: spalten- und zeilenname vergleichen
     while (<IN>) {
         chomp;
         if (/^\s*$/) {
@@ -39,8 +39,8 @@ sub DATA_to_matrix {
             #leerzeile => neuer block
             if ($started) {
                 warn
-"Letzter Block hatte falsche Zeilenzahl: $linenum statt $numlines"
-                  unless ( $numlines == $linenum - 1 );
+                    "Letzter Block hatte falsche Zeilenzahl: $linenum statt $numlines"
+                    unless ( $numlines == $linenum - 1 );
                 $started = 2;
                 $blocknum++;
                 $linenum = 0;
@@ -55,13 +55,13 @@ sub DATA_to_matrix {
             $started = 1 unless $started;
             if ( $started == 3 ) {
                 warn
-"Nicht rechteckig: In Block $blocknum, Zeile $linenum ist erste Spalte $spaltenname anstatt $yvalues[$blocknum]"
-                  unless ( $yvalues[$blocknum] == $spaltenname );
+                    "Nicht rechteckig: In Block $blocknum, Zeile $linenum ist erste Spalte $spaltenname anstatt $yvalues[$blocknum]"
+                    unless ( $yvalues[$blocknum] == $spaltenname );
             }
             if ( $started > 1 ) {
                 warn
-"Nicht rechteckig: In Block $blocknum, Zeile $linenum ist die zweite Spalte $zeilenname anstatt $xvalues[$linenum]"
-                  unless ( $xvalues[$linenum] == $zeilenname );
+                    "Nicht rechteckig: In Block $blocknum, Zeile $linenum ist die zweite Spalte $zeilenname anstatt $xvalues[$linenum]"
+                    unless ( $xvalues[$linenum] == $zeilenname );
             }
             if ( $started < 3 ) {
                 $yvalues[$blocknum] = $spaltenname;
@@ -92,7 +92,7 @@ sub matrix_to_DATA {
     my $xl = $xvalues->nelem();
     my $yl = $yvalues->nelem();
 
-    for ( my $blocknum = 0 ; $blocknum < $yl ; $blocknum++ ) {
+    for ( my $blocknum = 0; $blocknum < $yl; $blocknum++ ) {
         my $s1 = $yvalues->at($blocknum) * ones($xl);
         my $s2 = $xvalues;
         my $s3 = $matrix->slice(":,:,($blocknum)");
@@ -117,7 +117,7 @@ sub import_gpplus {
 
     my @files = sort {
         ( $a =~ /$basename\_(\d+)\.TSK/ )[0]
-          <=> ( $b =~ /$basename\_(\d+)\.TSK/ )[0]
+            <=> ( $b =~ /$basename\_(\d+)\.TSK/ )[0]
     } glob $basename . "_*.TSK";
     ( my $path ) = ( $basename =~ m{((/?[^/]+/)+)?[^/]+$} )[0];
     $basename =~ s{(/?[^/]+/)+}{};
@@ -143,9 +143,9 @@ sub import_gpplus {
                 scalar @files,
                 scalar @{ $fcols[$colnum] }
             ) unless ( defined $cols );
-            ( my $pdl = $cols->slice("$colnum,($blocknum),:") ) .=
-              pdl( @{ $fcols[$colnum] } )
-              ->reshape( 1, scalar @{ $fcols[$colnum] } );
+            ( my $pdl = $cols->slice("$colnum,($blocknum),:") )
+                .= pdl( @{ $fcols[$colnum] } )
+                ->reshape( 1, scalar @{ $fcols[$colnum] } );
         }
         close IN;
     }

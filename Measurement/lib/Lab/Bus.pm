@@ -39,7 +39,7 @@ sub new {
     my $config = undef;
     if ( ref $_[0] eq 'HASH' ) {
         $config = shift;
-    }                         # try to be flexible about options as hash/hashref
+    }    # try to be flexible about options as hash/hashref
     else { $config = {@_} }
     my $self = $class->SUPER::new(@_);
     bless( $self, $class );
@@ -129,12 +129,12 @@ sub AUTOLOAD {
     $name =~ s/.*://;    # strip fully qualified portion
 
     unless ( exists $self->{_permitted}->{$name} ) {
-        cluck(  "AUTOLOAD in "
-              . __PACKAGE__
-              . " couldn't access field '${name}'.\n" );
+        cluck(    "AUTOLOAD in "
+                . __PACKAGE__
+                . " couldn't access field '${name}'.\n" );
         Lab::Exception::Error->throw( error => "AUTOLOAD in "
-              . __PACKAGE__
-              . " couldn't access field '${name}'.\n" );
+                . __PACKAGE__
+                . " couldn't access field '${name}'.\n" );
     }
 
     if (@_) {

@@ -58,7 +58,7 @@ our %fields = (
     },
 
     device_cache_order =>
-      [ 'function', 'range', 'nplc', 'resolution', 'tc', 'bw' ],
+        [ 'function', 'range', 'nplc', 'resolution', 'tc', 'bw' ],
 
 );
 
@@ -149,8 +149,8 @@ sub assert_function {
 
 # ------------------------------- SENSE ---------------------------------
 
-my $valid_functions =
-  'current[:dc]|current:ac|voltage[:dc]|voltage[:ac]|resistance|fresistance';
+my $valid_functions
+    = 'current[:dc]|current:ac|voltage[:dc]|voltage[:ac]|resistance|fresistance';
 
 =head2 set_function($function)
 
@@ -174,7 +174,7 @@ sub set_function {    # basic
 
     if ( not scpi_match( $function, $valid_functions ) ) {
         Lab::Exception::CorruptParameter->throw( error =>
-"Agilent 34410A:\n\nAgilent 34410A:\nunexpected value for FUNCTION in sub set_function. Expected values are VOLTAGE:DC, VOLTAGE:AC, CURRENT:DC, CURRENT:AC, RESISTANCE or FRESISTANCE.\n"
+                "Agilent 34410A:\n\nAgilent 34410A:\nunexpected value for FUNCTION in sub set_function. Expected values are VOLTAGE:DC, VOLTAGE:AC, CURRENT:DC, CURRENT:AC, RESISTANCE or FRESISTANCE.\n"
         );
     }
 
@@ -216,7 +216,7 @@ C<DEF> will be set, if no value is given.
 sub _invalid_range {
     my $range = shift;
     Lab::Exception::CorruptParameter->throw( error =>
-"set_range: unexpected value '$range' for RANGE. Expected values are for CURRENT, VOLTAGE and RESISTANCE mode -3...+3A, 0.1...1000V or 0...1e9 Ohms respectivly"
+            "set_range: unexpected value '$range' for RANGE. Expected values are for CURRENT, VOLTAGE and RESISTANCE mode -3...+3A, 0.1...1000V or 0...1e9 Ohms respectivly"
     );
 }
 
@@ -241,7 +241,7 @@ sub _check_range {
     }
     else {
         Lab::Exception::CorruptParameter->throw( error =>
-"set_range: Unexpected function '$function'. Expected values are VOLTAGE:DC, VOLTAGE:AC, CURRENT:DC, CURRENT:AC, RESISTANCE or FRESISTANCE."
+                "set_range: Unexpected function '$function'. Expected values are VOLTAGE:DC, VOLTAGE:AC, CURRENT:DC, CURRENT:AC, RESISTANCE or FRESISTANCE."
         );
     }
 }
@@ -260,8 +260,7 @@ sub set_range {    # basic
 
     # set range
     if ( scpi_match( $range, 'min|max|def' )
-        or $range =~ /\b\d+(e\d+|E\d+|exp\d+|EXP\d+)?\b/ )
-    {
+        or $range =~ /\b\d+(e\d+|E\d+|exp\d+|EXP\d+)?\b/ ) {
         $self->write( "$function:RANGE $range", $tail );
     }
     elsif ( scpi_match( $range, 'auto' ) ) {
@@ -343,9 +342,10 @@ sub set_nplc {    # basic
     my ( $nplc, $tail ) = $self->_check_args_strict( \@_, ['nplc'] );
 
     # check if value of paramter 'nplc' is valid:
-    if ( ( $nplc < 0.006 or $nplc > 100 ) and not $nplc =~ /^(min|max|def)$/ ) {
+    if ( ( $nplc < 0.006 or $nplc > 100 ) and not $nplc =~ /^(min|max|def)$/ )
+    {
         Lab::Exception::CorruptParameter->throw( error =>
-"unexpected value for NPLC in sub set_nplc. Expected values are between 0.006 ... 100 power-line-cycles (50Hz)."
+                "unexpected value for NPLC in sub set_nplc. Expected values are between 0.006 ... 100 power-line-cycles (50Hz)."
         );
     }
 
@@ -384,8 +384,8 @@ C<DEF> will be set, if no value is given.
 
 sub set_resolution {    # basic
     my $self = shift;
-    my ( $resolution, $tail ) =
-      $self->_check_args_strict( \@_, ['resolution'] );
+    my ( $resolution, $tail )
+        = $self->_check_args_strict( \@_, ['resolution'] );
     my $function = $self->assert_function($valid_dc_functions);
 
     # check if value of paramter 'resolution' is valid:
@@ -393,10 +393,9 @@ sub set_resolution {    # basic
     my $range = $self->get_range( { read_mode => 'device' } );
 
     if ( $resolution < 0.3e-6 * $range
-        and not $resolution =~ /^(min|max|def)$/ )
-    {
+        and not $resolution =~ /^(min|max|def)$/ ) {
         Lab::Exception::CorruptParameter->throw( error =>
-"\nAgilent 34410A:\nunexpected value for RESOLUTION in sub set_resolution. Expected values have to be greater than 0.3e-6*RANGE."
+                "\nAgilent 34410A:\nunexpected value for RESOLUTION in sub set_resolution. Expected values have to be greater than 0.3e-6*RANGE."
         );
     }
 
@@ -458,7 +457,7 @@ sub set_tc {    # basic
     # check if value of paramter 'tc' is valid:
     if ( ( $tc < 1e-4 or $tc > 1 ) and not $tc =~ /^(min|max|def)$/ ) {
         Lab::Exception::CorruptParameter->throw( error =>
-"unexpected value for APERTURE in sub set_tc. Expected values are between 1e-4 ... 1 sec."
+                "unexpected value for APERTURE in sub set_tc. Expected values are between 1e-4 ... 1 sec."
         );
     }
 
@@ -500,7 +499,7 @@ sub set_bw {    # basic
     # check if value of paramter 'bw' is valid:
     if ( ( $bw < 3 or $bw > 200 ) and not $bw =~ /^(min|max|def)$/ ) {
         Lab::Exception::CorruptParameter->throw( error =>
-"\nAgilent 34410A:\nunexpected value for BANDWIDTH in sub set_bw. Expected values are between 3 ... 200 Hz."
+                "\nAgilent 34410A:\nunexpected value for BANDWIDTH in sub set_bw. Expected values are between 3 ... 200 Hz."
         );
     }
 
@@ -579,8 +578,10 @@ sub config_measurement {    # basic
     my $self = shift;
 
     # parameter == hash??
-    my ( $function, $nop, $time, $range, $trigger ) = $self->_check_args( \@_,
-        [ 'function', 'nop', 'time', 'range', 'trigger' ] );
+    my ( $function, $nop, $time, $range, $trigger ) = $self->_check_args(
+        \@_,
+        [ 'function', 'nop', 'time', 'range', 'trigger' ]
+    );
 
     # check input data
     if ( not defined $trigger ) {
@@ -591,7 +592,7 @@ sub config_measurement {    # basic
     }
     if ( not defined $time ) {
         Lab::Exception::CorruptParameter->throw( error =>
-"too view arguments given in sub config_measurement. Expected arguments are FUNCTION, #POINTS, TIME, <RANGE>, <TRIGGERSOURCE>"
+                "too view arguments given in sub config_measurement. Expected arguments are FUNCTION, #POINTS, TIME, <RANGE>, <TRIGGERSOURCE>"
         );
     }
 
@@ -601,8 +602,8 @@ sub config_measurement {    # basic
     # clear buffer
     my $points = $self->query( "DATA:POINTS?", { read_mode => 'device' } );
     if ( $points > 0 ) {
-        $points =
-          $self->connection()->LongQuery( command => "DATA:REMOVE? $points" );
+        $points = $self->connection()
+            ->LongQuery( command => "DATA:REMOVE? $points" );
     }
 
     # set function
@@ -616,18 +617,17 @@ sub config_measurement {    # basic
     print "set_tc: " . $self->set_tc($tc) . "\n";
 
     # set auto high impedance (>10GOhm) for VOLTAGE:DC for ranges 100mV, 1V, 10V
-    if ( $function =~
-        /^(VOLTAGE|voltage|VOLT|volt|VOLTAGE:DC|voltage:dc|VOLT:DC|volt:dc)$/ )
-    {
+    if ( $function
+        =~ /^(VOLTAGE|voltage|VOLT|volt|VOLTAGE:DC|voltage:dc|VOLT:DC|volt:dc)$/
+        ) {
         print "set_auto_high_impedance\n";
         $self->write("SENS:VOLTAGE:DC:IMPEDANCE:AUTO ON");
     }
 
     # perfome AUTOZERO and then disable
-    if ( $function =~
-/^(CURRENT|current|CURR|curr|CURRENT:DC|current:dc|CURR:DC|curr:dc|VOLTAGE|voltage|VOLT|volt|VOLTAGE:DC|voltage:dc|VOLT:DC|volt:dc|RESISTANCE|resistance|RES|res|FRESISTANCE|fresistance|FRES|fres)$/
-      )
-    {
+    if ( $function
+        =~ /^(CURRENT|current|CURR|curr|CURRENT:DC|current:dc|CURR:DC|curr:dc|VOLTAGE|voltage|VOLT|volt|VOLTAGE:DC|voltage:dc|VOLT:DC|volt:dc|RESISTANCE|resistance|RES|res|FRESISTANCE|fresistance|FRES|fres)$/
+        ) {
         print "set_AUTOZERO OFF\n";
         $self->write( sprintf( "SENS:%s:ZERO:AUTO OFF", $function ) );
     }
@@ -694,7 +694,7 @@ sub get_data {    # basic
         if ( $readings > $self->query("SAMPLE:COUNT?") ) {
             $readings = $self->query("SAMPLE:COUNT?");
         }
-        for ( my $i = 1 ; $i <= $readings ; $i++ ) {
+        for ( my $i = 1; $i <= $readings; $i++ ) {
             my $break = 1;
             while ($break) {
                 $data = $self->connection()->LongQuery( command => "R? 1" );
@@ -707,10 +707,10 @@ sub get_data {    # basic
                     $index = index( $data, "+" );
                 }
                 else {
-                    $index =
-                      ( index( $data, "-" ) < index( $data, "+" ) )
-                      ? index( $data, "-" )
-                      : index( $data, "+" );
+                    $index
+                        = ( index( $data, "-" ) < index( $data, "+" ) )
+                        ? index( $data, "-" )
+                        : index( $data, "+" );
                 }
                 $data = substr( $data, $index, length($data) - $index );
                 if ( $data != 0 ) { $break = 0; }
@@ -732,7 +732,7 @@ sub get_data {    # basic
     }
     else {
         Lab::Exception::CorruptParameter->throw( error =>
-"unexpected value for number of readINGS in sub get_data. Expected values are from 1 ... 50000 or ALL."
+                "unexpected value for number of readINGS in sub get_data. Expected values are from 1 ... 50000 or ALL."
         );
     }
 
@@ -777,8 +777,10 @@ Returns '1' if the current triggered measurement is still active and '0' if the 
 sub active {    # basic
     my $self = shift;
 
-    my $status = sprintf( "%.15b",
-        $self->query( "STAT:OPER:COND?", { read_mode => 'device' } ) );
+    my $status = sprintf(
+        "%.15b",
+        $self->query( "STAT:OPER:COND?", { read_mode => 'device' } )
+    );
     my @status = split( "", $status );
     if ( $status[5] == 1 && $status[10] == 0 ) {
         return 0;
@@ -805,14 +807,14 @@ sub _set_triggersource {    # internal
     }
 
     if ( $source =~ /^(IMM|imm|EXT|ext|BUS|bus|INT|int)$/ ) {
-        $source =
-          $self->query( sprintf( "TRIGGER:SOURCE %s; SOURCE?", $source ) );
+        $source = $self->query(
+            sprintf( "TRIGGER:SOURCE %s; SOURCE?", $source ) );
         $self->{config}->{triggersource} = $source;
         return $source;
     }
     else {
         Lab::Exception::CorruptParameter->throw( error =>
-"\nAgilent 34410A:\nunexpected value for TRIGGER_SOURCE in sub _set_triggersource. Expected values are:\n IMM  --> immediate trigger signal\n EXT  --> external trigger\n BUS  --> software trigger signal via bus\n INT  --> internal trigger signal\n"
+                "\nAgilent 34410A:\nunexpected value for TRIGGER_SOURCE in sub _set_triggersource. Expected values are:\n IMM  --> immediate trigger signal\n EXT  --> external trigger\n BUS  --> software trigger signal via bus\n INT  --> internal trigger signal\n"
         );
     }
 
@@ -832,13 +834,14 @@ sub _set_triggercount {    # internal
     }
 
     if ( $count >= 0 or $count <= 50000 ) {
-        $count = $self->query( sprintf( "TRIGGER:COUNT %d; COUNT?", $count ) );
+        $count
+            = $self->query( sprintf( "TRIGGER:COUNT %d; COUNT?", $count ) );
         $self->{config}->{triggercount} = $count;
         return $count;
     }
     else {
         Lab::Exception::CorruptParameter->throw( error =>
-"\nAgilent 34410A:\nunexpected value for COUNT in sub _set_triggercount. Expected values are between 1 ... 50.000\n"
+                "\nAgilent 34410A:\nunexpected value for COUNT in sub _set_triggercount. Expected values are between 1 ... 50.000\n"
         );
     }
 
@@ -869,7 +872,7 @@ sub _set_triggerdelay {    # internal
     }
     else {
         Lab::Exception::CorruptParameter->throw( error =>
-"\nAgilent 34410A:\nunexpected value for DELAY in sub _set_triggerdelay. Expected values are between 1 ... 3600, or 'MIN = 0', 'MAX = 3600' or 'AUTO'\n"
+                "\nAgilent 34410A:\nunexpected value for DELAY in sub _set_triggerdelay. Expected values are between 1 ... 3600, or 'MIN = 0', 'MAX = 3600' or 'AUTO'\n"
         );
     }
 }
@@ -889,7 +892,7 @@ sub _set_samplecount {    # internal
 
     elsif ( $count < 0 or $count >= 50000 ) {
         Lab::Exception::CorruptParameter->throw( error =>
-"\nAgilent 34410A:\nunexpected value for COUNT in sub _set_samplecount. Expected values are between 1 ... 50.000\n"
+                "\nAgilent 34410A:\nunexpected value for COUNT in sub _set_samplecount. Expected values are between 1 ... 50.000\n"
         );
     }
     else {
@@ -919,8 +922,8 @@ sub _set_sampledelay {    # internal
         return $delay;
     }
     elsif ( $delay >= 0 or $delay <= 3600 ) {
-        $delay =
-          $self->query( sprintf( "SAMPLE:TIMER  %.5f; TIMER?", $delay ) );
+        $delay
+            = $self->query( sprintf( "SAMPLE:TIMER  %.5f; TIMER?", $delay ) );
         $self->write("SAMPLE:SOURCE TIM");
         $self->{config}->{samplecount} = $delay;
         return $delay;
@@ -928,7 +931,7 @@ sub _set_sampledelay {    # internal
 
     else {
         Lab::Exception::CorruptParameter->throw( error =>
-"\nAgilent 34410A:\nunexpected value for DELAY in sub _set_sampledelay. Expected values are between 1 ... 3600, or 'MIN = 0', 'MAX = 3600'\n"
+                "\nAgilent 34410A:\nunexpected value for DELAY in sub _set_sampledelay. Expected values are between 1 ... 3600, or 'MIN = 0', 'MAX = 3600'\n"
         );
     }
 

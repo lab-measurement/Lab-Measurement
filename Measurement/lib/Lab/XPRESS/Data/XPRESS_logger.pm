@@ -16,8 +16,8 @@ sub new {
     my $self = {};
     bless( $self, $class );
 
-    ( $self->{filehandle}, $self->{filename}, $self->{directory} ) =
-      $self->open_file($filenamebase);
+    ( $self->{filehandle}, $self->{filename}, $self->{directory} )
+        = $self->open_file($filenamebase);
     $self->{block_num} = 0;
     $self->{line_num}  = 0;
 
@@ -36,15 +36,18 @@ sub new {
     }
 
     # create gnuplot-pipes for each plot:
-    for ( my $i = 0 ; $i < $num_of_plots ; $i++ ) {
-        $self->{plots}->[$i]->{plotter} =
-          new Lab::XPRESS::Data::XPRESS_plotter( $self->{filename},
-            $self->{plots}->[$i] );
-        $self->{plots}->[$i]->{plotter}->{ID}           = $i;
-        $self->{plots}->[$i]->{plotter}->{FILENAME}     = $self->{filename};
-        $self->{plots}->[$i]->{plotter}->{COLUMN_NAMES} = $self->{COLUMN_NAMES};
-        $self->{plots}->[$i]->{plotter}->{BLOCK_NUM}    = $self->{block_num};
-        $self->{plots}->[$i]->{plotter}->{LINE_NUM}     = $self->{line_num};
+    for ( my $i = 0; $i < $num_of_plots; $i++ ) {
+        $self->{plots}->[$i]->{plotter}
+            = new Lab::XPRESS::Data::XPRESS_plotter(
+            $self->{filename},
+            $self->{plots}->[$i]
+            );
+        $self->{plots}->[$i]->{plotter}->{ID}       = $i;
+        $self->{plots}->[$i]->{plotter}->{FILENAME} = $self->{filename};
+        $self->{plots}->[$i]->{plotter}->{COLUMN_NAMES}
+            = $self->{COLUMN_NAMES};
+        $self->{plots}->[$i]->{plotter}->{BLOCK_NUM} = $self->{block_num};
+        $self->{plots}->[$i]->{plotter}->{LINE_NUM}  = $self->{line_num};
         $self->{plots}->[$i]->{plotter}->init_gnuplot();
     }
 
@@ -71,7 +74,7 @@ sub open_file {
         # create directory if it doesn't exist:
         if ( not -d $directory ) {
             warn
-"directory given by $filenamebase doesn't exist. Create directory $directory";
+                "directory given by $filenamebase doesn't exist. Create directory $directory";
             mkdir $directory;
         }
 
@@ -86,7 +89,8 @@ sub open_file {
             $temp_filename =~ s/\)/\\\)/g;
 
             #print $temp_filename."\n";
-            if ( $file =~ /($temp_filename)(_(\d+))?($filenameextension)\b/ ) {
+            if ( $file =~ /($temp_filename)(_(\d+))?($filenameextension)\b/ )
+            {
                 if ( $3 > $max_index ) {
                     $max_index = $3;
                 }
@@ -103,12 +107,16 @@ sub open_file {
 
         # open new file:
         if ( $max_index > 1 ) {
-            $file_data = sprintf( "%s/%s_%03d%s",
-                $directory, $filename, $max_index, $filenameextension );
+            $file_data = sprintf(
+                "%s/%s_%03d%s",
+                $directory, $filename, $max_index, $filenameextension
+            );
         }
         else {
-            $file_data =
-              sprintf( "%s/%s%s", $directory, $filename, $filenameextension );
+            $file_data = sprintf(
+                "%s/%s%s", $directory, $filename,
+                $filenameextension
+            );
         }
 
         open( my $LOG, ">" . $file_data ) or die "cannot open $file_data";
@@ -165,15 +173,18 @@ sub add_plots {
     # }
 
     # create gnuplot-pipes for each plot:
-    for ( my $i = $allready_existing_plots ; $i < $num_of_plots ; $i++ ) {
-        $self->{plots}->[$i]->{plotter} =
-          new Lab::XPRESS::Data::XPRESS_plotter( $self->{filename},
-            $self->{plots}->[$i] );
-        $self->{plots}->[$i]->{plotter}->{ID}           = $i;
-        $self->{plots}->[$i]->{plotter}->{FILENAME}     = $self->{filename};
-        $self->{plots}->[$i]->{plotter}->{COLUMN_NAMES} = $self->{COLUMN_NAMES};
-        $self->{plots}->[$i]->{plotter}->{NUMBER_OF_COLUMNS} =
-          $self->{NUMBER_OF_COLUMNS};
+    for ( my $i = $allready_existing_plots; $i < $num_of_plots; $i++ ) {
+        $self->{plots}->[$i]->{plotter}
+            = new Lab::XPRESS::Data::XPRESS_plotter(
+            $self->{filename},
+            $self->{plots}->[$i]
+            );
+        $self->{plots}->[$i]->{plotter}->{ID}       = $i;
+        $self->{plots}->[$i]->{plotter}->{FILENAME} = $self->{filename};
+        $self->{plots}->[$i]->{plotter}->{COLUMN_NAMES}
+            = $self->{COLUMN_NAMES};
+        $self->{plots}->[$i]->{plotter}->{NUMBER_OF_COLUMNS}
+            = $self->{NUMBER_OF_COLUMNS};
         $self->{plots}->[$i]->{plotter}->{BLOCK_NUM} = $self->{block_num};
         $self->{plots}->[$i]->{plotter}->{LINE_NUM}  = $self->{line_num};
         $self->{plots}->[$i]->{plotter}->init_gnuplot();
@@ -197,21 +208,21 @@ sub _log_start_block {
     #for( my $i = 0; $i < $num_of_plots; $i++)
     #	{
 
-#if ( $self->{plots}->[$i]->{'type'} =~/\b(linetrace|LINETRACE|trace|TRACE)\b/ )
-#	{
-#	my $filename = $self->{filename};
-#	if ( defined $self->{plots}->[$i]->{plotter}->{'started'})
-#		{
-#		$self->{plots}->[$i]->{plotter}->{linetrace_logger}->close_file();
-#		delete $self->{plots}->[$i]->{plotter};
-#		print "delete plotter\n";
-#		}
-#	my $block_num = $self->{'block_num'};
-#	$filename =~ /\b(.+)\.(.+)\b/;
-#	my $linetrace = sprintf("%s_linetrace", $1);
-#	$self->{plots}->[$i]->{plotter} = new Lab::Data::SG_plotter($linetrace,$self->{plots}->[$i]);
-#	$self->{plots}->[$i]->{plotter}->{linetrace_logger} = new Lab::Data::SG_logger($linetrace, $self->{plots}->[$i]);
-#	}
+    #if ( $self->{plots}->[$i]->{'type'} =~/\b(linetrace|LINETRACE|trace|TRACE)\b/ )
+    #	{
+    #	my $filename = $self->{filename};
+    #	if ( defined $self->{plots}->[$i]->{plotter}->{'started'})
+    #		{
+    #		$self->{plots}->[$i]->{plotter}->{linetrace_logger}->close_file();
+    #		delete $self->{plots}->[$i]->{plotter};
+    #		print "delete plotter\n";
+    #		}
+    #	my $block_num = $self->{'block_num'};
+    #	$filename =~ /\b(.+)\.(.+)\b/;
+    #	my $linetrace = sprintf("%s_linetrace", $1);
+    #	$self->{plots}->[$i]->{plotter} = new Lab::Data::SG_plotter($linetrace,$self->{plots}->[$i]);
+    #	$self->{plots}->[$i]->{plotter}->{linetrace_logger} = new Lab::Data::SG_logger($linetrace, $self->{plots}->[$i]);
+    #	}
 
     #	}
 
@@ -262,30 +273,27 @@ sub LOG {
         if ( $number_of_columns >= 1 ) {
             my $j = 0;
             while ( defined $data[0][$j] ) {
-                for ( my $i = 0 ; $i < $number_of_columns ; $i++ ) {
+                for ( my $i = 0; $i < $number_of_columns; $i++ ) {
 
-    # if ($data[$i][$j] =~ /[[:alpha:]]/ or  not $data[$i][$j] =~ /[[:alnum:]]/)
-    # {
-    # print $filehandle $data[$i][$j]."\t";
-    # #print $data[$i][$j]."\t";
-    # }
-    # else
-    # {
-    # print $filehandle sprintf("%.6e\t",$data[$i][$j]);
-    # #print sprintf("%.6e\t",$data[$i][$j]);
-    # }
-                    if ( $data[$i][$j] =~
-                        /(^[-+]?[0-9]+)\.?([0-9]+)?([eE][-+]?[0-9]+)?$/ )
-                    {
+                    # if ($data[$i][$j] =~ /[[:alpha:]]/ or  not $data[$i][$j] =~ /[[:alnum:]]/)
+                    # {
+                    # print $filehandle $data[$i][$j]."\t";
+                    # #print $data[$i][$j]."\t";
+                    # }
+                    # else
+                    # {
+                    # print $filehandle sprintf("%.6e\t",$data[$i][$j]);
+                    # #print sprintf("%.6e\t",$data[$i][$j]);
+                    # }
+                    if ( $data[$i][$j]
+                        =~ /(^[-+]?[0-9]+)\.?([0-9]+)?([eE][-+]?[0-9]+)?$/ ) {
                         print $filehandle sprintf( "%+.6e\t", $data[$i][$j] );
                         if ( $data[$i][$j] < $self->{DATA}[$i][0]
-                            or not defined $self->{DATA}[$i][0] )
-                        {
+                            or not defined $self->{DATA}[$i][0] ) {
                             $self->{DATA}[$i][0] = $data[$i][$j];
                         }
                         elsif ( $data[$i][$j] > $self->{DATA}[$i][1]
-                            or not defined $self->{DATA}[$i][0] )
-                        {
+                            or not defined $self->{DATA}[$i][0] ) {
                             $self->{DATA}[$i][1] = $data[$i][$j];
                         }
 
@@ -318,17 +326,15 @@ sub LOG {
                 # print $filehandle sprintf("%.6e\t",$value);
                 # #print sprintf("%.6e\t",$value);
                 # }
-                if ( $value =~ /(^[-+]?[0-9]+)\.?([0-9]+)?([eE][-+]?[0-9]+)?$/ )
-                {
+                if ( $value
+                    =~ /(^[-+]?[0-9]+)\.?([0-9]+)?([eE][-+]?[0-9]+)?$/ ) {
                     print $filehandle sprintf( "%+.6e\t", $value );
                     if ( $value < $self->{DATA}[$i][0]
-                        or not defined $self->{DATA}[$i][0] )
-                    {
+                        or not defined $self->{DATA}[$i][0] ) {
                         $self->{DATA}[$i][0] = $value;
                     }
                     elsif ( $value > $self->{DATA}[$i][1]
-                        or not defined $self->{DATA}[$i][0] )
-                    {
+                        or not defined $self->{DATA}[$i][0] ) {
                         $self->{DATA}[$i][1] = $value;
                     }
 
@@ -371,13 +377,11 @@ sub LOG {
         if ( $data =~ /(^[-+]?[0-9]+)\.?([0-9]+)?([eE][-+]?[0-9]+)?$/ ) {
             print $filehandle sprintf( "%+.6e\t", $data );
             if ( $data < $self->{DATA}[0][0]
-                or not defined $self->{DATA}[0][0] )
-            {
+                or not defined $self->{DATA}[0][0] ) {
                 $self->{DATA}[0][0] = $data;
             }
             elsif ( $data > $self->{DATA}[0][1]
-                or not defined $self->{DATA}[0][0] )
-            {
+                or not defined $self->{DATA}[0][0] ) {
                 $self->{DATA}[0][1] = $data;
             }
 
@@ -451,26 +455,27 @@ sub LOG {
         return 1;
     }
     my $number_of_plots = @{ $self->{plots} };
-    for ( my $i = 0 ; $i < $number_of_plots ; $i++ ) {
+    for ( my $i = 0; $i < $number_of_plots; $i++ ) {
 
         # log data for linetrace-plots:
 
-#if ( $self->{plots}->[$i]->{plotter}->{plot}->{'type'} =~ /\b(linetrace|LINETRACE|trace|TRACE)\b/ )
-#	{
-#	$self->{plots}->[$i]->{plotter}->{linetrace_logger}->LOG_linetrace($data);
-#	}
+        #if ( $self->{plots}->[$i]->{plotter}->{plot}->{'type'} =~ /\b(linetrace|LINETRACE|trace|TRACE)\b/ )
+        #	{
+        #	$self->{plots}->[$i]->{plotter}->{linetrace_logger}->LOG_linetrace($data);
+        #	}
 
-        if ( not defined $self->{plots}->[$i]->{plotter}->{plot}->{started} ) {
+        if ( not defined $self->{plots}->[$i]->{plotter}->{plot}->{started} )
+        {
 
             # start plot:
-            if (    $self->{plots}->[$i]->{plotter}->{plot}->{'type'} eq 'pm3d'
-                and $self->{block_num} <= 1 )
-            {
+            if ( $self->{plots}->[$i]->{plotter}->{plot}->{'type'} eq 'pm3d'
+                and $self->{block_num} <= 1 ) {
+
                 # start plot later
             }
             else {
                 $self->{plots}->[$i]->{plotter}
-                  ->start_plot( $self->{block_num} );
+                    ->start_plot( $self->{block_num} );
             }
         }
         else {
@@ -507,10 +512,9 @@ sub LOG_linetrace {
         if ( $number_of_columns >= 1 ) {
             my $j = 0;
             while ( defined $data[0][$j] ) {
-                for ( my $i = 0 ; $i < $number_of_columns ; $i++ ) {
+                for ( my $i = 0; $i < $number_of_columns; $i++ ) {
                     if ( $data[$i][$j] =~ /[[:alpha:]]/
-                        or not $data[$i][$j] =~ /[[:alnum:]]/ )
-                    {
+                        or not $data[$i][$j] =~ /[[:alnum:]]/ ) {
                         print $filehandle $data[$i][$j] . "\t";
 
                         #print $data[$i][$j]."\t";
@@ -530,7 +534,8 @@ sub LOG_linetrace {
         }
         else {
             foreach my $value (@data) {
-                if ( $value =~ /[[:alpha:]]/ or not $value =~ /[[:alnum:]]/ ) {
+                if ( $value =~ /[[:alpha:]]/ or not $value =~ /[[:alnum:]]/ )
+                {
                     print $filehandle $value . "\t";
 
                     #print $value."\t";

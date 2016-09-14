@@ -13,7 +13,7 @@ our $msg     = 'Parameter %param% is of wrong type or otherwise corrupt!';
 package Lab::IO::Data::Error::CorruptTwo;
 our $VERSION = '3.520';
 our @ISA     = ('Lab::IO::Data::Error');
-our $msg =
-  'Parameters %param1% and %param2% are of wrong type or otherwise corrupt!';
+our $msg
+    = 'Parameters %param1% and %param2% are of wrong type or otherwise corrupt!';
 
 1;

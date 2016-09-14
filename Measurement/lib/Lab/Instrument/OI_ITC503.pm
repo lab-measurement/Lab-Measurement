@@ -38,7 +38,7 @@ sub _device_init {
     $self->write("Q0\r");
 
     $self->set_control(3)
-      ;    # Enable remote control, but leave the front panel unlocked
+        ;    # Enable remote control, but leave the front panel unlocked
 }
 
 #
@@ -53,7 +53,8 @@ sub parse_error {
     my $status_char = substr( $device_msg, 0, 1 );
     if ( $status_char eq '?' ) {
         Lab::Exception::DeviceError->throw(
-            error => "ITC503 returned error '$device_msg' on command '$cmd'\n",
+            error =>
+                "ITC503 returned error '$device_msg' on command '$cmd'\n",
             device_class => ref $self,
             command      => $cmd,
             raw_message  => $device_msg
@@ -62,7 +63,7 @@ sub parse_error {
     elsif ( defined $cmd_char && $status_char ne $cmd_char ) {
         Lab::Exception::DeviceError->throw(
             error =>
-"Received an unexpected answer from ITC503. Expected '$cmd_char' prefix, received '$status_char' on command '$cmd'\n",
+                "Received an unexpected answer from ITC503. Expected '$cmd_char' prefix, received '$status_char' on command '$cmd'\n",
             device_class => ref $self,
             command      => $cmd,
             raw_message  => $device_msg
@@ -77,7 +78,7 @@ sub query {
     my $self = shift;
     my $cmd  = shift;
 
-# ITC query answers always start with the command character if successful with a question mark and the command char on failure
+    # ITC query answers always start with the command character if successful with a question mark and the command char on failure
     my $cmd_char = substr( $cmd, 0, 1 );
 
     my $result = $self->SUPER::query( $cmd, @_ );
@@ -99,13 +100,13 @@ sub set_control {
     my $self = shift;
     my $mode = shift;
 
-    $mode =~ /^\s*(0|1|2|3)\s*$/ ? $mode =
-        $1
-      : $mode =~ /^\s*(locked)\s*$/ ? $mode =
-      1
-      : $mode =~ /^\s*(unlocked)\s*$/ ? $mode =
-      3
-      : Lab::Exception::CorruptParameter->throw(
+    $mode =~ /^\s*(0|1|2|3)\s*$/ ? $mode
+        = $1
+        : $mode =~ /^\s*(locked)\s*$/ ? $mode
+        = 1
+        : $mode =~ /^\s*(unlocked)\s*$/ ? $mode
+        = 3
+        : Lab::Exception::CorruptParameter->throw(
         "Invalid control mode specified.");
 
     my $result = $self->query( "C${mode}\r", @_ );

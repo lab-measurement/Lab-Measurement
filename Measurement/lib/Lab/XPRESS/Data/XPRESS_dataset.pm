@@ -6,7 +6,7 @@ use strict;
 use Math::Trig;
 use Statistics::LineFit;
 use Math::Interpolate
-  qw(derivatives constant_interpolate linear_interpolate robust_interpolate);
+    qw(derivatives constant_interpolate linear_interpolate robust_interpolate);
 use Statistics::Descriptive;
 use Time::HiRes qw/usleep/, qw/time/;
 use Lab::XPRESS::Data::XPRESS_logger;
@@ -44,11 +44,10 @@ sub new {
         warn "WARNING: No ColumnNames defined in $filename.";
         return -1;
     }
-    elsif ( ( my $len_COLUMNS = @{ $self->{COL_NAMES} } ) !=
-        ( my $len_DATA = @{ $self->{DATA} } ) )
-    {
+    elsif ( ( my $len_COLUMNS = @{ $self->{COL_NAMES} } )
+        != ( my $len_DATA = @{ $self->{DATA} } ) ) {
         warn
-"WARNING: Number of column names not equal to the number of data columns!";
+            "WARNING: Number of column names not equal to the number of data columns!";
         return -1;
     }
 
@@ -95,10 +94,9 @@ sub read_file {
             foreach my $data (@data) {
 
                 # add data only if it is a number or a '?'
-                if ( $data =~
-/(.*[^0-9-+.])?([+-]?([0-9]+)(\.[0-9]+)?(e|E)?([+-]?[0-9]+)?)([^0-9].*)?|\?/
-                  )
-                {
+                if ( $data
+                    =~ /(.*[^0-9-+.])?([+-]?([0-9]+)(\.[0-9]+)?(e|E)?([+-]?[0-9]+)?)([^0-9].*)?|\?/
+                    ) {
                     push( @{ $self->{DATA}[$i][$block] }, $data );
 
                     #print "@{$self->{DATA}[$i]}[-1]\t";
@@ -130,7 +128,7 @@ sub print {
         print "\n\n---------\n#HEADER#\n---------\n";
         print $self->{HEADER};
         print
-"\n################################################################################\n\n";
+            "\n################################################################################\n\n";
     }
 
     # COMMENT:
@@ -138,7 +136,7 @@ sub print {
         print "\n\n---------\n#COMMENT#\n---------\n";
         print $self->{COMMENT};
         print
-"\n################################################################################\n\n";
+            "\n################################################################################\n\n";
     }
 
     # COLUMNS:
@@ -153,7 +151,7 @@ sub print {
             print $self->{COL_NAMES} . "\n";
         }
         print
-"\n################################################################################\n\n";
+            "\n################################################################################\n\n";
     }
 
     # DATA:
@@ -165,8 +163,7 @@ sub print {
                     my $col = 0;
                     foreach my $c ( @{ $self->{DATA} } ) {
                         if ( not defined $column
-                            or @{ $self->{COL_NAMES} }[$col] eq $column )
-                        {
+                            or @{ $self->{COL_NAMES} }[$col] eq $column ) {
                             print shift(@temp_columns) . ":\n";
                             foreach my $block ( @{$c} ) {
                                 print " --- \n";
@@ -239,7 +236,7 @@ sub LOG {
     }
 
     # Log data:
-    for ( my $block = 0 ; $block <= $self->{BLOCKS} ; $block++ ) {
+    for ( my $block = 0; $block <= $self->{BLOCKS}; $block++ ) {
 
         # log data row by row:
         my @datablock;
@@ -297,7 +294,7 @@ sub get_colnum {
 
     # case col[v_sd]:
     if ( $column =~ m/^col[\(\[\{]([\.]+)[\)\)\}](\.)*/ ) {
-        for ( my $i = 0 ; $i < ( my $len = @{ $self->{COL_NAMES} } ) ; $i++ ) {
+        for ( my $i = 0; $i < ( my $len = @{ $self->{COL_NAMES} } ); $i++ ) {
             if ( @{ $self->{COL_NAMES} }[$i] eq $1 ) {
                 return $i;
             }
@@ -305,7 +302,7 @@ sub get_colnum {
     }
 
     # case v_sd:
-    for ( my $i = 0 ; $i < ( my $len = @{ $self->{COL_NAMES} } ) ; $i++ ) {
+    for ( my $i = 0; $i < ( my $len = @{ $self->{COL_NAMES} } ); $i++ ) {
         if ( @{ $self->{COL_NAMES} }[$i] eq $column ) {
             return $i;
         }
@@ -484,17 +481,19 @@ sub col_old {
             else {
                 my $flag_column_found = 0;
                 for (
-                    my $i = 0 ;
-                    $i < ( my $len = @{ $temp_self->{COL_NAMES} } ) ;
+                    my $i = 0;
+                    $i < ( my $len = @{ $temp_self->{COL_NAMES} } );
                     $i++
-                  )
-                {
+                    ) {
                     if ( @{ $temp_self->{COL_NAMES} }[$i] eq $column ) {
                         push(
                             @{ $data->{COL_NAMES} },
                             @{ $temp_self->{COL_NAMES} }[$i]
                         );
-                        push( @{ $data->{DATA} }, @{ $temp_self->{DATA} }[$i] );
+                        push(
+                            @{ $data->{DATA} },
+                            @{ $temp_self->{DATA} }[$i]
+                        );
                         $flag_column_found = 1;
                         last;
                     }
@@ -503,7 +502,7 @@ sub col_old {
                 # create new column if requested column not found:
                 if ( $flag_column_found == 0 ) {
                     push( @{ $data->{COL_NAMES} }, $column );
-                    push( @{ $data->{DATA} },      @{ $temp_self->{DATA} }[0] );
+                    push( @{ $data->{DATA} }, @{ $temp_self->{DATA} }[0] );
                     $data->insert_c($column);
                 }
             }
@@ -522,11 +521,10 @@ sub col_old {
         else {
             my $flag_column_found = 0;
             for (
-                my $i = 0 ;
-                $i < ( my $len = @{ $temp_self->{COL_NAMES} } ) ;
+                my $i = 0;
+                $i < ( my $len = @{ $temp_self->{COL_NAMES} } );
                 $i++
-              )
-            {
+                ) {
                 if ( @{ $temp_self->{COL_NAMES} }[$i] eq $column ) {
                     $data->{HEADER} = $temp_self->{HEADER};
                     push(
@@ -569,12 +567,12 @@ sub add {
         }
         $value = $value->copy();
         map { $_ = $_ . " + " . @{ $value->{COL_NAMES} }[0]; }
-          ( @{ $result->{COL_NAMES} } );
-        for ( my $block = 0 ; $block < $value->{BLOCKS} ; $block++ ) {
+            ( @{ $result->{COL_NAMES} } );
+        for ( my $block = 0; $block < $value->{BLOCKS}; $block++ ) {
             push(
                 @{ $result->{DATA}[0][$block] },
                 map { $_ + shift( @{ $value->{DATA}[0][$block] } ); }
-                  ( @{ $self->{DATA}[$column][$block] } )
+                    ( @{ $self->{DATA}[$column][$block] } )
             );
         }
 
@@ -582,15 +580,15 @@ sub add {
     else {
         map { $_ = $_ . " + " . "$value"; } ( @{ $result->{COL_NAMES} } );
         for (
-            my $block = 0 ;
-            $block < ( my $len_b = @{ $self->{DATA}[$column] } ) ;
+            my $block = 0;
+            $block < ( my $len_b = @{ $self->{DATA}[$column] } );
             $block++
-          )
-        {
+            ) {
             my $self_temp = $self->copy();
             push(
                 @{ $result->{DATA}[$column][$block] },
-                map { $_ + $value } ( @{ $self_temp->{DATA}[$column][$block] } )
+                map { $_ + $value }
+                    ( @{ $self_temp->{DATA}[$column][$block] } )
             );
         }
     }
@@ -622,14 +620,14 @@ sub subtract {
 
         # create new columname:
         map { $_ = $_ . " - " . @{ $value->{COL_NAMES} }[0]; }
-          ( @{ $result->{COL_NAMES} } );
+            ( @{ $result->{COL_NAMES} } );
 
         # calculate:
-        for ( my $block = 0 ; $block < $value->{BLOCKS} ; $block++ ) {
+        for ( my $block = 0; $block < $value->{BLOCKS}; $block++ ) {
             push(
                 @{ $result->{DATA}[0][$block] },
                 map { $_ - shift( @{ $value->{DATA}[0][$block] } ); }
-                  ( @{ $self->{DATA}[$column][$block] } )
+                    ( @{ $self->{DATA}[$column][$block] } )
             );
         }
 
@@ -638,11 +636,11 @@ sub subtract {
         $result = $result->extract_col($column);
 
         # calculate:
-        for ( my $block = 0 ; $block < ( my $len_b = @{$value} ) ; $block++ ) {
+        for ( my $block = 0; $block < ( my $len_b = @{$value} ); $block++ ) {
             push(
                 @{ $result->{DATA}[0][$block] },
                 map { $_ - $value->[$block]; }
-                  ( @{ $self->{DATA}[$column][$block] } )
+                    ( @{ $self->{DATA}[$column][$block] } )
             );
         }
     }
@@ -652,15 +650,15 @@ sub subtract {
 
         # calculate:
         for (
-            my $block = 0 ;
-            $block < ( my $len_b = @{ $self->{DATA}[$column] } ) ;
+            my $block = 0;
+            $block < ( my $len_b = @{ $self->{DATA}[$column] } );
             $block++
-          )
-        {
+            ) {
             my $self_temp = $self->copy();
             push(
                 @{ $result->{DATA}[$column][$block] },
-                map { $_ - $value } ( @{ $self_temp->{DATA}[$column][$block] } )
+                map { $_ - $value }
+                    ( @{ $self_temp->{DATA}[$column][$block] } )
             );
         }
     }
@@ -686,12 +684,12 @@ sub multiply {
         }
         $value = $value->copy();
         map { $_ = $_ . " * " . @{ $value->{COL_NAMES} }[0]; }
-          ( @{ $result->{COL_NAMES} } );
-        for ( my $block = 0 ; $block < $value->{BLOCKS} ; $block++ ) {
+            ( @{ $result->{COL_NAMES} } );
+        for ( my $block = 0; $block < $value->{BLOCKS}; $block++ ) {
             push(
                 @{ $result->{DATA}[0][$block] },
                 map { $_ * shift( @{ $value->{DATA}[0][$block] } ); }
-                  ( @{ $self->{DATA}[$column][$block] } )
+                    ( @{ $self->{DATA}[$column][$block] } )
             );
         }
 
@@ -699,15 +697,15 @@ sub multiply {
     else {
         map { $_ = $_ . " * " . "$value"; } ( @{ $result->{COL_NAMES} } );
         for (
-            my $block = 0 ;
-            $block < ( my $len_b = @{ $self->{DATA}[$column] } ) ;
+            my $block = 0;
+            $block < ( my $len_b = @{ $self->{DATA}[$column] } );
             $block++
-          )
-        {
+            ) {
             my $self_temp = $self->copy();
             push(
                 @{ $result->{DATA}[$column][$block] },
-                map { $_ * $value } ( @{ $self_temp->{DATA}[$column][$block] } )
+                map { $_ * $value }
+                    ( @{ $self_temp->{DATA}[$column][$block] } )
             );
         }
     }
@@ -734,8 +732,8 @@ sub divide {
         }
         $value = $value->copy();
         map { $_ = $_ . " / " . @{ $value->{COL_NAMES} }[0]; }
-          ( @{ $result->{COL_NAMES} } );
-        for ( my $block = 0 ; $block < $value->{BLOCKS} ; $block++ ) {
+            ( @{ $result->{COL_NAMES} } );
+        for ( my $block = 0; $block < $value->{BLOCKS}; $block++ ) {
 
             #print "value\n";
             #$value->print();
@@ -743,25 +741,25 @@ sub divide {
             push(
                 @{ $result->{DATA}[0][$block] },
                 map { ( ( $temp = shift(@temp) ) != 0 ) ? $_ / $temp : '?' }
-                  ( @{ $self->{DATA}[$column][$block] } )
+                    ( @{ $self->{DATA}[$column][$block] } )
             );
 
-#push (@{$result->{DATA}[0][$block]}, map { $_ / shift(@{$value->{DATA}[0][$block]});  } (@{$self->{DATA}[$column][$block]}));
+            #push (@{$result->{DATA}[0][$block]}, map { $_ / shift(@{$value->{DATA}[0][$block]});  } (@{$self->{DATA}[$column][$block]}));
         }
 
     }
     else {
         map { $_ = $_ . " / " . "$value"; } ( @{ $result->{COL_NAMES} } );
         for (
-            my $block = 0 ;
-            $block < ( my $len_b = @{ $self->{DATA}[$column] } ) ;
+            my $block = 0;
+            $block < ( my $len_b = @{ $self->{DATA}[$column] } );
             $block++
-          )
-        {
+            ) {
             my $self_temp = $self->copy();
             push(
                 @{ $result->{DATA}[$column][$block] },
-                map { $_ / $value } ( @{ $self_temp->{DATA}[$column][$block] } )
+                map { $_ / $value }
+                    ( @{ $self_temp->{DATA}[$column][$block] } )
             );
         }
     }
@@ -778,7 +776,7 @@ sub sin {
     my $value = $self->expression($value);
 
     if ( ref($value) eq 'ARRAY' ) {
-        for ( my $block = 0 ; $block <= $self->{BLOCKS} ; $block++ ) {
+        for ( my $block = 0; $block <= $self->{BLOCKS}; $block++ ) {
             push(
                 @{ $result->{DATA}[0] },
                 map { sin( ( $_ / 180 ) * $pi ) } ( @{$value} )
@@ -795,17 +793,16 @@ sub sin {
         @{ $result->{EVAL_PARTS} } = ();
         map { $_ = "sin(" . $_ . ")"; } ( @{ $result->{COL_NAMES} } );
         for (
-            my $column = 0 ;
-            $column < ( my $len_c = @{ $value->{DATA} } ) ;
+            my $column = 0;
+            $column < ( my $len_c = @{ $value->{DATA} } );
             $column++
-          )
-        {
-            for ( my $block = 0 ; $block < $value->{BLOCKS} ; $block++ ) {
+            ) {
+            for ( my $block = 0; $block < $value->{BLOCKS}; $block++ ) {
                 my @temp = @{ $value->{DATA}[$column][$block] };
                 push(
                     @{ $result->{DATA}[$column][$block] },
                     map { sin( ( $_ / 180 ) * $pi ) }
-                      ( @{ $value->{DATA}[$column][$block] } )
+                        ( @{ $value->{DATA}[$column][$block] } )
                 );
             }
         }
@@ -825,7 +822,7 @@ sub cos {
     my $value = $self->expression($value);
 
     if ( ref($value) eq 'ARRAY' ) {
-        for ( my $block = 0 ; $block <= $self->{BLOCKS} ; $block++ ) {
+        for ( my $block = 0; $block <= $self->{BLOCKS}; $block++ ) {
             push(
                 @{ $result->{DATA}[0] },
                 map { cos( ( $_ / 180 ) * $pi ) } ( @{$value} )
@@ -842,17 +839,16 @@ sub cos {
         @{ $result->{EVAL_PARTS} } = ();
         map { $_ = "cos(" . $_ . ")"; } ( @{ $result->{COL_NAMES} } );
         for (
-            my $column = 0 ;
-            $column < ( my $len_c = @{ $value->{DATA} } ) ;
+            my $column = 0;
+            $column < ( my $len_c = @{ $value->{DATA} } );
             $column++
-          )
-        {
-            for ( my $block = 0 ; $block < $value->{BLOCKS} ; $block++ ) {
+            ) {
+            for ( my $block = 0; $block < $value->{BLOCKS}; $block++ ) {
                 my @temp = @{ $value->{DATA}[$column][$block] };
                 push(
                     @{ $result->{DATA}[$column][$block] },
                     map { cos( ( $_ / 180 ) * $pi ) }
-                      ( @{ $value->{DATA}[$column][$block] } )
+                        ( @{ $value->{DATA}[$column][$block] } )
                 );
             }
         }
@@ -872,14 +868,15 @@ sub tan {
     my $value = $self->expression($value);
 
     if ( ref($value) eq 'ARRAY' ) {
-        for ( my $block = 0 ; $block <= $self->{BLOCKS} ; $block++ ) {
+        for ( my $block = 0; $block <= $self->{BLOCKS}; $block++ ) {
             push(
                 @{ $result->{DATA}[0] },
                 map {
-                    (         ( _modulo( $_, 90 ) == 0 )
-                          and ( _modulo( $_, 180 ) != 0 ) )
-                      ? 'nan'
-                      : sin( ( $_ / 180 ) * $pi ) / cos( ( $_ / 180 ) * $pi )
+                    (           ( _modulo( $_, 90 ) == 0 )
+                            and ( _modulo( $_, 180 ) != 0 ) )
+                        ? 'nan'
+                        : sin( ( $_ / 180 ) * $pi ) /
+                        cos( ( $_ / 180 ) * $pi )
                 } ( @{$value} )
             );
         }
@@ -894,31 +891,31 @@ sub tan {
         @{ $result->{EVAL_PARTS} } = ();
         map { $_ = "tan(" . $_ . ")"; } ( @{ $result->{COL_NAMES} } );
         for (
-            my $column = 0 ;
-            $column < ( my $len_c = @{ $value->{DATA} } ) ;
+            my $column = 0;
+            $column < ( my $len_c = @{ $value->{DATA} } );
             $column++
-          )
-        {
-            for ( my $block = 0 ; $block < $value->{BLOCKS} ; $block++ ) {
+            ) {
+            for ( my $block = 0; $block < $value->{BLOCKS}; $block++ ) {
                 my @temp = @{ $value->{DATA}[$column][$block] };
                 push(
                     @{ $result->{DATA}[$column][$block] },
                     map {
-                        (         ( _modulo( $_, 90 ) == 0 )
-                              and ( _modulo( $_, 180 ) != 0 ) )
-                          ? 'nan'
-                          : sin( ( $_ / 180 ) * $pi ) /
-                          cos( ( $_ / 180 ) * $pi )
+                        (           ( _modulo( $_, 90 ) == 0 )
+                                and ( _modulo( $_, 180 ) != 0 ) )
+                            ? 'nan'
+                            : sin( ( $_ / 180 ) * $pi ) /
+                            cos( ( $_ / 180 ) * $pi )
                     } ( @{ $value->{DATA}[$column][$block] } )
                 );
             }
         }
     }
     else {
-        $result =
-          ( ( _modulo( $value, 90 ) == 0 ) and ( _modulo( $value, 180 ) != 0 ) )
-          ? 'nan'
-          : sin( ( $value / 180 ) * $pi ) / cos( ( $value / 180 ) * $pi );
+        $result
+            = (     ( _modulo( $value, 90 ) == 0 )
+                and ( _modulo( $value, 180 ) != 0 ) )
+            ? 'nan'
+            : sin( ( $value / 180 ) * $pi ) / cos( ( $value / 180 ) * $pi );
     }
 
     return $result;
@@ -932,7 +929,7 @@ sub abs {
     my $value = $self->expression($value);
 
     if ( ref($value) eq 'ARRAY' ) {
-        for ( my $block = 0 ; $block <= $self->{BLOCKS} ; $block++ ) {
+        for ( my $block = 0; $block <= $self->{BLOCKS}; $block++ ) {
             push( @{ $result->{DATA}[0] }, map { abs($_) } ( @{$value} ) );
         }
     }
@@ -946,12 +943,11 @@ sub abs {
         @{ $result->{EVAL_PARTS} } = ();
         map { $_ = "abs(" . $_ . ")"; } ( @{ $result->{COL_NAMES} } );
         for (
-            my $column = 0 ;
-            $column < ( my $len_c = @{ $value->{DATA} } ) ;
+            my $column = 0;
+            $column < ( my $len_c = @{ $value->{DATA} } );
             $column++
-          )
-        {
-            for ( my $block = 0 ; $block < $value->{BLOCKS} ; $block++ ) {
+            ) {
+            for ( my $block = 0; $block < $value->{BLOCKS}; $block++ ) {
                 my @temp = @{ $value->{DATA}[$column][$block] };
                 push(
                     @{ $result->{DATA}[$column][$block] },
@@ -976,7 +972,7 @@ sub sgn {
     my $value = $self->expression($value);
 
     if ( ref($value) eq 'ARRAY' ) {
-        for ( my $block = 0 ; $block <= $self->{BLOCKS} ; $block++ ) {
+        for ( my $block = 0; $block <= $self->{BLOCKS}; $block++ ) {
             push(
                 @{ $result->{DATA}[0] },
                 map {
@@ -997,12 +993,11 @@ sub sgn {
         @{ $result->{EVAL_PARTS} } = ();
         map { $_ = "sgn(" . $_ . ")"; } ( @{ $result->{COL_NAMES} } );
         for (
-            my $column = 0 ;
-            $column < ( my $len_c = @{ $value->{DATA} } ) ;
+            my $column = 0;
+            $column < ( my $len_c = @{ $value->{DATA} } );
             $column++
-          )
-        {
-            for ( my $block = 0 ; $block < $value->{BLOCKS} ; $block++ ) {
+            ) {
+            for ( my $block = 0; $block < $value->{BLOCKS}; $block++ ) {
                 my @temp = @{ $value->{DATA}[$column][$block] };
                 push(
                     @{ $result->{DATA}[$column][$block] },
@@ -1032,7 +1027,7 @@ sub exp {
     my $value = $self->expression($value);
 
     if ( ref($value) eq 'ARRAY' ) {
-        for ( my $block = 0 ; $block <= $self->{BLOCKS} ; $block++ ) {
+        for ( my $block = 0; $block <= $self->{BLOCKS}; $block++ ) {
             push( @{ $result->{DATA}[0] }, map { exp($_) } ( @{$value} ) );
         }
     }
@@ -1046,12 +1041,11 @@ sub exp {
         @{ $result->{EVAL_PARTS} } = ();
         map { $_ = "exp(" . $_ . ")"; } ( @{ $result->{COL_NAMES} } );
         for (
-            my $column = 0 ;
-            $column < ( my $len_c = @{ $value->{DATA} } ) ;
+            my $column = 0;
+            $column < ( my $len_c = @{ $value->{DATA} } );
             $column++
-          )
-        {
-            for ( my $block = 0 ; $block < $value->{BLOCKS} ; $block++ ) {
+            ) {
+            for ( my $block = 0; $block < $value->{BLOCKS}; $block++ ) {
                 my @temp = @{ $value->{DATA}[$column][$block] };
                 push(
                     @{ $result->{DATA}[$column][$block] },
@@ -1075,11 +1069,11 @@ sub ln {
     my $value = $self->expression($value);
 
     if ( ref($value) eq 'ARRAY' ) {
-        for ( my $block = 0 ; $block <= $self->{BLOCKS} ; $block++ ) {
+        for ( my $block = 0; $block <= $self->{BLOCKS}; $block++ ) {
             push(
                 @{ $result->{DATA}[0] },
                 map { ( $_ >= 0 ) ? log($_) / log( exp(1) ) : 'nan' }
-                  ( @{$value} )
+                    ( @{$value} )
             );
         }
     }
@@ -1093,17 +1087,16 @@ sub ln {
         @{ $result->{EVAL_PARTS} } = ();
         map { $_ = "ln(" . $_ . ")"; } ( @{ $result->{COL_NAMES} } );
         for (
-            my $column = 0 ;
-            $column < ( my $len_c = @{ $value->{DATA} } ) ;
+            my $column = 0;
+            $column < ( my $len_c = @{ $value->{DATA} } );
             $column++
-          )
-        {
-            for ( my $block = 0 ; $block < $value->{BLOCKS} ; $block++ ) {
+            ) {
+            for ( my $block = 0; $block < $value->{BLOCKS}; $block++ ) {
                 my @temp = @{ $value->{DATA}[$column][$block] };
                 push(
                     @{ $result->{DATA}[$column][$block] },
                     map { ( $_ >= 0 ) ? log($_) / log( exp(1) ) : 'nan' }
-                      ( @{ $value->{DATA}[$column][$block] } )
+                        ( @{ $value->{DATA}[$column][$block] } )
                 );
             }
         }
@@ -1123,7 +1116,7 @@ sub log {
     my $value = $self->expression($value);
 
     if ( ref($value) eq 'ARRAY' ) {
-        for ( my $block = 0 ; $block <= $self->{BLOCKS} ; $block++ ) {
+        for ( my $block = 0; $block <= $self->{BLOCKS}; $block++ ) {
             push(
                 @{ $result->{DATA}[0] },
                 map { ( $_ >= 0 ) ? log($_) / log(10) : 'nan' } ( @{$value} )
@@ -1140,17 +1133,16 @@ sub log {
         @{ $result->{EVAL_PARTS} } = ();
         map { $_ = "log10(" . $_ . ")"; } ( @{ $result->{COL_NAMES} } );
         for (
-            my $column = 0 ;
-            $column < ( my $len_c = @{ $value->{DATA} } ) ;
+            my $column = 0;
+            $column < ( my $len_c = @{ $value->{DATA} } );
             $column++
-          )
-        {
-            for ( my $block = 0 ; $block < $value->{BLOCKS} ; $block++ ) {
+            ) {
+            for ( my $block = 0; $block < $value->{BLOCKS}; $block++ ) {
                 my @temp = @{ $value->{DATA}[$column][$block] };
                 push(
                     @{ $result->{DATA}[$column][$block] },
                     map { ( $_ >= 0 ) ? log($_) / log(10) : 'nan' }
-                      ( @{ $value->{DATA}[$column][$block] } )
+                        ( @{ $value->{DATA}[$column][$block] } )
                 );
             }
         }
@@ -1170,7 +1162,7 @@ sub sqrt {
     my $value = $self->expression($value);
 
     if ( ref($value) eq 'ARRAY' ) {
-        for ( my $block = 0 ; $block <= $self->{BLOCKS} ; $block++ ) {
+        for ( my $block = 0; $block <= $self->{BLOCKS}; $block++ ) {
             push(
                 @{ $result->{DATA}[0] },
                 map { ( $_ >= 0 ) ? sqrt($_) : 'nan' } ( @{$value} )
@@ -1187,17 +1179,16 @@ sub sqrt {
         @{ $result->{EVAL_PARTS} } = ();
         map { $_ = "sqrt(" . $_ . ")"; } ( @{ $result->{COL_NAMES} } );
         for (
-            my $column = 0 ;
-            $column < ( my $len_c = @{ $value->{DATA} } ) ;
+            my $column = 0;
+            $column < ( my $len_c = @{ $value->{DATA} } );
             $column++
-          )
-        {
-            for ( my $block = 0 ; $block < $value->{BLOCKS} ; $block++ ) {
+            ) {
+            for ( my $block = 0; $block < $value->{BLOCKS}; $block++ ) {
                 my @temp = @{ $value->{DATA}[$column][$block] };
                 push(
                     @{ $result->{DATA}[$column][$block] },
                     map { ( $_ >= 0 ) ? sqrt($_) : 'nan' }
-                      ( @{ $value->{DATA}[$column][$block] } )
+                        ( @{ $value->{DATA}[$column][$block] } )
                 );
             }
         }
@@ -1218,7 +1209,7 @@ sub yEx {
     my $y = $self->expression($y);
 
     if ( ref($y) eq 'ARRAY' ) {
-        for ( my $block = 0 ; $block <= $self->{BLOCKS} ; $block++ ) {
+        for ( my $block = 0; $block <= $self->{BLOCKS}; $block++ ) {
             push( @{ $result->{DATA}[0] }, map { $_**$x } ( @{$y} ) );
         }
     }
@@ -1232,12 +1223,11 @@ sub yEx {
         @{ $result->{EVAL_PARTS} } = ();
         map { $_ = "yEx(" . $_ . ")"; } ( @{ $result->{COL_NAMES} } );
         for (
-            my $column = 0 ;
-            $column < ( my $len_c = @{ $y->{DATA} } ) ;
+            my $column = 0;
+            $column < ( my $len_c = @{ $y->{DATA} } );
             $column++
-          )
-        {
-            for ( my $block = 0 ; $block < $y->{BLOCKS} ; $block++ ) {
+            ) {
+            for ( my $block = 0; $block < $y->{BLOCKS}; $block++ ) {
                 my @temp = @{ $y->{DATA}[$column][$block] };
                 push(
                     @{ $result->{DATA}[$column][$block] },
@@ -1271,17 +1261,17 @@ sub modulo {
         }
         $value = $value->copy();
         map { $_ = $_ . " % " . @{ $value->{COL_NAMES} }[0]; }
-          ( @{ $result->{COL_NAMES} } );
+            ( @{ $result->{COL_NAMES} } );
         for (
-            my $block = 0 ;
-            $block < ( my $len_b = @{ $value->{DATA}[0] } ) ;
+            my $block = 0;
+            $block < ( my $len_b = @{ $value->{DATA}[0] } );
             $block++
-          )
-        {
+            ) {
             push(
                 @{ $result->{DATA}[0][$block] },
-                map { _modulo( $_, shift( @{ $value->{DATA}[0][$block] } ) ); }
-                  ( @{ $self->{DATA}[$column][$block] } )
+                map {
+                    _modulo( $_, shift( @{ $value->{DATA}[0][$block] } ) );
+                } ( @{ $self->{DATA}[$column][$block] } )
             );
         }
 
@@ -1289,16 +1279,15 @@ sub modulo {
     else {
         map { $_ = $_ . " + " . "$value"; } ( @{ $result->{COL_NAMES} } );
         for (
-            my $block = 0 ;
-            $block < ( my $len_b = @{ $self->{DATA}[$column] } ) ;
+            my $block = 0;
+            $block < ( my $len_b = @{ $self->{DATA}[$column] } );
             $block++
-          )
-        {
+            ) {
             my $self_temp = $self->copy();
             push(
                 @{ $result->{DATA}[$column][$block] },
                 map { _modulo( $_, $value ) }
-                  ( @{ $self_temp->{DATA}[$column][$block] } )
+                    ( @{ $self_temp->{DATA}[$column][$block] } )
             );
         }
     }
@@ -1322,13 +1311,14 @@ sub lineFit {
     my $lineFit = Statistics::LineFit->new();
 
     for (
-        my $block = 0 ;
-        $block < ( my $len_b = @{ $self->{DATA}[$x] } ) ;
+        my $block = 0;
+        $block < ( my $len_b = @{ $self->{DATA}[$x] } );
         $block++
-      )
-    {
-        $lineFit->setData( $self->{DATA}[$x][$block],
-            $self->{DATA}[$y][$block] );
+        ) {
+        $lineFit->setData(
+            $self->{DATA}[$x][$block],
+            $self->{DATA}[$y][$block]
+        );
         my ( $intercept, $slope ) = $lineFit->coefficients();
         push( @result, $intercept );
     }
@@ -1492,27 +1482,27 @@ sub set {
             my $len_d;
             my $len_c;
             if (    ( $len_d = @{ $data->{COL_NAMES} } ) > 1
-                and ( $len_c = @column ) ==
-                ( $len_d = @{ $data->{COL_NAMES} } ) )
-            {
-                @{ $self->{COL_NAMES} }[$column] = @{ $data->{COL_NAMES} }[$i];
+                and ( $len_c = @column )
+                == ( $len_d = @{ $data->{COL_NAMES} } ) ) {
+                @{ $self->{COL_NAMES} }[$column]
+                    = @{ $data->{COL_NAMES} }[$i];
                 map {
-                    $self->{DATA}[$column][$_] =
-                      shift( @{ $data->{DATA}[$i] } );
+                    $self->{DATA}[$column][$_]
+                        = shift( @{ $data->{DATA}[$i] } );
                 } (@blocks);
                 $i++;
             }
             elsif ( ( $len_d = @{ $data->{COL_NAMES} } ) == 1
-                and ( $len_c = @column ) >= 1 )
-            {
-                @{ $self->{COL_NAMES} }[$column] = @{ $data->{COL_NAMES} }[$i];
+                and ( $len_c = @column ) >= 1 ) {
+                @{ $self->{COL_NAMES} }[$column]
+                    = @{ $data->{COL_NAMES} }[$i];
                 my @data_temp = @{ $data->{DATA}[$i] };
                 map { $self->{DATA}[$column][$_] = shift(@data_temp); }
-                  (@blocks);
+                    (@blocks);
             }
             else {
                 warn
-"WARNING: in sub set  given set-columns $len_d != given data-columns $len_c. Ignor set column. ";
+                    "WARNING: in sub set  given set-columns $len_d != given data-columns $len_c. Ignor set column. ";
                 return $self;
             }
         }
@@ -1521,12 +1511,11 @@ sub set {
 
                 my @data_temp = @{$data};
                 map { $self->{DATA}[$column][$_] = shift(@data_temp) }
-                  (@blocks);
+                    (@blocks);
                 return $self;
             }
-            elsif ( ( my $length_data = @{$data} ) ==
-                ( my $lenngth_blocks = @blocks ) )
-            {
+            elsif ( ( my $length_data = @{$data} )
+                == ( my $lenngth_blocks = @blocks ) ) {
                 foreach my $block (@blocks) {
                     my $i = 0;
                     foreach ( @{ $self->{DATA}[0][$block] } ) {
@@ -1543,8 +1532,9 @@ sub set {
         }
         else {
             map {
-                @{ $self->{DATA}[$column][$_] } = map { $_ = $data }
-                  ( @{ $self->{DATA}[$column][$_] } )
+                @{ $self->{DATA}[$column][$_] }
+                    = map { $_ = $data }
+                    ( @{ $self->{DATA}[$column][$_] } )
             } (@blocks);
             return $self;
         }
@@ -1575,11 +1565,11 @@ sub insert_c {
 
         # append Column with col_name = 'NN'
         warn
-"WARNING: sub 'insert_c' has been called with no arguments. Appending an empty column with the columnname 'NN'.";
+            "WARNING: sub 'insert_c' has been called with no arguments. Appending an empty column with the columnname 'NN'.";
         my @dummy_array;
         push( @{ $self->{DATA} }, \@dummy_array );
         map { my @dummy_array; push( @{ $self->{DATA}[-1] }, \@dummy_array ) }
-          ( ( 0 .. $self->{BLOCKS} - 1 ) );
+            ( ( 0 .. $self->{BLOCKS} - 1 ) );
         push( @{ $self->{COL_NAMES} }, 'NN' );
     }
     elsif ( not defined $col_position and $col_name =~ /^[-]?[0-9]+$/ ) {
@@ -1588,7 +1578,7 @@ sub insert_c {
         $col_position = $col_name;
         $col_name     = 'NN';
 
-#warn "WARNING: sub 'insert_c' has been called without columnname argument. Insert empty column with the columnname 'NN'.";
+        #warn "WARNING: sub 'insert_c' has been called without columnname argument. Insert empty column with the columnname 'NN'.";
         if ( $col_position < 0 ) {
             my $len = @{ $self->{DATA} };
             $col_position += $len + 1;
@@ -1598,7 +1588,7 @@ sub insert_c {
         }
         my @dummy_col;
         map { my @dummy_array; push( @dummy_col, \@dummy_array ) }
-          ( ( 0 .. $self->{BLOCKS} - 1 ) );
+            ( ( 0 .. $self->{BLOCKS} - 1 ) );
         splice @{ $self->{DATA} },      $col_position, 0, \@dummy_col;
         splice @{ $self->{COL_NAMES} }, $col_position, 0, $col_name;
     }
@@ -1608,7 +1598,7 @@ sub insert_c {
         my @dummy_array;
         push( @{ $self->{DATA} }, \@dummy_array );
         map { my @dummy_array; push( @{ $self->{DATA}[-1] }, \@dummy_array ) }
-          ( ( 0 .. $self->{BLOCKS} - 1 ) );
+            ( ( 0 .. $self->{BLOCKS} - 1 ) );
         push( @{ $self->{COL_NAMES} }, "$col_name" );
     }
     else {
@@ -1622,7 +1612,7 @@ sub insert_c {
         }
         my @dummy_col;
         map { my @dummy_array; push( @dummy_col, \@dummy_array ) }
-          ( ( 0 .. $self->{BLOCKS} - 1 ) );
+            ( ( 0 .. $self->{BLOCKS} - 1 ) );
         splice @{ $self->{DATA} },      $col_position, 0, \@dummy_col;
         splice @{ $self->{COL_NAMES} }, $col_position, 0, $col_name;
     }
@@ -1639,7 +1629,7 @@ sub move_c {
 
     if ( not defined $new_position ) {
         warn
-"WARNING: in sub 'move_c' no argument for new_position given. ignore move_c command.";
+            "WARNING: in sub 'move_c' no argument for new_position given. ignore move_c command.";
     }
     else {
         # find col_index for col_name:
@@ -1670,7 +1660,7 @@ sub move_c {
         }
         else {
             warn
-"WARNING: in sub 'move_c' column ($col) not found; ignore move_c command.";
+                "WARNING: in sub 'move_c' column ($col) not found; ignore move_c command.";
         }
     }
 
@@ -1680,7 +1670,7 @@ sub move_c {
 sub sort {
     my $self      = shift;
     my $direction = shift
-      ; # direction can be '+', '-' for  sorting 'rising' or 'falling' respectivly
+        ; # direction can be '+', '-' for  sorting 'rising' or 'falling' respectivly
     my @sort_cols = @_;
 
     if ( not $direction =~ /^[+-]$/ ) {
@@ -1697,7 +1687,7 @@ sub sort {
         foreach my $column ( 0 .. $self->{COLUMNS} ) {
             my $index = 0;
             map { push( @{ $temp[$block][$index] }, $_ ); $index++; }
-              ( @{ $self->{DATA}[$column][$block] } );
+                ( @{ $self->{DATA}[$column][$block] } );
         }
     }
 
@@ -1710,11 +1700,11 @@ sub sort {
         my $sort;
         if ( $direction =~ /^[+]$/ ) {
             map { $sort .= "\$a->[" . $_ . "] <=> \$b->[" . $_ . "]||" }
-              @sort_cols;
+                @sort_cols;
         }
         else {
             map { $sort .= "\$b->[" . $_ . "] <=> \$a->[" . $_ . "]||" }
-              @sort_cols;
+                @sort_cols;
         }
         chop $sort;
         chop $sort;
@@ -1734,7 +1724,7 @@ sub sort {
         foreach my $row ( 0 .. $rows - 1 ) {
             my $column = 0;
             map { push( @{ $temp[$column][$block] }, $_ ); $column++; }
-              ( @{ $sorted_data[$block][$row] } );
+                ( @{ $sorted_data[$block][$row] } );
         }
     }
 
@@ -1748,7 +1738,7 @@ sub sort {
 sub block_sort {
     my $self      = shift;
     my $direction = shift
-      ; # direction can be '+', '-' for  sorting 'rising' or 'falling' respectivly
+        ; # direction can be '+', '-' for  sorting 'rising' or 'falling' respectivly
     my @sort_cols = @_;
 
     if ( not $direction =~ /^[+-]$/ ) {
@@ -1764,15 +1754,16 @@ sub block_sort {
     foreach my $block ( 0 .. $self->{BLOCKS} - 1 ) {
         my %count;
         map {
-            push( @unique,
-                grep { ++$count{$_} < 2 } ( @{ $self->{DATA}[$_][$block] } ) );
+            push(
+                @unique,
+                grep { ++$count{$_} < 2 } ( @{ $self->{DATA}[$_][$block] } )
+            );
         } (@sort_cols);
     }
-    if ( ( my $len = @unique ) >
-        ( ( $self->{BLOCKS} + 1 ) * ( my $len_sort = @sort_cols ) ) )
-    {
+    if ( ( my $len = @unique )
+        > ( ( $self->{BLOCKS} + 1 ) * ( my $len_sort = @sort_cols ) ) ) {
         warn
-"WARNING: in sub 'block-sort' the given block-index-columns are not well defined.";
+            "WARNING: in sub 'block-sort' the given block-index-columns are not well defined.";
     }
 
     # convert column/block structure to row/block structure:
@@ -1781,7 +1772,7 @@ sub block_sort {
         foreach my $column ( 0 .. $self->{COLUMNS} ) {
             my $index = 0;
             map { push( @{ $temp[$block][$index] }, $_ ); $index++; }
-              ( @{ $self->{DATA}[$column][$block] } );
+                ( @{ $self->{DATA}[$column][$block] } );
         }
     }
 
@@ -1792,11 +1783,11 @@ sub block_sort {
     my $sort;
     if ( $direction =~ /^[+]$/ ) {
         map { $sort .= "\$a->[0][" . $_ . "] <=> \$b->[0][" . $_ . "]||" }
-          @sort_cols;
+            @sort_cols;
     }
     else {
         map { $sort .= "\$b->[0][" . $_ . "] <=> \$a->[0]" . $_ . "]||" }
-          @sort_cols;
+            @sort_cols;
     }
     chop $sort;
     chop $sort;
@@ -1812,9 +1803,9 @@ sub block_sort {
         foreach my $row ( 0 .. $rows - 1 ) {
             my $column = 0;
 
-    #map {push(@{$temp[$column][$block]}, $_); $column+=1;} (@{$block->[$row]});
+            #map {push(@{$temp[$column][$block]}, $_); $column+=1;} (@{$block->[$row]});
             map { push( @{ $temp[$column][$b] }, $_ ); $column += 1; }
-              ( @{ $block->[$row] } );
+                ( @{ $block->[$row] } );
 
             #map {print $_."\t";} (@{$block->[$row]});
             #print "\n";
@@ -1832,7 +1823,7 @@ sub block_sort {
 sub global_sort {
     my $self      = shift;
     my $direction = shift
-      ; # direction can be '+', '-' for  sorting 'rising' or 'falling' respectivly
+        ; # direction can be '+', '-' for  sorting 'rising' or 'falling' respectivly
     my @sort_cols = @_;
 
     if ( not $direction =~ /^[+-]$/ ) {
@@ -1851,7 +1842,7 @@ sub global_sort {
         foreach my $column ( 0 .. $self->{COLUMNS} ) {
             $index = $index_0;
             map { push( @{ $temp[$index] }, $_ ); $index++; }
-              ( @{ $self->{DATA}[$column][$block] } );
+                ( @{ $self->{DATA}[$column][$block] } );
         }
         $index_0 = $index;
     }
@@ -1862,10 +1853,12 @@ sub global_sort {
     # create sort string:
     my $sort;
     if ( $direction =~ /^[+]$/ ) {
-        map { $sort .= "\$a->[" . $_ . "] <=> \$b->[" . $_ . "]||" } @sort_cols;
+        map { $sort .= "\$a->[" . $_ . "] <=> \$b->[" . $_ . "]||" }
+            @sort_cols;
     }
     else {
-        map { $sort .= "\$b->[" . $_ . "] <=> \$a->[" . $_ . "]||" } @sort_cols;
+        map { $sort .= "\$b->[" . $_ . "] <=> \$a->[" . $_ . "]||" }
+            @sort_cols;
     }
     chop $sort;
     chop $sort;
@@ -1879,7 +1872,7 @@ sub global_sort {
     foreach my $row ( 0 .. $rows - 1 ) {
         my $column = 0;
         map { push( @{ $temp[$column][0] }, $_ ); $column++; }
-          ( @{ $sorted_data[$row] } );
+            ( @{ $sorted_data[$row] } );
     }
 
     # apply to $self:
@@ -1908,7 +1901,7 @@ sub block_generator {
         foreach my $column ( 0 .. $self->{COLUMNS} ) {
             $index = $index_0;
             map { push( @{ $temp[$index] }, $_ ); $index++; }
-              ( @{ $self->{DATA}[$column][$block] } );
+                ( @{ $self->{DATA}[$column][$block] } );
         }
         $index_0 = $index;
     }
@@ -1939,7 +1932,7 @@ sub block_generator {
         foreach my $row ( 0 .. $rows - 1 ) {
             my $column = 0;
             map { push( @{ $temp[$column][$b] }, $_ ); $column += 1; }
-              ( @{ $block->[$row] } );
+                ( @{ $block->[$row] } );
         }
         $b++;
     }
@@ -1967,7 +1960,7 @@ sub find {
     # final evaluation of expression:
     if ( ( my $len = @{ $self->{EXP_PARTS} } ) == 1 ) {
         warn
-"WARNING: in sub 'find' no well defined condtion given. Ignor find command. Return all.";
+            "WARNING: in sub 'find' no well defined condtion given. Ignor find command. Return all.";
         my @selection;
         map {
             my $rows = @{ $self->{DATA}[0][$_] };
@@ -1988,10 +1981,9 @@ sub find {
 
             if (
                 ref( @{ $self->{EXP_PARTS} }[0] ) ne
-                'Lab::XPRESS::Data::XPRESS_dataset' )
-            {
+                'Lab::XPRESS::Data::XPRESS_dataset' ) {
                 warn
-"WARNING: in sub 'find' no well defined condtion given. Ignor find command. Return all.";
+                    "WARNING: in sub 'find' no well defined condtion given. Ignor find command. Return all.";
                 my @selection;
                 map {
                     my $rows = @{ $self->{DATA}[0][$_] };
@@ -2003,24 +1995,24 @@ sub find {
 
             if (
                 ref( @{ $self->{EXP_PARTS} }[2] ) eq
-                'Lab::XPRESS::Data::XPRESS_dataset' )
-            {
+                'Lab::XPRESS::Data::XPRESS_dataset' ) {
                 map {
                     if (
                         (
-                            my $len_0 =
-                            @{ @{ $self->{EXP_PARTS} }[0]->{DATA}[0][$_] }
+                            my $len_0
+                            = @{ @{ $self->{EXP_PARTS} }[0]->{DATA}[0][$_] }
                         ) != (
-                            my $len_2 =
-                              @{ @{ $self->{EXP_PARTS} }[2]->{DATA}[0][$_] }
+                            my $len_2
+                                = @{ @{ $self->{EXP_PARTS} }[2]->{DATA}[0][$_]
+                                }
                         )
-                      )
-                    {
+                        ) {
                         warn
-'WARNING: unexpected values sub eval within the expression given. Ignore, return self.';
+                            'WARNING: unexpected values sub eval within the expression given. Ignore, return self.';
                         return $self;
                     }
-                } ( ( 0 .. @{ @{ $self->{EXP_PARTS} }[2]->{DATA}[0] } - 1 ) );
+                    } (
+                    ( 0 .. @{ @{ $self->{EXP_PARTS} }[2]->{DATA}[0] } - 1 ) );
             }
 
             my @selection;
@@ -2028,25 +2020,25 @@ sub find {
             my $selected_elements = $self->copy();
             @{ $selected_elements->{DATA} } = ();
 
-            for ( my $block = 0 ; $block <= $self->{BLOCKS} ; $block++ ) {
+            for ( my $block = 0; $block <= $self->{BLOCKS}; $block++ ) {
                 my $index = 0;
                 my @indices;
                 my $temp;
                 print @{ $self->{EXP_PARTS} }[0]->{0};
                 exit;
-                my @block = @{ @{ $self->{EXP_PARTS} }[0]->{DATA}[0][$block] };
+                my @block
+                    = @{ @{ $self->{EXP_PARTS} }[0]->{DATA}[0][$block] };
                 if (
                     ref( @{ $self->{EXP_PARTS} }[2] ) eq
-                    'Lab::XPRESS::Data::XPRESS_dataset' )
-                {
+                    'Lab::XPRESS::Data::XPRESS_dataset' ) {
                     @indices = grep {
                         $temp = $_;
                         $_    = $index;
                         $index++;
                         eval $temp
-                          . @{ $self->{EXP_PARTS} }[1]
-                          . @{ @{ $self->{EXP_PARTS} }[2]->{DATA}[0][$block] }
-                          [$index]
+                            . @{ $self->{EXP_PARTS} }[1]
+                            . @{ @{ $self->{EXP_PARTS} }[2]->{DATA}[0][$block]
+                            }[$index]
                     } (@block);
                 }
                 else {
@@ -2055,8 +2047,8 @@ sub find {
                         $_    = $index;
                         $index++;
                         eval $temp
-                          . @{ $self->{EXP_PARTS} }[1]
-                          . @{ $self->{EXP_PARTS} }[2]
+                            . @{ $self->{EXP_PARTS} }[1]
+                            . @{ $self->{EXP_PARTS} }[2]
                     } (@block);
                 }
                 push( @{ $selection[$block] }, @indices );
@@ -2069,7 +2061,7 @@ sub find {
         }
         else {
             warn
-"WARNING: in sub 'find' no well defined condtion given. Ignor find command. Return all.";
+                "WARNING: in sub 'find' no well defined condtion given. Ignor find command. Return all.";
             my @selection;
             map {
                 my $rows = @{ $self->{DATA}[0][$_] };
@@ -2094,10 +2086,9 @@ sub find {
 
         if (
             ref( @{ $self->{EXP_PARTS} }[2] ) ne
-            'Lab::XPRESS::Data::XPRESS_dataset' )
-        {
+            'Lab::XPRESS::Data::XPRESS_dataset' ) {
             warn
-"WARNING: in sub 'find' no well defined condtion given. Ignor find command. Return all.";
+                "WARNING: in sub 'find' no well defined condtion given. Ignor find command. Return all.";
             my @selection;
             map {
                 my $rows = @{ $self->{DATA}[0][$_] };
@@ -2109,21 +2100,19 @@ sub find {
 
         if (
             ref( @{ $self->{EXP_PARTS} }[0] ) eq
-            'Lab::XPRESS::Data::XPRESS_dataset' )
-        {
+            'Lab::XPRESS::Data::XPRESS_dataset' ) {
             map {
                 if (
                     (
-                        my $len_0 =
-                        @{ @{ $self->{EXP_PARTS} }[0]->{DATA}[0][$_] }
+                        my $len_0
+                        = @{ @{ $self->{EXP_PARTS} }[0]->{DATA}[0][$_] }
                     ) != (
-                        my $len_2 =
-                          @{ @{ $self->{EXP_PARTS} }[2]->{DATA}[0][$_] }
+                        my $len_2
+                            = @{ @{ $self->{EXP_PARTS} }[2]->{DATA}[0][$_] }
                     )
-                  )
-                {
+                    ) {
                     warn
-'WARNING: unexpected values sub eval within the expression given. Ignore, return self.';
+                        'WARNING: unexpected values sub eval within the expression given. Ignore, return self.';
                     return $self;
                 }
             } ( ( 0 .. @{ @{ $self->{EXP_PARTS} }[2]->{DATA}[0] } - 1 ) );
@@ -2131,21 +2120,19 @@ sub find {
 
         if (
             ref( @{ $self->{EXP_PARTS} }[4] ) eq
-            'Lab::XPRESS::Data::XPRESS_dataset' )
-        {
+            'Lab::XPRESS::Data::XPRESS_dataset' ) {
             map {
                 if (
                     (
-                        my $len_4 =
-                        @{ @{ $self->{EXP_PARTS} }[4]->{DATA}[0][$_] }
+                        my $len_4
+                        = @{ @{ $self->{EXP_PARTS} }[4]->{DATA}[0][$_] }
                     ) != (
-                        my $len_2 =
-                          @{ @{ $self->{EXP_PARTS} }[2]->{DATA}[0][$_] }
+                        my $len_2
+                            = @{ @{ $self->{EXP_PARTS} }[2]->{DATA}[0][$_] }
                     )
-                  )
-                {
+                    ) {
                     warn
-'WARNING: unexpected values sub eval within the expression given. Ignore, return self.';
+                        'WARNING: unexpected values sub eval within the expression given. Ignore, return self.';
                     return $self;
                 }
             } ( ( 0 .. @{ @{ $self->{EXP_PARTS} }[2]->{DATA}[0] } - 1 ) );
@@ -2155,7 +2142,7 @@ sub find {
         my $selected_elements = $self->copy();
         @{ $selected_elements->{DATA} } = ();
 
-        for ( my $block = 0 ; $block <= $self->{BLOCKS} ; $block++ ) {
+        for ( my $block = 0; $block <= $self->{BLOCKS}; $block++ ) {
             my $index = 0;
             my @indices;
             my $temp;
@@ -2165,54 +2152,51 @@ sub find {
                 ref( @{ $self->{EXP_PARTS} }[0] ) eq
                 'Lab::XPRESS::Data::XPRESS_dataset'
                 and ref( @{ $self->{EXP_PARTS} }[4] ) eq
-                'Lab::XPRESS::Data::XPRESS_dataset' )
-            {
+                'Lab::XPRESS::Data::XPRESS_dataset' ) {
                 @indices = grep {
                     $temp = $_;
                     $_    = $index;
                     $index++;
                     eval @{ @{ $self->{EXP_PARTS} }[0]->{DATA}[0][$block] }
-                      [$index]
-                      . @{ $self->{EXP_PARTS} }[1]
-                      . $temp
-                      and eval $temp
-                      . @{ $self->{EXP_PARTS} }[3]
-                      . @{ @{ $self->{EXP_PARTS} }[4]->{DATA}[0][$block] }
-                      [$index];
+                        [$index]
+                        . @{ $self->{EXP_PARTS} }[1]
+                        . $temp
+                        and eval $temp
+                        . @{ $self->{EXP_PARTS} }[3]
+                        . @{ @{ $self->{EXP_PARTS} }[4]->{DATA}[0][$block] }
+                        [$index];
                 } (@block);
             }
             elsif (
                 ref( @{ $self->{EXP_PARTS} }[0] ) eq
-                'Lab::XPRESS::Data::XPRESS_dataset' )
-            {
+                'Lab::XPRESS::Data::XPRESS_dataset' ) {
                 @indices = grep {
                     $temp = $_;
                     $_    = $index;
                     $index++;
                     eval @{ @{ $self->{EXP_PARTS} }[0]->{DATA}[0][$block] }
-                      [$index]
-                      . @{ $self->{EXP_PARTS} }[1]
-                      . $temp
-                      and eval $temp
-                      . @{ $self->{EXP_PARTS} }[3]
-                      . @{ $self->{EXP_PARTS} }[4];
+                        [$index]
+                        . @{ $self->{EXP_PARTS} }[1]
+                        . $temp
+                        and eval $temp
+                        . @{ $self->{EXP_PARTS} }[3]
+                        . @{ $self->{EXP_PARTS} }[4];
                 } (@block);
             }
             elsif (
                 ref( @{ $self->{EXP_PARTS} }[4] ) eq
-                'Lab::XPRESS::Data::XPRESS_dataset' )
-            {
+                'Lab::XPRESS::Data::XPRESS_dataset' ) {
                 @indices = grep {
                     $temp = $_;
                     $_    = $index;
                     $index++;
                     eval @{ $self->{EXP_PARTS} }[0]
-                      . @{ $self->{EXP_PARTS} }[1]
-                      . $temp
-                      and eval $temp
-                      . @{ $self->{EXP_PARTS} }[3]
-                      . @{ @{ $self->{EXP_PARTS} }[4]->{DATA}[0][$block] }
-                      [$index];
+                        . @{ $self->{EXP_PARTS} }[1]
+                        . $temp
+                        and eval $temp
+                        . @{ $self->{EXP_PARTS} }[3]
+                        . @{ @{ $self->{EXP_PARTS} }[4]->{DATA}[0][$block] }
+                        [$index];
                 } (@block);
             }
             else {
@@ -2221,11 +2205,11 @@ sub find {
                     $_    = $index;
                     $index++;
                     eval @{ $self->{EXP_PARTS} }[0]
-                      . @{ $self->{EXP_PARTS} }[1]
-                      . $temp
-                      and eval $temp
-                      . @{ $self->{EXP_PARTS} }[3]
-                      . @{ $self->{EXP_PARTS} }[4];
+                        . @{ $self->{EXP_PARTS} }[1]
+                        . $temp
+                        and eval $temp
+                        . @{ $self->{EXP_PARTS} }[3]
+                        . @{ $self->{EXP_PARTS} }[4];
                 } (@block);
             }
 
@@ -2260,7 +2244,7 @@ sub replace {
     if ( ref($self_re) eq 'Lab::XPRESS::Data::XPRESS_dataset' ) {
         if ( not( my $len = @{ $self_re->{EXP_PARTS} } ) == 1 ) {
             warn
-"WARNING: in sub 'replace' no well defined replace-data given. Ignor replace command.";
+                "WARNING: in sub 'replace' no well defined replace-data given. Ignor replace command.";
             return $self;
         }
 
@@ -2274,15 +2258,15 @@ sub replace {
 
     # replace selected data:
 
-    for ( my $block = 0 ; $block <= $self->{BLOCKS} ; $block++ ) {
-        for ( my $c = 0 ; $c < ( my $len = @{ $self->{DATA} } ) ; $c++ ) {
+    for ( my $block = 0; $block <= $self->{BLOCKS}; $block++ ) {
+        for ( my $c = 0; $c < ( my $len = @{ $self->{DATA} } ); $c++ ) {
 
             # replace data are of type Lab::XPRESS::Data::XPRESS_dataset:
             if ( ref($self_re) eq 'Lab::XPRESS::Data::XPRESS_dataset' ) {
                 map {
                     print $_. "\n";
-                    $self->{DATA}[$c][$block][$_] =
-                      $self_re->{DATA}[$c][$block][$_];
+                    $self->{DATA}[$c][$block][$_]
+                        = $self_re->{DATA}[$c][$block][$_];
                 } ( @{ $selection[$block] } );
             }
 
@@ -2310,7 +2294,7 @@ sub expression {
         }
         else {
             warn
-"WARNING in sub expression: No expression given. Ignor and return self";
+                "WARNING in sub expression: No expression given. Ignor and return self";
             return $self;
         }
     }
@@ -2319,7 +2303,8 @@ sub expression {
         $self->{EXPRESSION} = $expression;
         @{ $self->{EXP_PARTS} } = ();
     }
-    $expression =~ s/\s+//g; #removes all whitespaces within $self->{EXPRESSION}
+    $expression
+        =~ s/\s+//g;    #removes all whitespaces within $self->{EXPRESSION}
     $self->{EXPRESSION} = $expression;
 
     if ( $expression =~ /(^[+-]?[0-9.eE\(\{\[\)\]\}]+$)/ ) {
@@ -2339,11 +2324,10 @@ sub expression {
         # repeat for expressions like 0 <= x < 10
         my $i = 0;
         for (
-            my $part = @{ $self->{EXP_PARTS} }[$i] ;
-            $i < ( my $len = @{ $self->{EXP_PARTS} } ) ;
+            my $part = @{ $self->{EXP_PARTS} }[$i];
+            $i < ( my $len = @{ $self->{EXP_PARTS} } );
             $i++
-          )
-        {
+            ) {
             $part = @{ $self->{EXP_PARTS} }[$i];
             if ( $part =~ /(.+)(>=|<=|<|>|==|!=)(.+)/ ) {
                 @{ $self->{EXP_PARTS} }[$i] = $1;
@@ -2367,17 +2351,15 @@ sub expression {
 
     my $n = 0;
     for (
-        my $part = @{ $self->{EXP_PARTS} }[$i] ;
-        $i < ( my $len = @{ $self->{EXP_PARTS} } ) ;
+        my $part = @{ $self->{EXP_PARTS} }[$i];
+        $i < ( my $len = @{ $self->{EXP_PARTS} } );
         $i++
-      )
-    {
+        ) {
         $part = @{ $self->{EXP_PARTS} }[$i];
 
-        if ( $part =~
-/(.*[^0-9-+.])?([+-]?([0-9]+)(\.[0-9]+)?(e|E)([+-]?[0-9]+))([^0-9].*)?/
-          )
-        {
+        if ( $part
+            =~ /(.*[^0-9-+.])?([+-]?([0-9]+)(\.[0-9]+)?(e|E)([+-]?[0-9]+))([^0-9].*)?/
+            ) {
             my $r1 = $1;
             my $r2 = $2;
             my $r7 = $7;
@@ -2392,10 +2374,9 @@ sub expression {
             @{ $self->{EXP_PARTS} }[$i] = $part;
             $i -= 1;
         }
-        elsif ( $part =~
-/(.+)?(1\/col\[([^\(\[\{\)\]\}]+)\]|1\/col\(([^\(\[\{\)\]\}]+)\)|1\/col\{([^\(\[\{\)\]\}]+)\})(.+)?/
-          )
-        {
+        elsif ( $part
+            =~ /(.+)?(1\/col\[([^\(\[\{\)\]\}]+)\]|1\/col\(([^\(\[\{\)\]\}]+)\)|1\/col\{([^\(\[\{\)\]\}]+)\})(.+)?/
+            ) {
             my $x = -1;
             my $y;
             if    ( defined $3 ) { $y = $3; }
@@ -2408,10 +2389,9 @@ sub expression {
             @{ $self->{EXP_PARTS} }[$i] = $part;
             $i -= 1;
         }
-        elsif ( $part =~
-/(.+)?(col\[([^\(\[\{\)\]\}]+)\]|col\(([^\(\[\{\)\]\}]+)\)|col\{([^\(\[\{\)\]\}]+)\})(.+)?/
-          )
-        {
+        elsif ( $part
+            =~ /(.+)?(col\[([^\(\[\{\)\]\}]+)\]|col\(([^\(\[\{\)\]\}]+)\)|col\{([^\(\[\{\)\]\}]+)\})(.+)?/
+            ) {
             my $parameter;
             if    ( defined $3 ) { $parameter = $3; }
             elsif ( defined $4 ) { $parameter = $4; }
@@ -2423,10 +2403,9 @@ sub expression {
             @{ $self->{EXP_PARTS} }[$i] = $part;
             $i -= 1;
         }
-        elsif ( $part =~
-/(.+)?(sin\[([^\(\[\{\)\]\}]+)\]|sin\(([^\(\[\{\)\]\}]+)\)|sin\{([^\(\[\{\)\]\}]+)\})(.+)?/
-          )
-        {
+        elsif ( $part
+            =~ /(.+)?(sin\[([^\(\[\{\)\]\}]+)\]|sin\(([^\(\[\{\)\]\}]+)\)|sin\{([^\(\[\{\)\]\}]+)\})(.+)?/
+            ) {
             my $parameter;
             if    ( defined $3 ) { $parameter = $3; }
             elsif ( defined $4 ) { $parameter = $4; }
@@ -2437,10 +2416,9 @@ sub expression {
             @{ $self->{EXP_PARTS} }[$i] = $part;
             $i -= 1;
         }
-        elsif ( $part =~
-/(.+)?(cos\[([^\(\[\{\)\]\}]+)\]|cos\(([^\(\[\{\)\]\}]+)\)|cos\{([^\(\[\{\)\]\}]+)\})(.+)?/
-          )
-        {
+        elsif ( $part
+            =~ /(.+)?(cos\[([^\(\[\{\)\]\}]+)\]|cos\(([^\(\[\{\)\]\}]+)\)|cos\{([^\(\[\{\)\]\}]+)\})(.+)?/
+            ) {
             my $parameter;
             if    ( defined $3 ) { $parameter = $3; }
             elsif ( defined $4 ) { $parameter = $4; }
@@ -2451,10 +2429,9 @@ sub expression {
             @{ $self->{EXP_PARTS} }[$i] = $part;
             $i -= 1;
         }
-        elsif ( $part =~
-/(.+)?(tan\[([^\(\[\{\)\]\}]+)\]|tan\(([^\(\[\{\)\]\}]+)\)|tan\{([^\(\[\{\)\]\}]+)\})(.+)?/
-          )
-        {
+        elsif ( $part
+            =~ /(.+)?(tan\[([^\(\[\{\)\]\}]+)\]|tan\(([^\(\[\{\)\]\}]+)\)|tan\{([^\(\[\{\)\]\}]+)\})(.+)?/
+            ) {
             my $parameter;
             if    ( defined $3 ) { $parameter = $3; }
             elsif ( defined $4 ) { $parameter = $4; }
@@ -2465,10 +2442,9 @@ sub expression {
             @{ $self->{EXP_PARTS} }[$i] = $part;
             $i -= 1;
         }
-        elsif ( $part =~
-/(.+)?(abs\[([^\(\[\{\)\]\}]+)\]|abs\(([^\(\[\{\)\]\}]+)\)|abs\{([^\(\[\{\)\]\}]+)\})(.+)?/
-          )
-        {
+        elsif ( $part
+            =~ /(.+)?(abs\[([^\(\[\{\)\]\}]+)\]|abs\(([^\(\[\{\)\]\}]+)\)|abs\{([^\(\[\{\)\]\}]+)\})(.+)?/
+            ) {
             my $parameter;
             if    ( defined $3 ) { $parameter = $3; }
             elsif ( defined $4 ) { $parameter = $4; }
@@ -2479,10 +2455,9 @@ sub expression {
             @{ $self->{EXP_PARTS} }[$i] = $part;
             $i -= 1;
         }
-        elsif ( $part =~
-/(.+)?(sgn\[([^\(\[\{\)\]\}]+)\]|sgn\(([^\(\[\{\)\]\}]+)\)|sgn\{([^\(\[\{\)\]\}]+)\})(.+)?/
-          )
-        {
+        elsif ( $part
+            =~ /(.+)?(sgn\[([^\(\[\{\)\]\}]+)\]|sgn\(([^\(\[\{\)\]\}]+)\)|sgn\{([^\(\[\{\)\]\}]+)\})(.+)?/
+            ) {
             my $parameter;
             if    ( defined $3 ) { $parameter = $3; }
             elsif ( defined $4 ) { $parameter = $4; }
@@ -2493,10 +2468,9 @@ sub expression {
             @{ $self->{EXP_PARTS} }[$i] = $part;
             $i -= 1;
         }
-        elsif ( $part =~
-/(.+)?(exp\[([^\(\[\{\)\]\}]+)\]|exp\(([^\(\[\{\)\]\}]+)\)|exp\{([^\(\[\{\)\]\}]+)\})(.+)?/
-          )
-        {
+        elsif ( $part
+            =~ /(.+)?(exp\[([^\(\[\{\)\]\}]+)\]|exp\(([^\(\[\{\)\]\}]+)\)|exp\{([^\(\[\{\)\]\}]+)\})(.+)?/
+            ) {
             my $parameter;
             if    ( defined $3 ) { $parameter = $3; }
             elsif ( defined $4 ) { $parameter = $4; }
@@ -2507,10 +2481,9 @@ sub expression {
             @{ $self->{EXP_PARTS} }[$i] = $part;
             $i -= 1;
         }
-        elsif ( $part =~
-/(.+)?(ln\[([^\(\[\{\)\]\}]+)\]|ln\(([^\(\[\{\)\]\}]+)\)|ln\{([^\(\[\{\)\]\}]+)\})(.+)?/
-          )
-        {
+        elsif ( $part
+            =~ /(.+)?(ln\[([^\(\[\{\)\]\}]+)\]|ln\(([^\(\[\{\)\]\}]+)\)|ln\{([^\(\[\{\)\]\}]+)\})(.+)?/
+            ) {
             my $parameter;
             if    ( defined $3 ) { $parameter = $3; }
             elsif ( defined $4 ) { $parameter = $4; }
@@ -2521,10 +2494,9 @@ sub expression {
             @{ $self->{EXP_PARTS} }[$i] = $part;
             $i -= 1;
         }
-        elsif ( $part =~
-/(.+)?(log\[([^\(\[\{\)\]\}]+)\]|log\(([^\(\[\{\)\]\}]+)\)|log\{([^\(\[\{\)\]\}]+)\})(.+)?/
-          )
-        {
+        elsif ( $part
+            =~ /(.+)?(log\[([^\(\[\{\)\]\}]+)\]|log\(([^\(\[\{\)\]\}]+)\)|log\{([^\(\[\{\)\]\}]+)\})(.+)?/
+            ) {
             my $parameter;
             if    ( defined $3 ) { $parameter = $3; }
             elsif ( defined $4 ) { $parameter = $4; }
@@ -2535,10 +2507,9 @@ sub expression {
             @{ $self->{EXP_PARTS} }[$i] = $part;
             $i -= 1;
         }
-        elsif ( $part =~
-/(.+)?(sqrt\[([^\(\[\{\)\]\}]+)\]|sqrt\(([^\(\[\{\)\]\}]+)\)|sqrt\{([^\(\[\{\)\]\}]+)\})(.+)?/
-          )
-        {
+        elsif ( $part
+            =~ /(.+)?(sqrt\[([^\(\[\{\)\]\}]+)\]|sqrt\(([^\(\[\{\)\]\}]+)\)|sqrt\{([^\(\[\{\)\]\}]+)\})(.+)?/
+            ) {
             my $parameter;
             if    ( defined $3 ) { $parameter = $3; }
             elsif ( defined $4 ) { $parameter = $4; }
@@ -2549,10 +2520,9 @@ sub expression {
             @{ $self->{EXP_PARTS} }[$i] = $part;
             $i -= 1;
         }
-        elsif ( $part =~
-/(.+)?(yEx\[([^\(\[\{\)\]\}]+)\,([^\(\[\{\)\]\}]+)\]|yEx\(([^\(\[\{\)\]\}]+)\,([^\(\[\{\)\]\}]+)\)|yEx\{([^\(\[\{\)\]\}]+)\,([^\(\[\{\)\]\}]+)\})(.+)?/
-          )
-        {
+        elsif ( $part
+            =~ /(.+)?(yEx\[([^\(\[\{\)\]\}]+)\,([^\(\[\{\)\]\}]+)\]|yEx\(([^\(\[\{\)\]\}]+)\,([^\(\[\{\)\]\}]+)\)|yEx\{([^\(\[\{\)\]\}]+)\,([^\(\[\{\)\]\}]+)\})(.+)?/
+            ) {
             my $x;
             my $y;
             if    ( defined $3 ) { $y = $3; $x = $4; }
@@ -2582,11 +2552,10 @@ sub expression {
     # look for brackets:
     my $i = 0;
     for (
-        my $part = @{ $self->{EXP_PARTS} }[$i] ;
-        $i < ( my $len = @{ $self->{EXP_PARTS} } ) ;
+        my $part = @{ $self->{EXP_PARTS} }[$i];
+        $i < ( my $len = @{ $self->{EXP_PARTS} } );
         $i++
-      )
-    {
+        ) {
         $part = @{ $self->{EXP_PARTS} }[$i];
         if ( $part =~ /(.+)?(\(.+\))(.+)?/ ) {
             if ( defined $1 ) {
@@ -2610,20 +2579,19 @@ sub expression {
     my $i = 0;
     my $j = 0;
     for (
-        my $part = @{ $self->{EXP_PARTS} }[$i] ;
-        $i < ( my $len = @{ $self->{EXP_PARTS} } - 1 ) ;
+        my $part = @{ $self->{EXP_PARTS} }[$i];
+        $i < ( my $len = @{ $self->{EXP_PARTS} } - 1 );
         $i++
-      )
-    {
+        ) {
         $part = @{ $self->{EXP_PARTS} }[$i];
         if ( $part =~ /^(>=|<=|<|>|==|!=|=)$/ ) {
             splice @{ $self->{EXP_PARTS} }, $j, 0,
-              join( '', splice @{ $self->{EXP_PARTS} }, $j, ( $i - $j ) );
+                join( '', splice @{ $self->{EXP_PARTS} }, $j, ( $i - $j ) );
             $j += 2;
         }
     }
     splice @{ $self->{EXP_PARTS} }, $j, 0,
-      join( '', splice @{ $self->{EXP_PARTS} }, $j, ( $i - $j + 1 ) );
+        join( '', splice @{ $self->{EXP_PARTS} }, $j, ( $i - $j + 1 ) );
 
     # the evaluated EXPRESSION can be found in @{$self->{EXP_PARTS}}[0..4];
 
@@ -2654,10 +2622,9 @@ sub eval {
     elsif ( ( my $len = @{ $self->{EXP_PARTS} } ) == 3 ) {
         if ( @{ $self->{EXP_PARTS} }[1] eq '=' ) {
             $self->{EXPRESSION} =~ /(.+)(=)(.+)/;
-            if ( $1 =~
-/(.+)?(col\[([^\(\[\{\)\]\}]+)\]|col\(([^\(\[\{\)\]\}]+)\)|col\{([^\(\[\{\)\]\}]+)\})(.+)?/
-              )
-            {
+            if ( $1
+                =~ /(.+)?(col\[([^\(\[\{\)\]\}]+)\]|col\(([^\(\[\{\)\]\}]+)\)|col\{([^\(\[\{\)\]\}]+)\})(.+)?/
+                ) {
                 # get columnnumber for result column:
                 my $result_column;
                 if    ( defined $3 ) { $result_column = $3; }
@@ -2672,13 +2639,13 @@ sub eval {
 
                 # set result data to self:
                 if ( @{ $self->{EXP_PARTS} }[2] =~ /EP([0-9]+)/ ) {
-                    @{ $self->{EXP_PARTS} }[0] =
-                      $self->set( @{ $self->{EVAL_PARTS} }[$1], $i );
+                    @{ $self->{EXP_PARTS} }[0]
+                        = $self->set( @{ $self->{EVAL_PARTS} }[$1], $i );
                     @{ $self->{COL_NAMES} }[$i] = $result_column;
                 }
                 else {
-                    @{ $self->{EXP_PARTS} }[0] =
-                      $self->set( @{ $self->{EXP_PARTS} }[2], $i );
+                    @{ $self->{EXP_PARTS} }[0]
+                        = $self->set( @{ $self->{EXP_PARTS} }[2], $i );
                     @{ $self->{COL_NAMES} }[$i] = $result_column;
                 }
 
@@ -2691,9 +2658,9 @@ sub eval {
                 }
                 else {
                     warn "WARNING: cannot set '"
-                      . ( @{ $self->{EXP_PARTS} }[0] )
-                      . "' with '"
-                      . ( @{ $self->{EXP_PARTS} }[2] ) . "'!\t";
+                        . ( @{ $self->{EXP_PARTS} }[0] )
+                        . "' with '"
+                        . ( @{ $self->{EXP_PARTS} }[2] ) . "'!\t";
                 }
                 return @{ $self->{EVAL_PARTS} }[2];
             }
@@ -2706,22 +2673,27 @@ sub eval {
             my @indices = $self->find();
 
             #map {map {print $_."\t";} (@{$_}); print "\n";} (@indices);
-            for ( my $block = 0 ; $block <= $self->{BLOCKS} ; $block++ ) {
-                for ( my $c = 0 ; $c < ( my $len = @{ $self->{DATA} } ) ; $c++ )
-                {
+            for ( my $block = 0; $block <= $self->{BLOCKS}; $block++ ) {
+                for (
+                    my $c = 0;
+                    $c < ( my $len = @{ $self->{DATA} } );
+                    $c++
+                    ) {
                     if ( ( my $len = @{ $indices[$block] } ) == 0 ) {
                         @{ $selected_elements->{DATA}[$c][$block] } = ();
                     }
                     else {
                         map {
                             push(
-                                @{ $selected_elements->{DATA}[$c][$block] },
+                                @{
+                                    $selected_elements->{DATA}[$c][$block]
+                                },
                                 @{ $self->{DATA}[$c][$block] }[$_]
                             );
                         } ( @{ $indices[$block] } );
                     }
 
-               #map {print $_."\t"} (@{$selected_elements->{DATA}[$c][$block]});
+                    #map {print $_."\t"} (@{$selected_elements->{DATA}[$c][$block]});
                 }
             }
 
@@ -2729,7 +2701,7 @@ sub eval {
         }
         else {
             warn
-'WARNING: unexpected values sub eval within the expression given. Ignore, return self.';
+                'WARNING: unexpected values sub eval within the expression given. Ignore, return self.';
             return $self;
         }
     }
@@ -2740,11 +2712,11 @@ sub eval {
 
         my @indices = $self->find();
 
-        for ( my $block = 0 ; $block <= $self->{BLOCKS} ; $block++ ) {
+        for ( my $block = 0; $block <= $self->{BLOCKS}; $block++ ) {
 
-#my @indices =  grep{ $temp = $_; $_ = $index; $index++; eval @{@{$self->{EXP_PARTS}}[0]->{DATA}[0][$block]}[$index].@{$self->{EXP_PARTS}}[1].$temp and eval $temp.@{$self->{EXP_PARTS}}[3].@{@{$self->{EXP_PARTS}}[4]->{DATA}[0][$block]}[$index]; } (@block);
-#map {print "index = ".$_."\n";} (@indices);
-            for ( my $c = 0 ; $c < ( my $len = @{ $self->{DATA} } ) ; $c++ ) {
+            #my @indices =  grep{ $temp = $_; $_ = $index; $index++; eval @{@{$self->{EXP_PARTS}}[0]->{DATA}[0][$block]}[$index].@{$self->{EXP_PARTS}}[1].$temp and eval $temp.@{$self->{EXP_PARTS}}[3].@{@{$self->{EXP_PARTS}}[4]->{DATA}[0][$block]}[$index]; } (@block);
+            #map {print "index = ".$_."\n";} (@indices);
+            for ( my $c = 0; $c < ( my $len = @{ $self->{DATA} } ); $c++ ) {
                 if ( ( my $len = @{ $indices[$block] } ) == 0 ) {
                     @{ $selected_elements->{DATA}[$c][$block] } = ();
                 }
@@ -2757,7 +2729,7 @@ sub eval {
                     } ( @{ $indices[$block] } );
                 }
 
-               #map {print $_."\t"} (@{$selected_elements->{DATA}[$c][$block]});
+                #map {print $_."\t"} (@{$selected_elements->{DATA}[$c][$block]});
             }
         }
 
@@ -2771,7 +2743,7 @@ sub calc {
 
     if ( not @{ $self->{EXP_PARTS} }[0] ) {
         warn
-"WARNING in sub calc: No expression to calculate given. Ignor and return self.";
+            "WARNING in sub calc: No expression to calculate given. Ignor and return self.";
         return $self;
     }
 
@@ -2782,17 +2754,17 @@ sub calc {
     # evaluate parts:
     my $i = 0;
     for (
-        my $part = @{ $self->{EXP_PARTS} }[$i] ;
-        $i < ( my $len = @{ $self->{EXP_PARTS} } ) ;
+        my $part = @{ $self->{EXP_PARTS} }[$i];
+        $i < ( my $len = @{ $self->{EXP_PARTS} } );
         $i++
-      )
-    {
+        ) {
         $part = @{ $self->{EXP_PARTS} }[$i];
         while ( $part =~ /(.+)(\+|-|\*|\/|\%)(.+)/ ) {
             $part = @{ $self->{EXP_PARTS} }[$i];
 
             # CASE *:
-            if ( $part =~ /((.+)(\+|-|\*|\/))?(.+)\*(.+)((\+|-|\*|\/)(.+))?/ ) {
+            if ( $part =~ /((.+)(\+|-|\*|\/))?(.+)\*(.+)((\+|-|\*|\/)(.+))?/ )
+            {
 
                 # replace $4 and $5 by evaluated expression if defined.
                 my $ep4 = $4;
@@ -2829,8 +2801,8 @@ sub calc {
 
                 #print $ep4."\n";
                 $part =~ /((.+)(\+|-|\*|\/))?(.+)\*(.+)((\+|-|\*|\/)(.+))?/;
-                @{ $self->{EXP_PARTS} }[$i] =
-                  $1 . $2 . $3 . $ep4 . $6 . $7 . $8;
+                @{ $self->{EXP_PARTS} }[$i]
+                    = $1 . $2 . $3 . $ep4 . $6 . $7 . $8;
             }
 
             # CASE /:
@@ -2872,8 +2844,8 @@ sub calc {
 
                 #print $ep4."\n";
                 $part =~ /((.+)(\+|-|\*|\/))?(.+)\/(.+)((\+|-|\*|\/)(.+))?/;
-                @{ $self->{EXP_PARTS} }[$i] =
-                  $1 . $2 . $3 . $ep4 . $6 . $7 . $8;
+                @{ $self->{EXP_PARTS} }[$i]
+                    = $1 . $2 . $3 . $ep4 . $6 . $7 . $8;
             }
 
             # CASE +:
@@ -2915,8 +2887,8 @@ sub calc {
 
                 #print $ep4."\n";
                 $part =~ /((.+)(\+|-|\*|\/))?(.+)\+(.+)((\+|-|\*|\/)(.+))?/;
-                @{ $self->{EXP_PARTS} }[$i] =
-                  $1 . $2 . $3 . $ep4 . $6 . $7 . $8;
+                @{ $self->{EXP_PARTS} }[$i]
+                    = $1 . $2 . $3 . $ep4 . $6 . $7 . $8;
             }
 
             # CASE -:
@@ -2958,8 +2930,8 @@ sub calc {
 
                 #print $ep4."\n";
                 $part =~ /((.+)(\+|-|\*|\/))?(.+)\-(.+)((\+|-|\*|\/)(.+))?/;
-                @{ $self->{EXP_PARTS} }[$i] =
-                  $1 . $2 . $3 . $ep4 . $6 . $7 . $8;
+                @{ $self->{EXP_PARTS} }[$i]
+                    = $1 . $2 . $3 . $ep4 . $6 . $7 . $8;
             }
             elsif (
                 $part =~ /((.+)(\+|-|\*|\/))?(.+)\%(.+)((\+|-|\*|\/)(.+))?/ )
@@ -2999,8 +2971,8 @@ sub calc {
 
                 #print $ep4."\n";
                 $part =~ /((.+)(\+|-|\*|\/))?(.+)\%(.+)((\+|-|\*|\/)(.+))?/;
-                @{ $self->{EXP_PARTS} }[$i] =
-                  $1 . $2 . $3 . $ep4 . $6 . $7 . $8;
+                @{ $self->{EXP_PARTS} }[$i]
+                    = $1 . $2 . $3 . $ep4 . $6 . $7 . $8;
             }
         }
     }
@@ -3039,7 +3011,7 @@ sub offset_correction_idc {
     $i = $self->get_colnum($i);
     if ( $v == -1 or $i == -1 ) {
         warn
-          "WARNING: invalid parameters given for sub offset_correction_idc(). ";
+            "WARNING: invalid parameters given for sub offset_correction_idc(). ";
         return $self;
     }
 
@@ -3073,7 +3045,7 @@ sub offset_correction_idc_v2 {
     $i = $self->get_colnum($i);
     if ( $v == -1 or $i == -1 ) {
         warn
-          "WARNING: invalid parameters given for sub offset_correction_idc(). ";
+            "WARNING: invalid parameters given for sub offset_correction_idc(). ";
         return $self;
     }
 
@@ -3119,9 +3091,8 @@ sub my_smoothing {
 
     foreach my $block ( 0 .. $self->{BLOCKS} - 1 ) {
         my @values;
-        foreach
-          my $i ( 0 .. ( my $lines = @{ $self->{DATA}[$col][$block] } ) - 1 )
-        {
+        foreach my $i (
+            0 .. ( my $lines = @{ $self->{DATA}[$col][$block] } ) - 1 ) {
             if ( $i < $nn and $i < ( $lines - $nn - 1 ) ) {
                 push( @values, $self->{DATA}[$col][$block][$i] );
             }
@@ -3164,7 +3135,7 @@ sub differentiate_numerical {
     $i = $self->get_colnum($i);
     if ( $v == -1 or $i == -1 ) {
         warn
-"WARNING: invalid parameters given for sub differentiate_numerical(). ";
+            "WARNING: invalid parameters given for sub differentiate_numerical(). ";
         return $self;
     }
 
@@ -3219,7 +3190,7 @@ sub diff_num {
     my @y_s;
     foreach my $i ( 0 .. ( my $length = @y_sorted ) - 1 ) {
         my $y_s = 0;
-        for ( my $n = $i - $N ; $n <= $i + $N ; $n++ ) {
+        for ( my $n = $i - $N; $n <= $i + $N; $n++ ) {
             if ( $n >= 0 and $n <= ( my $length = @y_sorted ) - 1 ) {
                 $y_s += $y_sorted[$n];
             }
@@ -3271,7 +3242,7 @@ sub offset_correction_vdc {
     $i = $self->get_colnum($i);
     if ( $v == -1 or $i == -1 ) {
         warn
-          "WARNING: invalid parameters given for sub offset_correction_vdc(). ";
+            "WARNING: invalid parameters given for sub offset_correction_vdc(). ";
         return $self;
     }
 
@@ -3307,7 +3278,7 @@ sub mask_bad_datapoints_around_zero {
     $x = $self->get_colnum($x);
     if ( $x == -1 ) {
         warn
-          "WARNING: invalid parameters given for sub offset_correction_vdc(). ";
+            "WARNING: invalid parameters given for sub offset_correction_vdc(). ";
         return $self;
     }
     $self->eval("col[temp] = abs(col[$x])");
@@ -3320,8 +3291,10 @@ sub mask_bad_datapoints_around_zero {
         $stat->add_data( $self->{DATA}[$temp][$block] );
         my $mindex = $stat->mindex();
         foreach my $column ( "R_dc", "G_dc" ) {
-            splice( @{ $self->{DATA}[ $self->get_colnum($column) ][$block] },
-                $mindex, 1, '?' );
+            splice(
+                @{ $self->{DATA}[ $self->get_colnum($column) ][$block] },
+                $mindex, 1, '?'
+            );
         }
     }
     $self->delete_c($temp);

@@ -50,8 +50,8 @@ sub new {
     $self->{plot_count} = @plots;
 
     # create file-handle:
-    $self->{filenamebase} =
-      $self->create_folder( $self->{filenamebase}, $foldername );
+    $self->{filenamebase}
+        = $self->create_folder( $self->{filenamebase}, $foldername );
 
     $self->open_logger( $self->{filenamebase}, $self->{plots} );
     $self->{file} = $self->{filenamebase};
@@ -99,8 +99,8 @@ sub create_folder {
         closedir(DIR);
 
         $GLOBAL_PATH =~ s/\/$//;
-        $GLOBAL_FOLDER =
-          sprintf( "%s/%s_%03d", $GLOBAL_PATH, $foldername, $max_index );
+        $GLOBAL_FOLDER
+            = sprintf( "%s/%s_%03d", $GLOBAL_PATH, $foldername, $max_index );
 
         mkdir($GLOBAL_FOLDER);
 
@@ -119,7 +119,7 @@ sub create_InfoFile {
     my $self = shift;
 
     open( my $LOG, ">" . $GLOBAL_FOLDER . "/Config.txt" )
-      or die "cannot open Config.txt";
+        or die "cannot open Config.txt";
     print $LOG "Instrument Configuration\n";
     print $LOG "-" x 100, "\n\n";
     print $LOG $self->timestamp(), "\n";
@@ -127,8 +127,8 @@ sub create_InfoFile {
 
     foreach my $instrument ( @{Lab::Instrument::REGISTERED_INSTRUMENTS} ) {
         print $LOG $instrument->get_id() . " ( "
-          . $instrument->get_name()
-          . " )", "\n\n";
+            . $instrument->get_name()
+            . " )", "\n\n";
         print $LOG $instrument->sprint_config(), "\n";
         print $LOG "-" x 100, "\n\n";
     }
@@ -198,7 +198,8 @@ sub add_column {
         return $self->{COLUMNS};
     }
 
-    $self->{COLUMN_NAMES}{$col} = scalar( keys %{ $self->{COLUMN_NAMES} } ) + 1;
+    $self->{COLUMN_NAMES}{$col}
+        = scalar( keys %{ $self->{COLUMN_NAMES} } ) + 1;
     push( @{ $self->{COLUMNS} }, $col );
     $self->{NUMBER_OF_COLUMNS} += 1;
     $self->{logger}->{COLUMN_NAMES}      = $self->{COLUMN_NAMES};
@@ -221,8 +222,8 @@ sub add_plot {
         $plot->{'autosave'} = 'last';
     }
     push( @{ $self->{plots} }, $plot );
-    $self->{logger}->{COLUMN_NAMES} =
-      $self->{COLUMN_NAMES};    # refresh logger->column_names
+    $self->{logger}->{COLUMN_NAMES}
+        = $self->{COLUMN_NAMES};    # refresh logger->column_names
     my $plot_copy = dclone( \%{$plot} );
     $self->{logger}->add_plots($plot_copy);
     $self->{plot_count}++;
@@ -241,8 +242,8 @@ sub open_logger {
         my $plots_copy = dclone($plots);
     }
 
-    $self->{logger} =
-      new Lab::XPRESS::Data::XPRESS_logger( $filenamebase, $plots_copy );
+    $self->{logger}
+        = new Lab::XPRESS::Data::XPRESS_logger( $filenamebase, $plots_copy );
     $self->{logger}->{COLUMN_NAMES} = $self->{COLUMN_NAMES};
 }
 
@@ -335,12 +336,12 @@ sub end_loop {
     }
 
     my $delta_time = ( $self->{loop}->{t1} - $self->{loop}->{t0} )
-      ;    # + $self->{loop}->{overtime};
+        ;    # + $self->{loop}->{overtime};
     if ( $delta_time > $self->{loop}->{interval} ) {
         $self->{loop}->{overtime} = $delta_time - $self->{loop}->{interval};
         $delta_time = $self->{loop}->{interval};
         warn
-"WARNING: Measurement Loop takes more time ($self->{loop}->{overtime}) than specified by measurement interval ($self->{loop}->{interval}).\n";
+            "WARNING: Measurement Loop takes more time ($self->{loop}->{overtime}) than specified by measurement interval ($self->{loop}->{interval}).\n";
     }
     else {
         $self->{loop}->{overtime} = 0;
@@ -376,7 +377,7 @@ sub finish_measurement {
     my $self = shift;
 
     my $num_of_plots = @{ $self->{logger}->{plots} };
-    for ( my $i = 0 ; $i < $num_of_plots ; $i++ ) {
+    for ( my $i = 0; $i < $num_of_plots; $i++ ) {
 
         # close gnuplot-pipe:
         $self->{logger}->{plots}->[$i]->{plotter}->_stop_live_plot();
@@ -397,7 +398,8 @@ sub save_plot {
     if ( not defined $plot_index ) {
         $plot_index = 0;
     }
-    elsif ( $plot_index > ( my $num_plots = @{ $self->{logger}->{plots} } ) ) {
+    elsif ( $plot_index > ( my $num_plots = @{ $self->{logger}->{plots} } ) )
+    {
         warn "defined plotnumber $plot_index doesn't exist.";
     }
 
@@ -415,7 +417,7 @@ sub save_plot {
 
     $self->{logger}->{plots}->[$plot_index]->{plotter}->replot();
     $self->{logger}->{plots}->[$plot_index]->{plotter}
-      ->save_plot( $type, $filename );
+        ->save_plot( $type, $filename );
 
     return $self;
 
@@ -503,16 +505,18 @@ sub gnuplot_restart {
         if ( not defined $gpipe ) {
             $plot->{plotter} = new Lab::XPRESS::Data::XPRESS_plotter(
                 $self->{logger}->{filename}, $plot );
-            $plot->{plotter}->{ID}           = $i;
-            $plot->{plotter}->{FILENAME}     = $self->{logger}->{filename};
-            $plot->{plotter}->{COLUMN_NAMES} = $self->{logger}->{COLUMN_NAMES};
+            $plot->{plotter}->{ID}       = $i;
+            $plot->{plotter}->{FILENAME} = $self->{logger}->{filename};
+            $plot->{plotter}->{COLUMN_NAMES}
+                = $self->{logger}->{COLUMN_NAMES};
         }
         elsif ( not( my $result = print $gpipe "" ) ) {
             $plot->{plotter} = new Lab::XPRESS::Data::XPRESS_plotter(
                 $self->{logger}->{filename}, $plot );
-            $plot->{plotter}->{ID}           = $i;
-            $plot->{plotter}->{FILENAME}     = $self->{logger}->{filename};
-            $plot->{plotter}->{COLUMN_NAMES} = $self->{logger}->{COLUMN_NAMES};
+            $plot->{plotter}->{ID}       = $i;
+            $plot->{plotter}->{FILENAME} = $self->{logger}->{filename};
+            $plot->{plotter}->{COLUMN_NAMES}
+                = $self->{logger}->{COLUMN_NAMES};
         }
 
         $plot->{plotter}->init_gnuplot();
@@ -551,7 +555,8 @@ sub datazone {
     my $y_min;
     my $y_max;
 
-    my %plot = %{ $self->{logger}->{plots}->[$plot_index]->{plotter}->{plot} };
+    my %plot
+        = %{ $self->{logger}->{plots}->[$plot_index]->{plotter}->{plot} };
     if ( not defined $plot{'x-min'} ) {
         $x_min = $self->{logger}->{DATA}[ $plot{'x-axis'} - 1 ][0];
     }
@@ -577,7 +582,7 @@ sub datazone {
         $y_max = $plot{'y-max'};
     }
     $self->{logger}->{plots}->[$plot_index]->{plotter}
-      ->datazone( $x_min, $x_max, $y_min, $y_max, $left, $center, $right );
+        ->datazone( $x_min, $x_max, $y_min, $y_max, $left, $center, $right );
 
     return $self;
 

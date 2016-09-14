@@ -53,8 +53,7 @@ sub dump_ref {
 for my $method (
     qw/Clear Write Read Query BrutalRead LongQuery BrutalQuery
     timeout block_connection unblock_connection is_blocked/
-  )
-{
+    ) {
     around $method => sub {
         my $orig   = shift;
         my $self   = shift;

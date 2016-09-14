@@ -20,7 +20,7 @@ sub new {
         duration            => [],
         mode                => 'continuous',
         allowed_instruments =>
-          [ 'Lab::Instrument::PD11042', 'Lab::Instrument::ProStep4' ],
+            [ 'Lab::Instrument::PD11042', 'Lab::Instrument::ProStep4' ],
         allowed_sweep_modes => [ 'continuous', 'list', 'step' ],
         number_of_points    => [undef]
     };
@@ -78,19 +78,15 @@ sub exit_loop {
     if ( not $self->{config}->{instrument}->active() ) {
         if ( $self->{config}->{mode} =~ /step|list/ ) {
             if (
-                not
-                defined @{ $self->{config}->{points} }[ $self->{iterator} + 1 ]
-              )
-            {
+                not defined @{ $self->{config}->{points} }
+                [ $self->{iterator} + 1 ] ) {
                 return 1;
             }
         }
         if ( $self->{config}->{mode} eq 'continuous' ) {
             if (
-                not
-                defined @{ $self->{config}->{points} }[ $self->{sequence} + 2 ]
-              )
-            {
+                not defined @{ $self->{config}->{points} }
+                [ $self->{sequence} + 2 ] ) {
                 return 1;
             }
             $self->{sequence}++;

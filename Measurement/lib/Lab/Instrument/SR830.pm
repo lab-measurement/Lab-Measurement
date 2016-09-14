@@ -29,7 +29,7 @@ sub empty_buffer {
     my $self = shift;
     my ($times) = $self->_check_args( \@_, ['times'] );
     if ($times) {
-        for ( my $i = 0 ; $i < $times ; $i++ ) {
+        for ( my $i = 0; $i < $times; $i++ ) {
             eval { $self->read( brutal => 1 ) };
         }
     }
@@ -81,7 +81,7 @@ sub get_amplitude {
 
 sub set_sens {
 
-# set sensitivity to value equal to or greater than argument (in V), Range 2nV..1V
+    # set sensitivity to value equal to or greater than argument (in V), Range 2nV..1V
     my ( $self, $sens ) = @_;
     my $nr = 26;
 
@@ -161,7 +161,7 @@ sub set_sens_auto {
 
 sub set_tc {
 
-# set time constant to value greater than or equal to argument given, value in s
+    # set time constant to value greater than or equal to argument given, value in s
 
     my ( $self, $tc ) = @_;
     my $nr = 19;

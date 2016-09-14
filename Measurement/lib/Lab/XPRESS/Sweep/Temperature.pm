@@ -89,7 +89,7 @@ sub start_continuous_sweep {
     my $self = shift;
 
     print
-"Stabilize Temperature at upper limit (@{$self->{config}->{points}}[1] K) \n";
+        "Stabilize Temperature at upper limit (@{$self->{config}->{points}}[1] K) \n";
     $self->stabilize( @{ $self->{config}->{points} }[1] );
     print "Reached upper limit -> start cooling ... \n";
     $self->{config}->{instrument}->set_heatercontrol('MAN');
@@ -110,8 +110,8 @@ sub exit_loop {
 
     if ( $self->{config}->{mode} =~ /step|list/ ) {
         if (
-            not defined @{ $self->{config}->{points} }[ $self->{iterator} + 1 ]
-          )
+            not
+            defined @{ $self->{config}->{points} }[ $self->{iterator} + 1 ] )
         {
             return 1;
         }
@@ -188,12 +188,12 @@ sub stabilize {
 
     print "Stabilize Temperature at $setpoint K ... (Press 'c' to skip)\n\n";
 
-#my $line1  = "\rElapsed: $elapsed_time \n Current Temp INSTR: @T_INSTR[-1] \n Current Temp SENSOR: @T_SENSOR[-1] \n ";
-#my $line2 = "Current Median: @MEDIAN_INSTR[-1] \n Std. Dev. T Instr. : $INSTR_STD_DEV \n Std. Dev. T Sensor : $SENSOR_STD_DEV \n ";
-#my $line3 = "CRIT SETPOINT: $criterion_setpoint \n CRIT Std. Dev. T Instr. : $criterion_std_dev_INSTR \n CRIT Std. Dev. T Sensor : $criterion_std_dev_SENSOR \n ";
+    #my $line1  = "\rElapsed: $elapsed_time \n Current Temp INSTR: @T_INSTR[-1] \n Current Temp SENSOR: @T_SENSOR[-1] \n ";
+    #my $line2 = "Current Median: @MEDIAN_INSTR[-1] \n Std. Dev. T Instr. : $INSTR_STD_DEV \n Std. Dev. T Sensor : $SENSOR_STD_DEV \n ";
+    #my $line3 = "CRIT SETPOINT: $criterion_setpoint \n CRIT Std. Dev. T Instr. : $criterion_std_dev_INSTR \n CRIT Std. Dev. T Sensor : $criterion_std_dev_SENSOR \n ";
     print " Time    " . " | "
-      . " TEMP " . " | " . "SENS " . " | " . "MED_I" . " | " . "ISD " . " | "
-      . "SSD " . " | " . "C1" . " | " . "C2" . " | " . "C3" . " \n";
+        . " TEMP " . " | " . "SENS " . " | " . "MED_I" . " | " . "ISD "
+        . " | " . "SSD " . " | " . "C1" . " | " . "C2" . " | " . "C3" . " \n";
 
     ReadMode('cbreak');
     while (1) {
@@ -204,11 +204,10 @@ sub stabilize {
 
         if (
             scalar @T_INSTR > int(
-                $self->{config}->{stabilize_observation_time} /
-                  $self->{config}->{stabilize_measurement_interval}
+                      $self->{config}->{stabilize_observation_time}
+                    / $self->{config}->{stabilize_measurement_interval}
             )
-          )
-        {
+            ) {
             shift(@T_INSTR);
 
             my $stat = Statistics::Descriptive::Full->new();
@@ -219,11 +218,10 @@ sub stabilize {
 
             if (
                 scalar @MEDIAN_INSTR > int(
-                    $self->{config}->{stabilize_observation_time} /
-                      $self->{config}->{stabilize_measurement_interval}
+                          $self->{config}->{stabilize_observation_time}
+                        / $self->{config}->{stabilize_measurement_interval}
                 )
-              )
-            {
+                ) {
                 shift(@MEDIAN_INSTR);
             }
         }
@@ -234,11 +232,10 @@ sub stabilize {
 
             if (
                 scalar @T_SENSOR > int(
-                    $self->{config}->{stabilize_observation_time} /
-                      $self->{config}->{stabilize_measurement_interval}
+                          $self->{config}->{stabilize_observation_time}
+                        / $self->{config}->{stabilize_measurement_interval}
                 )
-              )
-            {
+                ) {
                 shift(@T_SENSOR);
 
                 my $stat = Statistics::Descriptive::Full->new();
@@ -249,11 +246,11 @@ sub stabilize {
 
                 if (
                     scalar @MEDIAN_SENSOR > int(
-                        $self->{config}->{stabilize_observation_time} /
-                          $self->{config}->{stabilize_measurement_interval}
+                              $self->{config}->{stabilize_observation_time}
+                            / $self->{config}
+                            ->{stabilize_measurement_interval}
                     )
-                  )
-                {
+                    ) {
                     shift(@MEDIAN_SENSOR);
                 }
             }
@@ -263,9 +260,8 @@ sub stabilize {
 
         if ( defined @MEDIAN_INSTR[-1] ) {
             if (
-                abs( $setpoint - @MEDIAN_INSTR[-1] ) <
-                $self->{config}->{tolerance_setpoint} )
-            {
+                abs( $setpoint - @MEDIAN_INSTR[-1] )
+                < $self->{config}->{tolerance_setpoint} ) {
                 $criterion_setpoint = 1;
             }
             else {
@@ -273,27 +269,26 @@ sub stabilize {
             }
         }
 
-# if (scalar @MEDIAN_INSTR >= int($self->{config}->{stabilize_observation_time}/$self->{config}->{stabilize_measurement_interval}) - 1) {
+        # if (scalar @MEDIAN_INSTR >= int($self->{config}->{stabilize_observation_time}/$self->{config}->{stabilize_measurement_interval}) - 1) {
 
         # my $stat = Statistics::Descriptive::Full->new();
         # $stat->add_data(\@MEDIAN_INSTR);
         # $MEDIAN_INSTR_MEDIAN = $stat->median();
 
-# if (abs($setpoint - $MEDIAN_INSTR_MEDIAN) < $self->{config}->{tolerance_setpoint}) {
-# $criterion_setpoint = 1;
-# }
-# else {
-# $criterion_setpoint = 0;
-# }
-# }
+        # if (abs($setpoint - $MEDIAN_INSTR_MEDIAN) < $self->{config}->{tolerance_setpoint}) {
+        # $criterion_setpoint = 1;
+        # }
+        # else {
+        # $criterion_setpoint = 0;
+        # }
+        # }
 
         if (
             scalar @T_INSTR >= int(
-                $self->{config}->{stabilize_observation_time} /
-                  $self->{config}->{stabilize_measurement_interval}
+                      $self->{config}->{stabilize_observation_time}
+                    / $self->{config}->{stabilize_measurement_interval}
             ) - 1
-          )
-        {
+            ) {
             my $stat = Statistics::Descriptive::Full->new();
             $stat->add_data( \@T_INSTR );
             $INSTR_STD_DEV = $stat->standard_deviation();
@@ -309,11 +304,10 @@ sub stabilize {
         if ( defined $self->{config}->{sensor} ) {
             if (
                 scalar @T_SENSOR >= int(
-                    $self->{config}->{stabilize_observation_time} /
-                      $self->{config}->{stabilize_measurement_interval}
+                          $self->{config}->{stabilize_observation_time}
+                        / $self->{config}->{stabilize_measurement_interval}
                 ) - 1
-              )
-            {
+                ) {
                 my $stat = Statistics::Descriptive::Full->new();
                 $stat->add_data( \@T_SENSOR );
                 $SENSOR_STD_DEV = $stat->standard_deviation();
@@ -329,31 +323,29 @@ sub stabilize {
 
         my $elapsed_time = $self->convert_time( time() - $time0 );
 
-        my $output =
-            $elapsed_time . " | "
-          . sprintf( "%3.3f", @T_INSTR[-1] ) . " | "
-          . sprintf( "%3.3f", @T_SENSOR[-1] ) . " | "
-          . sprintf( "%3.3f", @MEDIAN_INSTR[-1] ) . " | "
-          . sprintf( "%2.3f", $INSTR_STD_DEV ) . " | "
-          . sprintf( "%2.3f", $SENSOR_STD_DEV ) . " | "
-          . $criterion_setpoint . " | "
-          . $criterion_std_dev_INSTR . " | "
-          . $criterion_std_dev_SENSOR;
+        my $output
+            = $elapsed_time . " | "
+            . sprintf( "%3.3f", @T_INSTR[-1] ) . " | "
+            . sprintf( "%3.3f", @T_SENSOR[-1] ) . " | "
+            . sprintf( "%3.3f", @MEDIAN_INSTR[-1] ) . " | "
+            . sprintf( "%2.3f", $INSTR_STD_DEV ) . " | "
+            . sprintf( "%2.3f", $SENSOR_STD_DEV ) . " | "
+            . $criterion_setpoint . " | "
+            . $criterion_std_dev_INSTR . " | "
+            . $criterion_std_dev_SENSOR;
 
         print $output;
 
-        if ( $criterion_std_dev_INSTR *
-            $criterion_std_dev_SENSOR *
-            $criterion_setpoint )
-        {
+        if (  $criterion_std_dev_INSTR
+            * $criterion_std_dev_SENSOR
+            * $criterion_setpoint ) {
             last;
         }
         elsif (
             defined $self->{config}->{max_stabilization_time}
-            and
-            ( ( time() - $time0 ) >= $self->{config}->{max_stabilization_time} )
-          )
-        {
+            and ( ( time() - $time0 )
+                >= $self->{config}->{max_stabilization_time} )
+            ) {
             last;
             print "\n";
         }
@@ -388,10 +380,10 @@ sub convert_time {
     my $minutes = int( $time / 60 );
     my $seconds = $time % 60;
 
-    $time =
-        sprintf( "%02dh", $hours )
-      . sprintf( "%02dm", $minutes )
-      . sprintf( "%02ds", $seconds );
+    $time
+        = sprintf( "%02dh", $hours )
+        . sprintf( "%02dm", $minutes )
+        . sprintf( "%02ds", $seconds );
     return $time;
 }
 

@@ -1,14 +1,15 @@
-package Lab::MooseInstrument::SCPI::Sense::Frequency;
+package Lab::Moose::Instrument::SCPI::Sense::Frequency;
 
 use Moose::Role;
-use Lab::MooseInstrument::Cache;
-use Lab::MooseInstrument qw/validated_channel_getter validated_channel_setter/;
+use Lab::Moose::Instrument::Cache;
+use Lab::Moose::Instrument
+    qw/validated_channel_getter validated_channel_setter/;
 use MooseX::Params::Validate;
 use Carp;
 
 use namespace::autoclean;
 
-with 'Lab::MooseInstrument::SCPI::Sense::Sweep';
+with 'Lab::Moose::Instrument::SCPI::Sense::Sweep';
 
 our $VERSION = '3.520';
 
@@ -57,8 +58,10 @@ sub sense_frequency_linear_array {
 
     my $num_intervals = $num_points - 1;
 
-    if ( $num_intervals < 1 ) {
-        croak "non positive number of intervals";
+    if ( $num_intervals == 0 ) {
+
+        # Return a single point.
+        return [$start];
     }
 
     my @result;

@@ -39,7 +39,7 @@ sub go_to_sweep_start {
 
     # go to start:
     $self->{config}->{instrument}
-      ->set_frq( { value => @{ $self->{config}->{points} }[0] } );
+        ->set_frq( { value => @{ $self->{config}->{points} }[0] } );
 }
 
 sub start_continuous_sweep {
@@ -62,8 +62,8 @@ sub exit_loop {
 
     if ( $self->{config}->{mode} =~ /step|list/ ) {
         if (
-            not defined @{ $self->{config}->{points} }[ $self->{iterator} + 1 ]
-          )
+            not
+            defined @{ $self->{config}->{points} }[ $self->{iterator} + 1 ] )
         {
             return 1;
         }

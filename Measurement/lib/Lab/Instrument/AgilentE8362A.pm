@@ -32,7 +32,7 @@ sub new {
     my $self  = $class->SUPER::new(@_);
     $self->${ \( __PACKAGE__ . '::_construct' ) }(__PACKAGE__);
 
-# already called in Lab::Instrument::Source, but call it again to respect default values in local channel_defaultconfig
+    # already called in Lab::Instrument::Source, but call it again to respect default values in local channel_defaultconfig
     $self->configure( $self->config() );
 
     return $self;
@@ -100,7 +100,7 @@ sub get_value {
     my $self = shift;
     my ($tail) = $self->_check_args( \@_ );
     $self->write("FORMAT ASCII")
-      ;    #REAL 32 und REAL 64 als hexa-alternative, default:ASCII Ausgabe
+        ;    #REAL 32 und REAL 64 als hexa-alternative, default:ASCII Ausgabe
     return $self->query("CALC:DATA? FDATA");
 
 }

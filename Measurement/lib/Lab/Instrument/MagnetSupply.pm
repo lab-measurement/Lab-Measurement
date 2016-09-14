@@ -49,19 +49,19 @@ sub new {
     my $self  = $class->SUPER::new(@_);
     $self->${ \( __PACKAGE__ . '::_construct' ) }(__PACKAGE__);
 
-  #
-  # Temporary workaround to get max_current. This should happen in _construct().
-  #
+    #
+    # Temporary workaround to get max_current. This should happen in _construct().
+    #
     $self->configure( $self->config() );
 
     if ( $self->get_max_current() ) {
         print
-"Magnet power supply support is experimental. You have been warned.\n";
+            "Magnet power supply support is experimental. You have been warned.\n";
         return $self;
     }
     else {
         die
-"MagnetSupply.pm: You have to set max_current for safety reasons. Aborting.\n";
+            "MagnetSupply.pm: You have to set max_current for safety reasons. Aborting.\n";
     }
 }
 
@@ -130,8 +130,8 @@ sub set_current {
 
     if ( $self->get_can_use_negative_current() ) {
 
-# in this case we dont have to care about anything, just feed the power supply with the
-# target value and wait
+        # in this case we dont have to care about anything, just feed the power supply with the
+        # target value and wait
 
         $self->start_sweep_to_current($targetcurrent);
 
@@ -142,18 +142,18 @@ sub set_current {
 
             if ( labkey_soft_check() eq "DIE" ) {
 
-               # now what do we do here best? we cannot be sure that set_hold is
-               # implemented, and failing is not an option.
+                # now what do we do here best? we cannot be sure that set_hold is
+                # implemented, and failing is not an option.
                 print
-                  "Setting sweep target to current value I=$currentcurrent\n";
+                    "Setting sweep target to current value I=$currentcurrent\n";
                 $self->start_sweep_to_current($currentcurrent);
                 print "Terminating on keyboard request.\n";
                 exit;
             }
 
-          } while (
-            abs( $targetcurrent - $currentcurrent ) >
-            $self->get_max_current_deviation() );
+            } while (
+            abs( $targetcurrent - $currentcurrent )
+            > $self->get_max_current_deviation() );
         sleep(5);
         return $self->get_current();
 
@@ -188,11 +188,11 @@ sub start_sweep_to_current {
     }
 
     if (   ( $targetcurrent * $now < 0 )
-        && ( !$self->get_can_use_negative_current() ) )
-    {
+        && ( !$self->get_can_use_negative_current() ) ) {
+
         # current value and target have different sign
         die
-"You're trying to sweep across zero and it is not supported by the device!\n";
+            "You're trying to sweep across zero and it is not supported by the device!\n";
     }
 
     $self->_set_sweep_target_current($targetcurrent);

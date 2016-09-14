@@ -5,8 +5,8 @@ use Lab::Instrument;
 
 our @ISA = ("Lab::Instrument");
 
-our %fields =
-  ( supported_connections => [ 'IsoBus', 'Socket', 'GPIB', 'VISA' ], );
+our %fields
+    = ( supported_connections => [ 'IsoBus', 'Socket', 'GPIB', 'VISA' ], );
 
 sub new {
     my $proto = shift;
@@ -52,7 +52,7 @@ sub get_n2_level {
 
     my $level = $self->query("READ:DEV:$channel:LVL:SIG:NIT\n");
 
-# typical response: STAT:DEV:DB5.L1:LVL:SIG:NIT:COUN:10125.0000n:FREQ:472867:LEV:52.6014%
+    # typical response: STAT:DEV:DB5.L1:LVL:SIG:NIT:COUN:10125.0000n:FREQ:472867:LEV:52.6014%
 
     $level =~ s/^.*:LEV://;
     $level =~ s/%.*$//;
@@ -66,7 +66,7 @@ sub get_n2_level_frequency {
 
     my $level = $self->query("READ:DEV:$channel:LVL:SIG:NIT\n");
 
-# typical response: STAT:DEV:DB5.L1:LVL:SIG:NIT:COUN:10125.0000n:FREQ:472867:LEV:52.6014%
+    # typical response: STAT:DEV:DB5.L1:LVL:SIG:NIT:COUN:10125.0000n:FREQ:472867:LEV:52.6014%
 
     $level =~ s/^.*:FREQ://;
     $level =~ s/:.*$//;
@@ -80,7 +80,7 @@ sub get_n2_level_counter {
 
     my $level = $self->query("READ:DEV:$channel:LVL:SIG:NIT\n");
 
-# typical response: STAT:DEV:DB5.L1:LVL:SIG:NIT:COUN:10125.0000n:FREQ:472867:LEV:52.6014%
+    # typical response: STAT:DEV:DB5.L1:LVL:SIG:NIT:COUN:10125.0000n:FREQ:472867:LEV:52.6014%
 
     $level =~ s/^.*:COUN://;
     $level =~ s/n:.*$//;
@@ -106,13 +106,13 @@ sub get_catalogue {
 
     my $catalogue = $self->query("READ:SYS:CAT\n");
 
-# typical response: STAT:SYS:CAT:DEV:GRPX:PSU:DEV:MB1.T1:TEMP:DEV:GRPY:PSU:DEV:GRPZ:PSU:DEV:PSU.M1:PSU:DEV:PSU.M2:PSU:DEV:GRPN:PSU:DEV:DB5.L1:LVL
-# each group starting with DEV: describes one device, here for example:
-#    DEV:GRPX:PSU     |
-#    DEV:GRPY:PSU     |- a 3-axis magnet supply
-#    DEV:GRPZ:PSU     |
-#    DEV:MB1.T1:TEMP  -- a temperature sensor
-#    DEV:DB5.L1:LVL   -- a level sensor
+    # typical response: STAT:SYS:CAT:DEV:GRPX:PSU:DEV:MB1.T1:TEMP:DEV:GRPY:PSU:DEV:GRPZ:PSU:DEV:PSU.M1:PSU:DEV:PSU.M2:PSU:DEV:GRPN:PSU:DEV:DB5.L1:LVL
+    # each group starting with DEV: describes one device, here for example:
+    #    DEV:GRPX:PSU     |
+    #    DEV:GRPY:PSU     |- a 3-axis magnet supply
+    #    DEV:GRPZ:PSU     |
+    #    DEV:MB1.T1:TEMP  -- a temperature sensor
+    #    DEV:DB5.L1:LVL   -- a level sensor
 
     return $catalogue;
 }

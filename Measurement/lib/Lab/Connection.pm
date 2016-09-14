@@ -17,12 +17,12 @@ our @ISA = ('Lab::Generic');
 
 our %fields = (
     connection_handle => undef,
-    bus       => undef,  # set default here in child classes, e.g. bus => "GPIB"
+    bus => undef,    # set default here in child classes, e.g. bus => "GPIB"
     bus_class => undef,
     config    => undef,
-    type      => undef,  # e.g. 'GPIB'
-    ins_debug => 0,      # do we need additional output?
-    timeout   => 1,      # in seconds
+    type      => undef,    # e.g. 'GPIB'
+    ins_debug => 0,        # do we need additional output?
+    timeout   => 1,        # in seconds
 );
 
 sub new {
@@ -31,7 +31,7 @@ sub new {
     my $config = undef;
     if ( ref $_[0] eq 'HASH' ) {
         $config = shift;
-    }                    # try to be flexible about options as hash/hashref
+    }                      # try to be flexible about options as hash/hashref
     else { $config = {@_} }
     my $self = $class->SUPER::new(@_);
     bless( $self, $class );
@@ -55,11 +55,11 @@ sub Clear {
     }
 
     return $self->bus()->connection_clear( $self->connection_handle() )
-      if ( $self->bus()->can('connection_clear') );
+        if ( $self->bus()->can('connection_clear') );
 
     # error message
     warn "Clear function is not implemented in the bus "
-      . ref( $self->bus() ) . "\n";
+        . ref( $self->bus() ) . "\n";
 }
 
 sub Write {
@@ -74,7 +74,7 @@ sub Write {
     }
 
     return $self->bus()
-      ->connection_write( $self->connection_handle(), $options );
+        ->connection_write( $self->connection_handle(), $options );
 }
 
 sub Read {
@@ -88,8 +88,8 @@ sub Read {
         return undef;
     }
 
-    my $result =
-      $self->bus()->connection_read( $self->connection_handle(), $options );
+    my $result = $self->bus()
+        ->connection_read( $self->connection_handle(), $options );
 
     # cut off all termination characters:
     my $temp = $/;
@@ -159,8 +159,8 @@ sub timeout {
 
     $self->{'timeout'} = $timo;
     $self->bus()->timeout( $self->connection_handle(), $timo )
-      if defined( $self->bus() )
-      ;    # if called by $self->configure() before the bus is created.
+        if defined( $self->bus() )
+        ;    # if called by $self->configure() before the bus is created.
 }
 
 sub block_connection {
@@ -205,14 +205,14 @@ sub configure {
             error => 'Given Configuration is not a hash.' );
     }
     else {
-#
-# fill matching fields definded in %fields from the configuration hash ($self->config )
-#
+        #
+        # fill matching fields definded in %fields from the configuration hash ($self->config )
+        #
         for my $fields_key ( keys %{ $self->{_permitted} } ) {
             {    # restrict scope of "no strict"
                 no strict 'refs';
                 $self->$fields_key( $config->{$fields_key} )
-                  if exists $config->{$fields_key};
+                    if exists $config->{$fields_key};
             }
         }
     }
@@ -237,10 +237,10 @@ sub _construct {    # _construct(__PACKAGE__);
 
     if ( $class eq $package ) {
         $self->configure( $self->config() )
-          ;    # so that _setbus has access to all the fields
+            ;    # so that _setbus has access to all the fields
         $self->_setbus();
         $self->configure( $self->config() )
-          ;    # for configuration that needs the bus to be set (timeout())
+            ;    # for configuration that needs the bus to be set (timeout())
     }
 }
 
@@ -256,16 +256,18 @@ sub _setbus {    # $self->setbus() create new or use existing bus
     my $self      = shift;
     my $bus_class = $self->bus_class();
 
-    $self->bus( eval("require $bus_class; new $bus_class(\$self->config());") )
-      || Lab::Exception::Error->throw(
-            error => "Failed to create bus $bus_class in "
-          . __PACKAGE__
-          . "::_setbus. Error message was:"
-          . "\n\n----------------------------------------------\n\n"
-          . "$@\n----------------------------------------------\n" );
+    $self->bus(
+        eval("require $bus_class; new $bus_class(\$self->config());") )
+        || Lab::Exception::Error->throw(
+              error => "Failed to create bus $bus_class in "
+            . __PACKAGE__
+            . "::_setbus. Error message was:"
+            . "\n\n----------------------------------------------\n\n"
+            . "$@\n----------------------------------------------\n" );
 
     # again, pass it all.
-    $self->connection_handle( $self->bus()->connection_new( $self->config() ) );
+    $self->connection_handle(
+        $self->bus()->connection_new( $self->config() ) );
 }
 
 sub _configurebus {
@@ -303,8 +305,8 @@ sub AUTOLOAD {
 
     unless ( exists $self->{_permitted}->{$name} ) {
         Lab::Exception::Error->throw( error => "AUTOLOAD in "
-              . __PACKAGE__
-              . " couldn't access field '${name}'.\n" );
+                . __PACKAGE__
+                . " couldn't access field '${name}'.\n" );
     }
 
     if (@_) {

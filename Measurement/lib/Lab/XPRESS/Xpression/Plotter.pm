@@ -50,11 +50,11 @@ sub update_live_plot {
     return unless ( defined $self->{live_plot} );
 
     return
-      if (
+        if (
         ( $self->{live_plot}->{refresh} )
-        && ( tv_interval( $self->{live_plot}->{last}, [gettimeofday] ) <
-            ( $self->{live_plot}->{refresh} ) )
-      );
+        && ( tv_interval( $self->{live_plot}->{last}, [gettimeofday] )
+            < ( $self->{live_plot}->{refresh} ) )
+        );
 
     $self->{live_plot}->{last} = [gettimeofday];
 
@@ -83,12 +83,13 @@ sub plot {
 sub _start_plot {
     my ( $self, $plot ) = @_;
     die "plot \"$plot\" undefined"
-      unless ( defined( $self->{meta}->plot($plot) ) );
+        unless ( defined( $self->{meta}->plot($plot) ) );
 
     my $gpipe;
     if ( $self->{options}->{dump} ) {
         open $gpipe, ">" . $self->{options}->{dump}
-          or die "cannot open gnuplot dump file " . $self->{options}->{dump};
+            or die "cannot open gnuplot dump file "
+            . $self->{options}->{dump};
     }
     else {
         $gpipe = $self->get_gnuplot_pipe();
@@ -123,7 +124,10 @@ sub _start_plot {
             else {
                 my $num = 0;
                 for my $meta ( $self->{meta}, @{ $self->{othermetas} } ) {
-                    $gp .= ( $_->{name} ) . "$num++=" . ( $_->{value} ) . "\n";
+                    $gp
+                        .= ( $_->{name} )
+                        . "$num++="
+                        . ( $_->{value} ) . "\n";
                 }
             }
         }
@@ -139,14 +143,15 @@ sub _start_plot {
         my $axisname = "plot_" . $i . "axis";
         my $metaaxis = $self->{meta}->$axisname($plot);
         if ( defined $metaaxis ) {
-            my $label = '"'
-              . ( $self->{meta}->axis_label($metaaxis) ) . ' ('
-              . ( $self->{meta}->axis_unit($metaaxis) ) . ")"
-              . (
+            my $label
+                = '"'
+                . ( $self->{meta}->axis_label($metaaxis) ) . ' ('
+                . ( $self->{meta}->axis_unit($metaaxis) ) . ")"
+                . (
                 $self->{options}->{fulllabels}
                 ? ( '\n' . $self->{meta}->axis_description($metaaxis) )
                 : ''
-              ) . "\"\n";
+                ) . "\"\n";
             $gp .= "set " . $i . "label " . $label;
         }
     }
@@ -170,55 +175,55 @@ sub _start_plot {
     for (qw/x y z cb/) {
         my $name = "plot_" . $_ . "format";
         if ( $self->{meta}->$name($plot) ) {
-            $gp_help .=
-              qq(set format $_ ") . ( $self->{meta}->$name($plot) ) . qq("\n);
+            $gp_help .= qq(set format $_ ")
+                . ( $self->{meta}->$name($plot) ) . qq("\n);
         }
     }
     $gp .= "#\n# Axis format\n" . $gp_help if ($gp_help);
 
     unless ( $self->{options}->{multiple} ) {
         $gp .= "#\n# Ranges\n";
-        my $xmin =
-          ( defined $self->{meta}->axis_min($xaxis) )
-          ? $self->{meta}->axis_min($xaxis)
-          : "*";
-        my $xmax =
-          ( defined $self->{meta}->axis_max($xaxis) )
-          ? $self->{meta}->axis_max($xaxis)
-          : "*";
-        my $ymin =
-          ( defined $self->{meta}->axis_min($yaxis) )
-          ? $self->{meta}->axis_min($yaxis)
-          : "*";
-        my $ymax =
-          ( defined $self->{meta}->axis_max($yaxis) )
-          ? $self->{meta}->axis_max($yaxis)
-          : "*";
+        my $xmin
+            = ( defined $self->{meta}->axis_min($xaxis) )
+            ? $self->{meta}->axis_min($xaxis)
+            : "*";
+        my $xmax
+            = ( defined $self->{meta}->axis_max($xaxis) )
+            ? $self->{meta}->axis_max($xaxis)
+            : "*";
+        my $ymin
+            = ( defined $self->{meta}->axis_min($yaxis) )
+            ? $self->{meta}->axis_min($yaxis)
+            : "*";
+        my $ymax
+            = ( defined $self->{meta}->axis_max($yaxis) )
+            ? $self->{meta}->axis_max($yaxis)
+            : "*";
         $gp .= "set xrange [$xmin:$xmax]\n";
         $gp .= "set yrange [$ymin:$ymax]\n";
         if ($zaxis) {
-            my $zmin =
-              ( defined $self->{meta}->axis_min($zaxis) )
-              ? $self->{meta}->axis_min($zaxis)
-              : "*";
-            my $zmax =
-              ( defined $self->{meta}->axis_max($zaxis) )
-              ? $self->{meta}->axis_max($zaxis)
-              : "*";
+            my $zmin
+                = ( defined $self->{meta}->axis_min($zaxis) )
+                ? $self->{meta}->axis_min($zaxis)
+                : "*";
+            my $zmax
+                = ( defined $self->{meta}->axis_max($zaxis) )
+                ? $self->{meta}->axis_max($zaxis)
+                : "*";
             $gp .= "set zrange [$zmin:$zmax]\n";
         }
         if ($cbaxis) {
-            my $cbmin =
-              ( defined $self->{meta}->axis_min($cbaxis) )
-              ? $self->{meta}->axis_min($cbaxis)
-              : "*";
-            my $cbmax =
-              ( defined $self->{meta}->axis_max($cbaxis) )
-              ? $self->{meta}->axis_max($cbaxis)
-              : "*";
+            my $cbmin
+                = ( defined $self->{meta}->axis_min($cbaxis) )
+                ? $self->{meta}->axis_min($cbaxis)
+                : "*";
+            my $cbmax
+                = ( defined $self->{meta}->axis_max($cbaxis) )
+                ? $self->{meta}->axis_max($cbaxis)
+                : "*";
             $gp .= "set cbrange [$cbmin:$cbmax]\n";
             $gp .= "set zrange [$cbmin:$cbmax]\n"
-              if ( $self->{meta}->plot_logscale($plot) );
+                if ( $self->{meta}->plot_logscale($plot) );
         }
     }
 
@@ -228,10 +233,10 @@ sub _start_plot {
     }
 
     $gp .= "#\n# Title and labels\n";
-    $gp .=
-        qq(set title ")
-      . $self->{meta}->dataset_title() . " ("
-      . $self->{meta}->sample() . ")\"\n";
+    $gp
+        .= qq(set title ")
+        . $self->{meta}->dataset_title() . " ("
+        . $self->{meta}->sample() . ")\"\n";
     if ( $self->{options}->{fulllabels} ) {
         my $h      = 0.95;
         my $screen = 0.99;
@@ -280,8 +285,8 @@ sub _plot {
 
     my $pp;
     if ( $self->{meta}->plot_type($plot) eq 'pm3d' ) {
-        $pp =
-          qq(splot "$datafile" using ($xexp):($yexp):($cbexp) title "$plot"\n);
+        $pp
+            = qq(splot "$datafile" using ($xexp):($yexp):($cbexp) title "$plot"\n);
     }
     else {
         if ( $self->{options}->{live_latest} ) {
@@ -290,14 +295,14 @@ sub _plot {
             @keys = splice @keys, -$self->{options}->{live_latest};
             $pp = "plot ";
             for (@keys) {
-                $pp .=
-qq("$datafile" using ($xexp):($yexp) every :::$_::$_ title "$blocks{label}" with lines, );
+                $pp
+                    .= qq("$datafile" using ($xexp):($yexp) every :::$_::$_ title "$blocks{label}" with lines, );
             }
             $pp = substr $pp, 0, ( length $pp ) - 2;
         }
         else {
-            $pp =
-qq(plot "$datafile" using ($xexp):($yexp) title "$plot" with lines\n);
+            $pp
+                = qq(plot "$datafile" using ($xexp):($yexp) title "$plot" with lines\n);
         }
     }
     print $gpipe $pp;
@@ -321,8 +326,8 @@ sub _plot_multiple {
 
     my $pp = "#\n# Plot\n";
     if ( $self->{meta}->plot_type($plot) eq 'pm3d' ) {
-        $pp .=
-          qq(splot "$datafile" using ($xexp):($yexp):($cbexp) title "$plot"\n);
+        $pp
+            .= qq(splot "$datafile" using ($xexp):($yexp):($cbexp) title "$plot"\n);
     }
     else {
         if ( $self->{options}->{last_live} ) {
@@ -331,8 +336,8 @@ sub _plot_multiple {
             @keys = splice @keys, -$self->{options}->{last_live};
             $pp .= "plot ";
             for (@keys) {
-                $pp .=
-qq("$datafile" using ($xexp):($yexp) every :::$_::$_ title "$blocks{label}" with lines, );
+                $pp
+                    .= qq("$datafile" using ($xexp):($yexp) every :::$_::$_ title "$blocks{label}" with lines, );
             }
             $pp = substr $pp, 0, ( length $pp ) - 2;
         }

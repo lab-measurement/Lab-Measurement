@@ -96,7 +96,7 @@ sub LogBlock {
 
     if ( $row_len + $prefix_len != $columns_len ) {
         croak "The datafile expects $columns_len columns.\n"
-          . "You only supplied $prefix_len + $row_len columns.";
+            . "You only supplied $prefix_len + $row_len columns.";
     }
 
     # Write external parameters and block to datafile

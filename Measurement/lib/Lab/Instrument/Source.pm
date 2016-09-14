@@ -55,17 +55,16 @@ sub new {
     my $proto = shift;
     my $class = ref($proto) || $proto;
 
-#
-# The following is for compatibility with the old syntax for subchannel object derivation.
-# If we get some Instrument::Source object along with an integer (channel number), use it to derive a subchannel and return this.
-#
-# Is it an object at all? Is it a Source object?
+    #
+    # The following is for compatibility with the old syntax for subchannel object derivation.
+    # If we get some Instrument::Source object along with an integer (channel number), use it to derive a subchannel and return this.
+    #
+    # Is it an object at all? Is it a Source object?
     if (   ref( $_[0] )
         && UNIVERSAL::can( $_[0], 'can' )
-        && UNIVERSAL::isa( $_[0], "Lab::Instrument::Source" ) )
-    {
+        && UNIVERSAL::isa( $_[0], "Lab::Instrument::Source" ) ) {
         Lab::Exception::CorruptParameter->throw( error =>
-"Got a valid Source object, but an invalid channel number: $_[1]. Can't create subchannel, sorry."
+                "Got a valid Source object, but an invalid channel number: $_[1]. Can't create subchannel, sorry."
         ) if !defined $_[1] || $_[1] !~ /^[0-9]*$/;
 
         # Use the given parent object to derive a subchannel and return it
@@ -93,7 +92,8 @@ sub new {
         }
         elsif ( scalar keys %{ $self->default_device_settings() } == 0 )
         {    # poor thing's empty
-            $self->default_device_settings( clone( $self->device_settings() ) );
+            $self->default_device_settings(
+                clone( $self->device_settings() ) );
         }
     }
     else {
@@ -114,10 +114,10 @@ sub new {
         defined( $self->default_channel() )
         && (   $self->default_channel() > $self->max_channels()
             || $self->default_channel() < 1 )
-      )
-    {
+        ) {
         Lab::Exception::CorruptParameter->throw( error =>
-              'Default channel number is not within the available channels.' );
+                'Default channel number is not within the available channels.'
+        );
     }
 
     if ( defined( $self->parent_source() ) ) {
@@ -125,16 +125,15 @@ sub new {
             !UNIVERSAL::isa(
                 $self->parent_source(), "Lab::Instrument::Source"
             )
-          )
-        {
+            ) {
             Lab::Exception::CorruptParameter->throw( error =>
-'Given parent_source object is not a valid Lab::Instrument::Source.'
+                    'Given parent_source object is not a valid Lab::Instrument::Source.'
             );
         }
 
-# instead of maintaining our own one, check if a valid reference to the gpData from the parent object was given
-        if ( !defined( $self->gpData() ) || !ref( $self->gpData() ) =~ /HASH/ )
-        {
+        # instead of maintaining our own one, check if a valid reference to the gpData from the parent object was given
+        if (   !defined( $self->gpData() )
+            || !ref( $self->gpData() ) =~ /HASH/ ) {
             Lab::Exception::CorruptParameter->throw(
                 error => 'Given gpData from parent_source is invalid.' );
         }
@@ -144,7 +143,7 @@ sub new {
     }
     else {
         # fill gpData
-        for ( my $i = 1 ; $i <= $self->max_channels() ; $i++ ) {
+        for ( my $i = 1; $i <= $self->max_channels(); $i++ ) {
             $self->gpData()->{$i} = { LastSettimeMus => undef };
         }
     }
@@ -170,10 +169,10 @@ sub configure {
         # now parse in default_device_settings
         #
         for my $conf_name ( keys %{ $self->device_settings() } ) {
-            $self->device_settings()->{$conf_name} =
-              $self->default_device_settings()->{$conf_name}
-              if exists( $self->default_device_settings()->{$conf_name} )
-              && !defined( $self->device_settings($conf_name) );
+            $self->device_settings()->{$conf_name}
+                = $self->default_device_settings()->{$conf_name}
+                if exists( $self->default_device_settings()->{$conf_name} )
+                && !defined( $self->device_settings($conf_name) );
         }
     }
 }
@@ -186,19 +185,20 @@ sub create_subsource
     if   ( ref $_[0] eq 'HASH' ) { $args = shift }
     else                         { $args = {@_} }
 
-# we may be a subsource ourselfes, here - in this case, use our parent source instead of $self
+    # we may be a subsource ourselfes, here - in this case, use our parent source instead of $self
     my $parent_to_be = $self->parent_source() || $self;
 
     Lab::Exception::CorruptParameter->throw( error =>
-'No channel number specified! You have to set the channel=>$number parameter.'
+            'No channel number specified! You have to set the channel=>$number parameter.'
     ) if ( !exists( $args->{'channel'} ) );
     Lab::Exception::CorruptParameter->throw(
-            error => "Invalid channel number: "
-          . $args->{'channel'}
-          . ". Integer expected." )
-      if ( $args->{'channel'} !~ /^[0-9]*/ );
+              error => "Invalid channel number: "
+            . $args->{'channel'}
+            . ". Integer expected." )
+        if ( $args->{'channel'} !~ /^[0-9]*/ );
 
-    my %default_device_settings = %{ $parent_to_be->default_device_settings() };
+    my %default_device_settings
+        = %{ $parent_to_be->default_device_settings() };
     delete local $default_device_settings{'channel'};
     @default_device_settings{ keys %{$args} } = values %{$args};
 
@@ -227,9 +227,8 @@ sub set_level {
     }
 
     if (    $self->device_settings()->{'gate_protect'}
-        and $self->device_settings()->{'gp_max_units_per_step'} <
-        abs( $target - $current_level ) )
-    {
+        and $self->device_settings()->{'gp_max_units_per_step'}
+        < abs( $target - $current_level ) ) {
         return $self->sweep_to_level( $target, $tail );
     }
     else {
@@ -246,8 +245,8 @@ sub get_value {
 sub check_sweep_config {
     my $self = shift;
     $self->_check_gate_protect();
-    my ( $target, $rate, $time, $tail ) =
-      $self->_check_args( \@_, [ 'points', 'rate', 'time' ] );
+    my ( $target, $rate, $time, $tail )
+        = $self->_check_args( \@_, [ 'points', 'rate', 'time' ] );
 
     # get current position:
     my $start = $self->get_level( { read_mode => 'device' }, $tail );
@@ -272,49 +271,47 @@ sub check_sweep_config {
         }
         else {
             Lab::Exception::CorruptParameter->throw(
-"If not in gate protection mode, please define at least rate or time"
+                "If not in gate protection mode, please define at least rate or time"
             );
         }
 
     }
 
-# check if the given target value and given rate are within the GATE-PROTECTION limts:
+    # check if the given target value and given rate are within the GATE-PROTECTION limts:
     if ( $self->device_settings()->{gate_protect} ) {
 
         if (   $target < $self->device_settings()->{gp_min_units}
-            or $target > $self->device_settings()->{gp_max_units} )
-        {
-            Lab::Exception::CorruptParameter->throw(
-                error => "SWEEP-TARGET $target exceeds GATE_PROTECTION LIMITS: "
-                  . $self->device_settings()->{gp_min_volt} . " ... "
-                  . $self->device_settings()->{gp_max_volt} );
+            or $target > $self->device_settings()->{gp_max_units} ) {
+            Lab::Exception::CorruptParameter->throw( error =>
+                      "SWEEP-TARGET $target exceeds GATE_PROTECTION LIMITS: "
+                    . $self->device_settings()->{gp_min_volt} . " ... "
+                    . $self->device_settings()->{gp_max_volt} );
         }
         if (
-            abs($rate) >
-            abs( $self->device_settings()->{gp_max_units_per_second} ) )
-        {
+            abs($rate)
+            > abs( $self->device_settings()->{gp_max_units_per_second} ) ) {
             Lab::Exception::CorruptParameter->throw(
                 error => "SWEEP-RATE $rate exceeds GATE_PROTECTION LIMITS: "
-                  . $self->device_settings()->{gp_max_units_per_second} );
+                    . $self->device_settings()->{gp_max_units_per_second} );
         }
     }
 
     # check if rate is within limits:
     if ( $rate == 0 ) {
         print Lab::Exception::CorruptParameter->new( error =>
-" Sweep rate too small: Maximum Sweep duration is limited to 176400 sec. "
+                " Sweep rate too small: Maximum Sweep duration is limited to 176400 sec. "
         );
         $rate = abs( $start - $target ) / 176400;
     }
     elsif ( abs( $start - $target ) / $rate > 176400 ) {
         print Lab::Exception::CorruptParameter->new( error =>
-" Sweep rate too small: Maximum Sweep duration is limited to 176400 sec. "
+                " Sweep rate too small: Maximum Sweep duration is limited to 176400 sec. "
         );
         $rate = abs( $start - $target ) / 176400;
     }
     elsif ( abs( $start - $target ) / $rate < 0.1 ) {
 
-#print Lab::Exception::CorruptParameter->new( error=>  " Sweep rate too large: Minimum Sweep duration is limited to 0.1 sec. ");
+        #print Lab::Exception::CorruptParameter->new( error=>  " Sweep rate too large: Minimum Sweep duration is limited to 0.1 sec. ");
         $duration = 0.1;
     }
 
@@ -325,12 +322,12 @@ sub check_sweep_config {
 
     if ( $target > $range ) {
         Lab::Exception::CorruptParameter->throw( error =>
-"SWEEP-TARGET $target exceeds selected RANGE $range. Change SWEEP-TARGET to MAX within RANGE."
+                "SWEEP-TARGET $target exceeds selected RANGE $range. Change SWEEP-TARGET to MAX within RANGE."
         );
     }
     elsif ( $target < -$range ) {
         Lab::Exception::CorruptParameter->throw( error =>
-"SWEEP-TARGET $target exceeds selected RANGE $range. Change SWEEP-TARGET to MAX within RANGE."
+                "SWEEP-TARGET $target exceeds selected RANGE $range. Change SWEEP-TARGET to MAX within RANGE."
         );
     }
 
@@ -340,7 +337,7 @@ sub check_sweep_config {
 
     if ( $sections > 50 ) {
         Lab::Exception::CorruptParameter->throw( error =>
-"Configured Sweep takes too long. Sweep time is limited to 176400s."
+                "Configured Sweep takes too long. Sweep time is limited to 176400s."
         );
     }
 
@@ -351,8 +348,8 @@ sub check_sweep_config {
 sub sweep_to_level {
     my $self = shift;
 
-    my ( $target, $time, $stepsize, $args ) =
-      $self->_check_args( \@_, [ 'target', 'time', 'stepsize' ] );
+    my ( $target, $time, $stepsize, $args )
+        = $self->_check_args( \@_, [ 'target', 'time', 'stepsize' ] );
 
     if ( not defined $target || ref($target) eq 'HASH' ) {
         Lab::Exception::CorruptParameter->throw(
@@ -370,7 +367,7 @@ sub sweep_to_level {
 
     if ( ( not defined $upstep ) && ( not defined $stepsize ) ) {
         Lab::Exception::CorruptParameter->throw( error =>
-              'Need either gp_max_units_per_step or stepsize parameter.' );
+                'Need either gp_max_units_per_step or stepsize parameter.' );
     }
 
     if ( not defined $upstep ) {
@@ -437,12 +434,12 @@ sub is_me_channel {
     my $channel = shift;
     if ( $channel < 0 ) {
         Lab::Exception::CorruptParameter->throw( error =>
-'Channel must not be negative! Did you swap voltage and channel number?'
+                'Channel must not be negative! Did you swap voltage and channel number?'
         );
     }
     if ( int($channel) != $channel ) {
         Lab::Exception::CorruptParameter->throw( error =>
-'Channel must be an integer! Did you swap voltage and channel number?'
+                'Channel must be an integer! Did you swap voltage and channel number?'
         );
     }
 
@@ -471,25 +468,22 @@ sub _check_gate_protect {
 
     if ( ( !defined($apstep) || $apstep <= 0 ) ) {
         Lab::Exception::CorruptParameter->throw( error =>
-"To use gate protection, you have to gp_max_units_per_step (now: $apstep) to a positive, non-zero value."
+                "To use gate protection, you have to gp_max_units_per_step (now: $apstep) to a positive, non-zero value."
         );
     }
 
     if (   ( defined($apsec) && $apsec > 0 )
-        && ( !defined($spsec) || $spsec < 0 ) )
-    {
+        && ( !defined($spsec) || $spsec < 0 ) ) {
         $spsec = $apsec / $apstep;
     }
     elsif (( defined($spsec) && $spsec > 0 )
-        && ( !defined($apsec) || $apsec < 0 ) )
-    {
+        && ( !defined($apsec) || $apsec < 0 ) ) {
         $apsec = $spsec * $apstep;
     }
     elsif (( !defined($apsec) || $apsec <= 0 )
-        && ( !defined($spsec) || $spsec < 0 ) )
-    {
+        && ( !defined($spsec) || $spsec < 0 ) ) {
         Lab::Exception::CorruptParameter->throw(
-"Please supply one of either gp_max_units_per_second or gp_max_steps_per_second."
+            "Please supply one of either gp_max_units_per_second or gp_max_steps_per_second."
         );
     }
     else {
@@ -511,13 +505,13 @@ sub _check_gate_protect {
 
     if ( not defined $gp_max_units or not defined $gp_min_units ) {
         Lab::Exception::CorruptParameter->throw(
-"Missing gate_protect parameters for \"gp_max_units\" or \"gp_min_units\".\nYou must provide those during instrument initialization.\nIf you do not want to use the gate_protect feature,\nyou have to set gate_protect to 0."
+            "Missing gate_protect parameters for \"gp_max_units\" or \"gp_min_units\".\nYou must provide those during instrument initialization.\nIf you do not want to use the gate_protect feature,\nyou have to set gate_protect to 0."
         );
     }
 
     if ( $gp_max_units <= $gp_min_units ) {
         Lab::Exception::CorruptParameter->throw(
-"value of \"gp_max_units\" is smaller or equal to value of \"gp_min_units\""
+            "value of \"gp_max_units\" is smaller or equal to value of \"gp_min_units\""
         );
     }
 }
@@ -526,16 +520,16 @@ sub _set_level {
     my $self = shift;
 
     Lab::Exception::DriverError->throw( "The unimplemented method stub "
-          . __PACKAGE__
-          . "::_set_level() has been called. I can't work like this.\n" );
+            . __PACKAGE__
+            . "::_set_level() has been called. I can't work like this.\n" );
 }
 
 sub get_level {
     my $self = shift;
 
     Lab::Exception::DriverError->throw( "The unimplemented method stub "
-          . __PACKAGE__
-          . "::get_level() has been called. I can't work like this.\n" );
+            . __PACKAGE__
+            . "::get_level() has been called. I can't work like this.\n" );
 
 }
 
@@ -543,16 +537,16 @@ sub get_range {
     my $self = shift;
 
     Lab::Exception::DriverError->throw( "The unimplemented method stub "
-          . __PACKAGE__
-          . "::get_range() has been called. I can't work like this.\n" );
+            . __PACKAGE__
+            . "::get_range() has been called. I can't work like this.\n" );
 }
 
 sub set_range {
     my $self = shift;
 
     Lab::Exception::DriverError->throw( "The unimplemented method stub "
-          . __PACKAGE__
-          . "::set_range() has been called. I can't work like this.\n" );
+            . __PACKAGE__
+            . "::set_range() has been called. I can't work like this.\n" );
 
 }
 

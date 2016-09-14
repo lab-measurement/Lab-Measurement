@@ -23,15 +23,13 @@ our %fields = (
         timeout  => 1
     },
 
-    device_settings => {
-        read_default => 'device'
-    },
+    device_settings => { read_default => 'device' },
 
     device_cache => {
         id => 'Temperature Control',
 
         #T => undef
-      }
+        }
 
 );
 
@@ -55,8 +53,7 @@ sub get_T {
     my $temperature = "xxxxxxxx";
 
     if (   not defined $read_mode
-        or not $read_mode =~ /device|cache|request|fetch/ )
-    {
+        or not $read_mode =~ /device|cache|request|fetch/ ) {
         $read_mode = $self->device_settings()->{read_default};
     }
 
@@ -97,10 +94,10 @@ sub get_T {
     }
 
     else {
-        for ( my $i = 0 ; $i < 3 ; $i++ ) {
+        for ( my $i = 0; $i < 3; $i++ ) {
             $self->write("getTemp\r\n");
 
-            for ( my $j = 0 ; $j < 3 ; $j++ ) {
+            for ( my $j = 0; $j < 3; $j++ ) {
                 eval '$temperature = $self->read()';
                 if ($@) {
                     next;

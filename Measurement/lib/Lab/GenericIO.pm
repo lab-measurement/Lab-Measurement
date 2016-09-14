@@ -58,7 +58,7 @@ sub interface_load {
     $class = 'Lab::IO::Interface::' . $class;
 
     eval "require $class; $class->import(); 1;"
-      or die "Could not load interface class $class\n($@)\n";
+        or die "Could not load interface class $class\n($@)\n";
     return $class->new();
 }
 
@@ -130,8 +130,8 @@ sub channel_data_write {
 # out_prepare: return DATA object
 sub data_prepare {
     my $object = shift;
-    my ( $msg, $class, $tail ) =
-      Lab::Generic->_check_args( \@_, [ 'msg', 'class' ] );
+    my ( $msg, $class, $tail )
+        = Lab::Generic->_check_args( \@_, [ 'msg', 'class' ] );
 
     my $base_class = "Lab::IO::Data";
     my $DATA;
@@ -144,8 +144,8 @@ sub data_prepare {
 
         # Error -> revert to base class
         if ($@) {
-            $msg =
-              "Could not load custom data class $class (from $require): $@";
+            $msg
+                = "Could not load custom data class $class (from $require): $@";
             undef $class;
         }
 
@@ -155,11 +155,11 @@ sub data_prepare {
         }
     }
 
-# Case B: generic class (explicit complementary IF on purpose -> catches error in A)
+    # Case B: generic class (explicit complementary IF on purpose -> catches error in A)
     if ( not defined $class ) {
         my $trace = $DATA->{trace} = new Devel::StackTrace();
         eval "require $base_class; $base_class->import(); 1;"
-          or die "Could not load base data class $base_class\n($@): $msg\n";
+            or die "Could not load base data class $base_class\n($@): $msg\n";
         $DATA = $base_class->new();
     }
 
@@ -169,8 +169,10 @@ sub data_prepare {
 
     # Object & Caller
     $DATA->{object} = $object;
-    ( $DATA->{package}, $DATA->{filename}, $DATA->{line}, $DATA->{subroutine} )
-      = caller(2);    # +1 out_prepare; +1 out_channel
+    (
+        $DATA->{package}, $DATA->{filename}, $DATA->{line},
+        $DATA->{subroutine}
+    ) = caller(2);    # +1 out_prepare; +1 out_channel
                       # Create Stacktrace
     $DATA->{trace} = new Devel::StackTrace(
         ignore_package => [

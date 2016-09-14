@@ -14,8 +14,10 @@ sub new {
     my @args  = @_;
     my $class = ref($proto) || $proto;
     my $self->{default_config} = { id => 'Dummy_sweep' };
-    $self =
-      $class->SUPER::new( $self->{default_config}, $self->{default_config} );
+    $self = $class->SUPER::new(
+        $self->{default_config},
+        $self->{default_config}
+    );
     bless( $self, $class );
 
     $self->{code} = $code;

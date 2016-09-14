@@ -39,11 +39,12 @@ sub new {
 
     if ( not defined $self->instrument() ) {
         Lab::Exception::Error->throw( error => $self->get_id()
-              . ": No intrument for temperature measurment defined!" );
+                . ": No intrument for temperature measurment defined!" );
     }
     elsif ( not ref( $self->instrument() ) =~ /^(Lab::Instrument)/ ) {
         Lab::Exception::Error->throw( error => $self->get_id()
-              . ": Object for temperature measurement is not an instrument!" );
+                . ": Object for temperature measurement is not an instrument!"
+        );
     }
 
     return $self;
@@ -106,8 +107,7 @@ sub get_T {
     else                         { $options = {@_} }
 
     if ( $options->{read_mode} eq 'cache'
-        and defined $self->{'device_cache'}->{'T'} )
-    {
+        and defined $self->{'device_cache'}->{'T'} ) {
         return $self->{'device_cache'}->{'T'};
     }
 
@@ -167,7 +167,7 @@ sub _check_args {
     }
 
     foreach my $param ( 'from_device', 'from_cache'
-      ) # Delete Standard option parameters from $arguments hash if not defined in device driver function
+        ) # Delete Standard option parameters from $arguments hash if not defined in device driver function
     {
         if ( exists $arguments->{$param} ) {
             delete $arguments->{$param};
@@ -194,12 +194,12 @@ sub AUTOLOAD {
     $name =~ s/.*://;    # strip fully qualified portion
 
     unless ( exists $self->{_permitted}->{$name} ) {
-        cluck(  "AUTOLOAD in "
-              . __PACKAGE__
-              . " couldn't access field '${name}'.\n" );
+        cluck(    "AUTOLOAD in "
+                . __PACKAGE__
+                . " couldn't access field '${name}'.\n" );
         Lab::Exception::Error->throw( error => "AUTOLOAD in "
-              . __PACKAGE__
-              . " couldn't access field '${name}'.\n" );
+                . __PACKAGE__
+                . " couldn't access field '${name}'.\n" );
     }
 
     if (@_) {

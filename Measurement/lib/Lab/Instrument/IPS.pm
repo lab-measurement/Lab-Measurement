@@ -18,8 +18,9 @@ my $default_config = {
 };
 
 our %fields = (
-    supported_connections =>
-      [ 'VISA', 'VISA_GPIB', 'GPIB', 'VISA_RS232', 'RS232', 'IsoBus', 'DEBUG' ],
+    supported_connections => [
+        'VISA', 'VISA_GPIB', 'GPIB', 'VISA_RS232', 'RS232', 'IsoBus', 'DEBUG'
+    ],
 
     # default settings for the supported connections
     connection_settings => {
@@ -47,7 +48,7 @@ our %fields = (
         field           => undef,
         persistent_mode => 0
 
-      }
+        }
 
 );
 
@@ -92,7 +93,7 @@ sub _device_init {    # internal only
         my $switchheater = $self->get_switchheater();
         if ( $switchheater == 0 || $switchheater == 2 ) {
             Lab::Exception::CorruptParameter->throw( error =>
-                  "PSU != Magnet --> SWITCHHEATER cannot be switched on." );
+                    "PSU != Magnet --> SWITCHHEATER cannot be switched on." );
         }
 
         #print "done\n!";
@@ -153,7 +154,7 @@ sub set_switchheater {    # internal only
     my ( $mode, $tail ) = $self->_check_args( \@_, ['value'] );
 
     warn "Try to use switchheater: No switchheater installed!"
-      if not $self->{device_settings}->{has_switchheater};
+        if not $self->{device_settings}->{has_switchheater};
 
     #print "Trying to switch switchheater to mode $mode\n";
 
@@ -173,7 +174,7 @@ sub set_switchheater {    # internal only
     }
     else {
         print Lab::Exception::Warning->new(
-"Mode $mode is not allowed for the switchheater. Select 0 (off) or 1 (on)."
+            "Mode $mode is not allowed for the switchheater. Select 0 (off) or 1 (on)."
         );
     }
     sleep(10);    # wait for heater to open the switch
@@ -182,7 +183,7 @@ sub set_switchheater {    # internal only
 sub get_switchheater {    # internal only
     my $self = shift;
     warn "Try to use switchheater: No switchheater installed!"
-      if not $self->{device_settings}->{has_switchheater};
+        if not $self->{device_settings}->{has_switchheater};
 
     my $result = $self->query( "X\r", @_ );
     $result =~ /X[0-9][0-9]A[0-9]C[0-9]H(.)/;
@@ -218,10 +219,9 @@ sub _set_mode {    # internal only
         and $mode != 4
         and $mode != 5
         and $mode != 8
-        and $mode != 9 )
-    {
+        and $mode != 9 ) {
         Lab::Exception::CorruptParameter->throw( error =>
-"unexpected value for MODE in sub _set_mode. Expected values are:\n\n\tDisplay\tMagnet Sweep\n 0\tAmps\tFast\n 1\tTesla\tFast\n 4\tAmps\tSlow\n 5\tTesla\tSlow\n 8\tAmps\tUnaffected\n 9\tTesla\tUnaffected"
+                "unexpected value for MODE in sub _set_mode. Expected values are:\n\n\tDisplay\tMagnet Sweep\n 0\tAmps\tFast\n 1\tTesla\tFast\n 4\tAmps\tSlow\n 5\tTesla\tSlow\n 8\tAmps\tUnaffected\n 9\tTesla\tUnaffected"
         );
     }
 
@@ -243,7 +243,7 @@ sub _set_communicationsprotocol {    # internal only
 
     if ( $mode != 0 and $mode != 2 and $mode != 4 and $mode != 6 ) {
         Lab::Exception::CorruptParameter->throw( error =>
-"unexpected value for MODE in sub _set_communicationsprotocol. Expected values are:\n\n 0 --> Normal (default)\n 2 --> Sends <LF> after each <CR>\n 4 --> Extended Resolution\n 6 --> Extended Resolution. Sends <LF> after each <CR>."
+                "unexpected value for MODE in sub _set_communicationsprotocol. Expected values are:\n\n 0 --> Normal (default)\n 2 --> Sends <LF> after each <CR>\n 4 --> Extended Resolution\n 6 --> Extended Resolution. Sends <LF> after each <CR>."
         );
     }
 
@@ -286,7 +286,7 @@ sub _set_activity {    # internal only
 
     if ( not 0 <= $mode && $mode <= 4 ) {
         Lab::Exception::CorruptParameter->throw( error =>
-"unexpected value for MODE in sub _set_activity. Expected values are:\n\n 0 --> Hold\n 1 --> To Set Point\n 2 --> To Zero\n 4 --> Clamp (clamp the power supply output)"
+                "unexpected value for MODE in sub _set_activity. Expected values are:\n\n 0 --> Hold\n 1 --> To Set Point\n 2 --> To Zero\n 4 --> Clamp (clamp the power supply output)"
         );
     }
 
@@ -383,10 +383,9 @@ sub get_parameter {    # advanced
         and $parameter != 21
         and $parameter != 22
         and $parameter != 23
-        and $parameter != 24 )
-    {
+        and $parameter != 24 ) {
         Lab::Exception::CorruptParameter->throw( error =>
-"\n 0 --> Demand current (output current)     amp\n 1 --> Measured power supply voltage       volt\n 2 --> Measured magnet current             amp\n 3 --> -\n 4 --> -\n 5 --> Set point (target current)          amp\n 6 --> Current sweep rate                  amp/min\n 7 --> Demand field (output field)         tesla\n 8 --> Set point (target field)            tesla\n 9 --> Field sweep rate                    tesla/minute\n10 --> - 14 -\n15 --> Software voltage limit              volt\n16 --> Persistent magnet current           amp\n17 --> Trip current                        amp\n18 --> Persistent magnet field             tesla\n19 --> Trip field                          tesla\n20 --> Switch heater current               milliamp\n21 --> Safe current limit, most negative   amp\n22 --> Safe current limit, most positive   amp\n23 --> Lead resistance                     milliohm\n24 --> Magnet inductance                   henry"
+                "\n 0 --> Demand current (output current)     amp\n 1 --> Measured power supply voltage       volt\n 2 --> Measured magnet current             amp\n 3 --> -\n 4 --> -\n 5 --> Set point (target current)          amp\n 6 --> Current sweep rate                  amp/min\n 7 --> Demand field (output field)         tesla\n 8 --> Set point (target field)            tesla\n 9 --> Field sweep rate                    tesla/minute\n10 --> - 14 -\n15 --> Software voltage limit              volt\n16 --> Persistent magnet current           amp\n17 --> Trip current                        amp\n18 --> Persistent magnet field             tesla\n19 --> Trip field                          tesla\n20 --> Switch heater current               milliamp\n21 --> Safe current limit, most negative   amp\n22 --> Safe current limit, most positive   amp\n23 --> Lead resistance                     milliohm\n24 --> Magnet inductance                   henry"
         );
     }
 
@@ -408,8 +407,8 @@ sub get_field {    # basic
 
     my ($tail) = $self->_check_args( \@_ );
 
-    my $persistent_mode =
-      $self->get_persistent_mode( { read_mode => 'cache' } );
+    my $persistent_mode
+        = $self->get_persistent_mode( { read_mode => 'cache' } );
 
     if ($persistent_mode) {
         return $self->get_persistent_field();
@@ -535,7 +534,7 @@ sub wait {    # basic
 }
 
 sub active {    # basic
-       # returns a value > 0 if MAGNET is SWEEPING. Else MAGNET is not sweeping.
+     # returns a value > 0 if MAGNET is SWEEPING. Else MAGNET is not sweeping.
     my $self = shift;
 
     $self->_check_magnet();
@@ -543,8 +542,8 @@ sub active {    # basic
     my $status = $self->query("X\r");
 
     #print "status is $status\n";
-    my $sweepstatus =
-      substr( $status, 11, 1 );    # MAGNET is SWEEPING if $sweepstatus > 0
+    my $sweepstatus
+        = substr( $status, 11, 1 );   # MAGNET is SWEEPING if $sweepstatus > 0
 
     if ( !$sweepstatus and ( @{ $self->{SWEEP_QUEUE} }[1] ) ) {
         shift( @{ $self->{SWEEP_QUEUE} } );
@@ -553,7 +552,7 @@ sub active {    # basic
     }
     elsif ( !$sweepstatus ) {
         $self->query("A0\r")
-          ;    #Set Magnet-status to hold when no more sweeps in queue.
+            ;    #Set Magnet-status to hold when no more sweeps in queue.
     }
 
     #print "Sweepstatus is $sweepstatus\n";
@@ -572,10 +571,9 @@ sub _check_limits {    # for internal use only
     # check field limits:
     if (   not defined $target_field
         or abs($target_field) > $self->{LIMITS}{'magneticfield'}
-        or not $target_field =~ /\b\d+(e\d+|E\d+|exp\d+|EXP\d+)?\b/ )
-    {
+        or not $target_field =~ /\b\d+(e\d+|E\d+|exp\d+|EXP\d+)?\b/ ) {
         return
-"unexpected value for FIELD in sub ips_set_target_field. Expected values are between -/+ $self->{LIMITS}->{'magneticfield'} (Tesla)";
+            "unexpected value for FIELD in sub ips_set_target_field. Expected values are between -/+ $self->{LIMITS}->{'magneticfield'} (Tesla)";
     }
 
     # check limits for sweeprate
@@ -589,8 +587,9 @@ sub _check_limits {    # for internal use only
     my @len = @{ $self->{LIMITS}->{'field_intervall_limits'} };
     my $len = @len;
     $max_rate = 0;
-    for ( my $i = $len ; $i < 0 ; $i-- ) {
-        if ( $check_field > $self->{LIMITS}->{'field_intervall_limits'}[$i] ) {
+    for ( my $i = $len; $i < 0; $i-- ) {
+        if ( $check_field > $self->{LIMITS}->{'field_intervall_limits'}[$i] )
+        {
             print "maxrate = $i\n";
             $max_rate = $i;
         }
@@ -599,10 +598,9 @@ sub _check_limits {    # for internal use only
     if (   not defined $rate
         or $rate < 0
         or $rate > $self->{LIMITS}->{'rate_intervall_limits'}[$max_rate]
-        or not $rate =~ /\b\d+(e\d+|E\d+|exp\d+|EXP\d+)?\b/ )
-    {
+        or not $rate =~ /\b\d+(e\d+|E\d+|exp\d+|EXP\d+)?\b/ ) {
         return
-"unexpected value for RATE ($rate) in sub config_sweep. Look up individual limits for the sweeping rates for different fieldranges.";
+            "unexpected value for RATE ($rate) in sub config_sweep. Look up individual limits for the sweeping rates for different fieldranges.";
     }
 
     return 0;
@@ -620,21 +618,22 @@ sub _check_magnet {    # for internal use only
     my $current_field = $self->get_field();
 
     if ( @{ $self->{SWEEP_QUEUE} }[0] != 0 ) {
-        my $sweepdirection =
-          ( $current_field >= @{ $self->{SWEEP_QUEUE}[0][0] }[-1] ) ? -1 : 1;
+        my $sweepdirection
+            = ( $current_field >= @{ $self->{SWEEP_QUEUE}[0][0] }[-1] )
+            ? -1
+            : 1;
 
-        if ( ( @{ $self->{SWEEP_QUEUE}[0][0] }[0] - $current_field ) *
-            $sweepdirection < 0 )
-        {
+        if ( ( @{ $self->{SWEEP_QUEUE}[0][0] }[0] - $current_field )
+            * $sweepdirection < 0 ) {
             shift( @{ $self->{SWEEP_QUEUE}[0][1] } );
             shift( @{ $self->{SWEEP_QUEUE}[0][0] } );
 
             $self->set_rate( @{ $self->{SWEEP_QUEUE}[0][1] }[0] );
             print $self->{ID}
-              . ":  Changed rate to "
-              . ( @{ $self->{SWEEP_QUEUE}[0][1] }[0] )
-              . " T/min at "
-              . $current_field . " T\n";
+                . ":  Changed rate to "
+                . ( @{ $self->{SWEEP_QUEUE}[0][1] }[0] )
+                . " T/min at "
+                . $current_field . " T\n";
         }
     }
 
@@ -653,12 +652,12 @@ sub trg {    # basic
         $self->query("A1\r");    # go to setpoint
         my $current_field = $self->get_field();
         print $self->{ID}
-          . ":  New target-field set "
-          . ( @{ $self->{SWEEP_QUEUE}[0][0] }[-1] )
-          . " with rate "
-          . ( @{ $self->{SWEEP_QUEUE}[0][1] }[0] )
-          . "T/min at "
-          . $current_field . " T\n";
+            . ":  New target-field set "
+            . ( @{ $self->{SWEEP_QUEUE}[0][0] }[-1] )
+            . " with rate "
+            . ( @{ $self->{SWEEP_QUEUE}[0][1] }[0] )
+            . "T/min at "
+            . $current_field . " T\n";
 
     }
 
@@ -690,21 +689,29 @@ sub _prepare_sweep_sequence {
     my $len = @sweep_points;
     if ( $len > 2 ) {
         @{ $self->{SWEEP_QUEUE} }[$j] = ( [], [] );
-        for ( my $i = 1 ; $i < $len - 1 ; $i++ ) {
+        for ( my $i = 1; $i < $len - 1; $i++ ) {
 
-            my $sign_1 =
-              ( ( @sweep_points[$i] - @sweep_points[ $i - 1 ] ) >= 0 ) ? -1 : 1;
-            my $sign_2 =
-              ( ( @sweep_points[ $i + 1 ] - @sweep_points[$i] ) >= 0 ) ? -1 : 1;
+            my $sign_1
+                = ( ( @sweep_points[$i] - @sweep_points[ $i - 1 ] ) >= 0 )
+                ? -1
+                : 1;
+            my $sign_2
+                = ( ( @sweep_points[ $i + 1 ] - @sweep_points[$i] ) >= 0 )
+                ? -1
+                : 1;
             if ( $sign_1 == $sign_2 ) {
                 push( @{ $self->{SWEEP_QUEUE}[$j][0] }, @sweep_points[$i] );
-                push( @{ $self->{SWEEP_QUEUE}[$j][1] },
-                    @sweep_rates[ $i - 1 ] );
+                push(
+                    @{ $self->{SWEEP_QUEUE}[$j][1] },
+                    @sweep_rates[ $i - 1 ]
+                );
             }
             else {
                 push( @{ $self->{SWEEP_QUEUE}[$j][0] }, @sweep_points[$i] );
-                push( @{ $self->{SWEEP_QUEUE}[$j][1] },
-                    @sweep_rates[ $i - 1 ] );
+                push(
+                    @{ $self->{SWEEP_QUEUE}[$j][1] },
+                    @sweep_rates[ $i - 1 ]
+                );
                 $j++;
                 @{ $self->{SWEEP_QUEUE} }[$j] = ( [], [] );
             }
@@ -722,7 +729,7 @@ sub _prepare_sweep_sequence {
     }
 
     $len = @{ $self->{SWEEP_QUEUE} };
-    for ( my $i = 0 ; $i < $len ; $i++ ) {
+    for ( my $i = 0; $i < $len; $i++ ) {
         print("Sequence Sweep $i: \n");
         print("SP:\t");
 
@@ -743,8 +750,8 @@ sub _prepare_sweep_sequence {
 sub config_sweep {    # basic
     my $self = shift;
 
-    my ( $field, $rate, $interval ) =
-      $self->_check_args( \@_, [ 'points', 'rates', 'interval' ] );
+    my ( $field, $rate, $interval )
+        = $self->_check_args( \@_, [ 'points', 'rates', 'interval' ] );
 
     my @sweep_points;
     my @sweep_rates;
@@ -757,7 +764,7 @@ sub config_sweep {    # basic
 
     if ( not defined $rate ) {
         Lab::Exception::CorruptParameter->throw( error =>
-"too view parameters given in sub config_sweep. Expected parameters are FIELD, RATE, <INTERVAL>."
+                "too view parameters given in sub config_sweep. Expected parameters are FIELD, RATE, <INTERVAL>."
         );
     }
 
@@ -778,7 +785,7 @@ sub config_sweep {    # basic
 
     # rounding of the received values.
     my $len = @sweep_points;
-    for ( my $i ; $i < $len ; $i++ ) {
+    for ( my $i; $i < $len; $i++ ) {
         @sweep_points[$i] = sprintf( "%.5f", @sweep_points[$i] );
         @sweep_rates[$i]  = sprintf( "%.5f", @sweep_rates[$i] );
         if ( @sweep_rates[$i] == 0 ) {
@@ -788,7 +795,7 @@ sub config_sweep {    # basic
 
     if ( ( my $i = @sweep_points ) != ( my $j = @sweep_rates ) ) {
         Lab::Exception::CorruptParameter->throw( error =>
-"Sweep-points-list and Sweep-rates-list must have the same length!.\n"
+                "Sweep-points-list and Sweep-rates-list must have the same length!.\n"
         );
     }
 
@@ -804,8 +811,7 @@ sub config_sweep {    # basic
                 @sweep_points[$i], @sweep_points[ $i + 1 ],
                 @sweep_rates[$i]
             )
-          )
-        {
+            ) {
             Lab::Exception::CorruptParameter->throw( error => $status );
         }
     }
@@ -822,12 +828,11 @@ sub config_sweep {    # basic
         my $len_points     = @points;
         while ($len_points) {
             for (
-                $current_field ;
-                ( $points[0] - $current_field ) * $sweepdirection > 0 ;
-                $current_field +=
-                ( $rates[0] / 60 ) * $interval * $sweepdirection
-              )
-            {
+                $current_field;
+                ( $points[0] - $current_field ) * $sweepdirection > 0;
+                $current_field
+                += ( $rates[0] / 60 ) * $interval * $sweepdirection
+                ) {
                 push( @trace, $current_field );
             }
             $current_field -= $rates[0] * 60 * $interval * $sweepdirection;
@@ -865,7 +870,8 @@ sub sweep_to_field {
     }
     my $sweep_direction = ( $current_field < $target ) ? 1 : -1;
 
-    foreach my $field_limit ( @{ $self->{LIMITS}->{field_intervall_limits} } ) {
+    foreach
+        my $field_limit ( @{ $self->{LIMITS}->{field_intervall_limits} } ) {
         if ( abs($current_field) > $field_limit and $field_limit != 0 ) {
             $current_field_interval++;
         }
@@ -874,24 +880,26 @@ sub sweep_to_field {
         }
     }
 
-    $current_field_interval =
-      ( $current_field < 0 )
-      ? $current_field_interval * (-1)
-      : $current_field_interval;
-    $target_field_interval =
-      ( $target < 0 ) ? $target_field_interval * (-1) : $target_field_interval;
+    $current_field_interval
+        = ( $current_field < 0 )
+        ? $current_field_interval * (-1)
+        : $current_field_interval;
+    $target_field_interval
+        = ( $target < 0 )
+        ? $target_field_interval * (-1)
+        : $target_field_interval;
 
     # add interval limits:
     my $interval = $current_field_interval;
 
     while (1) {
-        my $vergleichswert =
-          ( ( $interval >= 0 ) ? 1 : -1 ) *
-          @{ $self->{LIMITS}->{field_intervall_limits} }[
-          ( $interval * $sweep_direction >= 0 )
-          ? abs($interval) + 1
-          : abs($interval)
-          ];
+        my $vergleichswert
+            = ( ( $interval >= 0 ) ? 1 : -1 )
+            * @{ $self->{LIMITS}->{field_intervall_limits} }[
+            ( $interval * $sweep_direction >= 0 )
+            ? abs($interval) + 1
+            : abs($interval)
+            ];
         if ( $interval == 0 ) {
             $vergleichswert *= $sweep_direction;
         }
@@ -901,18 +909,18 @@ sub sweep_to_field {
         if (
             $target * $sweep_direction <= $vergleichswert * $sweep_direction
             or (
-                abs($interval) >=
-                @{ $self->{LIMITS}->{field_intervall_limits} } - 1
+                abs($interval)
+                >= @{ $self->{LIMITS}->{field_intervall_limits} } - 1
                 and $interval != $current_field_interval )
-          )
-        {
+            ) {
             push( @targets, $target );
 
             if ( $rate > @{ $self->{LIMITS}->{rate_intervall_limits} }[$index]
-                or not defined $rate )
-            {
-                push( @rates,
-                    @{ $self->{LIMITS}->{rate_intervall_limits} }[$index] );
+                or not defined $rate ) {
+                push(
+                    @rates,
+                    @{ $self->{LIMITS}->{rate_intervall_limits} }[$index]
+                );
             }
             else {
                 push( @rates, $rate );
@@ -924,13 +932,14 @@ sub sweep_to_field {
 
         if ( $vergleichswert != $current_field ) {
             push( @targets, $vergleichswert );
-            if ( $rate >
-                @{ $self->{LIMITS}->{rate_intervall_limits} }[ abs($interval) ]
-                or not defined $rate )
-            {
-                push( @rates,
+            if ( $rate > @{ $self->{LIMITS}->{rate_intervall_limits} }
+                [ abs($interval) ]
+                or not defined $rate ) {
+                push(
+                    @rates,
                     @{ $self->{LIMITS}->{rate_intervall_limits} }
-                      [ abs($interval) ] );
+                        [ abs($interval) ]
+                );
             }
             else {
                 push( @rates, $rate );

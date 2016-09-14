@@ -92,7 +92,7 @@ sub process_call {
 
     if ( compare_hashs( $received, $expected ) ) {
         croak "Mock connection:\nreceived:\n", Dump($received),
-          "\nexpected:\n", Dump($expected);
+            "\nexpected:\n", Dump($expected);
     }
 
     $self->log_index( ++$index );
@@ -102,8 +102,7 @@ sub process_call {
 for my $method (
     qw/Clear Write Read Query BrutalRead LongQuery BrutalQuery timeout
     block_connection unblock_connection is_blocked/
-  )
-{
+    ) {
     around $method => sub {
         my $orig = shift;
         return process_call( $method, @_ );

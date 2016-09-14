@@ -1,0 +1,64 @@
+#!/usr/bin/env perl
+use 5.010;
+use warnings;
+use strict;
+use File::Spec::Functions qw/catfile abs2rel/;
+
+chdir catfile(qw/. Measurement/)
+    or die "cannot chdir";
+
+delete $ENV{GIT_DIR};
+
+#
+# Perltidy
+#
+
+my @files = split '\n', qx/git diff --cached --name-only/;
+
+@files = grep {-f} @files;
+
+@files = grep {/\.(pm|pl|t)$/} @files;
+
+@files = map { abs2rel( $_, 'Measurement' ) } @files;
+
+my $tidy_script = catfile(qw/xt perltidy.pl/);
+
+if (@files) {
+    say "running perltidy on the following files:";
+    say "    $_" for @files;
+    safe_system( $tidy_script, @files );
+}
+
+for my $file (@files) {
+    safe_system( 'git', 'add', $file );
+}
+
+#
+# Run tests.
+#
+
+safe_system(qw/prove -lrv t/);
+
+#
+# Run Perl::Critic tests.
+#
+
+safe_system( qw/prove -v/, catfile(qw/xt critic.pl/) );
+
+sub safe_system {
+    my @command = @_;
+    warn "running command: @command\n";
+    system(@command);
+    if ( $? == -1 ) {
+        die "failed to execute: $!\n";
+    }
+    if ( $? & 127 ) {
+        die sprintf( 'child died with signal %d', ( $? & 127 ) );
+    }
+
+    my $status = $? >> 8;
+    if ($status) {
+        die "command '@command' exited with status $status";
+    }
+}
+

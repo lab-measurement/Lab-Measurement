@@ -1,8 +1,9 @@
-package Lab::MooseInstrument::SCPI::Sense::Sweep;
+package Lab::Moose::Instrument::SCPI::Sense::Sweep;
 
 use Moose::Role;
-use Lab::MooseInstrument::Cache;
-use Lab::MooseInstrument qw/validated_channel_getter validated_channel_setter/;
+use Lab::Moose::Instrument::Cache;
+use Lab::Moose::Instrument
+    qw/validated_channel_getter validated_channel_setter/;
 use MooseX::Params::Validate;
 use Carp;
 

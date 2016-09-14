@@ -7,11 +7,12 @@ use strict;
 use Test::More tests => 21;
 use Test::Fatal;
 use Data::Dumper;
-use Lab::BlockData;
+use Lab::Moose::BlockData;
 {
-    my $data = Lab::BlockData->new( matrix => [ [ 1, 2, 3 ], [ 3, 4, 5 ] ] );
+    my $data = Lab::Moose::BlockData->new(
+        matrix => [ [ 1, 2, 3 ], [ 3, 4, 5 ] ] );
 
-    isa_ok( $data, 'Lab::BlockData' );
+    isa_ok( $data, 'Lab::Moose::BlockData' );
 
     is( $data->rows,    2, 'get number of rows' );
     is( $data->columns, 3, 'get number of columns' );
@@ -53,8 +54,8 @@ use Lab::BlockData;
 
 # Add row to empty data
 {
-    my $data = Lab::BlockData->new();
-    isa_ok( $data, 'Lab::BlockData' );
+    my $data = Lab::Moose::BlockData->new();
+    isa_ok( $data, 'Lab::Moose::BlockData' );
     my $row = [ 1, 2, 3 ];
     $data->add_row($row);
 
@@ -68,8 +69,8 @@ use Lab::BlockData;
 # Add column to empty data
 
 {
-    my $data = Lab::BlockData->new();
-    isa_ok( $data, 'Lab::BlockData' );
+    my $data = Lab::Moose::BlockData->new();
+    isa_ok( $data, 'Lab::Moose::BlockData' );
     my $column = [ 1, 2, 3 ];
     $data->add_column($column);
 
@@ -82,21 +83,32 @@ use Lab::BlockData;
 
 # Invalid use
 {
-    ok( exception { Lab::BlockData->new( matrix => [ [] ] ); },
-        "empty matrix throws" );
-    ok( exception { Lab::BlockData->new( matrix => [ [ 1, 2 ], [3] ] ); },
-        "non-rectangular data throws" );
+    ok(
+        exception { Lab::Moose::BlockData->new( matrix => [ [] ] ); },
+        "empty matrix throws"
+    );
+    ok(
+        exception {
+            Lab::Moose::BlockData->new( matrix => [ [ 1, 2 ], [3] ] );
+        },
+        "non-rectangular data throws"
+    );
 
-    my $data = Lab::BlockData->new();
-    ok( exception { $data->add_column( [] ); }, "adding empty column throws" );
+    my $data = Lab::Moose::BlockData->new();
+    ok(
+        exception { $data->add_column( [] ); },
+        "adding empty column throws"
+    );
 
     $data->add_column( [ 1, 2, 3 ] );
     ok(
         exception { $data->add_column( [ 4, 5 ] ); },
         "adding column of wrong size throws"
     );
-    ok( exception { $data->add_column( [ 1, 2, 'e1' ] ); },
-        "non-number in data throws" );
+    ok(
+        exception { $data->add_column( [ 1, 2, 'e1' ] ); },
+        "non-number in data throws"
+    );
 
 }
 

@@ -70,15 +70,15 @@ sub exit_loop {
         }
         elsif ( $T_Probe < 15 ) {
             $self->{config}->{instrument}->set_heateroutput(33)
-              ;    # 0..99% of heaterlimit
+                ;    # 0..99% of heaterlimit
         }
         elsif ( $T_Probe >= 15 and $T_Probe <= 40 ) {
             $self->{config}->{instrument}->set_heateroutput(56)
-              ;    # 0..99% of heaterlimit
+                ;    # 0..99% of heaterlimit
         }
         elsif ( $T_Probe > 40 ) {
             $self->{config}->{instrument}->set_heateroutput(70)
-              ;    # 0..99% of heaterlimit
+                ;    # 0..99% of heaterlimit
         }
 
     }

@@ -78,7 +78,8 @@ my %depencencies = (
 
     'LinuxGpib' => ['LinuxGPIB'],
 
-    'Lab::VISA' => [ 'VISA', 'Lab/Bus/IsoBus.pm', 'Lab/Connection/IsoBus.pm' ],
+    'Lab::VISA' =>
+        [ 'VISA', 'Lab/Bus/IsoBus.pm', 'Lab/Connection/IsoBus.pm' ],
 );
 
 for my $module ( keys %depencencies ) {

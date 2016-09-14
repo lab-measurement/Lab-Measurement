@@ -32,8 +32,8 @@ sub new {
 
     if ( ref( $self->{config}->{repetitions} ) eq 'ARRAY' ) {
         $self->{config}->{values} = $self->{config}->{repetitions};
-        $self->{config}->{repetitions} =
-          scalar @{ $self->{config}->{repetitions} };
+        $self->{config}->{repetitions}
+            = scalar @{ $self->{config}->{repetitions} };
     }
 
     $self->{config}->{mode}   = 'list';

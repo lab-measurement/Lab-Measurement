@@ -20,7 +20,7 @@ use Exception::Class (
     Lab::Exception::CorruptParameter => {
         isa => 'Lab::Exception::Error',
         description =>
-          "A provided method parameter was of wrong type or otherwise corrupt.",
+            "A provided method parameter was of wrong type or otherwise corrupt.",
         fields => [
             'invalid_parameter',    # put the invalid parameter here
         ],
@@ -29,7 +29,7 @@ use Exception::Class (
     Lab::Exception::Timeout => {
         isa => 'Lab::Exception::Error',
         description =>
-"A timeout occured. If any data was received nontheless, you can read it off this exception object if you care for it.",
+            "A timeout occured. If any data was received nontheless, you can read it off this exception object if you care for it.",
         fields => [
             'data'
             , # this is meant to contain the data that (maybe) has been read/obtained/generated despite and up to the timeout.
@@ -44,18 +44,20 @@ use Exception::Class (
     # Driver level errors
     #
     Lab::Exception::DriverError => {
-        isa         => 'Lab::Exception::Error',
-        description => 'Something went wrong in the Instrument driver regime.',
-        fields      => [],
+        isa => 'Lab::Exception::Error',
+        description =>
+            'Something went wrong in the Instrument driver regime.',
+        fields => [],
     },
 
     #
     # errors and warnings specific to Lab::Connection::GPIB
     #
     Lab::Exception::GPIBError => {
-        isa         => 'Lab::Exception::Error',
-        description => 'An error occured in the GPIB connection (linux-gpib).',
-        fields      => [
+        isa => 'Lab::Exception::Error',
+        description =>
+            'An error occured in the GPIB connection (linux-gpib).',
+        fields => [
             'ibsta',    # the raw ibsta status byte received from linux-gpib
             'ibsta_hash'
             , # the ibsta bit values in a named, easy-to-read hash ( 'DCAS' => $val, 'DTAS' => $val, ...
@@ -64,9 +66,10 @@ use Exception::Class (
     },
 
     Lab::Exception::GPIBTimeout => {
-        isa         => 'Lab::Exception::GPIBError',
-        description => 'A timeout occured in the GPIB connection (linux-gpib).',
-        fields      => [
+        isa => 'Lab::Exception::GPIBError',
+        description =>
+            'A timeout occured in the GPIB connection (linux-gpib).',
+        fields => [
             'data'
             , # this is meant to contain the data that (maybe) has been read/obtained/generated despite and up to the timeout.
         ],
@@ -79,7 +82,7 @@ use Exception::Class (
     Lab::Exception::VISAError => {
         isa => 'Lab::Exception::Error',
         description =>
-          'An error occured with NI VISA or the Lab::VISA interface',
+            'An error occured with NI VISA or the Lab::VISA interface',
         fields => [
             'status',    # the status returned from Lab::VISA, if any
         ],
@@ -88,7 +91,7 @@ use Exception::Class (
     Lab::Exception::VISATimeout => {
         isa => 'Lab::Exception::VISAError',
         description =>
-          'A timeout occured while reading/writing through NI VISA / Lab::VISA',
+            'A timeout occured while reading/writing through NI VISA / Lab::VISA',
         fields => [
             'status',     # the status returned from Lab::VISA, if any
             'command',    # the command that led to the timeout
@@ -111,7 +114,7 @@ use Exception::Class (
     Lab::Exception::RS232Timeout => {
         isa => 'Lab::Exception::RS232Error',
         description =>
-'A timeout occured while reading/writing through native RS232 interface',
+            'A timeout occured while reading/writing through native RS232 interface',
         fields => [
             'status',     # the status returned
             'command',    # the command that led to the timeout
@@ -124,9 +127,10 @@ use Exception::Class (
     #
 
     Lab::Exception::TMCOpenFileError => {
-        isa         => 'Lab::Exception::Error',
-        description => 'An error occured while trying to open the device file',
-        fields      => [],
+        isa => 'Lab::Exception::Error',
+        description =>
+            'An error occured while trying to open the device file',
+        fields => [],
     },
 
     #
@@ -148,9 +152,7 @@ use Exception::Class (
     #
     # general warnings
     #
-    Lab::Exception::Warning => {
-        description => 'A warning.'
-    },
+    Lab::Exception::Warning => { description => 'A warning.' },
 
     Lab::Exception::UndefinedField => {
         isa         => 'Lab::Exception::Warning',

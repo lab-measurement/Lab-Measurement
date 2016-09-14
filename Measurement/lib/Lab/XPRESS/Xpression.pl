@@ -132,8 +132,8 @@ sub importFileDialog {
     my $path;
     my $filename;
 
-    if ( show_OpenFileDialog( $frame, '*.dat', \$path, \$filename ) eq wxID_OK )
-    {
+    if ( show_OpenFileDialog( $frame, '*.dat', \$path, \$filename ) eq
+        wxID_OK ) {
         importFile( $frame, $path, $filename );
     }
 
@@ -169,8 +169,8 @@ sub importFile {
 
     #open FileDialog-----------
 
-# my $dlg = Wx::FileDialog->new($frame, 'Please select a File...', '', '', '*.dat', 'wxFD_OPEN');
-# my $result = $dlg->ShowModal();
+    # my $dlg = Wx::FileDialog->new($frame, 'Please select a File...', '', '', '*.dat', 'wxFD_OPEN');
+    # my $result = $dlg->ShowModal();
 
     # if ($result == wxID_CANCEL) { return; }
     # my $filename = $dlg->GetFilename();
@@ -222,24 +222,26 @@ sub importFile {
 
         $frame->{plots}->{$plot_ID}->{column_names}->{$column} = $i;
 
-        $frame->{plots}->{$plot_ID}->{column_panels}[$i] =
-          $xrc->LoadPanel( $column_container, 'panel_Column' );
+        $frame->{plots}->{$plot_ID}->{column_panels}[$i]
+            = $xrc->LoadPanel( $column_container, 'panel_Column' );
 
         $frame->{plots}->{$plot_ID}->{column_panels}[$i]
-          ->SetName( 'panel_Column_' . $i );
-        my $label_column_name =
-          &$find( 'label_ColumnName',
-            $frame->{plots}->{$plot_ID}->{column_panels}[$i] );
+            ->SetName( 'panel_Column_' . $i );
+        my $label_column_name = &$find(
+            'label_ColumnName',
+            $frame->{plots}->{$plot_ID}->{column_panels}[$i]
+        );
         $label_column_name->SetLabel($column);
 
         if ( $i % 2 ) {
             $frame->{plots}->{$plot_ID}->{column_panels}[$i]
-              ->SetBackgroundColour( Wx::Colour->new( 240, 240, 240 ) );
+                ->SetBackgroundColour( Wx::Colour->new( 240, 240, 240 ) );
         }
 
         $column_container_sizer->Add(
             $frame->{plots}->{$plot_ID}->{column_panels}[$i],
-            0, wxEXPAND );
+            0, wxEXPAND
+        );
         $column_container_sizer->Layout();
         $column_container->FitInside();
 
@@ -253,9 +255,8 @@ sub openPlotDialog {
     my $path;
     my $filename;
 
-    if (
-        show_OpenFileDialog( $frame, '*.plot', \$path, \$filename ) eq wxID_OK )
-    {
+    if ( show_OpenFileDialog( $frame, '*.plot', \$path, \$filename ) eq
+        wxID_OK ) {
 
         openPlot( $frame, $path, $filename );
     }
@@ -273,8 +274,8 @@ sub openPlot {
     $plot->{ID} = AddPlotInstance($frame);
     $frame->{plots}->{ $plot->{ID} }->{plotdetails} = $plot;
 
-    my $plot_instance =
-      $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() );
+    my $plot_instance
+        = $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() );
 
     my $plot_ID = &$find( 'label_PlotID', $plot_instance );
     $plot_ID->SetLabel( $plot->{ID} );
@@ -286,14 +287,16 @@ sub openPlot {
     while ( my ( $axis_name, $axis ) = each %{$plot} ) {
         if ( $axis_name =~ /X|Y|Y2|CB|Z|none/ ) {
             foreach my $wave ( @{ $axis->{wave} } ) {
-                my $panel =
-                  &$find( "panel_Column_" . ( $wave->{column_number} - 1 ),
-                    $ColumnsContainer );
+                my $panel = &$find(
+                    "panel_Column_" . ( $wave->{column_number} - 1 ),
+                    $ColumnsContainer
+                );
 
                 my $ColumnAxis = &$find( "combo_ColumnAxis", $panel );
                 $ColumnAxis->SetValue($axis_name);
 
-                my $ColumnLineStyle = &$find( "combo_ColumnLineStyle", $panel );
+                my $ColumnLineStyle
+                    = &$find( "combo_ColumnLineStyle", $panel );
                 if ( $wave->{style} eq "lines" ) {
                     $ColumnLineStyle->SetValue('Line');
                 }
@@ -389,8 +392,10 @@ sub savePlot {
     my $filename;
     my $path;
 
-    my $dlg = Wx::FileDialog->new( $frame, 'Please select a File...',
-        '', '', '*.plot', 'wxFD_Save, wxFD_OVERWRITE_PROMPT' );
+    my $dlg = Wx::FileDialog->new(
+        $frame, 'Please select a File...',
+        '', '', '*.plot', 'wxFD_Save, wxFD_OVERWRITE_PROMPT'
+    );
     my $result = $dlg->ShowModal();
 
     if ( $result == wxID_OK ) {
@@ -422,61 +427,79 @@ sub AddPlotInstance {
     my $label_ID = &$find( 'label_PlotID', @{ $frame->{plot} }[-1] );
     $label_ID->SetLabel( $frame->{ID_ITERATOR} );
 
-    my $button_ImportFileDialog =
-      &$find( 'button_ImportFileDialoge',
-        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() ) );
-    Wx::Event::EVT_BUTTON( $frame, $button_ImportFileDialog,
-        \&importFileDialog );
+    my $button_ImportFileDialog = &$find(
+        'button_ImportFileDialoge',
+        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() )
+    );
+    Wx::Event::EVT_BUTTON(
+        $frame, $button_ImportFileDialog,
+        \&importFileDialog
+    );
 
-    my $button_AddPlotInstance =
-      &$find( 'button_AddPlotInstance',
-        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() ) );
-    Wx::Event::EVT_BUTTON( $frame, $button_AddPlotInstance, \&AddPlotInstance );
+    my $button_AddPlotInstance = &$find(
+        'button_AddPlotInstance',
+        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() )
+    );
+    Wx::Event::EVT_BUTTON(
+        $frame, $button_AddPlotInstance,
+        \&AddPlotInstance
+    );
 
-    my $button_OpenPlot =
-      &$find( 'button_OpenPlot',
-        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() ) );
+    my $button_OpenPlot = &$find(
+        'button_OpenPlot',
+        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() )
+    );
     Wx::Event::EVT_BUTTON( $frame, $button_OpenPlot, \&openPlotDialog );
 
-    my $button_SavePlot =
-      &$find( 'button_SavePlot',
-        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() ) );
+    my $button_SavePlot = &$find(
+        'button_SavePlot',
+        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() )
+    );
     Wx::Event::EVT_BUTTON( $frame, $button_SavePlot, \&savePlot );
 
-    my $button_ClosePlotInstance =
-      &$find( 'button_ClosePlotInstance',
-        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() ) );
-    Wx::Event::EVT_BUTTON( $frame, $button_ClosePlotInstance,
-        \&ClosePlotInstance );
+    my $button_ClosePlotInstance = &$find(
+        'button_ClosePlotInstance',
+        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() )
+    );
+    Wx::Event::EVT_BUTTON(
+        $frame, $button_ClosePlotInstance,
+        \&ClosePlotInstance
+    );
 
-    my $combo_PlotType =
-      &$find( 'combo_PlotType',
-        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() ) );
+    my $combo_PlotType = &$find(
+        'combo_PlotType',
+        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() )
+    );
     Wx::Event::EVT_COMBOBOX( $frame, $combo_PlotType, \&ChangePlotType );
 
-    my $button_Plot =
-      &$find( 'button_Plot',
-        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() ) );
+    my $button_Plot = &$find(
+        'button_Plot',
+        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() )
+    );
     Wx::Event::EVT_BUTTON( $frame, $button_Plot, \&Plot );
 
-    my $button_ExtractData =
-      &$find( 'button_ExtractData',
-        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() ) );
+    my $button_ExtractData = &$find(
+        'button_ExtractData',
+        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() )
+    );
     Wx::Event::EVT_BUTTON( $frame, $button_ExtractData, \&export_Data );
 
-    my $button_Export =
-      &$find( 'button_Export',
-        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() ) );
+    my $button_Export = &$find(
+        'button_Export',
+        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() )
+    );
     Wx::Event::EVT_BUTTON( $frame, $button_Export, \&export_Graph );
 
-    my $button_PlotBlocks =
-      &$find( 'spin_PlotBlocks',
-        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() ) );
+    my $button_PlotBlocks = &$find(
+        'spin_PlotBlocks',
+        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() )
+    );
     Wx::Event::EVT_SPINCTRL( $frame, $button_PlotBlocks, \&update_Plot );
 
-    my $button_PlotBlocks =
-      &$find( 'spin_PlotLines',
-        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() ) );
+    my $button_PlotBlocks = &$find(
+        'spin_PlotLines',
+        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() )
+    );
     Wx::Event::EVT_SPINCTRL( $frame, $button_PlotBlocks, \&update_Plot );
 
     return $frame->{ID_ITERATOR};
@@ -495,46 +518,58 @@ sub ClosePlotInstance {
 sub ChangePlotType {
     my $frame = shift;
 
-    my $combo_PlotType =
-      &$find( 'combo_PlotType',
-        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() ) );
-    my $panel_Y2Axis =
-      &$find( 'panel_Y2Axis',
-        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() ) );
-    my $panel_CBAxis =
-      &$find( 'panel_CBAxis',
-        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() ) );
+    my $combo_PlotType = &$find(
+        'combo_PlotType',
+        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() )
+    );
+    my $panel_Y2Axis = &$find(
+        'panel_Y2Axis',
+        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() )
+    );
+    my $panel_CBAxis = &$find(
+        'panel_CBAxis',
+        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() )
+    );
 
-    my $panel_PlotSetup =
-      &$find( 'panel_PlotSetup',
-        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() ) );
+    my $panel_PlotSetup = &$find(
+        'panel_PlotSetup',
+        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() )
+    );
     my $sizer_PlotSetup = $panel_PlotSetup->GetSizer();
 
-    my $static_PlotBlocks =
-      &$find( 'static_PlotBlocks',
-        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() ) );
-    my $input_PlotBlocks =
-      &$find( 'input_PlotBlocks',
-        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() ) );
-    my $spin_PlotBlocks =
-      &$find( 'spin_PlotBlocks',
-        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() ) );
-    my $static_PlotBlocksExample =
-      &$find( 'static_PlotBlocksExample',
-        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() ) );
+    my $static_PlotBlocks = &$find(
+        'static_PlotBlocks',
+        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() )
+    );
+    my $input_PlotBlocks = &$find(
+        'input_PlotBlocks',
+        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() )
+    );
+    my $spin_PlotBlocks = &$find(
+        'spin_PlotBlocks',
+        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() )
+    );
+    my $static_PlotBlocksExample = &$find(
+        'static_PlotBlocksExample',
+        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() )
+    );
 
-    my $static_PlotLines =
-      &$find( 'static_PlotLines',
-        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() ) );
-    my $input_PlotLines =
-      &$find( 'input_PlotLines',
-        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() ) );
-    my $spin_PlotLines =
-      &$find( 'spin_PlotLines',
-        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() ) );
-    my $static_PlotLinesExample =
-      &$find( 'static_PlotLinesExample',
-        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() ) );
+    my $static_PlotLines = &$find(
+        'static_PlotLines',
+        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() )
+    );
+    my $input_PlotLines = &$find(
+        'input_PlotLines',
+        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() )
+    );
+    my $spin_PlotLines = &$find(
+        'spin_PlotLines',
+        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() )
+    );
+    my $static_PlotLinesExample = &$find(
+        'static_PlotLinesExample',
+        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() )
+    );
 
     if ( $combo_PlotType->GetValue() eq 'Color-Map' ) {
         $panel_Y2Axis->Hide();
@@ -607,8 +642,7 @@ sub Plot {
     $frame->{plots}->{ $plot->{ID} }->{plotdetails} = $plot;
 
     if (   not defined $frame->{plots}->{ $plot->{ID} }->{plotter}
-        or not $frame->{plots}->{ $plot->{ID} }->{plotter}->available() )
-    {
+        or not $frame->{plots}->{ $plot->{ID} }->{plotter}->available() ) {
         my $plotter = new Lab::XPRESS::Xpression::PlotterGUI($plot);
         $frame->{plots}->{ $plot->{ID} }->{plotter} = $plotter;
         $plotter->init_gnuplot();
@@ -625,8 +659,8 @@ sub Plot {
 sub update_Plot {
     my $frame = shift;
 
-    my $plot_instance =
-      $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() );
+    my $plot_instance
+        = $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() );
 
     my $plot_ID = &$find( 'label_PlotID', $plot_instance );
     $plot_ID = $plot_ID->GetLabel();
@@ -638,36 +672,41 @@ sub update_Plot {
         my $Block = $plot_blocks->GetValue();
         $frame->{plots}->{$plot_ID}->{plotdetails}->{CurrentBlockValue} = @{
             $frame->{plots}->{$plot_ID}->{dataset}->{DATA}[
-              @{ $frame->{plots}->{$plot_ID}->{plotdetails}->{X}->{wave} }[0]
-              ->{column_number} - 1
+                @{ $frame->{plots}->{$plot_ID}->{plotdetails}->{X}->{wave} }
+                [0]->{column_number} - 1
             ][$Block]
         }[0];
         if (
             abs(
-                $frame->{plots}->{$plot_ID}->{plotdetails}->{CurrentBlockValue}
+                $frame->{plots}->{$plot_ID}->{plotdetails}
+                    ->{CurrentBlockValue}
             ) < 1e-3
             or abs(
-                $frame->{plots}->{$plot_ID}->{plotdetails}->{CurrentBlockValue}
+                $frame->{plots}->{$plot_ID}->{plotdetails}
+                    ->{CurrentBlockValue}
             ) > 1e3
-          )
-        {
-            $frame->{plots}->{$plot_ID}->{plotdetails}->{CurrentBlockValue} =
-              sprintf( "%1.2e",
-                $frame->{plots}->{$plot_ID}->{plotdetails}->{CurrentBlockValue}
-              );
+            ) {
+            $frame->{plots}->{$plot_ID}->{plotdetails}->{CurrentBlockValue}
+                = sprintf(
+                "%1.2e",
+                $frame->{plots}->{$plot_ID}->{plotdetails}
+                    ->{CurrentBlockValue}
+                );
         }
         else {
-            $frame->{plots}->{$plot_ID}->{plotdetails}->{CurrentBlockValue} =
-              sprintf( "%1.3f",
-                $frame->{plots}->{$plot_ID}->{plotdetails}->{CurrentBlockValue}
-              );
+            $frame->{plots}->{$plot_ID}->{plotdetails}->{CurrentBlockValue}
+                = sprintf(
+                "%1.3f",
+                $frame->{plots}->{$plot_ID}->{plotdetails}
+                    ->{CurrentBlockValue}
+                );
         }
-        $gp .=
-          "set label 1 '"
-          . @{ $frame->{plots}->{$plot_ID}->{plotdetails}->{X}->{wave} }[0]
-          ->{column_name} . " = "
-          . $frame->{plots}->{$plot_ID}->{plotdetails}->{CurrentBlockValue}
-          . "' at graph 0.5, graph 1.06 front center tc rgb 'white'; ";
+        $gp
+            .= "set label 1 '"
+            . @{ $frame->{plots}->{$plot_ID}->{plotdetails}->{X}->{wave} }[0]
+            ->{column_name} . " = "
+            . $frame->{plots}->{$plot_ID}->{plotdetails}->{CurrentBlockValue}
+            . "' at graph 0.5, graph 1.06 front center tc rgb 'white'; ";
         $gp .= "BlockFrom = $Block; ";
         $gp .= "BlockTo = $Block; ";
         $gp .= "BlockIncrement = 1; ";
@@ -676,8 +715,8 @@ sub update_Plot {
         my $Line = $plot_lines->GetValue();
         $frame->{plots}->{$plot_ID}->{plotdetails}->{CurrentLineValue} = @{
             $frame->{plots}->{$plot_ID}->{dataset}->{DATA}[
-              @{ $frame->{plots}->{$plot_ID}->{plotdetails}->{Y}->{wave} }[0]
-              ->{column_number} - 1
+                @{ $frame->{plots}->{$plot_ID}->{plotdetails}->{Y}->{wave} }
+                [0]->{column_number} - 1
             ][0]
         }[$Line];
         if (
@@ -687,25 +726,26 @@ sub update_Plot {
             or abs(
                 $frame->{plots}->{$plot_ID}->{plotdetails}->{CurrentLineValue}
             ) > 1e3
-          )
-        {
-            $frame->{plots}->{$plot_ID}->{plotdetails}->{CurrentLineValue} =
-              sprintf( "%1.2e",
+            ) {
+            $frame->{plots}->{$plot_ID}->{plotdetails}->{CurrentLineValue}
+                = sprintf(
+                "%1.2e",
                 $frame->{plots}->{$plot_ID}->{plotdetails}->{CurrentLineValue}
-              );
+                );
         }
         else {
-            $frame->{plots}->{$plot_ID}->{plotdetails}->{CurrentLineValue} =
-              sprintf( "%1.3f",
+            $frame->{plots}->{$plot_ID}->{plotdetails}->{CurrentLineValue}
+                = sprintf(
+                "%1.3f",
                 $frame->{plots}->{$plot_ID}->{plotdetails}->{CurrentLineValue}
-              );
+                );
         }
-        $gp .=
-          "set label 1 '"
-          . @{ $frame->{plots}->{$plot_ID}->{plotdetails}->{Y}->{wave} }[0]
-          ->{column_name} . " = "
-          . $frame->{plots}->{$plot_ID}->{plotdetails}->{CurrentLineValue}
-          . "' at graph 0.5, graph 1.06 front center tc rgb 'white'; ";
+        $gp
+            .= "set label 1 '"
+            . @{ $frame->{plots}->{$plot_ID}->{plotdetails}->{Y}->{wave} }[0]
+            ->{column_name} . " = "
+            . $frame->{plots}->{$plot_ID}->{plotdetails}->{CurrentLineValue}
+            . "' at graph 0.5, graph 1.06 front center tc rgb 'white'; ";
         $gp .= "LineFrom = $Line; ";
         $gp .= "LineTo = $Line; ";
         $gp .= "LineIncrement = 1; ";
@@ -727,19 +767,20 @@ sub get_PlotDetails {
 
     my $plot;
 
-    my $plot_instance =
-      $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() );
+    my $plot_instance
+        = $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() );
 
     my $plot_ID = &$find( 'label_PlotID', $plot_instance );
     $plot_ID = $plot_ID->GetLabel();
     $plot->{ID} = $plot_ID;
 
-    $plot->{filename}         = $frame->{plots}->{$plot_ID}->{filename};
-    $plot->{path}             = $frame->{plots}->{$plot_ID}->{path};
-    $plot->{column_names}     = $frame->{plots}->{$plot_ID}->{column_names};
-    $plot->{number_of_blocks} = $frame->{plots}->{$plot_ID}->{number_of_blocks};
-    $plot->{number_of_columns} =
-      $frame->{plots}->{$plot_ID}->{number_of_columns};
+    $plot->{filename}     = $frame->{plots}->{$plot_ID}->{filename};
+    $plot->{path}         = $frame->{plots}->{$plot_ID}->{path};
+    $plot->{column_names} = $frame->{plots}->{$plot_ID}->{column_names};
+    $plot->{number_of_blocks}
+        = $frame->{plots}->{$plot_ID}->{number_of_blocks};
+    $plot->{number_of_columns}
+        = $frame->{plots}->{$plot_ID}->{number_of_columns};
     $plot->{number_of_lines} = $frame->{plots}->{$plot_ID}->{number_of_lines};
 
     my $ColumnsContainer = &$find( "panel_ColumnsContainer", $plot_instance );
@@ -755,8 +796,8 @@ sub get_PlotDetails {
         # append new wave:
         push( @{ $plot->{$ColumnAxis}->{wave} }, {} );
 
-        @{ $plot->{$ColumnAxis}->{wave} }[-1]->{filename} =
-          $frame->{plots}->{$plot_ID}->{path};
+        @{ $plot->{$ColumnAxis}->{wave} }[-1]->{filename}
+            = $frame->{plots}->{$plot_ID}->{path};
 
         my $ColumnName = &$find( "label_ColumnName", $window );
         $ColumnName = $ColumnName->GetLabel();
@@ -949,30 +990,26 @@ sub get_PlotDetails {
     if ( $plot->{type} eq 'Standard' ) {
 
         if (    not defined @{ $plot->{Y}->{wave} }[0]
-            and not defined @{ $plot->{Y2}->{wave} }[0] )
-        {
+            and not defined @{ $plot->{Y2}->{wave} }[0] ) {
             $plot->{ok} = -1;
         }
     }
     elsif ( $plot->{type} eq 'Color-Map' ) {
         if (   not defined @{ $plot->{Y}->{wave} }[0]
-            or not defined @{ $plot->{CB}->{wave} }[0] )
-        {
+            or not defined @{ $plot->{CB}->{wave} }[0] ) {
 
             $plot->{ok} = -1;
         }
     }
     elsif ( $plot->{type} eq 'vertical Linetraces' ) {
         if (   not defined @{ $plot->{Y}->{wave} }[0]
-            or not defined @{ $plot->{CB}->{wave} }[0] )
-        {
+            or not defined @{ $plot->{CB}->{wave} }[0] ) {
             $plot->{ok} = -1;
         }
     }
     elsif ( $plot->{type} eq 'horizontal Linetraces' ) {
         if (   not defined @{ $plot->{Y}->{wave} }[0]
-            or not defined @{ $plot->{CB}->{wave} }[0] )
-        {
+            or not defined @{ $plot->{CB}->{wave} }[0] ) {
             $plot->{ok} = -1;
         }
     }
@@ -987,9 +1024,10 @@ sub export_Data {
     my $plotdetails = get_PlotDetails($frame);
     $frame->{plots}->{ $plotdetails->{ID} }->{plotdetails} = $plotdetails;
 
-    my $label_ID =
-      &$find( 'label_PlotID',
-        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() ) );
+    my $label_ID = &$find(
+        'label_PlotID',
+        $frame->{Tabs}->GetPage( $frame->{Tabs}->GetSelection() )
+    );
     my $plot_ID = $label_ID->GetLabel();
     my $plot    = $frame->{plots}->{$plot_ID};
 
@@ -1017,8 +1055,7 @@ sub export_Data {
         foreach my $axis (
             $plotdetails->{X},  $plotdetails->{Y}, $plotdetails->{Y2},
             $plotdetails->{CB}, $plotdetails->{Z}
-          )
-        {
+            ) {
             foreach my $wave ( @{ $axis->{wave} } ) {
                 push( @columns, $wave->{column_name} );
             }
@@ -1031,32 +1068,30 @@ sub export_Data {
 
     my @blocks = ();
     for (
-        my $block = $plotdetails->{BlockFrom} ;
-        $block <= $plotdetails->{BlockTo} ;
+        my $block = $plotdetails->{BlockFrom};
+        $block <= $plotdetails->{BlockTo};
         $block += $plotdetails->{BlockIncrement}
-      )
-    {
+        ) {
         push( @blocks, $block );
     }
 
     #$extracted_data = $extracted_data->extract_block(@blocks);
     print "@{$plot->{ExtractBlocks}}\n";
-    $extracted_data =
-      $extracted_data->extract_block( @{ $plot->{ExtractBlocks} } );
+    $extracted_data
+        = $extracted_data->extract_block( @{ $plot->{ExtractBlocks} } );
 
     my @lines = ();
     for (
-        my $line = $plotdetails->{LineFrom} ;
-        $line <= $plotdetails->{LineTo} ;
+        my $line = $plotdetails->{LineFrom};
+        $line <= $plotdetails->{LineTo};
         $line += $plotdetails->{LineIncrement}
-      )
-    {
+        ) {
         push( @lines, $line );
     }
 
     #$extracted_data = $extracted_data->extract_line(@lines);
-    $extracted_data =
-      $extracted_data->extract_line( @{ $plot->{ExtractLines} } );
+    $extracted_data
+        = $extracted_data->extract_line( @{ $plot->{ExtractLines} } );
     $extracted_data->print('C');
 
     if ( $plot->{ExtractDataStyle} == 0 ) {
@@ -1080,10 +1115,12 @@ sub show_ExtractDataDialog {
     my $button_SelectFile = &$find( 'button_SelectFile', $Dialog );
     Wx::Event::EVT_BUTTON( $Dialog, $button_SelectFile, \&FileDialogExtract );
 
-    my $radiobutton_SelectColumns =
-      &$find( 'radiobox_ExtractColumns', $Dialog );
-    Wx::Event::EVT_RADIOBOX( $Dialog, $radiobutton_SelectColumns,
-        \&ExtractDataDialog_SelectColumns );
+    my $radiobutton_SelectColumns
+        = &$find( 'radiobox_ExtractColumns', $Dialog );
+    Wx::Event::EVT_RADIOBOX(
+        $Dialog, $radiobutton_SelectColumns,
+        \&ExtractDataDialog_SelectColumns
+    );
 
     # fill CheckBoxList with Columns:
     my $checklist_Columns = &$find( 'checklist_ExtractColumns', $Dialog );
@@ -1093,8 +1130,8 @@ sub show_ExtractDataDialog {
     if ( $Dialog->ShowModal() == wxID_OK ) {
 
         # get selection for lines:
-        my $input_ExtractSelectionLines =
-          &$find( "input_ExtractSelectionLines", $Dialog );
+        my $input_ExtractSelectionLines
+            = &$find( "input_ExtractSelectionLines", $Dialog );
         $plot->{ExtractLines} = $input_ExtractSelectionLines->GetValue();
         $plot->{ExtractLines} =~ s/\s//g;
         my @parts = split( ",", $plot->{ExtractLines} );
@@ -1123,7 +1160,7 @@ sub show_ExtractDataDialog {
                 $c = 1;
             }
             @parts = ();
-            for ( my $i = $a ; $i <= $b ; $i += $c ) {
+            for ( my $i = $a; $i <= $b; $i += $c ) {
                 push( @parts, $i );
             }
             $parts = @parts;
@@ -1134,8 +1171,8 @@ sub show_ExtractDataDialog {
         }
 
         # get selection for blocks:
-        my $input_ExtractSelectionBlocks =
-          &$find( "input_ExtractSelectionBlocks", $Dialog );
+        my $input_ExtractSelectionBlocks
+            = &$find( "input_ExtractSelectionBlocks", $Dialog );
         $plot->{ExtractBlocks} = $input_ExtractSelectionBlocks->GetValue();
         $plot->{ExtractBlocks} =~ s/\s//g;
         my @parts = split( ",", $plot->{ExtractBlocks} );
@@ -1164,7 +1201,7 @@ sub show_ExtractDataDialog {
                 $c = 1;
             }
             @parts = ();
-            for ( my $i = $a ; $i <= $b ; $i += $c ) {
+            for ( my $i = $a; $i <= $b; $i += $c ) {
                 push( @parts, $i );
             }
             $parts = @parts;
@@ -1174,8 +1211,8 @@ sub show_ExtractDataDialog {
             push( @{ $plot->{ExtractBlocks} }, $_ );
         }
 
-        my $radioboxExtractColumns =
-          &$find( "radiobox_ExtractColumns", $Dialog );
+        my $radioboxExtractColumns
+            = &$find( "radiobox_ExtractColumns", $Dialog );
         $plot->{ExtractColumns} = $radioboxExtractColumns->GetSelection();
 
         # get selected columns:
@@ -1189,7 +1226,8 @@ sub show_ExtractDataDialog {
             }
         }
 
-        my $radioboxDataStyle = &$find( "radiobox_ExtractDataStyle", $Dialog );
+        my $radioboxDataStyle
+            = &$find( "radiobox_ExtractDataStyle", $Dialog );
         $plot->{ExtractDataStyle} = $radioboxDataStyle->GetSelection();
 
         my $inputExtractFilename = &$find( "input_ExtractFilename", $Dialog );
@@ -1211,10 +1249,12 @@ sub show_ExtractDataDialog {
 sub ExtractDataDialog_SelectColumns {
     my $frame = shift;
 
-    my $Radiobutton_SelectColumns = &$find( "radiobox_ExtractColumns", $frame );
+    my $Radiobutton_SelectColumns
+        = &$find( "radiobox_ExtractColumns", $frame );
     my $mode = $Radiobutton_SelectColumns->GetSelection();
 
-    my $Checklist_SelectColumns = &$find( "checklist_ExtractColumns", $frame );
+    my $Checklist_SelectColumns
+        = &$find( "checklist_ExtractColumns", $frame );
     if ( $mode == 0 ) {
         $Checklist_SelectColumns->Enable(0);
     }
@@ -1247,8 +1287,10 @@ sub show_OpenFileDialog {
 
     #open FileDialog-----------
 
-    my $dlg = Wx::FileDialog->new( $frame, 'Please select a File...',
-        '', '', $wildcard, 'wxFD_OPEN, wxFD_FILE_MUST_EXIST' );
+    my $dlg = Wx::FileDialog->new(
+        $frame, 'Please select a File...',
+        '', '', $wildcard, 'wxFD_OPEN, wxFD_FILE_MUST_EXIST'
+    );
     my $result = $dlg->ShowModal();
 
     if ( $result == wxID_OK ) {
@@ -1269,8 +1311,10 @@ sub export_Graph {
     my $plotter = $frame->{plots}->{ $plot->{ID} }->{plotter};
 
     # open File dialog:
-    my $dlg = Wx::FileDialog->new( $frame, 'Please select a File...',
-        '', '', '(*.png)|*.png|(*.dat)|*.dat|(all)|*.*', 'wxFD_OPEN' );
+    my $dlg = Wx::FileDialog->new(
+        $frame, 'Please select a File...',
+        '', '', '(*.png)|*.png|(*.dat)|*.dat|(all)|*.*', 'wxFD_OPEN'
+    );
     my $result = $dlg->ShowModal();
 
     if ( $result == wxID_CANCEL ) { return; }

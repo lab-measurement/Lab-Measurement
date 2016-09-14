@@ -16,8 +16,8 @@ use Scalar::Util qw(looks_like_number);
 
 use TestLib;
 
-my $connection =
-  Connection( get_gpib_connection_type(), { gpib_address => 8 } );
+my $connection
+    = Connection( get_gpib_connection_type(), { gpib_address => 8 } );
 
 my $input1 = Instrument(
     'SR830::AuxIn',

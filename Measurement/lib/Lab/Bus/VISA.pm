@@ -29,19 +29,19 @@ sub new {
     my $proto = shift;
     my $class = ref($proto) || $proto;
     my $twin  = undef;
-    my $self =
-      $class->SUPER::new(@_);  # getting fields and _permitted from parent class
+    my $self  = $class->SUPER::new(@_)
+        ;    # getting fields and _permitted from parent class
     $self->${ \( __PACKAGE__ . '::_construct' ) }(__PACKAGE__);
 
-# search for twin in %Lab::Bus::BusList. If there's none, place $self there and weaken it.
+    # search for twin in %Lab::Bus::BusList. If there's none, place $self there and weaken it.
     if ( $class eq __PACKAGE__ )
-    {    # careful - do only if this is not a parent class constructor
+    {        # careful - do only if this is not a parent class constructor
         if ( $twin = $self->_search_twin() ) {
             undef $self;
             return $twin;    # ...and that's it.
         }
         else {
-       # no distinction between VISA resource managers yet - need more than one?
+            # no distinction between VISA resource managers yet - need more than one?
             $Lab::Bus::BusList{ $self->type() }->{'default'} = $self;
             weaken( $Lab::Bus::BusList{ $self->type() }->{'default'} );
         }
@@ -61,23 +61,20 @@ sub _check_resource_name {    # @_ = ( $resource_name )
     my ( $self, $resname ) = ( shift, shift );
     my $found = undef;
 
-# check for a valid resource name. let's start with GPIB INSTR (NI-VISA Programmer Reference Manual, P. 276)
+    # check for a valid resource name. let's start with GPIB INSTR (NI-VISA Programmer Reference Manual, P. 276)
     if (
-        $resname =~ /^GPIB[0-9]*::[0-9]+(::[0-9]+)?(::INSTR)?$/    # GPIB INSTR
-      )
-    {
+        $resname =~ /^GPIB[0-9]*::[0-9]+(::[0-9]+)?(::INSTR)?$/   # GPIB INSTR
+        ) {
         return 1;
     }
     elsif (
-        $resname =~ /^ASRL[0-9]+(::INSTR)?$/                       # RS232 INSTR
-      )
-    {
+        $resname =~ /^ASRL[0-9]+(::INSTR)?$/    # RS232 INSTR
+        ) {
         return 1;
     }
     elsif (
         $resname =~ /^TCPIP0?::[0-9\.]*(::INSTR)?$/    # TCP/IP INSTR
-      )
-    {
+        ) {
         return 1;
     }
 
@@ -98,11 +95,11 @@ sub connection_new {    # @_ = ({ resource_name => $resource_name })
     my $resource_name = $args->{'resource_name'};
 
     Lab::Exception::CorruptParameter->throw( error =>
-          'No resource name given to Lab::Bus::VISA::connection_new().\n' )
-      if ( !exists $args->{'resource_name'} );
+            'No resource name given to Lab::Bus::VISA::connection_new().\n' )
+        if ( !exists $args->{'resource_name'} );
     Lab::Exception::CorruptParameter->throw( error =>
-          'Invalid resource name given to Lab::Bus::VISA::connection_new().\n' )
-      if ( !$self->_check_resource_name( $args->{'resource_name'} ) );
+            'Invalid resource name given to Lab::Bus::VISA::connection_new().\n'
+    ) if ( !$self->_check_resource_name( $args->{'resource_name'} ) );
 
     ( $status, $connection_handle ) = Lab::VISA::viOpen(
         $self->default_rm(), $args->{'resource_name'},
@@ -111,7 +108,7 @@ sub connection_new {    # @_ = ({ resource_name => $resource_name })
     if ( $status != $Lab::VISA::VI_SUCCESS ) {
         Lab::Exception::VISAError->throw(
             error =>
-              "Cannot open VISA instrument \"$resource_name\". Status: $status",
+                "Cannot open VISA instrument \"$resource_name\". Status: $status",
             status => $status
         );
     }
@@ -141,12 +138,14 @@ sub connection_read
     my $read_cnt = undef;
 
     if ( defined $timeout ) {
-        $self->set_visa_attribute( $connection_handle,
-            $Lab::VISA::VI_ATTR_TMO_VALUE, $timeout * 1e3 );
+        $self->set_visa_attribute(
+            $connection_handle,
+            $Lab::VISA::VI_ATTR_TMO_VALUE, $timeout * 1e3
+        );
     }
 
-    ( $status, $result, $read_cnt ) =
-      Lab::VISA::viRead( $connection_handle, $read_length );
+    ( $status, $result, $read_cnt )
+        = Lab::VISA::viRead( $connection_handle, $read_length );
 
     #print "$status,$result,$read_cnt\n";
     #exit;
@@ -158,18 +157,17 @@ sub connection_read
             || $status == $Lab::VISA::VI_ERROR_TMO
             || $status > 0
         )
-      )
-    {
+        ) {
         Lab::Exception::VISAError->throw(
             error =>
-"Error in Lab::Bus::VISA::connection_read() while executing $command, Status $status",
+                "Error in Lab::Bus::VISA::connection_read() while executing $command, Status $status",
             status => $status,
         );
     }
     elsif ( $status == $Lab::VISA::VI_ERROR_TMO && !$brutal ) {
         Lab::Exception::VISATimeout->throw(
             error =>
-"Timeout in Lab::Bus::VISA::connection_read() while executing $command\n",
+                "Timeout in Lab::Bus::VISA::connection_read() while executing $command\n",
             status  => $status,
             command => $command,
             data    => $result,
@@ -177,8 +175,10 @@ sub connection_read
     }
 
     if ( defined $timeout ) {
-        $self->set_visa_attribute( $connection_handle,
-            $Lab::VISA::VI_ATTR_TMO_VALUE, $self->config('timeout') * 1e3 );
+        $self->set_visa_attribute(
+            $connection_handle,
+            $Lab::VISA::VI_ATTR_TMO_VALUE, $self->config('timeout') * 1e3
+        );
     }
 
     $result = substr( $result, 0, $read_cnt );
@@ -208,20 +208,22 @@ sub connection_write
 
     if ( !defined $command ) {
         Lab::Exception::CorruptParameter->throw(
-                error => "No command given to "
-              . __PACKAGE__
-              . "::connection_write().\n", );
+                  error => "No command given to "
+                . __PACKAGE__
+                . "::connection_write().\n", );
     }
     else {
-        ( $status, $write_cnt ) =
-          Lab::VISA::viWrite( $connection_handle, $command, length($command) );
+        ( $status, $write_cnt ) = Lab::VISA::viWrite(
+            $connection_handle, $command,
+            length($command)
+        );
 
         sleep($wait_status);
 
         if ( $status != $Lab::VISA::VI_SUCCESS ) {
             Lab::Exception::VISAError->throw(
                 error =>
-"Error in Lab::Bus::VISA::connection_write() while executing $command, Status $status",
+                    "Error in Lab::Bus::VISA::connection_write() while executing $command, Status $status",
                 status => $status,
             );
         }
@@ -253,7 +255,8 @@ sub connection_query
 
     $write_cnt = $self->connection_write($args);
 
-    usleep($wait_query);  #<---ensures that asked data presented from the device
+    usleep($wait_query)
+        ;    #<---ensures that asked data presented from the device
 
     $result = $self->connection_read($args);
     return $result;
@@ -264,8 +267,10 @@ sub connection_clear {
     my $connection_handle = shift;
 
     while (1) {
-        my $result = $self->connection_read( $connection_handle,
-            { timeout => 0.1, brutal => 1 } );
+        my $result = $self->connection_read(
+            $connection_handle,
+            { timeout => 0.1, brutal => 1 }
+        );
         if ( $result == 0 ) { last; }
     }
 
@@ -277,18 +282,18 @@ sub serial_poll {
 
     my ( $ibstatus, $sbyte ) = Lab::VISA::viReadSTB($connection_handle);
 
-#
-# TODO: VISA status evaluation
-#
-# my $ib_bits=$self->ParseIbstatus($ibstatus);
-#
-# if($ib_bits->{'ERR'}==1) {
-# 	Lab::Exception::GPIBError->throw(
-#		error => sprintf("ibrsp (serial poll) failed with status %x\n", $ibstatus) . Dumper($ib_bits),
-#		ibsta => $ibstatus,
-#		ibsta_hash => $ib_bits,
-#	);
-# }
+    #
+    # TODO: VISA status evaluation
+    #
+    # my $ib_bits=$self->ParseIbstatus($ibstatus);
+    #
+    # if($ib_bits->{'ERR'}==1) {
+    # 	Lab::Exception::GPIBError->throw(
+    #		error => sprintf("ibrsp (serial poll) failed with status %x\n", $ibstatus) . Dumper($ib_bits),
+    #		ibsta => $ibstatus,
+    #		ibsta_hash => $ib_bits,
+    #	);
+    # }
 
     return $sbyte;
 }
@@ -299,11 +304,13 @@ sub timeout {
     my $connection_handle = shift;
     my $timeout           = shift;
 
-    my $result = Lab::VISA::viSetAttribute( $connection_handle,
-        $Lab::VISA::VI_ATTR_TMO_VALUE, $timeout * 1e3 );
+    my $result = Lab::VISA::viSetAttribute(
+        $connection_handle,
+        $Lab::VISA::VI_ATTR_TMO_VALUE, $timeout * 1e3
+    );
     if ( $result != $Lab::VISA::VI_SUCCESS ) {
-        print new Lab::Exception::VISAError(
-            error => "Error while setting Visa Attribute Timeout. $result \n" );
+        print new Lab::Exception::VISAError( error =>
+                "Error while setting Visa Attribute Timeout. $result \n" );
 
     }
     return $result;
@@ -317,11 +324,14 @@ sub set_visa_attribute {
     my $value             = shift;
 
     if ( defined $value ) {
-        my $result =
-          Lab::VISA::viSetAttribute( $connection_handle, $attribute, $value );
+        my $result = Lab::VISA::viSetAttribute(
+            $connection_handle, $attribute,
+            $value
+        );
         if ( $result != $Lab::VISA::VI_SUCCESS ) {
             print new Lab::Exception::VISAError( error =>
-                  "Error while setting Visa Attribute $attribute. $result \n" );
+                    "Error while setting Visa Attribute $attribute. $result \n"
+            );
         }
         return $result;
     }

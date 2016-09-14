@@ -11,7 +11,7 @@ use Exporter 'import';
 our $VERSION = '3.520';
 
 our @EXPORT = qw( scpi_match scpi_parse scpi_canon
-  scpi_flat scpi_parse_sequence );
+    scpi_flat scpi_parse_sequence );
 
 our $WS = qr/[\x00-\x09\x0b-\x20]/;    # whitespace std488-2 7.4.1.2
 
@@ -343,17 +343,20 @@ sub _scpi_value($$) {
             $str = '';
             return $str;
         }
-        elsif ( $str =~ /^(\"(?:([^\"]+|\"\")*)\")${WS}*/ ) {  # double q string
+        elsif ( $str =~ /^(\"(?:([^\"]+|\"\")*)\")${WS}*/ )
+        {                                   # double q string
             $d->{_VALUE} .= $1 . ' ';
             $str    = $POSTMATCH;
             $lastsp = 1;
         }
-        elsif ( $str =~ /^(\'(?:([^\']+|\'\')*)\')${WS}*/ ) {  # single q string
+        elsif ( $str =~ /^(\'(?:([^\']+|\'\')*)\')${WS}*/ )
+        {                                   # single q string
             $d->{_VALUE} .= $1 . ' ';
             $str    = $POSTMATCH;
             $lastsp = 1;
         }
-        elsif ( $str =~ /^([\w\-\+\.\%\!\#\~\=\*]+)${WS}*/i ) {  #words, numbers
+        elsif ( $str =~ /^([\w\-\+\.\%\!\#\~\=\*]+)${WS}*/i )
+        {                                   #words, numbers
             $d->{_VALUE} .= $1 . ' ';
             $str    = $POSTMATCH;
             $lastsp = 1;
@@ -361,7 +364,7 @@ sub _scpi_value($$) {
         else {
             croak("parse error, parameter not matched  with '$str'");
         }
-        if ( $str =~ /^${WS}*,/ ) {    #parameter separator
+        if ( $str =~ /^${WS}*,/ ) {         #parameter separator
             $str = $POSTMATCH;
             $d->{_VALUE} =~ s/${WS}*$// if $lastsp;
             $d->{_VALUE} .= ',';
@@ -402,7 +405,7 @@ sub scpi_parse_sequence($;$) {
             my $ttop = {};
             my $t    = $ttop;
 
-            for ( my $j = 0 ; $j <= $#cur ; $j++ ) {
+            for ( my $j = 0; $j <= $#cur; $j++ ) {
                 my $k = $cur[$j];
                 if ( $k eq '_VALUE' ) {
                     $t->{$k} = $cur[ $j + 1 ];
@@ -579,7 +582,8 @@ sub scpi_canon($;$$) {
                         $m = $ko;
                         $m =~ s/[a-z]\w*$//;    # remove trailing lowercase
                         $s = "$m$num$q";
-                        $n->{$s} = scpi_canon( $h->{$k}, $override->{$ko}, 0 );
+                        $n->{$s}
+                            = scpi_canon( $h->{$k}, $override->{$ko}, 0 );
                         $ov = 1;
                         last;
                     }
@@ -587,8 +591,8 @@ sub scpi_canon($;$$) {
                 next if $ov;
 
                 $s = uc( scpi_shortform($m) ) . $num . $q;
-                $n->{$s} =
-                  scpi_canon( $h->{$k}, {}, 0 );    # no override lower too
+                $n->{$s}
+                    = scpi_canon( $h->{$k}, {}, 0 );   # no override lower too
             }
             else {
                 croak("parse error, mnemonic '$k'");

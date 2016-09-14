@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use Test::More tests => 22;
 use Test::Fatal;
-use Lab::MooseInstrument;
+use Lab::Moose::Instrument;
 
 #
 # Basic Usage
@@ -45,12 +45,15 @@ use Lab::MooseInstrument;
     my $connection = TestConnection->new();
     isa_ok( $connection, 'TestConnection' );
 
-    my $instr = Lab::MooseInstrument->new( connection => $connection );
-    isa_ok( $instr, 'Lab::MooseInstrument' );
+    my $instr = Lab::Moose::Instrument->new( connection => $connection );
+    isa_ok( $instr, 'Lab::Moose::Instrument' );
 
     is( $instr->read( timeout => 5 ), 'abcd', 'instr can read' );
 
-    is( $instr->query( command => 'some command' ), 'efgh', 'instr can query' );
+    is(
+        $instr->query( command => 'some command' ), 'efgh',
+        'instr can query'
+    );
 
     $instr->write( command => 'some write command' );
 }
@@ -65,9 +68,9 @@ use Lab::MooseInstrument;
         package MyDevice;
 
         use Moose;
-        use Lab::MooseInstrument::Cache;
+        use Lab::Moose::Instrument::Cache;
 
-        extends 'Lab::MooseInstrument';
+        extends 'Lab::Moose::Instrument';
 
         cache func1 => ( getter => 'func1', isa => 'Str' );
 
@@ -103,7 +106,7 @@ use Lab::MooseInstrument;
 
         package MyRole;
         use Moose::Role;
-        use Lab::MooseInstrument::Cache;
+        use Lab::Moose::Instrument::Cache;
 
         cache func3 => ( getter => 'func3' );
 
@@ -116,7 +119,7 @@ use Lab::MooseInstrument;
 
         package MyRole2;
         use Moose::Role;
-        use Lab::MooseInstrument::Cache;
+        use Lab::Moose::Instrument::Cache;
 
         cache func4 => ( getter => 'func4' );
 
@@ -129,7 +132,7 @@ use Lab::MooseInstrument;
 
         package MyDevice::Extended;
         use Moose;
-        use Lab::MooseInstrument::Cache;
+        use Lab::Moose::Instrument::Cache;
         extends 'MyDevice';
         with 'MyRole', 'MyRole2';
 
@@ -153,8 +156,10 @@ use Lab::MooseInstrument;
 
     is( $instr->cached_func4(), 'func4', 'call cached func4' );
 
-    is( $instr->cached_func_extended(),
-        'func_extended', 'call cached func_extended' );
+    is(
+        $instr->cached_func_extended(),
+        'func_extended', 'call cached func_extended'
+    );
 
     # predicate and clearer
 
@@ -168,13 +173,19 @@ use Lab::MooseInstrument;
 
     # Illegal operations
 
-    ok( exception { $instr->cached_func_uiaeuiaeuuiae(); },
-        "unknown cache key throws" );
+    ok(
+        exception { $instr->cached_func_uiaeuiaeuuiae(); },
+        "unknown cache key throws"
+    );
 
-    is( exception { $instr->cached_func2( [2] ); },
-        undef, "ArrayRef allowed for func2" );
+    is(
+        exception { $instr->cached_func2( [2] ); },
+        undef, "ArrayRef allowed for func2"
+    );
 
-    ok( exception { $instr->cached_func1( [1] ); },
-        "ArrayRef throws for func1" );
+    ok(
+        exception { $instr->cached_func1( [1] ); },
+        "ArrayRef throws for func1"
+    );
 
 }

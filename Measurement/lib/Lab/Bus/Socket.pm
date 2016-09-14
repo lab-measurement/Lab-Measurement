@@ -37,31 +37,31 @@ sub new {
     my $proto = shift;
     my $class = ref($proto) || $proto;
     my $twin  = undef;
-    my $self =
-      $class->SUPER::new(@_);  # getting fields and _permitted from parent class
+    my $self  = $class->SUPER::new(@_)
+        ;    # getting fields and _permitted from parent class
     $self->${ \( __PACKAGE__ . '::_construct' ) }(__PACKAGE__);
 
     # parameter parsing
 
     $self->remote_addr( $self->config('remote_addr') )
-      if defined $self->config('remote_addr');
+        if defined $self->config('remote_addr');
     $self->remote_port( $self->config('remote_port') )
-      if defined $self->config('remote_port');
+        if defined $self->config('remote_port');
     $self->open_server( $self->config('open_server') )
-      if defined $self->config('open_server');
+        if defined $self->config('open_server');
     $self->local_addr( $self->config('local_addr') )
-      if defined $self->config('local_addr');
+        if defined $self->config('local_addr');
     $self->local_port( $self->config('local_port') )
-      if defined $self->config('local_port');
+        if defined $self->config('local_port');
     $self->Proto( $self->config('Proto') ) if defined $self->config('Proto');
     $self->Timeout( $self->config('Timeout') )
-      if defined $self->config('Timeout');
+        if defined $self->config('Timeout');
     $self->EnableTermChar( $self->config('EnableTermChar') )
-      if defined $self->config('EnableTermChar');
+        if defined $self->config('EnableTermChar');
     $self->TermChar( $self->config('TermChar') )
-      if defined $self->config('TermChar');
+        if defined $self->config('TermChar');
 
-# search for twin in %Lab::Bus::BusList. If there's none, place $self there and weaken it.
+    # search for twin in %Lab::Bus::BusList. If there's none, place $self there and weaken it.
     if ( $class eq __PACKAGE__ )
     {    # careful - do only if this is not a parent class constructor
         if ( $twin = $self->_search_twin() ) {
@@ -82,7 +82,7 @@ sub connection_new {         # { gpib_address => primary address }
     my $args = undef;
     if ( ref $_[0] eq 'HASH' ) {
         $args = shift;
-    }                        # try to be flexible about options as hash/hashref
+    }    # try to be flexible about options as hash/hashref
     else { $args = {@_} }
     my $server = undef;
     my $client = undef;
@@ -128,9 +128,9 @@ sub connection_write
     my $read_length = $args->{'read_length'} || $self->read_length();
     if ( !defined $command ) {
         Lab::Exception::CorruptParameter->throw(
-                error => "No command given to "
-              . __PACKAGE__
-              . "::connection_write().\n", );
+                  error => "No command given to "
+                . __PACKAGE__
+                . "::connection_write().\n", );
     }
     else {
         if ( $self->{'EnableTermChar'} ) { $command .= $self->{'TermChar'} }
@@ -141,7 +141,8 @@ sub connection_write
             $sock->send($command) or die "$! sending command";
         }
         else {
-            Lab::Exception::Timeout->throw( error => "Socket write time out\n",
+            Lab::Exception::Timeout->throw(
+                error => "Socket write time out\n",
             );
         }
     }
@@ -167,9 +168,9 @@ sub connection_read
 
     if ( !defined $sock ) {
         Lab::Exception::CorruptParameter->throw(
-                error => "No Socket given to "
-              . __PACKAGE__
-              . "::connection_read().\n", );
+                  error => "No Socket given to "
+                . __PACKAGE__
+                . "::connection_read().\n", );
     }
     else {
         my @ready = IO::Select->new($sock)->can_read( $self->{'Timeout'} );
@@ -177,7 +178,8 @@ sub connection_read
             $sock->recv( $result, $read_length );
         }
         else {
-            Lab::Exception::Timeout->throw( error => "Socket read time out\n",
+            Lab::Exception::Timeout->throw(
+                error => "Socket read time out\n",
             );
         }
     }
@@ -205,7 +207,7 @@ sub connection_query
 
     $self->connection_write($args);
 
-    sleep($wait_query);   #<---ensures that asked data presented from the device
+    sleep($wait_query); #<---ensures that asked data presented from the device
 
     $result = $self->connection_read($args);
     return $result;

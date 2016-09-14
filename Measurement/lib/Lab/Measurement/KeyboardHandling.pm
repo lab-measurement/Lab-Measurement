@@ -40,8 +40,9 @@ sub labkey_check {
     # t - output script timing info
     my $soft = shift;
 
-    if ( ( $labkey_initialized == 1 ) && ( defined( my $key = ReadKey(-1) ) ) )
-    {
+    if (   ( $labkey_initialized == 1 )
+        && ( defined( my $key = ReadKey(-1) ) ) ) {
+
         # input waiting; it's in $key
         if ( $key eq 'q' ) {
             print "Terminating on keyboard request\n";

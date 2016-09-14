@@ -144,7 +144,7 @@ sub _check_args {
     }
 
     foreach my $param ( 'from_device', 'from_cache'
-      ) # Delete Standard option parameters from $arguments hash if not defined in device driver function
+        ) # Delete Standard option parameters from $arguments hash if not defined in device driver function
     {
         if ( exists $arguments->{$param} ) {
             delete $arguments->{$param};

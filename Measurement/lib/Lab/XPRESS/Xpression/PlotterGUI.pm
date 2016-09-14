@@ -112,9 +112,10 @@ sub init_gnuplot {
     }
 
     if ( $self->{plot}->{X}->{label} eq "" ) {
-        $self->{plot}->{X}->{label} =
-          @{ $self->{plot}->{X}->{wave} }[0]->{column_name};
-        $gp .= "set xlabel '@{$self->{plot}->{X}->{wave}}[0]->{column_name}'\n";
+        $self->{plot}->{X}->{label}
+            = @{ $self->{plot}->{X}->{wave} }[0]->{column_name};
+        $gp
+            .= "set xlabel '@{$self->{plot}->{X}->{wave}}[0]->{column_name}'\n";
     }
     else {
         $gp .= "set xlabel '$self->{plot}->{X}->{label}'\n";
@@ -122,10 +123,10 @@ sub init_gnuplot {
 
     if ( $self->{plot}->{Y}->{label} eq "" ) {
         if ( defined @{ $self->{plot}->{Y}->{wave} }[0] ) {
-            $self->{plot}->{Y}->{label} =
-              @{ $self->{plot}->{Y}->{wave} }[0]->{column_name};
-            $gp .=
-              "set ylabel '@{$self->{plot}->{Y}->{wave}}[0]->{column_name}'\n";
+            $self->{plot}->{Y}->{label}
+                = @{ $self->{plot}->{Y}->{wave} }[0]->{column_name};
+            $gp
+                .= "set ylabel '@{$self->{plot}->{Y}->{wave}}[0]->{column_name}'\n";
         }
     }
     else {
@@ -135,10 +136,10 @@ sub init_gnuplot {
 
     if ( $self->{plot}->{Y2}->{label} eq "" ) {
         if ( defined @{ $self->{plot}->{Y2}->{wave} }[0] ) {
-            $self->{plot}->{Y2}->{label} =
-              @{ $self->{plot}->{Y2}->{wave} }[0]->{column_name};
-            $gp .=
-"set y2label '@{$self->{plot}->{Y2}->{wave}}[0]->{column_name}'\n";
+            $self->{plot}->{Y2}->{label}
+                = @{ $self->{plot}->{Y2}->{wave} }[0]->{column_name};
+            $gp
+                .= "set y2label '@{$self->{plot}->{Y2}->{wave}}[0]->{column_name}'\n";
         }
     }
     else {
@@ -147,10 +148,10 @@ sub init_gnuplot {
 
     if ( $self->{plot}->{CB}->{label} eq "" ) {
         if ( defined @{ $self->{plot}->{CB}->{wave} }[0] ) {
-            $self->{plot}->{CB}->{label} =
-              @{ $self->{plot}->{CB}->{wave} }[0]->{column_name};
-            $gp .=
-"set cblabel '@{$self->{plot}->{CB}->{wave}}[0]->{column_name}'\n";
+            $self->{plot}->{CB}->{label}
+                = @{ $self->{plot}->{CB}->{wave} }[0]->{column_name};
+            $gp
+                .= "set cblabel '@{$self->{plot}->{CB}->{wave}}[0]->{column_name}'\n";
         }
     }
     else {
@@ -159,10 +160,10 @@ sub init_gnuplot {
 
     if ( $self->{plot}->{Z}->{label} eq "" ) {
         if ( defined @{ $self->{plot}->{Z}->{wave} }[0] ) {
-            $self->{plot}->{Z}->{label} =
-              @{ $self->{plot}->{Z}->{wave} }[0]->{column_name};
-            $gp .=
-              "set zlabel '@{$self->{plot}->{Z}->{wave}}[0]->{column_name}'\n";
+            $self->{plot}->{Z}->{label}
+                = @{ $self->{plot}->{Z}->{wave} }[0]->{column_name};
+            $gp
+                .= "set zlabel '@{$self->{plot}->{Z}->{wave}}[0]->{column_name}'\n";
         }
     }
     else {
@@ -188,10 +189,9 @@ sub init_gnuplot {
 
     if (    not defined $self->{plot}->{Z}->{wave}
         and not defined $self->{plot}->{CB}->{wave}
-        and $self->{plot}->{type} eq 'pm3d' )
-    {
+        and $self->{plot}->{type} eq 'pm3d' ) {
         warn
-"Error while plotting data. Plot type = pm3d: z-axis and/or cb-axis are not defined.";
+            "Error while plotting data. Plot type = pm3d: z-axis and/or cb-axis are not defined.";
         return;
     }
 
@@ -246,9 +246,9 @@ sub plot_standard {
     my $gp    = "";
     my $gpipe = $self->{gpipe};
 
-#-------------------------------------------------------------------------------------------------#
-#---- y1-axis ------------------------------------------------------------------------------------#
-#-------------------------------------------------------------------------------------------------#
+    #-------------------------------------------------------------------------------------------------#
+    #---- y1-axis ------------------------------------------------------------------------------------#
+    #-------------------------------------------------------------------------------------------------#
 
     my $x = @{ $self->{plot}->{X}->{wave} }[0]->{column_number};
     $gp = "plot ";
@@ -259,8 +259,8 @@ sub plot_standard {
         else {
             $gp .= "'$wave->{filename}' ";
             $gp .= "using $x : $wave->{column_number} ";
-            $gp .=
-"every $wave->{LineIncrement}:$wave->{BlockIncrement}:$wave->{LineFrom}:$wave->{BlockFrom}:$wave->{LineTo}:$wave->{BlockTo} ";
+            $gp
+                .= "every $wave->{LineIncrement}:$wave->{BlockIncrement}:$wave->{LineFrom}:$wave->{BlockFrom}:$wave->{LineTo}:$wave->{BlockTo} ";
             $gp .= "axis x1y1 ";
             $gp .= "with $wave->{style} ";
             $gp .= "linecolor rgb '$wave->{color}' ";
@@ -275,9 +275,9 @@ sub plot_standard {
         }
     }
 
-#-------------------------------------------------------------------------------------------------#
-#---- y2-axis ------------------------------------------------------------------------------------#
-#-------------------------------------------------------------------------------------------------#
+    #-------------------------------------------------------------------------------------------------#
+    #---- y2-axis ------------------------------------------------------------------------------------#
+    #-------------------------------------------------------------------------------------------------#
 
     foreach my $wave ( @{ $self->{plot}->{Y2}->{wave} } ) {
         if ( not defined $wave ) {
@@ -286,8 +286,8 @@ sub plot_standard {
         else {
             $gp .= "'$wave->{filename}' ";
             $gp .= "using $x:$wave->{column_number} ";
-            $gp .=
-"every $wave->{LineIncrement}:$wave->{BlockIncrement}:$wave->{LineFrom}:$wave->{BlockFrom}:$wave->{LineTo}:$wave->{BlockTo} ";
+            $gp
+                .= "every $wave->{LineIncrement}:$wave->{BlockIncrement}:$wave->{LineFrom}:$wave->{BlockFrom}:$wave->{LineTo}:$wave->{BlockTo} ";
             $gp .= "axis x1y2 ";
             $gp .= "with $wave->{style} ";
             $gp .= "linecolor rgb '$wave->{color}' ";
@@ -340,16 +340,16 @@ sub plot_pm3d {
 
     if ( defined @{ $self->{plot}->{Z}->{wave} }[0] ) {
         $gp = "";
-        $gp .=
-"splot '@{$self->{plot}->{Z}->{wave}}[0]->{filename}' using @{$self->{plot}->{X}->{wave}}[0]->{column_number}:@{$self->{plot}->{Y}->{wave}}[0]->{column_number}:@{$self->{plot}->{Z}->{wave}}[0]->{column_number}; \n";
+        $gp
+            .= "splot '@{$self->{plot}->{Z}->{wave}}[0]->{filename}' using @{$self->{plot}->{X}->{wave}}[0]->{column_number}:@{$self->{plot}->{Y}->{wave}}[0]->{column_number}:@{$self->{plot}->{Z}->{wave}}[0]->{column_number}; \n";
     }
     elsif ( defined @{ $self->{plot}->{CB}->{wave} }[0] ) {
         $gp = "";
         $gp .= "splot '@{$self->{plot}->{CB}->{wave}}[0]->{filename}' ";
-        $gp .=
-"using @{$self->{plot}->{X}->{wave}}[0]->{column_number} : @{$self->{plot}->{Y}->{wave}}[0]->{column_number} : @{$self->{plot}->{CB}->{wave}}[0]->{column_number} ";
-        $gp .=
-"every $self->{plot}->{LineIncrement}:$self->{plot}->{BlockIncrement}:$self->{plot}->{LineFrom}:$self->{plot}->{BlockFrom}:$self->{plot}->{LineTo}:$self->{plot}->{BlockTo} ";
+        $gp
+            .= "using @{$self->{plot}->{X}->{wave}}[0]->{column_number} : @{$self->{plot}->{Y}->{wave}}[0]->{column_number} : @{$self->{plot}->{CB}->{wave}}[0]->{column_number} ";
+        $gp
+            .= "every $self->{plot}->{LineIncrement}:$self->{plot}->{BlockIncrement}:$self->{plot}->{LineFrom}:$self->{plot}->{BlockFrom}:$self->{plot}->{LineTo}:$self->{plot}->{BlockTo} ";
         $gp .= "ti '' ";
         $gp .= ";\n";
     }
@@ -389,13 +389,13 @@ sub plot_linetraces {
         $gp .= "set xlabel '$self->{plot}->{Y}->{label}' ;\n";
         $gp .= "set ylabel '$self->{plot}->{CB}->{label}' ;\n";
         $gp .= "set yrange [$self->{plot}->{CB}->{range}] ;\n";
-        $gp .=
-"set obj 1 rect from graph 0, graph 1.11 to graph 1, graph 1.01 front fc rgb '#2F3239'; ";
-        $gp .=
-"set label 1 '' at graph 0.5, graph 1.06 front center tc rgb 'white';; ";
+        $gp
+            .= "set obj 1 rect from graph 0, graph 1.11 to graph 1, graph 1.01 front fc rgb '#2F3239'; ";
+        $gp
+            .= "set label 1 '' at graph 0.5, graph 1.06 front center tc rgb 'white';; ";
         $gp .= "plot '@{$self->{plot}->{CB}->{wave}}[0]->{filename}' ";
-        $gp .=
-"using @{$self->{plot}->{Y}->{wave}}[0]->{column_number}:@{$self->{plot}->{CB}->{wave}}[0]->{column_number} ";
+        $gp
+            .= "using @{$self->{plot}->{Y}->{wave}}[0]->{column_number}:@{$self->{plot}->{CB}->{wave}}[0]->{column_number} ";
         $gp .= "every :BlockIncrement::BlockFrom::BlockTo ";
         $gp .= "with points ";
         $gp .= "linecolor rgb '@{$self->{plot}->{CB}->{wave}}[0]->{color}' ";
@@ -410,13 +410,13 @@ sub plot_linetraces {
         $gp .= "set title 'horizontal Linetrace';\n";
         $gp .= "set xlabel '$self->{plot}->{X}->{label}' ;\n";
         $gp .= "set ylabel '$self->{plot}->{CB}->{label}' ;\n";
-        $gp .=
-"set obj 1 rect from graph 0, graph 1.11 to graph 1, graph 1.01 front fc rgb '#2F3239'; ";
-        $gp .=
-"set label 1 '' at graph 0.5, graph 1.06 front center tc rgb 'white';; ";
+        $gp
+            .= "set obj 1 rect from graph 0, graph 1.11 to graph 1, graph 1.01 front fc rgb '#2F3239'; ";
+        $gp
+            .= "set label 1 '' at graph 0.5, graph 1.06 front center tc rgb 'white';; ";
         $gp .= "plot '@{$self->{plot}->{CB}->{wave}}[0]->{filename}' ";
-        $gp .=
-"using @{$self->{plot}->{X}->{wave}}[0]->{column_number}:@{$self->{plot}->{CB}->{wave}}[0]->{column_number} ";
+        $gp
+            .= "using @{$self->{plot}->{X}->{wave}}[0]->{column_number}:@{$self->{plot}->{CB}->{wave}}[0]->{column_number} ";
         $gp .= "every LineIncrement::LineFrom::LineTo ";
         $gp .= "with points ";
         $gp .= "linecolor rgb '@{$self->{plot}->{CB}->{wave}}[0]->{color}' ";
@@ -433,13 +433,13 @@ sub bind_keys {
     my $gp    = "";
     my $gpipe = $self->{gpipe};
 
-    $gp .=
-"bind 'Right'  'BlockFrom = BlockFrom + BlockIncrement; BlockTo = BlockTo + BlockIncrement; LineFrom = LineFrom + LineIncrement; LineTo = LineTo + LineIncrement; replot;\n' \n";
-    $gp .=
-"bind 'Left' 'if ( BlockFrom > 0 ) { BlockFrom = BlockFrom - BlockIncrement; BlockTo = BlockTo - BlockIncrement; if ( LineFrom > 0 ) { LineFrom = LineFrom - LineIncrement; LineTo = LineTo - LineIncrement; } replot;}' \n";
+    $gp
+        .= "bind 'Right'  'BlockFrom = BlockFrom + BlockIncrement; BlockTo = BlockTo + BlockIncrement; LineFrom = LineFrom + LineIncrement; LineTo = LineTo + LineIncrement; replot;\n' \n";
+    $gp
+        .= "bind 'Left' 'if ( BlockFrom > 0 ) { BlockFrom = BlockFrom - BlockIncrement; BlockTo = BlockTo - BlockIncrement; if ( LineFrom > 0 ) { LineFrom = LineFrom - LineIncrement; LineTo = LineTo - LineIncrement; } replot;}' \n";
 
-#$gp .= "bind 'Up' ' replot;\n' \n";
-#$gp .= "bind 'Down' 'if ( LineFrom > 0 ) { LineFrom = LineFrom - LineIncrement; LineTo = LineTo - LineIncrement; replot; }' \n";
+    #$gp .= "bind 'Up' ' replot;\n' \n";
+    #$gp .= "bind 'Down' 'if ( LineFrom > 0 ) { LineFrom = LineFrom - LineIncrement; LineTo = LineTo - LineIncrement; replot; }' \n";
     print $gpipe $gp;
 }
 
@@ -479,16 +479,17 @@ sub names2numbers {
     foreach my $axis (
         $self->{plot}->{X},  $self->{plot}->{Y}, $self->{plot}->{Y2},
         $self->{plot}->{CB}, $self->{plot}->{Z}
-      )
-    {
+        ) {
         foreach my $wave ( @{ $axis->{wave} } ) {
-            if ( exists $self->{plot}->{column_names}{ $wave->{column_name} } )
+            if (
+                exists $self->{plot}->{column_names}{ $wave->{column_name} } )
             {
-                $wave->{column_number} =
-                  $self->{plot}->{column_names}{ $wave->{column_name} } + 1;
+                $wave->{column_number}
+                    = $self->{plot}->{column_names}{ $wave->{column_name} }
+                    + 1;
             }
-            elsif ( $wave->{column_name} <= $self->{plot}->{number_of_columns} )
-            {
+            elsif (
+                $wave->{column_name} <= $self->{plot}->{number_of_columns} ) {
                 $wave->{column_number} = $wave->{column_name};
             }
         }

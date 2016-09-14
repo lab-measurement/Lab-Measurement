@@ -11,17 +11,17 @@ if ( !defined( eval('require "linux/ioctl.ph";') ) ) {
 # Created using h2ph
 eval 'sub USBTMC_IOC_NR () {91;}' unless defined(&USBTMC_IOC_NR);
 eval 'sub USBTMC_IOCTL_INDICATOR_PULSE () { &_IO( &USBTMC_IOC_NR, 1);}'
-  unless defined(&USBTMC_IOCTL_INDICATOR_PULSE);
+    unless defined(&USBTMC_IOCTL_INDICATOR_PULSE);
 eval 'sub USBTMC_IOCTL_CLEAR () { &_IO( &USBTMC_IOC_NR, 2);}'
-  unless defined(&USBTMC_IOCTL_CLEAR);
+    unless defined(&USBTMC_IOCTL_CLEAR);
 eval 'sub USBTMC_IOCTL_ABORT_BULK_OUT () { &_IO( &USBTMC_IOC_NR, 3);}'
-  unless defined(&USBTMC_IOCTL_ABORT_BULK_OUT);
+    unless defined(&USBTMC_IOCTL_ABORT_BULK_OUT);
 eval 'sub USBTMC_IOCTL_ABORT_BULK_IN () { &_IO( &USBTMC_IOC_NR, 4);}'
-  unless defined(&USBTMC_IOCTL_ABORT_BULK_IN);
+    unless defined(&USBTMC_IOCTL_ABORT_BULK_IN);
 eval 'sub USBTMC_IOCTL_CLEAR_OUT_HALT () { &_IO( &USBTMC_IOC_NR, 6);}'
-  unless defined(&USBTMC_IOCTL_CLEAR_OUT_HALT);
+    unless defined(&USBTMC_IOCTL_CLEAR_OUT_HALT);
 eval 'sub USBTMC_IOCTL_CLEAR_IN_HALT () { &_IO( &USBTMC_IOC_NR, 7);}'
-  unless defined(&USBTMC_IOCTL_CLEAR_IN_HALT);
+    unless defined(&USBTMC_IOCTL_CLEAR_IN_HALT);
 
 use strict;
 use Scalar::Util qw(weaken);
@@ -42,13 +42,13 @@ sub new {
     my $proto = shift;
     my $class = ref($proto) || $proto;
     my $twin  = undef;
-    my $self =
-      $class->SUPER::new(@_);  # getting fields and _permitted from parent class
+    my $self  = $class->SUPER::new(@_)
+        ;    # getting fields and _permitted from parent class
     $self->${ \( __PACKAGE__ . '::_construct' ) }(__PACKAGE__);
 
-# search for twin in %Lab::Bus::BusList. If there's none, place $self there and weaken it.
+    # search for twin in %Lab::Bus::BusList. If there's none, place $self there and weaken it.
     if ( $class eq __PACKAGE__ )
-    {    # careful - do only if this is not a parent class constructor
+    {        # careful - do only if this is not a parent class constructor
         if ( $twin = $self->_search_twin() ) {
             undef $self;
             return $twin;    # ...and that's it.
@@ -67,7 +67,7 @@ sub connection_new {         # { tmc_address => primary address }
     my $args = undef;
     if ( ref $_[0] eq 'HASH' ) {
         $args = shift;
-    }                        # try to be flexible about options as hash/hashref
+    }    # try to be flexible about options as hash/hashref
     else { $args = {@_} }
 
     my $fn;
@@ -76,18 +76,17 @@ sub connection_new {         # { tmc_address => primary address }
     my $usb_serial = '*';
 
     if ( defined $args->{'tmc_address'}
-        && $args->{'tmc_address'} =~ /^[0-9]*$/ )
-    {
+        && $args->{'tmc_address'} =~ /^[0-9]*$/ ) {
         $fn = "/dev/usbtmc" . $args->{'tmc_address'};
     }
     else {
         # want the vendor/product as strings, hex values
         if (
             defined $args->{'visa_name'}
-            && ( $args->{'visa_name'} =~
-                /USB::0x([0-9A-Fa-f]{4})::0x([0-9A-Fa-f]{4})::[^:]*::INSTR/ )
-          )
-        {
+            && ( $args->{'visa_name'}
+                =~ /USB::0x([0-9A-Fa-f]{4})::0x([0-9A-Fa-f]{4})::[^:]*::INSTR/
+            )
+            ) {
             $usb_vendor  = $1;
             $usb_product = $2;
             $usb_serial  = $3;
@@ -113,9 +112,9 @@ sub connection_new {         # { tmc_address => primary address }
 
     if ( !defined $fn && ( !defined $usb_vendor || !defined $usb_product ) ) {
         Lab::Exception::CorruptParameter->throw(
-                error => "No valid USB TMC address given to "
-              . __PACKAGE__
-              . "::connection_new()\n", );
+                  error => "No valid USB TMC address given to "
+                . __PACKAGE__
+                . "::connection_new()\n", );
     }
 
     # the /sys/class/ system isn't consistent, so use lsusb
@@ -123,11 +122,12 @@ sub connection_new {         # { tmc_address => primary address }
 
     if ( !defined($fn) ) {
         open( LSUSB_HANDLE,
-            "/usr/bin/lsusb -d ${usb_vendor}:${usb_product} -v 2>/dev/null |" )
-          || Lab::Exception::CorruptParameter->throw(
-                error => "Error running lsusb to find USB TMC address given to "
-              . __PACKAGE__
-              . "::connection_new()\n", );
+            "/usr/bin/lsusb -d ${usb_vendor}:${usb_product} -v 2>/dev/null |"
+            )
+            || Lab::Exception::CorruptParameter->throw(
+            error => "Error running lsusb to find USB TMC address given to "
+                . __PACKAGE__
+                . "::connection_new()\n", );
         my $got = 0;
         while (<LSUSB_HANDLE>) {
             if ( !$got && /^\s*iSerial\s+\d+\s+([^\s]+)/i ) {
@@ -146,9 +146,9 @@ sub connection_new {         # { tmc_address => primary address }
     if ( !defined $fn ) {
         Lab::Exception::CorruptParameter->throw(
             error => sprintf(
-                "Could not find specified device 0x%s/0x%s/%s in "
-                  . __PACKAGE__
-                  . "::connection_new()\n",
+                      "Could not find specified device 0x%s/0x%s/%s in "
+                    . __PACKAGE__
+                    . "::connection_new()\n",
                 $usb_vendor, $usb_product, $usb_serial
             ),
         );
@@ -158,12 +158,13 @@ sub connection_new {         # { tmc_address => primary address }
     my $tmc_handle        = undef;
 
     open( $tmc_handle, "+<", $fn )
-      || Lab::Exception::CorruptParameter->throw( error => $! . ": '$fn'\n" );
+        || Lab::Exception::CorruptParameter->throw(
+        error => $! . ": '$fn'\n" );
     binmode($tmc_handle);
     $tmc_handle->autoflush;
 
-    $connection_handle =
-      { valid => 1, type => "USBtmc", tmc_handle => $tmc_handle };
+    $connection_handle
+        = { valid => 1, type => "USBtmc", tmc_handle => $tmc_handle };
     return $connection_handle;
 }
 
@@ -190,19 +191,19 @@ sub connection_read
     # strip spaces and null byte
     $result =~ s/[\n\r\x00]*$//;
 
-#
-# timeout occured - throw exception, but include the received data
-# if the "Brutal" option is present, ignore the timeout and just return the data
-#
-# 	if( $ib_bits->{'ERR'} && $ib_bits->{'TIMO'} && !$brutal ) {
-# 		Lab::Exception::GPIBTimeout->throw(
-# 			error => sprintf("ibrd failed with a timeout, ibstatus %x\n", $ibstatus),
-# 			ibsta => $ibstatus,
-# 			ibsta_hash => $ib_bits,
-# 			data => $result
-# 		);
-# 	}
-# no timeout, regular return
+    #
+    # timeout occured - throw exception, but include the received data
+    # if the "Brutal" option is present, ignore the timeout and just return the data
+    #
+    # 	if( $ib_bits->{'ERR'} && $ib_bits->{'TIMO'} && !$brutal ) {
+    # 		Lab::Exception::GPIBTimeout->throw(
+    # 			error => sprintf("ibrd failed with a timeout, ibstatus %x\n", $ibstatus),
+    # 			ibsta => $ibstatus,
+    # 			ibsta_hash => $ib_bits,
+    # 			data => $result
+    # 		);
+    # 	}
+    # no timeout, regular return
     return $result;
 }
 
@@ -222,7 +223,7 @@ sub connection_query
 
     $self->connection_write($args);
 
-    sleep($wait_query);   #<---ensures that asked data presented from the device
+    sleep($wait_query); #<---ensures that asked data presented from the device
 
     $result = $self->connection_read($args);
     return $result;
@@ -253,91 +254,91 @@ sub connection_write
 
     if ( !defined $command ) {
         Lab::Exception::CorruptParameter->throw(
-                error => "No command given to "
-              . __PACKAGE__
-              . "::connection_write().\n", );
+                  error => "No command given to "
+                . __PACKAGE__
+                . "::connection_write().\n", );
     }
 
     print { $connection_handle->{'tmc_handle'} } $command;
 
-#     $ibstatus=ibwrt($connection_handle->{'gpib_handle'}, $command, length($command));
+    #     $ibstatus=ibwrt($connection_handle->{'gpib_handle'}, $command, length($command));
 
     # 	$ib_bits=$self->ParseIbstatus($ibstatus);
     # 	foreach my $key ( keys %IbBits ) {
     # 		print "$key: $ib_bits{$key}\n";
     # 	}
 
-# Todo: better Error checking
-# 	if($ib_bits->{'ERR'}==1) {
-# 		if($ib_bits->{'TIMO'} == 1) {
-# 			Lab::Exception::GPIBTimeout->throw(
-# 				error => sprintf("Timeout in " . __PACKAGE__ . "::connection_write() while executing $command: ibwrite failed with status %x\n", $ibstatus) . Dumper($ib_bits),
-# 				ibsta => $ibstatus,
-# 				ibsta_hash => $ib_bits,
-# 			);
-# 		}
-# 		else {
-# 			Lab::Exception::GPIBError->throw(
-# 				error => sprintf("Error in " . __PACKAGE__ . "::connection_write() while executing $command: ibwrite failed with status %x\n", $ibstatus) . Dumper($ib_bits),
-# 				ibsta => $ibstatus,
-# 				ibsta_hash => $ib_bits,
-# 			);
-# 		}
-# 	}
+    # Todo: better Error checking
+    # 	if($ib_bits->{'ERR'}==1) {
+    # 		if($ib_bits->{'TIMO'} == 1) {
+    # 			Lab::Exception::GPIBTimeout->throw(
+    # 				error => sprintf("Timeout in " . __PACKAGE__ . "::connection_write() while executing $command: ibwrite failed with status %x\n", $ibstatus) . Dumper($ib_bits),
+    # 				ibsta => $ibstatus,
+    # 				ibsta_hash => $ib_bits,
+    # 			);
+    # 		}
+    # 		else {
+    # 			Lab::Exception::GPIBError->throw(
+    # 				error => sprintf("Error in " . __PACKAGE__ . "::connection_write() while executing $command: ibwrite failed with status %x\n", $ibstatus) . Dumper($ib_bits),
+    # 				ibsta => $ibstatus,
+    # 				ibsta_hash => $ib_bits,
+    # 			);
+    # 		}
+    # 	}
 
     return 1;
 }
 
 sub connection_settermchar {    # @_ = ( $connection_handle, $termchar
 
-# 	my $self = shift;
-# 	my $connection_handle=shift;
-# 	my $termchar =shift; # string termination character as string
-#
-# 	my $ib_bits=undef;	# hash ref
-# 	my $ibstatus = undef;
-#
-#         my $h=$connection_handle->{'gpib_handle'};
-#
-#         my $arg=ord($termchar);
-#
-# 	$ibstatus=ibconfig($connection_handle->{'gpib_handle'}, 15, $arg);
-#
-# 	$ib_bits=$self->ParseIbstatus($ibstatus);
-#
-# 	if($ib_bits->{'ERR'}==1) {
-# 		Lab::Exception::GPIBError->throw(
-# 			error => sprintf("Error in " . __PACKAGE__ . "::connection_settermchar(): ibeos failed with status %x\n", $ibstatus) . Dumper($ib_bits),
-# 			ibsta => $ibstatus,
-# 			ibsta_hash => $ib_bits,
-# 		);
-# 	}
+    # 	my $self = shift;
+    # 	my $connection_handle=shift;
+    # 	my $termchar =shift; # string termination character as string
+    #
+    # 	my $ib_bits=undef;	# hash ref
+    # 	my $ibstatus = undef;
+    #
+    #         my $h=$connection_handle->{'gpib_handle'};
+    #
+    #         my $arg=ord($termchar);
+    #
+    # 	$ibstatus=ibconfig($connection_handle->{'gpib_handle'}, 15, $arg);
+    #
+    # 	$ib_bits=$self->ParseIbstatus($ibstatus);
+    #
+    # 	if($ib_bits->{'ERR'}==1) {
+    # 		Lab::Exception::GPIBError->throw(
+    # 			error => sprintf("Error in " . __PACKAGE__ . "::connection_settermchar(): ibeos failed with status %x\n", $ibstatus) . Dumper($ib_bits),
+    # 			ibsta => $ibstatus,
+    # 			ibsta_hash => $ib_bits,
+    # 		);
+    # 	}
 
     return 1;
 }
 
 sub connection_enabletermchar {    # @_ = ( $connection_handle, 0/1 off/on
 
-# 	my $self = shift;
-# 	my $connection_handle=shift;
-# 	my $arg=shift;
-#
-# 	my $ib_bits=undef;	# hash ref
-# 	my $ibstatus = undef;
-#
-#     my $h=$connection_handle->{'tmc_handle'};
-#
-# 	$ibstatus=ibconfig($connection_handle->{'gpib_handle'}, 12, $arg);
-#
-# 	$ib_bits=$self->ParseIbstatus($ibstatus);
-#
-# 	if($ib_bits->{'ERR'}==1) {
-# 		Lab::Exception::GPIBError->throw(
-# 			error => sprintf("Error in " . __PACKAGE__ . "::connection_enabletermchar(): ibeos failed with status %x\n", $ibstatus) . Dumper($ib_bits),
-# 			ibsta => $ibstatus,
-# 			ibsta_hash => $ib_bits,
-# 		);
-# 	}
+    # 	my $self = shift;
+    # 	my $connection_handle=shift;
+    # 	my $arg=shift;
+    #
+    # 	my $ib_bits=undef;	# hash ref
+    # 	my $ibstatus = undef;
+    #
+    #     my $h=$connection_handle->{'tmc_handle'};
+    #
+    # 	$ibstatus=ibconfig($connection_handle->{'gpib_handle'}, 12, $arg);
+    #
+    # 	$ib_bits=$self->ParseIbstatus($ibstatus);
+    #
+    # 	if($ib_bits->{'ERR'}==1) {
+    # 		Lab::Exception::GPIBError->throw(
+    # 			error => sprintf("Error in " . __PACKAGE__ . "::connection_enabletermchar(): ibeos failed with status %x\n", $ibstatus) . Dumper($ib_bits),
+    # 			ibsta => $ibstatus,
+    # 			ibsta_hash => $ib_bits,
+    # 		);
+    # 	}
 
     return 1;
 }
@@ -347,19 +348,19 @@ sub serial_poll {
     my $connection_handle = shift;
     my $sbyte             = undef;
 
-#
-# 	my $ibstatus = ibrsp($connection_handle->{'gpib_handle'}, $sbyte);
-#
-# 	my $ib_bits=$self->ParseIbstatus($ibstatus);
-#
-# 	if($ib_bits->{'ERR'}==1) {
-# 		Lab::Exception::GPIBError->throw(
-# 			error => sprintf("ibrsp (serial poll) failed with status %x\n", $ibstatus) . Dumper($ib_bits),
-# 			ibsta => $ibstatus,
-# 			ibsta_hash => $ib_bits,
-# 		);
-# 	}
-#
+    #
+    # 	my $ibstatus = ibrsp($connection_handle->{'gpib_handle'}, $sbyte);
+    #
+    # 	my $ib_bits=$self->ParseIbstatus($ibstatus);
+    #
+    # 	if($ib_bits->{'ERR'}==1) {
+    # 		Lab::Exception::GPIBError->throw(
+    # 			error => sprintf("ibrsp (serial poll) failed with status %x\n", $ibstatus) . Dumper($ib_bits),
+    # 			ibsta => $ibstatus,
+    # 			ibsta_hash => $ib_bits,
+    # 		);
+    # 	}
+    #
     return $sbyte;
 }
 
@@ -376,15 +377,26 @@ sub connection_device_clear {
 
     my $unused = 0;
 
-    ioctl( $connection_handle->{'tmc_handle'},
-        USBTMC_IOCTL_ABORT_BULK_OUT(), $unused );
-    ioctl( $connection_handle->{'tmc_handle'},
-        USBTMC_IOCTL_ABORT_BULK_IN(), $unused );
-    ioctl( $connection_handle->{'tmc_handle'},
-        USBTMC_IOCTL_CLEAR_OUT_HALT(), $unused );
-    ioctl( $connection_handle->{'tmc_handle'},
-        USBTMC_IOCTL_CLEAR_IN_HALT(), $unused );
-    ioctl( $connection_handle->{'tmc_handle'}, USBTMC_IOCTL_CLEAR(), $unused );
+    ioctl(
+        $connection_handle->{'tmc_handle'},
+        USBTMC_IOCTL_ABORT_BULK_OUT(), $unused
+    );
+    ioctl(
+        $connection_handle->{'tmc_handle'},
+        USBTMC_IOCTL_ABORT_BULK_IN(), $unused
+    );
+    ioctl(
+        $connection_handle->{'tmc_handle'},
+        USBTMC_IOCTL_CLEAR_OUT_HALT(), $unused
+    );
+    ioctl(
+        $connection_handle->{'tmc_handle'},
+        USBTMC_IOCTL_CLEAR_IN_HALT(), $unused
+    );
+    ioctl(
+        $connection_handle->{'tmc_handle'}, USBTMC_IOCTL_CLEAR(),
+        $unused
+    );
 }
 
 sub timeout {
@@ -394,9 +406,9 @@ sub timeout {
     my $timoval           = undef;
 
     Lab::Exception::CorruptParameter->throw( error =>
-"The timeout value has to be a positive decimal number of seconds, ranging 0-1000.\n"
-      )
-      if ( $timo !~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/
+            "The timeout value has to be a positive decimal number of seconds, ranging 0-1000.\n"
+        )
+        if ( $timo !~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/
         || $timo < 0
         || $timo > 1000 );
 
@@ -419,40 +431,40 @@ sub timeout {
     elsif ( $timo <= 300 )  { $timoval = 16 }
     elsif ( $timo <= 1000 ) { $timoval = 17 }
 
-# 	my $ibstatus=ibtmo($connection_handle->{'gpib_handle'}, $timoval);
-#
-# 	my $ib_bits=$self->ParseIbstatus($ibstatus);
-#
-# 	if($ib_bits->{'ERR'}==1) {
-# 		Lab::Exception::GPIBError->throw(
-# 			error => sprintf("Error in " . __PACKAGE__ . "::timeout(): ibtmo failed with status %x\n", $ibstatus) . Dumper($ib_bits),
-# 			ibsta => $ibstatus,
-# 			ibsta_hash => $ib_bits,
-# 		);
-# 	}
-#    print "timeout(): not implemented!\n";
+    # 	my $ibstatus=ibtmo($connection_handle->{'gpib_handle'}, $timoval);
+    #
+    # 	my $ib_bits=$self->ParseIbstatus($ibstatus);
+    #
+    # 	if($ib_bits->{'ERR'}==1) {
+    # 		Lab::Exception::GPIBError->throw(
+    # 			error => sprintf("Error in " . __PACKAGE__ . "::timeout(): ibtmo failed with status %x\n", $ibstatus) . Dumper($ib_bits),
+    # 			ibsta => $ibstatus,
+    # 			ibsta_hash => $ib_bits,
+    # 		);
+    # 	}
+    #    print "timeout(): not implemented!\n";
 }
 
 sub ParseIbstatus
 {    # Ibstatus http://linux-gpib.sourceforge.net/doc_html/r634.html
     print "ParseIbstatus not supported\n";
 
-# 	my $self = shift;
-# 	my $ibstatus = shift;	# 16 Bit int
-# 	my @ibbits = ();
-#
-# 	if( $ibstatus !~ /[0-9]*/ || $ibstatus < 0 || $ibstatus > 0xFFFF ) {	# should be a 16 bit integer
-# 		Lab::Exception::CorruptParameter->throw( error => 'Lab::Bus::GPIB::VerboseIbstatus() got an invalid ibstatus.', InvalidParameter => $ibstatus );
-# 	}
-#
-# 	for (my $i=0; $i<16; $i++) {
-# 		$ibbits[$i] = 0x0001 & ($ibstatus >> $i);
-# 	}
-#
-# 	my %Ib = ();
-# 	( $Ib{'DCAS'}, $Ib{'DTAS'}, $Ib{'LACS'}, $Ib{'TACS'}, $Ib{'ATN'}, $Ib{'CIC'}, $Ib{'REM'}, $Ib{'LOK'}, $Ib{'CMPL'}, $Ib{'EVENT'}, $Ib{'SPOLL'}, $Ib{'RQS'}, $Ib{'SRQI'}, $Ib{'END'}, $Ib{'TIMO'}, $Ib{'ERR'} ) = @ibbits;
-#
-# 	return \%Ib;
+    # 	my $self = shift;
+    # 	my $ibstatus = shift;	# 16 Bit int
+    # 	my @ibbits = ();
+    #
+    # 	if( $ibstatus !~ /[0-9]*/ || $ibstatus < 0 || $ibstatus > 0xFFFF ) {	# should be a 16 bit integer
+    # 		Lab::Exception::CorruptParameter->throw( error => 'Lab::Bus::GPIB::VerboseIbstatus() got an invalid ibstatus.', InvalidParameter => $ibstatus );
+    # 	}
+    #
+    # 	for (my $i=0; $i<16; $i++) {
+    # 		$ibbits[$i] = 0x0001 & ($ibstatus >> $i);
+    # 	}
+    #
+    # 	my %Ib = ();
+    # 	( $Ib{'DCAS'}, $Ib{'DTAS'}, $Ib{'LACS'}, $Ib{'TACS'}, $Ib{'ATN'}, $Ib{'CIC'}, $Ib{'REM'}, $Ib{'LOK'}, $Ib{'CMPL'}, $Ib{'EVENT'}, $Ib{'SPOLL'}, $Ib{'RQS'}, $Ib{'SRQI'}, $Ib{'END'}, $Ib{'TIMO'}, $Ib{'ERR'} ) = @ibbits;
+    #
+    # 	return \%Ib;
 
 } # return: ($ERR, $TIMO, $END, $SRQI, $RQS, $SPOLL, $EVENT, $CMPL, $LOK, $REM, $CIC, $ATN, $TACS, $LACS, $DTAS, $DCAS)
 
@@ -467,7 +479,7 @@ sub VerboseIbstatus {
     elsif ( ref($ibstatus) !~ /HASH/ ) {
         Lab::Exception::CorruptParameter->throw(
             error =>
-              'Lab::Bus::GPIB::VerboseIbstatus() got an invalid ibstatus.',
+                'Lab::Bus::GPIB::VerboseIbstatus() got an invalid ibstatus.',
             InvalidParameter => $ibstatus
         );
     }
