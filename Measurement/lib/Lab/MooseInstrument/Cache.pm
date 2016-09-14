@@ -1,3 +1,4 @@
+
 =head1 NAME
 
 Lab::MooseInstrument::Cache - Add device cache functionality to MooseInstrument
