@@ -17,7 +17,7 @@ use namespace::autoclean -also => [
       /
 ];
 
-our $VERSION = '3.512';
+our $VERSION = '3.520';
 
 sub _rows_equal {
     my $matrix = shift;

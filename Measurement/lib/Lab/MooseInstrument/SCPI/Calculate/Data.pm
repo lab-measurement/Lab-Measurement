@@ -1,4 +1,5 @@
 package Lab::MooseInstrument::SCPI::Calculate::Data;
+our $VERSION = '3.520';
 
 use Moose::Role;
 use MooseX::Params::Validate;

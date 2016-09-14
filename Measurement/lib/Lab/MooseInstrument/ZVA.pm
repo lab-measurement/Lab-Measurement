@@ -1,4 +1,6 @@
 package Lab::MooseInstrument::ZVA;
+our $VERSION = '3.520';
+
 use 5.010;
 use Moose;
 use MooseX::Params::Validate;

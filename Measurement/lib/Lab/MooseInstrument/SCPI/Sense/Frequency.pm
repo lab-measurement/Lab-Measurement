@@ -1,4 +1,5 @@
 package Lab::MooseInstrument::SCPI::Sense::Frequency;
+our $VERSION = '3.520';
 
 use Moose::Role;
 use Lab::MooseInstrument::Cache;

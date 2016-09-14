@@ -57,7 +57,7 @@ use namespace::autoclean
   -except => 'import',
   -also   => [@EXPORT_OK];
 
-our $VERSION = '3.512';
+our $VERSION = '3.520';
 
 # do not make imported functions available as methods.
 

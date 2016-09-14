@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 package Lab::Bus::Socket;
-our $VERSION = '3.512';
+our $VERSION = '3.520';
 
 use strict;
 use Scalar::Util qw(weaken);

@@ -1,6 +1,6 @@
 package Lab::XPRESS::Sweep::Sweep;
 
-our $VERSION = '3.512';
+our $VERSION = '3.520';
 
 use Role::Tiny::With;
 

@@ -1,7 +1,7 @@
 # Handle to replace STDOUT (routes messages on STDOUT to MESSAGE channel):
 package Lab::GenericIO::STDoutHandle;
 
-our $VERSION = '3.512';
+our $VERSION = '3.520';
 
 use Symbol qw<geniosym>;
 
