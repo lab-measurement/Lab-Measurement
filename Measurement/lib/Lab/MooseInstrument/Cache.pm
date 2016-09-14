@@ -1,3 +1,49 @@
+=head1 NAME
+
+Lab::MooseInstrument::Cache - Add device cache functionality to MooseInstrument
+drivers.
+
+=head1 SYNOPSIS
+
+in your driver:
+
+ use Lab::MooseInstrument::Cache;
+
+ cache 'foobar' => (getter => 'get_foobar');
+
+ sub get_foobar {
+     my $self = shift;
+     
+     return $self->cached_foobar(
+         $self->query(command => ...));
+ }
+
+ sub set_foobar {
+     my ($self, $value) = @_;
+     $self->write(command => ...);
+     $self->cached_foobar($value);
+ }
+
+=head1 DESCRIPTION
+
+This package exports a new Moose keyword: B<cache>.
+
+Calling C<< cache key => (getter => $getter, isa => $type) >> will generate a
+L<Moose attribute|Moose::Manual::Attributes> 'cached_key' with the following
+properties: 
+
+ is => 'rw',
+ isa => $type,
+ predicate => 'has_cached_key',
+ clearer => 'clear_cached_key',
+ default => sub {$_[0]->$getter},
+ lazy => 1,
+ init_arg => undef
+
+The C<isa> argument is optional.
+
+=cut
+
 package Lab::MooseInstrument::Cache;
 use Moose::Role;
 use MooseX::Params::Validate;

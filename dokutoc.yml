@@ -53,6 +53,7 @@ toc:
           - Measurement/lib/Lab/XPRESS/Sweep/LogBlock.pm
       - Instrument control classes:
           - Measurement/lib/Lab/MooseInstrument.pm
+          - Measurement/lib/Lab/MooseInstrument/Cache.pm
           - Measurement/lib/Lab/Instrument.pm
           - Multimeters:
               - Measurement/lib/Lab/Instrument/Multimeter.pm
