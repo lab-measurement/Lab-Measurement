@@ -4,7 +4,7 @@ use 5.010;
 use warnings;
 use strict;
 
-use Test::More tests => 20;
+use Test::More tests => 21;
 use Test::Fatal;
 use Data::Dumper;
 use Lab::BlockData;
@@ -95,6 +95,8 @@ use Lab::BlockData;
         exception { $data->add_column( [ 4, 5 ] ); },
         "adding column of wrong size throws"
     );
+    ok( exception { $data->add_column( [ 1, 2, 'e1' ] ); },
+        "non-number in data throws" );
 
 }
 

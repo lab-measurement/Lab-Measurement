@@ -1,13 +1,21 @@
 package Lab::BlockData;
 use 5.010;
 use Moose;
-use Moose::Util::TypeConstraints;
+use Moose::Util::TypeConstraints qw/:all/;
 use MooseX::Params::Validate;
-
+use Scalar::Util qw/looks_like_number/;
 use Carp;
 
 use Data::Dumper;
-use namespace::autoclean -also => [qw/_rows_equal _get_vector_param/];
+use namespace::autoclean -also => [
+    qw/
+      _rows_equal
+      _get_vector_param
+      _is_vector
+      _is_num_vector
+      _is_matrix
+      /
+];
 
 our $VERSION = '3.512';
 
@@ -20,6 +28,7 @@ sub _rows_equal {
 
     for my $row ( @{$matrix} ) {
         if ( @{$row} != $columns ) {
+            carp 'rows not equal';
             return;
         }
     }
@@ -27,19 +36,65 @@ sub _rows_equal {
     return 1;
 }
 
+# One can also do the following stuff with parametrized Moose types. But that
+# turns out to be a lot slower.
+
+# return true, if ref to non-empty array.
+sub _is_vector {
+    my $ref = shift;
+
+    if ( ref $ref ne 'ARRAY' ) {
+        carp "vector ain't arrayref";
+        return;
+    }
+
+    if ( @{$ref} < 1 ) {
+        carp "empty vector";
+        return;
+    }
+
+    return 1;
+}
+
+sub _is_num_vector {
+    my $ref = shift;
+    if ( not _is_vector($ref) ) {
+        return;
+    }
+
+    for my $num ( @{$ref} ) {
+        if ( not looks_like_number($num) ) {
+            carp "'$num' not a num in num_vector";
+            return;
+        }
+    }
+
+    return 1;
+}
+
+sub _is_matrix {
+    my $matrix = shift;
+    if ( not _is_vector($matrix) ) {
+        return;
+    }
+
+    for my $row ( @{$matrix} ) {
+        _is_num_vector($row) || return;
+    }
+
+    _rows_equal($matrix) || return;
+
+    return 1;
+}
+
 subtype 'Lab::BlockData::Natural', as 'Int', where { $_ >= 0 };
 
 # A vector is a non-empty ArrayRef.
-subtype 'Lab::BlockData::Vector', as 'ArrayRef', where { @{$_} > 0 };
-
-subtype 'Lab::BlockData::Matrix',
-  as 'Lab::BlockData::Vector[Lab::BlockData::Vector[Num]]',
-  where { _rows_equal($_) },
-  message { "rows have different length: " . Dumper($_) };
+subtype 'Lab::BlockData::Vector', as 'Ref', where { _is_vector($_) };
 
 has 'matrix' => (
     is        => 'ro',
-    isa       => 'Lab::BlockData::Matrix',
+    isa       => subtype( 'Ref' => where { _is_matrix($_) } ),
     predicate => 'has_matrix',
     writer    => '_matrix',
 );
@@ -120,7 +175,8 @@ sub _get_vector_param {
     my $args = shift;
 
     my ($vector) =
-      pos_validated_list( $args, { isa => 'Lab::BlockData::Vector[Num]' } );
+      pos_validated_list( $args,
+        { isa => subtype( 'Ref' => where { _is_num_vector($_) } ) } );
 
     return $vector;
 }
