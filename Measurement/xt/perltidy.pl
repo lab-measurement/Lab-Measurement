@@ -8,22 +8,25 @@ use File::Find;
 
 my @files;
 
-find(
-    {
-        wanted => sub {
-            my $file = $_;
-            if ( $file =~ /\.(pm|t|pl)$/ ) {
-                push @files, $file;
-            }
+if (@ARGV) {
+    @files = @ARGV;
+}
+else {
+    find(
+        {
+            wanted => sub {
+                my $file = $_;
+                if ( $file =~ /\.(pm|t|pl)$/ ) {
+                    push @files, $file;
+                }
+            },
+            no_chdir => 1,
         },
-        no_chdir => 1,
-    },
-    'lib',
-    't',
-    'xt'
-);
-
-say for @files;
+        'lib',
+        't',
+        'xt'
+    );
+}
 
 perltidy( argv => [ '-b', '-bext=/', @files ], );
 

@@ -35,8 +35,10 @@ sub calculate_data_call {
     my $format  = delete $args{format};
     my $channel = delete $args{channel};
 
-    return $self->query( command => "CALC${channel}:DATA:CALL? $format",
-        %args );
+    return $self->query(
+        command => "CALC${channel}:DATA:CALL? $format",
+        %args
+    );
 
 }
 
