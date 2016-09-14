@@ -5,16 +5,26 @@ Lab::MooseInstrument - Base class for instrument drivers.
 
 =head1 SYNOPSIS
 
- use Lab::MooseInstrument;
+A complete device driver based on Lab::MooseInstrument:
 
- my $instrument = Lab::MooseInstrument->new(connection => $connection);
+ package Lab::MooseInstrument::FooBar;
+ use Moose;
+ 
+ use Lab::MooseInstrument qw/validated_getter validated_setter/;
 
+ extends 'Lab::MooseInstrument';
+
+ sub get_foo {
+     my ($self, %args) = validated_getter(@_);
+     return $self->query(command => "Foo?", %args);
+ }
  
- my $data = $instrument->read();
- 
- $instrument->write(command => '*OPC');
- 
- my $id = $instrument->query(command => '*IDN?');
+ sub set_foo {
+     my ($self, $value, %args) = validated_setter(@_);
+     return $self->write(command => "Foo $value", %args);
+ }
+
+ __PACKAGE__->meta->make_immutable();
 
 =head1 DESCRIPTION
 
@@ -32,6 +42,8 @@ use MooseX::Params::Validate;
 use Exporter 'import';
 
 our @EXPORT_OK = qw(
+  timeout_param
+  read_length_param
   channel_param
   getter_params
   setter_params
@@ -65,52 +77,6 @@ has 'connection' => (
     isa      => duck_type( [qw/Write Read Query Clear/] ),
     required => 1
 );
-
-sub timeout_param {
-    return ( timeout => { isa => 'Num', optional => 1 } );
-}
-
-sub read_length_param {
-    return ( read_length => { isa => 'Int', optional => 1 } );
-}
-
-sub channel_param {
-    return ( channel => { isa => 'Int', optional => 1, default => '' } );
-}
-
-sub getter_params {
-    return ( timeout_param(), read_length_param() );
-}
-
-sub setter_params {
-    return ( timeout_param() );
-}
-
-sub validated_getter {
-    return validated_hash( \@_, getter_params() );
-}
-
-sub validated_setter {
-    my ( $self, %args ) =
-      validated_hash( \@_, setter_params(), value => { isa => 'Str' }, );
-    my $value = delete $args{value};
-    return ( $self, $value, %args );
-}
-
-sub validated_channel_getter {
-    my ( $self, %args ) =
-      validated_hash( \@_, getter_params(), channel_param(), );
-    my $channel = delete $args{channel};
-    return ( $self, $channel, %args );
-}
-
-sub validated_channel_setter {
-    my ( $self, %args ) = validated_hash( \@_, getter_params(), channel_param(),
-        value => { isa => 'Str' }, );
-    my $channel = delete $args{channel};
-    my $value   = delete $args{value};
-    return ( $self, $channel, $value, %args );
-}
 
 #
 # Methods
@@ -173,6 +139,124 @@ Call the connection's C<Clear> method.
 sub clear {
     my $self = shift;
     $self->connection()->Clear();
+}
+
+=head1 Functions
+
+The following functions standardise and simplify the use of
+L<MooseX::Params::Validate> in instrument drivers. They are only exported on
+request.
+
+=head2 timeout_param
+
+Return mandatory validation parameter for timeout.
+
+=cut
+
+sub timeout_param {
+    return ( timeout => { isa => 'Num', optional => 1 } );
+}
+
+=head2 read_length_param
+
+Return mandatory validation parameter for read_length.
+
+=cut
+
+sub read_length_param {
+    return ( read_length => { isa => 'Int', optional => 1 } );
+}
+
+=head2 channel_param
+
+Return optional validation parameter for channel. A given argument has to be an
+'Int'. The default value is the empty string ''.
+
+=cut
+
+sub channel_param {
+    return ( channel => { isa => 'Int', optional => 1, default => '' } );
+}
+
+=head2 getter_params
+
+Return list of validation parameters which shell be used in all query
+operations, eg. timeout, read_length, ....
+
+=cut
+
+sub getter_params {
+    return ( timeout_param(), read_length_param() );
+}
+
+=head2 setter_params
+
+Return list of validation parameters which shell be used in all write
+operations, eg. timeout, ....
+
+=cut
+
+sub setter_params {
+    return ( timeout_param() );
+}
+
+=head2 validated_getter
+
+ my ($self, %args) = validated_getter(@_);
+
+Call C<validated_hash> with the getter_params.
+
+=cut
+
+sub validated_getter {
+    return validated_hash( \@_, getter_params() );
+}
+
+=head2 validated_setter
+
+ my ($self, $value, %args) = validated_setter(@_);
+
+Call C<validated_hash> with the C<setter_params> and a mandatory 'value'
+argument, which must be of 'Str' type.
+
+=cut
+
+sub validated_setter {
+    my ( $self, %args ) =
+      validated_hash( \@_, setter_params(), value => { isa => 'Str' }, );
+    my $value = delete $args{value};
+    return ( $self, $value, %args );
+}
+
+=head2 validated_channel_getter
+
+ my ($self, $channel, %args) = validated_channel_getter(@_);
+
+Like C<validated_getter> with an additional C<channel_param> argument.
+
+=cut
+
+sub validated_channel_getter {
+    my ( $self, %args ) =
+      validated_hash( \@_, getter_params(), channel_param(), );
+    my $channel = delete $args{channel};
+    return ( $self, $channel, %args );
+}
+
+=head2 validated_channel_setter
+
+ my ($self, $channel, $value, %args) = validated_channel_setter(@_);
+
+Like C<validated_setter> with an additional C<channel_param> argument.
+
+=cut
+
+sub validated_channel_setter {
+    my ( $self, %args ) = validated_hash( \@_, getter_params(), channel_param(),
+        value => { isa => 'Str' }, );
+    my $channel = delete $args{channel};
+    my $value   = delete $args{value};
+    return ( $self, $channel, $value, %args );
 }
 
 __PACKAGE__->meta->make_immutable();
