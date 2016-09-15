@@ -56,3 +56,8 @@ nytprof
 ^lib/Lab/Instrument/AgilentE8362A.pm
 ^lib/Lab/XPRESS/Sweep/SweepND.pm
 ^lib/Lab/XPRESS/Sweep/VM_DIR.pm
+^lib/Lab/MooseInstrument
+^lib/Lab/BlockData.pm
+^t/Moose
+^t/BlockData.t
+^xt/
