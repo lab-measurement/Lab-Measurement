@@ -1,0 +1,46 @@
+#!/usr/bin/env perl
+use 5.010;
+use warnings;
+use strict;
+use File::Spec::Functions qw/catfile/;
+
+my @files = split '\n', qx/git diff --cached --name-only/;
+
+@files = grep {/\.(pm|pl|t)$/} @files;
+
+
+my $tidy_script = catfile(qw/. Measurement xt perltidy.pl/);
+
+if (@files) {
+    say "running perltidy on the following files:";
+    say "    $_" for @files;
+    safe_system($tidy_script, @files);
+}
+
+chdir catfile(qw/. Measurement/)
+    or die "cannot chdir";
+
+# Run tests.
+safe_system(qw/prove -lrv t/);
+
+# Run Perl::Critic tests.
+safe_system(qw/prove -v/, catfile(qw/xt critic.pl/));
+
+sub safe_system {
+    my @command = @_;
+    system(@command);
+    if ($? == -1) {
+	die "failed to execute: $!\n";
+    }
+    if ($? & 127) {
+	die sprintf('child died with signal %d', ($? & 127));
+    }
+    
+    my $status = $? >> 8;
+    if ($status) {
+	die "command '@command' exited with status $status";
+    }
+}
+    
+
+    
