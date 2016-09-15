@@ -2,6 +2,7 @@
 use 5.010;
 use warnings;
 use strict;
+use Test::More tests => 37;
 use Test::Perl::Critic;
 use File::Spec::Functions qw/catfile/;
 use File::Find;
@@ -21,7 +22,7 @@ find(
         wanted => sub {
             my $file = $_;
             for my $test (@tests) {
-                if ( $file !~ /\.pm$/ ) {
+                if ( $file !~ /\.(pm|pl|t)$/ ) {
                     return;
                 }
 
@@ -34,10 +35,26 @@ find(
         no_chdir => 1,
     },
     'lib'
-);
+    );
 
+find(
+    {
+        wanted => sub {
+            my $file = $_;
+            for my $test (@tests) {
+                if ( $file =~ /\.(pm|pl|t)$/ ) {
+		    push @files, $file;
+		    return;
+                }
+	    }
+	},
+        no_chdir => 1,
+    },
+    't'
+    );
+
+push @files, catfile(qw/xt critic.pl/), catfile(qw/xt perltidy.pl/);
 for my $file (@files) {
     critic_ok($file);
 }
 
-all_critic_ok(qw(t xt/critic.pl xt/critic-progressive.pl));

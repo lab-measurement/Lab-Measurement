@@ -1,5 +1,4 @@
 package Lab::MooseInstrument::SCPI::Sense::Sweep;
-our $VERSION = '3.520';
 
 use Moose::Role;
 use Lab::MooseInstrument::Cache;
@@ -8,6 +7,8 @@ use MooseX::Params::Validate;
 use Carp;
 
 use namespace::autoclean;
+
+our $VERSION = '3.520';
 
 cache sense_sweep_points => ( getter => 'sense_sweep_points_query' );
 

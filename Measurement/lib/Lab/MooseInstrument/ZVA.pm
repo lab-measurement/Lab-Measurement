@@ -1,5 +1,4 @@
 package Lab::MooseInstrument::ZVA;
-our $VERSION = '3.520';
 
 use 5.010;
 use Moose;
@@ -9,6 +8,8 @@ use Lab::BlockData;
 use Carp;
 
 use namespace::autoclean;
+
+our $VERSION = '3.520';
 
 extends 'Lab::MooseInstrument';
 

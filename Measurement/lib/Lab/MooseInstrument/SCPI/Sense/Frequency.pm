@@ -1,5 +1,4 @@
 package Lab::MooseInstrument::SCPI::Sense::Frequency;
-our $VERSION = '3.520';
 
 use Moose::Role;
 use Lab::MooseInstrument::Cache;
@@ -10,6 +9,8 @@ use Carp;
 use namespace::autoclean;
 
 with 'Lab::MooseInstrument::SCPI::Sense::Sweep';
+
+our $VERSION = '3.520';
 
 cache sense_frequency_start => ( getter => 'sense_frequency_start_query' );
 

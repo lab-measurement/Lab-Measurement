@@ -1,5 +1,4 @@
 package Lab::MooseInstrument::Common;
-our $VERSION = '3.520';
 
 use Moose::Role;
 use MooseX::Params::Validate;
@@ -11,6 +10,8 @@ use Lab::MooseInstrument qw/
 use Carp;
 
 use namespace::autoclean;
+
+our $VERSION = '3.520';
 
 sub cls {
     my ( $self, %args ) = validated_getter(@_);
