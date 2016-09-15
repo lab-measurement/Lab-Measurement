@@ -87,14 +87,9 @@ sub _is_matrix {
     return 1;
 }
 
-subtype 'Lab::BlockData::Natural', as 'Int', where { $_ >= 0 };
-
-# A vector is a non-empty ArrayRef.
-subtype 'Lab::BlockData::Vector', as 'Ref', where { _is_vector($_) };
-
 has 'matrix' => (
     is        => 'ro',
-    isa       => subtype( 'Ref' => where { _is_matrix($_) } ),
+    isa       => 'Ref',
     predicate => 'has_matrix',
     writer    => '_matrix',
 );
@@ -121,6 +116,9 @@ sub BUILD {
     }
 
     my $matrix  = $self->matrix();
+    if (not _is_matrix($matrix)) {
+	croak 'not a matrix';
+    }
     my $rows    = @{$matrix};
     my $columns = @{ $matrix->[0] };
     $self->_rows($rows);
@@ -134,9 +132,9 @@ sub row {
         croak "calling method 'row' before adding data";
     }
 
-    my ($row) = pos_validated_list( \@_, { isa => 'Lab::BlockData::Natural' } );
+    my ($row) = pos_validated_list( \@_, { isa => 'Int' } );
     my $rows = $self->rows();
-    if ( $row >= $rows ) {
+    if ( $row < 0 || $row >= $rows ) {
         croak sprintf( "row '$row' is out of range (0..%d)", $rows - 1 );
     }
 
@@ -153,10 +151,10 @@ sub column {
     }
 
     my ($column) =
-      pos_validated_list( \@_, { isa => 'Lab::BlockData::Natural' } );
+      pos_validated_list( \@_, { isa => 'Int' } );
     my $columns = $self->columns();
 
-    if ( $column >= $columns ) {
+    if ( $column < 0 || $column >= $columns ) {
         croak
           sprintf( "column '$column' is out of range (0..%d)", $columns - 1 );
     }
@@ -175,9 +173,12 @@ sub _get_vector_param {
     my $args = shift;
 
     my ($vector) =
-      pos_validated_list( $args,
-        { isa => subtype( 'Ref' => where { _is_num_vector($_) } ) } );
-
+      pos_validated_list( $args, { isa => 'Ref'} );
+			  
+    if (not _is_num_vector($vector)) {
+	croak "argument ain't numeric vector";
+    }
+    
     return $vector;
 }
 
