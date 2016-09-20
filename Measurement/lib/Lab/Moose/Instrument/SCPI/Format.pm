@@ -10,7 +10,7 @@ our $VERSION = '3.520';
 cache format_data => ( getter => 'format_data_query' );
 
 sub format_data_query {
-    my ( $self, %args ) = validated_getter(@_);
+    my ( $self, %args ) = validated_getter( \@_ );
 
     my $format = $self->query( command => 'FORM?', %args );
 
@@ -39,14 +39,14 @@ sub format_data {
 cache format_border => ( getter => 'format_border_query' );
 
 sub format_border_query {
-    my ( $self, %args ) = validated_getter(@_);
+    my ( $self, %args ) = validated_getter( \@_ );
 
     return $self->cached_format_border(
         $self->query( command => 'FORM:BORD?', %args ) );
 }
 
 sub format_border {
-    my ( $self, $value, %args ) = validated_setter(@_);
+    my ( $self, $value, %args ) = validated_setter( \@_ );
 
     $self->write( command => "FORM:BORD $value", %args );
     return $self->cached_format_border($value);

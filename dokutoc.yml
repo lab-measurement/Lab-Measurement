@@ -52,8 +52,8 @@ toc:
           - Measurement/lib/Lab/XPRESS/Sweep/Temperature.pm
           - Measurement/lib/Lab/XPRESS/Sweep/LogBlock.pm
       - Instrument control classes:
-          - Measurement/lib/Lab/MooseInstrument.pm
-          - Measurement/lib/Lab/MooseInstrument/Cache.pm
+          - Measurement/lib/Lab/Moose/Instrument.pm
+          - Measurement/lib/Lab/Moose/Instrument/Cache.pm
           - Measurement/lib/Lab/Instrument.pm
           - Multimeters:
               - Measurement/lib/Lab/Instrument/Multimeter.pm
@@ -77,6 +77,8 @@ toc:
               - Measurement/lib/Lab/Instrument/HP83732A.pm
           - RF detectors:
               - Measurement/lib/Lab/Instrument/U2000.pm
+          - Network analyzers:
+              - Measurement/lib/Lab/Moose/Instrument/RS_ZVM.pm
           - Superconducting magnet power supplies:
               - Measurement/lib/Lab/Instrument/MagnetSupply.pm
               - Measurement/lib/Lab/Instrument/OI_IPS.pm
@@ -91,6 +93,8 @@ toc:
               - Measurement/lib/Lab/Instrument/OI_Mercury.pm
           - Stepper motors:
               - Measurement/lib/Lab/Instrument/PD11042.pm
+      - Moose::Instrument Roles:
+          - Measurement/lib/Lab/Moose/Instrument/VNASweep.pm
       - Connection classes:
           - Measurement/lib/Lab/Connection.pm
           - Measurement/lib/Lab/Connection/DEBUG.pm

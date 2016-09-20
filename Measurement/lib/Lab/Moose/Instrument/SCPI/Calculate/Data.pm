@@ -22,7 +22,7 @@ cache calculate_data_call_catalog => (
 );
 
 sub calculate_data_call_catalog {
-    my ( $self, $channel, %args ) = validated_channel_getter(@_);
+    my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
 
     my $string
         = $self->query( command => "CALC${channel}:DATA:CALL:CAT?", %args );
@@ -33,8 +33,8 @@ sub calculate_data_call_catalog {
 }
 
 sub calculate_data_call {
-    my ( $self, %args ) = validated_hash(
-        \@_, getter_params(), channel_param(),
+    my ( $self, %args ) = validated_channel_getter(
+        \@_,
         format => { isa => enum( [qw/FDATA SDATA MDATA/] ) }
     );
 

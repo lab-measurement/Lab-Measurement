@@ -15,11 +15,12 @@ delete $ENV{GIT_DIR};
 
 my @files = split '\n', qx/git diff --cached --name-only/;
 
-@files = grep {-f} @files;
-
 @files = grep {/\.(pm|pl|t)$/} @files;
 
 @files = map { abs2rel( $_, 'Measurement' ) } @files;
+
+# Run this after abs2rel.
+@files = grep {-f} @files;
 
 my $tidy_script = catfile(qw/xt perltidy.pl/);
 

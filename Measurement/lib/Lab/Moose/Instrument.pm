@@ -1,38 +1,4 @@
 
-=head1 NAME
-
-Lab::Moose::Instrument - Base class for instrument drivers.
-
-=head1 SYNOPSIS
-
-A complete device driver based on Lab::Moose::Instrument:
-
- package Lab::Moose::Instrument::FooBar;
- use Moose;
- 
- use Lab::Moose::Instrument qw/validated_getter validated_setter/;
-
- extends 'Lab::Moose::Instrument';
-
- sub get_foo {
-     my ($self, %args) = validated_getter(@_);
-     return $self->query(command => "Foo?", %args);
- }
- 
- sub set_foo {
-     my ($self, $value, %args) = validated_setter(@_);
-     return $self->write(command => "Foo $value", %args);
- }
-
- __PACKAGE__->meta->make_immutable();
-
-=head1 DESCRIPTION
-
-The Lab::Moose::Instrument module is a thin wrapper around a connection object.
-All other Lab::Moose::Instrument::* drivers inherit from this module.
-
-=cut
-
 package Lab::Moose::Instrument;
 use 5.010;
 use Moose;
@@ -49,19 +15,55 @@ our @EXPORT_OK = qw(
     setter_params
     validated_getter
     validated_setter
+    validated_no_param_setter
     validated_channel_getter
     validated_channel_setter
 );
 
+# do not make imported functions available as methods.
 use namespace::autoclean
+
+    # Need this for Exporter.
     -except => 'import',
     -also   => [@EXPORT_OK];
 
 our $VERSION = '3.520';
 
-# do not make imported functions available as methods.
+=head1 NAME
 
-=head1 Methods
+Lab::Moose::Instrument - Base class for instrument drivers.
+
+=head1 SYNOPSIS
+
+A complete device driver based on Lab::Moose::Instrument:
+
+ package Lab::Moose::Instrument::FooBar;
+ use Moose;
+ 
+ use Lab::Moose::Instrument qw/validated_getter validated_setter/;
+
+ use namespace::autoclean;
+ 
+ extends 'Lab::Moose::Instrument';
+
+ sub get_foo {
+     my ($self, %args) = validated_getter(\@_);
+     return $self->query(command => "Foo?", %args);
+ }
+ 
+ sub set_foo {
+     my ($self, $value, %args) = validated_setter(\@_);
+     return $self->write(command => "Foo $value", %args);
+ }
+
+ __PACKAGE__->meta->make_immutable();
+
+=head1 DESCRIPTION
+
+The Lab::Moose::Instrument module is a thin wrapper around a connection object.
+All other Lab::Moose::Instrument::* drivers inherit from this module.
+
+=head1 METHODS
 
 =head2 new
 
@@ -102,8 +104,8 @@ sub write {
 
  $instrument->read(timeout => 10, read_length => 10000);
 
-Call the connection's C<Read> method. The timeout and read_length parameters are
-optional.
+Call the connection's C<Read> method. The timeout and read_length
+parameters are optional.
 
 =cut
 
@@ -175,7 +177,7 @@ Return optional validation parameter for channel. A given argument has to be an
 =cut
 
 sub channel_param {
-    return ( channel => { isa => 'Int', optional => 1, default => '' } );
+    return ( channel => { isa => 'Int', optional => 1 } );
 }
 
 =head2 getter_params
@@ -202,19 +204,24 @@ sub setter_params {
 
 =head2 validated_getter
 
- my ($self, %args) = validated_getter(@_);
+ my ($self, %args) = validated_getter(\@_, %additional_parameter_spec);
 
 Call C<validated_hash> with the getter_params.
 
 =cut
 
 sub validated_getter {
-    return validated_hash( \@_, getter_params() );
+    my $args_ref                  = shift;
+    my %additional_parameter_spec = @_;
+    return validated_hash(
+        $args_ref, getter_params(),
+        %additional_parameter_spec
+    );
 }
 
 =head2 validated_setter
 
- my ($self, $value, %args) = validated_setter(@_);
+ my ($self, $value, %args) = validated_setter(\@_, %additional_parameter_spec);
 
 Call C<validated_hash> with the C<setter_params> and a mandatory 'value'
 argument, which must be of 'Str' type.
@@ -222,46 +229,94 @@ argument, which must be of 'Str' type.
 =cut
 
 sub validated_setter {
-    my ( $self, %args )
-        = validated_hash( \@_, setter_params(), value => { isa => 'Str' }, );
+    my $args_ref                  = shift;
+    my %additional_parameter_spec = @_;
+    my ( $self, %args ) = validated_hash(
+        $args_ref, setter_params(),
+        value => { isa => 'Str' }, %additional_parameter_spec
+    );
     my $value = delete $args{value};
     return ( $self, $value, %args );
 }
 
+=head2 validated_no_param_setter
+
+ my ($self, %args) = validated_no_param_setter(\@_, %additional_parameter_spec);
+
+Like C<validated_setter> without the 'value' argument.
+
+=cut
+
+sub validated_no_param_setter {
+    my $args_ref                  = shift;
+    my %additional_parameter_spec = @_;
+    my ( $self, %args ) = validated_hash(
+        $args_ref, setter_params(),
+        %additional_parameter_spec
+    );
+    return ( $self, %args );
+}
+
+sub get_default_channel {
+    my $self = shift;
+    if ( $self->can('instrument_nselect') ) {
+        my $channel = $self->cached_instrument_nselect();
+        return $channel == 1 ? '' : $channel;
+    }
+    else {
+        return '';
+    }
+}
+
 =head2 validated_channel_getter
 
- my ($self, $channel, %args) = validated_channel_getter(@_);
+ my ($self, $channel, %args) = validated_channel_getter(\@_);
 
-Like C<validated_getter> with an additional C<channel_param> argument.
+Like C<validated_getter> with an additional C<channel_param> argument. If the
+no channel argument is given, try to call
+C<$self->cached_instrument_nselect>. If this method is not available, return
+the empty string for the channel.
 
 =cut
 
 sub validated_channel_getter {
-    my ( $self, %args )
-        = validated_hash( \@_, getter_params(), channel_param(), );
+    my $args_ref                  = shift;
+    my %additional_parameter_spec = @_;
+    my ( $self, %args ) = validated_hash(
+        $args_ref, getter_params(), channel_param(),
+        %additional_parameter_spec
+    );
     my $channel = delete $args{channel};
+    if ( not defined $channel ) {
+        $channel = $self->get_default_channel();
+    }
     return ( $self, $channel, %args );
 }
 
 =head2 validated_channel_setter
 
- my ($self, $channel, $value, %args) = validated_channel_setter(@_);
+ my ($self, $channel, $value, %args) = validated_channel_setter(\@_);
 
-Like C<validated_setter> with an additional C<channel_param> argument.
+Analog to C<validated_channel_getter>.
 
 =cut
 
 sub validated_channel_setter {
+    my $args_ref                  = shift;
+    my %additional_parameter_spec = @_;
     my ( $self, %args ) = validated_hash(
         \@_, getter_params(), channel_param(),
         value => { isa => 'Str' },
+        %additional_parameter_spec,
     );
     my $channel = delete $args{channel};
-    my $value   = delete $args{value};
+    if ( not defined $channel ) {
+        $channel = $self->get_default_channel();
+    }
+    my $value = delete $args{value};
     return ( $self, $channel, $value, %args );
 }
 
 __PACKAGE__->meta->make_immutable();
 
 1;
-

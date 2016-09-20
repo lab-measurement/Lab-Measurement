@@ -16,14 +16,14 @@ our $VERSION = '3.520';
 cache sense_frequency_start => ( getter => 'sense_frequency_start_query' );
 
 sub sense_frequency_start_query {
-    my ( $self, $channel, %args ) = validated_channel_getter(@_);
+    my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
 
     return $self->cached_sense_frequency_start(
         $self->query( command => "SENS${channel}:FREQ:STAR?", %args ) );
 }
 
 sub sense_frequency_start {
-    my ( $self, $channel, $value, %args ) = validated_channel_setter(@_);
+    my ( $self, $channel, $value, %args ) = validated_channel_setter( \@_ );
     $self->write(
         command => sprintf( "SENS%s:FREQ:STAR %g", $channel, $value ),
         %args
@@ -34,14 +34,14 @@ sub sense_frequency_start {
 cache sense_frequency_stop => ( getter => 'sense_frequency_stop_query' );
 
 sub sense_frequency_stop_query {
-    my ( $self, $channel, %args ) = validated_channel_getter(@_);
+    my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
 
     return $self->cached_sense_frequency_stop(
         $self->query( command => "SENS${channel}:FREQ:STOP?", %args ) );
 }
 
 sub sense_frequency_stop {
-    my ( $self, $channel, $value, %args ) = validated_channel_setter(@_);
+    my ( $self, $channel, $value, %args ) = validated_channel_setter( \@_ );
     $self->write(
         command => sprintf( "SENS%s:FREQ:STOP %g", $channel, $value ),
         %args
@@ -50,7 +50,7 @@ sub sense_frequency_stop {
 }
 
 sub sense_frequency_linear_array {
-    my ( $self, $channel, %args ) = validated_channel_getter(@_);
+    my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
 
     my $start      = $self->cached_sense_frequency_start();
     my $stop       = $self->cached_sense_frequency_stop();

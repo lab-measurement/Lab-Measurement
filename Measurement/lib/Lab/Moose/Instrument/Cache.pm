@@ -37,11 +37,30 @@ properties:
  isa => $type,
  predicate => 'has_cached_key',
  clearer => 'clear_cached_key',
- default => sub {$_[0]->$getter},
+ builder => 'cached_key_builder',
  lazy => 1,
  init_arg => undef
 
 The C<isa> argument is optional.
+
+The builder method comes into play if a cache entry is in the cleared state. If
+the getter is called in this situation, the builder
+method will be used to generate the value.
+The default builder method just calls the configured C<$getter> method.
+
+
+If need to call the getter with specific arguments, you can override the
+builder method.
+For example, the C<format_data_query> of the L<Lab::Moose::Instrument::RS_ZVM>
+needs an extended timeout of 3s. This is done by putting the following into the
+driver:
+
+ sub cached_format_data_builder {
+     my $self = shift;
+     return $self->format_data_query( timeout => 3 );
+ }
+
+
 
 =cut
 
@@ -67,10 +86,7 @@ sub _add_cache_attribute {
     $meta->add_method(
         $builder => sub {
             my $self = shift;
-
-            # FIXME: getter params: timeout, read_length
-            my $value = $self->$getter();
-            $self->$attribute($value);
+            return $self->$getter();
         }
     );
 
