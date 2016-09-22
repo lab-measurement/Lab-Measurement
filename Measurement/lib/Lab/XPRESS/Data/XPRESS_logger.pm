@@ -6,6 +6,8 @@ use Time::HiRes qw/usleep/, qw/time/;
 use strict;
 
 use Lab::XPRESS::Data::XPRESS_plotter;
+use Carp;
+use File::Path 'make_path';
 
 sub new {
     my $proto        = shift;
@@ -73,9 +75,10 @@ sub open_file {
 
         # create directory if it doesn't exist:
         if ( not -d $directory ) {
-            warn
-                "directory given by $filenamebase doesn't exist. Create directory $directory";
-            mkdir $directory;
+            carp "directory given by $filenamebase doesn't exist."
+		. "Creating directory $directory";
+            make_path $directory
+		or croak "cannot create path $directory: $!";
         }
 
         # look for existing files:
