@@ -43,6 +43,11 @@ sub opc_sync {
     return $one;
 }
 
+sub rst {
+    my ( $self, %args ) = validated_no_param_setter( \@_ );
+    return $self->write( command => '*RST', %args );
+}
+
 sub wai {
     my ( $self, %args ) = validated_no_param_setter( \@_ );
     return $self->write( command => '*WAI', %args );

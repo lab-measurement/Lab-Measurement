@@ -4,7 +4,7 @@ use 5.010;
 use Moose;
 use Moose::Util::TypeConstraints qw(duck_type);
 use MooseX::Params::Validate;
-
+use Data::Dumper;
 use Exporter 'import';
 
 our @EXPORT_OK = qw(
@@ -28,6 +28,8 @@ use namespace::autoclean
     -also   => [@EXPORT_OK];
 
 our $VERSION = '3.520';
+
+with 'Lab::Moose::Instrument::Log';
 
 =head1 NAME
 
@@ -202,6 +204,10 @@ sub setter_params {
     return ( timeout_param() );
 }
 
+sub validated_hash_no_cache {
+    return validated_hash( @_, MX_PARAMS_VALIDATE_NO_CACHE => 1 );
+}
+
 =head2 validated_getter
 
  my ($self, %args) = validated_getter(\@_, %additional_parameter_spec);
@@ -213,7 +219,7 @@ Call C<validated_hash> with the getter_params.
 sub validated_getter {
     my $args_ref                  = shift;
     my %additional_parameter_spec = @_;
-    return validated_hash(
+    return validated_hash_no_cache(
         $args_ref, getter_params(),
         %additional_parameter_spec
     );
@@ -231,7 +237,7 @@ argument, which must be of 'Str' type.
 sub validated_setter {
     my $args_ref                  = shift;
     my %additional_parameter_spec = @_;
-    my ( $self, %args ) = validated_hash(
+    my ( $self, %args ) = validated_hash_no_cache(
         $args_ref, setter_params(),
         value => { isa => 'Str' }, %additional_parameter_spec
     );
@@ -250,7 +256,7 @@ Like C<validated_setter> without the 'value' argument.
 sub validated_no_param_setter {
     my $args_ref                  = shift;
     my %additional_parameter_spec = @_;
-    my ( $self, %args ) = validated_hash(
+    my ( $self, %args ) = validated_hash_no_cache(
         $args_ref, setter_params(),
         %additional_parameter_spec
     );
@@ -282,10 +288,11 @@ the empty string for the channel.
 sub validated_channel_getter {
     my $args_ref                  = shift;
     my %additional_parameter_spec = @_;
-    my ( $self, %args ) = validated_hash(
-        $args_ref, getter_params(), channel_param(),
-        %additional_parameter_spec
+    my ( $self, %args ) = validated_hash_no_cache(
+        $args_ref,       getter_params(),
+        channel_param(), %additional_parameter_spec
     );
+
     my $channel = delete $args{channel};
     if ( not defined $channel ) {
         $channel = $self->get_default_channel();
@@ -304,8 +311,8 @@ Analog to C<validated_channel_getter>.
 sub validated_channel_setter {
     my $args_ref                  = shift;
     my %additional_parameter_spec = @_;
-    my ( $self, %args ) = validated_hash(
-        \@_, getter_params(), channel_param(),
+    my ( $self, %args ) = validated_hash_no_cache(
+        $args_ref, getter_params(), channel_param(),
         value => { isa => 'Str' },
         %additional_parameter_spec,
     );

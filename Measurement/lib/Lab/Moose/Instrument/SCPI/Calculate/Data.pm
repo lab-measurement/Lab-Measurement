@@ -1,9 +1,10 @@
 package Lab::Moose::Instrument::SCPI::Calculate::Data;
-
+use 5.010;
 use Moose::Role;
 use MooseX::Params::Validate;
 use Moose::Util::TypeConstraints;
 use Lab::Moose::Instrument::Cache;
+use Data::Dumper;
 
 use Lab::Moose::Instrument qw/
     channel_param
@@ -33,13 +34,12 @@ sub calculate_data_call_catalog {
 }
 
 sub calculate_data_call {
-    my ( $self, %args ) = validated_channel_getter(
+    my ( $self, $channel, %args ) = validated_channel_getter(
         \@_,
-        format => { isa => enum( [qw/FDATA SDATA MDATA/] ) }
+        format => { isa => 'Str' }    # {isa => enum([qw/FDATA SDATA MDATA/])}
     );
 
-    my $format  = delete $args{format};
-    my $channel = delete $args{channel};
+    my $format = delete $args{format};
 
     return $self->query(
         command => "CALC${channel}:DATA:CALL? $format",

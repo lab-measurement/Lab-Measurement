@@ -173,7 +173,8 @@ C<['Re(s11)', 'Im(s11)', 'Re(s21)', 'Im(s21)']>.
  my $binary_string = $vna->sparam_sweep_data(timeout => $timeout, read_length => $read_length)
 
 Return binary SCPI data block of S-parameter values. This string contains
-the C<sparam_catalog> values of each frequency point.
+the C<sparam_catalog> values of each frequency point. The floats must be in
+native byte order. 
 
 =cut
 
@@ -195,6 +196,9 @@ sub sparam_sweep {
     # Ensure single sweep mode.
     if ( $self->cached_initiate_continuous() ) {
         $self->initiate_continuous( value => 0 );
+    }
+    if ( $self->cached_sense_sweep_count() != 1 ) {
+        $self->sense_sweep_count( value => 1 );
     }
 
     # Start single sweep.

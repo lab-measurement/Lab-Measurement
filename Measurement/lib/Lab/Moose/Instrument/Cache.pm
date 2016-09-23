@@ -49,10 +49,10 @@ method will be used to generate the value.
 The default builder method just calls the configured C<$getter> method.
 
 
-If need to call the getter with specific arguments, you can override the
+If you need to call the getter with specific arguments, override the
 builder method.
 For example, the C<format_data_query> of the L<Lab::Moose::Instrument::RS_ZVM>
-needs an extended timeout of 3s. This is done by putting the following into the
+needs a timeout of 3s. This is done by putting the following into the
 driver:
 
  sub cached_format_data_builder {

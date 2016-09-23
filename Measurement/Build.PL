@@ -10,6 +10,7 @@ my $build = Module::Build->new(
     license           => 'perl',
     requires          => {
 	'perl'               => '5.14.0',
+	'aliased'            => 0,
 	'Try::Tiny'          => '0.22',
 	'Moose'              => '2.1213',
 	'MooseX::Params::Validate' => '0.18',

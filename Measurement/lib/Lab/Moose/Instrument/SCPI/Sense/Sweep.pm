@@ -27,4 +27,19 @@ sub sense_sweep_points {
     $self->cached_sense_sweep_points($value);
 }
 
+cache sense_sweep_count => ( getter => 'sense_sweep_count_query' );
+
+sub sense_sweep_count_query {
+    my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
+    return $self->cached_sense_sweep_count(
+        $self->query( command => "SENS${channel}:SWE:COUN?", %args ) );
+}
+
+sub sense_sweep_count {
+    my ( $self, $channel, $value, %args ) = validated_channel_setter( \@_ );
+
+    $self->write( command => "SENS${channel}:SWE:COUN $value", %args );
+    $self->cached_sense_sweep_count($value);
+}
+
 1;
