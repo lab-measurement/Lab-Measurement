@@ -56,7 +56,7 @@ C<scpi_match> will throw, if it is given an invalid keyword.
 
 =cut
 
-sub scpi_match($$) {
+sub scpi_match {
     my $header   = shift;
     my $keyword  = shift;
     my @keywords = split '\|', $keyword, -1;
@@ -126,7 +126,7 @@ the more general case.
 
 =cut
 
-sub scpi_shortform ($) {
+sub scpi_shortform {
     my $string = shift;
     $string =~ s/^${WS}*//;    # strip leading spaces
     if ( length($string) <= 4 ) {
@@ -223,7 +223,7 @@ the input hash.
 
 =cut 
 
-sub scpi_parse($;$) {
+sub scpi_parse {
     my $str = shift;
     my $d   = shift;
     $d = {} unless defined($d);
@@ -236,9 +236,7 @@ sub scpi_parse($;$) {
 # level = 0 is the top of the tree, descend as elements
 # of the scpi command are parsed: :lev0:lev1:lev2;lev2;lev2:lev3;lev3 ...
 
-sub _gMem($$$$);
-
-sub _gMem($$$$) {
+sub _gMem {
     my $str   = shift;
     my $level = shift;
     my $dtop  = shift;
@@ -317,7 +315,7 @@ sub _gMem($$$$) {
     return $str;
 }
 
-sub _scpi_value($$) {
+sub _scpi_value {
     my $str = shift;
     my $d   = shift;
 
@@ -386,7 +384,7 @@ appended as new entries.
 
 =cut
 
-sub scpi_parse_sequence($;$) {
+sub scpi_parse_sequence {
     my $str = shift;
     my $d   = shift;
     $d = [] unless defined($d);
@@ -542,9 +540,7 @@ where the normal shortening rules don't work.
 
 =cut
 
-sub scpi_canon($;$$);
-
-sub scpi_canon($;$$) {
+sub scpi_canon {
     my $h        = shift;
     my $override = shift;
     my $top      = shift;
@@ -615,7 +611,7 @@ if $thing = array ref -> flat is an array ref to flat hashes
 
 =cut
 
-sub scpi_flat($;$) {
+sub scpi_flat {
     my $h  = shift;
     my $ov = shift;
 
@@ -641,9 +637,7 @@ sub scpi_flat($;$) {
 
 }
 
-sub _scpi_fnode($$$);
-
-sub _scpi_fnode($$$) {
+sub _scpi_fnode {
     my $fk = shift;
     my $f  = shift;
     my $h  = shift;
