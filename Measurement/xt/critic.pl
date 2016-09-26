@@ -11,7 +11,8 @@ my @tests = map qr/$_/i, (
     qw/
         moose
         connection.*(log|mock)
-        sr830::aux
+        sr830.*aux
+        \bSCPI
         /
 );
 
