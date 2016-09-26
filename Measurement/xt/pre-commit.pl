@@ -4,6 +4,12 @@ use warnings;
 use strict;
 use File::Spec::Functions qw/catfile abs2rel/;
 
+# Do nothing during rebase.
+my $branch = qx/git rev-parse --abbrev-ref HEAD/;
+if ( $branch eq '(no branch)' ) {
+    exit 0;
+}
+
 chdir catfile(qw/. Measurement/)
     or die "cannot chdir";
 
