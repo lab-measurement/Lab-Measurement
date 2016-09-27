@@ -2,6 +2,7 @@ package Lab::SCPI;
 
 use 5.010;
 use warnings;
+no warnings 'recursion';
 use strict;
 
 use Carp;
