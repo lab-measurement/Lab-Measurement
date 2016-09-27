@@ -575,9 +575,10 @@ sub scpi_canon {
 
                 my $ov = 0;
                 foreach my $ko ( keys( %{$override} ) ) {
-                    if ( uc($ko) eq uc($m) ) {
-                        $m = $ko;
-                        $m =~ s/[a-z]\w*$//;    # remove trailing lowercase
+                    my $shorter = $ko;
+                    $shorter =~ s/[a-z]\w*$//;
+                    if ( uc($ko) eq uc($m) || $shorter eq uc($m) ) {
+                        $m = $shorter;
                         $s = "$m$num$q";
                         $n->{$s}
                             = scpi_canon( $h->{$k}, $override->{$ko}, 0 );
