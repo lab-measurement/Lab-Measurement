@@ -50,7 +50,7 @@ safe_system(qw/prove -lrv t/);
 # Run Perl::Critic tests.
 #
 
-safe_system( qw/prove -v/, catfile(qw/xt critic.pl/) );
+safe_system( 'prove', '-j4', catfile(qw/xt critic/) );
 
 sub safe_system {
     my @command = @_;

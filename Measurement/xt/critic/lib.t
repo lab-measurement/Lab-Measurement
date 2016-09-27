@@ -1,4 +1,7 @@
 #!/usr/bin/env perl
+
+# Run Perl::Critic on selected files in lib/Lab.
+
 use 5.010;
 use warnings;
 use strict;
@@ -9,7 +12,6 @@ use File::Find;
 
 my @tests = map qr/$_/i, (
     qw/
-        moose
         connection.*(log|mock)
         sr830.*aux
         \bSCPI
@@ -38,23 +40,6 @@ find(
     'lib'
 );
 
-find(
-    {
-        wanted => sub {
-            my $file = $_;
-            for my $test (@tests) {
-                if ( $file =~ /\.(pm|pl|t)$/ ) {
-                    push @files, $file;
-                    return;
-                }
-            }
-        },
-        no_chdir => 1,
-    },
-    't'
-);
-
-push @files, catfile(qw/xt critic.pl/), catfile(qw/xt perltidy.pl/);
 for my $file (@files) {
     critic_ok($file);
 }
