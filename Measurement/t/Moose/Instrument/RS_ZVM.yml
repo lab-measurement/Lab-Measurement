@@ -50,23 +50,23 @@ id: 9
 method: Write
 retval: 1
 ---
-command: INIT
-id: 10
-method: Write
-retval: 1
----
-command: '*WAI'
-id: 11
-method: Write
-retval: 1
----
 command: FORM?
-id: 12
+id: 10
 method: Query
 retval: ASC,0
 timeout: 3
 ---
 command: FORM REAL, 32
+id: 11
+method: Write
+retval: 1
+---
+command: INIT
+id: 12
+method: Write
+retval: 1
+---
+command: '*WAI'
 id: 13
 method: Write
 retval: 1

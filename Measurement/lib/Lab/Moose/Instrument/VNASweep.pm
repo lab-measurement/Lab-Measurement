@@ -118,7 +118,13 @@ sub _query_data_points {
 
     # Get data.
     my $read_length = $self->_estimate_read_length();
-    my $binary      = $self->sparam_sweep_data(
+
+    # Start single sweep.
+    $self->initiate_immediate();
+
+    # Wait until single sweep is finished.
+    $self->wai();
+    my $binary = $self->sparam_sweep_data(
         read_length => $read_length,
         %args
     );
@@ -200,12 +206,6 @@ sub sparam_sweep {
     if ( $self->cached_sense_sweep_count() != 1 ) {
         $self->sense_sweep_count( value => 1 );
     }
-
-    # Start single sweep.
-    $self->initiate_immediate();
-
-    # Wait until single sweep is finished.
-    $self->wai();
 
     # Query measured traces.
 
