@@ -1,4 +1,4 @@
-#!perl -T
+#!perl
 use warnings;
 use strict;
 use 5.010;
@@ -7,13 +7,13 @@ use lib 't';
 
 use Lab::Test tests => 5;
 use Test::More;
-
-use aliased 'Lab::Moose::Connection::Mock';
+use Moose::Instrument::MockTest qw/mock_options/;
 use aliased 'Lab::Moose::Instrument::RS_ZVM';
 use File::Spec::Functions 'catfile';
 
 my $logfile = catfile(qw/t Moose Instrument RS_ZVM.yml/);
-my $zvm = RS_ZVM->new( connection => Mock->new( log_file => $logfile ) );
+
+my $zvm = RS_ZVM->new( mock_options($logfile) );
 
 isa_ok( $zvm, RS_ZVM );
 

@@ -47,7 +47,7 @@ for my $file (@files) {
 # Run tests.
 #
 
-safe_system(qw/prove --lib --recurse --jobs 4 t/);
+safe_system(qw/prove --lib --recurse t/);
 
 #
 # Run Perl::Critic tests.
