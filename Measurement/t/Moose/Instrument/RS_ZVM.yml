@@ -40,77 +40,87 @@ id: 7
 method: Write
 retval: 1
 ---
-command: SENS:SWE:COUN?
+command: SENS:AVER:COUN?
 id: 8
 method: Query
 retval: '10'
 ---
-command: SENS:SWE:COUN 1
+command: SENS:AVER:COUN 1
 id: 9
 method: Write
 retval: 1
 ---
-command: FORM?
+command: SENS:SWE:COUN?
 id: 10
+method: Query
+retval: '10'
+---
+command: SENS:SWE:COUN 1
+id: 11
+method: Write
+retval: 1
+---
+command: FORM?
+id: 12
 method: Query
 retval: ASC,0
 timeout: 3
 ---
 command: FORM REAL, 32
-id: 11
-method: Write
-retval: 1
----
-command: INIT
-id: 12
-method: Write
-retval: 1
----
-command: '*WAI'
 id: 13
 method: Write
 retval: 1
 ---
-command: TRAC:DATA:RESP:ALL? CH1DATA
-id: 14
-method: Query
-read_length: 124
-retval: 233232341ff4b63e705964bffe3692be839ef73eb7705cbee29a9e3d
-retval_enc: hex
-timeout: 10
----
 command: INIT
+id: 14
+method: Write
+retval: 1
+---
+command: '*WAI'
 id: 15
 method: Write
 retval: 1
 ---
-command: '*WAI'
-id: 16
-method: Write
-retval: 1
----
 command: TRAC:DATA:RESP:ALL? CH1DATA
-id: 17
+id: 16
 method: Query
 read_length: 124
-retval: 233232345279bc3e4bd95ebf8af391bebca2f73ec8f85bbe21c5a03d
+retval: 23323234aefcc53ead1075bfe15f96be66d1f43ec7ed5ebe82f48e3d
 retval_enc: hex
 timeout: 10
 ---
 command: INIT
-id: 18
+id: 17
 method: Write
 retval: 1
 ---
 command: '*WAI'
-id: 19
+id: 18
 method: Write
 retval: 1
 ---
 command: TRAC:DATA:RESP:ALL? CH1DATA
-id: 20
+id: 19
 method: Query
 read_length: 124
-retval: 233232346eaaa33e07d078bf0d2092bea976f73e56df5cbe587fa13d
+retval: 233232340575c23ec31d75bf640496bef2b9f43eee735ebe1b998d3d
+retval_enc: hex
+timeout: 10
+---
+command: INIT
+id: 20
+method: Write
+retval: 1
+---
+command: '*WAI'
+id: 21
+method: Write
+retval: 1
+---
+command: TRAC:DATA:RESP:ALL? CH1DATA
+id: 22
+method: Query
+read_length: 124
+retval: 23323234cc56a43e66b577bfe55d96bec45af43e6edf5fbe06968e3d
 retval_enc: hex
 timeout: 10

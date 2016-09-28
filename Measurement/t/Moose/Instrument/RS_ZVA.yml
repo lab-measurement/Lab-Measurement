@@ -1,0 +1,108 @@
+---
+id: 0
+method: Clear
+retval: 256
+---
+command: '*CLS'
+id: 1
+method: Write
+retval: 1
+---
+command: CALC:DATA:CALL:CAT?
+id: 2
+method: Query
+retval: '''S21'''
+---
+command: SENS:SWE:POIN 3
+id: 3
+method: Write
+retval: 1
+---
+command: SENS:FREQ:STAR?
+id: 4
+method: Query
+retval: '10000000'
+---
+command: SENS:FREQ:STOP?
+id: 5
+method: Query
+retval: '24000000000'
+---
+command: INIT:CONT?
+id: 6
+method: Query
+retval: '0'
+---
+command: SENS:AVER:COUN?
+id: 7
+method: Query
+retval: '1'
+---
+command: SENS:SWE:COUN?
+id: 8
+method: Query
+retval: '1'
+---
+command: FORM?
+id: 9
+method: Query
+retval: REAL,32
+---
+command: FORM:BORD?
+id: 10
+method: Query
+retval: SWAP
+---
+command: INIT
+id: 11
+method: Write
+retval: 1
+---
+command: '*WAI'
+id: 12
+method: Write
+retval: 1
+---
+command: CALC:DATA:CALL? SDATA
+id: 13
+method: Query
+read_length: 124
+retval: 2332323489fb35397df21c3a41b35fb7cb0f8b37cf4037b7346ec536
+retval_enc: hex
+timeout: 10
+---
+command: INIT
+id: 14
+method: Write
+retval: 1
+---
+command: '*WAI'
+id: 15
+method: Write
+retval: 1
+---
+command: CALC:DATA:CALL? SDATA
+id: 16
+method: Query
+read_length: 124
+retval: 23323234910d023ab5a66abad266fdb7139ee6b62db1d1b747980fb8
+retval_enc: hex
+timeout: 10
+---
+command: INIT
+id: 17
+method: Write
+retval: 1
+---
+command: '*WAI'
+id: 18
+method: Write
+retval: 1
+---
+command: CALC:DATA:CALL? SDATA
+id: 19
+method: Query
+read_length: 124
+retval: 2332323440825339500df8396dce13b7a0ffe4b5501e46381eef3cb7
+retval_enc: hex
+timeout: 10

@@ -1,4 +1,6 @@
 #!perl
+
+# Run this test after presetting the VNA.
 use warnings;
 use strict;
 use 5.010;
@@ -8,26 +10,26 @@ use lib 't';
 use Lab::Test tests => 29;
 use Test::More;
 use Moose::Instrument::MockTest qw/mock_options/;
-use aliased 'Lab::Moose::Instrument::RS_ZVM';
+use aliased 'Lab::Moose::Instrument::RS_ZVA';
 use File::Spec::Functions 'catfile';
 
-my $logfile = catfile(qw/t Moose Instrument RS_ZVM.yml/);
+my $logfile = catfile(qw/t Moose Instrument RS_ZVA.yml/);
 
-my $zvm = RS_ZVM->new( mock_options($logfile) );
+my $zva = RS_ZVA->new( mock_options($logfile) );
 
-isa_ok( $zvm, RS_ZVM );
+isa_ok( $zva, RS_ZVA );
 
-$zvm->rst( timeout => 10 );
-my $catalog = $zvm->sparam_catalog();
+my $catalog = $zva->sparam_catalog();
+say "catalog: $catalog";
 is_deeply(
-    $catalog, [ 'Re(S11)', 'Im(S11)' ],
+    $catalog, [ 'Re(S21)', 'Im(S21)' ],
     "reflection param in catalog"
 );
 
-$zvm->sense_sweep_points( value => 3 );
+$zva->sense_sweep_points( value => 3 );
 
 for my $i ( 1 .. 3 ) {
-    my $data = $zvm->sparam_sweep( timeout => 10 );
+    my $data = $zva->sparam_sweep( timeout => 10 );
 
     my $num_cols = $data->columns();
     is( $num_cols, 3, "matrix has 3 columns" );
@@ -37,15 +39,15 @@ for my $i ( 1 .. 3 ) {
 
     my @freqs = $data->column(0);
     is_deeply(
-        \@freqs, [ 10000000, 10005000000, 20000000000 ],
+        \@freqs, [ 10000000, 12005000000, 24000000000 ],
         "first column holds frequencies"
     );
     my @re = $data->column(1);
     my @im = $data->column(2);
     for my $num ( @re, @im ) {
         is_absolute_error(
-            $num, 0, 1.1,
-            "real or imaginary part of s-param is in [-1.1,1.1]"
+            $num, 0, 1,
+            "real or imaginary part of s-param is in [-1,1]"
         );
     }
 }

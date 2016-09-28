@@ -56,6 +56,12 @@ sub sparam_sweep_data {
         $self->format_border( value => 'SWAP' );
     }
 
+    # Start single sweep.
+    $self->initiate_immediate();
+
+    # Wait until single sweep is finished.
+    $self->wai();
+
     return $self->calculate_data_call( format => 'SDATA', %args );
 }
 

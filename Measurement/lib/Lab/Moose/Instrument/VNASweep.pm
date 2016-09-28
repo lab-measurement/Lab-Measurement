@@ -19,6 +19,7 @@ with qw(
 
     Lab::Moose::Instrument::SCPI::Format
 
+    Lab::Moose::Instrument::SCPI::Sense::Average
     Lab::Moose::Instrument::SCPI::Sense::Frequency
     Lab::Moose::Instrument::SCPI::Sense::Sweep
 
@@ -119,11 +120,6 @@ sub _query_data_points {
     # Get data.
     my $read_length = $self->_estimate_read_length();
 
-    # Start single sweep.
-    $self->initiate_immediate();
-
-    # Wait until single sweep is finished.
-    $self->wai();
     my $binary = $self->sparam_sweep_data(
         read_length => $read_length,
         %args
@@ -189,11 +185,15 @@ sub sparam_sweep {
         \@_,
         timeout_param(),
         type => { isa => enum( ['frequency'] ), default => 'frequency' },
+        average => { isa => 'Int', default => 1 },
         %precision_param
     );
 
+    my $average_count = delete $args{average};
+
     # Not used so far.
     my $sweep_type = delete $args{type};
+
 
     my $catalog = $self->sparam_catalog();
 
@@ -203,8 +203,15 @@ sub sparam_sweep {
     if ( $self->cached_initiate_continuous() ) {
         $self->initiate_continuous( value => 0 );
     }
-    if ( $self->cached_sense_sweep_count() != 1 ) {
-        $self->sense_sweep_count( value => 1 );
+
+    # Set average and sweep count.
+
+    if ( $self->cached_sense_average_count() != $average_count ) {
+        $self->sense_average_count( value => $average_count );
+    }
+
+    if ( $self->cached_sense_sweep_count() != $average_count ) {
+        $self->sense_sweep_count( value => $average_count );
     }
 
     # Query measured traces.

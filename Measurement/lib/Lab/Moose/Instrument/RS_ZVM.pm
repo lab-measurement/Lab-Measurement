@@ -62,6 +62,12 @@ sub sparam_sweep_data {
     my ( $self, %args ) = validated_getter( \@_ );
 
     my $channel = $self->cached_instrument_nselect();
+
+    # Start single sweep.
+    $self->initiate_immediate();
+
+    # Wait until single sweep is finished.
+    $self->wai();
     return $self->trace_data_response_all(
         trace => "CH${channel}DATA",
         %args
