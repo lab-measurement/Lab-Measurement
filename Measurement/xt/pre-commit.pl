@@ -6,12 +6,15 @@ use File::Spec::Functions qw/catfile abs2rel/;
 
 # Do nothing during rebase.
 my $branch = qx/git rev-parse --abbrev-ref HEAD/;
-if ( $branch eq '(no branch)' ) {
+chomp $branch;
+warn "on branch '$branch'\n";
+if ( $branch eq 'HEAD' ) {
+    warn "skipping pre-commit hook during rebase\n";
     exit 0;
 }
 
 chdir catfile(qw/. Measurement/)
-    or die "cannot chdir";
+    or die "cannot chdir to Measurement: $!";
 
 delete $ENV{GIT_DIR};
 
@@ -44,13 +47,13 @@ for my $file (@files) {
 # Run tests.
 #
 
-safe_system(qw/prove -lrv t/);
+safe_system(qw/prove --lib --recurse --jobs 4 t/);
 
 #
 # Run Perl::Critic tests.
 #
 
-safe_system( 'prove', '-j4', catfile(qw/xt critic/) );
+safe_system( qw/prove --jobs 4/, catfile(qw/xt critic/) );
 
 sub safe_system {
     my @command = @_;
