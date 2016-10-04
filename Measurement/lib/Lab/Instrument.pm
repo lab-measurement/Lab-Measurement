@@ -312,6 +312,10 @@ sub _init_cache_handling {
                         = $self->_check_args( \@args, ['read_mode'] );
 
                     # do not read if request has been set. set read_mode to cache if cache is available
+                    $read_mode = $self->{config}->{default_read_mode}
+                        if !defined($read_mode)
+                        and exists( $self->{config}->{default_read_mode} );
+
                     if ( $self->connection()->is_blocked() == 1 ) {
                         if ( defined $self->device_cache($parameter) ) {
                             $read_mode = 'cache';
