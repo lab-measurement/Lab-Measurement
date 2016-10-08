@@ -10,13 +10,10 @@ use Test::Perl::Critic;
 use File::Spec::Functions qw/catfile/;
 use File::Find;
 
-my @tests = map qr/$_/i, (
-    qw/
-        connection.*(log|mock)
-        sr830.*aux
-        \bSCPI
-        /
-);
+my @tests = map {qr/$_/i} qw/
+    connection.*(log|mock)
+    sr830.*aux
+    /;
 
 my @files;
 

@@ -8,6 +8,7 @@ use warnings;
 use File::Find;
 use Module::Load;
 use Test::More;
+use File::Spec::Functions 'abs2rel';
 
 # Create file list
 
@@ -31,7 +32,7 @@ File::Find::find(
     'lib'
 );
 
-s/^lib.// for @files;
+@files = map { abs2rel( $_, 'lib' ) } @files;
 
 # Skip modules with special dependencies.
 

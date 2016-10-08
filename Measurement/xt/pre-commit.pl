@@ -35,7 +35,7 @@ my $tidy_script = catfile(qw/xt perltidy.pl/);
 
 if (@files) {
     say "running perltidy on the following files:";
-    say "    $_" for @files;
+    say join( "\n", @files );
     safe_system( $tidy_script, @files );
 }
 
