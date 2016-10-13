@@ -125,6 +125,47 @@ sub BUILD {
     $self->_columns($columns);
 }
 
+=head1 NAME
+
+Lab::Moose::BlockData - Simple two-dimensional numeric data type. Probably it
+would be simpler/better/cleaner if we just use L<PDL> instead...
+
+=head1 SYNOPSIS
+
+ use Lab::Moose::BlockData;
+ 
+ my $data = Lab::Moose::BlockData->new();
+ $data->add_column([1, 2, 3]);
+ $data->add_column([5, 6, 7]);
+
+ $data->add_row([4, 8]);
+
+ 
+ my $matrix = $data->matrix; # $matrix is [[1, 5], [2, 6], [3, 7], [4, 8]]
+
+ my $first_row = $data->row(0); # $first_row is [1, 5]
+
+ my $first_col = $data->column(0); # $first_col is [1, 2, 3, 4]
+
+ $data->print_to_file( file => 'somefile.dat' );
+ 
+=head1 METHODS
+
+=head2 new
+
+ my $data = Lab::Moose::BlockData->new();
+
+or
+
+ my $data = Lab::Moose::BlockData->new( matrix => [[1, 2], [3, 4] );
+
+
+=head2 row
+
+ my $row = $data->row($row_number);
+
+=cut
+
 sub row {
     my $self = shift;
 
@@ -142,6 +183,12 @@ sub row {
 
     return @{ $matrix->[$row] };
 }
+
+=head2 column
+
+ my $col = $data->column($column_number);
+
+=cut
 
 sub column {
     my $self = shift;
@@ -184,6 +231,12 @@ sub _get_vector_param {
     return $vector;
 }
 
+=head2 add_row
+
+ $data->add_row([1, 2, 3]);
+
+=cut
+
 sub add_row {
     my $self = shift;
     my $row  = _get_vector_param( \@_ );
@@ -210,6 +263,12 @@ sub add_row {
     my $rows = $self->rows();
     $self->_rows( ++$rows );
 }
+
+=head2 add_column
+
+ $data->add_column([1, 2, 3]);
+
+=cut
 
 sub add_column {
     my $self   = shift;
@@ -246,6 +305,37 @@ sub add_column {
     my $columns = $self->columns();
     $self->_columns( ++$columns );
 }
+
+=head2 print_to_file
+
+ $data->print_to_file( file => 'somefile.dat' )
+
+output C<$data> to a file using gnuplot format.
+
+Options:
+
+=over
+
+=item B<file>
+
+the filename
+
+=item B<overwrite>
+
+ $data->print_to_file( file => $file, overwrite => 1 );
+
+If this is not set, the call will fail, if the file already exists. Unset by
+default.
+
+=item B<append>
+
+ $data->print_to_file( file => $file, append => 1 );
+
+Open file in append-mode. Unset by default.
+
+=back
+
+=cut
 
 sub print_to_file {
     my ( $self, %args ) = validated_hash(
