@@ -1,0 +1,104 @@
+---
+id: 0
+method: Clear
+retval: 256
+---
+command: '*CLS'
+id: 1
+method: Write
+retval: 1
+---
+command: '*RST'
+id: 2
+method: Write
+retval: 1
+timeout: 10
+---
+command: SENS:SWE:POIN 101
+id: 3
+method: Write
+retval: 1
+---
+command: SENS:FREQ:STAR?
+id: 4
+method: Query
+retval: '0'
+---
+command: SENS:FREQ:STOP?
+id: 5
+method: Query
+retval: '7000000000'
+---
+command: INIT:CONT?
+id: 6
+method: Query
+retval: '1'
+---
+command: INIT:CONT 0
+id: 7
+method: Write
+retval: 1
+---
+command: FORM?
+id: 8
+method: Query
+retval: ASC,0
+---
+command: FORM REAL, 32
+id: 9
+method: Write
+retval: 1
+---
+command: INIT
+id: 10
+method: Write
+retval: 1
+---
+command: '*WAI'
+id: 11
+method: Write
+retval: 1
+---
+command: TRAC? TRACE1
+id: 12
+method: Query
+read_length: 504
+retval: 233334303402156fc21eda90c28cf090c24b4391c213be93c2e5ab90c2e1cf91c2857e92c2615492c2c9188fc289d88dc29ea990c205d490c2c1278fc217998fc2819d91c26d1990c24a648fc27e5c90c277bb93c2112192c23b5091c240bb8fc229a791c2532c8fc28dfa8ec22fb78ec2456f8ec2fd0d8bc2107f8fc2d3588fc2846090c223f18ac2ad478ec2f5498ec2f5b58dc2726b8ec23f908fc26ede8dc2c08e8bc2b7568dc2e0328cc2d3c78ac233598ec2cfb18dc23dcb8fc25ca28ec2b8af8ec273328ac2c80f8bc281ec8ac268728cc24bb28ec2f5fc8bc2241a8cc2a4768ac219d386c21c4b88c2555f87c21cc889c2b69b89c2832d8bc2256a8ac25e3b89c2cbd18ac253138ac267478bc2835388c2f54088c2e13c88c24f2789c294088ac2389187c2248c88c2d43f89c253c085c26aad88c2d43487c2c81a86c2be6f87c28b9b86c221e485c2ed0587c2327d87c2685188c2e9fd89c24d9b85c2c45888c2a20187c21c7487c23c8588c279c089c238bc87c26e5186c28d2188c2cf3185c27b6488c2bb4385c2f9c985c208b784c2f3b685c2
+retval_enc: hex
+timeout: 10
+---
+command: INIT
+id: 13
+method: Write
+retval: 1
+---
+command: '*WAI'
+id: 14
+method: Write
+retval: 1
+---
+command: TRAC? TRACE1
+id: 15
+method: Query
+read_length: 504
+retval: 23333430348a5a60c2f70792c24dd394c25be890c201f590c25b2892c2b5c991c2089f8dc2efa090c216dd90c2852990c2fcb28fc245f690c2bf9d90c2b0758ec2c3a88fc2994991c2cf3f8cc2d11d90c270c68ec2df208fc283568fc2caaf8fc23b878ec29b3291c2ba6a90c2ad728cc269e28cc29db88dc2d4808ec20e5f91c224298dc293818dc2cf528fc2462d8ec2ffe48dc2fadb8ec2d1d38cc215a58cc202188dc283c58bc2d1008dc2e3198fc26fd88cc2ad778bc23dd28bc21f988bc2c5808ec2ad758ec273e28bc2321f8bc2ae7e8dc2779c8bc2ac938bc2ff4a8cc24bf98bc2a8b188c2d8d888c2653787c272fb87c280f08cc2567b8ac22e248cc21efe87c211a586c24a2d89c2bab68bc21b288ac2e53f89c268fc89c243fc87c2e5fe8ac2e92d8bc2e59d89c275df88c2876588c2b50988c2d49a88c2ec7186c2bafe85c22e3b86c22b8e85c204ea86c2baa886c24e8785c293ea87c20bd286c244c386c269d887c2a83287c2212d88c2810d88c2767d87c2686888c2a2b885c2d8d186c2307b87c219f385c2a8e185c2b16187c2b8f383c2
+retval_enc: hex
+timeout: 10
+---
+command: INIT
+id: 16
+method: Write
+retval: 1
+---
+command: '*WAI'
+id: 17
+method: Write
+retval: 1
+---
+command: TRAC? TRACE1
+id: 18
+method: Query
+read_length: 504
+retval: 2333343034935971c25a3a91c23b5a93c2611494c2f4b794c2222493c234ed8fc21db891c2484d92c25d1e90c2b20091c2299490c23fbe90c2876c8ec22e3e8ec2e26990c234ee90c29f4f92c2c4ca91c2b8a78fc25f8690c2824590c27c4d8ec2662590c26b368fc247d791c202678ec2a6268cc2022c90c24d148bc2345b8cc280588ec26d4191c226dc8fc2d6cb8cc267378fc243f28cc22bf789c2481d8cc24bd58cc2600d8dc2391e89c2a6a58ac2494e8dc246698ec2b7938fc208908dc277b68ac268b18cc248a28ac287d98cc290c389c2220f8bc2dcb58dc2986b8ac289108bc236c98cc2b27487c29c5f8ac2157a8bc2a4f18ac2abdd88c2e4b18cc2f46b8cc2c8e787c2ea4289c2612788c28e8689c228448ac217a38ac29de087c226ca8ac27b0a8ac2430b89c2ce3389c2daa689c26e9188c2b4d588c28f728ac2ca6786c2168786c2de6987c290ca87c2728088c28e568ac266ea87c21bc587c2678186c203cc85c280af87c2d71e87c259b383c2669084c2f74186c2bb2486c2ada885c2a44085c2d83083c27dde86c2f5fd85c27e4485c2
+retval_enc: hex
+timeout: 10

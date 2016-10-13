@@ -26,6 +26,7 @@ toc:
           - Measurement/lib/Lab/Data/XMLtree.pm
           - Measurement/lib/Lab/Data/Plotter.pm
           - Measurement/lib/Lab/SCPI.pm
+          - Measurement/lib/Lab/Moose/BlockData.pm
       - XPRESS:
           - Examples:
               - Measurement/examples/XPRESS/Example1_Simple-IV.pl
@@ -77,7 +78,10 @@ toc:
               - Measurement/lib/Lab/Instrument/HP83732A.pm
           - RF detectors:
               - Measurement/lib/Lab/Instrument/U2000.pm
+          - Spectrum analyzers:
+              - Measurement/lib/Lab/Moose/Instrument/RS_FSV.pm
           - Network analyzers:
+              - Measurement/lib/Lab/Moose/Instrument/RS_ZVA.pm
               - Measurement/lib/Lab/Moose/Instrument/RS_ZVM.pm
           - Superconducting magnet power supplies:
               - Measurement/lib/Lab/Instrument/MagnetSupply.pm
