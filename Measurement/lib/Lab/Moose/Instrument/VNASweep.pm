@@ -4,7 +4,7 @@ use Moose::Role;
 use Moose::Util::TypeConstraints;
 use MooseX::Params::Validate;
 use Lab::Moose::Instrument qw/
-    timeout_param getter_params
+    timeout_param getter_params precision_param
     /;
 
 use Lab::Moose::BlockData;
@@ -19,11 +19,15 @@ with qw(
 
     Lab::Moose::Instrument::SCPI::Format
 
+    Lab::Moose::Instrument::SCPI::Instrument
+
     Lab::Moose::Instrument::SCPI::Sense::Average
     Lab::Moose::Instrument::SCPI::Sense::Frequency
     Lab::Moose::Instrument::SCPI::Sense::Sweep
 
     Lab::Moose::Instrument::SCPI::Initiate
+
+    Lab::Moose::Instrument::SCPIBlock
 );
 
 requires qw/sparam_sweep_data sparam_catalog/;
@@ -67,83 +71,6 @@ sub _get_data_columns {
     return $block_data;
 }
 
-sub _estimate_read_length {
-    my $self = shift;
-
-    my $catalog = $self->sparam_catalog();
-
-    my $num_cols = @{$catalog};
-
-    my $num_rows = $self->cached_sense_sweep_points();
-    my $format   = $self->cached_format_data();
-
-    my $length_per_num;
-
-    if ( $format->[0] eq 'ASC' ) {
-        $length_per_num = 30;
-    }
-    elsif ( $format->[0] eq 'REAL' ) {
-        $length_per_num = $format->[1] / 8;
-    }
-    else {
-        croak "unknown format: @{$format}";
-    }
-
-    return $length_per_num * $num_rows * $num_cols + 100;
-}
-
-my %precision_param = ( precision =>
-        { isa => enum( [qw/single double/] ), default => 'single' } );
-
-sub _query_data_points {
-    my ( $self, %args ) = validated_hash(
-        \@_,
-        timeout_param(),
-        %precision_param,
-        ,
-
-        # FIXME: ascii flag for debugging?
-    );
-
-    my $precision = delete $args{precision};
-
-    # Ensure correct data format
-
-    my $length = $precision eq 'single' ? 32 : 64;
-    my $format = $self->cached_format_data();
-
-    if ( $format->[0] ne 'REAL' || $format->[1] != $length ) {
-        carp "setting data format: REAL, $length";
-        $self->format_data( format => 'REAL', length => $length );
-    }
-
-    # Get data.
-    my $read_length = $self->_estimate_read_length();
-
-    my $binary = $self->sparam_sweep_data(
-        read_length => $read_length,
-        %args
-    );
-
-    if ( substr( $binary, 0, 1 ) ne '#' ) {
-        croak 'does not look like binary data';
-    }
-
-    my $num_digits = substr( $binary, 1, 1 );
-    my $num_bytes  = substr( $binary, 2, $num_digits );
-    if ( length $binary != $num_bytes + $num_digits + 2 ) {
-        croak "incomplete data";
-    }
-
-    my @floats = unpack(
-        $precision eq 'single' ? 'f*' : 'd*',
-        substr( $binary, 2 + $num_digits )
-    );
-
-    return \@floats;
-
-}
-
 =head1 NAME
 
 Lab::Moose::Instrument::VNASweep - Role for network analyzer sweeps.
@@ -152,16 +79,39 @@ Lab::Moose::Instrument::VNASweep - Role for network analyzer sweeps.
 
 =head2 sparam_sweep
 
- my $data = $vna->sparam_sweep(timeout => 10, precision => 'double');
+ my $data = $vna->sparam_sweep(timeout => 10, average => 10, precision => 'double');
 
 Perform a single sweep, and return the resulting data table. The result is of
 type L<Lab::Moose::BlockData>. For each sweep point, one row of data will be
-created. Each row will start with the sweep value (e.g. frequency), followed by the real and imaginary parts of the measured
+created. Each row will start with the sweep value (e.g. frequency), followed by
+the real and imaginary parts of the measured 
 S-parameters.
+
+This method accepts a hash with the following options:
+
+=over
+
+=item B<timeout>
+
+timeout for the sweep operation. If this is not given, use the connection's
+default timeout.
+
+=item B<average>
+
+Setting this to C<$N>, the method will perform C<$N> sweeps and the
+returned data will consist of the average values.
+
+=item B<precision>
+
+floating point type. Has to be 'single' or 'double'. Defaults to 'single'.
+
+=back
+
+=cut
 
 =head1 REQUIRED METHODS
 
-These methods are required for role consumption.
+The following methods are required for role consumption.
 
 =head2 sparam_catalog
 
@@ -186,14 +136,14 @@ sub sparam_sweep {
         timeout_param(),
         type => { isa => enum( ['frequency'] ), default => 'frequency' },
         average => { isa => 'Int', default => 1 },
-        %precision_param
+        precision_param()
     );
 
     my $average_count = delete $args{average};
+    my $precision     = delete $args{precision};
 
     # Not used so far.
     my $sweep_type = delete $args{type};
-
 
     my $catalog = $self->sparam_catalog();
 
@@ -214,11 +164,50 @@ sub sparam_sweep {
         $self->sense_sweep_count( value => $average_count );
     }
 
+    # Ensure correct data format
+    $self->set_data_format_precision( precision => $precision );
+
     # Query measured traces.
 
-    my $points_ref = $self->_query_data_points(%args);
+    # Get data.
+    my $num_cols = @{$catalog};
+    my $read_length = $self->estimate_read_length( num_cols => $num_cols );
+
+    my $binary = $self->sparam_sweep_data(
+        read_length => $read_length,
+        %args
+    );
+
+    my $points_ref = $self->block_to_array(
+        binary    => $binary,
+        precision => $precision
+    );
 
     return $self->_get_data_columns( $catalog, $freq_array, $points_ref );
 }
+
+=head1 CONSUMED ROLES
+
+=over
+
+=item L<Lab::Moose::Instrument::Common>
+
+=item L<Lab::Moose::Instrument::SCPI::Format>
+
+=item L<Lab::Moose::Instrument::SCPI::Instrument>
+
+=item L<Lab::Moose::Instrument::SCPI::Sense::Average>
+
+=item L<Lab::Moose::Instrument::SCPI::Sense::Frequency>
+
+=item L<Lab::Moose::Instrument::SCPI::Sense::Sweep>
+
+=item L<Lab::Moose::Instrument::SCPI::Initiate>
+
+=item L<Lab::Moose::Instrument::SCPIBlock>
+
+=back
+
+=cut
 
 1;

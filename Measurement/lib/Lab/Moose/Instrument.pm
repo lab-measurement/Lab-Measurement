@@ -2,8 +2,9 @@
 package Lab::Moose::Instrument;
 use 5.010;
 use Moose;
-use Moose::Util::TypeConstraints qw(duck_type);
+use Moose::Util::TypeConstraints qw(enum duck_type);
 use MooseX::Params::Validate;
+
 use Data::Dumper;
 use Exporter 'import';
 
@@ -11,6 +12,7 @@ our @EXPORT_OK = qw(
     timeout_param
     read_length_param
     channel_param
+    precision_param
     getter_params
     setter_params
     validated_getter
@@ -180,6 +182,18 @@ Return optional validation parameter for channel. A given argument has to be an
 
 sub channel_param {
     return ( channel => { isa => 'Int', optional => 1 } );
+}
+
+=head2 precision_param
+
+Return optional validation parameter for floating point precision. The
+parameter has to be either 'single' (default) or 'double'.
+
+=cut
+
+sub precision_param {
+    return ( precision =>
+            { isa => enum( [qw/single double/] ), default => 'single' } );
 }
 
 =head2 getter_params

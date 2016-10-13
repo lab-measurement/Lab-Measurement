@@ -4,11 +4,11 @@ use warnings;
 use strict;
 use lib '../lib';
 use Lab::Measurement;
-use aliased 'Lab::Moose::Instrument::RS_ZVA';
+use aliased 'Lab::Moose::Instrument::RS_ZVA' => 'VNA';
 use aliased 'Lab::Instrument::YokogawaGS200' => 'Yoko';
 use aliased 'Lab::Connection::LinuxGPIB'     => 'GPIB';
 
-my $zva = RS_ZVA->new( connection => GPIB->new( gpib_address => 20 ) );
+my $zva = VNA->new( connection => GPIB->new( gpib_address => 20 ) );
 
 my $source = Yoko->new(
     connection   => GPIB->new( gpib_address => 1 ),

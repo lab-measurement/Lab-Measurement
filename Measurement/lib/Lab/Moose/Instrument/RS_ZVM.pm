@@ -18,15 +18,7 @@ with 'Lab::Moose::Instrument::SCPI::Format' => {
     -excludes => [qw/format_border format_border_query/],
     },
     qw(
-    Lab::Moose::Instrument::Common
-
-    Lab::Moose::Instrument::SCPI::Initiate
-
-    Lab::Moose::Instrument::SCPI::Instrument
-
-    Lab::Moose::Instrument::SCPI::Sense::Frequency
     Lab::Moose::Instrument::SCPI::Sense::Function
-    Lab::Moose::Instrument::SCPI::Sense::Sweep
 
     Lab::Moose::Instrument::SCPI::Trace::Data::Response
 
@@ -87,29 +79,8 @@ Lab::Moose::Instrument::RS_ZVM - Rohde & Schwarz ZVM Vector Network Analyzer
 
 =head1 METHODS
 
-This driver utilizes the following roles:
-
-=over
-
-=item L<Lab::Moose::Instrument::VNASweep>
-
-This role implements the high-level C<sparam_sweep> method.
-
-=item L<Lab::Moose::Instrument::Common>
-
-=item L<Lab::Moose::Instrument::SCPI::Initiate>
-
-=item L<Lab::Moose::Instrument::SCPI::Instrument>
-
-=item L<Lab::Moose::Instrument::SCPI::Sense::Frequency>
-
-=item L<Lab::Moose::Instrument::SCPI::Sense::Function>
-
-=item L<Lab::Moose::Instrument::SCPI::Sense::Sweep>
-
-=item L<Lab::Moose::Instrument::SCPI::Trace::Data::Response>
-
-=back
+See L<Lab::Moose::Instrument::VNASweep> for the high-level C<sparam_sweep> and
+C<sparam_catalog> methods.
 
 =cut
 
