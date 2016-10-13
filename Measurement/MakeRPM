@@ -1,0 +1,45 @@
+#!/usr/bin/perl
+
+# first make sure that we have the current version number
+
+use YAML::XS 'LoadFile';
+
+system("perl Build.PL >/dev/null 2>/dev/null") if ! -e "Build";
+$msg = `./Build distmeta 2>/dev/null`;
+if ($msg =~ /has been altered/i) {
+    system("perl Build.PL >/dev/null 2>/dev/null");
+    system('./Build distmeta >/dev/null 2>/dev/null');
+}
+
+my $yaml = LoadFile('META.yml');
+my $version = $yaml->{provides}{'Lab::Measurement'}{version};
+
+
+# put the current version in the .spec file
+
+my $specfile = 'perl-Lab-Measurement.spec';
+rename($specfile,"temp.spec");
+open(IN,"<temp.spec") || die 'unable to open temp.spec';
+open(OUT,">$specfile") || die "unable to open $specfile";
+
+my $gotv = 0;
+while (<IN>) {
+    if (!$gotv && /^version:\s/i) {
+	$gotv = 1;
+	print OUT "Version:\t$version\n";
+    } else {
+	print OUT $_;
+    }
+}
+close(IN);
+close(OUT);
+unlink("temp.spec");
+
+# create the distribution tar file
+
+system("./Build manifest");
+system("./Build dist");
+
+# create the rpms (source and installation)
+
+system("rpmbuild -ta Lab-Measurement-${version}.tar.gz");
