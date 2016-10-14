@@ -334,7 +334,12 @@ sub _scpi_value {
             my $nnd = $1;
             my $nd = substr( $str, 2, $nnd );
             $d->{_VALUE} .= substr( $str, 0, $nd + 2 + $nnd );
-            $str = substr( $str, $nd + 2 + $nnd );
+            if ( length($str) > $nd + 2 + $nnd ) {
+                $str = substr( $str, $nd + 2 + $nnd );
+            }
+            else {
+                $str = '';
+            }
             $lastsp = 0;
         }
         elsif ( $str =~ /^\#0/ ) {          #uncounted arbitrary
