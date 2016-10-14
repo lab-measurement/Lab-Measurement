@@ -5,6 +5,7 @@ use strict;
 
 use Perl::Tidy;
 use File::Find;
+use File::Spec::Functions 'catfile';
 
 my @files;
 
@@ -27,6 +28,8 @@ else {
         'xt'
     );
 }
+
+push @files, catfile(qw/examples XPRESS Example5_VNA_gate_and_frequency.pl/);
 
 perltidy( perltidyrc => 'perltidyrc', argv => [ '-b', '-bext=/', @files ], );
 
