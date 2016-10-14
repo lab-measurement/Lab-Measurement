@@ -99,6 +99,7 @@ toc:
               - Measurement/lib/Lab/Instrument/PD11042.pm
       - Moose::Instrument Roles:
           - Measurement/lib/Lab/Moose/Instrument/VNASweep.pm
+          - Measurement/lib/Lab/Moose/Instrument/Common.pm
       - Connection classes:
           - Measurement/lib/Lab/Connection.pm
           - Measurement/lib/Lab/Connection/DEBUG.pm

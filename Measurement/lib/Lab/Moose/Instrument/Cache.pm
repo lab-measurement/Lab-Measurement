@@ -1,8 +1,8 @@
 
 =head1 NAME
 
-Lab::Moose::Instrument::Cache - Add device cache functionality to Moose::Instrument
-drivers.
+Lab::Moose::Instrument::Cache - Role for device cache functionality in
+Moose::Instrument drivers.
 
 =head1 SYNOPSIS
 

@@ -36,7 +36,6 @@ has 'connection' => (
     isa      => duck_type( [qw/Write Read Query Clear/] ),
     required => 1,
 
-    # FIXME: make connection methods all lowercase.
     handles => {
         write => 'Write',
         read  => 'Read',
