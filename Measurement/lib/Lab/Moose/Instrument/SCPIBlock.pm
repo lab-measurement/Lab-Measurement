@@ -16,6 +16,32 @@ with qw/
 
 our $VERSION = '3.520';
 
+=head1 NAME
+
+Lab::Moose::Instrument::SCPI::Block - Role for handling SCPI/IEEE 488.2
+block data.
+
+=head1 DESCRIPTION
+
+So far, only definite length floating point data of type 'REAL' is
+supported.
+
+See "8.7.9 <DEFINITE LENGTH ARBITRARY BLOCK RESPONSE DATA>" in IEEE 488.2.
+
+=head1 METHODS
+
+=head2 block_to_array
+
+ my $array_ref = $self->block_to_array(
+     binary => "#232${bytes}";
+     precision => 'double'
+ );
+
+Convert block data to arrayref, where the binary block holds floating point
+values in native byte-order.
+
+=cut
+
 sub block_to_array {
     my ( $self, %args ) = validated_hash(
         \@_,
@@ -46,6 +72,39 @@ sub block_to_array {
 
 }
 
+=head2 set_data_format_precision
+
+ $self->set_data_format_precision( precision => 'double' );
+
+Set used floating point type. Has to be 'single' (default) or 'double'.
+
+=cut
+
+sub set_data_format_precision {
+    my ( $self, %args ) = validated_hash(
+        \@_,
+        precision_param(),
+    );
+
+    my $precision = delete $args{precision};
+    my $length    = $precision eq 'single' ? 32 : 64;
+    my $format    = $self->cached_format_data();
+
+    if ( $format->[0] ne 'REAL' || $format->[1] != $length ) {
+        carp "setting data format: REAL, $length";
+        $self->format_data( format => 'REAL', length => $length );
+    }
+}
+
+=head2 estimate_read_lenth
+
+ my $read_length = $self->estimate_read_lenth( num_cols => 2 );
+
+Calculate length of block for a SENSE:SWEEP operation, which is used e.g. in
+network/spectrum analyzers.
+
+=cut
+
 sub estimate_read_length {
     my ( $self, %args ) = validated_hash(
         \@_,
@@ -70,22 +129,6 @@ sub estimate_read_length {
     }
 
     return $length_per_num * $num_rows * $num_cols + 100;
-}
-
-sub set_data_format_precision {
-    my ( $self, %args ) = validated_hash(
-        \@_,
-        precision_param(),
-    );
-
-    my $precision = delete $args{precision};
-    my $length    = $precision eq 'single' ? 32 : 64;
-    my $format    = $self->cached_format_data();
-
-    if ( $format->[0] ne 'REAL' || $format->[1] != $length ) {
-        carp "setting data format: REAL, $length";
-        $self->format_data( format => 'REAL', length => $length );
-    }
 }
 
 1;
