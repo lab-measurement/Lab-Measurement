@@ -31,6 +31,20 @@ use namespace::autoclean
 
 our $VERSION = '3.520';
 
+has 'connection' => (
+    is       => 'ro',
+    isa      => duck_type( [qw/Write Read Query Clear/] ),
+    required => 1,
+
+    # FIXME: make connection methods all lowercase.
+    handles => {
+        write => 'Write',
+        read  => 'Read',
+        query => 'Query',
+        clear => 'Clear',
+    },
+);
+
 with 'Lab::Moose::Instrument::Log';
 
 =head1 NAME
@@ -78,31 +92,11 @@ supports these methods.
 
 =cut
 
-has 'connection' => (
-    is       => 'ro',
-    isa      => duck_type( [qw/Write Read Query Clear/] ),
-    required => 1
-);
-
-#
-# Methods
-#
-
-my %command = ( command => { isa => 'Str' } );
-
 =head2 write
 
  $instrument->write(command => '*RST', timeout => 10);
 
 Call the connection's C<Write> method. The timeout parameter is optional.
-
-=cut
-
-sub write {
-    my ( $self, %args ) = validated_hash( \@_, %command, setter_params(), );
-
-    return $self->connection()->Write(%args);
-}
 
 =head2 read
 
@@ -111,14 +105,6 @@ sub write {
 Call the connection's C<Read> method. The timeout and read_length
 parameters are optional.
 
-=cut
-
-sub read {
-    my ( $self, %args ) = validated_hash( \@_, getter_params() );
-
-    return $self->connection()->Read(%args);
-}
-
 =head2 query
 
  $instrument->query(command => '*IDN?', read_length => 10000, timeout => 10);
@@ -126,26 +112,11 @@ sub read {
 Call the connection's C<Query> method. The timeout and read_length parameters
 are optional.
 
-=cut
-
-sub query {
-    my ( $self, %args ) = validated_hash( \@_, %command, getter_params() );
-
-    return $self->connection()->Query(%args);
-}
-
 =head2 clear
 
  $instrument->clear();
 
 Call the connection's C<Clear> method.
-
-=cut
-
-sub clear {
-    my $self = shift;
-    $self->connection()->Clear();
-}
 
 =head1 Functions
 
