@@ -1,0 +1,26 @@
+sudo: false
+language: perl
+perl:
+    - "5.24"
+    - "5.22"
+    - "5.20"
+    - "5.18"
+    - "5.16"
+    - "5.14"
+
+install:
+  - cd Measurement
+  - cpanm --installdeps -n .
+  - cpanm -n Test::Perl::Critic
+script:
+  - perl ./Build.PL
+  - ./Build
+  - prove --verbose -b -s -r t
+  
+  # Perl::Critic tests
+  - prove --verbose -r xt/critic/
+
+notifications:
+  email:
+    on_success: never
+    on_failure: never
