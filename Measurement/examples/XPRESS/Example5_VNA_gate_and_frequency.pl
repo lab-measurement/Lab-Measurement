@@ -12,10 +12,14 @@ use Lab::Measurement;
 # Use short aliases for those loooong module names.
 use aliased 'Lab::Moose::Instrument::RS_ZVA' => 'VNA';
 use aliased 'Lab::Instrument::YokogawaGS200' => 'Source';
-use aliased 'Lab::Connection::LinuxGPIB'     => 'GPIB';
+
+# RS_ZVA needs the Moose version of the LinuxGPIB connection.
+use aliased 'Lab::Connection::Moose::LinuxGPIB' => 'Moose::GPIB';
+
+use aliased 'Lab::Connection::LinuxGPIB' => 'GPIB';
 
 # Construct instruments and connections.
-my $vna = VNA->new( connection => GPIB->new( gpib_address => 20 ) );
+my $vna = VNA->new( connection => Moose::GPIB->new( gpib_address => 20 ) );
 
 my $source = Source->new(
     connection   => GPIB->new( gpib_address => 1 ),
