@@ -84,10 +84,9 @@ All other Lab::Moose::Instrument::* drivers inherit from this module.
 
 =head2 new
 
-See SYNOPSIS.
-The constructor requires a connection object, which has
-Read, Write, Query and Clear methods. You can provide any object, which
-supports these methods.
+The constructor requires a connection object, which provides
+C<Read>, C<Write>, C<Query> and C<Clear> methods. You can provide any object,
+which supports these methods.
 
 =cut
 
@@ -99,7 +98,7 @@ Call the connection's C<Write> method. The timeout parameter is optional.
 
 =head2 binary_read
 
-$instrument->read(timeout => 10, read_length => 10000);
+ my $data = $instrument->binary_read(timeout => 10, read_length => 10000);
 
 Call the connection's C<Read> method. The timeout and read_length
 parameters are optional.
@@ -112,9 +111,20 @@ Like C<binary_read>, but trim trailing whitespace and newline from the result.
 More precisely, this removes the I<PROGRAM MESSAGE TERMINATOR> (IEEE 488.2
 section 7.5).
 
+
+=head2 binary_query
+
+ my $data = $instrument->binary_query(command => '*IDN?', timeout => 10, read_length = 10)
+
+Call the connection's C<Query> method. The timeout and read_length arguments
+are optional.
+
 =head2 query
 
-Like C<binary_query>, but like C<read>, remove trailing whitespace and newline.
+Like C<binary_query>, but trim trailing whitespace and newline from the result.
+
+More precisely, this removes the I<PROGRAM MESSAGE TERMINATOR> (IEEE 488.2
+section 7.5).
 
 =head2 clear
 
