@@ -30,14 +30,16 @@ use Lab::Moose::Instrument;
         my $self = shift;
         my %args = @_;
         is( $args{timeout}, 5, 'timeout in connection Read is set' );
-        return 'abcd';
+
+        # clean trailing whitespace in Instrument.pm
+        return "abcd \n";
     }
 
     sub Query {
         my $self = shift;
         my %args = @_;
         is( $args{command}, 'some command', "connection Query called" );
-        return 'efgh';
+        return "efgh\n \t\x{00}\n";
     }
 }
 
@@ -51,7 +53,7 @@ use Lab::Moose::Instrument;
     is( $instr->read( timeout => 5 ), 'abcd', 'instr can read' );
 
     is(
-        $instr->query( command => 'some command' ), 'efgh',
+        $instr->query( command => 'some command' ), "efgh\n",
         'instr can query'
     );
 

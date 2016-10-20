@@ -100,6 +100,9 @@ toc:
       - Moose::Instrument Roles:
           - Measurement/lib/Lab/Moose/Instrument/VNASweep.pm
           - Measurement/lib/Lab/Moose/Instrument/Common.pm
+      - Moose Connection/Bus classes:
+          - Measurement/lib/Lab/Moose/Connection.pm
+          - Measurement/lib/Lab/Moose/Connection/LinuxGPIB.pm
       - Connection classes:
           - Measurement/lib/Lab/Connection.pm
           - Measurement/lib/Lab/Connection/DEBUG.pm

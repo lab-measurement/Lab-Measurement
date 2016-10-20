@@ -59,13 +59,18 @@ sub block_to_array {
 
     my $num_digits = substr( $binary, 1, 1 );
     my $num_bytes  = substr( $binary, 2, $num_digits );
-    if ( length $binary != $num_bytes + $num_digits + 2 ) {
-        croak "incomplete data";
+    my $expected_length = $num_bytes + $num_digits + 2;
+
+    # $binary might have a trailing newline, so do not check for equality.
+    if ( length $binary < $expected_length ) {
+        croak
+            "incomplete data: expected_length: $expected_length, received length: ",
+            length $binary;
     }
 
     my @floats = unpack(
         $precision eq 'single' ? 'f*' : 'd*',
-        substr( $binary, 2 + $num_digits )
+        substr( $binary, 2 + $num_digits, $num_bytes )
     );
 
     return \@floats;

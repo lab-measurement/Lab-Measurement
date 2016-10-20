@@ -101,6 +101,8 @@ EOF
     );
 }
 
+with 'Lab::Moose::Connection';
+
 $meta->make_immutable();
 1;
 

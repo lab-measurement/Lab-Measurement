@@ -41,7 +41,7 @@ sub calculate_data_call {
 
     my $format = delete $args{format};
 
-    return $self->query(
+    return $self->binary_query(
         command => "CALC${channel}:DATA:CALL? $format",
         %args
     );

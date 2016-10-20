@@ -37,5 +37,7 @@ sub Clear {
     carp "Clear called";
 }
 
+with 'Lab::Moose::Connection';
+
 __PACKAGE__->meta->make_immutable();
 1;

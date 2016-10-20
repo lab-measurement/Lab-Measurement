@@ -1,113 +1,116 @@
 ---
 id: 0
 method: Clear
-retval: 256
 ---
 command: '*CLS'
 id: 1
 method: Write
-retval: 1
 ---
 command: INST:NSEL?
 id: 2
 method: Query
-retval: 1
+retval: '1
+
+'
 ---
 command: CALC:DATA:CALL:CAT?
 id: 3
 method: Query
-retval: '''S21'''
+retval: "'S21'\n"
 ---
 command: SENS:SWE:POIN 3
 id: 4
 method: Write
-retval: 1
 ---
 command: SENS:FREQ:STAR?
 id: 5
 method: Query
-retval: '10000000'
+retval: '10000000
+
+'
 ---
 command: SENS:FREQ:STOP?
 id: 6
 method: Query
-retval: '24000000000'
+retval: '24000000000
+
+'
 ---
 command: INIT:CONT?
 id: 7
 method: Query
-retval: '0'
+retval: '0
+
+'
 ---
 command: SENS:AVER:COUN?
 id: 8
 method: Query
-retval: '1'
+retval: '1
+
+'
 ---
 command: SENS:SWE:COUN?
 id: 9
 method: Query
-retval: '1'
+retval: '1
+
+'
 ---
 command: FORM?
 id: 10
 method: Query
-retval: REAL,32
+retval: "REAL,32\n"
 ---
 command: FORM:BORD?
 id: 11
 method: Query
-retval: SWAP
+retval: "SWAP\n"
 ---
 command: INIT
 id: 12
 method: Write
-retval: 1
 ---
 command: '*WAI'
 id: 13
 method: Write
-retval: 1
 ---
 command: CALC:DATA:CALL? SDATA
 id: 14
 method: Query
 read_length: 124
-retval: 2332323489fb35397df21c3a41b35fb7cb0f8b37cf4037b7346ec536
+retval: 23323234b3532bbadc4799ba490a3437d10037b7c8392db699b4e9b70a
 retval_enc: hex
 timeout: 10
 ---
 command: INIT
 id: 15
 method: Write
-retval: 1
 ---
 command: '*WAI'
 id: 16
 method: Write
-retval: 1
 ---
 command: CALC:DATA:CALL? SDATA
 id: 17
 method: Query
 read_length: 124
-retval: 23323234910d023ab5a66abad266fdb7139ee6b62db1d1b747980fb8
+retval: 2332323493a6933ab34a2f3b52447936edd2e335b8c200b8512028b60a
 retval_enc: hex
 timeout: 10
 ---
 command: INIT
 id: 18
 method: Write
-retval: 1
 ---
 command: '*WAI'
 id: 19
 method: Write
-retval: 1
 ---
 command: CALC:DATA:CALL? SDATA
 id: 20
 method: Query
 read_length: 124
-retval: 2332323440825339500df8396dce13b7a0ffe4b5501e46381eef3cb7
+retval: 23323234372409bbed95c338d5bf42b8a6ce54373fee2fb538f89f350a
 retval_enc: hex
 timeout: 10

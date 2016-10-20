@@ -37,7 +37,19 @@ sub log_build_fh {
     return $fh;
 }
 
-for my $method (qw/read write query clear/) {
+sub _log_retval {
+    my ( $arg_ref, $retval ) = @_;
+
+    if ( $retval !~ /[^[:ascii:]]/ ) {
+        $arg_ref->{retval} = $retval;
+    }
+    else {
+        $arg_ref->{retval_enc} = 'hex';
+        $arg_ref->{retval} = unpack( 'H*', $retval );
+    }
+}
+
+for my $method (qw/binary_read write binary_query clear/) {
     around $method => sub {
         my $orig   = shift;
         my $self   = shift;
@@ -57,15 +69,18 @@ for my $method (qw/read write query clear/) {
 
         my $retval = $self->$orig(@params);
 
-        if ( $retval !~ /[^[:ascii:]]/ ) {
-            $arg{retval} = $retval;
-        }
-        else {
-            $arg{retval_enc} = 'hex';
-            $arg{retval} = unpack( 'H*', $retval );
+        if ( $method =~ /read|query/ ) {
+            _log_retval( \%arg, $retval );
         }
 
-        $arg{method} = ucfirst $method;
+        my %methods = (
+            binary_read  => 'Read',
+            write        => 'Write',
+            binary_query => 'Query',
+            clear        => 'Clear',
+        );
+
+        $arg{method} = $methods{$method};
 
         my $id = $self->log_id();
         $arg{id} = $id;

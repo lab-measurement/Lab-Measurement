@@ -20,7 +20,6 @@ my $zva = RS_ZVA->new( mock_options($logfile) );
 isa_ok( $zva, RS_ZVA );
 
 my $catalog = $zva->sparam_catalog();
-say "catalog: $catalog";
 is_deeply(
     $catalog, [ 'Re(S21)', 'Im(S21)' ],
     "reflection param in catalog"

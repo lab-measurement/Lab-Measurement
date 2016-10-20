@@ -37,10 +37,10 @@ has 'connection' => (
     required => 1,
 
     handles => {
-        write => 'Write',
-        read  => 'Read',
-        query => 'Query',
-        clear => 'Clear',
+        write        => 'Write',
+        binary_read  => 'Read',
+        binary_query => 'Query',
+        clear        => 'Clear',
     },
 );
 
@@ -97,19 +97,24 @@ supports these methods.
 
 Call the connection's C<Write> method. The timeout parameter is optional.
 
-=head2 read
+=head2 binary_read
 
- $instrument->read(timeout => 10, read_length => 10000);
+$instrument->read(timeout => 10, read_length => 10000);
 
 Call the connection's C<Read> method. The timeout and read_length
 parameters are optional.
+    
+
+=head2 read
+
+Like C<binary_read>, but trim trailing whitespace and newline from the result.
+
+More precisely, this removes the I<PROGRAM MESSAGE TERMINATOR> (IEEE 488.2
+section 7.5).
 
 =head2 query
 
- $instrument->query(command => '*IDN?', read_length => 10000, timeout => 10);
-
-Call the connection's C<Query> method. The timeout and read_length parameters
-are optional.
+Like C<binary_query>, but like C<read>, remove trailing whitespace and newline.
 
 =head2 clear
 
@@ -128,6 +133,29 @@ request.
 Return mandatory validation parameter for timeout.
 
 =cut
+
+my $ieee488_2_white_space_character = qr/[\x{00}-\x{09}\x{0b}-\x{20}]/;
+
+sub _trim_pmt {
+    my ($retval) = pos_validated_list(
+        \@_,
+        { isa => 'Str' }
+    );
+
+    $retval =~ s/${ieee488_2_white_space_character}*\n?\Z//;
+
+    return $retval;
+}
+
+sub read {
+    my $self = shift;
+    return _trim_pmt( $self->binary_read(@_) );
+}
+
+sub query {
+    my $self = shift;
+    return _trim_pmt( $self->binary_query(@_) );
+}
 
 sub timeout_param {
     return ( timeout => { isa => 'Num', optional => 1 } );

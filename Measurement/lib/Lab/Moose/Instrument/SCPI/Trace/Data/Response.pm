@@ -15,7 +15,10 @@ sub trace_data_response_all {
 
     my $trace = delete $args{trace};
 
-    return $self->query( command => "TRAC:DATA:RESP:ALL? $trace", %args );
+    return $self->binary_query(
+        command => "TRAC:DATA:RESP:ALL? $trace",
+        %args
+    );
 }
 
 1;

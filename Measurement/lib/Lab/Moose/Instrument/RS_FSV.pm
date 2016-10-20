@@ -109,7 +109,7 @@ sub get_spectrum {
 
     $self->initiate_immediate();
     $self->wai();
-    my $binary = $self->query(
+    my $binary = $self->binary_query(
         command     => "TRAC? TRACE$trace",
         read_length => $read_length,
         %args
