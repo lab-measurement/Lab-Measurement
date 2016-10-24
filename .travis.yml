@@ -26,3 +26,5 @@ notifications:
     channels: "chat.freenode.net#labmeasurement"
     on_success: always
     on_failure: always
+    use_notice: true
+    skip_join: true
