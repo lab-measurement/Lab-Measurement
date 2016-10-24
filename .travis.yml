@@ -22,6 +22,7 @@ script:
 
 notifications:
   email: false
-  irc: "chat.freenode.net#labmeasurement"
+  irc: 
+    channels: "chat.freenode.net#labmeasurement"
     on_success: always
     on_failure: always
