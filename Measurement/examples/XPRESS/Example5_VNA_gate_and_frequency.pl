@@ -28,7 +28,8 @@ my $source = Source->new(
 
 # Define the 'outer' gate sweep.
 my $sweep = Sweep(
-    'Voltage', {
+    'Voltage',
+    {
         instrument => $source,
         mode       => 'step',
         jump       => 1,

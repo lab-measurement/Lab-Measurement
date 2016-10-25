@@ -19,7 +19,8 @@ my $multimeter1 = Instrument(
     {
         connection_type => 'VISA_GPIB',
         gpib_address    => 17,
-        nplc => 10  # integration time in number of powerline cylces [10*(1/50)]
+        nplc =>
+            10    # integration time in number of powerline cylces [10*(1/50)]
     }
 );
 
@@ -37,7 +38,8 @@ my $multimeter2 = Instrument(
     {
         connection_type => 'VISA_GPIB',
         gpib_address    => 11,
-        nplc => 10  # integration time in number of powerline cylces [10*(1/50)]
+        nplc =>
+            10    # integration time in number of powerline cylces [10*(1/50)]
     }
 );
 
@@ -106,9 +108,7 @@ my $my_measurement1 = sub {
     my $resistance = ( $current != 0 ) ? $voltage / $current : '?';
 
     $sweep->LOG(
-        {
-            Field => $magnet->get_value()
-        },
+        { Field => $magnet->get_value() },
         0
     );    #<---- 	0 is the general data space
           #		values put here will be available in both DataFiles

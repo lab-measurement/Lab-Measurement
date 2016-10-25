@@ -9,9 +9,7 @@ use Lab::Measurement;
 
 my $dilfridge = Instrument(
     'OI_Triton',
-    {
-        connection_type => 'Socket'
-    }
+    { connection_type => 'Socket' }
 );
 
 #-------- 2. Define the Sweeps -------------
@@ -22,7 +20,7 @@ my $temperature_sweep = Sweep(
         mode       => 'step',
         instrument => $dilfridge,
         points     => [ 20e-3, 200e-3 ],    # [starting point, target] in K
-	stepwidth  => 20e-3
+        stepwidth  => 20e-3
     }
 );
 
@@ -46,7 +44,7 @@ my $my_measurement = sub {
 
     my $sweep = shift;
 
-    my $temperature    = $dilfridge->get_value();
+    my $temperature = $dilfridge->get_value();
 
     $sweep->LOG(
         {

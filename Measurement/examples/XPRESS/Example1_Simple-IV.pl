@@ -19,7 +19,8 @@ my $multimeter = Instrument(
     {
         connection_type => 'VISA_GPIB',
         gpib_address    => 17,
-        nplc => 10  # integration time in number of powerline cylces [10*(1/50)]
+        nplc =>
+            10    # integration time in number of powerline cylces [10*(1/50)]
     }
 );
 
@@ -31,7 +32,7 @@ my $voltage_sweep = Sweep(
         instrument => $voltage_source,
         points     => [ -5e-3, 5e-3 ],    # [starting point, target] in Volts
         rate       => [ 0.1, 0.5e-3 ]
-        ,   # [rate to approach start, sweeping rate for measurement] in Volts/s
+        , # [rate to approach start, sweeping rate for measurement] in Volts/s
         interval => 1    # measurement interval in s
     }
 );

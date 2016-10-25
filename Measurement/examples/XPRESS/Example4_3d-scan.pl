@@ -81,7 +81,7 @@ my $gate_sweep = Sweep(
         points     => [ 5.73, 5.81 ],      # [starting point, target]
         stepwidth  => [0.0004],
         rate       => [ 0.05, 0.05 ]
-        ,   # [rate to approach start, sweeping rate for measurement] in Volts/s
+        , # [rate to approach start, sweeping rate for measurement] in Volts/s
         jump              => 1,
         delay_before_loop => 1    # delay before Sweep begins in s
     }
@@ -138,7 +138,7 @@ my $my_measurement = sub {
 
     my $sweep = shift;
 
-    my $gate         = $voltage_backgate->get_value( { read_mode => 'cache' } );
+    my $gate = $voltage_backgate->get_value( { read_mode => 'cache' } );
     my $RF_Frequency = $FRQSRC->get_frq();
     my $RF_Power     = $FRQSRC->get_power();
     my $current      = $multimeter->get_value() * ($sens);

@@ -18,7 +18,8 @@ my $multimeter = Instrument(
     {
         connection_type => 'VISA_GPIB',
         gpib_address    => 17,
-        nplc => 10  # integration time in number of powerline cylces [10*(1/50)]
+        nplc =>
+            10    # integration time in number of powerline cylces [10*(1/50)]
     }
 );
 
@@ -44,7 +45,7 @@ my $gate_sweep = Sweep(
         points     => [ -5, 5 ],    # [starting point, target] in Volts
         stepwidth  => [0.1],
         rate       => [5e-3]
-        ,   # [rate to approach start, sweeping rate for measurement] in Volts/s
+        , # [rate to approach start, sweeping rate for measurement] in Volts/s
     }
 );
 
@@ -54,7 +55,7 @@ my $bias_sweep = Sweep(
         instrument => $bias,
         points     => [ -5e-3, 5e-3 ],    # [starting point, target] in Volts
         rate       => [ 0.1, 0.5e-3 ]
-        ,   # [rate to approach start, sweeping rate for measurement] in Volts/s
+        , # [rate to approach start, sweeping rate for measurement] in Volts/s
         interval => 1,    # measurement interval in s
 
         delay_before_loop => 10    # delay before Sweep begins in s
