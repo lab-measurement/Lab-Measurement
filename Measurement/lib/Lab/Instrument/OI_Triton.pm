@@ -92,11 +92,63 @@ sub set_T {
     my $self        = shift;
     my $temperature = shift;
     my $temp = $self->query("SET:DEV:T5:TEMP:LOOP:TSET:$temperature\n");
-
     # typical reply: STAT:SET:DEV:T5:TEMP:LOOP:TSET:0.1:VALID
-    waitfor_T($temperature);
-    waitfor_T($temperature);
 }
+
+sub get_P {
+    my $self = shift;
+    my $power = $self->query("READ:DEV:H1:HTR:SIG:POWR\n");
+    
+    $power =~ s/^.*SIG:POWR://;
+    $power =~ s/uW$//;
+    return $power;
+}
+
+sub set_P {
+    my $self = shift;
+    my $power = shift;
+    
+    return $self->query("SET:DEV:H1:HTR:SIG:POWR:$power\n");
+}
+
+
+
+# now follows the temperature sweep interface for XPRESS
+
+sub set_heatercontrol {
+    my $self = shift;
+
+    my $mode = shift;
+    # assumption: MAN=no control loop, AUTO=internal PID loop
+    
+    if ( $mode eq 'AUTO' ) {
+        $self->enable_temp_pid();
+    } else {
+        $self->disable_temp_pid();
+    };
+    
+    return;
+}
+
+sub set_heateroutput {
+    my $self = shift;
+
+    $self->disable_temp_pid();
+    $self->set_P(0);
+    
+    return;
+}
+
+sub get_value {
+    my $self = shift;
+    return $self->get_T(@_);
+}
+
+
+
+
+# requires set_T
+
 
 1;
 

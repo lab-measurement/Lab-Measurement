@@ -26,7 +26,7 @@ sub new {
         mode                => 'continuous',
         allowed_instruments => [
             'Lab::Instrument::ITC', 'Lab::Instrument::TCD',
-            'Lab::Instrument::OI_ITC503'
+            'Lab::Instrument::OI_ITC503', 'Lab::Instrument::OI_Triton'
         ],
         allowed_sweep_modes => [ 'continuous', 'step', 'list' ],
 
@@ -91,6 +91,7 @@ sub start_continuous_sweep {
     print
         "Stabilize Temperature at upper limit (@{$self->{config}->{points}}[1] K) \n";
     $self->stabilize( @{ $self->{config}->{points} }[1] );
+
     print "Reached upper limit -> start cooling ... \n";
     $self->{config}->{instrument}->set_heatercontrol('MAN');
     $self->{config}->{instrument}->set_heateroutput(0);
