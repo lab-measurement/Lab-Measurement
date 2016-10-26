@@ -37,6 +37,7 @@ my $build = Module::Build->new(
 	'Module::Build'      => '0',
 	'YAML'               => 0,
 	'List::MoreUtils'    => 0,
+	'Statistics::Descriptive' => 0,
     },
     test_requires => {
 	'Test::Files' => 0,
