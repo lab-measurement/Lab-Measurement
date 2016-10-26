@@ -2,6 +2,7 @@
 
 use strict;
 use Lab::Instrument::OI_Triton;
+use 5.010;
 
 ################################
 
@@ -10,10 +11,11 @@ my $t = Lab::Instrument::OI_Triton->new( connection_type => 'Socket', );
 my $temp = $t->get_T();
 print "MC temperature is $temp K\n";
 
-print $t->enable_control();
+say $t->enable_control();
 
-print $t->enable_temp_pid();
-print $t->set_T(0.035);
+say $t->set_T(0.036);
+
+say $t->disable_control();
 
 1;
 

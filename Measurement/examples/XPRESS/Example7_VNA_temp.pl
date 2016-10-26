@@ -10,11 +10,22 @@ use Lab::Measurement;
 
 #-------- 1. Initialize Instruments --------
 
+# the dilution control
+
 my $dilfridge = Instrument(
     'OI_Triton',
     { connection_type => 'Socket' }
 );
 $dilfridge->enable_control();
+
+# the network analyzer
+
+use aliased 'Lab::Moose::Instrument::RS_ZVA' => 'VNA';
+# RS_ZVA needs the Moose version of the LinuxGPIB connection.
+use aliased 'Lab::Moose::Connection::LinuxGPIB' => 'Moose::GPIB';
+
+# Construct instruments and connections.
+my $vna = VNA->new( connection => Moose::GPIB->new( pad => 20 ) );
 
 #-------- 2. Define the Sweeps -------------
 
@@ -28,7 +39,7 @@ my $temperature_sweep = Sweep(
         tolerance_setpoint => 0.03,           # relative tolerance for temperature before waiting time 
         std_dev_instrument => 0.03,           # allowed relative standard deviation for same
         stabilize_observation_time => 10 * 60, # time that temperature has to be stable
-        delay_in_loop     => 20 * 60,         # additional waiting time for sample to thermalize with mc
+        delay_in_loop     => 20 * 60,          # additional waiting time for sample to thermalize with mc
         stabilize_measurement_interval => 10, # temperature read out period
     }
 );
@@ -38,14 +49,15 @@ my $temperature_sweep = Sweep(
 my $DataFile = DataFile('tempcurve.dat');
 
 $DataFile->add_column('Temperature');
-$DataFile->add_column('Data');
+$DataFile->add_column('Frequency');
 
-$DataFile->add_plot(
-    {
-        'x-axis' => 'Temperature',
-        'y-axis' => 'Data'
-    }
-);
+# Get names of the configured S-parameter real/imag parts.
+my @sparams = @{$vna->sparam_catalog()};
+
+for my $sparam (@sparams) {
+    $DataFile->add_column($sparam);
+}
+
 
 #-------- 4. Measurement Instructions -------
 
@@ -55,12 +67,13 @@ my $my_measurement = sub {
 
     my $temperature = $dilfridge->get_value();
 
-    $sweep->LOG(
-        {
-            Temperature => $temperature,
-            Data        => 0
-        }
+    my $data    = $vna->sparam_sweep(timeout => 30);
+
+    $sweep->LogBlock(
+        prefix => [$temperature],
+        block  => $data->matrix(),
     );
+
 };
 
 #-------- 5. Put everything together -------
