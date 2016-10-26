@@ -21,6 +21,7 @@ $dilfridge->enable_control();
 # the network analyzer
 
 use aliased 'Lab::Moose::Instrument::RS_ZVA' => 'VNA';
+
 # RS_ZVA needs the Moose version of the LinuxGPIB connection.
 use aliased 'Lab::Moose::Connection::LinuxGPIB' => 'Moose::GPIB';
 
@@ -34,13 +35,17 @@ my $temperature_sweep = Sweep(
     {
         mode       => 'step',
         instrument => $dilfridge,
-        points     => [ 25e-3, 40e-3 ],       # [starting point, target] in K
-        stepwidth  => 5e-3,                   # step width in K 
-        tolerance_setpoint => 0.03,           # relative tolerance for temperature before waiting time 
-        std_dev_instrument => 0.03,           # allowed relative standard deviation for same
-        stabilize_observation_time => 10 * 60, # time that temperature has to be stable
-        delay_in_loop     => 20 * 60,          # additional waiting time for sample to thermalize with mc
-        stabilize_measurement_interval => 10, # temperature read out period
+        points     => [ 25e-3, 40e-3 ],    # [starting point, target] in K
+        stepwidth  => 5e-3,                # step width in K
+        tolerance_setpoint => 0.003
+        , # absolute tolerance (in Kelvin) for temperature before waiting time
+        std_dev_instrument =>
+            0.003,    # allowed standard deviation (in Kelvin) for same
+        stabilize_observation_time => 10
+            * 60,     # time that temperature has to be stable
+        delay_in_loop => 20
+            * 60,   # additional waiting time for sample to thermalize with mc
+        stabilize_measurement_interval => 10,    # temperature read out period
     }
 );
 
@@ -52,12 +57,11 @@ $DataFile->add_column('Temperature');
 $DataFile->add_column('Frequency');
 
 # Get names of the configured S-parameter real/imag parts.
-my @sparams = @{$vna->sparam_catalog()};
+my @sparams = @{ $vna->sparam_catalog() };
 
 for my $sparam (@sparams) {
     $DataFile->add_column($sparam);
 }
-
 
 #-------- 4. Measurement Instructions -------
 
@@ -67,7 +71,7 @@ my $my_measurement = sub {
 
     my $temperature = $dilfridge->get_value();
 
-    my $data    = $vna->sparam_sweep(timeout => 30);
+    my $data = $vna->sparam_sweep( timeout => 30 );
 
     $sweep->LogBlock(
         prefix => [$temperature],
