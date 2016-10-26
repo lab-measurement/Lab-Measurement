@@ -7,7 +7,7 @@ use Lab::Instrument::OI_Triton;
 
 my $t = new Lab::Instrument::OI_Triton( connection_type => 'Socket', );
 
-my $temp = $t->get_temperature(7);
+my $temp = $t->get_temperature(5);
 
 print "MC temperature is $temp K\n";
 
@@ -19,7 +19,7 @@ print "MC temperature is $temp K\n";
 
 =head1 triton-mc.pl
 
-Queries temperature sensor 7 of an OI Triton dilution refrigerator.
+Queries temperature sensor 5 of an OI Triton dilution refrigerator.
 
 =head2 Usage example
 
