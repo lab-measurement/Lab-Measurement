@@ -8,6 +8,7 @@ use strict;
 use Lab::Instrument;
 use Lab::Instrument::Source;
 use Time::HiRes qw/usleep/, qw/time/;
+use Carp;
 
 our @ISA = ('Lab::Instrument');
 
@@ -952,7 +953,7 @@ sub config_sweep {
     my $start = $self->get_level($function);
 
     if ( defined $time and defined $rate ) {
-        $self->out_error('Please give either a time OR rate. Not both!');
+        croak('Please give either a time OR rate. Not both!');
     }
     elsif ( defined $rate and not defined $time ) {
         $time = abs( $start - $target ) / $rate;

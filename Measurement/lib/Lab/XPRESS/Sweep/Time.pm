@@ -5,6 +5,7 @@ our $VERSION = '3.530';
 use Lab::XPRESS::Sweep::Sweep;
 use Time::HiRes qw/usleep/, qw/time/;
 use Statistics::Descriptive;
+use Carp;
 use strict;
 
 our @ISA = ('Lab::XPRESS::Sweep::Sweep');
@@ -70,13 +71,9 @@ sub check_config_paramters {
     # check correct initialization of stabilize
     if ( $self->{config}->{stabilize} == 1 ) {
         if ( not defined $self->{config}->{sensor} ) {
-            $self->out_error(
-                'Stabilization activated, but no sensor defined!');
+            croak('Stabilization activated, but no sensor defined!');
         }
 
-        #elsif ($self->{config}->{sensor}->can('isa') and not $self->{config}->{sensor}->can('get_value')) {
-        #	$self->out_error('The defined sensor has no get_value routine, which is needed for stabilization. Is the sensor object a LM instrument?');
-        #}
     }
 
 }
@@ -96,13 +93,7 @@ sub exit_loop {
             defined @{ $self->{config}->{points} }[ $self->{sequence} + 1 ] )
         {
             if ( $self->{config}->{stabilize} == 1 ) {
-                $self->out_message(
-                    {
-                        sticky =>
-                            { id => $self . '_stab_status', cmd => 'finish' }
-                    }
-                );
-                $self->out_message('Reached maximum stabilization time.');
+                carp('Reached maximum stabilization time.');
             }
             return 1;
         }
@@ -129,13 +120,7 @@ sub exit_loop {
             $SENSOR_STD_DEV_PRINT = sprintf( '%.3e', $SENSOR_STD_DEV );
 
             if ( $SENSOR_STD_DEV <= $self->{config}->{std_dev_sensor} ) {
-                $self->out_message(
-                    {
-                        sticky =>
-                            { id => $self . '_stab_status', cmd => 'finish' }
-                    }
-                );
-                $self->out_message('Reached stabilization criterion.');
+                carp('Reached stabilization criterion.');
                 return 1;
             }
         }
@@ -147,8 +132,6 @@ sub exit_loop {
             . $SENSOR_STD_DEV_PRINT
             . " / TARGET_STDD: "
             . sprintf( '%.3e', $self->{config}->{std_dev_sensor} );
-        $self->out_message(
-            { msg => $status, sticky => { id => $self . '_stab_status' } } );
     }
     else {
         return 0;

@@ -1,12 +1,11 @@
 
 package Lab::GenericSignals;
 
+use warnings;
+use strict;
+
 our $VERSION = '3.530';
 
-$SIG{__WARN__} = sub {
-    my $message = shift;
-    Lab::GenericIO::channel_write( "WARNING", undef, $message );
-};
 
 use sigtrap 'handler' => \&abort_all, qw(normal-signals error-signals);
 

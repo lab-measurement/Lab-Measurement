@@ -77,39 +77,6 @@ sub print {
 
 }
 
-# IO Channel Output: prepare and forward data to channel
-sub out_channel {
-    my $self = shift;
-    my $chan = shift;
-    Lab::GenericIO::channel_write( $chan, $self, @_ );
-}
-
-# IO Channel aliases
-sub out_message {
-    my $self = shift;
-    $self->out_channel( 'MESSAGE', @_ );
-}
-
-sub out_error {
-    my $self = shift;
-    $self->out_channel( 'ERROR', @_ );
-}
-
-sub out_warning {
-    my $self = shift;
-    $self->out_channel( 'WARNING', @_ );
-}
-
-sub out_debug {
-    my $self = shift;
-    $self->out_channel( 'DEBUG', @_ );
-}
-
-sub out_progress {
-    my $self = shift;
-    $self->out_channel( 'PROGRESS', @_ );
-}
-
 sub _check_args {
     my $self   = shift;
     my $args   = shift;
@@ -284,6 +251,5 @@ sub seconds2time {
     return $formated;
 }
 
-use Lab::GenericIO;
 use Lab::GenericSignals;
 1;

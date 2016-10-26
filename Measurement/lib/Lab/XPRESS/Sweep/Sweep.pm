@@ -12,10 +12,11 @@ use Lab::Generic;
 use Lab::XPRESS::Sweep::Dummy;
 use Lab::XPRESS::Utilities::Utilities;
 use Lab::Exception;
+use Carp;
 use strict;
 
 use Storable qw(dclone);
-$Storable::forgive_me=1;
+$Storable::forgive_me = 1;
 
 use Carp qw(cluck croak);
 
@@ -1014,7 +1015,7 @@ sub check_loop_duration {
 
     if ( ( $self->{loop}->{t1} - $self->{loop}->{t0} )
         > @{ $self->{config}->{interval} }[ $self->{sequence} ] ) {
-        $self->out_warning( "WARNING: Measurement Loop takes more time ("
+        carp(     "WARNING: Measurement Loop takes more time ("
                 . ( $self->{loop}->{t1} - $self->{loop}->{t0} )
                 . ") than specified by measurement intervall (@{$self->{config}->{sequence}}[$self->{iterator}]).\n"
         );
