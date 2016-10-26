@@ -13,7 +13,9 @@ use Lab::XPRESS::Sweep::Dummy;
 use Lab::XPRESS::Utilities::Utilities;
 use Lab::Exception;
 use strict;
+
 use Storable qw(dclone);
+$Storable::forgive_me=1;
 
 use Carp qw(cluck croak);
 

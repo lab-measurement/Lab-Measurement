@@ -6,6 +6,7 @@ use Lab::XPRESS::Sweep::Sweep;
 use Statistics::Descriptive;
 use Time::HiRes qw/usleep/;
 use strict;
+use 5.010;
 
 our @ISA = ('Lab::XPRESS::Sweep::Sweep');
 
@@ -326,11 +327,11 @@ sub stabilize {
 
         my $output
             = $elapsed_time . " | "
-            . sprintf( "%3.3f", @T_INSTR[-1] ) . " | "
-            . sprintf( "%3.3f", @T_SENSOR[-1] ) . " | "
-            . sprintf( "%3.3f", @MEDIAN_INSTR[-1] ) . " | "
-            . sprintf( "%2.3f", $INSTR_STD_DEV ) . " | "
-            . sprintf( "%2.3f", $SENSOR_STD_DEV ) . " | "
+            . sprintf( "%3.4f", @T_INSTR[-1] ) . " | "
+#            . sprintf( "%3.3f", @T_SENSOR[-1] ) . " | "
+#            . sprintf( "%3.3f", @MEDIAN_INSTR[-1] ) . " | "
+            . sprintf( "%2.4f", $INSTR_STD_DEV ) . " | "
+#            . sprintf( "%2.3f", $SENSOR_STD_DEV ) . " | "
             . $criterion_setpoint . " | "
             . $criterion_std_dev_INSTR . " | "
             . $criterion_std_dev_SENSOR;
