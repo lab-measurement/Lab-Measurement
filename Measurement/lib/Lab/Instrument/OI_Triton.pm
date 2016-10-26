@@ -2,6 +2,7 @@ package Lab::Instrument::OI_Triton;
 our $VERSION = '3.520';
 use strict;
 use Lab::Instrument;
+use Carp;
 
 our @ISA = ("Lab::Instrument");
 
@@ -90,10 +91,40 @@ sub waitfor_T {
 
 sub set_T {
     my $self        = shift;
-    my $temperature = shift;
-    my $temp = $self->query("SET:DEV:T5:TEMP:LOOP:TSET:$temperature\n");
+    my $temp = shift;
+    
+    if ( $temp > 0.7 ) { croak "OI_Triton::set_T: setting temperatures above 0.7K is forbidden\n"; };
+    
+    if ( $temp < 0.035 ) {
+      $self->set_Imax(0.000316);
+    } elsif ( $temp < 0.07 ) {
+      $self->set_Imax(0.001);
+    } elsif ( $temp < 0.35 ) {
+      $self->set_Imax(0.00316); 
+    } else {
+      $self->set_Imax(0.01);
+    };
+    
+    my $temp = $self->query("SET:DEV:T5:TEMP:LOOP:TSET:$temp\n");
+    # typical reply: STAT:SET:DEV:T5:TEMP:LOOP:TSET:0.1:VALID
+    
+    $self->enable_temp_pid();
+
+    my $temp = $self->query("SET:DEV:T5:TEMP:LOOP:TSET:$temp\n");
     # typical reply: STAT:SET:DEV:T5:TEMP:LOOP:TSET:0.1:VALID
 }
+
+sub set_Imax {
+    my $self = shift;
+    my $imax = shift;  # in Ampere
+    
+    if ($imax > 0.0101) { croak "OI_Triton::set_Imax: Setting too large heater current limit\n"; };
+    
+    $imax=$imax*1000; # in mA
+    
+    return $self->query("SET:DEV:T5:TEMP:LOOP:RANGE:$imax\n");
+};
+
 
 sub get_P {
     my $self = shift;
