@@ -25,15 +25,21 @@ my $temperature_sweep = Sweep(
         instrument => $dilfridge,
         points     => [ 25e-3, 40e-3 ],    # [starting point, target] in K
         stepwidth  => 5e-3,                # step width in K
-        tolerance_setpoint => 0.003
-        , # absolute tolerance (in Kelvin) for temperature before waiting time
-        std_dev_instrument =>
-            0.003,    # allowed standard deviation (in Kelvin) for same
-        stabilize_observation_time => 10
-            * 60,     # time that temperature has to be stable
-        delay_in_loop => 20
-            * 60,   # additional waiting time for sample to thermalize with mc
-        stabilize_measurement_interval => 10,    # temperature read out period
+
+        # absolute tolerance (in Kelvin) for temperature before waiting time
+        tolerance_setpoint => 0.003,
+
+        # allowed standard deviation (in Kelvin) for same
+        std_dev_instrument => 0.003,
+
+        # time that temperature has to be stable
+        stabilize_observation_time => 10 * 60,
+
+        # additional waiting time for sample to thermalize with mc
+        delay_in_loop => 20 * 60,
+
+        # temperature read out period
+        stabilize_measurement_interval => 10,
     }
 );
 

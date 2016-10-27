@@ -12,21 +12,18 @@ use Lab::Measurement;
 
 # the dilution control
 
-my $dilfridge = Instrument(
-    'OI_Triton',
-    { connection_type => 'Socket' }
-);
+my $dilfridge = Instrument( 'OI_Triton', { connection_type => 'Socket' } );
+
 $dilfridge->enable_control();
 
 # the network analyzer
 
-use aliased 'Lab::Moose::Instrument::RS_ZVA' => 'VNA';
-
-# RS_ZVA needs the Moose version of the LinuxGPIB connection.
-use aliased 'Lab::Moose::Connection::LinuxGPIB' => 'Moose::GPIB';
-
-# Construct instruments and connections.
-my $vna = VNA->new( connection => Moose::GPIB->new( pad => 20 ) );
+my $vna = Instrument(
+    'RS_ZVA', {
+        connection_type => 'LinuxGPIB',
+        gpib_address    => 20,
+    }
+);
 
 #-------- 2. Define the Sweeps -------------
 
@@ -37,15 +34,21 @@ my $temperature_sweep = Sweep(
         instrument => $dilfridge,
         points     => [ 25e-3, 40e-3 ],    # [starting point, target] in K
         stepwidth  => 5e-3,                # step width in K
-        tolerance_setpoint => 0.003
-        , # absolute tolerance (in Kelvin) for temperature before waiting time
-        std_dev_instrument =>
-            0.003,    # allowed standard deviation (in Kelvin) for same
-        stabilize_observation_time => 10
-            * 60,     # time that temperature has to be stable
-        delay_in_loop => 20
-            * 60,   # additional waiting time for sample to thermalize with mc
-        stabilize_measurement_interval => 10,    # temperature read out period
+
+        # absolute tolerance (in Kelvin) for temperature before waiting time
+        tolerance_setpoint => 0.003,
+
+        # allowed standard deviation (in Kelvin) for same
+        std_dev_instrument => 0.003,
+
+        # time that temperature has to be stable
+        stabilize_observation_time => 10 * 60,
+
+        # additional waiting time for sample to thermalize with mc
+        delay_in_loop => 20 * 60,
+
+        # temperature read out period
+        stabilize_measurement_interval => 10,
     }
 );
 
@@ -66,7 +69,6 @@ for my $sparam (@sparams) {
 #-------- 4. Measurement Instructions -------
 
 my $my_measurement = sub {
-
     my $sweep = shift;
 
     my $temperature = $dilfridge->get_value();

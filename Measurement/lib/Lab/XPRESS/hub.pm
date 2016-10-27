@@ -2,7 +2,7 @@ package Lab::XPRESS::hub;
 use Lab::Exception;
 use strict;
 use Exporter 'import';
-use Module::Load;
+use Module::Load qw/load autoload/;
 use Try::Tiny;
 
 our $VERSION = '3.520';
@@ -72,7 +72,9 @@ sub Instrument {
     my $module;
     try {
         $module = "Lab::Instrument::" . $instrument;
+        warn "before autoload";
         autoload($module);
+        warn "after autoload";
         $found_module = 1;
     };
 

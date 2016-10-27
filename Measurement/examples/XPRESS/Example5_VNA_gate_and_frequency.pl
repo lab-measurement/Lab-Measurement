@@ -4,27 +4,11 @@ use 5.020;
 use warnings;
 use strict;
 
-use experimental 'signatures';
-use experimental 'postderef';
-
 use Lab::Measurement;
 
-# Use short aliases for those loooong module names.
-use aliased 'Lab::Moose::Instrument::RS_ZVA' => 'VNA';
-use aliased 'Lab::Instrument::YokogawaGS200' => 'Source';
-
-# RS_ZVA needs the Moose version of the LinuxGPIB connection.
-use aliased 'Lab::Connection::Moose::LinuxGPIB' => 'Moose::GPIB';
-
-use aliased 'Lab::Connection::LinuxGPIB' => 'GPIB';
-
-# Construct instruments and connections.
-my $vna = VNA->new( connection => Moose::GPIB->new( gpib_address => 20 ) );
-
-my $source = Source->new(
-    connection   => GPIB->new( gpib_address => 1 ),
-    gate_protect => 0
-);
+# Construct instruments.
+my $vna    = Instrument( 'RS_ZVA',        { gpib_address => 20 } );
+my $source = Instrument( 'YokogawaGS200', { gpib_address => 2 } );
 
 # Define the 'outer' gate sweep.
 my $sweep = Sweep(
@@ -46,13 +30,14 @@ $DataFile->add_column('source_voltage');
 $DataFile->add_column('freq');
 
 # Get names of the configured S-parameter real/imag parts.
-my @sparams = $vna->sparam_catalog()->@*;
+my @sparams = @{ $vna->sparam_catalog() };
 
 for my $sparam (@sparams) {
     $DataFile->add_column($sparam);
 }
 
-my $measurement = sub ($sweep) {
+my $measurement = sub {
+    my $sweep   = shift;
     my $voltage = $sweep->get_value();
     my $data    = $vna->sparam_sweep();
 
