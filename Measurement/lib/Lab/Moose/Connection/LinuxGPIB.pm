@@ -35,7 +35,7 @@ use MooseX::Params::Validate;
 use Moose::Util::TypeConstraints qw(enum);
 use Carp;
 
-use Lab::Moose::Instrument qw/timeout_param read_length_param/;
+use Lab::Moose::Instrument qw/timeout_param/;
 
 use Time::HiRes qw/gettimeofday tv_interval/;
 
@@ -261,7 +261,6 @@ sub Read {
     my ( $self, %arg ) = validated_hash(
         \@_,
         timeout_param,
-        read_length_param,
     );
 
     my $timeout = $self->_timeout_arg(%arg);
@@ -352,12 +351,10 @@ sub Query {
     my ( $self, %arg ) = validated_hash(
         \@_,
         timeout_param,
-        read_length_param,
         command => { isa => 'Str' },
     );
 
     my %write_arg = %arg;
-    delete $write_arg{read_length};
     $self->Write(%write_arg);
 
     delete $arg{command};

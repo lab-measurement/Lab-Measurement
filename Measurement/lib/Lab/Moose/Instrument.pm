@@ -10,7 +10,6 @@ use Exporter 'import';
 
 our @EXPORT_OK = qw(
     timeout_param
-    read_length_param
     channel_param
     precision_param
     getter_params
@@ -98,10 +97,9 @@ Call the connection's C<Write> method. The timeout parameter is optional.
 
 =head2 binary_read
 
- my $data = $instrument->binary_read(timeout => 10, read_length => 10000);
+ my $data = $instrument->binary_read(timeout => 10);
 
-Call the connection's C<Read> method. The timeout and read_length
-parameters are optional.
+Call the connection's C<Read> method. The timeout parameter is optional.
     
 
 =head2 read
@@ -114,10 +112,9 @@ section 7.5).
 
 =head2 binary_query
 
- my $data = $instrument->binary_query(command => '*IDN?', timeout => 10, read_length = 10)
+ my $data = $instrument->binary_query(command => '*IDN?', timeout => 10)
 
-Call the connection's C<Query> method. The timeout and read_length arguments
-are optional.
+Call the connection's C<Query> method. The timeout parameter is optional.
 
 =head2 query
 
@@ -171,16 +168,6 @@ sub timeout_param {
     return ( timeout => { isa => 'Num', optional => 1 } );
 }
 
-=head2 read_length_param
-
-Return mandatory validation parameter for read_length.
-
-=cut
-
-sub read_length_param {
-    return ( read_length => { isa => 'Int', optional => 1 } );
-}
-
 =head2 channel_param
 
 Return optional validation parameter for channel. A given argument has to be an
@@ -207,12 +194,12 @@ sub precision_param {
 =head2 getter_params
 
 Return list of validation parameters which shell be used in all query
-operations, eg. timeout, read_length, ....
+operations, eg. timeout, ....
 
 =cut
 
 sub getter_params {
-    return ( timeout_param(), read_length_param() );
+    return ( timeout_param() );
 }
 
 =head2 setter_params

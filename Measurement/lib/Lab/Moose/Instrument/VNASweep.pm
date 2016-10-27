@@ -122,7 +122,7 @@ C<['Re(s11)', 'Im(s11)', 'Re(s21)', 'Im(s21)']>.
 
 =head2 sparam_sweep_data
 
- my $binary_string = $vna->sparam_sweep_data(timeout => $timeout, read_length => $read_length)
+ my $binary_string = $vna->sparam_sweep_data(timeout => $timeout)
 
 Return binary SCPI data block of S-parameter values. This string contains
 the C<sparam_catalog> values of each frequency point. The floats must be in
@@ -171,12 +171,8 @@ sub sparam_sweep {
 
     # Get data.
     my $num_cols = @{$catalog};
-    my $read_length = $self->estimate_read_length( num_cols => $num_cols );
 
-    my $binary = $self->sparam_sweep_data(
-        read_length => $read_length,
-        %args
-    );
+    my $binary = $self->sparam_sweep_data(%args);
 
     my $points_ref = $self->block_to_array(
         binary    => $binary,

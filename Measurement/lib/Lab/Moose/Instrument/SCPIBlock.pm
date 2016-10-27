@@ -101,39 +101,4 @@ sub set_data_format_precision {
     }
 }
 
-=head2 estimate_read_lenth
-
- my $read_length = $self->estimate_read_lenth( num_cols => 2 );
-
-Calculate length of block for a SENSE:SWEEP operation, which is used e.g. in
-network/spectrum analyzers.
-
-=cut
-
-sub estimate_read_length {
-    my ( $self, %args ) = validated_hash(
-        \@_,
-        num_cols => { isa => 'Int' },
-    );
-
-    my $num_cols = delete $args{num_cols};
-
-    my $num_rows = $self->cached_sense_sweep_points();
-    my $format   = $self->cached_format_data();
-
-    my $length_per_num;
-
-    if ( $format->[0] eq 'ASC' ) {
-        $length_per_num = 30;
-    }
-    elsif ( $format->[0] eq 'REAL' ) {
-        $length_per_num = $format->[1] / 8;
-    }
-    else {
-        croak "unknown format: @{$format}";
-    }
-
-    return $length_per_num * $num_rows * $num_cols + 100;
-}
-
 1;

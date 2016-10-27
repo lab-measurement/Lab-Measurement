@@ -105,13 +105,12 @@ sub get_spectrum {
     $self->set_data_format_precision( precision => $precision );
 
     # Get data.
-    my $read_length = $self->estimate_read_length( num_cols => 1 );
 
     $self->initiate_immediate();
     $self->wai();
+
     my $binary = $self->binary_query(
-        command     => "TRAC? TRACE$trace",
-        read_length => $read_length,
+        command => "TRAC? TRACE$trace",
         %args
     );
 

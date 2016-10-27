@@ -78,7 +78,6 @@ method: Write
 command: CALC:DATA:CALL? SDATA
 id: 14
 method: Query
-read_length: 124
 retval: 23323234b3532bbadc4799ba490a3437d10037b7c8392db699b4e9b70a
 retval_enc: hex
 timeout: 10
@@ -94,7 +93,6 @@ method: Write
 command: CALC:DATA:CALL? SDATA
 id: 17
 method: Query
-read_length: 124
 retval: 2332323493a6933ab34a2f3b52447936edd2e335b8c200b8512028b60a
 retval_enc: hex
 timeout: 10
@@ -110,7 +108,6 @@ method: Write
 command: CALC:DATA:CALL? SDATA
 id: 20
 method: Query
-read_length: 124
 retval: 23323234372409bbed95c338d5bf42b8a6ce54373fee2fb538f89f350a
 retval_enc: hex
 timeout: 10
