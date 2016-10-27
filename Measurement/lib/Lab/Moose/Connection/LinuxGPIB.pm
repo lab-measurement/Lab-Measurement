@@ -58,7 +58,8 @@ use LinuxGpib qw/
 The constructor takes the following attributes. The only required attribute is
 B<pad>.
 
-=head3 pad
+=head3 pad (or gpib_address for backwards compatibility with
+L<Lab::Connection::LinuxGPIB>)
 
 Primary address of the device. Required.
 
@@ -156,9 +157,15 @@ valid timeout.
 =cut
 
 has pad => (
-    is       => 'ro',
-    isa      => enum( [ ( 0 .. 30 ) ] ),
-    required => 1,
+    is        => 'ro',
+    isa       => enum( [ ( 0 .. 30 ) ] ),
+    predicate => 'has_pad'
+);
+
+has gpib_address => (
+    is        => 'ro',
+    isa       => enum( [ ( 0 .. 30 ) ] ),
+    predicate => 'has_gpib_address'
 );
 
 has sad => (
@@ -195,6 +202,14 @@ has device_descriptor => (
 
 sub BUILD {
     my $self = shift;
+
+    if ( $self->has_gpib_address() ) {
+        $self->pad( $self->gpib_address() );
+    }
+
+    if ( not $self->has_pad() ) {
+        croak "no primary GPIB address provided";
+    }
 
     my $timeout     = $self->timeout;
     my $ibtmo_value = _timeout_to_ibtmo($timeout);

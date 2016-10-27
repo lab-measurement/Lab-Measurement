@@ -2,6 +2,8 @@ package Lab::XPRESS::hub;
 use Lab::Exception;
 use strict;
 use Exporter 'import';
+use Module::Load;
+use Try::Tiny;
 
 our $VERSION = '3.520';
 
@@ -57,17 +59,39 @@ sub Frame {
 }
 
 sub Instrument {
-    my $self = shift if ref( $_[0] ) eq __PACKAGE__;
-    my $instrument = shift;
+    my $self = shift;
+    my $instrument;
+    if ( ref($self) eq __PACKAGE__ ) {
+        $instrument = shift;
+    }
+    else {
+        $instrument = $self;
+    }
 
-    $instrument = "Lab::Instrument::" . $instrument;
-    eval "require $instrument; $instrument->import(); 1;"
-        or do Lab::Exception::CorruptParameter->throw( error => $@ );
+    my $found_module;
+    my $module;
+    try {
+        $module = "Lab::Instrument::" . $instrument;
+        autoload($module);
+        $found_module = 1;
+    };
 
-    #or do Lab::Exception::CorruptParameter->throw( error => "Can't locate module $instrument\n" );
+    if ($found_module) {
+        return $module->new(@_);
+    }
 
-    return $instrument->new(@_);
+    $module = "Lab::Moose::Instrument::" . $instrument;
+    load($module);
 
+    my $args_ref          = shift;
+    my $connection_type   = delete $args_ref->{connection_type};
+    my $connection_module = "Lab::Moose::Connection::" . $connection_type;
+    load($connection_module);
+    my $connection = $connection_module->new($args_ref);
+    return $module->new(
+        %{$args_ref},
+        connection => $connection
+    );
 }
 
 sub Connection {
