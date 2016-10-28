@@ -159,7 +159,8 @@ valid timeout.
 has pad => (
     is        => 'ro',
     isa       => enum( [ ( 0 .. 30 ) ] ),
-    predicate => 'has_pad'
+    predicate => 'has_pad',
+    writer => '_pad'
 );
 
 has gpib_address => (
@@ -204,7 +205,7 @@ sub BUILD {
     my $self = shift;
 
     if ( $self->has_gpib_address() ) {
-        $self->pad( $self->gpib_address() );
+        $self->_pad( $self->gpib_address() );
     }
 
     if ( not $self->has_pad() ) {

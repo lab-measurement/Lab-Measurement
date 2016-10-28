@@ -19,6 +19,8 @@ my $zva = RS_ZVA->new( mock_options($logfile) );
 
 isa_ok( $zva, RS_ZVA );
 
+$zva->rst();
+
 my $catalog = $zva->sparam_catalog();
 is_deeply(
     $catalog, [ 'Re(S21)', 'Im(S21)' ],

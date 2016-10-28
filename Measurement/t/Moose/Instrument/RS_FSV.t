@@ -36,8 +36,8 @@ for my $i ( 1 .. 3 ) {
     my @data = $data->column(1);
     for my $num (@data) {
         is_absolute_error(
-            $num, -75, 25,
-            "real or imaginary part of s-param is in [-100, -50]"
+            $num, -50, 50,
+            "real or imaginary part of s-param is in [-100, 0]"
         );
     }
 }
