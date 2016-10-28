@@ -7,8 +7,19 @@ use strict;
 use Lab::Measurement;
 
 # Construct instruments.
-my $vna    = Instrument( 'RS_ZVA',        { gpib_address => 20 } );
-my $source = Instrument( 'YokogawaGS200', { gpib_address => 2 } );
+my $vna = Instrument(
+    'RS_ZVA', {
+        connection_type => 'LinuxGPIB',
+        gpib_address    => 20,
+    }
+);
+
+my $source = Instrument(
+    'YokogawaGS200', {
+        connection_type => 'LinuxGPIB',
+        gpib_address    => 2,
+    }
+);
 
 # Define the 'outer' gate sweep.
 my $sweep = Sweep(
