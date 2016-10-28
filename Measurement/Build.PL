@@ -44,7 +44,7 @@ my $build = Module::Build->new(
 	'Statistics::Descriptive' => 0,
     },
     test_requires => {
-	'Test::Files' => 0,
+	'File::Slurper' => 0,
 	'Test::Fatal' => '0.012'
     },
     conflicts         => {

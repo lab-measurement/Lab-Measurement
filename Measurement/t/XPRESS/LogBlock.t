@@ -7,12 +7,12 @@ use lib 't';
 
 use Lab::Test tests => 12;
 use Test::More;
-use Test::Files;
 
 use File::Spec::Functions;
 use File::Path qw/remove_tree/;
 use File::Temp qw/tempdir/;
 
+use File::Slurper 'read_binary';
 use Lab::Measurement;
 
 my $source = Instrument(
@@ -105,5 +105,7 @@ EOF
 
 my $file_path = catfile( $folder, 'MEAS_000', "${file}.dat" );
 
-file_ok( $file_path, $expected );
+my $file_contents = read_binary($file_path);
+
+is( $file_contents, $expected );
 
