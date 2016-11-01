@@ -23,9 +23,23 @@ eval 'sub USBTMC_IOCTL_CLEAR_OUT_HALT () { &_IO( &USBTMC_IOC_NR, 6);}'
 eval 'sub USBTMC_IOCTL_CLEAR_IN_HALT () { &_IO( &USBTMC_IOC_NR, 7);}'
     unless defined(&USBTMC_IOCTL_CLEAR_IN_HALT);
 
+# please note: with the usbtmc kernel module on Linux
+# kernel 4.7.4 (and some prior versions) the module has a
+# built-in unchangable timeout of 5 seconds. So the only
+# way to deal with timeouts is "try the read N times, and see
+# if there is a response".  It also makes no sense to "sleep between
+# the write and read" of a query, since one might as well do
+# the read and get a (potentially) faster result.
+
+# So:
+# wait_query is ignored
+# brutal only has the effect of not throwing errors on read timeouts
+# timeout is rounded to 5 second interval, to give the number of reads
+# that are tried
+
 use strict;
 use Scalar::Util qw(weaken);
-use Time::HiRes qw (usleep sleep);
+use Carp;
 use Lab::Bus;
 use Data::Dumper;
 
@@ -33,10 +47,13 @@ our @ISA = ("Lab::Bus");
 
 our %fields = (
     type        => 'USBtmc',
-    brutal      => 0,
+    brutal      => 0,          # ignore read timeout
     read_length => 1000,       # bytes
-    wait_query  => 10e-6,      # sec;
+    wait_query  => 10e-6,      # ignored
+    timeout     => 10,         # sec,
 );
+
+our $DRIVER_TIMEOUT = 5;       # sec, built into module
 
 sub new {
     my $proto = shift;
@@ -117,30 +134,83 @@ sub connection_new {         # { tmc_address => primary address }
                 . "::connection_new()\n", );
     }
 
-    # the /sys/class/ system isn't consistent, so use lsusb
+    # try to find device
+    # options: lsusb, /proc/bus/usb/ /sys/kernel/debug/usb/devices
     # select matching serial; if usb_serial = '*' select first match.
 
     if ( !defined($fn) ) {
-        open( LSUSB_HANDLE,
-            "/usr/bin/lsusb -d ${usb_vendor}:${usb_product} -v 2>/dev/null |"
-            )
-            || Lab::Exception::CorruptParameter->throw(
-            error => "Error running lsusb to find USB TMC address given to "
-                . __PACKAGE__
-                . "::connection_new()\n", );
         my $got = 0;
-        while (<LSUSB_HANDLE>) {
-            if ( !$got && /^\s*iSerial\s+\d+\s+([^\s]+)/i ) {
-                $got = 1 if $usb_serial eq $1 || $usb_serial eq '*';
-                $self->{config}->{usb_serial} = $1;
-                next;
+
+        if (
+            open( LSUSB_HANDLE,
+                "/usr/bin/lsusb -d ${usb_vendor}:${usb_product} -v 2>/dev/null |"
+            )
+            ) {
+            # sometimes lsusb doesn't have serial, not sure why
+            while (<LSUSB_HANDLE>) {
+                if ( !$got && /^\s*iSerial\s+\d+\s+([^\s]+)?/i ) {
+                    $got = 1 if $usb_serial eq '*';
+                    $self->{config}->{usb_serial} = $1;
+                    next;
+                }
+                if ( $got && /^\s*iInterface\s+(\d+)\s/i ) {
+                    $fn = "/dev/usbtmc$1";
+                    last;
+                }
             }
-            if ( $got && /^\s*iInterface\s+(\d+)\s/i ) {
-                $fn = "/dev/usbtmc$1";
-                last;
-            }
+            close(LSUSB_HANDLE);
         }
-        close(LSUSB_HANDLE);
+
+        if (   !$got
+            && -x "usb-devices"
+            && open( LSUSB_HANDLE, "usb-devices |" ) ) {
+            my $okdev = 0;
+            while (<LSUSB_HANDLE>) {
+                $okdev = 0 if /^\s*$/;
+                $okdev = 1
+                    if /Vendor=${usb_vendor}\s+ProdID=${usb_product}\s/i;
+                next unless $okdev;
+                if (/SerialNumber=([^\s]+)/i) {
+                    $got = 1 if $usb_serial eq '*' || $usb_serial eq $1;
+                    $self->{config}->{usb_serial} = $1;
+                    next;
+                }
+                next unless $got;
+                if (/\If#=\s*(\d+)/i) {
+                    $fn = "/dev/usbtmc$1";
+                    last;
+                }
+            }
+            close(LSUSB_HANDLE);
+        }
+
+        # modern /sys/ stuff, but maybe not user readable, or
+        # obsolete usbfs stuff, same format
+        if (
+            !$got
+            && (   open( LSUSB_HANDLE, "</sys/kernel/debug/usb/devices" )
+                || open( LSUSB_HANDLE, "</proc/bus/usb/devices" ) )
+            ) {
+            my $okdev = 0;
+            while (<LSUSB_HANDLE>) {
+                $okdev = 0 if /^\s*$/;
+                $okdev = 1
+                    if /Vendor=${usb_vendor}\s+ProdID=${usb_product}\s/i;
+                next unless $okdev;
+                if (/SerialNumber=([^\s]+)/i) {
+                    $got = 1 if $usb_serial eq '*' || $usb_serial eq $1;
+                    $self->{config}->{usb_serial} = $1;
+                    next;
+                }
+                next unless $got;
+                if (/\If#=\s*(\d+)/i) {
+                    $fn = "/dev/usbtmc$1";
+                    last;
+                }
+            }
+            close(LSUSB_HANDLE);
+        }
+
     }
 
     if ( !defined $fn ) {
@@ -168,7 +238,8 @@ sub connection_new {         # { tmc_address => primary address }
     return $connection_handle;
 }
 
-#TODO: Status, Errors?
+# if read returns 'undef', that's an EOF/error/Timeout, see $!
+# return a zero length string if brutal=1 and timeout
 sub connection_read
 {    # @_ = ( $connection_handle, $args = { read_length, brutal }
     my $self              = shift;
@@ -181,33 +252,44 @@ sub connection_read
 
     my $brutal      = $args->{'brutal'}      || $self->brutal();
     my $read_length = $args->{'read_length'} || $self->read_length();
+    my $timeout     = $args->{'timeout'}     || $self->{'timeout'};
 
-    my $result   = undef;
-    my $fragment = undef;
+    my $result = undef;
 
     my $tmc_handle = $connection_handle->{'tmc_handle'};
-    sysread( $tmc_handle, $result, $read_length );
+    my $iss;
+    my $tries = 0;
+
+    while (1) {
+        $iss = sysread( $tmc_handle, $result, $read_length );
+        if ( !defined($iss) ) {
+            if ( $! =~ /timed?\s*out/i ) {
+                $tries++;
+                next if $timeout <= 0;
+                next if $timeout >= $tries * $DRIVER_TIMEOUT;
+                if ( !$brutal ) {
+                    Lab::Exception::Timeout->throw(
+                        error => "USBtmc read time out\n",
+                    );
+                }
+
+                return '';
+            }
+            else {
+                Lab::Exception::DriverError->throw(
+                    error => "USBtmc read error $!\n",
+                );
+            }
+        }
+        last;
+    }
 
     # strip spaces and null byte
     $result =~ s/[\n\r\x00]*$//;
-
-    #
-    # timeout occured - throw exception, but include the received data
-    # if the "Brutal" option is present, ignore the timeout and just return the data
-    #
-    # 	if( $ib_bits->{'ERR'} && $ib_bits->{'TIMO'} && !$brutal ) {
-    # 		Lab::Exception::GPIBTimeout->throw(
-    # 			error => sprintf("ibrd failed with a timeout, ibstatus %x\n", $ibstatus),
-    # 			ibsta => $ibstatus,
-    # 			ibsta_hash => $ib_bits,
-    # 			data => $result
-    # 		);
-    # 	}
-    # no timeout, regular return
     return $result;
 }
 
-#TODO: Undocumented
+# write then read
 sub connection_query
 { # @_ = ( $connection_handle, $args = { command, read_length, wait_status, wait_query, brutal }
     my $self              = shift;
@@ -218,18 +300,15 @@ sub connection_query
     }    # try to be flexible about options as hash/hashref
     else { $args = {@_} }
 
-    my $wait_query = $args->{'wait_query'} || $self->wait_query();
+    #    my $wait_query = $args->{'wait_query'} || $self->wait_query();
+    # just use regular 'timeout' for the wait time
     my $result = undef;
 
     $self->connection_write($args);
-
-    sleep($wait_query); #<---ensures that asked data presented from the device
-
     $result = $self->connection_read($args);
     return $result;
 }
 
-#TODO: Error checking
 sub connection_write
 {    # @_ = ( $connection_handle, $args = { command, wait_status }
     my $self              = shift;
@@ -242,16 +321,6 @@ sub connection_write
 
     my $command = $args->{'command'} || undef;
 
-    # 	my $brutal = $args->{'brutal'} || $self->brutal();
-    # 	my $read_length = $args->{'read_length'} || $self->read_length();
-
-    # 	my $result = undef;
-    # 	my $raw = "";
-    # 	my $ib_bits=undef;	# hash ref
-    # 	my $ibstatus = undef;
-    # 	my $ibsta_verbose = "";
-    # 	my $decimal = 0;
-
     if ( !defined $command ) {
         Lab::Exception::CorruptParameter->throw(
                   error => "No command given to "
@@ -259,32 +328,15 @@ sub connection_write
                 . "::connection_write().\n", );
     }
 
-    print { $connection_handle->{'tmc_handle'} } $command;
+    # use syswrite, since 'print' and 'sysread' should not be mixed
+    my $iss = syswrite( $connection_handle->{'tmc_handle'}, $command );
 
-    #     $ibstatus=ibwrt($connection_handle->{'gpib_handle'}, $command, length($command));
-
-    # 	$ib_bits=$self->ParseIbstatus($ibstatus);
-    # 	foreach my $key ( keys %IbBits ) {
-    # 		print "$key: $ib_bits{$key}\n";
-    # 	}
-
-    # Todo: better Error checking
-    # 	if($ib_bits->{'ERR'}==1) {
-    # 		if($ib_bits->{'TIMO'} == 1) {
-    # 			Lab::Exception::GPIBTimeout->throw(
-    # 				error => sprintf("Timeout in " . __PACKAGE__ . "::connection_write() while executing $command: ibwrite failed with status %x\n", $ibstatus) . Dumper($ib_bits),
-    # 				ibsta => $ibstatus,
-    # 				ibsta_hash => $ib_bits,
-    # 			);
-    # 		}
-    # 		else {
-    # 			Lab::Exception::GPIBError->throw(
-    # 				error => sprintf("Error in " . __PACKAGE__ . "::connection_write() while executing $command: ibwrite failed with status %x\n", $ibstatus) . Dumper($ib_bits),
-    # 				ibsta => $ibstatus,
-    # 				ibsta_hash => $ib_bits,
-    # 			);
-    # 		}
-    # 	}
+    if ( !defined($iss) ) {
+        Lab::Exception::DriverError->throw(
+            error => "USBtmc write error $!\n",
+        );
+        return 0;
+    }
 
     return 1;
 }
@@ -295,24 +347,8 @@ sub connection_settermchar {    # @_ = ( $connection_handle, $termchar
     # 	my $connection_handle=shift;
     # 	my $termchar =shift; # string termination character as string
     #
-    # 	my $ib_bits=undef;	# hash ref
-    # 	my $ibstatus = undef;
-    #
-    #         my $h=$connection_handle->{'gpib_handle'};
-    #
-    #         my $arg=ord($termchar);
-    #
-    # 	$ibstatus=ibconfig($connection_handle->{'gpib_handle'}, 15, $arg);
-    #
-    # 	$ib_bits=$self->ParseIbstatus($ibstatus);
-    #
-    # 	if($ib_bits->{'ERR'}==1) {
-    # 		Lab::Exception::GPIBError->throw(
-    # 			error => sprintf("Error in " . __PACKAGE__ . "::connection_settermchar(): ibeos failed with status %x\n", $ibstatus) . Dumper($ib_bits),
-    # 			ibsta => $ibstatus,
-    # 			ibsta_hash => $ib_bits,
-    # 		);
-    # 	}
+
+    # useless for USBtmc, return success
 
     return 1;
 }
@@ -323,22 +359,7 @@ sub connection_enabletermchar {    # @_ = ( $connection_handle, 0/1 off/on
     # 	my $connection_handle=shift;
     # 	my $arg=shift;
     #
-    # 	my $ib_bits=undef;	# hash ref
-    # 	my $ibstatus = undef;
-    #
-    #     my $h=$connection_handle->{'tmc_handle'};
-    #
-    # 	$ibstatus=ibconfig($connection_handle->{'gpib_handle'}, 12, $arg);
-    #
-    # 	$ib_bits=$self->ParseIbstatus($ibstatus);
-    #
-    # 	if($ib_bits->{'ERR'}==1) {
-    # 		Lab::Exception::GPIBError->throw(
-    # 			error => sprintf("Error in " . __PACKAGE__ . "::connection_enabletermchar(): ibeos failed with status %x\n", $ibstatus) . Dumper($ib_bits),
-    # 			ibsta => $ibstatus,
-    # 			ibsta_hash => $ib_bits,
-    # 		);
-    # 	}
+    # useless for USBtmc, return success
 
     return 1;
 }
@@ -348,19 +369,7 @@ sub serial_poll {
     my $connection_handle = shift;
     my $sbyte             = undef;
 
-    #
-    # 	my $ibstatus = ibrsp($connection_handle->{'gpib_handle'}, $sbyte);
-    #
-    # 	my $ib_bits=$self->ParseIbstatus($ibstatus);
-    #
-    # 	if($ib_bits->{'ERR'}==1) {
-    # 		Lab::Exception::GPIBError->throw(
-    # 			error => sprintf("ibrsp (serial poll) failed with status %x\n", $ibstatus) . Dumper($ib_bits),
-    # 			ibsta => $ibstatus,
-    # 			ibsta_hash => $ib_bits,
-    # 		);
-    # 	}
-    #
+    # useless for USBtmc return undef
     return $sbyte;
 }
 
@@ -403,92 +412,36 @@ sub timeout {
     my $self              = shift;
     my $connection_handle = shift;
     my $timo              = shift;
-    my $timoval           = undef;
 
-    Lab::Exception::CorruptParameter->throw( error =>
-            "The timeout value has to be a positive decimal number of seconds, ranging 0-1000.\n"
-        )
-        if ( $timo !~ /^([+]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/
-        || $timo < 0
-        || $timo > 1000 );
+    my $t;
 
-    if    ( $timo == 0 )    { $timoval = 0 }    # never time out
-    if    ( $timo <= 1e-5 ) { $timoval = 1 }
-    elsif ( $timo <= 3e-5 ) { $timoval = 2 }
-    elsif ( $timo <= 1e-4 ) { $timoval = 3 }
-    elsif ( $timo <= 3e-4 ) { $timoval = 4 }
-    elsif ( $timo <= 1e-3 ) { $timoval = 5 }
-    elsif ( $timo <= 3e-3 ) { $timoval = 6 }
-    elsif ( $timo <= 1e-2 ) { $timoval = 7 }
-    elsif ( $timo <= 3e-2 ) { $timoval = 8 }
-    elsif ( $timo <= 1e-1 ) { $timoval = 9 }
-    elsif ( $timo <= 3e-1 ) { $timoval = 10 }
-    elsif ( $timo <= 1 )    { $timoval = 11 }
-    elsif ( $timo <= 3 )    { $timoval = 12 }
-    elsif ( $timo <= 10 )   { $timoval = 13 }
-    elsif ( $timo <= 30 )   { $timoval = 14 }
-    elsif ( $timo <= 100 )  { $timoval = 15 }
-    elsif ( $timo <= 300 )  { $timoval = 16 }
-    elsif ( $timo <= 1000 ) { $timoval = 17 }
+    if ( $timo !~ /^\s*(\+|\-)?(\d+\.\d*|\d+|\d*\.\d+)\s*$/ ) {
+        Lab::Exception::CorruptParameter->throw(
+            error => "Bad timeout value '$timo'\n" );
+        return;
+    }
 
-    # 	my $ibstatus=ibtmo($connection_handle->{'gpib_handle'}, $timoval);
-    #
-    # 	my $ib_bits=$self->ParseIbstatus($ibstatus);
-    #
-    # 	if($ib_bits->{'ERR'}==1) {
-    # 		Lab::Exception::GPIBError->throw(
-    # 			error => sprintf("Error in " . __PACKAGE__ . "::timeout(): ibtmo failed with status %x\n", $ibstatus) . Dumper($ib_bits),
-    # 			ibsta => $ibstatus,
-    # 			ibsta_hash => $ib_bits,
-    # 		);
-    # 	}
-    #    print "timeout(): not implemented!\n";
+    $timo = $timo + 0;
+
+    if ( $timo <= 0 ) {
+        $t = -1;    # infinite
+    }
+    else {
+        $t = ( int( $timo / $DRIVER_TIMEOUT ) + 1 ) * $DRIVER_TIMEOUT;
+    }
+    $self->{timeout} = $t;
 }
 
 sub ParseIbstatus
 {    # Ibstatus http://linux-gpib.sourceforge.net/doc_html/r634.html
-    print "ParseIbstatus not supported\n";
-
-    # 	my $self = shift;
-    # 	my $ibstatus = shift;	# 16 Bit int
-    # 	my @ibbits = ();
-    #
-    # 	if( $ibstatus !~ /[0-9]*/ || $ibstatus < 0 || $ibstatus > 0xFFFF ) {	# should be a 16 bit integer
-    # 		Lab::Exception::CorruptParameter->throw( error => 'Lab::Bus::GPIB::VerboseIbstatus() got an invalid ibstatus.', InvalidParameter => $ibstatus );
-    # 	}
-    #
-    # 	for (my $i=0; $i<16; $i++) {
-    # 		$ibbits[$i] = 0x0001 & ($ibstatus >> $i);
-    # 	}
-    #
-    # 	my %Ib = ();
-    # 	( $Ib{'DCAS'}, $Ib{'DTAS'}, $Ib{'LACS'}, $Ib{'TACS'}, $Ib{'ATN'}, $Ib{'CIC'}, $Ib{'REM'}, $Ib{'LOK'}, $Ib{'CMPL'}, $Ib{'EVENT'}, $Ib{'SPOLL'}, $Ib{'RQS'}, $Ib{'SRQI'}, $Ib{'END'}, $Ib{'TIMO'}, $Ib{'ERR'} ) = @ibbits;
-    #
-    # 	return \%Ib;
-
-} # return: ($ERR, $TIMO, $END, $SRQI, $RQS, $SPOLL, $EVENT, $CMPL, $LOK, $REM, $CIC, $ATN, $TACS, $LACS, $DTAS, $DCAS)
+    carp("ParseIbstatus not supported");
+}
 
 sub VerboseIbstatus {
-    my $self             = shift;
-    my $ibstatus         = shift;
-    my $ibstatus_verbose = "";
+    my $self     = shift;
+    my $ibstatus = shift;
 
-    if ( ref( \$ibstatus ) =~ /SCALAR/ ) {
-        $ibstatus = $self->ParseIbstatus($ibstatus);
-    }
-    elsif ( ref($ibstatus) !~ /HASH/ ) {
-        Lab::Exception::CorruptParameter->throw(
-            error =>
-                'Lab::Bus::GPIB::VerboseIbstatus() got an invalid ibstatus.',
-            InvalidParameter => $ibstatus
-        );
-    }
-
-    while ( my ( $k, $v ) = each %$ibstatus ) {
-        $ibstatus_verbose .= "$k: $v\n";
-    }
-
-    return $ibstatus_verbose;
+    carp("VerboseIbstatus not supported");
 }
 
 #
@@ -513,7 +466,7 @@ sub _search_twin {
 
 =head1 NAME
 
-Lab::Bus::LinuxGPIB - LinuxGPIB bus
+Lab::Bus::USBtmc - USBtmc bus
 
 =head1 SYNOPSIS
 
@@ -558,6 +511,10 @@ Lab::Bus::USBtmc throws
   
   Lab::Exception::CorruptParameter
 
+  Lab::Exception::DriverError
+
+  Lab::Exception::Timeout
+
 =head1 METHODS
 
 =head2 connection_new
@@ -587,6 +544,28 @@ to identify and handle the calling instrument:
   $InstrumentHandle = $tmc->connection_new({ usb_vendor => 0x0699, usb_product => 0x1234 });
   $result = $tmc->connection_read($self->InstrumentHandle(), { options });
 
+Please note that, because of obscure Linux device configuration issues,
+it is sometimes difficult to extract the USBtmc device serial number
+without 'root' privileges. This code tries several techniques, including
+invoking 'lsusb', looking in /proc/bus/usb, and looking in 
+/sys/kernel/debug/usb/devices. There is no guarantee that those hacking
+on the Linux kernel won't change these in future. 
+
+Also the current (as of kernel 4.7.4, and many earlier versions) default
+kernel modules for usbtmc has a 'built in' read timeout hardcoded to 
+5 seconds. The read/timeout code here works with this. 
+
+Some years ago, when the USBtmc module was first being added to standard
+distributions, it was "edited to conform with kernel module style guidelines"
+which resulted in a completely nonfunctional driver.  Alternate (older)
+versions from device manufacturers DID work, and had greater functionality.
+If you are using one of those modules, check to see if the timeout logic
+here requires modification.  
+
+Unfortunately, it's not so easy for a little perl module to tell what
+variety of kernel module is being used, so that will be up to the user. 
+
+
 See C<Lab::Instrument::Read()>.
 
 =head2 connection_write
@@ -598,19 +577,24 @@ Sends $Command to the instrument specified by the handle.
 
 =head2 connection_read
 
-  $tmc->connection_read( $InstrumentHandle, { Cmd => $Command, ReadLength => $readlength, Brutal => 0/1 } );
+  $tmc->connection_read( $InstrumentHandle, { ReadLength => $readlength } );
 
-Sends $Command to the instrument specified by the handle. Reads back a maximum of $readlength bytes. If a timeout or
-an error occurs, Lab::Exception::GPIBError or Lab::Exception::Timeout are thrown, respectively. The Timeout object
-carries the data received up to the timeout event, accessible through $Exception->Data().
+Reads back a maximum of $readlength bytes. 
 
 Setting C<Brutal> to a true value will result in timeouts being ignored, and the gathered data returned without error.
+
+IF there is a timeout (i.e., no data) then connection_read returns a zero
+length string.
 
 =head2 timeout
 
   $tmc->timeout( $connection_handle, $timeout );
 
-Sets the timeout in seconds for tmc operations on the device/connection specified by $connection_handle.
+Sets the timeout in seconds for tmc operations on the device/connection specified by $connection_handle.  $timeout <= 0 means "no timeout, indefinate wait".
+
+The timeout is quantized in units of the kernel module timeout (currently
+5 sec in kernel 4.7.4), so the timeout just results in determining the
+number of reads that are attempted before a timeout error is thrown. 
 
 =head2 config
 
@@ -626,7 +610,7 @@ Without arguments, returns a reference to the complete $self->config aka @_ of t
 
 =head1 CAVEATS/BUGS
 
-Sysfs settings for timeout not supported, yet.
+Lots, I'm sure.
 
 =head1 SEE ALSO
 
@@ -649,6 +633,7 @@ and many more...
            2010      Matthias Völker <mvoelker@cpan.org>
            2011      Florian Olbrich, Andreas K. Hüttel
            2012      Hermann Kraus
+           2016      Chuck Lane
 
 This library is free software; you can redistribute it and/or modify it under the same
 terms as Perl itself.
