@@ -101,6 +101,7 @@ eval {
 } or do {
     diag("not using sys/ioctl.ph");
     skip_modules('Lab/Bus/USBtmc.pm');
+    skip_modules('Lab/Moose/Connection/USBTMC.pm');
 };
 
 plan tests => scalar @files;
