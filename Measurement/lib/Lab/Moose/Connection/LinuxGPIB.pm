@@ -360,21 +360,9 @@ sub Write {
 
 Call C<Write> followed by C<Read>.
 
+Provided by the Lab::Moose::Connection role.
+
 =cut
-
-sub Query {
-    my ( $self, %arg ) = validated_hash(
-        \@_,
-        timeout_param,
-        command => { isa => 'Str' },
-    );
-
-    my %write_arg = %arg;
-    $self->Write(%write_arg);
-
-    delete $arg{command};
-    return $self->Read(%arg);
-}
 
 =head2 Clear
 

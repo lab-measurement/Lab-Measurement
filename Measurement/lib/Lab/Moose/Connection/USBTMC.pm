@@ -7,41 +7,34 @@ use MooseX::Params::Validate;
 use Moose::Util::TypeConstraints qw(enum);
 use Carp;
 
-use Lab::Moose::Instrument qw/timeout_param read_length_param/;
-
-use Time::HiRes qw/gettimeofday tv_interval/;
-
-use YAML::XS;
+use Lab::Moose::Instrument qw/timeout_param/;
 
 use Module::Load 'load';
 
-load('linux/ioctl.ph');
+require 'linux/ioctl.ph';                        ## no critic
+require 'Lab/Moose/Connection/USBTMC/tmc.ph';    ## no critic
 
-use namespace::autoclean;
+#use namespace::autoclean;
 
 has device => (
     is       => 'ro',
-    isa      => 'num',
+    isa      => 'Num',
     required => 1,
 );
 
-# has serial => (
-#     is => 'ro',
-#     isa => 'str'
-#     );
-
 has filehandle => (
     is       => 'ro',
-    isa      => 'filehandle',
+    isa      => 'FileHandle',
     writer   => '_filehandle',
     init_arg => undef
 );
 
-sub build {
+sub BUILD {
     my $self = shift;
 
     my $file = '/dev/usbtmc' . $self->device();
 
+    # Use raw syscalls.
     open my $fh, '+<:unix', $file
         or croak "cannot open $file: $!";
 
@@ -52,39 +45,20 @@ sub Read {
     my ( $self, %arg ) = validated_hash(
         \@_,
         timeout_param,
-        read_length_param,
     );
 
     my $result_string = "";
 
-    #fixme: handle timeout
-    #    my $start_time = [gettimeofday];
+    # FIXME: handle long reads
 
     my $fh = $self->filehandle();
 
-    while (1) {
+    my $read_length = 10000;
 
-        # my $elapsed_time = tv_interval($start_time);
+    my $read = sysread $fh, $result_string, $read_length;
 
-        # if ( $elapsed_time > $self->timeout() ) {
-        #     croak(
-        #         "timeout in read with args:\n",
-        #         dump( \%arg )
-        #     );
-        # }
-
-        my $read_length = 1000000;
-
-        my $read = sysread $fh, $result_string, $read_length,
-            length($result_string);
-
-        if ( not defined $read ) {
-            croak "Read error: $!";
-        }
-
-        if ( $read < $read_length ) {
-            last;
-        }
+    if ( not defined $read ) {
+        croak "Read error: $!";
     }
 
     return $result_string;
@@ -114,20 +88,16 @@ sub Write {
     }
 }
 
-sub Query {
-    my ( $self, %arg ) = validated_hash(
+sub _safe_ioctl {
+    my ( $fh, $request, $name ) = pos_validated_list(
         \@_,
-        timeout_param,
-        read_length_param,
-        command => { isa => 'Str' },
+        { isa => 'FileHandle' },
+        { isa => 'Int' },
+        { isa => 'Str' }
     );
 
-    my %write_arg = %arg;
-    delete $write_arg{read_length};
-    $self->Write(%write_arg);
-
-    delete $arg{command};
-    return $self->Read(%arg);
+    ioctl( $fh, $request, 0 )
+        or croak "ioctl '$name' failed: $!";
 }
 
 sub Clear {
@@ -136,12 +106,9 @@ sub Clear {
         timeout_param,
     );
 
-    # From linux/usb/tmc.h
-    my $USBTMC_IOCTL_CLEAR = _IO( 91, 2 );
     my $fh = $self->filehandle();
 
-    ioctl $fh, $USBTMC_IOCTL_CLEAR, 0
-        or croak "ioctl 'USBTMC_IOCTL_CLEAR' failed: $!";
+    _safe_ioctl( $fh, USBTMC_IOCTL_CLEAR(), "clear" );
 }
 
 with 'Lab::Moose::Connection';
