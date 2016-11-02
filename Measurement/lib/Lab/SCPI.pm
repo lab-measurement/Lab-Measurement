@@ -243,24 +243,24 @@ sub _gMem {
     my $dtop  = shift;
     my $d     = shift;
 
-    if ( $str =~ /^${WS}*(;|$)/ ) {
+    if ( $str =~ /^${WS}*(;|\s*$)/ ) {
         return '';
     }
 
     while (1) {
         $str =~ s/^${WS}*//;
-        last if $str eq '';
+        last if $str =~ /^\s*$/;
 
         if ( $level == 0 ) {
-            if ( $str =~ /^(\*\w+\??)${WS}*(;|$)/i ) {    #common
+            if ( $str =~ /^(\*\w+\??)${WS}*(;|\s*$)/i ) {    #common
                 $dtop->{$1} = {} unless exists $dtop->{$1};
                 $str = $POSTMATCH;
                 next;
             }
-            elsif ( $str =~ /^(\*\w+\??)${WS}+/i ) {      # common with params
+            elsif ( $str =~ /^(\*\w+\??)${WS}+/i ) {    # common with params
                 $dtop->{$1} = {} unless exists $dtop->{$1};
                 $str = _scpi_value( $POSTMATCH, $dtop->{$1} );
-                if ( $str =~ /^${WS}*(;|$)/ ) {
+                if ( $str =~ /^${WS}*(;|\s*$)/ ) {
                     $str = $POSTMATCH;
                     next;
                 }
@@ -268,7 +268,7 @@ sub _gMem {
                     croak("parse error after common command");
                 }
             }
-            elsif ( $str =~ /^:/ ) {                      # leading :
+            elsif ( $str =~ /^:/ ) {                    # leading :
                 $d = $dtop;
                 $str =~ s/^://;
             }
@@ -283,11 +283,11 @@ sub _gMem {
         }
 
         $str =~ s/^${WS}*//;
-        last if $str eq '';
+        last if $str =~ /^\s*$/;
 
         if ( $str =~ /^;/ ) {    # another branch, same or top level
             $str =~ s/^;${WS}*//;
-            last if $str eq '';
+            last if $str =~ /^\s*$/;
             my $nlev = $level;
             $nlev = 0 if $str =~ /^[\*\:]/;
 
@@ -296,15 +296,15 @@ sub _gMem {
             next;
         }
 
-        if ( $str =~ /^(\w+\??)${WS}*(;|$)/i ) {    # leaf, no params
+        if ( $str =~ /^(\w+\??)${WS}*(;|\s*$)/i ) {    # leaf, no params
             $d->{$1} = {} unless exists $d->{$1};
             return $POSTMATCH;
         }
-        elsif ( $str =~ /^(\w+)${WS}*:/i ) {        # branch, go down a level
+        elsif ( $str =~ /^(\w+)${WS}*:/i ) {    # branch, go down a level
             $d->{$1} = {} unless exists $d->{$1};
             $str = _gMem( $POSTMATCH, $level + 1, $dtop, $d->{$1} );
         }
-        elsif ( $str =~ /^(\w+\??)${WS}+/i ) {      # leaf with params
+        elsif ( $str =~ /^(\w+\??)${WS}+/i ) {    # leaf with params
             $d->{$1} = {} unless exists $d->{$1};
             $str = $POSTMATCH;
             $str = _scpi_value( $str, $d->{$1} );
@@ -424,13 +424,13 @@ sub scpi_parse_sequence {
             push( @{$d}, $ttop );
         }
 
-        last if $str eq '';
+        last if $str =~ /^\s*;?\s*$/;    # handle trailing newline too
 
         #	print "lev=$level str='$str'\n";
         if ( $level == 0 ) {
 
             # starting from prev command
-            if ( $str =~ /^\w/i ) {    # prev  A:b  or A:b:_VALUE:v
+            if ( $str =~ /^\w/i ) {      # prev  A:b  or A:b:_VALUE:v
                 pop(@cur);
                 my $v = pop(@cur);
                 if ( defined($v) && $v eq '_VALUE' ) {
@@ -446,6 +446,7 @@ sub scpi_parse_sequence {
                 if ( $str =~ /^:/ ) {
                     $str =~ s/^:${WS}*//;
                 }
+                last if $str =~ /^\s*;?\s*$/;
                 @cur = ();
                 if ( $str =~ /^(\*\w+\??)${WS}*;/i ) {
 
@@ -495,6 +496,8 @@ sub scpi_parse_sequence {
             }
 
         }
+        $str =~ s/^${WS}+//;
+        last if $str =~ /^\s*;?\s*$/;
 
         if ( $level > 0 ) {    # level > 0
             if ( $str =~ /^[\*:]/ ) {
