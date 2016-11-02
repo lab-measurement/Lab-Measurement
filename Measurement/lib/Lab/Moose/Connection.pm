@@ -23,7 +23,7 @@ namespace. It declares the required methods.
 
 This role requires C<Read>, C<Write> and C<Clear> methods.
 
-=heat1 METHODS
+=head1 METHODS
 
 =head2 Query
 
