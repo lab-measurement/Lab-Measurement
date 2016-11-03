@@ -4,7 +4,7 @@ use 5.010;
 use warnings;
 use strict;
 
-use Test::More tests => 21;
+use Test::More;
 use Test::Fatal;
 use Data::Dumper;
 use Lab::Moose::BlockData;
@@ -18,15 +18,15 @@ use Lab::Moose::BlockData;
     is( $data->columns, 3, 'get number of columns' );
 
     {
-        my @row = $data->row(1);
+        my $row = $data->row(1);
 
-        is_deeply( [@row], [ 3, 4, 5 ], "get row as array" );
+        is_deeply( $row, [ 3, 4, 5 ], "get row as array" );
     }
 
     {
-        my @column = $data->column(2);
+        my $column = $data->column(2);
 
-        is_deeply( [@column], [ 3, 5 ], "get column as array" );
+        is_deeply( $column, [ 3, 5 ], "get column as array" );
     }
 
     # Add row
@@ -37,7 +37,8 @@ use Lab::Moose::BlockData;
 
         is( $data->rows(), 3, "row added" );
 
-        my @row = $data->row(2);
+        my $row = $data->row(2);
+        is_deeply( $row, $new_row );
     }
 
     # Add column
@@ -47,8 +48,8 @@ use Lab::Moose::BlockData;
 
         is( $data->columns(), 4, "column added" );
 
-        my @column = $data->column(3);
-        is_deeply( [@column], $new_column, "added column is intact" );
+        my $column = $data->column(3);
+        is_deeply( $column, $new_column, "added column is intact" );
     }
 }
 
@@ -56,14 +57,14 @@ use Lab::Moose::BlockData;
 {
     my $data = Lab::Moose::BlockData->new();
     isa_ok( $data, 'Lab::Moose::BlockData' );
-    my $row = [ 1, 2, 3 ];
-    $data->add_row($row);
+    my $new_row = [ 1, 2, 3 ];
+    $data->add_row($new_row);
 
     is( $data->rows(),    1, "have one row" );
     is( $data->columns(), 3, "have three columns" );
 
-    my @row = $data->row(0);
-    is_deeply( [@row], $row, "add first row" );
+    my $row = $data->row(0);
+    is_deeply( $row, $new_row, "add first row" );
 }
 
 # Add column to empty data
@@ -71,14 +72,14 @@ use Lab::Moose::BlockData;
 {
     my $data = Lab::Moose::BlockData->new();
     isa_ok( $data, 'Lab::Moose::BlockData' );
-    my $column = [ 1, 2, 3 ];
-    $data->add_column($column);
+    my $new_column = [ 1, 2, 3 ];
+    $data->add_column($new_column);
 
     is( $data->columns(), 1, "have one column" );
     is( $data->rows(),    3, "have three columns" );
 
-    my @column = $data->column(0);
-    is_deeply( [@column], $column, "add first column" );
+    my $column = $data->column(0);
+    is_deeply( $column, $new_column, "add first column" );
 }
 
 # Invalid use
@@ -112,3 +113,4 @@ use Lab::Moose::BlockData;
 
 }
 
+done_testing();

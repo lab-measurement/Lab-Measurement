@@ -5,7 +5,9 @@ Lab::Test -- Shared test routines for Lab::Measurement.
 
 =head1 SYNOPSIS
 
- use Lab::Test tests => 5;
+ file_ok($filename, "file contents", "contents are equal");
+
+ compare_ok($file1, $file2, "files have same contents");
 
  is_relative_error(10, 11, 0.2, "relative error of 10 and 11 is smaller than 20 percent");
  
@@ -28,11 +30,15 @@ package Lab::Test;
 use 5.010;
 use warnings;
 use strict;
+use File::Slurper 'read_binary';
 use Scalar::Util qw/looks_like_number/;
+use Text::Diff 'diff';
 
 use parent 'Test::Builder::Module';
 
-our @EXPORT = qw/
+our @EXPORT_OK = qw/
+    file_ok
+    compare_ok
     is_relative_error
     is_num
     is_float
@@ -62,7 +68,78 @@ sub relative_error {
 
 =head1 Functions
 
-All of the following functions are exported by default.
+All functions are exported only on request. 
+
+=head2 file_ok($file, $expected_contents, $name)
+
+Succeed if C<$file> exists and it's contents are equal to
+C<$expected_contents>. Uses binary comparison and C<$expected_contents> may not
+have the unicode flag set.
+
+=cut
+
+sub file_ok {
+    my ( $file, $expected, $name ) = @_;
+    my $tb = $class->builder();
+    if ( not -f $file ) {
+        return $tb->ok( 0, "-f $file" )
+            || $tb->diag("file '$file' does not exist");
+    }
+    my $contents = read_binary($file);
+
+    if ( $tb->ok( $contents eq $expected, $name ) ) {
+        return 1;
+    }
+
+    # Fail.
+    my $diff = diff(
+        \$contents,
+        \$expected,
+        {
+            STYLE      => 'Table',
+            FILENAME_A => $file,
+            FILENAME_B => 'expected',
+        }
+    );
+    return $tb->diag($diff);
+}
+
+=head2 compare_ok($filename1, $filename2, $name)
+
+Succeed if both files exists and their contents are equal.
+
+=cut
+
+sub compare_ok {
+    my ( $file1, $file2, $name ) = @_;
+    my $tb = $class->builder();
+
+    for my $file ( $file1, $file2 ) {
+        if ( not -f $file ) {
+            return $tb->ok( 0, "-f $file" )
+                || $tb->diag("file '$file' does not exist");
+        }
+    }
+
+    my $contents1 = read_binary($file1);
+    my $contents2 = read_binary($file2);
+
+    if ( $tb->ok( $contents1 eq $contents2, $name ) ) {
+        return 1;
+    }
+
+    # Fail.
+    my $diff = diff(
+        \$contents1,
+        \$contents2,
+        {
+            STYLE      => 'Table',
+            FILENAME_A => $file1,
+            FILENAME_B => $file2,
+        }
+    );
+    return $tb->diag($diff);
+}
 
 =head2 is_relative_error($got, $expect, $error, $name)
 

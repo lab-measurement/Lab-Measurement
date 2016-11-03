@@ -10,7 +10,13 @@ use Lab::Measurement;
 use Scalar::Util qw(looks_like_number);
 
 use MockTest;
-use Lab::Test;
+use Lab::Test import => [
+    qw/
+        looks_like_number_ok
+        is_num
+        is_relative_error
+        /
+];
 
 my $function;
 

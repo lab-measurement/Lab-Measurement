@@ -5,8 +5,8 @@ use strict;
 
 use lib 't';
 
-use Lab::Test tests => 12;
-use Test::More;
+use Lab::Test import => [qw/is_float file_ok/];
+use Test::More tests => 12;
 
 use File::Spec::Functions;
 use File::Path qw/remove_tree/;
@@ -105,7 +105,5 @@ EOF
 
 my $file_path = catfile( $folder, 'MEAS_000', "${file}.dat" );
 
-my $file_contents = read_binary($file_path);
-
-is( $file_contents, $expected );
+file_ok( $file_path, $expected, "data file as expected" );
 

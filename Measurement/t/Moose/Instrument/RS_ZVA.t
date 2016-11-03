@@ -7,7 +7,7 @@ use 5.010;
 
 use lib 't';
 
-use Lab::Test tests => 29;
+use Lab::Test tests => 29, import => [qw/is_float is_absolute_error/];
 use Test::More;
 use Moose::Instrument::MockTest qw/mock_options/;
 use aliased 'Lab::Moose::Instrument::RS_ZVA';
@@ -38,14 +38,14 @@ for my $i ( 1 .. 3 ) {
     my $num_rows = $data->rows();
     is( $num_rows, 3, "matrix has 3 rows" );
 
-    my @freqs = $data->column(0);
+    my $freqs = $data->column(0);
     is_deeply(
-        \@freqs, [ 10000000, 12005000000, 24000000000 ],
+        $freqs, [ 10000000, 12005000000, 24000000000 ],
         "first column holds frequencies"
     );
-    my @re = $data->column(1);
-    my @im = $data->column(2);
-    for my $num ( @re, @im ) {
+    my $re = $data->column(1);
+    my $im = $data->column(2);
+    for my $num ( @{$re}, @{$im} ) {
         is_absolute_error(
             $num, 0, 1,
             "real or imaginary part of s-param is in [-1,1]"

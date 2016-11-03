@@ -8,8 +8,8 @@ use warnings;
 use strict;
 
 use lib qw(t/);
-use Lab::Test tests => 4;
-use Test::More;
+use Lab::Test import => [qw/is_num is_relative_error/];
+use Test::More tests => 4;
 
 use Lab::Measurement;
 

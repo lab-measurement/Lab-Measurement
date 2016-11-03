@@ -27,6 +27,10 @@ toc:
           - Measurement/lib/Lab/Data/Plotter.pm
           - Measurement/lib/Lab/SCPI.pm
           - Measurement/lib/Lab/Moose/BlockData.pm
+          - Measurement/lib/Lab/Moose/DataFolder.pm
+          - Measurement/lib/Lab/Moose/DataFile.pm
+          - Lab::Moose::DataFile subclasses:
+              - Measurement/lib/Lab/Moose/DataFile/Meta.pm
       - XPRESS:
           - Examples:
               - Measurement/examples/XPRESS/Example1_Simple-IV.pl

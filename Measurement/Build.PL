@@ -44,6 +44,8 @@ my $build = Module::Build->new(
     },
     test_requires => {
 	'File::Slurper' => 0,
+	'Text::Diff' => 0,
+	'Test::File' => 0,
 	'Test::Fatal' => '0.012'
     },
     conflicts         => {

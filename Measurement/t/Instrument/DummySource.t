@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use Data::Dumper;
 use lib 't';
-use Lab::Test tests => 2;
+use Lab::Test tests => 2, import => ['is_num'];
 use Lab::Measurement;
 
 my $source = Instrument(

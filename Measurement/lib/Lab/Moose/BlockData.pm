@@ -159,10 +159,20 @@ or
 
  my $data = Lab::Moose::BlockData->new( matrix => [[1, 2], [3, 4] );
 
+=head2 rows
+
+ my $num_rows = $data->rows();
+
+=head2 columns
+
+ my $num_columns = $data->columns();
 
 =head2 row
 
  my $row = $data->row($row_number);
+
+Does not make a fresh copy of the row. The returned array shall not be
+manipulated.
 
 =cut
 
@@ -181,7 +191,7 @@ sub row {
 
     my $matrix = $self->matrix();
 
-    return @{ $matrix->[$row] };
+    return $matrix->[$row];
 }
 
 =head2 column
@@ -215,7 +225,7 @@ sub column {
         push @column, $row->[$column];
     }
 
-    return @column;
+    return \@column;
 }
 
 sub _get_vector_param {

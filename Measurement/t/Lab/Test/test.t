@@ -5,8 +5,100 @@ use strict;
 use 5.010;
 
 use lib 't';
-use Test::Tester tests => 60;
-use Lab::Test;
+
+use Test::Tester tests => 96;
+use Lab::Test import   => [
+    qw/
+        file_ok
+        compare_ok
+        is_relative_error
+        is_num
+        is_float
+        is_absolute_error
+        looks_like_number_ok
+        /
+];
+
+use File::Temp 'tempfile';
+
+# file_ok
+
+{
+    my ( $fh, $filename ) = tempfile( UNLINK => 1 );
+    my $contents = "abc\ndef\nghi";
+    print {$fh} $contents;
+    close $fh
+        or die "cannot close";
+
+    check_test(
+        sub { file_ok( $filename, $contents, "file_ok" ) },
+        {
+            ok   => 1,
+            name => "file_ok"
+        }
+    );
+
+    check_test(
+        sub { file_ok( $filename, "abc", "file_ok" ) },
+        {
+            ok   => 0,
+            name => "file_ok"
+        }
+    );
+
+    my $non_file = '/tmp/uiaI23UIAEV3C';
+    check_test(
+
+        sub { file_ok( $non_file, "ABCD", "file_ok" ) },
+        {
+            ok   => 0,
+            name => "-f $non_file"
+        }
+    );
+
+}
+
+# compare_ok
+
+{
+    my ( $fh1, $filename1 ) = tempfile( UNLINK => 1 );
+    my ( $fh2, $filename2 ) = tempfile( UNLINK => 1 );
+    my ( $fh3, $filename3 ) = tempfile( UNLINK => 1 );
+
+    my $contents = "abc\ndef\nghi";
+
+    for my $fh ( $fh1, $fh2 ) {
+        print {$fh} $contents;
+        close $fh
+            or die "cannot close";
+    }
+
+    check_test(
+        sub { compare_ok( $filename1, $filename2, "compare_ok" ) },
+        {
+            ok   => 1,
+            name => "compare_ok"
+        }
+    );
+
+    check_test(
+        sub { compare_ok( $filename1, $filename3, "compare_ok" ) },
+        {
+            ok   => 0,
+            name => "compare_ok"
+        }
+    );
+
+    my $non_file = '/tmp/uDeDNDDRNGapvli';
+    check_test(
+        sub { compare_ok( $filename1, $non_file, "compare_ok" ) },
+        {
+            ok   => 0,
+            name => "-f $non_file"
+        }
+    );
+
+}
 
 # is_relative_error
 check_test(
