@@ -61,7 +61,8 @@ my $build = Module::Build->new(
     dist_author       => ['Andreas K. Hüttel <mail@akhuettel.de>',
 			  'Christian Butschkow <christian.butschkow@physik.uni-r.de>',
 			  'Alexei Iankilevitch <alexei.iankilevitch@physik.uni-r.de>', 
-			  'Simon Reinhardt <simon.reinhardt@stud.uni-regensburg.de>'
+			  'Simon Reinhardt <simon.reinhardt@stud.uni-regensburg.de>',
+			  'Charles E. Lane <lane@duphy4.physics.drexel.edu>'
     ],
     recursive_test_files => 1,
     meta_merge        => {
