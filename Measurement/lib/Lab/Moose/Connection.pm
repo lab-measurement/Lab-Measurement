@@ -1,9 +1,10 @@
 package Lab::Moose::Connection;
-our $VERSION = '3.530';
 
 use 5.010;
 use warnings;
 use strict;
+
+our $VERSION = '3.530';
 
 use Moose::Role;
 

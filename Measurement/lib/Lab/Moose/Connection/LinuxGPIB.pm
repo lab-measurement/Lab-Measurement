@@ -27,7 +27,6 @@ backend.
 =cut
 
 package Lab::Moose::Connection::LinuxGPIB;
-our $VERSION = '3.530';
 
 use 5.010;
 
@@ -51,6 +50,8 @@ use LinuxGpib qw/
     ibtmo
     ibclr
     /;
+
+our $VERSION = '3.530';
 
 =head1 METHODS
 
