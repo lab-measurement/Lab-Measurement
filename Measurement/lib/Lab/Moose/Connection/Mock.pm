@@ -1,4 +1,6 @@
 package Lab::Moose::Connection::Mock;
+our $VERSION = '3.530';
+
 use 5.010;
 use Moose;
 use MooseX::Params::Validate;

@@ -5,7 +5,7 @@ use Lab::Moose::Instrument
 use Lab::Moose::Instrument::Cache;
 use MooseX::Params::Validate;
 
-our $VERSION = '3.520';
+our $VERSION = '3.530';
 
 cache initiate_continuous => ( getter => 'initiate_continuous_query' );
 

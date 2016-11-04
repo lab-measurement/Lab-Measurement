@@ -12,7 +12,7 @@ use Carp;
 
 use namespace::autoclean;
 
-our $VERSION = '3.520';
+our $VERSION = '3.530';
 
 =head1 NAME
 

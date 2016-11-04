@@ -8,7 +8,7 @@ use Exporter qw(import);
 
 our @EXPORT = qw(dump_method_call);
 
-our $VERSION = '3.520';
+our $VERSION = '3.530';
 
 # Return a hashref, which describes the method call. Does not include the
 # methods's return value.

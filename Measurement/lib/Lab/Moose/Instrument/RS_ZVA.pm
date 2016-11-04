@@ -9,7 +9,7 @@ use Lab::Moose::BlockData;
 use Carp;
 use namespace::autoclean;
 
-our $VERSION = '3.520';
+our $VERSION = '3.530';
 
 extends 'Lab::Moose::Instrument';
 

@@ -9,7 +9,7 @@ use Carp;
 
 use namespace::autoclean;
 
-our $VERSION = '3.520';
+our $VERSION = '3.530';
 
 cache sense_sweep_points => ( getter => 'sense_sweep_points_query' );
 

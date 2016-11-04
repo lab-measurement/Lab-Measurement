@@ -8,7 +8,7 @@ use Carp;
 
 use namespace::autoclean;
 
-our $VERSION = '3.520';
+our $VERSION = '3.530';
 
 cache instrument_nselect => ( getter => 'instrument_nselect_query' );
 

@@ -12,7 +12,7 @@ use Carp;
 
 use namespace::autoclean;
 
-our $VERSION = '3.520';
+our $VERSION = '3.530';
 
 with qw(
     Lab::Moose::Instrument::Common

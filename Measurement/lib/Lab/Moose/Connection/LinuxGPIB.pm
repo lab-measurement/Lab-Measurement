@@ -27,6 +27,7 @@ backend.
 =cut
 
 package Lab::Moose::Connection::LinuxGPIB;
+our $VERSION = '3.530';
 
 use 5.010;
 

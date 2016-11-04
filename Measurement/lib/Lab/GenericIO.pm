@@ -1,6 +1,6 @@
 package Lab::GenericIO;
 
-our $VERSION = '3.520';
+our $VERSION = '3.530';
 
 use Devel::StackTrace;
 use Lab::Generic;

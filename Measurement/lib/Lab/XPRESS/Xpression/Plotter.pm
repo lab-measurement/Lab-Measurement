@@ -1,6 +1,6 @@
 package Lab::XPRESS::Xpression::Plotter;
 
-our $VERSION = '3.520';
+our $VERSION = '3.530';
 
 use strict;
 use Lab::Data::Meta;

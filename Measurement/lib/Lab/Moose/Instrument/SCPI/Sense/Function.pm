@@ -9,7 +9,7 @@ use Carp;
 
 use namespace::autoclean;
 
-our $VERSION = '3.520';
+our $VERSION = '3.530';
 
 cache sense_function => ( getter => 'sense_function_query' );
 

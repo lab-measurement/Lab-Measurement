@@ -1,4 +1,6 @@
 package Lab::Moose::Connection::Debug;
+our $VERSION = '3.530';
+
 use Moose;
 use 5.010;
 use namespace::autoclean;

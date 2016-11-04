@@ -7,7 +7,7 @@
 # TODO: Access to GPIB attributes, device clear, ...
 
 package Lab::Connection::USBtmc;
-our $VERSION = '3.520';
+our $VERSION = '3.530';
 
 use strict;
 use Scalar::Util qw(weaken);

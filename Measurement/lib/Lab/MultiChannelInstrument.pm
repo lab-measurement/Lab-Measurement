@@ -1,5 +1,5 @@
 package Lab::MultiChannelInstrument;
-our $VERSION = '3.520';
+our $VERSION = '3.530';
 
 use strict;
 use Lab::Generic;
@@ -308,7 +308,7 @@ sub device_cache {
 package DeviceCache;
 require Tie::Hash;
 use List::MoreUtils qw{ any };
-our $VERSION = '3.520';
+our $VERSION = '3.530';
 
 our @ISA = 'Tie::ExtraHash';
 

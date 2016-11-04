@@ -1,6 +1,6 @@
 package Lab::IO::Interface::Term;
 
-our $VERSION = '3.520';
+our $VERSION = '3.530';
 
 use Lab::IO::Interface;
 use if ( $^O eq "MSWin32" ), Win32::Console::ANSI;
