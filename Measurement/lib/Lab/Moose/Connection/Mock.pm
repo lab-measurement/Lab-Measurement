@@ -1,5 +1,4 @@
 package Lab::Moose::Connection::Mock;
-our $VERSION = '3.530';
 
 use 5.010;
 use Moose;
@@ -8,6 +7,8 @@ use namespace::autoclean;
 use Data::Dumper;
 use YAML::XS;
 use Carp;
+
+our $VERSION = '3.530';
 
 has log_file => (
     is        => 'ro',

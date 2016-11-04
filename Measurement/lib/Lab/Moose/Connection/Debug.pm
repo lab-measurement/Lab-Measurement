@@ -1,5 +1,4 @@
 package Lab::Moose::Connection::Debug;
-our $VERSION = '3.530';
 
 use Moose;
 use 5.010;
@@ -8,6 +7,8 @@ use Data::Dumper;
 use YAML::XS;
 
 use Carp;
+
+our $VERSION = '3.530';
 
 sub Write {
     my $self = shift;
