@@ -15,7 +15,7 @@ generator.
 
 =cut
 
-our $VERSION = '3.530';
+our $VERSION = '3.531';
 
 our @ISA = ("Lab::Instrument");
 

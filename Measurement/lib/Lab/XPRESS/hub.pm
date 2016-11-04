@@ -5,7 +5,7 @@ use Exporter 'import';
 use Module::Load qw/load autoload/;
 use Try::Tiny;
 
-our $VERSION = '3.530';
+our $VERSION = '3.531';
 
 our @EXPORT_OK = qw(DataFile Sweep Frame Instrument Connection);
 

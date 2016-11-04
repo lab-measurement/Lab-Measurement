@@ -8,7 +8,7 @@ use Data::Dumper;
 use YAML::XS;
 use Carp;
 
-our $VERSION = '3.530';
+our $VERSION = '3.531';
 
 has log_file => (
     is        => 'ro',

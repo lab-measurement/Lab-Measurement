@@ -1,6 +1,6 @@
 package Lab::IO::Interface;
 
-our $VERSION = '3.530';
+our $VERSION = '3.531';
 
 use Lab::Generic;
 
