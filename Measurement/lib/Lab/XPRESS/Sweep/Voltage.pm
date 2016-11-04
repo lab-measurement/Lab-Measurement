@@ -105,14 +105,17 @@ sub go_to_next_step {
 
 sub exit_loop {
     my $self = shift;
-    if ( not $self->{config}->{instrument}->active() ) {
-        if ( $self->{config}->{mode} =~ /step|list/ ) {
-            if (
-                not defined @{ $self->{config}->{points} }
-                [ $self->{iterator} + 1 ] ) {
-                return 1;
-            }
+
+    #    if ( not $self->{config}->{instrument}->active() ) {
+    if ( $self->{config}->{mode} =~ /step|list/ ) {
+        if (
+            not
+            defined @{ $self->{config}->{points} }[ $self->{iterator} + 1 ] )
+        {
+            return 1;
         }
+    }
+    if ( not $self->{config}->{instrument}->active() ) {
         if ( $self->{config}->{mode} eq "continuous" ) {
             if (
                 not defined @{ $self->{config}->{points} }
