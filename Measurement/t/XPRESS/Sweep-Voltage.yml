@@ -56,15 +56,13 @@ id: 12
 method: is_blocked
 retval: 0
 ---
-command: STAT:ENAB 128
 id: 13
-method: Write
-retval: 1
+method: is_blocked
+retval: 0
 ---
-command: '*STB?'
 id: 14
-method: Query
-retval: '0'
+method: is_blocked
+retval: 0
 ---
 id: 15
 method: is_blocked
@@ -74,103 +72,102 @@ id: 16
 method: is_blocked
 retval: 0
 ---
-id: 17
-method: is_blocked
-retval: 0
----
-id: 18
-method: is_blocked
-retval: 0
----
 command: :SOUR:RANG?
-id: 19
+id: 17
 method: Query
 retval: '1E+0'
 ---
 command: :SOURce:LEVel 0.100000
-id: 20
+id: 18
 method: Write
 retval: 1
+---
+id: 19
+method: is_blocked
+retval: 0
+---
+command: :SOUR:LEV?
+id: 20
+method: Query
+retval: '+0.10000E+0'
 ---
 id: 21
 method: is_blocked
 retval: 0
 ---
-command: :SOUR:LEV?
 id: 22
-method: Query
-retval: '+0.10000E+0'
+method: is_blocked
+retval: 0
 ---
 id: 23
 method: is_blocked
 retval: 0
 ---
-command: STAT:ENAB 128
 id: 24
+method: is_blocked
+retval: 0
+---
+id: 25
+method: is_blocked
+retval: 0
+---
+command: :SOUR:RANG?
+id: 26
+method: Query
+retval: '1E+0'
+---
+command: :SOURce:LEVel 0.200000
+id: 27
 method: Write
 retval: 1
----
-command: '*STB?'
-id: 25
-method: Query
-retval: '0'
----
-id: 26
-method: is_blocked
-retval: 0
----
-id: 27
-method: is_blocked
-retval: 0
 ---
 id: 28
 method: is_blocked
 retval: 0
 ---
+command: :SOUR:LEV?
 id: 29
+method: Query
+retval: '+0.20000E+0'
+---
+id: 30
 method: is_blocked
 retval: 0
 ---
-command: :SOUR:RANG?
-id: 30
-method: Query
-retval: '1E+0'
----
-command: :SOURce:LEVel 0.200000
 id: 31
-method: Write
-retval: 1
+method: is_blocked
+retval: 0
 ---
 id: 32
 method: is_blocked
 retval: 0
 ---
-command: :SOUR:LEV?
 id: 33
-method: Query
-retval: '+0.20000E+0'
+method: is_blocked
+retval: 0
 ---
 id: 34
 method: is_blocked
 retval: 0
 ---
-command: STAT:ENAB 128
+command: :SOUR:RANG?
 id: 35
+method: Query
+retval: '1E+0'
+---
+command: :SOURce:LEVel 0.300000
+id: 36
 method: Write
 retval: 1
----
-command: '*STB?'
-id: 36
-method: Query
-retval: '0'
 ---
 id: 37
 method: is_blocked
 retval: 0
 ---
+command: :SOUR:LEV?
 id: 38
-method: is_blocked
-retval: 0
+method: Query
+retval: '+0.30000E+0'
 ---
 id: 39
 method: is_blocked
@@ -180,38 +177,36 @@ id: 40
 method: is_blocked
 retval: 0
 ---
-command: :SOUR:RANG?
 id: 41
-method: Query
-retval: '1E+0'
+method: is_blocked
+retval: 0
 ---
-command: :SOURce:LEVel 0.300000
 id: 42
-method: Write
-retval: 1
+method: is_blocked
+retval: 0
 ---
 id: 43
 method: is_blocked
 retval: 0
 ---
-command: :SOUR:LEV?
+command: :SOUR:RANG?
 id: 44
 method: Query
-retval: '+0.30000E+0'
+retval: '1E+0'
 ---
+command: :SOURce:LEVel 0.400000
 id: 45
-method: is_blocked
-retval: 0
----
-command: STAT:ENAB 128
-id: 46
 method: Write
 retval: 1
 ---
-command: '*STB?'
+id: 46
+method: is_blocked
+retval: 0
+---
+command: :SOUR:LEV?
 id: 47
 method: Query
-retval: '0'
+retval: '+0.40000E+0'
 ---
 id: 48
 method: is_blocked
@@ -229,38 +224,36 @@ id: 51
 method: is_blocked
 retval: 0
 ---
-command: :SOUR:RANG?
 id: 52
+method: is_blocked
+retval: 0
+---
+command: :SOUR:RANG?
+id: 53
 method: Query
 retval: '1E+0'
 ---
-command: :SOURce:LEVel 0.400000
-id: 53
+command: :SOURce:LEVel 0.500000
+id: 54
 method: Write
 retval: 1
 ---
-id: 54
+id: 55
 method: is_blocked
 retval: 0
 ---
 command: :SOUR:LEV?
-id: 55
-method: Query
-retval: '+0.40000E+0'
----
 id: 56
+method: Query
+retval: '+0.50000E+0'
+---
+id: 57
 method: is_blocked
 retval: 0
 ---
-command: STAT:ENAB 128
-id: 57
-method: Write
-retval: 1
----
-command: '*STB?'
 id: 58
-method: Query
-retval: '0'
+method: is_blocked
+retval: 0
 ---
 id: 59
 method: is_blocked
@@ -274,144 +267,141 @@ id: 61
 method: is_blocked
 retval: 0
 ---
-id: 62
-method: is_blocked
-retval: 0
----
 command: :SOUR:RANG?
-id: 63
+id: 62
 method: Query
 retval: '1E+0'
 ---
-command: :SOURce:LEVel 0.500000
-id: 64
+command: :SOURce:LEVel 0.600000
+id: 63
 method: Write
 retval: 1
 ---
-id: 65
+id: 64
 method: is_blocked
 retval: 0
 ---
 command: :SOUR:LEV?
-id: 66
+id: 65
 method: Query
-retval: '+0.50000E+0'
+retval: '+0.60000E+0'
+---
+id: 66
+method: is_blocked
+retval: 0
 ---
 id: 67
 method: is_blocked
 retval: 0
 ---
-command: STAT:ENAB 128
 id: 68
-method: Write
-retval: 1
+method: is_blocked
+retval: 0
 ---
-command: '*STB?'
 id: 69
-method: Query
-retval: '0'
+method: is_blocked
+retval: 0
 ---
 id: 70
 method: is_blocked
 retval: 0
 ---
+command: :SOUR:RANG?
 id: 71
-method: is_blocked
-retval: 0
+method: Query
+retval: '1E+0'
 ---
+command: :SOURce:LEVel 0.700000
 id: 72
-method: is_blocked
-retval: 0
+method: Write
+retval: 1
 ---
 id: 73
 method: is_blocked
 retval: 0
 ---
-command: :SOUR:RANG?
+command: :SOUR:LEV?
 id: 74
 method: Query
-retval: '1E+0'
+retval: '+0.70000E+0'
 ---
-command: :SOURce:LEVel 0.600000
 id: 75
-method: Write
-retval: 1
+method: is_blocked
+retval: 0
 ---
 id: 76
 method: is_blocked
 retval: 0
 ---
-command: :SOUR:LEV?
 id: 77
-method: Query
-retval: '+0.60000E+0'
+method: is_blocked
+retval: 0
 ---
 id: 78
 method: is_blocked
 retval: 0
 ---
-command: STAT:ENAB 128
 id: 79
-method: Write
-retval: 1
----
-command: '*STB?'
-id: 80
-method: Query
-retval: '0'
----
-id: 81
 method: is_blocked
 retval: 0
+---
+command: :SOUR:RANG?
+id: 80
+method: Query
+retval: '1E+0'
+---
+command: :SOURce:LEVel 0.800000
+id: 81
+method: Write
+retval: 1
 ---
 id: 82
 method: is_blocked
 retval: 0
 ---
+command: :SOUR:LEV?
 id: 83
-method: is_blocked
-retval: 0
+method: Query
+retval: '+0.80000E+0'
 ---
 id: 84
 method: is_blocked
 retval: 0
 ---
-command: :SOUR:RANG?
 id: 85
-method: Query
-retval: '1E+0'
+method: is_blocked
+retval: 0
 ---
-command: :SOURce:LEVel 0.700000
 id: 86
-method: Write
-retval: 1
+method: is_blocked
+retval: 0
 ---
 id: 87
 method: is_blocked
 retval: 0
 ---
-command: :SOUR:LEV?
 id: 88
-method: Query
-retval: '+0.70000E+0'
----
-id: 89
 method: is_blocked
 retval: 0
 ---
-command: STAT:ENAB 128
+command: :SOUR:RANG?
+id: 89
+method: Query
+retval: '1E+0'
+---
+command: :SOURce:LEVel 0.900000
 id: 90
 method: Write
 retval: 1
 ---
-command: '*STB?'
 id: 91
-method: Query
-retval: '0'
----
-id: 92
 method: is_blocked
 retval: 0
+---
+command: :SOUR:LEV?
+id: 92
+method: Query
+retval: '+0.90000E+0'
 ---
 id: 93
 method: is_blocked
@@ -425,128 +415,38 @@ id: 95
 method: is_blocked
 retval: 0
 ---
-command: :SOUR:RANG?
 id: 96
-method: Query
-retval: '1E+0'
----
-command: :SOURce:LEVel 0.800000
-id: 97
-method: Write
-retval: 1
----
-id: 98
 method: is_blocked
 retval: 0
 ---
-command: :SOUR:LEV?
-id: 99
+id: 97
+method: is_blocked
+retval: 0
+---
+command: :SOUR:RANG?
+id: 98
 method: Query
-retval: '+0.80000E+0'
+retval: '1E+0'
+---
+command: :SOURce:LEVel 1.000000
+id: 99
+method: Write
+retval: 1
 ---
 id: 100
 method: is_blocked
 retval: 0
 ---
-command: STAT:ENAB 128
+command: :SOUR:LEV?
 id: 101
-method: Write
-retval: 1
----
-command: '*STB?'
-id: 102
-method: Query
-retval: '0'
----
-id: 103
-method: is_blocked
-retval: 0
----
-id: 104
-method: is_blocked
-retval: 0
----
-id: 105
-method: is_blocked
-retval: 0
----
-id: 106
-method: is_blocked
-retval: 0
----
-command: :SOUR:RANG?
-id: 107
-method: Query
-retval: '1E+0'
----
-command: :SOURce:LEVel 0.900000
-id: 108
-method: Write
-retval: 1
----
-id: 109
-method: is_blocked
-retval: 0
----
-command: :SOUR:LEV?
-id: 110
-method: Query
-retval: '+0.90000E+0'
----
-id: 111
-method: is_blocked
-retval: 0
----
-command: STAT:ENAB 128
-id: 112
-method: Write
-retval: 1
----
-command: '*STB?'
-id: 113
-method: Query
-retval: '0'
----
-id: 114
-method: is_blocked
-retval: 0
----
-id: 115
-method: is_blocked
-retval: 0
----
-id: 116
-method: is_blocked
-retval: 0
----
-id: 117
-method: is_blocked
-retval: 0
----
-command: :SOUR:RANG?
-id: 118
-method: Query
-retval: '1E+0'
----
-command: :SOURce:LEVel 1.000000
-id: 119
-method: Write
-retval: 1
----
-id: 120
-method: is_blocked
-retval: 0
----
-command: :SOUR:LEV?
-id: 121
 method: Query
 retval: '+1.00000E+0'
 ---
-id: 122
+id: 102
 method: is_blocked
 retval: 0
 ---
 command: :PROG:HALT
-id: 123
+id: 103
 method: Write
 retval: 1

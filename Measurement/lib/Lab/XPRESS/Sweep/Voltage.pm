@@ -114,6 +114,7 @@ sub exit_loop {
         {
             return 1;
         }
+        return 0;
     }
     if ( not $self->{config}->{instrument}->active() ) {
         if ( $self->{config}->{mode} eq "continuous" ) {
