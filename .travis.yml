@@ -11,9 +11,6 @@ perl:
 install:
   - cd Measurement
   - cpanm --installdeps -n .
-  # use latest Term::ReadKey (see issue 8 on github).
-  # Travis has an older version preinstalled.
-  - cpanm Term::ReadKey
   - cpanm -n Test::Perl::Critic
 script:
   - perl ./Build.PL
