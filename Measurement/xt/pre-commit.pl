@@ -47,13 +47,13 @@ for my $file (@files) {
 # Run tests.
 #
 
-safe_system(qw/prove --lib --recurse t/);
+safe_system(qw/prove --lib --recurse -j8 t/);
 
 #
 # Run Perl::Critic tests.
 #
 
-safe_system( qw/prove --jobs 4/, catfile(qw/xt critic/) );
+safe_system( qw/prove -j8/, catfile(qw/xt critic/) );
 
 sub safe_system {
     my @command = @_;
