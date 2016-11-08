@@ -26,7 +26,6 @@ my $build = Module::Build->new(
         'Class::ISA'         => 0,
         'Hook::LexWrap'      => 0,
         'Time::HiRes'        => 0,
-	'Term::ANSIScreen'   => 0,
         'XML::DOM'           => 0,
         'XML::Generator'     => 0,
         'XML::Twig'          => 0,

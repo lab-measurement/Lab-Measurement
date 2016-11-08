@@ -61,11 +61,6 @@ my %depencencies = (
 
     'Statistics::LineFit' => ['Lab/XPRESS/Data/XPRESS_dataset.pm'],
 
-    'Statistics::Descriptive' => [
-        'Lab/XPRESS/Sweep/Temperature.pm', 'Lab/XPRESS/Sweep/Time.pm',
-        'Lab/XPRESS/Sweep/Temperature.pm', 'Lab/XPRESS/Sweep/Time.pm'
-    ],
-
     'Device::SerialPort' => $rs232_stuff,
     'threads'            => $rs232_stuff,
     'Thread::Semaphore'  => $rs232_stuff,
