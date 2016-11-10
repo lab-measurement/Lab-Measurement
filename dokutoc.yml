@@ -83,6 +83,8 @@ toc:
           - Network analyzers:
               - Measurement/lib/Lab/Moose/Instrument/RS_ZVA.pm
               - Measurement/lib/Lab/Moose/Instrument/RS_ZVM.pm
+          - Oscilloscopes:
+              - Measurement/lib/Lab/Instrument/TDS2024B.pm
           - Superconducting magnet power supplies:
               - Measurement/lib/Lab/Instrument/MagnetSupply.pm
               - Measurement/lib/Lab/Instrument/OI_IPS.pm
