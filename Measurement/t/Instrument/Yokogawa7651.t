@@ -7,11 +7,13 @@ use strict;
 use lib 't/';
 use Test::More;
 use Lab::Measurement;
-use Lab::Test import => [qw/is_float/];
+use Lab::Test import => [qw/is_float skip_on_broken_printf/];
 
 use Scalar::Util qw(looks_like_number);
 
 use MockTest;
+
+skip_on_broken_printf();
 
 my $query;
 my $yoko = Instrument(
@@ -59,3 +61,4 @@ sub test_levels {
         is_float( $query, $level, "level set to $level" );
     }
 }
+

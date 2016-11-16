@@ -44,6 +44,7 @@ our @EXPORT_OK = qw/
     is_float
     is_absolute_error
     looks_like_number_ok
+    skip_on_broken_printf
     /;
 
 my $class = __PACKAGE__;
@@ -226,6 +227,42 @@ sub looks_like_number_ok {
     my $tb = $class->builder;
     return $tb->ok( looks_like_number($number), $name )
         || $tb->diag("'$number' does not look like a number");
+}
+
+=head2 skip_on_broken_printf
+
+For formatting of floating point numbers perl's printf function relies on the
+system's printf.
+
+On some platforms, most notably MS-W32, it is not compatible with C99.
+E.g. you get 1.000000e+001 instead of 1.000000e+01.
+
+This routine skips the test, if a broken printf is detected.
+
+=cut
+
+sub skip_on_broken_printf {
+    my $tb = $class->builder();
+    if ( printf_is_broken() ) {
+        $tb->plan( skip_all => 'System does not have C99 compatible printf' );
+    }
+}
+
+sub printf_is_broken {
+    my $tb         = $class->builder();
+    my @test_pairs = (
+        [qw/1 1.000000e+00/],
+        [qw/10 1.000000e+01/],
+        [qw/1e100 1.000000e+100/]
+    );
+    for my $test (@test_pairs) {
+        my $string = sprintf( "%e", $test->[0] );
+        if ( $string ne $test->[1] ) {
+            $tb->diag( "got: $string, expected: " . $test->[1] );
+            return 1;
+        }
+    }
+    return;
 }
 
 1;
