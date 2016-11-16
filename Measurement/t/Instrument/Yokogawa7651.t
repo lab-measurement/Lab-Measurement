@@ -5,9 +5,10 @@ use warnings;
 use strict;
 
 use lib 't/';
-use Test::More tests => 8;
-
+use Test::More;
 use Lab::Measurement;
+use Lab::Test import => [qw/is_float/];
+
 use Scalar::Util qw(looks_like_number);
 
 use MockTest;
@@ -43,10 +44,18 @@ for ( my $i = 0; $i < @ranges; ++$i ) {
 
 # level
 
-my $level = 0.1234;
-
 $yoko->set_range(1);
-$yoko->set_level($level);
-$query = $yoko->get_level();
-ok( $level == $query, "level set to $level" );
+test_levels(qw/1 1e-2 1e-3 1e-4 1e-5  1.11111/);
+$yoko->set_range(10e-3);
+test_levels(qw/1e-2 1e-3 1e-4 1e-5 1e-6 0.0111111/);
 
+done_testing();
+
+sub test_levels {
+    my @levels = @_;
+    for my $level (@levels) {
+        $yoko->set_level($level);
+        $query = $yoko->get_level();
+        is_float( $query, $level, "level set to $level" );
+    }
+}
