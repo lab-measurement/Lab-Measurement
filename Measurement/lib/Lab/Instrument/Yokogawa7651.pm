@@ -113,7 +113,7 @@ sub _set_level {
         );
     }
 
-    my $cmd = sprintf( "S%ee", $value );
+    my $cmd = sprintf( "S%ge", $value );
 
     $self->write( $cmd, { error_check => 1 }, $tail );
 
