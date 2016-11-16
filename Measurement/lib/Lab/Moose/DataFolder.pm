@@ -135,7 +135,9 @@ sub _create_meta_file {
 
     my %meta_data = (
         argv => [@ARGV_COPY],
-        user => $ENV{LOGNAME} || $ENV{USER} || getpwuid($<),
+
+        # See http://stackoverflow.com/questions/3526420/how-do-i-get-the-current-user-in-perl-in-a-portable-way
+        user => getlogin() || getpwuid($<),
         host => hostname(),
         date      => strftime( "%c", localtime() ),
         timestamp => join( '.',      @{$time} ),
