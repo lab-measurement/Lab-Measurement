@@ -63,7 +63,8 @@ This method will create the following files in the folder:
 
 =item F<< <SCRIPT> .pl >>
 
-A copy of the user script.
+A copy of the user script. You can change the name of this script by setting
+the C<script_name> attribute in the constructor.
 
 =item F<META.yml>
 
@@ -89,6 +90,11 @@ has meta_file => (
     isa      => 'Lab::Moose::DataFile::Meta',
     init_arg => undef,
     writer   => '_meta_file'
+);
+
+has script_name => (
+    is  => 'ro',
+    isa => 'Str',
 );
 
 sub BUILD {
@@ -123,7 +129,18 @@ sub BUILD {
 sub _copy_user_script {
     my $self   = shift;
     my $script = $0;
-    my $copy   = catfile( $self->path, basename($script) );
+
+    my $basename;
+    my $script_name = $self->script_name();
+
+    if ($script_name) {
+        $basename = $script_name;
+    }
+    else {
+        $basename = basename($script);
+    }
+
+    my $copy = catfile( $self->path, $basename );
 
     copy( $script, $copy )
         or croak "copy of $script to $copy failed: $!";

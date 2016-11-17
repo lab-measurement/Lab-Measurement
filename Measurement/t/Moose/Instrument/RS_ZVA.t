@@ -9,15 +9,17 @@ use lib 't';
 
 use Lab::Test tests => 29, import => [qw/is_float is_absolute_error/];
 use Test::More;
-use Moose::Instrument::MockTest qw/mock_options/;
-use aliased 'Lab::Moose::Instrument::RS_ZVA';
+use Moose::Instrument::MockTest qw/mock_instrument/;
 use File::Spec::Functions 'catfile';
 
-my $logfile = catfile(qw/t Moose Instrument RS_ZVA.yml/);
+my $log_file = catfile(qw/t Moose Instrument RS_ZVA.yml/);
 
-my $zva = RS_ZVA->new( mock_options($logfile) );
+my $zva = mock_instrument(
+    type     => 'RS_ZVA',
+    log_file => $log_file,
+);
 
-isa_ok( $zva, RS_ZVA );
+isa_ok( $zva, 'Lab::Moose::Instrument::RS_ZVA' );
 
 $zva->rst();
 

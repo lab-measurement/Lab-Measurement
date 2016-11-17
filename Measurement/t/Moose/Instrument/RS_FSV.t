@@ -7,15 +7,17 @@ use lib 't';
 
 use Lab::Test tests => 316, import => [qw/is_float is_absolute_error/];
 use Test::More;
-use Moose::Instrument::MockTest qw/mock_options/;
-use aliased 'Lab::Moose::Instrument::RS_FSV';
+use Moose::Instrument::MockTest 'mock_instrument';
 use File::Spec::Functions 'catfile';
 
-my $logfile = catfile(qw/t Moose Instrument RS_FSV.yml/);
+my $log_file = catfile(qw/t Moose Instrument RS_FSV.yml/);
 
-my $fsv = RS_FSV->new( mock_options($logfile) );
+my $fsv = mock_instrument(
+    type     => 'RS_FSV',
+    log_file => $log_file
+);
 
-isa_ok( $fsv, RS_FSV );
+isa_ok( $fsv, 'Lab::Moose::Instrument::RS_FSV' );
 
 $fsv->rst( timeout => 10 );
 
@@ -33,7 +35,7 @@ for my $i ( 1 .. 3 ) {
     my $freqs = $data->column(0);
     is_float( $freqs->[0],  0,   "sweep starts at 0 Hz" );
     is_float( $freqs->[-1], 7e9, "sweep stops at 7GHZ" );
-    my $data = $data->column(1);
+    $data = $data->column(1);
     for my $num ( @{$data} ) {
         is_absolute_error(
             $num, -50, 50,

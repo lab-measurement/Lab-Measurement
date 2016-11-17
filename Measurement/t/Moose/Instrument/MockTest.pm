@@ -9,26 +9,35 @@ use Getopt::Long qw/:config gnu_compat/;
 use YAML::XS;
 use Carp;
 use Module::Load;
+use MooseX::Params::Validate;
+use Lab::Moose;
 use Data::Dumper;
 
-our @EXPORT_OK = qw/mock_options/;
+our @EXPORT_OK = qw/mock_instrument/;
 
 my $connection_module;
 my $connection_options = '{}';
+
+use Lab::Moose::Connection::Mock;
 
 GetOptions(
     'connection|c=s'         => \$connection_module,
     'connection-options|o=s' => \$connection_options,
 );
 
-sub mock_options {
-    my $logfile = shift;
+sub mock_instrument {
+    my ( $type, $logfile ) = validated_list(
+        \@_,
+        type     => { isa => 'Str' },
+        log_file => { isa => 'Str' }
+    );
 
     if ( not defined $connection_module ) {
-        $connection_module = 'Lab::Moose::Connection::Mock';
-        load $connection_module;
-        return (
-            connection => $connection_module->new( log_file => $logfile ) );
+        return instrument(
+            type               => $type,
+            connection_type    => 'Mock',
+            connection_options => { log_file => $logfile },
+        );
     }
 
     load($connection_module);
@@ -38,8 +47,12 @@ sub mock_options {
         croak "argument of --connection-options not a hash";
     }
 
-    my $connection = $connection_module->new( %{$hash} );
-    return ( connection => $connection, log_file => $logfile );
+    return instrument(
+        type               => $type,
+        connection_type    => $connection_module,
+        connection_options => $connection_options,
+        instrument_options => { log_file => $logfile }
+    );
 }
 
 1;

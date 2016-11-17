@@ -8,11 +8,10 @@ use Test::More;
 use Lab::Test import => ['file_ok'];
 use File::Temp qw/tempdir/;
 use Test::File;
+use File::Path 'remove_tree';
 use File::Spec::Functions qw/catfile/;
-use Cwd 'abs_path';
 use YAML::XS 'LoadFile';
-use aliased 'Lab::Moose::DataFolder';
-use aliased 'Lab::Moose::DataFile::Gnuplot';
+use Lab::Moose;
 use aliased 'Lab::Moose::BlockData';
 
 my $dir = tempdir( CLEANUP => 1 );
@@ -21,7 +20,7 @@ my $dir = tempdir( CLEANUP => 1 );
 my $name = catfile( $dir, 'abc def' );
 {
     for ( 1 .. 9 ) {
-        DataFolder->new( path => $name );
+        datafolder( path => $name );
     }
 
     # Check transistion 999 => 1000
@@ -30,7 +29,7 @@ my $name = catfile( $dir, 'abc def' );
         or die "mkdir failed";
 
     for ( 1 .. 19 ) {
-        DataFolder->new( path => $name );
+        datafolder( path => $name );
     }
 
     my @entries = get_dir_entries($dir);
@@ -46,7 +45,7 @@ my $name = catfile( $dir, 'abc def' );
 
 # Check meta file and copy of script.
 {
-    my $folder = DataFolder->new( path => $name );
+    my $folder = datafolder( path => $name );
     say "path: ", $folder->path();
     my $folder_name = 'abc def_1010';
     is( $folder->path(), catfile( $dir, $folder_name ) );
@@ -71,24 +70,21 @@ my $name = catfile( $dir, 'abc def' );
 
 # Create folder in working directory.
 {
-    # make sure that we find script after chdir.
-    $0 = abs_path($0);
-
-    chdir $dir
-        or die "cannot chdir: $!";
-
-    my $folder = DataFolder->new();
-    isa_ok( $folder, DataFolder() );
+    # Set script_name, so that the copy does not end with '.t' and is confused
+    # as a test.
+    my $folder = datafolder( script_name => 'script' );
+    isa_ok( $folder, 'Lab::Moose::DataFolder' );
     my $path = $folder->path();
     is( $path, 'MEAS_001', "default folder name" );
     file_exists_ok( catfile( $path, 'META.yml' ) );
-    file_exists_ok( catfile( $path, 'DataFolder.t' ) );
+    file_exists_ok( catfile( $path, 'script' ) );
+    remove_tree($path);
 }
 
 # Gnuplot data file.
 {
-    my $folder = DataFolder->new();
-    my $file   = Gnuplot->new(
+    my $folder = datafolder( path => catfile( $dir, 'gnuplot' ) );
+    my $file = datafile(
         folder   => $folder,
         filename => 'file.dat',
         columns  => [qw/A B C/]

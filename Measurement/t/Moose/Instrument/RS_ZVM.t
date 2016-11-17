@@ -7,15 +7,18 @@ use lib 't';
 
 use Lab::Test tests => 29, import => [qw/is_absolute_error/];
 use Test::More;
-use Moose::Instrument::MockTest qw/mock_options/;
+use Moose::Instrument::MockTest 'mock_instrument';
 use aliased 'Lab::Moose::Instrument::RS_ZVM';
 use File::Spec::Functions 'catfile';
 
-my $logfile = catfile(qw/t Moose Instrument RS_ZVM.yml/);
+my $log_file = catfile(qw/t Moose Instrument RS_ZVM.yml/);
 
-my $zvm = RS_ZVM->new( mock_options($logfile) );
+my $zvm = mock_instrument(
+    type     => 'RS_ZVM',
+    log_file => $log_file
+);
 
-isa_ok( $zvm, RS_ZVM );
+isa_ok( $zvm, 'Lab::Moose::Instrument::RS_ZVM' );
 
 $zvm->rst( timeout => 10 );
 my $catalog = $zvm->sparam_catalog();
