@@ -50,14 +50,18 @@ sub skip_modules {
 diag("checking installed modules");
 
 my $rs232_stuff = [
-    'Lab/Bus/RS232.pm Lab/Bus/MODBUS_RS232.pm',
-    'Lab/Instrument/TemperatureControl/TLK43.pm',
-    'Lab/Bus/RS232.pm',
-    'Lab/Bus/MODBUS_RS232.pm'
+    qw{
+        Lab/Bus/RS232.pm Lab/Bus/MODBUS_RS232.pm
+        Lab/Instrument/TemperatureControl/TLK43.pm
+        Lab/Bus/RS232.pm
+        Lab/Bus/MODBUS_RS232.pm
+        }
 ];
 
 my %depencencies = (
-    'PDL' => ['Lab/Data/PDL.pm'],
+
+    #    'PDL' => ['Lab/Data/PDL.pm'],
+    'PDL::Graphics::Gnuplot' => ['Lab/Moose/Plot.pm'],
 
     'Statistics::LineFit' => ['Lab/XPRESS/Data/XPRESS_dataset.pm'],
 
@@ -68,14 +72,15 @@ my %depencencies = (
     'Math::Interpolate' => ['Lab/XPRESS/Data/XPRESS_dataset.pm'],
 
     'IPC::Run' => [
-        'Lab/XPRESS/Xpression/PlotterGUI_bidirectional.pm',
-        'Lab/XPRESS/Xpression/bidirectional_gnuplot_pipe.pm'
+        qw{
+            Lab/XPRESS/Xpression/PlotterGUI_bidirectional.pm
+            Lab/XPRESS/Xpression/bidirectional_gnuplot_pipe.pm
+            }
     ],
 
     'LinuxGpib' => ['LinuxGPIB'],
 
-    'Lab::VISA' =>
-        [ 'VISA', 'Lab/Bus/IsoBus.pm', 'Lab/Connection/IsoBus.pm' ],
+    'Lab::VISA' => [qw{VISA Lab/Bus/IsoBus.pm Lab/Connection/IsoBus.pm}],
 );
 
 for my $module ( keys %depencencies ) {

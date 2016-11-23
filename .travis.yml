@@ -10,6 +10,10 @@ perl:
 
 install:
   - cd Measurement
+  
+  # required before installing PDL
+  - cpanm -n ExtUtils::ParseXS
+
   - cpanm --installdeps -n .
   - cpanm -n Test::Perl::Critic
 script:
