@@ -28,6 +28,7 @@ sub new {
 
         stabilize                  => 0,
         sensor                     => undef,
+        sensor_args                => [],
         std_dev_sensor             => 1e-6,
         stabilize_observation_time => 3 * 60,
     };
@@ -103,9 +104,10 @@ sub exit_loop {
         return 0;
     }
     elsif ( $self->{config}->{stabilize} == 1 ) {
+        my @sensor_args = @{ $self->{config}->{sensor_args} };
         push(
             @{ $self->{stabilize}->{data} },
-            $self->{config}->{sensor}->get_value()
+            $self->{config}->{sensor}->get_value(@sensor_args)
         );
 
         my $SENSOR_STD_DEV_PRINT = '-' x 10;
