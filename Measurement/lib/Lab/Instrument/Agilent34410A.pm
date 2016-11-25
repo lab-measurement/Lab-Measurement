@@ -29,7 +29,7 @@ use Time::HiRes qw (usleep);
 use Lab::Instrument;
 use Lab::Instrument::Multimeter;
 use Lab::SCPI qw(scpi_match);
-
+use Data::Dumper;
 our @ISA = ("Lab::Instrument::Multimeter");
 
 our %fields = (
@@ -93,6 +93,7 @@ Perform data aquisition.
 
 sub get_value {
     my ( $self, $tail ) = _init_getter(@_);
+
     return $self->request( ":read?", $tail );
 }
 

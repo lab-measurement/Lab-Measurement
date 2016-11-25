@@ -7,6 +7,7 @@ use Time::HiRes qw/usleep/, qw/time/;
 use Statistics::Descriptive;
 use Carp;
 use strict;
+use 5.010;
 
 our @ISA = ('Lab::XPRESS::Sweep::Sweep');
 
@@ -111,6 +112,7 @@ sub exit_loop {
         );
 
         my $SENSOR_STD_DEV_PRINT = '-' x 10;
+        say "ELAPSED: " . sprintf( '%.2f', $self->{Time} );
 
         if ( $self->{Time} >= $self->{config}->{stabilize_observation_time} )
         {
@@ -121,19 +123,18 @@ sub exit_loop {
             my $SENSOR_STD_DEV = $stat->standard_deviation();
             $SENSOR_STD_DEV_PRINT = sprintf( '%.3e', $SENSOR_STD_DEV );
 
+            say "CURRENT_STDD: "
+                . $SENSOR_STD_DEV_PRINT
+                . " / TARGET_STDD: "
+                . sprintf( '%.3e', $self->{config}->{std_dev_sensor} );
+
             if ( $SENSOR_STD_DEV <= $self->{config}->{std_dev_sensor} ) {
                 carp('Reached stabilization criterion.');
                 return 1;
             }
         }
 
-        my $status
-            = "ELAPSED: "
-            . sprintf( '%.2f', $self->{Time} )
-            . " / CURRENT_STDD: "
-            . $SENSOR_STD_DEV_PRINT
-            . " / TARGET_STDD: "
-            . sprintf( '%.3e', $self->{config}->{std_dev_sensor} );
+        return 0;
     }
     else {
         return 0;
