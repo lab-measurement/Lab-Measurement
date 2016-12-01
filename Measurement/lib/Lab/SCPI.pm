@@ -446,7 +446,7 @@ sub scpi_parse_sequence {
                 if ( $str =~ /^:/ ) {
                     $str =~ s/^:${WS}*//;
                 }
-                last if $str =~ /^\s*;?\s*$/;
+                next if $str =~ /^\s*;?\s*$/;
                 @cur = ();
                 if ( $str =~ /^(\*\w+\??)${WS}*;/i ) {
 
@@ -476,7 +476,7 @@ sub scpi_parse_sequence {
                 elsif ( $str =~ /^(\w+\??)${WS}*;/i ) {
 
                     # tree end
-                    push( @cur, "$1$2" );
+                    push( @cur, "$1" );
                     $str = ';' . $POSTMATCH;
 
                 }
@@ -497,7 +497,7 @@ sub scpi_parse_sequence {
 
         }
         $str =~ s/^${WS}+//;
-        last if $str =~ /^\s*;?\s*$/;
+        next if $str =~ /^\s*;?\s*$/;
 
         if ( $level > 0 ) {    # level > 0
             if ( $str =~ /^[\*:]/ ) {
