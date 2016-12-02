@@ -6496,9 +6496,9 @@ sub get_waveform {
         for ( $j = 0; $j <= $#dat; $j += 2 ) {
             $h->{t}->[ $j0 + $j / 2 ] = $x0 + $dx * ( $j + 1 - $xoff );
             $h->{vmin}->[ $j0 + $j / 2 ]
-                = $y0 + $dy * ( $dat[ $j0 + $j ] - $yoff );
+                = $y0 + $dy * ( $dat[$j] - $yoff );
             $h->{vmax}->[ $j0 + $j / 2 ]
-                = $y0 + $dy * ( $dat[ $j0 + $j + 1 ] - $yoff );
+                = $y0 + $dy * ( $dat[ $j + 1 ] - $yoff );
         }
         $h->{'DAT:STOP'} = $j0 + $#dat / 2;
     }
