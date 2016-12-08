@@ -76,6 +76,7 @@ toc:
               - Measurement/lib/Lab/Instrument/YokogawaGS200.pm
               - Measurement/lib/Lab/Instrument/Keithley2400.pm
           - Lock-in amplifiers:
+              - Measurement/lib/Lab/Moose/Instrument/SR830.pm
               - Measurement/lib/Lab/Instrument/SR830.pm
               - Measurement/lib/Lab/Instrument/SR830/AuxIn.pm
               - Measurement/lib/Lab/Instrument/SR830/AuxOut.pm	

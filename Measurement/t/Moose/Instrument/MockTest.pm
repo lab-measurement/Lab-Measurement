@@ -40,8 +40,6 @@ sub mock_instrument {
         );
     }
 
-    load($connection_module);
-
     my $hash = Load($connection_options);
     if ( ref $hash ne 'HASH' ) {
         croak "argument of --connection-options not a hash";
@@ -50,7 +48,7 @@ sub mock_instrument {
     return instrument(
         type               => $type,
         connection_type    => $connection_module,
-        connection_options => $connection_options,
+        connection_options => $hash,
         instrument_options => { log_file => $logfile }
     );
 }
