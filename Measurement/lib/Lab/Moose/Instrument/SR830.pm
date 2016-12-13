@@ -77,12 +77,10 @@ sub get_freq {
 }
 
 sub set_freq {
-    my ( $self, %args ) = validated_hash(
+    my ( $self, $value, %args ) = validated_setter(
         \@_,
-        setter_params(),
-        value => { isa => 'Num' },
+        value => { isa => 'Num' }
     );
-    my $value = delete $args{value};
 
     $self->write( command => "FREQ $value", %args );
     $self->cached_freq($value);
@@ -111,7 +109,10 @@ sub get_amplitude {
 }
 
 sub set_amplitude {
-    my ( $self, $value, %args ) = validated_setter( \@_ );
+    my ( $self, $value, %args ) = validated_setter(
+        \@_,
+        value => { isa => 'Num' }
+    );
     $self->write( command => "SLVL $value", %args );
     $self->cached_amplitude($value);
 }
@@ -139,7 +140,11 @@ sub get_phase {
 }
 
 sub set_phase {
-    my ( $self, $value, %args ) = validated_setter( \@_ );
+    my ( $self, $value, %args ) = validated_setter(
+        \@_,
+        value => { isa => 'Num' }
+    );
+
     if ( $value < -360 || $value > 729.98 ) {
         croak "$value is not in allowed range of phase: [-360, 729.99] deg.";
     }
@@ -240,13 +245,11 @@ sub get_tc {
 }
 
 sub set_tc {
-    my ( $self, %args ) = validated_hash(
+    my ( $self, $tc, %args ) = validated_setter(
         \@_,
-        setter_params(),
         value => { isa => 'Num' }
     );
 
-    my $tc     = delete $args{value};
     my $logval = log10($tc);
     my $n      = floor($logval);
     my $rest   = $logval - $n;
@@ -317,13 +320,11 @@ sub get_sens {
 }
 
 sub set_sens {
-    my ( $self, %args ) = validated_hash(
+    my ( $self, $sens, %args ) = validated_setter(
         \@_,
-        setter_params(),
         value => { isa => 'Num' }
     );
 
-    my $sens     = delete $args{value};
     my $logval   = log10($sens);
     my $n        = floor($logval);
     my $rest     = $logval - $n;
