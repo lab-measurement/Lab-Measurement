@@ -360,13 +360,13 @@ Query the input configuration. Possible return values:
 
 =over
 
-=item A
+=item * A
 
-=item AB
+=item * AB
 
-=item I1M
+=item * I1M
 
-=item I100M
+=item * I100M
 
 =back
 
@@ -378,13 +378,13 @@ Set input configuration. Allowed values:
 
 =over
 
-=item A
+=item * A
 
-=item AB
+=item * AB
 
-=item I1M
+=item * I1M
 
-=item I100M
+=item * I100M
 
 =back
 
@@ -398,10 +398,6 @@ sub get_input {
 
     my %inputs = ( 0 => 'A', 1 => 'AB', 2 => 'I1M', 3 => 'I100M' );
 
-    if ( $input < 0 || $input > 3 ) {
-        croak "argument out of range";
-    }
-
     return $self->cached_input( $inputs{$input} );
 }
 
@@ -414,6 +410,172 @@ sub set_input {
     my $input = $inputs{$value};
     $self->write( command => "ISRC $input", %args );
     $self->cached_input($value);
+}
+
+=head2 get_ground
+
+ my $ground = $lia->get_ground();
+
+Query the input shield grounding. Possible return values:
+
+=over
+
+=item * GROUND
+
+=item * FLOAT
+
+=back
+
+=head2 set_ground
+
+ $lia->set_ground(value => 'GROUND');
+
+ # or:
+ $lia->set_ground(value => 'FLOAT');
+
+Set the input shield grounding. Allowed values:
+
+=over
+
+=item * GROUND
+
+=item * FLOAT
+
+=back
+
+=cut
+
+cache ground => ( getter => 'get_ground' );
+
+sub get_ground {
+    my ( $self, %args ) = validated_hash( \@_ );
+
+    my $ground = $self->query( command => 'IGND?', %args );
+
+    return $self->cached_ground( $ground ? 'GROUND' : 'FLOAT' );
+}
+
+sub set_ground {
+    my ( $self, $value, %args ) = validated_setter(
+        \@_,
+        value => { isa => enum( [qw/GROUND FLOAT/] ) }
+    );
+    my $ground = $value eq 'GROUND' ? 1 : 0;
+    $self->write( command => "IGND $ground", %args );
+    $self->cached_ground($value);
+}
+
+=head2 get_coupling
+
+ my $coupling = $lia->get_coupling();
+
+Query the input coupling. Possible return values:
+
+=over
+
+=item * AC
+
+=item * DC
+
+=back
+
+=head2 set_coupling
+
+ $lia->set_coupling(value => 'AC');
+
+ # or:
+ $lia->set_coupling(value => 'DC');
+
+Set the input coupling. Allowed values:
+
+=over
+
+=item * AC
+
+=item * DC
+
+=back
+
+=cut
+
+cache coupling => ( getter => 'get_coupling' );
+
+sub get_coupling {
+    my ( $self, %args ) = validated_hash( \@_ );
+
+    my $coupling = $self->query( command => 'ICPL?', %args );
+
+    return $self->cached_coupling( $coupling ? 'DC' : 'AC' );
+}
+
+sub set_coupling {
+    my ( $self, $value, %args ) = validated_setter(
+        \@_,
+        value => { isa => enum( [qw/AC DC/] ) }
+    );
+    my $coupling = $value eq 'DC' ? 1 : 0;
+    $self->write( command => "ICPL $coupling", %args );
+    $self->cached_coupling($value);
+}
+
+=head2 get_line_notch_filters
+
+ my $filters = $lia->get_line_notch_filters();
+
+Query the line notch filter configuration. Possible return values:
+
+=over
+
+=item * OUT
+
+=item * LINE
+
+=item * 2xLINE
+
+=item * BOTH
+
+=back
+
+=head2 set_line_notch_filters
+
+ $lia->set_line_notch_filters(value => 'BOTH');
+
+Set the line notch filter configuration. Allowed values:
+
+=over
+
+=item * OUT
+
+=item * LINE
+
+=item * 2xLINE
+
+=item * BOTH
+
+=back
+
+=cut
+
+cache line_notch_filters => ( getter => 'get_line_notch_filters' );
+
+sub get_line_notch_filters {
+    my ( $self, %args ) = validated_getter( \@_ );
+    my $filters = $self->query( command => 'ILIN?', %args );
+
+    my %filters = ( 0 => 'OUT', 1 => 'LINE', 2 => '2xLINE', 3 => 'BOTH' );
+
+    return $self->cached_line_notch_filters( $filters{$filters} );
+}
+
+sub set_line_notch_filters {
+    my ( $self, $value, %args ) = validated_setter(
+        \@_,
+        value => { isa => enum( [qw/OUT LINE 2xLINE BOTH/] ) }
+    );
+    my %filters = ( OUT => 0, LINE => 1, '2xLINE' => 2, BOTH => 3 );
+    my $filters = $filters{$value};
+    $self->write( command => "ILIN $filters", %args );
+    $self->cached_line_notch_filters($value);
 }
 
 =head2 Consumed Roles

@@ -389,6 +389,94 @@ retval: '3
 
 '
 ---
-command: '*RST'
+command: IGND 1
 id: 72
+method: Write
+---
+command: IGND?
+id: 73
+method: Query
+retval: '1
+
+'
+---
+command: IGND 0
+id: 74
+method: Write
+---
+command: IGND?
+id: 75
+method: Query
+retval: '0
+
+'
+---
+command: ICPL 0
+id: 76
+method: Write
+---
+command: ICPL?
+id: 77
+method: Query
+retval: '0
+
+'
+---
+command: ICPL 1
+id: 78
+method: Write
+---
+command: ICPL?
+id: 79
+method: Query
+retval: '1
+
+'
+---
+command: ILIN 0
+id: 80
+method: Write
+---
+command: ILIN?
+id: 81
+method: Query
+retval: '0
+
+'
+---
+command: ILIN 1
+id: 82
+method: Write
+---
+command: ILIN?
+id: 83
+method: Query
+retval: '1
+
+'
+---
+command: ILIN 2
+id: 84
+method: Write
+---
+command: ILIN?
+id: 85
+method: Query
+retval: '2
+
+'
+---
+command: ILIN 3
+id: 86
+method: Write
+---
+command: ILIN?
+id: 87
+method: Query
+retval: '3
+
+'
+---
+command: '*RST'
+id: 88
 method: Write

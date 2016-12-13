@@ -90,5 +90,26 @@ for my $input (qw/A AB I1M I100M/) {
     set_get_test( func => 'input', value => $input, numeric => 0 );
 }
 
+# Grounding
+
+for my $ground (qw/GROUND FLOAT/) {
+    set_get_test( func => 'ground', value => $ground, numeric => 0 );
+}
+
+# Coupling
+
+for my $coupling (qw/AC DC/) {
+    set_get_test( func => 'coupling', value => $coupling, numeric => 0 );
+}
+
+# Line notch filters.
+
+for my $filters (qw/OUT LINE 2xLINE BOTH/) {
+    set_get_test(
+        func    => 'line_notch_filters', value => $filters,
+        numeric => 0
+    );
+}
+
 $lia->rst();
 done_testing();
