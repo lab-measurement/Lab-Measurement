@@ -1,5 +1,7 @@
 #!perl
 
+# Do not connect anything to the input ports when running this!!!
+
 use warnings;
 use strict;
 use 5.010;
@@ -35,18 +37,22 @@ is_absolute_error( $rphi->{r},   0, 0.001, "R is almost zero" );
 is_absolute_error( $rphi->{phi}, 0, 180,   "phi is in [-180,180]" );
 
 sub set_get_test {
-    my ( $func, $value ) = validated_list(
+    my ( $func, $value, $numeric ) = validated_list(
         \@_,
-        func  => { isa => 'Str' },
-        value => { isa => 'Num' },
+        func    => { isa => 'Str' },
+        value   => { isa => 'Str' },
+        numeric => { isa => 'Bool', default => 1 },
     );
     my $setter = "set_$func";
     my $getter = "get_$func";
     my $cached = "cached_$func";
 
     $lia->$setter( value => $value );
-    is_float( $lia->$cached(), $value, "cached $func is $value" );
-    is_float( $lia->$getter(), $value, "$getter returns $value" );
+
+    my $test_func = $numeric ? \&is_float : \&is;
+
+    $test_func->( $lia->$cached(), $value, "cached $func is $value" );
+    $test_func->( $lia->$getter(), $value, "$getter returns $value" );
 }
 
 # Set/Get reference frequency
@@ -74,6 +80,14 @@ for my $tc (qw/1e-5 3e-5 1e-4 1 10 30/) {
 # Set/Get sensitivity.
 for my $sens (qw/1 0.5 0.2 0.1 0.05 1e-5 2e-5 5e-5/) {
     set_get_test( func => "sens", value => $sens );
+}
+
+# Inputs
+# I100M only available if sens is <= 5mV
+
+$lia->set_sens( value => 5e-3 );
+for my $input (qw/A AB I1M I100M/) {
+    set_get_test( func => 'input', value => $input, numeric => 0 );
 }
 
 $lia->rst();

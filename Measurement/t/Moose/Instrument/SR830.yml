@@ -341,6 +341,54 @@ retval: '13
 
 '
 ---
-command: '*RST'
+command: SENS 19
 id: 63
+method: Write
+---
+command: ISRC 0
+id: 64
+method: Write
+---
+command: ISRC?
+id: 65
+method: Query
+retval: '0
+
+'
+---
+command: ISRC 1
+id: 66
+method: Write
+---
+command: ISRC?
+id: 67
+method: Query
+retval: '1
+
+'
+---
+command: ISRC 2
+id: 68
+method: Write
+---
+command: ISRC?
+id: 69
+method: Query
+retval: '2
+
+'
+---
+command: ISRC 3
+id: 70
+method: Write
+---
+command: ISRC?
+id: 71
+method: Query
+retval: '3
+
+'
+---
+command: '*RST'
+id: 72
 method: Write
