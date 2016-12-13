@@ -31,7 +31,8 @@ Lab::Moose::Plot - Frontend to L<PDL::Graphics::Gnuplot>.
          title => 'a pm3d plot',
 	 pm3d => 1,
 	 view => 'map',
-	 surface => 0
+	 surface => 0,
+         palette => "model RGB defined ( 0 'red', 1 'yellow', 2 'white' )",
      },
      x => $x, y => $y, z => $z
  );
@@ -173,7 +174,7 @@ sub _plot {
 
     my $gpwin = $self->gpwin();
 
-    $gpwin->$plot_function( %{$plot_options}, $curve_options, @columns );
+    $gpwin->$plot_function( $plot_options, %{$curve_options}, @columns );
 }
 
 =head2 plot
