@@ -253,230 +253,274 @@ retval: '13
 
 '
 ---
-command: SENS 26
+command: OFSL 0
 id: 47
 method: Write
 ---
-command: SENS?
+command: OFSL?
 id: 48
 method: Query
-retval: '26
+retval: '0
 
 '
 ---
-command: SENS 25
+command: OFSL 1
 id: 49
 method: Write
 ---
-command: SENS?
+command: OFSL?
 id: 50
 method: Query
-retval: '25
+retval: '1
 
 '
 ---
-command: SENS 24
+command: OFSL 2
 id: 51
 method: Write
 ---
-command: SENS?
+command: OFSL?
 id: 52
 method: Query
-retval: '24
+retval: '2
 
 '
 ---
-command: SENS 23
+command: OFSL 3
 id: 53
 method: Write
 ---
-command: SENS?
+command: OFSL?
 id: 54
 method: Query
-retval: '23
+retval: '3
 
 '
 ---
-command: SENS 22
+command: SENS 26
 id: 55
 method: Write
 ---
 command: SENS?
 id: 56
 method: Query
-retval: '22
+retval: '26
 
 '
 ---
-command: SENS 11
+command: SENS 25
 id: 57
 method: Write
 ---
 command: SENS?
 id: 58
 method: Query
-retval: '11
+retval: '25
 
 '
 ---
-command: SENS 12
+command: SENS 24
 id: 59
 method: Write
 ---
 command: SENS?
 id: 60
 method: Query
-retval: '12
+retval: '24
 
 '
 ---
-command: SENS 13
+command: SENS 23
 id: 61
 method: Write
 ---
 command: SENS?
 id: 62
 method: Query
+retval: '23
+
+'
+---
+command: SENS 22
+id: 63
+method: Write
+---
+command: SENS?
+id: 64
+method: Query
+retval: '22
+
+'
+---
+command: SENS 11
+id: 65
+method: Write
+---
+command: SENS?
+id: 66
+method: Query
+retval: '11
+
+'
+---
+command: SENS 12
+id: 67
+method: Write
+---
+command: SENS?
+id: 68
+method: Query
+retval: '12
+
+'
+---
+command: SENS 13
+id: 69
+method: Write
+---
+command: SENS?
+id: 70
+method: Query
 retval: '13
 
 '
 ---
 command: SENS 19
-id: 63
+id: 71
 method: Write
 ---
 command: ISRC 0
-id: 64
+id: 72
 method: Write
 ---
 command: ISRC?
-id: 65
+id: 73
 method: Query
 retval: '0
 
 '
 ---
 command: ISRC 1
-id: 66
+id: 74
 method: Write
 ---
 command: ISRC?
-id: 67
+id: 75
 method: Query
 retval: '1
 
 '
 ---
 command: ISRC 2
-id: 68
+id: 76
 method: Write
 ---
 command: ISRC?
-id: 69
+id: 77
 method: Query
 retval: '2
 
 '
 ---
 command: ISRC 3
-id: 70
+id: 78
 method: Write
 ---
 command: ISRC?
-id: 71
+id: 79
 method: Query
 retval: '3
 
 '
 ---
 command: IGND 1
-id: 72
+id: 80
 method: Write
 ---
 command: IGND?
-id: 73
+id: 81
 method: Query
 retval: '1
 
 '
 ---
 command: IGND 0
-id: 74
+id: 82
 method: Write
 ---
 command: IGND?
-id: 75
+id: 83
 method: Query
 retval: '0
 
 '
 ---
 command: ICPL 0
-id: 76
+id: 84
 method: Write
 ---
 command: ICPL?
-id: 77
+id: 85
 method: Query
 retval: '0
 
 '
 ---
 command: ICPL 1
-id: 78
+id: 86
 method: Write
 ---
 command: ICPL?
-id: 79
+id: 87
 method: Query
 retval: '1
 
 '
 ---
 command: ILIN 0
-id: 80
+id: 88
 method: Write
 ---
 command: ILIN?
-id: 81
+id: 89
 method: Query
 retval: '0
 
 '
 ---
 command: ILIN 1
-id: 82
+id: 90
 method: Write
 ---
 command: ILIN?
-id: 83
+id: 91
 method: Query
 retval: '1
 
 '
 ---
 command: ILIN 2
-id: 84
+id: 92
 method: Write
 ---
 command: ILIN?
-id: 85
+id: 93
 method: Query
 retval: '2
 
 '
 ---
 command: ILIN 3
-id: 86
+id: 94
 method: Write
 ---
 command: ILIN?
-id: 87
+id: 95
 method: Query
 retval: '3
 
 '
 ---
 command: '*RST'
-id: 88
+id: 96
 method: Write

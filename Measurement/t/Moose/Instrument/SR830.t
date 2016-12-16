@@ -72,12 +72,17 @@ for my $phase (qw/-179 90 0 45 90 179/) {
     set_get_test( func => "phase", value => $phase );
 }
 
-# Set/Get time constant.
+# Time constant
 for my $tc (qw/1e-5 3e-5 1e-4 1 10 30/) {
     set_get_test( func => "tc", value => $tc );
 }
 
-# Set/Get sensitivity.
+# Filter slope
+for my $slope (qw/6 12 18 24/) {
+    set_get_test( func => 'filter_slope', value => $slope );
+}
+
+# Sensitivity
 for my $sens (qw/1 0.5 0.2 0.1 0.05 1e-5 2e-5 5e-5/) {
     set_get_test( func => "sens", value => $sens );
 }

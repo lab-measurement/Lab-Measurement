@@ -273,6 +273,66 @@ sub set_tc {
     $self->cached_tc( $self->_int_to_tc($int_tc) );
 }
 
+=head2 get_filter_slope
+
+ my $filter_slope = $lia->get_filter_slope();
+
+Query the low pass filter slope (dB/oct). Possible return values:
+
+=over
+
+=item * 6
+
+=item * 12
+
+=item * 18
+
+=item * 24
+
+=back
+
+=head2 set_filter_slope
+
+ $lia->set_filter_slope(value => 18);
+
+Set the low pass filter slope (dB/oct). Allowed values:
+
+=over
+
+=item * 6
+
+=item * 12
+
+=item * 18
+
+=item * 24
+
+=back
+
+=cut
+
+cache filter_slope => ( getter => 'get_filter_slope' );
+
+sub get_filter_slope {
+    my ( $self, %args ) = validated_getter( \@_ );
+    my $filter_slope = $self->query( command => 'OFSL?', %args );
+
+    my %filter_slopes = ( 0 => 6, 1 => 12, 2 => 18, 3 => 24 );
+
+    return $self->cached_filter_slope( $filter_slopes{$filter_slope} );
+}
+
+sub set_filter_slope {
+    my ( $self, $value, %args ) = validated_setter(
+        \@_,
+        value => { isa => enum( [qw/6 12 18 24/] ) }
+    );
+    my %filter_slopes = ( 6 => 0, 12 => 1, 18 => 2, 24 => 3 );
+    my $filter_slope = $filter_slopes{$value};
+    $self->write( command => "OFSL $filter_slope", %args );
+    $self->cached_filter_slope($value);
+}
+
 =head2 get_sens
 
  my $sens = $lia->get_sens();
