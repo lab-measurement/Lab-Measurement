@@ -48,8 +48,12 @@ has filehandle => (
 has mode => (
     is      => 'ro',
     isa     => 'Str',
-    default => ">"
+    builder => '_build_file_mode',
 );
+
+sub _build_file_mode {
+    return '+>';
+}
 
 # relative to cwd.
 has path => (

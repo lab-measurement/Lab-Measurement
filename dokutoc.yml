@@ -33,6 +33,7 @@ toc:
           - Measurement/lib/Lab/Moose/DataFile.pm
           - Lab::Moose::DataFile subclasses:
               - Measurement/lib/Lab/Moose/DataFile/Gnuplot.pm
+              - Measurement/lib/Lab/Moose/DataFile/Gnuplot/2D.pm
               - Measurement/lib/Lab/Moose/DataFile/Meta.pm
       - XPRESS:
           - Examples:

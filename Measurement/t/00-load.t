@@ -61,7 +61,12 @@ my $rs232_stuff = [
 my %depencencies = (
 
     #    'PDL' => ['Lab/Data/PDL.pm'],
-    'PDL::Graphics::Gnuplot' => ['Lab/Moose/Plot.pm'],
+    'PDL::Graphics::Gnuplot' => [
+        qw{
+            Lab/Moose/Plot.pm
+            Lab/Moose/DataFile/Gnuplot
+            }
+    ],
 
     'Statistics::LineFit' => ['Lab/XPRESS/Data/XPRESS_dataset.pm'],
 

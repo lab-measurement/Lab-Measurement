@@ -30,13 +30,14 @@ L<Lab::Moose::DataFolder> and L<Lab::Moose::DataFile>.
  
  my $folder = datafolder();
  my $file = datafile(
+     type => 'Gnuplot3D',
      folder => $folder,
      filename => 'data.dat',
      columns => ['gate', 'bias', 'current'],
  );
 
  my $meta_file = datafile(
-     datafile_type => 'Meta',
+     type => 'Meta',
      folder => $folder,
      filename => 'file.yml'
  );
@@ -129,21 +130,20 @@ sub datafolder {
 
 =head2 datafile
 
- my $file = datafile(datafile_type => $type, %args);
+ my $file = datafile(type => $type, %args);
 
 Load Lab::Moose::DataFile::C<$type> and call it's C<new> method with C<%args>.
-If the C<datafile_type> argument is not given it defaults to 'Gnuplot'.
 
 =cut
 
 sub datafile {
     my (%args) = validated_hash(
         \@_,
-        datafile_type => { isa => 'Str', default => 'Gnuplot' },
+        type                           => { isa => 'Str' },
         MX_PARAMS_VALIDATE_ALLOW_EXTRA => 1
     );
 
-    my $type = delete $args{datafile_type};
+    my $type = delete $args{type};
 
     $type = "Lab::Moose::DataFile::$type";
 

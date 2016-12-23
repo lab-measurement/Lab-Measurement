@@ -18,7 +18,7 @@ Lab::Moose::Plot - Frontend to L<PDL::Graphics::Gnuplot>.
  $plot->plot(
      plot_options => {title => 'linear function'},
      curve_options => {legend => '2 * x'},
-     x => $x, y => $y
+     data => [$x, $y]
  );
 
  # pm3d plot
@@ -34,7 +34,7 @@ Lab::Moose::Plot - Frontend to L<PDL::Graphics::Gnuplot>.
 	 surface => 0,
          palette => "model RGB defined ( 0 'red', 1 'yellow', 2 'white' )",
      },
-     x => $x, y => $y, z => $z
+     data => [$x, $y, $z],
  );
 
  
@@ -43,7 +43,7 @@ Lab::Moose::Plot - Frontend to L<PDL::Graphics::Gnuplot>.
  my $plot = Lab::Moose::Plot(
      terminal => 'svg',
      terminal_options => {output => 'file.svg', enhanced => 0},
-     default_plot_options => {pm3d => 1, view => 'map', surface => 0}
+     plot_options => {pm3d => 1, view => 'map', surface => 0}
  );
 
 =head1 DESCRIPTION
@@ -86,10 +86,17 @@ has terminal_options => (
     lazy    => 1,
 );
 
-has default_plot_options => (
+has plot_options => (
     is      => 'ro',
     isa     => 'HashRef',
-    builder => 'build_default_plot_options',
+    builder => 'build_plot_options',
+    lazy    => 1,
+);
+
+has curve_options => (
+    is      => 'ro',
+    isa     => 'HashRef',
+    builder => 'build_curve_options',
     lazy    => 1,
 );
 
@@ -112,7 +119,11 @@ sub build_terminal_options {
     }
 }
 
-sub build_default_plot_options {
+sub build_plot_options {
+    return {};
+}
+
+sub build_curve_options {
     return {};
 }
 
@@ -123,13 +134,14 @@ sub build_default_plot_options {
  my $plot = Lab::Moose::Plot->new(
      terminal => $terminal,
      terminal_options => \%terminal_options,
-     default_plot_options => \%default_plot_options,
+     plot_options => \%plot_options,
+     curve_options => \%curve_options,
  );
 
 Construct a new plotting backend. All arguments are optional. The default for
 C<terminal> is 'qt'. For the 'qt' and 'x11' terminals, C<terminal_options>
 defaults to C<< {persist => 1, raise => 0 } >>. The default for
-C<default_plot_options> is the empty hash.
+C<plot_options> and C<curve_options> is the empty hash.
 
 =cut
 
@@ -138,7 +150,7 @@ sub BUILD {
     my $gpwin = PDL::Graphics::Gnuplot->new(
         $self->terminal(),
         %{ $self->terminal_options() },
-        $self->default_plot_options()
+        $self->plot_options()
     );
     $self->_gpwin($gpwin);
 }
@@ -150,31 +162,31 @@ union 'Lab::Moose::Plot::DataArg', [ class_type('PDL'), 'ArrayRef[Num]' ];
 
 sub _parse_options {
     my $self = shift;
-    my ( $plot_options, $curve_options, $x, $y, $z ) = validated_list(
+    my ( $plot_options, $curve_options, $data ) = validated_list(
         \@_,
-        plot_options  => { isa => 'HashRef', default => {} },
-        curve_options => { isa => 'HashRef', default => {} },
-        x => { isa => 'Lab::Moose::Plot::DataArg', optional => 1 },
-        y => { isa => 'Lab::Moose::Plot::DataArg', optional => 1 },
-        z => { isa => 'Lab::Moose::Plot::DataArg', optional => 1 }
+        plot_options  => { isa => 'HashRef', default  => {} },
+        curve_options => { isa => 'HashRef', optional => 1 },
+        data => { isa => 'ArrayRef[Lab::Moose::Plot::DataArg]' },
     );
 
-    if ( defined $x and not defined $y ) {
-        croak "missing y column";
+    if ( @{$data} == 0 ) {
+        croak "missing data columns";
     }
 
-    return ( $plot_options, $curve_options, $x, $y, $z );
+    if ( not defined $curve_options ) {
+        $curve_options = $self->curve_options();
+    }
+
+    return ( $plot_options, $curve_options, $data );
 }
 
 sub _plot {
     my $self = shift;
-    my ( $plot_options, $curve_options, $x, $y, $z, $plot_function ) = @_;
-
-    my @columns = grep {defined} ( $x, $y, $z );
+    my ( $plot_options, $curve_options, $data, $plot_function ) = @_;
 
     my $gpwin = $self->gpwin();
 
-    $gpwin->$plot_function( $plot_options, %{$curve_options}, @columns );
+    $gpwin->$plot_function( $plot_options, %{$curve_options}, @{$data} );
 }
 
 =head2 plot
@@ -182,14 +194,12 @@ sub _plot {
  $plot->plot(
      plot_options => \%plot_options,
      curve_options => \%curve_options,
-     x => $x,
-     y => $y,
-     z => $z
+     data => [$x, $y, $z],
  );
 
-Call L<PDL::Graphics::Gnuplot>'s plot function. The C<z> parameter is only
-needed for 3D plots. The argument of C<x>, C<y> and C<z> can be either a PDL or
-a 1D array ref.
+Call L<PDL::Graphics::Gnuplot>'s plot function.
+The data array can contain either PDLs ore 1D arrad refs. The required number
+of elements in the array depends on the used plotting style.
 
 =head2 splot
 
@@ -200,41 +210,18 @@ Otherwise they behave like plot.
 
 =cut
 
-sub plot {
-    my $self = shift;
-    my ( $plot_options, $curve_options, $x, $y, $z )
-        = $self->_parse_options(@_);
+my $meta = __PACKAGE__->meta();
 
-    if ( not( defined $x or defined $y or defined $z ) ) {
-        croak "missing data column";
-    }
+for my $func (qw/plot splot replot/) {
+    $meta->add_method(
+        $func => sub {
+            my $self = shift;
+            my ( $plot_options, $curve_options, $data )
+                = $self->_parse_options(@_);
 
-    $self->_plot( $plot_options, $curve_options, $x, $y, $z, 'plot' );
-
-}
-
-sub splot {
-    my $self = shift;
-    my ( $plot_options, $curve_options, $x, $y, $z )
-        = $self->_parse_options(@_);
-
-    if ( not( defined $x or defined $y or defined $z ) ) {
-        croak "missing data column";
-    }
-
-    if ( not defined $z ) {
-        croak "missing z column for splot";
-    }
-
-    $self->_plot( $plot_options, $curve_options, $x, $y, $z, 'splot' );
-}
-
-sub replot {
-    my $self = shift;
-    my ( $plot_options, $curve_options, $x, $y, $z )
-        = $self->_parse_options(@_);
-
-    $self->_plot( $plot_options, $curve_options, $x, $y, $z, 'replot' );
+            $self->_plot( $plot_options, $curve_options, $data, $func );
+        }
+    );
 }
 
 __PACKAGE__->meta->make_immutable();

@@ -5,6 +5,8 @@ Lab::Test -- Shared test routines for Lab::Measurement.
 
 =head1 SYNOPSIS
 
+ use Lab::Test import => [qw/file_ok compare_ok .../];
+
  file_ok($filename, "file contents", "contents are equal");
 
  compare_ok($file1, $file2, "files have same contents");

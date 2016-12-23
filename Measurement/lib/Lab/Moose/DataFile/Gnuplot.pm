@@ -6,20 +6,32 @@ use strict;
 
 use Moose;
 use MooseX::Params::Validate;
+use Moose::Util::TypeConstraints 'enum';
 use Lab::Moose::BlockData;
 use Data::Dumper;
 use Carp;
 use Scalar::Util 'looks_like_number';
+use List::Util 'any';
 use namespace::autoclean;
 
 our $VERSION = '3.520';
 
 extends 'Lab::Moose::DataFile';
 
+with 'Lab::Moose::DataFile::Read';
+
 has columns => (
     is       => 'ro',
     isa      => 'ArrayRef[Str]',
     required => 1,
+);
+
+has num_data_rows => (
+    is       => 'ro',
+    isa      => 'Int',
+    default  => 0,
+    writer   => '_num_data_rows',
+    init_arg => undef
 );
 
 sub BUILD {
@@ -33,7 +45,7 @@ sub BUILD {
 
 =head1 NAME
 
-Lab::Moose::DataFile::Gnuplot - Gnuplot style datafile.
+Lab::Moose::DataFile::Gnuplot - Text based data file.
 
 =head1 SYNOPSIS
 
@@ -42,6 +54,7 @@ Lab::Moose::DataFile::Gnuplot - Gnuplot style datafile.
  my $folder = datafolder();
  
  my $file = datafile(
+     type => 'Gnuplot',
      folder => $folder,
      filename => 'gnuplot-file.dat',
      columns => [qw/gate bias current/]
@@ -112,6 +125,9 @@ sub log {
 
     my $fh = $self->filehandle();
     print {$fh} $line;
+
+    my $num = $self->num_data_rows;
+    $self->_num_data_rows( ++$num );
 }
 
 =head2 log_block

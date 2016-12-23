@@ -63,9 +63,8 @@ sub block_to_array {
 
     # $binary might have a trailing newline, so do not check for equality.
     if ( length $binary < $expected_length ) {
-        croak
-            "incomplete data: expected_length: $expected_length, received length: ",
-            length $binary;
+        croak "incomplete data: expected_length: $expected_length,"
+            . " received length: ", length $binary;
     }
 
     my @floats = unpack(
