@@ -4,6 +4,13 @@ use warnings;
 use strict;
 use File::Spec::Functions qw/catfile abs2rel/;
 
+# to run git-am without the hook.
+# for git-commit, use the --no-verify flag.
+if ( defined $ENV{GIT_SKIP_PRE_COMMIT_HOOK} ) {
+    warn "GIT_SKIP_PRE_COMMIT_HOOK is set, skipping pre-commit hook\n";
+    exit 0;
+}
+
 # Do nothing during rebase.
 my $branch = qx/git rev-parse --abbrev-ref HEAD/;
 chomp $branch;
