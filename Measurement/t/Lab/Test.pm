@@ -1,3 +1,27 @@
+package Lab::Test;
+use 5.010;
+use warnings;
+use strict;
+use File::Slurper 'read_binary';
+use Scalar::Util qw/looks_like_number/;
+use Text::Diff 'diff';
+use PDL qw/any/;
+use PDL::Core 'topdl';
+use parent 'Test::Builder::Module';
+
+our @EXPORT_OK = qw/
+    file_ok
+    compare_ok
+    is_relative_error
+    is_num
+    is_float
+    is_absolute_error
+    looks_like_number_ok
+    skip_on_broken_printf
+    is_pdl
+    /;
+
+my $class = __PACKAGE__;
 
 =head1 NAME
 
@@ -27,29 +51,6 @@ Collection of testing routines. This module can be used together with other
 L<Test::Builder>-based modules like L<Test::More>.
 
 =cut
-
-package Lab::Test;
-use 5.010;
-use warnings;
-use strict;
-use File::Slurper 'read_binary';
-use Scalar::Util qw/looks_like_number/;
-use Text::Diff 'diff';
-
-use parent 'Test::Builder::Module';
-
-our @EXPORT_OK = qw/
-    file_ok
-    compare_ok
-    is_relative_error
-    is_num
-    is_float
-    is_absolute_error
-    looks_like_number_ok
-    skip_on_broken_printf
-    /;
-
-my $class = __PACKAGE__;
 
 my $DBL_MIN = 2.2250738585072014e-308;
 
@@ -265,6 +266,27 @@ sub printf_is_broken {
         }
     }
     return;
+}
+
+sub is_pdl {
+    my ( $got, $expect, $name ) = @_;
+    my $tb = $class->builder();
+
+    $got    = topdl($got);
+    $expect = topdl($expect);
+
+    my $got_shape    = $got->shape();
+    my $expect_shape = $expect->shape();
+
+    if ( $got_shape->nelem() != $expect_shape->nelem()
+        || any( $got_shape != $expect_shape ) ) {
+        return $tb->ok( 0, "shapes equal" )
+            || $tb->diag("pdl shapes unequal: $got_shape, $expect_shape");
+    }
+
+    $tb->ok( all( $got == $expect ), $name )
+        || $tb->diag(
+        "pdls are not equal:\n" . "got: $got\n" . "exteced: $expect" );
 }
 
 1;

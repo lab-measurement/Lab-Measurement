@@ -1,11 +1,13 @@
 package Lab::Moose::Instrument::RS_FSV;
 
 use 5.010;
+
+use PDL::Core qw/pdl cat/;
+
 use Moose;
 use Moose::Util::TypeConstraints;
 use MooseX::Params::Validate;
 use Lab::Moose::Instrument qw/timeout_param precision_param/;
-use Lab::Moose::BlockData;
 use Carp;
 use namespace::autoclean;
 
@@ -41,7 +43,6 @@ Analyzer
 =head1 SYNOPSIS
 
  my $data = $fsv->get_spectrum(timeout => 10);
- my $matrix = $data->matrix;
 
 =cut
 
@@ -53,9 +54,14 @@ This driver implements the following high-level method:
 
  $data = $fsv->get_spectrum(timeout => 10, trace => 2, precision => 'double');
 
-Perform a single sweep and return the resulting spectrum. The result is an
-instance of L<Lab::Moose::BlockData>. For each sweep point, one row of data
-[frequency, power] will be returned.
+Perform a single sweep and return the resulting spectrum as a 2D PDL:
+
+ [
+  [freq1,  freq2,  freq3,  ...,  freqN],
+  [power1, power2, power3, ..., powerN],
+ ]
+
+I.e. the first dimension runs over the sweep points.
 
 This method accepts a hash with the following options:
 
@@ -94,7 +100,7 @@ sub get_spectrum {
         croak "trace has to be in (1..6)";
     }
 
-    my $freq_array = $self->sense_frequency_linear_array();
+    my $freq_array = pdl $self->sense_frequency_linear_array();
 
     # Ensure single sweep mode.
     if ( $self->cached_initiate_continuous() ) {
@@ -114,16 +120,13 @@ sub get_spectrum {
         %args
     );
 
-    my $points_ref = $self->block_to_array(
+    my $points_ref = pdl $self->block_to_array(
         binary    => $binary,
         precision => $precision
     );
 
-    my $result = Lab::Moose::BlockData->new();
-    $result->add_column($freq_array);
-    $result->add_column($points_ref);
+    return cat( $freq_array, $points_ref );
 
-    return $result;
 }
 
 =head2 Consumed Roles

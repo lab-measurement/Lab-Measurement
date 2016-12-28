@@ -7,9 +7,9 @@ use Lab::Moose::Instrument qw/
     timeout_param getter_params precision_param
     /;
 
-use Lab::Moose::BlockData;
 use Carp;
-
+use PDL::Lite;
+use PDL::Core qw/pdl cat/;
 use namespace::autoclean;
 
 our $VERSION = '3.530';
@@ -35,40 +35,38 @@ requires qw/sparam_sweep_data sparam_catalog/;
 sub _get_data_columns {
     my ( $self, $catalog, $freq_array, $points ) = @_;
 
-    my $num_rows = @{$freq_array};
+    $freq_array = pdl $freq_array;
+    $points     = pdl $points;
+
+    my $num_rows = $freq_array->nelem();
     if ( $num_rows != $self->cached_sense_sweep_points() ) {
         croak
             "length of frequency array not equal to number of configured points";
     }
 
-    my @points = @{$points};
-
     my $num_columns = @{$catalog};
 
-    my $num_points = @points;
+    my $num_points = $points->nelem();
 
     if ( $num_points != $num_columns * $num_rows ) {
         croak "$num_points != $num_columns * $num_rows";
     }
 
+    # One pdl for each column. Will cat these before we return.
     my @data_columns;
 
-    my $block_data = Lab::Moose::BlockData->new();
+    for my $col_index ( 0 .. $num_columns / 2 - 1 ) {
 
-    $block_data->add_column($freq_array);
+        my $start = $col_index * $num_rows * 2;
+        my $stop = $start + 2 * ( $num_rows - 1 );
 
-    while (@points) {
-        my @param_data = splice @points, 0, 2 * $num_rows;
-        my ( @real, @im );
-        while (@param_data) {
-            push @real, shift @param_data;
-            push @im,   shift @param_data;
-        }
+        my $real = $points->slice( [ $start,     $stop,     2 ] );
+        my $im   = $points->slice( [ $start + 1, $stop + 1, 2 ] );
 
-        $block_data->add_column( \@real );
-        $block_data->add_column( \@im );
+        push @data_columns, $real, $im;
     }
-    return $block_data;
+
+    return cat( $freq_array, @data_columns );
 }
 
 =head1 NAME
@@ -81,12 +79,16 @@ Lab::Moose::Instrument::VNASweep - Role for network analyzer sweeps.
 
  my $data = $vna->sparam_sweep(timeout => 10, average => 10, precision => 'double');
 
-Perform a single sweep, and return the resulting data table. The result is of
-type L<Lab::Moose::BlockData>. For each sweep point, one row of data will be
-created. Each row will start with the sweep value (e.g. frequency), followed by
-the real and imaginary parts of the measured 
-S-parameters.
+Perform a single sweep, and return the resulting data as a 2D PDL. The first
+dimension runs over the sweep points. E.g. if only the S11 parameter is
+measured, the resulting PDL has dimensions N x 3:
 
+ [
+  [freq1, freq2, freq3, ..., freqN],
+  [Re(S11)_1, Re(S11)_2, ..., Re(S11)_N],
+  [Im(S11)_1, Im(S11)_2, ..., Im(S11)_N],
+ ]
+ 
 This method accepts a hash with the following options:
 
 =over

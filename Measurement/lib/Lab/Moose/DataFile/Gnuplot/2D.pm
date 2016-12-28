@@ -7,7 +7,6 @@ use strict;
 use Moose;
 use MooseX::Params::Validate;
 use Moose::Util::TypeConstraints 'enum';
-use Lab::Moose::BlockData;
 use Data::Dumper;
 use Carp;
 use Scalar::Util 'looks_like_number';

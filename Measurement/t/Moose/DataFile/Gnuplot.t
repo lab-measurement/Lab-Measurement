@@ -8,9 +8,10 @@ use Test::More;
 use Lab::Test import => ['file_ok'];
 use File::Temp qw/tempdir/;
 use Test::File;
+use Test::Fatal;
 use File::Spec::Functions qw/catfile/;
 use Lab::Moose;
-use aliased 'Lab::Moose::BlockData';
+use PDL::Core qw/pdl/;
 
 my $dir = tempdir( CLEANUP => 1 );
 my $folder = datafolder( path => catfile( $dir, 'gnuplot' ) );
@@ -37,7 +38,7 @@ file_ok( $path, $expected, "gnuplot file log method" );
 
 # log block
 
-my $block = BlockData->new( matrix => [ [ 10, 20 ], [ 30, 40 ] ] );
+my $block = pdl [ [ 10, 30 ], [ 20, 40 ] ];
 
 $file->log_block(
     prefix => { A => 1 },
@@ -51,8 +52,7 @@ EOF
 file_ok( $path, $expected, "log_block method" );
 
 # log_block without prefix
-$block
-    = BlockData->new( matrix => [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 7, 8, 9 ] ] );
+$block = pdl [ [ 1, 4, 7 ], [ 2, 5, 8 ], [ 3, 6, 9 ] ];
 
 $file->log_block(
     block       => $block,
@@ -65,5 +65,69 @@ $expected .= <<"EOF";
 7\t8\t9
 EOF
 file_ok( $path, $expected, "log_block without prefix" );
+
+# 1D block
+
+$block = [ 1, 2, 3 ];
+
+$file->log_block(
+    prefix => { A => 5, B => 6 },
+    block  => $block,
+);
+
+$expected .= <<"EOF";
+5\t6\t1
+5\t6\t2
+5\t6\t3
+
+EOF
+
+file_ok( $path, $expected, "log_block with 1D pdl" );
+
+# Illegal stuff
+ok(
+    exception { $file->log( A => 1, B => 2 ) },
+    "missing column"
+);
+
+ok(
+    exception { $file->log( A => 1, B => 2, C => 3, D => 4 ) },
+    "unknown column"
+);
+
+ok(
+    exception {
+        my $pdl = pdl [ 1, 2 ];
+        $file->log_block( prefix => { A => 1 }, block => $pdl );
+    },
+    "missing prefix column"
+);
+
+ok(
+    exception {
+        my $pdl => [ 1, 2 ];
+        $file->log_block(
+            prefix => { A => 1, B => 2, C => 3 },
+            block  => $pdl
+        );
+    },
+    "too many prefix columns"
+);
+
+ok(
+    exception {
+        my $pdl = pdl [ 1, 2 ];
+        $file->log_block( prefix => { A => 1 }, block => $pdl );
+    },
+    "missing data column"
+);
+
+ok(
+    exception {
+        my $pdl = pdl [ [ 1, 2 ], [ 3, 4 ], [ 5, 6 ], [ 7, 8 ] ];
+        $file->log_block( block => $pdl );
+    },
+    "too many data columns"
+);
 
 done_testing();

@@ -12,7 +12,6 @@ use File::Path 'remove_tree';
 use File::Spec::Functions qw/catfile/;
 use YAML::XS 'LoadFile';
 use Lab::Moose;
-use aliased 'Lab::Moose::BlockData';
 
 my $dir = tempdir( CLEANUP => 1 );
 

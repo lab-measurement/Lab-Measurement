@@ -7,7 +7,7 @@ use strict;
 use Moose;
 use MooseX::Params::Validate;
 use Moose::Util::TypeConstraints 'enum';
-use Lab::Moose::BlockData;
+use PDL::Core qw/topdl/;
 use Data::Dumper;
 use Carp;
 use Scalar::Util 'looks_like_number';
@@ -65,7 +65,7 @@ Lab::Moose::DataFile::Gnuplot - Text based data file.
  
  $file->log(gate => 1, bias => 2, current => 3);
 
- $block = Lab::Moose::BlockData->new(...)
+ $block = [1, 2, 3, 4, 5, 6];
  $file->log_block(
     prefix => {gate => 1, bias => 2},
     block => $block
@@ -138,10 +138,10 @@ sub log {
      add_newline => 0
  );
 
-Log a L<Lab::Moose::BlockData> object (i.e a two dimensional matrix).
-You can add prefix columns, which will be the same for each line in the block.
-E.g. when using a spectrum analyzer inside a voltage sweep, one would log the
-returned blockdata object prefixed with the sweep voltage.
+Log a 1D or 2D PDL or array ref. The first dimension runs over the datafile
+rows. You can add prefix columns, which will be the same for each line in the
+block. E.g. when using a spectrum analyzer inside a voltage sweep, one would
+log the returned PDL prefixed with the sweep voltage.
 
 =cut
 
@@ -150,30 +150,48 @@ sub log_block {
     my ( $prefix, $block, $add_newline ) = validated_list(
         \@_,
         prefix      => { isa => 'HashRef[Num]', optional => 1 },
-        block       => { isa => 'Lab::Moose::BlockData' },
+        block       => {},
         add_newline => { isa => 'Bool',         default  => 1 }
     );
 
+    $block = topdl($block);
+
+    my @dims = $block->dims();
+
+    if ( @dims == 1 ) {
+        $block = $block->dummy(1);
+        @dims  = $block->dims();
+    }
+    elsif ( @dims != 2 ) {
+        croak "log_block needs 1D or 2D piddle";
+    }
+
     my $num_prefix_cols = $prefix ? ( keys %{$prefix} ) : 0;
-    my $num_block_cols = $block->columns();
+    my $num_block_cols = $dims[1];
 
     my @columns = @{ $self->columns() };
 
     my $num_cols = @columns;
 
-    # Input validation is done by log method.
+    if ( $num_prefix_cols + $num_block_cols != $num_cols ) {
+        croak "need $num_cols columns, got $num_prefix_cols prefix columns"
+            . " and $num_block_cols block columns";
+    }
 
-    my $num_rows = $block->rows();
+    my $num_rows = $dims[0];
     for my $i ( 0 .. $num_rows - 1 ) {
-        my $row = $block->row($i);
         my %log;
+
+        # Add prefix columns to %log.
         for my $j ( 0 .. $num_prefix_cols - 1 ) {
             my $name = $columns[$j];
             $log{$name} = $prefix->{$name};
         }
+
+        # Add block columns to %log.
         for my $j ( 0 .. $num_block_cols - 1 ) {
             my $name = $columns[ $j + $num_prefix_cols ];
-            $log{$name} = $row->[$j];
+            $log{$name} = $block->at( $i, $j );
         }
         $self->log(%log);
     }

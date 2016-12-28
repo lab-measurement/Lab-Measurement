@@ -6,8 +6,10 @@ use 5.010;
 
 use lib 't';
 
-use Test::Tester tests => 96;
-use Lab::Test import   => [
+use Test::Tester;
+use Test::More;
+
+use Lab::Test import => [
     qw/
         file_ok
         compare_ok
@@ -16,10 +18,12 @@ use Lab::Test import   => [
         is_float
         is_absolute_error
         looks_like_number_ok
+        is_pdl
         /
 ];
 
 use File::Temp 'tempfile';
+use PDL qw/pdl/;
 
 # file_ok
 
@@ -185,3 +189,42 @@ check_test(
     }
 );
 
+# is_pdl
+check_test(
+    sub {
+        is_pdl(
+            ( pdl [ [ 1, 2 ], [ 3, 4 ] ] ), [ [ 1, 2 ], [ 3, 4 ] ],
+            "is_pdl"
+        );
+    },
+    {
+        ok   => 1,
+        name => "is_pdl",
+    }
+);
+
+check_test(
+    sub { is_pdl( 1, 1, "is_pdl" ) },
+    {
+        ok   => 1,
+        name => "is_pdl",
+    }
+);
+
+check_test(
+    sub { is_pdl( [ 1, 2 ], [ 1, 2, 3 ], "is_pdl" ) },
+    {
+        ok => 0,
+    }
+);
+
+check_test(
+    sub {
+        is_pdl( ( pdl [ 1, 2 ] ), ( pdl [ 1, 2.0000000000001 ] ), "is_pdl" );
+    },
+    {
+        ok => 0,
+    }
+);
+
+done_testing();

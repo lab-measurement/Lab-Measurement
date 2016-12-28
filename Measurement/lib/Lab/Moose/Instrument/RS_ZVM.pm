@@ -5,7 +5,6 @@ use Moose;
 use Moose::Util::TypeConstraints;
 use MooseX::Params::Validate;
 use Lab::Moose::Instrument qw/getter_params timeout_param validated_getter/;
-use Lab::Moose::BlockData;
 use Carp;
 use Config;
 use namespace::autoclean;

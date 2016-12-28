@@ -7,7 +7,6 @@ use MooseX::Params::Validate;
 use Lab::Moose::Instrument qw/
     validated_getter validated_setter setter_params /;
 use Lab::Moose::Instrument::Cache;
-use Lab::Moose::BlockData;
 use Carp;
 use namespace::autoclean;
 use POSIX qw/log10 ceil floor/;

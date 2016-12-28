@@ -27,7 +27,6 @@ toc:
           - Measurement/lib/Lab/Data/Plotter.pm
           - Measurement/lib/Lab/SCPI.pm
           - Measurement/lib/Lab/Moose.pm
-          - Measurement/lib/Lab/Moose/BlockData.pm
           - Measurement/lib/Lab/Moose/Plot.pm
           - Measurement/lib/Lab/Moose/DataFolder.pm
           - Measurement/lib/Lab/Moose/DataFile.pm

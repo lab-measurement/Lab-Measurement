@@ -5,7 +5,6 @@ use Moose;
 use Moose::Util::TypeConstraints;
 use MooseX::Params::Validate;
 use Lab::Moose::Instrument qw/validated_getter/;
-use Lab::Moose::BlockData;
 use Carp;
 use namespace::autoclean;
 
