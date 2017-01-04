@@ -649,4 +649,6 @@ This driver consumes the following roles:
 
 =cut
 
+__PACKAGE__->meta()->make_immutable();
+
 1;

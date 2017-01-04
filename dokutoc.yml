@@ -3,6 +3,7 @@ title: Lab::Measurement documentation
 authors: Daniel Schröer, Andreas K. Hüttel, Stefan Geißler, Christian Butschkow, and others
 toc:
   - The Lab::Measurement package:
+      - Measurement/lib/Lab/Moose/Developer.pod
       - Measurement/lib/Lab/Measurement/Changes.pod
       - Measurement/lib/Lab/Measurement/Installation.pod
       - Measurement/lib/Lab/Measurement/Tutorial.pod

@@ -109,10 +109,8 @@ sub cache {
     my @options = %options;
     validated_hash(
         \@options,
-        getter => { isa => 'Str' },
-
-        #setter => { isa => 'Str', optional => 1 },
-        isa => { optional => 1 },
+        getter => { isa      => 'Str' },
+        isa    => { optional => 1 },
     );
 
     $options{meta} = $meta;
