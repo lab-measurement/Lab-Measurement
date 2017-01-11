@@ -22,8 +22,11 @@ with qw(
     Lab::Moose::Instrument::SCPI::Instrument
 
     Lab::Moose::Instrument::SCPI::Sense::Average
+    Lab::Moose::Instrument::SCPI::Sense::Bandwidth
     Lab::Moose::Instrument::SCPI::Sense::Frequency
     Lab::Moose::Instrument::SCPI::Sense::Sweep
+
+    Lab::Moose::Instrument::SCPI::Source::Power
 
     Lab::Moose::Instrument::SCPI::Initiate
 
