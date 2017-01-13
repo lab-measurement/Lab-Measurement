@@ -17,13 +17,36 @@ our @EXPORT_OK = qw/mock_instrument/;
 
 my $connection_module;
 my $connection_options = '{}';
+my $help;
 
 use Lab::Moose::Connection::Mock;
 
 GetOptions(
     'connection|c=s'         => \$connection_module,
     'connection-options|o=s' => \$connection_options,
+    'help|h',                => \$help,
 );
+
+if ($help) {
+    state_help();
+    exit 0;
+}
+
+sub state_help {
+    say <<'EOF';
+Run the test. By default, it will run with a mock instrument.
+
+ Options:
+ -c, --connection=CONNECTION
+                           Use CONNECTION. Defaults to Mock. E.g. for
+                           refreshing a log file, you can use LinuxGPIB.
+ -o, --connection-options=OPTIONS
+                           YAML hash of connection options. Example: use
+                           LinuxGPIB with pad=20:
+                           -o '{pad: 20}'
+ -h, --help                Print this help screen.
+EOF
+}
 
 sub mock_instrument {
     my ( $type, $logfile ) = validated_list(
