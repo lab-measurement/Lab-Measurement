@@ -74,6 +74,8 @@ file_ok( $file, squared_plot_expected(), 'plot x**2 vs x' );
 
     my $AB_plot = catfile( $dir, 'AB_plot.txt' );
     my $BC_plot = catfile( $dir, 'BC_plot.txt' );
+    my $BC_plot_hardcopy = 'BC_plot.png';
+    my $BC_plot_hardcopy_path = catfile( $folder->path(), $BC_plot_hardcopy );
 
     $file->add_plot(
         x                => 'A',
@@ -83,14 +85,25 @@ file_ok( $file, squared_plot_expected(), 'plot x**2 vs x' );
         curve_options    => { with => 'points' },
     );
 
+    # Same with hard-copy
     $file->add_plot(
-        name             => 'BC',
+        x                => 'A',
+        y                => 'B',
+        terminal         => 'dumb',
+        terminal_options => { output => $AB_plot . 2 },
+        curve_options    => { with => 'points' },
+        hard_copy        => 'AB_plot.png',
+    );
+
+    # With refresh handle
+    $file->add_plot(
+        handle           => 'BC',
         x                => 'B',
         y                => 'C',
         terminal         => 'dumb',
         terminal_options => { output => $BC_plot },
         curve_options    => { with => 'points' },
-        refresh          => 'manual',
+        hard_copy        => $BC_plot_hardcopy,
     );
 
     for my $i ( 1 .. 10 ) {
@@ -98,11 +111,18 @@ file_ok( $file, squared_plot_expected(), 'plot x**2 vs x' );
     }
 
     file_ok( $AB_plot, AB_plot_expected(), "plotting A vs B" );
+    file_not_empty_ok(
+        catfile( $folder->path(), 'AB_plot.png' ),
+        'A-B plot hardcopy is not empty'
+    );
 
     file_not_exists_ok( $BC_plot, "B-C not yet plotted" );
-    $file->refresh_plot( name => 'BC' );
+    file_empty_ok( $BC_plot_hardcopy_path, "B-C hardcopy is empty" );
+
+    $file->refresh_plots( handle => 'BC' );
 
     file_ok( $BC_plot, BC_plot_expected(), "plotting B vs C" );
+    file_not_empty_ok( $BC_plot_hardcopy_path, "B-C hardcopy is not empty" );
 
 }
 

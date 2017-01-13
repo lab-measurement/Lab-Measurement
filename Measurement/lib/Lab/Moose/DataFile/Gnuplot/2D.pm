@@ -38,12 +38,14 @@ Lab::Moose::DataFile::Gnuplot::2D - 2D data file with live plotting support.
   $file->add_plot(
      x => 'time',
      y => 'voltage',
-     curve_options => {with => 'points'}
+     curve_options => {with => 'points'},
+     hard_copy => 'gnuplot-file-T-V.png',
   );
    
   $file->add_plot(
-      x => 'time'
+      x => 'time',
       y => 'temp',
+      hard_copy => 'gnuplot-file-T-Temp.png',
   );
 
  $file->log(time => 1, voltage => 2, temp => 3);
@@ -58,32 +60,22 @@ data with gnuplot. It requires L<PDL::Graphics::Gnuplot> installed.
 # Refresh plots.
 after 'log' => sub {
     my $self = shift;
-    if ( $self->num_data_rows() >= 2 ) {
-        my @plots = keys %{ $self->plots() };
-        my @refresh = grep { $self->plot_refresh()->{$_} eq 'auto' } @plots;
-        $self->refresh_plots( names => \@refresh );
+
+    if ( $self->num_data_rows() < 2 ) {
+        return;
+    }
+
+    my @plots = @{ $self->plots() };
+    my @indices = grep { not defined $plots[$_]->{handle} } ( 0 .. $#plots );
+    for my $index (@indices) {
+        $self->_refresh_plot( index => $index );
     }
 };
 
 has plots => (
     is       => 'ro',
-    isa      => 'HashRef[Lab::Moose::Plot]',
-    default  => sub { {} },
-    init_arg => undef
-);
-
-# Columns which are used for each plot.
-has plot_columns => (
-    is       => 'ro',
-    isa      => 'HashRef[HashRef[Str]]',
-    default  => sub { {} },
-    init_arg => undef
-);
-
-has plot_refresh => (
-    is       => 'ro',
-    isa      => 'HashRef[Str]',
-    default  => sub { {} },
+    isa      => 'ArrayRef',
+    default  => sub { [] },
     init_arg => undef
 );
 
@@ -94,24 +86,17 @@ This module inherits all methods of L<Lab::Moose::DataFile::Gnuplot>.
 =head2 add_plot
 
  $file->add_plot(
-     name => 'voltage-plot',
      x => 'x-column',
      y => 'y-column',
-     terminal => 'png',
-     terminal_options => {output => 'myplot.png'},
      plot_options => {grid => 1, xlabel => 'voltage', ylabel => 'current'},
      curve_options => {with => 'points'},
-     refresh => 'manual'
+     hard_copy => 'myplot.png',
+     hard_copy_terminal => 'svg',
  );
 
 Add a new live plot to the datafile. Options:
 
 =over
-
-=item * name
-
-Identifier for the plot. Only needed if the datafile has several plots and you
-want to update them indepentently of each other.
 
 =item * x (mandatory)
 
@@ -140,11 +125,19 @@ list).
 HashRef of curve options (See L<PDL::Graphics::Gnuplot> for the complete
 list).
 
-=item * refresh
+=item * handle
 
-If set to 'auto' (default), the plot is updated whenever a new line is logged.
-If set to 'manual', the user has to call C<refresh_plot> or C<refresh_plots> to
-refresh the plot.
+Set this to a string, if you need to refresh the plot manually with the
+C<refresh_plots> option. Multiple plots can share the same handle string.
+
+=item * hard_copy        
+
+Create a copy of the plot in the data folder.
+
+=item * hard_copy_terminal
+
+Terminal for hard_copy option. Use png terminal by default. The 'output'
+terminal option must be supported.
 
 =back
 
@@ -153,25 +146,17 @@ refresh the plot.
 sub add_plot {
     my ( $self, %args ) = validated_hash(
         \@_,
-        name             => { isa => 'Str',     optional => 1 },
-        x                => { isa => 'Str' },
-        y                => { isa => 'Str' },
-        terminal         => { isa => 'Str',     optional => 1 },
-        terminal_options => { isa => 'HashRef', optional => 1 },
-        plot_options     => { isa => 'HashRef', optional => 1 },
-        curve_options    => { isa => 'HashRef', optional => 1 },
-        refresh => { isa => enum( [qw/auto manual/] ), default => 'auto' },
+        x                  => { isa => 'Str' },
+        y                  => { isa => 'Str' },
+        terminal           => { isa => 'Str', optional => 1 },
+        terminal_options   => { isa => 'HashRef', optional => 1 },
+        plot_options       => { isa => 'HashRef', optional => 1 },
+        curve_options      => { isa => 'HashRef', optional => 1 },
+        handle             => { isa => 'Str', optional => 1 },
+        hard_copy          => { isa => 'Str', optional => 1 },
+        hard_copy_terminal => { isa => 'Str', optional => 1 },
     );
-    my $name = delete $args{name};
-
-    if ( not defined $name ) {
-        $name = _random_plot_name();
-    }
     my $plots = $self->plots();
-
-    if ( exists $plots->{$name} ) {
-        croak "plot name '$name' is already in use";
-    }
 
     my $x_column = delete $args{x};
     my $y_column = delete $args{y};
@@ -189,36 +174,56 @@ sub add_plot {
     my $refresh = delete $args{refresh};
     my $plot    = Lab::Moose::Plot->new(%args);
 
-    $plots->{$name} = $plot;
+    my $handle = $args{handle};
 
-    $self->plot_columns()->{$name} = { x => $x_column, y => $y_column };
-    $self->plot_refresh()->{$name} = $refresh;
+    push @{$plots}, {
+        plot   => $plot,
+        x      => $x_column,
+        y      => $y_column,
+        handle => $handle
+    };
+
+    # add hard copy plot
+    my $hard_copy = delete $args{hard_copy};
+    if ( defined $hard_copy ) {
+        my $hard_copy_file = Lab::Moose::DataFile->new(
+            folder   => $self->folder(),
+            filename => $hard_copy,
+        );
+
+        delete $args{terminal};
+        delete $args{terminal_options};
+
+        my $hard_copy_terminal = delete $args{hard_copy_terminal};
+        my $terminal
+            = defined($hard_copy_terminal) ? $hard_copy_terminal : 'png';
+
+        $self->add_plot(
+            x                => $x_column,
+            y                => $y_column,
+            terminal         => $terminal,
+            terminal_options => { output => $hard_copy_file->path() },
+            %args,
+        );
+    }
 }
 
-=head2 refresh_plot
-
- $file->refresh_plot(name => $name);
-
-Refresh the plot with name C<$name>. Only useful for plots, which have the
-'refresh' option set to 'manual'.
-
-=cut
-
-sub refresh_plot {
+sub _refresh_plot {
     my $self = shift;
-    my ($name) = validated_list(
+    my ($index) = validated_list(
         \@_,
-        name => { isa => 'Str' },
+        index => { isa => 'Int' },
     );
+
     my $plots = $self->plots();
-    my $plot  = $plots->{$name};
+    my $plot  = $plots->[$index];
+
     if ( not defined $plot ) {
-        croak "no plot with name '$name'";
+        croak "no plot with name at index $index";
     }
 
     my $column_names = $self->columns();
-    my $plot_columns = $self->plot_columns()->{$name};
-    my ( $x, $y ) = @$plot_columns{qw/x y/};
+    my ( $x, $y ) = ( $plot->{x}, $plot->{y} );
 
     my ($x_index) = grep { $column_names->[$_] eq $x } 0 .. $#{$column_names};
 
@@ -227,45 +232,53 @@ sub refresh_plot {
     my $data_columns
         = $self->read_2d_gnuplot_format( fh => $self->filehandle() );
 
-    $plot->plot(
+    $plot->{plot}->plot(
         data => [ $data_columns->[$x_index], $data_columns->[$y_index] ],
     );
 }
 
 =head2 refresh_plots
 
- $file->refresh_plots(names => [@names]);
+ $file->refresh_plots(handle => $handle);
  $file->refresh_plots();
 
-Call C<refresh_plot> for each name in C<@names>.
+Call C<refresh_plot> for each plot with hanle C<$handle>.
 
-If C<names> is not set, refresh all plots.
+If the C<handle> argument is not given, refresh all plots.
 
 =cut
 
 sub refresh_plots {
     my $self = shift;
-    my ($names) = validated_list(
+    my ($handle) = validated_list(
         \@_,
-        names => { isa => 'ArrayRef[Str]', optional => 1 },
+        handle => { isa => 'Str', optional => 1 },
     );
 
-    if ( not defined $names ) {
-        $names = [ keys %{ $self->plots() } ];
+    my @plots = @{ $self->plots() };
+
+    my @indices;
+
+    if ( defined $handle ) {
+        for my $index ( 0 .. $#plots ) {
+            my $plot = $plots[$index];
+            if ( defined $plot->{handle} and $plot->{handle} eq $handle ) {
+                push @indices, $index;
+            }
+        }
+
+        if ( !@indices ) {
+            croak "no plot with handle $handle";
+        }
     }
 
-    for my $name ( @{$names} ) {
-        $self->refresh_plot( name => $name );
+    else {
+        @indices = ( 0 .. $#plots );
     }
-}
 
-sub _random_plot_name {
-    my $name = "";
-    my @chars = ( "A" .. "Z", "a" .. "z", 0 .. 9 );
-    for ( 1 .. 8 ) {
-        $name .= $chars[ rand @chars ];
+    for my $index (@indices) {
+        $self->_refresh_plot( index => $index );
     }
-    return $name;
 }
 
 __PACKAGE__->meta->make_immutable();
