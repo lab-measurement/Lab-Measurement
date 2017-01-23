@@ -11,6 +11,24 @@ use namespace::autoclean;
 
 our $VERSION = '3.530';
 
+=head1 NAME
+
+Lab::Moose::Instrument::SCPI::Source::Power - Role for SCPI SOURce:POWer
+subsystem.
+
+=head1 METHODS
+
+=head2 source_power_level_immediate_amplitude_query
+
+=head2 source_power_level_immediate_amplitude
+
+ $self->source_power_level_immediate_amplitude(value => -20);
+
+Query/Set the signal amplitude, which will be set without waiting for further
+commands (like e.g. triggers).
+
+=cut
+
 cache source_power_level_immediate_amplitude =>
     ( getter => 'source_power_level_immediate_amplitude_query' );
 

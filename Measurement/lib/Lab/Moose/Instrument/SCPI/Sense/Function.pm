@@ -11,6 +11,21 @@ use namespace::autoclean;
 
 our $VERSION = '3.530';
 
+=head1 NAME
+
+Lab::Moose::Instrument::SCPI::Sense::Function - Role for SCPI SENSe:FUNCtion
+subsystem.
+
+=head1 METHODS
+
+=head2 sense_function_query
+
+=head2 sense_function
+
+Query/Set the function used by the instrument.
+
+=cut
+
 cache sense_function => ( getter => 'sense_function_query' );
 
 sub sense_function_query {

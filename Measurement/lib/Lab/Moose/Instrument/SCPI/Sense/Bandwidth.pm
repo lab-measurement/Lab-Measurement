@@ -12,6 +12,21 @@ use namespace::autoclean;
 
 our $VERSION = '3.530';
 
+=head1 NAME
+
+Lab::Moose::Instrument::SCPI::Sense::Bandwidth - Role for SCPI SENSe:BANDwidth
+subsystem.
+
+=head1 METHODS
+
+=head2 sense_bandwidth_resolution_query
+
+=head2 sense_bandwidth_resolution
+
+Query/Set the bandwidth resolution (in Hz).
+
+=cut
+
 cache sense_bandwidth_resolution =>
     ( getter => 'sense_bandwidth_resolution_query' );
 
@@ -33,6 +48,16 @@ sub sense_bandwidth_resolution {
     );
     $self->cached_sense_bandwidth_resolution($value);
 }
+
+=head2 sense_bandwidth_resolution_select_query
+
+=head2 sense_bandwidth_resolution_select
+
+Query/Set selectivity of IF filter. Can be NORM or HIGH.
+
+Used by R&S VNAs.
+
+=cut
 
 cache sense_bandwidth_resolution_select =>
     ( getter => 'sense_bandwidth_resolution_select_query' );

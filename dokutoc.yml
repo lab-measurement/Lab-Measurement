@@ -111,6 +111,12 @@ toc:
       - Moose::Instrument Roles:
           - Measurement/lib/Lab/Moose/Instrument/VNASweep.pm
           - Measurement/lib/Lab/Moose/Instrument/Common.pm
+          - Measurement/lib/Lab/Moose/Instrument/SCPI/Initiate.pm
+          - Measurement/lib/Lab/Moose/Instrument/SCPI/Sense/Average.pm
+          - Measurement/lib/Lab/Moose/Instrument/SCPI/Sense/Bandwidth.pm
+          - Measurement/lib/Lab/Moose/Instrument/SCPI/Sense/Frequency.pm
+          - Measurement/lib/Lab/Moose/Instrument/SCPI/Sense/Function.pm
+          - Measurement/lib/Lab/Moose/Instrument/SCPI/Sense/Sweep.pm
       - Moose Connection/Bus classes:
           - Measurement/lib/Lab/Moose/Connection.pm
           - Measurement/lib/Lab/Moose/Connection/LinuxGPIB.pm

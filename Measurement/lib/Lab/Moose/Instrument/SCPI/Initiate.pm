@@ -7,6 +7,21 @@ use MooseX::Params::Validate;
 
 our $VERSION = '3.530';
 
+=head1 NAME
+
+Lab::Moose::Instrument::SCPI::Initiate - Role for SCPI INITiate subsystem used
+by R&S.
+
+=head1 METHODS
+
+=head2 initiate_continuous_query
+
+=head2 initiate_continuous
+
+Query/Set whether to use single sweeps or continuous sweep mode.
+
+=cut
+
 cache initiate_continuous => ( getter => 'initiate_continuous_query' );
 
 sub initiate_continuous {
@@ -26,6 +41,14 @@ sub initiate_continuous_query {
     return $self->cached_initiate_continuous(
         $self->query( command => 'INIT:CONT?', %args ) );
 }
+
+=head2 initiate_immediate
+
+ $self->initiate_immediate();
+
+Start a new single sweep.
+
+=cut
 
 sub initiate_immediate {
     my ( $self, %args ) = validated_no_param_setter( \@_ );

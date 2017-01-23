@@ -11,6 +11,21 @@ use namespace::autoclean;
 
 our $VERSION = '3.530';
 
+=head1 NAME
+
+Lab::Moose::Instrument::SCPI::Sense::Sweep - Role for SCPI SENSe:SWEep
+subsystem.
+
+=head1 METHODS
+
+=head2 sense_sweep_points_query
+
+=head2 sense_sweep_points
+
+Query/Set the number of points in the sweep.
+
+=cut
+
 cache sense_sweep_points => ( getter => 'sense_sweep_points_query' );
 
 sub sense_sweep_points_query {
@@ -26,6 +41,14 @@ sub sense_sweep_points {
     $self->write( command => "SENS${channel}:SWE:POIN $value", %args );
     $self->cached_sense_sweep_points($value);
 }
+
+=head2 sense_sweep_count_query
+
+=head2 sense_sweep_count
+
+Query/Set the number of sweeps initiated by a trigger (like INIT).
+
+=cut
 
 cache sense_sweep_count => ( getter => 'sense_sweep_count_query' );
 

@@ -13,6 +13,33 @@ with 'Lab::Moose::Instrument::SCPI::Sense::Sweep';
 
 our $VERSION = '3.530';
 
+=head1 NAME
+
+Lab::Moose::Instrument::SCPI::Sense::Frequency -  Role for SCPI SENSe:FREQuency
+subsystem.
+
+=head1 METHODS
+
+=head2 sense_frequency_start_query
+
+ my $freq = $self->sense_frequency_start_query();
+
+Query the starting point of the frequency sweep.
+
+=head2 sense_frequency_start
+
+ $self->sense_frequency_start(value => 4e9);
+
+Set the starting point of the frequency sweep.
+
+=head2 sense_frequency_stop_query
+
+=head2 sense_frequency_stop
+
+Query and set the end point of the frequency sweep.
+
+=cut
+
 cache sense_frequency_start => ( getter => 'sense_frequency_start_query' );
 
 sub sense_frequency_start_query {
@@ -48,6 +75,15 @@ sub sense_frequency_stop {
     );
     $self->cached_sense_frequency_stop($value);
 }
+
+=head2 sense_frequency_linear_array
+
+ my $arrayref = $self->sense_frequency_linear_array();
+
+Helper method to get an arrayref of all points in the frequency sweep.
+Does not provide a cached form, but will read it's input from cache.
+
+=cut
 
 sub sense_frequency_linear_array {
     my ( $self, $channel, %args ) = validated_channel_getter( \@_ );

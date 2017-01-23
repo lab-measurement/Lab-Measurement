@@ -13,6 +13,21 @@ our $VERSION = '3.530';
 
 cache sense_average_state => ( getter => 'sense_average_state_query' );
 
+=head1 NAME
+
+Lab::Moose::Instrument::SCPI::Sense::Average - Role for SCPI SENSe:AVERage
+subsystem.
+
+=head1 METHODS
+
+=head2 sense_average_state_query
+
+=head2 sense_average_state
+
+Query/Set whether averaging is turned on/off.
+
+=cut
+
 sub sense_average_state_query {
     my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
 
@@ -25,6 +40,14 @@ sub sense_average_state {
     $self->write( command => "SENS${channel}:AVER $value", %args );
     return $self->cached_sense_average_state($value);
 }
+
+=head2 sense_average_count_query
+
+=head2 sense_average_count
+
+Query/Set the number of measurements used for an average.
+
+=cut
 
 cache sense_average_count => (
     getter => 'sense_average_count_query',
