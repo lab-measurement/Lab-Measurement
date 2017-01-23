@@ -6,6 +6,7 @@ use strict;
 
 use lib qw(t/);
 
+use Lab::Test import => ['file_ok_crlf'];
 use Test::More tests => 1;
 use File::Spec::Functions;
 use File::Path qw/remove_tree/;
@@ -15,7 +16,6 @@ use Lab::Measurement;
 use Lab::SCPI;
 use Scalar::Util qw(looks_like_number);
 
-use File::Slurper 'read_binary';
 use MockTest;
 
 my $query;
@@ -63,8 +63,6 @@ $sweep->start();
 
 my $file_path = catfile( $folder, 'MEAS_000', "${file}.dat" );
 
-my $file_contents = read_binary($file_path);
-
 my $expected = <<"EOD";
 #COLUMNS#\tvolt
 +0.00000E+0
@@ -80,4 +78,4 @@ my $expected = <<"EOD";
 +1.00000E+0
 EOD
 
-is( $file_contents, $expected );
+file_ok_crlf( $file_path, $expected, "data file as expectey" );

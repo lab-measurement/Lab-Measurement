@@ -128,7 +128,7 @@ retval: 23323234d84dbf38a0e4bf3a1aac33b8fe1de7b8f80ef6b7da7e01b90a
 retval_enc: hex
 timeout: 10
 ---
-command: SENS:FREQ:STAR 1e+07
+command: SENS:FREQ:STAR 10000000
 id: 25
 method: Write
 ---
@@ -139,7 +139,7 @@ retval: '10000000
 
 '
 ---
-command: SENS:FREQ:STAR 1e+08
+command: SENS:FREQ:STAR 100000000
 id: 27
 method: Write
 ---
@@ -150,7 +150,7 @@ retval: '100000000
 
 '
 ---
-command: SENS:FREQ:STAR 1e+09
+command: SENS:FREQ:STAR 1000000000
 id: 29
 method: Write
 ---
@@ -161,7 +161,7 @@ retval: '1000000000
 
 '
 ---
-command: SENS:FREQ:STOP 2e+07
+command: SENS:FREQ:STOP 20000000
 id: 31
 method: Write
 ---
@@ -172,7 +172,7 @@ retval: '20000000
 
 '
 ---
-command: SENS:FREQ:STOP 3e+08
+command: SENS:FREQ:STOP 300000000
 id: 33
 method: Write
 ---
@@ -183,7 +183,7 @@ retval: '300000000
 
 '
 ---
-command: SENS:FREQ:STOP 4e+09
+command: SENS:FREQ:STOP 4000000000
 id: 35
 method: Write
 ---

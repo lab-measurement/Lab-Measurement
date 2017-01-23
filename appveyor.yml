@@ -1,0 +1,10 @@
+install:
+  - cd Measurement
+  - cpan App::cpanminus
+  - cpanm --installdeps -n -v .
+
+build_script:
+  - perl ./Build.PL
+  - ./Build
+  - prove -v -b -r t
+  

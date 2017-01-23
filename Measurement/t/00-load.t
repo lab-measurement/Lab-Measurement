@@ -34,6 +34,12 @@ File::Find::find(
 
 @files = map { abs2rel( $_, 'lib' ) } @files;
 
+# Do not keep backslashes in filenames, as they confuse require:
+# perl uses slashes in %INC for modules which are 'used'.
+# With backslashes the same module could be loaded twice.
+
+@files = map {s(\\)(/)gr} @files;
+
 # Skip modules with special dependencies.
 
 sub skip_modules {
@@ -41,7 +47,6 @@ sub skip_modules {
     for my $skip (@to_be_skipped) {
         @files = grep {
             my $file = $_;
-            $file =~ tr/\\/\//;
             index( $file, $skip ) == -1;
         } @files;
     }
@@ -114,3 +119,4 @@ for my $file (@files) {
     diag("trying to load $file ...");
     is( require $file, 1, "load $file" );
 }
+

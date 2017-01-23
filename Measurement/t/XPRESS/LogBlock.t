@@ -5,7 +5,7 @@ use strict;
 
 use lib 't';
 
-use Lab::Test import => [qw/is_float file_ok/];
+use Lab::Test import => [qw/is_float file_ok_crlf/];
 use Test::More tests => 12;
 
 use File::Spec::Functions;
@@ -105,5 +105,5 @@ EOF
 
 my $file_path = catfile( $folder, 'MEAS_000', "${file}.dat" );
 
-file_ok( $file_path, $expected, "data file as expected" );
+file_ok_crlf( $file_path, $expected, "data file as expected" );
 

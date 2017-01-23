@@ -45,7 +45,7 @@ sub source_power_level_immediate_amplitude {
         value => { isa => 'Num' }
     );
     $self->write(
-        command => sprintf( "SOUR%s:POW %g", $channel, $value ),
+        command => sprintf( "SOUR%s:POW %.17g", $channel, $value ),
         %args
     );
     $self->cached_source_power_level_immediate_amplitude($value);

@@ -11,6 +11,7 @@ use parent 'Test::Builder::Module';
 
 our @EXPORT_OK = qw/
     file_ok
+    file_ok_crlf
     compare_ok
     is_relative_error
     is_num
@@ -105,6 +106,46 @@ sub file_ok {
             FILENAME_B => 'expected',
         }
     );
+    return $tb->diag($diff);
+}
+
+=head2 file_ok_crlf($file, $expected_contents, $name)
+
+Succeed if C<$file> exists and it's contents are equal to
+C<$expected_contents>. On reading the file, convert CR-LF to LF. Uses binary
+comparison and C<$expected_contents> may not have the unicode flag set. 
+
+Should be only needed to test legacy code. New code should always use binary
+files, not text files (Set binmode on your handles).
+
+=cut
+
+sub file_ok_crlf {
+    my ( $file, $expected, $name ) = @_;
+    my $tb = $class->builder();
+    if ( not -f $file ) {
+        return $tb->ok( 0, "-f $file" )
+            || $tb->diag("file '$file' does not exist");
+    }
+
+    my $contents = read_binary($file);
+    $contents =~ s/\r\n/\n/g;
+
+    if ( $tb->ok( $contents eq $expected, $name ) ) {
+        return 1;
+    }
+
+    # Fail.
+    my $diff = diff(
+        \$contents,
+        \$expected,
+        {
+            STYLE      => 'Table',
+            FILENAME_A => $file,
+            FILENAME_B => 'expected',
+        }
+    );
+
     return $tb->diag($diff);
 }
 

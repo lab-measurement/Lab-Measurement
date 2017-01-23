@@ -43,7 +43,7 @@ sub sense_bandwidth_resolution {
         value => { isa => 'Num' }
     );
     $self->write(
-        command => sprintf( "SENS%s:BAND %g", $channel, $value ),
+        command => sprintf( "SENS%s:BAND %.17g", $channel, $value ),
         %args
     );
     $self->cached_sense_bandwidth_resolution($value);

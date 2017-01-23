@@ -12,6 +12,7 @@ use Test::More;
 use Lab::Test import => [
     qw/
         file_ok
+        file_ok_crlf
         compare_ok
         is_relative_error
         is_num
@@ -29,7 +30,7 @@ use PDL qw/pdl/;
 
 {
     my ( $fh, $filename ) = tempfile( UNLINK => 1 );
-    my $contents = "abc\ndef\nghi";
+    my $contents = "abc\r\ndef\r\nghi";
     print {$fh} $contents;
     close $fh
         or die "cannot close";
@@ -47,6 +48,18 @@ use PDL qw/pdl/;
         {
             ok   => 0,
             name => "file_ok"
+        }
+    );
+
+    # file_ok_crlf
+
+    $contents =~ s/\r\n/\n/g;
+
+    check_test(
+        sub { file_ok_crlf( $filename, $contents, "file_ok_crlf" ) },
+        {
+            ok   => 1,
+            name => "file_ok_crlf"
         }
     );
 

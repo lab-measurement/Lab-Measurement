@@ -52,7 +52,7 @@ sub sense_frequency_start_query {
 sub sense_frequency_start {
     my ( $self, $channel, $value, %args ) = validated_channel_setter( \@_ );
     $self->write(
-        command => sprintf( "SENS%s:FREQ:STAR %g", $channel, $value ),
+        command => sprintf( "SENS%s:FREQ:STAR %.17g", $channel, $value ),
         %args
     );
     $self->cached_sense_frequency_start($value);
@@ -70,7 +70,7 @@ sub sense_frequency_stop_query {
 sub sense_frequency_stop {
     my ( $self, $channel, $value, %args ) = validated_channel_setter( \@_ );
     $self->write(
-        command => sprintf( "SENS%s:FREQ:STOP %g", $channel, $value ),
+        command => sprintf( "SENS%s:FREQ:STOP %.17g", $channel, $value ),
         %args
     );
     $self->cached_sense_frequency_stop($value);
