@@ -34,7 +34,7 @@ install:
   - cpanm ExtUtils::ParseXS
 
   - cpanm --installdeps -n .
-  - cpanm -v PDL::Graphics::Gnuplot
+  - cpanm -v -f PDL::Graphics::Gnuplot
   - cpanm -n Test::Perl::Critic
 
 script:
