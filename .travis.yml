@@ -1,4 +1,10 @@
 sudo: false
+
+addons:
+  apt:
+    packages:
+      - libgd2-noxpm-dev # Required for gnuplot png terminal
+      
 language: perl
 perl:
     - "5.24"
@@ -9,12 +15,26 @@ perl:
     - "5.14"
 
 install:
-  - cd Measurement
+  # Install gnuplot 5 for plot tests. (Not available on Ubuntu 12.04)
+  - cd /tmp
+  - gp_version=5.0.1
+  - wget https://sourceforge.net/projects/gnuplot/files/gnuplot/$gp_version/gnuplot-$gp_version.tar.gz
+  - tar -xf gnuplot-$gp_version.tar.gz
+  - cd gnuplot-$gp_version
+  - ./configure --prefix=$HOME/local
+  - make -j2
+  - make install
+  - export PATH="$HOME/local/bin:$PATH"
+  - gnuplot --version
+  
+  
+  - cd $TRAVIS_BUILD_DIR/Measurement
   
   # required before installing PDL
-  - cpanm -n ExtUtils::ParseXS
+  - cpanm ExtUtils::ParseXS
 
   - cpanm --installdeps -n .
+  - cpanm -v PDL::Graphics::Gnuplot
   - cpanm -n Test::Perl::Critic
 
 script:
