@@ -11,8 +11,6 @@
 \bMakeMaker-\d
 \bpm_to_blib$
 \bblibdirs$
-^MANIFEST\.SKIP$
-^MANIFEST$
 ^MYMETA.yml$
 ^MYMETA\.json$
 
