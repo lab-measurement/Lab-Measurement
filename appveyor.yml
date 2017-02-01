@@ -1,10 +1,9 @@
 configuration:
-  - --version 5.24.1.1
-  - --version 5.24.1.1 --x86
+  
+  # - --version 5.24.1.1
+  # - --version 5.24.1.1 --x86
   - --version 5.20.1.1
   - --version 5.20.1.1 --x86
-  - --version 5.16.3.3
-  - --version 5.16.3.3 --x86
   
 install:
   - choco install --allowemptychecksum strawberryperl %configuration%
@@ -12,10 +11,10 @@ install:
   - perl -V
   - cd Measurement
   - cpan App::cpanminus
-  - cpanm --installdeps -n -v .
+  - cpanm --installdeps -v .
 
 build_script:
   - perl ./Build.PL
   - ./Build
-  - prove -v -b -r t
+  - prove --verbose --blib --recurse t
   
