@@ -11,6 +11,8 @@ use Exporter 'import';
 use Lab::Moose::Connection;
 use Carp;
 
+our $VERSION = '3.540';
+
 our @EXPORT = qw/instrument datafolder datafile/;
 
 =head1 NAME

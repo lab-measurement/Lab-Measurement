@@ -23,7 +23,7 @@ use utf8;
 
 use Lab::Moose::DataFile::Meta;
 
-our $VERSION = '3.520';
+our $VERSION = '3.540';
 
 # Get a copy of @ARGV, before it get's mangled by the user script.
 

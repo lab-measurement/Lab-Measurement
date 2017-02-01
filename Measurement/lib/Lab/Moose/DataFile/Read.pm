@@ -6,7 +6,7 @@ use PDL::IO::Misc 'rcols';
 use Fcntl 'SEEK_SET';
 use Carp;
 
-our $VERSION = '3.520';
+our $VERSION = '3.540';
 
 sub read_2d_gnuplot_format {
     my $self = shift;

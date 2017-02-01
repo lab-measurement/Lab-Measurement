@@ -9,7 +9,7 @@ use Carp;
 use English;    # avoid editor nonsense with odd special variables
 use Exporter 'import';
 
-our $VERSION = '3.530';
+our $VERSION = '3.540';
 
 our @EXPORT = qw( scpi_match scpi_parse scpi_canon
     scpi_flat scpi_parse_sequence );

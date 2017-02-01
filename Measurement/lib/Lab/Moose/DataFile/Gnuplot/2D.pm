@@ -14,7 +14,7 @@ use Lab::Moose::Plot;
 use List::Util 'any';
 use namespace::autoclean;
 
-our $VERSION = '3.520';
+our $VERSION = '3.540';
 
 extends 'Lab::Moose::DataFile::Gnuplot';
 

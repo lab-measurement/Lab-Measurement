@@ -53,7 +53,7 @@ use Carp;
 
 use parent 'Lab::Instrument';
 
-our $VERSION = '3.530';
+our $VERSION = '3.540';
 
 our %fields = (
     channel               => undef,

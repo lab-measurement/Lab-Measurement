@@ -19,7 +19,7 @@ and 34411A digital multimeters by Agilent (now Keysight, formerly HP).
 =cut
 
 package Lab::Instrument::Agilent34410A;
-our $VERSION = '3.530';
+our $VERSION = '3.540';
 
 use warnings;
 use strict;

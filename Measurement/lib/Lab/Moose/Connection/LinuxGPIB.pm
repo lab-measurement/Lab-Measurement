@@ -51,7 +51,7 @@ use LinuxGpib qw/
     ibclr
     /;
 
-our $VERSION = '3.530';
+our $VERSION = '3.540';
 
 =head1 METHODS
 

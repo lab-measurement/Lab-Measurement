@@ -15,7 +15,7 @@ use Lab::Moose::Instrument qw/
 
 use namespace::autoclean;
 
-our $VERSION = '3.530';
+our $VERSION = '3.540';
 
 cache calculate_data_call_catalog => (
     getter => 'calculate_data_call_catalog',

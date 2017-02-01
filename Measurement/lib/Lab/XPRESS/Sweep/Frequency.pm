@@ -1,6 +1,6 @@
 package Lab::XPRESS::Sweep::Frequency;
 
-our $VERSION = '3.530';
+our $VERSION = '3.540';
 
 use Lab::XPRESS::Sweep::Sweep;
 use Time::HiRes qw/usleep/, qw/time/;
