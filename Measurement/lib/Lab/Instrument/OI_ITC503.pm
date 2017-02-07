@@ -7,8 +7,9 @@ use Lab::Instrument;
 
 our @ISA = ("Lab::Instrument");
 
-my %fields = (
-    supported_connections => [ 'IsoBus', 'LinuxGPIB' ],
+our %fields = (
+    auto_pid              => 1,
+    supported_connections => [ 'IsoBus', 'LinuxGPIB', 'VISA_GPIB' ],
 
     connection_settings => {},
     device_settings     => {
@@ -23,6 +24,10 @@ sub new {
     $self->${ \( __PACKAGE__ . '::_construct' ) }(__PACKAGE__);
     printf "The ITC driver is work in progress. You have been warned.\n";
     $self->device_settings()->{t_sensor} = 3;
+
+    if ( $self->auto_pid() ) {
+        $self->itc_set_PID_auto(1);
+    }
 
     return $self;
 }
@@ -139,7 +144,6 @@ sub set_T {
     $self->itc_set_heater_auto(0);
     $self->itc_set_heater_sensor($t_sensor);
     $self->itc_set_heater_auto(1);
-    $self->itc_set_PID_auto(1);
     $self->itc_T_set_point($temp);
 
     printf "Set temperature $temp with sensor $t_sensor.\n";
@@ -248,9 +252,22 @@ sub itc_set_heater_auto {
     return $self->query("A$mode\r");
 }
 
+sub set_PID {
+    my $self = shift;
+    my $p    = shift;
+    my $i    = shift;
+    my $d    = shift;
+
+    $self->itc_set_proportional_value($p);
+    $self->itc_set_integral_value($i);
+    $self->itc_set_derivative_value($d);
+}
+
 sub itc_set_proportional_value {
     my $self  = shift;
     my $value = shift;
+
+    $self->itc_set_PID_auto(0);
     $value = sprintf( "%d", $value );
     $self->query("P$value\r");
 }
@@ -258,6 +275,8 @@ sub itc_set_proportional_value {
 sub itc_set_integral_value {
     my $self  = shift;
     my $value = shift;
+
+    $self->itc_set_PID_auto(0);
     $value = sprintf( "%d", $value );
     $self->query("I$value\r");
 }
@@ -265,6 +284,8 @@ sub itc_set_integral_value {
 sub itc_set_derivative_value {
     my $self  = shift;
     my $value = shift;
+
+    $self->itc_set_PID_auto(0);
     $value = sprintf( "%d", $value );
     $self->query("D$value\r");
 }
