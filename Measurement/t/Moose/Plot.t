@@ -6,7 +6,7 @@ use 5.010;
 use lib 't';
 use Test::More;
 use Test::File;
-use Lab::Test import => [qw/compare_ok file_ok/];
+use Lab::Test import => [qw/file_filter_ok/];
 use File::Spec::Functions qw/catfile/;
 use Lab::Moose;
 use Module::Load 'autoload';
@@ -57,7 +57,11 @@ $plot->plot(
     data => [ $x, $y ],
 );
 
-file_ok( $file, squared_plot_expected(), 'plot x**2 vs x' );
+my $kill_trailing_spaces = qr/ *$/m;
+file_filter_ok(
+    $file, squared_plot_expected(), $kill_trailing_spaces,
+    'plot x**2 vs x'
+);
 
 # DataFile::Gnuplot2D
 
@@ -110,7 +114,10 @@ file_ok( $file, squared_plot_expected(), 'plot x**2 vs x' );
         $file->log( A => $i, B => 2 * $i, C => 3 * $i );
     }
 
-    file_ok( $AB_plot, AB_plot_expected(), "plotting A vs B" );
+    file_filter_ok(
+        $AB_plot, AB_plot_expected(), $kill_trailing_spaces,
+        "plotting A vs B"
+    );
     file_not_empty_ok(
         catfile( $folder->path(), 'AB_plot.png' ),
         'A-B plot hardcopy is not empty'
@@ -121,7 +128,10 @@ file_ok( $file, squared_plot_expected(), 'plot x**2 vs x' );
 
     $file->refresh_plots( handle => 'BC' );
 
-    file_ok( $BC_plot, BC_plot_expected(), "plotting B vs C" );
+    file_filter_ok(
+        $BC_plot, BC_plot_expected(), $kill_trailing_spaces,
+        "plotting B vs C"
+    );
     file_not_empty_ok( $BC_plot_hardcopy_path, "B-C hardcopy is not empty" );
 
 }

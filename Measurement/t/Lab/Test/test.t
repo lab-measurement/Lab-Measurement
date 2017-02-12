@@ -12,6 +12,7 @@ use Test::More;
 use Lab::Test import => [
     qw/
         file_ok
+        file_filter_ok
         file_ok_crlf
         compare_ok
         is_relative_error
@@ -53,13 +54,29 @@ use PDL qw/pdl/;
 
     # file_ok_crlf
 
-    $contents =~ s/\r\n/\n/g;
+    ( my $lf_contents = $contents ) =~ s/\r\n/\n/g;
 
     check_test(
-        sub { file_ok_crlf( $filename, $contents, "file_ok_crlf" ) },
+        sub { file_ok_crlf( $filename, $lf_contents, "file_ok_crlf" ) },
         {
             ok   => 1,
             name => "file_ok_crlf"
+        }
+    );
+
+    # file_filter_ok
+    ( my $filter_contents = $contents ) =~ s/\r\n//g;
+
+    check_test(
+        sub {
+            file_filter_ok(
+                $filename, $filter_contents, qr/\r\n/,
+                "file_filter_ok"
+            );
+        },
+        {
+            ok   => 1,
+            name => "file_filter_ok"
         }
     );
 

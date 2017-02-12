@@ -11,6 +11,7 @@ use parent 'Test::Builder::Module';
 
 our @EXPORT_OK = qw/
     file_ok
+    file_filter_ok
     file_ok_crlf
     compare_ok
     is_relative_error
@@ -33,6 +34,9 @@ Lab::Test -- Shared test routines for Lab::Measurement.
  use Lab::Test import => [qw/file_ok compare_ok .../];
 
  file_ok($filename, "file contents", "contents are equal");
+
+ file_filter_ok($filename, "line 1\nline 2\n", qr/ *$/m,
+     "contents equal after removing trailing ws from each line");
 
  compare_ok($file1, $file2, "files have same contents");
 
@@ -97,16 +101,56 @@ sub file_ok {
     }
 
     # Fail.
-    my $diff = diff(
+    my $diff = get_text_diff( $contents, $expected, $file );
+    return $tb->diag($diff);
+}
+
+=head2 file_filter_ok($file, $expected_contents, $filter, $name)
+
+Like file_ok but filter the contents of C<$file> with C<s/$filter//g> before
+comparing with C<expected_contents>.
+
+=cut
+
+sub file_filter_ok {
+    my ( $file, $expected, $filter, $name ) = @_;
+
+    # If it was a string, make it a regex ref.
+    $filter = qr/$filter/;
+
+    my $tb = $class->builder();
+    if ( not -f $file ) {
+        return $tb->ok( 0, "-f $file" )
+            || $tb->diag("file '$file' does not exist");
+    }
+
+    my $contents = read_binary($file);
+
+    $contents =~ s/$filter//g;
+
+    if ( $tb->ok( $contents eq $expected, $name ) ) {
+        return 1;
+    }
+
+    # Fail.
+    my $diff = get_text_diff( $contents, $expected, $file );
+    return $tb->diag($diff);
+}
+
+sub get_text_diff {
+    my $contents = shift;
+    my $expected = shift;
+    my $filename = shift;
+
+    return diff(
         \$contents,
         \$expected,
         {
             STYLE      => 'Table',
-            FILENAME_A => $file,
+            FILENAME_A => $filename,
             FILENAME_B => 'expected',
         }
     );
-    return $tb->diag($diff);
 }
 
 =head2 file_ok_crlf($file, $expected_contents, $name)
