@@ -13,8 +13,8 @@ For Moose basics see e.g.
 
 =item *
 
-The L<Modern Perl book|http://modernperlbooks.com/>, available online for free,
-contains a chapter on Moose.
+The L<Modern Perl book|http://modernperlbooks.com/> by chromatic, available
+online for free, contains a chapter on Moose.
 
 =item *
 
@@ -180,6 +180,85 @@ We pass the new amplitude to the instrument and update the cache.
  __PACKAGE__->meta()->make_immutable();
 
 Every Moose class shell end this way. See L<Moose::Manual::BestPractices>.
+
+=back
+
+=head3 Building automated instrument tests
+
+Lab::Moose has extensive support to build automated tests for instrument
+drivers and this is what enables B<long-term maintainability> of the code base.
+
+If you are new to automated testing with Perl, consider the L<Modern Perl book|http://modernperlbooks.com/>, which covers all of the basics.
+
+A test file F<t/Moose/Instrument/SR830.t> for the above driver could look like
+this:
+
+ #!perl
+ 
+ use warnings;
+ use strict;
+ 
+ use lib 't';
+ 
+ use Lab::Test import => [qw/set_get_test/];
+ use Moose::Instrument::MockTest qw/mock_instrument/;
+ use MooseX::Params::Validate;
+ 
+ use File::Spec::Functions 'catfile';
+ my $log_file = catfile(qw/t Moose Instrument SR830.yml/);
+ 
+ my $lia = mock_instrument(
+     type     => 'SR830',
+     log_file => $log_file,
+ );
+ 
+ isa_ok( $lia, 'Lab::Moose::Instrument::SR830' );
+ 
+ $lia->rst( timeout => 10 );
+
+ # Test the amplitude getter and setter
+ set_get_test(
+     instr  => $lia,
+     values => [qw/0.004 1 2 3 5/],
+     getter => 'get_amplitude',
+     setter => 'set_amplitude',
+     cache  => 'cached_amplitude',
+ );
+
+ $lia->rst();
+ done_testing();
+
+
+First thing, we need to run the test with the I<real> instrument, to create the
+connection log file F<t/Moose/Instrument/SR830.yml>:
+
+C<< $ perl -Ilib t/Moose/Instrument/SR830.t --connection=LinuxGPIB --connection_options='{pad: 1}'  >>
+
+where the argument of C<--connection_options> is given as a YAML hash.
+
+You can always print a help screen of command line options supported by the
+test:
+
+C<< $ perl -Ilib t/Moose/Instrument/SR830.t --help >>
+
+Know with the connection log in place, you can run the test without the real
+instrument connected:
+
+C<< $ prove -lv t/Moose/Instrument/SR830.t >>
+
+
+If C<set_get_test> is not enough for you, take a look at the other test
+routines in F<t/Lab/Test.pm> which offer
+
+=over
+
+=item *
+
+Floating point number comparison (absolute error, relative error, ...)
+
+=item *
+
+File comparison, including basic filtering options.
 
 =back
 
