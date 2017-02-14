@@ -8,7 +8,8 @@ use 5.010;
 
 use lib 't';
 
-use Lab::Test import => [qw/is_float is_absolute_error is_relative_error/];
+use Lab::Test import =>
+    [qw/is_float is_absolute_error is_relative_error set_get_test/];
 use Test::More;
 use Moose::Instrument::MockTest qw/mock_instrument/;
 use MooseX::Params::Validate;
@@ -36,85 +37,87 @@ my $rphi = $lia->get_rphi();
 is_absolute_error( $rphi->{r},   0, 0.001, "R is almost zero" );
 is_absolute_error( $rphi->{phi}, 0, 180,   "phi is in [-180,180]" );
 
-sub set_get_test {
-    my ( $func, $value, $numeric ) = validated_list(
-        \@_,
-        func    => { isa => 'Str' },
-        value   => { isa => 'Str' },
-        numeric => { isa => 'Bool', default => 1 },
-    );
-    my $setter = "set_$func";
-    my $getter = "get_$func";
-    my $cached = "cached_$func";
-
-    $lia->$setter( value => $value );
-
-    my $test_func = $numeric ? \&is_float : \&is;
-
-    $test_func->( $lia->$cached(), $value, "cached $func is $value" );
-    $test_func->( $lia->$getter(), $value, "$getter returns $value" );
-}
-
 # Set/Get reference frequency
-for my $freq (qw/1 10 1000 100000/) {
-    set_get_test( func => "freq", value => $freq );
-}
+
+set_get_test(
+    instr => $lia, getter => 'get_freq', setter => 'set_freq',
+    cache => 'cached_freq', values => [qw/1 10 1000 100000/]
+);
 
 # Amplitude
 
-for my $ampl (qw/0.004 1 2 3 5/) {
-    set_get_test( func => "amplitude", value => $ampl );
-}
+set_get_test(
+    instr  => $lia,            getter => 'get_amplitude',
+    setter => 'set_amplitude', cache  => 'cached_amplitude',
+    values => [qw/0.004 1 2 3 5/]
+);
 
 # Phase
 
-for my $phase (qw/-179 90 0 45 90 179/) {
-    set_get_test( func => "phase", value => $phase );
-}
+set_get_test(
+    instr  => $lia,        getter => 'get_phase',
+    setter => 'set_phase', cache  => 'cached_phase',
+    values => [qw/-179 90 0 45 90 179/]
+);
 
 # Time constant
-for my $tc (qw/1e-5 3e-5 1e-4 1 10 30/) {
-    set_get_test( func => "tc", value => $tc );
-}
+set_get_test(
+    instr  => $lia,     getter => 'get_tc',
+    setter => 'set_tc', cache  => 'cached_tc',
+    values => [qw/1e-5 3e-5 1e-4 1 10 30/]
+);
 
 # Filter slope
-for my $slope (qw/6 12 18 24/) {
-    set_get_test( func => 'filter_slope', value => $slope );
-}
+
+set_get_test(
+    instr  => $lia,               getter => 'get_filter_slope',
+    setter => 'set_filter_slope', cache  => 'cached_filter_slope',
+    values => [qw/6 12 18 24/]
+);
 
 # Sensitivity
-for my $sens (qw/1 0.5 0.2 0.1 0.05 1e-5 2e-5 5e-5/) {
-    set_get_test( func => "sens", value => $sens );
-}
+
+set_get_test(
+    instr  => $lia,       getter => 'get_sens',
+    setter => 'set_sens', cache  => 'cached_sens',
+    values => [qw/1 0.5 0.2 0.1 0.05 1e-5 2e-5 5e-5/]
+);
 
 # Inputs
 # I100M only available if sens is <= 5mV
 
 $lia->set_sens( value => 5e-3 );
-for my $input (qw/A AB I1M I100M/) {
-    set_get_test( func => 'input', value => $input, numeric => 0 );
-}
+
+set_get_test(
+    instr  => $lia,                 getter     => 'get_input',
+    setter => 'set_input',          cache      => 'cached_input',
+    values => [qw/A AB I1M I100M/], is_numeric => 0
+);
 
 # Grounding
 
-for my $ground (qw/GROUND FLOAT/) {
-    set_get_test( func => 'ground', value => $ground, numeric => 0 );
-}
+set_get_test(
+    instr  => $lia,               getter     => 'get_ground',
+    setter => 'set_ground',       cache      => 'cached_ground',
+    values => [qw/GROUND FLOAT/], is_numeric => 0
+);
 
 # Coupling
 
-for my $coupling (qw/AC DC/) {
-    set_get_test( func => 'coupling', value => $coupling, numeric => 0 );
-}
+set_get_test(
+    instr  => $lia,           getter     => 'get_coupling',
+    setter => 'set_coupling', cache      => 'cached_coupling',
+    values => [qw/AC DC/],    is_numeric => 0
+);
 
 # Line notch filters.
 
-for my $filters (qw/OUT LINE 2xLINE BOTH/) {
-    set_get_test(
-        func    => 'line_notch_filters', value => $filters,
-        numeric => 0
-    );
-}
+set_get_test(
+    instr  => $lia, getter => 'get_line_notch_filters',
+    setter => 'set_line_notch_filters',
+    cache  => 'cached_line_notch_filters',
+    values => [qw/OUT LINE 2xLINE BOTH/], is_numeric => 0
+);
 
 $lia->rst();
 done_testing();

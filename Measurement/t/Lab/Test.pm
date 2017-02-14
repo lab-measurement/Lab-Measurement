@@ -8,6 +8,8 @@ use Text::Diff 'diff';
 use PDL qw/any/;
 use PDL::Core 'topdl';
 use parent 'Test::Builder::Module';
+use MooseX::Params::Validate 'validated_list';
+use Test::More import => ['is'];
 
 our @EXPORT_OK = qw/
     file_ok
@@ -21,6 +23,7 @@ our @EXPORT_OK = qw/
     looks_like_number_ok
     skip_on_broken_printf
     is_pdl
+    set_get_test
     /;
 
 my $class = __PACKAGE__;
@@ -372,6 +375,43 @@ sub is_pdl {
     $tb->ok( all( $got == $expect ), $name )
         || $tb->diag(
         "pdls are not equal:\n" . "got: $got\n" . "exteced: $expect" );
+}
+
+sub set_get_test {
+    my $tb = $class->builder();
+
+    # Report all errors in context of calling test script.
+    local $Test::Builder::Level = $Test::Builder::Level + 4;
+
+    $tb->subtest( 'test setter and getter', \&set_get_test_sub, @_ );
+}
+
+sub set_get_test_sub {
+    my ( $instr, $getter, $setter, $cache, $is_numeric, $values )
+        = validated_list(
+        \@_,
+        instr      => { isa => 'Object' },
+        getter     => { isa => 'Str' },
+        setter     => { isa => 'Str' },
+        cache      => { isa => 'Str', optional => 1 },
+        is_numeric => { isa => 'Bool', default => 1 },
+        values     => { isa => 'ArrayRef[Str]' },
+        );
+
+    # Report all errors in context of calling test script.
+    local $Test::Builder::Level = $Test::Builder::Level + 6;
+
+    my $test_func = $is_numeric ? \&is_float : \&is;
+
+    for my $value ( @{$values} ) {
+        $instr->$setter( value => $value );
+
+        if ( defined $cache ) {
+            $test_func->( $instr->$cache(), $value, "$cache returns $value" );
+        }
+
+        $test_func->( $instr->$getter(), $value, "$getter returns $value" );
+    }
 }
 
 1;

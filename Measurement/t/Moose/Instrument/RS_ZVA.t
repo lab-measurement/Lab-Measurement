@@ -9,7 +9,7 @@ use lib 't';
 
 use PDL::Ufunc qw/any all/;
 
-use Lab::Test import => [qw/is_absolute_error is_float is_pdl/];
+use Lab::Test import => [qw/is_absolute_error is_float is_pdl set_get_test/];
 use Test::More;
 use Moose::Instrument::MockTest qw/mock_instrument/;
 use MooseX::Params::Validate;
@@ -58,64 +58,56 @@ for my $i ( 1 .. 3 ) {
 }
 
 # Test getters and setters
-
-sub set_get_test {
-    my ( $func, $value, $numeric ) = validated_list(
+sub local_set_get_test {
+    my ( $func, $values, $is_numeric ) = validated_list(
         \@_,
-        func    => { isa => 'Str' },
-        value   => { isa => 'Str' },
-        numeric => { isa => 'Bool', default => 1 },
+        func       => { isa => 'Str' },
+        values     => { isa => 'ArrayRef[Str]' },
+        is_numeric => { isa => 'Bool', default => 1 },
     );
-    my $setter = "$func";
-    my $getter = "${func}_query";
-    my $cached = "cached_$func";
 
-    $zva->$setter( value => $value );
-
-    my $test_func = $numeric ? \&is_float : \&is;
-
-    $test_func->( $zva->$cached(), $value, "cached $func is $value" );
-    $test_func->( $zva->$getter(), $value, "$getter returns $value" );
+    set_get_test(
+        instr      => $zva,        getter => "${func}_query",
+        setter     => "$func",     cache  => "cached_$func",
+        is_numeric => $is_numeric, values => $values
+    );
 }
 
 # start/stop
-for my $start (qw/1e7 1e8 1e9/) {
-    set_get_test( func => 'sense_frequency_start', value => $start );
-}
+local_set_get_test(
+    func   => 'sense_frequency_start',
+    values => [qw/1e7 1e8 1e9/]
+);
 
-for my $stop (qw/2e7 3e8 4e9/) {
-    set_get_test( func => 'sense_frequency_stop', value => $stop );
-}
+local_set_get_test(
+    func   => 'sense_frequency_stop',
+    values => [qw/2e7 3e8 4e9/]
+);
 
 # number of points
-for my $num (qw/1 10 100 60000/) {
-    set_get_test( func => 'sense_sweep_points', value => $num );
-}
+
+local_set_get_test(
+    func   => 'sense_sweep_points',
+    values => [qw/1 10 100 60000/]
+);
 
 # power
-for my $power (qw/0 -10 -20/) {
-    set_get_test(
-        func  => 'source_power_level_immediate_amplitude',
-        value => $power
-    );
-}
+local_set_get_test(
+    func   => 'source_power_level_immediate_amplitude',
+    values => [qw/0 -10 -20/]
+);
 
 # if bandwidth
-for my $bw (qw/1 100 1000/) {
-    set_get_test(
-        func  => 'sense_bandwidth_resolution',
-        value => $bw
-    );
-}
+local_set_get_test(
+    func   => 'sense_bandwidth_resolution',
+    values => [qw/1 100 1000/]
+);
 
 # if bandwidth selectivity
-for my $s (qw/HIGH NORM HIGH/) {
-    set_get_test(
-        func    => 'sense_bandwidth_resolution_select',
-        numeric => 0,
-        value   => $s
-    );
-}
+local_set_get_test(
+    func   => 'sense_bandwidth_resolution_select',
+    values => [qw/HIGH NORM HIGH/], is_numeric => 0
+);
 
 $zva->rst();
 done_testing();
