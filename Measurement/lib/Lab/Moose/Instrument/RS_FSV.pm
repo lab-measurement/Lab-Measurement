@@ -20,6 +20,7 @@ with qw(
 
     Lab::Moose::Instrument::SCPI::Format
 
+    Lab::Moose::Instrument::SCPI::Sense::Bandwidth
     Lab::Moose::Instrument::SCPI::Sense::Frequency
     Lab::Moose::Instrument::SCPI::Sense::Sweep
 
@@ -138,6 +139,8 @@ This driver consumes the following roles:
 =item L<Lab::Moose::Instrument::Common>
 
 =item L<Lab::Moose::Instrument::SCPI::Format>
+
+=item L<Lab::Moose::Instrument::SCPI::Sense::Bandwidth>
 
 =item L<Lab::Moose::Instrument::SCPI::Sense::Frequency>
 
