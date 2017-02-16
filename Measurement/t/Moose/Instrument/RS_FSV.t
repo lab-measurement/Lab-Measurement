@@ -6,7 +6,7 @@ use 5.010;
 use lib 't';
 
 use PDL::Ufunc qw/all/;
-use Lab::Test import => [qw/is_float is_absolute_error set_get_test/];
+use Lab::Test import => [qw/is_float is_absolute_error scpi_set_get_test/];
 use Test::More;
 use MooseX::Params::Validate 'validated_list';
 use Moose::Instrument::MockTest 'mock_instrument';
@@ -42,22 +42,9 @@ for my $i ( 1 .. 3 ) {
 }
 
 # Test getters and setters
-sub local_set_get_test {
-    my ( $func, $values, $is_numeric ) = validated_list(
-        \@_,
-        func       => { isa => 'Str' },
-        values     => { isa => 'ArrayRef[Str]' },
-        is_numeric => { isa => 'Bool', default => 1 },
-    );
 
-    set_get_test(
-        instr      => $fsv,        getter => "${func}_query",
-        setter     => "$func",     cache  => "cached_$func",
-        is_numeric => $is_numeric, values => $values
-    );
-}
-
-local_set_get_test(
+scpi_set_get_test(
+    instr  => $fsv,
     func   => 'sense_bandwidth_resolution',
     values => [qw/1 100 1000/],
 );

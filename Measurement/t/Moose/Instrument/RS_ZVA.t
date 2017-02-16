@@ -9,7 +9,8 @@ use lib 't';
 
 use PDL::Ufunc qw/any all/;
 
-use Lab::Test import => [qw/is_absolute_error is_float is_pdl set_get_test/];
+use Lab::Test import =>
+    [qw/is_absolute_error is_float is_pdl scpi_set_get_test/];
 use Test::More;
 use Moose::Instrument::MockTest qw/mock_instrument/;
 use MooseX::Params::Validate;
@@ -58,53 +59,45 @@ for my $i ( 1 .. 3 ) {
 }
 
 # Test getters and setters
-sub local_set_get_test {
-    my ( $func, $values, $is_numeric ) = validated_list(
-        \@_,
-        func       => { isa => 'Str' },
-        values     => { isa => 'ArrayRef[Str]' },
-        is_numeric => { isa => 'Bool', default => 1 },
-    );
-
-    set_get_test(
-        instr      => $zva,        getter => "${func}_query",
-        setter     => "$func",     cache  => "cached_$func",
-        is_numeric => $is_numeric, values => $values
-    );
-}
 
 # start/stop
-local_set_get_test(
+scpi_set_get_test(
+    instr  => $zva,
     func   => 'sense_frequency_start',
     values => [qw/1e7 1e8 1e9/]
 );
 
-local_set_get_test(
+scpi_set_get_test(
+    instr  => $zva,
     func   => 'sense_frequency_stop',
     values => [qw/2e7 3e8 4e9/]
 );
 
 # number of points
 
-local_set_get_test(
+scpi_set_get_test(
+    instr  => $zva,
     func   => 'sense_sweep_points',
     values => [qw/1 10 100 60000/]
 );
 
 # power
-local_set_get_test(
+scpi_set_get_test(
+    instr  => $zva,
     func   => 'source_power_level_immediate_amplitude',
     values => [qw/0 -10 -20/]
 );
 
 # if bandwidth
-local_set_get_test(
+scpi_set_get_test(
+    instr  => $zva,
     func   => 'sense_bandwidth_resolution',
     values => [qw/1 100 1000/]
 );
 
 # if bandwidth selectivity
-local_set_get_test(
+scpi_set_get_test(
+    instr  => $zva,
     func   => 'sense_bandwidth_resolution_select',
     values => [qw/HIGH NORM HIGH/], is_numeric => 0
 );

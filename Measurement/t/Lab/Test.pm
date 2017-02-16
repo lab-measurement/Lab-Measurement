@@ -24,6 +24,7 @@ our @EXPORT_OK = qw/
     skip_on_broken_printf
     is_pdl
     set_get_test
+    scpi_set_get_test
     /;
 
 my $class = __PACKAGE__;
@@ -52,6 +53,21 @@ Lab::Test -- Shared test routines for Lab::Measurement.
  is_absolute_error(10, 11, 2, "absolute error of 10 and 11 is smaller than 2");
 
  looks_like_number_ok("100e2", "'100e2' looks like a number");
+
+ set_get_test(
+     instr => $instr,
+     getter => 'get_amplitude',
+     setter => 'set_amplitude',
+     cache => 'cached_amplitude',
+     values => [0.1, 1, 10],
+ );
+
+ scpi_set_get_test(
+     instr => $instr,
+     func => 'sense_sweep_points',
+     values => [1, 100, 10000],
+ );
+
 
 =head1 DESCRIPTION
 
@@ -377,6 +393,23 @@ sub is_pdl {
         "pdls are not equal:\n" . "got: $got\n" . "exteced: $expect" );
 }
 
+=head2 set_get_test
+
+ set_get_test(
+     instr => $instr,
+     getter => 'get_amplitude',
+     setter => 'set_amplitude',
+     cache => 'cached_amplitude', # optional
+     values => [0.1, 1, 10],
+     is_numeric => 1, # this is default
+ );
+ 
+Try the C<setter>, C<getter> and C<cache> for each value in C<values>. Check
+that the C<getter> and C<cache> methods return the correct value.
+For non-numeric string values, set C<is_numeric> to 0.
+
+=cut
+
 sub set_get_test {
     my $tb = $class->builder();
 
@@ -412,6 +445,40 @@ sub set_get_test_sub {
 
         $test_func->( $instr->$getter(), $value, "$getter returns $value" );
     }
+}
+
+=head2 scpi_set_get_test
+
+ scpi_set_get_test(
+     instr => $instr,
+     func => 'sense_sweep_points',
+     values => [1, 100, 10000],
+     is_numeric => 1, # this is default
+ );
+
+Like C<set_get_test>, but assume that the getter, setter and cache are called
+C<"${func}_query">, C<$func> and C<"cached_$func"> respectively.
+
+=cut
+
+sub scpi_set_get_test {
+    my ( $instr, $func, $is_numeric, $values ) = validated_list(
+        \@_,
+        instr      => { isa => 'Object' },
+        func       => { isa => 'Str' },
+        is_numeric => { isa => 'Bool', default => 1 },
+        values     => { isa => 'ArrayRef[Str]' },
+    );
+
+    set_get_test(
+        instr      => $instr,
+        getter     => "${func}_query",
+        setter     => $func,
+        cache      => "cached_$func",
+        is_numeric => $is_numeric,
+        values     => $values,
+    );
+
 }
 
 1;
