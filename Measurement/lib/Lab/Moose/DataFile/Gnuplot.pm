@@ -18,8 +18,6 @@ our $VERSION = '3.540';
 
 extends 'Lab::Moose::DataFile';
 
-with 'Lab::Moose::DataFile::Read';
-
 has columns => (
     is       => 'ro',
     isa      => 'ArrayRef[Str]',

@@ -11,6 +11,7 @@ use Data::Dumper;
 use Carp;
 use Scalar::Util 'looks_like_number';
 use Lab::Moose::Plot;
+use Lab::Moose::DataFile::Read 'read_2d_gnuplot_format';
 use List::Util 'any';
 use namespace::autoclean;
 
@@ -229,8 +230,7 @@ sub _refresh_plot {
 
     my ($y_index) = grep { $column_names->[$_] eq $y } 0 .. $#{$column_names};
 
-    my $data_columns
-        = $self->read_2d_gnuplot_format( fh => $self->filehandle() );
+    my $data_columns = read_2d_gnuplot_format( fh => $self->filehandle() );
 
     $plot->{plot}->plot(
         data => [ $data_columns->[$x_index], $data_columns->[$y_index] ],
