@@ -26,8 +26,8 @@ my $smb = mock_instrument(
 
 scpi_set_get_test(
     instr  => $smb,
-    func   => 'sense_power_frequency',
-    values => [qw/1e4 1e6 1.1e9/],
+    func   => 'source_frequency',
+    values => [qw/1e5 1e6 1.1e9/],
 );
 
 # Power (Dbm)

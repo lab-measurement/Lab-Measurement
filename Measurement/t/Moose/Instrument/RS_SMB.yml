@@ -6,33 +6,33 @@ command: '*CLS'
 id: 1
 method: Write
 ---
-command: SENS:FREQ 10000
+command: FREQ 100000
 id: 2
 method: Write
 ---
-command: SENS:FREQ?
+command: FREQ?
 id: 3
 method: Query
-retval: '10000
+retval: '100000
 
 '
 ---
-command: SENS:FREQ 1000000
+command: FREQ 1000000
 id: 4
 method: Write
 ---
-command: SENS:FREQ?
+command: FREQ?
 id: 5
 method: Query
 retval: '1000000
 
 '
 ---
-command: SENS:FREQ 1100000000
+command: FREQ 1100000000
 id: 6
 method: Write
 ---
-command: SENS:FREQ?
+command: FREQ?
 id: 7
 method: Query
 retval: '1100000000

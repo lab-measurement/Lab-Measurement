@@ -51,31 +51,32 @@ Used roles:
 
 =back
 
-=head2 sense_power_frequency_query
+=head2 source_frequency_query
 
-=head2 sense_power_frequency
+=head2 source_frequency
+
+=head2 cached_source_frequency
 
 Query and set the RF output frequency.
-
+    
 =cut
 
-cache sense_power_frequency => ( getter => 'sense_power_frequency_query' );
+cache source_frequency => ( getter => 'source_frequency_query' );
 
-sub sense_power_frequency_query {
+sub source_frequency_query {
     my ( $self, %args ) = validated_getter( \@_ );
-    return $self->cached_sense_power_frequency(
-        $self->query( command => "SENS:FREQ?" ) );
+    return $self->cached_source_frequency(
+        $self->query( command => "FREQ?" ) );
 }
 
-sub sense_power_frequency {
+sub source_frequency {
     my ( $self, $value, %args ) = validated_setter(
         \@_,
         value => { isa => 'Num' },
     );
 
-    $self->write( command => sprintf( "SENS:FREQ %.17g", $value ) );
-
-    $self->cached_sense_power_frequency($value);
+    $self->write( command => sprintf( "FREQ %.17g", $value ) );
+    $self->cached_source_frequency($value);
 }
 
 1;
