@@ -34,7 +34,7 @@ Lab::Moose::Instrument::RS_SMB - Rohde & Schwarz SMB Signal Generator
 =head1 SYNOPSIS
 
  # Set frequency to 2 GHz
- $smb->sense_power_frequency(value => 2e9);
+ $smb->source_frequency(value => 2e9);
  
  # Query output power (in Dbm)
  my $power = $smb->source_power_level_immediate_amplitude_query();

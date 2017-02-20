@@ -85,6 +85,7 @@ toc:
           - RF generators:
               - Measurement/lib/Lab/Instrument/HP33120A.pm
               - Measurement/lib/Lab/Instrument/HP83732A.pm
+              - Measurement/lib/Lab/Moose/Instrument/RS_SMB.pm
           - RF detectors:
               - Measurement/lib/Lab/Instrument/U2000.pm
           - Spectrum analyzers:
