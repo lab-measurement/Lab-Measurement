@@ -123,6 +123,7 @@ toc:
       - Moose Connection/Bus classes:
           - Measurement/lib/Lab/Moose/Connection.pm
           - Measurement/lib/Lab/Moose/Connection/LinuxGPIB.pm
+          - Measurement/lib/Lab/Moose/Connection/Socket.pm
       - Connection classes:
           - Measurement/lib/Lab/Connection.pm
           - Measurement/lib/Lab/Connection/DEBUG.pm
