@@ -3,6 +3,7 @@ use 5.010;
 use warnings;
 use strict;
 use MooseX::Params::Validate 'validated_list';
+use PDL::Lite;
 use PDL::IO::Misc 'rcols';
 use Fcntl 'SEEK_SET';
 use Carp;
