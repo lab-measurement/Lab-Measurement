@@ -119,6 +119,7 @@ toc:
           - Measurement/lib/Lab/Moose/Instrument/SCPI/Sense/Frequency.pm
           - Measurement/lib/Lab/Moose/Instrument/SCPI/Sense/Function.pm
           - Measurement/lib/Lab/Moose/Instrument/SCPI/Sense/Sweep.pm
+          - Measurement/lib/Lab/Moose/Instrument/SCPI/Source/Power.pm
       - Moose Connection/Bus classes:
           - Measurement/lib/Lab/Moose/Connection.pm
           - Measurement/lib/Lab/Moose/Connection/LinuxGPIB.pm
