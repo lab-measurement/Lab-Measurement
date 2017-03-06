@@ -1,17 +1,22 @@
-# Read out SR830 lock-in at GPIB address 13
-use Lab::Instrument::SR830;
+# Read out SR830 Lock In Amplifier at GPIB address 13
+use warnings;
+use strict;
+use 5.010;
+use Lab::Measurement;
 
-my $sr=new Lab::Instrument::SR830(
-	connection_type=>'LinuxGPIB',
-	gpib_address => 13,
-	gpib_board=>0,
+my $lia = Instrument(
+    'SR830',
+    {
+        connection_type => 'LinuxGPIB',
+        gpib_address    => 13,
+    }
 );
 
-my $amp=$sr->get_amplitude();
-print "Reference amplitude: $amp V\n";
+my $amp = $lia->get_amplitude();
+say "Reference output amplitude: $amp V";
 
-my $freq=$sr->get_frequency();
-print "Reference frequency: $freq Hz\n";
+my $freq = $lia->get_frequency();
+say "Reference frequency: $freq Hz";
 
-my ($r,$phi)=$sr->get_rphi();
-print "Signal             : r=$r V   phi=$phi\n";
+my ( $r, $phi ) = $lia->get_rphi();
+say "Signal: r=$r V   phi=$phi degree";
