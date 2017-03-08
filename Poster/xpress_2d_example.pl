@@ -60,7 +60,7 @@ my $bias_sweep = Sweep(
 my $gate_sweep = Sweep(
     'Voltage',
     {
-        mode       => 'step',             # step, list, sweep/continuous
+        mode       => 'step',
         instrument => $gate_source,
         points     => [ -0.5, 0.5 ],      # starting point, end point
         stepwidth  => [$stepwidthgate],

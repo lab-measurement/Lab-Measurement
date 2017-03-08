@@ -373,11 +373,15 @@ color plot via gnuplot.
 \placesmalllisting{xpress_2d_example.pl}
 
 \vspace*{2cm}
-Script creates output folder with copy of the script, datafile (tab-separated
-gnuplot format), hardcopy of live-plot, \ldots:
+Script creates output folder
 
-FIXME: Add screenshot of file manager.
-
+\placesmalllisting{ls.txt}
+\vspace*{2cm}
+\begin{itemize}
+\item archival copy of the measurement script
+\item data, tab-separated gnuplot format
+\item copy of the live plot
+\end{itemize}
 
 
 
@@ -419,14 +423,39 @@ Abstract IO-layer makes instrument drivers independent of hardware backends.
 \end{itemize}
 \vspace*{0.9cm}
 \heading{Recent additions}
-\vspace*{-3mm}
+\vspace*{-2cm}
 \begin{itemize}
 \item New drivers for R\&S FSV Spectrum analyzer and the R\&S ZVA and ZVM vector
   network analyzers.
-\item automated testing of instrument drivers and high-level functionality via
-  mocked connection objects. Every commit is checked with continuous
+\item Automated testing of instrument drivers and high-level functionality via
+  mocked connection objects. Continuous
   integration testing on both Linux (Travis CI) and Windows (Appveyor).
-\item 
+\item New framework for drivers and connections based on \textbf{Moose}, which enables
+  modern object oriented programming with Perl5:
+  \begin{itemize}
+  \item Less boilerplate, create classes in a descriptive way. New de-facto
+    standard for OOP with Perl5.
+  \item Use \textbf{Roles} for safe and efficient sharing of code between
+    drivers without the problems of multiple inheritance. For example, the R\&S
+    ZVA and ZVM share most of their code.
+  \item Extensive type system. Types of accessor/subroutine arguments are
+    validated at run time.
+    \item Metaobject protocol (MOP), method modifiers, \ldots
+  \end{itemize}
+  
+\item \textbf{PDL::Graphics::Gnuplot} gives convenient access to all of
+  gnuplot's plot and curve options. Can be used for live plots (qt, x11, wxt)
+  and hardcopies (png, svg, tikz, pdfcairo, ...)
+\end{itemize}
+
+\vspace*{0.9cm}
+\heading{Outlook}
+\vspace*{-2cm}
+
+\begin{itemize}
+\item Implement more drivers, connections and XPRESS functionality with
+  Moose
+\item Build portable, lightweight USB-TMC driver based on libusb
 \end{itemize}
 
 

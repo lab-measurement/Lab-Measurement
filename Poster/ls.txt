@@ -1,2 +1,2 @@
-huettel@kailua ~/tmp/MEAS_2894 $ ls
-Config.txt  Ifcurve.dat  Ifcurve_01.png  freqsweep_SMB100A.pl
+simon@keanae /tmp$ ls MEAS_000/
+Config.txt  DCDiamond_01.png  DCDiamond.dat dc_diamond.pl
