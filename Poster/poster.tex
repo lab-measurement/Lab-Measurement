@@ -267,6 +267,7 @@ in your looong C program?
 \item
 Use a text processing language to manage your measurement! Use Perl!
 \end{itemize}
+\vspace*{0.5cm}
 
 \placelisting{srs_read.pl}
 
@@ -292,14 +293,15 @@ TCP connection, generic network socket
 RS232 serial port
 \end{itemize}
 
-Growing number of High-level drivers (more are {\it very} easy to add):
+\vspace*{1cm}
+Growing number of high-level drivers (more are {\it very} easy to add):
 {\large
 \begin{itemize}
-\item Various HP/Agilent/Keysight multimeters.
-\item DC sources from Yokogawa and Keithley.
-\item Lock In Amplifiers from Stanford Research and Signal Recovery.
-\item Temperature controllers from Lakeshore and Oxford Instruments.
-\item Rohde \& Schwarz RF/Microwave Sources, Spectrum Analyzers, VNAs.
+\item Various HP / Agilent / Keysight multimeters
+\item DC sources from Yokogawa and Keithley
+\item Lock-in amplifiers from Stanford Research and Signal Recovery
+\item Temperature controllers from Lakeshore and Oxford Instruments
+\item Rohde \& Schwarz RF / microwave sources, spectrum analyzers, VNAs
 \item and many more...
 \end{itemize}
 }
@@ -347,13 +349,20 @@ Growing number of High-level drivers (more are {\it very} easy to add):
 %
 
 \vspace*{0.9cm}
-
 \heading{Real world measurement}
-\vspace*{-3mm}
-Nested sweeps of gate voltage $V_g$ and bias voltage $V_{sd}$.
-Read out multimeter for each point, write values to datafile and create live
-color plot:
 
+\vspace*{-1cm}
+\begin{itemize}
+ \item 
+ Nested sweeps: gate voltage $V_\text{g}$, bias voltage $V_\text{sd}$
+ \item
+ For each point, read out multimeter, write values to data file
+ \item 
+ Regularly updated ``live'' color plot
+\end{itemize}
+
+
+\vspace*{0.5cm}
 \placesmalllisting{xpress_2d_example.pl}
 
 \vspace*{2cm}
@@ -403,52 +412,49 @@ Script creates output folder:
 Modular structure. Easy to extend with new instrument drivers and connection
 types.
 \item
-Abstract IO-layer makes instrument drivers independent of hardware backends.
+Abstract IO layer, makes instrument drivers independent of hardware backends.
 \end{itemize}
 \vspace*{0.9cm}
 \heading{Recent additions}
 \vspace*{-2cm}
 \begin{itemize}
-\item New drivers for R\&S FSV Spectrum analyzer and  R\&S ZVA and ZVM vector
-  network analyzers, the HP33120 function generator and the Tektronix TDS2024
-  oscilloscope.
+\item New drivers: R\&S FSV spectrum analyzers, R\&S ZVA and ZVM vector
+  network analyzers, HP33120 function generator, Tektronix TDS2024
+  oscilloscope
 \item Automated testing of instrument drivers and high-level functionality via
-  mock connection objects. Continuous
-  integration testing on both Linux (Travis CI) and Windows (Appveyor).
-\item New framework for drivers and connections based on \textbf{Moose}, which
-  enables 
-  modern object oriented programming (OOP) with Perl5:
+  mock connection objects; continuous integration testing on both Linux (Travis 
+  CI) and Windows (Appveyor)
+\item 
+  New framework for drivers and connections based on \textbf{Moose} --- de-facto
+  standard for Perl5, enabling modern object oriented programming
   \begin{itemize}
-  \item Less boilerplate, create classes in a descriptive way. New de-facto
-    standard for OOP with Perl5.
-  \item Use \textbf{Roles} for safe and efficient sharing of functionality
-    between 
-    drivers.
+  \item Less boilerplate code, create classes in a descriptive way
+  \item Use \textbf{roles} for safe and efficient sharing of functionality
+    between drivers
   \item Organize SCPI subsystems into roles, which can be used by multiple
-    drivers. This snippet shows how SCPI roles are consumed by the new R\&S
-    FSV driver:
+    drivers. Example from the new R\&S FSV spectrum analyzer driver:
 \vspace*{4mm}
 \placesmalllisting{fsv-roles.pl}
-
-\vspace*{2cm}
-  \item Extensive type system. Convenient validation of user provided
-    function parameters.
+\vspace*{1.5cm}
+  \item Extensive type system; easy validation of user provided function 
+  parameters.
   \end{itemize}
   
 
-\item \textbf{PDL::Graphics::Gnuplot} gives convenient access to all of
-  gnuplot's plot and curve options. Can be used for live plots (qt, x11, wxt)
-  and hardcopies (png, jpeg, svg, tikz, pdfcairo, ...).
+\item 
+access to all of gnuplot's \textbf{plot and curve options} via 
+PDL::Graphics::Gnuplot --- both for live plots (qt, x11, wxt) and hardcopies 
+(png, jpeg, svg, tikz, pdfcairo, ...)
 \end{itemize}
 
-\vspace*{0.9cm}
+\vspace*{2cm}
 \heading{Outlook}
 \vspace*{-2cm}
 
 \begin{itemize}
-\item Implement more drivers, connections and XPRESS functionality with
-  Moose.
-\item Build portable, lightweight USB-TMC connection based on libusb.
+\item Implement more drivers, connections, and XPRESS functionality with
+  Moose
+\item Build portable, lightweight USB-TMC connection based on libusb
 \end{itemize}
 
 
