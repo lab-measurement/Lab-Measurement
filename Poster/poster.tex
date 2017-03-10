@@ -424,12 +424,18 @@ Abstract IO-layer makes instrument drivers independent of hardware backends.
   \item Use \textbf{Roles} for safe and efficient sharing of functionality
     between 
     drivers.
-  \item Organize SCPI subsystems into Roles, which can be used by multiple
-    drivers.
+  \item Organize SCPI subsystems into roles, which can be used by multiple
+    drivers. This snippet shows how SCPI roles are consumed by the new R\&S
+    FSV driver:
+\vspace*{4mm}
+\placesmalllisting{fsv-roles.pl}
+
+\vspace*{2cm}
   \item Extensive type system. Convenient validation of user provided
     function parameters.
   \end{itemize}
   
+
 \item \textbf{PDL::Graphics::Gnuplot} gives convenient access to all of
   gnuplot's plot and curve options. Can be used for live plots (qt, x11, wxt)
   and hardcopies (png, jpeg, svg, tikz, pdfcairo, ...).
