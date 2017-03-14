@@ -8,6 +8,10 @@ use Clone qw(clone);
 
 #use Data::Dumper;
 use Test::More;
+use lib 't';
+use Lab::Test import => ['skip_on_broken_printf'];
+
+skip_on_broken_printf();
 
 plan tests => 5;
 

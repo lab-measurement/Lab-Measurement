@@ -1,17 +1,20 @@
-configuration:
-  
-  # - --version 5.24.1.1
-  # - --version 5.24.1.1 --x86
-  - --version 5.20.1.1
-  - --version 5.20.1.1 --x86
-  
+environment:
+  matrix:
+    # Run quick build without recursive testing of dependencies.
+    - strawberry_version: 5.20.1.1
+      installdeps_options: -n -v 
+    - strawberry_version: 5.20.1.1
+      installdeps_options: -v
+    - strawberry_version: 5.20.1.1 --x86
+      installdeps_options: -v
+      
 install:
-  - choco install --allowemptychecksum strawberryperl %configuration%
+  - choco install --allowemptychecksum strawberryperl --version %strawberry_version%
   - path C:\strawberry\perl\bin;C:\strawberry\perl\site\bin;C:\strawberry\c\bin;%PATH%
   - perl -V
   - cd Measurement
   - cpan App::cpanminus
-  - cpanm --installdeps -v .
+  - cpanm --installdeps %installdeps_options% .
 
 build_script:
   - perl ./Build.PL
