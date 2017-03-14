@@ -282,29 +282,29 @@ Use a text processing language to manage your measurement! Use Perl!
 \placefigure{file=images/hardware}
 Hardware driver backends: 
 \begin{itemize}
+\item 
+NI-VISA (both on MS Windows and on Linux) and all hardware supported by it
 \item
 LinuxGPIB and all hardware supported by it
 \item
 Linux USB-TMC kernel driver
- \item 
-NI-VISA (Windows and Linux) and all hardware supported by it
  \item
 Oxford Instruments IsoBus
  \item
 TCP connection, generic network socket
  \item
-RS232 serial port
+Serial port, USB serial connection
 \end{itemize}
 
 \vspace*{1cm}
 Growing number of high-level drivers (more are {\it very} easy to add):
 {\large
 \begin{itemize}
-\item Various HP / Agilent / Keysight multimeters
-\item DC sources from Yokogawa and Keithley
-\item Lock-in amplifiers from Stanford Research and Signal Recovery
-\item Temperature controllers from Lakeshore and Oxford Instruments
-\item Rohde \& Schwarz RF / microwave sources, spectrum analyzers, VNAs
+\item Multimeters: HP / Agilent / Keysight
+\item DC sources: Yokogawa / Keithley
+\item Lock-in amplifiers: Stanford Research / Signal Recovery
+\item Temperature controllers: Lakeshore / Oxford Instruments
+\item RF / microwave sources, spectrum analyzers, VNAs from Rohde \& Schwarz 
 \item and many more...
 \end{itemize}
 }
@@ -313,16 +313,16 @@ Growing number of high-level drivers (more are {\it very} easy to add):
 \vspace*{-2cm}
 \begin{itemize}
  \item
- open source / free software\\[-5cm]
+ Open source / free software\\[-5cm]
  \item 
  http://www.labmeasurement.de/
  \hfill\epsfig{file=images/qrcode-labmeasurement,width=5cm}
  \item
- license: same as Perl (GPL-1+ or Artistic)
+ License: same as Perl (GPL-1+ or Artistic)
  \item
- releases on CPAN, development on Github
+ Releases on CPAN, development on Github
  \item
- contributors and cooperations welcome!
+ Contributors and cooperations welcome!
 \end{itemize}
 
 
@@ -368,15 +368,16 @@ Growing number of high-level drivers (more are {\it very} easy to add):
 \vspace*{0.5cm}
 \placesmalllisting{xpress_2d_example.pl}
 
-\vspace*{2cm}
-Script creates output folder:
-\vspace*{5mm}
+\vspace*{3cm}
+
+\heading{Output files}
+\vspace*{-1cm}
 \placesmalllisting{ls.txt}
 \vspace*{2cm}
 \begin{itemize}
-\item archival copy of the measurement script
-\item data, tab-separated gnuplot format
-\item live plot at end of measurement
+\item Archival copy of the measurement script
+\item Measured data, tab-separated gnuplot format
+\item Live plot at end of measurement as png image
 \end{itemize}
 
 
@@ -418,34 +419,37 @@ types.
 Abstract IO layer, makes instrument drivers independent of hardware backends.
 \end{itemize}
 \vspace*{0.9cm}
-\heading{Recent additions}
+\heading{Recent improvements}
 \vspace*{-2cm}
 \begin{itemize}
-\item New drivers: R\&S FSV spectrum analyzers, R\&S ZVA and ZVM vector
+\item {\lightblue New drivers}: R\&S FSV spectrum analyzers, R\&S ZVA and ZVM 
+vector
   network analyzers, HP33120 function generator, Tektronix TDS2024
   oscilloscope
-\item Automated testing of instrument drivers and high-level functionality via
+\item {\lightblue Automated testing} of instrument drivers and high-level 
+functionality via
   mock connection objects; continuous integration testing on both Linux (Travis 
   CI) and Windows (Appveyor)
 \item 
-  New framework for drivers and connections based on \textbf{Moose} --- de-facto
+  {\lightblue New framework for drivers and connections} based on 
+\textbf{Moose} --- de-facto
   standard for Perl5, enabling modern object oriented programming
   \begin{itemize}
   \item Less boilerplate code, create classes in a descriptive way
   \item Use \textbf{roles} for safe and efficient sharing of functionality
     between drivers
   \item Organize SCPI subsystems into roles, which can be used by multiple
-    drivers. Example from the new R\&S FSV spectrum analyzer driver:
+    drivers --- see e.g. the new R\&S FSV spectrum analyzer driver:
 \vspace*{4mm}
 \placesmalllisting{fsv-roles.pl}
 \vspace*{1.5cm}
-  \item Extensive type system; easy validation of user provided function 
-  parameters.
+  \item Extensive type system; easy validation of user provided 
+ function parameters.
   \end{itemize}
   
 
 \item 
-access to all of gnuplot's \textbf{plot and curve options} via 
+Access to all of gnuplot's {\lightblue plot and curve options} via 
 PDL::Graphics::Gnuplot --- both for live plots (qt, x11, wxt) and hardcopies 
 (png, jpeg, svg, tikz, pdfcairo, ...)
 \end{itemize}
