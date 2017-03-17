@@ -6,7 +6,7 @@ use Moose;
 use MooseX::Params::Validate;
 use Socket qw(IPPROTO_TCP TCP_NODELAY);
 use IO::Socket::INET;
-use IO::Select;
+use IO::Socket::Timeout;
 use Carp;
 
 use Lab::Moose::Instrument qw/timeout_param/;
@@ -19,13 +19,6 @@ has client => (
     is       => 'ro',
     isa      => 'IO::Socket::INET',
     writer   => '_client',
-    init_arg => undef,
-);
-
-has select => (
-    is       => 'ro',
-    isa      => 'IO::Select',
-    writer   => '_select',
     init_arg => undef,
 );
 
@@ -42,23 +35,24 @@ has port => (
 );
 
 sub BUILD {
-    my $self   = shift;
-    my $host   = $self->host();
-    my $port   = $self->port();
-    my $client = IO::Socket::INET->new(
+    my $self    = shift;
+    my $host    = $self->host();
+    my $port    = $self->port();
+    my $timeout = $self->timeout();
+    my $client  = IO::Socket::INET->new(
         PeerAddr => $host,
         PeerPort => $port,
-        Proto    => 'tcp'
+        Proto    => 'tcp',
+        Timeout  => $timeout,
     ) or croak "cannot open connection with $host on port $port: $!";
+
+    IO::Socket::Timeout->enable_timeouts_on($client);
+    $client->read_timeout($timeout);
+    $client->write_timeout($timeout);
 
     $client->setsockopt( IPPROTO_TCP, TCP_NODELAY, 1 )
         or die "setsockopt: cannot enable TCP_NODELAY";
     $self->_client($client);
-
-    my $select = IO::Select->new($client)
-        or croak "cannot create IO::Select object: $!";
-
-    $self->_select($select);
 }
 
 sub Write {
@@ -71,11 +65,11 @@ sub Write {
     my $command = $arg{command} . "\n";
     my $timeout = $self->_timeout_arg(%arg);
 
-    if ( !$self->select()->can_write($timeout) ) {
-        croak "timeout in connection Write";
-    }
+    my $client = $self->client();
+    $client->write_timeout($timeout);
 
-    print { $self->client() } $command;
+    print {$client} $command
+        or croak "socket write error: $!";
 }
 
 sub Read {
@@ -86,11 +80,12 @@ sub Read {
     my $timeout = $self->_timeout_arg(%arg);
     my $client  = $self->client();
 
-    if ( !$self->select()->can_read($timeout) ) {
-        croak "timeout in connection Read";
-    }
+    $client->read_timeout($timeout);
 
     my $line = <$client>;
+    if ( !defined $line ) {
+        croak "socket read error: $!";
+    }
 
     if ( $line =~ /^#([1-9])/ ) {
 
@@ -101,11 +96,20 @@ sub Read {
 
         # We do require a trailing newline
         my $needed = 2 + $num_digits + $num_bytes - length($line) + 1;
+
+        if ( $needed == 0 ) {
+            return $line;
+        }
+
         if ( $needed < 0 ) {
             croak "negative read length";
         }
         my $string;
         my $read_bytes = read( $client, $string, $needed );
+        if ( !$read_bytes ) {
+            croak "socket read error: $!";
+        }
+
         if ( $read_bytes != $needed ) {
             croak "tcp read returned too few bytes:\n"
                 . "expected: $needed, got: $read_bytes";
