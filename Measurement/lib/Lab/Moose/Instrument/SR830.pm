@@ -11,7 +11,7 @@ use Carp;
 use namespace::autoclean;
 use POSIX qw/log10 ceil floor/;
 
-our $VERSION = '3.540';
+our $VERSION = '3.541';
 
 extends 'Lab::Moose::Instrument';
 

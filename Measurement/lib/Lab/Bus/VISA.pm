@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 package Lab::Bus::VISA;
-our $VERSION = '3.540';
+our $VERSION = '3.541';
 
 use strict;
 use Lab::VISA;

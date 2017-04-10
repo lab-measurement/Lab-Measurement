@@ -23,7 +23,7 @@ Version 3.530
 
 =cut
 
-our $VERSION = '3.530';
+our $VERSION = '3.541';
 our $DEBUG   = 0;
 our @ISA     = ("Lab::Instrument");
 our %fields  = (

@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 package Lab::Bus::DEBUG;
-our $VERSION = '3.540';
+our $VERSION = '3.541';
 
 use warnings;
 use strict;

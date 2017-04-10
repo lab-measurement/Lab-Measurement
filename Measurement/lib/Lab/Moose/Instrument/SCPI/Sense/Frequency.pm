@@ -11,7 +11,7 @@ use namespace::autoclean;
 
 with 'Lab::Moose::Instrument::SCPI::Sense::Sweep';
 
-our $VERSION = '3.540';
+our $VERSION = '3.541';
 
 =head1 NAME
 

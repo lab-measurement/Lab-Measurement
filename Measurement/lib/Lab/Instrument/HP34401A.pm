@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 package Lab::Instrument::HP34401A;
-our $VERSION = '3.540';
+our $VERSION = '3.541';
 
 use strict;
 use Scalar::Util qw(weaken);

@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 package Lab::Bus::VICP;
-our $VERSION = '3.530';
+our $VERSION = '3.541';
 
 use strict;
 use Scalar::Util qw(weaken);

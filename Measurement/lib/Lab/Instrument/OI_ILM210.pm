@@ -1,5 +1,5 @@
 package Lab::Instrument::OI_ILM210;
-our $VERSION = '3.540';
+our $VERSION = '3.541';
 use strict;
 use Lab::Instrument;
 

@@ -5,7 +5,7 @@
 #
 
 package Lab::Connection::VICP;
-our $VERSION = '3.530';
+our $VERSION = '3.541';
 
 use strict;
 use Time::HiRes qw (usleep sleep);
