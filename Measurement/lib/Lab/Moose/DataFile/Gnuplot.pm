@@ -85,6 +85,13 @@ Log one line of data.
 =cut
 
 sub log {
+    my $self = shift;
+    return $self->_log_bare(@_);
+}
+
+# Local routine, shell not be overidden in subclasses.
+
+sub _log_bare {
 
     # We do not use MooseX::Params::Validate for performance reasons.
     my $self = shift;
@@ -191,7 +198,7 @@ sub log_block {
             my $name = $columns[ $j + $num_prefix_cols ];
             $log{$name} = $block->at( $i, $j );
         }
-        $self->log(%log);
+        $self->_log_bare(%log);
     }
 
     if ($add_newline) {

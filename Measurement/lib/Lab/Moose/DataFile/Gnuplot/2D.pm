@@ -59,7 +59,7 @@ data with gnuplot. It requires L<PDL::Graphics::Gnuplot> installed.
 =cut
 
 # Refresh plots.
-after 'log' => sub {
+after [qw/log log_block/] => sub {
     my $self = shift;
 
     if ( $self->num_data_rows() < 2 ) {
