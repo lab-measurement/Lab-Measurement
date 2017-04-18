@@ -37,6 +37,9 @@ nytprof
 # coding documentation not for distribution
 \bdoc\b
 
+# author utility script
+
+^authorstats$
 
 # drivers and modules that are not ready yet for release
 
