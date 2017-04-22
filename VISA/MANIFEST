@@ -1,9 +1,0 @@
-Changes
-lib/Lab/VISA/Installation.pod
-Makefile.PL
-README
-visa.i
-VISA.pm
-VISA.pod
-visa_wrap.c
-visadef.i

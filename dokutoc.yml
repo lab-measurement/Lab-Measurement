@@ -145,6 +145,3 @@ toc:
           - Measurement/lib/Lab/Bus/VISA.pm
           - Measurement/lib/Lab/Bus/IsoBus.pm
           - Measurement/lib/Lab/Bus/USBtmc.pm
-  - The Lab::VISA package:
-      - VISA/lib/Lab/VISA/Installation.pod
-      - VISA/VISA.pod
