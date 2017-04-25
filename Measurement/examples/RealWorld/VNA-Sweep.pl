@@ -18,7 +18,8 @@ my $vna = instrument(
     type               => $vna_type,
     connection_type    => $connection_type,
     connection_options => {
-        pad => $gpib_address,
+        pad     => $gpib_address,
+        timeout => 5,
     }
 );
 
@@ -40,7 +41,8 @@ $datafile->add_plot(
         grid   => 1,
         xlabel => 'freq',
         ylabel => 'Amplitude (dB)',
-    }
+    },
+    hard_copy => 'data.png',
 );
 
 # Log details of VNA configuration into META.yml.
@@ -55,13 +57,16 @@ $meta_file->log(
         vna_reference_power =>
             $vna->source_power_level_immediate_amplitude_query(),
         vna_bandwidth_resolution => $vna->sense_bandwidth_resolution_query(),
-        vna_bandwidth_resolution_select =>
-            $vna->sense_bandwidth_resolution_select_query(),
+
+        # vna_bandwidth_resolution_select =>
+        #     $vna->sense_bandwidth_resolution_select_query(),
     }
 );
 
 # Perform Sweep, get data
+warn "Starting sweep...\n";
 my $pdl = $vna->sparam_sweep( timeout => $timeout );
+warn "Finished sweep\n";
 
 # Calculate amplitude values (dB) out of sparams
 my $real      = $pdl->slice(":,1");
@@ -69,7 +74,7 @@ my $imag      = $pdl->slice(":,2");
 my $amplitude = 10 * log10( $real**2 + $imag**2 );
 
 # Append amplitude as last column
-$pdl->glue( 1, $amplitude );
+$pdl = $pdl->glue( 1, $amplitude );
 
 $datafile->log_block( block => $pdl );
 
