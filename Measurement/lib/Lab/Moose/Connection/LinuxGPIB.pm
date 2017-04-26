@@ -1,8 +1,8 @@
 
 =head1 NAME
 
-Lab::Moose::Connection::LinuxGPIB - Connection backend to the LinuxGpib library
-and kernel drivers.
+Lab::Moose::Connection::LinuxGPIB - Connection back end to the LinuxGpib
+library and kernel drivers.
 
 =head1 SYNOPSIS
 

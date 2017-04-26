@@ -57,7 +57,7 @@ sub Query {
 
     my %write_arg = %arg;
     $self->Write(%write_arg);
-
+    
     delete $arg{command};
     return $self->Read(%arg);
 }

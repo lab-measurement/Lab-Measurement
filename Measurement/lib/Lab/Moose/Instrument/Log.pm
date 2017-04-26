@@ -28,6 +28,9 @@ has log_id => (
     default => 0,
 );
 
+my @wrapped_methods = qw/binary_read write binary_query clear/;
+requires(@wrapped_methods);
+
 sub log_build_fh {
     my $self = shift;
     my $file = $self->log_file();
@@ -49,7 +52,7 @@ sub _log_retval {
     }
 }
 
-for my $method (qw/binary_read write binary_query clear/) {
+for my $method (@wrapped_methods) {
     around $method => sub {
         my $orig   = shift;
         my $self   = shift;

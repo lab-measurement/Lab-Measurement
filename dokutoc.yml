@@ -77,6 +77,7 @@ toc:
               - Measurement/lib/Lab/Instrument/SR830/AuxIn.pm
               - Measurement/lib/Lab/Instrument/SR830/AuxOut.pm	
               - Measurement/lib/Lab/Instrument/SignalRecovery726x.pm
+              - Measurement/lib/Lab/Moose/Instrument/ZI_MFLI.pm
           - RF generators:
               - Measurement/lib/Lab/Instrument/HP33120A.pm
               - Measurement/lib/Lab/Instrument/HP83732A.pm
@@ -119,6 +120,7 @@ toc:
           - Measurement/lib/Lab/Moose/Connection.pm
           - Measurement/lib/Lab/Moose/Connection/LinuxGPIB.pm
           - Measurement/lib/Lab/Moose/Connection/Socket.pm
+          - Measurement/lib/Lab/Moose/Connection/Zhinst.pm
       - Connection classes:
           - Measurement/lib/Lab/Connection.pm
           - Measurement/lib/Lab/Connection/DEBUG.pm
