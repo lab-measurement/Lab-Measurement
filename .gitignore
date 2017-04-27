@@ -19,12 +19,6 @@
 /Measurement/Lab-Measurement-*.tar.gz
 /Measurement/cover_db
 
-# /Homepage/
-/Homepage/docs
-/Homepage/docs-1.x
-/Homepage/temp
-/Homepage/stats
-
 # /VISA/
 /VISA/*.obj
 /VISA/Makefile
