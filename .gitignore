@@ -20,24 +20,7 @@
 /Measurement/Lab-Measurement-*.tar.gz
 /Measurement/cover_db
 
-# /VISA/
-/VISA/*.obj
-/VISA/Makefile
-/VISA/Makefile.old
-/VISA/VISA.bs
-/VISA/VISA.def
-/VISA/blib
-/VISA/pm_to_blib
-/VISA/vc90.pdb
-/VISA/MYMETA.yml
-/VISA/MYMETA.json
-/VISA/MANIFEST.bak
-/VISA/Lab-VISA-*.tar.gz
-
 
 *~
 nytprof*
 *.patch
-
-/VISA/VISA_def.old
-/VISA/vc100.pdb
