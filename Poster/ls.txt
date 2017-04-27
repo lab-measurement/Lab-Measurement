@@ -1,2 +1,0 @@
-simon@keanae /tmp$ ls MEAS_000/
-Config.txt  DCDiamond_01.png  DCDiamond.dat dc_diamond.pl
