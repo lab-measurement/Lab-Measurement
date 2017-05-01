@@ -9,7 +9,7 @@ use Carp;
 
 use Data::Dumper;
 
-our $VERSION = '3.541';
+our $VERSION = '3.542';
 
 =pod
 

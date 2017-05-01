@@ -8,7 +8,7 @@ use Lab::Moose::Instrument qw/validated_getter/;
 use Carp;
 use namespace::autoclean;
 
-our $VERSION = '3.541';
+our $VERSION = '3.542';
 
 extends 'Lab::Moose::Instrument';
 

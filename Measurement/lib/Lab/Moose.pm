@@ -11,7 +11,7 @@ use Exporter 'import';
 use Lab::Moose::Connection;
 use Carp;
 
-our $VERSION = '3.541';
+our $VERSION = '3.542';
 
 our @EXPORT = qw/instrument datafolder datafile/;
 

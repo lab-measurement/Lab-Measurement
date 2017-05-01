@@ -13,7 +13,7 @@ use Lab::Moose::Instrument qw/timeout_param/;
 
 use namespace::autoclean;
 
-our $VERSION = '3.541';
+our $VERSION = '3.542';
 
 has client => (
     is       => 'ro',

@@ -1,6 +1,6 @@
 
 package Lab::Instrument::OI_IPS;
-our $VERSION = '3.541';
+our $VERSION = '3.542';
 
 use strict;
 use Lab::Instrument;

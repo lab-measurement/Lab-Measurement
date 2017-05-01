@@ -17,7 +17,7 @@ Version 0.01
 
 =cut
 
-our $VERSION = '3.541';
+our $VERSION = '3.542';
 
 # default config values, copied to $self->{CONFIG} initially
 

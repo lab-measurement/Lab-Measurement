@@ -5,7 +5,7 @@ use namespace::autoclean;
 use YAML::XS;
 use IO::Handle;
 
-our $VERSION = '3.541';
+our $VERSION = '3.542';
 
 has log_file => (
     is        => 'ro',
