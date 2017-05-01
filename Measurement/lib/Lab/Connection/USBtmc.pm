@@ -95,7 +95,7 @@ sub Clear {
 
 =head1 NAME
 
-Lab::Connection::USBtmc - connection class which uses F</dev/usbtmc> as backend
+Lab::Connection::USBtmc - F</dev/usbtmc> connection
 
 =head1 SYNOPSIS
 

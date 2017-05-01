@@ -28,7 +28,11 @@ our $TraceMute  = 0;    # global mute
 
 =head1 NAME
 
-Lab::Connection::Trace - trace communication with instruments. This module
+Lab::Connection::Trace - Trace communication with instruments
+
+=head1 SYNOPSIS
+
+This module
 is designed to provide a simple, compact record of messages sent to and
 received from an instrument, suitable for later analysis.  The trace file
 has one line per message. Examples:

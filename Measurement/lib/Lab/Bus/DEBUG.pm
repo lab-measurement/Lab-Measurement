@@ -233,7 +233,7 @@ sub _search_twin {
 
 =head1 NAME
 
-Lab::Bus::DEBUG - interactive debug bus
+Lab::Bus::DEBUG - Interactive debug bus
 
 
 =head1 DESCRIPTION

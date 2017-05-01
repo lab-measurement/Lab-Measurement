@@ -42,7 +42,7 @@ sub new {
 
 =head1 NAME
 
-Lab::Connection::DEBUG - debug connection
+Lab::Connection::DEBUG - Debug connection
 
 
 =head1 DESCRIPTION

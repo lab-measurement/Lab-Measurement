@@ -233,7 +233,7 @@ sub connection_clear {
 
 =head1 NAME
 
-Lab::Bus::Socket - IP socket as bus
+Lab::Bus::Socket - IP socket bus
 
 =head1 SYNOPSIS
 

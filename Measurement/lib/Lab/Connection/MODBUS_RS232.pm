@@ -87,7 +87,7 @@ sub Query {
 
 =head1 NAME
 
-Lab::Connection::MODBUS_RS232 - connection class for Lab::Bus::MODBUS_RS232
+Lab::Connection::MODBUS_RS232 - RS232/RS485 MODBUS RTU connection
 
 =head1 CAVEATS/BUGS
 

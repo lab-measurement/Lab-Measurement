@@ -109,7 +109,7 @@ sub serial_poll {
 
 =head1 NAME
 
-Lab::Connection::GPIB - base class for GPIB connections
+Lab::Connection::GPIB - GPIB connection base class
 
 =head1 SYNOPSIS
 

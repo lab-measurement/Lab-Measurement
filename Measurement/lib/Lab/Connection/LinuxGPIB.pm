@@ -91,7 +91,7 @@ sub Query {
 
 =head1 NAME
 
-Lab::Connection::LinuxGPIB - connection class which uses LinuxGPIB (libgpib0) as a backend.
+Lab::Connection::LinuxGPIB - LinuxGPIB connection
 
 =head1 SYNOPSIS
 

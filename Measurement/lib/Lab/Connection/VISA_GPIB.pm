@@ -173,8 +173,7 @@ sub SetTermChar {    # the character as string
 
 =head1 NAME
 
-Lab::Connection::VISA_GPIB - GPIB-type connection class which uses L<Lab::Bus::VISA> 
-and thus NI VISA (L<Lab::VISA>) as a backend.
+Lab::Connection::VISA_GPIB - GPIB-type connection class which uses NI VISA (L<Lab::VISA>) as backend
 
 =head1 SYNOPSIS
 

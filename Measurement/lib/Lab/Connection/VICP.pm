@@ -85,10 +85,12 @@ sub Query {
 
 =head1 NAME
 
-Lab::Connection::VICP - connection class which uses VICP ethernet protocol
-backend. The communication is primarily GPIB/IEEE-488 syntax.
+Lab::Connection::VICP - VICP ethernet protocol connection
 
 =head1 SYNOPSIS
+
+Connection class which uses VICP ethernet protocol backend. 
+The communication is primarily GPIB/IEEE-488 syntax.
 
 This is not called directly. To make a GPIB suppporting instrument use Lab::Connection::VICP, set
 the connection_type parameter accordingly:

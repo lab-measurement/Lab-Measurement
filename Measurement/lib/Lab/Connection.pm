@@ -332,7 +332,7 @@ sub DESTROY {
 
 =head1 NAME
 
-Lab::Connection - connection base class
+Lab::Connection - Connection base class
 
 =head1 SYNOPSIS
 

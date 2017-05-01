@@ -44,7 +44,7 @@ sub new {
 
 =head1 NAME
 
-Lab::Connection::TCPraw - connection class which uses a so-called TCPraw connection
+Lab::Connection::TCPraw - TCPraw connection; deprecated, use Socket instead
 
 =head1 AUTHOR/COPYRIGHT
 

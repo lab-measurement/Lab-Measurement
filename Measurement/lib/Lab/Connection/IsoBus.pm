@@ -91,7 +91,7 @@ sub is_blocked {
 
 =head1 NAME
 
-Lab::Connection::IsoBus - IsoBus connection class which uses L<Lab::Bus::IsoBus> as a backend.
+Lab::Connection::IsoBus - IsoBus connection
 
 =head1 SYNOPSIS
 

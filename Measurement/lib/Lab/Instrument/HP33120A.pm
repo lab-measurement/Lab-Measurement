@@ -10,8 +10,7 @@ use English;
 
 =head1 NAME
 
-Lab::Instrument::HP33120A - control HP33120A 15MHz function/arbitrary waveform
-generator.
+Lab::Instrument::HP33120A - HP 33120A 15MHz function/arbitrary waveform generator
 
 =cut
 

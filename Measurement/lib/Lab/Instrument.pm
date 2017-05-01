@@ -1310,7 +1310,7 @@ sub function_list_index {
 
 =head1 NAME
 
-Lab::Instrument - instrument base class
+Lab::Instrument - Instrument base class
 
 =head1 SYNOPSIS
 

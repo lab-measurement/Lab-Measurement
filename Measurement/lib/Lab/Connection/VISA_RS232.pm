@@ -171,8 +171,7 @@ sub _configurebus {
 
 =head1 NAME
 
-Lab::Connection::VISA_RS232 - RS232-type connection class which uses L<Lab::Bus::VISA> 
-and thus NI VISA (L<Lab::VISA>) as a backend.
+Lab::Connection::VISA_RS232 - RS232-type connection which uses NI VISA (L<Lab::VISA>) as backend
 
 =head1 SYNOPSIS
 

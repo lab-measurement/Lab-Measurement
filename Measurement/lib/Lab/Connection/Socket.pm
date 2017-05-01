@@ -45,3 +45,25 @@ sub SetTermChar {       # the character as string
 }
 
 1;
+
+=pod
+
+=encoding utf-8
+
+=head1 NAME
+
+Lab::Bus::Socket - IP socket connection
+
+=head1 SYNOPSIS
+
+This is the IP socket connection class.
+
+=head1 LICENSE
+
+This library is free software; you can redistribute it and/or modify it under the same
+terms as Perl itself.
+
+=cut
+
+1;
+

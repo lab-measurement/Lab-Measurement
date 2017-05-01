@@ -78,7 +78,7 @@ sub new {
 
 =head1 NAME
 
-Lab::Connection::RS232 - base class for RS232 connections
+Lab::Connection::RS232 - RS232 connection base class
 
 =head1 SYNOPSIS
 

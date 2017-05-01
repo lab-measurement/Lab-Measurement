@@ -45,8 +45,7 @@ sub new {
 
 =head1 NAME
 
-Lab::Connection::VISA - VISA-type connection class which uses L<Lab::Bus::VISA> and thus 
-NI VISA (L<Lab::VISA>) as a backend.
+Lab::Connection::VISA - VISA-type connection
 
 =head1 SYNOPSIS
 

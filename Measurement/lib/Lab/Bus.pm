@@ -159,7 +159,7 @@ sub DESTROY {
 
 =head1 NAME
 
-Lab::Bus - bus base class
+Lab::Bus - Bus base class
 
 =head1 SYNOPSIS
 
