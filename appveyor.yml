@@ -1,12 +1,11 @@
 environment:
   matrix:
-    # Run quick build without recursive testing of dependencies.
+    # Cannot run dependency tests as the Test::TCP tests fails on windows:
+    # https://github.com/tokuhirom/Test-TCP/issues/43 
     - strawberry_version: 5.20.1.1
-      installdeps_options: -n -v 
-    - strawberry_version: 5.20.1.1
-      installdeps_options: -v
+      installdeps_options: -n -v
     - strawberry_version: 5.20.1.1 --x86
-      installdeps_options: -v
+      installdeps_options: -n -v
       
 install:
   - choco install --allowemptychecksum strawberryperl --version %strawberry_version%
