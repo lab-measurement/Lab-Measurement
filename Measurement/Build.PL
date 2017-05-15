@@ -49,9 +49,7 @@ my $build = Module::Build->new(
         'Lab::Instrument'    => '< 2.91',
         'Lab::Tools'         => '< 2.91',
     },
-    script_files => [ 'scripts/lab-makefilelist.pl',
-	    'scripts/lab-makemakefile.pl',
-	    'scripts/lab-plotter.pl', 
+    script_files => [
 	    'scripts/lab-update.pl', 
 	],
     create_readme     => 0,

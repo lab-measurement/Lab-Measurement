@@ -17,9 +17,6 @@ toc:
           - Measurement/examples/Simple/query_id.pl
           - Measurement/examples/Simple/isobus_query_id.pl
           - Measurement/examples/Simple/srs_read.pl
-      - Utility scripts:
-          - Measurement/scripts/lab-plotter.pl
-          - Measurement/scripts/lab-makefilelist.pl
       - High-level tool classes:
           - Measurement/lib/Lab/Measurement.pm
           - Measurement/lib/Lab/Measurement/KeyboardHandling.pm
