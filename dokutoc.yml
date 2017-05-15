@@ -20,10 +20,8 @@ toc:
       - High-level tool classes:
           - Measurement/lib/Lab/Measurement.pm
           - Measurement/lib/Lab/Measurement/KeyboardHandling.pm
-          - Measurement/lib/Lab/Data/Meta.pm
-          - Measurement/lib/Lab/Data/XMLtree.pm
-          - Measurement/lib/Lab/Data/Plotter.pm
           - Measurement/lib/Lab/SCPI.pm
+          - Measurement/lib/Lab/Data/Analysis.pm
           - Measurement/lib/Lab/Moose.pm
           - Measurement/lib/Lab/Moose/Plot.pm
           - Measurement/lib/Lab/Moose/DataFolder.pm
