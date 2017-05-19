@@ -1,7 +1,8 @@
 #$Id: IPSWeissDillFridge.pm 2012-11-10 Geissler/Butschkow $
 
 package Lab::Instrument::IPSWeissDillFridge;
-our $version = '3.10';
+
+our $VERSION = '3.543';
 
 use strict;
 use Lab::Instrument::IPS;
