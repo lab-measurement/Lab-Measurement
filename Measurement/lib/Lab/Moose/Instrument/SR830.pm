@@ -649,6 +649,49 @@ This driver consumes the following roles:
 
 =cut
 
+sub calculate_saturation_time {
+    my $self = shift;
+    my ($saturation) = validated_list(
+        \@_,
+        saturation => enum( [qw/63.2 90 99 99.9/] )
+    );
+
+    my $tc           = $self->cached_tc();
+    my $filter_slope = $self->cached_filter_slope();
+
+    # For the following table, see "Principles of lock-in detection and the
+    # state of the art" white paper by Zurich Instruments.
+    my %saturation_factors => (
+        6 => {
+            '63.2' => 1,
+            '90'   => 2.3,
+            '99'   => 4.61,
+            '99.9' => 6.91
+        },
+        12 => {
+            '63.2' => 2.15,
+            '90'   => 3.89,
+            '99'   => 6.64,
+            '99.9' => 9.23
+        },
+        18 => {
+            '63.2' => 3.26,
+            '90'   => 5.32,
+            '99'   => 8.41,
+            '99.9' => 11.23
+        },
+        24 => {
+            '63.2' => 4.35,
+            '90'   => 6.68,
+            '99'   => 10.05,
+            '99.9' => 13.06
+        }
+    );
+
+    my $multiplier = $saturation_factors{$filter_slope}->{$saturation};
+    return $multiplier * $tc;
+}
+
 __PACKAGE__->meta()->make_immutable();
 
 1;
