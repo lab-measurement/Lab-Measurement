@@ -637,23 +637,21 @@ sub set_line_notch_filters {
     $self->cached_line_notch_filters($value);
 }
 
-=head2 Consumed Roles
+=head2 calculate_settling_time
 
-This driver consumes the following roles:
+ my $settling_time = $lia->calculate_settling_time(settling => '99');
 
-=over
-
-=item L<Lab::Moose::Instrument::Common>
-
-=back
+Calculate settling time independent of current time constant and filter slope.
+See "Principles of lock-in detection and the state of the art" white paper by
+Zurich Instruments. 
 
 =cut
 
-sub calculate_saturation_time {
+sub calculate_settling_time {
     my $self = shift;
-    my ($saturation) = validated_list(
+    my ($settling) = validated_list(
         \@_,
-        saturation => enum( [qw/63.2 90 99 99.9/] )
+        settling => enum( [qw/63.2 90 99 99.9/] )
     );
 
     my $tc           = $self->cached_tc();
@@ -661,7 +659,7 @@ sub calculate_saturation_time {
 
     # For the following table, see "Principles of lock-in detection and the
     # state of the art" white paper by Zurich Instruments.
-    my %saturation_factors => (
+    my %settling_factors => (
         6 => {
             '63.2' => 1,
             '90'   => 2.3,
@@ -688,9 +686,21 @@ sub calculate_saturation_time {
         }
     );
 
-    my $multiplier = $saturation_factors{$filter_slope}->{$saturation};
+    my $multiplier = $settling_factors{$filter_slope}->{$settling};
     return $multiplier * $tc;
 }
+
+=head2 Consumed Roles
+
+This driver consumes the following roles:
+
+=over
+
+=item L<Lab::Moose::Instrument::Common>
+
+=back
+
+=cut
 
 __PACKAGE__->meta()->make_immutable();
 
