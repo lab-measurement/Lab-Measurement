@@ -643,7 +643,20 @@ sub set_line_notch_filters {
 
 Calculate settling time independent of current time constant and filter slope.
 See "Principles of lock-in detection and the state of the art" white paper by
-Zurich Instruments. 
+Zurich Instruments. The C<settling> parameter is given in percent. Allowed
+values:
+
+=over
+
+=item * '63.2'
+
+=item * '90'
+
+=item * '99'
+
+=item * '99.9'
+
+=back
 
 =cut
 
@@ -659,26 +672,26 @@ sub calculate_settling_time {
 
     # For the following table, see "Principles of lock-in detection and the
     # state of the art" white paper by Zurich Instruments.
-    my %settling_factors => (
-        6 => {
+    my %settling_factors = (
+        '6' => {
             '63.2' => 1,
             '90'   => 2.3,
             '99'   => 4.61,
             '99.9' => 6.91
         },
-        12 => {
+        '12' => {
             '63.2' => 2.15,
             '90'   => 3.89,
             '99'   => 6.64,
             '99.9' => 9.23
         },
-        18 => {
+        '18' => {
             '63.2' => 3.26,
             '90'   => 5.32,
             '99'   => 8.41,
             '99.9' => 11.23
         },
-        24 => {
+        '24' => {
             '63.2' => 4.35,
             '90'   => 6.68,
             '99'   => 10.05,
