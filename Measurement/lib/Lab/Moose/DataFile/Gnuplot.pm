@@ -79,8 +79,21 @@ Lab::Moose::DataFile::Gnuplot - Text based data file.
 
 =head2 new
 
-Requires a 'column' attribute in addition to the L<Lab::Moose::DataFile>
-requirements.
+Supports the following attributtes in addition to the L<Lab::Moose::DataFile>
+requirements:
+
+=over
+
+=item * columns
+
+(mandatory) arrayref of column names
+
+=item * precision 
+
+The numbers are formatted with a C<%.${precision}g> format specifier. Default
+is 10.
+
+=back
 
 =head2 log
 
