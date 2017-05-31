@@ -32,6 +32,12 @@ has num_data_rows => (
     init_arg => undef
 );
 
+has precision => (
+    is      => 'ro',
+    isa     => enum( [ 1 .. 17 ] ),
+    default => 10,
+);
+
 sub BUILD {
     my $self    = shift;
     my @columns = @{ $self->columns() };
@@ -116,8 +122,8 @@ sub _log_bare {
         if ( not looks_like_number($value) ) {
             croak "value '$value' for column '$column' isn't numeric";
         }
-
-        $line .= sprintf( "%.17g", $value );
+        my $precision = $self->precision();
+        $line .= sprintf( "%.${precision}g", $value );
         if ( $idx != $#columns ) {
             $line .= "\t";
         }
