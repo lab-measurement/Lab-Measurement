@@ -28,7 +28,7 @@ sub new {
         allowed_instruments => [
             qw/Lab::Instrument::ITC Lab::Instrument::TCD
                 Lab::Instrument::OI_ITC503 Lab::Instrument::OI_Triton
-                Lab::Instrument::Lakeshore340/,
+                Lab::Instrument::Lakeshore340 Lab::Instrument::TRMC2/,
         ],
         allowed_sweep_modes => [ 'continuous', 'step', 'list' ],
 
