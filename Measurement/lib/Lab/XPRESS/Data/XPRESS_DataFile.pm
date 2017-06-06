@@ -288,7 +288,7 @@ sub start_log {
         $self->{logger}->LOG( $self->{CONFIG} );
     }
     if ( defined @{ $self->{COLUMNS} }[0] ) {
-        my $columns = "#COLUMNS#\t";
+        my $columns = "#";
         $columns .= join( "\t", @{ $self->{COLUMNS} } );
 
         $self->{logger}->LOG($columns);
