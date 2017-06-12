@@ -5,7 +5,7 @@ use Lab::Moose::Instrument
 use Lab::Moose::Instrument::Cache;
 use MooseX::Params::Validate;
 
-our $VERSION = '3.543';
+our $VERSION = '3.544';
 
 =head1 NAME
 

@@ -7,7 +7,7 @@ use Lab::Moose::Instrument::Cache;
 use Carp;
 use namespace::autoclean;
 
-our $VERSION = '3.541';
+our $VERSION = '3.544';
 
 use Lab::Moose::Instrument 'validated_setter';
 use constant {

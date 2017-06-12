@@ -14,7 +14,7 @@ use constant {
     ZI_LIST_NODES_ABSOLUTE  => 2,
 };
 
-our $VERSION = '3.541';
+our $VERSION = '3.544';
 
 extends 'Lab::Moose::Instrument';
 

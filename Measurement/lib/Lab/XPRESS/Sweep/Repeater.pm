@@ -1,6 +1,6 @@
 package Lab::XPRESS::Sweep::Repeater;
 
-our $VERSION = '3.543';
+our $VERSION = '3.544';
 
 use Lab::XPRESS::Sweep::Sweep;
 use Time::HiRes qw/usleep/, qw/time/;

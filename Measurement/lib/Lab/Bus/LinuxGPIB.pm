@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 package Lab::Bus::LinuxGPIB;
-our $VERSION = '3.543';
+our $VERSION = '3.544';
 
 use strict;
 use Scalar::Util qw(weaken);

@@ -4,7 +4,7 @@ use Lab::Moose::Instrument qw/getter_params/;
 use Lab::Moose::Instrument::Cache;
 use MooseX::Params::Validate;
 
-our $VERSION = '3.543';
+our $VERSION = '3.544';
 
 sub trace_data_response_all {
     my ( $self, %args ) = validated_hash(

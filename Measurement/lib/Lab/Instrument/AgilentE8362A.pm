@@ -2,7 +2,7 @@ package Lab::Instrument::AgilentE8362A;
 use strict;
 use warnings;
 
-our $VERSION = '3.543';
+our $VERSION = '3.544';
 
 use feature "switch";
 use Lab::Instrument;

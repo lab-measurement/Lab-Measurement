@@ -1,7 +1,7 @@
 # Process Command Line Options (i.e. flag -d | -debug):
 package Lab::Generic::CLOptions;
 
-our $VERSION = '3.543';
+our $VERSION = '3.544';
 
 use Getopt::Long qw/:config pass_through/;
 

@@ -11,7 +11,7 @@ use Lab::Moose::Instrument qw/timeout_param precision_param/;
 use Carp;
 use namespace::autoclean;
 
-our $VERSION = '3.543';
+our $VERSION = '3.544';
 
 extends 'Lab::Moose::Instrument';
 

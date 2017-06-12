@@ -1,6 +1,6 @@
 
 package Lab::Instrument::TRMC2;
-our $VERSION = "3.543";
+our $VERSION = "3.544";
 
 use strict;
 use warnings;

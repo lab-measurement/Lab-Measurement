@@ -8,7 +8,7 @@ use YAML::XS;
 
 use Carp;
 
-our $VERSION = '3.543';
+our $VERSION = '3.544';
 
 sub Write {
     my $self = shift;

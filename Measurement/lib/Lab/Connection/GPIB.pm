@@ -13,7 +13,7 @@
 # TODO: Access to GPIB attributes, device clear, ...
 
 package Lab::Connection::GPIB;
-our $VERSION = '3.543';
+our $VERSION = '3.544';
 
 use Lab::Connection;
 use strict;

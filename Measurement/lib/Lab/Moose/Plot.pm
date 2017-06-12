@@ -73,7 +73,7 @@ use PDL::Graphics::Gnuplot ();
 # need to load for ClassName type constraint.
 use PDL ();
 
-our $VERSION = '3.543';
+our $VERSION = '3.544';
 
 has terminal => (
     is      => 'ro',
