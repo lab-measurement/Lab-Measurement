@@ -4,7 +4,6 @@ use 5.010;
 use warnings;
 use strict;
 
-our $VERSION = '3.544';
 
 use Moose::Role;
 use MooseX::Params::Validate qw/validated_hash/;

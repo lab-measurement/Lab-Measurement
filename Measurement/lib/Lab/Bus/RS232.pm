@@ -1,7 +1,6 @@
 #!/usr/bin/perl -w
 
 package Lab::Bus::RS232;
-our $VERSION = '3.544';
 
 use strict;
 use warnings;

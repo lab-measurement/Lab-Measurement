@@ -65,10 +65,9 @@ driver:
 =cut
 
 package Lab::Moose::Instrument::Cache;
+
 use Moose::Role;
 use MooseX::Params::Validate;
-
-our $VERSION = '3.544';
 
 Moose::Exporter->setup_import_methods( with_meta => ['cache'] );
 

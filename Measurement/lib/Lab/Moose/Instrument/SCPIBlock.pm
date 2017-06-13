@@ -14,7 +14,6 @@ with qw/
     Lab::Moose::Instrument::SCPI::Format
     /;
 
-our $VERSION = '3.544';
 
 =head1 NAME
 

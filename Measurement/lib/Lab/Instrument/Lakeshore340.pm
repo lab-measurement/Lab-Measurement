@@ -6,7 +6,6 @@ use 5.010;
 
 use Lab::Instrument;
 
-our $VERSION = '3.544';
 
 our @ISA = ('Lab::Instrument');
 

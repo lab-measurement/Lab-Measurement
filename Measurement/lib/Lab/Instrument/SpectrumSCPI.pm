@@ -1,5 +1,4 @@
 package Lab::Instrument::SpectrumSCPI;
-our $VERSION = '3.544';
 
 use strict;
 use Lab::Instrument;

@@ -9,7 +9,6 @@ use Carp;
 use Config;
 use namespace::autoclean;
 
-our $VERSION = '3.544';
 
 extends 'Lab::Moose::Instrument';
 

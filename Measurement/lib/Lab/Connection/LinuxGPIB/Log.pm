@@ -1,4 +1,5 @@
 package Lab::Connection::LinuxGPIB::Log;
+
 use 5.010;
 use warnings;
 use strict;
@@ -8,8 +9,6 @@ use parent 'Lab::Connection::LinuxGPIB';
 use Role::Tiny::With;
 use Carp;
 use autodie;
-
-our $VERSION = '3.544';
 
 our %fields = (
     logfile   => undef,

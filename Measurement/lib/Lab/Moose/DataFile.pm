@@ -18,7 +18,6 @@ use Carp;
 
 use namespace::autoclean;
 
-our $VERSION = '3.544';
 
 has folder => (
     is       => 'ro',

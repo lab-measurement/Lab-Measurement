@@ -1,11 +1,10 @@
 package Lab::Moose::Instrument::Log;
+
 use Moose::Role;
 use Carp;
 use namespace::autoclean;
 use YAML::XS;
 use IO::Handle;
-
-our $VERSION = '3.544';
 
 has log_file => (
     is        => 'ro',

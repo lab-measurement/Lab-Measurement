@@ -1,7 +1,6 @@
 #!/usr/bin/perl -w
 
 package Lab::Exception;
-our $VERSION = '3.544';
 
 #
 # un/comment the following BEGIN clause to slap in the custom base class above

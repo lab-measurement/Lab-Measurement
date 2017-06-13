@@ -1,5 +1,4 @@
 package Lab::MultiChannelInstrument;
-our $VERSION = '3.544';
 
 use strict;
 use Lab::Generic;

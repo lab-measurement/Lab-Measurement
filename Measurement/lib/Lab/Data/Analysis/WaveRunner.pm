@@ -19,7 +19,6 @@ Version 0.01
 
 =cut
 
-our $VERSION = '3.544';
 
 our @ISA = ("Lab::Data::Analysis");
 

@@ -12,7 +12,6 @@ use PDL::Lite;
 use PDL::Core qw/pdl cat/;
 use namespace::autoclean;
 
-our $VERSION = '3.544';
 
 with qw(
     Lab::Moose::Instrument::Common

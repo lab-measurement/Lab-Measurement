@@ -1,11 +1,10 @@
 package Lab::Moose::Instrument::SCPI::Format;
+
 use Moose::Role;
 use Lab::Moose::Instrument qw/setter_params getter_params validated_getter/;
 use Lab::Moose::Instrument::Cache;
 use MooseX::Params::Validate;
 use Carp;
-
-our $VERSION = '3.544';
 
 cache format_data => ( getter => 'format_data_query' );
 

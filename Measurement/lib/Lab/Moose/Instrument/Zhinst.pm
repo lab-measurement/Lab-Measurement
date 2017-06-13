@@ -1,4 +1,5 @@
 package Lab::Moose::Instrument::Zhinst;
+
 use 5.010;
 use Moose;
 use MooseX::Params::Validate qw/validated_list validated_hash/;
@@ -13,8 +14,6 @@ use constant {
     ZI_LIST_NODES_RECURSIVE => 1,
     ZI_LIST_NODES_ABSOLUTE  => 2,
 };
-
-our $VERSION = '3.544';
 
 extends 'Lab::Moose::Instrument';
 

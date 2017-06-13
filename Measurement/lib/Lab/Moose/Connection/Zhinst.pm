@@ -34,7 +34,6 @@ use YAML::XS 'Load';
 use Data::Dumper;
 use namespace::autoclean;
 
-our $VERSION = '3.544';
 
 has host => (
     is       => 'ro',

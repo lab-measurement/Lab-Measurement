@@ -10,7 +10,6 @@ use Carp;
 use Lab::Moose::Instrument::Cache;
 use namespace::autoclean;
 
-our $VERSION = '3.544';
 
 extends 'Lab::Moose::Instrument';
 

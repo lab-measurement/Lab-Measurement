@@ -1,4 +1,5 @@
 package Lab::Connection::DEBUG::Trace;
+
 use 5.010;
 use warnings;
 use strict;
@@ -8,8 +9,6 @@ use parent 'Lab::Connection::DEBUG';
 use Role::Tiny::With;
 use Carp;
 use autodie;
-
-our $VERSION = '3.544';
 
 our %fields = (
     logfile   => undef,

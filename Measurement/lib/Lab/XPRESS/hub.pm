@@ -1,11 +1,10 @@
 package Lab::XPRESS::hub;
+
 use Lab::Exception;
 use strict;
 use Exporter 'import';
 use Module::Load qw/load autoload/;
 use Try::Tiny;
-
-our $VERSION = '3.544';
 
 our @EXPORT_OK = qw(DataFile Sweep Frame Instrument Connection);
 

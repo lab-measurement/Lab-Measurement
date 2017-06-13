@@ -49,7 +49,6 @@ use LinuxGpib qw/
     ibclr
     /;
 
-our $VERSION = '3.544';
 
 =head1 METHODS
 

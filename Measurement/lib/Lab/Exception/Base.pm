@@ -1,7 +1,6 @@
 #!/usr/bin/perl -w
 
 package Lab::Exception::Base;
-our $VERSION = '3.544';
 
 #
 # This is for comfy optional adding of custom methods via our own exception base class later

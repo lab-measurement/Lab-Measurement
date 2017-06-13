@@ -1,5 +1,4 @@
 package Lab::Instrument::ProStep4;
-our $VERSION = '3.544';
 
 use strict;
 use Time::HiRes qw/usleep/, qw/time/;

@@ -1,9 +1,7 @@
-#!/usr/bin/perl -w
 package Lab::Instrument;
+
 use strict;
 use warnings;
-
-our $VERSION = '3.544';
 
 #use POSIX; # added for int() function
 use Lab::Generic;

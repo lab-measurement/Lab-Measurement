@@ -1,10 +1,8 @@
-# For Tracing communication with devices
 package Lab::Connection::Trace;
+
 use 5.010;
 use warnings;
 use strict;
-
-our $VERSION = '3.544';
 
 use Role::Tiny;
 

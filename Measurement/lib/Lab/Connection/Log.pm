@@ -1,11 +1,8 @@
-# Role for connection logging.
-
 package Lab::Connection::Log;
+
 use 5.010;
 use warnings;
 use strict;
-
-our $VERSION = '3.544';
 
 use Role::Tiny;
 

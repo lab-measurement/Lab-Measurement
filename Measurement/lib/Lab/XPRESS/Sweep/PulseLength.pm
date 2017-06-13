@@ -1,6 +1,5 @@
 package Lab::XPRESS::Sweep::PulseLength;
 
-our $VERSION = '3.544';
 
 use Lab::XPRESS::Sweep::Sweep;
 use Time::HiRes qw/usleep/, qw/time/;
