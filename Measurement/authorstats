@@ -1,8 +1,0 @@
-#!/bin/bash
-
-
-for name in $(find . -name "*.pm") $(find . -name "*.pl") $(find . -name "*.pod") $(find . -name "*.t") ; do
-
-  git blame -CCC -c "$name" | sed -e 's:\t20.*$::g' -e 's:^.*\t(::g'
-
-done | sort | uniq -c | sort -n
