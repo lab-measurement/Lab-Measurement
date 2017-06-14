@@ -23,7 +23,11 @@ matrix:
   include:
     - perl: 5.24
       env: gp_version=5.0.5
-      
+
+before_install:
+  # Prevent "Please tell me who you are" errors for certain DZIL configs
+  - git config --global user.name "TravisCI"
+
 install:
   # Install gnuplot 5 for plot tests. (Not available on Ubuntu 12.04)
   - cd /tmp
@@ -35,24 +39,29 @@ install:
   - make install
   - export PATH="$HOME/local/bin:$PATH"
   - gnuplot --version
-  
-  
+
+  # Install the DZIL dependencies
+  - cpanm --quiet --notest --skip-satisfied Dist::Zilla
+
+  # Install DZIL plugins etc if needed
   - cd $TRAVIS_BUILD_DIR/Measurement
-  
+  - dzil authordeps | grep -vP '[^\w:]' | xargs -n 5 -P 10 cpanm --quiet --notest --skip-satisfied
+
   # required before installing PDL
   - cpanm ExtUtils::ParseXS
 
-  - cpanm --installdeps -n .
+  # install dependencies
+  - export RELEASE_TESTING=1 AUTOMATED_TESTING=1 AUTHOR_TESTING=1 HARNESS_OPTIONS=j10:c HARNESS_TIMER=1
+  - dzil listdeps | grep -vP '[^\w:]' | cpanm --verbose --notest --skip-satisfied
   - cpanm -v -f PDL::Graphics::Gnuplot
   - cpanm -n Test::Perl::Critic
 
 script:
-  - perl ./Build.PL
-  - ./Build
-  - prove --verbose -b -s -r t
+  # "normal" tests
+  - prove --verbose -l -s -r t
   
   # Perl::Critic tests
-  - prove --verbose -r xt/critic/
+  - prove --verbose -l -r xt/critic/
 
 notifications:
   email: false
