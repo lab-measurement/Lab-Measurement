@@ -7,16 +7,8 @@
 # /Measurement/
 /Measurement/blib
 /Measurement/_build
-/Measurement/Build
-/Measurement/Build.bat
 /Measurement/pod2htmd.tmp
 /Measurement/pod2htmi.tmp
-/Measurement/META.yml
-/Measurement/META.json
-/Measurement/MYMETA.yml
-/Measurement/MYMETA.json
-/Measurement/MANIFEST
-/Measurement/MANIFEST.bak
 /Measurement/Lab-Measurement-*.tar.gz
 /Measurement/cover_db
 
