@@ -11,13 +11,13 @@ env:
   gp_version=5.0.1
   
 perl:
-    - 5.26
-    - 5.24
-    - 5.22
-    - 5.20
-    - 5.18
-    - 5.16
-    - 5.14
+    - "5.26"
+    - "5.24"
+    - "5.22"
+    - "5.20"
+    - "5.18"
+    - "5.16"
+    - "5.14"
 
 matrix:
   include:
@@ -45,13 +45,12 @@ install:
 
   # Install DZIL plugins etc if needed
   - cd $TRAVIS_BUILD_DIR/Measurement
-  - dzil authordeps | grep -vP '[^\w:]' | xargs -n 5 -P 10 cpanm --quiet --notest --skip-satisfied
+  - dzil authordeps --missing | grep -vP '[^\w:]' | xargs cpanm --quiet --notest
 
   # required before installing PDL
   - cpanm ExtUtils::ParseXS
 
   # install dependencies
-  - export RELEASE_TESTING=1 AUTOMATED_TESTING=1 AUTHOR_TESTING=1 HARNESS_OPTIONS=j10:c HARNESS_TIMER=1
   - dzil listdeps --missing --cpanm | grep -vP '[^\w:~"\.]' | xargs cpanm --quiet --notest
   - cpanm -v -f PDL::Graphics::Gnuplot
   - cpanm -n Test::Perl::Critic
