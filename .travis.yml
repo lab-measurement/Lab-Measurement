@@ -52,7 +52,7 @@ install:
 
   # install dependencies
   - export RELEASE_TESTING=1 AUTOMATED_TESTING=1 AUTHOR_TESTING=1 HARNESS_OPTIONS=j10:c HARNESS_TIMER=1
-  - dzil listdeps --cpanm-versions | grep -vP '[^\w:~"\.]' | cpanm --quiet --notest --skip-satisfied
+  - dzil listdeps --cpanm-versions | grep -vP '[^\w:~"\.]' | sed -e 's:"::g' | cpanm --quiet --notest --skip-satisfied
   - cpanm -v -f PDL::Graphics::Gnuplot
   - cpanm -n Test::Perl::Critic
 
