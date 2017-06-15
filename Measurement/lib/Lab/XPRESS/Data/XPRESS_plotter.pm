@@ -97,7 +97,7 @@ sub get_gnuplot_pipe {
     my $self = shift;
     my $gpname;
     if ( $^O =~ /MSWin32/ ) {
-        $gpname = "pgnuplot";
+        $gpname = "gnuplot";
     }
     else {
         $gpname = "gnuplot -noraise";
