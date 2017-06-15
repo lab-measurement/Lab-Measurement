@@ -19,13 +19,13 @@ see the documentation of these packages for more details.
 
 =item * Install L<Strawberry Perl|http://strawberryperl.com/download/5.20.3.3/strawberry-perl-5.20.3.3-32bit.msi>. If you want to use NI-VISA, see the comments on supported perl versions in L<Lab::VISA's installation guide|http://search.cpan.org/dist/Lab-VISA/lib/Lab/VISA/Installation.pod>
 
-=item * Install gnuplot (not mandatory)
+=item * Install gnuplot 5 (not mandatory)
 
 =over
 
 =item * L<Download|http://sourceforge.net/project/showfiles.php?group_id=2055>, extract and put it somewhere
 
-=item * Add directory containing C<pgnuplot.exe> to path:
+=item * Add the directory containing C<gnuplot.exe> to the path:
 My Computer => Properties => Advanced => Environment Variables
 
 =back
