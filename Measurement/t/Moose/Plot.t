@@ -16,7 +16,7 @@ use PDL;
 
 if ( $^O eq 'MSWin32' ) {
     plan skip_all => "Skipping plot tests on Windows";
-};
+}
 
 eval {
     autoload 'PDL::Graphics::Gnuplot';
@@ -45,7 +45,7 @@ my $dir = tempdir( CLEANUP => 1 );
 # Low-level plotting
 autoload 'Lab::Moose::Plot';
 
-my $file = catfile( $dir, 'low_level_plot.txt' );
+my ( undef, $file ) = tempfile();
 
 say $file;
 my $plot = Lab::Moose::Plot->new(
