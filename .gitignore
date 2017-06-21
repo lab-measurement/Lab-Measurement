@@ -7,9 +7,10 @@
 # /Measurement/
 /Measurement/blib
 /Measurement/_build
+/Measurement/.build
 /Measurement/pod2htmd.tmp
 /Measurement/pod2htmi.tmp
-/Measurement/Lab-Measurement-*.tar.gz
+/Measurement/Lab-Measurement-*
 /Measurement/cover_db
 
 
