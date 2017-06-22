@@ -1,0 +1,32 @@
+
+History for the Lab-Measurement Perl distribution
+
+This document is work in progress (in the sense of adding
+historical information).
+
+
+3.550 2017-06-21
+
+  * Port build system to Dist::Zilla
+  * Fix lab-measurement/issues/4 (pgnuplot.exe became gnuplot.exe)
+
+3.544 2017-06-12
+
+  * Do not load of Lab::Moose instruments in XPRESS::hub
+  * Lakeshore 340: Only use 6 digits for setpoint
+  * XPRESS Datafile: Replace '#COLUMNS#' with '#' in file header
+  * TRMC2: Enable XPRESS step/list temperature sweep
+  * Add docs for DataFile::Gnuplot precision attribute
+  * Moose Gnuplot Datafile: Use default precision of 10 digits
+  * Add initial support for Zurich Instruments devices
+  * Moose SR830: Fix and test 'calculate_settling_time'
+  * Moose SR830: Add 'calculate_saturation_time' method
+
+3.543 2017-05-19
+
+  * Remove obsolete Lab::Data utility scripts
+  * Add subclass example for IPS magnet control: IPSWeissDillFridge
+  * Enable XPRESS sweeps (step or list) with Lakeshore340
+  * Skip test Analysis/DataAnalysis.t if perl uses long doubles
+  * Remove remaining Lab::Data and XPRESS::Xpression.pl legacy code, 
+    fixes lab-measurement/issues/6
