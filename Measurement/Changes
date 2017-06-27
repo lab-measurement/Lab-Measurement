@@ -64,6 +64,38 @@ historical information).
   
 3.540 2017-02-01
 
-  
-  
-  
+  * Fix tests on windows
+  * Document several SCPI roles
+  * Add help option in Moose MockTest
+  * DataFile::Gnuplot::2D: Add hard-copy of plot in data folder
+  * RS_ZVA: Add power and IF-bandwidth settings
+  * Get started with pod file Lab::Moose::Developer
+  * Delete Lab::Moose::BlockData and replace with PDL
+  * Add DataFile::Gnuplot::2D
+  * Moose: put plot_options into HashRef
+  * Moose: Add driver for SR830 LIA
+  * Add Lab::Moose::Plot: Moose based thin wrapper to PDL::Graphics::Gnuplot
+  * fix bug in TDS2024 envelope waveform handling
+  * scpi_parse_sequence bugfixes
+  * Add docs for Lab::Moose::DataFile::Gnuplot
+  * Add Lab::Moose
+  * Skip Yokogawa7651 test, if the system printf is not C99 compatible
+  * Yokogawa7651: Add more tests for set_level
+  * Yokogawa7651: use %g instead of %e in set_level
+  * DataFolder: Use getlogin instead of getpwuid for portability
+  * Fix UTF-8 bug in POD
+  * Do not use taint mode for t/Lab/Test/test.t
+  * New Datafolder and Datafile modules
+  * Add code for controlling a Tektronix TDS2024B digital oscilloscope over a 
+    USBtmc interface
+  * Do not require Term::ANSIScreen, allow Term::ReadKey >= 2.32
+  * Remove GenericIO subsystem
+
+3.531 2016-11-04
+
+  * Use one package per source file
+  * Clean up xt directory
+  * Do not put code before 'use strict'
+
+3.530 2016-11-04
+
