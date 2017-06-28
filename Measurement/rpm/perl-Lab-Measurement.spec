@@ -4,9 +4,9 @@ Release: 1
 
 Summary: <% $zilla->abstract %>
 License: GPL+ or Artistic
-Group: Applications/CPAN
+Group: Development/Libraries
 BuildArch: noarch
-URL: <% $zilla->license->url %>
+URL: http://www.labmeasurement.de/
 Source: <% $archive %>
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-BUILD
