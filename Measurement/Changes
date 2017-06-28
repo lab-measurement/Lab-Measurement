@@ -97,5 +97,57 @@ historical information).
   * Clean up xt directory
   * Do not put code before 'use strict'
 
-3.530 2016-11-04
+3.530 2016-11-04   [ _ needs condensing ]
 
+  * XPRESS voltage sweep: Do not call active method for mode 'step' (speed gain)
+  * Add minimal test for XPRESS voltage sweep with YokogawaGS200
+  * Add Charles Lane to dist_author
+  * Sweep/Voltage.pm: Do not check instrument activity for step/list sweeps
+  * Fix Term::ReadKey version requirements
+  * Minor edits to scpi parsing, to eliminate newlines
+  * Clean up USBtmc code, add timeout handling
+  * Fix LinuxGPIB and update tests
+  * Fix Example5_VNA_gate_and_frequency
+  * Remove Test::Files dependency, as it breaks the tests on windows
+  * Use Instrument function for VNA examples
+  * Enable Lab::Moose::Instrument drivers in XPRESS::hub::Instrument
+  * Remove all read_length stuff from Lab::Moose
+  * Clarify meaning of tolerance and std_dev in temp sweep examples
+  * Add examples to address both temperature sweep and VNA in XPRESS
+  * Apply various workarounds for temperature sweep with one sensor and Socket 
+    connection
+  * Add examples to set Triton temperature and do temperature sweep
+  * Make OI_Triton able to do XPRESS temperature sweeps
+  * Perltidy
+  * Fix docs in Moose/Instrument.pm
+  * Fix 'XPRESS with VNA' example
+  * Add Moose version of LinuxGPIB connection
+  * Fix scpi value parsing to handle 'blank string' cases without failures
+  * Update MakeRPM to allow an (optional) parameter for setting the "release 
+    number"
+  * Add docs for the Lab::Moose::Instrument::SCPIBlock role
+  * Add docs for Lab::Moose::Instrument::Common
+  * Use delegation to get connection methods in Lab::Moose::Instrument
+  * Add examples script of VNA in XPRESS voltage sweep
+  * Add RS_FSV: driver for Rohde & Schwartz FSV Signal and Spectrum Analyzer
+  * Improve docs of RS_ZVA and RS_ZVM
+  * Add docs for Lab::Moose::BlockData
+  * Add files for automatically building rpm distribution packages from the 
+    Lab::Measurement code
+  * Add some more Perl::Critic policies from "Perl Best Practices"
+  * Add a $self->{config}->{default_read_mode} to be applied to 
+    get_{cache parameter} when read_mode is not otherwise specified
+  * Add 'average' option to sparam_sweep
+  * Fix command ordering in VNASweep
+  * Improve on RS_ZVM test
+  * Moose tests: Add commandline options for mock tests
+  * Fix bug in scpi_canon: was ignoring 'shorter' form inputs, so not properly 
+    shortening subsequent keywords
+  * Start documenting and testing the VNAs
+  * Add connection logging and mock connection
+  * Turn off recursion warnings, because deep recursion is normal for SCPI parsing
+  * Remove prototypes from SCPI.pm routines
+  * Get started with Moose version of RS_ZVM.
+  * Add RS_ZVM driver. Factor out common code of RS_ZVA and RS_ZVM.
+  * Start documenting the SCPI roles.
+  * Fix path creation in XPRESS datafile
