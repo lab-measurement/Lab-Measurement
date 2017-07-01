@@ -45,6 +45,7 @@ toc:
               - Measurement/lib/Lab/XPRESS/Sweep/Motor.pm
               - Measurement/lib/Lab/XPRESS/Sweep/Repeater.pm
               - Measurement/lib/Lab/XPRESS/Sweep/Temperature.pm
+              - Measurement/lib/Lab/XPRESS/Sweep/PulseLength.pm
           - Measurement/lib/Lab/XPRESS/Sweep/Sweep.pm
           - Measurement/lib/Lab/XPRESS/Sweep/Frame.pm	      
           - Measurement/lib/Lab/XPRESS/Sweep/Magnet.pm
