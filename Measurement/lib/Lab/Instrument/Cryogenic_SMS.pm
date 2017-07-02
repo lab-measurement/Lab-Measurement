@@ -1,11 +1,10 @@
 package Lab::Instrument::Cryogenic_SMS;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Cryogenic SMS magnet power supply
 
 use strict;
 use Lab::Instrument;
 
-#use Lab::Instrument::MagnetSupply;
-
-#our @ISA=('Lab::Instrument::MagnetSupply');
 our @ISA = ('Lab::Instrument');
 
 # does not use any magnet supply specific code yet
@@ -185,18 +184,3 @@ sub read_messages {
 }
 
 1;
-
-=pod
-
-=encoding utf-8
-
-=head1 NAME
-
-Lab::Instrument::Cryogenic - Cryogenic SMS120 superconducting magnet supply
-
-  (c)           David Borowsky
-      2013      Andreas K. Hüttel
-  
-
-=cut
-

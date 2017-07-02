@@ -1,4 +1,6 @@
 package Lab::Moose::Instrument::SCPIBlock;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Role for handling SCPI/IEEE 488.2 block data
 
 use Moose::Role;
 use MooseX::Params::Validate;
@@ -13,12 +15,6 @@ with qw/
     Lab::Moose::Instrument::SCPI::Sense::Sweep
     Lab::Moose::Instrument::SCPI::Format
     /;
-
-
-=head1 NAME
-
-Lab::Moose::Instrument::SCPI::Block - Role for handling SCPI/IEEE 488.2
-block data.
 
 =head1 DESCRIPTION
 
