@@ -1,6 +1,6 @@
-#!/usr/bin/perl -w
-
 package Lab::Bus;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Bus base class
 
 use strict;
 
@@ -156,10 +156,6 @@ sub DESTROY {
 
 =encoding utf-8
 
-=head1 NAME
-
-Lab::Bus - Bus base class
-
 =head1 SYNOPSIS
 
 This is a base class for inheriting bus types.
@@ -240,17 +236,6 @@ L<Lab::Bus::MODBUS>
 and many more...
 
 =back
-
-=head1 AUTHOR/COPYRIGHT
-
- Copyright 2004-2006 Daniel Schröer <schroeer@cpan.org>, 
-           2009-2010 Daniel Schröer, Andreas K. Hüttel (L<http://www.akhuettel.de/>) and David Kalok,
-           2010      Matthias Völker <mvoelker@cpan.org>
-           2011      Florian Olbrich, Andreas K. Hüttel
-           2012      Andreas K. Hüttel
-
-This library is free software; you can redistribute it and/or modify it under the same
-terms as Perl itself.
 
 =cut
 

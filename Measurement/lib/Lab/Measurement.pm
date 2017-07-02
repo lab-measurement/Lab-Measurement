@@ -1,5 +1,6 @@
-
 package Lab::Measurement;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Log, describe and plot data on the fly
 
 use strict;
 use warnings;
@@ -14,10 +15,6 @@ our @EXPORT = qw(DataFile Sweep Frame Instrument Connection);
 __END__
 
 =encoding utf8
-
-=head1 NAME
-
-Lab::Measurement - Log, describe and plot data on the fly
 
 =head1 SYNOPSIS
 
@@ -48,13 +45,5 @@ command; further required modules will be imported on demand.
 =item L<http://www.labmeasurement.de>
 
 =back
-
-=head1 AUTHOR/COPYRIGHT
-
- Copyright 2004-2006 Daniel Schröer (L<http://www.danielschroeer.de>)
- Copyright      2016 Andreas K. Hüttel
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself. 
 
 =cut

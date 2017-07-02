@@ -1,4 +1,6 @@
 package Lab::Instrument;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Instrument base class
 
 use strict;
 use warnings;
@@ -1306,10 +1308,6 @@ sub function_list_index {
 
 =encoding utf-8
 
-=head1 NAME
-
-Lab::Instrument - Instrument base class
-
 =head1 SYNOPSIS
 
 Lab::Instrument is meant to be used as a base class for inheriting instruments.
@@ -1529,18 +1527,6 @@ Probably many, with all the porting. This will get better.
 =item * and many more...
 
 =back
-
-=head1 AUTHOR/COPYRIGHT
-
- Copyright 2004-2006 Daniel Schröer <schroeer@cpan.org>, 
-           2009-2010 Daniel Schröer, Andreas K. Hüttel (L<http://www.akhuettel.de/>) and David Kalok,
-           2010      Matthias Völker <mvoelker@cpan.org>
-           2011      Florian Olbrich, Andreas K. Hüttel
-	   2012      Andreas K. Hüttel
-	   2013      Stefan Geissler, Christian Butschkow, Andreas K. Hüttel
-
-This library is free software; you can redistribute it and/or modify it under the same
-terms as Perl itself.
 
 =cut
 
