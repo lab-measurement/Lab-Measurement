@@ -1,10 +1,6 @@
-#!/usr/bin/perl -w
-
-#
-# general VISA Connection class for Lab::Bus::VISA
-# This one digests VISA resource names
-#
 package Lab::Connection::VISA;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: VISA-type connection
 
 use strict;
 use Lab::Bus::VISA;
@@ -42,11 +38,9 @@ sub new {
 
 =encoding utf-8
 
-=head1 NAME
-
-Lab::Connection::VISA - VISA-type connection
-
 =head1 SYNOPSIS
+
+Ths general VISA Connection class for Lab::Bus::VISA digests VISA resource names.
 
 This is not called directly. To make a VISA suppporting instrument use Lab::Connection::VISA, set
 the connection_type parameter accordingly:
@@ -63,7 +57,6 @@ NI VISA (L<Lab::VISA>) as backend.
 
 It inherits from L<Lab::Connection>.
 
-
 =head1 CONSTRUCTOR
 
 =head2 new
@@ -73,11 +66,9 @@ It inherits from L<Lab::Connection>.
    resource_name => 'GPIB0::14::INSTR',
  }
 
-
 =head1 METHODS
 
 This just falls back on the methods inherited from L<Lab::Connection>.
-
 
 =head2 config
 
@@ -104,13 +95,6 @@ Probably few. Mostly because there's not a lot to be done here. Please report.
 =item * L<Lab::Connection::GPIB>
 
 =back
-
-=head1 AUTHOR/COPYRIGHT
-
- Copyright 2011      Florian Olbrich
-
-This library is free software; you can redistribute it and/or modify it under the same
-terms as Perl itself.
 
 =cut
 

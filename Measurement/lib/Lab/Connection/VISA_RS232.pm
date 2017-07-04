@@ -1,12 +1,6 @@
-#!/usr/bin/perl -w
-
-#
-# RS232 Connection class for Lab::Bus::VISA
-# This one implements a RS232-Standard connection on top of VISA (translates
-# RS232 settings to VISA attributes, mostly).
-#
-
 package Lab::Connection::VISA_RS232;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: RS232-type connection which uses NI VISA (L<Lab::VISA>) as backend
 
 use strict;
 use Lab::Bus::VISA;
@@ -168,11 +162,10 @@ sub _configurebus {
 
 =encoding utf-8
 
-=head1 NAME
-
-Lab::Connection::VISA_RS232 - RS232-type connection which uses NI VISA (L<Lab::VISA>) as backend
-
 =head1 SYNOPSIS
+
+This RS232 Connection class for Lab::Bus::VISA implements a RS232-Standard 
+connection on top of VISA (translates RS232 settings to VISA attributes, mostly).
 
 This class is not called directly. To make a RS232 suppporting instrument use 
 Lab::Connection::VISA_RS232, set the connection_type parameter accordingly:
@@ -235,14 +228,6 @@ Probably few. Mostly because there's not a lot to be done here. Please report.
 =item * L<Lab::Connection::VISA>
 
 =back
-
-=head1 AUTHOR/COPYRIGHT
-
- Copyright 2011      Florian Olbrich
-           2012      Andreas K. Hüttel
-
-This library is free software; you can redistribute it and/or modify it under the same
-terms as Perl itself.
 
 =cut
 

@@ -1,12 +1,13 @@
-#!/usr/bin/perl -w
+package Lab::Connection::LinuxGPIB;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: LinuxGPIB connection
 
 #
 # GPIB Connection class for Lab::Bus::LinuxGPIB
 #
-
+#
 # TODO: Access to GPIB attributes, device clear, ...
-
-package Lab::Connection::LinuxGPIB;
+#
 
 use strict;
 use Scalar::Util qw(weaken);
@@ -88,10 +89,6 @@ sub Query {
 
 =encoding utf-8
 
-=head1 NAME
-
-Lab::Connection::LinuxGPIB - LinuxGPIB connection
-
 =head1 SYNOPSIS
 
 This is not called directly. To make a GPIB suppporting instrument use Lab::Connection::LinuxGPIB, set
@@ -155,13 +152,6 @@ Probably few. Mostly because there's not a lot to be done here. Please report.
 =item * L<Lab::Connection::GPIB>
 
 =back
-
-=head1 AUTHOR/COPYRIGHT
-
- Copyright 2011      Florian Olbrich
-
-This library is free software; you can redistribute it and/or modify it under the same
-terms as Perl itself.
 
 =cut
 

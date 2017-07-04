@@ -1,4 +1,6 @@
 package Lab::Moose;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Convenient loaders and constructors for L<Lab::Moose::Instrument>, L<Lab::Moose::DataFolder> and L<Lab::Moose::DataFile>
 
 use warnings;
 use strict;
@@ -13,11 +15,6 @@ use Carp;
 
 
 our @EXPORT = qw/instrument datafolder datafile/;
-
-=head1 NAME
-
-Lab::Moose - convenient loaders and constructors for L<Lab::Moose::Instrument>,
-L<Lab::Moose::DataFolder> and L<Lab::Moose::DataFile>.
 
 =head1 SYNOPSIS
 

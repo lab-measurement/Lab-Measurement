@@ -1,6 +1,6 @@
-#!/usr/bin/perl -w
-
 package Lab::Bus::VICP;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: VICP bus
 
 use strict;
 use Scalar::Util qw(weaken);
@@ -666,10 +666,6 @@ sub VerboseIbstatus {
 
 =encoding utf-8
 
-=head1 NAME
-
-Lab::Bus::VICP - VICP bus
-
 =head1 SYNOPSIS
 
 This is the bus class for the VICP connection used for GPIB communication
@@ -781,16 +777,6 @@ L<Lab::Bus::MODBUS>
 and many more...
 
 =back
-
-=head1 AUTHOR/COPYRIGHT
-
- Copyright 2004-2006 Daniel Schröer <schroeer@cpan.org>, 
-           2009-2010 Daniel Schröer, Andreas K. Hüttel (L<http://www.akhuettel.de/>) and David Kalok,
-           2010      Matthias Völker <mvoelker@cpan.org>
-           2011      Florian Olbrich, Andreas K. Hüttel
-
-This library is free software; you can redistribute it and/or modify it under the same
-terms as Perl itself.
 
 =cut
 

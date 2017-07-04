@@ -1,4 +1,6 @@
 package Lab::SCPI;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Match L<SCPI|http://www.ivifoundation.org/scpi/> headers and parameters against keywords
 
 use 5.010;
 use warnings;
@@ -15,10 +17,7 @@ our @EXPORT = qw( scpi_match scpi_parse scpi_canon
 
 our $WS = qr/[\x00-\x09\x0b-\x20]/;    # whitespace std488-2 7.4.1.2
 
-=head1 NAME
-
-Lab::SCPI - Match L<SCPI|http://www.ivifoundation.org/scpi/> headers and
-parameters against keywords. 
+=head1 Interface
 
 This module exports a single function:
 

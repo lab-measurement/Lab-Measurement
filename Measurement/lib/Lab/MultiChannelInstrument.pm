@@ -1,4 +1,6 @@
 package Lab::MultiChannelInstrument;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Multi-channel instrument base class
 
 use strict;
 use Lab::Generic;

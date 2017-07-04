@@ -1,6 +1,6 @@
-#!/usr/bin/perl -w
-
 package Lab::Connection::IsoBus;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Oxford Instruments IsoBus connection
 
 use strict;
 use Lab::Bus::VISA;
@@ -80,17 +80,9 @@ sub is_blocked {
 
 1;
 
-#
-# That's all, all that was needed was the additional field "isobus_address".
-#
-
 =pod
 
 =encoding utf-8
-
-=head1 NAME
-
-Lab::Connection::IsoBus - IsoBus connection
 
 =head1 SYNOPSIS
 
@@ -150,13 +142,6 @@ Probably few. Mostly because there's not a lot to be done here. Please report.
 =item * L<Lab::Bus::IsoBus>
 
 =back
-
-=head1 AUTHOR/COPYRIGHT
-
- Copyright 2011      Andreas K. Hüttel
-
-This library is free software; you can redistribute it and/or modify it under the same
-terms as Perl itself.
 
 =cut
 

@@ -1,6 +1,6 @@
-#!/usr/bin/perl -w
-
 package Lab::Bus::VISA;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: National Instruments VISA bus
 
 use strict;
 use Lab::VISA;
@@ -369,10 +369,6 @@ sub _search_twin {
 
 =encoding utf-8
 
-=head1 NAME
-
-Lab::Bus::VISA - National Instruments VISA bus
-
 =head1 SYNOPSIS
 
 This is the VISA bus class for the NI VISA library.
@@ -475,16 +471,6 @@ Few. Not a lot to be done here.
 =item * and many more...
 
 =back
-
-=head1 AUTHOR/COPYRIGHT
-
- Copyright 2004-2006 Daniel Schröer <schroeer@cpan.org>, 
-           2009-2010 Daniel Schröer, Andreas K. Hüttel (L<http://www.akhuettel.de/>) and David Kalok,
-           2010      Matthias Völker <mvoelker@cpan.org>
-           2011      Florian Olbrich, Andreas K. Hüttel
-
-This library is free software; you can redistribute it and/or modify it under the same
-terms as Perl itself.
 
 =cut
 

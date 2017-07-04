@@ -1,4 +1,6 @@
 package Lab::Connection::Trace;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Trace communication with instruments
 
 use 5.010;
 use warnings;
@@ -23,10 +25,6 @@ our $TraceEvent = 0;
 our $TraceMute  = 0;    # global mute
 
 #our $TraceFile;
-
-=head1 NAME
-
-Lab::Connection::Trace - Trace communication with instruments
 
 =head1 SYNOPSIS
 

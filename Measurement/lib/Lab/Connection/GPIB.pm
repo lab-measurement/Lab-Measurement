@@ -1,4 +1,6 @@
-#!/usr/bin/perl -w
+package Lab::Connection::GPIB;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: GPIB Connection base class
 
 #
 # This is the GPIB Connection base class. It provides the interface definition for all
@@ -9,10 +11,9 @@
 # Instruments using a GPIB connection will check the inheritance tree of the provided connection
 # for this class.
 #
-
+#
 # TODO: Access to GPIB attributes, device clear, ...
-
-package Lab::Connection::GPIB;
+#
 
 use Lab::Connection;
 use strict;
@@ -106,10 +107,6 @@ sub serial_poll {
 
 =encoding utf-8
 
-=head1 NAME
-
-Lab::Connection::GPIB - GPIB connection base class
-
 =head1 SYNOPSIS
 
 This is the base class for all connections providing a GPIB interface.
@@ -189,13 +186,6 @@ Probably few. Mostly because there's not a lot to be done here. Please report.
 =item * L<Lab::Connection::VISA_GPIB>
 
 =back
-
-=head1 AUTHOR/COPYRIGHT
-
- Copyright 2011      Florian Olbrich
-
-This library is free software; you can redistribute it and/or modify it under the same
-terms as Perl itself.
 
 =cut
 

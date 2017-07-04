@@ -1,15 +1,6 @@
-#!/usr/bin/perl -w
-
-#
-# GPIB Connection class for Lab::Bus::VISA
-# This one implements a GPIB-Standard connection on top of VISA (translates
-# GPIB parameters to VISA resource names, mostly, to be exchangeable with other GPIB
-# connections.
-#
-
-# TODO: Access to GPIB VISA attributes, device clear, ...
-
 package Lab::Connection::VISA_GPIB;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: GPIB-type connection class which uses NI VISA (L<Lab::VISA>) as backend
 
 use strict;
 use Lab::VISA;
@@ -170,11 +161,11 @@ sub SetTermChar {    # the character as string
 
 =encoding utf-8
 
-=head1 NAME
-
-Lab::Connection::VISA_GPIB - GPIB-type connection class which uses NI VISA (L<Lab::VISA>) as backend
-
 =head1 SYNOPSIS
+
+This GPIB Connection class for Lab::Bus::VISA implements a GPIB-Standard 
+connection on top of VISA (translates GPIB parameters to VISA resource names, 
+mostly, to be exchangeable with other GPIB connections.
 
 This class is not called directly. To make a GPIB suppporting instrument use 
 Lab::Connection::VISA_GPIB, set the connection_type parameter accordingly:
@@ -225,6 +216,10 @@ Without arguments, returns a reference to the complete $self->Config aka @_ of t
 
  $Config = $connection->Config();
  $GPIB_Address = $connection->Config()->{'gpib_address'};
+
+=head1 TO DO
+
+Access to GPIB VISA attributes, device clear, ...
  
 =head1 CAVEATS/BUGS
 
@@ -241,14 +236,6 @@ Probably few. Mostly because there's not a lot to be done here. Please report.
 =item * L<Lab::Connection::VISA>
 
 =back
-
-=head1 AUTHOR/COPYRIGHT
-
- Copyright 2011      Florian Olbrich
-           2012      Andreas K. Hüttel
-
-This library is free software; you can redistribute it and/or modify it under the same
-terms as Perl itself.
 
 =cut
 

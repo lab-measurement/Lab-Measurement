@@ -1,12 +1,6 @@
-#!/usr/bin/perl -w
-
-#
-# GPIB Connection class for Lab::Bus::USBtmc
-#
-
-# TODO: Access to GPIB attributes, device clear, ...
-
 package Lab::Connection::USBtmc;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: F</dev/usbtmc> Linux USB Test&Measurement kernel driver connection
 
 use strict;
 use Scalar::Util qw(weaken);
@@ -92,10 +86,6 @@ sub Clear {
 
 =encoding utf-8
 
-=head1 NAME
-
-Lab::Connection::USBtmc - F</dev/usbtmc> connection
-
 =head1 SYNOPSIS
 
 This is not called directly. To make a GPIB suppporting instrument use
@@ -167,13 +157,6 @@ Probably few. Mostly because there's not a lot to be done here. Please report.
 =item * L<Lab::Connection::GPIB>
 
 =back
-
-=head1 AUTHOR/COPYRIGHT
-
- Copyright 2011      Florian Olbrich
-
-This library is free software; you can redistribute it and/or modify it under
-the same terms as Perl itself.
 
 =cut
 

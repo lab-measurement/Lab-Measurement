@@ -1,6 +1,6 @@
-#!/usr/bin/perl -w
-
 package Lab::Connection::DEBUG;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Connection to the DEBUG bus
 
 use strict;
 use Time::HiRes qw (usleep sleep);
@@ -32,29 +32,5 @@ sub new {
 
     return $self;
 }
-
-1;
-
-=pod
-
-=encoding utf-8
-
-=head1 NAME
-
-Lab::Connection::DEBUG - Debug connection
-
-
-=head1 DESCRIPTION
-
-Connection to the DEBUG bus.
-
-=head1 AUTHOR/COPYRIGHT
-
- Copyright 2011      Florian Olbrich
-
-This library is free software; you can redistribute it and/or modify it under the same
-terms as Perl itself.
-
-=cut
 
 1;

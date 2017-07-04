@@ -1,10 +1,6 @@
-#!/usr/bin/perl -w
-
-#
-# VICP Connection class for Lab::Bus::VICP
-#
-
 package Lab::Connection::VICP;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: VICP ethernet protocol connection
 
 use strict;
 use Time::HiRes qw (usleep sleep);
@@ -82,13 +78,9 @@ sub Query {
 
 =encoding utf-8
 
-=head1 NAME
-
-Lab::Connection::VICP - VICP ethernet protocol connection
-
 =head1 SYNOPSIS
 
-Connection class which uses VICP ethernet protocol backend. 
+Connection class which uses the VICP ethernet protocol backend. 
 The communication is primarily GPIB/IEEE-488 syntax.
 
 This is not called directly. To make a GPIB suppporting instrument use Lab::Connection::VICP, set
@@ -149,13 +141,6 @@ Probably few. Mostly because there's not a lot to be done here. Please report.
 =item * L<Lab::Connection::GPIB>
 
 =back
-
-=head1 AUTHOR/COPYRIGHT
-
- Copyright 2011      Florian Olbrich
-
-This library is free software; you can redistribute it and/or modify it under the same
-terms as Perl itself.
 
 =cut
 

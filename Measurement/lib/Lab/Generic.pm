@@ -1,4 +1,6 @@
 package Lab::Generic;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: General function library for the L::M classes
 
 use Lab::Generic::CLOptions;
 
@@ -252,3 +254,4 @@ sub seconds2time {
 
 use Lab::GenericSignals;
 1;
+

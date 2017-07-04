@@ -1,6 +1,6 @@
-#!/usr/bin/perl -w
-
 package Lab::Connection::TCPraw;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Raw TCP connection; deprecated, use Socket instead
 
 use strict;
 use Scalar::Util qw(weaken);
@@ -36,23 +36,5 @@ sub new {
 #
 # That's all folks. For now.
 #
-
-=pod
-
-=encoding utf-8
-
-=head1 NAME
-
-Lab::Connection::TCPraw - TCPraw connection; deprecated, use Socket instead
-
-=head1 AUTHOR/COPYRIGHT
-
- Copyright 2012      Hermann Kraus
-           2013      Andreas K. Hüttel
-
-This library is free software; you can redistribute it and/or modify it under the same
-terms as Perl itself.
-
-=cut
 
 1;
