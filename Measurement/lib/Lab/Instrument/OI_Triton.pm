@@ -1,4 +1,6 @@
 package Lab::Instrument::OI_Triton;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Oxford Instruments Triton dilution refrigerator control
 
 use strict;
 use Lab::Instrument;
@@ -187,10 +189,6 @@ sub get_value {
 
 =encoding utf-8
 
-=head1 NAME
-
-Lab::Instrument::OI_Triton - Oxford Instruments Triton DR Control
-
 =head1 SYNOPSIS
 
     use Lab::Instrument::OI_Triton;
@@ -225,12 +223,5 @@ probably many
 =item L<Lab::Instrument>
 
 =back
-
-=head1 AUTHOR/COPYRIGHT
-
-  Copyright 2014 Andreas K. Hüttel (L<http://www.akhuettel.de/>)
-
-This library is free software; you can redistribute it and/or modify it under the same
-terms as Perl itself.
 
 =cut

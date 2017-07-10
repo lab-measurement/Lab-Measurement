@@ -1,6 +1,6 @@
-#!/usr/bin/perl -w
-
 package Lab::Bus::RS232;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: RS232 or Virtual Comm port bus
 
 use strict;
 use warnings;
@@ -298,10 +298,6 @@ sub _search_twin {
 
 =encoding utf-8
 
-=head1 NAME
-
-Lab::Bus::RS232 - RS232 or Virtual Comm port bus
-
 =head1 SYNOPSIS
 
  my $bus = Lab::Bus::RS232({
@@ -360,14 +356,6 @@ Probably many. So far BrutalRead and Clear are not implemented because not neede
 =item L<Device::SerialPort>
 
 =back
-
-=head1 AUTHOR/COPYRIGHT
-
- Copyright 2010      Matthias Voelker <mvoelker@cpan.org>
-           2011      Florian Olbrich, Andreas K. Hüttel
-
-This library is free software; you can redistribute it and/or modify it under the same
-terms as Perl itself.
 
 =cut
 

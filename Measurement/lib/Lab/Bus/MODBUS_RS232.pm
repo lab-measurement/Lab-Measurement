@@ -1,4 +1,6 @@
-#!/usr/bin/perl -w
+package Lab::Bus::MODBUS_RS232;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: RS232/RS485 MODBUS RTU protocol bus
 
 #
 # MODBUS bus driver.
@@ -10,8 +12,6 @@
 #
 
 use strict;
-
-package Lab::Bus::MODBUS_RS232;
 
 use Lab::Bus::RS232;
 use Carp;
@@ -378,10 +378,6 @@ sub _MB_CRC
 
 =encoding utf-8
 
-=head1 NAME
-
-Lab::Bus::MODBUS_RS232 - RS232/RS485 MODBUS RTU protocol bus
-
 =head1 SYNOPSIS
 
 	use Lab::Bus::MODBUS_RS232;
@@ -462,12 +458,5 @@ This is a prototype...
 =item * L<Device::SerialPort>
 
 =back
-
-=head1 AUTHOR/COPYRIGHT
-
- (c) Florian Olbrich 2010
-
-This library is free software; you can redistribute it and/or modify it under the same
-terms as Perl itself.
 
 =cut

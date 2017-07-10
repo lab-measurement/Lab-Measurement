@@ -1,4 +1,6 @@
 package Lab::Instrument::PD11042;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Trinamic PD-110-42 low-cost 42mm stepper motor
 
 use strict;
 use Time::HiRes qw/usleep/, qw/time/;
@@ -762,10 +764,6 @@ sub my_timestamp {
 
 =encoding utf-8
 
-=head1 NAME
-
-Lab::Instrument::PD11042 - 42mm stepper motor with integrated controller/driver
-
 =head1 SYNOPSIS
 
     use Lab::Instrument::PD11042;
@@ -806,12 +804,5 @@ Itemid=355>
 
 
 =back
-
-=head1 AUTHOR/COPYRIGHT
-
-This library is free software; you can redistribute it and/or modify it under
-the same terms as Perl itself.
-
-  (c) 2011 Stefan Geissler
 
 =cut

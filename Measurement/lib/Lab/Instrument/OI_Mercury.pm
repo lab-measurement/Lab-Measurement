@@ -1,4 +1,6 @@
 package Lab::Instrument::OI_Mercury;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Oxford Instruments Mercury Cryocontrol
 
 use strict;
 use Lab::Instrument;
@@ -123,10 +125,6 @@ sub get_catalogue {
 
 =encoding utf-8
 
-=head1 NAME
-
-Lab::Instrument::OI_Mercury - Oxford Instruments Mercury Cryocontrol
-
 =head1 SYNOPSIS
 
     use Lab::Instrument::OI_Mercury;
@@ -188,12 +186,5 @@ probably many
 =item L<Lab::Instrument>
 
 =back
-
-=head1 AUTHOR/COPYRIGHT
-
-  Copyright 2013 Andreas K. Hüttel (L<http://www.akhuettel.de/>)
-
-This library is free software; you can redistribute it and/or modify it under the same
-terms as Perl itself.
 
 =cut

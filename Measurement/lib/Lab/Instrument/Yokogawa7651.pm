@@ -1,4 +1,6 @@
 package Lab::Instrument::Yokogawa7651;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Yokogawa 7651 DC source
 
 use warnings;
 use strict;
@@ -777,10 +779,6 @@ sub autorange() {
 
 =encoding utf-8
 
-=head1 NAME
-
-Lab::Instrument::Yokogawa7651 - Yokogawa 7651 DC source
-
 =head1 SYNOPSIS
 
     use Lab::Instrument::Yokogawa7651;
@@ -1035,13 +1033,5 @@ The Yokogawa7651 class is a Lab::Instrument (L<Lab::Instrument>).
 The Yokogawa7651 class is a Source (L<Lab::Instrument::Source>)
 
 =back
-
-=head1 AUTHOR/COPYRIGHT
-
- (c) 2004-2006 Daniel Schröer
- (c) 2007-2010 Daniel Schröer, Daniela Taubert, Andreas K. Hüttel, and others
- (c) 2011 Florian Olbrich, Andreas K. Hüttel
-
-This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 
 =cut

@@ -1,5 +1,6 @@
-
 package Lab::Instrument::TRMC2;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: ABB TRMC2 temperature controller
 
 use strict;
 use warnings;
@@ -409,10 +410,6 @@ sub MakeFrenchComma {
 
 =encoding UTF-8
 
-=head1 NAME
-
-Lab::Instrument::TRMC2 - ABB TRMC2 temperature controller
-
 =head1 SYNOPSIS
 
     use Lab::Instrument::TRMC2;
@@ -438,12 +435,5 @@ probably many
 =item L<Lab::Instrument>
 
 =back
-
-=head1 AUTHOR/COPYRIGHT
-
-  Copyright 2010 David Kalok and Andreas K. Hüttel (L<http://www.akhuettel.de/>)
-
-This library is free software; you can redistribute it and/or modify it under the same
-terms as Perl itself.
 
 =cut

@@ -1,4 +1,6 @@
 package Lab::Instrument::SR830;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Stanford Research SR830 lock-in amplifier
 
 use strict;
 use Lab::Instrument;
@@ -257,10 +259,6 @@ sub id {
 
 =encoding utf-8
 
-=head1 NAME
-
-Lab::Instrument::SR830 - Stanford Research SR830 Lock-In Amplifier
-
 =head1 SYNOPSIS
 
     use Lab::Instrument::SR830;
@@ -370,13 +368,5 @@ command to change a property like amplitude or time constant might have to be ex
 =item Lab::Instrument
 
 =back
-
-=head1 AUTHOR/COPYRIGHT
-
-This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
-
-  (c) 2005-2010 Daniel Schröer
-      2011 Andreas K. Hüttel
-
 
 =cut

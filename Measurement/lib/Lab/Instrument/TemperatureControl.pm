@@ -1,5 +1,6 @@
-
 package Lab::Instrument::TemperatureControl;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Generic temperature control instrument base class
 
 use strict;
 
@@ -58,14 +59,3 @@ sub _get_temperature() {
 }
 
 1;
-
-=encoding utf8
-
-=head1 NAME
-
-Lab::Instrument::TemperatureControl - base class for temperature control instruments
-
-  (c) 2011 Andreas K. Hüttel
-
-=cut
-

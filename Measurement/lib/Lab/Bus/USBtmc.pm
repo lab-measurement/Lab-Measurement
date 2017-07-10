@@ -1,4 +1,6 @@
 package Lab::Bus::USBtmc;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: USBtmc (Test & Measurement) Linux kernel driver bus
 
 # "sys/ioctl.ph" throws a warning about FORTIFY_SOURCE, but
 # this alternate is (perhaps?) not present on all systems,
@@ -463,10 +465,6 @@ sub _search_twin {
 
 =encoding utf-8
 
-=head1 NAME
-
-Lab::Bus::USBtmc - USBtmc bus
-
 =head1 SYNOPSIS
 
 This is the USB TMC (Test & Measurement Class) bus class.
@@ -624,18 +622,6 @@ L<Lab::Bus>
 and many more...
 
 =back
-
-=head1 AUTHOR/COPYRIGHT
-
- Copyright 2004-2006 Daniel Schröer <schroeer@cpan.org>, 
-           2009-2010 Daniel Schröer, Andreas K. Hüttel (L<http://www.akhuettel.de/>) and David Kalok,
-           2010      Matthias Völker <mvoelker@cpan.org>
-           2011      Florian Olbrich, Andreas K. Hüttel
-           2012      Hermann Kraus
-           2016      Chuck Lane
-
-This library is free software; you can redistribute it and/or modify it under the same
-terms as Perl itself.
 
 =cut
 

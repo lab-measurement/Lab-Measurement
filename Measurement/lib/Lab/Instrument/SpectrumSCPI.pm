@@ -1,4 +1,6 @@
 package Lab::Instrument::SpectrumSCPI;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Generic spectrum analyzer with SCPI command set
 
 use strict;
 use Lab::Instrument;
@@ -172,10 +174,6 @@ sub get_error {
 
 =encoding utf-8
 
-=head1 NAME
-
-Lab::Instrument::SpectrumSCPI - Spectrum Analyzer with SCPI command set
-
 =head1 DESCRIPTION
 
 The Lab::Instrument::SpectrumSCPI class implements a generic interface to
@@ -204,18 +202,5 @@ Returns the instruments ID string.
 =head1 CAVEATS/BUGS
 
 none known so far :)
-
-=head1 SEE ALSO
-
-=over 4
-
-=back
-
-=head1 AUTHOR/COPYRIGHT
-
-  Copyright 2012 Hermann Kraus
-
-This library is free software; you can redistribute it and/or modify it 
-under the same terms as Perl itself.
 
 =cut

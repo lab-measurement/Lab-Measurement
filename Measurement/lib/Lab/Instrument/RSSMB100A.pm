@@ -1,4 +1,6 @@
 package Lab::Instrument::RSSMB100A;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Rohde & Schwarz SMB100A signal generator
 
 use strict;
 use Lab::Instrument;
@@ -154,10 +156,6 @@ sub disable_internal_pulsemod {
 
 =encoding utf-8
 
-=head1 NAME
-
-Lab::Instrument::RSSMB100A - Rohde & Schwarz SMB100A Signal Generator
-
 =head1 SYNOPSIS
 
 =head1 DESCRIPTION
@@ -177,14 +175,5 @@ probably many
 =item * Lab::Instrument
 
 =back
-
-=head1 AUTHOR/COPYRIGHT
-
-  Copyright 2005 Daniel Schröer (<schroeer@cpan.org>)
-            2011 Andreas K. Hüttel
-            2014 Andreas K. Hüttel
-
-This library is free software; you can redistribute it and/or modify it 
-under the same terms as Perl itself.
 
 =cut

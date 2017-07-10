@@ -1,7 +1,6 @@
 package Lab::Instrument::U2000;
-
-#TODO: Error handling. Neither timeouts nor errors are handled correctly.
-# Error reporting from the kernel driver is bad.
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Agilent U2000 series USB Power Sensor
 
 use strict;
 use Lab::Instrument;
@@ -243,10 +242,6 @@ sub get_error {
 
 =encoding utf-8
 
-=head1 NAME
-
-Lab::Instrument::U2000 - Agilent U2000 series USB Power Sensor
-
 =head1 DESCRIPTION
 
 The Lab::Instrument::U2000 class implements an interface to the U2000 series
@@ -293,18 +288,7 @@ Sometimes the sensor hangs for a short amount of time. Very seldom it
 completely stops working. This is probably either a bug in the firmware or
 in the kernel driver as not even a reset of the USB port reenable communication.
 
-
-=head1 SEE ALSO
-
-=over 4
-
-=back
-
-=head1 AUTHOR/COPYRIGHT
-
-  Copyright 2012 Hermann Kraus
-
-This library is free software; you can redistribute it and/or modify it 
-under the same terms as Perl itself.
+Error handling needs to be improved. Neither timeouts nor errors are handled correctly.
+Error reporting from the kernel driver is bad.
 
 =cut

@@ -1,4 +1,6 @@
 package Lab::Instrument::WR640;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: LeCroy WaveRunner 640 digital oscilloscope
 
 use 5.006;
 use strict;
@@ -10,18 +12,6 @@ use English;
 use Time::HiRes qw(sleep);
 use Clone 'clone';
 use Data::Dumper;
-
-=head1 NAME
-
-Lab::Instrument::WR640 - Control LeCroy WaveRunner 640
-digital oscilloscope, via ethernet VICP protocol
-(maybe USBTMC also)
-
-=head1 VERSION
-
-Version 3.530
-
-=cut
 
 our $DEBUG   = 0;
 our @ISA     = ("Lab::Instrument");
@@ -784,13 +774,4 @@ sub get_waveform {
     return $self->query("$ch:WF?");
 }
 
-=head1 AUTHOR
-
-Chuck Lane, C<< <lane at duphy4.physics.drexel.edu> >>
-
-This code is publically available under the same terms
-as Perl. 
-
-=cut
-
-1;    # End of Lab::Instrument::TDS2024B
+1;

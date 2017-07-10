@@ -1,5 +1,6 @@
 package Lab::XPRESS::Data::XPRESS_plotter;
-
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: XPRESS plotting module
 
 use strict;
 use Time::HiRes qw/gettimeofday tv_interval/;

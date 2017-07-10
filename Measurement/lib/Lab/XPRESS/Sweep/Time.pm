@@ -1,5 +1,6 @@
 package Lab::XPRESS::Sweep::Time;
-
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Simple time-controlled repeater
 
 use Lab::XPRESS::Sweep::Sweep;
 use Time::HiRes qw/usleep/, qw/time/;
@@ -159,12 +160,6 @@ sub halt {
 
 =encoding utf8
 
-=head1 NAME
-
-	Lab::XPRESS::Sweep::Time - simple time controlled repeater
-
-.
-
 =head1 SYNOPSIS
 
 	use Lab::Measurement;
@@ -174,15 +169,11 @@ sub halt {
 		duration => 5
 		});
 
-.
-
 =head1 DESCRIPTION
 
 Parent: Lab::XPRESS::Sweep::Sweep
 
 The Lab::XPRESS::Sweep::Time class implements a simple time controlled repeater module in the Lab::XPRESS::Sweep framework.
-
-.
 
 =head1 CONSTRUCTOR
 	
@@ -207,43 +198,28 @@ To operate in the stabilization mode make an instant like the following:
 		interval => 0.5
 		});
 
-.
-
 =head1 PARAMETERS
-
-
 
 =head2 duration [float] (default = 1)
 	
 duration for the time controlled repeater. Default value is 1, negative values indicate a infinit number of repetitions.
 In stabilization mode, the duration gives the maximum duration which is waited before the sweep gets interrupted even though the stabilization criterion hasn't been reached yet.
 
-.
-
 =head2 interval [float] (default = 1)
 	
 interval in seconds for taking measurement points.
-
-.
 
 =head2 id [string] (default = 'Repeater')
 
 Just an ID.
 
-.
-
-
 =head2 delay_before_loop [float] (default = 0)
 
 defines the time in seconds to wait after the starting point has been reached.
 
-.
-
-
 =head2 delay_after_loop [float] (default = 0)
 
 Defines the time in seconds to wait after the sweep has been finished. This delay will be executed before an optional backsweep or optional repetitions of the sweep.
-
 
 =head2 stabilize [int] (default = 0)
 
@@ -265,13 +241,10 @@ See 'stabilize'.
 =head2 stabilize_observation_time [float] (default = 3*60)
 
 See 'stabilize'.
-.
 
 =head1 CAVEATS/BUGS
 
 probably none
-
-.
 
 =head1 SEE ALSO
 
@@ -280,17 +253,6 @@ probably none
 =item L<Lab::XPRESS::Sweep>
 
 =back
-
-.
-
-=head1 AUTHOR/COPYRIGHT
-
-Christian Butschkow and Stefan Geißler
-
-This library is free software; you can redistribute it and/or modify it under the same
-terms as Perl itself.
-
-.
 
 =cut
 

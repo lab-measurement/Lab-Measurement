@@ -1,4 +1,6 @@
 package Lab::Instrument::SignalRecovery726x;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Signal Recovery 7260 / 7265 Lock-in Amplifier
 
 use strict;
 use Time::HiRes qw/usleep/, qw/time/;
@@ -1212,12 +1214,6 @@ sub _set_buffer_storageinterval {    # internal / advanced use only
 
 =encoding utf8
 
-=head1 NAME
-
-	Lab::Instrument::SignalRecovery726x - Signal Recovery 7260 / 7265 Lock-in Amplifier
-
-.
-
 =head1 SYNOPSIS
 
 	  use as GPIB-device
@@ -1247,13 +1243,9 @@ sub _set_buffer_storageinterval {    # internal / advanced use only
 The Lab::Instrument::SignalRecovery726x class implements an interface to the Signal Recovery 7260 / 7265 Lock-in Amplifier.
 Note that the module Lab::Instrument::SignalRecovery726x can work via GPIB or RS232 interface.
 
-.
-
 =head1 CONSTRUCTOR
 
 	my $SR = new(\%options);
-
-.
 
 =head1 METHODS
 
@@ -1284,8 +1276,6 @@ CHANNEL can be:
 	'ALL' --> X,Y, Magnitude and signal Phase\n
 
 =back
-
-.
 
 =head2 config_measurement
 
@@ -1391,15 +1381,11 @@ The return values will be calculated by $value = ($value/100)*$sensitifity.
 
 =back
 
-.
-
 =head2 abort
 
 	$SR->abort();
 
 Aborts current (triggered) measurement.
-
-.
 
 =head2 wait
 
@@ -1407,15 +1393,11 @@ Aborts current (triggered) measurement.
 
 Waits until current (triggered) measurement has been finished.
 
-.
-
 =head2 active
 
 	$SR->active();
 
 Returns '1' if  current (triggered) measurement is still running and '0' if current (triggered) measurement has been finished.
-
-.
 
 =head2 set_imode
 
@@ -1432,8 +1414,6 @@ Preset Signal Recovery 7260 / 7265 Lock-in Amplifier
 	 $imode == 2  --> Low Noise Current Mode
 
 =back
-
-.
 
 =head2 set_vmode
 
@@ -1452,8 +1432,6 @@ Preset Signal Recovery 7260 / 7265 Lock-in Amplifier
 
 =back
 
-.
-
 =head2 set_fet
 
 	$SR->set_fet($value);
@@ -1468,8 +1446,6 @@ Preset Signal Recovery 7260 / 7265 Lock-in Amplifier
 	  $value == 1 --> FET, 10 MOhm input impedance, 5nV/sqrt(Hz) voltage noise at 1 kHz
 
 =back
-
-.
 
 =head2 set_float
 
@@ -1503,8 +1479,6 @@ Preset Signal Recovery 7260 / 7265 Lock-in Amplifier
 
 =back
 
-.
-
 =head2 set_linefilter
 
 	$SR->set_linefilter($value);
@@ -1521,8 +1495,6 @@ Preset Signal Recovery 7260 / 7265 Lock-in Amplifier
 	  LINE-FILTER == 3 --> enable 50Hz/60Hz and 100Hz/120Hz notch filter\n
 
 =back
-
-.
 
 =head2 set_acgain
 
@@ -1541,8 +1513,6 @@ Preset Signal Recovery 7260 / 7265 Lock-in Amplifier
 
 =back
 
-.
-
 =head2 set_sen
 
 	$SR->set_sen($value);
@@ -1558,8 +1528,6 @@ Preset Signal Recovery 7260 / 7265 Lock-in Amplifier
 	  SENSITIVITY (IMODE == 2) --> 2fA, 5fA, 10fA, 20fA, 50fA, 100fA, 200fA, 500fA, 1pA, 2pA, 5pA, 10pA, 20pA, 50pA, 100pA, 200pA, 500pA, 1nA, 2nA, 5nA, 10nA\n
 
 =back
-
-.
 
 =head2 set_refchannel
 
@@ -1577,8 +1545,6 @@ Preset Signal Recovery 7260 / 7265 Lock-in Amplifier
 
 =back
 
-.
-
 =head2 set_refpha
 
 	$SR->set_refpha($value);
@@ -1592,8 +1558,6 @@ Preset Signal Recovery 7260 / 7265 Lock-in Amplifier
 	  REFERENCE PHASE can be between 0 ... 306°
 
 =back
-
-.
 
 =head2 autophase
 
@@ -1700,7 +1664,3 @@ probably many
 =item L<Lab::Instrument>
 
 =back
-
-=head1 AUTHOR/COPYRIGHT
-
-2011 Stefan Geissler

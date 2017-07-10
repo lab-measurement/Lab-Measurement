@@ -1,4 +1,6 @@
 package Lab::Instrument::OI_ITC503;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Oxford Instruments ITC503 Intelligent Temperature Control
 
 use strict;
 use feature "switch";
@@ -417,10 +419,6 @@ sub itc_clear_sweep_table {
 
 =encoding utf-8
 
-=head1 NAME
-
-Lab::Instrument::OI_ITC503 - Oxford Instruments ITC503 Intelligent Temperature Control
-
 =head1 SYNOPSIS
 
     use Lab::Instrument::OI_ITC503;
@@ -446,13 +444,5 @@ probably many
 =item L<Lab::Instrument>
 
 =back
-
-=head1 AUTHOR/COPYRIGHT
-
-  Copyright 2010-2011 David Kalok and Andreas K. Hüttel (L<http://www.akhuettel.de/>)
-            2012      Florian Olbrich and Andreas K. Huettel
-
-This library is free software; you can redistribute it and/or modify it under the same
-terms as Perl itself.
 
 =cut

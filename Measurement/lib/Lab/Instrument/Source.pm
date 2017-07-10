@@ -1,4 +1,6 @@
 package Lab::Instrument::Source;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Generic voltage source base class
 
 use strict;
 use warnings;
@@ -555,12 +557,6 @@ sub set_range {
 
 =encoding utf-8
 
-=head1 NAME
-
-Lab::Instrument::Source - base class for voltage source instruments
-
-=head1 SYNOPSIS
-
 =head1 DESCRIPTION
 
 This class implements a general voltage source, if necessary with several 
@@ -766,13 +762,5 @@ This class inherits the gate protection mechanism.
 This class inherits the gate protection mechanism.
 
 =back
-
-=head1 AUTHOR/COPYRIGHT
-
- Copyright 2004-2008 Daniel Schröer (<schroeer@cpan.org>)
-           2009-2010 Daniel Schröer, Andreas K. Hüttel (L<http://www.akhuettel.de/>) and Daniela Taubert
-           2011      Florian Olbrich and Andreas K. Hüttel
-
-This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 
 =cut

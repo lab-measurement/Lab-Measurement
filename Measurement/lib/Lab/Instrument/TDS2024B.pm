@@ -1,4 +1,6 @@
 package Lab::Instrument::TDS2024B;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Tektronix TDS2024B digital oscilloscope
 
 use 5.006;
 use strict;
@@ -10,17 +12,6 @@ use English;
 use Time::HiRes qw(sleep);
 use Clone 'clone';
 use Data::Dumper;
-
-=head1 NAME
-
-Lab::Instrument::TDS2024B - Control Tektronix TDS2024B
-digital oscilloscope, via USBtmc. 
-
-=head1 VERSION
-
-Version 3.530
-
-=cut
 
 our $DEBUG   = 0;
 our @ISA     = ("Lab::Instrument");
@@ -7068,14 +7059,5 @@ sub print_waveform {
     }
 
 }
-
-=head1 AUTHOR
-
-Chuck Lane, C<< <lane at duphy4.physics.drexel.edu> >>
-
-This code is publically available under the same terms
-as Perl. 
-
-=cut
 
 1;    # End of Lab::Instrument::TDS2024B

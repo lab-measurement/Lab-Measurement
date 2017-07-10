@@ -1,6 +1,6 @@
-#!/usr/bin/perl -w
-
 package Lab::Bus::Socket;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: IP network socket bus
 
 use strict;
 use Scalar::Util qw(weaken);
@@ -223,29 +223,3 @@ sub connection_clear {
     my $connection_handle = shift;
     return undef;
 }
-
-1;
-
-=pod
-
-=encoding utf-8
-
-=head1 NAME
-
-Lab::Bus::Socket - IP socket bus
-
-=head1 SYNOPSIS
-
-This is the IP socket bus class.
-
-=head1 AUTHOR/COPYRIGHT
-
- Copyright 2012      David Kalok
-           2013      Andreas K. Hüttel
-
-This library is free software; you can redistribute it and/or modify it under the same
-terms as Perl itself.
-
-=cut
-
-1;

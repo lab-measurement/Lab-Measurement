@@ -1,6 +1,6 @@
-#2012-10-12 Geissler / Butschkow
-
 package Lab::Instrument::TCD;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Temperature control for our Oxford Instruments TLM dilution fridge
 
 use strict;
 use Lab::Instrument;
@@ -202,12 +202,6 @@ sub set_heatercontrol {
 
 1;
 
-=head1 NAME
-
-	Lab::Instrument::TDC - Temperature Control Interface for our Oxford Dilution Fridge
-
-.
-
 =head1 SYNOPSIS
 
 	use Lab::Instrument::RS232;
@@ -215,8 +209,6 @@ sub set_heatercontrol {
 
 	use Lab::Instrument::TCD;
 	my $tcd=new Lab::Instrument::TCD($rs232,$addr);
-
-.
 
 =head1 DESCRIPTION
 
@@ -228,8 +220,6 @@ The Lab::Instrument::ITC class implements an interface to our Oxford Dilution Fr
 
 Instantiates a new object attached to the RS232 port.
 
-.
-
 =head1 METHODS
 
 =head2 get_T
@@ -237,8 +227,6 @@ Instantiates a new object attached to the RS232 port.
 	$temperature=$tcd->get_T();
 
 Returns the current temperature of the mixing chamber.
-
-.
 
 =head2 set_T
 
@@ -254,21 +242,15 @@ TEMPERATURE can be between 0 ... 1 K.
 
 =back
 
-.
-
 =head2 set_heateroff
 
 	$temperature=$tcd->set_heateroff();
 
 Switch OFF the heater for the mixing chamber
 
-.
-
 =head1 CAVEATS/BUGS
 
 probably many
-
-.
 
 =head1 SEE ALSO
 
@@ -277,12 +259,5 @@ probably many
 =item L<Lab::Instrument>
 
 =back
-
-.
-
-=head1 AUTHOR/COPYRIGHT
-
-2011 Stefan Geissler
-.
 
 =cut
