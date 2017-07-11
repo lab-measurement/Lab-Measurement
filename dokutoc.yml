@@ -76,7 +76,6 @@ toc:
               - Measurement/lib/Lab/Instrument/SR830.pm
               - Measurement/lib/Lab/Instrument/SR830/AuxIn.pm
               - Measurement/lib/Lab/Instrument/SR830/AuxOut.pm	
-              - Measurement/lib/Lab/Instrument/SignalRecovery726x.pm
               - Measurement/lib/Lab/Moose/Instrument/ZI_MFLI.pm
           - RF generators:
               - Measurement/lib/Lab/Instrument/HP33120A.pm
