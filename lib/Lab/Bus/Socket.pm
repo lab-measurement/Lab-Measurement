@@ -223,3 +223,5 @@ sub connection_clear {
     my $connection_handle = shift;
     return undef;
 }
+
+1;
