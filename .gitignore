@@ -1,18 +1,14 @@
+.settings
+.project
 
-# /
-/.settings
-/.project
-/Homepage
-
-# /Measurement/
-/Measurement/blib
-/Measurement/_build
-/Measurement/.build
-/Measurement/pod2htmd.tmp
-/Measurement/pod2htmi.tmp
-/Measurement/Lab-Measurement-*
-/Measurement/cover_db
-/Measurement/dzil.spec
+/blib
+/_build
+/.build
+/pod2htmd.tmp
+/pod2htmi.tmp
+/Lab-Measurement-*
+/cover_db
+/dzil.spec
 
 *~
 nytprof*

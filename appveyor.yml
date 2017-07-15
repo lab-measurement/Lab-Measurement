@@ -13,7 +13,6 @@ install:
   - choco install gnuplot
   - path C:\Program Files\gnuplot\bin;%PATH%
   - perl -V
-  - cd Measurement
   - cpan App::cpanminus
   - cpanm %installdeps_options% --skip-satisfied Dist::Zilla
   - dzil authordeps --missing | cpanm %installdeps_options%

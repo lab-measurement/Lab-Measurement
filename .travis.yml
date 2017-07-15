@@ -44,7 +44,7 @@ install:
   - cpanm --quiet --notest --skip-satisfied Dist::Zilla
 
   # Install DZIL plugins etc if needed
-  - cd $TRAVIS_BUILD_DIR/Measurement
+  - cd $TRAVIS_BUILD_DIR
   - dzil authordeps --missing | grep -vP '[^\w:]' | xargs cpanm --quiet --notest
 
   # required before installing PDL
