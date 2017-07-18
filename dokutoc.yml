@@ -112,41 +112,41 @@ toc:
           - lib/Lab/Moose/Instrument/SCPI/Sense/Function.pm
           - lib/Lab/Moose/Instrument/SCPI/Sense/Sweep.pm
           - lib/Lab/Moose/Instrument/SCPI/Source/Power.pm
-      - Connecting instruments: Buses and Connections
-          - Base classes
+      - Connecting instruments with Buses and Connections:
+          - Base classes:
               - lib/Lab/Moose/Connection.pm
               - lib/Lab/Connection.pm
               - lib/Lab/Connection/DEBUG.pm
               - lib/Lab/Bus.pm
               - lib/Lab/Bus/DEBUG.pm
-          - VISA
+          - VISA:
               - lib/Lab/Connection/VISA.pm
               - lib/Lab/Bus/VISA.pm
-          - GPIB (IEEE 488.2)
+          - GPIB (IEEE 488.2):
               - lib/Lab/Moose/Connection/LinuxGPIB.pm
               - lib/Lab/Connection/GPIB.pm
               - lib/Lab/Connection/LinuxGPIB.pm
               - lib/Lab/Connection/VISA_GPIB.pm
               - lib/Lab/Bus/LinuxGPIB.pm
-          - RS232 (serial port)
+          - RS232 (serial port):
               - lib/Lab/Connection/RS232.pm
               - lib/Lab/Connection/VISA_RS232.pm
               - lib/Lab/Bus/RS232.pm
-          - USB Test&Measurement (Linux kernel driver)
+          - USB Test&Measurement (Linux kernel driver):
               - lib/Lab/Connection/USBtmc.pm
               - lib/Lab/Bus/USBtmc.pm
-          - Network socket
+          - Network socket:
               - lib/Lab/Moose/Connection/Socket.pm
               - lib/Lab/Connection/Socket.pm
               - lib/Lab/Bus/Socket.pm
-          - Oxford Instruments ISOBUS
+          - Oxford Instruments ISOBUS:
               - lib/Lab/Connection/IsoBus.pm
               - lib/Lab/Bus/IsoBus.pm
-          - Zurich Instruments LabONE API
+          - Zurich Instruments LabONE API:
               - lib/Lab/Moose/Connection/Zhinst.pm
-          - MODBUS
+          - MODBUS:
               - lib/Lab/Connection/MODBUS_RS232.pm
               - lib/Lab/Bus/MODBUS_RS232.pm
-      - Testing utilities and documentation
+      - Testing utilities and documentation:
           - lib/Lab/Measurement/Testing.pod
           - t/Lab/Test.pm
