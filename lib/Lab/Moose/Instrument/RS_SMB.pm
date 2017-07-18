@@ -1,4 +1,6 @@
 package Lab::Moose::Instrument::RS_SMB;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Rohde & Schwarz SMB Signal Generator
 
 use 5.010;
 
@@ -25,10 +27,6 @@ sub BUILD {
     $self->clear();
     $self->cls();
 }
-
-=head1 NAME
-
-Lab::Moose::Instrument::RS_SMB - Rohde & Schwarz SMB Signal Generator
 
 =head1 SYNOPSIS
 

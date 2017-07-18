@@ -1,4 +1,6 @@
 package Lab::Moose::Instrument::ZI_MFLI;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Zurich Instruments MFLI Lock-in Amplifier
 
 use 5.010;
 use Moose;
@@ -15,10 +17,6 @@ use constant {
 };
 
 extends 'Lab::Moose::Instrument::Zhinst';
-
-=head1 NAME
-
-Lab::Moose::Instrument::ZI_MFLI - Zurich Instruments MFLI Lock-in Amplifier.
 
 =head1 SYNOPSIS
 

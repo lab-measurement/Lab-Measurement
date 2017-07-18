@@ -1,4 +1,6 @@
 package Lab::Moose::Instrument;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Base class for instrument drivers
 
 use 5.010;
 use Moose;
@@ -43,10 +45,6 @@ has 'connection' => (
 );
 
 with 'Lab::Moose::Instrument::Log';
-
-=head1 NAME
-
-Lab::Moose::Instrument - Base class for instrument drivers.
 
 =head1 SYNOPSIS
 

@@ -1,5 +1,6 @@
 package Lab::XPRESS::Sweep::Sweep;
-
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Base sweep class
 
 use Role::Tiny::With;
 
@@ -1420,30 +1421,19 @@ with 'Lab::XPRESS::Sweep::LogBlock';
 
 =encoding utf8
 
-=head1 NAME
-
-	Lab::XPRESS::Sweep::Sweep - base class for Sweeps
-
-.
-
 =head1 SYNOPSIS
 
 	Lab::XPRESS::Sweep::Sweep is meant to be used as a base class for inheriting Sweeps.
 	It should not be used directly. 
 
-.
-
 =head1 DESCRIPTION
 
 The Lab::XPRESS::Sweep::Sweep class implements major parts of the Lab::XPRESS framework, a modular way for easy scripting measurements in perl and Lab::Measurement.
 Direct usage of this class would not result in any action. However it constitutes the fundament for more spezialized subclass Sweeps e.g. Lab::XPRESS::Sweep::Magnet. 
-.
 
 =head1 SWEEP PARAMETERS
 
 The configuration parameters are described in the particular subclasses (e.g. Lab::XPRESS::Sweep::Magnet). 
-
-.
 
 =head1 METHODS
 
@@ -1452,20 +1442,13 @@ The configuration parameters are described in the particular subclasses (e.g. La
 use this method to assign a DataFile object with a sweep if it operates as a slave or as a individual sweep. The sweep will call the user-defined measurment routine assigned with the DataFile.
 Sweeps accept multiple DataFile objects when add_DataFile is used repeatedly. 
 
-.
-
 =head2 start
 
 use this method to execute the sweep.
 
-.
-
 =head2 get_value 
 
 returns by default the current value of the points array or the current step. The method is intended to be overloaded by Sweep-Subclasses, in order to return the current value of the sweeping instrument.
-
-.
-
 
 =head2 LOG [hash, int (default = 0)]
 
@@ -1559,24 +1542,8 @@ the following methodes have to be overloaded in the subclass:
 
 additionally see one of the present Sweep-Subclasses.
 
-
-.
-
-
 =head1 CAVEATS/BUGS
 
 probably some
-
-.
-
-
-=head1 AUTHOR/COPYRIGHT
-
-Christian Butschkow and Stefan Geißler
-
-This library is free software; you can redistribute it and/or modify it under the same
-terms as Perl itself.
-
-.
 
 =cut

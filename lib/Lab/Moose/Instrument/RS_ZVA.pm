@@ -1,4 +1,6 @@
 package Lab::Moose::Instrument::RS_ZVA;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Rohde & Schwarz ZVA Vector Network Analyzer
 
 use 5.010;
 use Moose;
@@ -53,10 +55,6 @@ sub sparam_sweep_data {
 
     return $self->calculate_data_call( format => 'SDATA', %args );
 }
-
-=head1 NAME
-
-Lab::Moose::Instrument::RS_ZVA - Rohde & Schwarz ZVA Vector Network Analyzer
 
 =head1 SYNOPSIS
 

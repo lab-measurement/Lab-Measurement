@@ -1,6 +1,6 @@
-#!/usr/bin/perl -w
-
 package Lab::Connection;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Connection base class
 
 use strict;
 
@@ -328,11 +328,6 @@ sub DESTROY {
 
 =encoding utf-8
 
-
-=head1 NAME
-
-Lab::Connection - Connection base class
-
 =head1 SYNOPSIS
 
 This is the base class for all connections.
@@ -466,13 +461,6 @@ Probably few. Mostly because there's not a lot to be done here. Please report.
 =item * and all the others...
 
 =back
-
-=head1 AUTHOR/COPYRIGHT
-
- Copyright 2011      Florian Olbrich
-
-This library is free software; you can redistribute it and/or modify it under the same
-terms as Perl itself.
 
 =cut
 

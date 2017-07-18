@@ -1,5 +1,6 @@
 package Lab::XPRESS::Sweep::DietersCrazyTempSweep;
-
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Dieter's crazy temperature sweep
 
 use Lab::XPRESS::Sweep::Sweep;
 use Time::HiRes qw/usleep/, qw/time/;

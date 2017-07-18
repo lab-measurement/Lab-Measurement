@@ -1,4 +1,6 @@
 package Lab::XPRESS::Sweep::SweepND;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Some sweep (?!)
 
 use Time::HiRes qw/usleep/, qw/time/;
 use POSIX qw(ceil);

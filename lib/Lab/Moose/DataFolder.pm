@@ -1,4 +1,6 @@
 package Lab::Moose::DataFolder;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Create a data directory with meta data
 
 use 5.010;
 use warnings;
@@ -31,10 +33,6 @@ our @ARGV_COPY;
 BEGIN {
     @ARGV_COPY = ( $0, @ARGV );
 }
-
-=head1 NAME
-
-Lab::Moose::DataFolder - Create a data directory with meta data.
 
 =head1 DESCRIPTION
 

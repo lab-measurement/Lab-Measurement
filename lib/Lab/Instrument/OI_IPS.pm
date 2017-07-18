@@ -1,5 +1,6 @@
-
 package Lab::Instrument::OI_IPS;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Oxford Instruments IPS superconducting magnet power supply
 
 use strict;
 use Lab::Instrument;
@@ -361,13 +362,9 @@ sub _set_sweep_target_current {
 
 =encoding utf-8
 
-=head1 NAME
-
-Lab::Instrument::OI_IPS - Oxford Instruments IPS series superconducting magnet supply
+=head1 STATUS
 
 Tested with the Oxford Instruments IPS 120-10 and IPS 180 superconducting magnet power supplies.
-
-  (c) 2010, 2011, 2012 Andreas K. Hüttel
 
 =cut
 

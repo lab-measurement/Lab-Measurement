@@ -1,4 +1,6 @@
 package Lab::Moose::Connection;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Role for connections
 
 use 5.010;
 use warnings;
@@ -11,10 +13,6 @@ use Lab::Moose::Instrument qw/timeout_param/;
 use namespace::autoclean;
 
 requires qw/Read Write Clear/;
-
-=head1 NAME
-
-Lab::Moose::Connection - Role for connections.
 
 =head1 DESCRIPTION
 

@@ -1,4 +1,6 @@
 package Lab::Instrument::MG369xB;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Anritsu MG369xB series signal generator
 
 use strict;
 use Lab::Instrument;
@@ -173,24 +175,10 @@ sub sweep_next_step {
 
 =encoding utf-8
 
-=head1 NAME
-
-Lab::Instrument::MG369xB - MG369xB Series Signal Generator
+=head1 CAVEATS/BUGS
 
 IMPORTANT: Only works for B series devices. MG369xA use SCPI commands and are 
 supported by HP83732A driver.
-
-=head1 SYNOPSIS
-
-=head1 DESCRIPTION
-
-=head1 CONSTRUCTOR
-
-=head1 METHODS
-
-=head1 CAVEATS/BUGS
-
-probably many
 
 =head1 SEE ALSO
 
@@ -199,12 +187,5 @@ probably many
 =item * Lab::Instrument
 
 =back
-
-=head1 AUTHOR/COPYRIGHT
-
-  Copyright 2012 Hermann Kraus
-
-This library is free software; you can redistribute it and/or modify it 
-under the same terms as Perl itself.
 
 =cut
