@@ -1,4 +1,6 @@
 package Lab::XPRESS::Sweep::LogBlock;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Sweep add-on for matrix logging
 
 use Role::Tiny;
 requires qw/LOG write_LOG/;
@@ -11,10 +13,6 @@ use Data::Dumper;
 
 
 =pod
-
-=head1 NAME
-
-Lab::XPRESS::Sweep::LogBlock -- Sweep add-on for matrix logging.
 
 =head1 SYNOPSIS
 

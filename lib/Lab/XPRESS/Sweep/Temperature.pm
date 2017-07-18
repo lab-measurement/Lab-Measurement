@@ -1,5 +1,6 @@
 package Lab::XPRESS::Sweep::Temperature;
-
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Temperature sweep
 
 use Lab::XPRESS::Sweep::Sweep;
 use Statistics::Descriptive;
@@ -398,12 +399,6 @@ sub convert_time {
 
 =encoding utf8
 
-=head1 NAME
-
-	Lab::XPRESS::Sweep::Temperature - temperature sweep
-
-.
-
 =head1 SYNOPSIS
 
 	use Lab::XPRESS::hub;
@@ -575,16 +570,5 @@ probably none
 =item L<Lab::XPRESS::Sweep>
 
 =back
-
-.
-
-=head1 AUTHOR/COPYRIGHT
-
-Christian Butschkow and Stefan Geißler
-
-This library is free software; you can redistribute it and/or modify it under the same
-terms as Perl itself.
-
-.
 
 =cut

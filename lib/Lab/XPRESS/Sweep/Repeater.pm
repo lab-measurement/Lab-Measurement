@@ -1,5 +1,6 @@
 package Lab::XPRESS::Sweep::Repeater;
-
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Simple repeater
 
 use Lab::XPRESS::Sweep::Sweep;
 use Time::HiRes qw/usleep/, qw/time/;
@@ -60,12 +61,6 @@ sub get_value {
 
 =encoding utf8
 
-=head1 NAME
-
-	Lab::XPRESS::Sweep::Repeater - simple repeater
-
-.
-
 =head1 SYNOPSIS
 
 	use Lab::XPRESS::hub;
@@ -78,15 +73,11 @@ sub get_value {
 		repetitions => 5
 		});
 
-.
-
 =head1 DESCRIPTION
 
 Parent: Lab::XPRESS::Sweep::Sweep
 
 The Lab::XPRESS::Sweep::Repeater class implements a simple repeater module in the Lab::XPRESS::Sweep framework.
-
-.
 
 =head1 CONSTRUCTOR
 	
@@ -118,39 +109,26 @@ Instantiates also a repeater with 5 repetitions. However, the function
 number of repetitions. default value is 1, negative values indicate a infinit number of repetitions.
 When an array is given, the number of reetitions corresponds to the length of the array.
 
-.
-
-
 =head2 id [string] (default = 'Repeater')
 
 Just an ID.
-
-.
 
 =head2 filename_extention [string] (default = '#=')
 
 Defines a postfix, that will be appended to the filenames if necessary.
 
-.
-
 =head2 delay_before_loop [float] (default = 0)
 
 defines the time in seconds to wait after the starting point has been reached.
-
-.
 
 =head2 delay_in_loop [float] (default = 0)
 
 This parameter is relevant only if mode = 'step' or 'list' has been selected. 
 Defines the time in seconds to wait after the value for the next step has been reached.
 
-.
-
 =head2 delay_after_loop [float] (default = 0)
 
 Defines the time in seconds to wait after the sweep has been finished. This delay will be executed before an optional backsweep or optional repetitions of the sweep.
-
-.
 
 =head1 METHODS
 
@@ -158,13 +136,9 @@ Defines the time in seconds to wait after the sweep has been finished. This dela
 
 Returns an integer number n corresponding to the nth repetition or if an array @a was given for the parameter 'repetitions' it returns @a[n].  
 
-.
-
 =head1 CAVEATS/BUGS
 
 probably none
-
-.
 
 =head1 SEE ALSO
 
@@ -173,17 +147,6 @@ probably none
 =item L<Lab::XPRESS::Sweep>
 
 =back
-
-.
-
-=head1 AUTHOR/COPYRIGHT
-
-Christian Butschkow and Stefan Geißler
-
-This library is free software; you can redistribute it and/or modify it under the same
-terms as Perl itself.
-
-.
 
 =cut
 

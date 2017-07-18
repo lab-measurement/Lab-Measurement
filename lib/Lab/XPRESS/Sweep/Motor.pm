@@ -1,5 +1,6 @@
 package Lab::XPRESS::Sweep::Motor;
-
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Stepper motor sweep
 
 use Lab::XPRESS::Sweep::Sweep;
 use Time::HiRes qw/usleep/, qw/time/;
@@ -115,12 +116,6 @@ sub exit {
 1;
 
 =encoding utf8
-
-=head1 NAME
-
-	Lab::XPRESS::Sweep::Motor - stepper motor sweep
-
-.
 
 =head1 SYNOPSIS
 
@@ -277,48 +272,34 @@ interval in seconds for taking measurement points. Only relevant in mode 'contin
 
 =head2 backsweep [int] (default = 0 | 1 | 2)
 
-0 : no backsweep (default)
-1 : a backsweep will be performed
-2 : no backsweep performed automatically, but sweep sequence will be reverted every second time the sweep is started (relevant eg. if sweep operates as a slave. This way the sweep sequence is reverted at every second step of the master)
+ 0 : no backsweep (default)
+ 1 : a backsweep will be performed
+ 2 : no backsweep performed automatically, but sweep sequence will be reverted every second time the sweep is started (relevant eg. if sweep operates as a slave. This way the sweep sequence is reverted at every second step of the master)
 	
-.
-
 =head2 id [string] (default = 'Motor_sweep')
 
 Just an ID.
-
-.
 
 =head2 filename_extention [string] (default = 'PHI=')
 
 Defines a postfix, that will be appended to the filenames if necessary.
 
-.
-
 =head2 delay_before_loop [int] (default = 0)
 
 defines the time in seconds to wait after the starting point has been reached.
-
-.
 
 =head2 delay_in_loop [int] (default = 0)
 
 This parameter is relevant only if mode = 'step' or 'list' has been selected. 
 Defines the time in seconds to wait after the value for the next step has been reached.
 
-.
-
 =head2 delay_after_loop [int] (default = 0)
 
 Defines the time in seconds to wait after the sweep has been finished. This delay will be executed before an optional backsweep or optional repetitions of the sweep.
 
-.
-
 =head1 CAVEATS/BUGS
 
 probably none
-
-.
 
 =head1 SEE ALSO
 
@@ -327,17 +308,6 @@ probably none
 =item L<Lab::XPRESS::Sweep>
 
 =back
-
-.
-
-=head1 AUTHOR/COPYRIGHT
-
-Christian Butschkow and Stefan Geißler
-
-This library is free software; you can redistribute it and/or modify it under the same
-terms as Perl itself.
-
-.
 
 =cut
 

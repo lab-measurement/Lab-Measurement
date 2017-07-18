@@ -1,5 +1,6 @@
 package Lab::XPRESS::Sweep::Frame;
-
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Frames for nested sweep structures
 
 use Time::HiRes qw/usleep/, qw/time/;
 use strict;
@@ -71,12 +72,6 @@ sub add_slave {
 }
 
 1;
-
-=head1 NAME
-
-	Lab::XPRESS::Sweep::Frame - 
-
-.
 
 =head1 SYNOPSIS
 

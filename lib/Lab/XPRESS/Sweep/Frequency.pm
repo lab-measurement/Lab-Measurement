@@ -1,5 +1,6 @@
 package Lab::XPRESS::Sweep::Frequency;
-
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Frequency sweep
 
 use Lab::XPRESS::Sweep::Sweep;
 use Time::HiRes qw/usleep/, qw/time/;
@@ -85,12 +86,6 @@ sub exit {
 1;
 
 =encoding utf8
-
-=head1 NAME
-
-	Lab::XPRESS::Sweep::Frequency - Frequency-Sweep
-
-.
 
 =head1 SYNOPSIS
 
@@ -252,16 +247,5 @@ probably none
 =item L<Lab::XPRESS::Sweep>
 
 =back
-
-.
-
-=head1 AUTHOR/COPYRIGHT
-
-Christian Butschkow and Stefan Geißler
-
-This library is free software; you can redistribute it and/or modify it under the same
-terms as Perl itself.
-
-.
 
 =cut
