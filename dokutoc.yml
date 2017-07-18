@@ -1,16 +1,13 @@
 ---
 title: Lab::Measurement documentation
-authors: Daniel Schröer, Andreas K. Hüttel, Stefan Geißler, Christian Butschkow, and others
+authors: Daniel Schröer, Andreas K. Hüttel, Stefan Geißler, Christian Butschkow, Simon Reinhardt, and others
 toc:
   - The Lab::Measurement package:
-      - lib/Lab/Moose/Developer.pod
       - lib/Lab/Measurement/Installation.pod
       - lib/Lab/Measurement/Tutorial.pod
       - lib/Lab/Measurement/Backends.pod
       - lib/Lab/Measurement/Developer/Write-A-Source-Driver.pod
-      - Testing:
-          - lib/Lab/Measurement/Testing.pod
-          - t/Lab/Test.pm
+      - lib/Lab/Moose/Developer.pod
       - Example scripts:
           - examples/Simple/yoko_goto.pl
           - examples/Simple/query_id.pl
@@ -115,29 +112,41 @@ toc:
           - lib/Lab/Moose/Instrument/SCPI/Sense/Function.pm
           - lib/Lab/Moose/Instrument/SCPI/Sense/Sweep.pm
           - lib/Lab/Moose/Instrument/SCPI/Source/Power.pm
-      - Moose Connection/Bus classes:
-          - lib/Lab/Moose/Connection.pm
-          - lib/Lab/Moose/Connection/LinuxGPIB.pm
-          - lib/Lab/Moose/Connection/Socket.pm
-          - lib/Lab/Moose/Connection/Zhinst.pm
-      - Connection classes:
-          - lib/Lab/Connection.pm
-          - lib/Lab/Connection/DEBUG.pm
-          - lib/Lab/Connection/GPIB.pm
-          - lib/Lab/Connection/RS232.pm
-          - lib/Lab/Connection/LinuxGPIB.pm
-          - lib/Lab/Connection/MODBUS_RS232.pm
-          - lib/Lab/Connection/VISA.pm
-          - lib/Lab/Connection/VISA_GPIB.pm
-          - lib/Lab/Connection/VISA_RS232.pm
-          - lib/Lab/Connection/IsoBus.pm
-          - lib/Lab/Connection/USBtmc.pm
-      - Bus classes:
-          - lib/Lab/Bus.pm
-          - lib/Lab/Bus/DEBUG.pm
-          - lib/Lab/Bus/LinuxGPIB.pm
-          - lib/Lab/Bus/RS232.pm
-          - lib/Lab/Bus/MODBUS_RS232.pm
-          - lib/Lab/Bus/VISA.pm
-          - lib/Lab/Bus/IsoBus.pm
-          - lib/Lab/Bus/USBtmc.pm
+      - Connecting instruments: Buses and Connections
+          - Base classes
+              - lib/Lab/Moose/Connection.pm
+              - lib/Lab/Connection.pm
+              - lib/Lab/Connection/DEBUG.pm
+              - lib/Lab/Bus.pm
+              - lib/Lab/Bus/DEBUG.pm
+          - VISA
+              - lib/Lab/Connection/VISA.pm
+              - lib/Lab/Bus/VISA.pm
+          - GPIB (IEEE 488.2)
+              - lib/Lab/Moose/Connection/LinuxGPIB.pm
+              - lib/Lab/Connection/GPIB.pm
+              - lib/Lab/Connection/LinuxGPIB.pm
+              - lib/Lab/Connection/VISA_GPIB.pm
+              - lib/Lab/Bus/LinuxGPIB.pm
+          - RS232 (serial port)
+              - lib/Lab/Connection/RS232.pm
+              - lib/Lab/Connection/VISA_RS232.pm
+              - lib/Lab/Bus/RS232.pm
+          - USB Test&Measurement (Linux kernel driver)
+              - lib/Lab/Connection/USBtmc.pm
+              - lib/Lab/Bus/USBtmc.pm
+          - Network socket
+              - lib/Lab/Moose/Connection/Socket.pm
+              - lib/Lab/Connection/Socket.pm
+              - lib/Lab/Bus/Socket.pm
+          - Oxford Instruments ISOBUS
+              - lib/Lab/Connection/IsoBus.pm
+              - lib/Lab/Bus/IsoBus.pm
+          - Zurich Instruments LabONE API
+              - lib/Lab/Moose/Connection/Zhinst.pm
+          - MODBUS
+              - lib/Lab/Connection/MODBUS_RS232.pm
+              - lib/Lab/Bus/MODBUS_RS232.pm
+      - Testing utilities and documentation
+          - lib/Lab/Measurement/Testing.pod
+          - t/Lab/Test.pm
