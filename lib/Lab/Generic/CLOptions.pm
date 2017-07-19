@@ -1,6 +1,6 @@
-# Process Command Line Options (i.e. flag -d | -debug):
 package Lab::Generic::CLOptions;
-
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Global command line option processing
 
 use Getopt::Long qw/:config pass_through/;
 

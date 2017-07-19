@@ -1,5 +1,6 @@
-
 package Lab::Instrument::Multimeter;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Generic digital multimeter base class
 
 use strict;
 use Lab::Instrument;
@@ -77,10 +78,6 @@ sub get_error {
 
 =encoding utf-8
 
-=head1 NAME
-
-Lab::Instrument::Multimeter - Generic digital multimeter interface
-
 =head1 DESCRIPTION
 
 The Lab::Instrument::Multmeter class implements a generic interface to
@@ -147,12 +144,5 @@ none known so far :)
 =item * L<Lab::Instrument:HP3458A>
 
 =back
-
-=head1 AUTHOR/COPYRIGHT
-
-  Copyright 2011 Andreas K. Hüttel
-
-This library is free software; you can redistribute it and/or modify it 
-under the same terms as Perl itself.
 
 =cut

@@ -1,6 +1,6 @@
-#!/usr/bin/perl -w
-
 package Lab::Exception::Base;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Exception base class
 
 #
 # This is for comfy optional adding of custom methods via our own exception base class later
