@@ -1,4 +1,6 @@
 package Lab::Moose::DataFile;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Base class for data file types
 
 use 5.010;
 use warnings;
@@ -104,10 +106,6 @@ sub _open_file {
 }
 
 __PACKAGE__->meta->make_immutable();
-
-=head1 NAME
-
-Lab::Moose::DataFile - Base class for data file types.
 
 =head1 METHODS
 

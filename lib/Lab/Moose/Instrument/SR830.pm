@@ -1,4 +1,6 @@
 package Lab::Moose::Instrument::SR830;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Stanford Research SR830 Lock-In Amplifier
 
 use 5.010;
 use Moose;
@@ -25,10 +27,6 @@ sub BUILD {
 }
 
 =encoding utf8
-
-=head1 NAME
-
-Lab::Moose::Instrument::SR830 -  Stanford Research SR830 Lock-In Amplifier
 
 =head1 SYNOPSIS
 

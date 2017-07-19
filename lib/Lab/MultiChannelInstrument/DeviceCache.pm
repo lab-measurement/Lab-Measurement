@@ -1,4 +1,6 @@
 package Lab::MultiChannelInstrument::DeviceCache;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Multi-channel instrument device cache
 
 use warnings;
 use strict;

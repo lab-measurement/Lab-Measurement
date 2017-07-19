@@ -1,4 +1,6 @@
 package Lab::Moose::Instrument::RS_ZVM;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Rohde & Schwarz ZVM Vector Network Analyzer
 
 use 5.010;
 use Moose;
@@ -63,10 +65,6 @@ sub sparam_sweep_data {
         %args
     );
 }
-
-=head1 NAME
-
-Lab::Moose::Instrument::RS_ZVM - Rohde & Schwarz ZVM Vector Network Analyzer
 
 =head1 SYNOPSIS
 

@@ -1,7 +1,6 @@
-
-=head1 NAME
-
-Lab::Moose::Plot - Frontend to L<PDL::Graphics::Gnuplot>.
+package Lab::Moose::Plot;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Frontend to L<PDL::Graphics::Gnuplot>
 
 =head1 SYNOPSIS
 
@@ -56,8 +55,6 @@ terminal-, plot- and curve-options.
 
 
 =cut
-
-package Lab::Moose::Plot;
 
 use warnings;
 use strict;

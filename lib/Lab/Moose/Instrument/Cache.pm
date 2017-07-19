@@ -1,8 +1,6 @@
-
-=head1 NAME
-
-Lab::Moose::Instrument::Cache - Role for device cache functionality in
-Moose::Instrument drivers.
+package Lab::Moose::Instrument::Cache;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Role for device cache functionality in Moose::Instrument drivers
 
 =head1 SYNOPSIS
 
@@ -63,8 +61,6 @@ driver:
 
 
 =cut
-
-package Lab::Moose::Instrument::Cache;
 
 use Moose::Role;
 use MooseX::Params::Validate;

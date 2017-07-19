@@ -1,4 +1,6 @@
 package Lab::Moose::Instrument::Zhinst;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Base class for Zurich Instruments device drivers
 
 use 5.010;
 use Moose;
@@ -16,10 +18,6 @@ use constant {
 };
 
 extends 'Lab::Moose::Instrument';
-
-=head1 NAME
-
-Lab::Moose::Instrument::Zhinst - Base class for Zurich Instruments device drivers.
 
 =head1 SYNOPSIS
 

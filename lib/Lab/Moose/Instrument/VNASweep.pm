@@ -1,4 +1,6 @@
 package Lab::Moose::Instrument::VNASweep;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Role for network analyzer sweeps
 
 use Moose::Role;
 use Moose::Util::TypeConstraints;
@@ -70,10 +72,6 @@ sub _get_data_columns {
 
     return cat( $freq_array, @data_columns );
 }
-
-=head1 NAME
-
-Lab::Moose::Instrument::VNASweep - Role for network analyzer sweeps.
 
 =head1 METHODS
 

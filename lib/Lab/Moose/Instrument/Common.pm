@@ -1,4 +1,6 @@
 package Lab::Moose::Instrument::Common;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Role for common commands declared mandatory by IEEE 488.2
 
 use Moose::Role;
 use MooseX::Params::Validate;
@@ -11,12 +13,6 @@ use Lab::Moose::Instrument qw/
 use Carp;
 
 use namespace::autoclean;
-
-
-=head1 NAME
-
-Lab::Moose::Instrument::Common - Role for common commands declared mandatory by
-IEEE 488.2.
 
 =head1 METHODS
 
