@@ -8,6 +8,7 @@ toc:
       - lib/Lab/Measurement/Backends.pod
       - lib/Lab/Measurement/Developer/Write-A-Source-Driver.pod
       - lib/Lab/Moose/Developer.pod
+      - lib/Lab/Measurement/Testing.pod
       - Example scripts:
           - examples/Simple/yoko_goto.pl
           - examples/Simple/query_id.pl
@@ -43,15 +44,7 @@ toc:
               - lib/Lab/XPRESS/Sweep/Repeater.pm
               - lib/Lab/XPRESS/Sweep/Temperature.pm
               - lib/Lab/XPRESS/Sweep/PulseLength.pm
-          - lib/Lab/XPRESS/Sweep/Sweep.pm
-          - lib/Lab/XPRESS/Sweep/Frame.pm	      
-          - lib/Lab/XPRESS/Sweep/Magnet.pm
-          - lib/Lab/XPRESS/Sweep/Voltage.pm
-          - lib/Lab/XPRESS/Sweep/Time.pm
-          - lib/Lab/XPRESS/Sweep/Motor.pm
-          - lib/Lab/XPRESS/Sweep/Repeater.pm
-          - lib/Lab/XPRESS/Sweep/Temperature.pm
-          - lib/Lab/XPRESS/Sweep/LogBlock.pm
+              - lib/Lab/XPRESS/Sweep/LogBlock.pm
       - Instrument control classes:
           - lib/Lab/Moose/Instrument.pm
           - lib/Lab/Moose/Instrument/Cache.pm
@@ -62,6 +55,7 @@ toc:
               - lib/Lab/Instrument/HP34420A.pm
               - lib/Lab/Instrument/HP3458A.pm
               - lib/Lab/Instrument/Agilent34410A.pm
+              - lib/Lab/Instrument/Keithley2000.pm
           - Voltage sources:
               - lib/Lab/Instrument/Source.pm
               - lib/Lab/Instrument/DummySource.pm
@@ -78,6 +72,8 @@ toc:
               - lib/Lab/Instrument/HP33120A.pm
               - lib/Lab/Instrument/HP83732A.pm
               - lib/Lab/Moose/Instrument/RS_SMB.pm
+              - lib/Lab/Instrument/RSSMB100A.pm
+              - lib/Lab/Instrument/MG369xB.pm
           - RF detectors:
               - lib/Lab/Instrument/U2000.pm
           - Spectrum analyzers:
@@ -90,18 +86,22 @@ toc:
           - Superconducting magnet power supplies:
               - lib/Lab/Instrument/MagnetSupply.pm
               - lib/Lab/Instrument/OI_IPS.pm
+              - lib/Lab/Instrument/OI_Mercury.pm
               - lib/Lab/Instrument/Cryogenic_SMS.pm
           - Temperature control devices:
               - lib/Lab/Instrument/TemperatureControl.pm
               - lib/Lab/Instrument/TRMC2.pm
               - lib/Lab/Instrument/OI_ITC503.pm
+              - lib/Lab/Instrument/OI_Triton.pm
               - lib/Lab/Instrument/TemperatureControl/TLK43.pm
+              - lib/Lab/Instrument/Lakeshore33x.pm
               - lib/Lab/Instrument/Lakeshore340.pm
-          - Cryostat handling devices:
+          - Cryoliquid level meters:
               - lib/Lab/Instrument/OI_ILM210.pm
               - lib/Lab/Instrument/OI_Mercury.pm
           - Stepper motors:
               - lib/Lab/Instrument/PD11042.pm
+              - lib/Lab/Instrument/ProStep4.pm
       - Moose::Instrument Roles:
           - lib/Lab/Moose/Instrument/VNASweep.pm
           - lib/Lab/Moose/Instrument/Common.pm
@@ -147,6 +147,5 @@ toc:
           - MODBUS:
               - lib/Lab/Connection/MODBUS_RS232.pm
               - lib/Lab/Bus/MODBUS_RS232.pm
-      - Testing utilities and documentation:
-          - lib/Lab/Measurement/Testing.pod
+      - Testing utilities:
           - t/Lab/Test.pm
