@@ -196,9 +196,13 @@ sub sparam_sweep {
 
 =item L<Lab::Moose::Instrument::SCPI::Sense::Average>
 
+=item L<Lab::Moose::Instrument::SCPI::Sense::Bandwidth>
+
 =item L<Lab::Moose::Instrument::SCPI::Sense::Frequency>
 
 =item L<Lab::Moose::Instrument::SCPI::Sense::Sweep>
+
+=item L<Lab::Moose::Instrument::SCPI::Source::Power>
 
 =item L<Lab::Moose::Instrument::SCPI::Initiate>
 
