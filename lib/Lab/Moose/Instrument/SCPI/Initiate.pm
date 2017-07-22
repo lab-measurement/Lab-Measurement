@@ -1,15 +1,12 @@
 package Lab::Moose::Instrument::SCPI::Initiate;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Role for the SCPI INITiate subsystem used by Rohde&Schwarz
 
 use Moose::Role;
 use Lab::Moose::Instrument
     qw/validated_no_param_setter validated_setter validated_getter/;
 use Lab::Moose::Instrument::Cache;
 use MooseX::Params::Validate;
-
-=head1 NAME
-
-Lab::Moose::Instrument::SCPI::Initiate - Role for SCPI INITiate subsystem used
-by R&S.
 
 =head1 METHODS
 

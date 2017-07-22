@@ -1,4 +1,6 @@
 package Lab::Moose::Connection::Debug;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Debug connection
 
 use Moose;
 use 5.010;

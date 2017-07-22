@@ -1,4 +1,6 @@
 package Lab::Data::Analysis::TekTDS;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Analysis routine for Tektronix TDS1000/TDS2000/etc. scopes
 
 use 5.006;
 use strict;
@@ -10,17 +12,6 @@ use Lab::Instrument::TDS2024B;
 use Lab::Data::Analysis;
 use Clone qw(clone);
 
-=head1 NAME
-
-Lab::Data::Analysis::TekTDS
-
-=head1 VERSION
-
-Version 0.01
-
-=cut
-
-
 our @ISA = ("Lab::Data::Analysis");
 
 our $DEBUG = 0;
@@ -29,14 +20,7 @@ our $DEBUG = 0;
 
 our $DEFAULT_CONFIG = {};
 
-=head1 SYNOPSIS
-
-Analysis routine for Tektronix TDS1000/TDS2000/etc. scopes
-
-
 =head1 SUBROUTINES/METHODS
-
-
 
 
 =head2 new

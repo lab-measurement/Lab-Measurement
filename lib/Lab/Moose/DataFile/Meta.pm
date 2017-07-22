@@ -1,4 +1,6 @@
 package Lab::Moose::DataFile::Meta;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: YAML Metadata file
 
 use 5.010;
 use warnings;
@@ -77,10 +79,6 @@ sub log {
 }
 
 __PACKAGE__->meta->make_immutable();
-
-=head1 NAME
-
-Lab::Moose::DataFile::Meta - YAML Metadata file.
 
 =head1 SYNOPSIS
 

@@ -1,4 +1,6 @@
 package Lab::Moose::Instrument::SCPI::Sense::Bandwidth;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Role for the SCPI SENSe:BANDwidth subsystem
 
 use Moose::Role;
 use Lab::Moose::Instrument::Cache;
@@ -9,12 +11,6 @@ use Moose::Util::TypeConstraints qw/enum/;
 use Carp;
 
 use namespace::autoclean;
-
-
-=head1 NAME
-
-Lab::Moose::Instrument::SCPI::Sense::Bandwidth - Role for SCPI SENSe:BANDwidth
-subsystem.
 
 =head1 METHODS
 

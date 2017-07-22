@@ -1,8 +1,6 @@
-
-=head1 NAME
-
-Lab::Moose::Connection::LinuxGPIB - Connection back end to the LinuxGpib
-library and kernel drivers.
+package Lab::Moose::Connection::LinuxGPIB;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Connection back end to the LinuxGpib library and kernel drivers
 
 =head1 SYNOPSIS
 
@@ -23,8 +21,6 @@ L<Lab::Measurement::Backends> for more information on Linux-GPIB and it's Perl
 backend.
 
 =cut
-
-package Lab::Moose::Connection::LinuxGPIB;
 
 use 5.010;
 

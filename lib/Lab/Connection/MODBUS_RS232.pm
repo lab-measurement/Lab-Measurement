@@ -1,9 +1,6 @@
-#!/usr/bin/perl -w
-
-#
-# Connection class for Lab::Bus::MODBUS_RS232
-#
 package Lab::Connection::MODBUS_RS232;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: RS232/RS485 MODBUS RTU connection
 
 use strict;
 use Scalar::Util qw(weaken);
@@ -84,10 +81,6 @@ sub Query {
 
 =encoding utf-8
 
-=head1 NAME
-
-Lab::Connection::MODBUS_RS232 - RS232/RS485 MODBUS RTU connection
-
 =head1 CAVEATS/BUGS
 
 Probably few. Mostly because there's not a lot to be done here. Please report.
@@ -101,13 +94,6 @@ Probably few. Mostly because there's not a lot to be done here. Please report.
 =item * L<Lab::Bus::MODBUS_RS232>
 
 =back
-
-=head1 AUTHOR/COPYRIGHT
-
- Copyright 2011      Florian Olbrich
-
-This library is free software; you can redistribute it and/or modify it under the same
-terms as Perl itself.
 
 =cut
 

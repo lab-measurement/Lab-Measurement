@@ -1,6 +1,6 @@
-#!/usr/bin/perl -w
-
 package Lab::Bus::LinuxGPIB;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: LinuxGPIB bus
 
 use strict;
 use Scalar::Util qw(weaken);
@@ -480,10 +480,6 @@ sub _search_twin {
 
 =encoding utf-8
 
-=head1 NAME
-
-Lab::Bus::LinuxGPIB - LinuxGPIB bus
-
 =head1 SYNOPSIS
 
 This is the GPIB bus class for the GPIB library C<linux-gpib> (aka C<libgpib0> in the debian world).
@@ -615,16 +611,6 @@ L<Lab::Bus::MODBUS>
 and many more...
 
 =back
-
-=head1 AUTHOR/COPYRIGHT
-
- Copyright 2004-2006 Daniel Schröer <schroeer@cpan.org>, 
-           2009-2010 Daniel Schröer, Andreas K. Hüttel (L<http://www.akhuettel.de/>) and David Kalok,
-           2010      Matthias Völker <mvoelker@cpan.org>
-           2011      Florian Olbrich, Andreas K. Hüttel
-
-This library is free software; you can redistribute it and/or modify it under the same
-terms as Perl itself.
 
 =cut
 

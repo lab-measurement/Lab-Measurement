@@ -1,4 +1,6 @@
 package Lab::Moose::Instrument::SCPI::Sense::Function;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Role for the SCPI SENSe:FUNCtion subsystem
 
 use Moose::Role;
 use Lab::Moose::Instrument::Cache;
@@ -8,12 +10,6 @@ use MooseX::Params::Validate;
 use Carp;
 
 use namespace::autoclean;
-
-
-=head1 NAME
-
-Lab::Moose::Instrument::SCPI::Sense::Function - Role for SCPI SENSe:FUNCtion
-subsystem.
 
 =head1 METHODS
 

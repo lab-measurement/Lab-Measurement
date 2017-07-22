@@ -1,4 +1,6 @@
 package Lab::Moose::DataFile::Gnuplot::2D;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: 2D data file with live plotting support
 
 use 5.010;
 use warnings;
@@ -15,12 +17,7 @@ use Lab::Moose::DataFile::Read 'read_2d_gnuplot_format';
 use List::Util 'any';
 use namespace::autoclean;
 
-
 extends 'Lab::Moose::DataFile::Gnuplot';
-
-=head1 NAME
-
-Lab::Moose::DataFile::Gnuplot::2D - 2D data file with live plotting support.
 
 =head1 SYNOPSIS
 

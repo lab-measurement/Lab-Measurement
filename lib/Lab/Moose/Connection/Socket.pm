@@ -1,4 +1,6 @@
 package Lab::Moose::Connection::Socket;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Transfer IEEE 488.2 / SCPI messages over TCP
 
 use 5.010;
 
@@ -143,11 +145,6 @@ with qw/
 __PACKAGE__->meta->make_immutable();
 
 1;
-
-=head1 NAME
-
-Lab::Moose::Connection::Socket - Transfer IEEE 488.2 / SCPI messages over TCP
-socket.
 
 =head1 SYNOPSIS
 

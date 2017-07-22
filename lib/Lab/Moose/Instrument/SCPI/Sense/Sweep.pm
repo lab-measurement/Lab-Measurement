@@ -1,4 +1,6 @@
 package Lab::Moose::Instrument::SCPI::Sense::Sweep;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Role for the SCPI SENSe:SWEep subsystem
 
 use Moose::Role;
 use Lab::Moose::Instrument::Cache;
@@ -8,12 +10,6 @@ use MooseX::Params::Validate;
 use Carp;
 
 use namespace::autoclean;
-
-
-=head1 NAME
-
-Lab::Moose::Instrument::SCPI::Sense::Sweep - Role for SCPI SENSe:SWEep
-subsystem.
 
 =head1 METHODS
 

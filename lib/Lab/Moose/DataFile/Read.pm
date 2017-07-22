@@ -1,4 +1,6 @@
 package Lab::Moose::DataFile::Read;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Read a gnuplot-style 2D data file
 
 use 5.010;
 use warnings;

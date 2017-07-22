@@ -1,4 +1,6 @@
 package Lab::Moose::Instrument::SCPI::Instrument;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: ???
 
 use Moose::Role;
 use Lab::Moose::Instrument::Cache;

@@ -1,4 +1,6 @@
 package Lab::Moose::Instrument::SCPI::Trace::Data::Response;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: ???
 
 use Moose::Role;
 use Lab::Moose::Instrument qw/getter_params/;

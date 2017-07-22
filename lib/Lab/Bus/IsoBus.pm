@@ -1,6 +1,6 @@
-#!/usr/bin/perl -w
-
 package Lab::Bus::IsoBus;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Oxford Instruments ISOBUS bus
 
 use strict;
 use Lab::Connection;
@@ -214,10 +214,6 @@ sub _search_twin {
 
 =encoding utf-8
 
-=head1 NAME
-
-Lab::Bus::IsoBus - Oxford Instruments IsoBus bus
-
 =head1 SYNOPSIS
 
 This is the IsoBus bus class. Typically you create it implicit through instrument creation:
@@ -287,13 +283,6 @@ For further information refer to the specific connection class of $base_connecti
 =item * and many more...
 
 =back
-
-=head1 AUTHOR/COPYRIGHT
-
- Copyright 2011      Andreas K. Hüttel
-
-This library is free software; you can redistribute it and/or modify it under the same
-terms as Perl itself.
 
 =cut
 

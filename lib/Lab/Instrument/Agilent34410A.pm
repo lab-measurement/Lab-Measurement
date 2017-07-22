@@ -1,8 +1,7 @@
+package Lab::Instrument::Agilent34410A;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: HP/Agilent/Keysight 34410A or 34411A digital multimeter
 
-=head1 NAME
-
-Lab::Instrument::Agilent34410A -- HP/Agilent/Keysight 34410A or 34411A digital
-multimeter
 
 =head1 SYNOPSIS
 
@@ -17,8 +16,6 @@ The Lab::Instrument::Agilent34410A class implements an interface to the 34410A
 and 34411A digital multimeters by Agilent (now Keysight, formerly HP).
 
 =cut
-
-package Lab::Instrument::Agilent34410A;
 
 use warnings;
 use strict;
@@ -1027,8 +1024,4 @@ sub beep {             # basic
 
 =back
 
-=head1 AUTHOR/COPYRIGHT
-
-Stefan Geissler
-
-
+=cut

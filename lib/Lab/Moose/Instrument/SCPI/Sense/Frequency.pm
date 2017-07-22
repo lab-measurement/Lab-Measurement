@@ -1,4 +1,6 @@
 package Lab::Moose::Instrument::SCPI::Sense::Frequency;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Role for the SCPI SENSe:FREQuency subsystem
 
 use Moose::Role;
 use Lab::Moose::Instrument::Cache;
@@ -10,12 +12,6 @@ use Carp;
 use namespace::autoclean;
 
 with 'Lab::Moose::Instrument::SCPI::Sense::Sweep';
-
-
-=head1 NAME
-
-Lab::Moose::Instrument::SCPI::Sense::Frequency -  Role for SCPI SENSe:FREQuency
-subsystem.
 
 =head1 METHODS
 

@@ -1,4 +1,6 @@
 package Lab::Moose::DataFile::Gnuplot;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Text based data file ('Gnuplot style')
 
 use 5.010;
 use warnings;
@@ -45,10 +47,6 @@ sub BUILD {
     }
     $self->log_comment( comment => join( "\t", @columns ) );
 }
-
-=head1 NAME
-
-Lab::Moose::DataFile::Gnuplot - Text based data file.
 
 =head1 SYNOPSIS
 

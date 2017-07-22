@@ -1,4 +1,6 @@
 package Lab::Moose::Instrument::SCPI::Sense::Average;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Role for the SCPI SENSe:AVERage subsystem
 
 use Moose::Role;
 use Lab::Moose::Instrument::Cache;
@@ -9,13 +11,7 @@ use Carp;
 
 use namespace::autoclean;
 
-
 cache sense_average_state => ( getter => 'sense_average_state_query' );
-
-=head1 NAME
-
-Lab::Moose::Instrument::SCPI::Sense::Average - Role for SCPI SENSe:AVERage
-subsystem.
 
 =head1 METHODS
 

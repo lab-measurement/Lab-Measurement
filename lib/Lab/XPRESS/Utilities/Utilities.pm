@@ -1,8 +1,10 @@
-#package main;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Global utility functions
+
+#note: this is no "package" !?!
 
 use Term::ReadKey;
 use Time::HiRes qw/usleep/, qw/time/;
-
 
 # collection of some usefull subroutines:
 

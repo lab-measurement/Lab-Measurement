@@ -1,5 +1,3 @@
-#!/usr/bin/perl -w
-
 #
 # This is the RS232 Connection base class. It provides the interface definition for all
 # connections implementing access via a RS232 line with its typical properties
@@ -14,6 +12,8 @@
 # TODO: a lot, ...
 
 package Lab::Connection::RS232;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: RS232 Connection base class
 
 use Lab::Connection;
 use strict;

@@ -1,8 +1,6 @@
-
-=head1 NAME
-
-Lab::Moose::Connection::Zhinst - Connection back end to Zurich Instrument's
-LabOne measurement control API.
+package Lab::Moose::Connection::Zhinst;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Connection back end to Zurich Instrument's LabOne measurement control API
 
 =head1 SYNOPSIS
 
@@ -19,8 +17,6 @@ This module translates between YAML text commands and L<Lab::Zhinst>
 method calls. The YAML commands are produced in Lab::Moose::Instrument::Zhinst.
 
 =cut
-
-package Lab::Moose::Connection::Zhinst;
 
 use 5.010;
 

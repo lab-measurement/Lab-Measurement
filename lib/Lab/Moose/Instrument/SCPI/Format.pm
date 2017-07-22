@@ -1,4 +1,6 @@
 package Lab::Moose::Instrument::SCPI::Format;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Format SCPI queries
 
 use Moose::Role;
 use Lab::Moose::Instrument qw/setter_params getter_params validated_getter/;

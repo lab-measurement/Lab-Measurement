@@ -1,4 +1,6 @@
 package Lab::Instrument::Keithley2000;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Keithley 2000 digital multimeter
 
 use strict;
 use Lab::Instrument;
@@ -741,31 +743,19 @@ sub beep {
 
 1;
 
-=head1 NAME
-
-Lab::Instrument::Keithley2000 - Keithley 2000 digital multimeter
-
-.
-
 =head1 SYNOPSIS
 
 	use Lab::Instrument::Keithley2000;
 	my $DMM=new Lab::Instrument::Keithley2000(0,22);
 	print $DMM->get_value('VOLTAGE:DC');
 
-.
-
 =head1 DESCRIPTION
 
 The Lab::Instrument::Keithley2000 class implements an interface to the Keithley 2000 digital multimeter.
 
-.
-
 =head1 CONSTRUCTOR
 
 	my $DMM=new(\%options);
-
-.
 
 =head1 METHODS
 
@@ -790,8 +780,6 @@ and integration time.
 	"fresistance" --> resistance measurement (4-wire)
 
 =back
-
-.
 
 =head2 get_T
 
@@ -821,8 +809,6 @@ and integration time.
  DEF  will be set, if no value is given.
 
 =back
-
-.
 
 =head2 config_measurement
 
@@ -865,8 +851,6 @@ Expected values are between 0.21 ... 20000 seconds.
 
 =back
 
-.
-
 =head2 trg
 
 	$K2000->trg();
@@ -874,15 +858,11 @@ Expected values are between 0.21 ... 20000 seconds.
 Sends a trigger signal via the GPIB-BUS to start the predefined measurement.
 The LabVisa-script can immediatally be continued, e.g. to start another triggered measurement using a second Keithley2000.
 
-.
-
 =head2 abort
 
 	$K2000->abort();
 
 Aborts current (triggered) measurement.
-
-.
 
 =head2 active
 
@@ -890,15 +870,11 @@ Aborts current (triggered) measurement.
 
 Returns '1' if the current triggered measurement is still active and '0' if the current triggered measurement has allready been finished.
 
-.
-
 =head2 wait
 
 	$K2400->abort();
 
 WAIT until triggered measurement has been finished.
-
-.
 
 =head2 get_data
 
@@ -906,8 +882,6 @@ WAIT until triggered measurement has been finished.
 
 Reads all recorded values from the internal buffer and returnes them as an array of floatingpoint values.
 Reading the buffer will start immediately after the triggered measurement has finished. The LabVisa-script cannot be continued until all requested readings have been recieved.
-
-.
 
 =head2 set_function
 
@@ -929,8 +903,6 @@ Set a new value for the measurement function of the Keithley2000.
 	"fresistance" --> resistance measurement (4-wire)
 
 =back
-
-.
 
 =head2 set_range
 
@@ -958,8 +930,6 @@ Set a new value for the predefined  RANGE  for the measurement function $functio
  DEF  will be set, if no value is given.
 
 =back
-
-.
 
 =head2 set_nplc
 
@@ -990,8 +960,6 @@ Assuming $nplc to be 10 and assuming a netfrequency of 50Hz this results in an i
 
 =back
 
-.
-
 =head2 set_averaging
 
 	$K2000->set_averaging($count, $filter);
@@ -1010,23 +978,17 @@ Set a new value for the predefined  NUMBER of POWER LINE CYCLES  for the measure
 
 =back
 
-.
-
 =head2 display_on
 
 	$K2000->display_on();
 
 Turn the front-panel display on.
 
-.
-
 =head2 display_off
 
 	$K2000->display_off();
 
 Turn the front-panel display off.
-
-.
 
 =head2 display_text
 
@@ -1037,15 +999,11 @@ Display a message on the front panel. The multimeter will display up to 12
 characters in a message; any additional characters are truncated.
 Without parameter the displayed message is returned.
 
-.
-
 =head2 display_clear
 
 	$K2000->display_clear();
 
 Clear the message displayed on the front panel.
-
-.
 
 =head2 reset
 
@@ -1053,13 +1011,9 @@ Clear the message displayed on the front panel.
 
 Reset the multimeter to its power-on configuration.
 
-.
-
 =head1 CAVEATS/BUGS
 
 probably many
-
-.
 
 =head1 SEE ALSO
 
@@ -1069,11 +1023,4 @@ probably many
 
 =back
 
-.
-
-=head1 AUTHOR/COPYRIGHT
-
-2011 Stefan Geissler
-
-.
-
+=cut

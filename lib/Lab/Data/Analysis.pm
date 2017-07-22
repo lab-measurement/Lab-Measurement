@@ -1,4 +1,6 @@
 package Lab::Data::Analysis;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Analyze data from 'Trace' files
 
 use 5.006;
 use strict;
@@ -6,17 +8,6 @@ use Clone qw(clone);
 use warnings;
 use Carp;
 use Data::Dumper;
-
-=head1 NAME
-
-Lab::Data::Analysis - Analyze data from 'Trace' files
-
-=head1 VERSION
-
-Version 0.01
-
-=cut
-
 
 # default config values, copied to $self->{CONFIG} initially
 
@@ -50,7 +41,6 @@ our $_DefaultAnalyzer = {
 our $_LOADED = {};
 
 =head1 SYNOPSIS
-
 
 
     use Lab::Data::Analysis;

@@ -1,4 +1,6 @@
 package Lab::Connection::Mock;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: ???
 
 use warnings;
 use strict;

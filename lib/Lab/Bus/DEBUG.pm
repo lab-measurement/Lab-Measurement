@@ -1,6 +1,6 @@
-#!/usr/bin/perl -w
-
 package Lab::Bus::DEBUG;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Interactive debug bus
 
 use warnings;
 use strict;
@@ -230,26 +230,12 @@ sub _search_twin {
 
 =encoding utf-8
 
-=head1 NAME
-
-Lab::Bus::DEBUG - Interactive debug bus
-
-
 =head1 DESCRIPTION
 
 This will be an interactive debug bus, which prints out the commands sent by the 
 measurement script, and lets you manually enter the instrument responses.
 
 Unfinished, needs testing. 
-
-
-
-=head1 AUTHOR/COPYRIGHT
-
- (c) Florian Olbrich 2011
-
-This library is free software; you can redistribute it and/or modify it under the same
-terms as Perl itself.
 
 =cut
 

@@ -1,4 +1,6 @@
 package Lab::Data::Analysis::WaveRunner;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Analysis routine for LeCroy WaveRunner/etc. scopes
 
 use 5.006;
 use strict;
@@ -8,17 +10,6 @@ use Carp;
 use Data::Dumper;
 use Lab::Data::Analysis;
 use Clone qw(clone);
-
-=head1 NAME
-
-Lab::Data::Analysis::WaveRunner
-
-=head1 VERSION
-
-Version 0.01
-
-=cut
-
 
 our @ISA = ("Lab::Data::Analysis");
 
@@ -527,15 +518,7 @@ our $DEFAULT_TEMPLATE = [
     ]
 ];
 
-=head1 SYNOPSIS
-
-Analysis routine for LeCroy WaveRunner/etc. scopes
-
-
 =head1 SUBROUTINES/METHODS
-
-
-
 
 =head2 new
 
