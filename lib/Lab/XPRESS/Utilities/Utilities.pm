@@ -1,12 +1,13 @@
 #Dist::Zilla: +PodWeaver
-#ABSTRACT: Global utility functions
+#PODNAME: Lab::XPRESS::Utilities
+#ABSTRACT: Global utility functions for XPRESS
 
-#note: this is no "package" !?!
+#note: this is no "package"
 
 use Term::ReadKey;
 use Time::HiRes qw/usleep/, qw/time/;
 
-# collection of some usefull subroutines:
+# collection of some useful subroutines:
 
 sub my_sleep {
     my $sleeptime    = shift;
