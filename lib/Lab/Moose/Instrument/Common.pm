@@ -76,7 +76,7 @@ sub opc_sync {
     return $one;
 }
 
-=head2 RST
+=head2 rst
 
 Send I<*RST> command.
 
@@ -87,7 +87,7 @@ sub rst {
     return $self->write( command => '*RST', %args );
 }
 
-=head2 WAI
+=head2 wai
 
 Send I<*WAI> command.
 
