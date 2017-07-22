@@ -2,11 +2,11 @@ package Lab::XPRESS::Sweep::Motor;
 #Dist::Zilla: +PodWeaver
 #ABSTRACT: Stepper motor sweep
 
-use Lab::XPRESS::Sweep::Sweep;
+use Lab::XPRESS::Sweep;
 use Time::HiRes qw/usleep/, qw/time/;
 use strict;
 
-our @ISA = ('Lab::XPRESS::Sweep::Sweep');
+our @ISA = ('Lab::XPRESS::Sweep');
 
 sub new {
     my $proto                  = shift;
@@ -143,7 +143,7 @@ sub exit {
 
 =head1 DESCRIPTION
 
-Parent: Lab::XPRESS::Sweep::Sweep
+Parent: Lab::XPRESS::Sweep
 
 The Lab::XPRESS::Sweep::Motor class implements a module for stepper motor sweeps in the Lab::XPRESS::Sweep framework.
 

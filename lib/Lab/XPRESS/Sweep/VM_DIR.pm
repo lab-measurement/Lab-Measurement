@@ -165,7 +165,7 @@ sub exit {
 
 =head1 DESCRIPTION
 
-Parent: Lab::XPRESS::Sweep::Sweep
+Parent: Lab::XPRESS::Sweep
 
 The Lab::XPRESS::Sweep::Magnet class implements a module for magnetic field Sweeps in the Lab::XPRESS::Sweep framework.
 

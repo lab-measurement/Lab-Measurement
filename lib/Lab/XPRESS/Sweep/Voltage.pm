@@ -2,13 +2,13 @@ package Lab::XPRESS::Sweep::Voltage;
 #Dist::Zilla: +PodWeaver
 #ABSTRACT: Voltage sweep
 
-use Lab::XPRESS::Sweep::Sweep;
+use Lab::XPRESS::Sweep;
 use Time::HiRes qw/usleep/, qw/time/;
 use warnings;
 use strict;
 use 5.010;
 use Carp;
-our @ISA = ('Lab::XPRESS::Sweep::Sweep');
+our @ISA = ('Lab::XPRESS::Sweep');
 
 sub new {
     my $proto                  = shift;
@@ -180,7 +180,7 @@ sub exit {
 
 =head1 DESCRIPTION
 
-Parent: Lab::XPRESS::Sweep::Sweep
+Parent: Lab::XPRESS::Sweep
 
 The Lab::XPRESS::Sweep::Voltage class implements a module for voltage Sweeps in the Lab::XPRESS::Sweep framework.
 

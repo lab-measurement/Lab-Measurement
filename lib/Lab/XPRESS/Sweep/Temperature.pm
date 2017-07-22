@@ -2,13 +2,13 @@ package Lab::XPRESS::Sweep::Temperature;
 #Dist::Zilla: +PodWeaver
 #ABSTRACT: Temperature sweep
 
-use Lab::XPRESS::Sweep::Sweep;
+use Lab::XPRESS::Sweep;
 use Statistics::Descriptive;
 use Time::HiRes qw/usleep/;
 use strict;
 use 5.010;
 
-our @ISA = ('Lab::XPRESS::Sweep::Sweep');
+our @ISA = ('Lab::XPRESS::Sweep');
 
 sub new {
     my $proto = shift;
@@ -422,7 +422,7 @@ sub convert_time {
 
 =head1 DESCRIPTION
 
-Parent: Lab::XPRESS::Sweep::Sweep
+Parent: Lab::XPRESS::Sweep
 
 The Lab::XPRESS::Sweep::Temperature class implements a module for temperature sweeps in the Lab::XPRESS::Sweep framework.
 

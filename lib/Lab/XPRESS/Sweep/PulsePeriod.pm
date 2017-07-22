@@ -3,11 +3,11 @@ package Lab::XPRESS::Sweep::PulsePeriod;
 #ABSTRACT: Pulse period sweep
 
 
-use Lab::XPRESS::Sweep::Sweep;
+use Lab::XPRESS::Sweep;
 use Time::HiRes qw/usleep/, qw/time/;
 use strict;
 
-our @ISA = ('Lab::XPRESS::Sweep::Sweep');
+our @ISA = ('Lab::XPRESS::Sweep');
 
 sub new {
     my $proto                  = shift;

@@ -2,14 +2,14 @@ package Lab::XPRESS::Sweep::Time;
 #Dist::Zilla: +PodWeaver
 #ABSTRACT: Simple time-controlled repeater
 
-use Lab::XPRESS::Sweep::Sweep;
+use Lab::XPRESS::Sweep;
 use Time::HiRes qw/usleep/, qw/time/;
 use Statistics::Descriptive;
 use Carp;
 use strict;
 use 5.010;
 
-our @ISA = ('Lab::XPRESS::Sweep::Sweep');
+our @ISA = ('Lab::XPRESS::Sweep');
 
 sub new {
     my $proto = shift;
@@ -171,7 +171,7 @@ sub halt {
 
 =head1 DESCRIPTION
 
-Parent: Lab::XPRESS::Sweep::Sweep
+Parent: Lab::XPRESS::Sweep
 
 The Lab::XPRESS::Sweep::Time class implements a simple time controlled repeater module in the Lab::XPRESS::Sweep framework.
 

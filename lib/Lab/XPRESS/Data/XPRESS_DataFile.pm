@@ -7,7 +7,7 @@ use Time::HiRes qw/usleep/, qw/time/;
 use Storable qw(dclone);
 use File::Copy;
 use Lab::XPRESS::Data::XPRESS_logger;
-use Lab::XPRESS::Sweep::Sweep;
+use Lab::XPRESS::Sweep;
 
 
 our $counter        = 0;
@@ -190,7 +190,7 @@ sub add_column {
     my $self = shift;
     my $col  = shift;
 
-    if ( eval "return exists &Lab::XPRESS::Sweep::Sweep::$col;" ) {
+    if ( eval "return exists &Lab::XPRESS::Sweep::$col;" ) {
         Lab::Exception::Warning->throw(
             "$col is not an alowed column name. Sorry. \n");
     }

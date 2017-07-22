@@ -1,4 +1,4 @@
-package Lab::XPRESS::Sweep::Sweep;
+package Lab::XPRESS::Sweep;
 #Dist::Zilla: +PodWeaver
 #ABSTRACT: Base sweep class
 
@@ -1423,12 +1423,12 @@ with 'Lab::XPRESS::Sweep::LogBlock';
 
 =head1 SYNOPSIS
 
-	Lab::XPRESS::Sweep::Sweep is meant to be used as a base class for inheriting Sweeps.
+	Lab::XPRESS::Sweep is meant to be used as a base class for inheriting Sweeps.
 	It should not be used directly. 
 
 =head1 DESCRIPTION
 
-The Lab::XPRESS::Sweep::Sweep class implements major parts of the Lab::XPRESS framework, a modular way for easy scripting measurements in perl and Lab::Measurement.
+The Lab::XPRESS::Sweep class implements major parts of the Lab::XPRESS framework, a modular way for easy scripting measurements in perl and Lab::Measurement.
 Direct usage of this class would not result in any action. However it constitutes the fundament for more spezialized subclass Sweeps e.g. Lab::XPRESS::Sweep::Magnet. 
 
 =head1 SWEEP PARAMETERS
@@ -1503,7 +1503,7 @@ use this method, in order to stop the current sweep. Example:
 
 .
 
-=head1 HOW TO DEVELOP SUBCLASS OF Lab::XPRESS::Sweep::Sweep
+=head1 HOW TO DEVELOP SUBCLASS OF Lab::XPRESS::Sweep
 
 
 preefine the default_config hash values in method 'new':
