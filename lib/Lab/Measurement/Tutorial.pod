@@ -289,7 +289,7 @@ different axes. Read on!
 
 =head2 The concept of sweeps
 
-The L<Sweep|Lab::XPRESS::Sweep::Sweep> classes provide a high-level interface for measurement
+The L<Sweep|Lab::XPRESS::Sweep> classes provide a high-level interface for measurement
 automation. The following script explains the basic use of sweeps. This
 example shows a two-dimensional L<Voltage Sweep|Lab::XPRESS::Sweep::Voltage>: The I<master sweep> controls
 the gate voltage. For each value of the gate voltage we perform a 

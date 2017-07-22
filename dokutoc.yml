@@ -34,7 +34,7 @@ toc:
               - examples/XPRESS/Example3_2samples-2files.pl
               - examples/XPRESS/Example4_3d-scan.pl
           - General classes:
-              - lib/Lab/XPRESS/Sweep/Sweep.pm
+              - lib/Lab/XPRESS/Sweep.pm
               - lib/Lab/XPRESS/Sweep/Frame.pm
           - Dedicated Sweep Classes:
               - lib/Lab/XPRESS/Sweep/Magnet.pm
