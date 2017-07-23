@@ -1,7 +1,11 @@
-# Please note: The Oxford IPS expects a \r after all commands, no matter which connection is used. For rs232 connection, additionally \n has to be added.
-# Hence termchar => \n. For Isobus connection, no additional termchar must be added. Hence IsoEnableTermChar => 0.
+# Please note: The Oxford IPS expects a \r after all commands, no matter 
+# which connection is used. For rs232 connection, additionally \n has to be added.
+# Hence termchar => \n. For Isobus connection, no additional termchar must be added. 
+# Hence IsoEnableTermChar => 0.
 
 package Lab::Instrument::IPS;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Oxford Instruments IPS Magnet Power Supply
 
 use strict;
 use Time::HiRes qw/usleep/, qw/time/;
@@ -957,12 +961,6 @@ sub sweep_to_level {
 
 =encoding utf8
 
-=head1 NAME
-
-	Lab::Instrument::IPS - Oxford Instruments IPS Magnet Power Supply
-
-.
-
 =head1 SYNOPSIS
 
 	use Lab::Instrument::IPS;
@@ -1105,21 +1103,6 @@ probably many
 =item L<Lab::Instrument>
 
 =back
-
-.
-
-=head1 AUTHOR/COPYRIGHT
-
-This is $Id: ILM.pm 613 2010-04-14 20:40:41Z schroeer $
-
-Copyright 2010 Andreas K. Hüttel (L<http://www.akhuettel.de/>)
-
-modified 2011 by Stefan Geissler
-
-This library is free software; you can redistribute it and/or modify it under the same
-terms as Perl itself.
-
-.
 
 =cut
 

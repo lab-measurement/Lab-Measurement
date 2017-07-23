@@ -1,7 +1,6 @@
-# Please note: The Keithley2400 instrument driver is in a quite bad condition and would need a major revision.
-# However it works within the XPRESS Voltage sweep for list and step mode pretty well.
-
 package Lab::Instrument::Keithley2400;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Keithley 2400 SourceMeter
 
 use strict;
 use Lab::Instrument;
@@ -1752,11 +1751,10 @@ sub display_clear {    #
 
 1;
 
-=head1 NAME
+=head1 CAVEATS
 
-	Lab::Instrument::Keithley2400 - Keithley 2400 digital multimeter
-
-.
+The Keithley2400 instrument driver is in a quite bad condition and would need a major revision.
+However it works within the XPRESS Voltage sweep for list and step mode pretty well.
 
 =head1 SYNOPSIS
 
@@ -1764,19 +1762,13 @@ sub display_clear {    #
 	my $DMM=new Lab::Instrument::Keithley2400(0,GPIB-address);
 	print $DMM->get_value();
 
-.
-
 =head1 DESCRIPTION
 
 The Lab::Instrument::Keithley2400 class implements an interface to the Keithley 2400 digital multimeter.
 
-.
-
 =head1 CONSTRUCTOR
 
 	my $DMM=new(\%options);
-
-.
 
 =head1 METHODS
 
@@ -1799,8 +1791,6 @@ C<FUNCTION> can be one of the measurement methods of the Keithley2000.
 	"fresistance" --> resistance measurement (4-wire)
 
 =back
-
-.
 
 =head2 get_temperature
 
@@ -1831,8 +1821,6 @@ C<DEF> will be set, if no value is given.
 
 =back
 
-.
-
 =head2 set_output
 
 	$output = $K6221->set_output($value);
@@ -1848,8 +1836,6 @@ VALUE can be any numeric value within the current range setting or ON/OFF to swi
 
 =back
 
-.
-
 =head2 get_output
 
 	$output = $K6221->get_output(<$mode>);
@@ -1864,8 +1850,6 @@ If no parameter is given, the current device output value will be returned.
 MODE can be 'STATE' to request the current output state (ON/OFF) or 'VALUE' to request the current output value.
 
 =back
-
-.
 
 =head2 config_measurement
 
@@ -1905,8 +1889,6 @@ C<DEF> will be set, if no value is given.
 
 =back
 
-.
-
 =head2 trg
 
 	$K2400->trg();
@@ -1914,15 +1896,11 @@ C<DEF> will be set, if no value is given.
 Sends a trigger signal via the GPIB-BUS to start the predefined measurement.
 The LabVisa-script can immediatally be continued, e.g. to start another triggered measurement using a second Keithley2400.
 
-.
-
 =head2 abort
 
 	$K2400->abort();
 
 Aborts current (triggered) measurement.
-
-.
 
 =head2 active
 
@@ -1930,15 +1908,11 @@ Aborts current (triggered) measurement.
 
 Returns '1' if the current triggered measurement is still active and '0' if the current triggered measurement has allready been finished.
 
-.
-
 =head2 wait
 
 	$K2400->abort();
 
 WAIT until triggered measurement has been finished.
-
-.
 
 =head2 get_data
 
@@ -1946,8 +1920,6 @@ WAIT until triggered measurement has been finished.
 
 Reads all recorded values from the internal buffer and returnes them as an array of floatingpoint values.
 Reading the buffer will start immediately after the triggered measurement has finished. The LabVisa-script cannot be continued until all requested readings have been recieved.
-
-.
 
 =head2 set_function
 
@@ -1967,8 +1939,6 @@ C<FUNCTION> can be one of the measurement methods of the Keithley2000.
 	"fresistance" --> resistance measurement (4-wire)
 
 =back
-
-.
 
 =head2 set_range
 
@@ -1994,8 +1964,6 @@ C<DEF> is default C<AUTO> activates the AUTORANGE-mode.
 C<DEF> will be set, if no value is given.
 
 =back
-
-.
 
 =head2 set_nplc
 
@@ -2025,8 +1993,6 @@ Assuming $nplc to be 10 and assuming a netfrequency of 50Hz this results in an i
 
 =back
 
-.
-
 =head2 set_averaging
 
 	$K2400->set_averaging($count, <$filter>);
@@ -2045,23 +2011,17 @@ FILTER can be MOVING or REPEAT. A detailed description is refered to the user ma
 
 =back
 
-.
-
 =head2 display_on
 
 	$K2400->display_on();
 
 Turn the front-panel display on.
 
-.
-
 =head2 display_off
 
 	$K2400->display_off();
 
 Turn the front-panel display off.
-
-.
 
 =head2 display_text
 
@@ -2072,29 +2032,17 @@ Display a message on the front panel. The multimeter will display up to 12
 characters in a message; any additional characters are truncated.
 Without parameter the displayed message is returned.
 
-.
-
 =head2 display_clear
 
 	$K2400->display_clear();
 
 Clear the message displayed on the front panel.
 
-.
-
 =head2 reset
 
 	$K2400->reset();
 
 Reset the multimeter to its power-on configuration.
-
-.
-
-=head1 CAVEATS/BUGS
-
-probably many
-
-.
 
 =head1 SEE ALSO
 
@@ -2104,11 +2052,4 @@ probably many
 
 =back
 
-.
-
-=head1 AUTHOR/COPYRIGHT
-
-2011 Stefan Geissler
-
-.
-
+=cut

@@ -1,8 +1,6 @@
-
-=head1 NAME
-
-Lab::Instrument::SR830::AuxIn -- Aux Inputs of the Stanford
-Research SR830 Lock-In Amplifier.
+package Lab::Instrument::SR830::AuxIn;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Aux Inputs of the Stanford Research SR830 Lock-In Amplifier
 
 =head1 SYNOPSIS
 
@@ -41,8 +39,6 @@ B<To use multiple virtual instruments, which use the same physical device, you h
 
 
 =cut
-
-package Lab::Instrument::SR830::AuxIn;
 
 use warnings;
 use strict;

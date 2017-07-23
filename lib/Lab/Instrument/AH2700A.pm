@@ -1,6 +1,6 @@
-#!/usr/bin/perl
-
 package Lab::Instrument::AH2700A;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Andeen-Hagerling AH2700A ultra-precision capacitance bridge
 
 use strict;
 use Time::HiRes qw (usleep);
@@ -465,23 +465,6 @@ sub get_volt {
 }
 
 #sub sample_select {}	# only  in conjunction with the sample switch port
-
-1;
-
-=pod
-
-=encoding utf-8
-
-=head1 NAME
-
-Lab::Instrument::AH2700A - Andeen-Hagerling AH2700A ultra-precision capacitance bridge
-
-=head1 LICENSE
-
-This library is free software; you can redistribute it and/or modify it under the same
-terms as Perl itself.
-
-=cut
 
 1;
 

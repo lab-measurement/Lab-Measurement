@@ -1,9 +1,6 @@
-#
-# Driver for SIKA TLK43/42/41 controller with RS485 MODBUS-RTU interface
-# (over RS232)
-#
-
 package Lab::Instrument::TemperatureControl::TLK43;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Electronic process controller TLKA41/42/43 (SIKA GmbH) with RS485 MODBUS-RTU interface
 
 use strict;
 use Lab::Instrument;
@@ -463,10 +460,6 @@ sub write_address
 
 1;
 
-=head1 NAME
-
-Lab::Instrument::TLK43 - Electronic process controller TLKA41/42/43 (SIKA GmbH)
-
 =head1 SYNOPSIS
 
     use Lab::Instrument::TLK43;
@@ -598,12 +591,5 @@ probably many
 =item L<Lab::Instrument>
 
 =back
-
-=head1 AUTHOR/COPYRIGHT
-
-Copyright 2010 Florian Olbrich
-
-This library is free software; you can redistribute it and/or modify it under the same
-terms as Perl itself.
 
 =cut

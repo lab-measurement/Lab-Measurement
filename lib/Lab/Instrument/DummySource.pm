@@ -1,4 +1,6 @@
 package Lab::Instrument::DummySource;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Dummy voltage source
 
 use warnings;
 use strict;
@@ -128,10 +130,6 @@ sub get_range {
 
 =encoding utf-8
 
-=head1 NAME
-
-Lab::Instrument::DummySource - Dummy voltage source
-
 =head1 DESCRIPTION
 
 The Lab::Instrument::DummySource class implements a dummy voltage source
@@ -146,12 +144,5 @@ Only developers will ever make use of this class.
 =item (L<Lab::Instrument::Source>).
 
 =back
-
-=head1 AUTHOR/COPYRIGHT
-
-  Copyright 2005-2006 Daniel Schröer (L<http://www.danielschroeer.de>)
-            2011      Andreas K. Hüttel
-
-This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 
 =cut

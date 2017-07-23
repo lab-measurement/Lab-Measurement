@@ -1,6 +1,6 @@
-#!/usr/bin/perl
-
 package Lab::Instrument::HP34420A;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: HP/Agilent 34420A digital multimeter
 
 use strict;
 use Scalar::Util qw(weaken);
@@ -440,10 +440,6 @@ sub scroll_message {
 
 =encoding utf-8
 
-=head1 NAME
-
-Lab::Instrument::HP34420A - HP/Agilent 34420A digital multimeter
-
 =head1 SYNOPSIS
 
   use Lab::Instrument::HP34420A;
@@ -656,13 +652,5 @@ probably many
 =item * L<Lab::Instrument::HP3458A>
 
 =back
-
-=head1 AUTHOR/COPYRIGHT
-
-  Copyright 2004-2006 Daniel Schröer (<schroeer@cpan.org>), 2009-2010 Daniela Taubert, 
-            2011 Florian Olbrich, Andreas Hüttel
-
-This library is free software; you can redistribute it and/or modify it under the same
-terms as Perl itself.
 
 =cut

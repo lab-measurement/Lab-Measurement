@@ -1,10 +1,10 @@
+#DistZilla: +PodWeaver
+#PODNAME: Lab::Measurement::Tutorial
+#ABSTRACT: Tutorial on using the Lab::Measurement package stack
+
 =pod
 
 =encoding utf-8
-
-=head1 NAME
-
-Lab::Measurement::Tutorial - Tutorial on using the Lab::Measurement package stack
 
 =head1 Introduction
 
@@ -454,10 +454,5 @@ To be done
 =item [7] L<http://www.gnuplot.info/>
 
 =back
-
-=head1 AUTHOR/COPYRIGHT
-
- Copyright 2006 Daniel Schröer, 
-           2012 Andreas K. Hüttel
 
 =cut

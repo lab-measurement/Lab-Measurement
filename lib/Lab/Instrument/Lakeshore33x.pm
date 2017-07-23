@@ -1,4 +1,6 @@
 package Lab::Instrument::Lakeshore33x;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Lakeshore 33x Temperature controller
 
 use strict;
 use Lab::Instrument;
@@ -921,12 +923,6 @@ sub factory_reset {
 
 1;
 
-=head1 NAME
-
-	Lab::Instrument::Lakeshore33x - Lakeshore 33x Temperature controller
-
-.
-
 =head1 SYNOPSIS
 
 	use Lab::Instrument::Lakeshore33x;
@@ -1135,17 +1131,5 @@ probably many
 =item Lab::Instrument
 
 =back
-
-.
-
-=head1 AUTHOR/COPYRIGHT
-
-This is $Id: Lakeshore336.pm 650 2010-04-22 19:09:27Z schroeer $
-
-Modified 2011 by Stefan Geissler
-
-This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
-
-.
 
 =cut

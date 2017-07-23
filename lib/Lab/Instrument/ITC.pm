@@ -1,4 +1,6 @@
 package Lab::Instrument::ITC;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Oxford Instruments ITC Intelligent Temperature Control
 
 use strict;
 use Lab::Instrument;
@@ -443,12 +445,6 @@ sub get_heateroutput {
 
 =encoding utf8
 
-=head1 NAME
-
-	Lab::Instrument::ITC - Oxford Instruments ITC Intelligent Temperature Control
-
-.
-
 =head1 SYNOPSIS
 
 	use Lab::Instrument::ITC;
@@ -590,20 +586,5 @@ probably many
 =item L<Lab::Instrument>
 
 =back
-
-.
-
-=head1 AUTHOR/COPYRIGHT
-
-This is $Id: ITC503.pm 618 2010-04-15 10:16:04Z huettel $
-
-Copyright 2010 David Kalok and Andreas K. Hüttel (L<http://www.akhuettel.de/>)
-
-Modified 2011 by Stefan Geissler
-
-This library is free software; you can redistribute it and/or modify it under the same
-terms as Perl itself.
-
-.
 
 =cut

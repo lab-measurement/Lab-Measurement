@@ -1,7 +1,6 @@
-#$Id: IPSWeissDillFridge.pm 2012-11-10 Geissler/Butschkow $
-
 package Lab::Instrument::IPSWeissDillFridge;
-
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Derived IPS instrument for the AG Weiss dilution refrigerator
 
 use strict;
 use Lab::Instrument::IPS;
@@ -63,5 +62,12 @@ sub check_magnet {
         );
     }
 }
+
+=head1 TO DO
+
+Move this module to a separate distribution with files specific for the
+Regensburg labs.
+
+=cut 
 
 1;

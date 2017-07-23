@@ -1,8 +1,6 @@
-
-=head1 NAME
-
-Lab::Instrument::SR830::AuxOut -- Aux Outputs of the Stanford
-Research SR830 Lock-In Amplifier.
+package Lab::Instrument::SR830::AuxOut;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Aux Outputs of the Stanford Research SR830 Lock-In Amplifier
 
 =head1 SYNOPSIS
 
@@ -58,8 +56,6 @@ C<1>. Example sweep configuration:
  
  
 =cut
-
-package Lab::Instrument::SR830::AuxOut;
 
 use warnings;
 use strict;

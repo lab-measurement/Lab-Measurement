@@ -1,9 +1,15 @@
+#DistZilla: +PodWeaver
+#PODNAME: Lab::Measurement::Developer::Write-A-Source-Driver
+#ABSTRACT: Implementing a current/voltage source driver
+
 =head1 Implementing a current/voltage source driver
 
 This document is ment as a guideline to and a help with the implementation of drivers for current and voltage sources.
 Since the complexity of the C<Lab::Instrument> and C<Lab::Instrument::Source> classes increases, it becomes more and more cumbersome to carefully read
 the (sometimes outdated) class documentation to keep track of correct interfaces, i.e., required methods and return values, to provide 
 source device drivers.
+
+NOTE: This document hasn't been updated for a very long time and may in part be outdated.
 
 =head2 The config hash
 

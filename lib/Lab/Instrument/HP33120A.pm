@@ -1,4 +1,6 @@
 package Lab::Instrument::HP33120A;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: HP 33120A 15MHz function/arbitrary waveform generator
 
 use 5.006;
 use strict;
@@ -7,13 +9,6 @@ use Lab::Instrument;
 use Try::Tiny;
 use Carp;
 use English;
-
-=head1 NAME
-
-Lab::Instrument::HP33120A - HP 33120A 15MHz function/arbitrary waveform generator
-
-=cut
-
 
 our @ISA = ("Lab::Instrument");
 

@@ -1,6 +1,6 @@
-#!/usr/bin/perl
-
 package Lab::Instrument::HP3458A;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Agilent 3458A Multimeter
 
 use strict;
 use Lab::Instrument;
@@ -507,10 +507,6 @@ sub get_value {
 
 =encoding utf-8
 
-=head1 NAME
-
-Lab::Instrument::HP3458A - Agilent 3458A Multimeter
-
 =head1 SYNOPSIS
 
     use Lab::Instrument::HP3458A;
@@ -721,13 +717,5 @@ probably many
 =item * L<Lab::Instrument::Multimeter>
 
 =back
-
-=head1 AUTHOR/COPYRIGHT
-
-  Copyright 2009-2011 David Kalok, Andreas K. Hüttel
-            2011-2012 Andreas K. Hüttel, Florian Olbrich
-
-This library is free software; you can redistribute it and/or modify it 
-under the same terms as Perl itself.
 
 =cut

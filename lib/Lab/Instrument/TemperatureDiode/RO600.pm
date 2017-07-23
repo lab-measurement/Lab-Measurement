@@ -1,4 +1,6 @@
-package Lab::Instrument::TemperatureDiode::SI420;
+package Lab::Instrument::TemperatureDiode::RO600;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: RO600 (????)
 
 use strict;
 use Math::Complex;
@@ -34,3 +36,5 @@ sub convert2Kelvin {
 
     return $value;
 }
+
+1;

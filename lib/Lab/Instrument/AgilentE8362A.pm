@@ -1,7 +1,9 @@
 package Lab::Instrument::AgilentE8362A;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: Agilent E8362A PNA Series Network Analyzer
+
 use strict;
 use warnings;
-
 
 use feature "switch";
 use Lab::Instrument;

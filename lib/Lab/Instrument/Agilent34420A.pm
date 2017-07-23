@@ -1,4 +1,6 @@
 package Lab::Instrument::Agilent34420A;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: HP/Agilent/Keysight 34420A or 34421A digital multimeter
 
 use strict;
 use Lab::Instrument;
@@ -965,19 +967,11 @@ sub beep {             # basic
 
 1;
 
-=head1 NAME
-
-	Lab::Instrument::Agilent34420A - HP/Agilent/Keysight 34420A or 34421A digital multimeter
-
-.
-
 =head1 SYNOPSIS
 
 	use Lab::Instrument::Agilent34420A;
 	my $agilent=new Lab::Instrument::Agilent34420A(0,22);
 	print $agilent->get_value();
-
-.
 
 =head1 DESCRIPTION
 
@@ -985,13 +979,9 @@ The Lab::Instrument::Agilent34420A class implements an interface to the 34420A a
 Agilent (formerly HP). Note that the module Lab::Instrument::Agilent34420A still works for those older multimeter 
 models.
 
-.
-
 =head1 CONSTRUCTOR
 
 	my $agilent=new(\%options);
-
-.
 
 =head1 METHODS
 
@@ -1054,10 +1044,7 @@ Examples:
 		-->  Integration mode =  Number of Power Line Cycles MODE
 		-->  Integration Time = 1 Powerline cycles = 1 * 1/50 Hz = 0.02 seconds
 
-
 =back
-
-.
 
 =head2 config_measurement
 
@@ -1106,8 +1093,6 @@ C<DEF> will be set, if no value is given.
 
 =back
 
-.
-
 =head2 trg
 
 	$agilent->trg();
@@ -1116,15 +1101,11 @@ Sends a trigger signal via the GPIB-BUS to start the predefined measurement.
 The Agilent34420A nanovoltmeter won't accept any new commands until data-recording has been finished. Unfortunatelly it is not possible to stop an once started measurement.
 The LabVisa-script can immediatally be continued, e.g. to start another triggered measurement using a second Agilent34420A nanovoltmeter.
 
-.
-
 =head2 abort
 
 	$agilent->abort();
 
 doesn't work, because Agilent 34420A doesn't accept any new C<SPCI COMMANDS> until last C<COMMAND> has been completed.
-
-.
 
 =head2 get_data
 
@@ -1132,8 +1113,6 @@ doesn't work, because Agilent 34420A doesn't accept any new C<SPCI COMMANDS> unt
 
 Reads all recorded values from the internal buffer and returnes them as an array of floatingpoint values.
 Reading the buffer will not start before all predevined measurement values ($number_of_points) have been recorded.
-
-.
 
 =head2 set_function
 
@@ -1156,8 +1135,6 @@ FUNCTION can be one of the measurement methods of the Agilent34420A.
 	"fresistance" --> resistance measurement (4-wire)
 
 =back
-
-.
 
 =head2 set_range
 
@@ -1186,8 +1163,6 @@ C<DEF> is default C<AUTO> activates the C<AUTORANGE-mode>.
 C<DEF> will be set, if no value is given.
 
 =back
-
-.
 
 =head2 set_nplc
 
@@ -1219,8 +1194,6 @@ Assuming $nplc to be 20 and assuming a netfrequency of 50Hz this results in an i
 
 =back
 
-.
-
 =head2 set_resolution
 
 	$agilent->set_resolution($resolution, $function);
@@ -1251,8 +1224,6 @@ C<DEF> will be set, if no value is given.
 
 =back
 
-.
-
 =head2 set_channel
 
 	$agilent->set_channel($channel);
@@ -1267,23 +1238,17 @@ C<CHANNEL> can be '1' for sense #1 or '2' for sense #2.
 
 =back
 
-.
-
 =head2 display_on
 
 	$agilent->display_on();
 
 Turn the front-panel display on.
 
-.
-
 =head2 display_off
 
 	$agilent->display_off();
 
 Turn the front-panel display off.
-
-.
 
 =head2 display_text
 
@@ -1294,23 +1259,17 @@ Display a message on the front panel. The multimeter will display up to 12
 characters in a message; any additional characters are truncated.
 Without parameter the displayed message is returned.
 
-.
-
 =head2 display_clear
 
 	$agilent->display_clear();
 
 Clear the message displayed on the front panel.
 
-.
-
 =head2 beep
 
 	$agilent->beep();
 
 Issue a single beep immediately.
-
-.
 
 =head2 get_error
 
@@ -1319,15 +1278,11 @@ Issue a single beep immediately.
 Query the multimeter's error queue. Up to 20 errors can be stored in the
 queue. Errors are retrieved in first-in-first out (FIFO) order.
 
-.
-
 =head2 reset
 
 	$agilent->reset();
 
 Reset the multimeter to its power-on configuration.
-
-.
 
 =head2 id
 
@@ -1335,13 +1290,9 @@ Reset the multimeter to its power-on configuration.
 
 Returns the instruments ID string.
 
-.
-
 =head1 CAVEATS/BUGS
 
 probably many
-
-.
 
 =head1 SEE ALSO
 
@@ -1351,11 +1302,4 @@ probably many
 
 =back
 
-.
-
-=head1 AUTHOR/COPYRIGHT
-
-Stefan Geissler
-
-.
-
+=cut

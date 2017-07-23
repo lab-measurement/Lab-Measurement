@@ -1,3 +1,7 @@
+#DistZilla: +PodWeaver
+#PODNAME: Lab::Measurement::Backends
+#ABSTRACT: Back end packages (hardware drivers) for Lab::Measurement
+
 =pod
 
 =head1 National Instruments NI-VISA back-end

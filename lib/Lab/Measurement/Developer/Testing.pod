@@ -1,3 +1,7 @@
+#DistZilla: +PodWeaver
+#PODNAME: Lab::Measurement::Developer::Testing
+#ABSTRACT: Using mock instruments for testing
+
 =pod
 
 =encoding utf-8
@@ -93,14 +97,4 @@ connection:
 
 The C<Mock> connection will croak, if the calls to it deviate from
 the provided log file.
-
-
- 
-
-
-					   
-					   
-
-
-                                          
 

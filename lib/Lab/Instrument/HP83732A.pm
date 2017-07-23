@@ -1,4 +1,6 @@
 package Lab::Instrument::HP83732A;
+#Dist::Zilla: +PodWeaver
+#ABSTRACT: HP 83732A Series Synthesized Signal Generator
 
 use strict;
 use Lab::Instrument;
@@ -119,18 +121,6 @@ sub disable_external_am {
 
 =encoding utf-8
 
-=head1 NAME
-
-Lab::Instrument::HP83732A - HP 83732A Series Synthesized Signal Generator
-
-=head1 SYNOPSIS
-
-=head1 DESCRIPTION
-
-=head1 CONSTRUCTOR
-
-=head1 METHODS
-
 =head1 CAVEATS/BUGS
 
 probably many
@@ -142,13 +132,5 @@ probably many
 =item * Lab::Instrument
 
 =back
-
-=head1 AUTHOR/COPYRIGHT
-
-  Copyright 2005 Daniel Schröer (<schroeer@cpan.org>)
-            2011 Andreas K. Hüttel
-
-This library is free software; you can redistribute it and/or modify it 
-under the same terms as Perl itself.
 
 =cut
