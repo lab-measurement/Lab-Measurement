@@ -1,5 +1,4 @@
 package Lab::Instrument::OI_ITC503;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Oxford Instruments ITC503 Intelligent Temperature Control
 
 use strict;

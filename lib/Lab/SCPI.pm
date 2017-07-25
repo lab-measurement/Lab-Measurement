@@ -1,5 +1,4 @@
 package Lab::SCPI;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Match L<SCPI|http://www.ivifoundation.org/scpi/> headers and parameters against keywords
 
 use 5.010;

@@ -1,5 +1,4 @@
 package Lab::Bus::MODBUS_RS232;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: RS232/RS485 MODBUS RTU protocol bus
 
 #

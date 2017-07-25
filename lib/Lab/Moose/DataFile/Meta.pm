@@ -1,5 +1,4 @@
 package Lab::Moose::DataFile::Meta;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: YAML Metadata file
 
 use 5.010;

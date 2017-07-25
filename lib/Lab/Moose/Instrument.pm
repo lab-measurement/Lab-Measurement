@@ -1,5 +1,4 @@
 package Lab::Moose::Instrument;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Base class for instrument drivers
 
 use 5.010;

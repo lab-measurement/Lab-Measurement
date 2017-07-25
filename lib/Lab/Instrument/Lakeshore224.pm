@@ -1,5 +1,4 @@
 package Lab::Instrument::Lakeshore224;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Lake Shore 224 temperature monitor
 
 use strict;

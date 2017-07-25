@@ -1,5 +1,4 @@
 package Lab::Instrument::HP3458A;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Agilent 3458A Multimeter
 
 use strict;

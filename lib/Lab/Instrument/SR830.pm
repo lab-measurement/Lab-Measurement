@@ -1,5 +1,4 @@
 package Lab::Instrument::SR830;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Stanford Research SR830 lock-in amplifier
 
 use strict;

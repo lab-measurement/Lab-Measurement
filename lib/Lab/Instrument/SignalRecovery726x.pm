@@ -1,5 +1,4 @@
 package Lab::Instrument::SignalRecovery726x;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Signal Recovery 7260 / 7265 Lock-in Amplifier
 
 use strict;

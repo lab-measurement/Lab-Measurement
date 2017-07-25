@@ -1,5 +1,4 @@
 package Lab::Instrument::YokogawaGS200;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Yokogawa GS200 DC source
 
 use strict;

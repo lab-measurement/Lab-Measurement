@@ -1,5 +1,4 @@
 package Lab::XPRESS::Sweep::Motor;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Stepper motor sweep
 
 use Lab::XPRESS::Sweep;

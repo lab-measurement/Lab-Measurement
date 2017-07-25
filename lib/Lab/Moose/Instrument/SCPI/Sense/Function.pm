@@ -1,5 +1,4 @@
 package Lab::Moose::Instrument::SCPI::Sense::Function;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Role for the SCPI SENSe:FUNCtion subsystem
 
 use Moose::Role;

@@ -1,5 +1,4 @@
 package Lab::Instrument::LabViewHeater;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: ?????
 
 use strict;

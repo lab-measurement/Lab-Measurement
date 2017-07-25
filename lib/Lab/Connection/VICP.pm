@@ -1,5 +1,4 @@
 package Lab::Connection::VICP;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: VICP ethernet protocol connection
 
 use strict;

@@ -1,5 +1,4 @@
 package Lab::Instrument::SpectrumSCPI;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Generic spectrum analyzer with SCPI command set
 
 use strict;

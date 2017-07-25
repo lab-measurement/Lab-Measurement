@@ -1,5 +1,4 @@
 package Lab::Instrument::SR830::AuxIn;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Aux Inputs of the Stanford Research SR830 Lock-In Amplifier
 
 =head1 SYNOPSIS

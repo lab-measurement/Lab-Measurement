@@ -1,5 +1,4 @@
 package Lab::Instrument::ProStep4;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: ProStep4 step motor
 
 use strict;

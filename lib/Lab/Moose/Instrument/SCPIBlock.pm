@@ -1,5 +1,4 @@
 package Lab::Moose::Instrument::SCPIBlock;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Role for handling SCPI/IEEE 488.2 block data
 
 use Moose::Role;

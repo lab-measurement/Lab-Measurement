@@ -1,5 +1,4 @@
 package Lab::Connection::LinuxGPIB;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: LinuxGPIB connection
 
 #

@@ -1,5 +1,4 @@
 package Lab::Instrument::Keithley2400;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Keithley 2400 SourceMeter
 
 use strict;

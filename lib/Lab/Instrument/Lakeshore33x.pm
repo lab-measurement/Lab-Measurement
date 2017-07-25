@@ -1,5 +1,4 @@
 package Lab::Instrument::Lakeshore33x;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Lakeshore 33x Temperature controller
 
 use strict;

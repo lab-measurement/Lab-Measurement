@@ -1,5 +1,4 @@
 package Lab::Instrument::Source;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Generic voltage source base class
 
 use strict;

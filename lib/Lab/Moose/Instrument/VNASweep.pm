@@ -1,5 +1,4 @@
 package Lab::Moose::Instrument::VNASweep;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Role for network analyzer sweeps
 
 use Moose::Role;

@@ -1,5 +1,4 @@
 package Lab::Moose::Connection::Socket;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Transfer IEEE 488.2 / SCPI messages over TCP
 
 use 5.010;

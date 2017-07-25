@@ -1,5 +1,4 @@
 package Lab::Moose::DataFile;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Base class for data file types
 
 use 5.010;

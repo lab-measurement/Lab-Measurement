@@ -1,5 +1,4 @@
 package Lab::Moose::Instrument::RS_SMB;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Rohde & Schwarz SMB Signal Generator
 
 use 5.010;

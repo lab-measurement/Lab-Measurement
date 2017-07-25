@@ -1,5 +1,4 @@
 package Lab::Instrument::Agilent34420A;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: HP/Agilent/Keysight 34420A or 34421A digital multimeter
 
 use strict;

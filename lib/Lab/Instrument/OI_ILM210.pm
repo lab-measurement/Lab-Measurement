@@ -1,5 +1,4 @@
 package Lab::Instrument::OI_ILM210;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Oxford Instruments ILM Intelligent Level Meter
 
 use strict;

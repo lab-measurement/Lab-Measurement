@@ -1,5 +1,4 @@
 package Lab::XPRESS::Sweep::Time;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Simple time-controlled repeater
 
 use Lab::XPRESS::Sweep;

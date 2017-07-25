@@ -1,5 +1,4 @@
 package Lab::Instrument::Agilent34410A;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: HP/Agilent/Keysight 34410A or 34411A digital multimeter
 
 

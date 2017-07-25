@@ -1,5 +1,4 @@
 package Lab::Instrument::MG369xB;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Anritsu MG369xB series signal generator
 
 use strict;

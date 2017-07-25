@@ -1,5 +1,4 @@
 package Lab::Bus::VICP;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: VICP bus
 
 use strict;

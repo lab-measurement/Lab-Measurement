@@ -1,5 +1,4 @@
 package Lab::Bus;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Bus base class
 
 use strict;

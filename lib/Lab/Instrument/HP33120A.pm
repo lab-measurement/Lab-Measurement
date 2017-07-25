@@ -1,5 +1,4 @@
 package Lab::Instrument::HP33120A;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: HP 33120A 15MHz function/arbitrary waveform generator
 
 use 5.006;

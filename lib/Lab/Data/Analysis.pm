@@ -1,5 +1,4 @@
 package Lab::Data::Analysis;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Analyze data from 'Trace' files
 
 use 5.006;

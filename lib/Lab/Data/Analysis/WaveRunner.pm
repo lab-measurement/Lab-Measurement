@@ -1,5 +1,4 @@
 package Lab::Data::Analysis::WaveRunner;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Analysis routine for LeCroy WaveRunner/etc. scopes
 
 use 5.006;

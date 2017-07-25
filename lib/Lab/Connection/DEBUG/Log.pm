@@ -1,5 +1,4 @@
 package Lab::Connection::DEBUG::Log;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Add logging capability to the DEBUG connection
 
 use 5.010;

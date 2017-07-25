@@ -1,5 +1,4 @@
 package Lab::Connection::LogMethodCall;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: ???
 
 use warnings;

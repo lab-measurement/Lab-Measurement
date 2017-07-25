@@ -1,5 +1,4 @@
 package Lab::Moose::Instrument::Zhinst;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Base class for Zurich Instruments device drivers
 
 use 5.010;

@@ -1,5 +1,4 @@
 package Lab::Instrument::TemperatureDiode::SI420;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: SI420 (???)
 
 use strict;

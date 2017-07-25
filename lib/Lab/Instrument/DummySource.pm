@@ -1,5 +1,4 @@
 package Lab::Instrument::DummySource;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Dummy voltage source
 
 use warnings;

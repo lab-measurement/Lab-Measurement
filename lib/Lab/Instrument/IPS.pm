@@ -4,7 +4,6 @@
 # Hence IsoEnableTermChar => 0.
 
 package Lab::Instrument::IPS;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Oxford Instruments IPS Magnet Power Supply
 
 use strict;

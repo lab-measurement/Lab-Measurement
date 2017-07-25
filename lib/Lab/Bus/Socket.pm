@@ -1,5 +1,4 @@
 package Lab::Bus::Socket;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: IP network socket bus
 
 use strict;

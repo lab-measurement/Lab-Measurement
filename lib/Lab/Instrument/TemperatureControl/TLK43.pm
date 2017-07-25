@@ -1,5 +1,4 @@
 package Lab::Instrument::TemperatureControl::TLK43;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Electronic process controller TLKA41/42/43 (SIKA GmbH) with RS485 MODBUS-RTU interface
 
 use strict;

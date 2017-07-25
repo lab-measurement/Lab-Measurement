@@ -1,5 +1,4 @@
 package Lab::Connection::IsoBus;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Oxford Instruments IsoBus connection
 
 use strict;

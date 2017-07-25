@@ -1,5 +1,4 @@
 package Lab::XPRESS::Data::XPRESS_DataFile;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: XPRESS data file module
 
 use strict;

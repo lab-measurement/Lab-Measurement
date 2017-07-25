@@ -1,5 +1,4 @@
 package Lab::Connection;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Connection base class
 
 use strict;

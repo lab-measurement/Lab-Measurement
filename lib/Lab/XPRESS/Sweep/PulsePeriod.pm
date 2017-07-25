@@ -1,5 +1,4 @@
 package Lab::XPRESS::Sweep::PulsePeriod;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Pulse period sweep
 
 

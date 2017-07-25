@@ -1,5 +1,4 @@
 package Lab::Moose::Connection::Zhinst;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Connection back end to Zurich Instrument's LabOne measurement control API
 
 =head1 SYNOPSIS

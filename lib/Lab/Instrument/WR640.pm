@@ -1,5 +1,4 @@
 package Lab::Instrument::WR640;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: LeCroy WaveRunner 640 digital oscilloscope
 
 use 5.006;

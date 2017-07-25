@@ -1,5 +1,4 @@
 package Lab::Instrument::TemperatureControl;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Generic temperature control instrument base class
 
 use strict;

@@ -1,5 +1,4 @@
 package Lab::Connection::Log;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Role adding logging capability to connections
 
 use 5.010;

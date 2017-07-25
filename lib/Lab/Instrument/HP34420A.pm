@@ -1,5 +1,4 @@
 package Lab::Instrument::HP34420A;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: HP/Agilent 34420A digital multimeter
 
 use strict;

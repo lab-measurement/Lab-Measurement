@@ -1,5 +1,4 @@
 package Lab::Moose::DataFolder;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Create a data directory with meta data
 
 use 5.010;

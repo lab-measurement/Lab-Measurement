@@ -1,5 +1,4 @@
 package Lab::XPRESS::hub;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: The XPRESS main hub
 
 use Lab::Exception;

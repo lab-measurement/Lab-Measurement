@@ -1,5 +1,4 @@
 package Lab::XPRESS::Sweep::VM_DIR;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Vector magnet sweep
 
 use Lab::XPRESS::Sweep::SweepND;

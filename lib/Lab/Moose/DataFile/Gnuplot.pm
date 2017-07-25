@@ -1,5 +1,4 @@
 package Lab::Moose::DataFile::Gnuplot;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Text based data file ('Gnuplot style')
 
 use 5.010;

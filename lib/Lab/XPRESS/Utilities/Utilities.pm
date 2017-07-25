@@ -1,4 +1,3 @@
-#Dist::Zilla: +PodWeaver
 #PODNAME: Lab::XPRESS::Utilities
 #ABSTRACT: Global utility functions for XPRESS
 

@@ -1,5 +1,4 @@
 package Lab::Instrument::OI_Mercury;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Oxford Instruments Mercury Cryocontrol (level meter and magnet power supply)
 
 use strict;

@@ -12,7 +12,6 @@
 # TODO: a lot, ...
 
 package Lab::Connection::RS232;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: RS232 Connection base class
 
 use Lab::Connection;

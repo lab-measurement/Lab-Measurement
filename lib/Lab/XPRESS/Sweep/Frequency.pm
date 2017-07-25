@@ -1,5 +1,4 @@
 package Lab::XPRESS::Sweep::Frequency;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Frequency sweep
 
 use Lab::XPRESS::Sweep;

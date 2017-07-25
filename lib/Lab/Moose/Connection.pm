@@ -1,5 +1,4 @@
 package Lab::Moose::Connection;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Role for connections
 
 use 5.010;

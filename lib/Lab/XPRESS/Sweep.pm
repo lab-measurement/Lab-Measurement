@@ -1,5 +1,4 @@
 package Lab::XPRESS::Sweep;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Base sweep class
 
 use Role::Tiny::With;

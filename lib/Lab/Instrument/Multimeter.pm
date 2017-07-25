@@ -1,5 +1,4 @@
 package Lab::Instrument::Multimeter;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Generic digital multimeter base class
 
 use strict;

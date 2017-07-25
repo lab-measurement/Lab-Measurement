@@ -1,5 +1,4 @@
 package Lab::Instrument::AH2700A;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Andeen-Hagerling AH2700A ultra-precision capacitance bridge
 
 use strict;

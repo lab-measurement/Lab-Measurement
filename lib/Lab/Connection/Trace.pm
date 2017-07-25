@@ -1,5 +1,4 @@
 package Lab::Connection::Trace;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Trace communication with instruments
 
 use 5.010;

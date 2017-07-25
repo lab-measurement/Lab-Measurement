@@ -1,5 +1,4 @@
 package Lab::Moose::Connection::Mock;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Mock connection
 
 use 5.010;

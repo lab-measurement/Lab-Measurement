@@ -1,5 +1,4 @@
 package Lab::Instrument::TRMC2;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: ABB TRMC2 temperature controller
 
 use strict;

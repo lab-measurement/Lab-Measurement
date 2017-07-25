@@ -1,5 +1,4 @@
 package Lab::Bus::VISA;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: National Instruments VISA bus
 
 use strict;

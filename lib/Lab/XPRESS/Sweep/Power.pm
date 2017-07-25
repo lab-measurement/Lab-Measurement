@@ -1,5 +1,4 @@
 package Lab::XPRESS::Sweep::Power;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Signal generator power sweep
 
 use Lab::XPRESS::Sweep;

@@ -1,5 +1,4 @@
 package Lab::Instrument::TemperatureDiode;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: ?????
 
 use strict;

@@ -1,5 +1,4 @@
 package Lab::Instrument::Yokogawa7651;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Yokogawa 7651 DC source
 
 use warnings;

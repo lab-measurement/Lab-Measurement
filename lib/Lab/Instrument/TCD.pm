@@ -1,5 +1,4 @@
 package Lab::Instrument::TCD;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Temperature control for our Oxford Instruments TLM dilution fridge
 
 use strict;

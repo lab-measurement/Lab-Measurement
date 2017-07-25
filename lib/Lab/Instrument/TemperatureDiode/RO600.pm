@@ -1,5 +1,4 @@
 package Lab::Instrument::TemperatureDiode::RO600;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: RO600 (????)
 
 use strict;

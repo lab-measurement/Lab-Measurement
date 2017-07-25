@@ -1,5 +1,4 @@
 package Lab::Moose::Instrument::Log;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: ???? something about logging?
 
 use Moose::Role;

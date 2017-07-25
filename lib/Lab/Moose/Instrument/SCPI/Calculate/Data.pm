@@ -1,5 +1,4 @@
 package Lab::Moose::Instrument::SCPI::Calculate::Data;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: ???
 
 use 5.010;

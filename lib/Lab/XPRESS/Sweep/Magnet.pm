@@ -1,5 +1,4 @@
 package Lab::XPRESS::Sweep::Magnet;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Magnetic field sweep
 
 use Lab::XPRESS::Sweep;

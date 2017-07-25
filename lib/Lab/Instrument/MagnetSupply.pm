@@ -1,5 +1,4 @@
 package Lab::Instrument::MagnetSupply;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Base class for superconducting magnet power supply instruments
 
 use Lab::Measurement::KeyboardHandling qw(labkey_soft_check);

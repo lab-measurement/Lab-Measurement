@@ -1,5 +1,4 @@
 package Lab::Moose::Instrument::Common;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Role for common commands declared mandatory by IEEE 488.2
 
 use Moose::Role;

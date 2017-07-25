@@ -1,5 +1,4 @@
 package Lab::Moose::Instrument::SCPI::Format;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Format SCPI queries
 
 use Moose::Role;

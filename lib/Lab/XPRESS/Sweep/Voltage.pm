@@ -1,5 +1,4 @@
 package Lab::XPRESS::Sweep::Voltage;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Voltage sweep
 
 use Lab::XPRESS::Sweep;

@@ -1,5 +1,4 @@
 package Lab::Moose::Instrument::RS_ZVM;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Rohde & Schwarz ZVM Vector Network Analyzer
 
 use 5.010;

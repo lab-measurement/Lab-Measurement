@@ -1,5 +1,4 @@
 package Lab::Moose::Instrument::Cache;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Role for device cache functionality in Moose::Instrument drivers
 
 =head1 SYNOPSIS

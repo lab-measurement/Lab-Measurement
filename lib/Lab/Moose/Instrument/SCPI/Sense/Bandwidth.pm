@@ -1,5 +1,4 @@
 package Lab::Moose::Instrument::SCPI::Sense::Bandwidth;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Role for the SCPI SENSe:BANDwidth subsystem
 
 use Moose::Role;

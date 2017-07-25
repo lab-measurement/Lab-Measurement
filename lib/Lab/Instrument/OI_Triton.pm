@@ -1,5 +1,4 @@
 package Lab::Instrument::OI_Triton;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Oxford Instruments Triton dilution refrigerator control
 
 use strict;

@@ -1,5 +1,4 @@
 package Lab::Moose::Instrument::SCPI::Initiate;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Role for the SCPI INITiate subsystem used by Rohde&Schwarz
 
 use Moose::Role;

@@ -1,5 +1,4 @@
 package Lab::XPRESS::Sweep::Repeater;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Simple repeater
 
 use Lab::XPRESS::Sweep;

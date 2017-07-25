@@ -1,5 +1,4 @@
 package Lab::GenericSignals;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Signal handling
 
 use warnings;

@@ -1,5 +1,4 @@
 package Lab::Moose::Instrument::SCPI::Sense::Average;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Role for the SCPI SENSe:AVERage subsystem
 
 use Moose::Role;

@@ -1,5 +1,4 @@
 package Lab::Moose::Instrument::ZI_MFLI;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Zurich Instruments MFLI Lock-in Amplifier
 
 use 5.010;

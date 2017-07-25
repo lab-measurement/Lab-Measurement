@@ -1,5 +1,4 @@
 package Lab::Instrument::ITC;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Oxford Instruments ITC Intelligent Temperature Control
 
 use strict;

@@ -1,5 +1,4 @@
 package Lab::Connection::GPIB;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: GPIB Connection base class
 
 #

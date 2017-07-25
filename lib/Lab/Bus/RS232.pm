@@ -1,5 +1,4 @@
 package Lab::Bus::RS232;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: RS232 or Virtual Comm port bus
 
 use strict;

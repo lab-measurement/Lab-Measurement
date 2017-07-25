@@ -1,5 +1,4 @@
 package Lab::Connection::Socket::Trace;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: ???
 
 use 5.010;

@@ -1,5 +1,4 @@
 package Lab::Moose::Instrument::RS_FSV;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Rohde & Schwarz FSV Signal and Spectrum Analyzer
 
 use 5.010;

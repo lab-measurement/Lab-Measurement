@@ -1,5 +1,4 @@
 package Lab::Bus::USBtmc;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: USBtmc (Test & Measurement) Linux kernel driver bus
 
 # "sys/ioctl.ph" throws a warning about FORTIFY_SOURCE, but

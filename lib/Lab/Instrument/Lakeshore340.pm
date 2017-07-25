@@ -1,5 +1,4 @@
 package Lab::Instrument::Lakeshore340;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Lakeshore 340 temperature controller
 
 use warnings;

@@ -1,5 +1,4 @@
 package Lab::Connection::USBtmc;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: F</dev/usbtmc> Linux USB Test&Measurement kernel driver connection
 
 use strict;

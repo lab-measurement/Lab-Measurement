@@ -1,5 +1,4 @@
 package Lab::Measurement::KeyboardHandling;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Minimal keyboard input handling
 
 use Term::ReadKey;

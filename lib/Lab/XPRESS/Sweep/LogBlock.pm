@@ -1,5 +1,4 @@
 package Lab::XPRESS::Sweep::LogBlock;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Sweep add-on for matrix logging
 
 use Role::Tiny;

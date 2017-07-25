@@ -1,5 +1,4 @@
 package Lab::Instrument::IPSWeissDillFridge;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Derived IPS instrument for the AG Weiss dilution refrigerator
 
 use strict;

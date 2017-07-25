@@ -1,5 +1,4 @@
 package Lab::Measurement;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Log, describe and plot data on the fly
 
 use strict;

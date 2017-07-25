@@ -1,5 +1,4 @@
 package Lab::Connection::Socket;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: IP socket connection
 
 use Lab::Bus::Socket;

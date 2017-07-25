@@ -1,5 +1,4 @@
 package Lab::XPRESS::Sweep::Temperature;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Temperature sweep
 
 use Lab::XPRESS::Sweep;

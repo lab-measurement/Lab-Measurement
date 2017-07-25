@@ -1,5 +1,4 @@
 package Lab::Moose::Instrument::SCPI::Sense::Frequency;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Role for the SCPI SENSe:FREQuency subsystem
 
 use Moose::Role;

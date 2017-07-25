@@ -1,5 +1,4 @@
 package Lab::Instrument::U2000;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Agilent U2000 series USB Power Sensor
 
 use strict;

@@ -1,5 +1,4 @@
 package Lab::XPRESS::Data::XPRESS_logger;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: XPRESS logging module
 
 

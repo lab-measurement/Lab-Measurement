@@ -1,5 +1,4 @@
 package Lab::Connection::TCPraw;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Raw TCP connection; deprecated, use Socket instead
 
 use strict;

@@ -1,5 +1,4 @@
 package Lab::Moose::DataFile::Gnuplot::2D;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: 2D data file with live plotting support
 
 use 5.010;

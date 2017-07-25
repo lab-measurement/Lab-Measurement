@@ -1,5 +1,4 @@
 package Lab::Moose::Plot;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Frontend to L<PDL::Graphics::Gnuplot>
 
 =head1 SYNOPSIS

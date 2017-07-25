@@ -1,5 +1,4 @@
 package Lab::Instrument::TDS2024B;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Tektronix TDS2024B digital oscilloscope
 
 use 5.006;

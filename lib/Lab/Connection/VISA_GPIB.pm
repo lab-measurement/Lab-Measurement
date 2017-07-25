@@ -1,5 +1,4 @@
 package Lab::Connection::VISA_GPIB;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: GPIB-type connection class which uses NI VISA (L<Lab::VISA>) as backend
 
 use strict;

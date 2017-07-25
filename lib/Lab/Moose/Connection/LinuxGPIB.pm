@@ -1,5 +1,4 @@
 package Lab::Moose::Connection::LinuxGPIB;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Connection back end to the LinuxGpib library and kernel drivers
 
 =head1 SYNOPSIS

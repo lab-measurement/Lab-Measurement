@@ -1,5 +1,4 @@
 package Lab::Moose;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Convenient loaders and constructors for L<Lab::Moose::Instrument>, L<Lab::Moose::DataFolder> and L<Lab::Moose::DataFile>
 
 use warnings;

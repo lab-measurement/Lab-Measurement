@@ -1,5 +1,4 @@
 package Lab::Moose::Instrument::SR830;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Stanford Research SR830 Lock-In Amplifier
 
 use 5.010;

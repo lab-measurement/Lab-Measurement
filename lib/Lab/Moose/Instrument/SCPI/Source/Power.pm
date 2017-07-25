@@ -1,5 +1,4 @@
 package Lab::Moose::Instrument::SCPI::Source::Power;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Role for the SCPI SOURce:POWer subsystem
 
 use Moose::Role;

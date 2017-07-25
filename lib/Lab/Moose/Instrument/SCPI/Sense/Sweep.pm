@@ -1,5 +1,4 @@
 package Lab::Moose::Instrument::SCPI::Sense::Sweep;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Role for the SCPI SENSe:SWEep subsystem
 
 use Moose::Role;

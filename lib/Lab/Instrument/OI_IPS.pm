@@ -1,5 +1,4 @@
 package Lab::Instrument::OI_IPS;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Oxford Instruments IPS superconducting magnet power supply
 
 use strict;

@@ -1,5 +1,4 @@
 package Lab::Instrument::RSSMB100A;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Rohde & Schwarz SMB100A signal generator
 
 use strict;

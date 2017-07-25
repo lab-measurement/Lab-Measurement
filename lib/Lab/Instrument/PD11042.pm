@@ -1,5 +1,4 @@
 package Lab::Instrument::PD11042;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Trinamic PD-110-42 low-cost 42mm stepper motor
 
 use strict;

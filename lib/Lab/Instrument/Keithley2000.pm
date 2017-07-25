@@ -1,5 +1,4 @@
 package Lab::Instrument::Keithley2000;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Keithley 2000 digital multimeter
 
 use strict;

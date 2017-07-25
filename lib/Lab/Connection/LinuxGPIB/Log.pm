@@ -1,5 +1,4 @@
 package Lab::Connection::LinuxGPIB::Log;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Add logging capability to the LinuxGPIB connection
 
 use 5.010;

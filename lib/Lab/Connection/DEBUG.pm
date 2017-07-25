@@ -1,5 +1,4 @@
 package Lab::Connection::DEBUG;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Connection to the DEBUG bus
 
 use strict;

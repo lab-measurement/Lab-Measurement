@@ -1,5 +1,4 @@
 package Lab::Bus::IsoBus;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Oxford Instruments ISOBUS bus
 
 use strict;

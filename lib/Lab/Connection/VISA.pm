@@ -1,5 +1,4 @@
 package Lab::Connection::VISA;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: VISA-type connection
 
 use strict;

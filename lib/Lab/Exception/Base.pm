@@ -1,5 +1,4 @@
 package Lab::Exception::Base;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Exception base class
 
 #

@@ -1,5 +1,4 @@
 package Lab::Instrument::HP34401A;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: HP/Agilent 34401A digital multimeter
 
 use strict;

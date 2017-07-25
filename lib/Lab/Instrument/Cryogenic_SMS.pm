@@ -1,5 +1,4 @@
 package Lab::Instrument::Cryogenic_SMS;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Cryogenic SMS magnet power supply
 
 use strict;

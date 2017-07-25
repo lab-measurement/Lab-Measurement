@@ -1,5 +1,4 @@
 package Lab::XPRESS::Sweep::PulseLength;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Pulse length sweep
 
 use Lab::XPRESS::Sweep;

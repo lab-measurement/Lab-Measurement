@@ -1,5 +1,4 @@
 package Lab::Bus::DEBUG;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Interactive debug bus
 
 use warnings;

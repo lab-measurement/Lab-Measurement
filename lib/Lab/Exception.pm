@@ -1,5 +1,4 @@
 package Lab::Exception;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Exception handling classes
 
 #

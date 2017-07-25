@@ -1,5 +1,4 @@
 package Lab::Bus::LinuxGPIB;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: LinuxGPIB bus
 
 use strict;

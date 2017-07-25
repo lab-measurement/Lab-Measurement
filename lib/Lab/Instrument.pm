@@ -1,5 +1,4 @@
 package Lab::Instrument;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: Instrument base class
 
 use strict;

@@ -1,5 +1,4 @@
 package Lab::Instrument::Vectormagnet;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: ???
 
 use strict;

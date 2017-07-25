@@ -1,5 +1,4 @@
 package Lab::Instrument::HP83732A;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: HP 83732A Series Synthesized Signal Generator
 
 use strict;

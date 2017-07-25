@@ -1,5 +1,4 @@
 package Lab::Connection::VISA_RS232;
-#Dist::Zilla: +PodWeaver
 #ABSTRACT: RS232-type connection which uses NI VISA (L<Lab::VISA>) as backend
 
 use strict;
