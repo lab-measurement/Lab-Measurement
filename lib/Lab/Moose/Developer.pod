@@ -1,8 +1,7 @@
+#PODNAME: Lab::Moose::Developer
+#ABSTRACT: Lab::Moose developer tutorial
+
 =encoding utf8
-
-=head1 NAME
-
-Lab::Moose::Developer - Developer tutorial.
 
 =head2 Writing drivers
 
@@ -273,5 +272,3 @@ TODO
 =head2 Data files and plotting
 
 TODO
-
-=head2 
