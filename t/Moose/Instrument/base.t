@@ -165,7 +165,7 @@ use Lab::Moose::Instrument;
 
     # predicate and clearer
 
-    ok( $instr->has_cached_func1(), "have cached func1" );
+    ok( defined $instr->cached_func1(), "have cached func1" );
 
     $instr->clear_cached_func1();
 

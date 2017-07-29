@@ -1,4 +1,5 @@
 package Lab::Moose::Instrument::Cache;
+
 #ABSTRACT: Role for device cache functionality in Moose::Instrument drivers
 
 =head1 SYNOPSIS
@@ -104,23 +105,72 @@ sub cache {
     validated_hash(
         \@options,
         getter => { isa      => 'Str' },
-        isa    => { optional => 1 },
+        isa    => { optional => 1, default => 'Any' },
     );
 
-    $options{meta} = $meta;
-    $options{name} = $name;
+    my $getter    = $options{getter};
+    my $isa       = $options{isa};
+    my $function  = "cached_$name";
+    my $attribute = "cached_${name}_attribute";
+    my $builder   = "cached_${name}_builder";
+    my $clearer   = "clear_cached_$name";
+    my $predicate = "has_cached_$name";
 
-    if ( not exists $options{isa} ) {
-        $options{isa} = 'Any';
-    }
+    # Creat builder method for the entry.
+    $meta->add_method(
+        $builder => sub {
+            my $self = shift;
+            return $self->$getter();
+        }
+    );
 
-    $options{attribute} = "cached_$name";
-    $options{predicate} = "has_cached_$name";
-    $options{clearer}   = "clear_cached_$name";
-    $options{builder}   = $options{attribute} . '_builder';
+    $meta->add_attribute(
+        $attribute => (
+            is       => 'rw',
+            init_arg => undef,
+            isa      => 'ArrayRef',
+            default  => sub { [] },
+        )
+    );
 
-    _add_cache_attribute(%options);
+    $meta->add_method(
+        $function => sub {
+            my $self  = shift;
+            my $array = $self->$attribute();
 
+            if ( @_ == 0 ) {
+
+                # Query cache.
+                if ( defined $array->[0] ) {
+                    return $array->[0];
+                }
+                $array->[0] = $self->$builder();
+                return $array->[0];
+            }
+
+            # Store entry.
+            my ($value) = pos_validated_list( \@_, { isa => $isa } );
+            $array->[0] = $value;
+        }
+    );
+
+    $meta->add_method(
+        $clearer => sub {
+            my $self = shift;
+            $self->$attribute( [] );
+        }
+    );
+
+    $meta->add_method(
+        $predicate => sub {
+            my $self  = shift;
+            my $array = $self->$attribute();
+            if ( defined $array->[0] ) {
+                return 1;
+            }
+            return;
+        }
+    );
 }
 
 1;
