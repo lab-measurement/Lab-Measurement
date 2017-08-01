@@ -67,36 +67,7 @@ use MooseX::Params::Validate;
 
 Moose::Exporter->setup_import_methods( with_meta => ['cache'] );
 
-use namespace::autoclean -also =>
-    [qw/_add_cache_accessor _add_cache_attribute/];
-
-sub _add_cache_attribute {
-    my %args      = @_;
-    my $meta      = $args{meta};
-    my $attribute = $args{attribute};
-    my $getter    = $args{getter};
-    my $builder   = $args{builder};
-
-    # Creat builder method for the entry.
-    $meta->add_method(
-        $builder => sub {
-            my $self = shift;
-            return $self->$getter();
-        }
-    );
-
-    $args{meta}->add_attribute(
-        $args{attribute} => (
-            is        => 'rw',
-            init_arg  => undef,
-            builder   => $builder,
-            lazy      => 1,
-            predicate => $args{predicate},
-            clearer   => $args{clearer},
-            isa       => $args{isa},
-        )
-    );
-}
+use namespace::autoclean;
 
 sub cache {
     my ( $meta, $name, %options ) = @_;
@@ -104,22 +75,33 @@ sub cache {
     my @options = %options;
     validated_hash(
         \@options,
-        getter => { isa      => 'Str' },
-        isa    => { optional => 1, default => 'Any' },
+        getter    => { isa      => 'Str' },
+        isa       => { optional => 1, default => 'Any' },
+        index_arg => { isa      => 'Str', optional => 1 },
     );
 
-    my $getter    = $options{getter};
-    my $isa       = $options{isa};
-    my $function  = "cached_$name";
-    my $attribute = "cached_${name}_attribute";
-    my $builder   = "cached_${name}_builder";
-    my $clearer   = "clear_cached_$name";
-    my $predicate = "has_cached_$name";
+    my $getter         = $options{getter};
+    my $isa            = $options{isa};
+    my $index_arg      = $options{index_arg};
+    my $have_index_arg = defined $index_arg;
+    my $function       = "cached_$name";
+    my $attribute      = "cached_${name}_attribute";
+    my $builder        = "cached_${name}_builder";
+    my $clearer        = "clear_cached_$name";
+    my $predicate      = "has_cached_$name";
 
-    # Creat builder method for the entry.
+    # Creat builder method for the entry. The user can override this
+    # in an instrument driver to add additional arguments to the getter.
     $meta->add_method(
         $builder => sub {
             my $self = shift;
+            if ($have_index_arg) {
+                my ($index) = validated_list(
+                    \@_,
+                    $index_arg => { isa => 'Int' }
+                );
+                return $self->$getter( $index_arg => $index );
+            }
             return $self->$getter();
         }
     );
@@ -138,6 +120,27 @@ sub cache {
             my $self  = shift;
             my $array = $self->$attribute();
 
+            if ($have_index_arg) {
+                my ( $index, $value ) = validated_list(
+                    \@_,
+                    $index_arg => { isa      => 'Int' },
+                    value      => { optional => 1 },
+                );
+                if ( defined $value ) {
+
+                    # Store entry.
+                    return $array->[$index] = $value;
+                }
+
+                # Query cache.
+                if ( defined $array->[$index] ) {
+                    return $array->[$index];
+                }
+                return $array->[$index]
+                    = $self->$builder( $index_arg => $index );
+            }
+
+            # No vector index argument. Behave like usual Moose attribute.
             if ( @_ == 0 ) {
 
                 # Query cache.
@@ -157,15 +160,37 @@ sub cache {
     $meta->add_method(
         $clearer => sub {
             my $self = shift;
-            $self->$attribute( [] );
+            my $index;
+            if ($have_index_arg) {
+
+                # If no index is given, clear them all!
+                ($index) = validated_list(
+                    \@_,
+                    $index_arg => { isa => 'Int', optional => 1 },
+                );
+            }
+            if ( defined $index ) {
+                $self->$attribute->[$index] = undef;
+            }
+            else {
+                $self->$attribute( [] );
+            }
         }
     );
 
     $meta->add_method(
         $predicate => sub {
             my $self  = shift;
+            my $index = 0;
+            if ($have_index_arg) {
+                ($index) = validated_list(
+                    \@_,
+                    $index_arg => { isa => 'Int' }
+                );
+            }
+
             my $array = $self->$attribute();
-            if ( defined $array->[0] ) {
+            if ( defined $array->[$index] ) {
                 return 1;
             }
             return;
