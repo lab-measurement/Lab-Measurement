@@ -14,3 +14,4 @@
 nytprof*
 *.patch
 /Homepage/
+/gendocs.pl
