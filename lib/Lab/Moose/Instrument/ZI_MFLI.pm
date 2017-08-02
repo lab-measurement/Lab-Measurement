@@ -1,4 +1,5 @@
 package Lab::Moose::Instrument::ZI_MFLI;
+
 #ABSTRACT: Zurich Instruments MFLI Lock-in Amplifier
 
 use 5.010;
@@ -8,8 +9,8 @@ use Lab::Moose::Instrument::Cache;
 use Carp;
 use namespace::autoclean;
 
-
 use Lab::Moose::Instrument 'validated_setter';
+use Lab::Moose::Instrument::Cache;
 use constant {
     ZI_LIST_NODES_RECURSIVE => 1,
     ZI_LIST_NODES_ABSOLUTE  => 2,
@@ -88,12 +89,17 @@ Get oscillator frequency.
 
 =cut
 
+cache frequency => ( getter => 'get_frequency' );
+
 sub get_frequency {
     my $self = shift;
-    return $self->get_value(
-        path => $self->device() . "/oscs/0/freq",
-        type => 'D'
+    return $self->cached_frequency(
+        $self->get_value(
+            path => $self->device() . "/oscs/0/freq",
+            type => 'D'
+        )
     );
+
 }
 
 =head2 set_frequency
@@ -110,9 +116,11 @@ sub set_frequency {
         value => { isa => 'Num' },
     );
 
-    return $self->sync_set_value(
-        path  => $self->device() . "/oscs/0/freq", type => 'D',
-        value => $value
+    return $self->cached_frequency(
+        $self->sync_set_value(
+            path  => $self->device() . "/oscs/0/freq", type => 'D',
+            value => $value
+        )
     );
 }
 
@@ -124,11 +132,15 @@ Get sensitivity (range) of voltage input.
 
 =cut
 
+cache voltage_sens => ( getter => 'voltage_sens' );
+
 sub get_voltage_sens {
     my $self = shift;
-    return $self->get_value(
-        path => $self->device() . "/sigins/0/range",
-        type => 'D'
+    return $self->cached_voltage_sens(
+        $self->get_value(
+            path => $self->device() . "/sigins/0/range",
+            type => 'D'
+        )
     );
 }
 
@@ -146,10 +158,12 @@ sub set_voltage_sens {
         value => { isa => 'Num' },
     );
 
-    return $self->sync_set_value(
-        path  => $self->device() . "/sigins/0/range",
-        type  => 'D',
-        value => $value
+    return $self->cached_voltage_sens(
+        $self->sync_set_value(
+            path  => $self->device() . "/sigins/0/range",
+            type  => 'D',
+            value => $value
+        )
     );
 }
 
@@ -161,11 +175,15 @@ Get sensitivity (range) of current input.
 
 =cut
 
+cache current_sens => ( getter => 'get_current_sens' );
+
 sub get_current_sens {
     my $self = shift;
-    return $self->get_value(
-        path => $self->device() . "/currins/0/range",
-        type => 'D'
+    return $self->cached_current_sens(
+        $self->get_value(
+            path => $self->device() . "/currins/0/range",
+            type => 'D'
+        )
     );
 }
 
@@ -183,10 +201,12 @@ sub set_current_sens {
         value => { isa => 'Num' },
     );
 
-    return $self->sync_set_value(
-        path  => $self->device() . "/currins/0/range",
-        type  => 'D',
-        value => $value
+    return $self->cached_current_sens(
+        $self->sync_set_value(
+            path  => $self->device() . "/currins/0/range",
+            type  => 'D',
+            value => $value
+        )
     );
 }
 
@@ -198,11 +218,15 @@ Get amplitude of voltage output.
 
 =cut
 
+cache amplitude => ( getter => 'get_amplitude' );
+
 sub get_amplitude {
     my $self = shift;
-    return $self->get_value(
-        path => $self->device() . "/sigouts/0/amplitudes/1",
-        type => 'D'
+    return $self->cached_amplitude(
+        $self->get_value(
+            path => $self->device() . "/sigouts/0/amplitudes/1",
+            type => 'D'
+        )
     );
 }
 
@@ -220,10 +244,12 @@ sub set_amplitude {
         value => { isa => 'Num' }
     );
 
-    return $self->sync_set_value(
-        path  => $self->device() . "/sigouts/0/amplitudes/1",
-        type  => 'D',
-        value => $value
+    return $self->cached_amplitude(
+        $self->sync_set_value(
+            path  => $self->device() . "/sigouts/0/amplitudes/1",
+            type  => 'D',
+            value => $value
+        )
     );
 }
 
@@ -235,11 +261,15 @@ Get range of voltage output.
 
 =cut
 
+cache amplitude_range => ( getter => 'get_amplitude_range' );
+
 sub get_amplitude_range {
     my $self = shift;
-    return $self->get_value(
-        path => $self->device() . "/sigouts/0/range",
-        type => 'D'
+    return $self->cached_amplitude_range(
+        $self->get_value(
+            path => $self->device() . "/sigouts/0/range",
+            type => 'D'
+        )
     );
 }
 
@@ -257,10 +287,12 @@ sub set_amplitude_range {
         value => { isa => 'Num' }
     );
 
-    return $self->sync_set_value(
-        path  => $self->device() . "/sigouts/0/range",
-        type  => 'D',
-        value => $value
+    return $self->cached_amplitude_range(
+        $self->sync_set_value(
+            path  => $self->device() . "/sigouts/0/range",
+            type  => 'D',
+            value => $value
+        )
     );
 }
 
@@ -276,14 +308,22 @@ Get demodulator phase shift.
 
 =cut
 
+cache phase => ( getter => 'get_phase', index_arg => 'demod' );
+
 sub get_phase {
     my $self = shift;
     my ($demod) = validated_list(
         \@_,
         demod => { isa => 'Int' },
     );
-    return $self->get_value(
-        path => $self->device() . "/demods/$demod/phaseshift", type => 'D' );
+
+    return $self->cached_phase(
+        demod => $demod,
+        value => $self->get_value(
+            path => $self->device() . "/demods/$demod/phaseshift",
+            type => 'D'
+        )
+    );
 }
 
 =head2 set_phase
@@ -301,9 +341,12 @@ sub set_phase {
         demod => { isa => 'Int' },
     );
     my $demod = delete $args{demod};
-    return $self->sync_set_value(
-        path  => $self->device() . "/demods/$demod/phaseshift", type => 'D',
-        value => $value
+    return $self->cached_phase(
+        demod => $demod,
+        value => $self->sync_set_value(
+            path => $self->device() . "/demods/$demod/phaseshift",
+            type => 'D', value => $value
+        )
     );
 }
 
@@ -315,15 +358,20 @@ Get demodulator time constant.
 
 =cut
 
+cache tc => ( getter => 'get_tc', index_arg => 'demod' );
+
 sub get_tc {
     my $self = shift;
     my ($demod) = validated_list(
         \@_,
         demod => { isa => 'Int' },
     );
-    return $self->get_value(
-        path => $self->device() . "/demods/$demod/timeconstant",
-        type => 'D'
+    return $self->cached_tc(
+        demod => $demod,
+        value => $self->get_value(
+            path => $self->device() . "/demods/$demod/timeconstant",
+            type => 'D'
+        )
     );
 }
 
@@ -342,9 +390,13 @@ sub set_tc {
         demod => { isa => 'Int' },
     );
     my $demod = delete $args{demod};
-    return $self->sync_set_value(
-        path  => $self->device() . "/demods/$demod/timeconstant", type => 'D',
-        value => $value
+    return $self->cached_tc(
+        demod => $demod,
+        value => $self->sync_set_value(
+            path  => $self->device() . "/demods/$demod/timeconstant",
+            type  => 'D',
+            value => $value
+        )
     );
 }
 
@@ -356,15 +408,20 @@ Get demodulator filter order.
 
 =cut
 
+cache order => ( getter => 'get_order', index_arg => 'demod' );
+
 sub get_order {
     my $self = shift;
     my ($demod) = validated_list(
         \@_,
         demod => { isa => 'Int' },
     );
-    return $self->get_value(
-        path => $self->device() . "/demods/$demod/order",
-        type => 'I'
+    return $self->cached_order(
+        demod => $demod,
+        value => $self->get_value(
+            path => $self->device() . "/demods/$demod/order",
+            type => 'I'
+        )
     );
 }
 
@@ -383,9 +440,12 @@ sub set_order {
         demod => { isa => 'Int' },
     );
     my $demod = delete $args{demod};
-    return $self->sync_set_value(
-        path  => $self->device() . "/demods/$demod/order", type => 'I',
-        value => $value
+    return $self->cached_order(
+        demod => $demod,
+        value => $self->sync_set_value(
+            path  => $self->device() . "/demods/$demod/order", type => 'I',
+            value => $value
+        )
     );
 }
 

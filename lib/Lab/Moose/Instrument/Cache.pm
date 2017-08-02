@@ -174,7 +174,7 @@ sub cache {
 
             # Store entry.
             my ($value) = pos_validated_list( \@_, { isa => $isa } );
-            $array->[0] = $value;
+            return $array->[0] = $value;
         }
     );
 
