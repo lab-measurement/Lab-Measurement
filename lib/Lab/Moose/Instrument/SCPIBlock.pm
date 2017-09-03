@@ -1,4 +1,5 @@
 package Lab::Moose::Instrument::SCPIBlock;
+
 #ABSTRACT: Role for handling SCPI/IEEE 488.2 block data
 
 use Moose::Role;
@@ -34,7 +35,34 @@ See "8.7.9 <DEFINITE LENGTH ARBITRARY BLOCK RESPONSE DATA>" in IEEE 488.2.
 Convert block data to arrayref, where the binary block holds floating point
 values in native byte-order.
 
+=head2 block_length
+
+ my $read_length = $self->block_length(
+     num_points => $num_points,
+     precision => $precision
+ );
+ 
+Calulate block length for use in C<read_length> parameter.
+
 =cut
+
+sub block_length {
+    my $self = shift;
+    my ( $num_points, $precision ) = validated_list(
+        \@_,
+        num_points => { isa => 'Int' },
+        precision_param(),
+    );
+
+    my $point_length
+        = $precision eq 'single' ? 4
+        : $precision eq 'double' ? 8
+        :                          croak("unknown precision $precision");
+
+    my $read_length = $num_points * $point_length;
+    $read_length += length("#d") + length($read_length) + length("\n");
+    return $read_length;
+}
 
 sub block_to_array {
     my ( $self, %args ) = validated_hash(

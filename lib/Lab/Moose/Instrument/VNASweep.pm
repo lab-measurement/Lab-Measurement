@@ -171,20 +171,11 @@ sub sparam_sweep {
     # Query measured traces.
 
     # Get data.
-    my $num_cols = @{$catalog};
+    $args{read_length} = $self->block_length(
+        num_points => @{$catalog} * @{$freq_array},
+        precision  => $precision
+    );
 
-    # Calculate read length of 'DEFINITE LENGTH ARBITRARY BLOCK RESPONSE DATA'
-    # See IEEE 488.2, Sec. 8.7.9
-    my $point_length
-        = $precision eq 'single' ? 4
-        : $precision eq 'double' ? 8
-        :                          croak("unknown precision $precision");
-    my $num_points  = @{$freq_array};
-    my $read_length = $num_cols * $num_points * $point_length;
-
-    # add length of header and termchar
-    $read_length += length("#d") + length($read_length) + length("\n");
-    $args{read_length} = $read_length;
     my $binary = $self->sparam_sweep_data(%args);
 
     my $points_ref = $self->block_to_array(
