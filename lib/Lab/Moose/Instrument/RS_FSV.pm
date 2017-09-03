@@ -1,4 +1,5 @@
 package Lab::Moose::Instrument::RS_FSV;
+
 #ABSTRACT: Rohde & Schwarz FSV Signal and Spectrum Analyzer
 
 use 5.010;
@@ -11,7 +12,6 @@ use MooseX::Params::Validate;
 use Lab::Moose::Instrument qw/timeout_param precision_param/;
 use Carp;
 use namespace::autoclean;
-
 
 extends 'Lab::Moose::Instrument';
 
@@ -96,7 +96,7 @@ sub get_spectrum {
         croak "trace has to be in (1..6)";
     }
 
-    my $freq_array = pdl $self->sense_frequency_linear_array();
+    my $freq_array = $self->sense_frequency_linear_array();
 
     # Ensure single sweep mode.
     if ( $self->cached_initiate_continuous() ) {
@@ -107,21 +107,23 @@ sub get_spectrum {
     $self->set_data_format_precision( precision => $precision );
 
     # Get data.
-
+    my $num_points = @{$freq_array};
+    $args{read_length} = $self->block_length(
+        precision  => $precision,
+        num_points => $num_points
+    );
     $self->initiate_immediate();
     $self->wai();
-
     my $binary = $self->binary_query(
         command => "TRAC? TRACE$trace",
         %args
     );
-
     my $points_ref = pdl $self->block_to_array(
         binary    => $binary,
         precision => $precision
     );
 
-    return cat( $freq_array, $points_ref );
+    return cat( ( pdl $freq_array), $points_ref );
 
 }
 
