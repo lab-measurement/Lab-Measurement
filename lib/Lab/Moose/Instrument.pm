@@ -12,6 +12,7 @@ use Exporter 'import';
 
 our @EXPORT_OK = qw(
     timeout_param
+    read_length_param
     channel_param
     precision_param
     getter_params

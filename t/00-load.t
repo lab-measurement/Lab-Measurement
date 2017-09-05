@@ -93,6 +93,8 @@ my %depencencies = (
     'Lab::VISA' => [qw{VISA Lab/Bus/IsoBus.pm Lab/Connection/IsoBus.pm}],
 
     'Lab::Zhinst' => ['Zhinst'],
+
+    'Lab::VXI11' => ['VXI11'],
 );
 
 for my $module ( keys %depencencies ) {
