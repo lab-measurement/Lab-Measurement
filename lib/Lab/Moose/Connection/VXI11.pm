@@ -56,11 +56,10 @@ has device => (
 );
 
 sub BUILD {
-    my $self    = shift;
-    my $host    = $self->host();
-    my $proto   = $self->proto();
-    my $timeout = $self->timeout();
-    my $device  = $self->device();
+    my $self   = shift;
+    my $host   = $self->host();
+    my $proto  = $self->proto();
+    my $device = $self->device();
     my $client
         = Lab::VXI11->new( $host, DEVICE_CORE, DEVICE_CORE_VERSION, $proto )
         or croak "cannot open VXI-11 connection with $host: $!";

@@ -94,7 +94,9 @@ my %depencencies = (
 
     'Lab::Zhinst' => ['Zhinst'],
 
-    'Lab::VXI11' => ['VXI11'],
+    'Lab::VXI11' => ['Moose/Connection/VXI11.pm'],
+
+    'USB::TMC' => ['Moose/Connection/USB.pm'],
 );
 
 for my $module ( keys %depencencies ) {
