@@ -165,9 +165,19 @@ sub Clear {
     }
 }
 
-#
-# FIXME: DESTROY
-#
+sub DEMOLISH {
+    my $self   = shift;
+    my $client = $self->client();
+    my $lid    = $self->lid();
+
+    if ( $client && $lid ) {
+        my ($error) = $client->destroy_link($lid);
+
+        if ($error) {
+            croak "VXI-11 destroy_link failed with error $error.";
+        }
+    }
+}
 
 with qw/
     Lab::Moose::Connection
