@@ -55,6 +55,13 @@ has device => (
     default => "inst0",
 );
 
+sub _timeout_arg {
+    my $self = shift;
+    my %arg  = @_;
+    my $timeout = $arg{timeout} // $self->timeout();
+    return sprintf("%.0f", $timeout * 1000);
+}
+
 sub BUILD {
     my $self   = shift;
     my $host   = $self->host();
@@ -125,7 +132,6 @@ sub Read {
     my $termChar     = 0;    # not used
 
     my $result = '';
-
     while ($read_length) {
         my ( $error, $reason, $data ) = $client->device_read(
             $lid,          $read_length, $timeout,
@@ -134,7 +140,6 @@ sub Read {
         if ($error) {
             croak "VXI-11 device_read failed with error $error.";
         }
-
         $result .= $data;
         $read_length -= length($data);
 
@@ -142,6 +147,7 @@ sub Read {
             last;
         }
     }
+    return $result;
 }
 
 sub Clear {
