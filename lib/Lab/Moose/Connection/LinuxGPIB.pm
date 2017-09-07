@@ -1,4 +1,5 @@
 package Lab::Moose::Connection::LinuxGPIB;
+
 #ABSTRACT: Connection back end to the LinuxGpib library and kernel drivers
 
 =head1 SYNOPSIS
@@ -28,7 +29,7 @@ use MooseX::Params::Validate;
 use Moose::Util::TypeConstraints qw(enum);
 use Carp;
 
-use Lab::Moose::Instrument qw/timeout_param/;
+use Lab::Moose::Instrument qw/timeout_param read_length_param/;
 
 use Time::HiRes qw/gettimeofday tv_interval/;
 
@@ -43,7 +44,6 @@ use LinuxGpib qw/
     ibtmo
     ibclr
     /;
-
 
 =head1 METHODS
 
@@ -253,12 +253,13 @@ if the total time of operation does not exceed the timeout.
 =cut
 
 sub Read {
-    my ( $self, %arg ) = validated_hash(
+    my ( $self, %args ) = validated_hash(
         \@_,
         timeout_param,
+        read_length_param,
     );
 
-    my $timeout = $self->_timeout_arg(%arg);
+    my $timeout = $self->_timeout_arg(%args);
 
     my $result_string = "";
 
@@ -274,7 +275,7 @@ sub Read {
         if ( $elapsed_time > $self->current_timeout() ) {
             croak(
                 "timeout in Read with args:\n",
-                Dump( \%arg )
+                Dump( \%args )
             );
         }
 
@@ -288,7 +289,7 @@ sub Read {
 
         $self->_croak_on_err(
             ibsta => $ibsta,
-            name  => "ibrd with args:\n" . Dump( \%arg )
+            name  => "ibrd with args:\n" . Dump( \%args )
         );
 
         $result_string .= $buffer;
@@ -312,13 +313,13 @@ Croak on write error.
 =cut
 
 sub Write {
-    my ( $self, %arg ) = validated_hash(
+    my ( $self, %args ) = validated_hash(
         \@_,
         timeout_param,
         command => { isa => 'Str' },
     );
-    my $command = $arg{command};
-    my $timeout = $self->_timeout_arg(%arg);
+    my $command = $args{command};
+    my $timeout = $self->_timeout_arg(%args);
 
     $self->_set_timeout( timeout => $timeout );
 
@@ -330,7 +331,7 @@ sub Write {
 
     $self->_croak_on_err(
         ibsta => $ibsta,
-        name  => "ibwrt with args:\n" . Dump( \%arg )
+        name  => "ibwrt with args:\n" . Dump( \%args )
     );
 }
 
@@ -343,12 +344,12 @@ Call device clear (ibclr) on the connection.
 =cut
 
 sub Clear {
-    my ( $self, %arg ) = validated_hash(
+    my ( $self, %args ) = validated_hash(
         \@_,
         timeout_param,
     );
 
-    my $timeout = $self->_timeout_arg(%arg);
+    my $timeout = $self->_timeout_arg(%args);
 
     $self->_set_timeout( timeout => $timeout );
 
@@ -359,12 +360,12 @@ sub Clear {
 }
 
 sub _set_timeout {
-    my ( $self, %arg ) = validated_hash(
+    my ( $self, %args ) = validated_hash(
         \@_,
         timeout => { isa => 'Num' },
     );
 
-    my $timeout             = $arg{timeout};
+    my $timeout             = $args{timeout};
     my $ibtmo_value         = _timeout_to_ibtmo($timeout);
     my $current_timeout     = $self->current_timeout();
     my $current_ibtmo_value = _timeout_to_ibtmo($current_timeout);
@@ -378,13 +379,13 @@ sub _set_timeout {
 }
 
 sub _croak_on_err {
-    my ( $self, %arg ) = validated_hash(
+    my ( $self, %args ) = validated_hash(
         \@_,
         ibsta => { isa => 'Int' },
         name  => { isa => 'Str', optional => 1 },
     );
-    my $ibsta = $arg{ibsta};
-    my $name  = $arg{name};
+    my $ibsta = $args{ibsta};
+    my $name  = $args{name};
     my $hash  = _ibsta_to_hash($ibsta);
     if ( $hash->{ERR} ) {
         croak(

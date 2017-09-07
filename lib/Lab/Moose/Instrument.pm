@@ -1,4 +1,5 @@
 package Lab::Moose::Instrument;
+
 #ABSTRACT: Base class for instrument drivers
 
 use 5.010;
@@ -11,6 +12,7 @@ use Exporter 'import';
 
 our @EXPORT_OK = qw(
     timeout_param
+    read_length_param
     channel_param
     precision_param
     getter_params
@@ -28,7 +30,6 @@ use namespace::autoclean
     # Need this for Exporter.
     -except => 'import',
     -also   => [@EXPORT_OK];
-
 
 has 'connection' => (
     is       => 'ro',
@@ -131,10 +132,6 @@ The following functions standardise and simplify the use of
 L<MooseX::Params::Validate> in instrument drivers. They are only exported on
 request.
 
-=head2 timeout_param
-
-Return mandatory validation parameter for timeout.
-
 =cut
 
 my $ieee488_2_white_space_character = qr/[\x{00}-\x{09}\x{0b}-\x{20}]/;
@@ -160,8 +157,24 @@ sub query {
     return _trim_pmt( $self->binary_query(@_) );
 }
 
+=head2 timeout_param
+
+Return mandatory validation parameter for timeout.
+
+=cut
+
 sub timeout_param {
     return ( timeout => { isa => 'Num', optional => 1 } );
+}
+
+=head2 read_length_param
+
+Return mandatory validation parameter for read_length.
+
+=cut
+
+sub read_length_param {
+    return ( read_length => { isa => 'Int', optional => 1 } );
 }
 
 =head2 channel_param
@@ -195,7 +208,7 @@ operations, eg. timeout, ....
 =cut
 
 sub getter_params {
-    return ( timeout_param() );
+    return ( timeout_param(), read_length_param() );
 }
 
 =head2 setter_params
