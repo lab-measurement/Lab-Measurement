@@ -62,39 +62,59 @@ sub BUILD {
 }
 
 sub Write {
-    my ( $self, %arg ) = validated_hash(
+    my ( $self, %args ) = validated_hash(
         \@_,
         timeout_param,
         command => { isa => 'Str' },
     );
 
     my $write_termchar = $self->write_termchar() // '';
-    my $command        = $arg{command} . $write_termchar;
-    my $timeout        = $self->_timeout_arg(%arg);
+    my $command        = $args{command} . $write_termchar;
+    my $timeout        = $self->_timeout_arg(%args);
 
     my $client = $self->client();
     $client->write_timeout($timeout);
 
-    print {$client} $command
-        or croak "socket write error: $!";
+    my $length  = length($command);
+    my $written = 0;
+
+    while ($length) {
+        my $bytes_written = $client->syswrite( $command, $length, $written )
+            or croak("Write: syswrite failed: $!");
+        $written += $bytes_written;
+        $length -= $bytes_written;
+    }
 }
 
 sub Read {
-    my ( $self, %arg ) = validated_hash(
+    my ( $self, %args ) = validated_hash(
         \@_,
         timeout_param(),
         read_length_param(),
     );
-    my $timeout     = $self->_timeout_arg(%arg);
-    my $read_length = $self->_read_length_arg(%arg);
+    my $timeout     = $self->_timeout_arg(%args);
+    my $read_length = $self->_read_length_arg(%args);
     my $client      = $self->client();
 
     $client->read_timeout($timeout);
 
     my $string;
-    my $read_bytes = read( $client, $string, $read_length );
-    if ( !$read_bytes ) {
-        croak "socket read error: $!";
+    my $length = 0;
+    if ( $args{read_length} ) {
+
+        # explicit read_length arg:
+        # Keep reading until we have $read_length bytes.
+        while ($read_length) {
+            my $read_bytes
+                = $client->sysread( $string, $read_length, $length )
+                or croak "socket read error: $!";
+            $read_length -= $read_bytes;
+            $length += $read_bytes;
+        }
+    }
+    else {
+        $client->sysread( $string, $read_length )
+            or croak "socket read error: $!";
     }
 
     return $string;
@@ -131,6 +151,26 @@ __PACKAGE__->meta->make_immutable();
 This connection uses L<IO::Socket::INET> to interface with the operating
 system's TCP stack. This works on most operating systems without installing any
 additional software.
+
+Without knowing the syntax of the used command-messages there is no way for the
+connection to determine when C<Read> is finished. This is unlike GPIB, USBTMC,
+or VXI-11 which have explicit End of Message indicators. To deal with this, the
+C<read_length> parameter has the following semantics:
+
+=over
+
+=item C<Read> is given an explicit C<read_length> parameter
+
+Keep calling sysread until C<read_length> bytes are read.
+
+=item C<Read> is not given an explicit C<read_length> parameter
+
+Do a single sysread with the connections default C<read_length>.
+
+=back
+
+For SCPI definite length blocks you will have to give the exact block length
+with the C<read_length> parameter.
 
 =head2 CONNECTION OPTIONS
 
