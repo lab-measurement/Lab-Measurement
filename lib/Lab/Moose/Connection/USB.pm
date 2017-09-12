@@ -84,6 +84,9 @@ sub Read {
 }
 
 sub Clear {
+    my ( $self, %args ) = validated_hash( \@_, timeout_param );
+    my $timeout = $self->_timeout_arg(%args);
+    $self->usbtmc()->clear( timeout => $timeout );
 }
 
 with qw/
