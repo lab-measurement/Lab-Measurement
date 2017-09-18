@@ -36,6 +36,12 @@ has serial => (
     isa => 'Str',
 );
 
+has debug_mode => (
+    is      => 'ro',
+    isa     => 'Bool',
+    default => 0,
+);
+
 has write_termchar => (
     is      => 'ro',
     isa     => 'Maybe[Str]',
@@ -44,13 +50,13 @@ has write_termchar => (
 
 sub BUILD {
     my $self   = shift;
-    my $vid    = $self->vid();
-    my $pid    = $self->pid();
     my $serial = $self->serial();
 
     my $usbtmc = USB::TMC->new(
-        vid => $vid, pid => $pid,
-        defined($serial) ? ( serial => $serial ) : ()
+        vid => $self->vid(),
+        pid => $self->pid(),
+        defined($serial) ? ( serial => $serial ) : (),
+        debug_mode => $self->debug_mode(),
     );
     $self->_usbtmc($usbtmc);
 }
