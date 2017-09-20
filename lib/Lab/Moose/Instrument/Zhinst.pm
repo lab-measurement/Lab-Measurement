@@ -1,4 +1,5 @@
 package Lab::Moose::Instrument::Zhinst;
+
 #ABSTRACT: Base class for Zurich Instruments device drivers
 
 use 5.010;
@@ -120,6 +121,17 @@ sub sync_set_value {
     );
 
     $args{method} = 'SyncSet';
+    my $command = Dump( \%args );
+    return $self->binary_query( command => $command );
+}
+
+sub sync_poll {
+    my ( $self, %args ) = validated_hash(
+        \@_,
+        path    => { isa => 'Str' },
+        timeout => { isa => 'Num', optional => 1 },
+    );
+    $args{method} = 'SyncPoll';
     my $command = Dump( \%args );
     return $self->binary_query( command => $command );
 }

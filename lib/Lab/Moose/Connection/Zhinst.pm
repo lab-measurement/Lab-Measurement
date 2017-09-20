@@ -92,6 +92,9 @@ sub Query {
     elsif ( $method eq 'SyncSet' ) {
         return $self->sync_set_value(%args);
     }
+    elsif ( $method eq 'SyncPoll' ) {
+        return $self->sync_poll(%args);
+    }
     else {
         croak "unknown method $method";
     }
@@ -139,6 +142,47 @@ sub get_value {
     return _handle_error( $connection->$method($path) );
 }
 
+sub _timeout_arg {
+    my $self    = shift;
+    my %arg     = @_;
+    my $timeout = $arg{timeout} // $self->timeout();
+    return sprintf( "%.0f", $timeout * 1000 );
+}
+
+sub sync_poll {
+    my ( $self, %args ) = validated_hash(
+        \@_,
+        path    => { isa => 'Str' },
+        timeout => { isa => 'Num', optional => 1 },
+    );
+    my $timeout    = $self->_timeout_arg(%args);
+    my $path       = $args{path};
+    my $connection = $self->connection();
+
+    my $event = ziAPIAllocateEventEx();
+    _handle_error( $connection->Subscribe($path) );
+
+    # Ensure that we get a recent value. See LabOne manual
+    # '1.4.4. Obtaining Data from the Instrument'
+    _handle_error( $connection->Sync() );
+
+    my $data = _handle_error( $connection->PollDataEx( $event, $timeout ) );
+    _handle_error( $connection->UnSubscribe($path) );
+
+    if ( $data->{valueType} == ZI_VALUE_TYPE_NONE ) {
+        croak
+            "Possible timeout in PollDataEx. Got event type ZI_VALUE_TYPE_NONE .";
+    }
+    if ( $data->{count} == 0 ) {
+
+        # Never reached?
+        croak "Event with zero count.";
+    }
+
+    # Return only last (most recent) event.
+    return $data->{values}[-1];
+}
+
 sub Write {
     croak "not implemented";
 }
@@ -150,6 +194,9 @@ sub Read {
 sub Clear {
     croak "not implemented";
 }
+
+# Get timeout attribute.
+with qw/Lab::Moose::Connection/;
 
 __PACKAGE__->meta->make_immutable();
 
