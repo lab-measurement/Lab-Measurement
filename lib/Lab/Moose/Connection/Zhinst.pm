@@ -1,4 +1,5 @@
 package Lab::Moose::Connection::Zhinst;
+
 #ABSTRACT: Connection back end to Zurich Instrument's LabOne measurement control API
 
 =head1 SYNOPSIS
@@ -29,7 +30,6 @@ use YAML::XS 'Load';
 use Data::Dumper;
 use namespace::autoclean;
 
-
 has host => (
     is       => 'ro',
     isa      => 'Str',
@@ -49,13 +49,24 @@ has connection => (
     writer   => '_connection',
 );
 
+sub _handle_error {
+    my $rv = shift;
+    if ($rv) {
+        my ( undef, $msg ) = ziAPIGetError($rv);
+        croak "Error in Zhinst backend. Value: $rv. Message: $msg.";
+    }
+
+    my $value = shift;
+    return $value;
+}
+
 sub BUILD {
     my $self = shift;
 
     # Will croak on error.
-    my $connection
-        = Lab::Zhinst->new( $self->host(), $self->port() );
+    my $connection = _handle_error( Lab::Zhinst->Init() );
     $self->_connection($connection);
+    _handle_error( $connection->Connect( $self->host(), $self->port() ) );
 }
 
 sub Query {
@@ -67,7 +78,13 @@ sub Query {
     my %args   = %{ Load $command};
     my $method = delete $args{method};
     if ( $method eq 'ListNodes' ) {
-        return $self->connection()->ListNodes( $args{path}, $args{mask} );
+
+        # result length is ~ 12000 for MFIA. Be generous.
+        my $read_length = 100000;
+        my $connection  = $self->connection();
+        return _handle_error(
+            $connection->ListNodes( $args{path}, $read_length, $args{mask} )
+        );
     }
     elsif ( $method eq 'Get' ) {
         return $self->get_value(%args);
@@ -86,18 +103,21 @@ sub sync_set_value {
         \@_,
         path  => { isa => 'Str' },
         type  => { isa => enum( [qw/I D B/] ) },
-        value => { isa => 'Str' }
+        value => { isa => 'Str' },
     );
-    my $method = "SyncSetValue$type";
-    return $self->connection()->$method( $path, $value );
+    my $method     = "SyncSetValue$type";
+    my $connection = $self->connection();
+    return _handle_error( $connection->$method( $path, $value ) );
 }
 
 sub get_value {
     my $self = shift;
-    my ( $path, $type ) = validated_list(
+    my ( $path, $type, $read_length ) = validated_list(
         \@_,
-        path => { isa => 'Str' },
-        type => { isa => enum( [qw/I D B Demod AuxIn DIO/] ) },
+        path        => { isa => 'Str' },
+        type        => { isa => enum( [qw/I D B Demod AuxIn DIO/] ) },
+        read_length => { isa => 'Int', optional => 1 },
+
     );
 
     my $method = 'Get';
@@ -108,7 +128,15 @@ sub get_value {
         : $type eq 'Demod' ? 'DemodSample'
         : $type eq 'AuxIn' ? 'AuxInSample'
         :                    'DIOSample';
-    return $self->connection()->$method($path);
+
+    my $connection = $self->connection();
+    if ( $type eq 'B' ) {
+        if ( not defined $read_length ) {
+            croak "Need read_length arg to set byte string.";
+        }
+        return _handle_error( $connection->$method( $path, $read_length ) );
+    }
+    return _handle_error( $connection->$method($path) );
 }
 
 sub Write {
