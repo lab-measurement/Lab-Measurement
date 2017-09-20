@@ -19,10 +19,6 @@ use constant {
 
 extends 'Lab::Moose::Instrument';
 
-=head1 SYNOPSIS
-
-=cut
-
 has device => (
     is      => 'ro',
     isa     => 'Str',
@@ -124,6 +120,19 @@ sub sync_set_value {
     my $command = Dump( \%args );
     return $self->binary_query( command => $command );
 }
+
+=head2 sync_poll
+
+ my $sample = $instr->sync_poll(
+     path => "$device/imps/0/sample",
+     timeout => 0.1,
+ );
+
+Poll event and return the most recent value in the event. Before doing the
+poll, flush the event queque with a Sync to ensure that we get a newly recorded
+event.
+
+=cut
 
 sub sync_poll {
     my ( $self, %args ) = validated_hash(

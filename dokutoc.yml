@@ -48,6 +48,7 @@ toc:
       - Instrument control classes:
           - lib/Lab/Moose/Instrument.pm
           - lib/Lab/Moose/Instrument/Cache.pm
+          - lib/Lab/Moose/Instrument/Zhinst.pm
           - lib/Lab/Instrument.pm
           - Multimeters:
               - lib/Lab/Instrument/Multimeter.pm
@@ -68,6 +69,7 @@ toc:
               - lib/Lab/Instrument/SR830/AuxIn.pm
               - lib/Lab/Instrument/SR830/AuxOut.pm	
               - lib/Lab/Moose/Instrument/ZI_MFLI.pm
+          - Impedance analyzers:
               - lib/Lab/Moose/Instrument/ZI_MFIA.pm
           - RF generators:
               - lib/Lab/Instrument/HP33120A.pm
