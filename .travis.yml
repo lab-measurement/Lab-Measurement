@@ -47,9 +47,6 @@ install:
   - cd $TRAVIS_BUILD_DIR
   - dzil authordeps --missing | grep -vP '[^\w:]' | xargs cpanm --quiet --notest
 
-  # required before installing PDL
-  - cpanm ExtUtils::ParseXS
-
   # install dependencies
   - dzil listdeps --missing --cpanm | grep -vP '[^\w:~"\.]' | xargs cpanm --quiet --notest
   - cpanm -v -f PDL::Graphics::Gnuplot
