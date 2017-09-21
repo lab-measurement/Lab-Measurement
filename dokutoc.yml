@@ -123,10 +123,12 @@ toc:
               - lib/Lab/Bus.pm
               - lib/Lab/Bus/DEBUG.pm
           - VISA:
+              - lib/Lab/Moose/Connection/VISA.pm
               - lib/Lab/Connection/VISA.pm
               - lib/Lab/Bus/VISA.pm
           - GPIB (IEEE 488.2):
               - lib/Lab/Moose/Connection/LinuxGPIB.pm
+              - lib/Lab/Moose/Connection/VISA/GPIB.pm
               - lib/Lab/Connection/GPIB.pm
               - lib/Lab/Connection/LinuxGPIB.pm
               - lib/Lab/Connection/VISA_GPIB.pm
@@ -145,6 +147,7 @@ toc:
               - lib/Lab/Bus/Socket.pm
           - VXI-11:
               - lib/Lab/Moose/Connection/VXI11.pm
+              - lib/Lab/Moose/Connection/VISA/VXI11.pm
           - Oxford Instruments ISOBUS:
               - lib/Lab/Connection/IsoBus.pm
               - lib/Lab/Bus/IsoBus.pm
