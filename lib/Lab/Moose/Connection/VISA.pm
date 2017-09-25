@@ -155,7 +155,7 @@ sub Read {
         }
 
         $result .= $data;
-        $read_lengh -= length($data);
+        $read_length -= length($data);
 
         if ( $status == VI_SUCCESS or $status == VI_SUCCESS_MAX_CNT ) {
             last;
