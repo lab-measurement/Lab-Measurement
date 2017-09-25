@@ -103,9 +103,13 @@ sub _set_visa_attribute {
     $self->_handle_status( $status, "viSetAttribute" );
 }
 
+sub gen_resource_name {
+    return shift->resource_name();
+}
+
 sub BUILD {
     my $self          = shift;
-    my $resource_name = $self->resource_name();
+    my $resource_name = $self->gen_resource_name();
 
     my ( $status, $rm ) = Lab::VISA::viOpenDefaultRM();
     $self->_handle_status( $status, "viOpenDefaultRM" );
