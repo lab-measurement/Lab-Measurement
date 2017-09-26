@@ -110,7 +110,7 @@ sub gen_resource_name {
 sub BUILD {
     my $self          = shift;
     my $resource_name = $self->gen_resource_name();
-
+    warn "resource name: $resource_name\n";
     my ( $status, $rm ) = Lab::VISA::viOpenDefaultRM();
     $self->_handle_status( $status, "viOpenDefaultRM" );
 

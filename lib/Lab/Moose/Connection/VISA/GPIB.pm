@@ -15,6 +15,7 @@ package Lab::Moose::Connection::VISA::GPIB;
 use 5.010;
 
 use Moose;
+use Moose::Util::TypeConstraints qw(enum);
 
 use Carp;
 
@@ -46,6 +47,10 @@ has board_index => (
     isa     => 'Int',
     default => 0,
 );
+
+has '+resource_name' => (
+    required => 0,
+    );
 
 sub gen_resource_name {
     my $self = shift;
