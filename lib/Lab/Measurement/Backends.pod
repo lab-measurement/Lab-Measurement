@@ -114,4 +114,11 @@ F</etc/udev/rules.d/98-gpib-more.rules> with contents:
 Now, you can use the interactive C<ibtest> and C<ibterm> programs to test the installation.
 
 
+=head1 Zurich Instruments LabOne
 
+Lab::Measurement provides initial support for devices from Zurich
+Instruments. These can be used on both Linux and Windows. This requires that
+the LabOne API, provided by the vendor, is installed on the measurement
+PC. Moreover, you need the Perl module L<Lab::Zhinst|http://search.cpan.org/~amba/Lab-Zhinst/lib/Lab/Zhinst.pm>, which
+provides the Perl bindings to the LabOne API. The Lab::Zhinst documentation
+covers all steps of the installation.
