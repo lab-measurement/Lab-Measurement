@@ -6,7 +6,7 @@ Summary: <% $zilla->abstract %>
 License: GPL+ or Artistic
 Group: Development/Libraries
 BuildArch: noarch
-URL: http://www.labmeasurement.de/
+URL: https://www.labmeasurement.de/
 Source: <% $archive %>
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-BUILD
