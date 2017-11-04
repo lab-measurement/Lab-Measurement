@@ -1,4 +1,5 @@
 package Lab::Instrument::RSSMB100A;
+
 #ABSTRACT: Rohde & Schwarz SMB100A signal generator
 
 use strict;
@@ -18,7 +19,18 @@ our %fields = (
 
     device_settings => {},
 
+    device_cache => {
+        frq         => undef,
+        power       => undef,
+        pulselength => undef,
+        pulseperiod => undef,
+    },
+
 );
+
+=head1 METHODS
+
+=cut
 
 sub new {
     my $proto = shift;
@@ -28,15 +40,39 @@ sub new {
     return $self;
 }
 
+=head2 id
+
+ my $id = $smb->id();
+
+Do C<*IDN?> query.
+
+=cut
+
 sub id {
     my $self = shift;
     return $self->query('*IDN?');
 }
 
+=head2 reset
+
+ $smb->reset();
+
+Reset with C<*RST> command.
+
+=cut
+
 sub reset {
     my $self = shift;
     $self->write('*RST');
 }
+
+=head2 set_frq
+
+ $sms->set_frq(3.3e6);
+
+Set output frequency (Hz).
+
+=cut
 
 sub set_frq {
     my $self = shift;
@@ -54,6 +90,14 @@ sub set_cw {
     $self->write("FREQuency:CW $freq Hz");
 }
 
+=head2 get_frq
+
+ my $freq = $smb->get_frq({read_mode => 'cache'});
+
+Query output frequency (Hz).
+
+=cut
+
 sub get_frq {
     my $self = shift;
 
@@ -63,11 +107,27 @@ sub get_frq {
 
 }
 
+=head2 set_power
+
+ $smb->set_power(-20);
+
+Set output power (dBm).
+
+=cut
+
 sub set_power {
     my $self = shift;
     my ($power) = $self->_check_args( \@_, ['value'] );
     $self->write("POWer:LEVel $power DBM");
 }
+
+=head2 get_power
+
+ my $power = $smb->get_power();
+
+Query output power (dBm).
+
+=cut
 
 sub get_power {
     my $self = shift;
@@ -151,28 +211,3 @@ sub disable_internal_pulsemod {
 
 1;
 
-=pod
-
-=encoding utf-8
-
-=head1 SYNOPSIS
-
-=head1 DESCRIPTION
-
-=head1 CONSTRUCTOR
-
-=head1 METHODS
-
-=head1 CAVEATS/BUGS
-
-probably many
-
-=head1 SEE ALSO
-
-=over 4
-
-=item * Lab::Instrument
-
-=back
-
-=cut
