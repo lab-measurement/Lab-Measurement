@@ -1,4 +1,5 @@
 package Lab::Moose::Instrument::RS_SMB;
+
 #ABSTRACT: Rohde & Schwarz SMB Signal Generator
 
 use 5.010;
@@ -10,7 +11,6 @@ use Lab::Moose::Instrument qw/validated_getter validated_setter/;
 use Carp;
 use Lab::Moose::Instrument::Cache;
 use namespace::autoclean;
-
 
 extends 'Lab::Moose::Instrument';
 
@@ -73,6 +73,21 @@ sub source_frequency {
 
     $self->write( command => sprintf( "FREQ %.17g", $value ) );
     $self->cached_source_frequency($value);
+}
+
+#
+# Aliases for Lab::XPRESS::Sweep API
+#
+
+sub set_frq {
+    my $self  = shift;
+    my $value = shift;
+    return $self->source_frequency( value => $value );
+}
+
+sub get_frq {
+    my $self = shift;
+    return $self->source_frequency_query();
 }
 
 1;
