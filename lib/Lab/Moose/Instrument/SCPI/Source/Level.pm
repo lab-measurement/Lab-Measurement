@@ -40,7 +40,7 @@ sub source_level {
         value => { isa => 'Num' }
     );
 
-    my $function = $self->cached_source_level();
+    my $function = $self->cached_source_function();
 
     $self->write(
         command => sprintf( "SOUR:$function:LEV %.17g", $value ),

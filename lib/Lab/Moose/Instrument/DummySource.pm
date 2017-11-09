@@ -1,12 +1,13 @@
-package Lab::Moose::Instrument::YokogawaGS200;
+package Lab::Moose::Instrument::DummySource;
 
-#ABSTRACT: YokogawaGS200 voltage/current source.
+#ABSTRACT: Dummy YokogawaGS200 source. Use with Debug connection
 
 use 5.010;
 
 use Moose;
 use MooseX::Params::Validate;
-use Lab::Moose::Instrument qw/validated_getter validated_setter/;
+use Lab::Moose::Instrument
+    qw/validated_getter validated_setter setter_params/;
 use Carp;
 use Lab::Moose::Instrument::Cache;
 
@@ -43,7 +44,10 @@ has source_level_timestamp => (
 sub BUILD {
     my $self = shift;
     $self->clear();
-    $self->cls();
+    $self->cached_source_level(0);
+    $self->cached_source_function('VOLT');
+
+    #    $self->cls();
 
     # FIXME: check protect params
 }
@@ -53,21 +57,6 @@ sub BUILD {
 
 =head1 METHODS
 
-Used roles:
-
-=over
-
-=item L<Lab::Moose::Instrument::Common>
-
-=back
-
-=head2 source_frequency_query
-
-=head2 source_frequency
-
-=head2 cached_source_frequency
-
-Query and set the RF output frequency.
     
 =cut
 
@@ -96,6 +85,7 @@ sub linspace {
 
 sub linear_step_sweep {
     my ( $self, %args ) = validated_hash(
+        \@_,
         to     => { isa => 'Num' },
         setter => { isa => 'Str|CodeRef' },
         setter_params(),
@@ -162,7 +152,9 @@ sub set_level {
 
 sub get_level {
     my $self = shift;
-    return $self->source_level_query(@_);
+
+    # Dummy Source: do not query!
+    return $self->cached_source_level();
 }
 
 sub set_voltage {
