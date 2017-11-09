@@ -36,12 +36,20 @@ sub BUILD {
 
 =cut
 
+sub get_value {
+    my ( $self, %args ) = validated_hash(
+        \@_,
+        setter_params(),
+    );
+    return $self->read(%args);
+}
+
 cache nrdgs        => ( getter => 'get_nrdgs' );
 cache sample_event => ( getter => 'get_sample_event' );
 
 sub get_nrdgs {
     my ( $self, %args ) = validated_getter( \@_ );
-    my $result = $self->query( "NRDGS?", %args );
+    my $result = $self->query( command => "NRDGS?", %args );
     my ( $points, $event ) = split( /,/, $result );
     $self->cached_nrdgs($points);
     $self->cached_sample_event($event);
@@ -50,7 +58,7 @@ sub get_nrdgs {
 
 sub get_sample_event {
     my ( $self, %args ) = validated_getter( \@_ );
-    my $result = $self->query( "NRDGS?", %args );
+    my $result = $self->query( command => "NRDGS?", %args );
     my ( $points, $event ) = split( /,/, $result );
     $self->cached_nrdgs($points);
     $self->cached_sample_event($event);
@@ -63,7 +71,7 @@ sub set_nrdgs {
         value => { isa => 'Int' },
     );
     my $sample_event = $self->cached_sample_event();
-    $self->write( "NRDGS $value,$sample_event", %args );
+    $self->write( command => "NRDGS $value,$sample_event", %args );
     $self->cached_nrdgs($value);
 }
 
@@ -73,16 +81,42 @@ sub set_sample_event {
         value => { isa => enum( [qw/AUTO EXTSYN SYN TIMER LEVEL LINE/] ) },
     );
     my $points = $self->cached_nrdgs();
-    $self->write( "NRDGS $points,$value", %args );
+    $self->write( command => "NRDGS $points,$value", %args );
     $self->cached_sample_event($value);
 }
 
-sub get_value {
-    my ( $self, %args ) = validated_hash(
+cache tarm_event => ( getter => 'get_tarm_event' );
+
+sub get_tarm_event {
+    my ( $self, %args ) = validated_getter( \@_ );
+    return $self->cached_tarm_event(
+        $self->query( command => "TARM?", %args ) );
+}
+
+sub set_tarm_event {
+    my ( $self, $value, %args ) = validated_setter(
         \@_,
-        setter_params(),
+        value => { isa => enum( [qw/AUTO EXT SGL HOLD SYN/] ) },
     );
-    return $self->read(%args);
+    $self->write( command => "TARM $value", %args );
+    $self->cached_tarm_event($value);
+}
+
+cache trig_event => ( getter => 'get_trig_event' );
+
+sub get_trig_event {
+    my ( $self, %args ) = validated_getter( \@_ );
+    return $self->cached_trig_event(
+        $self->query( command => "TRIG?", %args ) );
+}
+
+sub set_trig_event {
+    my ( $self, $value, %args ) = validated_setter(
+        \@_,
+        value => { isa => enum( [qw/AUTO EXT SGL HOLD SYN LEVEL LINE/] ) },
+    );
+    $self->write( command => "TRIG $value", %args );
+    $self->cached_trig_event($value);
 }
 
 =head2 Consumed Roles
