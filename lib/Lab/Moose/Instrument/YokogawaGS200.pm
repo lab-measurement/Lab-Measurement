@@ -6,7 +6,7 @@ use 5.010;
 
 use Moose;
 use MooseX::Params::Validate;
-use Lab::Moose::Instrument qw/validated_getter validated_setter/;
+use Lab::Moose::Instrument qw/validated_getter validated_setter setter_params/;
 use Carp;
 use Lab::Moose::Instrument::Cache;
 
@@ -20,7 +20,6 @@ with qw(
     Lab::Moose::Instrument::Common
 
     Lab::Moose::Instrument::SCPI::Source::Function
-    Lab::Moose::Instrument::SCPI::Source::Level
     Lab::Moose::Instrument::SCPI::Source::Range
 );
 
@@ -70,6 +69,27 @@ Used roles:
 Query and set the RF output frequency.
     
 =cut
+cache source_level => ( getter => 'source_level_query' );
+
+sub source_level_query {
+    my ( $self, %args ) = validated_getter( \@_ );
+
+    return $self->cached_source_level(
+        $self->query( command => ":SOUR:LEV?", %args ) );
+}
+
+sub source_level {
+    my ( $self, $value, %args ) = validated_setter(
+        \@_,
+        value => { isa => 'Num' }
+    );
+
+    $self->write(
+        command => sprintf( "SOUR:LEV %.17g", $value ),
+        %args
+    );
+    $self->cached_source_level($value);
+}
 
 # FIXME: move into role
 sub linspace {
@@ -96,6 +116,7 @@ sub linspace {
 
 sub linear_step_sweep {
     my ( $self, %args ) = validated_hash(
+	\@_,
         to     => { isa => 'Num' },
         setter => { isa => 'Str|CodeRef' },
         setter_params(),
