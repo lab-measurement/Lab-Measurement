@@ -21,7 +21,7 @@ with qw(
 sub BUILD {
     my $self = shift;
     $self->clear();    # FIXME: does this change any settings!
-    $self->cls();
+    $self->set_end(value => 'ALWAYS');
 }
 
 =encoding utf8
@@ -119,6 +119,39 @@ sub set_trig_event {
     $self->cached_trig_event($value);
 }
 
+cache end => (getter => 'get_end');
+
+sub get_end {
+    my ($self, %args) = validated_getter(\@_);
+    return $self->cached_end(
+	$self->query(command => "END?", %args));
+}
+
+sub set_end {
+    my ($self, $value, %args) = validated_setter(
+	\@_,
+	value => {isa => enum([qw/OFF ON ALWAYS/])}
+	);
+    $self->write(command => "END $value");
+    $self->cached_trig_event($value);
+}
+
+cache nplc => (getter => 'get_nplc');
+
+sub get_nplc {
+    my ($self, %args) = validated_getter(\@_);
+    return $self->cached_nplc(
+	$self->query(command => "NPLC?", %args));
+}
+
+sub set_nplc {
+    my ($self, $value, %args) = validated_setter(
+	\@_,
+	value => {isa => 'Num'});
+    $self->write(command => "NPLC $value", %args);
+    $self->cached_nplc($value);
+}
+	
 =head2 Consumed Roles
 
 This driver consumes the following roles:
