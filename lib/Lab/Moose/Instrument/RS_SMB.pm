@@ -69,7 +69,12 @@ sub source_frequency {
     my ( $self, $value, %args ) = validated_setter(
         \@_,
         value => { isa => 'Num' },
-    );
+	);
+
+    my $min_freq = 9e3;
+    if ($value < $min_freq) {
+	croak "value smaller than minimal frequency $min_freq";
+    }
 
     $self->write( command => sprintf( "FREQ %.17g", $value ) );
     $self->cached_source_frequency($value);
@@ -81,8 +86,7 @@ sub source_frequency {
 
 sub set_frq {
     my $self  = shift;
-    my $value = shift;
-    return $self->source_frequency( value => $value );
+    return $self->source_frequency( @_ );
 }
 
 sub get_frq {

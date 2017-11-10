@@ -18,10 +18,11 @@ sub new {
         points              => [],
         rate                => [1],
         mode                => 'step',
-        allowed_instruments => [
-            'Lab::Instrument::SignalRecovery726x', 'Lab::Instrument::SR830',
-            'Lab::Instrument::HP83732A',           'Lab::Instrument::MG369xB',
-            'Lab::Instrument::RSSMB100A'
+        allowed_instruments => [qw/
+             Lab::Instrument::SignalRecovery726x   Lab::Instrument::SR830 
+             Lab::Instrument::HP83732A             Lab::Instrument::MG369xB 
+             Lab::Instrument::RSSMB100A   Lab::Moose::Instrument::RS_SMB
+				/
         ],
         allowed_sweep_modes => [ 'list', 'step' ],
         number_of_points    => [undef]
