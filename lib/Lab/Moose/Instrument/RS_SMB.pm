@@ -1,4 +1,5 @@
 package Lab::Moose::Instrument::RS_SMB;
+
 #ABSTRACT: Rohde & Schwarz SMB Signal Generator
 
 use 5.010;
@@ -10,7 +11,6 @@ use Lab::Moose::Instrument qw/validated_getter validated_setter/;
 use Carp;
 use Lab::Moose::Instrument::Cache;
 use namespace::autoclean;
-
 
 extends 'Lab::Moose::Instrument';
 
@@ -29,11 +29,20 @@ sub BUILD {
 
 =head1 SYNOPSIS
 
+ my $smb = instrument(
+    type => 'RS_SMB',
+    connection_type => 'VXI11',
+    connection_options => {host => '192.168.3.26'},
+    );
+    
  # Set frequency to 2 GHz
- $smb->source_frequency(value => 2e9);
+ $smb->set_frq(value => 2e9);
+
+ # Get frequency from device cache
+ my $frq = $smb->cached_frq();
  
- # Query output power (in Dbm)
- my $power = $smb->source_power_level_immediate_amplitude_query();
+ # Set power to -10 dBm
+ $smb->set_power(value => -10);
  
 =cut
 
@@ -46,14 +55,6 @@ Used roles:
 =item L<Lab::Moose::Instrument::SCPI::Source::Power>
 
 =back
-
-=head2 source_frequency_query
-
-=head2 source_frequency
-
-=head2 cached_source_frequency
-
-Query and set the RF output frequency.
     
 =cut
 
@@ -71,8 +72,67 @@ sub source_frequency {
         value => { isa => 'Num' },
     );
 
+    my $min_freq = 9e3;
+    if ( $value < $min_freq ) {
+        croak "value smaller than minimal frequency $min_freq";
+    }
+
     $self->write( command => sprintf( "FREQ %.17g", $value ) );
     $self->cached_source_frequency($value);
 }
+
+=head2 get_power/set_power
+
+ $smb->set_power(value => -10);
+ $power = $smb->get_power(); # or $smb->cached_power();
+
+Get set output power (dBm);
+
+=cut
+
+sub set_power {
+    my $self = shift;
+    return $self->source_power_level_immediate_amplitude(@_);
+}
+
+sub get_power {
+    my $self = shift;
+    return $self->source_power_level_immediate_amplitude_query(@_);
+}
+
+sub cached_power {
+    my $self = shift;
+    return $self->cached_source_power_level_immediate_amplitude(@_);
+}
+
+=head2 get_frq/set_frq
+
+ $smb->set_frq(value => 1e6); # 1MHz
+ $frq = $smb->get_frq(); # or $smb->cached_frq();
+
+Get/Set output frequency (Hz).
+
+=cut
+
+sub cached_frq {
+    my $self = shift;
+    return $self->cached_source_frequency(@_);
+}
+
+#
+# Aliases for Lab::XPRESS::Sweep API
+#
+
+sub set_frq {
+    my $self = shift;
+    return $self->source_frequency(@_);
+}
+
+sub get_frq {
+    my $self = shift;
+    return $self->source_frequency_query();
+}
+
+__PACKAGE__->meta()->make_immutable();
 
 1;
