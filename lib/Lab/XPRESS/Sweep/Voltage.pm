@@ -1,4 +1,5 @@
 package Lab::XPRESS::Sweep::Voltage;
+
 #ABSTRACT: Voltage sweep
 
 use Lab::XPRESS::Sweep;
@@ -22,9 +23,11 @@ sub new {
         mode                => 'continuous',
         jump                => 0,
         allowed_instruments => [
-            'Lab::Instrument::Yokogawa7651',  'Lab::Instrument::Keithley2400',
-            'Lab::Instrument::YokogawaGS200', 'Lab::Instrument::DummySource',
-            'Lab::Instrument::SR830::AuxOut'
+            qw/
+                Lab::Instrument::Yokogawa7651 Lab::Instrument::Keithley2400
+                Lab::Instrument::YokogawaGS200 Lab::Instrument::DummySource
+                Lab::Instrument::SR830::AuxOut Lab::Moose::Instrument::DummySource
+                Lab::Moose::Instrument::YokogawaGS200/
         ],
         allowed_sweep_modes => [ 'continuous', 'list', 'step' ],
         number_of_points    => [undef]
