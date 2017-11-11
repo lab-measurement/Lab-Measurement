@@ -20,8 +20,8 @@ with qw(
 
 sub BUILD {
     my $self = shift;
-    $self->clear();    # FIXME: does this change any settings!
-    $self->set_end(value => 'ALWAYS');
+    $self->clear();    # FIXME: does this change any settings?!
+    $self->set_end( value => 'ALWAYS' );
 }
 
 =encoding utf8
@@ -30,9 +30,28 @@ sub BUILD {
 
  use Lab::Moose;
 
+ my $dmm = instrument(
+     type => 'HP3458A',
+     connection_type => 'LinuxGPIB',
+     connection_options => {
+         gpib_address => 12,
+         timeout => 10, # if not given, use connection's default timeout
+     }
+ );
+
+ $dmm->set_sample_event(value => 'SYN');
+ $dmm->set_nplc(value => 2);
+ 
+ my $value = $dmm->get_value();
 
 =head1 METHODS
 
+
+=head2 get_value
+
+ my $value = $dmm->get_value();
+
+Read multimeter output value.
 
 =cut
 
@@ -44,8 +63,42 @@ sub get_value {
     return $self->read(%args);
 }
 
+=head2 get_nplc/set_nplc
+
+ $dmm->set_nplc(value => 10);
+ $nplc = $dmm->get_nplc();
+
+Get/Set integration time in Number of Power Line Cycles.
+
+=cut
+
+cache nplc => ( getter => 'get_nplc' );
+
+sub get_nplc {
+    my ( $self, %args ) = validated_getter( \@_ );
+    return $self->cached_nplc( $self->query( command => "NPLC?", %args ) );
+}
+
+sub set_nplc {
+    my ( $self, $value, %args ) = validated_setter(
+        \@_,
+        value => { isa => 'Num' }
+    );
+    $self->write( command => "NPLC $value", %args );
+    $self->cached_nplc($value);
+}
+
 cache nrdgs        => ( getter => 'get_nrdgs' );
 cache sample_event => ( getter => 'get_sample_event' );
+
+=head2 get_nrdgs/set_nrdgs
+
+ $dmm->set_nrdgs(value => 2);
+ $nrdgs = $dmm->get_nrdgs();
+
+Get/Set number of readings taken per trigger/sample event.
+
+=cut
 
 sub get_nrdgs {
     my ( $self, %args ) = validated_getter( \@_ );
@@ -54,15 +107,6 @@ sub get_nrdgs {
     $self->cached_nrdgs($points);
     $self->cached_sample_event($event);
     return $points;
-}
-
-sub get_sample_event {
-    my ( $self, %args ) = validated_getter( \@_ );
-    my $result = $self->query( command => "NRDGS?", %args );
-    my ( $points, $event ) = split( /,/, $result );
-    $self->cached_nrdgs($points);
-    $self->cached_sample_event($event);
-    return $event;
 }
 
 sub set_nrdgs {
@@ -75,6 +119,24 @@ sub set_nrdgs {
     $self->cached_nrdgs($value);
 }
 
+=head2 get_sample_event/set_sample_event
+
+ $dmm->set_sample_event(value => 'SYN');
+ $sample_event = $dmm->get_sample_event();
+
+Get/Set sample event.
+
+=cut
+
+sub get_sample_event {
+    my ( $self, %args ) = validated_getter( \@_ );
+    my $result = $self->query( command => "NRDGS?", %args );
+    my ( $points, $event ) = split( /,/, $result );
+    $self->cached_nrdgs($points);
+    $self->cached_sample_event($event);
+    return $event;
+}
+
 sub set_sample_event {
     my ( $self, $value, %args ) = validated_setter(
         \@_,
@@ -84,6 +146,15 @@ sub set_sample_event {
     $self->write( command => "NRDGS $points,$value", %args );
     $self->cached_sample_event($value);
 }
+
+=head2 get_tarm_event/set_tarm_event
+
+ $dmm->set_tarm_event(value => 'EXT');
+ $tarm_event = $dmm->get_tarm_event();
+
+Get/Set trigger arm event.
+
+=cut
 
 cache tarm_event => ( getter => 'get_tarm_event' );
 
@@ -102,6 +173,15 @@ sub set_tarm_event {
     $self->cached_tarm_event($value);
 }
 
+=head2 get_trig_event/set_trig_event
+
+ $dmm->set_trig_event(value => 'EXT');
+ $trig_event = $dmm->get_trig_event();
+
+Get/Set trigger event.
+
+=cut
+
 cache trig_event => ( getter => 'get_trig_event' );
 
 sub get_trig_event {
@@ -119,39 +199,32 @@ sub set_trig_event {
     $self->cached_trig_event($value);
 }
 
-cache end => (getter => 'get_end');
+=head2 get_end/set_end
+
+ $dmm->set_end(value => 'ALWAYS');
+ $end = $dmm->get_end();
+
+Get/Set control of GPIB End Or Identify (EOI) function.
+This driver sets this to 'ALWAYS' on startup.
+
+=cut
+
+cache end => ( getter => 'get_end' );
 
 sub get_end {
-    my ($self, %args) = validated_getter(\@_);
-    return $self->cached_end(
-	$self->query(command => "END?", %args));
+    my ( $self, %args ) = validated_getter( \@_ );
+    return $self->cached_end( $self->query( command => "END?", %args ) );
 }
 
 sub set_end {
-    my ($self, $value, %args) = validated_setter(
-	\@_,
-	value => {isa => enum([qw/OFF ON ALWAYS/])}
-	);
-    $self->write(command => "END $value");
+    my ( $self, $value, %args ) = validated_setter(
+        \@_,
+        value => { isa => enum( [qw/OFF ON ALWAYS/] ) }
+    );
+    $self->write( command => "END $value" );
     $self->cached_trig_event($value);
 }
 
-cache nplc => (getter => 'get_nplc');
-
-sub get_nplc {
-    my ($self, %args) = validated_getter(\@_);
-    return $self->cached_nplc(
-	$self->query(command => "NPLC?", %args));
-}
-
-sub set_nplc {
-    my ($self, $value, %args) = validated_setter(
-	\@_,
-	value => {isa => 'Num'});
-    $self->write(command => "NPLC $value", %args);
-    $self->cached_nplc($value);
-}
-	
 =head2 Consumed Roles
 
 This driver consumes the following roles:
