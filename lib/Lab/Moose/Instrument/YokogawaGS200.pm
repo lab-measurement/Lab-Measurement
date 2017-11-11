@@ -6,7 +6,8 @@ use 5.010;
 
 use Moose;
 use MooseX::Params::Validate;
-use Lab::Moose::Instrument qw/validated_getter validated_setter setter_params/;
+use Lab::Moose::Instrument
+    qw/validated_getter validated_setter setter_params/;
 use Carp;
 use Lab::Moose::Instrument::Cache;
 
@@ -47,8 +48,32 @@ sub BUILD {
     # FIXME: check protect params
 }
 
+=encoding utf8
+
 =head1 SYNOPSIS
 
+ use Lab::Moose;
+
+ my $yoko = instrument(
+     type => 'YokogawaGS200',
+     connection_type => 'LinuxGPIB',
+     connection_options => {gpib_address => 15},
+     instrument_options => {
+         # mandatory protection settings
+         max_units_per_step => 0.001, # max step is 1mV/1mA
+         max_units_per_second => 0.01,
+         min_units => -10,
+         max_units => 10,
+     }
+ );
+
+ # Step-sweep to new level.
+ # Stepsize and speed is given by (max|min)_units* settings.
+ $yoko->set_level(value => 9);
+
+ # Get current level from device cache (without sending a query to the
+ # instrument):
+ my $level = $yoko->cached_level();
 
 =head1 METHODS
 
@@ -57,18 +82,13 @@ Used roles:
 =over
 
 =item L<Lab::Moose::Instrument::Common>
+=item L<Lab::Moose::Instrument::SCPI::Source::Function>
+=item L<Lab::Moose::Instrument::SCPI::Source::Range>
 
 =back
-
-=head2 source_frequency_query
-
-=head2 source_frequency
-
-=head2 cached_source_frequency
-
-Query and set the RF output frequency.
     
 =cut
+
 cache source_level => ( getter => 'source_level_query' );
 
 sub source_level_query {
@@ -116,7 +136,7 @@ sub linspace {
 
 sub linear_step_sweep {
     my ( $self, %args ) = validated_hash(
-	\@_,
+        \@_,
         to     => { isa => 'Num' },
         setter => { isa => 'Str|CodeRef' },
         setter_params(),
@@ -155,6 +175,15 @@ sub linear_step_sweep {
     $self->_source_level_timestamp( monotonic_time() );
 }
 
+=head2 set_level
+
+ $yoko->set_level(value => $new_level);
+
+Go to new level. Sweep with multiple steps if the distance between current and
+new level is larger than C<max_units_per_step>.
+
+=cut
+
 sub set_level {
     my ( $self, $value, %args ) = validated_setter(
         \@_,
@@ -181,10 +210,39 @@ sub set_level {
 # Aliases for Lab::XPRESS::Sweep API
 #
 
+=head2 cached_level
+
+ my $current_level = $yoko->cached_level();
+
+Get current value from device cache.
+
+=cut
+
+sub cached_level {
+    my $self = shift;
+    return $self->cached_source_level(@_);
+}
+
+=head2 get_level
+
+ my $current_level = $yoko->get_level();
+
+Query current level.
+
+=cut
+
 sub get_level {
     my $self = shift;
     return $self->source_level_query(@_);
 }
+
+=head2 set_voltage
+
+ $yoko->set_voltage($value);
+
+For XPRESS voltage sweep. Equivalent to C<< set_level(value => $value) >>.
+
+=cut
 
 sub set_voltage {
     my $self  = shift;
@@ -192,9 +250,19 @@ sub set_voltage {
     return $self->set_level( value => $value );
 }
 
+=head2 sweep_to_level
+
+ $yoko->sweep_to_level($value);
+
+For XPRESS voltage sweep. Equivalent to C<set_voltage>.
+
+=cut
+
 sub sweep_to_level {
     my $self = shift;
     return $self->set_voltage(@_);
 }
+
+__PACKAGE__->meta()->make_immutable();
 
 1;
