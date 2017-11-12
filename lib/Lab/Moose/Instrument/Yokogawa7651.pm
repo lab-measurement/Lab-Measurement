@@ -1,6 +1,6 @@
-package Lab::Moose::Instrument::YokogawaGS200;
+package Lab::Moose::Instrument::Yokogawa7651;
 
-#ABSTRACT: YokogawaGS200 voltage/current source.
+#ABSTRACT: Yokogawa7651 voltage/current source.
 
 use 5.010;
 
@@ -30,16 +30,11 @@ has source_level_timestamp => (
 );
 
 with qw(
-    Lab::Moose::Instrument::Common
-    Lab::Moose::Instrument::SCPI::Source::Function
-    Lab::Moose::Instrument::SCPI::Source::Range
     Lab::Moose::Instrument::LinearStepSweep
 );
 
 sub BUILD {
     my $self = shift;
-    $self->clear();
-    $self->cls();
 }
 
 =encoding utf8
@@ -49,7 +44,7 @@ sub BUILD {
  use Lab::Moose;
 
  my $yoko = instrument(
-     type => 'YokogawaGS200',
+     type => 'Yokogawa7651',
      connection_type => 'LinuxGPIB',
      connection_options => {gpib_address => 15},
      instrument_options => {
@@ -75,9 +70,6 @@ Used roles:
 
 =over
 
-=item L<Lab::Moose::Instrument::Common>
-=item L<Lab::Moose::Instrument::SCPI::Source::Function>
-=item L<Lab::Moose::Instrument::SCPI::Source::Range>
 =item L<Lab::Moose::Instrument::LinearStepSweep>
 
 =back
@@ -89,8 +81,14 @@ cache source_level => ( getter => 'source_level_query' );
 sub source_level_query {
     my ( $self, %args ) = validated_getter( \@_ );
 
-    return $self->cached_source_level(
-        $self->query( command => ":SOUR:LEV?", %args ) );
+    my $value = $self->query( command => "OD", %args );
+
+    # FIXME: why do we need this????
+    $value = substr( $value, 4 );
+
+    # ????????
+
+    return $self->cached_source_level();
 }
 
 sub source_level {
@@ -100,7 +98,9 @@ sub source_level {
     );
 
     $self->write(
-        command => sprintf( "SOUR:LEV %.17g", $value ),
+
+        # Trailing 'e' is trigger.
+        command => sprintf( "S%.17ge", $value ),
         %args
     );
     $self->cached_source_level($value);

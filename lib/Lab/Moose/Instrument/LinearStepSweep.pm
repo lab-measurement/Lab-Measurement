@@ -77,6 +77,12 @@ sub linear_step_sweep {
     # Enforce step size and rate.
     my $step = abs( $self->max_units_per_step() );
     my $rate = abs( $self->max_units_per_second() );
+    if ( $step < 1e-9 ) {
+        croak "step size must be > 0";
+    }
+    if ( $rate == 1e-9 ) {
+        croak "rate must be > 0";
+    }
 
     my @steps         = linspace( from => $from, to => $to, step => $step );
     my $time_per_step = $step / $rate;
