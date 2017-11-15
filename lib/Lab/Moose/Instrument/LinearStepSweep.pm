@@ -4,9 +4,15 @@ package Lab::Moose::Instrument::LinearStepSweep;
 
 use Moose::Role;
 use MooseX::Params::Validate;
+use Lab::Moose::Instrument 'setter_params';
+
+# time() returns floating seconds.
+use Time::HiRes qw/time usleep/;
+
 use Carp;
 
-requires qw/max_units_per_second max_units_per_step min_units max_units/;
+requires qw/max_units_per_second max_units_per_step min_units max_units
+    source_level cached_source_level source_level_timestamp/;
 
 sub linspace {
     my ( $from, $to, $step ) = validated_list(
@@ -36,9 +42,6 @@ sub linspace {
 
  $source->linear_step_sweep(
      to => $new_level,
-     setter_sub => 'source_level',
-     cached_level_sub => 'cached_source_level',
-     timestamp_sub => 'source_level_timestamp',
      timeout => $timeout # optional
  );
 
@@ -47,18 +50,12 @@ sub linspace {
 sub linear_step_sweep {
     my ( $self, %args ) = validated_hash(
         \@_,
-        to               => { isa => 'Num' },
-        setter_sub       => { isa => 'Str|CodeRef' },
-        cached_level_sub => { isa => 'Str|CodeRef' },
-        timestamp_sub    => { isa => 'Str|CodeRef' },
+        to => { isa => 'Num' },
         setter_params(),
     );
-    my $to               = delete $args{to};
-    my $setter_sub       = delete $args{setter_sub};
-    my $cached_level_sub = delete $args{cached_level_sub};
-    my $timestamp_sub    = delete $args{timestamp_sub};
-    my $from             = $self->$cached_level_sub();
-    my $last_timestamp   = $self->$timestamp_sub();
+    my $to             = delete $args{to};
+    my $from           = $self->cached_source_level();
+    my $last_timestamp = $self->source_level_timestamp();
 
     # Enforce max_units/min_units.
     my $min = $self->min_units();
@@ -71,7 +68,7 @@ sub linear_step_sweep {
     }
 
     if ( not defined $last_timestamp ) {
-        $last_timestamp = monotonic_time();
+        $last_timestamp = time();
     }
 
     # Enforce step size and rate.
@@ -86,7 +83,7 @@ sub linear_step_sweep {
 
     my @steps         = linspace( from => $from, to => $to, step => $step );
     my $time_per_step = $step / $rate;
-    my $time          = monotonic_time();
+    my $time          = time();
 
     if ( $time < $last_timestamp ) {
 
@@ -99,19 +96,29 @@ sub linear_step_sweep {
     if ( $waiting_time > 0 ) {
         usleep( 1e6 * $waiting_time );
     }
-    $self->$setter_sub( value => shift @steps, %args );
+    $self->source_level( value => shift @steps, %args );
 
+    my $autoflush = STDOUT->autoflush();
     for my $step (@steps) {
         usleep( 1e6 * $time_per_step );
-        $self->$setter_sub( value => $step, %args );
+
+        #  YokogawaGS200 has 5 + 1/2 digits precision
+        printf(
+            "Sweeping to %.5g: Setting level to %.5e          \r", $to,
+            $step
+        );
+        $self->source_level( value => $step, %args );
     }
-    $self->$timestamp_sub( monotonic_time() );
+    print " " x 70 . "\r";
+    STDOUT->autoflush($autoflush);
+    $self->source_level_timestamp( time() );
 }
 
 =head1 REQUIRED METHODS
 
 The following methods are required for role consumption:
-C<max_units_per_second, max_units_per_step, min_units, max_units> 
+C<max_units_per_second, max_units_per_step, min_units, max_units,
+source_level, cached_source_level, source_level_timestamp > 
 
 =cut
 

@@ -1,4 +1,5 @@
 package Lab::Moose::Connection::Debug;
+
 #ABSTRACT: Debug connection
 
 use Moose;
@@ -9,11 +10,18 @@ use YAML::XS;
 
 use Carp;
 
+has verbose => (
+    is      => 'ro',
+    isa     => 'Bool',
+    default => 1,
+);
 
 sub Write {
     my $self = shift;
     my %args = @_;
-    carp "Write called with args:\n", Dump \%args, "\n";
+    if ( $self->verbose() ) {
+        carp "Write called with args:\n", Dump \%args, "\n";
+    }
 }
 
 sub Read {

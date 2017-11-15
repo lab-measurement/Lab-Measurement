@@ -51,6 +51,7 @@ toc:
           - lib/Lab/Moose/Instrument/Zhinst.pm
           - lib/Lab/Instrument.pm
           - Multimeters:
+              - lib/Lab/Moose/Instrument/HP3458A.pm
               - lib/Lab/Instrument/Multimeter.pm
               - lib/Lab/Instrument/HP34401A.pm
               - lib/Lab/Instrument/HP34420A.pm
@@ -58,6 +59,9 @@ toc:
               - lib/Lab/Instrument/Agilent34410A.pm
               - lib/Lab/Instrument/Keithley2000.pm
           - Voltage sources:
+              - lib/Lab/Moose/Instrument/YokogawaGS200.pm
+              - lib/Lab/Moose/Instrument/Yokogawa7651.pm
+              - lib/Lab/Moose/Instrument/DummySource.pm
               - lib/Lab/Instrument/Source.pm
               - lib/Lab/Instrument/DummySource.pm
               - lib/Lab/Instrument/Yokogawa7651.pm
@@ -106,6 +110,7 @@ toc:
               - lib/Lab/Instrument/PD11042.pm
               - lib/Lab/Instrument/ProStep4.pm
       - Moose::Instrument Roles:
+          - lib/Lab/Moose/Instrument/LinearStepSweep.pm
           - lib/Lab/Moose/Instrument/VNASweep.pm
           - lib/Lab/Moose/Instrument/Common.pm
           - lib/Lab/Moose/Instrument/SCPI/Initiate.pm

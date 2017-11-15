@@ -14,26 +14,13 @@ use namespace::autoclean;
 
 extends 'Lab::Moose::Instrument';
 
-has [
-    qw/
-        max_units_per_second
-        max_units_per_step
-        min_units
-        max_units
-        /
-] => ( is => 'ro', isa => 'Num', required => 1 );
+has [qw/max_units_per_second max_units_per_step min_units max_units/] =>
+    ( is => 'ro', isa => 'Num', required => 1 );
 
 has source_level_timestamp => (
     is       => 'rw',
     isa      => 'Num',
     init_arg => undef,
-);
-
-with qw(
-    Lab::Moose::Instrument::Common
-    Lab::Moose::Instrument::SCPI::Source::Function
-    Lab::Moose::Instrument::SCPI::Source::Range
-    Lab::Moose::Instrument::LinearStepSweep
 );
 
 sub BUILD {
@@ -121,13 +108,7 @@ sub set_level {
         value => { isa => 'Num' },
     );
 
-    return $self->linear_step_sweep(
-        to               => $value,
-        setter           => 'source_level',
-        cached_level_sub => 'cached_source_level',
-        timestamp_sub    => 'source_level_timestamp',
-        %args
-    );
+    return $self->linear_step_sweep( to => $value, %args );
 }
 
 #
@@ -186,6 +167,13 @@ sub sweep_to_level {
     my $self = shift;
     return $self->set_voltage(@_);
 }
+
+with qw(
+    Lab::Moose::Instrument::Common
+    Lab::Moose::Instrument::SCPI::Source::Function
+    Lab::Moose::Instrument::SCPI::Source::Range
+    Lab::Moose::Instrument::LinearStepSweep
+);
 
 __PACKAGE__->meta()->make_immutable();
 
