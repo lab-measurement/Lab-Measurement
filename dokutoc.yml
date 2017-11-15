@@ -118,8 +118,12 @@ toc:
           - lib/Lab/Moose/Instrument/SCPI/Sense/Bandwidth.pm
           - lib/Lab/Moose/Instrument/SCPI/Sense/Frequency.pm
           - lib/Lab/Moose/Instrument/SCPI/Sense/Function.pm
+          - lib/Lab/Moose/Instrument/SCPI/Sense/NPLC.pm
+          - lib/Lab/Moose/Instrument/SCPI/Sense/Range.pm
           - lib/Lab/Moose/Instrument/SCPI/Sense/Sweep.pm
+          - lib/Lab/Moose/Instrument/SCPI/Source/Function.pm
           - lib/Lab/Moose/Instrument/SCPI/Source/Power.pm
+          - lib/Lab/Moose/Instrument/SCPI/Source/Range.pm
       - Connecting instruments with Buses and Connections:
           - Base classes:
               - lib/Lab/Moose/Connection.pm
