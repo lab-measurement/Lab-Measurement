@@ -1,4 +1,5 @@
 package Lab::Moose::Instrument::SCPI::Sense::Function;
+
 #ABSTRACT: Role for the SCPI SENSe:FUNCtion subsystem
 
 use Moose::Role;
@@ -25,8 +26,9 @@ cache sense_function => ( getter => 'sense_function_query' );
 sub sense_function_query {
     my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
 
-    return $self->cached_sense_function(
-        $self->query( command => "SENS${channel}:FUNC?", %args ) );
+    my $value = $self->query( command => "SENS${channel}:FUNC?", %args );
+    $value =~ s/["']//g;
+    return $self->cached_sense_function($value);
 }
 
 sub sense_function {

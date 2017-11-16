@@ -26,8 +26,9 @@ cache source_function => ( getter => 'source_function_query' );
 sub source_function_query {
     my ( $self, %args ) = validated_getter( \@_ );
 
-    return $self->cached_source_function(
-        $self->query( command => "SOUR:FUNC?", %args ) );
+    my $value = $self->query( command => "SOUR:FUNC?", %args );
+    $value =~ s/["']//g;
+    return $self->cached_source_function($value);
 }
 
 sub source_function {

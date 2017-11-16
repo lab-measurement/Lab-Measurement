@@ -67,7 +67,7 @@ sub mock_instrument {
     if ( ref $hash ne 'HASH' ) {
         croak "argument of --connection-options not a hash";
     }
-
+    say "connection_options: ", Dump($hash);
     return instrument(
         type               => $type,
         connection_type    => $connection_module,

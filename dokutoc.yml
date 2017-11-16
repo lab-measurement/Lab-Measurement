@@ -113,6 +113,7 @@ toc:
           - lib/Lab/Moose/Instrument/LinearStepSweep.pm
           - lib/Lab/Moose/Instrument/VNASweep.pm
           - lib/Lab/Moose/Instrument/Common.pm
+          - lib/Lab/Moose/Instrument/Log.pm
           - lib/Lab/Moose/Instrument/SCPI/Initiate.pm
           - lib/Lab/Moose/Instrument/SCPI/Sense/Average.pm
           - lib/Lab/Moose/Instrument/SCPI/Sense/Bandwidth.pm

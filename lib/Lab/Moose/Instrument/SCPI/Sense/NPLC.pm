@@ -36,8 +36,8 @@ sub sense_nplc_query {
 
 sub sense_nplc {
     my ( $self, $value, %args ) = validated_setter(
-        value => { isa => 'Num' },
         \@_,
+        value => { isa => 'Num' },
     );
 
     my $func = $self->cached_sense_function();
