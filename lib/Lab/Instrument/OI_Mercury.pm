@@ -30,8 +30,13 @@ sub new {
 
 =head1 DESCRIPTION
 
-The Lab::Instrument::OI_Mercury class implements an interface to the Oxford Instruments 
-Mercury cryostat control system.
+The Lab::Instrument::OI_Mercury class implements an interface to the Oxford 
+Instruments Mercury cryostat control system. This modular instrument consists
+of a control and communication unit and add-on cards. Typical add-ons are
+cryogenic liquid (He / N2) level sensors or magnet power supply units. 
+
+The Mercury uses a command language that looks a bit like SCPI but is actually
+incompatible with that specification.
 
 =head1 METHODS
 
@@ -73,6 +78,14 @@ sub get_he_level_resistance {
     return $level;
 }
 
+=head2 get_he_level_resistance
+
+   $he=$m->get_he_level_resistance('DB5.L1');
+
+Read out the designated liquid helium level meter channel. Result is the raw sensor resistance.
+
+=cut
+
 sub get_n2_level {
     my $self    = shift;
     my $channel = shift;
@@ -87,6 +100,14 @@ sub get_n2_level {
     return $level;
 }
 
+=head2 get_n2_level
+
+   $he=$m->get_n2_level('DB5.L1');
+
+Read out the designated liquid nitrogen level meter channel. Result is in percent as calibrated.
+
+=cut
+
 sub get_n2_level_frequency {
     my $self    = shift;
     my $channel = shift;
@@ -100,6 +121,14 @@ sub get_n2_level_frequency {
     $level =~ s/:.*$//;
     return $level;
 }
+
+=head2 get_n2_level_frequency
+
+   $he=$m->get_n2_level_frequency('DB5.L1');
+
+Read out the designated liquid nitrogen level meter channel. Result is the raw internal frequency value.
+
+=cut
 
 sub get_n2_level_counter {
     my $self    = shift;
@@ -186,12 +215,13 @@ sub oim_get_current {
 
 =head2 oim_get_current
 
+  $t=$m->oim_get_current();
+
 Reads out the momentary current of the PSU in Ampere. Only Z for now. 
 
 TODO: what happens if we're in persistent mode?
 
 =cut
-
 
 sub oim_get_heater {
   my $self = shift; 
@@ -206,10 +236,11 @@ sub oim_get_heater {
 
 =head2 oim_get_heater
 
+  $t=$m->oim_get_heater();
+
 Returns the persistent mode switch heater status as "ON" or "OFF". 
 
 =cut
-
 
 sub oim_set_heater {
   my $self = shift; 
