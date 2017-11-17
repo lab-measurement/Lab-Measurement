@@ -305,7 +305,7 @@ sub start_block {
     }
 
     $self->{BLOCK_NUM} = $self->{logger}->_log_start_block();
-    print "Block_num = $self->{BLOCK_NUM}\n";
+    print "Data block $self->{BLOCK_NUM}\n";
 
     $self->{loop}->{overtime} = 0;
     undef $self->{loop}->{t0};

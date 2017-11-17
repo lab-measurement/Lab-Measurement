@@ -128,7 +128,8 @@ sub init_gnuplot {
     $gp .= "set xtics font 'arial,10'\n";
     $gp .= "set ytics font 'arial,10'\n";
     $gp .= "set ztics font 'arial,10'\n";
-    $gp .= "set cbtics font 'arial,8'\n";
+    $gp .= "set cbtics font 'arial,7'\n";
+    $gp .= "set format cb '%.4e'\n";
     $gp .= "set key font 'arial,8'  at graph 1,1.15\n";
     $gp .= "set title offset -32,0.6\n";
 
@@ -361,7 +362,7 @@ sub start_plot {
     my $gp;
     my $gpipe = $self->{gpipe};
 
-    print "start Plot \n";
+    print "Starting plot\n";
 
     # if plot mode == pm3d, then change to other start routine:
     if ( $self->{plot}->{'type'} eq 'pm3d' and $block_num <= 1 ) {
