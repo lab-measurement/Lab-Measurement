@@ -202,7 +202,7 @@ sub init_gnuplot {
     $gp .= "BLOCK_NUM = " . $self->{BLOCK_NUM} . "; ";
     $gp .= "LINE_NUM = " . $self->{LINE_NUM} . "; ";
 
-    $gp .= "show variables;\n";
+    #$gp .= "show variables;\n";
     print $gpipe $gp;
     $gp = "";
 
