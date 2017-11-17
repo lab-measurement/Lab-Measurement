@@ -43,7 +43,7 @@ sub go_to_sweep_start {
     my $self = shift;
 
     # go to start:
-    print "going to start ... ";
+    print "Setting voltage to start value ... ";
     if (   $self->{config}->{mode} =~ /step|list/
         && $self->{config}->{jump} ) {
         my $target    = $self->{config}{points}[ $self->{iterator} ];
@@ -68,7 +68,7 @@ sub go_to_sweep_start {
         $self->{config}->{instrument}->trg();
         $self->{config}->{instrument}->wait();
     }
-    print "done\n";
+    print "Done                                                     \n";
 
 }
 

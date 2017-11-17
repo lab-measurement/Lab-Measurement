@@ -126,9 +126,8 @@ sub open_file {
         my $old_fh = select($LOG);
         $| = 1;
         select($old_fh);
-        print "open $file_data --> ok\n";
+        print "Output file is \"$file_data\"\n";
 
-        #my $file_eps = sprintf("%s/%s_%03d",$directory, $filename, $max_index);
         return ( $LOG, $file_data, $directory );
     }
 
