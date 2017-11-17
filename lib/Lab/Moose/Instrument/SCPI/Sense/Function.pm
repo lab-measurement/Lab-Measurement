@@ -34,7 +34,7 @@ sub sense_function_query {
 sub sense_function {
     my ( $self, $channel, $value, %args ) = validated_channel_setter( \@_ );
 
-    $self->write( command => "SENS${channel}:FUNC $value", %args );
+    $self->write( command => "SENS${channel}:FUNC '$value'", %args );
     return $self->cached_sense_function($value);
 }
 

@@ -21,13 +21,13 @@ has usbtmc => (
 
 has vid => (
     is       => 'ro',
-    isa      => 'Num',
+    isa      => 'Str',
     required => 1,
 );
 
 has pid => (
     is       => 'ro',
-    isa      => 'Num',
+    isa      => 'Str',
     required => 1,
 );
 
@@ -52,9 +52,18 @@ sub BUILD {
     my $self   = shift;
     my $serial = $self->serial();
 
+    my $vid = $self->vid();
+    my $pid = $self->pid();
+    if ( $vid =~ /^0x/i ) {
+        $vid = hex($vid);
+    }
+    if ( $pid =~ /^0x/i ) {
+        $pid = hex($pid);
+    }
+
     my $usbtmc = USB::TMC->new(
-        vid => $self->vid(),
-        pid => $self->pid(),
+        vid => $vid,
+        pid => $pid,
         defined($serial) ? ( serial => $serial ) : (),
         debug_mode => $self->debug_mode(),
     );
