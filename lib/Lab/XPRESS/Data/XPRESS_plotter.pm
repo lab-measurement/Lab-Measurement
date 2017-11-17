@@ -274,15 +274,15 @@ sub init_gnuplot {
     }
     elsif ( defined $plot{'y-axis'} ) {
         my $i = $plot{'y-axis'}[0];
-        $gp .= "set ylabel COLUMN_$i\n";
+        if ( $i ne "" ) { $gp .= "set ylabel COLUMN_$i\n"; };
     }
 
     if ( defined $plot{'y2-label'} ) {
         $gp .= "set y2label '$plot{'y2-label'}'\n";
     }
-    elsif ( defined $plot{'y-axis'} ) {
+    elsif ( defined $plot{'y2-axis'} ) {
         my $i = $plot{'y2-axis'}[0];
-        $gp .= "set y2label COLUMN_$i\n";
+        if ( $i ne "" ) { $gp .= "set y2label COLUMN_$i\n"; };
     }
 
     if ( defined $plot{'z-label'} ) {
