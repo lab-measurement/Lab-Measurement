@@ -34,6 +34,14 @@ has num_data_rows => (
     init_arg => undef
 );
 
+has num_blocks => (
+    is       => 'ro',
+    isa      => 'Int',
+    default  => 0,
+    writer   => '_num_blocks',
+    init_arg => undef,
+);
+
 has precision => (
     is      => 'ro',
     isa     => enum( [ 1 .. 17 ] ),
@@ -233,23 +241,24 @@ sub log_block {
     }
 
     if ($add_newline) {
-        $self->log_newline();
+        $self->start_new_block();
     }
     $self->_trigger_plots();
 }
 
-=head2 log_newline
+=head2 start_new_block
 
- $file->log_newline();
+ $file->start_new_block()
 
 print "\n" to the datafile.
 
 =cut
 
-sub log_newline {
+sub start_new_block {
     my $self = shift;
     my $fh   = $self->filehandle;
     print {$fh} "\n";
+    $self->_num_blocks( $self->num_blocks + 1 );
 }
 
 =head2 log_comment
@@ -277,10 +286,6 @@ sub log_comment {
 # Refresh plots after log/log_block
 sub _trigger_plots {
     my $self = shift;
-
-    if ( $self->num_data_rows() < 2 ) {
-        return;
-    }
 
     my @plots = @{ $self->plots() };
     my @indices = grep { not defined $plots[$_]->{handle} } ( 0 .. $#plots );
@@ -349,23 +354,26 @@ terminal option must be supported.
 
 =cut
 
-sub add_plot {
+sub _add_2d_plot {
     my ( $self, %args ) = validated_hash(
         \@_,
-        x                  => { isa => 'Str' },
-        y                  => { isa => 'Str' },
-        terminal           => { isa => 'Str', optional => 1 },
-        terminal_options   => { isa => 'HashRef', optional => 1 },
-        plot_options       => { isa => 'HashRef', optional => 1 },
-        curve_options      => { isa => 'HashRef', optional => 1 },
-        handle             => { isa => 'Str', optional => 1 },
-        hard_copy          => { isa => 'Str', optional => 1 },
-        hard_copy_terminal => { isa => 'Str', optional => 1 },
+        x                => { isa => 'Str' },
+        y                => { isa => 'Str' },
+        terminal         => { isa => 'Str', optional => 1 },
+        terminal_options => { isa => 'HashRef', optional => 1 },
+        plot_options     => { isa => 'HashRef', default => {} },
+        curve_options    => { isa => 'HashRef', optional => 1 },
+        handle           => { isa => 'Str', optional => 1 },
     );
-    my $plots = $self->plots();
 
     my $x_column = delete $args{x};
     my $y_column = delete $args{y};
+
+    my %default_plot_options = (
+        xlabel => $x_column,
+        ylabel => $y_column,
+    );
+    $args{plot_options} = { %default_plot_options, %{ $args{plot_options} } };
 
     for my $column ( $x_column, $y_column ) {
         if ( not any { $column eq $_ } @{ $self->columns } ) {
@@ -377,20 +385,98 @@ sub add_plot {
         croak "need different columns for x and y";
     }
 
-    my $refresh = delete $args{refresh};
-    my $plot    = Lab::Moose::Plot->new(%args);
+    my $plot = Lab::Moose::Plot->new(%args);
 
+    my $plots  = $self->plots();
     my $handle = $args{handle};
-
     push @{$plots}, {
         plot   => $plot,
         x      => $x_column,
         y      => $y_column,
         handle => $handle
     };
+}
+
+sub _add_pm3d_plot {
+    my ( $self, %args ) = validated_hash(
+        \@_,
+        x                => { isa => 'Str' },
+        y                => { isa => 'Str' },
+        z                => { isa => 'Str' },
+        terminal         => { isa => 'Str', optional => 1 },
+        terminal_options => { isa => 'HashRef', optional => 1 },
+        plot_options     => { isa => 'HashRef', default => {} },
+        curve_options    => { isa => 'HashRef', optional => 1 },
+        handle           => { isa => 'Str', optional => 1 },
+    );
+
+    my $x_column = delete $args{x};
+    my $y_column = delete $args{y};
+    my $z_column = delete $args{z};
+
+    my %default_plot_options = (
+        pm3d    => 'implicit map corners2color c1',
+        surface => 0,
+        xlabel  => $x_column,
+        ylabel  => $y_column,
+        title   => $self->path(),
+        clut    => 'sepia',
+
+        #        border => '4095 front linetype -1 linewidth 1.000');
+    );
+    $args{plot_options} = { %default_plot_options, %{ $args{plot_options} } };
+
+    for my $column ( $x_column, $y_column, $z_column ) {
+        if ( not any { $column eq $_ } @{ $self->columns } ) {
+            croak "column $column does not exist";
+        }
+    }
+
+    my %col_unequal_test
+        = map { $_ => 1 } ( $x_column, $y_column, $z_column );
+    if ( ( keys %col_unequal_test ) != 3 ) {
+        croak "columns $x_column, $y_column, $z_column must not be equal";
+    }
+
+    my $plot   = Lab::Moose::Plot->new(%args);
+    my $handle = $args{handle};
+    my $plots  = $self->plots();
+    push @{$plots}, {
+        plot   => $plot,
+        x      => $x_column,
+        y      => $y_column,
+        z      => $z_column,
+        handle => $handle,
+    };
+}
+
+sub add_plot {
+    my ( $self, %args ) = validated_hash(
+        \@_,
+        type               => { isa => 'Str', default  => 'points' },
+        hard_copy          => { isa => 'Str', optional => 1 },
+        hard_copy_terminal => { isa => 'Str', optional => 1 },
+        MX_PARAMS_VALIDATE_ALLOW_EXTRA => 1,
+    );
+
+    my $type               = delete $args{type};
+    my $hard_copy          = delete $args{hard_copy};
+    my $hard_copy_terminal = delete $args{hard_copy_terminal};
+
+    my $plot_generator_sub;
+    if ( $type =~ /points?/i ) {
+        $plot_generator_sub = '_add_2d_plot';
+    }
+    elsif ( $type =~ /pm3d/i ) {
+        $plot_generator_sub = '_add_pm3d_plot';
+    }
+    else {
+        croak "unknown plot type '$type'";
+    }
+
+    $self->$plot_generator_sub(%args);
 
     # add hard copy plot
-    my $hard_copy = delete $args{hard_copy};
     if ( defined $hard_copy ) {
         my $hard_copy_file = Lab::Moose::DataFile->new(
             folder   => $self->folder(),
@@ -404,9 +490,7 @@ sub add_plot {
         my $terminal
             = defined($hard_copy_terminal) ? $hard_copy_terminal : 'png';
 
-        $self->add_plot(
-            x                => $x_column,
-            y                => $y_column,
+        $self->$plot_generator_sub(
             terminal         => $terminal,
             terminal_options => { output => $hard_copy_file->path() },
             %args,
@@ -420,7 +504,6 @@ sub _refresh_plot {
         \@_,
         index => { isa => 'Int' },
     );
-
     my $plots = $self->plots();
     my $plot  = $plots->[$index];
 
@@ -429,17 +512,34 @@ sub _refresh_plot {
     }
 
     my $column_names = $self->columns();
-    my ( $x, $y ) = ( $plot->{x}, $plot->{y} );
+    my ( $x, $y, $z ) = ( $plot->{x}, $plot->{y}, $plot->{z} );
 
     my ($x_index) = grep { $column_names->[$_] eq $x } 0 .. $#{$column_names};
 
     my ($y_index) = grep { $column_names->[$_] eq $y } 0 .. $#{$column_names};
 
-    my $data_columns = read_2d_gnuplot_format( fh => $self->filehandle() );
+    if ( defined $z ) {
+        if ( $self->num_blocks < 2 ) {
+            return;
+        }
+        my ($z_index)
+            = grep { $column_names->[$_] eq $z } 0 .. $#{$column_names};
+        my @pixel_fields = read_3d_gnuplot_format( file => $self->path() );
+        $plot->{plot}->splot(
+            data => [ @pixel_fields[ $x_index, $y_index, $z_index ] ],
+        );
+    }
+    else {
+        if ( $self->num_data_rows() < 2 ) {
+            return;
+        }
+        my $data_columns
+            = read_2d_gnuplot_format( fh => $self->filehandle() );
 
-    $plot->{plot}->plot(
-        data => [ $data_columns->[$x_index], $data_columns->[$y_index] ],
-    );
+        $plot->{plot}->plot(
+            data => [ $data_columns->[$x_index], $data_columns->[$y_index] ],
+        );
+    }
 }
 
 =head2 refresh_plots
