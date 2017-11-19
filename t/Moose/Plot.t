@@ -71,7 +71,7 @@ file_filter_ok(
 
     my $folder = datafolder( path => catfile( $dir, 'gnuplot' ) );
     my $file = datafile(
-        type     => 'Gnuplot::2D',
+        type     => 'Gnuplot',
         folder   => $folder,
         filename => 'file.dat',
         columns  => [qw/A B C/]
