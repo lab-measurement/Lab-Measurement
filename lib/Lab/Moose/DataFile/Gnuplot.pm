@@ -554,13 +554,18 @@ sub _refresh_plot {
 
     my ($y_index) = grep { $column_names->[$_] eq $y } 0 .. $#{$column_names};
 
+    my $num_columns = @{ $self->columns() };
     if ( defined $z ) {
         if ( $self->num_blocks < 2 ) {
             return;
         }
         my ($z_index)
             = grep { $column_names->[$_] eq $z } 0 .. $#{$column_names};
-        my @pixel_fields = read_3d_gnuplot_format( file => $self->path() );
+        my @pixel_fields = read_gnuplot_format(
+            type        => 'maps',
+            fh          => $self->filehandle(),
+            num_columns => $num_columns,
+        );
         $plot->{plot}->splot(
             data => [ @pixel_fields[ $x_index, $y_index, $z_index ] ],
         );
@@ -569,11 +574,14 @@ sub _refresh_plot {
         if ( $self->num_data_rows() < 2 ) {
             return;
         }
-        my $data_columns
-            = read_2d_gnuplot_format( fh => $self->filehandle() );
+        my @columns = read_gnuplot_format(
+            type        => 'columns',
+            fh          => $self->filehandle(),
+            num_columns => $num_columns
+        );
 
         $plot->{plot}->plot(
-            data => [ $data_columns->[$x_index], $data_columns->[$y_index] ],
+            data => [ $columns[$x_index], $columns[$y_index] ],
         );
     }
 }
