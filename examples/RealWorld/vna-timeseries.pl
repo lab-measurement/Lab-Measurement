@@ -3,7 +3,10 @@ use 5.020;
 use warnings;
 use strict;
 use Math::Trig;
-use Time::HiRes 'gettimeofday';
+
+# make time() return floating seconds (Unix time)
+use Time::HiRes 'time';
+
 use lib '/home/simon/measurement/lib';
 
 use Lab::Moose;
@@ -37,7 +40,7 @@ $zva->sense_sweep_points( value => 1 );
 my $folder = datafolder( path => 'vna-vs-heterodyne' );
 
 my $datafile = datafile(
-    type     => 'Gnuplot::2D',
+    type     => 'Gnuplot',
     folder   => $folder,
     filename => 'data.dat',
     columns  => [
@@ -67,7 +70,7 @@ while (1) {
 
     my $phi = atan( $s21_im / $s21_re );
 
-    my $time = get_seconds();
+    my $time = time();
     say $time;
 
     $datafile->log(
@@ -75,12 +78,5 @@ while (1) {
         's21_re'  => $s21_re, 's21_im' => $s21_im,
         'phi_vna' => $phi,
     );
-}
-
-sub get_seconds {
-    my $sec;
-    my $usec;
-    ( $sec, $usec ) = gettimeofday();
-    return $sec + $usec / 1e6;
 }
 

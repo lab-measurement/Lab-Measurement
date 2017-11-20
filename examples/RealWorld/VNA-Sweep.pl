@@ -27,7 +27,7 @@ my $vna = instrument(
 
 my $folder = datafolder( path => $output_folder_name );
 my $datafile = datafile(
-    type     => 'Gnuplot::2D',
+    type     => 'Gnuplot',
     folder   => $folder,
     filename => 'data.dat',
     columns  => [qw/freq Real Imag Amplitude/],
