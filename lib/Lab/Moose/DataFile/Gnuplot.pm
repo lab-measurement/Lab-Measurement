@@ -94,7 +94,31 @@ sub BUILD {
 
  $file->log(time => 1, voltage => 2, temp => 3);
 
- # datafile with 
+ # datafile with pm3d plot
+ my $datafile = datafile(
+     type => 'Gnuplot',
+     folder => datafolder(),
+     filename => 'data.dat',
+     columns => [qw/x y z/],
+ );
+
+ $datafile->add_plot(
+     type => 'pm3d',
+     x => 'x',
+     y => 'y',
+     z => 'z',
+     handle => 'uiae',
+     hard_copy => 'data.png',
+ );
+     
+ 
+ for my $x (0..100) {
+     for my $y (0..100) {
+         $datafile->log(x => $x, y => $y, z => rand());
+     }
+     $datafile->start_new_block();
+     $datafile->refresh_plots(handle => 'uiae');
+ }
 
 
 =head1 METHODS
