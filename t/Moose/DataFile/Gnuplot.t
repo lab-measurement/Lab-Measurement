@@ -23,7 +23,7 @@ my $file = datafile(
 );
 my $path = $file->path();
 $file->log( A => 0.7, B => 2, C => 3 );
-$file->log_newline();
+$file->start_new_block();
 $file->log_comment( comment => 'YOLO' );
 $file->log( A => 2, B => 3, C => 4 );
 

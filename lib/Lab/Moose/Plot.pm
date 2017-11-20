@@ -1,4 +1,5 @@
 package Lab::Moose::Plot;
+
 #ABSTRACT: Frontend to L<PDL::Graphics::Gnuplot>
 
 =head1 SYNOPSIS
@@ -69,7 +70,6 @@ use PDL::Graphics::Gnuplot ();
 # need to load for ClassName type constraint.
 use PDL ();
 
-
 has terminal => (
     is      => 'ro',
     isa     => 'Str',
@@ -109,7 +109,7 @@ sub build_terminal_options {
     my $term = $self->terminal();
 
     if ( $term =~ /^(qt|x11)$/ ) {
-        return { persist => 1, raise => 0 };
+        return { persist => 1, raise => 0, enhanced => 0 };
     }
     else {
         return {};
@@ -182,7 +182,6 @@ sub _plot {
     my ( $plot_options, $curve_options, $data, $plot_function ) = @_;
 
     my $gpwin = $self->gpwin();
-
     $gpwin->$plot_function( $plot_options, %{$curve_options}, @{$data} );
 }
 

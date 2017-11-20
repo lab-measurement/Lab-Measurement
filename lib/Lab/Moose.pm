@@ -1,4 +1,5 @@
 package Lab::Moose;
+
 #ABSTRACT: Convenient loaders and constructors for L<Lab::Moose::Instrument>, L<Lab::Moose::DataFolder> and L<Lab::Moose::DataFile>
 
 use warnings;
@@ -11,7 +12,6 @@ use Module::Load;
 use Exporter 'import';
 use Lab::Moose::Connection;
 use Carp;
-
 
 our @EXPORT = qw/instrument datafolder datafile/;
 
@@ -27,7 +27,7 @@ our @EXPORT = qw/instrument datafolder datafile/;
  
  my $folder = datafolder();
  my $file = datafile(
-     type => 'Gnuplot3D',
+     type => 'Gnuplot',
      folder => $folder,
      filename => 'data.dat',
      columns => ['gate', 'bias', 'current'],
