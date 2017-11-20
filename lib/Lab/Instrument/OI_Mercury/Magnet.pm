@@ -1,13 +1,20 @@
-package Lab::Instrument::OI_Mercury;
-#ABSTRACT: Oxford Instruments Mercury Cryocontrol (level meter and magnet power supply)
+package Lab::Instrument::OI_Mercury::Magnet;
+#ABSTRACT: Oxford Instruments Mercury Cryocontrol magnet power supply
 
 use strict;
 use Lab::Instrument;
+use Lab::Instrument::MagnetSupply;
 
 our @ISA = ('Lab::Instrument::MagnetSupply');
 
-our %fields
-    = ( supported_connections => [ 'IsoBus', 'Socket', 'GPIB', 'VISA' ], );
+our %fields = (  
+      supported_connections => [ 'IsoBus', 'Socket', 'GPIB', 'VISA' ], 
+      device_settings => {
+        use_persistentmode       => 0,
+        can_reverse              => 1,
+        can_use_negative_current => 1,
+      },
+);
 
 sub new {
     my $proto = shift;
@@ -20,20 +27,19 @@ sub new {
 
 =head1 SYNOPSIS
 
-    use Lab::Instrument::OI_Mercury;
+    use Lab::Instrument::OI_Mercury::Magnet;
     
     my $m=new Lab::Instrument::OI_Mercury(
       connection_type=>'Socket', 
       remote_port=>7020, 
       remote_addr=>1.2.3.4,
+      blabla ....
     );
 
 =head1 DESCRIPTION
 
-The Lab::Instrument::OI_Mercury class implements an interface to the Oxford 
-Instruments Mercury cryostat control system. This modular instrument consists
-of a control and communication unit and add-on cards. Typical add-ons are
-cryogenic liquid (He / N2) level sensors or magnet power supply units. 
+The Lab::Instrument::OI_Mercury::Magnet class implements an interface to the Oxford 
+Instruments Mercury magnet power supply units.
 
 The Mercury uses a command language that looks a bit like SCPI but is actually
 incompatible with that specification.
@@ -41,108 +47,6 @@ incompatible with that specification.
 =head1 METHODS
 
 =cut
-
-sub get_he_level {
-    my $self    = shift;
-    my $channel = shift;
-    $channel = "DB5.L1" unless defined($channel);
-
-    my $level = $self->query("READ:DEV:$channel:LVL:SIG:HEL\n");
-
-    # typical response: STAT:DEV:DB5.L1:LVL:SIG:HEL:LEV:56.3938%:RES:47.8665O
-
-    $level =~ s/^.*:LEV://;
-    $level =~ s/%.*$//;
-    return $level;
-}
-
-=head2 get_he_level
-
-   $he=$m->get_he_level('DB5.L1');
-
-Read out the designated liquid helium level meter channel. Result is in percent as calibrated.
-
-=cut
-
-sub get_he_level_resistance {
-    my $self    = shift;
-    my $channel = shift;
-    $channel = "DB5.L1" unless defined($channel);
-
-    my $level = $self->query("READ:DEV:$channel:LVL:SIG:HEL\n");
-
-    # typical response: STAT:DEV:DB5.L1:LVL:SIG:HEL:LEV:56.3938%:RES:47.8665O
-
-    $level =~ s/^.*:RES://;
-    $level =~ s/:.*$//;
-    return $level;
-}
-
-=head2 get_he_level_resistance
-
-   $he=$m->get_he_level_resistance('DB5.L1');
-
-Read out the designated liquid helium level meter channel. Result is the raw sensor resistance.
-
-=cut
-
-sub get_n2_level {
-    my $self    = shift;
-    my $channel = shift;
-    $channel = "DB5.L1" unless defined($channel);
-
-    my $level = $self->query("READ:DEV:$channel:LVL:SIG:NIT\n");
-
-    # typical response: STAT:DEV:DB5.L1:LVL:SIG:NIT:COUN:10125.0000n:FREQ:472867:LEV:52.6014%
-
-    $level =~ s/^.*:LEV://;
-    $level =~ s/%.*$//;
-    return $level;
-}
-
-=head2 get_n2_level
-
-   $he=$m->get_n2_level('DB5.L1');
-
-Read out the designated liquid nitrogen level meter channel. Result is in percent as calibrated.
-
-=cut
-
-sub get_n2_level_frequency {
-    my $self    = shift;
-    my $channel = shift;
-    $channel = "DB5.L1" unless defined($channel);
-
-    my $level = $self->query("READ:DEV:$channel:LVL:SIG:NIT\n");
-
-    # typical response: STAT:DEV:DB5.L1:LVL:SIG:NIT:COUN:10125.0000n:FREQ:472867:LEV:52.6014%
-
-    $level =~ s/^.*:FREQ://;
-    $level =~ s/:.*$//;
-    return $level;
-}
-
-=head2 get_n2_level_frequency
-
-   $he=$m->get_n2_level_frequency('DB5.L1');
-
-Read out the designated liquid nitrogen level meter channel. Result is the raw internal frequency value.
-
-=cut
-
-sub get_n2_level_counter {
-    my $self    = shift;
-    my $channel = shift;
-    $channel = "DB5.L1" unless defined($channel);
-
-    my $level = $self->query("READ:DEV:$channel:LVL:SIG:NIT\n");
-
-    # typical response: STAT:DEV:DB5.L1:LVL:SIG:NIT:COUN:10125.0000n:FREQ:472867:LEV:52.6014%
-
-    $level =~ s/^.*:COUN://;
-    $level =~ s/n:.*$//;
-    return $level;
-}
 
 sub get_temperature {
     my $self    = shift;
@@ -208,8 +112,8 @@ sub oim_get_current {
   # typical response:
   # STAT:DEV:GRPZ:PSU:SIG:CURR:0.0002A
   
-  my $current =~ s/^STAT:DEV:GRPZ:PSU:SIG:CURR://;
-  my $current =~ s/A$//;
+  $current =~ s/^STAT:DEV:GRPZ:PSU:SIG:CURR://;
+  $current =~ s/A$//;
   return $current;
 }
 
@@ -230,7 +134,7 @@ sub oim_get_heater {
   # typical response:
   # STAT:DEV:GRPZ:PSU:SIG:SWHT:OFF
   
-  my $heater =~ s/^STAT:DEV:GRPZ:PSU:SIG:SWHT://;
+  $heater =~ s/^STAT:DEV:GRPZ:PSU:SIG:SWHT://;
   return $heater;
 }
 
@@ -250,7 +154,7 @@ sub oim_set_heater {
   # typical response:
   # STAT:DEV:GRPZ:PSU:SIG:SWHT:OFF
   
-  my $heater =~ s/^STAT:DEV:GRPZ:PSU:SIG:SWHT://;
+  $heater =~ s/^STAT:DEV:GRPZ:PSU:SIG:SWHT://;
   return $heater;
 }
 
@@ -271,7 +175,7 @@ sub oim_force_heater {
   # typical response:
   # STAT:DEV:GRPZ:PSU:SIG:SWHN:OFF
   
-  my $heater =~ s/^STAT:DEV:GRPZ:PSU:SIG:SWHN://;
+  $heater =~ s/^STAT:DEV:GRPZ:PSU:SIG:SWHN://;
   return $heater;
 }
 
@@ -371,8 +275,26 @@ Sets the current set point in Ampere.
 
 =cut
 
+sub oim_get_fieldconstant {
+  my $self = shift;
+  my $result = $self->query("READ:DEV:GRPZ:PSU:ATOB\n");
+  $result =~ s/^STAT:DEV:GRPZ:PSU:ATOB://;
+  return $result;
+}
+
+=head2 oim_get_fieldconstant
+
+Returns the current to field factor (A/T)
+
+=cut
 
 # now follows the magnet interface for Lab::Instrument::MagnetSupply
+
+
+sub _get_fieldconstant {
+    my $self = shift;
+    return(1/($self->oim_get_fieldconstant()));
+}
 
 sub _get_current {
     my $self = shift;
@@ -426,9 +348,9 @@ sub _set_hold {
     my $hold = shift;
     
     if ($hold) {
-       $self->oim_set_activity("HOLD");    # 0 == hold
+       $self->oim_set_activity("RTOS");    # 0 == to set point
     } else {
-       $self->oim_set_activity("RTOS");    # 1 == to set point
+       $self->oim_set_activity("HOLD");    # 1 == hold
     };
 }
 
@@ -436,8 +358,8 @@ sub _get_hold {
     my $self = shift;
     my $action = $self->oim_get_activity();
 
-    if ( $action eq "RTOS" ) { return 1; }
-    if ( $action eq "HOLD" ) { return 0; }
+    if ( $action eq "HOLD" ) { return 1; }
+    if ( $action eq "RTOS" ) { return 0; }
     die "Unknown magnet action $action\n";
 }
 
@@ -446,10 +368,6 @@ sub _set_sweep_target_current {
     my $current = shift;
     $self->oim_set_setpoint($current);
 }
-
-
-
-
 
 
 1;
