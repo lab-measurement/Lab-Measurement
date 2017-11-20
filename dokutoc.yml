@@ -25,7 +25,6 @@ toc:
           - lib/Lab/Moose/DataFile.pm
           - Lab::Moose::DataFile subclasses:
               - lib/Lab/Moose/DataFile/Gnuplot.pm
-              - lib/Lab/Moose/DataFile/Gnuplot/2D.pm
               - lib/Lab/Moose/DataFile/Meta.pm
       - XPRESS:
           - Examples:

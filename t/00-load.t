@@ -69,7 +69,7 @@ my %depencencies = (
     'PDL::Graphics::Gnuplot' => [
         qw{
             Lab/Moose/Plot.pm
-            Lab/Moose/DataFile/Gnuplot
+            Lab/Moose/DataFile/Gnuplot.pm
             }
     ],
 
