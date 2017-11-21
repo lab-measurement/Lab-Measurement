@@ -116,7 +116,7 @@ sub BUILD {
      for my $y (0..100) {
          $datafile->log(x => $x, y => $y, z => rand());
      }
-     $datafile->start_new_block();
+     $datafile->new_block();
      $datafile->refresh_plots(handle => 'uiae');
  }
 
@@ -267,20 +267,20 @@ sub log_block {
     }
 
     if ($add_newline) {
-        $self->start_new_block();
+        $self->new_block();
     }
     $self->_trigger_plots();
 }
 
-=head2 start_new_block
+=head2 new_block
 
- $file->start_new_block()
+ $file->new_block()
 
 print "\n" to the datafile.
 
 =cut
 
-sub start_new_block {
+sub new_block {
     my $self = shift;
     my $fh   = $self->filehandle;
     print {$fh} "\n";
@@ -397,7 +397,7 @@ sub _add_2d_plot {
         terminal         => { isa => 'Str', optional => 1 },
         terminal_options => { isa => 'HashRef', optional => 1 },
         plot_options     => { isa => 'HashRef', default => {} },
-        curve_options    => { isa => 'HashRef', optional => 1 },
+        curve_options    => { isa => 'HashRef', default => {} },
         handle           => { isa => 'Str', optional => 1 },
     );
 
@@ -407,8 +407,16 @@ sub _add_2d_plot {
     my %default_plot_options = (
         xlabel => $x_column,
         ylabel => $y_column,
+        title  => $self->path(),
+        grid   => 1,
     );
     $args{plot_options} = { %default_plot_options, %{ $args{plot_options} } };
+
+    my %default_curve_options = (
+        with => 'points',
+    );
+    $args{curve_options}
+        = { %default_curve_options, %{ $args{curve_options} } };
 
     for my $column ( $x_column, $y_column ) {
         if ( not any { $column eq $_ } @{ $self->columns } ) {
@@ -441,7 +449,7 @@ sub _add_pm3d_plot {
         terminal         => { isa => 'Str', optional => 1 },
         terminal_options => { isa => 'HashRef', optional => 1 },
         plot_options     => { isa => 'HashRef', default => {} },
-        curve_options    => { isa => 'HashRef', optional => 1 },
+        curve_options    => { isa => 'HashRef', default => {} },
         handle           => { isa => 'Str', optional => 1 },
     );
 
@@ -455,11 +463,16 @@ sub _add_pm3d_plot {
         xlabel  => $x_column,
         ylabel  => $y_column,
         title   => $self->path(),
+        grid    => 1,
         clut    => 'sepia',
 
         #        border => '4095 front linetype -1 linewidth 1.000');
     );
+    my %default_curve_options = ();
+
     $args{plot_options} = { %default_plot_options, %{ $args{plot_options} } };
+    $args{curve_options}
+        = { %default_curve_options, %{ $args{curve_options} } };
 
     for my $column ( $x_column, $y_column, $z_column ) {
         if ( not any { $column eq $_ } @{ $self->columns } ) {

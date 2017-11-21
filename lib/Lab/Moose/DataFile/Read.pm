@@ -7,9 +7,9 @@ use warnings;
 use strict;
 use MooseX::Params::Validate 'validated_list';
 use Moose::Util::TypeConstraints 'enum';
-use PDL;
-use PDL::IO::Misc 'rcols';
-use File::Slurper 'read_binary';
+use List::Util 'max';
+use PDL::Lite;
+use PDL::Core 'dog';
 use Fcntl 'SEEK_SET';
 use Carp;
 use Exporter 'import';
@@ -19,7 +19,7 @@ our @EXPORT = qw/read_gnuplot_format/;
 
 # produce 2D PDL for each block. Cat them into a 3d PDL
 sub get_blocks {
-    my ( $fh, $num_cols ) = validated_list(
+    my ( $fh, $num_columns ) = validated_list(
         \@_,
         fh          => { isa => 'FileHandle', optional => 1 },
         num_columns => { isa => 'Int' },
@@ -36,7 +36,10 @@ sub get_blocks {
             # Finish block. Need check for number of rows if we have
             # multiple subsequent blank lines
             if ( @rows > 0 ) {
-                push @blocks, pdl(@rows);
+
+                # Give \@rows, not @rows to get a 2D piddle if we
+                # only have a single row.
+                push @blocks, pdl( \@rows );
                 @rows = ();
             }
             next;
@@ -44,19 +47,31 @@ sub get_blocks {
 
         # awk splitting behaviour
         my @nums = split( ' ', $line );
-        if ( @nums != $num_cols ) {
-            die "num cols not $num_cols";
+        if ( @nums != $num_columns ) {
+            die "num cols not $num_columns";
         }
         push @rows, [@nums];
     }
     if ( @rows > 0 ) {
-        push @blocks, pdl(@rows);
+        push @blocks, pdl( \@rows );
     }
-    return cat(@blocks);
+
+    # bring blocks to same number of rows: reshape and add NaNs.
+    my $max_rows = max( map { ( $_->dims )[1] } @blocks );
+
+    for my $block (@blocks) {
+        my $rows = ( $block->dims() )[1];
+        if ( $rows < $max_rows ) {
+            $block->reshape( $num_columns, $max_rows );
+            $block->slice(":,${rows}:-1") .= "NaN";
+        }
+    }
+
+    return PDL::cat(@blocks);
 }
 
 sub read_gnuplot_format {
-    my ( $type, $fh, $file, $num_cols ) = validated_list(
+    my ( $type, $fh, $file, $num_columns ) = validated_list(
         \@_,
         type => { isa => enum( [qw/columns maps/] ) },
         fh          => { isa => 'FileHandle', optional => 1 },
@@ -77,7 +92,7 @@ sub read_gnuplot_format {
     seek $fh, 0, SEEK_SET
         or croak "cannot seek: $!";
 
-    my $blocks = get_blocks( fh => $fh, num_columns => $num_cols );
+    my $blocks = get_blocks( fh => $fh, num_columns => $num_columns );
 
     # $blocks is 3D PDL with following dims
     # 0st dim: column
@@ -93,7 +108,7 @@ sub read_gnuplot_format {
         $result = $result->xchg( 0, 1 );
 
         # return one pdl for each column
-        return dog($result);
+        return PDL::dog($result);
     }
     elsif ( $type eq 'maps' ) {
 
