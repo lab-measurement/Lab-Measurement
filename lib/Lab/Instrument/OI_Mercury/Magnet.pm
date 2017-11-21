@@ -4,6 +4,7 @@ package Lab::Instrument::OI_Mercury::Magnet;
 use strict;
 use Lab::Instrument;
 use Lab::Instrument::MagnetSupply;
+use Carp;
 
 our @ISA = ('Lab::Instrument::MagnetSupply');
 
@@ -228,8 +229,10 @@ Sets the desired target sweep rate, parameter is in Amperes per minute.
 sub oim_set_activity {
   my $self = shift;
   my $action = shift;
-  my $result = $self->query("SET:DEV:GRPZ:PSU:SIG:ACTN:$action\n");
-  $result =~ s/^STAT:DEV:GRPZ:PSU:SIG:ACTN://;
+
+  my $result = $self->query("SET:DEV:GRPZ:PSU:ACTN:$action\n");
+  $result =~ s/^STAT:SET:DEV:GRPZ:PSU:ACTN://;
+
   return $result;
 }
 
@@ -266,6 +269,7 @@ sub oim_set_setpoint {
   my $result = $self->query("SET:DEV:GRPZ:PSU:SIG:CSET:$targeti\n");
   $result =~ s/^STAT:DEV:GRPZ:PSU:SIG:CSET://;
   $result =~ s/A$//;
+ 
   return $result;
 }
 
@@ -348,9 +352,9 @@ sub _set_hold {
     my $hold = shift;
     
     if ($hold) {
-       $self->oim_set_activity("RTOS");    # 0 == to set point
+       $self->oim_set_activity("HOLD");    # 1 == hold 
     } else {
-       $self->oim_set_activity("HOLD");    # 1 == hold
+       $self->oim_set_activity("RTOS");    # 0 == to set point
     };
 }
 

@@ -148,7 +148,7 @@ change is handled automatically.
 sub set_current {
     my $self          = shift;
     my $targetcurrent = shift;
-
+    
     my $max = $self->get_max_current();
 
     if ( $targetcurrent > $max )  { $targetcurrent = $max; }
