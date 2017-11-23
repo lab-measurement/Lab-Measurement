@@ -104,7 +104,7 @@ file_filter_ok(
 
     # With refresh handle
     $file->add_plot(
-        handle           => 'BC',
+        refresh          => 'BC',
         x                => 'B',
         y                => 'C',
         terminal         => 'dumb',
@@ -129,7 +129,7 @@ file_filter_ok(
     file_not_exists_ok( $BC_plot, "B-C not yet plotted" );
     file_empty_ok( $BC_plot_hardcopy_path, "B-C hardcopy is empty" );
 
-    $file->refresh_plots( handle => 'BC' );
+    $file->refresh_plots( refresh => 'BC' );
 
     # file_filter_ok(
     #     $BC_plot, BC_plot_expected(), $kill_trailing_spaces,

@@ -8,8 +8,7 @@ use strict;
 use MooseX::Params::Validate 'validated_list';
 use Moose::Util::TypeConstraints 'enum';
 use List::Util 'max';
-use PDL::Lite;
-use PDL::Core 'dog';
+use PDL::Core qw/pdl cat dog/;
 use Fcntl 'SEEK_SET';
 use Carp;
 use Exporter 'import';
@@ -108,7 +107,7 @@ sub read_gnuplot_format {
         $result = $result->xchg( 0, 1 );
 
         # return one pdl for each column
-        return PDL::dog($result);
+        return dog($result);
     }
     elsif ( $type eq 'maps' ) {
 

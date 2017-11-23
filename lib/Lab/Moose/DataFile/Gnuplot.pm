@@ -107,7 +107,6 @@ sub BUILD {
      x => 'x',
      y => 'y',
      z => 'z',
-     handle => 'uiae',
      hard_copy => 'data.png',
  );
      
@@ -117,7 +116,6 @@ sub BUILD {
          $datafile->log(x => $x, y => $y, z => rand());
      }
      $datafile->new_block();
-     $datafile->refresh_plots(handle => 'uiae');
  }
 
 
@@ -152,10 +150,10 @@ Log one line of data.
 sub log {
     my $self = shift;
     $self->_log_bare(@_);
-    $self->_trigger_plots();
+    $self->refresh_plots( refresh => 'point' );
 }
 
-# Bare logging. Do not trigger plots.
+# Log of one row of data. Do not trigger plots.
 sub _log_bare {
 
     # We do not use MooseX::Params::Validate for performance reasons.
@@ -269,7 +267,6 @@ sub log_block {
     if ($add_newline) {
         $self->new_block();
     }
-    $self->_trigger_plots();
 }
 
 =head2 new_block
@@ -285,6 +282,7 @@ sub new_block {
     my $fh   = $self->filehandle;
     print {$fh} "\n";
     $self->_num_blocks( $self->num_blocks + 1 );
+    $self->refresh_plots( refresh => 'block' );
 }
 
 =head2 log_comment
@@ -306,17 +304,6 @@ sub log_comment {
     my $fh = $self->filehandle();
     for my $line (@lines) {
         print {$fh} "# $line\n";
-    }
-}
-
-# Refresh plots after log/log_block
-sub _trigger_plots {
-    my $self = shift;
-
-    my @plots = @{ $self->plots() };
-    my @indices = grep { not defined $plots[$_]->{handle} } ( 0 .. $#plots );
-    for my $index (@indices) {
-        $self->_refresh_plot( index => $index );
     }
 }
 
@@ -371,10 +358,25 @@ list). Those are appended to the default plot options.
 HashRef of curve options (See L<PDL::Graphics::Gnuplot> for the complete
 list).
 
-=item * handle
+=item * refresh
 
 Set this to a string, if you need to refresh the plot manually with the
-C<refresh_plots> option. Multiple plots can share the same handle string.
+C<refresh_plots> option. Multiple plots can share the same refresh handle
+string. 
+
+Predefined refresh types:
+
+=over
+
+=item * 'point'
+
+Default for 2D plots. Replot for each new row.
+
+=item * 'block'
+
+Default for 3D plots. Replot when finishing a block.
+
+=back
 
 =item * hard_copy        
 
@@ -398,7 +400,7 @@ sub _add_2d_plot {
         terminal_options => { isa => 'HashRef', optional => 1 },
         plot_options     => { isa => 'HashRef', default => {} },
         curve_options    => { isa => 'HashRef', default => {} },
-        handle           => { isa => 'Str', optional => 1 },
+        refresh          => { isa => 'Str', default => 'point' },
     );
 
     my $x_column = delete $args{x};
@@ -430,13 +432,13 @@ sub _add_2d_plot {
 
     my $plot = Lab::Moose::Plot->new(%args);
 
-    my $plots  = $self->plots();
-    my $handle = $args{handle};
+    my $plots   = $self->plots();
+    my $refresh = $args{refresh};
     push @{$plots}, {
-        plot   => $plot,
-        x      => $x_column,
-        y      => $y_column,
-        handle => $handle
+        plot    => $plot,
+        x       => $x_column,
+        y       => $y_column,
+        refresh => $refresh
     };
 }
 
@@ -450,7 +452,7 @@ sub _add_pm3d_plot {
         terminal_options => { isa => 'HashRef', optional => 1 },
         plot_options     => { isa => 'HashRef', default => {} },
         curve_options    => { isa => 'HashRef', default => {} },
-        handle           => { isa => 'Str', optional => 1 },
+        refresh          => { isa => 'Str', default => 'block' },
     );
 
     my $x_column = delete $args{x};
@@ -486,15 +488,15 @@ sub _add_pm3d_plot {
         croak "columns $x_column, $y_column, $z_column must not be equal";
     }
 
-    my $plot   = Lab::Moose::Plot->new(%args);
-    my $handle = $args{handle};
-    my $plots  = $self->plots();
+    my $plot    = Lab::Moose::Plot->new(%args);
+    my $refresh = $args{refresh};
+    my $plots   = $self->plots();
     push @{$plots}, {
-        plot   => $plot,
-        x      => $x_column,
-        y      => $y_column,
-        z      => $z_column,
-        handle => $handle,
+        plot    => $plot,
+        x       => $x_column,
+        y       => $y_column,
+        z       => $z_column,
+        refresh => $refresh,
     };
 }
 
@@ -601,7 +603,8 @@ sub _refresh_plot {
 
 =head2 refresh_plots
 
- $file->refresh_plots(handle => $handle);
+ $file->refresh_plots(refresh => $refresh_type);
+ # or
  $file->refresh_plots();
 
 Call C<refresh_plot> for each plot with hanle C<$handle>.
@@ -612,25 +615,21 @@ If the C<handle> argument is not given, refresh all plots.
 
 sub refresh_plots {
     my $self = shift;
-    my ($handle) = validated_list(
+    my ($refresh) = validated_list(
         \@_,
-        handle => { isa => 'Str', optional => 1 },
+        refresh => { isa => 'Str', optional => 1 },
     );
 
     my @plots = @{ $self->plots() };
 
     my @indices;
 
-    if ( defined $handle ) {
+    if ( defined $refresh ) {
         for my $index ( 0 .. $#plots ) {
             my $plot = $plots[$index];
-            if ( defined $plot->{handle} and $plot->{handle} eq $handle ) {
+            if ( defined $plot->{refresh} and $plot->{refresh} eq $refresh ) {
                 push @indices, $index;
             }
-        }
-
-        if ( !@indices ) {
-            croak "no plot with handle $handle";
         }
     }
 
