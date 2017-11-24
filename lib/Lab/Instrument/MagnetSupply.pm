@@ -1,4 +1,5 @@
 package Lab::Instrument::MagnetSupply;
+
 #ABSTRACT: Base class for superconducting magnet power supply instruments
 
 use Lab::Measurement::KeyboardHandling qw(labkey_soft_check);
@@ -125,7 +126,6 @@ Converts the argument in Tesla to Amperes.
 
 =cut
 
-
 sub set_field {
     my $self    = shift;
     my $field   = shift;
@@ -144,11 +144,10 @@ change is handled automatically.
 
 =cut
 
-
 sub set_current {
     my $self          = shift;
     my $targetcurrent = shift;
-    
+
     my $max = $self->get_max_current();
 
     if ( $targetcurrent > $max )  { $targetcurrent = $max; }
@@ -200,8 +199,6 @@ and stops there. Positive and negative values can be supplied; the polarity
 change is handled automatically.
 
 =cut
-
-
 
 sub start_sweep_to_field {
     my $self  = shift;

@@ -6,7 +6,7 @@ use 5.010;
 use lib 't';
 use Test::More;
 use Test::File;
-use Lab::Test import => [qw/file_filter_ok/];
+use Lab::Test import => [qw/is_relative_error/];
 use File::Spec::Functions qw/catfile/;
 use Lab::Moose;
 use Module::Load 'autoload';
@@ -58,15 +58,7 @@ $plot->plot(
     data => [ $x, $y ],
 );
 
-# The dumb terminal produces some trailing whitespace on windows.
-my $kill_trailing_spaces = qr/[ \r]*$/m;
-
-file_filter_ok(
-    $file, squared_plot_expected(), $kill_trailing_spaces,
-    'plot x**2 vs x'
-);
-
-# DataFile::Gnuplot2D
+# DataFile::Gnuplot
 
 {
 
@@ -104,7 +96,7 @@ file_filter_ok(
 
     # With refresh handle
     $file->add_plot(
-        handle           => 'BC',
+        refresh          => 'BC',
         x                => 'B',
         y                => 'C',
         terminal         => 'dumb',
@@ -117,10 +109,6 @@ file_filter_ok(
         $file->log( A => $i, B => 2 * $i, C => 3 * $i );
     }
 
-    # file_filter_ok(
-    #     $AB_plot, AB_plot_expected(), $kill_trailing_spaces,
-    #     "plotting A vs B"
-    # );
     file_not_empty_ok(
         catfile( $folder->path(), 'AB_plot.png' ),
         'A-B plot hardcopy is not empty'
@@ -129,44 +117,44 @@ file_filter_ok(
     file_not_exists_ok( $BC_plot, "B-C not yet plotted" );
     file_empty_ok( $BC_plot_hardcopy_path, "B-C hardcopy is empty" );
 
-    $file->refresh_plots( handle => 'BC' );
+    $file->refresh_plots( refresh => 'BC' );
 
-    # file_filter_ok(
-    #     $BC_plot, BC_plot_expected(), $kill_trailing_spaces,
-    #     "plotting B vs C"
-    # );
     file_not_empty_ok( $BC_plot_hardcopy_path, "B-C hardcopy is not empty" );
 
 }
 
 done_testing();
 
+#
+# Expected plots. Currently not used.
+#
+
 sub squared_plot_expected {
     return <<"EOF";
-\f
-
-  90 +-+-----+-------+------+-------+-------+-------+------+-------+-----+-+
-     +       +       +      +       +       +       +      +       +       +
-  80 +-+                                                                 +-A
-     |                                                                     |
-  70 +-+                                                                 +-+
-     |                                                             A       |
-  60 +-+                                                                 +-+
-     |                                                                     |
-  50 +-+                                                                 +-+
-     |                                                     A               |
-     |                                                                     |
-  40 +-+                                            A                    +-+
-     |                                                                     |
-  30 +-+                                                                 +-+
-     |                                      A                              |
-  20 +-+                                                                 +-+
-     |                              A                                      |
-  10 +-+                    A                                            +-+
-     +       +       A      +       +       +       +      +       +       +
-   0 A-+-----A-------+------+-------+-------+-------+------+-------+-----+-+
-     0       1       2      3       4       5       6      7       8       9
-
+                                                                               
+                                                                               
+  90 +-+-----+-------+------+-------+-------+-------+------+-------+-----+-+   
+     +       +       +      +       +       +       +      +       +       +   
+  80 +-+                                                                 +-A   
+     |                                                                     |   
+  70 +-+                                                                 +-+   
+     |                                                             A       |   
+  60 +-+                                                                 +-+   
+     |                                                                     |   
+  50 +-+                                                                 +-+   
+     |                                                     A               |   
+     |                                                                     |   
+  40 +-+                                            A                    +-+   
+     |                                                                     |   
+  30 +-+                                                                 +-+   
+     |                                      A                              |   
+  20 +-+                                                                 +-+   
+     |                              A                                      |   
+  10 +-+                    A                                            +-+   
+     +       +       A      +       +       +       +      +       +       +   
+   0 A-+-----A-------+------+-------+-------+-------+------+-------+-----+-+   
+     0       1       2      3       4       5       6      7       8       9   
+                                                                               
 EOF
 }
 

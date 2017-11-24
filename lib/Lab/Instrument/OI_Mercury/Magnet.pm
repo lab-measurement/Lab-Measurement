@@ -1,20 +1,20 @@
 package Lab::Instrument::OI_Mercury::Magnet;
+
 #ABSTRACT: Oxford Instruments Mercury Cryocontrol magnet power supply
 
 use strict;
 use Lab::Instrument;
 use Lab::Instrument::MagnetSupply;
-use Carp;
 
 our @ISA = ('Lab::Instrument::MagnetSupply');
 
-our %fields = (  
-      supported_connections => [ 'IsoBus', 'Socket', 'GPIB', 'VISA' ], 
-      device_settings => {
+our %fields = (
+    supported_connections => [ 'IsoBus', 'Socket', 'GPIB', 'VISA' ],
+    device_settings       => {
         use_persistentmode       => 0,
         can_reverse              => 1,
         can_use_negative_current => 1,
-      },
+    },
 );
 
 sub new {
@@ -107,15 +107,16 @@ it can be used in other commands such as get_level to address it.
 #
 
 sub oim_get_current {
-  my $self = shift; 
-  
-  my $current = $self->query("READ:DEV:GRPZ:PSU:SIG:CURR\n");
-  # typical response:
-  # STAT:DEV:GRPZ:PSU:SIG:CURR:0.0002A
-  
-  $current =~ s/^STAT:DEV:GRPZ:PSU:SIG:CURR://;
-  $current =~ s/A$//;
-  return $current;
+    my $self = shift;
+
+    my $current = $self->query("READ:DEV:GRPZ:PSU:SIG:CURR\n");
+
+    # typical response:
+    # STAT:DEV:GRPZ:PSU:SIG:CURR:0.0002A
+
+    $current =~ s/^STAT:DEV:GRPZ:PSU:SIG:CURR://;
+    $current =~ s/A$//;
+    return $current;
 }
 
 =head2 oim_get_current
@@ -129,14 +130,15 @@ TODO: what happens if we're in persistent mode?
 =cut
 
 sub oim_get_heater {
-  my $self = shift; 
-  
-  my $heater = $self->query("READ:DEV:GRPZ:PSU:SIG:SWHT\n");
-  # typical response:
-  # STAT:DEV:GRPZ:PSU:SIG:SWHT:OFF
-  
-  $heater =~ s/^STAT:DEV:GRPZ:PSU:SIG:SWHT://;
-  return $heater;
+    my $self = shift;
+
+    my $heater = $self->query("READ:DEV:GRPZ:PSU:SIG:SWHT\n");
+
+    # typical response:
+    # STAT:DEV:GRPZ:PSU:SIG:SWHT:OFF
+
+    $heater =~ s/^STAT:DEV:GRPZ:PSU:SIG:SWHT://;
+    return $heater;
 }
 
 =head2 oim_get_heater
@@ -148,15 +150,16 @@ Returns the persistent mode switch heater status as "ON" or "OFF".
 =cut
 
 sub oim_set_heater {
-  my $self = shift; 
-  my $onoff= shift;
-  
-  my $heater = $self->query("SET:DEV:GRPZ:PSU:SIG:SWHT:$onoff\n");
-  # typical response:
-  # STAT:DEV:GRPZ:PSU:SIG:SWHT:OFF
-  
-  $heater =~ s/^STAT:DEV:GRPZ:PSU:SIG:SWHT://;
-  return $heater;
+    my $self  = shift;
+    my $onoff = shift;
+
+    my $heater = $self->query("SET:DEV:GRPZ:PSU:SIG:SWHT:$onoff\n");
+
+    # typical response:
+    # STAT:DEV:GRPZ:PSU:SIG:SWHT:OFF
+
+    $heater =~ s/^STAT:DEV:GRPZ:PSU:SIG:SWHT://;
+    return $heater;
 }
 
 =head2 oim_set_heater
@@ -167,17 +170,17 @@ are different.
 
 =cut
 
-
 sub oim_force_heater {
-  my $self = shift; 
-  my $onoff= shift;
-  
-  my $heater = $self->query("SET:DEV:GRPZ:PSU:SIG:SWHN:$onoff\n");
-  # typical response:
-  # STAT:DEV:GRPZ:PSU:SIG:SWHN:OFF
-  
-  $heater =~ s/^STAT:DEV:GRPZ:PSU:SIG:SWHN://;
-  return $heater;
+    my $self  = shift;
+    my $onoff = shift;
+
+    my $heater = $self->query("SET:DEV:GRPZ:PSU:SIG:SWHN:$onoff\n");
+
+    # typical response:
+    # STAT:DEV:GRPZ:PSU:SIG:SWHN:OFF
+
+    $heater =~ s/^STAT:DEV:GRPZ:PSU:SIG:SWHN://;
+    return $heater;
 }
 
 =head2 oim_force_heater
@@ -188,15 +191,15 @@ Dangerous. Works also if magnet and lead current are differing.
 
 =cut
 
-
 sub oim_get_sweeprate {
-  my $self = shift; 
+    my $self = shift;
 
-  my $sweeprate=$self->query("READ:DEV:GRPZ:PSU:SIG:RCST\n");
-  # this returns amps per minute
-  $sweeprate =~ s/^STAT:DEV:GRPZ:PSU:SIG:RCST://;
-  $sweeprate =~ s/A\/m$//;
-  return $sweeprate;
+    my $sweeprate = $self->query("READ:DEV:GRPZ:PSU:SIG:RCST\n");
+
+    # this returns amps per minute
+    $sweeprate =~ s/^STAT:DEV:GRPZ:PSU:SIG:RCST://;
+    $sweeprate =~ s/A\/m$//;
+    return $sweeprate;
 }
 
 =head2 oim_get_sweeprate
@@ -207,16 +210,16 @@ in Ampere per minute.
 
 =cut
 
-
 sub oim_set_sweeprate {
-  my $self = shift; 
-  my $sweeprate = shift;
+    my $self      = shift;
+    my $sweeprate = shift;
 
-  my $result=$self->query("SET:DEV:GRPZ:PSU:SIG:RCST:$sweeprate\n");
-  # this returns amps per minute
-  $result =~ s/^STAT:DEV:GRPZ:PSU:SIG:RCST://;
-  $result =~ s/A\/m$//;
-  return $result;
+    my $result = $self->query("SET:DEV:GRPZ:PSU:SIG:RCST:$sweeprate\n");
+
+    # this returns amps per minute
+    $result =~ s/^STAT:DEV:GRPZ:PSU:SIG:RCST://;
+    $result =~ s/A\/m$//;
+    return $result;
 }
 
 =head2 oim_set_sweeprate
@@ -225,15 +228,12 @@ Sets the desired target sweep rate, parameter is in Amperes per minute.
 
 =cut
 
-
 sub oim_set_activity {
-  my $self = shift;
-  my $action = shift;
-
-  my $result = $self->query("SET:DEV:GRPZ:PSU:ACTN:$action\n");
-  $result =~ s/^STAT:SET:DEV:GRPZ:PSU:ACTN://;
-
-  return $result;
+    my $self   = shift;
+    my $action = shift;
+    my $result = $self->query("SET:DEV:GRPZ:PSU:SIG:ACTN:$action\n");
+    $result =~ s/^STAT:DEV:GRPZ:PSU:SIG:ACTN://;
+    return $result;
 }
 
 =head2 oim_set_activity
@@ -247,12 +247,11 @@ Sets the current activity of the power supply. Values are:
 
 =cut
 
-
 sub oim_get_activity {
-  my $self = shift;
-  my $action = $self->query("GET:DEV:GRPZ:PSU:SIG:ACTN\n");
-  $action  =~ s/^STAT:DEV:GRPZ:PSU:SIG:ACTN://;
-  return $action;
+    my $self   = shift;
+    my $action = $self->query("GET:DEV:GRPZ:PSU:SIG:ACTN\n");
+    $action =~ s/^STAT:DEV:GRPZ:PSU:SIG:ACTN://;
+    return $action;
 }
 
 =head2 oim_get_activity
@@ -261,16 +260,14 @@ Retrieves the current power supply activity. See oim_set_activity for values.
 
 =cut
 
-
 sub oim_set_setpoint {
-  my $self = shift;
-  my $targeti = shift;
-  
-  my $result = $self->query("SET:DEV:GRPZ:PSU:SIG:CSET:$targeti\n");
-  $result =~ s/^STAT:DEV:GRPZ:PSU:SIG:CSET://;
-  $result =~ s/A$//;
- 
-  return $result;
+    my $self    = shift;
+    my $targeti = shift;
+
+    my $result = $self->query("SET:DEV:GRPZ:PSU:SIG:CSET:$targeti\n");
+    $result =~ s/^STAT:DEV:GRPZ:PSU:SIG:CSET://;
+    $result =~ s/A$//;
+    return $result;
 }
 
 =head2 oim_set_setpoint
@@ -280,10 +277,10 @@ Sets the current set point in Ampere.
 =cut
 
 sub oim_get_fieldconstant {
-  my $self = shift;
-  my $result = $self->query("READ:DEV:GRPZ:PSU:ATOB\n");
-  $result =~ s/^STAT:DEV:GRPZ:PSU:ATOB://;
-  return $result;
+    my $self   = shift;
+    my $result = $self->query("READ:DEV:GRPZ:PSU:ATOB\n");
+    $result =~ s/^STAT:DEV:GRPZ:PSU:ATOB://;
+    return $result;
 }
 
 =head2 oim_get_fieldconstant
@@ -294,44 +291,46 @@ Returns the current to field factor (A/T)
 
 # now follows the magnet interface for Lab::Instrument::MagnetSupply
 
-
 sub _get_fieldconstant {
     my $self = shift;
-    return(1/($self->oim_get_fieldconstant()));
+    return ( 1 / ( $self->oim_get_fieldconstant() ) );
 }
 
 sub _get_current {
     my $self = shift;
-    return($self->oim_get_current());
+    return ( $self->oim_get_current() );
 }
 
 sub _get_heater {
-    my $self = shift;
+    my $self   = shift;
     my $heater = $self->oim_get_heater();
-    
-    if ( $heater eq "OFF" ) { return 0; };
-    if ( $heater eq "ON" ) { return 1; };
+
+    if ( $heater eq "OFF" ) { return 0; }
+    if ( $heater eq "ON" )  { return 1; }
     die "Unknown heater status \'$heater\'\n";
 }
 
 sub _set_heater {
     my $self = shift;
     my $mode = shift;
-    
+
     if ( $mode == 0 ) {
-      my $result=$self->oim_set_heater("OFF");
-      if ( $result eq "OFF" ) { return 0; } else { die "Heater set off error"; };
-    };
+        my $result = $self->oim_set_heater("OFF");
+        if   ( $result eq "OFF" ) { return 0; }
+        else                      { die "Heater set off error"; }
+    }
     if ( $mode == 1 ) {
-      my $result=$self->oim_set_heater("ON");
-      if ( $result eq "ON" ) { return 1; } else { die "Heater set on error"; };
-    };
+        my $result = $self->oim_set_heater("ON");
+        if   ( $result eq "ON" ) { return 1; }
+        else                     { die "Heater set on error"; }
+    }
     if ( $mode == 99 ) {
-      my $result=$self->oim_force_heater("ON");
-      if ( $result eq "ON" ) { return 1; } else { die "Heater force on error"; };
-    };
+        my $result = $self->oim_force_heater("ON");
+        if   ( $result eq "ON" ) { return 1; }
+        else                     { die "Heater force on error"; }
+    }
     die "Unknown heater mode $mode";
-}    
+}
 
 sub _get_sweeprate {
     my $self = shift;
@@ -350,16 +349,17 @@ sub _set_sweeprate {
 sub _set_hold {
     my $self = shift;
     my $hold = shift;
-    
+
     if ($hold) {
-       $self->oim_set_activity("HOLD");    # 1 == hold 
-    } else {
-       $self->oim_set_activity("RTOS");    # 0 == to set point
-    };
+        $self->oim_set_activity("RTOS");    # 0 == to set point
+    }
+    else {
+        $self->oim_set_activity("HOLD");    # 1 == hold
+    }
 }
 
 sub _get_hold {
-    my $self = shift;
+    my $self   = shift;
     my $action = $self->oim_get_activity();
 
     if ( $action eq "HOLD" ) { return 1; }
@@ -372,7 +372,6 @@ sub _set_sweep_target_current {
     my $current = shift;
     $self->oim_set_setpoint($current);
 }
-
 
 1;
 

@@ -214,7 +214,6 @@ for my $func (qw/plot splot replot/) {
             my $self = shift;
             my ( $plot_options, $curve_options, $data )
                 = $self->_parse_options(@_);
-
             $self->_plot( $plot_options, $curve_options, $data, $func );
         }
     );

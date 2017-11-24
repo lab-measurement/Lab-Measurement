@@ -390,7 +390,7 @@ sub is_pdl {
 
     $tb->ok( all( $got == $expect ), $name )
         || $tb->diag(
-        "pdls are not equal:\n" . "got: $got\n" . "exteced: $expect" );
+        "pdls are not equal:\n" . "got: $got\n" . "expected: $expect" );
 }
 
 =head2 set_get_test
