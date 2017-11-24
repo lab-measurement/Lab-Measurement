@@ -50,10 +50,12 @@ sub linspace {
 sub linear_step_sweep {
     my ( $self, %args ) = validated_hash(
         \@_,
-        to => { isa => 'Num' },
+        to      => { isa => 'Num' },
+        verbose => { isa => 'Bool', default => 1 },
         setter_params(),
     );
     my $to             = delete $args{to};
+    my $verbose        = delete $args{verbose};
     my $from           = $self->cached_source_level();
     my $last_timestamp = $self->source_level_timestamp();
 
@@ -103,13 +105,17 @@ sub linear_step_sweep {
         usleep( 1e6 * $time_per_step );
 
         #  YokogawaGS200 has 5 + 1/2 digits precision
-        printf(
-            "Sweeping to %.5g: Setting level to %.5e          \r", $to,
-            $step
-        );
+        if ($verbose) {
+            printf(
+                "Sweeping to %.5g: Setting level to %.5e          \r", $to,
+                $step
+            );
+        }
         $self->source_level( value => $step, %args );
     }
-    print " " x 70 . "\r";
+    if ($verbose) {
+        print " " x 70 . "\r";
+    }
     STDOUT->autoflush($autoflush);
     $self->source_level_timestamp( time() );
 }

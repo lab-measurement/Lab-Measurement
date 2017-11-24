@@ -23,6 +23,12 @@ has source_level_timestamp => (
     init_arg => undef,
 );
 
+has verbose => (
+    is      => 'ro',
+    isa     => 'Bool',
+    default => 1
+);
+
 sub BUILD {
     my $self = shift;
     $self->clear();
@@ -108,7 +114,10 @@ sub set_level {
         value => { isa => 'Num' },
     );
 
-    return $self->linear_step_sweep( to => $value, %args );
+    return $self->linear_step_sweep(
+        to => $value, verbose => $self->verbose,
+        %args
+    );
 }
 
 #
