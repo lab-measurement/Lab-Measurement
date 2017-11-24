@@ -1,5 +1,6 @@
 package Lab::Moose::Instrument::Log;
-#ABSTRACT: ???? something about logging?
+
+#ABSTRACT: Role for Lab::Moose::Instrument connection logging.
 
 use Moose::Role;
 use Carp;
@@ -27,6 +28,28 @@ has log_id => (
     writer  => '_log_id',
     default => 0,
 );
+
+=head1 SYNOPSIS
+
+ use Lab::Moose 'instrument';
+ my $instr = instrument(
+     type => '...',
+     connection_options => {...},
+     instrument_options => {
+         # write into newly created logfile:
+         log_file => '/tmp/instr.log',
+         # alternative: write into filehandle:
+         log_fh => $filehandle,
+     },
+ );
+
+
+=head1 DESCRIPTION
+
+Log all of the instrument's C<read, write, query, clear> function calls into a
+logfile or an existing filehandle.
+
+=cut
 
 my @wrapped_methods = qw/binary_read write binary_query clear/;
 requires(@wrapped_methods);

@@ -1,6 +1,6 @@
 package Lab::Moose::Instrument::DummySource;
 
-#ABSTRACT: Dummy YokogawaGS200 source. Use with Debug connection
+#ABSTRACT: Dummy YokogawaGS200 source for use with 'Debug' connection
 
 use 5.010;
 
@@ -12,18 +12,8 @@ use Carp;
 use Lab::Moose::Instrument::Cache;
 
 use namespace::autoclean;
-use Time::Monotonic 'monotonic_time';
-use Time::HiRes 'usleep';
 
 extends 'Lab::Moose::Instrument';
-
-with qw(
-    Lab::Moose::Instrument::Common
-
-    Lab::Moose::Instrument::SCPI::Source::Function
-    Lab::Moose::Instrument::SCPI::Source::Level
-    Lab::Moose::Instrument::SCPI::Source::Range
-);
 
 has [
     qw/
@@ -35,10 +25,17 @@ has [
 ] => ( is => 'ro', isa => 'Num', required => 1 );
 
 has source_level_timestamp => (
-    is       => 'ro',
+    is       => 'rw',
     isa      => 'Num',
-    writer   => '_source_level_timestamp',
     init_arg => undef,
+);
+
+with qw(
+    Lab::Moose::Instrument::Common
+    Lab::Moose::Instrument::LinearStepSweep
+    Lab::Moose::Instrument::SCPI::Source::Function
+    Lab::Moose::Instrument::SCPI::Source::Level
+    Lab::Moose::Instrument::SCPI::Source::Range
 );
 
 sub BUILD {
@@ -54,75 +51,30 @@ sub BUILD {
 
 =head1 SYNOPSIS
 
+ use Lab::Moose;
 
-=head1 METHODS
+ my $source = instrument(
+     type => 'DummySource',
+     connection_type => 'Debug',
+     connection_options => {verbose => 0},
+     instrument_options => {
+         # mandatory protection settings
+         max_units_per_step => 0.001, # max step is 1mV/1mA
+         max_units_per_second => 0.01,
+         min_units => -10,
+         max_units => 10,
+     }
+ );
 
-    
+ # Step-sweep to new level.
+ # Stepsize and speed is given by (max|min)_units* settings.
+ $source->set_level(value => 9);
+
+ # Get current level from device cache (without sending a query to the
+ # instrument):
+ my $level = $source->cached_level();
+
 =cut
-
-# FIXME: move into role
-sub linspace {
-    my ( $from, $to, $step ) = validated_list(
-        \@_,
-        from => { isa => 'Num' },
-        to   => { isa => 'Num' },
-        step => { isa => 'Num' },
-    );
-
-    $step = abs($step);
-    my $sign = $to > $from ? 1 : -1;
-
-    my @steps;
-    for ( my $i = 1;; ++$i ) {
-        my $point = $from + $i * $sign * $step;
-        if ( ( $point - $to ) * $sign >= 0 ) {
-            last;
-        }
-        push @steps, $point;
-    }
-    return ( @steps, $to );
-}
-
-sub linear_step_sweep {
-    my ( $self, %args ) = validated_hash(
-        \@_,
-        to     => { isa => 'Num' },
-        setter => { isa => 'Str|CodeRef' },
-        setter_params(),
-    );
-    my $to             = delete $args{to};
-    my $setter         = delete $args{setter};
-    my $from           = $self->cached_source_level();
-    my $last_timestamp = $self->source_level_timestamp();
-    if ( not defined $last_timestamp ) {
-        $last_timestamp = monotonic_time();
-    }
-
-    my $step = abs( $self->max_units_per_step() );
-    my $rate = abs( $self->max_units_per_second() );
-
-    my @steps         = linspace( from => $from, to => $to, step => $step );
-    my $time_per_step = $step / $rate;
-    my $time          = monotonic_time();
-
-    if ( $time < $last_timestamp ) {
-
-        # should never happen
-        croak "time error";
-    }
-
-    # When was the last time this function was called?
-    if ( $time - $last_timestamp < $time_per_step ) {
-        usleep( 1e6 * ( $time_per_step - ( $time - $last_timestamp ) ) );
-    }
-    $self->$setter( value => shift @steps );
-
-    for my $step (@steps) {
-        usleep( 1e6 * $time_per_step );
-        $self->$setter( value => $step );
-    }
-    $self->_source_level_timestamp( monotonic_time() );
-}
 
 sub set_level {
     my ( $self, $value, %args ) = validated_setter(
@@ -130,20 +82,7 @@ sub set_level {
         value => { isa => 'Num' },
     );
 
-    my $min = $self->min_units();
-    my $max = $self->max_units();
-
-    if ( $value < $min ) {
-        croak "value $value is below minimum allowed value $min";
-    }
-    elsif ( $value > $max ) {
-        croak "value $value is above maximum allowed value $max";
-    }
-
-    return $self->linear_step_sweep(
-        to => $value, setter => 'source_level',
-        %args
-    );
+    return $self->linear_step_sweep( to => $value, %args );
 }
 
 #

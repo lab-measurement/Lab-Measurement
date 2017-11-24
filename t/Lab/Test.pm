@@ -442,7 +442,6 @@ sub set_get_test_sub {
         if ( defined $cache ) {
             $test_func->( $instr->$cache(), $value, "$cache returns $value" );
         }
-
         $test_func->( $instr->$getter(), $value, "$getter returns $value" );
     }
 }

@@ -49,10 +49,11 @@ EOF
 }
 
 sub mock_instrument {
-    my ( $type, $logfile ) = validated_list(
+    my ( $type, $logfile, $instrument_options ) = validated_list(
         \@_,
         type     => { isa => 'Str' },
-        log_file => { isa => 'Str' }
+        log_file => { isa => 'Str' },
+	instrument_options => { isa => 'HashRef', default => {}},
     );
 
     if ( not defined $connection_module ) {
@@ -67,12 +68,12 @@ sub mock_instrument {
     if ( ref $hash ne 'HASH' ) {
         croak "argument of --connection-options not a hash";
     }
-
+    say "connection_options: ", Dump($hash);
     return instrument(
         type               => $type,
         connection_type    => $connection_module,
         connection_options => $hash,
-        instrument_options => { log_file => $logfile }
+        instrument_options => { log_file => $logfile , %{$instrument_options}}
     );
 }
 
