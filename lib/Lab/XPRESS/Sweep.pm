@@ -484,19 +484,16 @@ sub start {
     }
 
     if ( not defined @{ $self->{slaves} }[0] ) {
-        warn "checking filename extension";
         if ( $self->{DataFile_counter} <= 0 ) {
             print new Lab::Exception::Warning( error => "Attention: "
                     . ref($self)
                     . " has no DataFile ! \n" );
         }
-        warn "filename extensions: ", @{ $self->{filename_extensions} };
         if ( defined @{ $self->{filename_extensions} }[0] ) {
             foreach my $DataFile ( @{ $self->{DataFiles} } ) {
                 my $filenamebase = $DataFile->{filenamebase};
                 my $new_filenamebase
                     = $self->add_filename_extensions($filenamebase);
-                warn "setting new filenamebase: $new_filenamebase";
                 if ( $new_filenamebase ne $DataFile->{file} ) {
                     $DataFile->change_filenamebase($new_filenamebase);
                 }
