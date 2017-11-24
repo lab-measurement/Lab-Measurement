@@ -2,19 +2,16 @@
 use 5.020;
 use warnings;
 use strict;
-use Math::Trig;
 
 # make time() return floating seconds (Unix time)
 use Time::HiRes 'time';
-
-use lib '/home/simon/measurement/lib';
 
 use Lab::Moose;
 
 my $zva = instrument(
     type               => 'RS_ZVA',
-    connection_type    => 'LinuxGPIB',
-    connection_options => { pad => 20 },
+    connection_type    => 'VXI11',
+    connection_options => { host => '192.168.3.27' },
 );
 
 say "set up zva";
@@ -45,38 +42,28 @@ my $datafile = datafile(
     filename => 'data.dat',
     columns  => [
         'time',
-        's21_re', 's21_im', 'phi_vna'
+        'freq', 's21_re', 's21_im', 'amplitude', 'phase'
     ]
 );
 
-# VNA plot
+# VNA plot for complex phase
 $datafile->add_plot(
-    x            => 'time',
-    y            => 'phi_vna',
-    plot_options => {
-        title => 'phi-t VNA', xlabel => 'time (s)', ylabel => 'phi (rad)',
-        grid  => 1
-    },
-    curve_options => { with => 'points' },
-    hard_copy     => 'phi_vna.png',
+    x         => 'time',
+    y         => 'phase',
+    hard_copy => 'phi_vna.png',
 );
 
 while (1) {
     my $pdl = $zva->sparam_sweep(
         timeout => 10,
     );
-    my ( $freq, $s21_re, $s21_im )
-        = ( $pdl->at( 0, 0 ), $pdl->at( 0, 1 ), $pdl->at( 0, 2 ) );
-
-    my $phi = atan( $s21_im / $s21_re );
 
     my $time = time();
     say $time;
 
-    $datafile->log(
-        time      => $time,
-        's21_re'  => $s21_re, 's21_im' => $s21_im,
-        'phi_vna' => $phi,
+    $datafile->log_block(
+        prefix => { time => $time },
+        data   => $pdl
     );
 }
 

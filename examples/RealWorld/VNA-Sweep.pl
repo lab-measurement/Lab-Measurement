@@ -4,23 +4,18 @@ use warnings;
 use strict;
 
 use Lab::Moose;
-use PDL::Lite;
-use PDL::Ops 'log10';
 
 my $output_folder_name = 'VNA_Sweep';
 my $vna_type           = 'RS_ZVA';
-my $connection_type    = 'LinuxGPIB';
-my $gpib_address       = 20;
-my $timeout            = 30;            # Seconds
+my $connection_type    = 'VXI11';
+my $host               = '192.168.3.27';
+my $timeout            = 30;               # Seconds
 
 # Create VNA instrument
 my $vna = instrument(
     type               => $vna_type,
     connection_type    => $connection_type,
-    connection_options => {
-        pad     => $gpib_address,
-        timeout => 5,
-    }
+    connection_options => { host => $host }
 );
 
 # Create output folder, datafile, live plot
@@ -30,19 +25,14 @@ my $datafile = datafile(
     type     => 'Gnuplot',
     folder   => $folder,
     filename => 'data.dat',
-    columns  => [qw/freq Real Imag Amplitude/],
+    columns  => [qw/freq Real Imag Amplitude Phase/],
 );
 
 $datafile->add_plot(
     x             => 'freq',
     y             => 'Amplitude',
     curve_options => { with => 'line' },
-    plot_options  => {
-        grid   => 1,
-        xlabel => 'freq',
-        ylabel => 'Amplitude (dB)',
-    },
-    hard_copy => 'data.png',
+    hard_copy     => 'data.png',
 );
 
 # Log details of VNA configuration into META.yml.
@@ -67,14 +57,6 @@ $meta_file->log(
 warn "Starting sweep...\n";
 my $pdl = $vna->sparam_sweep( timeout => $timeout );
 warn "Finished sweep\n";
-
-# Calculate amplitude values (dB) out of sparams
-my $real      = $pdl->slice(":,1");
-my $imag      = $pdl->slice(":,2");
-my $amplitude = 10 * log10( $real**2 + $imag**2 );
-
-# Append amplitude as last column
-$pdl = $pdl->glue( 1, $amplitude );
 
 $datafile->log_block( block => $pdl );
 

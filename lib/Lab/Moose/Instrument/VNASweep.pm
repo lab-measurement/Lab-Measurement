@@ -10,8 +10,8 @@ use Lab::Moose::Instrument qw/
     /;
 
 use Carp;
-use PDL::Lite;
-use PDL::Core qw/pdl cat/;
+use PDL;
+
 use namespace::autoclean;
 
 with qw(
@@ -66,7 +66,10 @@ sub _get_data_columns {
         my $real = $points->slice( [ $start,     $stop,     2 ] );
         my $im   = $points->slice( [ $start + 1, $stop + 1, 2 ] );
 
-        push @data_columns, $real, $im;
+        my $amplitude = 10 * log10( $real**2 + $im**2 );
+        my $phase = atan2( $im, $real );
+
+        push @data_columns, $real, $im, $amplitude, $phase;
     }
 
     return cat( $freq_array, @data_columns );
@@ -80,14 +83,29 @@ sub _get_data_columns {
 
 Perform a single sweep, and return the resulting data as a 2D PDL. The first
 dimension runs over the sweep points. E.g. if only the S11 parameter is
-measured, the resulting PDL has dimensions N x 3:
+measured, the resulting PDL has dimensions N x 5:
 
  [
-  [freq1, freq2, freq3, ..., freqN],
+  [freq1    , freq2    , ..., freqN    ],
   [Re(S11)_1, Re(S11)_2, ..., Re(S11)_N],
   [Im(S11)_1, Im(S11)_2, ..., Im(S11)_N],
+  [Amp_1    , Amp_2    , ..., Amp_N    ],
+  [phase_1  , phase_2  , ..., phase_N  ],
  ]
  
+The row with the amplitudes (power in units of dB) is calculated from the
+S-params as 
+
+ 10 * log10(Re(S11)**2 + Im(S11)**2)
+
+The row with the phases is calculated as from the S-params as
+
+ atan2(Im(S11), Re(S11))
+
+Thus, each recorded S-param will create 4 subsequent rows in the output PDL.
+
+ 
+
 This method accepts a hash with the following options:
 
 =over
