@@ -1,4 +1,5 @@
 package Lab::XPRESS::hub;
+
 #ABSTRACT: The XPRESS main hub
 
 use Lab::Exception;
@@ -6,6 +7,7 @@ use strict;
 use Exporter 'import';
 use Module::Load qw/load autoload/;
 use Try::Tiny;
+use Carp;
 
 our @EXPORT_OK = qw(DataFile Sweep Frame Instrument Connection);
 
@@ -68,14 +70,19 @@ sub Instrument {
         $instrument = $self;
     }
 
+    my $module = "Lab::Instrument::" . $instrument;
     my $found_module;
-    my $module;
+
     try {
-        $module = "Lab::Instrument::" . $instrument;
-        warn "before autoload";
         autoload($module);
-        warn "after autoload";
         $found_module = 1;
+    }
+    catch {
+        # Do not try to load a Moose driver, if the problem is just
+        # a syntax error in the non-Moose driver.
+        if ( $_ =~ /Compilation failed in require/ ) {
+            die $_;
+        }
     };
 
     if ($found_module) {
