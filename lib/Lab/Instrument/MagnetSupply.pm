@@ -2,7 +2,8 @@ package Lab::Instrument::MagnetSupply;
 
 #ABSTRACT: Base class for superconducting magnet power supply instruments
 
-use Lab::Measurement::KeyboardHandling qw(labkey_soft_check);
+use 5.010;
+use warnings;
 use strict;
 
 =head1 Coding and calling conventions
@@ -169,16 +170,18 @@ sub set_current {
             sleep(5);
             $currentcurrent = $self->get_current();
 
-            if ( labkey_soft_check() eq "DIE" ) {
+            say "target: $targetcurrent, current: $currentcurrent";
 
-                # now what do we do here best? we cannot be sure that set_hold is
-                # implemented, and failing is not an option.
-                print
-                    "Setting sweep target to current value I=$currentcurrent\n";
-                $self->start_sweep_to_current($currentcurrent);
-                print "Terminating on keyboard request.\n";
-                exit;
-            }
+            # if ( labkey_soft_check() eq "DIE" ) {
+
+            #     # now what do we do here best? we cannot be sure that set_hold is
+            #     # implemented, and failing is not an option.
+            #     print
+            #         "Setting sweep target to current value I=$currentcurrent\n";
+            #     $self->start_sweep_to_current($currentcurrent);
+            #     print "Terminating on keyboard request.\n";
+            #     exit;
+            # }
 
             } while (
             abs( $targetcurrent - $currentcurrent )
