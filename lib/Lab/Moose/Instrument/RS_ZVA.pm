@@ -1,4 +1,5 @@
 package Lab::Moose::Instrument::RS_ZVA;
+
 #ABSTRACT: Rohde & Schwarz ZVA Vector Network Analyzer
 
 use 5.010;
@@ -9,13 +10,13 @@ use Lab::Moose::Instrument qw/validated_getter/;
 use Carp;
 use namespace::autoclean;
 
-
 extends 'Lab::Moose::Instrument';
 
 with qw(
     Lab::Moose::Instrument::VNASweep
 
     Lab::Moose::Instrument::SCPI::Calculate::Data
+    Lab::Moose::Instrument::SCPI::Output::State
 );
 
 sub BUILD {

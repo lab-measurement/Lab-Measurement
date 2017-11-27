@@ -18,7 +18,7 @@ with qw(
     Lab::Moose::Instrument::Common
 
     Lab::Moose::Instrument::SCPI::Source::Power
-
+    Lab::Moose::Instrument::SCPI::Output::State
 );
 
 sub BUILD {
@@ -53,6 +53,8 @@ Used roles:
 =over
 
 =item L<Lab::Moose::Instrument::SCPI::Source::Power>
+
+=item L<Lab::Moose::Instrument::SCPI::Output::State>
 
 =back
     
