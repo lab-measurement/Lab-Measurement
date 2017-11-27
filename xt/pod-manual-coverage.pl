@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 
 # Ensure that Lab::Measurement::Manual contains links to all of our modules.
-use 5.020;
+use 5.010;
 use warnings;
 use strict;
 use File::Slurper 'read_binary';
