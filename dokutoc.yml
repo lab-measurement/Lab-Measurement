@@ -92,7 +92,7 @@ toc:
           - Superconducting magnet power supplies:
               - lib/Lab/Instrument/MagnetSupply.pm
               - lib/Lab/Instrument/OI_IPS.pm
-              - lib/Lab/Instrument/OI_Mercury.pm
+              - lib/Lab/Instrument/OI_Mercury/Magnet.pm
               - lib/Lab/Instrument/Cryogenic_SMS.pm
           - Temperature control devices:
               - lib/Lab/Instrument/TemperatureControl.pm
@@ -104,7 +104,7 @@ toc:
               - lib/Lab/Instrument/Lakeshore340.pm
           - Cryoliquid level meters:
               - lib/Lab/Instrument/OI_ILM210.pm
-              - lib/Lab/Instrument/OI_Mercury.pm
+              - lib/Lab/Instrument/OI_Mercury/Level.pm
           - Stepper motors:
               - lib/Lab/Instrument/PD11042.pm
               - lib/Lab/Instrument/ProStep4.pm
