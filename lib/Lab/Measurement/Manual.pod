@@ -33,8 +33,6 @@ TODO: overview on available stuff.
 
 =item * L<Lab::Measurement>
 
-=item * L<Lab::Measurement::KeyboardHandling>
-
 =item * L<Lab::SCPI>
 
 =item * L<Lab::Data::Analysis>
@@ -186,15 +184,11 @@ TODO: overview on available stuff.
 
 =item * L<Lab::Instrument::OI_Mercury::Magnet>
 
-=item * L<Lab::Instrument::Cryogenic_SMS>
-
 =back
 
 =head4 Temperature control devices
 
 =over
-
-=item * L<Lab::Instrument::TemperatureControl>
 
 =item * L<Lab::Instrument::TRMC2>
 
@@ -230,8 +224,6 @@ TODO: overview on available stuff.
 
 =item * L<Lab::Instrument::PD11042>
 
-=item * L<Lab::Instrument::ProStep4>
-
 =back
 
 =head3 Connecting instruments with Buses and Connections
@@ -241,8 +233,6 @@ TODO: overview on available stuff.
 =over
 
 =item * L<Lab::Connection>
-
-=item * L<Lab::Connection::DEBUG>
 
 =item * L<Lab::Bus>
 
@@ -293,16 +283,6 @@ TODO: overview on available stuff.
 =item * L<Lab::Connection::USBtmc>
 
 =item * L<Lab::Bus::USBtmc>
-
-=back
-
-=head4 Network socket
-
-=over
-
-=item * L<Lab::Connection::Socket>
-
-=item * L<Lab::Bus::Socket>
 
 =back
 

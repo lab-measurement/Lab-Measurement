@@ -30,15 +30,13 @@ find(
     'lib'
 );
 
-@source_files = map {
+my %source_files = map {
     my $file = $_;
     $file =~ s{^lib/}{};
     $file =~ s{\.(pm|pod)$}{};
     $file =~ s{/}{::}g;
-    $file;
+    ( $file => $_ );
 } @source_files;
-
-my %source_files = map { $_ => 1 } @source_files;
 
 # The following legacy modules are not required in the manual
 my @whitelist = qw/
@@ -52,6 +50,7 @@ my @whitelist = qw/
     Lab::Exception
     Lab::Generic::CLOptions
     Lab::Bus::VICP
+    Lab::Bus::Socket
 
     Lab::Data::Analysis::TekTDS
     Lab::Data::Analysis::WaveRunner
@@ -63,7 +62,9 @@ my @whitelist = qw/
     Lab::Connection::TCPraw
     Lab::Connection::Log
     Lab::Connection::VICP::Trace
+    Lab::Connection::Socket
     Lab::Connection::Socket::Trace
+    Lab::Connection::DEBUG
     Lab::Connection::DEBUG::Trace
     Lab::Connection::DEBUG::Log
     Lab::Connection::USBtmc::Trace
@@ -73,7 +74,7 @@ my @whitelist = qw/
     Lab::Connection::LinuxGPIB::Log
 
     Lab::Measurement::Developer::Write-A-Source-Driver
-
+    Lab::Measurement::KeyboardHandling
     Lab::MultiChannelInstrument::DeviceCache
 
     Lab::XPRESS::hub
@@ -102,6 +103,9 @@ my @whitelist = qw/
     Lab::Instrument::AgilentE8362A
     Lab::Instrument::Lakeshore224
     Lab::Instrument::IPSWeissDilfridge
+    Lab::Instrument::ProStep4
+    Lab::Instrument::Cryogenic_SMS
+    Lab::Instrument::TemperatureControl
 
     Lab::Exception::Base
 
@@ -111,16 +115,13 @@ for my $white (@whitelist) {
     delete $source_files{$white};
 }
 
-# FIXME: check that remaining modules actually contain pod (e.g. =head1 ...)
+my $shell_die;
 
-my $have_dead_links;
-
-# Check for dead module links
 say "Dead links:";
 for my $link ( keys %module_links ) {
     if ( not exists $source_files{$link} ) {
         say $link;
-        $have_dead_links = 1;
+        $shell_die = 1;
     }
 }
 
@@ -130,11 +131,22 @@ say "Unlinked modules:";
 for my $source ( keys %source_files ) {
     if ( not exists $module_links{$source} ) {
         say $source;
-        $have_unlinked_modules = 1;
+        $shell_die = 1;
     }
 }
 
-if ( $have_dead_links || $have_unlinked_modules ) {
-    die "Error\n";
+say "Modules without pod:";
+
+for my $source ( keys %source_files ) {
+    my $file     = $source_files{$source};
+    my $contents = read_binary($file);
+    if ( $contents !~ /^=head1/m ) {
+        say $source;
+        $shell_die = 1;
+    }
+}
+
+if ($shell_die) {
+    die "Have errors\n";
 }
 
