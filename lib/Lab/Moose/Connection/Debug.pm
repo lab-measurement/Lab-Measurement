@@ -52,3 +52,23 @@ with 'Lab::Moose::Connection';
 
 __PACKAGE__->meta->make_immutable();
 1;
+
+=head1 SYNOPSIS
+
+ use Lab::Moose;
+
+ my $instrument = instrument(
+     type => 'DummySource',
+     connection_type => 'DEBUG'
+     connection_options => {
+         verbose => 0, # do not print arguments of all Write commands (default is 1).
+     }
+ );
+
+
+=head1 DESCRIPTION
+
+Debug connection object. Print out C<Write> commands and prompt answer for
+C<Read> commands.
+
+=cut

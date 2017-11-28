@@ -1,4 +1,5 @@
 package Lab::Moose::Connection::Mock;
+
 #ABSTRACT: Mock connection
 
 use 5.010;
@@ -8,7 +9,6 @@ use namespace::autoclean;
 use Data::Dumper;
 use YAML::XS;
 use Carp;
-
 
 has log_file => (
     is        => 'ro',
@@ -109,3 +109,19 @@ with 'Lab::Moose::Connection';
 $meta->make_immutable();
 1;
 
+=head1 SYNOPSIS
+
+ use Lab::Moose;
+
+ my $instrument = instrument(
+    type => 'some_instrument',
+    connection_type => 'Mock',
+    connection_options => { log_file => 'log.yml' }, # or log_fh => $fh,
+ );
+
+=head1 DESCRIPTION
+
+Mock connection object for unit testing. Uses previously recorded log recorded
+with a real instrument using L<Lab::Instrument::Log>.
+
+=cut

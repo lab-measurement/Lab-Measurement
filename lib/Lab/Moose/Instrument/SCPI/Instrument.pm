@@ -1,5 +1,6 @@
 package Lab::Moose::Instrument::SCPI::Instrument;
-#ABSTRACT: ???
+
+#ABSTRACT: Role for SCPI INSTrument subsystem.
 
 use Moose::Role;
 use Lab::Moose::Instrument::Cache;
@@ -9,6 +10,17 @@ use Carp;
 
 use namespace::autoclean;
 
+=head1 METHODS
+
+=head2 instrument_nselect_query
+
+=head2 instrument_nselect
+
+Query/Set instrument channel for multi-channel instruments.
+
+=head2 
+
+=cut
 
 cache instrument_nselect => ( getter => 'instrument_nselect_query' );
 

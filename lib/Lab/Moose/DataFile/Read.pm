@@ -16,6 +16,51 @@ use Data::Dumper;
 
 our @EXPORT = qw/read_gnuplot_format/;
 
+=head1 SYNOPSIS
+
+ use Lab::Moose::DataFile::Read;
+ 
+ # Read gnuplot ASCII datafile and return each column as a 1D PDL
+ my @columns = read_gnuplot_format(
+     type => 'columns',
+     file => 'data.dat',
+     num_columns => 2,
+ );
+
+ # Read block structured 3D gnuplot ASCII datafile and return
+ # 2D PDL for each parameter (column)
+ my @pixel_maps = read_gnuplot_format(
+     type => 'maps',
+     file => '3d_data.dat',
+     num_columns => 3,
+ );
+
+=head1 Functions
+
+=head2 read_gnuplot_format
+
+ Exported by default. Allowed parameters:
+
+=over
+
+=item * type
+
+Either C<'columns'> or C<'maps'>.
+
+=item * file
+
+=item * fh
+
+Provide an open file handle instead of a filename.
+
+=item * num_columns (mandatory)
+
+Number of columns in the datafile. Used for a consistency check.
+
+=back
+
+=cut
+
 # produce 2D PDL for each block. Cat them into a 3d PDL
 sub get_blocks {
     my ( $fh, $num_columns ) = validated_list(
