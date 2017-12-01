@@ -429,8 +429,6 @@ TODO: overview on available stuff.
 
 =item * L<Lab::Moose::Instrument::VNASweep>
 
-=item * L<Lab::Moose::Instrument::SCPI::Calculate::Data>
-
 =item * L<Lab::Moose::Instrument::SCPI::Format>
 
 =item * L<Lab::Moose::Instrument::SCPI::Initiate>
@@ -460,8 +458,6 @@ TODO: overview on available stuff.
 =item * L<Lab::Moose::Instrument::SCPI::Source::Power>
 
 =item * L<Lab::Moose::Instrument::SCPI::Source::Range>
-
-=item * L<Lab::Moose::Instrument::SCPI::Trace::Data::Response>
 
 =back
 

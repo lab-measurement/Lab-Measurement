@@ -149,4 +149,7 @@ for my $source ( keys %source_files ) {
 if ($shell_die) {
     die "Have errors\n";
 }
-
+else {
+    say "----------------------";
+    say "ok";
+}

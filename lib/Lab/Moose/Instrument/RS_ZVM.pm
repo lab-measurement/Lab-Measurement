@@ -1,4 +1,5 @@
 package Lab::Moose::Instrument::RS_ZVM;
+
 #ABSTRACT: Rohde & Schwarz ZVM Vector Network Analyzer
 
 use 5.010;
@@ -9,7 +10,6 @@ use Lab::Moose::Instrument qw/getter_params timeout_param validated_getter/;
 use Carp;
 use Config;
 use namespace::autoclean;
-
 
 extends 'Lab::Moose::Instrument';
 
@@ -47,6 +47,21 @@ sub sparam_catalog {
     my $sparam = $+{sparam};
 
     return [ "Re($sparam)", "Im($sparam)" ];
+}
+
+sub trace_data_response_all {
+    my ( $self, %args ) = validated_hash(
+        \@_,
+        getter_params(),
+        trace => { isa => 'Str' },
+    );
+
+    my $trace = delete $args{trace};
+
+    return $self->binary_query(
+        command => "TRAC:DATA:RESP:ALL? $trace",
+        %args
+    );
 }
 
 sub sparam_sweep_data {
