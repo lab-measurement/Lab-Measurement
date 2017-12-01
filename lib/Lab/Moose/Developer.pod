@@ -3,7 +3,7 @@
 
 =encoding utf8
 
-=head2 Writing drivers
+=head1 Writing drivers
 
 The driver infrastructure is based on L<Moose>.
 For Moose basics see e.g.
@@ -21,7 +21,7 @@ For full details, see the very well written L<Moose::Manual>.
 
 =back
 
-=head3 Code example
+=head2 Code example
 
 We start with a section of code from the L<Lab::Moose::Instrument::SR830>
 LIA driver and discuss the most important steps. This explains the most
@@ -81,7 +81,7 @@ important parts of a driver, i.e. initialization, getters, setters, caching,
  __PACKAGE__->meta()->make_immutable();
  1;
 
-=head3 Explanations
+=head2 Explanations
 
 =over
 
@@ -182,7 +182,7 @@ Every Moose class shell end this way. See L<Moose::Manual::BestPractices>.
 
 =back
 
-=head3 Building automated instrument tests
+=head2 Building automated instrument tests
 
 Lab::Moose has extensive support to build automated tests for instrument
 drivers and this is what enables long-term maintainability of the code base.
@@ -261,14 +261,14 @@ File comparison, including basic filtering options.
 
 =back
 
-=head3 Roles for SCPI instruments
+=head2 Roles for SCPI instruments
 
 TODO
 
-=head3 Writing connections
+=head2 Writing connections
 
 TODO
 
-=head2 Data files and plotting
+=head1 Data files and plotting
 
 TODO

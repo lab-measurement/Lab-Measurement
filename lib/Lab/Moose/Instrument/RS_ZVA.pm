@@ -6,7 +6,9 @@ use 5.010;
 use Moose;
 use Moose::Util::TypeConstraints;
 use MooseX::Params::Validate;
-use Lab::Moose::Instrument qw/validated_getter/;
+use Lab::Moose::Instrument
+    qw/validated_getter validated_channel_getter validated_channel_setter /;
+use Lab::Moose::Instrument::Cache;
 use Carp;
 use namespace::autoclean;
 
@@ -23,6 +25,37 @@ sub BUILD {
     my $self = shift;
     $self->clear();
     $self->cls();
+}
+
+cache calculate_data_call_catalog => (
+    getter => 'calculate_data_call_catalog',
+    isa    => 'ArrayRef'
+);
+
+sub calculate_data_call_catalog {
+    my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
+
+    my $string
+        = $self->query( command => "CALC${channel}:DATA:CALL:CAT?", %args );
+    $string =~ s/'//g;
+
+    return $self->cached_calculate_data_call_catalog(
+        [ split ',', $string ] );
+}
+
+sub calculate_data_call {
+    my ( $self, $channel, %args ) = validated_channel_getter(
+        \@_,
+        format => { isa => 'Str' }    # {isa => enum([qw/FDATA SDATA MDATA/])}
+    );
+
+    my $format = delete $args{format};
+
+    return $self->binary_query(
+        command => "CALC${channel}:DATA:CALL? $format",
+        %args
+    );
+
 }
 
 sub sparam_catalog {
