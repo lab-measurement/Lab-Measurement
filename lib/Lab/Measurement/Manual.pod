@@ -6,12 +6,22 @@
 
 =head1 Lab::Measurement API documentation
 
-TODO: overview on available stuff.
+Currently, the Lab::Measurement API consists of:
 
-- Lab::Instrument, ..., Lab::XPRESS
+=over
 
-- Lab::Moose
+=item *
 
+The currently most-used interface consting of Lab::Instrument and Lab::XPRESS
+modules.
+
+=item *
+
+L</Lab::Moose> is a new interface based on B<Modern Perl> techniques.
+It is intendet as a replacement/alternative for the previously mentioned
+modules. 
+
+=back
 
 =head2 The Lab::Measurement package
 
@@ -308,7 +318,7 @@ TODO: overview on available stuff.
 
 
 
-=head2 Lab::Moose (next generation Lab::Measurement)
+=head2 Lab::Moose
 
 =over
 
