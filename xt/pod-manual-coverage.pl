@@ -118,7 +118,7 @@ for my $white (@whitelist) {
 
 diag("Checking for dead links in the manual");
 for my $link ( keys %module_links ) {
-    ok( exists $source_files{$link}, "$source_files{$link} exists" );
+    ok( exists $source_files{$link}, "source file for module $link exists" );
 }
 
 diag("Checking for L::M modules missing in the manual");

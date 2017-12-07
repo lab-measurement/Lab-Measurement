@@ -7,8 +7,10 @@ use warnings;
 use strict;
 use MooseX::Params::Validate 'validated_list';
 use Moose::Util::TypeConstraints 'enum';
-use List::Util 'max';
-use PDL::Core qw/pdl cat dog/;
+use List::Util qw//;
+use PDL;
+
+#use PDL::Core qw/pdl cat dog/;
 use Fcntl 'SEEK_SET';
 use Carp;
 use Exporter 'import';
@@ -101,7 +103,7 @@ sub get_blocks {
     }
 
     # bring blocks to same number of rows: reshape and add NaNs.
-    my $max_rows = max( map { ( $_->dims )[1] } @blocks );
+    my $max_rows = List::Util::max( map { ( $_->dims )[1] } @blocks );
 
     for my $block (@blocks) {
         my $rows = ( $block->dims() )[1];

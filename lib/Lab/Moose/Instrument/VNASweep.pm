@@ -2,14 +2,17 @@ package Lab::Moose::Instrument::VNASweep;
 
 #ABSTRACT: Role for network analyzer sweeps
 
-use Moose::Role;
-use Moose::Util::TypeConstraints;
-use MooseX::Params::Validate;
+# Some default exports like 'inner' would collide with PDL
+use Moose::Role qw/with requires/;
+
+use MooseX::Params::Validate 'validated_hash';
+use Moose::Util::TypeConstraints 'enum';
 use Lab::Moose::Instrument qw/
     timeout_param getter_params precision_param
     /;
 
 use Carp;
+
 use PDL;
 
 use namespace::autoclean;
@@ -38,8 +41,8 @@ requires qw/sparam_sweep_data sparam_catalog/;
 sub _get_data_columns {
     my ( $self, $catalog, $freq_array, $points ) = @_;
 
-    $freq_array = pdl $freq_array;
-    $points     = pdl $points;
+    $freq_array = pdl($freq_array);
+    $points     = pdl($points);
 
     my $num_rows = $freq_array->nelem();
     if ( $num_rows != $self->cached_sense_sweep_points() ) {
