@@ -4,6 +4,10 @@ History for the Lab-Measurement Perl distribution
 This document is work in progress (in the sense of adding
 historical information).
 
+3.611 2017-12-07
+
+  * Fix floating point precision issues in the tests
+
 3.610 2017-12-07
 
   * Simplify network timeout handling
