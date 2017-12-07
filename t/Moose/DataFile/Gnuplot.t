@@ -12,6 +12,14 @@ use Test::Fatal;
 use File::Spec::Functions qw/catfile/;
 use Lab::Moose;
 use PDL::Core qw/pdl/;
+use Module::Load 'autoload';
+
+eval {
+    autoload 'PDL::Graphics::Gnuplot';
+    1;
+} or do {
+    plan skip_all => "test requires PDL::Graphics::Gnuplot";
+};
 
 my $dir = tempdir( CLEANUP => 1 );
 my $folder = datafolder( path => catfile( $dir, 'gnuplot' ) );

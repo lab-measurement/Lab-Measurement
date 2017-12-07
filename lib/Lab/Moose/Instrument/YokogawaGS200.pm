@@ -93,7 +93,7 @@ sub source_level {
     );
 
     $self->write(
-        command => sprintf( "SOUR:LEV %.17g", $value ),
+        command => sprintf( "SOUR:LEV %.15g", $value ),
         %args
     );
     $self->cached_source_level($value);

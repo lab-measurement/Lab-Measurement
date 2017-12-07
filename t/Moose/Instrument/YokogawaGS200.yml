@@ -90,7 +90,7 @@ retval: '+2.222E+0
 
 '
 ---
-command: SOUR:LEV 3.3330000000000002
+command: SOUR:LEV 3.333
 id: 18
 method: Write
 ---
@@ -105,19 +105,19 @@ command: SOUR:LEV 0
 id: 20
 method: Write
 ---
-command: SOUR:LEV 0.10000000000000001
+command: SOUR:LEV 0.1
 id: 21
 method: Write
 ---
-command: SOUR:LEV 0.20000000000000001
+command: SOUR:LEV 0.2
 id: 22
 method: Write
 ---
-command: SOUR:LEV 0.30000000000000004
+command: SOUR:LEV 0.3
 id: 23
 method: Write
 ---
-command: SOUR:LEV 0.40000000000000002
+command: SOUR:LEV 0.4
 id: 24
 method: Write
 ---
@@ -125,19 +125,19 @@ command: SOUR:LEV 0.5
 id: 25
 method: Write
 ---
-command: SOUR:LEV 0.60000000000000009
+command: SOUR:LEV 0.6
 id: 26
 method: Write
 ---
-command: SOUR:LEV 0.70000000000000007
+command: SOUR:LEV 0.7
 id: 27
 method: Write
 ---
-command: SOUR:LEV 0.80000000000000004
+command: SOUR:LEV 0.8
 id: 28
 method: Write
 ---
-command: SOUR:LEV 0.90000000000000002
+command: SOUR:LEV 0.9
 id: 29
 method: Write
 ---
@@ -145,11 +145,11 @@ command: SOUR:LEV 1
 id: 30
 method: Write
 ---
-command: SOUR:LEV 1.1000000000000001
+command: SOUR:LEV 1.1
 id: 31
 method: Write
 ---
-command: SOUR:LEV 1.2000000000000002
+command: SOUR:LEV 1.2
 id: 32
 method: Write
 ---
