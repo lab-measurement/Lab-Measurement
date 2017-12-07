@@ -425,6 +425,14 @@ modules.
 
 =back
 
+=head4 Superconducting magnet power supplies
+
+=over
+
+=item * L<Lab::Moose::Instrument::OI_Mercury::Magnet>
+
+=back
+
 =head3 Moose::Instrument Roles
 
 =over

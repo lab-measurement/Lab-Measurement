@@ -17,7 +17,6 @@ extends 'Lab::Moose::Instrument';
 with qw(
     Lab::Moose::Instrument::VNASweep
 
-    Lab::Moose::Instrument::SCPI::Calculate::Data
     Lab::Moose::Instrument::SCPI::Output::State
 );
 

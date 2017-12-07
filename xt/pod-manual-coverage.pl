@@ -7,6 +7,7 @@ use strict;
 use File::Slurper 'read_binary';
 use File::Find;
 use Data::Dumper;
+use Test::More;
 
 my $manual = read_binary('lib/Lab/Measurement/Manual.pod');
 
@@ -115,41 +116,21 @@ for my $white (@whitelist) {
     delete $source_files{$white};
 }
 
-my $shell_die;
-
-say "Dead links:";
+diag("Checking for dead links in the manual");
 for my $link ( keys %module_links ) {
-    if ( not exists $source_files{$link} ) {
-        say $link;
-        $shell_die = 1;
-    }
+    ok( exists $source_files{$link}, "$source_files{$link} exists" );
 }
 
-my $have_unlinked_modules;
-
-say "Unlinked modules:";
+diag("Checking for L::M modules missing in the manual");
 for my $source ( keys %source_files ) {
-    if ( not exists $module_links{$source} ) {
-        say $source;
-        $shell_die = 1;
-    }
+    ok( exists $module_links{$source}, "have link to $source" );
 }
 
-say "Modules without pod:";
-
+diag("Checking for modules without pod");
 for my $source ( keys %source_files ) {
     my $file     = $source_files{$source};
     my $contents = read_binary($file);
-    if ( $contents !~ /^=head1/m ) {
-        say $source;
-        $shell_die = 1;
-    }
+    like( $contents, qr/^=head1/m, "$file contains pod" );
 }
 
-if ($shell_die) {
-    die "Have errors\n";
-}
-else {
-    say "----------------------";
-    say "ok";
-}
+done_testing();

@@ -19,8 +19,6 @@ with 'Lab::Moose::Instrument::SCPI::Format' => {
     qw(
     Lab::Moose::Instrument::SCPI::Sense::Function
 
-    Lab::Moose::Instrument::SCPI::Trace::Data::Response
-
     Lab::Moose::Instrument::VNASweep
 );
 
