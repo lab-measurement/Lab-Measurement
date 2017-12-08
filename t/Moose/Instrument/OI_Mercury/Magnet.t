@@ -57,20 +57,28 @@ is_absolute_error( $current, 0, 0.001, "oim_get_current" );
 # oim_get_field
 is_absolute_error( $mercury->oim_get_field(), 0, 0.001, "oim_get_field" );
 
-$mercury->oim_set_heater( value => "ON" );
+is( $mercury->oim_set_heater( value => "ON" ), "ON", "oim_set_heater" );
 
 # oim_get_heater
 is( $mercury->oim_get_heater(), "ON", "oim_get_heater" );
 
 # current sweeprate
-$mercury->oim_set_current_sweeprate( value => 0.001 );
+is(
+    $mercury->oim_set_current_sweeprate( value => 0.001 ), 0.001,
+    "oim_set_current_sweeprate"
+);
+
 is_float(
     $mercury->oim_get_current_sweeprate(), 0.001,
     "oim_set_current_sweeprate"
 );
 
 # field sweeprate
-$mercury->oim_set_field_sweeprate( value => 0.0015 );
+is(
+    $mercury->oim_set_field_sweeprate( value => 0.0015 ), 0.0015,
+    "oim_set_field_sweeprate"
+);
+
 is_float(
     $mercury->oim_get_field_sweeprate(), 0.0015,
     "oim_get_field_sweeprate"
@@ -78,18 +86,29 @@ is_float(
 
 # activity
 
-$mercury->oim_set_activity( value => 'HOLD' );
+is(
+    $mercury->oim_set_activity( value => 'HOLD' ), "HOLD",
+    "oim_set_activity"
+);
+
 is( $mercury->oim_get_activity(), 'HOLD', "oim_get_activity" );
 
 # current setpoint
-$mercury->oim_set_current_setpoint( value => 0.0012 );
+is(
+    $mercury->oim_set_current_setpoint( value => 0.0012 ), 0.0012,
+    "oim_set_current_setpoint"
+);
+
 is_float(
     $mercury->oim_get_current_setpoint(), 0.0012,
     "oim_get_current_setpoint"
 );
 
 # field setpoint
-$mercury->oim_set_field_setpoint( value => 0.0023 );
+is(
+    $mercury->oim_set_field_setpoint( value => 0.0023 ), 0.0023,
+    "oim_set_field_setpoint"
+);
 is_float(
     $mercury->oim_get_field_setpoint(), 0.0023,
     "oim_get_field_setpoint"
