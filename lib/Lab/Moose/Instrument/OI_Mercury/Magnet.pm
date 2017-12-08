@@ -351,11 +351,8 @@ sub oim_force_heater {
         value => { isa => enum( [qw/ON OFF/] ) },
     );
 
-    my $cmd    = "SET:DEV:GRPZ:PSU:SIG:SWHN";
-    my $heater = $self->query(
-        command => "$cmd:$value",
-        %args
-    );
+    my $cmd = "SET:DEV:GRPZ:PSU:SIG:SWHN";
+    my $heater = $self->query( command => "$cmd:$value", %args );
 
     return $self->_parse_setter_retval( $cmd, $heater );
 }
@@ -393,10 +390,7 @@ sub oim_set_current_sweeprate {
 
     my $cmd = "SET:DEV:GRPZ:PSU:SIG:RCST";
 
-    my $rv = $self->query(
-        command => "$cmd:$value",
-        %args
-    );
+    my $rv = $self->query( command => "$cmd:$value", %args );
 
     $rv = $self->_parse_setter_retval( $cmd, $rv );
 
@@ -436,10 +430,7 @@ sub oim_set_field_sweeprate {
 
     my $cmd = "SET:DEV:GRPZ:PSU:SIG:RFST";
 
-    my $rv = $self->query(
-        command => "$cmd:$value",
-        %args
-    );
+    my $rv = $self->query( command => "$cmd:$value", %args );
 
     $rv = $self->_parse_setter_retval( $cmd, $rv );
 
@@ -501,10 +492,7 @@ sub oim_set_current_setpoint {
     );
 
     my $cmd = "SET:DEV:GRPZ:PSU:SIG:CSET";
-    my $rv  = $self->query(
-        command => "$cmd:$value",
-        %args
-    );
+    my $rv = $self->query( command => "$cmd:$value", %args );
     $rv = $self->_parse_setter_retval( $cmd, $rv );
     $rv =~ s/A$//;
     return $rv;
@@ -542,10 +530,7 @@ sub oim_set_field_setpoint {
     );
 
     my $cmd = "SET:DEV:GRPZ:PSU:SIG:FSET";
-    my $rv  = $self->query(
-        command => "$cmd:$value",
-        %args
-    );
+    my $rv = $self->query( command => "$cmd:$value", %args );
 
     $rv = $self->_parse_setter_retval( $cmd, $rv );
     $rv =~ s/T$//;
