@@ -29,17 +29,21 @@ has verbose => (
      type => 'OI_Mercury::Magnet',
      connection_type => 'Socket',
      connection_options => {
-         host => '192.168.xx.xx',
+         host => '192.168.3.15',
          port => 7020,
      }
  );
 
  say "He level (%): ", $magnet->get_he_level();
+ say "N2 level (%): ", $magnet->get_n2_level();
+ say "temperature: ",  $magnet->get_temperature();
+
+ $magnet->oim_set_heater(value => 'ON');
 
  say "Current field (T): ", $magnet->get_field();
  
- # Sweep to 0.1 T with rate of 0.1 T/min
- $magnet->sweep_to_field(target => 0.1, rate => 0.1);
+ # Sweep to 0.1 T with rate of 1 T/min
+ $magnet->sweep_to_field(target => 0.1, rate => 1);
 
 =cut
 
@@ -624,10 +628,10 @@ sub config_sweep {
     my $rate   = delete $args{rates};
 
     my $setrate = $self->oim_set_field_sweeprate( value => $rate, %args );
-
     my $setpoint = $self->oim_set_field_setpoint( value => $target, %args );
-
-    # FIXME: check field and rate setpoints (programmed LIMITS!)
+    if ( $self->verbose() ) {
+        say "config_sweep: setpoint: $setpoint (T), rate: $setrate (T/min)";
+    }
 }
 
 # In go_to_next_step, the XPRESS will call the sequence
@@ -647,15 +651,26 @@ sub wait {
 
     # enable autoflush
     my $autoflush = STDOUT->autoflush();
+    my $last_field;
+    my $time_step = 1;
     while (1) {
-        sleep 1;
+        sleep $time_step;
         my $field = $self->oim_get_field(%args);
 
         if ($verbose) {
+            my $rate;
+            if ( defined $last_field ) {
+                $rate = ( $field - $last_field ) * 60 / $time_step;
+                $rate = sprintf( "%.5g", $rate );
+            }
+            else {
+                $rate = "unknown";
+            }
             printf(
-                "Sweeping to %.5g T: Field is %.5e T       \r", $target,
+                "Field: %.6e T, Estimated rate: $rate T/min       \r",
                 $field
             );
+            $last_field = $field;
         }
 
         if ( abs( $field - $target ) < $self->max_field_deviation() ) {
