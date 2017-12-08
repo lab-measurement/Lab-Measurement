@@ -100,6 +100,7 @@ sub linear_step_sweep {
     }
     $self->source_level( value => shift @steps, %args );
 
+    # enable autoflush
     my $autoflush = STDOUT->autoflush();
     for my $step (@steps) {
         usleep( 1e6 * $time_per_step );
@@ -116,6 +117,8 @@ sub linear_step_sweep {
     if ($verbose) {
         print " " x 70 . "\r";
     }
+
+    # reset autoflush to previous value
     STDOUT->autoflush($autoflush);
     $self->source_level_timestamp( time() );
 }

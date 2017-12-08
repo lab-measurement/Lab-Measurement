@@ -1,4 +1,5 @@
 package Lab::XPRESS::Sweep::Magnet;
+
 #ABSTRACT: Magnetic field sweep
 
 use Lab::XPRESS::Sweep;
@@ -23,7 +24,8 @@ sub new {
             'Lab::Instrument::IPSWeiss1',
             'Lab::Instrument::IPSWeiss2',
             'Lab::Instrument::IPSWeissDillFridge',
-            'Lab::Instrument::IPSStrunkDillFridge'
+            'Lab::Instrument::IPSStrunkDillFridge',
+            'Lab::Moose::Instrument::OI_Mercury::Magnet',
         ],
         allowed_sweep_modes => [ 'continuous', 'list', 'step' ],
         use_persistentmode  => 0,
