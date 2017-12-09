@@ -1328,6 +1328,12 @@ sub deep_copy {
     }
 }
 
+# Need to provide this or AUTOLOAD cannot find it and will die on object destruction.
+sub DESTROY {
+
+    # do nothing
+}
+
 sub AUTOLOAD {
 
     my $self  = shift;
