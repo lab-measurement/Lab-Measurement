@@ -23,9 +23,9 @@ L<VISA resource names|http://zone.ni.com/reference/en-XX/help/371361B-01/lvinsti
 and L<VISA error codes|http://zone.ni.com/reference/en-XX/help/371361B-01/lverror/visa_error_codes/>.
 
 B<< For using the NI VISA library, you will have to also install our separate Perl
-package L<Lab::VISA|http://search.cpan.org/dist/Lab-VISA/> providing the Perl language bindings. Detailed
-L<installation instructions|http://search.cpan.org/dist/Lab-VISA/lib/Lab/VISA/Installation.pod> are provided in that
-package. >> 
+package L<Lab::VISA> providing the Perl language bindings. Detailed
+L<installation instructions|Lab::VISA::Installation> are provided in that
+package. >>
 
 
 =head1 Linux-GPIB back-end
@@ -119,6 +119,6 @@ Now, you can use the interactive C<ibtest> and C<ibterm> programs to test the in
 Lab::Measurement provides initial support for devices from Zurich
 Instruments. These can be used on both Linux and Windows. This requires that
 the LabOne API, provided by the vendor, is installed on the measurement
-PC. Moreover, you need the Perl module L<Lab::Zhinst|http://search.cpan.org/~amba/Lab-Zhinst/lib/Lab/Zhinst.pm>, which
+PC. Moreover, you need the Perl module L<Lab::Zhinst>, which
 provides the Perl bindings to the LabOne API. The Lab::Zhinst documentation
 covers all steps of the installation.
