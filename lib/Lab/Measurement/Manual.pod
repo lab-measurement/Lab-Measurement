@@ -4,7 +4,7 @@
 
 =pod
 
-=head1 Lab::Measurement API documentation
+=head1 OVERVIEW
 
 Currently, the Lab::Measurement API consists of:
 
@@ -12,18 +12,24 @@ Currently, the Lab::Measurement API consists of:
 
 =item *
 
-The currently most-used interface consting of Lab::Instrument and Lab::XPRESS
-modules.
+The currently most-used interface consting of the Lab::Instrument virtual
+instruments and the high-level Lab::XPRESS interface, which provides simple
+generation of nested sweeps and logging of output data into a customizable
+folder structure.
 
 =item *
 
-L</Lab::Moose> is a new interface based on B<Modern Perl> techniques.
-It is intendet as a replacement/alternative for the previously mentioned
-modules. 
+L</Lab::Moose> is a new implementation based on B<Modern Perl> techniques.
+So far, this is focused on providing a new infrastructure for instrument
+drivers, connection backends, ascii datafiles/datafolders with live-plotting.
+High-level functionality (something like
+Lab::XPRESS) will follow soon.
+Until then, the Lab::Moose drivers
+can be used with XPRESS, just like the Lab::Instrument drivers.
 
 =back
 
-=head2 The Lab::Measurement package
+=head1 The Lab::Measurement package
 
 =over
 
@@ -37,7 +43,7 @@ modules.
 
 =back
 
-=head3 High-level tool classes
+=head2 High-level tool classes
 
 =over
 
@@ -50,9 +56,9 @@ modules.
 
 =back
 
-=head3 XPRESS
+=head2 XPRESS
 
-=head4 Examples
+=head3 Examples
 
 =over
 
@@ -66,7 +72,7 @@ modules.
 
 =back
 
-=head4 General classes
+=head3 General classes
 
 =over
 
@@ -76,7 +82,7 @@ modules.
 
 =back
 
-=head4 Dedicated Sweep Classes
+=head3 Dedicated Sweep Classes
 
 =over
 
@@ -98,7 +104,7 @@ modules.
 
 =back
 
-=head3 Instrument control classes
+=head2 Instrument control classes
 
 =over
 
@@ -106,7 +112,7 @@ modules.
 
 =back
 
-=head4 Multimeters
+=head3 Multimeters
 
 =over
 
@@ -124,7 +130,7 @@ modules.
 
 =back
 
-=head4 Voltage sources
+=head3 Voltage sources
 
 =over
 
@@ -140,7 +146,7 @@ modules.
 
 =back
 
-=head4 Lock-in amplifiers
+=head3 Lock-in amplifiers
 
 =over
 
@@ -154,7 +160,7 @@ modules.
 
 =back
 
-=head4 RF generators
+=head3 RF generators
 
 =over
 
@@ -168,7 +174,7 @@ modules.
 
 =back
 
-=head4 RF detectors
+=head3 RF detectors
 
 =over
 
@@ -176,7 +182,7 @@ modules.
 
 =back
 
-=head4 Oscilloscopes
+=head3 Oscilloscopes
 
 =over
 
@@ -186,7 +192,7 @@ modules.
 
 =back
 
-=head4 Superconducting magnet power supplies
+=head3 Superconducting magnet power supplies
 
 =over
 
@@ -196,7 +202,7 @@ modules.
 
 =back
 
-=head4 Temperature control devices
+=head3 Temperature control devices
 
 =over
 
@@ -218,7 +224,7 @@ modules.
 
 =back
 
-=head4 Cryoliquid level meters
+=head3 Cryoliquid level meters
 
 =over
 
@@ -228,7 +234,7 @@ modules.
 
 =back
 
-=head4 Stepper motors
+=head3 Stepper motors
 
 =over
 
@@ -236,9 +242,9 @@ modules.
 
 =back
 
-=head3 Connecting instruments with Buses and Connections
+=head2 Connecting instruments with Buses and Connections
 
-=head4 Base classes
+=head3 Base classes
 
 =over
 
@@ -250,7 +256,7 @@ modules.
 
 =back
 
-=head4 VISA
+=head3 VISA
 
 =over
 
@@ -260,7 +266,7 @@ modules.
 
 =back
 
-=head4 GPIB (IEEE 488.2)
+=head3 GPIB (IEEE 488.2)
 
 =over
 
@@ -274,7 +280,7 @@ modules.
 
 =back
 
-=head4 RS232 (serial port)
+=head3 RS232 (serial port)
 
 =over
 
@@ -286,7 +292,7 @@ modules.
 
 =back
 
-=head4 USB Test&Measurement (Linux kernel driver)
+=head3 USB Test&Measurement (Linux kernel driver)
 
 =over
 
@@ -296,7 +302,7 @@ modules.
 
 =back
 
-=head4 Oxford Instruments ISOBUS
+=head3 Oxford Instruments ISOBUS
 
 =over
 
@@ -306,7 +312,7 @@ modules.
 
 =back
 
-=head4 MODBUS
+=head3 MODBUS
 
 =over
 
@@ -318,7 +324,7 @@ modules.
 
 
 
-=head2 Lab::Moose
+=head1 Lab::Moose
 
 =over
 
@@ -326,7 +332,7 @@ modules.
 
 =back
 
-=head3 High-level tool classes
+=head2 High-level tool classes
 
 =over
 
@@ -346,7 +352,7 @@ modules.
 
 =back
 
-=head3 Instrument control classes
+=head2 Instrument control classes
 
 =over
 
@@ -359,7 +365,7 @@ modules.
 =back
 
 
-=head4 Multimeters
+=head3 Multimeters
 
 =over
 
@@ -369,7 +375,7 @@ modules.
 
 =back
 
-=head4 Voltage sources
+=head3 Voltage sources
 
 =over
 
@@ -381,7 +387,7 @@ modules.
 
 =back
 
-=head4 Lock-in amplifiers
+=head3 Lock-in amplifiers
 
 =over
 
@@ -391,7 +397,7 @@ modules.
 
 =back
 
-=head4 Impedance analyzers
+=head3 Impedance analyzers
 
 =over
 
@@ -399,7 +405,7 @@ modules.
 
 =back
 
-=head4 RF generators
+=head3 RF generators
 
 =over
 
@@ -407,7 +413,7 @@ modules.
 
 =back
 
-=head4 Spectrum analyzers
+=head3 Spectrum analyzers
 
 =over
 
@@ -415,7 +421,7 @@ modules.
 
 =back
 
-=head4 Network analyzers
+=head3 Network analyzers
 
 =over
 
@@ -425,7 +431,7 @@ modules.
 
 =back
 
-=head4 Superconducting magnet power supplies
+=head3 Superconducting magnet power supplies
 
 =over
 
@@ -434,7 +440,7 @@ modules.
 =back
 
 
-=head3 Moose::Instrument Roles
+=head2 Moose::Instrument Roles
 
 =over
 
@@ -481,7 +487,7 @@ modules.
 =back
 
 
-=head3 Connecting instruments
+=head2 Connecting instruments
 
 =over
 
@@ -493,7 +499,7 @@ modules.
 
 =back
 
-=head4 National Instruments VISA base class
+=head3 National Instruments VISA base class
 
 =over
 
@@ -501,7 +507,7 @@ modules.
 
 =back
 
-=head4 GPIB (IEEE 488.2)
+=head3 GPIB (IEEE 488.2)
 
 =over
 
@@ -513,7 +519,7 @@ alias: C<Lab::Moose::Connection::VISA_GPIB>
 
 =back
 
-=head4 USB Test&Measurement (Linux kernel driver)
+=head3 USB Test&Measurement (Linux kernel driver)
 
 =over
 
@@ -521,7 +527,7 @@ alias: C<Lab::Moose::Connection::VISA_GPIB>
 
 =back
 
-=head4 Network socket
+=head3 Network socket
 
 =over
 
@@ -529,7 +535,7 @@ alias: C<Lab::Moose::Connection::VISA_GPIB>
 
 =back
 
-=head4 VXI-11
+=head3 VXI-11
 
 =over
 
@@ -539,7 +545,7 @@ alias: C<Lab::Moose::Connection::VISA_GPIB>
 
 =back
 
-=head4 Zurich Instruments LabONE API
+=head3 Zurich Instruments LabONE API
 
 =over
 
