@@ -34,6 +34,7 @@ has log_id => (
  use Lab::Moose 'instrument';
  my $instr = instrument(
      type => '...',
+     connection_type => '...',
      connection_options => {...},
      instrument_options => {
          # write into newly created logfile:
