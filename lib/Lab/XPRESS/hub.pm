@@ -92,14 +92,15 @@ sub Instrument {
     $module = "Lab::Moose::Instrument::" . $instrument;
     load($module);
 
-    my $args_ref          = shift;
-    my $connection_type   = delete $args_ref->{connection_type};
-    my $connection_module = "Lab::Moose::Connection::" . $connection_type;
-    load($connection_module);
-    my $connection = $connection_module->new($args_ref);
+    my $args_ref        = shift;
+    my $connection_type = delete $args_ref->{connection_type};
+
+    # Somewhat problematic, as the args_ref mixes connection options
+    # with instrument options. => Better use the Lab::Moose constructor ;)
     return $module->new(
+        connection_type    => $connection_type,
+        connection_options => $args_ref,
         %{$args_ref},
-        connection => $connection
     );
 }
 
