@@ -6,7 +6,7 @@ use 5.010;
 use Moose;
 use Moose::Util::TypeConstraints qw(enum duck_type);
 use MooseX::Params::Validate;
-
+use Module::Load 'load';
 use Data::Dumper;
 use Exporter 'import';
 
@@ -31,10 +31,21 @@ use namespace::autoclean
     -except => 'import',
     -also   => [@EXPORT_OK];
 
-has 'connection' => (
-    is       => 'ro',
-    isa      => duck_type( [qw/Write Read Query Clear/] ),
-    required => 1,
+has connection_type => (
+    is        => 'ro',
+    isa       => 'Str',
+    predicate => 'has_connection_type',
+);
+
+has connection_options => (
+    is      => 'ro',
+    isa     => 'HashRef',
+    default => sub { {} },
+);
+
+has connection => (
+    is  => 'ro',
+    isa => duck_type( [qw/Write Read Query Clear/] ),
 
     handles => {
         write        => 'Write',
@@ -42,7 +53,38 @@ has 'connection' => (
         binary_query => 'Query',
         clear        => 'Clear',
     },
+    writer    => '_connection',
+    predicate => 'has_connection',
 );
+
+# Can be subclassed in drivers.
+sub default_connection_options {
+    return {};
+}
+
+sub BUILD {
+    my $self = shift;
+    my $error_msg
+        = "Give either ready connection or 'connection_type' argument to instrument constructor.";
+    if ( $self->has_connection ) {
+        if ( $self->has_connection_type ) {
+            croak $error_msg ;
+        }
+        return;
+    }
+    if ( not $self->has_connection_type ) {
+        croak $error_msg;
+    }
+    my $connection_type = $self->connection_type();
+    $connection_type = "Lab::Moose::Connection::$connection_type";
+    my $connection_options = {
+        %{ $self->default_connection_options() },
+        %{ $self->connection_options() }
+    };
+    load $connection_type;
+    my $connection = $connection_type->new( %{$connection_options} );
+    $self->_connection($connection);
+}
 
 with 'Lab::Moose::Instrument::Log';
 

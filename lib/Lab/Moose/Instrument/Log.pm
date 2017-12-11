@@ -36,12 +36,10 @@ has log_id => (
      type => '...',
      connection_type => '...',
      connection_options => {...},
-     instrument_options => {
-         # write into newly created logfile:
-         log_file => '/tmp/instr.log',
-         # alternative: write into filehandle:
-         log_fh => $filehandle,
-     },
+     # write into newly created logfile:
+     log_file => '/tmp/instr.log',
+     # alternative: write into filehandle:
+     log_fh => $filehandle,
  );
 
 
