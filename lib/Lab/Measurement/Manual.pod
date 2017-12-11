@@ -168,8 +168,6 @@ can be used with XPRESS, just like the Lab::Instrument drivers.
 
 =item * L<Lab::Instrument::HP83732A>
 
-=item * L<Lab::Instrument::RSSMB100A>
-
 =item * L<Lab::Instrument::MG369xB>
 
 =back

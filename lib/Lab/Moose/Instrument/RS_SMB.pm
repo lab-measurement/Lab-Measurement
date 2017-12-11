@@ -65,7 +65,7 @@ cache source_frequency => ( getter => 'source_frequency_query' );
 sub source_frequency_query {
     my ( $self, %args ) = validated_getter( \@_ );
     return $self->cached_source_frequency(
-        $self->query( command => "FREQ?" ) );
+        $self->query( command => "FREQ?", %args ) );
 }
 
 sub source_frequency {
@@ -79,7 +79,7 @@ sub source_frequency {
         croak "value smaller than minimal frequency $min_freq";
     }
 
-    $self->write( command => sprintf( "FREQ %.17g", $value ) );
+    $self->write( command => sprintf( "FREQ %.17g", $value ), %args );
     $self->cached_source_frequency($value);
 }
 
@@ -133,6 +133,71 @@ sub set_frq {
 sub get_frq {
     my $self = shift;
     return $self->source_frequency_query();
+}
+
+#
+# Pulse/AM modulation stuff from old RSSMB100A driver; TODO: caching + docs
+#
+
+sub set_pulselength {
+    my ( $self, $value, %args ) = validated_setter( \@_ );
+    $self->write( command => "PULM:WIDT $value s", %args );
+}
+
+sub get_pulselength {
+    my ( $self, %args ) = validated_getter( \@_ );
+    return $self->query( command => "PULM:WIDT?", %args );
+}
+
+sub set_pulseperiod {
+    my ( $self, $value, %args ) = validated_setter( \@_ );
+    $self->write( command => "PULM:PER $value s", %args );
+}
+
+sub get_pulseperiod {
+    my ( $self, %args ) = validated_getter( \@_ );
+    return $self->query( command => "PULM:PER?", %args );
+}
+
+sub selftest {
+    my ( $self, %args ) = validated_getter( \@_ );
+    return $self->query( command => "*TST?", %args );
+}
+
+sub display_on {
+    my ( $self, %args ) = validated_getter( \@_ );
+    $self->write( command => "DISPlay ON", %args );
+}
+
+sub display_off {
+    my ( $self, %args ) = validated_getter( \@_ );
+    $self->write( command => "DISPlay OFF", %args );
+}
+
+sub enable_external_am {
+    my ( $self, %args ) = validated_getter( \@_ );
+    $self->write( command => "AM:DEPTh MAX",              %args );
+    $self->write( command => "AM:SENSitivity 70PCT/VOLT", %args );
+    $self->write( command => "AM:TYPE LINear",            %args );
+    $self->write( command => "AM:STATe ON",               %args );
+}
+
+sub disable_external_am {
+    my ( $self, %args ) = validated_getter( \@_ );
+    $self->write( command => "AM:STATe OFF", %args );
+}
+
+sub enable_internal_pulsemod {
+    my ( $self, %args ) = validated_getter( \@_ );
+    $self->write( command => "PULM:SOUR INT",      %args );
+    $self->write( command => "PULM:DOUB:STAT OFF", %args );
+    $self->write( command => "PULM:MODE SING",     %args );
+    $self->write( command => "PULM:STAT ON",       %args );
+}
+
+sub disable_internal_pulsemod {
+    my ( $self, %args ) = validated_getter( \@_ );
+    $self->write( command => "PULM:STAT OFF", %args );
 }
 
 __PACKAGE__->meta()->make_immutable();
