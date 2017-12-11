@@ -373,6 +373,8 @@ can be used with XPRESS, just like the Lab::Instrument drivers.
 
 =item * L<Lab::Moose::Instrument::HP34410A>
 
+alias: L<Lab::Moose::Instrument::Agilent34410A>
+
 =back
 
 =head3 Voltage sources

@@ -60,7 +60,7 @@ script:
   - prove --verbose -l -r xt/critic/
 
   # Pod manual test
-  - perl xt/pod-manual-coverage.pl
+  - prove --verbose xt/pod-manual-coverage.t
   
 notifications:
   email: false

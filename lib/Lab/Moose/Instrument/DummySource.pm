@@ -57,13 +57,11 @@ sub BUILD {
      type => 'DummySource',
      connection_type => 'Debug',
      connection_options => {verbose => 0},
-     instrument_options => {
-         # mandatory protection settings
-         max_units_per_step => 0.001, # max step is 1mV/1mA
-         max_units_per_second => 0.01,
-         min_units => -10,
-         max_units => 10,
-     }
+     # mandatory protection settings
+     max_units_per_step => 0.001, # max step is 1mV/1mA
+     max_units_per_second => 0.01,
+     min_units => -10,
+     max_units => 10,
  );
 
  # Step-sweep to new level.

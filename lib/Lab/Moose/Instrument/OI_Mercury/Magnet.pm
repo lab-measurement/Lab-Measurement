@@ -21,6 +21,14 @@ has verbose => (
     default => 1
 );
 
+around default_connection_options => sub {
+    my $orig    = shift;
+    my $self    = shift;
+    my $options = $self->$orig();
+    $options->{Socket}{port} = 7020;
+    return $options;
+};
+
 =head1 SYNOPSIS
 
  use Lab::Moose;
@@ -28,10 +36,7 @@ has verbose => (
  my $magnet = instrument(
      type => 'OI_Mercury::Magnet',
      connection_type => 'Socket',
-     connection_options => {
-         host => '192.168.3.15',
-         port => 7020,
-     }
+     connection_options => {host => '192.168.3.15'}
  );
 
  say "He level (%): ", $magnet->get_he_level();

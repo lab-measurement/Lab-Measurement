@@ -27,6 +27,18 @@ sub BUILD {
     $self->cls();
 }
 
+around default_connection_options => sub {
+    my $orig     = shift;
+    my $self     = shift;
+    my $options  = $self->$orig();
+    my $usb_opts = { vid => 0x03f0 };    # what is PID??
+
+    $options->{USB} = $usb_opts;
+    $options->{'VISA::USB'} = $usb_opts;
+
+    return $options;
+};
+
 =head1 SYNOPSIS
 
  my $dmm = instrument(
