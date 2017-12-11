@@ -62,13 +62,13 @@ can be used with XPRESS, just like the Lab::Instrument drivers.
 
 =over
 
-=item * L<examples::XPRESS::Example1_Simple-IV.pl>
+=item * L<Lab::XPRESS::Examples::Example1_Simple_IV>
 
-=item * L<examples::XPRESS::Example2_Gate-IV-scan.pl>
+=item * L<Lab::XPRESS::Examples::Example2_Gate_IV_scan>
 
-=item * L<examples::XPRESS::Example3_2samples-2files.pl>
+=item * L<Lab::XPRESS::Examples::Example3_2samples_2files>
 
-=item * L<examples::XPRESS::Example4_3d-scan.pl>
+=item * L<Lab::XPRESS::Examples::Example4_3d_scan>
 
 =back
 
