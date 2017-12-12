@@ -196,8 +196,6 @@ can be used with XPRESS, just like the Lab::Instrument drivers.
 
 =item * L<Lab::Instrument::IPS>
 
-=item * L<Lab::Instrument::OI_Mercury::Magnet>
-
 =back
 
 =head3 Temperature control devices
@@ -227,8 +225,6 @@ can be used with XPRESS, just like the Lab::Instrument drivers.
 =over
 
 =item * L<Lab::Instrument::OI_ILM210>
-
-=item * L<Lab::Instrument::OI_Mercury::Level>
 
 =back
 
@@ -436,6 +432,8 @@ alias: L<Lab::Moose::Instrument::Agilent34410A>
 =over
 
 =item * L<Lab::Moose::Instrument::OI_Mercury::Magnet>
+
+contains support for temperature sensor and He/N2 level meters.
 
 =back
 
