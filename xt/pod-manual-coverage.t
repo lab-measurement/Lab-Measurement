@@ -96,7 +96,6 @@ my @whitelist = qw/
     Lab::Instrument::TemperatureDiode
     Lab::Instrument::TemperatureDiode::RO600
     Lab::Instrument::TemperatureDiode::SI420
-    Lab::Instrument::SpectrumSCPI
     Lab::Instrument::AH2700A
     Lab::Instrument::Agilent34420A
     Lab::Instrument::LabViewHeater
