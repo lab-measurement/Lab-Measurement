@@ -4,6 +4,7 @@ package Lab::Moose::Instrument;
 
 use 5.010;
 use Moose;
+use MooseX::StrictConstructor;
 use Moose::Util::TypeConstraints qw(enum duck_type);
 use MooseX::Params::Validate;
 use Module::Load 'load';

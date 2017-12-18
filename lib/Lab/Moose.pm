@@ -9,11 +9,15 @@ use 5.010;
 use MooseX::Params::Validate;
 
 use Module::Load;
-use Exporter 'import';
 use Lab::Moose::Connection;
 use Carp;
 
-our @EXPORT = qw/instrument datafolder datafile/;
+our @ISA = qw(Exporter);
+
+# FIXME: export 'use warnings; use strict; into caller'
+
+our @EXPORT
+    = qw/instrument datafolder datafile linspace sweep sweep_datafile our_catfile/;
 
 =head1 SYNOPSIS
 
@@ -38,6 +42,8 @@ our @EXPORT = qw/instrument datafolder datafile/;
      folder => $folder,
      filename => 'file.yml'
  );
+
+ my @points = linspace(from => -1, to => 1, step => 0.1);
 
 =head1 SUBROUTINES
 
@@ -67,6 +73,16 @@ Create instrument with existing connection:
  );
 
 =cut
+
+# Enable "use warnings; use strict" in caller.
+# See https://www.perlmonks.org/?node_id=1095522
+# and https://metacpan.org/pod/Import::Into
+
+sub import {
+    __PACKAGE__->export_to_level( 1, @_ );
+    strict->import();
+    warnings->import();
+}
 
 sub instrument {
     my %args = validated_hash(
@@ -101,12 +117,14 @@ sub datafolder {
 
 Load Lab::Moose::DataFile::C<$type> and call it's C<new> method with C<%args>.
 
+The default type is 'Gnuplot'.
+
 =cut
 
 sub datafile {
     my (%args) = validated_hash(
         \@_,
-        type                           => { isa => 'Str' },
+        type => { isa => 'Str', default => 'Gnuplot' },
         MX_PARAMS_VALIDATE_ALLOW_EXTRA => 1
     );
 
@@ -117,6 +135,75 @@ sub datafile {
     load $type;
 
     return $type->new(%args);
+}
+
+=head2 linspace
+
+ # create array (-1, -0.9, ..., 0.9, 1) 
+ my @points = linspace(from => -1, to => 1, step => 0.1);
+
+ # create array without first point (-0.9, ..., 1)
+ my @points = linspace(from => -1, to => 1, step => 0.1, exclude_from => 1);
+
+=cut
+
+sub linspace {
+    my ( $from, $to, $step, $exclude_from ) = validated_list(
+        \@_,
+        from         => { isa => 'Num' },
+        to           => { isa => 'Num' },
+        step         => { isa => 'Num' },
+        exclude_from => { isa => 'Bool', default => 0 },
+    );
+
+    $step = abs($step);
+    my $sign = $to > $from ? 1 : -1;
+
+    my @steps;
+    for ( my $i = $exclude_from ? 1 : 0;; ++$i ) {
+        my $point = $from + $i * $sign * $step;
+        if ( ( $point - $to ) * $sign >= 0 ) {
+            last;
+        }
+        push @steps, $point;
+    }
+    return ( @steps, $to );
+}
+
+sub sweep {
+    my (%args) = validated_hash(
+        \@_,
+        type                           => { isa => 'Str' },
+        MX_PARAMS_VALIDATE_ALLOW_EXTRA => 1
+    );
+
+    my $type = delete $args{type};
+
+    $type = "Lab::Moose::Sweep::$type";
+
+    load $type;
+
+    return $type->new(%args);
+}
+
+sub sweep_datafile {
+    my (%args) = validated_hash(
+        \@_,
+        filename                       => { isa => 'Str', default => 'data' },
+        MX_PARAMS_VALIDATE_ALLOW_EXTRA => 1
+    );
+
+    my $class = 'Lab::Moose::Sweep::DataFile';
+    load $class;
+    return $class->new( params => \%args );
+}
+
+# PDL::Graphics::Gnuplot <= 2.011 cannot handle backslashes on windows.
+sub our_catfile {
+    if ( @_ == 0 ) {
+        return undef;
+    }
+    return join( '/', @_ );
 }
 
 1;

@@ -13,7 +13,7 @@ use PDL::Core qw/topdl/;
 use Data::Dumper;
 use Carp;
 use Scalar::Util 'looks_like_number';
-use Lab::Moose::Plot;
+use Module::Load 'load';
 use Lab::Moose::DataFile::Read;
 use List::Util 'any';
 use namespace::autoclean;
@@ -283,6 +283,7 @@ sub new_block {
     print {$fh} "\n";
     $self->_num_blocks( $self->num_blocks + 1 );
     $self->refresh_plots( refresh => 'block' );
+    $self->refresh_plots( refresh => 'point' );
 }
 
 =head2 log_comment
@@ -402,9 +403,11 @@ sub _add_2d_plot {
         curve_options    => { isa => 'HashRef', default => {} },
         refresh          => { isa => 'Str', default => 'point' },
     );
+    say "add_2d_plot args: ", Dumper( \%args );
 
     my $x_column = delete $args{x};
     my $y_column = delete $args{y};
+    my $refresh  = delete $args{refresh};
 
     my %default_plot_options = (
         xlabel => $x_column,
@@ -432,8 +435,7 @@ sub _add_2d_plot {
 
     my $plot = Lab::Moose::Plot->new(%args);
 
-    my $plots   = $self->plots();
-    my $refresh = $args{refresh};
+    my $plots = $self->plots();
     push @{$plots}, {
         plot    => $plot,
         x       => $x_column,
@@ -458,6 +460,7 @@ sub _add_pm3d_plot {
     my $x_column = delete $args{x};
     my $y_column = delete $args{y};
     my $z_column = delete $args{z};
+    my $refresh  = delete $args{refresh};
 
     my %default_plot_options = (
         pm3d    => 'implicit map corners2color c1',
@@ -488,9 +491,8 @@ sub _add_pm3d_plot {
         croak "columns $x_column, $y_column, $z_column must not be equal";
     }
 
-    my $plot    = Lab::Moose::Plot->new(%args);
-    my $refresh = $args{refresh};
-    my $plots   = $self->plots();
+    my $plot  = Lab::Moose::Plot->new(%args);
+    my $plots = $self->plots();
     push @{$plots}, {
         plot    => $plot,
         x       => $x_column,
@@ -503,15 +505,35 @@ sub _add_pm3d_plot {
 sub add_plot {
     my ( $self, %args ) = validated_hash(
         \@_,
-        type               => { isa => 'Str', default  => 'points' },
-        hard_copy          => { isa => 'Str', optional => 1 },
-        hard_copy_terminal => { isa => 'Str', optional => 1 },
+        type => { isa => 'Str',  default => 'points' },
+        live => { isa => 'Bool', default => 1 },          # only for testing
+        hard_copy          => { isa => 'Str',     optional => 1 },
+        hard_copy_terminal => { isa => 'Str',     optional => 1 },
+        terminal_options   => { isa => 'HashRef', default  => {} },
         MX_PARAMS_VALIDATE_ALLOW_EXTRA => 1,
     );
 
+    # only load PDL::Graphics::Gnuplot when needed. No gnuplot is needed
+    # unless 'add_plot' is called.
+    load 'Lab::Moose::Plot';
+
     my $type               = delete $args{type};
     my $hard_copy          = delete $args{hard_copy};
-    my $hard_copy_terminal = delete $args{hard_copy_terminal};
+    my $terminal           = $args{terminal};
+    my $hard_copy_terminal = delete $args{hard_copy_terminal} // 'png';
+    my $live               = delete $args{live};
+    if ( not defined $hard_copy ) {
+        $hard_copy = $self->filename() . '.plot.' . $hard_copy_terminal;
+    }
+
+    my %default_terminal_options;
+    if ( not( defined $terminal and $terminal eq 'dumb' ) ) {
+        %default_terminal_options
+            = ( enhanced => 0, raise => 0, persist => 1 );
+    }
+
+    $args{terminal_options}
+        = { %default_terminal_options, %{ $args{terminal_options} } };
 
     my $plot_generator_sub;
     if ( $type =~ /points?/i ) {
@@ -524,29 +546,26 @@ sub add_plot {
         croak "unknown plot type '$type'";
     }
 
-    $self->$plot_generator_sub(%args);
-
-    # add hard copy plot
-    if ( defined $hard_copy ) {
-        my $hard_copy_file = Lab::Moose::DataFile->new(
-            folder   => $self->folder(),
-            filename => $hard_copy,
-        );
-
-        delete $args{terminal};
-        delete $args{terminal_options};
-
-        my $hard_copy_terminal = delete $args{hard_copy_terminal};
-        my $terminal
-            = defined($hard_copy_terminal) ? $hard_copy_terminal : 'png';
-
-        $self->$plot_generator_sub(
-            terminal => $terminal,
-            terminal_options =>
-                { output => $hard_copy_file->path(), enhanced => 0 },
-            %args,
-        );
+    if ($live) {
+        $self->$plot_generator_sub(%args);
     }
+
+    # add hard copy plot. Use Lab::Moose::DataFile to ensure that
+    # no filename is used twice and content is overwritten.
+    my $hard_copy_file = Lab::Moose::DataFile->new(
+        folder   => $self->folder(),
+        filename => $hard_copy,
+    );
+
+    delete $args{terminal};
+    delete $args{terminal_options};
+
+    $self->$plot_generator_sub(
+        terminal => $hard_copy_terminal,
+        terminal_options =>
+            { output => $hard_copy_file->path(), enhanced => 0 },
+        %args,
+    );
 }
 
 sub _refresh_plot {

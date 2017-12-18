@@ -45,7 +45,10 @@ sub Query {
 }
 
 sub Clear {
-    carp "Clear called";
+    my $self = shift;
+    if ( $self->verbose ) {
+        carp "Clear called";
+    }
 }
 
 with 'Lab::Moose::Connection';

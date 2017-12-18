@@ -1,4 +1,5 @@
 package Lab::Moose::DataFolder;
+
 #ABSTRACT: Create a data directory with meta data
 
 use 5.010;
@@ -6,11 +7,12 @@ use warnings;
 use strict;
 
 use Moose;
+use MooseX::StrictConstructor;
 use MooseX::Params::Validate;
 
 use Carp;
 
-use File::Spec::Functions qw/catfile/;
+use Lab::Moose qw/our_catfile/;
 use File::Basename qw/basename dirname/;
 use File::Copy 'copy';
 use List::Util 'max';
@@ -23,7 +25,6 @@ use Encode 'decode';
 use utf8;
 
 use Lab::Moose::DataFile::Meta;
-
 
 # Get a copy of @ARGV, before it get's mangled by the user script.
 
@@ -136,7 +137,7 @@ sub _copy_user_script {
         $basename = basename($script);
     }
 
-    my $copy = catfile( $self->path, $basename );
+    my $copy = our_catfile( $self->path, $basename );
 
     copy( $script, $copy )
         or croak "copy of $script to $copy failed: $!";

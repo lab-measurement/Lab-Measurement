@@ -1,4 +1,5 @@
 package Lab::Moose::DataFile;
+
 #ABSTRACT: Base class for data file types
 
 use 5.010;
@@ -6,19 +7,19 @@ use warnings;
 use strict;
 
 use Moose;
+use MooseX::StrictConstructor;
 use MooseX::Params::Validate;
 
 use Lab::Moose::DataFolder;
 
 use File::Basename qw/dirname basename/;
 use File::Path 'make_path';
-use File::Spec::Functions 'catfile';
+use Lab::Moose 'our_catfile';
 use IO::Handle;
 
 use Carp;
 
 use namespace::autoclean;
-
 
 has folder => (
     is       => 'ro',
@@ -75,14 +76,14 @@ sub _open_file {
     my $filename = $self->filename();
 
     my $dirname = dirname($filename);
-    my $dirpath = catfile( $folder, $dirname );
+    my $dirpath = our_catfile( $folder, $dirname );
 
     if ( not -e $dirpath ) {
         make_path($dirpath)
             or croak "cannot make directory '$dirname'";
     }
 
-    my $path = catfile( $folder, $filename );
+    my $path = our_catfile( $folder, $filename );
 
     $self->_path($path);
 
