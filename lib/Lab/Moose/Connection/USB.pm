@@ -128,7 +128,7 @@ __PACKAGE__->meta->make_immutable();
 
 =head1 DESCRIPTION
 
-Connection backend based on L<USB::TMC>.
+Connection backend based on libusb via the L<USB::TMC> distribution.
 
 =cut
 

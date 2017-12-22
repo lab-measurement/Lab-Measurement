@@ -286,7 +286,7 @@ can be used with XPRESS, just like the Lab::Instrument drivers.
 
 =back
 
-=head3 USB Test&Measurement (Linux kernel driver)
+=head3 USB Test & Measurement (Linux kernel driver)
 
 =over
 
@@ -517,7 +517,7 @@ alias: C<Lab::Moose::Connection::VISA_GPIB>
 
 =back
 
-=head3 USB Test&Measurement (Linux kernel driver)
+=head3 USB Test & Measurement
 
 =over
 
