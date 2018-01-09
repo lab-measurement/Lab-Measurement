@@ -2,7 +2,22 @@ package Lab::Moose::Sweep::Step::Voltage;
 
 #ABSTRACT: Voltage sweep.
 
-=head1 SYNOPSIS
+=head1 DESCRIPTION
+
+Step sweep with following properties:
+
+=over
+
+=item *
+
+ Uses instruments C<set_level> method to change the output voltage.
+ The default filename extension is 
+
+=item *
+
+Default filename extension: C<'Voltage='>
+
+=back
 
 =cut
 

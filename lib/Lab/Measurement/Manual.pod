@@ -356,6 +356,8 @@ can be used with XPRESS, just like the Lab::Instrument drivers.
 
 =item * L<Lab::Moose::Sweep::Step::Voltage>
 
+=item * L<Lab::Moose::Sweep::Step::Frequency>>
+
 =back
 
 =head2 Instrument control classes
