@@ -20,7 +20,7 @@ sub dummysource {
         connection_type      => 'Debug',
         connection_options   => { verbose => 0 },
         verbose              => 0,
-        max_units            => 10,
+        max_units            => 100,
         min_units            => -10,
         max_units_per_step   => 100,
         max_units_per_second => 1000000,
@@ -67,6 +67,44 @@ sub dummysource {
 EOF
     my $path = catfile( $sweep->foldername, 'data.dat' );
     file_ok( $path, $expected, "basic 1D sweep: datafile" );
+}
+
+{
+    #
+    # Basic 1D sweep with list points
+    #
+
+    my $source = dummysource();
+    my $sweep  = sweep(
+        type       => 'Step::Voltage',
+        instrument => $source,
+        list       => [ 1, 4, 9, 16 ],
+    );
+
+    my $datafile = sweep_datafile( columns => [qw/level value/] );
+
+    my $value = 0;
+    my $meas  = sub {
+        my $sweep = shift;
+        $sweep->log( level => $source->get_level, value => $value++ );
+    };
+    $sweep->start(
+        measurement => $meas,
+        datafiles   => [$datafile],
+        folder      => $dir,
+
+        # use default datafile_dim and point_dim
+    );
+
+    my $expected = <<"EOF";
+# level\tvalue
+1\t0
+4\t1
+9\t2
+16\t3
+EOF
+    my $path = catfile( $sweep->foldername, 'data.dat' );
+    file_ok( $path, $expected, "basic 1D sweep with list: datafile" );
 }
 
 {
