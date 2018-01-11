@@ -1,0 +1,272 @@
+#DistZilla: +PodWeaver
+#PODNAME: Lab::Moose::Sweep::Tutorial
+#ABSTRACT: Documentation of high-level sweep framework
+
+=pod
+
+=head1 Datafiles and datafolders
+
+=head2 Quickstart: Measuring an IV-curve
+
+As a basic example of a 1D sweepm, we measure an IV curve:
+
+ # file: IV.pl
+ use Lab::Moose; # you get 'use warnings; use strict;' for free
+
+ my $source = instrument(
+     type => 'YokogawaGS200',
+     connection_type => 'USB',
+     # Safety limits:
+     max_units => 10, min_units => -10,
+     max_units_per_step => 0.1, max_units_per_second => 1
+ );
+
+ my $dmm = instrument(type => 'Agilent34410A', connection_type => 'USB');
+
+ my $sweep = sweep(
+     type => 'Step::Voltage',
+     instrument => $source,
+     from => -5, to => 5, step => 0.01
+ );
+
+ my $datafile = sweep_datafile(columns => [qw/voltage current/]);
+
+ my $meas = sub {
+     my $sweep = shift;
+     $sweep->log(
+         voltage => $source->cached_level(),
+         current => $dmm->get_value(),
+     );
+ };
+
+ $sweep->start(
+     measurement => $meas,
+     datafiles   => [$datafile],
+ );
+
+Running this script repeatedly creates output folders F<MEAS_000>, F<MEAS_001>,
+...
+The folders contain the following files:
+
+=over
+
+=item * F<IV.pl>
+
+Copy of the measurement script.
+
+=item * F<META.yml>
+
+YAML file with various metadata (time of script run, username, hostname, copy of the
+used commandline, Lab::Measurement version, ...).
+
+=item * F<data.dat>
+
+Gnuplot-style datafile:
+
+ # voltage        current
+ -5               42
+ -4.99            43
+ ...
+
+=back
+
+=head2 The datafolder
+
+You can change the name of the datafolder by providing a C<folder> argument to
+the C<start> method:
+
+ $sweep->start(
+     measurement => $meas,
+     datafiles => [$datafile],
+     folder => 'IV_curve'
+ );
+
+This will create output folders with names F<IV_curve_xxx>.
+
+=head2 Multiple datafiles
+
+We can create multiple datafiles:
+
+ my $datafile1 = sweep_datafile(
+     filename => 'data1',
+     columns => [qw/voltage current/]
+ );
+ my $datafile2 = sweep_datafile(
+     filename => 'data2',
+     columns => [qw/voltage current/]
+ );
+
+
+
+And in the C<$meas> subroutine, call the sweeps's C<log> method for both datafiles:
+
+ my $meas = sub {
+     my $sweep = shift;
+     my $voltage = $source->cached_level();
+     $sweep->log(
+         datafile => $datafile1,
+         voltage  => $voltage,
+         current  => $dmm1->get_value(),
+     );
+     $sweep->log(
+         datafile => $datafile2,
+         voltage  => $voltage,
+         current  => $dmm2->get_value()
+    );
+ };
+
+
+=head1 Multi-dimensional sweeps: Datafile dimensions and filename extensions
+
+
+=head2 2D sweeps
+
+Let us start with a simple 2D sweep: we sweep a gate voltage (outer sweep) and
+a bias voltage and again measure a current:
+
+ use Lab::Moose;
+
+ # As we use two Yokogawa's, we need to provide USB serial IDs
+ my $gate_source = instrument(
+     type => 'YokogawaGS200',
+     connection_type => 'USB',
+     connection_options => {serial => '...'},
+     # Safety limits:
+     max_units => 10, min_units => -10,
+     max_units_per_step => 0.1, max_units_per_second => 1
+ );
+
+ my $bias_source = instrument(
+     type => 'YokogawaGS200',
+     connection_type => 'USB',
+     connection_options => {serial => '...'},
+     # Safety limits:
+     max_units => 10, min_units => -10,
+     max_units_per_step => 0.1, max_units_per_second => 1
+ );
+
+ my $dmm = instrument(type => 'Agilent34410A', connection_type => 'USB');
+
+ my $gate_sweep = sweep(
+     type => 'Step::Voltage',
+     instrument => $gate_source,
+     from => 0, to => 1, step => 0.1
+ );
+
+ my $bias_sweep = sweep(
+     type => 'Step::Voltage',
+     instrument => $bias_source,
+     from => 0, to => 1, step => 0.1
+ );
+
+ my $datafile = sweep_datafile(columns => [qw/gate bias current/]);
+
+ my $meas = sub {
+     my $sweep = shift;
+     my $v_gate = $gate_source->cached_level();
+     my $v_bias = $bias_source->cached_level();
+     $sweep->log(
+         gate => $v_gate,
+         bias => $v_bias,
+         current => $dmm->get_value(),
+     );
+ };
+
+ $gate_sweep->start(
+     slaves      => [$bias_sweep],
+     measurement => $meas,
+     datafiles   => [$datafile],
+ );
+
+By default, this will create a 2D block datafile:
+
+ # gate    bias    current
+ 0         0       x
+ 0         0.1     x
+ 0         0.2     x
+ ...
+ 0         1       x
+
+ 0.1       0       x
+ 0.1       0.1     x
+ 0.1       0.2     x
+ ...
+ ...
+
+ 1         0       x
+ ...
+ 1         1       x
+
+Alternatively, we can create multiple 1D datafiles, one for each value of the
+gate voltage. We do this by setting the C<datafile_dim> parameter to 1:
+
+ $gate_sweep->start(
+     slaves       => [$bias_sweep],
+     measurement  => $meas,
+     datafiles    => [$datafile],
+     datafile_dim => 1
+ );
+
+The output files will be F<<data_Voltage=0.dat, data_Voltage=0.1.dat, ...,
+data_Voltage=1.dat>> We can customize the F<Voltage=> part in the datafile
+names by providing a
+B<filename extension> in the gate sweep:
+
+ my $gate_sweep = sweep(
+     type => 'Step::Voltage',
+     instrument => $gate_source,
+     from => 0, to => 1, step => 0.1,
+     filename_extension => 'Gate=',
+ );
+
+=head2 Higher dimensional sweeps
+
+If we create sweeps setups with dimension > 2, the maximum datafile dimension
+remains 2. E.g. if we create a 3D sweep [Temperature, Gate, Bias], a 2D
+datafile will be created for each value of the temperature sweep.
+If we set C<datafile_dim> to 1, a subfolder will be created for each value of
+the temperature and the subfolders contain 1D datafiles for each gate voltage.
+
+FIXME: link to example script.
+
+=head1 Live plotting
+
+=head2 Line plots
+
+Let us add a simple line plot to our IV measurement:
+
+ my $datafile = sweep_datafile(columns => [qw/voltage current/]);
+ 
+ $datafile->add_plot(
+     x => 'voltage',
+     y => 'current',
+ );
+
+By default the live plot w
+
+FIXME: explain hardcopy 
+
+
+=head2 Color maps (3D plots)
+
+Let us add a color plot to the gate/bias 2D sweep:
+
+ my $datafile = sweep_datafile(columns => [qw/gate bias current/]);
+ 
+ $datafile->add_plot(
+     type => 'pm3d',
+     x => 'gate',
+     y => 'bias',
+     z => 'current'
+ );
+
+By default, the live plot will be updated after a bias sweep is completed.
+
+=head2 Customizing plot and curve options
+
+TODO
+
+=head1 Block data
+
+TODO
+
