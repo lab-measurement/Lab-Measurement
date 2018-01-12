@@ -242,10 +242,17 @@ Let us add a simple line plot to our IV measurement:
      y => 'current',
  );
 
-By default the live plot w
+This will create a live line plot, which will be updated for each new data
+point. A copy of the plot will be saved in the output folder in png format with
+filename C<"${datafile}.plot.png">. You can change this filename with the
+C<hard_copy> option:
 
-FIXME: explain hardcopy 
-
+ $datafile->add_plot(
+     x         => 'voltage',
+     y         => 'current',
+     hard_copy => 'data.png',
+ );
+ 
 
 =head2 Color maps (3D plots)
 
@@ -255,18 +262,128 @@ Let us add a color plot to the gate/bias 2D sweep:
  
  $datafile->add_plot(
      type => 'pm3d',
-     x => 'gate',
-     y => 'bias',
-     z => 'current'
+     x    => 'gate',
+     y    => 'bias',
+     z    => 'current'
  );
 
 By default, the live plot will be updated after a bias sweep is completed.
 
 =head2 Customizing plot and curve options
 
-TODO
+There are many ways to customize a plot and it's hard copy:
+
+=head3 Terminal options
+
+If we don't want to use gnuplot's default terminal for the live plot or hard copy,
+we use the C<terminal>, C<hard_copy_terminal>, C<terminal_options> and
+C<hard_copy_terminal_options> options:
+
+ $datafile->add_plot(
+     type => 'pm3d',
+     x    => 'gate',
+     y    => 'bias',
+     z    => 'current',
+     terminal => 'x11',
+     terminal_options => {linewidth => 3},
+     hard_copy => 'data.jpg',
+     hard_copy_terminal => 'jpeg',
+     hard_copy_terminal_options => {linewidth => 0.5}
+ ); 
+
+
+=head3 Plot options
+
+ $datafile->add_plot(
+     type => 'pm3d',
+     x    => 'gate',
+     y    => 'bias',
+     z    => 'current',
+     plot_options => {
+         title => 'x - y plot',
+         xlabel => 'x (V)',
+         ylabel => 'y (V)',
+         cblabel => 'current (A)', # label for color box
+         format => {x => "'%.2e'", y => "'%.2e'"},
+         grid => 0, # disable grid
+     },
+ );      
+
+More plot options are documented in L<PDL::Graphics::Gnuplot>.
+
+=head3 Curve options
+
+ $datafile->add_plot(
+     type => 'pm3d',
+     x    => 'gate',
+     y    => 'bias',
+     z    => 'current',
+     curve_options => {
+         with => 'lines', # default is 'points'
+         linetype => 2, # color
+         linewidth => 2,
+     },
+ );      
+
+More curve options are documented in L<PDL::Graphics::Gnuplot>.
 
 =head1 Block data
 
-TODO
+
+The C<sparam_sweep> method returns 2D PDLs with the following format:
+
+ [
+  [freq1    , freq2    , ..., freqN    ],
+  [Re(S11)_1, Re(S11)_2, ..., Re(S11)_N],
+  [Im(S11)_1, Im(S11)_2, ..., Im(S11)_N],
+  [Amp_1    , Amp_2    , ..., Amp_N    ],
+  [phase_1  , phase_2  , ..., phase_N  ],
+ ]
+
+We perform a frequency sweep with the VNA for each level of the voltage source:
+
+ use Lab::Moose;
+
+ my $source = instrument(
+     type => 'YokogawaGS200',
+     connection_type => 'USB',
+     # Safety limits:
+     max_units => 10, min_units => -10,
+     max_units_per_step => 0.1, max_units_per_second => 1
+ );
+
+ my $vna = instrument(
+     type => 'RS_ZVA',
+     connection_type => 'VXI11',
+     connection_options => {host => '192.168.x.x'},
+ );
+
+ my $sweep = sweep(
+     type => 'Step::Voltage',
+     instrument => $source,
+     from => -5, to => 5, step => 0.01
+ );
+
+ my $datafile = sweep_datafile(
+     columns => [qw/voltage freq Re_S21 Im_S21 amplitude phase/]);
+
+ my $meas = sub {
+     my $sweep = shift;
+     my $voltage = $source->cached_level();
+     my $block = $vna->sparam_sweep(timeout => 10, average => 100);
+
+     $sweep->log_block(
+         prefix => {voltage => $voltage},
+         block => $block
+     );
+ };
+
+ $sweep->start(
+     measurement => $meas,
+     datafiles   => [$datafile],
+     datafile_dim => 1, # each VNA trace in a separate file
+     point_dim => 1, # the measurement sub logs blocks, not points
+ );
+
+
 

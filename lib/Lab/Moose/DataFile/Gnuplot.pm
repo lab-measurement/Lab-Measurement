@@ -3,8 +3,6 @@ package Lab::Moose::DataFile::Gnuplot;
 #ABSTRACT: Text based data file ('Gnuplot style')
 
 use 5.010;
-use warnings;
-use strict;
 
 use Moose;
 use MooseX::Params::Validate;
@@ -403,7 +401,6 @@ sub _add_2d_plot {
         curve_options    => { isa => 'HashRef', default => {} },
         refresh          => { isa => 'Str', default => 'point' },
     );
-    say "add_2d_plot args: ", Dumper( \%args );
 
     my $x_column = delete $args{x};
     my $y_column = delete $args{y};
@@ -507,9 +504,10 @@ sub add_plot {
         \@_,
         type => { isa => 'Str',  default => 'points' },
         live => { isa => 'Bool', default => 1 },          # only for testing
-        hard_copy          => { isa => 'Str',     optional => 1 },
-        hard_copy_terminal => { isa => 'Str',     optional => 1 },
-        terminal_options   => { isa => 'HashRef', default  => {} },
+        hard_copy                  => { isa => 'Str',     optional => 1 },
+        hard_copy_terminal         => { isa => 'Str',     optional => 1 },
+        hard_copy_terminal_options => { isa => 'HashRef', default  => {} },
+        terminal_options           => { isa => 'HashRef', default  => {} },
         MX_PARAMS_VALIDATE_ALLOW_EXTRA => 1,
     );
 
@@ -521,7 +519,8 @@ sub add_plot {
     my $hard_copy          = delete $args{hard_copy};
     my $terminal           = $args{terminal};
     my $hard_copy_terminal = delete $args{hard_copy_terminal} // 'png';
-    my $live               = delete $args{live};
+    my $hard_copy_terminal_options = delete $args{hard_copy_terminal_options};
+    my $live                       = delete $args{live};
     if ( not defined $hard_copy ) {
         $hard_copy = $self->filename() . '.plot.' . $hard_copy_terminal;
     }
@@ -534,6 +533,12 @@ sub add_plot {
 
     $args{terminal_options}
         = { %default_terminal_options, %{ $args{terminal_options} } };
+
+    my %default_hard_copy_terminal_options = ( enhanced => 1 );
+    $hard_copy_terminal_options = {
+        %default_hard_copy_terminal_options,
+        %{$hard_copy_terminal_options}
+    };
 
     my $plot_generator_sub;
     if ( $type =~ /points?/i ) {
@@ -561,9 +566,10 @@ sub add_plot {
     delete $args{terminal_options};
 
     $self->$plot_generator_sub(
-        terminal => $hard_copy_terminal,
-        terminal_options =>
-            { output => $hard_copy_file->path(), enhanced => 0 },
+        terminal         => $hard_copy_terminal,
+        terminal_options => {
+            output => $hard_copy_file->path(), %{$hard_copy_terminal_options}
+        },
         %args,
     );
 }

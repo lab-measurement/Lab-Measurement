@@ -34,7 +34,19 @@ my $sweep = sweep(
 );
 
 my $datafile_2d = sweep_datafile( columns => [qw/x y/] );
-$datafile_2d->add_plot( x => 'x', y => 'y' );
+$datafile_2d->add_plot(
+    x            => 'x',
+    y            => 'y',
+    plot_options => {
+        title  => 'some title',
+        xlabel => 'x (V)',
+        ylabel => 'y (V)',
+        format => { x => "'%.2e'", y => "'%.2e'" },
+        grid   => 0,                                  # disable grid
+
+    },
+    curve_options => { with => 'lines', linetype => 3, linewidth => 2 },
+);
 
 my $meas = sub {
     my $sweep = shift;
