@@ -134,7 +134,7 @@ sub start {
 
         # might allow point_dim = 2 in the future.
         point_dim => { isa => enum( [qw/1 0/] ), default => 0 },
-        folder => { isa => 'Str', optional => 1 },
+        folder => { isa => 'Str|Lab::Moose::DataFolder', optional => 1 },
         );
 
     $self->_ensure_no_slave();
@@ -205,8 +205,18 @@ sub start {
     }
 
     # Pass this to master sweep's _start method if we have a single datafile
-    my $datafolder = Lab::Moose::datafolder(
-        defined $folder ? ( path => $folder ) : () );
+    my $datafolder;
+    if ( defined $folder ) {
+        if ( ref $folder ) {
+            $datafolder = $folder;
+        }
+        else {
+            $datafolder = Lab::Moose::datafolder( path => $folder );
+        }
+    }
+    else {
+        $datafolder = Lab::Moose::datafolder();
+    }
 
     $self->_foldername( $datafolder->path() );
 

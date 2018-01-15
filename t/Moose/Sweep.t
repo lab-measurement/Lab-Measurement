@@ -538,6 +538,82 @@ EOF
     file_ok( $path, $expected, "1D Sweep, 1D data, 2D datafile: datafile" );
 }
 
+{
+    #
+    # Two sweeps into one folder
+    #
+    my $folder = datafolder( path => $dir );
+    my $source = dummysource();
+    my $sweep1 = sweep(
+        type       => 'Step::Voltage',
+        instrument => $source,
+        from       => 0,
+        to         => 0.5,
+        step       => 0.1
+    );
+
+    my $datafile1
+        = sweep_datafile( filename => 'data1', columns => [qw/level value/] );
+
+    my $value = 0;
+    my $meas1 = sub {
+        my $sweep = shift;
+        $sweep->log( level => $source->get_level, value => $value++ );
+    };
+    $sweep1->start(
+        measurement => $meas1,
+        datafiles   => [$datafile1],
+        folder      => $folder,
+    );
+
+    my $sweep2 = sweep(
+        type       => 'Step::Voltage',
+        instrument => $source,
+        from       => 0,
+        to         => 0.5,
+        step       => 0.1
+    );
+
+    my $datafile2
+        = sweep_datafile( filename => 'data2', columns => [qw/level value/] );
+
+    my $meas2 = sub {
+        my $sweep = shift;
+        $sweep->log( level => $source->get_level, value => $value++ );
+    };
+    $sweep2->start(
+        measurement => $meas2,
+        datafiles   => [$datafile2],
+        folder      => $folder,
+    );
+
+    my $foldername = $folder->path();
+
+    my $expected1 = <<"EOF";
+# level\tvalue
+0\t0
+0.1\t1
+0.2\t2
+0.3\t3
+0.4\t4
+0.5\t5
+EOF
+    my $path = catfile( $foldername, 'data1.dat' );
+    file_ok( $path, $expected1, "sweep1: datafile" );
+
+    my $expected2 = <<"EOF";
+# level\tvalue
+0\t6
+0.1\t7
+0.2\t8
+0.3\t9
+0.4\t10
+0.5\t11
+EOF
+    my $path = catfile( $foldername, 'data2.dat' );
+    file_ok( $path, $expected2, "sweep2: datafile" );
+}
+
 warn "dir: $dir\n";
 
 done_testing();

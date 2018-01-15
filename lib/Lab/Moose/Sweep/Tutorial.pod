@@ -292,7 +292,9 @@ C<hard_copy_terminal_options> options:
  ); 
 
 
-=head3 Plot options
+=head3 Plot and curve options
+
+L<PDL::Graphics::Gnuplot> separates between plot options and curve options:
 
  $datafile->add_plot(
      type => 'pm3d',
@@ -307,17 +309,6 @@ C<hard_copy_terminal_options> options:
          format => {x => "'%.2e'", y => "'%.2e'"},
          grid => 0, # disable grid
      },
- );      
-
-More plot options are documented in L<PDL::Graphics::Gnuplot>.
-
-=head3 Curve options
-
- $datafile->add_plot(
-     type => 'pm3d',
-     x    => 'gate',
-     y    => 'bias',
-     z    => 'current',
      curve_options => {
          with => 'lines', # default is 'points'
          linetype => 2, # color
@@ -325,12 +316,16 @@ More plot options are documented in L<PDL::Graphics::Gnuplot>.
      },
  );      
 
-More curve options are documented in L<PDL::Graphics::Gnuplot>.
+More Plot and curve options are documented in L<PDL::Graphics::Gnuplot>.
 
 =head1 Block data
 
+There are types of instruments which return more than a single data. Examples
+are spectrum and network analyzers, which perform a frequency sweep and return
+an array of data after each sweep.
 
-The C<sparam_sweep> method returns 2D PDLs with the following format:
+The C<sparam_sweep> method provided, e.g., by the
+L<Lab::Moose::Instrument::RS_ZVA> returns a 2D PDL with the following format:
 
  [
   [freq1    , freq2    , ..., freqN    ],
@@ -340,7 +335,10 @@ The C<sparam_sweep> method returns 2D PDLs with the following format:
   [phase_1  , phase_2  , ..., phase_N  ],
  ]
 
-We perform a frequency sweep with the VNA for each level of the voltage source:
+The following script sweeps a voltage source and performs a frequency sweep
+with the VNA for each level of the voltage source. Each VNA sweep is logged
+into a separate datafile which contains one line of data for each frequency
+point.
 
  use Lab::Moose;
 
@@ -385,5 +383,7 @@ We perform a frequency sweep with the VNA for each level of the voltage source:
      point_dim => 1, # the measurement sub logs blocks, not points
  );
 
-
+Without the C<< point_dim => 1 >> setting, only one datafile would be
+generated. One could also log all blocks into a single 2D datafile by setting
+C<< datafile_dim => 2 >>.
 
