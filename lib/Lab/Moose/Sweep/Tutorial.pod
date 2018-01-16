@@ -14,7 +14,7 @@ As a basic example of a 1D sweepm, we measure an IV curve:
  use Lab::Moose; # you get 'use warnings; use strict;' for free
 
  my $source = instrument(
-     type => 'YokogawaGS200',
+     type            => 'YokogawaGS200',
      connection_type => 'USB',
      # Safety limits:
      max_units => 10, min_units => -10,
@@ -24,7 +24,7 @@ As a basic example of a 1D sweepm, we measure an IV curve:
  my $dmm = instrument(type => 'Agilent34410A', connection_type => 'USB');
 
  my $sweep = sweep(
-     type => 'Step::Voltage',
+     type       => 'Step::Voltage',
      instrument => $source,
      from => -5, to => 5, step => 0.01
  );
@@ -41,7 +41,7 @@ As a basic example of a 1D sweepm, we measure an IV curve:
 
  $sweep->start(
      measurement => $meas,
-     datafiles   => [$datafile],
+     datafile    => $datafile,
  );
 
 Running this script repeatedly creates output folders F<MEAS_000>, F<MEAS_001>,
@@ -76,10 +76,10 @@ To also measure the IV in the reverse direction from -5 to 5 volts, we add the
 C<backsweep> option:
 
  my $sweep = sweep(
-     type => 'Step::Voltage',
+     type       => 'Step::Voltage',
      instrument => $source,
      from => -5, to => 5, step => 0.01,
-     backsweep => 1,
+     backsweep  => 1,
  );
 
 =head2 The datafolder
@@ -89,8 +89,8 @@ the C<start> method:
 
  $sweep->start(
      measurement => $meas,
-     datafiles => [$datafile],
-     folder => 'IV_curve'
+     datafile    => $datafile,
+     folder      => 'IV_curve'
  );
 
 This will create output folders with names F<IV_curve_xxx>.
@@ -101,13 +101,18 @@ We can create multiple datafiles:
 
  my $datafile1 = sweep_datafile(
      filename => 'data1',
-     columns => [qw/voltage current/]
+     columns  => [qw/voltage current/]
  );
  my $datafile2 = sweep_datafile(
      filename => 'data2',
-     columns => [qw/voltage current/]
+     columns  => [qw/voltage current/]
  );
 
+ $sweep->start(
+     measurement => $meas,
+     datafiles   => [$datafile1, $datafile2],
+     folder      => 'IV_curve'
+ );
 
 
 And in the C<$meas> subroutine, call the sweeps's C<log> method for both datafiles:
@@ -140,8 +145,8 @@ a bias voltage and again measure a current:
 
  # As we use two Yokogawa's, we need to provide USB serial IDs
  my $gate_source = instrument(
-     type => 'YokogawaGS200',
-     connection_type => 'USB',
+     type               => 'YokogawaGS200',
+     connection_type    => 'USB',
      connection_options => {serial => '...'},
      # Safety limits:
      max_units => 10, min_units => -10,
@@ -149,8 +154,8 @@ a bias voltage and again measure a current:
  );
 
  my $bias_source = instrument(
-     type => 'YokogawaGS200',
-     connection_type => 'USB',
+     type               => 'YokogawaGS200',
+     connection_type    => 'USB',
      connection_options => {serial => '...'},
      # Safety limits:
      max_units => 10, min_units => -10,
@@ -160,13 +165,13 @@ a bias voltage and again measure a current:
  my $dmm = instrument(type => 'Agilent34410A', connection_type => 'USB');
 
  my $gate_sweep = sweep(
-     type => 'Step::Voltage',
+     type       => 'Step::Voltage',
      instrument => $gate_source,
      from => 0, to => 1, step => 0.1
  );
 
  my $bias_sweep = sweep(
-     type => 'Step::Voltage',
+     type       => 'Step::Voltage',
      instrument => $bias_source,
      from => 0, to => 1, step => 0.1
  );
@@ -178,16 +183,16 @@ a bias voltage and again measure a current:
      my $v_gate = $gate_source->cached_level();
      my $v_bias = $bias_source->cached_level();
      $sweep->log(
-         gate => $v_gate,
-         bias => $v_bias,
+         gate    => $v_gate,
+         bias    => $v_bias,
          current => $dmm->get_value(),
      );
  };
 
  $gate_sweep->start(
-     slaves      => [$bias_sweep],
+     slave       => $bias_sweep,
      measurement => $meas,
-     datafiles   => [$datafile],
+     datafile    => $datafile,
  );
 
 By default, this will create a 2D block datafile:
@@ -213,9 +218,9 @@ Alternatively, we can create multiple 1D datafiles, one for each value of the
 gate voltage. We do this by setting the C<datafile_dim> parameter to 1:
 
  $gate_sweep->start(
-     slaves       => [$bias_sweep],
+     slave        => $bias_sweep,
      measurement  => $meas,
-     datafiles    => [$datafile],
+     datafile     => $datafile,
      datafile_dim => 1
  );
 
@@ -225,8 +230,8 @@ names by providing a
 B<filename extension> in the gate sweep:
 
  my $gate_sweep = sweep(
-     type => 'Step::Voltage',
-     instrument => $gate_source,
+     type               => 'Step::Voltage',
+     instrument         => $gate_source,
      from => 0, to => 1, step => 0.1,
      filename_extension => 'Gate=',
  );
@@ -292,14 +297,14 @@ we use the C<terminal>, C<hard_copy_terminal>, C<terminal_options> and
 C<hard_copy_terminal_options> options:
 
  $datafile->add_plot(
-     type => 'pm3d',
-     x    => 'gate',
-     y    => 'bias',
-     z    => 'current',
-     terminal => 'x11',
-     terminal_options => {linewidth => 3},
-     hard_copy => 'data.jpg',
-     hard_copy_terminal => 'jpeg',
+     type                       => 'pm3d',
+     x                          => 'gate',
+     y                          => 'bias',
+     z                          => 'current',
+     terminal                   => 'x11',
+     terminal_options           => {linewidth => 3},
+     hard_copy                  => 'data.jpg',
+     hard_copy_terminal         => 'jpeg',
      hard_copy_terminal_options => {linewidth => 0.5}
  ); 
 
@@ -314,16 +319,16 @@ L<PDL::Graphics::Gnuplot> separates between plot options and curve options:
      y    => 'bias',
      z    => 'current',
      plot_options => {
-         title => 'x - y plot',
-         xlabel => 'x (V)',
-         ylabel => 'y (V)',
+         title   => 'x - y plot',
+         xlabel  => 'x (V)',
+         ylabel  => 'y (V)',
          cblabel => 'current (A)', # label for color box
-         format => {x => "'%.2e'", y => "'%.2e'"},
-         grid => 0, # disable grid
+         format  => {x => "'%.2e'", y => "'%.2e'"},
+         grid    => 0, # disable grid
      },
      curve_options => {
-         with => 'lines', # default is 'points'
-         linetype => 2, # color
+         with      => 'lines', # default is 'points'
+         linetype  => 2, # color
          linewidth => 2,
      },
  );      
@@ -355,7 +360,7 @@ point.
  use Lab::Moose;
 
  my $source = instrument(
-     type => 'YokogawaGS200',
+     type            => 'YokogawaGS200',
      connection_type => 'USB',
      # Safety limits:
      max_units => 10, min_units => -10,
@@ -363,8 +368,8 @@ point.
  );
 
  my $vna = instrument(
-     type => 'RS_ZVA',
-     connection_type => 'VXI11',
+     type               => 'RS_ZVA',
+     connection_type    => 'VXI11',
      connection_options => {host => '192.168.x.x'},
  );
 
@@ -390,7 +395,7 @@ point.
 
  $sweep->start(
      measurement => $meas,
-     datafiles   => [$datafile],
+     datafile   => $datafile,
      datafile_dim => 1, # each VNA trace in a separate file
      point_dim => 1, # the measurement sub logs blocks, not points
  );
@@ -399,3 +404,13 @@ Without the C<< point_dim => 1 >> setting, only one datafile would be
 generated. One could also log all blocks into a single 2D datafile by setting
 C<< datafile_dim => 2 >>.
 
+
+=head1 Further customization
+
+=head2 delay_before_loop, delay_in_loop, delay_after_loop
+
+TODO
+
+=head2 before_loop coderef
+
+TODO

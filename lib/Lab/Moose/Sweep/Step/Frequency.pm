@@ -11,7 +11,6 @@ Step sweep with following properties:
 =item *
 
  Uses instruments C<set_frq> method to change the frequency.
- The default filename extension is 
 
 =item *
 

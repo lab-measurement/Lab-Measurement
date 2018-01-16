@@ -7,7 +7,7 @@ use strict;
 use 5.010;
 
 use MooseX::Params::Validate;
-
+use Moose::Util::TypeConstraints qw/subtype as where message/;
 use Module::Load;
 use Lab::Moose::Connection;
 use Carp;
@@ -205,5 +205,17 @@ sub our_catfile {
     }
     return join( '/', @_ );
 }
+
+# Some often used subtypes
+
+subtype 'Lab::Moose::PosNum',
+    as 'Num',
+    where { $_ >= 0 },
+    message {"$_ is not a positive number"};
+
+subtype 'Lab::Moose::PosInt',
+    as 'Int',
+    where { $_ >= 0 },
+    message {"$_ is not a positive integer number"};
 
 1;

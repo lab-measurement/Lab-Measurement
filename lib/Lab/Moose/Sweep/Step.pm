@@ -33,7 +33,7 @@ package Lab::Moose::Sweep::Step;
      my $sweep = shift;
      my $volt = $source->cached_level();
      my $current = $multimeter->get_value();
-     $sweep->log(volt => $volt, current $current);
+     $sweep->log(volt => $volt, current => $current);
  };
 
  $sweep->start(
@@ -146,9 +146,13 @@ extends 'Lab::Moose::Sweep';
 # Public attributes set by the user
 #
 
+has instrument =>
+    ( is => 'ro', isa => 'Lab::Moose::Instrument', required => 1 );
+
 has from => ( is => 'ro', isa => 'Num', predicate => 'has_from' );
 has to   => ( is => 'ro', isa => 'Num', predicate => 'has_to' );
-has step => ( is => 'ro', isa => 'Num', predicate => 'has_step' );
+has step =>
+    ( is => 'ro', isa => 'Lab::Moose::PosNum', predicate => 'has_step' );
 
 has list => ( is => 'ro', isa => 'ArrayRef[Num]', predicate => 'has_list' );
 has backsweep => ( is => 'ro', isa => 'Bool', default => 0 );
@@ -161,7 +165,8 @@ has setter => ( is => 'ro', isa => 'CodeRef', required => 1 );
 
 has points => (
     is => 'ro', isa => 'ArrayRef[Num]', lazy => 1, init_arg => undef,
-    builder => '_build_points'
+    builder => '_build_points', traits => ['Array'],
+    handles => { get_point => 'get', num_points => 'count' },
 );
 
 has index => (
@@ -217,31 +222,49 @@ sub _build_points {
     return \@points;
 }
 
-sub start_loop {
-    my $self = shift;
-    $self->_index(0);
+sub start_sweep {
 
+    # do nothing
 }
 
 sub go_to_next_point {
     my $self   = shift;
     my $index  = $self->index();
-    my @points = @{ $self->points };
-    my $point  = $points[$index];
+    my $point  = $self->get_point($index);
     my $setter = $self->setter();
     $self->$setter($point);
     $self->_current_value($point);
     $self->_index( ++$index );
 }
 
-sub sweep_finished {
+sub go_to_sweep_start {
     my $self   = shift;
-    my $index  = $self->index();
-    my @points = @{ $self->points };
-    if ( $index >= @points ) {
+    my $point  = $self->get_point(0);
+    my $setter = $self->setter();
+    $self->$setter($point);
+    $self->_current_value($point);
+    $self->_index(0);
+}
+
+sub sweep_finished {
+    my $self  = shift;
+    my $index = $self->index();
+    if ( $index >= $self->num_points ) {
         return 1;
     }
     return 0;
+}
+
+sub _in_backsweep {
+    my $self = shift;
+    if ( $self->backsweep ) {
+        if ( $self->index > $self->num_points / 2 ) {
+            return 1;
+        }
+    }
+    else {
+        return 0;
+    }
 }
 
 sub get_value {
@@ -249,7 +272,11 @@ sub get_value {
     if ( not defined $self->current_value() ) {
         croak "sweep not yet started";
     }
-    return $self->current_value();
+    my $value = sprintf( "%.14g", $self->current_value );
+    if ( $self->_in_backsweep ) {
+        $value .= '_backsweep';
+    }
+    return $value;
 }
 
 __PACKAGE__->meta->make_immutable();
