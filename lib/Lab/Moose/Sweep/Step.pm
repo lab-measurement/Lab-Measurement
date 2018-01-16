@@ -211,7 +211,6 @@ sub _build_points {
 
     if ( $self->backsweep ) {
         my @backsweep_points = reverse @points;
-        shift @backsweep_points;
         push @points, @backsweep_points;
     }
 
