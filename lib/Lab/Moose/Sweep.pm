@@ -14,6 +14,7 @@ use MooseX::StrictConstructor;
 use Moose::Util::TypeConstraints 'enum';
 use MooseX::Params::Validate;
 use Lab::Moose::Sweep::DataFile;
+use Time::HiRes 'sleep';
 
 # Do not import all functions as they clash with the attribute methods.
 use Lab::Moose qw/our_catfile/;
@@ -28,6 +29,11 @@ has filename_extension => ( is => 'ro', isa => 'Str', default => 'Value=' );
 
 has instrument =>
     ( is => 'ro', isa => 'Lab::Moose::Instrument', required => 1 );
+
+has delay_before_loop => ( is => 'ro', isa => 'Num', default => 0 );
+has delay_in_loop     => ( is => 'ro', isa => 'Num', default => 0 );
+has delay_after_loop  => ( is => 'ro', isa => 'Num', default => 0 );
+has before_loop       => ( is => 'ro', isa => 'CodeRef' );
 
 #
 # Private attributes used internally
@@ -279,6 +285,8 @@ sub _gen_filename {
 
 # start_loop
 
+# go_to_sweep_start
+
 # sweep_finished
 
 # go_to_next_point
@@ -300,8 +308,15 @@ sub _start {
     }
 
     $self->start_loop();
+    $self->go_to_sweep_start();
+    if ( defined $self->before_loop ) {
+        my $func = $self->before_loop();
+        $self->$func();
+    }
+    sleep( $self->delay_before_loop );
     while ( not $self->sweep_finished() ) {
         $self->go_to_next_point();
+        sleep( $self->delay_in_loop );
         my $value               = $self->get_value();
         my @filename_extensions = @{$filename_extensions};
         push @filename_extensions,
@@ -353,7 +368,7 @@ sub _start {
             }
 
         }
-
+        sleep( $self->delay_after_loop );
     }
 
 }

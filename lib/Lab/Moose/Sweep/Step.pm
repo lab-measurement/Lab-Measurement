@@ -234,6 +234,20 @@ sub go_to_next_point {
     $self->_index( ++$index );
 }
 
+sub go_to_sweep_start {
+    my $self   = shift;
+    my @points = @{ $self->points };
+    my $index  = $self->index;
+    if ( $index != 0 ) {
+        croak "index should be 0 in go_to_sweep_start";
+    }
+
+    my $point  = $points[$index];
+    my $setter = $self->setter();
+    $self->$setter($point);
+    $self->_current_value($point);
+}
+
 sub sweep_finished {
     my $self   = shift;
     my $index  = $self->index();

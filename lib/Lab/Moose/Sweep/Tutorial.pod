@@ -399,3 +399,13 @@ Without the C<< point_dim => 1 >> setting, only one datafile would be
 generated. One could also log all blocks into a single 2D datafile by setting
 C<< datafile_dim => 2 >>.
 
+
+=head1 Further customization
+
+=head2 delay_before_loop, delay_in_loop, delay_after_loop
+
+TODO
+
+=head2 before_loop coderef
+
+TODO
