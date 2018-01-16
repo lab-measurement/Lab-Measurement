@@ -23,6 +23,7 @@ package Lab::Moose::Sweep::Step;
      from => -1,
      to => 1,
      step => 0.1,
+     backsweep => 1, # points: -1, -0.9, ..., 0.9, 1, 0.9, ..., -1
  );
 
  my $datafile = sweep_datafile(columns => ['volt', 'current']);
@@ -102,6 +103,11 @@ define a linear range of points.
 
 alternative to from/to/step, give an arbitrary arrayref of points.
 
+=item * backsweep
+
+Include a backsweep: After finishing the sweep, go through all points in
+reverse.
+
 =item * setter
 
 A coderef which will be called to change the source level.
@@ -145,6 +151,7 @@ has to   => ( is => 'ro', isa => 'Num', predicate => 'has_to' );
 has step => ( is => 'ro', isa => 'Num', predicate => 'has_step' );
 
 has list => ( is => 'ro', isa => 'ArrayRef[Num]', predicate => 'has_list' );
+has backsweep => ( is => 'ro', isa => 'Bool', default => 0 );
 
 has setter => ( is => 'ro', isa => 'CodeRef', required => 1 );
 
@@ -186,17 +193,29 @@ sub _build_points {
         croak $error_msg;
     }
 
+    my @points;
+
     if ($has_list) {
-        return $self->list();
+        @points = @{ $self->list() };
+        if ( @points < 1 ) {
+            croak "list needs at least 1 point";
+        }
     }
     else {
-        my @points = linspace(
+        @points = linspace(
             from => $self->from,
             to   => $self->to,
             step => $self->step
         );
-        return \@points;
     }
+
+    if ( $self->backsweep ) {
+        my @backsweep_points = reverse @points;
+        shift @backsweep_points;
+        push @points, @backsweep_points;
+    }
+
+    return \@points;
 }
 
 sub start_loop {

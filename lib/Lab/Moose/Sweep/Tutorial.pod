@@ -70,6 +70,18 @@ Gnuplot-style datafile:
 
 =back
 
+=head3 Backsweeps
+
+To also measure the IV in the reverse direction from -5 to 5 volts, we add the
+C<backsweep> option:
+
+ my $sweep = sweep(
+     type => 'Step::Voltage',
+     instrument => $source,
+     from => -5, to => 5, step => 0.01,
+     backsweep => 1,
+ );
+
 =head2 The datafolder
 
 You can change the name of the datafolder by providing a C<folder> argument to
