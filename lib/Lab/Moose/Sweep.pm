@@ -1,8 +1,8 @@
 package Lab::Moose::Sweep;
 
-#ABSTRACT: Base class for high level sweeps (step/list)
+#ABSTRACT: Base class for high level sweeps
 
-# Continuous sweeps might get a separate base class
+# Step/List and Continuous sweep are implemented as subclasses
 
 =head1 DESCRIPTION
 
@@ -33,7 +33,13 @@ has instrument =>
 has delay_before_loop => ( is => 'ro', isa => 'Num', default => 0 );
 has delay_in_loop     => ( is => 'ro', isa => 'Num', default => 0 );
 has delay_after_loop  => ( is => 'ro', isa => 'Num', default => 0 );
-has before_loop       => ( is => 'ro', isa => 'CodeRef' );
+has before_loop       => (
+    is      => 'ro',
+    isa     => 'CodeRef',
+    default => sub {
+        sub { }
+    }
+);
 
 #
 # Private attributes used internally
@@ -309,11 +315,12 @@ sub _start {
 
     $self->start_loop();
     $self->go_to_sweep_start();
-    if ( defined $self->before_loop ) {
-        my $func = $self->before_loop();
-        $self->$func();
-    }
+
+    my $before_loop_code = $self->before_loop();
+    $self->$before_loop_code();
+
     sleep( $self->delay_before_loop );
+
     while ( not $self->sweep_finished() ) {
         $self->go_to_next_point();
         sleep( $self->delay_in_loop );

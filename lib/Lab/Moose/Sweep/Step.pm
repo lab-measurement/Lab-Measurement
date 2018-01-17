@@ -33,7 +33,7 @@ package Lab::Moose::Sweep::Step;
      my $sweep = shift;
      my $volt = $source->cached_level();
      my $current = $multimeter->get_value();
-     $sweep->log(volt => $volt, current $current);
+     $sweep->log(volt => $volt, current => $current);
  };
 
  $sweep->start(
