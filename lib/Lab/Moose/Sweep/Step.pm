@@ -217,10 +217,8 @@ sub _build_points {
     return \@points;
 }
 
-sub start_loop {
-    my $self = shift;
-    $self->_index(0);
-
+sub start_sweep {
+ # do nothing
 }
 
 sub go_to_next_point {
@@ -237,15 +235,11 @@ sub go_to_next_point {
 sub go_to_sweep_start {
     my $self   = shift;
     my @points = @{ $self->points };
-    my $index  = $self->index;
-    if ( $index != 0 ) {
-        croak "index should be 0 in go_to_sweep_start";
-    }
-
-    my $point  = $points[$index];
+    my $point  = $points[0];
     my $setter = $self->setter();
     $self->$setter($point);
     $self->_current_value($point);
+    $self->_index(0);
 }
 
 sub sweep_finished {

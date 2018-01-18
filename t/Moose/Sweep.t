@@ -610,7 +610,7 @@ EOF
 0.4\t10
 0.5\t11
 EOF
-    my $path = catfile( $foldername, 'data2.dat' );
+    $path = catfile( $foldername, 'data2.dat' );
     file_ok( $path, $expected2, "sweep2: datafile" );
 }
 

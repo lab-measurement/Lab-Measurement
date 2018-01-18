@@ -660,7 +660,6 @@ sub sweep_to_field {
     return $self->oim_get_field(%args);
 }
 
-# This config_sweep can just handle step/list sweeps
 sub config_sweep {
     my ( $self, %args ) = validated_hash(
         \@_,

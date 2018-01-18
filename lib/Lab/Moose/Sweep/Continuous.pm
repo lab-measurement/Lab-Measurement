@@ -70,6 +70,7 @@ use MooseX::Params::Validate;
 
 # Do not import all functions as they clash with the attribute methods.
 use Lab::Moose 'linspace';
+use Time::HiRes 'time';
 
 use Carp;
 
@@ -96,23 +97,49 @@ has index => (
 has current_value => (
     is     => 'ro', isa => 'Num', init_arg => undef,
     writer => '_current_value'
-);
+    );
 
-sub start_loop {
-    my $self = shift;
-    $self->_index(0);
-}
+has last_time => (
+    is => 'ro', isa => 'Num', init_arg => undef, writer => '_last_time');
 
 sub go_to_next_point {
+    my $index  = $self->index();
+    if ($index == 0) {
+        # first point is special
+        # don't have to sleep until the level is reached
+    }
+    else {
+        my $t0 = time();
+        
+    }
 
+    $self->_index( ++$index );
     # start loop on first point
     # check times, compare with interval, sleep or warn
 }
 
 sub go_to_sweep_start {
     my $self = shift;
+    $self->_index(0);
+    
+    my $instrument = $self->instrument();
+    $instrument->config_sweep(
+        points => $self->from,
+        rates => $self->rate
+        );
+    $instrument->trg();
+    $instrument->wait();
+}
 
-    # config sweep
+sub start_sweep {
+    my $self = shift;
+    my $instrument = $self->instrument();
+    $instrument->config_sweep(
+        points => $self->to,
+        rates => $self->rate
+        );
+    $instrument->trg();
+    $self->_last_time(time());
 }
 
 sub sweep_finished {

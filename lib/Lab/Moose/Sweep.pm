@@ -289,8 +289,6 @@ sub _gen_filename {
 
 # to be implemented in subclass:
 
-# start_loop
-
 # go_to_sweep_start
 
 # sweep_finished
@@ -313,14 +311,13 @@ sub _start {
         croak "should not get datafile arg";
     }
 
-    $self->start_loop();
     $self->go_to_sweep_start();
 
     my $before_loop_code = $self->before_loop();
     $self->$before_loop_code();
 
     sleep( $self->delay_before_loop );
-
+    $self->start_sweep();
     while ( not $self->sweep_finished() ) {
         $self->go_to_next_point();
         sleep( $self->delay_in_loop );
