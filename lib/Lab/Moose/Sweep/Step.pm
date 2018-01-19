@@ -146,6 +146,9 @@ extends 'Lab::Moose::Sweep';
 # Public attributes set by the user
 #
 
+has instrument =>
+    ( is => 'ro', isa => 'Lab::Moose::Instrument', required => 1 );
+
 has from => ( is => 'ro', isa => 'Num', predicate => 'has_from' );
 has to   => ( is => 'ro', isa => 'Num', predicate => 'has_to' );
 has step => ( is => 'ro', isa => 'Num', predicate => 'has_step' );
@@ -218,7 +221,8 @@ sub _build_points {
 }
 
 sub start_sweep {
- # do nothing
+
+    # do nothing
 }
 
 sub go_to_next_point {

@@ -50,7 +50,7 @@ sub dummysource {
     };
     $sweep->start(
         measurement => $meas,
-        datafiles   => [$datafile],
+        datafile    => $datafile,
         folder      => $dir,
 
         # use default datafile_dim and point_dim
@@ -90,7 +90,7 @@ EOF
     };
     $sweep->start(
         measurement => $meas,
-        datafiles   => [$datafile],
+        datafile    => $datafile,
         folder      => $dir,
 
         # use default datafile_dim and point_dim
@@ -209,9 +209,9 @@ EOF
     };
 
     $gate_sweep->start(
-        slaves      => [$bias_sweep],
+        slave       => $bias_sweep,
         measurement => $meas,
-        datafiles   => [$datafile],
+        datafile    => $datafile,
         folder      => $dir,
 
         # use default datafile_dim and point_dim
@@ -273,9 +273,9 @@ EOF
     };
 
     $gate_sweep->start(
-        slaves       => [$bias_sweep],
+        slave        => $bias_sweep,
         measurement  => $meas,
-        datafiles    => [$datafile],
+        datafile     => $datafile,
         folder       => $dir,
         datafile_dim => 0,
     );
@@ -358,7 +358,7 @@ EOF
     $top_sweep->start(
         slaves      => [ $gate_sweep, $bias_sweep ],
         measurement => $meas,
-        datafiles   => [$datafile],
+        datafile    => $datafile,
         folder      => $dir,
 
         # use default datafile_dim and point_dim
@@ -431,7 +431,7 @@ EOF
     };
     $sweep->start(
         measurement => $meas,
-        datafiles   => [$datafile],
+        datafile    => $datafile,
         folder      => $dir,
 
         # one datafile for each call of the $meas sub
@@ -495,7 +495,7 @@ EOF
     };
     $sweep->start(
         measurement => $meas,
-        datafiles   => [$datafile],
+        datafile    => $datafile,
         folder      => $dir,
 
         # log all blocks into one datafile
@@ -562,7 +562,7 @@ EOF
     };
     $sweep1->start(
         measurement => $meas1,
-        datafiles   => [$datafile1],
+        datafile    => $datafile1,
         folder      => $folder,
     );
 
@@ -583,7 +583,7 @@ EOF
     };
     $sweep2->start(
         measurement => $meas2,
-        datafiles   => [$datafile2],
+        datafile    => $datafile2,
         folder      => $folder,
     );
 
@@ -638,7 +638,7 @@ EOF
     };
     $sweep->start(
         measurement => $meas,
-        datafiles   => [$datafile],
+        datafile    => $datafile,
         folder      => $dir,
 
         # use default datafile_dim and point_dim

@@ -97,27 +97,29 @@ has index => (
 has current_value => (
     is     => 'ro', isa => 'Num', init_arg => undef,
     writer => '_current_value'
-    );
+);
 
-has start_time => (
-    is => 'ro', isa => 'Num', init_arg => undef, writer => '_start_time');
+has start_time =>
+    ( is => 'ro', isa => 'Num', init_arg => undef, writer => '_start_time' );
 
 sub go_to_next_point {
-    my $index  = $self->index;
+    my $self     = shift;
+    my $index    = $self->index;
     my $interval = $self->interval;
-    if ($index == 0) {
+    if ( $index == 0 or $interval == 0 ) {
+
         # first point is special
         # don't have to sleep until the level is reached
     }
     else {
-        my $t = time();
+        my $t           = time();
         my $target_time = $self->start_time + $index * $interval;
-        if ($t < $target_time) {
-            sleep($target_time - $t);
+        if ( $t < $target_time ) {
+            sleep( $target_time - $t );
         }
         else {
-            my $prev_target_time = $self->start_time +
-                ($index - 1) * $interval;
+            my $prev_target_time
+                = $self->start_time + ( $index - 1 ) * $interval;
             my $required = $t - $prev_target_time;
             carp <<"EOF";
 WARNING: Measurement function takes too much time:
@@ -125,7 +127,7 @@ required time: $required
 interval: $interval
 EOF
         }
-        
+
     }
     $self->_index( ++$index );
 }
@@ -133,28 +135,35 @@ EOF
 sub go_to_sweep_start {
     my $self = shift;
     $self->_index(0);
-    
+
     my $instrument = $self->instrument();
     $instrument->config_sweep(
         points => $self->from,
-        rates => $self->rate
-        );
+        rates  => $self->rate
+    );
     $instrument->trg();
     $instrument->wait();
 }
 
 sub start_sweep {
-    my $self = shift;
+    my $self       = shift;
     my $instrument = $self->instrument();
     $instrument->config_sweep(
         points => $self->to,
-        rates => $self->rate
-        );
+        rates  => $self->rate
+    );
     $instrument->trg();
-    $self->_start_time(time());
+    $self->_start_time( time() );
 }
 
 sub sweep_finished {
+    my $self = shift;
+    if ( $self->instrument->active() ) {
+        return 0;
+    }
+    else {
+        return 1;
+    }
     my $index  = $self->index();
     my @points = @{ $self->points };
     if ( $index >= @points ) {

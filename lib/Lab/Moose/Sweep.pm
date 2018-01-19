@@ -15,6 +15,7 @@ use Moose::Util::TypeConstraints 'enum';
 use MooseX::Params::Validate;
 use Lab::Moose::Sweep::DataFile;
 use Time::HiRes 'sleep';
+use Data::Dumper;
 
 # Do not import all functions as they clash with the attribute methods.
 use Lab::Moose qw/our_catfile/;
@@ -26,9 +27,6 @@ use Carp;
 #
 
 has filename_extension => ( is => 'ro', isa => 'Str', default => 'Value=' );
-
-has instrument =>
-    ( is => 'ro', isa => 'Lab::Moose::Instrument', required => 1 );
 
 has delay_before_loop => ( is => 'ro', isa => 'Num', default => 0 );
 has delay_in_loop     => ( is => 'ro', isa => 'Num', default => 0 );
@@ -130,24 +128,61 @@ sub _add_plots {
     }
 }
 
+sub _parse_slave_arg {
+    my %args = @_;
+    if ( defined $args{slaves} ) {
+        if ( defined $args{slave} ) {
+            croak "give either slave or slaves arg";
+        }
+        return $args{slaves};
+    }
+    if ( defined $args{slave} ) {
+        return [ $args{slave} ];
+    }
+    else {
+        return [];
+    }
+}
+
+sub _parse_datafile_arg {
+    my %args = @_;
+    if ( defined $args{datafiles} ) {
+        if ( defined $args{datafile} ) {
+            croak "give either datafile or datafiles arg";
+        }
+        return $args{datafiles};
+    }
+    if ( defined $args{datafile} ) {
+        return [ $args{datafile} ];
+    }
+    else {
+        croak "need either datafile or datafiles arg";
+    }
+}
+
 # Called by user on master sweep
 sub start {
-    my $self = shift;
-    my (
-        $slaves, $datafile_params, $measurement, $datafile_dim, $point_dim,
-        $folder
-        )
-        = validated_list(
+    my ( $self, %args ) = validated_hash(
         \@_,
-        slaves => { isa => 'ArrayRef[Lab::Moose::Sweep]', optional => 1 },
-        datafiles    => { isa => 'ArrayRef[Lab::Moose::Sweep::DataFile]' },
+        slave    => { isa => 'Lab::Moose::Sweep',           optional => 1 },
+        slaves   => { isa => 'ArrayRef[Lab::Moose::Sweep]', optional => 1 },
+        datafile => { isa => 'Lab::Moose::Sweep::DataFile', optional => 1 },
+        datafiles =>
+            { isa => 'ArrayRef[Lab::Moose::Sweep::DataFile]', optional => 1 },
         measurement  => { isa => 'CodeRef' },
         datafile_dim => { isa => enum( [qw/2 1 0/] ), optional => 1 },
 
         # might allow point_dim = 2 in the future.
         point_dim => { isa => enum( [qw/1 0/] ), default => 0 },
         folder => { isa => 'Str|Lab::Moose::DataFolder', optional => 1 },
-        );
+    );
+
+    my $slaves          = _parse_slave_arg(%args);
+    my $datafile_params = _parse_datafile_arg(%args);
+    my $measurement     = $args{measurement};
+    my $datafile_dim    = $args{datafile_dim};
+    my $point_dim       = $args{point_dim};
+    my $folder          = $args{folder};
 
     $self->_ensure_no_slave();
 
