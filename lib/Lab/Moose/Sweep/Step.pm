@@ -151,7 +151,8 @@ has instrument =>
 
 has from => ( is => 'ro', isa => 'Num', predicate => 'has_from' );
 has to   => ( is => 'ro', isa => 'Num', predicate => 'has_to' );
-has step => ( is => 'ro', isa => 'Num', predicate => 'has_step' );
+has step =>
+    ( is => 'ro', isa => 'Lab::Moose::PosNum', predicate => 'has_step' );
 
 has list => ( is => 'ro', isa => 'ArrayRef[Num]', predicate => 'has_list' );
 has backsweep => ( is => 'ro', isa => 'Bool', default => 0 );

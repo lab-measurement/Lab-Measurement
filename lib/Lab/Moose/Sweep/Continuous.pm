@@ -23,7 +23,7 @@ package Lab::Moose::Sweep::Continuous;
      instrument => $ips,
      from => -1, # Tesla
      to => 1,
-     rate => 1, (Tesla/min)
+     rate => 1, (Tesla/min, always positive)
      interval => 0.5, # one measurement every 0.5 seconds
  );
 
@@ -80,17 +80,17 @@ extends 'Lab::Moose::Sweep';
 # Public attributes set by the user
 #
 
-has from     => ( is => 'ro', isa => 'Num', required => 1 );
-has to       => ( is => 'ro', isa => 'Num', required => 1 );
-has rate     => ( is => 'ro', isa => 'Num', required => 1 );
-has interval => ( is => 'ro', isa => 'Num', default  => 0 );
+has from     => ( is => 'ro', isa => 'Num',                required => 1 );
+has to       => ( is => 'ro', isa => 'Num',                required => 1 );
+has rate     => ( is => 'ro', isa => 'Lab::Moose::PosNum', required => 1 );
+has interval => ( is => 'ro', isa => 'Num',                default  => 0 );
 
 #
 # Private attributes used internally
 #
 
 has index => (
-    is     => 'ro', isa => 'Int', default => 0, init_arg => undef,
+    is => 'ro', isa => 'Lab::Moose::PosInt', default => 0, init_arg => undef,
     writer => '_index'
 );
 
