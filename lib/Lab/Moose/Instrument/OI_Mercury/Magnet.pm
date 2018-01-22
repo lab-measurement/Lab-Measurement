@@ -730,9 +730,19 @@ sub wait {
 }
 
 sub active {
+    my $self = shift;
 
-    # would be required for continous sweep
-    return 0;
+    # with the legacy command set, one could use the "X" command to find
+    # whether the magnet has finshed the sweep
+    # We do it manually by comparing field and setpoint.
+    my $field  = $self->oim_get_field();
+    my $target = $self->oim_get_field_setpoint();
+    if ( abs( $field - $target ) < $self->max_field_deviation() ) {
+        return 0;
+    }
+    else {
+        return 1;
+    }
 }
 
 sub exit {

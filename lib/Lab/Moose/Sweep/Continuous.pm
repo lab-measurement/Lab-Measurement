@@ -94,11 +94,6 @@ has index => (
     writer => '_index'
 );
 
-has current_value => (
-    is     => 'ro', isa => 'Num', init_arg => undef,
-    writer => '_current_value'
-);
-
 has start_time =>
     ( is => 'ro', isa => 'Num', init_arg => undef, writer => '_start_time' );
 
@@ -164,21 +159,9 @@ sub sweep_finished {
     else {
         return 1;
     }
-    my $index  = $self->index();
-    my @points = @{ $self->points };
-    if ( $index >= @points ) {
-        return 1;
-    }
-    return 0;
 }
 
-sub get_value {
-    my $self = shift;
-    if ( not defined $self->current_value() ) {
-        croak "sweep not yet started";
-    }
-    return $self->current_value();
-}
+# implement get_value in subclasses.
 
 __PACKAGE__->meta->make_immutable();
 1;
