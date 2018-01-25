@@ -80,11 +80,11 @@ extends 'Lab::Moose::Sweep';
 # Public attributes set by the user
 #
 
-has from     => ( is => 'ro', isa => 'Num',                required => 1 );
-has to       => ( is => 'ro', isa => 'Num',                required => 1 );
-has rate     => ( is => 'ro', isa => 'Lab::Moose::PosNum', required => 1 );
-has interval => ( is => 'ro', isa => 'Num',                default  => 0 );
-
+has from => ( is => 'ro', isa => 'Num', required => 1, writer => '_from' );
+has to   => ( is => 'ro', isa => 'Num', required => 1, writer => '_to' );
+has rate      => ( is => 'ro', isa => 'Lab::Moose::PosNum', required => 1 );
+has interval  => ( is => 'ro', isa => 'Num',                default  => 0 );
+has backsweep => ( is => 'ro', isa => 'Bool',               default  => 0 );
 #
 # Private attributes used internally
 #
@@ -96,6 +96,11 @@ has index => (
 
 has start_time =>
     ( is => 'ro', isa => 'Num', init_arg => undef, writer => '_start_time' );
+
+has in_backsweep => (
+    is     => 'ro', isa => 'Bool', init_arg => undef,
+    writer => '_in_backsweep'
+);
 
 sub go_to_next_point {
     my $self     = shift;
@@ -130,11 +135,17 @@ EOF
 sub go_to_sweep_start {
     my $self = shift;
     $self->_index(0);
-
+    my $from = $self->from;
+    my $rate = $self->rate;
+    carp <<"EOF";
+Going to sweep start:
+Setpoint: $from
+Rate: $rate
+EOF
     my $instrument = $self->instrument();
     $instrument->config_sweep(
-        points => $self->from,
-        rates  => $self->rate
+        points => $from,
+        rates  => $rate
     );
     $instrument->trg();
     $instrument->wait();
@@ -143,6 +154,13 @@ sub go_to_sweep_start {
 sub start_sweep {
     my $self       = shift;
     my $instrument = $self->instrument();
+    my $to         = $self->to;
+    my $rate       = $self->rate;
+    carp <<"EOF";
+Starting sweep
+Setpoint: $to
+Rate: $rate
+EOF
     $instrument->config_sweep(
         points => $self->to,
         rates  => $self->rate
@@ -157,7 +175,24 @@ sub sweep_finished {
         return 0;
     }
     else {
-        return 1;
+        if ( $self->in_backsweep or not $self->backsweep ) {
+            return 1;
+        }
+        else {
+            carp "starting backsweep\n";
+            $self->_in_backsweep(1);
+
+            # let's get the backsweep started ;)
+            my $from = $self->from;
+            my $to   = $self->to;
+
+            # exchange from and to
+            $self->_from($to);
+            $self->_to($from);
+            $self->go_to_sweep_start();
+            $self->start_sweep();
+            return 0;
+        }
     }
 }
 
