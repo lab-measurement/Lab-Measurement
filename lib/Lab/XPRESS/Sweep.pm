@@ -41,6 +41,7 @@ sub new {
         delay_before_loop => 0,
         delay_in_loop     => 0,
         delay_after_loop  => 0,
+        before_loop       => undef,
 
         points => [ undef, undef ],
 
@@ -529,6 +530,14 @@ sub start {
         $self->before_loop();
         $self->go_to_sweep_start();
         $self->delay( $self->{config}->{delay_before_loop} );
+        my $before_loop = $self->{config}{before_loop};
+
+        if ($before_loop) {
+            if ( ref $before_loop ne 'CODE' ) {
+                croak "'before_loop' argument must be a coderef";
+            }
+            $self->$before_loop();
+        }
 
         # continuous sweep:
         if ( $self->{config}->{mode} eq 'continuous' ) {
