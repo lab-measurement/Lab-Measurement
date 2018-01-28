@@ -165,7 +165,8 @@ has setter => ( is => 'ro', isa => 'CodeRef', required => 1 );
 
 has points => (
     is => 'ro', isa => 'ArrayRef[Num]', lazy => 1, init_arg => undef,
-    builder => '_build_points'
+    builder => '_build_points', traits => ['Array'],
+    handles => { get_point => 'get', num_points => 'count' },
 );
 
 has index => (
@@ -229,8 +230,7 @@ sub start_sweep {
 sub go_to_next_point {
     my $self   = shift;
     my $index  = $self->index();
-    my @points = @{ $self->points };
-    my $point  = $points[$index];
+    my $point  = $self->get_point($index);
     my $setter = $self->setter();
     $self->$setter($point);
     $self->_current_value($point);
@@ -239,8 +239,7 @@ sub go_to_next_point {
 
 sub go_to_sweep_start {
     my $self   = shift;
-    my @points = @{ $self->points };
-    my $point  = $points[0];
+    my $point  = $self->get_point(0);
     my $setter = $self->setter();
     $self->$setter($point);
     $self->_current_value($point);
@@ -248,13 +247,24 @@ sub go_to_sweep_start {
 }
 
 sub sweep_finished {
-    my $self   = shift;
-    my $index  = $self->index();
-    my @points = @{ $self->points };
-    if ( $index >= @points ) {
+    my $self  = shift;
+    my $index = $self->index();
+    if ( $index >= $self->num_points ) {
         return 1;
     }
     return 0;
+}
+
+sub _in_backsweep {
+    my $self = shift;
+    if ( $self->backsweep ) {
+        if ( $self->index > $self->num_points / 2 ) {
+            return 1;
+        }
+    }
+    else {
+        return 0;
+    }
 }
 
 sub get_value {
@@ -262,7 +272,11 @@ sub get_value {
     if ( not defined $self->current_value() ) {
         croak "sweep not yet started";
     }
-    return $self->current_value();
+    my $value = sprintf( "%.14g", $self->current_value );
+    if ( $self->_in_backsweep ) {
+        $value .= '_backsweep';
+    }
+    return $value;
 }
 
 __PACKAGE__->meta->make_immutable();

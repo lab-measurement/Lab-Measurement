@@ -356,10 +356,9 @@ sub _start {
     while ( not $self->sweep_finished() ) {
         $self->go_to_next_point();
         sleep( $self->delay_in_loop );
-        my $value               = $self->get_value();
         my @filename_extensions = @{$filename_extensions};
         push @filename_extensions,
-            $self->filename_extension . sprintf( "%.14g", $value );
+            $self->filename_extension . $self->get_value();
 
         # Create new datafile?
         if ( $self->create_datafiles ) {

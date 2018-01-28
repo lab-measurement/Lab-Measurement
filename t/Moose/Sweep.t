@@ -13,6 +13,7 @@ use Lab::Moose;
 use File::Temp qw/tempdir/;
 
 my $dir = catfile( tempdir(), 'sweep' );
+warn "dir: $dir\n";
 
 sub dummysource {
     return instrument(
@@ -621,12 +622,14 @@ EOF
 
     my $source = dummysource();
     my $sweep  = sweep(
-        type       => 'Step::Voltage',
-        instrument => $source,
-        from       => 0,
-        to         => 0.5,
-        step       => 0.1,
-        backsweep  => 1,
+        type               => 'Step::Voltage',
+        instrument         => $source,
+        from               => 0,
+        to                 => 2,
+        step               => 1,
+        backsweep          => 1,
+        filename_extension => '',
+
     );
 
     my $datafile = sweep_datafile( columns => [qw/level value/] );
@@ -637,32 +640,29 @@ EOF
         $sweep->log( level => $source->get_level, value => $value++ );
     };
     $sweep->start(
-        measurement => $meas,
-        datafile    => $datafile,
-        folder      => $dir,
-
-        # use default datafile_dim and point_dim
+        measurement  => $meas,
+        datafile     => $datafile,
+        folder       => $dir,
+        datafile_dim => 0,
     );
 
-    my $expected = <<"EOF";
-# level\tvalue
-0\t0
-0.1\t1
-0.2\t2
-0.3\t3
-0.4\t4
-0.5\t5
-0.5\t6
-0.4\t7
-0.3\t8
-0.2\t9
-0.1\t10
-0\t11
-EOF
-    my $path = catfile( $sweep->foldername, 'data.dat' );
-    file_ok( $path, $expected, "1D with backsweep: datafile" );
+    my $foldername     = $sweep->foldername;
+    my @files          = bsd_glob( catfile( $foldername, '*' ) );
+    my @expected_files = qw/
+        data_0.dat
+        data_0_backsweep.dat
+        data_1.dat
+        data_1_backsweep.dat
+        data_2.dat
+        data_2_backsweep.dat
+        META.yml
+        Sweep.t
+        /;
+    @expected_files = map { catfile( $foldername, $_ ) } @expected_files;
+    is_deeply(
+        \@files, \@expected_files,
+        "1D Sweep with 1D data: output folder"
+    );
 }
-
-warn "dir: $dir\n";
 
 done_testing();
