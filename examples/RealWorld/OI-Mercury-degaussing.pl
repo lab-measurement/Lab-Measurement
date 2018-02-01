@@ -38,7 +38,7 @@ EOF
 # Start at 0 T
 $magnet->sweep_to_field( target => 0, rate => 1 );
 
-while ( $target > $stop_field ) {
+while ( abs($target) > $stop_field ) {
     $magnet->sweep_to_field( target => $target, rate => $rate );
     $target *= -$reduction_factor;
     $rate   *= $reduction_factor;
