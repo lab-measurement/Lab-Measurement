@@ -5,12 +5,13 @@ use strict;
 use 5.010;
 use lib 't';
 use Test::More;
-use Lab::Test import => ['file_ok'];
+use Lab::Test import => [qw/is_absolute_error/];
 use File::Spec::Functions 'catfile';
 use Lab::Moose::DataFile::Read;
 use Lab::Moose;
 use Time::HiRes 'time';
 use File::Temp qw/tempdir/;
+use Data::Dumper;
 
 my $dir = catfile( tempdir(), 'sweep' );
 
@@ -18,7 +19,7 @@ my $dir = catfile( tempdir(), 'sweep' );
     #
     # Time sweep
     #
-    my $interval = 0.01;
+    my $interval = 0.02;
     my $duration = 0.1;
     my $sweep    = sweep(
         type     => 'Continuous::Time',
@@ -50,17 +51,16 @@ my $dir = catfile( tempdir(), 'sweep' );
     my @cols = read_gnuplot_format(
         type        => 'columns', file => $path,
         num_columns => 2
+
     );
-    my $times = $cols[0];
-    is_deeply( [ $times->dims ], [11], "datafile size" );
-    ok(
-        $times->at(-1) - $times->at(0) < $duration + $interval / 2,
-        "duration"
-    );
-    ok(
-        $times->at(-1) - $times->at(0) > $duration - $interval / 2,
-        "duration"
-    );
+    my $times = $cols[0]->unpdl();
+    print Dumper $times;
+
+
+    is(@{$times}, 6, "datafile size");
+
+    is_absolute_error($times->[-1], $times->[0] + $duration, $interval / 2,
+                      "duration is withing error bounds");
 }
 
 warn "dir: $dir\n";
