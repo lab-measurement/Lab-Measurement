@@ -83,7 +83,7 @@ extends 'Lab::Moose::Sweep';
 has from => ( is => 'ro', isa => 'Num', required => 1, writer => '_from' );
 has to   => ( is => 'ro', isa => 'Num', required => 1, writer => '_to' );
 has rate      => ( is => 'ro', isa => 'Lab::Moose::PosNum', required => 1 );
-has interval  => ( is => 'ro', isa => 'Num',                default  => 0 );
+has interval  => ( is => 'ro', isa => 'Lab::Moose::PosNum', default  => 0 );
 has backsweep => ( is => 'ro', isa => 'Bool',               default  => 0 );
 #
 # Private attributes used internally
