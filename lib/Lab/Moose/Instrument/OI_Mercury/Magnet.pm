@@ -32,7 +32,8 @@ around default_connection_options => sub {
     my $orig    = shift;
     my $self    = shift;
     my $options = $self->$orig();
-    $options->{Socket}{port} = 7020;
+    $options->{Socket}{port}    = 7020;
+    $options->{Socket}{timeout} = 10;
     return $options;
 };
 

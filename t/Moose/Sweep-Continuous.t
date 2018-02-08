@@ -49,18 +49,19 @@ my $dir = catfile( tempdir(), 'sweep' );
     my $path = catfile( $sweep->foldername, 'data.dat' );
 
     my @cols = read_gnuplot_format(
-        type        => 'columns', file => $path,
+        type => 'columns', file => $path,
         num_columns => 2
 
     );
     my $times = $cols[0]->unpdl();
     print Dumper $times;
 
+    is( @{$times}, 6, "datafile size" );
 
-    is(@{$times}, 6, "datafile size");
-
-    is_absolute_error($times->[-1], $times->[0] + $duration, $interval / 2,
-                      "duration is withing error bounds");
+    is_absolute_error(
+        $times->[-1], $times->[0] + $duration, $interval,
+        "duration is withing error bounds"
+    );
 }
 
 warn "dir: $dir\n";

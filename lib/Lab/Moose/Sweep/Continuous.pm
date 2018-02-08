@@ -23,7 +23,8 @@ package Lab::Moose::Sweep::Continuous;
      instrument => $ips,
      from => -1, # Tesla
      to => 1,
-     rate => 1, (Tesla/min, always positive)
+     rate => 0.1, (Tesla/min, always positive)
+     start_rate => 1, (optional) rate to approach start point
      interval => 0.5, # one measurement every 0.5 seconds
  );
 
@@ -80,11 +81,16 @@ extends 'Lab::Moose::Sweep';
 # Public attributes set by the user
 #
 
+has instrument =>
+    ( is => 'ro', isa => 'Lab::Moose::Instrument', required => 1 );
+
 has from => ( is => 'ro', isa => 'Num', required => 1, writer => '_from' );
 has to   => ( is => 'ro', isa => 'Num', required => 1, writer => '_to' );
-has rate      => ( is => 'ro', isa => 'Lab::Moose::PosNum', required => 1 );
-has interval  => ( is => 'ro', isa => 'Lab::Moose::PosNum', default  => 0 );
-has backsweep => ( is => 'ro', isa => 'Bool',               default  => 0 );
+has rate => ( is => 'ro', isa => 'Lab::Moose::PosNum', required => 1 );
+has start_rate =>
+    ( is => 'ro', isa => 'Lab::Moose::PosNum', writer => '_start_rate' );
+has interval => ( is => 'ro', isa => 'Lab::Moose::PosNum', default => 0 );
+has backsweep => ( is => 'ro', isa => 'Bool', default => 0 );
 #
 # Private attributes used internally
 #
@@ -101,6 +107,18 @@ has in_backsweep => (
     is     => 'ro', isa => 'Bool', init_arg => undef,
     writer => '_in_backsweep'
 );
+
+sub BUILD {
+    my $self = shift;
+
+    # check if rate is defined. The Time subclass does not use the rate
+    # parameter
+    if ( defined $self->rate ) {
+        if ( not defined $self->start_rate ) {
+            $self->_start_rate( $self->rate );
+        }
+    }
+}
 
 sub go_to_next_point {
     my $self     = shift;
@@ -135,17 +153,17 @@ EOF
 sub go_to_sweep_start {
     my $self = shift;
     $self->_index(0);
-    my $from = $self->from;
-    my $rate = $self->rate;
+    my $from       = $self->from;
+    my $start_rate = $self->start_rate;
     carp <<"EOF";
 Going to sweep start:
 Setpoint: $from
-Rate: $rate
+Rate: $start_rate
 EOF
     my $instrument = $self->instrument();
     $instrument->config_sweep(
         points => $from,
-        rates  => $rate
+        rates  => $start_rate
     );
     $instrument->trg();
     $instrument->wait();

@@ -434,7 +434,8 @@ Note that the rate is given in Tesla/min.
      instrument => $ips,
      from => -1, # Tesla
      to => 1,
-     rate => 1, (Tesla/min, always positive)
+     rate => 0.1, (Tesla/min, always positive)
+     start_rate => 1, (optional, rate to approach start point)
      interval => 0.5, # one measurement every 0.5 seconds
  );
 

@@ -15,7 +15,7 @@ package Lab::Moose::Sweep::Continuous::Time;
 
 
 =cut
-    
+
 use 5.010;
 use Moose;
 use Time::HiRes qw/time sleep/;
@@ -26,10 +26,9 @@ extends 'Lab::Moose::Sweep::Continuous';
 # Public attributes
 #
 
-has [qw/+from +to +rate/] => (required => 0);
-has interval => (is => 'ro', isa => 'Num', default => 0);
-has duration => (is => 'ro', isa => 'Num');
-
+has [qw/+from +to +rate +instrument/] => ( required => 0 );
+has interval => ( is => 'ro', isa => 'Num', default => 0 );
+has duration => ( is => 'ro', isa => 'Num' );
 
 # use go_to_next_point from parent
 
@@ -40,15 +39,15 @@ sub go_to_sweep_start {
 
 sub start_sweep {
     my $self = shift;
-    $self->_start_time(time());
+    $self->_start_time( time() );
 }
 
 sub sweep_finished {
-    my $self = shift;
+    my $self     = shift;
     my $duration = $self->duration;
-    if (defined $duration) {
+    if ( defined $duration ) {
         my $start_time = $self->start_time;
-        if (time() - $start_time > $duration) {
+        if ( time() - $start_time > $duration ) {
             return 1;
         }
     }
