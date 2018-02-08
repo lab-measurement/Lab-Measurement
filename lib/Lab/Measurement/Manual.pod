@@ -393,6 +393,8 @@ can be used with XPRESS, just like the Lab::Instrument drivers.
 
 alias: L<Lab::Moose::Instrument::Agilent34410A>
 
+=item * L<Lab::Moose::Instrument::Keysight34470A>
+
 =back
 
 =head3 Voltage sources

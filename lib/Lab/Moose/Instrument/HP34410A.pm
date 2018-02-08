@@ -35,6 +35,7 @@ around default_connection_options => sub {
 
     $options->{USB} = $usb_opts;
     $options->{'VISA::USB'} = $usb_opts;
+    $options->{'Socket'} = { port => 5025 };
 
     return $options;
 };
