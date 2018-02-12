@@ -36,11 +36,32 @@ use Moose;
 
 extends 'Lab::Moose::Sweep::Step';
 
-has rate => ( is => 'ro', isa => 'Num', required => 1 );
+has start_rate =>
+    ( is => 'ro', isa => 'Lab::Moose::PosNum', writer => '_start_rate' );
+has rate => ( is => 'ro', isa => 'Lab::Moose::PosNum', required => 1 );
+
+has _current_rate => ( is => 'rw', isa => 'Lab::Moose::PosNum' );
 
 has filename_extension => ( is => 'ro', isa => 'Str', default => 'Field=' );
 
 has setter => ( is => 'ro', isa => 'CodeRef', builder => '_build_setter' );
+
+sub BUILD {
+    my $self = shift;
+    if ( not defined $self->start_rate ) {
+        $self->_start_rate( $self->rate );
+    }
+}
+
+before 'go_to_sweep_start' => sub {
+    my $self = shift;
+    $self->_current_rate( $self->start_rate );
+};
+
+after 'go_to_sweep_start' => sub {
+    my $self = shift;
+    $self->_current_rate( $self->rate );
+};
 
 sub _build_setter {
     return \&_field_setter;
@@ -49,7 +70,7 @@ sub _build_setter {
 sub _field_setter {
     my $self  = shift;
     my $value = shift;
-    my $rate  = $self->rate;
+    my $rate  = $self->_current_rate;
     $self->instrument->sweep_to_field( target => $value, rate => $rate );
 }
 
