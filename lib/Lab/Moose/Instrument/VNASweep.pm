@@ -131,27 +131,6 @@ floating point type. Has to be 'single' or 'double'. Defaults to 'single'.
 
 =cut
 
-=head1 REQUIRED METHODS
-
-The following methods are required for role consumption.
-
-=head2 sparam_catalog
-
- my $array_ref = $vna->sparam_catalog();
-
-Return an arrayref of available S-parameter names. Example result:
-C<['Re(s11)', 'Im(s11)', 'Re(s21)', 'Im(s21)']>.
-
-=head2 sparam_sweep_data
-
- my $binary_string = $vna->sparam_sweep_data(timeout => $timeout)
-
-Return binary SCPI data block of S-parameter values. This string contains
-the C<sparam_catalog> values of each frequency point. The floats must be in
-native byte order. 
-
-=cut
-
 sub sparam_sweep {
     my ( $self, %args ) = validated_hash(
         \@_,
@@ -206,6 +185,99 @@ sub sparam_sweep {
 
     return $self->_get_data_columns( $catalog, $freq_array, $points_ref );
 }
+
+sub _ensure_single_point_mode {
+    my $self   = shift;
+    my $points = $self->cached_sense_sweep_count();
+    if ( $points != 1 ) {
+        croak "not in single point mode (have $points points)";
+    }
+    my $start = $self->cached_sense_frequency_start();
+    my $stop  = $self->cached_sense_frequency_stop();
+    if ( $start != $stop ) {
+        croak <<"EOF";
+not in single point mode:
+start frequency: $start
+stop frequency: $stop
+EOF
+    }
+}
+
+sub _rel_error {
+    my $a = shift;
+    my $b = shift;
+    return ( abs( ( $a - $b ) / $b ) );
+}
+
+=head2 set_frq
+
+ # Prepare VNA for single point measurement at frequency 4GHz:
+ $vna->set_frq(value => 4e9);
+
+Set VNA to single point mode. That is only a single frequency is measured and
+one point of data is returned per measurement.
+
+This high-level function make the VNA usable with L<Lab::Moose::Sweep::Step::Frequency>.
+
+Will croak if the VNA does not support single point mode.
+
+=cut
+
+sub set_frq {
+    my ( $self, $value, %args ) = validated_setter( \@_ );
+    my $points = $self->cached_sense_sweep_count();
+    if ( $points != 1 ) {
+        $self->sense_sweep_count( value => 1 );
+    }
+    my $start = $self->cached_sense_frequency_start();
+    my $stop  = $self->cached_sense_frequency_stop();
+
+    if ( _rel_error( $start, $value ) > 1e-14 ) {
+        $self->sense_frequency_start( value => $value );
+    }
+    if ( _rel_error( $stop, $value ) > 1e-14 ) {
+        $self->sense_frequency_stop( value => $value );
+    }
+
+    $self->_ensure_single_point_mode();
+}
+
+=head2 get_frq
+
+ my $frq = $vna->get_frq();
+
+Get frequency of VNA in single point mode. Croak if the VNA is not configured
+for single point measurement.
+
+=cut
+
+sub get_frq {
+
+    # ensure single point mode
+    my $self = shift;
+    $self->_ensure_single_point_mode();
+    return $self->cached_sense_frequency_start();
+}
+
+=head1 REQUIRED METHODS
+
+The following methods are required for role consumption.
+
+=head2 sparam_catalog
+
+ my $array_ref = $vna->sparam_catalog();
+
+Return an arrayref of available S-parameter names. Example result:
+C<['Re(s11)', 'Im(s11)', 'Re(s21)', 'Im(s21)']>.
+
+=head2 sparam_sweep_data
+
+ my $binary_string = $vna->sparam_sweep_data(timeout => $timeout)
+
+Return binary SCPI data block of S-parameter values. This string contains
+the C<sparam_catalog> values of each frequency point. The floats must be in
+native byte order. 
+
 
 =head1 CONSUMED ROLES
 
