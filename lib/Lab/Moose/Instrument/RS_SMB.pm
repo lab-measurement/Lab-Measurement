@@ -14,6 +14,16 @@ use namespace::autoclean;
 
 extends 'Lab::Moose::Instrument';
 
+around default_connection_options => sub {
+    my $orig     = shift;
+    my $self     = shift;
+    my $options  = $self->$orig();
+    my $usb_opts = { vid => 0x0aad, pid => 0x0054 };
+    $options->{USB} = $usb_opts;
+    $options->{'VISA::USB'} = $usb_opts;
+    return $options;
+};
+
 with qw(
     Lab::Moose::Instrument::Common
 
