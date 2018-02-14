@@ -457,7 +457,6 @@ EOF
 2\t3\t2
 2\t4\t2
 2\t5\t2
-
 EOF
     my $path = catfile( $foldername, 'data_level=2.dat' );
     file_ok( $path, $expected, "1D Sweep with 1D data: datafile" );

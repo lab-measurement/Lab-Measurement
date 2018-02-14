@@ -387,11 +387,7 @@ sub _start {
                 datafiles           => $datafiles,
                 filename_extensions => [@filename_extensions],
             );
-            if ( $self->create_datafile_blocks() ) {
-                for my $datafile ( values %{$datafiles} ) {
-                    $datafile->new_block();
-                }
-            }
+
         }
         else {
             # do measurement
@@ -405,6 +401,11 @@ sub _start {
                     "unused datafiles. Make sure that a logging method is used for each datafile";
             }
 
+        }
+        if ( $self->create_datafile_blocks() ) {
+            for my $datafile ( values %{$datafiles} ) {
+                $datafile->new_block();
+            }
         }
         sleep( $self->delay_after_loop );
     }

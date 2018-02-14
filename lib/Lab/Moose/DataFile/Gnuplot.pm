@@ -201,7 +201,7 @@ sub _log_bare {
  $file->log_block(
      prefix => {column1 => $value1, ...},
      block => $block,
-     add_newline => 0
+     add_newline => 1
  );
 
 Log a 1D or 2D PDL or array ref. The first dimension runs over the datafile
@@ -217,7 +217,7 @@ sub log_block {
         \@_,
         prefix      => { isa => 'HashRef[Num]', optional => 1 },
         block       => {},
-        add_newline => { isa => 'Bool',         default  => 1 }
+        add_newline => { isa => 'Bool',         default  => 0 }
     );
 
     $block = topdl($block);
