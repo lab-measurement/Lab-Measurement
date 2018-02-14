@@ -8,7 +8,7 @@ use Moose::Role qw/with requires/;
 use MooseX::Params::Validate 'validated_hash';
 use Moose::Util::TypeConstraints 'enum';
 use Lab::Moose::Instrument qw/
-    timeout_param getter_params precision_param
+    timeout_param getter_params precision_param validated_setter
     /;
 
 use Carp;
@@ -188,7 +188,7 @@ sub sparam_sweep {
 
 sub _ensure_single_point_mode {
     my $self   = shift;
-    my $points = $self->cached_sense_sweep_count();
+    my $points = $self->cached_sense_sweep_points();
     if ( $points != 1 ) {
         croak "not in single point mode (have $points points)";
     }
@@ -225,9 +225,9 @@ Will croak if the VNA does not support single point mode.
 
 sub set_frq {
     my ( $self, $value, %args ) = validated_setter( \@_ );
-    my $points = $self->cached_sense_sweep_count();
+    my $points = $self->cached_sense_sweep_points();
     if ( $points != 1 ) {
-        $self->sense_sweep_count( value => 1 );
+        $self->sense_sweep_points( value => 1 );
     }
     my $start = $self->cached_sense_frequency_start();
     my $stop  = $self->cached_sense_frequency_stop();
