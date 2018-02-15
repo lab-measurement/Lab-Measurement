@@ -48,7 +48,7 @@ install:
   - dzil authordeps --missing | grep -vP '[^\w:]' | xargs cpanm --verbose --notest
 
   # install dependencies
-  - dzil listdeps --missing --cpanm | grep -vP '[^\w:~"\.]' | xargs cpanm --verbose --notest
+  - travis_wait dzil listdeps --missing --cpanm | grep -vP '[^\w:~"\.]' | xargs cpanm --verbose --notest
   - cpanm --verbose -f PDL::Graphics::Gnuplot
   - cpanm --verbose -n Test::Perl::Critic
 
