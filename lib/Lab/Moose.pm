@@ -72,6 +72,22 @@ Create instrument with existing connection:
      bar => 'OFF',
  );
 
+=head3 Creating a generic instrument driver
+
+To create a generic instrument driver, leave the C<type> attribute undefined.
+This can be useful when testing out new equipment before writing a new driver.
+
+
+ use Lab::Moose;
+
+ my $instrument = instrument(
+     connection_type => 'USB',
+     connection_options => {vid => 0x0957, pid => 0x0607}
+ );
+
+ # Use low-level methods provided by the connection: write, query, clear
+ print $instrument->query(command => "*IDN?");
+ 
 =cut
 
 # Enable "use warnings; use strict" in caller.
@@ -87,12 +103,17 @@ sub import {
 sub instrument {
     my %args = validated_hash(
         \@_,
-        type                           => { isa => 'Str' },
+        type                           => { isa => 'Str', optional => 1 },
         MX_PARAMS_VALIDATE_ALLOW_EXTRA => 1,
     );
 
     my $type = delete $args{type};
-    $type = "Lab::Moose::Instrument::$type";
+    if ( defined $type ) {
+        $type = "Lab::Moose::Instrument::$type";
+    }
+    else {
+        $type = "Lab::Moose::Instrument";
+    }
     load $type;
 
     return $type->new(%args);
