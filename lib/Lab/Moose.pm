@@ -54,7 +54,7 @@ Load an instrument driver module and call the constructor.
 Create instrument with new connection:
 
  my $instr = instrument(
-     instrument_type => 'RS_SMB',
+     type => 'RS_SMB',
      connection_type => 'VXI11',
      connection_options => {host => '192.168.2.23'},
      # other driver specific options
@@ -65,7 +65,7 @@ Create instrument with new connection:
 Create instrument with existing connection:
 
  my $instr = instrument(
-     instrument_type => $type,
+     type => $type,
      connection => $connection_object,
      # driver specific options
      foo => 'ON',
