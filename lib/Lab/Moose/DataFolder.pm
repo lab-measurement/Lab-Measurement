@@ -43,7 +43,9 @@ L<Lab::Moose::DataFile> objects which live inside the DataFolder.
 
 =head2 new
 
- my $folder = Lab::Moose::DataFolder(path => 'foldername');
+ my $folder = Lab::Moose::DataFolder->new(path => 'foldername');
+ # or equivalently use Lab::Moose loader:
+ use Lab::Moose; my $folder = datafolder(path => 'foldername');
 
 The actual foldername will consist of the C<path> argument and a numeric
 suffix. Calling this function repeatedly will create the directories

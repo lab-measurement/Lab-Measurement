@@ -138,7 +138,7 @@ sub datafolder {
 
 Load Lab::Moose::DataFile::C<$type> and call it's C<new> method with C<%args>.
 
-The default type is 'Gnuplot'.
+The default type is L<'Gnuplot'|Lab::Moose::DataFile::Gnuplot>.
 
 =cut
 
@@ -190,6 +190,12 @@ sub linspace {
     }
     return ( @steps, $to );
 }
+
+=head2 sweep/sweep_datafile
+
+These are described in a separate tutorial: L<Lab::Moose::Sweep::Tutorial>.
+
+=cut
 
 sub sweep {
     my (%args) = validated_hash(

@@ -77,17 +77,17 @@ sub BUILD {
      columns => [qw/time voltage temp/]
      );
 
+  # add live plot
   $file->add_plot(
      x => 'time',
      y => 'voltage',
      curve_options => {with => 'points'},
-     hard_copy => 'gnuplot-file-T-V.png',
   );
    
   $file->add_plot(
       x => 'time',
       y => 'temp',
-      hard_copy => 'gnuplot-file-T-Temp.png',
+      hard_copy => 'gnuplot-file-time-temp.png'
   );
 
  $file->log(time => 1, voltage => 2, temp => 3);
@@ -379,7 +379,9 @@ Default for 3D plots. Replot when finishing a block.
 
 =item * hard_copy        
 
-Create a copy of the plot in the data folder. Default: do not create hard copy.
+Filename for the copy of the plot in the data folder. Default: appent
+'.plot.$terminal' to the filename. Mandatory if you add multiple plots to one
+datafile.
 
 =item * hard_copy_terminal
 
