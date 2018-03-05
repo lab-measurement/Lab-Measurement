@@ -111,10 +111,7 @@ it can be used in other commands such as get_level to address it.
 
 sub get_catalogue {
     my ( $self, %args ) = validated_getter( \@_ );
-
-    my $cmd = "READ:SYS:CAT";
-    my $rv = $self->query( command => $cmd, %args );
-    return $self->parse_getter_retval( $cmd, $rv );
+    return $self->oi_getter( cmd => "READ:SYS:CAT", %args );
 }
 
 =head2 get_temperature
@@ -150,10 +147,8 @@ sub get_he_level {
     );
     my $channel = delete $args{channel};
 
-    my $cmd = "READ:DEV:$channel:LVL:SIG:HEL";
-    my $rv = $self->query( command => $cmd, %args );
-
-    $rv = $self->parse_getter_retval( $cmd, $rv );
+    my $rv
+        = $self->oi_getter( cmd => "READ:DEV:$channel:LVL:SIG:HEL", %args );
     $rv =~ s/^LEV://;
     $rv =~ s/%.*$//;
     return $rv;
@@ -174,11 +169,9 @@ sub get_he_level_resistance {
     );
     my $channel = delete $args{channel};
 
-    my $cmd = "READ:DEV:$channel:LVL:SIG:HEL";
-    my $res = $self->query( command => $cmd, %args );
-    $res = $self->parse_getter_retval( $cmd, $res );
+    my $res
+        = $self->oi_getter( cmd => "READ:DEV:$channel:LVL:SIG:HEL", %args );
     $res =~ s/^.*:RES://;
-
     $res =~ s/O$//;
     return $res;
 }
@@ -198,10 +191,8 @@ sub get_n2_level {
     );
     my $channel = delete $args{channel};
 
-    my $cmd = "READ:DEV:$channel:LVL:SIG:NIT";
-    my $level = $self->query( command => $cmd, %args );
-
-    $level = $self->parse_getter_retval( $cmd, $level );
+    my $level
+        = $self->oi_getter( cmd => "READ:DEV:$channel:LVL:SIG:NIT", %args );
     $level =~ s/^.*:LEV://;
     $level =~ s/%.*$//;
     return $level;
@@ -221,9 +212,8 @@ sub get_n2_level_frequency {
         channel => { isa => 'Str', default => 'DB5.L1' }
     );
     my $channel = delete $args{channel};
-    my $cmd     = "READ:DEV:$channel:LVL:SIG:NIT";
-    my $level   = $self->query( command => $cmd, %args );
-    $level = $self->parse_getter_retval( $cmd, $level );
+    my $level
+        = $self->oi_getter( cmd => "READ:DEV:$channel:LVL:SIG:NIT", %args );
     $level =~ s/^.*:FREQ://;
     $level =~ s/:.*$//;
     return $level;
@@ -236,9 +226,8 @@ sub get_n2_level_counter {
     );
     my $channel = delete $args{channel};
 
-    my $cmd = "READ:DEV:$channel:LVL:SIG:NIT";
-    my $level = $self->query( command => $cmd, %args );
-    $level = $self->parse_getter_retval( $cmd, $level );
+    my $level
+        = $self->oi_getter( cmd => "READ:DEV:$channel:LVL:SIG:NIT", %args );
     $level =~ s/^COUN://;
     $level =~ s/n:.*$//;
     return $level;
@@ -288,9 +277,8 @@ TODO: what happens if we're in persistent mode?
 sub oim_get_current {
     my ( $self, $channel, %args ) = validated_magnet_getter( \@_ );
 
-    my $cmd = "READ:DEV:$channel:PSU:SIG:CURR";
-    my $current = $self->query( command => $cmd, %args );
-    $current = $self->parse_getter_retval( $cmd, $current );
+    my $current
+        = $self->oi_getter( cmd => "READ:DEV:$channel:PSU:SIG:CURR", %args );
     $current =~ s/A$//;
     return $current;
 }
@@ -308,9 +296,8 @@ TODO: what happens if we're in persistent mode?
 sub oim_get_field {
     my ( $self, $channel, %args ) = validated_magnet_getter( \@_ );
 
-    my $cmd = "READ:DEV:$channel:PSU:SIG:FLD";
-    my $field = $self->query( command => $cmd, %args );
-    $field = $self->parse_getter_retval( $cmd, $field );
+    my $field
+        = $self->oi_getter( cmd => "READ:DEV:$channel:PSU:SIG:FLD", %args );
     $field =~ s/T$//;
     return $field;
 }
@@ -325,9 +312,7 @@ Returns the persistent mode switch heater status as B<ON> or B<OFF>.
 
 sub oim_get_heater {
     my ( $self, $channel, %args ) = validated_magnet_getter( \@_ );
-    my $cmd = "READ:DEV:$channel:PSU:SIG:SWHT";
-    my $heater = $self->query( command => $cmd, %args );
-    return $self->parse_getter_retval( $cmd, $heater );
+    return $self->oi_getter( cmd => "READ:DEV:$channel:PSU:SIG:SWHT", %args );
 }
 
 =head2 oim_set_heater
@@ -346,11 +331,11 @@ sub oim_set_heater {
         value => { isa => enum( [qw/ON OFF/] ) },
     );
 
-    my $cmd = "SET:DEV:$channel:PSU:SIG:SWHT";
-
-    my $rv = $self->query( command => "$cmd:$value", %args );
-
-    return $self->parse_setter_retval( $cmd, $rv );
+    return $self->oi_setter(
+        cmd   => "SET:DEV:$channel:PSU:SIG:SWHT",
+        value => $value,
+        %args
+    );
 }
 
 =head2 oim_force_heater
@@ -368,10 +353,10 @@ sub oim_force_heater {
         value => { isa => enum( [qw/ON OFF/] ) },
     );
 
-    my $cmd = "SET:DEV:$channel:PSU:SIG:SWHN";
-    my $heater = $self->query( command => "$cmd:$value", %args );
-
-    return $self->parse_setter_retval( $cmd, $heater );
+    return $self->oi_setter(
+        cmd   => "SET:DEV:$channel:PSU:SIG:SWHN",
+        value => $value, %args
+    );
 }
 
 =head2 oim_get_current_sweeprate
@@ -387,9 +372,8 @@ in Ampere per minute.
 sub oim_get_current_sweeprate {
     my ( $self, $channel, %args ) = validated_magnet_getter( \@_ );
 
-    my $cmd = "READ:DEV:$channel:PSU:SIG:RCST";
-    my $sweeprate = $self->query( command => $cmd, %args );
-    $sweeprate = $self->parse_getter_retval( $cmd, $sweeprate );
+    my $sweeprate
+        = $self->oi_getter( cmd => "READ:DEV:$channel:PSU:SIG:RCST", %args );
     $sweeprate =~ s/A\/m$//;
     return $sweeprate;
 }
@@ -405,11 +389,10 @@ Sets the desired target sweep rate, parameter is in Amperes per minute.
 sub oim_set_current_sweeprate {
     my ( $self, $value, $channel, %args ) = validated_magnet_setter( \@_ );
 
-    my $cmd = "SET:DEV:$channel:PSU:SIG:RCST";
-
-    my $rv = $self->query( command => "$cmd:$value", %args );
-
-    $rv = $self->parse_setter_retval( $cmd, $rv );
+    my $rv = $self->oi_setter(
+        cmd   => "SET:DEV:$channel:PSU:SIG:RCST",
+        value => $value, %args
+    );
 
     # this returns amps per minute
     $rv =~ s/A\/m$//;
@@ -427,9 +410,8 @@ Get sweep rate (Tesla/min).
 sub oim_get_field_sweeprate {
     my ( $self, $channel, %args ) = validated_magnet_getter( \@_ );
 
-    my $cmd = "READ:DEV:$channel:PSU:SIG:RFST";
-    my $sweeprate = $self->query( command => $cmd, %args );
-    $sweeprate = $self->parse_getter_retval( $cmd, $sweeprate );
+    my $sweeprate
+        = $self->oi_getter( cmd => "READ:DEV:$channel:PSU:SIG:RFST", %args );
     $sweeprate =~ s/T\/m$//;
     return $sweeprate;
 }
@@ -445,11 +427,10 @@ Set sweep rate (Tesla/min).
 sub oim_set_field_sweeprate {
     my ( $self, $value, $channel, %args ) = validated_magnet_setter( \@_ );
 
-    my $cmd = "SET:DEV:$channel:PSU:SIG:RFST";
-
-    my $rv = $self->query( command => "$cmd:$value", %args );
-
-    $rv = $self->parse_setter_retval( $cmd, $rv );
+    my $rv = $self->oi_setter(
+        cmd   => "SET:DEV:$channel:PSU:SIG:RFST",
+        value => $value, %args
+    );
 
     # this returns tesla per minute
     $rv =~ s/T\/m$//;
@@ -464,10 +445,7 @@ Retrieves the current power supply activity. See oim_set_activity for values.
 
 sub oim_get_activity {
     my ( $self, $channel, %args ) = validated_magnet_getter( \@_ );
-
-    my $cmd = "READ:DEV:$channel:PSU:ACTN";
-    my $action = $self->query( command => $cmd, %args );
-    return $self->parse_getter_retval( $cmd, $action );
+    return $self->oi_getter( cmd => "READ:DEV:$channel:PSU:ACTN", %args );
 }
 
 =head2 oim_set_activity
@@ -488,10 +466,10 @@ sub oim_set_activity {
         \@_,
         value => { isa => enum( [qw/HOLD RTOS RTOZ CLMP/] ) },
     );
-
-    my $cmd = "SET:DEV:$channel:PSU:ACTN";
-    my $rv = $self->query( command => "$cmd:$value", %args );
-    return $self->parse_setter_retval( $cmd, $rv );
+    return $self->oi_setter(
+        cmd   => "SET:DEV:$channel:PSU:ACTN",
+        value => $value, %args
+    );
 }
 
 =head2 oim_set_current_setpoint
@@ -508,9 +486,10 @@ sub oim_set_current_setpoint {
         value => { isa => 'Num' },
     );
 
-    my $cmd = "SET:DEV:$channel:PSU:SIG:CSET";
-    my $rv = $self->query( command => "$cmd:$value", %args );
-    $rv = $self->parse_setter_retval( $cmd, $rv );
+    my $rv = $self->oi_setter(
+        cmd   => "SET:DEV:$channel:PSU:SIG:CSET",
+        value => $value, %args
+    );
     $rv =~ s/A$//;
     return $rv;
 }
@@ -525,9 +504,9 @@ Get the current set point in Ampere.
 
 sub oim_get_current_setpoint {
     my ( $self, $channel, %args ) = validated_magnet_getter( \@_ );
-    my $cmd = "READ:DEV:$channel:PSU:SIG:CSET";
-    my $result = $self->query( command => $cmd, %args );
-    $result = $self->parse_getter_retval( $cmd, $result );
+
+    my $result
+        = $self->oi_getter( cmd => "READ:DEV:$channel:PSU:SIG:CSET", %args );
     $result =~ s/A$//;
     return $result;
 }
@@ -546,10 +525,10 @@ sub oim_set_field_setpoint {
         value => { isa => 'Num' },
     );
 
-    my $cmd = "SET:DEV:$channel:PSU:SIG:FSET";
-    my $rv = $self->query( command => "$cmd:$value", %args );
-
-    $rv = $self->parse_setter_retval( $cmd, $rv );
+    my $rv = $self->oi_setter(
+        cmd   => "SET:DEV:$channel:PSU:SIG:FSET",
+        value => $value, %args
+    );
     $rv =~ s/T$//;
     return $rv;
 }
@@ -565,9 +544,10 @@ Get the field setpoint in Tesla.
 sub oim_get_field_setpoint {
     my ( $self, $channel, %args ) = validated_magnet_getter( \@_ );
 
-    my $cmd = "READ:DEV:$channel:PSU:SIG:FSET";
-    my $result = $self->query( command => $cmd, %args );
-    $result = $self->parse_getter_retval( $cmd, $result );
+    my $result = $self->oi_getter(
+        cmd => "READ:DEV:$channel:PSU:SIG:FSET",
+        %args
+    );
     $result =~ s/T$//;
     return $result;
 }
@@ -580,9 +560,7 @@ Returns the current to field factor (A/T)
 
 sub oim_get_fieldconstant {
     my ( $self, $channel, %args ) = validated_magnet_getter( \@_ );
-    my $cmd = "READ:DEV:$channel:PSU:ATOB";
-    my $result = $self->query( command => $cmd, %args );
-    return $self->parse_getter_retval( $cmd, $result );
+    return $self->oi_getter( cmd => "READ:DEV:$channel:PSU:ATOB", %args );
 }
 
 ############### XPRESS interface #####################
