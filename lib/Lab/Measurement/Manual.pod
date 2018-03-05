@@ -328,7 +328,7 @@ can be used with XPRESS, just like the Lab::Instrument drivers.
 
 =back
 
-=head2 High-level tool classes
+=head2 High-level tool classes/roles
 
 =over
 
@@ -346,6 +346,8 @@ can be used with XPRESS, just like the Lab::Instrument drivers.
 
 =item * L<Lab::Moose::Plot>
 
+=item * L<Lab::Moose::Stabilizer>
+
 =back
 
 =head2 Sweep classes
@@ -361,6 +363,8 @@ can be used with XPRESS, just like the Lab::Instrument drivers.
 =item * L<Lab::Moose::Sweep::Step::Frequency>
 
 =item * L<Lab::Moose::Sweep::Step::Magnet>
+
+=item * L<Lab::Moose::Sweep::Step::Temperature>
 
 =item * L<Lab::Moose::Sweep::Continuous>
 
