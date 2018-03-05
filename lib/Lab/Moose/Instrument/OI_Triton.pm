@@ -68,9 +68,7 @@ sub set_user {
         \@_,
         value => { isa => enum( [qw/NORM GUEST/] ) },
     );
-    my $cmd = "SET:SYS:USER";
-    my $rv = $self->query( command => "$cmd:$value", %args );
-    return $self->parse_setter_retval( $cmd, $rv );
+    return $self->oi_setter( cmd => "SET:SYS:USER", value => $value, %args );
 }
 
 sub enable_control {
@@ -88,9 +86,10 @@ sub set_temp_pid {
         \@_,
         value => { isa => enum( [qw/ON OFF/] ) },
     );
-    my $cmd = "SET:DEV:T5:TEMP:LOOP:MODE";
-    my $rv = $self->query( command => "$cmd:$value", %args );
-    return $self->parse_setter_retval( $cmd, $rv );
+    return $self->oi_setter(
+        cmd   => "SET:DEV:T5:TEMP:LOOP:MODE",
+        value => $value, %args
+    );
 }
 
 sub enable_temp_pid {
@@ -112,9 +111,10 @@ sub set_max_current {
         croak "current $value is too large";
     }
     $value *= 1000;    # in mA
-    my $cmd = "SET:DEV:T5:TEMP:LOOP:RANGE";
-    my $rv = $self->query( command => "$cmd:$value", %args );
-    return $self->parse_setter_retval( $cmd, $rv );
+    return $self->oi_setter(
+        cmd   => "SET:DEV:T5:TEMP:LOOP:RANGE",
+        value => $value, %args
+    );
 }
 
 sub t_set {
@@ -122,9 +122,10 @@ sub t_set {
         \@_,
         value => { isa => 'Lab::Moose::PosNum' }
     );
-    my $cmd = "SET:DEV:T5:TEMP:LOOP:TSET";
-    my $rv = $self->query( command => "$cmd:$value", %args );
-    return $self->parse_setter_retval( $cmd, $rv );
+    return $self->oi_setter(
+        cmd   => "SET:DEV:T5:TEMP:LOOP:TSET",
+        value => $value, %args
+    );
 }
 
 sub set_T {
@@ -155,16 +156,15 @@ sub set_T {
 
 sub get_P {
     my ( $self, %args ) = validated_getter( \@_ );
-    my $cmd = "READ:DEV:H1:HTR:SIG:POWR";
-    my $rv = $self->query( command => $cmd, %args );
-    return $self->parse_getter_retval( $cmd, $rv );
+    return $self->oi_getter( cmd => "READ:DEV:H1:HTR:SIG:POWR", %args );
 }
 
 sub set_P {
     my ( $self, $value, %args ) = validated_setter( \@_ );
-    my $cmd = "SET:DEV:H1:HTR:SIG:POWR";
-    my $rv = $self->query( command => "$cmd:$value", %args );
-    return $self->parse_setter_retval( $cmd, $rv );
+    return $self->oi_setter(
+        cmd   => "SET:DEV:H1:HTR:SIG:POWR",
+        value => $value, %args
+    );
 }
 
 __PACKAGE__->meta()->make_immutable();

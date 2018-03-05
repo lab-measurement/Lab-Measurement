@@ -4,7 +4,7 @@ package Lab::Moose::Instrument::OI_Common;
 
 use Moose::Role;
 use MooseX::Params::Validate;
-use Lab::Moose::Instrument 'validated_getter';
+use Lab::Moose::Instrument qw/validated_getter validated_setter/;
 
 use Carp;
 
@@ -31,26 +31,13 @@ sub get_temperature_channel {
 
     my $channel = delete $args{channel};
 
-    my $cmd = "READ:DEV:$channel:TEMP:SIG:TEMP";
-    my $rv = $self->query( command => $cmd, %args );
-
-    $rv = $self->parse_getter_retval( $cmd, $rv );
-
+    my $rv
+        = $self->oi_getter( cmd => "READ:DEV:$channel:TEMP:SIG:TEMP", %args );
     $rv =~ s/K.*$//;
     return $rv;
 }
 
-=head2 parse_setter_retval
-
- my $cmd = "SET:DEV:$channel:PSU:SIG:SWHT";
- my $rv = $self->query(command => "$cmd:$value", %args);
- return $self->parse_setter_retval( $cmd, $rv );
-
-Remove header and trailing ':VALID'
-
-=cut
-
-sub parse_setter_retval {
+sub _parse_setter_retval {
     my $self = shift;
     my ( $header, $retval ) = @_;
 
@@ -61,18 +48,7 @@ sub parse_setter_retval {
     return $1;
 }
 
-=head2 parse_getter_retval
-
- my $cmd = "READ:DEV:$channel:PSU:SIG:RCST";
- my $sweeprate = $self->query( command => $cmd, %args );
- $sweeprate = $self->_parse_getter_retval( $cmd, $sweeprate );
- # remove unit
- $sweeprate =~ s/A\/m$//;
- return $sweeprate;
-
-=cut
-
-sub parse_getter_retval {
+sub _parse_getter_retval {
     my $self = shift;
     my ( $header, $retval ) = @_;
 
@@ -82,6 +58,46 @@ sub parse_getter_retval {
         croak "Invalid return value of getter for header $header:\n $retval";
     }
     return $1;
+}
+
+=head2 oi_getter
+
+ my $current = $self->oi_getter(cmd => "READ:DEV:$channel:PSU:SIG:CURR", %args);
+ $current =~ s/A$//;
+
+Perform query with I<READ:*> command and parse return value.
+
+=cut
+
+sub oi_getter {
+    my ( $self, %args ) = validated_getter(
+        \@_,
+        cmd => { isa => 'Str' }
+    );
+    my $cmd = delete $args{cmd};
+    my $rv = $self->query( command => $cmd, %args );
+    return $self->_parse_getter_retval( $cmd, $rv );
+}
+
+=head2 oi_setter
+
+  $self->oi_setter(
+        cmd => "SET:DEV:$channel:PSU:SIG:SWHT",
+        value => $value,
+        %args);
+
+Perform set/query with I<SET:*> command and parse return value.
+
+=cut
+
+sub oi_setter {
+    my ( $self, $value, %args ) = validated_setter(
+        \@_,
+        cmd => { isa => 'Str' }
+    );
+    my $cmd = delete $args{cmd};
+    my $rv = $self->query( command => "$cmd:$value", %args );
+    return $self->_parse_setter_retval( $cmd, $rv );
 }
 
 1;
