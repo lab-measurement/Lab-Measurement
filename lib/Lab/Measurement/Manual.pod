@@ -362,6 +362,8 @@ alias: C<Lab::Moose::Connection::VISA_GPIB>
 
 =item * L<Lab::XPRESS::Sweep::Frame>
 
+=item * L<Lab::Moose::Stabilizer>
+
 =back
 
 =head3 Dedicated Sweep Classes
