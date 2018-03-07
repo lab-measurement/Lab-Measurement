@@ -379,9 +379,9 @@ Default for 3D plots. Replot when finishing a block.
 
 =item * hard_copy        
 
-Filename for the copy of the plot in the data folder. Default: appent
-'.plot.$terminal' to the filename. Mandatory if you add multiple plots to one
-datafile.
+Filename for the copy of the plot in the data folder. Default: Switch datafile
+filename suffix of datafile to the $terminal, e.g. F<data.dat> =>
+F<data.png>. Mandatory if you add multiple plots to one datafile.
 
 =item * hard_copy_terminal
 
@@ -524,7 +524,11 @@ sub add_plot {
     my $hard_copy_terminal_options = delete $args{hard_copy_terminal_options};
     my $live                       = delete $args{live};
     if ( not defined $hard_copy ) {
-        $hard_copy = $self->filename() . '.plot.' . $hard_copy_terminal;
+        $hard_copy = $self->filename();
+
+        # Remove suffix
+        $hard_copy =~ s/\.\w*$//;
+        $hard_copy .= ".$hard_copy_terminal";
     }
 
     my %default_terminal_options;
