@@ -63,8 +63,6 @@ sub gen_resource_name {
         $pid = hex($pid);
     }
 
-    my $hostname = $self->hostname();
-
     return sprintf( "USB::0x%04x::::0x%04x::%s::INSTR", $vid, $pid, $serial );
 }
 
