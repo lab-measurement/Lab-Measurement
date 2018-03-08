@@ -122,7 +122,7 @@ __PACKAGE__->meta->make_immutable();
      connection_options => {
          vid => 0x0957,
          pid => 0x0607,
-         serial => MY47000419', # only needed if vid/pid is ambiguous
+         serial => 'MY47000419', # only needed if vid/pid is ambiguous
      }
  );
 

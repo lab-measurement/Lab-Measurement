@@ -1,6 +1,6 @@
 package Lab::Moose::Connection::VISA::VXI11;
 
-#ABSTRACT: VXI-11 back end to National Instruments' VISA library.
+#ABSTRACT: VXI-11 frontend to National Instruments' VISA library.
 
 =head1 SYNOPSIS
 

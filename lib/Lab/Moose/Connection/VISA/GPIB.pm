@@ -1,6 +1,6 @@
 package Lab::Moose::Connection::VISA::GPIB;
 
-#ABSTRACT: GPIB back end to National Instruments' VISA library.
+#ABSTRACT: GPIB frontend to National Instruments' VISA library.
 
 =head1 SYNOPSIS
 

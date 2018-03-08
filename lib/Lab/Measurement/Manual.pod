@@ -549,6 +549,8 @@ alias: C<Lab::Moose::Connection::VISA_GPIB>
 
 =item * L<Lab::Moose::Connection::USB>
 
+=item * L<Lab::Moose::Connection::VISA::USB>
+
 =back
 
 =head3 Network socket
