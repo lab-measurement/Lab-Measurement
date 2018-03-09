@@ -1,4 +1,5 @@
 package Lab::Moose::Instrument::SR830;
+
 #ABSTRACT: Stanford Research SR830 Lock-In Amplifier
 
 use 5.010;
@@ -11,7 +12,6 @@ use Lab::Moose::Instrument::Cache;
 use Carp;
 use namespace::autoclean;
 use POSIX qw/log10 ceil floor/;
-
 
 extends 'Lab::Moose::Instrument';
 
@@ -169,34 +169,28 @@ Get x, y, R and the angle all in one call.
 
 =cut
 
-cache xy => ( getter => 'get_xy' );
-
 sub get_xy {
     my ( $self, %args ) = validated_getter( \@_ );
     my $retval = $self->query( command => "SNAP?1,2", %args );
     my ( $x, $y ) = split( ',', $retval );
     chomp $y;
-    return $self->cached_xy( { x => $x, y => $y } );
+    return { x => $x, y => $y };
 }
-
-cache rphi => ( getter => 'get_rphi' );
 
 sub get_rphi {
     my ( $self, %args ) = validated_getter( \@_ );
     my $retval = $self->query( command => "SNAP?3,4", %args );
     my ( $r, $phi ) = split( ',', $retval );
     chomp $phi;
-    return $self->cached_rphi( { r => $r, phi => $phi } );
+    return { r => $r, phi => $phi };
 }
-
-cache xyrphi => ( getter => 'get_xyrphi' );
 
 sub get_xyrphi {
     my ( $self, %args ) = validated_getter( \@_ );
     my $retval = $self->query( command => "SNAP?1,2,3,4", %args );
     my ( $x, $y, $r, $phi ) = split( ',', $retval );
     chomp( $x, $y, $r, $phi );
-    return $self->cached_xyrphi( { x => $x, y => $y, r => $r, phi => $phi } );
+    return { x => $x, y => $y, r => $r, phi => $phi };
 }
 
 cache tc => ( getter => 'get_tc' );
