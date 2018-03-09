@@ -1,6 +1,6 @@
 package Lab::Moose::Instrument::Cache;
 
-#ABSTRACT: Role for device cache functionality in Moose::Instrument drivers
+#ABSTRACT: Device caching functionality in Moose::Instrument drivers
 
 =head1 SYNOPSIS
 
@@ -82,7 +82,7 @@ you can give the C<index_arg> argument to the cache keyword:
 
 =cut
 
-use Moose::Role;
+use Moose;
 use MooseX::Params::Validate;
 
 Moose::Exporter->setup_import_methods( with_meta => ['cache'] );
