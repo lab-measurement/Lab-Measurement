@@ -1,6 +1,6 @@
 package Lab::Moose::Sweep::Continuous;
 
-#ABSTRACT: Base class for continuous sweeps (temperature, magnetic field)
+#ABSTRACT: Base class for continuous sweeps (time, temperature, magnetic field)
 
 =head1 SYNOPSIS
 
@@ -66,7 +66,6 @@ Warn if measurement requires more time than C<interval>.
 
 use 5.010;
 use Moose;
-use Moose::Util::TypeConstraints 'enum';
 use MooseX::Params::Validate;
 
 # Do not import all functions as they clash with the attribute methods.
