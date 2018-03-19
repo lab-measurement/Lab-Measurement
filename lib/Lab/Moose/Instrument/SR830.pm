@@ -35,7 +35,7 @@ sub BUILD {
  my $lia = instrument(type => 'SR830', %connection_options);
  
  # Set reference frequency to 10 kHz
- $lia->set_freq(value => 10000);
+ $lia->set_frq(value => 10000);
 
  # Set time constant to 10 sec
  $lia->set_tc(value => 10);
@@ -50,35 +50,35 @@ sub BUILD {
 
 =head1 METHODS
 
-=head2 get_freq
+=head2 get_frq
 
- my $freq = $lia->get_freq();
+ my $frq = $lia->get_frq();
 
 Query frequency of the reference oscillator.
 
-=head2 set_freq
+=head2 set_frq
 
- $lia->set_freq(value => $freq);
+ $lia->set_frq(value => $frq);
 
 Set frequency of the reference oscillator.
 
 =cut
 
-cache freq => ( getter => 'get_freq' );
+cache frq => ( getter => 'get_frq' );
 
-sub get_freq {
+sub get_frq {
     my ( $self, %args ) = validated_getter( \@_ );
-    return $self->cached_freq( $self->query( command => 'FREQ?', %args ) );
+    return $self->cached_frq( $self->query( command => 'FREQ?', %args ) );
 }
 
-sub set_freq {
+sub set_frq {
     my ( $self, $value, %args ) = validated_setter(
         \@_,
         value => { isa => 'Num' }
     );
 
     $self->write( command => "FREQ $value", %args );
-    $self->cached_freq($value);
+    $self->cached_frq($value);
 }
 
 =head2 get_amplitude
