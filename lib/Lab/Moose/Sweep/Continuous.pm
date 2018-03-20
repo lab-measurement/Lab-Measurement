@@ -83,13 +83,38 @@ extends 'Lab::Moose::Sweep';
 has instrument =>
     ( is => 'ro', isa => 'Lab::Moose::Instrument', required => 1 );
 
-has from => ( is => 'ro', isa => 'Num', required => 1, writer => '_from' );
-has to   => ( is => 'ro', isa => 'Num', required => 1, writer => '_to' );
-has rate => ( is => 'ro', isa => 'Lab::Moose::PosNum', required => 1 );
-has start_rate =>
-    ( is => 'ro', isa => 'Lab::Moose::PosNum', writer => '_start_rate' );
-has interval => ( is => 'ro', isa => 'Lab::Moose::PosNum', default => 0 );
-has backsweep => ( is => 'ro', isa => 'Bool', default => 0 );
+# has from => ( is => 'ro', isa => 'Num', required => 1, writer => '_from' );
+# has to   => ( is => 'ro', isa => 'Num', required => 1, writer => '_to' );
+# has rate => ( is => 'ro', isa => 'Lab::Moose::PosNum', required => 1 );
+
+# FIXME: make copy of original array refs
+has points => (
+    is => 'ro', isa => 'ArrayRef[Num]', traits => ['Array'],
+    handles  => { shift_points => 'shift', num_points => 'count' },
+    required => 1
+);
+
+has intervals => (
+    is      => 'ro',
+    isa     => 'ArrayRef[Num]',
+    traits  => ['Array'],
+    handles => {
+        shift_intervals => 'shift', get_interval => 'get',
+        num_intervals   => 'count'
+    },
+    required => 1
+);
+
+has rates => (
+    is => 'ro', isa => 'ArrayRef[Num]', traits => ['Array'],
+    handles  => { shift_rates => 'shift', num_rates => 'count' },
+    required => 1
+);
+
+# has start_rate =>
+# ( is => 'ro', isa => 'Lab::Moose::PosNum', writer => '_start_rate' );
+#has backsweep => ( is => 'ro', isa => 'Bool', default => 0 );
+
 #
 # Private attributes used internally
 #
@@ -102,27 +127,47 @@ has index => (
 has start_time =>
     ( is => 'ro', isa => 'Num', init_arg => undef, writer => '_start_time' );
 
-has in_backsweep => (
-    is     => 'ro', isa => 'Bool', init_arg => undef,
-    writer => '_in_backsweep'
-);
+# has in_backsweep => (
+#     is     => 'ro', isa => 'Bool', init_arg => undef,
+#     writer => '_in_backsweep'
+# );
 
 sub BUILD {
     my $self = shift;
 
     # check if rate is defined. The Time subclass does not use the rate
     # parameter
-    if ( defined $self->rate ) {
-        if ( not defined $self->start_rate ) {
-            $self->_start_rate( $self->rate );
+    if ( defined $self->points ) {
+        my $num_points    = $self->num_points;
+        my $num_rates     = $self->num_rates;
+        my $num_intervals = $self->num_intervals;
+
+        if ( $num_points < 2 ) {
+            croak "need at least two points";
+        }
+        if ( $num_rates != $num_points or $num_intervals != $num_points - 1 )
+        {
+            croak "need same number of points and rates and intervals";
         }
     }
+
+    # TODO: handle from, to, rate, start_rate params
+    # TODO: fill rates and intervals if too short
+    # TODO: handle backsweeps: just add more points ?!
+
+    # check if rate is defined. The Time subclass does not use the rate
+    # parameter
+    # if ( defined $self->rate ) {
+    #     if ( not defined $self->start_rate ) {
+    #         $self->_start_rate( $self->rate );
+    #     }
+    # }
 }
 
 sub go_to_next_point {
     my $self     = shift;
     my $index    = $self->index;
-    my $interval = $self->interval;
+    my $interval = $self->get_interval(0);
     if ( $index == 0 or $interval == 0 ) {
 
         # first point is special
@@ -152,17 +197,17 @@ EOF
 sub go_to_sweep_start {
     my $self = shift;
     $self->_index(0);
-    my $from       = $self->from;
-    my $start_rate = $self->start_rate;
+    my $point = $self->shift_points();
+    my $rate  = $self->shift_rates();
     carp <<"EOF";
 Going to sweep start:
-Setpoint: $from
-Rate: $start_rate
+Setpoint: $point
+Rate: $rate
 EOF
     my $instrument = $self->instrument();
     $instrument->config_sweep(
-        points => $from,
-        rates  => $start_rate
+        points => $point,
+        rates  => $rate
     );
     $instrument->trg();
     $instrument->wait();
@@ -171,19 +216,20 @@ EOF
 sub start_sweep {
     my $self       = shift;
     my $instrument = $self->instrument();
-    my $to         = $self->to;
-    my $rate       = $self->rate;
+    my $to         = $self->shift_points();
+    my $rate       = $self->shift_rates();
     carp <<"EOF";
 Starting sweep
 Setpoint: $to
 Rate: $rate
 EOF
     $instrument->config_sweep(
-        points => $self->to,
-        rates  => $self->rate
+        points => $to,
+        rates  => $rate,
     );
     $instrument->trg();
     $self->_start_time( time() );
+    $self->_index(0);
 }
 
 sub sweep_finished {
@@ -191,25 +237,18 @@ sub sweep_finished {
     if ( $self->instrument->active() ) {
         return 0;
     }
+
+    # finished one segment of the sweep
+    if ( $self->num_points > 0 ) {
+
+        # continue with next point
+        $self->start_sweep();
+        $self->shift_intervals();
+        return 0;
+    }
     else {
-        if ( $self->in_backsweep or not $self->backsweep ) {
-            return 1;
-        }
-        else {
-            carp "starting backsweep\n";
-            $self->_in_backsweep(1);
-
-            # let's get the backsweep started ;)
-            my $from = $self->from;
-            my $to   = $self->to;
-
-            # exchange from and to
-            $self->_from($to);
-            $self->_to($from);
-            $self->go_to_sweep_start();
-            $self->start_sweep();
-            return 0;
-        }
+        # finished all points!
+        return 1;
     }
 }
 
