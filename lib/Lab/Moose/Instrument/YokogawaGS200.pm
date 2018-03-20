@@ -88,8 +88,11 @@ Used roles:
 =over
 
 =item L<Lab::Moose::Instrument::Common>
+
 =item L<Lab::Moose::Instrument::SCPI::Source::Function>
+
 =item L<Lab::Moose::Instrument::SCPI::Source::Range>
+
 =item L<Lab::Moose::Instrument::LinearStepSweep>
 
 =back
@@ -257,7 +260,6 @@ sub active {
 
     my $status = $self->get_status(%args);
     if ( $status->{'EES'} == 1 ) {
-        say "not active";
         return 0;
     }
     return 1;
