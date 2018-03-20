@@ -58,7 +58,7 @@ sub BUILD {
 
 sub go_to_sweep_start {
     my $self = shift;
-    $self->_index(0);
+    $self->reset_index();
 }
 
 sub start_sweep {
@@ -80,7 +80,7 @@ sub sweep_finished {
     if ( $self->num_durations > 1 ) {
         $self->shift_intervals();
         $self->shift_durations();
-        $self->_index(0);
+        $self->reset_index();
         $self->start_sweep();
         return 0;
     }

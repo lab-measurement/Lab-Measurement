@@ -86,12 +86,13 @@ has instrument =>
 # has from => ( is => 'ro', isa => 'Num', required => 1, writer => '_from' );
 # has to   => ( is => 'ro', isa => 'Num', required => 1, writer => '_to' );
 # has rate => ( is => 'ro', isa => 'Lab::Moose::PosNum', required => 1 );
+# has start_rate =>
+# ( is => 'ro', isa => 'Lab::Moose::PosNum', writer => '_start_rate' );
 
-# FIXME: make copy of original array refs
 has points => (
     is => 'ro', isa => 'ArrayRef[Num]', traits => ['Array'],
     handles  => { shift_points => 'shift', num_points => 'count' },
-    required => 1
+    required => 1,
 );
 
 has intervals => (
@@ -108,11 +109,9 @@ has intervals => (
 has rates => (
     is => 'ro', isa => 'ArrayRef[Num]', traits => ['Array'],
     handles  => { shift_rates => 'shift', num_rates => 'count' },
-    required => 1
+    required => 1,
 );
 
-# has start_rate =>
-# ( is => 'ro', isa => 'Lab::Moose::PosNum', writer => '_start_rate' );
 #has backsweep => ( is => 'ro', isa => 'Bool', default => 0 );
 
 #
@@ -120,8 +119,9 @@ has rates => (
 #
 
 has index => (
-    is => 'ro', isa => 'Lab::Moose::PosInt', default => 0, init_arg => undef,
-    writer => '_index'
+    is => 'ro', isa => 'Num', default => 0, init_arg => undef, default => 0,
+    traits  => ['Counter'],
+    handles => { inc_index => 'inc', reset_index => 'reset' }
 );
 
 has start_time =>
@@ -191,12 +191,12 @@ EOF
         }
 
     }
-    $self->_index( ++$index );
+    $self->inc_index();
 }
 
 sub go_to_sweep_start {
     my $self = shift;
-    $self->_index(0);
+    $self->reset_index();
     my $point = $self->shift_points();
     my $rate  = $self->shift_rates();
     carp <<"EOF";
@@ -229,7 +229,7 @@ EOF
     );
     $instrument->trg();
     $self->_start_time( time() );
-    $self->_index(0);
+    $self->reset_index();
 }
 
 sub sweep_finished {
@@ -256,3 +256,4 @@ sub sweep_finished {
 
 __PACKAGE__->meta->make_immutable();
 1;
+
