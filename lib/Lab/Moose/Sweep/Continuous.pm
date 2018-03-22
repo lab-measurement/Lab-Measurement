@@ -329,6 +329,7 @@ sub sweep_finished {
     }
 
     # finished one segment of the sweep
+
     if ( $self->num_points > 0 ) {
 
         # continue with next point

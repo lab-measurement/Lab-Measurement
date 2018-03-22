@@ -257,7 +257,6 @@ sub active {
 
     my $status = $self->get_status(%args);
     if ( $status->{'EES'} == 1 ) {
-        say "not active";
         return 0;
     }
     return 1;

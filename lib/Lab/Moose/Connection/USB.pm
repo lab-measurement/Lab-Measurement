@@ -48,6 +48,12 @@ has write_termchar => (
     default => "\n",
 );
 
+has reset_device => (
+    is      => 'ro',
+    isa     => 'Bool',
+    default => 1
+);
+
 sub BUILD {
     my $self   = shift;
     my $serial = $self->serial();
@@ -65,7 +71,8 @@ sub BUILD {
         vid => $vid,
         pid => $pid,
         defined($serial) ? ( serial => $serial ) : (),
-        debug_mode => $self->debug_mode(),
+        debug_mode   => $self->debug_mode(),
+        reset_device => $self->reset_device(),
     );
     $self->_usbtmc($usbtmc);
 }
