@@ -25,6 +25,21 @@ requires qw/max_units_per_second max_units_per_step min_units max_units
 
 =cut
 
+# Enforce max_units/min_units.
+sub check_max_and_min {
+    my $self = shift;
+    my $to   = shift;
+
+    my $min = $self->min_units();
+    my $max = $self->max_units();
+    if ( $to < $min ) {
+        croak "target $to is below minimum allowed value $min";
+    }
+    elsif ( $to > $max ) {
+        croak "target $to is above maximum allowed value $max";
+    }
+}
+
 sub linear_step_sweep {
     my ( $self, %args ) = validated_hash(
         \@_,
@@ -38,15 +53,7 @@ sub linear_step_sweep {
     my $last_timestamp = $self->source_level_timestamp();
     my $distance       = abs( $to - $from );
 
-    # Enforce max_units/min_units.
-    my $min = $self->min_units();
-    my $max = $self->max_units();
-    if ( $to < $min ) {
-        croak "target $to is below minimum allowed value $min";
-    }
-    elsif ( $to > $max ) {
-        croak "target $to is above maximum allowed value $max";
-    }
+    $self->check_max_and_min($to);
 
     if ( not defined $last_timestamp ) {
         $last_timestamp = time();
