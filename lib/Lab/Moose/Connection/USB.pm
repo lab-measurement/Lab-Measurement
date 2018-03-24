@@ -99,9 +99,18 @@ sub Read {
 }
 
 sub Clear {
-    my ( $self, %args ) = validated_hash( \@_, timeout_param );
+    my ( $self, %args ) = validated_hash(
+        \@_, timeout_param,
+        yoko => { isa => 'Bool', default => 0 }
+    );
     my $timeout = $self->_timeout_arg(%args);
-    $self->usbtmc()->clear( timeout => $timeout );
+    my $is_yoko = delete $args{yoko};
+    if ($is_yoko) {
+        $self->usbtmc()->clear_without_output_clear( timeout => $timeout );
+    }
+    else {
+        $self->usbtmc()->clear( timeout => $timeout );
+    }
 }
 
 with qw/
