@@ -43,6 +43,36 @@ sub sense_bandwidth_resolution {
     $self->cached_sense_bandwidth_resolution($value);
 }
 
+=head2 sense_bandwidth_video_query
+
+=head2 sense_bandwidth_video
+
+Query/Set the video bandwidth (in Hz).
+
+=cut
+
+cache sense_bandwidth_video =>
+    ( getter => 'sense_bandwidth_video_query' );
+
+sub sense_bandwidth_video_query {
+    my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
+
+    return $self->cached_sense_bandwidth_video(
+        $self->query( command => "SENS${channel}:BAND:VIDEO?", %args ) );
+}
+
+sub sense_bandwidth_video {
+    my ( $self, $channel, $value, %args ) = validated_channel_setter(
+        \@_,
+        value => { isa => 'Num' }
+    );
+    $self->write(
+        command => sprintf( "SENS%s:BAND:VIDEO %.17g", $channel, $value ),
+        %args
+    );
+    $self->cached_sense_bandwidth_video($value);
+}
+
 =head2 sense_bandwidth_resolution_select_query
 
 =head2 sense_bandwidth_resolution_select
