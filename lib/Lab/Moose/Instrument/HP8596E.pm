@@ -49,7 +49,7 @@ sub idn {
     return $self->query( command => '*ID?', %args );
 }
 
-### Sense/Frequency emulation
+### Sense:Frequency emulation
 sub sense_frequency_start_query {
     my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
 
@@ -82,7 +82,7 @@ sub sense_frequency_stop {
     $self->cached_sense_frequency_stop($value);
 }
 
-### Sense/Sweep emulation
+### Sense:Sweep:Points emulation
 
 sub sense_sweep_points_query {
     my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
@@ -99,6 +99,8 @@ sub sense_sweep_points {
 }
 
 
+### Sense:Sweep:Count  emulation
+
 sub sense_sweep_count_query {
     my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
     return $self->cached_sense_sweep_count(
@@ -112,7 +114,7 @@ sub sense_sweep_count {
     $self->cached_sense_sweep_count($value);
 }
 
-### Sense/Bandwidth emulation
+### Sense:Bandwidth:Resolution emulation
 
 sub sense_bandwidth_resolution_query {
     my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
@@ -133,9 +135,6 @@ sub sense_bandwidth_resolution {
     $self->cached_sense_bandwidth_resolution($value);
 }
 
-cache sense_bandwidth_video =>
-    ( getter => 'sense_bandwidth_video_query' );
-
 sub sense_bandwidth_video_query {
     my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
 
@@ -154,6 +153,22 @@ sub sense_bandwidth_video {
     );
     $self->cached_sense_bandwidth_video($value);
 }
+
+### Sense:Sweep:Time
+
+sub sense_sweep_time_query {
+    my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
+    return $self->cached_sense_sweep_count(
+        $self->query( command => "ST?", %args ) );
+}
+
+sub sense_sweep_time {
+    my ( $self, $channel, $value, %args ) = validated_channel_setter( \@_ );
+
+    $self->write( command => "ST $value", %args );
+    $self->cached_sense_sweep_count($value);
+}
+
 
 ### Trace/Data emulation
 sub get_spectrum {
