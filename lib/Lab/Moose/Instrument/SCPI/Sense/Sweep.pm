@@ -59,4 +59,27 @@ sub sense_sweep_count {
     $self->cached_sense_sweep_count($value);
 }
 
+=head2 sense_sweep_time_query
+
+=head2 sense_sweep_time
+
+Query/Set the sweep time in which the spectrum analyzer sweeps the required frequency range.
+
+=cut
+
+cache sense_sweep_time => ( getter => 'sense_sweep_time_query' );
+
+sub sense_sweep_time_query {
+    my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
+    return $self->cached_sense_sweep_time(
+        $self->query( command => "SENS${channel}:SWE:TIME?", %args ) );
+}
+
+sub sense_sweep_time {
+    my ( $self, $channel, $value, %args ) = validated_channel_setter( \@_ );
+
+    $self->write( command => "SENS${channel}:SWE:TIME $value", %args );
+    $self->cached_sense_sweep_time($value);
+}
+
 1;
