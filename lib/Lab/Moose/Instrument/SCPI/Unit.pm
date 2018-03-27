@@ -24,20 +24,17 @@ cache unit_power => ( getter => 'unit_power_query' );
 sub unit_power_query {
     my ( $self, %args ) = validated_getter( \@_ );
 
-    return $self->cached_format_data_query(
+    return $self->cached_unit_power(
         $self->query( command => "UNIT:POWer?", %args ) );
 }
 
 sub unit_power {
-    my ( $self, $channel, $value, %args ) = validated_channel_setter(
-        \@_,
-        value => { isa => enum( [qw/DBM DBMV DBUV DBUA V W A/] ) }
-    );
+    my ( $self, $channel, $value, %args ) = validated_channel_setter( \@_ );
     $self->write(
-        command => sprintf( "UNIT:POWer %.17g", $value ),
+        command => sprintf( "UNIT:POWer %s", $value ),
         %args
     );
-    $self->cached_format_data_query($value);
+    $self->cached_unit_power($value);
 }
 
 
