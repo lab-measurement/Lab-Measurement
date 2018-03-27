@@ -26,6 +26,7 @@ with qw(
     Lab::Moose::Instrument::SCPI::Sense::Frequency
     Lab::Moose::Instrument::SCPI::Sense::Sweep
     Lab::Moose::Instrument::SCPI::Sense::Bandwidth
+    Lab::Moose::Instrument::SCPI::Display::Window
 );
 #    Lab::Moose::Instrument::Common
 #    Lab::Moose::Instrument::SCPI::Format
@@ -167,6 +168,24 @@ sub sense_sweep_time {
 
     $self->write( command => "ST $value", %args );
     $self->cached_sense_sweep_count($value);
+}
+
+### Display:Window:Trace:Y:Scale:Rlevel
+#
+sub display_window_trace_y_scale_rlevel_query {
+    my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
+
+    return $self->cached_sense_frequency_start(
+        $self->query( command => "RL?", %args ) );
+}
+
+sub display_window_trace_y_scale_rlevel {
+    my ( $self, $channel, $value, %args ) = validated_channel_setter( \@_ );
+    $self->write(
+        command => sprintf( "RL %.17g", $value ),
+        %args
+    );
+    $self->cached_sense_frequency_start($value);
 }
 
 
