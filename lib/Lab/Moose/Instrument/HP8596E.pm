@@ -27,6 +27,7 @@ with qw(
     Lab::Moose::Instrument::SCPI::Sense::Sweep
     Lab::Moose::Instrument::SCPI::Sense::Bandwidth
     Lab::Moose::Instrument::SCPI::Display::Window
+    Lab::Moose::Instrument::SCPI::Unit
 );
 #    Lab::Moose::Instrument::Common
 #    Lab::Moose::Instrument::SCPI::Format
@@ -171,11 +172,11 @@ sub sense_sweep_time {
 }
 
 ### Display:Window:Trace:Y:Scale:Rlevel
-#
+
 sub display_window_trace_y_scale_rlevel_query {
     my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
 
-    return $self->cached_sense_frequency_start(
+    return $self->cached_display_window_trace_y_scale_rlevel(
         $self->query( command => "RL?", %args ) );
 }
 
@@ -185,9 +186,27 @@ sub display_window_trace_y_scale_rlevel {
         command => sprintf( "RL %.17g", $value ),
         %args
     );
-    $self->cached_sense_frequency_start($value);
+    $self->cached_display_window_trace_y_scale_rlevel($value);
 }
 
+### Unit:Power 
+
+sub unit_power_query {
+    my ( $self, %args ) = validated_getter( \@_ );
+
+    return $self->cached_unit_power(
+        $self->query( command => "AUNITS?", %args ) );
+}
+
+sub unit_power {
+    my ( $self, $channel, $value, %args ) = validated_channel_setter( \@_ );
+    # allowed values are DBM, DBMV, DBUV, V, W
+    $self->write(
+        command => sprintf( "AUNITS %s", $value ),
+        %args
+    );
+    $self->cached_unit_power($value);
+}
 
 ### Trace/Data emulation
 sub get_spectrum {
