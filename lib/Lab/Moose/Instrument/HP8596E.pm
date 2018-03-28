@@ -231,7 +231,7 @@ sub get_spectrum {
         $trace = 'C';
     }
 
-    # TDF P; switch output format to the human readable (ascii)
+    # 'TDF P' switches output format to the human readable (ascii)
     # number representation. Numbers are separated by commas
     my $reply = $self->query(
         command => "TDF P; TR$trace?",
