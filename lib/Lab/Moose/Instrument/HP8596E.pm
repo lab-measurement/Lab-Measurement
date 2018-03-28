@@ -29,19 +29,19 @@ with qw(
     Lab::Moose::Instrument::SCPI::Display::Window
     Lab::Moose::Instrument::SCPI::Unit
 );
+
 #    Lab::Moose::Instrument::Common
 #    Lab::Moose::Instrument::SCPI::Format
-
 
 #    Lab::Moose::Instrument::SCPI::Initiate
 
 #    Lab::Moose::Instrument::SCPIBlock
 
-
 sub BUILD {
     my $self = shift;
-#    $self->clear();
-#    $self->cls();
+
+    #    $self->clear();
+    #    $self->cls();
 }
 
 ##### This device predates creation of SCPI commands (introduced in 1999), so we fake them
@@ -89,30 +89,27 @@ sub sense_frequency_stop {
 sub sense_sweep_points_query {
     my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
 
-    return $self->cached_sense_sweep_count(
-    	401 ); # hard wired
+    return $self->cached_sense_sweep_count(401);    # hard wired
 }
 
 sub sense_sweep_points {
     my ( $self, $channel, $value, %args ) = validated_channel_setter( \@_ );
 
-    $value = 401; #hardwired
+    $value = 401;                                   #hardwired
     $self->cached_sense_sweep_points($value);
 }
-
 
 ### Sense:Sweep:Count  emulation
 
 sub sense_sweep_count_query {
     my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
-    return $self->cached_sense_sweep_count(
-        1 ); # hardwired
+    return $self->cached_sense_sweep_count(1);      # hardwired
 }
 
 sub sense_sweep_count {
     my ( $self, $channel, $value, %args ) = validated_channel_setter( \@_ );
 
-    $value = 1; # hard wired
+    $value = 1;                                     # hard wired
     $self->cached_sense_sweep_count($value);
 }
 
@@ -189,7 +186,7 @@ sub display_window_trace_y_scale_rlevel {
     $self->cached_display_window_trace_y_scale_rlevel($value);
 }
 
-### Unit:Power 
+### Unit:Power
 
 sub unit_power_query {
     my ( $self, %args ) = validated_getter( \@_ );
@@ -200,6 +197,7 @@ sub unit_power_query {
 
 sub unit_power {
     my ( $self, $channel, $value, %args ) = validated_channel_setter( \@_ );
+
     # allowed values are DBM, DBMV, DBUV, V, W
     $self->write(
         command => sprintf( "AUNITS %s", $value ),
@@ -224,14 +222,16 @@ sub get_spectrum {
 
     # convert trace number to name 1->A, 2->B, ...
     if ( $trace == 1 ) {
-	    $trace = 'A';
-    } elsif ( $trace == 2 ) {
-	    $trace = 'B';
-    } elsif ( $trace == 3 ) {
-	    $trace = 'C';
+        $trace = 'A';
+    }
+    elsif ( $trace == 2 ) {
+        $trace = 'B';
+    }
+    elsif ( $trace == 3 ) {
+        $trace = 'C';
     }
 
-    # TDF P; switch output format to the human readable (ascii) 
+    # TDF P; switch output format to the human readable (ascii)
     # number representation. Numbers are separated by commas
     my $reply = $self->query(
         command => "TDF P; TR$trace?",
@@ -241,7 +241,7 @@ sub get_spectrum {
 
     my @freq_array = $self->sense_frequency_linear_array();
 
-    return cat( (pdl @freq_array), (pdl @dat) );
+    return cat( ( pdl @freq_array ), ( pdl @dat ) );
 
 }
 

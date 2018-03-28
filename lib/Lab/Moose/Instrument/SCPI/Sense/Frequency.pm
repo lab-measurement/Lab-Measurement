@@ -1,4 +1,5 @@
 package Lab::Moose::Instrument::SCPI::Sense::Frequency;
+
 #ABSTRACT: Role for the SCPI SENSe:FREQuency subsystem
 
 use Moose::Role;

@@ -1,4 +1,5 @@
 package Lab::Moose::Instrument::SCPI::Display::Window;
+
 #ABSTRACT: Role for the SCPI DISPlay:WINDow subsystem
 
 use Moose::Role;
@@ -26,7 +27,8 @@ Sets the amplitude value of the reference level for the y-axis.
 
 =cut
 
-cache display_window_trace_y_scale_rlevel => ( getter => 'display_window_trace_y_scale_rlevel_query' );
+cache display_window_trace_y_scale_rlevel =>
+    ( getter => 'display_window_trace_y_scale_rlevel_query' );
 
 sub display_window_trace_y_scale_rlevel_query {
     my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
@@ -34,6 +36,7 @@ sub display_window_trace_y_scale_rlevel_query {
     return $self->cached_display_window_trace_y_scale_rlevel(
         $self->query( command => ":DISP:WIND:TRACe:Y:SCALe:RLEV?", %args ) );
 }
+
 sub display_window_trace_y_scale_rlevel {
     my ( $self, $channel, $value, %args ) = validated_channel_setter( \@_ );
     $self->write(

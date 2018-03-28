@@ -1,4 +1,5 @@
 package Lab::Moose::Instrument::SCPI::Sense::Bandwidth;
+
 #ABSTRACT: Role for the SCPI SENSe:BANDwidth subsystem
 
 use Moose::Role;
@@ -51,8 +52,7 @@ Query/Set the video bandwidth (in Hz).
 
 =cut
 
-cache sense_bandwidth_video =>
-    ( getter => 'sense_bandwidth_video_query' );
+cache sense_bandwidth_video => ( getter => 'sense_bandwidth_video_query' );
 
 sub sense_bandwidth_video_query {
     my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
