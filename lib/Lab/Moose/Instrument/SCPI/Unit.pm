@@ -37,5 +37,4 @@ sub unit_power {
     $self->cached_unit_power($value);
 }
 
-
 1;
