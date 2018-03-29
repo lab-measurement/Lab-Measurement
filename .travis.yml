@@ -41,16 +41,16 @@ install:
   - gnuplot --version
 
   # Install the DZIL dependencies
-  - cpanm --verbose --notest --skip-satisfied Dist::Zilla
+  - cpanm  --notest --skip-satisfied Dist::Zilla
 
   # Install DZIL plugins etc if needed
   - cd $TRAVIS_BUILD_DIR
-  - dzil authordeps --missing | grep -vP '[^\w:]' | xargs cpanm --verbose --notest
+  - dzil authordeps --missing | grep -vP '[^\w:]' | xargs cpanm  --notest
 
   # install dependencies
-  - travis_wait dzil listdeps --missing --cpanm | grep -vP '[^\w:~"\.]' | xargs cpanm --verbose --notest
+  - travis_wait dzil listdeps --missing --cpanm | grep -vP '[^\w:~"\.]' | xargs cpanm  --notest
   - cpanm --verbose -f PDL::Graphics::Gnuplot
-  - cpanm --verbose -n Test::Perl::Critic
+  - cpanm -n Test::Perl::Critic
 
 script:
   # "normal" tests
