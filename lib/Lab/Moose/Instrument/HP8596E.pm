@@ -308,15 +308,5 @@ L<Lab::Moose::Instrument::SCPI::Sense::Frequency>,
 L<Lab::Moose::Instrument::SCPI::Sense::Sweep>
 
 
-=head1 COPYRIGHT AND LICENSE
-
-This software is copyright (c) 2018 by the Lab::Measurement team; in detail:
-
-  Copyright 2018       Eugeniy E. Mikhailov
-
-
-This is free software; you can redistribute it and/or modify it under
-the same terms as the Perl 5 programming language system itself.
-
 =cut
 
