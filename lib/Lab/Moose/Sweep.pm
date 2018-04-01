@@ -340,8 +340,9 @@ sub _start {
         filename_extensions => { isa => 'ArrayRef[Str]' },
     );
 
-    my $slave            = $self->slave();
-    my $create_datafiles = $self->create_datafiles;
+    my $slave                    = $self->slave();
+    my $create_datafiles         = $self->create_datafiles;
+    my $push_filename_extensions = not defined $datafiles;
 
     if ( $create_datafiles and defined $datafiles ) {
         croak "should not get datafile arg";
@@ -360,7 +361,7 @@ sub _start {
         my @filename_extensions = @{$filename_extensions};
 
         # Only call get_value if we have to
-        if ( $create_datafiles or $slave ) {
+        if ($push_filename_extensions) {
             push @filename_extensions,
                 $self->filename_extension . $self->get_value();
         }
