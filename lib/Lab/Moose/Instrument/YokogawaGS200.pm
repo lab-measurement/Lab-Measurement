@@ -88,8 +88,11 @@ Used roles:
 =over
 
 =item L<Lab::Moose::Instrument::Common>
+
 =item L<Lab::Moose::Instrument::SCPI::Source::Function>
+
 =item L<Lab::Moose::Instrument::SCPI::Source::Range>
+
 =item L<Lab::Moose::Instrument::LinearStepSweep>
 
 =back

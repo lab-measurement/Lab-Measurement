@@ -143,7 +143,7 @@ sub _validate_points_attributes {
     my $self = shift;
 
     my $error_str
-        = "use either (points, rates) or (from, to, rate, interval, [start_rate]) attributes";
+        = "use either (points, rates, [intervals]) or (from, to, rate, [interval], [start_rate]) attributes";
     if ( defined $self->points ) {
         if ( not defined $self->rates ) {
             croak "missing 'rates' attribute";
@@ -188,12 +188,11 @@ sub BUILD {
     my @intervals;
 
     if ( defined $self->points ) {
-        my $num_points    = $self->num_points;
-        my $num_rates     = $self->num_rates;
-        my $num_intervals = $self->num_intervals;
-        @points    = $self->points_array;
-        @rates     = $self->rates_array;
-        @intervals = $self->intervals_array;
+        my $num_points = $self->num_points;
+        my $num_rates  = $self->num_rates;
+        my $num_intervals;
+        @points = $self->points_array;
+        @rates  = $self->rates_array;
 
         if ( $num_points < 2 ) {
             croak "need at least two points";
@@ -213,6 +212,8 @@ sub BUILD {
             @intervals = map {0} ( 1 .. $num_points - 1 );
         }
         else {
+            @intervals     = $self->intervals_array;
+            $num_intervals = $self->num_intervals;
             if ( $num_intervals > $num_points - 1 ) {
                 croak "intervals array exceeds points array";
             }
@@ -222,7 +223,7 @@ sub BUILD {
             if ( $num_intervals < $num_points - 1 ) {
                 push @intervals,
                     map { $intervals[-1] }
-                    ( 1 .. $num_points - 1 - $num_rates );
+                    ( 1 .. $num_points - 1 - $num_intervals );
             }
         }
 
@@ -248,15 +249,19 @@ sub BUILD {
 
     # TODO: handle backsweeps: just add more points, rates, intervals?
 
-    $self->_points(@points);
-    $self->_rates(@rates);
-    $self->_intervals(@intervals);
+    $self->_points( \@points );
+    $self->_rates( \@rates );
+    $self->_intervals( \@intervals );
+    say "num_intervals: ", $self->num_intervals;
 
 }
 
 sub go_to_next_point {
-    my $self     = shift;
-    my $index    = $self->index;
+    my $self  = shift;
+    my $index = $self->index;
+    if ( $self->num_intervals < 1 ) {
+        croak "num_intervals error";
+    }
     my $interval = $self->get_interval(0);
     if ( $index == 0 or $interval == 0 ) {
 
