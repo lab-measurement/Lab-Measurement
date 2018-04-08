@@ -1,10 +1,116 @@
 #DistZilla: +PodWeaver
-#PODNAME: Lab::Moose::Sweep::Tutorial
-#ABSTRACT: Documentation of high-level sweep framework
+#PODNAME: Lab::Moose::Tutorial
+#ABSTRACT: Lab::Measurement tutorial
 
 =pod
 
-=head1 Datafiles and datafolders
+
+=head1 How to read the documentation
+
+Lab::Measurement::Installation
+
+Lab::Measurement::Backends
+
+Metacpan, Lab::Measurement::Manual
+
+Tutorial Lab::Measurement::Tutorial for the historical interfaces
+Lab::Instrument, and Lab::XPRESS.
+
+perldoc
+
+=head1 Quickstart
+
+This tutorial assumes that Lab::Measurement and the required backends are
+installed. 
+
+Agilent DMM, RS830 lock-in, Connection types: USB, VXI11, GPIB
+
+
+
+=head2 Connecting instruments on Linux
+
+ use Lab::Moose;
+
+ my $multimeter = instrument(
+     type => 'Agilent34410A',
+     connection_type => 'USB',
+ );
+
+
+When using the LAN interface, set the C<connection_type> to I<VXI11> and
+provide the instrument's IP address with the C<connection_options> hash:
+
+ my $multimeter = instrument(
+     type => 'Agilent34410A',
+     connection_type => 'VXI11',
+     connection_options => {host => '192.168.2.20'},
+ );
+
+We connect the SR830 lock-in amplifier via GPIB. This requires that the
+LinuxGPIB kernel driver and perl bindings are installed as described in L<Lab::Measurement::Backends>.
+The GPIB address (primary
+address, short B<pad>), is provided in the C<connection_options> hash:
+
+ my $lia = instrument(
+     type => 'SR830',
+     connection_type => 'LinuxGPIB',
+     connection_options => {pad => 1},
+ );
+
+=head2 Connecting instruments on Windows
+
+FIXME: install VISA, see L<Lab::VISA::Installation>.
+Lookup instrument in VISA interactive control.
+
+ use Lab::Moose;
+
+ my $multimeter = instrument(
+     type => 'Agilent34410A',
+     connection_type => 'VISA::USB',
+ );
+
+
+When using the LAN interface, set the C<connection_type> to I<VISA::VXI11> and
+provide the instrument's IP address with the C<connection_options> hash:
+
+ my $multimeter = instrument(
+     type => 'Agilent34410A',
+     connection_type => 'VISA::VXI11',
+     connection_options => {host => '192.168.2.20'},
+ );
+
+We connect the SR830 lock-in amplifier via GPIB. This requires that the NI-488
+driver is installed. The GPIB address (primary
+address, short B<pad>), is provided in the C<connection_options> hash:
+
+ my $lia = instrument(
+     type => 'SR830',
+     connection_type => 'VISA::GPIB',
+     connection_options => {pad => 1},
+ );
+
+=head2 Talking and listening
+
+
+
+
+
+=head1 More instrument drivers
+
+=head2 Voltage/Current source drivers
+
+limits
+
+=head2 Magnet power supplies
+
+
+Continuous sweeps: config_sweep, trg, wait
+
+=head2 Spectrum and network analyzers
+
+get_spectrum , PDL, unpdl
+
+=head1 Sweeps, datafiles, and datafolders
 
 =head2 Quickstart: Measuring an IV-curve
 
@@ -133,10 +239,10 @@ And in the C<$meas> subroutine, call the sweeps's C<log> method for both datafil
  };
 
 
-=head1 Multi-dimensional sweeps: Datafile dimensions and filename extensions
+=head2 Multi-dimensional sweeps: Datafile dimensions and filename extensions
 
 
-=head2 2D sweeps
+=head3 2D sweeps
 
 Let us start with a simple 2D sweep: we sweep a gate voltage (outer sweep) and
 a bias voltage and again measure a current:
@@ -236,7 +342,7 @@ B<filename extension> in the gate sweep:
      filename_extension => 'Gate=',
  );
 
-=head2 Higher dimensional sweeps
+=head3 Higher dimensional sweeps
 
 If we create sweeps setups with dimension > 2, the maximum datafile dimension
 remains 2. E.g. if we create a 3D sweep [Temperature, Gate, Bias], a 2D
@@ -246,9 +352,9 @@ the temperature and the subfolders contain 1D datafiles for each gate voltage.
 
 FIXME: link to example script.
 
-=head1 Live plotting
+=head2 Live plotting
 
-=head2 Line plots
+=head3 Line plots
 
 Let us add a simple line plot to our IV measurement:
 
@@ -271,7 +377,7 @@ C<hard_copy> option:
  );
  
 
-=head2 Color maps (3D plots)
+=head3 Color maps (3D plots)
 
 Let us add a color plot to the gate/bias 2D sweep:
 
@@ -285,10 +391,6 @@ Let us add a color plot to the gate/bias 2D sweep:
  );
 
 By default, the live plot will be updated after a bias sweep is completed.
-
-=head2 Customizing plot and curve options
-
-There are many ways to customize a plot and it's hard copy:
 
 =head3 Terminal options
 
@@ -335,7 +437,7 @@ L<PDL::Graphics::Gnuplot> separates between plot options and curve options:
 
 More Plot and curve options are documented in L<PDL::Graphics::Gnuplot>.
 
-=head1 Block data
+=head2 Block data
 
 There are types of instruments which return more than a single data. Examples
 are spectrum and network analyzers, which perform a frequency sweep and return
@@ -405,7 +507,7 @@ generated. One could also log all blocks into a single 2D datafile by setting
 C<< datafile_dim => 2 >>.
 
 
-=head1 Continuous sweeps
+=head2 Continuous sweeps
 
 With continuous sweeps, the sweep parameter is ramped in the background while
 data is recorded. This is in constrast with step/list sweeps where the sweep
@@ -425,7 +527,7 @@ finishes after 60 seconds:
  );
 
 
-=head2 Configuration of continuous sweeps
+=head3 Configuration of continuous sweeps
 
 In this example we sweep a magnet field with the C<Continuous::Magnet> sweep
 class. All subclasses of C<Continuous> work like this.
@@ -463,9 +565,9 @@ If no C<interval> or C<intervals> parameter is provided a default of 0 is used.
 With an interval of 0, as many data points as possible are recorded without any
 delay between the measurement points.
 
-=head1 Further customization
+=head2 Further sweep customizations
 
-=head2 The delay_before_loop, delay_in_loop, and delay_after_loop attributes
+=head3 The delay_before_loop, delay_in_loop, and delay_after_loop attributes
 
 These attributes can be used to introduce delays into a sweep:
 
@@ -484,7 +586,7 @@ C<delay_in_loop> set, there is a sleep between going to the setpoint and
 calling the measurement subroutine. The C<delay_after_loop> causes a delay
 between finishing the sweep and going back to the start point.
 
-=head2 The before_loop coderef
+=head3 The before_loop coderef
 
 The C<before_loop> coderef is used to execute arbitrary code at the start of a sweep:
 
@@ -502,3 +604,7 @@ The C<before_loop> coderef is used to execute arbitrary code at the start of a s
 
 The C<$before_loop> code is called after a possible C<delay_before_loop> delay.
 
+
+=head1 Next steps
+
+link to dev tutorial

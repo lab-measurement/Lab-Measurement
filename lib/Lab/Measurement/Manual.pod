@@ -322,7 +322,7 @@ can be used with XPRESS, just like the Lab::Instrument drivers.
 
 =over
 
-=item * L<Lab::Moose::Sweep::Tutorial>
+=item * L<Lab::Moose::Tutorial>
 
 =item * L<Lab::Moose::Developer>
 
