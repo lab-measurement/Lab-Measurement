@@ -189,12 +189,12 @@ sub set_voltage {
 sub config_sweep {
     my ( $self, %args ) = validated_getter(
         \@_,
-        points => { isa => 'Num' },
-        rates  => { isa => 'Num' },
+        point => { isa => 'Num' },
+        rate  => { isa => 'Num' },
     );
 
-    my $target = delete $args{points};
-    my $rate   = delete $args{rates};
+    my $target = delete $args{point};
+    my $rate   = delete $args{rate};
 
     $self->cls(%args);
 
@@ -306,7 +306,7 @@ sub sweep_to_level {
     my $target = delete $args{target};
     my $rate   = delete $args{rate};
 
-    $self->config_sweep( points => $target, rates => $rate, %args );
+    $self->config_sweep( point => $target, rate => $rate, %args );
     $self->trg(%args);
     $self->wait(%args);
 }

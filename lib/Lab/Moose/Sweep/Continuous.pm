@@ -343,8 +343,8 @@ Rate: $rate
 EOF
     my $instrument = $self->instrument();
     $instrument->config_sweep(
-        points => $point,
-        rates  => $rate
+        point => $point,
+        rate  => $rate
     );
     $instrument->trg();
     $instrument->wait();
@@ -361,8 +361,8 @@ Setpoint: $to
 Rate: $rate
 EOF
     $instrument->config_sweep(
-        points => $to,
-        rates  => $rate,
+        point => $to,
+        rate  => $rate,
     );
     $instrument->trg();
     $self->_start_time( time() );
