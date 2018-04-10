@@ -7,11 +7,14 @@
 
 =head1 How to read the documentation
 
+Metacpan
+
+Lab::Measurement::Manual
+
 Lab::Measurement::Installation
 
 Lab::Measurement::Backends
 
-Metacpan, Lab::Measurement::Manual
 
 Tutorial Lab::Measurement::Tutorial for the historical interfaces
 Lab::Instrument, and Lab::XPRESS.
@@ -20,21 +23,37 @@ perldoc
 
 =head1 Quickstart
 
-This tutorial assumes that Lab::Measurement and the required backends are
-installed. 
-
 Agilent DMM, RS830 lock-in, Connection types: USB, VXI11, GPIB
 
 
 
 =head2 Connecting instruments on Linux
 
+ use 5.010;
  use Lab::Moose;
 
  my $multimeter = instrument(
      type => 'Agilent34410A',
      connection_type => 'USB',
  );
+
+
+When connecting multiple devices of the same model via USB, we have to provide
+serial numbers:
+
+ my $multimeter1 = instrument(
+     type => 'Agilent34410A',
+     connection_type => 'USB',
+     connection_options => {serial => '...'}
+ );
+
+
+ my $multimeter2 = instrument(
+     type => 'Agilent34410A',
+     connection_type => 'USB',
+     connection_options => {serial => '...'}
+ );
+
 
 
 When using the LAN interface, set the C<connection_type> to I<VXI11> and
@@ -62,6 +81,7 @@ address, short B<pad>), is provided in the C<connection_options> hash:
 FIXME: install VISA, see L<Lab::VISA::Installation>.
 Lookup instrument in VISA interactive control.
 
+ use 5.010;
  use Lab::Moose;
 
  my $multimeter = instrument(
@@ -89,26 +109,126 @@ address, short B<pad>), is provided in the C<connection_options> hash:
      connection_options => {pad => 1},
  );
 
-=head2 Talking and listening
+=head2 Listening and talking to the devices
+
+After initializing the multimeter with the C<instrument> function, let us
+perform some basic operations
+
+ # Perform *IDN? query, prints instrument model name
+ say $multimeter->idn();
+
+ # Set range to 10 Volts (if multimeter is in voltage mode)
+ $multimeter->sense_range(value => 10);
+
+ # Perform voltage measurement
+ my $voltage = $multimeter->get_value();
 
 
+And for the SR830 lock-in
+
+ # Set reference frequeny to 10kHz
+ $lia->set_frq(value => 10e3);
+
+ # Set output voltage amplitude to 0.5 V
+ $lia->set_amplitude(value => 0.5);
+
+ # Set sensitivity to 1mV
+ $lia->set_sens(value => 1e-3);
+
+ # Set filter slope to 18dB/oct
+ $lia->set_filter_slope(value => 18);
+
+ # Read x/y measurement data
+ my $xy = $lia->get_xy();
+ # Print contents of $xy hashref
+ say "x = $xy->{x}, y = $xy->{y}";
 
 
+=head2 Reading from cache
+
+ my $range = $multimeter->cached_sense_range();
+
+
+ my $frq = $lia->cached_frq();
 
 =head1 More instrument drivers
 
+Examples of more advanced types of instruments.
+Note that when using sources (voltage, magnetic field, temperature) we will not interface
+the instrument object directly. Instead we use the high-level sweep interfaces
+described below. These provide a common API for creating both discrete and
+continuous sweeps.
+
 =head2 Voltage/Current source drivers
 
-limits
+The instrument initialization requires several additional parameters, which
+provide step/rate limits.
+
+ my $yoko = instrument(
+     type => 'YokogawaGS200',
+     connection_type => 'USB',
+     max_units_per_step => 0.001,
+     max_units_per_second => 0.01,
+     min_units => -10,
+     max_units => 10,
+ );
+
+
+Use C<set_level> to set output level to 9 Volts. The source will sweep with
+stepsize and speed given by the max_units_per_step/max_units_per_second
+parameters.
+
+ $yoko->set_level(value => 9);
+
+Read the new level value from cache:
+
+ my $level = $yoko->cached_level();
 
 =head2 Magnet power supplies
 
+ my $ips = instrument(
+     type => 'OI_Mercury::Magnet',
+     connection_type => 'Socket',
+     connection_options => {host => '192.168.3.15'},
+ );
 
-Continuous sweeps: config_sweep, trg, wait
 
-=head2 Spectrum and network analyzers
+The following commands perform a continuous sweep of the magnetic field
+from 0T to 0.5T with a rate of 0.1T/min
 
-get_spectrum , PDL, unpdl
+ # Set field setpoint and rate
+ $ips->config_sweep(point => 0.5, rate => 0.1);
+
+ # Start (trigger) sweep
+ $ips->trg();
+
+ # Show progress until sweep is finished
+ $ips->wait();
+     
+=head2 Spectrum analyzers
+
+The spectrum data is returned as a L<PDL> (2D).
+
+ my $analyzer = instrument(
+     type => 'RS_FSV',
+     connection_type => 'VXI11',
+     connection_options => {host => '...'},
+ );
+ 
+ # Set sweep start/stop frequencies
+ $analyzer->sense_frequency_start(value => 1e9);
+ $analyzer->sense_frequency_stop(value => 1e9);
+
+ # Perform sweep, get data as PDL
+ my $data = $analyzer->get_spectrum(timeout => 100);
+ # Print data
+ say $data;
+
+
+You can always convert a PDL into an ordinary nested arrayref with C<unpdl>:
+
+ my $arrayref_2D = $data->unpdl();
+
 
 =head1 Sweeps, datafiles, and datafolders
 

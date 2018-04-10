@@ -652,7 +652,7 @@ sub sweep_to_field {
     my $point = delete $args{target};
     my $rate  = delete $args{rate};
 
-    $self->config_sweep( points => $point, rates => $rate, %args );
+    $self->config_sweep( point => $point, rate => $rate, %args );
 
     $self->trg(%args);
 
@@ -664,11 +664,11 @@ sub sweep_to_field {
 sub config_sweep {
     my ( $self, %args ) = validated_hash(
         \@_,
-        points => { isa => 'Num' },
-        rates  => { isa => 'Num' },
+        point => { isa => 'Num' },
+        rate  => { isa => 'Num' },
     );
-    my $target = delete $args{points};
-    my $rate   = delete $args{rates};
+    my $target = delete $args{point};
+    my $rate   = delete $args{rate};
 
     my $setrate = $self->oim_set_field_sweeprate( value => $rate, %args );
     my $setpoint = $self->oim_set_field_setpoint( value => $target, %args );

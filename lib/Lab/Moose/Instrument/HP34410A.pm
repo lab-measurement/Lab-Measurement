@@ -58,11 +58,11 @@ Used roles:
 
 =over
 
-=item Lab::Moose::Instrument::SCPI::Sense::Function
+=item L<Lab::Moose::Instrument::SCPI::Sense::Function>
 
-=item Lab::Moose::Instrument::SCPI::Sense::Range
+=item L<Lab::Moose::Instrument::SCPI::Sense::Range>
 
-=item Lab::Moose::Instrument::SCPI::Sense::NPLC
+=item L<Lab::Moose::Instrument::SCPI::Sense::NPLC>
 
 =back
     
