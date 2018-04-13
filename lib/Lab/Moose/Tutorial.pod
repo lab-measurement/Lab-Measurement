@@ -23,11 +23,39 @@ perldoc
 
 =head1 Quickstart
 
-Agilent DMM, RS830 lock-in, Connection types: USB, VXI11, GPIB
+In this section we show how to connect instruments and do simple communication.
+In this example we use two simple instruments, the
+HP/Agilent/Keysight 34410A digital multimeter (DMM) and the Stanford Research
+SR830 lock-in amplifier. 
 
+We cover the most important connection types and show how to use them on Linux
+and Windows:
 
+=over
+
+=item * USB
+
+This uses the USB-TMC protocol. Instruments are connected directly to the
+measurement PC or via a hub. Very fast.
+
+=item * Lan/VXI11
+
+The recommended Lab-based protocol, if supported by the device, is VXI11.
+Raw TCP sockets are also supported but do not provide the control commands of
+VXI11, such as device clear. This is why VXI11 will be more seamless, if
+available. You might have to create a private LAN to separate you lab devices
+from the internet.
+
+=item * GPIB
+
+Old IEEE-488 bus. Only option for lots of old equipment in the lab.
+
+=back
 
 =head2 Connecting instruments on Linux
+
+Lets use the Agilent DMM with USB on Linux. This requires the L<USB::TMC>
+driver module installed.
 
  use 5.010;
  use Lab::Moose;
@@ -39,7 +67,7 @@ Agilent DMM, RS830 lock-in, Connection types: USB, VXI11, GPIB
 
 
 When connecting multiple devices of the same model via USB, we have to provide
-serial numbers:
+serial numbers, which are unique for each device:
 
  my $multimeter1 = instrument(
      type => 'Agilent34410A',
@@ -55,8 +83,7 @@ serial numbers:
  );
 
 
-
-When using the LAN interface, set the C<connection_type> to I<VXI11> and
+To use the LAN interface, set the C<connection_type> to I<VXI11> and
 provide the instrument's IP address with the C<connection_options> hash:
 
  my $multimeter = instrument(
@@ -78,8 +105,11 @@ address, short B<pad>), is provided in the C<connection_options> hash:
 
 =head2 Connecting instruments on Windows
 
-FIXME: install VISA, see L<Lab::VISA::Installation>.
-Lookup instrument in VISA interactive control.
+First thing, make sure that VISA is installed (L<Lab::VISA::Installation>).
+I<VISA interactive control>, part of the VISA installation, can be used to
+get a list of connected equipment.
+
+We first connect the DMM via USB:
 
  use 5.010;
  use Lab::Moose;
@@ -89,8 +119,7 @@ Lookup instrument in VISA interactive control.
      connection_type => 'VISA::USB',
  );
 
-
-When using the LAN interface, set the C<connection_type> to I<VISA::VXI11> and
+To use the LAN interface, set the C<connection_type> to I<VISA::VXI11> and
 provide the instrument's IP address with the C<connection_options> hash:
 
  my $multimeter = instrument(
@@ -99,8 +128,9 @@ provide the instrument's IP address with the C<connection_options> hash:
      connection_options => {host => '192.168.2.20'},
  );
 
-We connect the SR830 lock-in amplifier via GPIB. This requires that the NI-488
-driver is installed. The GPIB address (primary
+We connect the SR830 lock-in amplifier via GPIB. This requires that the
+National Instruments' NI-488
+driver is installed in addition to VISA. The GPIB address (primary
 address, short B<pad>), is provided in the C<connection_options> hash:
 
  my $lia = instrument(
@@ -124,7 +154,7 @@ perform some basic operations
  my $voltage = $multimeter->get_value();
 
 
-And for the SR830 lock-in
+And for the SR830 lock-in amplifier:
 
  # Set reference frequeny to 10kHz
  $lia->set_frq(value => 10e3);
@@ -144,13 +174,6 @@ And for the SR830 lock-in
  say "x = $xy->{x}, y = $xy->{y}";
 
 
-=head2 Reading from cache
-
- my $range = $multimeter->cached_sense_range();
-
-
- my $frq = $lia->cached_frq();
-
 =head1 More instrument drivers
 
 Examples of more advanced types of instruments.
@@ -161,8 +184,8 @@ continuous sweeps.
 
 =head2 Voltage/Current source drivers
 
-The instrument initialization requires several additional parameters, which
-provide step/rate limits.
+Far a voltage/current source, the instrument initialization requires several
+additional parameters, which enforce step/rate limits to provide more safety.
 
  my $yoko = instrument(
      type => 'YokogawaGS200',
