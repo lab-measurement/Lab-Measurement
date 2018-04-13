@@ -7,23 +7,28 @@
 
 =head1 How to read the documentation
 
-Metacpan
+The documentation of Lab::Measurement can be read on MetaCPAN:
 
-Lab::Measurement::Manual
+=over
 
-Lab::Measurement::Installation
+=item * L<Lab::Measurement::Manual>
 
-Lab::Measurement::Backends
+This is the table of contents referencing all doc pages.
 
+=item * L<Lab::Measurement::Installation>
 
-Tutorial Lab::Measurement::Tutorial for the historical interfaces
-Lab::Instrument, and Lab::XPRESS.
+Howto install Lab::Measurement.
 
-perldoc
+=back
+
+A old tutorial for the historical interfaces
+L<Lab::Instrument> and L<Lab::XPRESS> is provided in
+L<Lab::Measurement::Tutorial>
 
 =head1 Quickstart
 
-In this section we show how to connect instruments and do simple communication.
+In this quickstart we learn how to connect instruments and do simple
+communication.
 In this example we use two simple instruments, the
 HP/Agilent/Keysight 34410A digital multimeter (DMM) and the Stanford Research
 SR830 lock-in amplifier. 
