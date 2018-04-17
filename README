@@ -6,8 +6,40 @@ provides an interface to several instrumentation control backends, as e.g. Linux
 National Instruments' NI-VISA library. Dedicated instrument driver classes relieve the
 user from taking care for internal details.
 
-See https://www.labmeasurement.de/ for further information, including installation
-instructions.
+See https://www.labmeasurement.de/ for further information.
+
+
+INSTALLATION AND USAGE
+
+The Lab::Measurement package is distributed on the Comprehensive Perl Archive
+Network (CPAN). A general introduction to the installation of CPAN modules is
+provided in [0]. Essentially, Lab::Measurement can be installed by any CPAN
+client, e.g. cpanm, by running
+
+ $ cpanm Lab::Measurement
+
+with the command-line prompt (e.g. bash on Linux or cmd.exe on MS
+Windows). The CPAN client will download and install Lab::Measurement from CPAN
+and will verify the installation by running the module's unit tests.
+
+Depending on the used hardware, additional Perl modules, such as LinuxGPIB,
+Lab::VISA, or Lab::VXI11 might need to be installed. Hardware back-end specific
+documentation and installation instructions are contained in [1].
+
+The Lab::Measurement modules can now be used by measurement scripts. A script
+is executed by running
+
+ $ perl script.pl
+
+with the command-line prompt.
+Examples of measurement scripts can be found in the Lab::Measurement tutorial
+[2].
+
+
+[0] http://www.cpan.org/modules/INSTALL.html
+[1] https://metacpan.org/pod/Lab::Measurement::Backends
+[2] https://metacpan.org/pod/Lab::Measurement::Tutorial
+
 
 COPYRIGHT AND LICENCE
 
