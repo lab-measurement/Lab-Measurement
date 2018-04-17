@@ -11,34 +11,37 @@ See https://www.labmeasurement.de/ for further information.
 
 INSTALLATION AND USAGE
 
-The Lab::Measurement package is distributed on the Comprehensive Perl Archive
-Network (CPAN). A general introduction to the installation of CPAN modules is
-provided in [0]. Essentially, Lab::Measurement can be installed by any CPAN
-client, e.g. cpanm, by running
+The Lab::Measurement package is distributed on the Comprehensive Perl Archive Network
+(CPAN). A general introduction to the installation of CPAN modules is provided in [1].
+Essentially, Lab::Measurement can be installed by any CPAN client software distributed
+for Perl, e.g. cpanm, by running
 
  $ cpanm Lab::Measurement
 
-with the command-line prompt (e.g. bash on Linux or cmd.exe on MS
-Windows). The CPAN client will download and install Lab::Measurement from CPAN
-and will verify the installation by running the module's unit tests.
+with the command-line prompt (e.g. bash on Linux or cmd.exe on MS Windows). The CPAN
+client will download and install Lab::Measurement from CPAN and will optionally verify
+the installation by running the module's unit tests.
 
-Depending on the used hardware, additional Perl modules, such as LinuxGPIB,
-Lab::VISA, or Lab::VXI11 might need to be installed. Hardware back-end specific
-documentation and installation instructions are contained in [1].
+Perl installation variants may additionally provide graphical installers for accessing
+CPAN (e.g., ActivePerl for Windows) or integrate installation of Perl modules into the
+package management of the operating system (e.g., Lab::Measurement is packaged for 
+Gentoo Linux).
 
-The Lab::Measurement modules can now be used by measurement scripts. A script
+Depending on the used hardware, additional Perl back-end modules such as LinuxGPIB,
+Lab::VISA, or Lab::VXI11 may be needed on your system. Back-end specific documentation
+and installation instructions are provided in [2].
+
+The Lab::Measurement modules can now be used by measurement scripts. Any Perl script 
 is executed by running
 
  $ perl script.pl
 
-with the command-line prompt.
-Examples of measurement scripts can be found in the Lab::Measurement tutorial
-[2].
+with the command-line prompt. Examples of measurement scripts using the Lab::Measurement
+module libraries can be found in the Lab::Measurement tutorial [3].
 
-
-[0] http://www.cpan.org/modules/INSTALL.html
-[1] https://metacpan.org/pod/Lab::Measurement::Backends
-[2] https://metacpan.org/pod/Lab::Measurement::Tutorial
+[1] http://www.cpan.org/modules/INSTALL.html
+[2] https://metacpan.org/pod/Lab::Measurement::Backends
+[3] https://metacpan.org/pod/Lab::Measurement::Tutorial
 
 
 COPYRIGHT AND LICENCE
