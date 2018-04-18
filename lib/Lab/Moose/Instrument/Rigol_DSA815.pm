@@ -125,11 +125,9 @@ sub get_traceY {
     my ( $self, %args ) = validated_hash(
         \@_,
         timeout_param(),
-        precision_param(),
         trace => { isa => 'Int', default => 1 },
     );
 
-    my $precision = delete $args{precision};
     my $trace = delete $args{trace};
 
     if ( $trace < 1 || $trace > 3 ) {
@@ -137,7 +135,9 @@ sub get_traceY {
     }
 
     # Switch to binary trace format
-    $self->format_data( format => 'Real', length => 32 );
+    my $bits_per_point = 32;
+    my $precision = 'single';
+    $self->format_data( format => 'Real', length => $bits_per_point );
 
     # Get data.
     my $binary = $self->binary_query(
@@ -151,12 +151,23 @@ sub get_traceY {
     return $traceY;
 }
 
+sub get_traceX {
+    my ( $self, %args ) = @_;
+    my $trace = delete $args{trace};
+
+    my $traceX = $self->sense_frequency_linear_array(%args);
+    return $traceX;
+}
+
 sub get_spectrum {
     my ( $self, %args ) = @_;
 
     my $traceY = $self->get_traceY( %args );
-    #$self->sense_sweep_points( value => nelem($traceY) );
-    my $traceX = $self->sense_frequency_linear_array();
+    # fixme use some sort of switch here
+    # number of sweep points is known from the length of traceY
+    # so we set it to avoid extra call to get_traceY 
+    $self->cached_sense_sweep_points( nelem($traceY) );
+    my $traceX = $self->get_traceX( %args );
 
     return cat( ( pdl $traceX), $traceY );
 }
