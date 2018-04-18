@@ -89,7 +89,7 @@ sub sense_frequency_stop {
 sub sense_sweep_points_query {
     my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
 
-    return $self->cached_sense_sweep_count(401);    # hard wired
+    return $self->cached_sense_sweep_points(401);    # hard wired
 }
 
 sub sense_sweep_points {
