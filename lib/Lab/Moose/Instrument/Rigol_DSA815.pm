@@ -94,11 +94,15 @@ floating point type. Has to be 'single' or 'double'. Defaults to 'single'.
 # Rigol DSA815 has no Sense:Sweep:Points implementation
 my $hardwired_number_points_in_sweep = 601; # hardwired number of points in sweep
 
+sub sense_sweep_points_from_traceY_query {
+    # quite a lot of hardware does not report it, so we deduce it from Y-trace data
+    my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
+    return $self->cached_sense_sweep_points( nelem($self->get_traceY(%args)) );
+}
+
 sub sense_sweep_points_query {
     my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
-
-    return $self->cached_sense_sweep_points($hardwired_number_points_in_sweep);    # hard wired
-    #return $self->cached_sense_sweep_points( nelem($self->get_traceY()) );    # hard wired
+    return $self->cached_sense_sweep_points( $self->sense_sweep_points_from_traceY_query(%args) );
 }
 
 sub sense_sweep_points {
@@ -117,6 +121,7 @@ sub sense_sweep_points {
 
 ### Trace acquisition implementation
 sub get_traceY {
+    # grab what is on display for a given trace
     my ( $self, %args ) = validated_hash(
         \@_,
         timeout_param(),
@@ -125,34 +130,25 @@ sub get_traceY {
     );
 
     my $precision = delete $args{precision};
-
     my $trace = delete $args{trace};
 
     if ( $trace < 1 || $trace > 3 ) {
         croak "trace has to be in (1..3)";
     }
 
-    # Ensure single sweep mode.
-    if ( $self->cached_initiate_continuous() ) {
-	$self->initiate_continuous( value => 0 );
-    }
-
-    # Ensure correct data format
-    $self->set_data_format_precision( precision => $precision );
+    # Switch to binary trace format
+    $self->format_data( format => 'Real', length => 32 );
 
     # Get data.
-    $self->write( command => ":FORMat:TRACe:DATA REAL,32");
-    #$self->write( command => ":FORMat:TRACe:DATA ASCII");
-    $self->initiate_immediate();
-    $self->wai();
     my $binary = $self->binary_query(
         command => "TRAC? TRACE$trace",
         %args
     );
-    my $points_ref = pdl $self->block_to_array(
+    my $traceY = pdl $self->block_to_array(
         binary    => $binary,
         precision => $precision
     );
+    return $traceY;
 }
 
 sub get_spectrum {
