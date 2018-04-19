@@ -1,10 +1,270 @@
 #DistZilla: +PodWeaver
-#PODNAME: Lab::Moose::Sweep::Tutorial
-#ABSTRACT: Documentation of high-level sweep framework
+#PODNAME: Lab::Moose::Tutorial
+#ABSTRACT: Lab::Measurement tutorial
 
 =pod
 
-=head1 Datafiles and datafolders
+
+=head1 How to read the documentation
+
+The documentation of Lab::Measurement can be read on MetaCPAN. The most
+important starting points are
+
+=over
+
+=item * L<Lab::Measurement::Installation>
+
+Detailed installation instructions.
+
+
+=item * L<Lab::Measurement::Manual>
+
+The table of contents referencing all doc pages.
+
+=item * L<Lab::Measurement::Tutorial>
+
+This tutorial.
+
+=back
+
+A old tutorial for the historical interfaces
+L<Lab::Instrument> and L<Lab::XPRESS> is provided in
+L<Lab::Measurement::OldTutorial>
+
+=head1 Quickstart
+
+In this quickstart we learn how to connect instruments and do simple
+communication.
+In this example we use two simple instruments, the
+HP/Agilent/Keysight 34410A digital multimeter (DMM) and the Stanford Research
+SR830 lock-in amplifier. 
+
+We cover the most important connection types and show how to use them on Linux
+and Windows:
+
+=over
+
+=item * USB
+
+This uses the USB-TMC protocol. Instruments are connected directly to the
+measurement PC or via a hub. Very fast.
+
+=item * Lan/VXI11
+
+The recommended Lab-based protocol, if supported by the device, is VXI11.
+Raw TCP sockets are also supported but do not provide the control commands of
+VXI11, such as device clear. This is why VXI11 will be more seamless, if
+available. You might have to create a private LAN to separate you lab devices
+from the internet.
+
+=item * GPIB
+
+Old IEEE-488 bus. Only option for lots of old equipment in the lab.
+
+=back
+
+=head2 Connecting instruments on Linux
+
+Lets use the Agilent DMM with USB on Linux. This requires the L<USB::TMC>
+driver module installed.
+
+ use 5.010;
+ use Lab::Moose;
+
+ my $multimeter = instrument(
+     type => 'Agilent34410A',
+     connection_type => 'USB',
+ );
+
+
+When connecting multiple devices of the same model via USB, we have to provide
+serial numbers, which are unique for each device:
+
+ my $multimeter1 = instrument(
+     type => 'Agilent34410A',
+     connection_type => 'USB',
+     connection_options => {serial => '...'}
+ );
+
+
+ my $multimeter2 = instrument(
+     type => 'Agilent34410A',
+     connection_type => 'USB',
+     connection_options => {serial => '...'}
+ );
+
+
+To use the LAN interface, set the C<connection_type> to I<VXI11> and
+provide the instrument's IP address with the C<connection_options> hash:
+
+ my $multimeter = instrument(
+     type => 'Agilent34410A',
+     connection_type => 'VXI11',
+     connection_options => {host => '192.168.2.20'},
+ );
+
+We connect the SR830 lock-in amplifier via GPIB. This requires that the
+LinuxGPIB kernel driver and perl bindings are installed as described in L<Lab::Measurement::Backends>.
+The GPIB address (primary
+address, short B<pad>), is provided in the C<connection_options> hash:
+
+ my $lia = instrument(
+     type => 'SR830',
+     connection_type => 'LinuxGPIB',
+     connection_options => {pad => 1},
+ );
+
+=head2 Connecting instruments on Windows
+
+First thing, make sure that VISA is installed (L<Lab::VISA::Installation>).
+I<VISA interactive control>, part of the VISA installation, can be used to
+get a list of connected equipment.
+
+We first connect the DMM via USB:
+
+ use 5.010;
+ use Lab::Moose;
+
+ my $multimeter = instrument(
+     type => 'Agilent34410A',
+     connection_type => 'VISA::USB',
+ );
+
+To use the LAN interface, set the C<connection_type> to I<VISA::VXI11> and
+provide the instrument's IP address with the C<connection_options> hash:
+
+ my $multimeter = instrument(
+     type => 'Agilent34410A',
+     connection_type => 'VISA::VXI11',
+     connection_options => {host => '192.168.2.20'},
+ );
+
+We connect the SR830 lock-in amplifier via GPIB. This requires that the
+National Instruments' NI-488
+driver is installed in addition to VISA. The GPIB address (primary
+address, short B<pad>), is provided in the C<connection_options> hash:
+
+ my $lia = instrument(
+     type => 'SR830',
+     connection_type => 'VISA::GPIB',
+     connection_options => {pad => 1},
+ );
+
+=head2 Listening and talking to the devices
+
+After initializing the multimeter with the C<instrument> function, let us
+perform some basic operations
+
+ # Perform *IDN? query, prints instrument model name
+ say $multimeter->idn();
+
+ # Set range to 10 Volts (if multimeter is in voltage mode)
+ $multimeter->sense_range(value => 10);
+
+ # Perform voltage measurement
+ my $voltage = $multimeter->get_value();
+
+
+And for the SR830 lock-in amplifier:
+
+ # Set reference frequeny to 10kHz
+ $lia->set_frq(value => 10e3);
+
+ # Set output voltage amplitude to 0.5 V
+ $lia->set_amplitude(value => 0.5);
+
+ # Set sensitivity to 1mV
+ $lia->set_sens(value => 1e-3);
+
+ # Set filter slope to 18dB/oct
+ $lia->set_filter_slope(value => 18);
+
+ # Read x/y measurement data
+ my $xy = $lia->get_xy();
+ # Print contents of $xy hashref
+ say "x = $xy->{x}, y = $xy->{y}";
+
+
+=head1 More instrument drivers
+
+Examples of more advanced types of instruments.
+Note that when using sources (voltage, magnetic field, temperature) we will not interface
+the instrument object directly. Instead we use the high-level sweep interfaces
+described below. These provide a common API for creating both discrete and
+continuous sweeps.
+
+=head2 Voltage/Current source drivers
+
+Far a voltage/current source, the instrument initialization requires several
+additional parameters, which enforce step/rate limits to provide more safety.
+
+ my $yoko = instrument(
+     type => 'YokogawaGS200',
+     connection_type => 'USB',
+     max_units_per_step => 0.001,
+     max_units_per_second => 0.01,
+     min_units => -10,
+     max_units => 10,
+ );
+
+
+Use C<set_level> to set output level to 9 Volts. The source will sweep with
+stepsize and speed given by the max_units_per_step/max_units_per_second
+parameters.
+
+ $yoko->set_level(value => 9);
+
+Read the new level value from cache:
+
+ my $level = $yoko->cached_level();
+
+=head2 Magnet power supplies
+
+ my $ips = instrument(
+     type => 'OI_Mercury::Magnet',
+     connection_type => 'Socket',
+     connection_options => {host => '192.168.3.15'},
+ );
+
+
+The following commands perform a continuous sweep of the magnetic field
+from 0T to 0.5T with a rate of 0.1T/min
+
+ # Set field setpoint and rate
+ $ips->config_sweep(point => 0.5, rate => 0.1);
+
+ # Start (trigger) sweep
+ $ips->trg();
+
+ # Show progress until sweep is finished
+ $ips->wait();
+     
+=head2 Spectrum analyzers
+
+The spectrum data is returned as a L<PDL> (2D).
+
+ my $analyzer = instrument(
+     type => 'RS_FSV',
+     connection_type => 'VXI11',
+     connection_options => {host => '...'},
+ );
+ 
+ # Set sweep start/stop frequencies
+ $analyzer->sense_frequency_start(value => 1e9);
+ $analyzer->sense_frequency_stop(value => 1e9);
+
+ # Perform sweep, get data as PDL
+ my $data = $analyzer->get_spectrum(timeout => 100);
+ # Print data
+ say $data;
+
+
+You can always convert a PDL into an ordinary nested arrayref with C<unpdl>:
+
+ my $arrayref_2D = $data->unpdl();
+
+
+=head1 Sweeps, datafiles, and datafolders
 
 =head2 Quickstart: Measuring an IV-curve
 
@@ -133,10 +393,10 @@ And in the C<$meas> subroutine, call the sweeps's C<log> method for both datafil
  };
 
 
-=head1 Multi-dimensional sweeps: Datafile dimensions and filename extensions
+=head2 Multi-dimensional sweeps: Datafile dimensions and filename extensions
 
 
-=head2 2D sweeps
+=head3 2D sweeps
 
 Let us start with a simple 2D sweep: we sweep a gate voltage (outer sweep) and
 a bias voltage and again measure a current:
@@ -236,7 +496,7 @@ B<filename extension> in the gate sweep:
      filename_extension => 'Gate=',
  );
 
-=head2 Higher dimensional sweeps
+=head3 Higher dimensional sweeps
 
 If we create sweeps setups with dimension > 2, the maximum datafile dimension
 remains 2. E.g. if we create a 3D sweep [Temperature, Gate, Bias], a 2D
@@ -246,9 +506,9 @@ the temperature and the subfolders contain 1D datafiles for each gate voltage.
 
 FIXME: link to example script.
 
-=head1 Live plotting
+=head2 Live plotting
 
-=head2 Line plots
+=head3 Line plots
 
 Let us add a simple line plot to our IV measurement:
 
@@ -271,7 +531,7 @@ C<hard_copy> option:
  );
  
 
-=head2 Color maps (3D plots)
+=head3 Color maps (3D plots)
 
 Let us add a color plot to the gate/bias 2D sweep:
 
@@ -285,10 +545,6 @@ Let us add a color plot to the gate/bias 2D sweep:
  );
 
 By default, the live plot will be updated after a bias sweep is completed.
-
-=head2 Customizing plot and curve options
-
-There are many ways to customize a plot and it's hard copy:
 
 =head3 Terminal options
 
@@ -335,7 +591,7 @@ L<PDL::Graphics::Gnuplot> separates between plot options and curve options:
 
 More Plot and curve options are documented in L<PDL::Graphics::Gnuplot>.
 
-=head1 Block data
+=head2 Block data
 
 There are types of instruments which return more than a single data. Examples
 are spectrum and network analyzers, which perform a frequency sweep and return
@@ -405,7 +661,7 @@ generated. One could also log all blocks into a single 2D datafile by setting
 C<< datafile_dim => 2 >>.
 
 
-=head1 Continuous sweeps
+=head2 Continuous sweeps
 
 With continuous sweeps, the sweep parameter is ramped in the background while
 data is recorded. This is in constrast with step/list sweeps where the sweep
@@ -425,7 +681,7 @@ finishes after 60 seconds:
  );
 
 
-=head2 Configuration of continuous sweeps
+=head3 Configuration of continuous sweeps
 
 In this example we sweep a magnet field with the C<Continuous::Magnet> sweep
 class. All subclasses of C<Continuous> work like this.
@@ -463,9 +719,9 @@ If no C<interval> or C<intervals> parameter is provided a default of 0 is used.
 With an interval of 0, as many data points as possible are recorded without any
 delay between the measurement points.
 
-=head1 Further customization
+=head2 Further sweep customizations
 
-=head2 The delay_before_loop, delay_in_loop, and delay_after_loop attributes
+=head3 The delay_before_loop, delay_in_loop, and delay_after_loop attributes
 
 These attributes can be used to introduce delays into a sweep:
 
@@ -484,7 +740,7 @@ C<delay_in_loop> set, there is a sleep between going to the setpoint and
 calling the measurement subroutine. The C<delay_after_loop> causes a delay
 between finishing the sweep and going back to the start point.
 
-=head2 The before_loop coderef
+=head3 The before_loop coderef
 
 The C<before_loop> coderef is used to execute arbitrary code at the start of a sweep:
 
@@ -502,3 +758,7 @@ The C<before_loop> coderef is used to execute arbitrary code at the start of a s
 
 The C<$before_loop> code is called after a possible C<delay_before_loop> delay.
 
+
+=head1 Next steps
+
+link to dev tutorial

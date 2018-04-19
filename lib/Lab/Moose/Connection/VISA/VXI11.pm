@@ -8,7 +8,7 @@ package Lab::Moose::Connection::VISA::VXI11;
  my $instrument = instrument(
      type => 'random_instrument',
      connection_type => 'VISA::VXI11',
-     connection_options => {hostname => '132.188.12.12'}
+     connection_options => {host => '132.188.12.12'}
  );
 
 =head1 DESCRIPTION
@@ -28,7 +28,7 @@ use namespace::autoclean;
 
 extends 'Lab::Moose::Connection::VISA';
 
-has hostname => (
+has host => (
     is       => 'ro',
     isa      => 'Str',
     required => 1
@@ -41,9 +41,9 @@ has '+resource_name' => (
 sub gen_resource_name {
     my $self = shift;
 
-    my $hostname = $self->hostname();
+    my $host = $self->host();
 
-    return "TCPIP::${hostname}::INSTR";
+    return "TCPIP::${host}::INSTR";
 }
 
 __PACKAGE__->meta->make_immutable();
