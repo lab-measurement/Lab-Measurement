@@ -4,7 +4,20 @@ package Lab::Moose::Instrument::SpectrumAnalyzer;
 
 use 5.010;
 
+use PDL::Core qw/pdl cat nelem/;
+
+use Carp;
 use Moose::Role;
+use MooseX::Params::Validate;
+use Lab::Moose::Instrument qw/
+    timeout_param
+    precision_param
+    validated_getter
+    validated_setter
+    validated_channel_getter
+    validated_channel_setter
+    /;
+#use Lab::Moose::Instrument::Cache;
 
 requires qw(
     sense_frequency_start_query 
@@ -25,8 +38,96 @@ requires qw(
     display_window_trace_y_scale_rlevel
     unit_power_query
     unit_power
-    get_spectrum
+    get_traceY
 );
+
+has 'capable_to_query_sweep_points_in_hardware' => (
+	is => 'rw',
+	isa => 'Bool',
+	required => 1,
+	default => 1,
+);
+
+has 'capable_to_set_sweep_points_in_hardware' => (
+	is => 'rw',
+	isa => 'Bool',
+	required => 1,
+	default => 1,
+);
+
+has 'hardwired_number_of_points_in_sweep' => (
+	is => 'rw',
+	isa => 'Int',
+	predicate => 'has_hardwired_number_of_points_in_sweep',
+);
+
+sub sense_sweep_points_from_traceY_query {
+    # quite a lot of hardware does not report it, so we deduce it from Y-trace data
+    my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
+    return nelem($self->get_traceY(%args));
+}
+
+sub get_Xpoints_number {
+    my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
+    if ( $self->has_hardwired_number_of_points_in_sweep) {
+       carp("using hardwired number of points: ".$self->hardwired_number_of_points_in_sweep."\n");
+       return $self->cached_sense_sweep_points( $self->hardwired_number_of_points_in_sweep );
+    }
+    if ( $self->capable_to_query_sweep_points_in_hardware ) {
+        carp("using hardware capabilities to detect number of points in a sweep\n");
+	return $self->sense_sweep_points_query(%args);
+    }
+    carp("trying heuristic to detect number of points in a sweep\n");
+    return $self->cached_sense_sweep_points( $self->sense_sweep_points_from_traceY_query(%args) );
+};
+
+sub linspaced_array {
+    my ( $start, $stop, $num_points ) = @_;
+
+    my $num_intervals = $num_points - 1;
+
+    if ( $num_intervals == 0 ) {
+        # Return a single point.
+        return [$start];
+    }
+
+    my @result;
+
+    for my $i ( 0 .. $num_intervals ) {
+        my $f = $start + ( $stop - $start ) * ( $i / $num_intervals );
+        push @result, $f;
+    }
+
+    return \@result;
+}
+
+sub get_traceX {
+    my ( $self, %args ) = @_;
+    my $trace = delete $args{trace};
+
+    my $start      = $self->cached_sense_frequency_start();
+    my $stop       = $self->cached_sense_frequency_stop();
+    my $num_points = $self->get_Xpoints_number();
+    my $traceX = pdl linspaced_array( $start, $stop, $num_points );
+    return $traceX;
+}
+
+sub get_traceXY {
+    my ( $self, %args ) = @_;
+
+    my $traceY = $self->get_traceY( %args );
+    # fixme use some sort of switch here
+    # number of sweep points is known from the length of traceY
+    # so we set it to avoid extra call to get_traceY 
+    if ( !$self->capable_to_query_sweep_points_in_hardware ) {
+	    carp("setting sweep number of points via heuristic");
+	    $self->cached_sense_sweep_points( nelem($traceY) );
+    }
+    my $traceX = $self->get_traceX( %args );
+
+    return cat( $traceX, $traceY );
+}
+
 
 1;
 

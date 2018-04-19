@@ -42,6 +42,12 @@ with 'Lab::Moose::Instrument::SpectrumAnalyzer',  qw(
 
 sub BUILD {
     my $self = shift;
+
+    # limitation of hardware
+    $self->capable_to_query_sweep_points_in_hardware(0);
+    $self->capable_to_set_sweep_points_in_hardware(0);
+    $self->hardwired_number_of_points_in_sweep(601);
+
     $self->clear();
     $self->cls();
 }
@@ -92,30 +98,16 @@ floating point type. Has to be 'single' or 'double'. Defaults to 'single'.
 
 ### Sense:Sweep:Points emulation
 # Rigol DSA815 has no Sense:Sweep:Points implementation
-my $hardwired_number_points_in_sweep = 601; # hardwired number of points in sweep
-
-sub sense_sweep_points_from_traceY_query {
-    # quite a lot of hardware does not report it, so we deduce it from Y-trace data
-    my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
-    return $self->cached_sense_sweep_points( nelem($self->get_traceY(%args)) );
-}
-
+ 
 sub sense_sweep_points_query {
-    my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
-    return $self->cached_sense_sweep_points( $self->sense_sweep_points_from_traceY_query(%args) );
+	confess('sub sense_sweep_points_query is not implemented by hardware, we should not be here');
 }
 
 sub sense_sweep_points {
     # this hardware has not implemented command to set it in hardware
     # so we just updating the cache
     my ( $self, $channel, $value, %args ) = validated_channel_setter( \@_ );
-
-    if ( $value != $hardwired_number_points_in_sweep ) {
-        croak "This instrument allows in sweep number of points equal to $hardwired_number_points_in_sweep";
-	$value = $hardwired_number_points_in_sweep;
-    }
-
-    $self->cached_sense_sweep_points($value);
+    confess( "sub sense_sweep_points cannot be supported by hardware" );
 }
 
 
@@ -152,27 +144,6 @@ sub get_traceY {
         precision => $precision
     );
     return $traceY;
-}
-
-sub get_traceX {
-    my ( $self, %args ) = @_;
-    my $trace = delete $args{trace};
-
-    my $traceX = $self->sense_frequency_linear_array(%args);
-    return $traceX;
-}
-
-sub get_spectrum {
-    my ( $self, %args ) = @_;
-
-    my $traceY = $self->get_traceY( %args );
-    # fixme use some sort of switch here
-    # number of sweep points is known from the length of traceY
-    # so we set it to avoid extra call to get_traceY 
-    $self->cached_sense_sweep_points( nelem($traceY) );
-    my $traceX = $self->get_traceX( %args );
-
-    return cat( ( pdl $traceX), $traceY );
 }
 
 =head2 Consumed Roles
