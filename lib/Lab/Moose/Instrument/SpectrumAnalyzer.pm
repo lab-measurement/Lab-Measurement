@@ -41,24 +41,109 @@ requires qw(
     get_traceY
 );
 
-has 'capable_to_query_sweep_points_in_hardware' => (
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+Lab::Moose::Instrument::SpectrumAnalyzer - Role of Generic Spectrum Analyzer
+
+=head1 DESCRIPTION
+
+Basic commands to make functional basic spectrum analyzer
+
+=head1 METHODS
+
+Driver assuming this role must implements the following high-level method:
+
+=head2 C<get_traceXY>
+
+ $data = $sa->traceXY(timeout => 10, trace => 2);
+
+Perform a single sweep and return the resulting spectrum as a 2D PDL:
+
+ [
+  [freq1,  freq2,  freq3,  ...,  freqN],
+  [power1, power2, power3, ..., powerN],
+ ]
+
+I.e. the first dimension runs over the sweep points.
+
+This method accepts a hash with the following options:
+
+=over
+
+=item B<timeout>
+
+timeout for the sweep operation. If this is not given, use the connection's
+default timeout.
+
+=item B<trace>
+
+number of the trace (1..3). Defaults to 1.
+
+=back
+
+=head2 C<get_traceY>
+
+ $data = $sa->traceY(timeout => 10, trace => 2);
+
+Return Y points of a given trace in a 1D PDL:
+
+=head2 C<get_traceX>
+
+ $data = $sa->traceX(timeout => 10);
+
+Return X points of a trace in a 1D PDL:
+
+=head1 Hardware capabilities and presets attributes
+
+Not all devices implemented full set of SCPI commands.
+With following we can mark what is available
+
+=head2 C<capable_to_query_number_of_X_points_in_hardware>
+
+Can hardware report the number of points in a sweep. I.e. can it respont
+to analog of C<[:SENSe]:SWEep:POINts?> command.
+
+Default is 1, i.e true.
+
+=head2 C<capable_to_set_number_of_X_points_in_hardware>
+
+Can hardware set the number of points in a sweep. I.e. can it respont
+to analog of C<[:SENSe]:SWEep:POINts> command.
+
+Default is 1, i.e true.
+
+=head2 C<hardwired_number_of_X_points>
+
+Some hardware has fixed/unchangeable number of points in the sweep.
+So we can set it here to simplify the logic of some commands.
+
+This is not set by default.
+Use C<has_hardwired_number_of_X_points> to check for its availability.
+
+=cut
+
+has 'capable_to_query_number_of_X_points_in_hardware' => (
 	is => 'rw',
 	isa => 'Bool',
 	required => 1,
 	default => 1,
 );
 
-has 'capable_to_set_sweep_points_in_hardware' => (
+has 'capable_to_set_number_of_X_points_in_hardware' => (
 	is => 'rw',
 	isa => 'Bool',
 	required => 1,
 	default => 1,
 );
 
-has 'hardwired_number_of_points_in_sweep' => (
+has 'hardwired_number_of_X_points' => (
 	is => 'rw',
 	isa => 'Int',
-	predicate => 'has_hardwired_number_of_points_in_sweep',
+	predicate => 'has_hardwired_number_of_X_points',
 );
 
 sub sense_sweep_points_from_traceY_query {
@@ -69,11 +154,11 @@ sub sense_sweep_points_from_traceY_query {
 
 sub get_Xpoints_number {
     my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
-    if ( $self->has_hardwired_number_of_points_in_sweep) {
-       carp("using hardwired number of points: ".$self->hardwired_number_of_points_in_sweep."\n");
-       return $self->cached_sense_sweep_points( $self->hardwired_number_of_points_in_sweep );
+    if ( $self->has_hardwired_number_of_X_points) {
+       carp("using hardwired number of points: ".$self->hardwired_number_of_X_points."\n");
+       return $self->cached_sense_sweep_points( $self->hardwired_number_of_X_points );
     }
-    if ( $self->capable_to_query_sweep_points_in_hardware ) {
+    if ( $self->capable_to_query_number_of_X_points_in_hardware ) {
         carp("using hardware capabilities to detect number of points in a sweep\n");
 	return $self->sense_sweep_points_query(%args);
     }
@@ -119,8 +204,8 @@ sub get_traceXY {
     # fixme use some sort of switch here
     # number of sweep points is known from the length of traceY
     # so we set it to avoid extra call to get_traceY 
-    if ( !$self->capable_to_query_sweep_points_in_hardware ) {
-	    carp("setting sweep number of points via heuristic");
+    if ( !$self->capable_to_query_number_of_X_points_in_hardware ) {
+	    #carp("setting cache with sweep number of points via heuristic");
 	    $self->cached_sense_sweep_points( nelem($traceY) );
     }
     my $traceX = $self->get_traceX( %args );
@@ -130,50 +215,4 @@ sub get_traceXY {
 
 
 1;
-
-=pod
-
-=encoding UTF-8
-
-=head1 NAME
-
-Lab::Moose::Instrument::SpectrumAnalyzer - Role of Generic Spectrum Analyzer
-
-=head1 DESCRIPTION
-
-Basic commands to make functional basic spectrum analyzer
-
-=head1 METHODS
-
-Driver assuming this role must implements the following high-level method:
-
-=head2 get_spectrum
-
- $data = $sa->get_spectrum(timeout => 10, trace => 2);
-
-Perform a single sweep and return the resulting spectrum as a 2D PDL:
-
- [
-  [freq1,  freq2,  freq3,  ...,  freqN],
-  [power1, power2, power3, ..., powerN],
- ]
-
-I.e. the first dimension runs over the sweep points.
-
-This method accepts a hash with the following options:
-
-=over
-
-=item B<timeout>
-
-timeout for the sweep operation. If this is not given, use the connection's
-default timeout.
-
-=item B<trace>
-
-number of the trace (1..3). Defaults to 1.
-
-=back
-
-=cut
 
