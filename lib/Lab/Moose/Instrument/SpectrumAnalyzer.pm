@@ -201,7 +201,6 @@ sub get_traceXY {
     my ( $self, %args ) = @_;
 
     my $traceY = $self->get_traceY( %args );
-    # fixme use some sort of switch here
     # number of sweep points is known from the length of traceY
     # so we set it to avoid extra call to get_traceY 
     if ( !$self->capable_to_query_number_of_X_points_in_hardware ) {
