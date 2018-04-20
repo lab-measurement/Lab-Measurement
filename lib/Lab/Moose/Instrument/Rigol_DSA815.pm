@@ -58,73 +58,9 @@ sub BUILD {
 
 =head1 METHODS
 
-=head2 get_traceY
-
- $data = $inst->get_traceY(timeout => 1, trace => 2, precision => 'single');
-
-Trace acquisition implementation. Grabs Y values of displayed trace and returns
-them in a 1D pdl.
-
-This implementation is SCPI friendly.
-
-=over
-
-=item B<timeout>
-
-timeout for the sweep operation. If this is not given, use the connection's
-default timeout.
-
-=item B<trace>
-
-number of the trace 1, 2, 3 and so on. Defaults to 1.
-It is hardware depended and validated by C<validate_trace_papam>,
-which need to be implemented by a specific instrument driver.
-
-=item B<precision>
-
-floating point type. Has to be 'single' or 'double'. Defaults to 'single'.
-
-=back
-
-=cut
-
-sub get_traceY {
-    # grab what is on display for a given trace
-    my ( $self, %args ) = validated_hash(
-        \@_,
-        timeout_param(),
-        precision_param(),
-        trace => { isa => 'Int', default => 1 },
-    );
-
-    my $precision = delete $args{precision};
-    my $trace = delete $args{trace};
-
-    $trace = $self->validate_trace_param( $trace );
-
-    # Switch to binary trace format
-    $self->set_data_format_precision( precision => $precision );
-    # above is equivalent to cached call
-    # $self->format_data( format => 'Real', length => 32 );
-
-    # Get data.
-    my $binary = $self->binary_query(
-        command => "TRAC? TRACE$trace",
-        %args
-    );
-    my $traceY = pdl $self->block_to_array(
-        binary    => $binary,
-        precision => $precision
-    );
-    return $traceY;
-}
-
 =head2 validate_trace_param
 
-  $trace = $self->validate_trace_param( $trace );
-
 Validates or applies hardware friendly  aliases to trace parameter.
-
 Trace has to be in (1..3).
 
 =cut
@@ -148,11 +84,10 @@ Rigol DSA815 has no Sense:Sweep:Points implementation
 =cut
  
 sub sense_sweep_points_query {
-	confess("sub sense_sweep_points_query is not implemented by hardware, we should not be here");
+    confess("sub sense_sweep_points_query is not implemented by hardware, we should not be here");
 }
 
 sub sense_sweep_points {
-    my ( $self, $channel, $value, %args ) = validated_channel_setter( \@_ );
     confess( "sub sense_sweep_points is not implemented by hardware, we should not be here" );
 }
 
