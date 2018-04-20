@@ -128,11 +128,9 @@ sub get_traceY {
 
     # Switch to binary trace format
     my $precision = 'single';
-    my $bits_per_point = 32;
-    $self->format_data( format => 'Real', length => $bits_per_point );
-    # Fixme: replace above 2 lines with the call to the cache friendly data format setter:
-    # $self->set_data_format_precision( precision => $precision );
-    # which cannot be used now since `format_data_query` treats the default `ASCii` as error
+    $self->set_data_format_precision( precision => $precision );
+    # above is equivalent to cached
+    # $self->format_data( format => 'Real', length => 32 );
 
     # Get data.
     my $binary = $self->binary_query(
