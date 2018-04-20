@@ -52,30 +52,20 @@ sub BUILD {
     $self->cls();
 }
 
-=head1 SYNOPSIS
 
- my $data = $fsv->get_spectrum(timeout => 10);
 
-=cut
+=head1 Driver for Rigol DSA800 series spectrum analyzers
 
 =head1 METHODS
 
-This driver implements the following high-level method:
+=head2 get_traceY
 
-=head2 get_spectrum
+ $data = $inst->get_traceY(timeout => 1, trace => 2, precision => 'single');
 
- $data = $fsv->get_spectrum(timeout => 10, trace => 2, precision => 'double');
+Trace acquisition implementation. Grabs Y values of displayed trace and returns
+them in a 1D pdl.
 
-Perform a single sweep and return the resulting spectrum as a 2D PDL:
-
- [
-  [freq1,  freq2,  freq3,  ...,  freqN],
-  [power1, power2, power3, ..., powerN],
- ]
-
-I.e. the first dimension runs over the sweep points.
-
-This method accepts a hash with the following options:
+This implementation is SCPI friendly.
 
 =over
 
@@ -86,7 +76,9 @@ default timeout.
 
 =item B<trace>
 
-number of the trace (1..6). Defaults to 1.
+number of the trace 1, 2, 3 and so on. Defaults to 1.
+It is hardware depended and validated by C<validate_trace_papam>,
+which need to be implemented by a specific instrument driver.
 
 =item B<precision>
 
@@ -96,30 +88,16 @@ floating point type. Has to be 'single' or 'double'. Defaults to 'single'.
 
 =cut
 
-### Sense:Sweep:Points emulation
-# Rigol DSA815 has no Sense:Sweep:Points implementation
- 
-sub sense_sweep_points_query {
-	confess('sub sense_sweep_points_query is not implemented by hardware, we should not be here');
-}
-
-sub sense_sweep_points {
-    # this hardware has not implemented command to set it in hardware
-    # so we just updating the cache
-    my ( $self, $channel, $value, %args ) = validated_channel_setter( \@_ );
-    confess( "sub sense_sweep_points cannot be supported by hardware" );
-}
-
-
-### Trace acquisition implementation
 sub get_traceY {
     # grab what is on display for a given trace
     my ( $self, %args ) = validated_hash(
         \@_,
         timeout_param(),
+        precision_param(),
         trace => { isa => 'Int', default => 1 },
     );
 
+    my $precision = delete $args{precision};
     my $trace = delete $args{trace};
 
     if ( $trace < 1 || $trace > 3 ) {
@@ -127,9 +105,8 @@ sub get_traceY {
     }
 
     # Switch to binary trace format
-    my $precision = 'single';
     $self->set_data_format_precision( precision => $precision );
-    # above is equivalent to cached
+    # above is equivalent to cached call
     # $self->format_data( format => 'Real', length => 32 );
 
     # Get data.
@@ -144,7 +121,26 @@ sub get_traceY {
     return $traceY;
 }
 
-=head2 Consumed Roles
+=head1 Missing SCPI functionality
+
+Rigol DSA815 has no Sense:Sweep:Points implementation
+
+=head2 sense_sweep_points_query
+
+=head2 sense_sweep_points
+
+=cut
+ 
+sub sense_sweep_points_query {
+	confess("sub sense_sweep_points_query is not implemented by hardware, we should not be here");
+}
+
+sub sense_sweep_points {
+    my ( $self, $channel, $value, %args ) = validated_channel_setter( \@_ );
+    confess( "sub sense_sweep_points is not implemented by hardware, we should not be here" );
+}
+
+=head1 Consumed Roles
 
 This driver consumes the following roles:
 
