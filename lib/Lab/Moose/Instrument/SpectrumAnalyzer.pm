@@ -38,7 +38,7 @@ requires qw(
     display_window_trace_y_scale_rlevel
     unit_power_query
     unit_power
-    get_traceY
+    validate_trace_param
 );
 
 =pod
@@ -52,50 +52,6 @@ Lab::Moose::Instrument::SpectrumAnalyzer - Role of Generic Spectrum Analyzer
 =head1 DESCRIPTION
 
 Basic commands to make functional basic spectrum analyzer
-
-=head1 METHODS
-
-Driver assuming this role must implements the following high-level method:
-
-=head2 C<get_traceXY>
-
- $data = $sa->traceXY(timeout => 10, trace => 2);
-
-Perform a single sweep and return the resulting spectrum as a 2D PDL:
-
- [
-  [freq1,  freq2,  freq3,  ...,  freqN],
-  [power1, power2, power3, ..., powerN],
- ]
-
-I.e. the first dimension runs over the sweep points.
-
-This method accepts a hash with the following options:
-
-=over
-
-=item B<timeout>
-
-timeout for the sweep operation. If this is not given, use the connection's
-default timeout.
-
-=item B<trace>
-
-number of the trace (1..3). Defaults to 1.
-
-=back
-
-=head2 C<get_traceY>
-
- $data = $sa->traceY(timeout => 10, trace => 2);
-
-Return Y points of a given trace in a 1D PDL:
-
-=head2 C<get_traceX>
-
- $data = $sa->traceX(timeout => 10);
-
-Return X points of a trace in a 1D PDL:
 
 =head1 Hardware capabilities and presets attributes
 
@@ -146,6 +102,40 @@ has 'hardwired_number_of_X_points' => (
 	predicate => 'has_hardwired_number_of_X_points',
 );
 
+=head1 METHODS
+
+Driver assuming this role must implements the following high-level method:
+
+=head2 C<get_traceXY>
+
+ $data = $sa->traceXY(timeout => 10, trace => 2);
+
+Perform a single sweep and return the resulting spectrum as a 2D PDL:
+
+ [
+  [freq1,  freq2,  freq3,  ...,  freqN],
+  [power1, power2, power3, ..., powerN],
+ ]
+
+I.e. the first dimension runs over the sweep points.
+
+This method accepts a hash with the following options:
+
+=over
+
+=item B<timeout>
+
+timeout for the sweep operation. If this is not given, use the connection's
+default timeout.
+
+=item B<trace>
+
+number of the trace (1..3). Defaults to 1.
+
+=back
+
+=cut
+
 sub sense_sweep_points_from_traceY_query {
     # quite a lot of hardware does not report it, so we deduce it from Y-trace data
     my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
@@ -186,6 +176,14 @@ sub linspaced_array {
     return \@result;
 }
 
+=head2 get_traceX
+
+ $data = $sa->traceX(timeout => 10);
+
+Return X points of a trace in a 1D PDL:
+
+=cut
+
 sub get_traceX {
     my ( $self, %args ) = @_;
     my $trace = delete $args{trace};
@@ -195,6 +193,66 @@ sub get_traceX {
     my $num_points = $self->get_Xpoints_number();
     my $traceX = pdl linspaced_array( $start, $stop, $num_points );
     return $traceX;
+}
+
+=head2 get_traceY
+
+ $data = $inst->get_traceY(timeout => 1, trace => 2, precision => 'single');
+
+Return Y points of a given trace in a 1D PDL:
+
+This implementation is SCPI friendly.
+
+=over
+
+=item B<timeout>
+
+timeout for the sweep operation. If this is not given, use the connection's
+default timeout.
+
+=item B<trace>
+
+number of the trace 1, 2, 3 and so on. Defaults to 1.
+It is hardware depended and validated by C<validate_trace_papam>,
+which need to be implemented by a specific instrument driver.
+
+=item B<precision>
+
+floating point type. Has to be 'single' or 'double'. Defaults to 'single'.
+
+=back
+
+=cut
+
+sub get_traceY {
+    # grab what is on display for a given trace
+    my ( $self, %args ) = validated_hash(
+        \@_,
+        timeout_param(),
+        precision_param(),
+        trace => { isa => 'Int', default => 1 },
+    );
+
+    my $precision = delete $args{precision};
+    my $trace = delete $args{trace};
+
+    $trace = $self->validate_trace_param( $trace );
+
+    # Switch to binary trace format
+    $self->set_data_format_precision( precision => $precision );
+    # above is equivalent to cached call
+    # $self->format_data( format => 'Real', length => 32 );
+
+    # Get data.
+    my $binary = $self->binary_query(
+        command => "TRAC? TRACE$trace",
+        %args
+    );
+    my $traceY = pdl $self->block_to_array(
+        binary    => $binary,
+        precision => $precision
+    );
+    return $traceY;
 }
 
 sub get_traceXY {
@@ -211,6 +269,27 @@ sub get_traceXY {
 
     return cat( $traceX, $traceY );
 }
+
+=head1 Required hardware dependent methods
+
+=head2 validate_trace_param
+
+Validates or applies hardware friendly  aliases to trace parameter.
+Need to be implemented by the instrument driver. For example
+
+  sub validate_trace_param {
+    my ( $self, $trace ) = @_;
+    if ( $trace < 1 || $trace > 3 ) {
+      confess "trace has to be in (1..3)";
+    }
+    return $trace;
+  }
+
+Use like this
+
+  $trace = $self->validate_trace_param( $trace );
+
+=cut
 
 
 1;
