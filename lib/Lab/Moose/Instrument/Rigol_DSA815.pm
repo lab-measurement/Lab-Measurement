@@ -100,9 +100,7 @@ sub get_traceY {
     my $precision = delete $args{precision};
     my $trace = delete $args{trace};
 
-    if ( $trace < 1 || $trace > 3 ) {
-        croak "trace has to be in (1..3)";
-    }
+    $trace = $self->validate_trace_param( $trace );
 
     # Switch to binary trace format
     $self->set_data_format_precision( precision => $precision );
@@ -119,6 +117,24 @@ sub get_traceY {
         precision => $precision
     );
     return $traceY;
+}
+
+=head2 validate_trace_param
+
+  $trace = $self->validate_trace_param( $trace );
+
+Validates or applies hardware friendly  aliases to trace parameter.
+
+Trace has to be in (1..3).
+
+=cut
+
+sub validate_trace_param {
+    my ( $self, $trace ) = @_;
+    if ( $trace < 1 || $trace > 3 ) {
+        confess "trace has to be in (1..3)";
+    }
+    return $trace;
 }
 
 =head1 Missing SCPI functionality
