@@ -384,7 +384,7 @@ This will create output folders with names F<IV_curve_xxx>.
 
 =head2 Multiple datafiles
 
-We can create multiple datafiles:
+The following example creates multiple data files:
 
  my $datafile1 = sweep_datafile(
      filename => 'data1',
@@ -402,7 +402,8 @@ We can create multiple datafiles:
  );
 
 
-And in the C<$meas> subroutine, call the sweeps's C<log> method for both datafiles:
+In the C<$meas> subroutine, we now call the C<log> method for both
+data files:
 
  my $meas = sub {
      my $sweep = shift;
@@ -420,17 +421,18 @@ And in the C<$meas> subroutine, call the sweeps's C<log> method for both datafil
  };
 
 
-=head2 Multi-dimensional sweeps: Datafile dimensions and filename extensions
+=head2 Multi-dimensional sweeps: Data file dimensions and file name extensions
 
 
 =head3 2D sweeps
 
-Let us start with a simple 2D sweep: we sweep a gate voltage (outer sweep) and
-a bias voltage and again measure a current:
+We start with a simple 2D sweep: we sweep a gate voltage (outer sweep) and
+a bias voltage (inner sweep) and again measure a current:
 
  use Lab::Moose;
 
- # As we use two Yokogawa's, we need to provide USB serial IDs
+ # As we use two Yokogawas, we need to provide serial numbers to identify them
+ # on the USB bus.
  my $gate_source = instrument(
      type               => 'YokogawaGS200',
      connection_type    => 'USB',
@@ -465,6 +467,7 @@ a bias voltage and again measure a current:
 
  my $datafile = sweep_datafile(columns => [qw/gate bias current/]);
 
+ # We use cached_level since that speeds up measurement a LOT.
  my $meas = sub {
      my $sweep = shift;
      my $v_gate = $gate_source->cached_level();
@@ -482,7 +485,8 @@ a bias voltage and again measure a current:
      datafile    => $datafile,
  );
 
-By default, this will create a 2D block datafile:
+By default, this will create a 2D block data file in the typical gnuplot format,
+i.e., with each bias sweep followed by a blank line as separator.
 
  # gate    bias    current
  0         0       x
@@ -501,7 +505,7 @@ By default, this will create a 2D block datafile:
  ...
  1         1       x
 
-Alternatively, we can create multiple 1D datafiles, one for each value of the
+Alternatively, we can create multiple 1D data files, one for each value of the
 gate voltage. We do this by setting the C<datafile_dim> parameter to 1:
 
  $gate_sweep->start(
@@ -512,9 +516,8 @@ gate voltage. We do this by setting the C<datafile_dim> parameter to 1:
  );
 
 The output files will be F<<data_Voltage=0.dat, data_Voltage=0.1.dat, ...,
-data_Voltage=1.dat>> We can customize the F<Voltage=> part in the datafile
-names by providing a
-B<filename extension> in the gate sweep:
+data_Voltage=1.dat>> We can customize the F<Voltage=> part in the data file
+names by providing a B<filename extension> in the gate sweep:
 
  my $gate_sweep = sweep(
      type               => 'Step::Voltage',
@@ -525,13 +528,12 @@ B<filename extension> in the gate sweep:
 
 =head3 Higher dimensional sweeps
 
-If we create sweeps setups with dimension > 2, the maximum datafile dimension
+If we create sweeps setups with dimension > 2, the maximum data file dimension
 remains 2. E.g. if we create a 3D sweep [Temperature, Gate, Bias], a 2D
-datafile will be created for each value of the temperature sweep.
+data file will be created for each value of the temperature sweep.
 If we set C<datafile_dim> to 1, a subfolder will be created for each value of
-the temperature and the subfolders contain 1D datafiles for each gate voltage.
-
-FIXME: link to example script.
+the temperature and the subfolders contain 1D data files for each gate voltage
+value.
 
 =head2 Live plotting
 
@@ -548,7 +550,7 @@ Let us add a simple line plot to our IV measurement:
 
 This will create a live line plot, which will be updated for each new data
 point. A copy of the plot will be saved in the output folder in png format with
-filename C<"$datafile.png">. You can change this filename with the
+file name C<"$datafile.png">. You can change this file name with the
 C<hard_copy> option:
 
  $datafile->add_plot(
@@ -571,12 +573,13 @@ Let us add a color plot to the gate/bias 2D sweep:
      z    => 'current'
  );
 
-By default, the live plot will be updated after a bias sweep is completed.
+The designation 'pm3d' comes from the gnuplot plot type of this name.
+By default, the live plot will be updated after each bias sweep is completed.
 
 =head3 Terminal options
 
-If we don't want to use gnuplot's default terminal for the live plot or hard copy,
-we use the C<terminal>, C<hard_copy_terminal>, C<terminal_options> and
+If we don't want to use gnuplot's default terminal for the live plot or
+hardcopy, we use the C<terminal>, C<hard_copy_terminal>, C<terminal_options> and
 C<hard_copy_terminal_options> options:
 
  $datafile->add_plot(
@@ -594,7 +597,7 @@ C<hard_copy_terminal_options> options:
 
 =head3 Plot and curve options
 
-L<PDL::Graphics::Gnuplot> separates between plot options and curve options:
+L<PDL::Graphics::Gnuplot> separates between plot options and curve options.
 
  $datafile->add_plot(
      type => 'pm3d',
@@ -616,13 +619,15 @@ L<PDL::Graphics::Gnuplot> separates between plot options and curve options:
      },
  );      
 
-More Plot and curve options are documented in L<PDL::Graphics::Gnuplot>.
+More plot and curve options are documented in L<PDL::Graphics::Gnuplot>.
 
 =head2 Block data
 
 There are types of instruments which return more than a single data. Examples
 are spectrum and network analyzers, which perform a frequency sweep and return
 an array of data after each sweep.
+
+FIXME: We need to link to a good introduction to PDL here.
 
 The C<sparam_sweep> method provided, e.g., by the
 L<Lab::Moose::Instrument::RS_ZVA> returns a 2D PDL with the following format:
