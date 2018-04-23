@@ -41,6 +41,8 @@ requires qw(
     validate_trace_param
 );
 
+with 'Lab::Moose::Instrument::DisplayXY';
+
 =pod
 
 =encoding UTF-8
@@ -156,44 +158,22 @@ sub get_Xpoints_number {
     return $self->cached_sense_sweep_points( $self->sense_sweep_points_from_traceY_query(%args) );
 };
 
-sub linspaced_array {
-    my ( $start, $stop, $num_points ) = @_;
+=head2 get_StartX and get_StopX 
 
-    my $num_intervals = $num_points - 1;
-
-    if ( $num_intervals == 0 ) {
-        # Return a single point.
-        return [$start];
-    }
-
-    my @result;
-
-    for my $i ( 0 .. $num_intervals ) {
-        my $f = $start + ( $stop - $start ) * ( $i / $num_intervals );
-        push @result, $f;
-    }
-
-    return \@result;
-}
-
-=head2 get_traceX
-
- $data = $sa->traceX(timeout => 10);
-
-Return X points of a trace in a 1D PDL:
+Returns start and stop frequency
 
 =cut
 
-sub get_traceX {
+sub get_StartX {
     my ( $self, %args ) = @_;
-    my $trace = delete $args{trace};
-
-    my $start      = $self->cached_sense_frequency_start();
-    my $stop       = $self->cached_sense_frequency_stop();
-    my $num_points = $self->get_Xpoints_number();
-    my $traceX = pdl linspaced_array( $start, $stop, $num_points );
-    return $traceX;
+    return $self->cached_sense_frequency_start();
 }
+
+sub get_StopX {
+    my ( $self, %args ) = @_;
+    return $self->cached_sense_frequency_stop();
+}
+
 
 =head2 get_traceY
 
@@ -268,6 +248,22 @@ sub get_traceXY {
     my $traceX = $self->get_traceX( %args );
 
     return cat( $traceX, $traceY );
+}
+
+sub get_NameX {
+	return 'Frequency'; 
+}
+
+sub get_UnitX {
+	return 'Hz'; 
+}
+
+sub get_NameY {
+	return 'Power'; 
+}
+
+sub get_UnitY {
+	return 'dBm'; 
 }
 
 =head1 Required hardware dependent methods
