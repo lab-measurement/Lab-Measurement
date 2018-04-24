@@ -193,6 +193,7 @@ Displays trace data on a computer screen. It adds a new trace to the plot.
 sub display_trace {
     my ( $self, %args ) = @_;
     my $traceXY = $self->get_traceXY( %args );
+    my $trace = $args{trace};
 
     if ( !$self->has_plotXY ) {
 	    my $plotXY = Lab::Moose::Plot->new();
@@ -232,7 +233,6 @@ sub display_trace {
 	    ylab => $self->ylabel,
     );
 
-    my $trace = $args{trace};
     my $trace_str = "trace"."$trace";
     my %curve_options = (
 	    with => 'lines',
