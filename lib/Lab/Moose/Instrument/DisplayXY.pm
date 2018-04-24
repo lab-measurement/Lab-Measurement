@@ -10,6 +10,7 @@ use PDL::Graphics::Gnuplot;
 
 use Carp;
 use Moose::Role;
+use Lab::Moose::Plot;
 use MooseX::Params::Validate;
 use Lab::Moose::Instrument qw/
     timeout_param
@@ -32,6 +33,14 @@ requires qw(
     get_NameY
     get_UnitY
     display_trace
+);
+
+has plotXY => (
+    is       => 'ro',
+    isa      => 'Lab::Moose::Plot',
+    init_arg => undef,
+    writer   => '_plotXY',
+    predicate => 'has_plotXY'
 );
 
 =pod
@@ -163,21 +172,49 @@ floating point type. Has to be 'single' or 'double'. Defaults to 'single'.
 
  $inst->display_trace(timeout => 1, trace => 2, precision => 'single');
 
-Displays trace data on a computer screen
+Displays trace data on a computer screen. It adds a new trace to the plot.
 
 =cut
 
 sub display_trace {
     my ( $self, %args ) = @_;
-    my $trace = $self->get_traceXY( %args );
+    my $traceXY = $self->get_traceXY( %args );
 
-    my $w = gpwin( 'wxt', enhanced=>1 );                                                                                           
-    if ( $trace(0,0) == $trace(-1,0) ) {
-        # zero span
-        $w->plot( $trace(:,1) );
-    } else {
-        $w->plot( $trace(:,0), $trace(:,1) );
+    #my $plot = Lab::Moose::Plot->new();
+    #my $w = gpwin( 'wxt', enhanced=>1 );                                                                                           
+    if ( !$self->has_plotXY ) {
+	    my $plotXY = Lab::Moose::Plot->new();
+	    $self->_plotXY($plotXY);
     }
+    my $plotXY = $self->plotXY();
+
+    my $plot_function='plot';
+    if ($plotXY->gpwin->{replottable}) {
+	    $plot_function='replot';
+    }
+
+    my $data=$traceXY;
+    if ( $traceXY(0,0) == $traceXY(-1,0) ) {
+        # zero span
+	$data=[$traceXY(:,1)]; # only Y values
+    }
+
+    my %plot_options = (
+	    xlab => $self->get_NameX() . " (" . $self->get_UnitX() . ")",
+	    ylab => $self->get_NameY() . " (" . $self->get_UnitY() . ")",
+    );
+
+    my $trace = $args{trace};
+    my $trace_str = "trace "."$trace";
+    my %curve_options = (
+	    with => 'lines',
+	    legend => "$trace_str",
+    );
+    $plotXY->$plot_function(
+	    plot_options => \%plot_options, 
+	    curve_options => \%curve_options, 
+	    data => $data,
+    );
 }
    
 =head2 get_StartX and get_StopX 
