@@ -4,7 +4,7 @@ package Lab::Moose::Instrument::DisplayXY;
 
 use 5.010;
 
-use PDL::Core qw/pdl cat nelem/;
+use PDL::Core qw/pdl cat nelem sclr/;
 use PDL::NiceSlice;
 use PDL::Graphics::Gnuplot;
 
@@ -190,19 +190,25 @@ sub display_trace {
 
     my $plot_function='plot';
     if ($plotXY->gpwin->{replottable}) {
-	    $plot_function='replot';
+	# this makes multiple traces on the same plot possible
+	$plot_function='replot';
     }
+
+    my %plot_options = (
+	    ylab => $self->get_NameY() . " (" . $self->get_UnitY() . ")",
+    );
 
     my $data=$traceXY;
     if ( $traceXY(0,0) == $traceXY(-1,0) ) {
         # zero span
 	$data=[$traceXY(:,1)]; # only Y values
+	$plot_options{xlab} = "Counts of zero span around" 
+	. " " . $self->get_NameX() . " " . sclr($traceXY(0,0)) 
+	. " " . $self->get_UnitX();
+    } else {
+    	$plot_options{xlab} = $self->get_NameX() . " (" . $self->get_UnitX() . ")",
     }
-
-    my %plot_options = (
-	    xlab => $self->get_NameX() . " (" . $self->get_UnitX() . ")",
-	    ylab => $self->get_NameY() . " (" . $self->get_UnitY() . ")",
-    );
+    print $plot_options{xlab};
 
     my $trace = $args{trace};
     my $trace_str = "trace "."$trace";
