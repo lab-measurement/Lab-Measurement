@@ -255,6 +255,23 @@ sub display_trace {
     );
     return $traceXY;
 }
+
+sub display_all_traces {
+    my ( $self, %args ) = @_;
+    my $all_traces;
+    my @traces = (1, 2, 3);
+    for my $tr (@traces) {
+	    my $data = $self->display_trace( trace=>$tr, %args );
+	    if (! defined  $all_traces ) {
+		    # first time
+		    $all_traces = $data;
+	    } else {
+		    #add only second row
+		    $all_traces = $all_traces->glue(1, $data(:,1) );
+	    }
+    }
+    return $all_traces;
+}
    
 =head2 get_StartX and get_StopX 
 
