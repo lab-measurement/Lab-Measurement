@@ -211,7 +211,7 @@ sub display_trace {
     print $plot_options{xlab};
 
     my $trace = $args{trace};
-    my $trace_str = "trace "."$trace";
+    my $trace_str = "trace"."$trace";
     my %curve_options = (
 	    with => 'lines',
 	    legend => "$trace_str",
