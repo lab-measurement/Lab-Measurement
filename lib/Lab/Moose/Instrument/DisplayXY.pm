@@ -43,6 +43,20 @@ has plotXY => (
     predicate => 'has_plotXY'
 );
 
+has xlabel => (
+    is       => 'rw',
+    isa      => 'Str',
+    init_arg => undef,
+    predicate => 'has_xlabel'
+);
+
+has ylabel => (
+    is       => 'rw',
+    isa      => 'Str',
+    init_arg => undef,
+    predicate => 'has_ylabel'
+);
+
 =pod
 
 =encoding UTF-8
@@ -180,8 +194,6 @@ sub display_trace {
     my ( $self, %args ) = @_;
     my $traceXY = $self->get_traceXY( %args );
 
-    #my $plot = Lab::Moose::Plot->new();
-    #my $w = gpwin( 'wxt', enhanced=>1 );                                                                                           
     if ( !$self->has_plotXY ) {
 	    my $plotXY = Lab::Moose::Plot->new();
 	    $self->_plotXY($plotXY);
@@ -194,21 +206,31 @@ sub display_trace {
 	$plot_function='replot';
     }
 
-    my %plot_options = (
-	    ylab => $self->get_NameY() . " (" . $self->get_UnitY() . ")",
-    );
+    if ( !$self->has_ylabel ) {
+	    $self->ylabel( $self->get_NameY() . " (" . $self->get_UnitY() . ")" );
+    }
 
     my $data=$traceXY;
     if ( $traceXY(0,0) == $traceXY(-1,0) ) {
         # zero span
 	$data=[$traceXY(:,1)]; # only Y values
-	$plot_options{xlab} = "Counts of zero span around" 
-	. " " . $self->get_NameX() . " " . sclr($traceXY(0,0)) 
-	. " " . $self->get_UnitX();
-    } else {
-    	$plot_options{xlab} = $self->get_NameX() . " (" . $self->get_UnitX() . ")",
     }
-    print $plot_options{xlab};
+    if ( !$self->has_xlabel ) {
+	    if ( $traceXY(0,0) == $traceXY(-1,0) ) {
+		    # zero span
+		    $self->xlabel( "Counts of zero span at" 
+			    . " " . $self->get_NameX() . " " . sclr($traceXY(0,0)) 
+			    . " " . $self->get_UnitX()
+		    );
+	    } else {
+		    $self->xlabel( $self->get_NameX() . " (" . $self->get_UnitX() . ")" );
+	    }
+    }
+
+    my %plot_options = (
+	    xlab => $self->xlabel,
+	    ylab => $self->ylabel,
+    );
 
     my $trace = $args{trace};
     my $trace_str = "trace"."$trace";
@@ -221,6 +243,7 @@ sub display_trace {
 	    curve_options => \%curve_options, 
 	    data => $data,
     );
+    return $traceXY;
 }
    
 =head2 get_StartX and get_StopX 
