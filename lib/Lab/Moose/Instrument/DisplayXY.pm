@@ -190,6 +190,31 @@ Displays trace data on a computer screen. It adds a new trace to the plot.
 
 =cut
 
+sub get_xlabel_based_on_traceXY {
+    my ( $self, $traceXY, %args ) = @_;
+    if ( !$self->has_xlabel ) {
+	    if ( $traceXY(0,0) == $traceXY(-1,0) ) {
+		    # zero span
+		    $self->xlabel( "Counts of zero span at" 
+			    . " " . $self->get_NameX() . " " . sclr($traceXY(0,0)) 
+			    . " " . $self->get_UnitX()
+		    );
+	    } else {
+		    $self->xlabel( $self->get_NameX( %args ) . " (" . $self->get_UnitX( %args ) . ")" );
+	    }
+    }
+    return $self->xlabel;
+
+}
+
+sub get_ylabel {
+    my ( $self, %args ) = @_;
+    if ( !$self->has_ylabel ) {
+	    $self->ylabel( $self->get_NameY() . " (" . $self->get_UnitY() . ")" );
+    }
+    return $self->ylabel;
+}
+
 sub display_trace {
     my ( $self, %args ) = @_;
     my $traceXY = $self->get_traceXY( %args );
@@ -207,30 +232,15 @@ sub display_trace {
 	$plot_function='replot';
     }
 
-    if ( !$self->has_ylabel ) {
-	    $self->ylabel( $self->get_NameY() . " (" . $self->get_UnitY() . ")" );
-    }
-
     my $data=$traceXY;
     if ( $traceXY(0,0) == $traceXY(-1,0) ) {
         # zero span
 	$data=[$traceXY(:,1)]; # only Y values
     }
-    if ( !$self->has_xlabel ) {
-	    if ( $traceXY(0,0) == $traceXY(-1,0) ) {
-		    # zero span
-		    $self->xlabel( "Counts of zero span at" 
-			    . " " . $self->get_NameX() . " " . sclr($traceXY(0,0)) 
-			    . " " . $self->get_UnitX()
-		    );
-	    } else {
-		    $self->xlabel( $self->get_NameX() . " (" . $self->get_UnitX() . ")" );
-	    }
-    }
 
     my %plot_options = (
-	    xlab => $self->xlabel,
-	    ylab => $self->ylabel,
+	    xlab => $self->get_xlabel_based_on_traceXY($traceXY, %args),
+	    ylab => $self->ylabel(%args),
     );
 
     my $trace_str = "trace"."$trace";
