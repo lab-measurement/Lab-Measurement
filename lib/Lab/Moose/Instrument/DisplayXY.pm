@@ -182,14 +182,6 @@ floating point type. Has to be 'single' or 'double'. Defaults to 'single'.
 
 =cut
 
-=head2 display_trace
-
- $inst->display_trace(timeout => 1, trace => 2, precision => 'single');
-
-Displays trace data on a computer screen. It adds a new trace to the plot.
-
-=cut
-
 sub get_xlabel_based_on_traceXY {
     my ( $self, $traceXY, %args ) = @_;
     if ( !$self->has_xlabel ) {
@@ -215,10 +207,58 @@ sub get_ylabel {
     return $self->ylabel;
 }
 
-sub display_trace {
+=head2 get_traces_data
+
+ $inst->get_traces_data(timeout => 1, traces => [1, 2, 3], precision => 'single');
+
+Return the traces data as a 2D PDL in order of appearance in C<traces> array.
+
+ [
+  [x_1,  x_2,  x_3,  ..., x_N],
+  [y1_1, y1_2, y1_3, ..., y1_N],
+  [y2_1, y2_2, y2_3, ..., y2_N],
+  [y3_1, y3_2, y3_3, ..., y3_N],
+  .............................
+ ]
+
+=cut
+
+sub get_traces_data {
     my ( $self, %args ) = @_;
-    my $traceXY = $self->get_traceXY( %args );
+    my @traces = @{delete $args{traces}}; # arrays are tricky
+    my $all_traces;
+    for my $tr (@traces) {
+	    my $data;
+	    if (! defined  $all_traces ) {
+		    # first time
+		    $data = $self->get_traceXY( trace=>$tr, %args );
+		    $all_traces = $data;
+	    } else {
+		    # acquire and add/glue only Y values
+		    $data = $self->get_traceY( trace=>$tr, %args );
+		    $all_traces = $all_traces->glue(1, $data );
+	    }
+    }
+    return $all_traces;
+}
+   
+=head2 display_trace_data
+
+ $inst->display_trace_data(timeout => 1, trace => 2, traceXY => $data,  precision => 'single');
+
+Display a given trace data. C<traceXY> is 2D pdl with trace X and Y values
+
+ [
+  [x_1, x_2, x_3, ..., x_N],
+  [y_1, y_2, y_3, ..., y_N],
+ ]
+
+=cut
+
+sub display_trace_data {
+    my ( $self, %args ) = @_;
     my $trace = $args{trace};
+    my $traceXY = $args{traceXY};
 
     if ( !$self->has_plotXY ) {
 	    my $plotXY = Lab::Moose::Plot->new();
@@ -240,7 +280,7 @@ sub display_trace {
 
     my %plot_options = (
 	    xlab => $self->get_xlabel_based_on_traceXY($traceXY, %args),
-	    ylab => $self->ylabel(%args),
+	    ylab => $self->get_ylabel(%args),
     );
 
     my $trace_str = "trace"."$trace";
@@ -256,19 +296,63 @@ sub display_trace {
     return $traceXY;
 }
 
-sub display_all_traces {
+=head2 display_trace
+
+ $inst->display_trace(timeout => 1, trace => 2, precision => 'single');
+
+Displays a single trace data on a computer screen. It adds a new trace to the plot.
+
+The function internally calls C<display_traces>, so it is equivalent to
+
+ $inst->display_traces(timeout => 1, traces => [ 2 ], precision => 'single');
+
+Return the trace data as a 2D PDL in order of appearance in C<traces> array.
+
+ [
+  [x_1, x_2, x_3, ..., x_N],
+  [y_1, y_2, y_3, ..., y_N]
+ ]
+
+=cut
+
+sub display_trace {
     my ( $self, %args ) = @_;
-    my $all_traces;
-    my @traces = (1, 2, 3);
+    my $trace = delete $args{trace};
+    my $traceXY=$self->display_traces(%args, traces=>[$trace]);
+    return $traceXY;
+}
+
+=head2 display_traces
+
+ $inst->display_traces(timeout => 1, traces => [1, 2, 3], precision => 'single');
+
+Displays required traces data on a computer screen. It adds plots if called several times.
+
+Return the traces data as a 2D PDL in order of appearance in C<traces> array.
+
+ [
+  [x_1,  x_2,  x_3,  ..., x_N],
+  [y1_1, y1_2, y1_3, ..., y1_N],
+  [y2_1, y2_2, y2_3, ..., y2_N],
+  [y3_1, y3_2, y3_3, ..., y3_N],
+  .............................
+ ]
+
+=cut
+
+sub display_traces {
+    my ( $self, %args ) = @_;
+    my $all_traces = $self->get_traces_data( %args );
+    my @traces = @{delete $args{traces}}; # arrays are tricky
+    my $x =  $all_traces(:,0);
+    my $traceXY;
+    my $cnt = 0;
     for my $tr (@traces) {
-	    my $data = $self->display_trace( trace=>$tr, %args );
-	    if (! defined  $all_traces ) {
-		    # first time
-		    $all_traces = $data;
-	    } else {
-		    #add only second row
-		    $all_traces = $all_traces->glue(1, $data(:,1) );
-	    }
+	    $cnt++;
+	    my $y =  $all_traces(:,$cnt);
+	    my $data = $x;
+	    $data = $data->glue(1, $y );
+	    $self->display_trace_data(%args, trace=>$tr, traceXY=>$data );
     }
     return $all_traces;
 }
