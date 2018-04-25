@@ -10,6 +10,7 @@ use PDL::Graphics::Gnuplot;
 
 use Carp;
 use Moose::Role;
+use Lab::Moose;
 use Lab::Moose::Plot;
 use MooseX::Params::Validate;
 use Lab::Moose::Instrument qw/
@@ -283,10 +284,9 @@ sub display_trace_data {
 	    ylab => $self->get_ylabel(%args),
     );
 
-    my $trace_str = "trace"."$trace";
     my %curve_options = (
 	    with => 'lines',
-	    legend => "$trace_str",
+	    legend => $self->trace_num_to_name(trace=>$trace),
     );
     $plotXY->$plot_function(
 	    plot_options => \%plot_options, 
@@ -367,5 +367,33 @@ Returns number of points in the trace.
 
 =cut
 
+sub trace_num_to_name {
+    my ( $self, %args ) = @_;
+    my $trace = delete $args{trace};
+    my $name = "trace".$trace;
+    return $name;
+}
+
+sub log_traces {
+    my ( $self, %args ) = @_;
+    my $all_traces = $self->get_traces_data( %args );
+    my @traces = @{delete $args{traces}}; # arrays are tricky
+    my @columns = $self->get_NameX( %args );
+    push @columns, (map $self->trace_num_to_name(trace=>$_), @traces);
+
+    my $folder = datafolder();
+    my $datafile = datafile(
+	    type => 'Gnuplot',
+	    folder => $folder,
+	    filename => 'data.dat',
+	    columns => [@columns]
+    );
+    $datafile->log_block(
+	    block => $all_traces,
+    );
+
+    return $all_traces;
+}
+   
 1;
 
