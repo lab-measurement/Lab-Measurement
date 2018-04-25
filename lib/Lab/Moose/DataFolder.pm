@@ -114,7 +114,7 @@ sub BUILD {
     my $basename = basename($folder);
 
     if ( $self->date_prefix ) {
-        $basename = strftime( '%F', localtime() ) . "_$basename";
+        $basename = strftime( '%Y-%m-%d', localtime() ) . "_$basename";
         $folder = our_catfile( $dirname, $basename );
     }
 
