@@ -184,7 +184,8 @@ floating point type. Has to be 'single' or 'double'. Defaults to 'single'.
 =cut
 
 sub get_xlabel_based_on_traceXY {
-    my ( $self, $traceXY, %args ) = @_;
+    my ( $self, %args ) = @_;
+    my $traceXY = $args{traceXY};
     if ( !$self->has_xlabel ) {
 	    if ( $traceXY(0,0) == $traceXY(-1,0) ) {
 		    # zero span
@@ -280,7 +281,7 @@ sub display_trace_data {
     }
 
     my %plot_options = (
-	    xlab => $self->get_xlabel_based_on_traceXY($traceXY, %args),
+	    xlab => $self->get_xlabel_based_on_traceXY(traceXY=>$traceXY, %args),
 	    ylab => $self->get_ylabel(%args),
     );
 
