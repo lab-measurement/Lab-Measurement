@@ -9,6 +9,7 @@ use PDL::NiceSlice;
 use PDL::Graphics::Gnuplot;
 
 use Carp;
+use Data::Dumper;
 use Moose::Role;
 use Lab::Moose;
 use Lab::Moose::Plot;
@@ -33,6 +34,7 @@ requires qw(
     get_UnitX
     get_NameY
     get_UnitY
+    get_log_header
     display_trace
 );
 
@@ -382,12 +384,18 @@ sub log_traces {
     my @columns = $self->get_NameX( %args );
     push @columns, (map $self->trace_num_to_name(trace=>$_), @traces);
 
+
     my $folder = datafolder();
     my $datafile = datafile(
 	    type => 'Gnuplot',
 	    folder => $folder,
 	    filename => 'data.dat',
 	    columns => [@columns]
+    );
+    my %header = $self->get_log_header(%args);
+    $Data::Dumper::Terse=1;
+    $datafile->log_comment(
+	    comment => Dumper(\%header)
     );
     $datafile->log_block(
 	    block => $all_traces,
