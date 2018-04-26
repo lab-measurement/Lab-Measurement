@@ -7,6 +7,8 @@ use 5.010;
 use PDL::Core qw/pdl cat nelem/;
 
 use Carp;
+use Switch;
+use Data::Dumper;
 use Moose::Role;
 use MooseX::Params::Validate;
 use Lab::Moose::Instrument qw/
@@ -251,19 +253,44 @@ sub get_traceXY {
 }
 
 sub get_NameX {
-	return 'Frequency'; 
+    my ( $self, %args ) = @_;
+    return 'Frequency'; 
 }
 
 sub get_UnitX {
-	return 'Hz'; 
+    my ( $self, %args ) = @_;
+    return 'Hz'; 
 }
 
 sub get_NameY {
-	return 'Power'; 
+    my ( $self, %args ) = @_;
+    my $name;
+    my $unit = $self->get_UnitY(%args);
+    switch ( $unit ) {
+	    case qr/dbm|w/i { $name = 'Power'; }
+	    case qr/dbmv|dbuv|w/i { $name = 'Amplitude'; }
+	    else { $name = 'Unknown'; carp("Unknow Y unit ".$unit); }
+    } 
+    return $name; 
 }
 
 sub get_UnitY {
-	return 'dBm'; 
+    my ( $self, %args ) = @_;
+    return $self->unit_power_query(%args);
+}
+
+sub get_log_header {
+    my ( $self, %args ) = @_;
+    my %header;
+    $header{VBW} = $self->sense_bandwidth_video_query(%args);
+    $header{RBW} = $self->sense_bandwidth_resolution_query(%args);
+    $header{SweepTime} = $self->sense_sweep_time_query(%args);
+    $header{NameX} = $self->get_NameX(%args);
+    $header{UnitX} = $self->get_UnitX(%args);
+    $header{NameY} = $self->get_NameY(%args);
+    $header{UnitY} = $self->get_UnitY(%args);
+
+    return %header;
 }
 
 =head1 Required hardware dependent methods
