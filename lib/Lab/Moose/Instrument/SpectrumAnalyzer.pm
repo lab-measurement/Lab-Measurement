@@ -19,10 +19,11 @@ use Lab::Moose::Instrument qw/
     validated_channel_getter
     validated_channel_setter
     /;
+
 #use Lab::Moose::Instrument::Cache;
 
 requires qw(
-    sense_frequency_start_query 
+    sense_frequency_start_query
     sense_frequency_start
     sense_frequency_stop_query
     sense_frequency_stop
@@ -87,23 +88,23 @@ Use C<has_hardwired_number_of_X_points> to check for its availability.
 =cut
 
 has 'capable_to_query_number_of_X_points_in_hardware' => (
-	is => 'rw',
-	isa => 'Bool',
-	required => 1,
-	default => 1,
+    is       => 'rw',
+    isa      => 'Bool',
+    required => 1,
+    default  => 1,
 );
 
 has 'capable_to_set_number_of_X_points_in_hardware' => (
-	is => 'rw',
-	isa => 'Bool',
-	required => 1,
-	default => 1,
+    is       => 'rw',
+    isa      => 'Bool',
+    required => 1,
+    default  => 1,
 );
 
 has 'hardwired_number_of_X_points' => (
-	is => 'rw',
-	isa => 'Int',
-	predicate => 'has_hardwired_number_of_X_points',
+    is        => 'rw',
+    isa       => 'Int',
+    predicate => 'has_hardwired_number_of_X_points',
 );
 
 =head1 METHODS
@@ -141,24 +142,31 @@ number of the trace (1..3). Defaults to 1.
 =cut
 
 sub sense_sweep_points_from_traceY_query {
+
     # quite a lot of hardware does not report it, so we deduce it from Y-trace data
     my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
-    return nelem($self->get_traceY(%args));
+    return nelem( $self->get_traceY(%args) );
 }
 
 sub get_Xpoints_number {
     my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
-    if ( $self->has_hardwired_number_of_X_points) {
-       carp("using hardwired number of points: ".$self->hardwired_number_of_X_points."\n");
-       return $self->cached_sense_sweep_points( $self->hardwired_number_of_X_points );
+    if ( $self->has_hardwired_number_of_X_points ) {
+        carp(     "using hardwired number of points: "
+                . $self->hardwired_number_of_X_points
+                . "\n" );
+        return $self->cached_sense_sweep_points(
+            $self->hardwired_number_of_X_points );
     }
     if ( $self->capable_to_query_number_of_X_points_in_hardware ) {
-        carp("using hardware capabilities to detect number of points in a sweep\n");
-	return $self->sense_sweep_points_query(%args);
+        carp(
+            "using hardware capabilities to detect number of points in a sweep\n"
+        );
+        return $self->sense_sweep_points_query(%args);
     }
     carp("trying heuristic to detect number of points in a sweep\n");
-    return $self->cached_sense_sweep_points( $self->sense_sweep_points_from_traceY_query(%args) );
-};
+    return $self->cached_sense_sweep_points(
+        $self->sense_sweep_points_from_traceY_query(%args) );
+}
 
 =head2 get_StartX and get_StopX 
 
@@ -175,7 +183,6 @@ sub get_StopX {
     my ( $self, %args ) = @_;
     return $self->cached_sense_frequency_stop();
 }
-
 
 =head2 get_traceY
 
@@ -207,6 +214,7 @@ floating point type. Has to be 'single' or 'double'. Defaults to 'single'.
 =cut
 
 sub get_traceY {
+
     # grab what is on display for a given trace
     my ( $self, %args ) = validated_hash(
         \@_,
@@ -216,12 +224,13 @@ sub get_traceY {
     );
 
     my $precision = delete $args{precision};
-    my $trace = delete $args{trace};
+    my $trace     = delete $args{trace};
 
-    $trace = $self->validate_trace_param( $trace );
+    $trace = $self->validate_trace_param($trace);
 
     # Switch to binary trace format
     $self->set_data_format_precision( precision => $precision );
+
     # above is equivalent to cached call
     # $self->format_data( format => 'Real', length => 32 );
 
@@ -240,38 +249,40 @@ sub get_traceY {
 sub get_traceXY {
     my ( $self, %args ) = @_;
 
-    my $traceY = $self->get_traceY( %args );
+    my $traceY = $self->get_traceY(%args);
+
     # number of sweep points is known from the length of traceY
-    # so we set it to avoid extra call to get_traceY 
+    # so we set it to avoid extra call to get_traceY
     if ( !$self->capable_to_query_number_of_X_points_in_hardware ) {
-	    #carp("setting cache with sweep number of points via heuristic");
-	    $self->cached_sense_sweep_points( nelem($traceY) );
+
+        #carp("setting cache with sweep number of points via heuristic");
+        $self->cached_sense_sweep_points( nelem($traceY) );
     }
-    my $traceX = $self->get_traceX( %args );
+    my $traceX = $self->get_traceX(%args);
 
     return cat( $traceX, $traceY );
 }
 
 sub get_NameX {
     my ( $self, %args ) = @_;
-    return 'Frequency'; 
+    return 'Frequency';
 }
 
 sub get_UnitX {
     my ( $self, %args ) = @_;
-    return 'Hz'; 
+    return 'Hz';
 }
 
 sub get_NameY {
     my ( $self, %args ) = @_;
     my $name;
     my $unit = $self->get_UnitY(%args);
-    switch ( $unit ) {
-	    case qr/dbm|w/i { $name = 'Power'; }
-	    case qr/dbmv|dbuv|w/i { $name = 'Amplitude'; }
-	    else { $name = 'Unknown'; carp("Unknow Y unit ".$unit); }
-    } 
-    return $name; 
+    switch ($unit) {
+        case qr/dbm|w/i       { $name = 'Power'; }
+        case qr/dbmv|dbuv|w/i { $name = 'Amplitude'; }
+        else { $name = 'Unknown'; carp( "Unknow Y unit " . $unit ); }
+    }
+    return $name;
 }
 
 sub get_UnitY {
@@ -282,13 +293,13 @@ sub get_UnitY {
 sub get_log_header {
     my ( $self, %args ) = @_;
     my %header;
-    $header{VBW} = $self->sense_bandwidth_video_query(%args);
-    $header{RBW} = $self->sense_bandwidth_resolution_query(%args);
+    $header{VBW}       = $self->sense_bandwidth_video_query(%args);
+    $header{RBW}       = $self->sense_bandwidth_resolution_query(%args);
     $header{SweepTime} = $self->sense_sweep_time_query(%args);
-    $header{NameX} = $self->get_NameX(%args);
-    $header{UnitX} = $self->get_UnitX(%args);
-    $header{NameY} = $self->get_NameY(%args);
-    $header{UnitY} = $self->get_UnitY(%args);
+    $header{NameX}     = $self->get_NameX(%args);
+    $header{UnitX}     = $self->get_UnitX(%args);
+    $header{NameY}     = $self->get_NameY(%args);
+    $header{UnitY}     = $self->get_UnitY(%args);
 
     return %header;
 }
@@ -313,7 +324,6 @@ Use like this
   $trace = $self->validate_trace_param( $trace );
 
 =cut
-
 
 1;
 
