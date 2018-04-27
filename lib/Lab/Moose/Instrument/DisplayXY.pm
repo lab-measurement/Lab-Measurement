@@ -29,7 +29,7 @@ requires qw(
     get_Xpoints_number
     get_traceX
     get_traceY
-    get_traceXY 
+    get_traceXY
     get_NameX
     get_UnitX
     get_NameY
@@ -39,24 +39,24 @@ requires qw(
 );
 
 has plotXY => (
-    is       => 'ro',
-    isa      => 'Lab::Moose::Plot',
-    init_arg => undef,
-    writer   => '_plotXY',
+    is        => 'ro',
+    isa       => 'Lab::Moose::Plot',
+    init_arg  => undef,
+    writer    => '_plotXY',
     predicate => 'has_plotXY'
 );
 
 has xlabel => (
-    is       => 'rw',
-    isa      => 'Str',
-    init_arg => undef,
+    is        => 'rw',
+    isa       => 'Str',
+    init_arg  => undef,
     predicate => 'has_xlabel'
 );
 
 has ylabel => (
-    is       => 'rw',
-    isa      => 'Str',
-    init_arg => undef,
+    is        => 'rw',
+    isa       => 'Str',
+    init_arg  => undef,
     predicate => 'has_ylabel'
 );
 
@@ -110,12 +110,11 @@ number of the trace (1..3) and similar.
 sub get_traceXY {
     my ( $self, %args ) = @_;
 
-    my $traceY = $self->get_traceY( %args );
-    my $traceX = $self->get_traceX( %args );
+    my $traceY = $self->get_traceY(%args);
+    my $traceX = $self->get_traceX(%args);
 
     return cat( $traceX, $traceY );
 }
-
 
 =head2 get_traceX
 
@@ -132,7 +131,7 @@ sub get_traceX {
     my $start      = $self->get_StartX(%args);
     my $stop       = $self->get_StopX(%args);
     my $num_points = $self->get_Xpoints_number(%args);
-    my $traceX = pdl linspaced_array( $start, $stop, $num_points );
+    my $traceX     = pdl linspaced_array( $start, $stop, $num_points );
     return $traceX;
 }
 
@@ -142,6 +141,7 @@ sub linspaced_array {
     my $num_intervals = $num_points - 1;
 
     if ( $num_intervals == 0 ) {
+
         # Return a single point.
         return [$start];
     }
@@ -187,15 +187,19 @@ sub get_xlabel_based_on_traceXY {
     my ( $self, %args ) = @_;
     my $traceXY = $args{traceXY};
     if ( !$self->has_xlabel ) {
-	    if ( $traceXY(0,0) == $traceXY(-1,0) ) {
-		    # zero span
-		    $self->xlabel( "Counts of zero span at" 
-			    . " " . $self->get_NameX() . " " . sclr($traceXY(0,0)) 
-			    . " " . $self->get_UnitX()
-		    );
-	    } else {
-		    $self->xlabel( $self->get_NameX( %args ) . " (" . $self->get_UnitX( %args ) . ")" );
-	    }
+        if ( $traceXY ( 0, 0 ) == $traceXY ( -1, 0 ) ) {
+
+            # zero span
+            $self->xlabel( "Counts of zero span at" . " "
+                    . $self->get_NameX() . " "
+                    . sclr( $traceXY ( 0, 0 ) ) . " "
+                    . $self->get_UnitX() );
+        }
+        else {
+            $self->xlabel( $self->get_NameX(%args) . " ("
+                    . $self->get_UnitX(%args)
+                    . ")" );
+        }
     }
     return $self->xlabel;
 
@@ -204,7 +208,7 @@ sub get_xlabel_based_on_traceXY {
 sub get_ylabel {
     my ( $self, %args ) = @_;
     if ( !$self->has_ylabel ) {
-	    $self->ylabel( $self->get_NameY() . " (" . $self->get_UnitY() . ")" );
+        $self->ylabel( $self->get_NameY() . " (" . $self->get_UnitY() . ")" );
     }
     return $self->ylabel;
 }
@@ -227,23 +231,25 @@ Return the traces data as a 2D PDL in order of appearance in C<traces> array.
 
 sub get_traces_data {
     my ( $self, %args ) = @_;
-    my @traces = @{delete $args{traces}}; # arrays are tricky
+    my @traces = @{ delete $args{traces} };    # arrays are tricky
     my $all_traces;
     for my $tr (@traces) {
-	    my $data;
-	    if (! defined  $all_traces ) {
-		    # first time
-		    $data = $self->get_traceXY( trace=>$tr, %args );
-		    $all_traces = $data;
-	    } else {
-		    # acquire and add/glue only Y values
-		    $data = $self->get_traceY( trace=>$tr, %args );
-		    $all_traces = $all_traces->glue(1, $data );
-	    }
+        my $data;
+        if ( !defined $all_traces ) {
+
+            # first time
+            $data = $self->get_traceXY( trace => $tr, %args );
+            $all_traces = $data;
+        }
+        else {
+            # acquire and add/glue only Y values
+            $data = $self->get_traceY( trace => $tr, %args );
+            $all_traces = $all_traces->glue( 1, $data );
+        }
     }
     return $all_traces;
 }
-   
+
 =head2 display_trace_data
 
  $inst->display_trace_data(timeout => 1, trace => 2, traceXY => $data,  precision => 'single');
@@ -259,42 +265,45 @@ Display a given trace data. C<traceXY> is 2D pdl with trace X and Y values
 
 sub display_trace_data {
     my ( $self, %args ) = @_;
-    my $trace = $args{trace};
+    my $trace   = $args{trace};
     my $traceXY = $args{traceXY};
 
     if ( !$self->has_plotXY ) {
-	    my $plotXY = Lab::Moose::Plot->new();
-	    $self->_plotXY($plotXY);
+        my $plotXY = Lab::Moose::Plot->new();
+        $self->_plotXY($plotXY);
     }
     my $plotXY = $self->plotXY();
 
-    my $plot_function='plot';
-    if ($plotXY->gpwin->{replottable}) {
-	# this makes multiple traces on the same plot possible
-	$plot_function='replot';
+    my $plot_function = 'plot';
+    if ( $plotXY->gpwin->{replottable} ) {
+
+        # this makes multiple traces on the same plot possible
+        $plot_function = 'replot';
     }
 
-    my $x = $traceXY(:,0);
-    my $y = $traceXY(:,1);
-    if ( $x(0,0) == $x(-1,0) ) {
+    my $x = $traceXY ( :, 0 );
+    my $y = $traceXY ( :, 1 );
+    if ( $x ( 0, 0 ) == $x ( -1, 0 ) ) {
+
         # zero span
-	$x = PDL::Basic::xvals($x); # replacing X with its indexes
+        $x = PDL::Basic::xvals($x);    # replacing X with its indexes
     }
-    my @data = [$x, $y];
+    my @data = [ $x, $y ];
 
     my %plot_options = (
-	    xlab => $self->get_xlabel_based_on_traceXY(traceXY=>$traceXY, %args),
-	    ylab => $self->get_ylabel(%args),
+        xlab =>
+            $self->get_xlabel_based_on_traceXY( traceXY => $traceXY, %args ),
+        ylab => $self->get_ylabel(%args),
     );
 
     my %curve_options = (
-	    with => 'lines',
-	    legend => $self->trace_num_to_name(trace=>$trace),
+        with   => 'lines',
+        legend => $self->trace_num_to_name( trace => $trace ),
     );
     $plotXY->$plot_function(
-	    plot_options => \%plot_options, 
-	    curve_options => \%curve_options, 
-	    data => @data,
+        plot_options  => \%plot_options,
+        curve_options => \%curve_options,
+        data          => @data,
     );
     return $traceXY;
 }
@@ -321,7 +330,7 @@ Return the trace data as a 2D PDL in order of appearance in C<traces> array.
 sub display_trace {
     my ( $self, %args ) = @_;
     my $trace = delete $args{trace};
-    my $traceXY=$self->display_traces(%args, traces=>[$trace]);
+    my $traceXY = $self->display_traces( %args, traces => [$trace] );
     return $traceXY;
 }
 
@@ -345,21 +354,21 @@ Return the traces data as a 2D PDL in order of appearance in C<traces> array.
 
 sub display_traces {
     my ( $self, %args ) = @_;
-    my $all_traces = $self->get_traces_data( %args );
-    my @traces = @{delete $args{traces}}; # arrays are tricky
-    my $x =  $all_traces(:,0);
+    my $all_traces = $self->get_traces_data(%args);
+    my @traces     = @{ delete $args{traces} };       # arrays are tricky
+    my $x          = $all_traces ( :, 0 );
     my $traceXY;
     my $cnt = 0;
     for my $tr (@traces) {
-	    $cnt++;
-	    my $y =  $all_traces(:,$cnt);
-	    my $data = $x;
-	    $data = $data->glue(1, $y );
-	    $self->display_trace_data(%args, trace=>$tr, traceXY=>$data );
+        $cnt++;
+        my $y = $all_traces ( :, $cnt );
+        my $data = $x;
+        $data = $data->glue( 1, $y );
+        $self->display_trace_data( %args, trace => $tr, traceXY => $data );
     }
     return $all_traces;
 }
-   
+
 =head2 get_StartX and get_StopX 
 
 Returns start and stop values of X.
@@ -373,36 +382,33 @@ Returns number of points in the trace.
 sub trace_num_to_name {
     my ( $self, %args ) = @_;
     my $trace = delete $args{trace};
-    my $name = "trace".$trace;
+    my $name  = "trace" . $trace;
     return $name;
 }
 
 sub log_traces {
     my ( $self, %args ) = @_;
-    my $all_traces = $self->get_traces_data( %args );
-    my @traces = @{delete $args{traces}}; # arrays are tricky
-    my @columns = $self->get_NameX( %args );
-    push @columns, (map $self->trace_num_to_name(trace=>$_), @traces);
+    my $all_traces = $self->get_traces_data(%args);
+    my @traces     = @{ delete $args{traces} };       # arrays are tricky
+    my @columns    = $self->get_NameX(%args);
+    push @columns, ( map $self->trace_num_to_name( trace => $_ ), @traces );
 
-
-    my $folder = datafolder();
+    my $folder   = datafolder();
     my $datafile = datafile(
-	    type => 'Gnuplot',
-	    folder => $folder,
-	    filename => 'data.dat',
-	    columns => [@columns]
+        type     => 'Gnuplot',
+        folder   => $folder,
+        filename => 'data.dat',
+        columns  => [@columns]
     );
     my %header = $self->get_log_header(%args);
-    $Data::Dumper::Terse=1;
-    $datafile->log_comment(
-	    comment => Dumper(\%header)
-    );
+    $Data::Dumper::Terse = 1;
+    $datafile->log_comment( comment => Dumper( \%header ) );
     $datafile->log_block(
-	    block => $all_traces,
+        block => $all_traces,
     );
 
     return $all_traces;
 }
-   
+
 1;
 

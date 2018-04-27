@@ -23,7 +23,7 @@ use namespace::autoclean;
 
 extends 'Lab::Moose::Instrument';
 
-with 'Lab::Moose::Instrument::SpectrumAnalyzer',  qw(
+with 'Lab::Moose::Instrument::SpectrumAnalyzer', qw(
     Lab::Moose::Instrument::Common
 
     Lab::Moose::Instrument::SCPI::Format
@@ -51,8 +51,6 @@ sub BUILD {
     $self->clear();
     $self->cls();
 }
-
-
 
 =head1 Driver for Rigol DSA800 series spectrum analyzers
 
@@ -82,13 +80,17 @@ Rigol DSA815 has no Sense:Sweep:Points implementation
 =head2 sense_sweep_points
 
 =cut
- 
+
 sub sense_sweep_points_query {
-    confess("sub sense_sweep_points_query is not implemented by hardware, we should not be here");
+    confess(
+        "sub sense_sweep_points_query is not implemented by hardware, we should not be here"
+    );
 }
 
 sub sense_sweep_points {
-    confess( "sub sense_sweep_points is not implemented by hardware, we should not be here" );
+    confess(
+        "sub sense_sweep_points is not implemented by hardware, we should not be here"
+    );
 }
 
 =head1 Consumed Roles
@@ -114,7 +116,6 @@ This driver consumes the following roles:
 =back
 
 =cut
-
 
 __PACKAGE__->meta()->make_immutable();
 
