@@ -151,19 +151,15 @@ sub sense_sweep_points_from_traceY_query {
 sub get_Xpoints_number {
     my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
     if ( $self->has_hardwired_number_of_X_points ) {
-        carp(     "using hardwired number of points: "
-                . $self->hardwired_number_of_X_points
-                . "\n" );
+	#carp("using hardwired number of points: " . $self->hardwired_number_of_X_points . "\n" );
         return $self->cached_sense_sweep_points(
             $self->hardwired_number_of_X_points );
     }
     if ( $self->capable_to_query_number_of_X_points_in_hardware ) {
-        carp(
-            "using hardware capabilities to detect number of points in a sweep\n"
-        );
+	#carp("using hardware capabilities to detect number of points in a sweep\n");
         return $self->sense_sweep_points_query(%args);
     }
-    carp("trying heuristic to detect number of points in a sweep\n");
+    #carp("trying heuristic to detect number of points in a sweep\n");
     return $self->cached_sense_sweep_points(
         $self->sense_sweep_points_from_traceY_query(%args) );
 }
