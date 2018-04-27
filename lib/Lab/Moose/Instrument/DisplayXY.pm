@@ -162,8 +162,6 @@ sub linspaced_array {
 
 Return Y points of a given trace in a 1D PDL:
 
-This implementation is SCPI friendly.
-
 =over
 
 =item B<timeout>
