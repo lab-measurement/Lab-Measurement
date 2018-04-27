@@ -276,11 +276,13 @@ sub display_trace_data {
 	$plot_function='replot';
     }
 
-    my $data=$traceXY;
-    if ( $traceXY(0,0) == $traceXY(-1,0) ) {
+    my $x = $traceXY(:,0);
+    my $y = $traceXY(:,1);
+    if ( $x(0,0) == $x(-1,0) ) {
         # zero span
-	$data=[$traceXY(:,1)]; # only Y values
+	$x = PDL::Basic::xvals($x); # replacing X with its indexes
     }
+    my @data = [$x, $y];
 
     my %plot_options = (
 	    xlab => $self->get_xlabel_based_on_traceXY(traceXY=>$traceXY, %args),
@@ -294,7 +296,7 @@ sub display_trace_data {
     $plotXY->$plot_function(
 	    plot_options => \%plot_options, 
 	    curve_options => \%curve_options, 
-	    data => $data,
+	    data => @data,
     );
     return $traceXY;
 }
