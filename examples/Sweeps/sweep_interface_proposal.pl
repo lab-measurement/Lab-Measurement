@@ -1,4 +1,7 @@
 #!/usr/bin/env perl
+#PODNAME: sweep_interface_proposal.pl
+#ABSTRACT: Example for sweeps
+
 use Lab::Moose;
 
 my $inst1 = instrument( type => 'DummySource', connection_type => 'Debug' );

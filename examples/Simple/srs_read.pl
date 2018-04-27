@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #DistZilla: +PodWeaver
-#PODNAME: Lab::Measurement::Examples::Simple::srs_read
+#PODNAME: srs_read.pl
 #ABSTRACT: Read out SR830 lock-in amplifier
 
 use 5.010;
