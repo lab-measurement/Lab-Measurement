@@ -540,7 +540,8 @@ sub add_plot {
     $args{terminal_options}
         = { %default_terminal_options, %{ $args{terminal_options} } };
 
-    my %default_hard_copy_terminal_options = ( enhanced => 1 );
+    # Set enhanced to 0: png terminal needs to draw underscores in title
+    my %default_hard_copy_terminal_options = ( enhanced => 0 );
     $hard_copy_terminal_options = {
         %default_hard_copy_terminal_options,
         %{$hard_copy_terminal_options}
