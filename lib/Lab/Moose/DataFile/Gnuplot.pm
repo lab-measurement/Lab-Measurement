@@ -213,11 +213,12 @@ log the returned PDL prefixed with the sweep voltage.
 
 sub log_block {
     my $self = shift;
-    my ( $prefix, $block, $add_newline ) = validated_list(
+    my ( $prefix, $block, $add_newline, $refresh_plots ) = validated_list(
         \@_,
-        prefix      => { isa => 'HashRef[Num]', optional => 1 },
-        block       => {},
-        add_newline => { isa => 'Bool',         default  => 0 }
+        prefix        => { isa => 'HashRef[Num]', optional => 1 },
+        block         => {},
+        add_newline   => { isa => 'Bool',         default  => 0 },
+        refresh_plots => { isa => 'Bool',         default  => 0 },
     );
 
     $block = topdl($block);
@@ -264,6 +265,10 @@ sub log_block {
 
     if ($add_newline) {
         $self->new_block();
+    }
+    elsif ($refresh_plots) {
+        $self->refresh_plots( refresh => 'block' );
+        $self->refresh_plots( refresh => 'point' );
     }
 }
 
