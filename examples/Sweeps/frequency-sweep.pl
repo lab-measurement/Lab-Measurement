@@ -1,4 +1,7 @@
 #!/usr/bin/env perl
+#PODNAME: frequency-sweep.pl
+#ABSTRACT: Sweep a R&S SMB rf generator
+
 use 5.010;
 use warnings;
 use strict;

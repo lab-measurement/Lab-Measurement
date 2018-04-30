@@ -6,6 +6,8 @@ package Lab::Moose::Sweep;
 
 =head1 DESCRIPTION
 
+The Sweep interface is documented in L<Lab::Measurement::Tutorial>.
+
 =cut
 
 use 5.010;
@@ -174,7 +176,8 @@ sub start {
 
         # might allow point_dim = 2 in the future.
         point_dim => { isa => enum( [qw/1 0/] ), default => 0 },
-        folder => { isa => 'Str|Lab::Moose::DataFolder', optional => 1 },
+        folder      => { isa => 'Str|Lab::Moose::DataFolder', optional => 1 },
+        date_prefix => { isa => 'Bool',                       default  => 0 },
     );
 
     my $slaves          = _parse_slave_arg(%args);
@@ -183,6 +186,7 @@ sub start {
     my $datafile_dim    = $args{datafile_dim};
     my $point_dim       = $args{point_dim};
     my $folder          = $args{folder};
+    my $date_prefix     = $args{date_prefix};
 
     $self->_ensure_no_slave();
 
@@ -258,11 +262,14 @@ sub start {
             $datafolder = $folder;
         }
         else {
-            $datafolder = Lab::Moose::datafolder( path => $folder );
+            $datafolder = Lab::Moose::datafolder(
+                path        => $folder,
+                date_prefix => $date_prefix
+            );
         }
     }
     else {
-        $datafolder = Lab::Moose::datafolder();
+        $datafolder = Lab::Moose::datafolder( date_prefix => $date_prefix );
     }
 
     $self->_foldername( $datafolder->path() );

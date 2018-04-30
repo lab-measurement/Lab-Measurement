@@ -1,4 +1,7 @@
 #!/usr/bin/env perl
+#PODNAME: voltage-sweep.pl
+#ABSTRACT: Sweep a Yokogawa GS200 voltage source
+
 use 5.010;
 use warnings;
 use strict;

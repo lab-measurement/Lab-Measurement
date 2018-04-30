@@ -382,6 +382,20 @@ the C<start> method:
 
 This will create output folders with names F<IV_curve_xxx>.
 
+Setting the C<date_prefix> attribute to C<1> will prefix the folder name with
+the date:
+
+ $sweep->start(
+     measurement => $meas,
+     datafile    => $datafile,
+     folder      => 'IV_curve',
+     date_prefix => 1
+ );
+
+This will create output folders with names F<YYYY-MM-DD_IV_curve_xxx>. The
+exact timestamp with second precision can always be found in F<META.yml>.
+
+
 =head2 Multiple datafiles
 
 The following example creates multiple data files:
@@ -691,6 +705,14 @@ point.
 Without the C<< point_dim => 1 >> setting, only one datafile would be
 generated. One could also log all blocks into a single 2D datafile by setting
 C<< datafile_dim => 2 >>.
+
+=head3 log_block with single-point sweeps
+
+Assume that we use the VNA to measure transmission at a single fixed
+frequency. In this case C<sparam_sweep> returns a 2D PDL where the first
+dimension has length one. One can still use C<log_block> for logging. By
+default C<log_block> does not trigger a refresh of live plots. This can be
+changed by adding C<< refresh_plots => 1 >> to the C<log_block> arguments.
 
 
 =head2 Continuous sweeps

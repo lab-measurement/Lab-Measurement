@@ -213,11 +213,12 @@ log the returned PDL prefixed with the sweep voltage.
 
 sub log_block {
     my $self = shift;
-    my ( $prefix, $block, $add_newline ) = validated_list(
+    my ( $prefix, $block, $add_newline, $refresh_plots ) = validated_list(
         \@_,
-        prefix      => { isa => 'HashRef[Num]', optional => 1 },
-        block       => {},
-        add_newline => { isa => 'Bool',         default  => 0 }
+        prefix        => { isa => 'HashRef[Num]', optional => 1 },
+        block         => {},
+        add_newline   => { isa => 'Bool',         default  => 0 },
+        refresh_plots => { isa => 'Bool',         default  => 0 },
     );
 
     $block = topdl($block);
@@ -264,6 +265,10 @@ sub log_block {
 
     if ($add_newline) {
         $self->new_block();
+    }
+    elsif ($refresh_plots) {
+        $self->refresh_plots( refresh => 'block' );
+        $self->refresh_plots( refresh => 'point' );
     }
 }
 
@@ -540,7 +545,8 @@ sub add_plot {
     $args{terminal_options}
         = { %default_terminal_options, %{ $args{terminal_options} } };
 
-    my %default_hard_copy_terminal_options = ( enhanced => 1 );
+    # Set enhanced to 0: png terminal needs to draw underscores in title
+    my %default_hard_copy_terminal_options = ( enhanced => 0 );
     $hard_copy_terminal_options = {
         %default_hard_copy_terminal_options,
         %{$hard_copy_terminal_options}
