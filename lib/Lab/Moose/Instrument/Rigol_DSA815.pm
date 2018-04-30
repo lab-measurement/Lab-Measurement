@@ -50,6 +50,7 @@ sub BUILD {
 
     $self->clear();
     $self->cls();
+    sleep 1; # for Rigol Spectrum Analyzer we need to wait otherwise instrument is not ready
 }
 
 =head1 Driver for Rigol DSA800 series spectrum analyzers
