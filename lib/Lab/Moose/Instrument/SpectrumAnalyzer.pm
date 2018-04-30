@@ -7,7 +7,6 @@ use 5.010;
 use PDL::Core qw/pdl cat nelem/;
 
 use Carp;
-use Switch;
 use Data::Dumper;
 use Moose::Role;
 use MooseX::Params::Validate;
@@ -272,12 +271,10 @@ sub get_UnitX {
 sub get_NameY {
     my ( $self, %args ) = @_;
     my $name;
-    my $unit = $self->get_UnitY(%args);
-    switch ($unit) {
-        case qr/dbm|w/i       { $name = 'Power'; }
-        case qr/dbmv|dbuv|w/i { $name = 'Amplitude'; }
-        else { $name = 'Unknown'; carp( "Unknow Y unit " . $unit ); }
-    }
+    my $unitY = $self->get_UnitY(%args);
+    if ( $unitY =~ qr/dbm|w/i ) { $name = 'Power'; }
+    elsif ( $unitY =~ qr/dbmv|dbuv|w/i ) { $name = 'Amplitude'; }
+    else { $name = 'Unknown'; carp( "Unknow Y unit " . $unitY ); }
     return $name;
 }
 
