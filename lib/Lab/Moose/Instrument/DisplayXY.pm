@@ -59,6 +59,27 @@ has ylabel => (
     predicate => 'has_ylabel'
 );
 
+has datafolder => (
+    is        => 'rw',
+    isa       => 'Lab::Moose::DataFolder',
+    init_arg  => undef,
+    predicate => 'has_datafolder'
+);
+
+has filename => (
+    is        => 'rw',
+    isa       => 'Str',
+    init_arg  => undef,
+    predicate => 'has_filename'
+);
+
+has datafile => (
+    is        => 'rw',
+    isa       => 'Lab::Moose::DataFile',
+    init_arg  => undef,
+    predicate => 'has_datafile'
+);
+
 =pod
 
 =encoding UTF-8
@@ -392,15 +413,30 @@ sub log_traces {
     my @columns    = $self->get_NameX(%args);
     push @columns, ( map $self->trace_num_to_name( trace => $_ ), @traces );
 
-    my $folder   = datafolder();
-    my $datafile = datafile(
-        type     => 'Gnuplot',
-        folder   => $folder,
-        filename => 'data.dat',
-        columns  => [@columns]
-    );
+    if ( not $self->has_datafolder() ) {
+        $self->datafolder( datafolder() );
+    }
+    my $datafolder = $self->datafolder();
+
+    if ( not $self->has_filename() ) {
+	    $self->filename('data.dat');
+    }
+    my $filename = $self->filename();
+
+    if ( not $self->has_datafile() ) {
+	    $self->datafile( datafile(
+			    type     => 'Gnuplot',
+			    folder   => $datafolder,
+			    filename => $filename,
+			    columns  => [@columns]
+		    )
+	    );
+    }
+    my $datafile = $self->datafile();
+
     my $header = $self->get_log_header(%args);
     $datafile->log_comment( comment => $header );
+
     $datafile->log_block(
         block => $all_traces,
     );
