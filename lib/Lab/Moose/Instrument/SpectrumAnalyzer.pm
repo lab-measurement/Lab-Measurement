@@ -7,7 +7,7 @@ use 5.010;
 use PDL::Core qw/pdl cat nelem/;
 
 use Carp;
-use Data::Dumper;
+use POSIX 'strftime';
 use Moose::Role;
 use MooseX::Params::Validate;
 use Lab::Moose::Instrument qw/
@@ -289,6 +289,8 @@ sub get_UnitY {
 sub get_log_header {
     my ( $self, %args ) = @_;
     my %header;
+    $header{Id}        = $self->idn(%args);
+    $header{date}      = strftime( '%Y-%m-%dT%H:%M:%S', localtime() );
     $header{VBW}       = $self->sense_bandwidth_video_query(%args);
     $header{RBW}       = $self->sense_bandwidth_resolution_query(%args);
     $header{SweepTime} = $self->sense_sweep_time_query(%args);
@@ -297,7 +299,13 @@ sub get_log_header {
     $header{NameY}     = $self->get_NameY(%args);
     $header{UnitY}     = $self->get_UnitY(%args);
 
-    return %header;
+    my @header_names = qw/Id date VBW RBW SweepTime NameX UnitX NameY UnitY/;
+    my $header_str='';
+    for my $name (@header_names) {
+        $header_str .= "$name = $header{$name}\n";
+    }
+
+    return $header_str;
 }
 
 =head1 Required hardware dependent methods

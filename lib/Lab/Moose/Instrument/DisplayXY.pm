@@ -9,7 +9,6 @@ use PDL::NiceSlice;
 use PDL::Graphics::Gnuplot;
 
 use Carp;
-use Data::Dumper;
 use Moose::Role;
 use Lab::Moose;
 use Lab::Moose::Plot;
@@ -400,9 +399,8 @@ sub log_traces {
         filename => 'data.dat',
         columns  => [@columns]
     );
-    my %header = $self->get_log_header(%args);
-    $Data::Dumper::Terse = 1;
-    $datafile->log_comment( comment => Dumper( \%header ) );
+    my $header = $self->get_log_header(%args);
+    $datafile->log_comment( comment => $header );
     $datafile->log_block(
         block => $all_traces,
     );
