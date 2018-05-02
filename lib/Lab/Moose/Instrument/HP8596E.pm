@@ -4,7 +4,7 @@ package Lab::Moose::Instrument::HP8596E;
 
 use 5.010;
 
-use PDL::Core qw/pdl cat/;
+use PDL::Core qw/pdl cat nelem/;
 
 use Moose;
 use Moose::Util::TypeConstraints;
@@ -13,8 +13,10 @@ use Lab::Moose::Instrument qw/
     timeout_param
     precision_param
     validated_getter
+    validated_setter
     validated_channel_getter
     validated_channel_setter
+    validated_no_param_setter
     /;
 use Lab::Moose::Instrument::Cache;
 use Carp;
@@ -22,26 +24,62 @@ use namespace::autoclean;
 
 extends 'Lab::Moose::Instrument';
 
-with qw(
+with 'Lab::Moose::Instrument::SpectrumAnalyzer', qw(
+    Lab::Moose::Instrument::Common
+
+    Lab::Moose::Instrument::SCPI::Format
+
+    Lab::Moose::Instrument::SCPI::Sense::Bandwidth
     Lab::Moose::Instrument::SCPI::Sense::Frequency
     Lab::Moose::Instrument::SCPI::Sense::Sweep
-    Lab::Moose::Instrument::SCPI::Sense::Bandwidth
     Lab::Moose::Instrument::SCPI::Display::Window
     Lab::Moose::Instrument::SCPI::Unit
+
+    Lab::Moose::Instrument::SCPI::Initiate
+
+    Lab::Moose::Instrument::SCPIBlock
+
 );
-
-#    Lab::Moose::Instrument::Common
-#    Lab::Moose::Instrument::SCPI::Format
-
-#    Lab::Moose::Instrument::SCPI::Initiate
-
-#    Lab::Moose::Instrument::SCPIBlock
 
 sub BUILD {
     my $self = shift;
 
-    #    $self->clear();
-    #    $self->cls();
+    # limitation of hardware
+    $self->capable_to_query_number_of_X_points_in_hardware(0);
+    $self->capable_to_set_number_of_X_points_in_hardware(0);
+    $self->hardwired_number_of_X_points(401);
+
+    #$self->clear();
+    $self->cls();
+}
+
+=head1 Driver for HP8596E series spectrum analyzers
+
+=head1 METHODS
+
+=head2 validate_trace_param
+
+Validates or applies hardware friendly  aliases to trace parameter.
+Trace has to be in (1..3).
+
+=cut
+
+sub validate_trace_param {
+    my ( $self, $trace ) = @_;
+    if ( $trace < 1 || $trace > 3 ) {
+        confess "trace has to be in (1..3)";
+    }
+    # convert trace number to name 1->A, 2->B, ...
+    if ( $trace == 1 ) {
+        $trace = 'A';
+    }
+    elsif ( $trace == 2 ) {
+        $trace = 'B';
+    }
+    elsif ( $trace == 3 ) {
+        $trace = 'C';
+    }
+    return $trace;
 }
 
 ##### This device predates creation of SCPI commands (introduced in 1999), so we fake them
@@ -50,6 +88,12 @@ sub idn {
     my ( $self, %args ) = validated_getter( \@_ );
     return $self->query( command => '*ID?', %args );
 }
+
+sub cls {
+    my ( $self, %args ) = validated_no_param_setter( \@_ );
+    return $self->write( command => 'CLS', %args );
+}
+
 
 ### Sense:Frequency emulation
 sub sense_frequency_start_query {
@@ -86,17 +130,26 @@ sub sense_frequency_stop {
 
 ### Sense:Sweep:Points emulation
 
-sub sense_sweep_points_query {
-    my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
+=head1 Missing SCPI functionality
 
-    return $self->cached_sense_sweep_points(401);    # hard wired
+HP8596E has no Sense:Sweep:Points implementation
+
+=head2 sense_sweep_points_query
+
+=head2 sense_sweep_points
+
+=cut
+
+sub sense_sweep_points_query {
+    confess(
+        "sub sense_sweep_points_query is not implemented by hardware, we should not be here"
+    );
 }
 
 sub sense_sweep_points {
-    my ( $self, $channel, $value, %args ) = validated_channel_setter( \@_ );
-
-    $value = 401;                                   #hardwired
-    $self->cached_sense_sweep_points($value);
+    confess(
+        "sub sense_sweep_points is not implemented by hardware, we should not be here"
+    );
 }
 
 ### Sense:Sweep:Count  emulation
@@ -207,29 +260,20 @@ sub unit_power {
 }
 
 ### Trace/Data emulation
-sub get_spectrum {
+sub get_traceY {
+    # grab what is on display for a given trace
     my ( $self, %args ) = validated_hash(
         \@_,
         timeout_param(),
+        precision_param(),
         trace => { isa => 'Int', default => 1 },
     );
 
-    my $trace = delete $args{trace};
+    my $precision = delete $args{precision};
+    my $trace     = delete $args{trace};
 
-    if ( $trace < 1 || $trace > 3 ) {
-        croak "trace has to be in (1..3)";
-    }
+    $trace = $self->validate_trace_param($trace);
 
-    # convert trace number to name 1->A, 2->B, ...
-    if ( $trace == 1 ) {
-        $trace = 'A';
-    }
-    elsif ( $trace == 2 ) {
-        $trace = 'B';
-    }
-    elsif ( $trace == 3 ) {
-        $trace = 'C';
-    }
 
     # 'TDF P' switches output format to the human readable (ascii)
     # number representation. Numbers are separated by commas
@@ -239,9 +283,7 @@ sub get_spectrum {
     );
     my @dat = split( /,/, $reply );
 
-    my @freq_array = $self->sense_frequency_linear_array();
-
-    return cat( ( pdl @freq_array ), ( pdl @dat ) );
+    return pdl @dat;
 
 }
 
