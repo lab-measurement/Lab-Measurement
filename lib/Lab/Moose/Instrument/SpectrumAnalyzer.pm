@@ -288,20 +288,28 @@ sub get_UnitY {
     return $self->unit_power_query(%args);
 }
 
+sub get_loggable_state {
+    my ( $self, %args ) = @_;
+
+    my %state;
+    $state{Id}        = $self->idn(%args);
+    $state{date}      = strftime( '%Y-%m-%dT%H:%M:%S', localtime() );
+    $state{VBW}       = $self->sense_bandwidth_video_query(%args);
+    $state{RBW}       = $self->sense_bandwidth_resolution_query(%args);
+    $state{SweepTime} = $self->sense_sweep_time_query(%args);
+    $state{NameX}     = $self->get_NameX(%args);
+    $state{UnitX}     = $self->get_UnitX(%args);
+    $state{NameY}     = $self->get_NameY(%args);
+    $state{UnitY}     = $self->get_UnitY(%args);
+    $state{RefLevel}  = $self->display_window_trace_y_scale_rlevel_query(%args);
+    $state{InputAttenuation}  = $self->sense_power_rf_attenuation_query(%args);
+
+    return %state;
+}
+
 sub get_log_header {
     my ( $self, %args ) = @_;
-    my %header;
-    $header{Id}        = $self->idn(%args);
-    $header{date}      = strftime( '%Y-%m-%dT%H:%M:%S', localtime() );
-    $header{VBW}       = $self->sense_bandwidth_video_query(%args);
-    $header{RBW}       = $self->sense_bandwidth_resolution_query(%args);
-    $header{SweepTime} = $self->sense_sweep_time_query(%args);
-    $header{NameX}     = $self->get_NameX(%args);
-    $header{UnitX}     = $self->get_UnitX(%args);
-    $header{NameY}     = $self->get_NameY(%args);
-    $header{UnitY}     = $self->get_UnitY(%args);
-    $header{RefLevel}  = $self->display_window_trace_y_scale_rlevel_query(%args);
-    $header{InputAttenuation}  = $self->sense_power_rf_attenuation_query(%args);
+    my %state = $self->get_loggable_state(%args);
 
     my @header_names = qw/
         Id
@@ -318,10 +326,34 @@ sub get_log_header {
 	/;
     my $header_str='';
     for my $name (@header_names) {
-        $header_str .= "$name = $header{$name}\n";
+        $header_str .= "$name = $state{$name}\n";
     }
 
     return $header_str;
+}
+
+sub get_plot_title {
+    my ( $self, %args ) = @_;
+    my %state = $self->get_loggable_state(%args);
+
+    my @title_names = qw/
+	date
+       	VBW
+       	RBW
+       	SweepTime
+       	RefLevel
+       	InputAttenuation
+	/;
+    my $title_str;
+    my $separator=' ';
+    for my $name (@title_names) {
+        if ( defined $title_str ) {
+            $title_str .= "$separator";
+        }
+        $title_str .= "$name = $state{$name}";
+    }
+
+    return $title_str;
 }
 
 =head1 Required hardware dependent methods

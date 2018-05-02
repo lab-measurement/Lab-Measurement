@@ -34,6 +34,7 @@ requires qw(
     get_NameY
     get_UnitY
     get_log_header
+    get_plot_title
     display_trace
 );
 
@@ -285,8 +286,8 @@ Display a given trace data. C<traceXY> is 2D pdl with trace X and Y values
 
 sub display_trace_data {
     my ( $self, %args ) = @_;
-    my $trace   = $args{trace};
-    my $traceXY = $args{traceXY};
+    my $trace   = delete $args{trace};
+    my $traceXY = delete $args{traceXY};
 
     if ( !$self->has_plotXY ) {
         my $plotXY = Lab::Moose::Plot->new();
@@ -314,6 +315,7 @@ sub display_trace_data {
         xlab =>
             $self->get_xlabel_based_on_traceXY( traceXY => $traceXY, %args ),
         ylab => $self->get_ylabel(%args),
+	title => $self->get_plot_title(%args),
     );
 
     my %curve_options = (
