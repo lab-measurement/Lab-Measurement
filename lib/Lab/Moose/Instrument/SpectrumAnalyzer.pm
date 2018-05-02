@@ -298,8 +298,9 @@ sub get_log_header {
     $header{UnitX}     = $self->get_UnitX(%args);
     $header{NameY}     = $self->get_NameY(%args);
     $header{UnitY}     = $self->get_UnitY(%args);
+    $header{RefLevel}     = $self->display_window_trace_y_scale_rlevel_query(%args);
 
-    my @header_names = qw/Id date VBW RBW SweepTime NameX UnitX NameY UnitY/;
+    my @header_names = qw/Id date VBW RBW SweepTime NameX UnitX NameY UnitY RefLevel/;
     my $header_str='';
     for my $name (@header_names) {
         $header_str .= "$name = $header{$name}\n";
