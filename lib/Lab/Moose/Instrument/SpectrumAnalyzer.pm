@@ -40,6 +40,8 @@ requires qw(
     display_window_trace_y_scale_rlevel
     unit_power_query
     unit_power
+    sense_power_rf_attenuation_query
+    sense_power_rf_attenuation
     validate_trace_param
 );
 
@@ -298,9 +300,22 @@ sub get_log_header {
     $header{UnitX}     = $self->get_UnitX(%args);
     $header{NameY}     = $self->get_NameY(%args);
     $header{UnitY}     = $self->get_UnitY(%args);
-    $header{RefLevel}     = $self->display_window_trace_y_scale_rlevel_query(%args);
+    $header{RefLevel}  = $self->display_window_trace_y_scale_rlevel_query(%args);
+    $header{InputAttenuation}  = $self->sense_power_rf_attenuation_query(%args);
 
-    my @header_names = qw/Id date VBW RBW SweepTime NameX UnitX NameY UnitY RefLevel/;
+    my @header_names = qw/
+        Id
+	date
+       	VBW
+       	RBW
+       	SweepTime
+       	NameX
+       	UnitX
+       	NameY
+       	UnitY
+       	RefLevel
+       	InputAttenuation
+	/;
     my $header_str='';
     for my $name (@header_names) {
         $header_str .= "$name = $header{$name}\n";

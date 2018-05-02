@@ -32,6 +32,7 @@ with 'Lab::Moose::Instrument::SpectrumAnalyzer', qw(
     Lab::Moose::Instrument::SCPI::Sense::Bandwidth
     Lab::Moose::Instrument::SCPI::Sense::Frequency
     Lab::Moose::Instrument::SCPI::Sense::Sweep
+    Lab::Moose::Instrument::SCPI::Sense::Power
     Lab::Moose::Instrument::SCPI::Display::Window
     Lab::Moose::Instrument::SCPI::Unit
 
@@ -126,6 +127,22 @@ sub sense_frequency_stop {
         %args
     );
     $self->cached_sense_frequency_stop($value);
+}
+
+### Sense:Power emulation
+
+sub sense_power_rf_attenuation_query {
+    my ( $self, %args ) = validated_getter( \@_ );
+
+    return $self->cached_sense_power_rf_attenuation(
+        $self->query( command => "AT?", %args ) );
+}
+
+sub sense_power_rf_attenuation {
+    my ( $self, $value, %args ) = validated_setter( \@_ );
+
+    $self->write( command => "AT $value", %args );
+    $self->cached_sense_power_rf_attenuation($value);
 }
 
 ### Sense:Sweep:Points emulation

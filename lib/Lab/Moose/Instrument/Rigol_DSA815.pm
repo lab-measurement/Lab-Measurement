@@ -31,6 +31,7 @@ with 'Lab::Moose::Instrument::SpectrumAnalyzer', qw(
     Lab::Moose::Instrument::SCPI::Sense::Bandwidth
     Lab::Moose::Instrument::SCPI::Sense::Frequency
     Lab::Moose::Instrument::SCPI::Sense::Sweep
+    Lab::Moose::Instrument::SCPI::Sense::Power
     Lab::Moose::Instrument::SCPI::Display::Window
     Lab::Moose::Instrument::SCPI::Unit
 
