@@ -155,7 +155,8 @@ sub BUILD {
 # Cannot simply put 'isa => 'PDL|ArrayRef[Num]'. See
 # http://stackoverflow.com/questions/5196294/why-can-i-use-a-class-name-as-a-moose-type-but-not-when-part-of-a-type-union
 
-union 'Lab::Moose::Plot::DataArg', [ class_type('PDL'), 'ArrayRef[Num]' ];
+union 'Lab::Moose::Plot::DataArg',
+    [ class_type('PDL'), 'ArrayRef[Num]', 'HashRef' ];
 
 sub _parse_options {
     my $self = shift;
