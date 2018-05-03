@@ -314,8 +314,8 @@ sub display_trace_data {
     my %plot_options = (
         xlab =>
             $self->get_xlabel_based_on_traceXY( traceXY => $traceXY, %args ),
-        ylab => $self->get_ylabel(%args),
-	title => $self->get_plot_title(%args),
+        ylab  => $self->get_ylabel(%args),
+        title => $self->get_plot_title(%args),
     );
 
     my %curve_options = (
@@ -413,7 +413,8 @@ sub log_traces {
     my $all_traces = $self->get_traces_data(%args);
     my @traces     = @{ delete $args{traces} };       # arrays are tricky
     my @columns    = $self->get_NameX(%args);
-    push @columns, ( map $self->trace_num_to_name( trace => $_ ), @traces );
+    push @columns,
+        ( map { $self->trace_num_to_name( trace => $_ ) } @traces );
 
     if ( not $self->has_datafolder() ) {
         $self->datafolder( datafolder() );
@@ -421,18 +422,19 @@ sub log_traces {
     my $datafolder = $self->datafolder();
 
     if ( not $self->has_filename() ) {
-	    $self->filename('data.dat');
+        $self->filename('data.dat');
     }
     my $filename = $self->filename();
 
     if ( not $self->has_datafile() ) {
-	    $self->datafile( datafile(
-			    type     => 'Gnuplot',
-			    folder   => $datafolder,
-			    filename => $filename,
-			    columns  => [@columns]
-		    )
-	    );
+        $self->datafile(
+            datafile(
+                type     => 'Gnuplot',
+                folder   => $datafolder,
+                filename => $filename,
+                columns  => [@columns]
+            )
+        );
     }
     my $datafile = $self->datafile();
 
