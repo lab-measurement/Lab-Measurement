@@ -231,9 +231,9 @@ this:
 First thing, we need to run the test with the I<real> instrument, to create the
 connection log file F<t/Moose/Instrument/SR830.yml>:
 
-C<< $ perl -Ilib t/Moose/Instrument/SR830.t --connection=LinuxGPIB --connection_options='{pad: 1}'  >>
+C<< $ perl -Ilib t/Moose/Instrument/SR830.t --connection=LinuxGPIB --connection-options='{pad: 1}'  >>
 
-where the argument of C<--connection_options> is given as a YAML hash.
+where the argument of C<--connection-options> is given as a YAML hash.
 
 You can always print a help screen of command line options supported by the
 test:
