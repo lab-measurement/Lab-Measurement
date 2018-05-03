@@ -3,7 +3,7 @@ package Lab::Moose::Instrument::SCPI::Unit;
 #ABSTRACT: Role for SCPI UNIT subsystem.
 
 use Moose::Role;
-use Lab::Moose::Instrument qw/setter_params getter_params validated_getter/;
+use Lab::Moose::Instrument qw/setter_params getter_params validated_channel_setter validated_getter/;
 use Lab::Moose::Instrument::Cache;
 use MooseX::Params::Validate;
 use Carp;
