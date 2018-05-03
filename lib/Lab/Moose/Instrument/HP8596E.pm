@@ -227,7 +227,7 @@ sub sense_bandwidth_video {
 
 sub sense_sweep_time_query {
     my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
-    return $self->cached_sense_sweep_count(
+    return $self->cached_sense_sweep_time(
         $self->query( command => "ST?", %args ) );
 }
 
@@ -235,7 +235,7 @@ sub sense_sweep_time {
     my ( $self, $channel, $value, %args ) = validated_channel_setter( \@_ );
 
     $self->write( command => "ST $value", %args );
-    $self->cached_sense_sweep_count($value);
+    $self->cached_sense_sweep_time($value);
 }
 
 ### Display:Window:Trace:Y:Scale:Rlevel
