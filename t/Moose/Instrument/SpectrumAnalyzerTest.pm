@@ -31,7 +31,7 @@ sub test_spectrum_analyzer {
 	sense_bandwidth_video               => [1e3, 1e4, 1e5],
 	sense_sweep_time                    => [.1, .4, .8],
 	display_window_trace_y_scale_rlevel => [-30, -10, -20],
-	sense_power_rf_attenuation          => [10, 5, 0],
+	sense_power_rf_attenuation          => [20, 10, 0],
     );
     # sort below to ensure the same keys order, which is undefined in a hash by default
     for my $func (sort keys %scpi_functions) {
@@ -43,15 +43,13 @@ sub test_spectrum_analyzer {
 	);
     }
 
-    SKIP: {
-	skip "HP power unit is tricky with units switches" if $s->isa('Lab::Moose::Instrument::HP8596E');
-        scpi_set_get_test(
-            instr => $s,
+    # non numeric results
+    scpi_set_get_test(
+	    instr => $s,
 	    func => 'unit_power',
 	    values => ['DBMV', 'V',  'DBM'],
 	    is_numeric => 0
-	);
-    }
+    );
 
     SKIP: {
 	my $cond = $s->capable_to_query_number_of_X_points_in_hardware() 
