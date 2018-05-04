@@ -261,6 +261,40 @@ File comparison, including basic filtering options.
 
 =back
 
+=head2 git pre-commit hook: run tests for each commit
+
+The file F<xt/pre-commit.pl> provides a L<git
+pre-commit hook|https://git-scm.com/book/uz/v2/Customizing-Git-Git-Hooks>.
+
+The hook is enabled by creating a link to F<.git/hooks/pre-commit>:
+
+ ln -s xt/pre-commit.pl .git/hooks/pre-commit
+
+The hook performs the following actions before a commit is finished:
+
+=over
+
+=item *
+
+Run perltidy with our configuration F<perltityrc> on all changed files.
+
+=item * 
+
+Run all tests in F<t/> with B<prove>.
+
+=item *
+
+Run Perl::Critic tests in F<xt/critic>.
+
+=item *
+
+Run F<xt/pod-manual-coverage.t>, which ensures that
+L<Lab::Measurement::Manual> contains links to all modules in the distribution.
+
+=back
+
+If a tests fails, the commit is stopped.
+
 =head2 Roles for SCPI instruments
 
 TODO
