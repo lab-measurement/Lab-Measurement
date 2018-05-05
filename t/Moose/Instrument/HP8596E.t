@@ -16,6 +16,15 @@ use MooseX::Params::Validate;
 use Moose::Instrument::SpectrumAnalyzerTest qw/test_spectrum_analyzer/;
 
 use File::Spec::Functions 'catfile';
+use Module::Load 'autoload';
+
+eval {
+    autoload 'PDL::Graphics::Gnuplot';
+    1;
+} or do {
+    plan skip_all => "test requires PDL::Graphics::Gnuplot";
+};
+
 my $log_file = catfile(qw/t Moose Instrument HP8596E.yml/);
 
 my $inst = mock_instrument(
@@ -25,7 +34,10 @@ my $inst = mock_instrument(
 
 isa_ok( $inst, 'Lab::Moose::Instrument::HP8596E' );
 
-is_absolute_error( $inst->get_Xpoints_number(), 401, .01, "built-in number of points in a trace");
+is_absolute_error(
+    $inst->get_Xpoints_number(), 401, .01,
+    "built-in number of points in a trace"
+);
 
 # generic tests for any Spectrum analyzer.
 test_spectrum_analyzer( SpectrumAnalyzer => $inst );

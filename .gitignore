@@ -15,3 +15,4 @@ nytprof*
 *.patch
 /Homepage/
 /gendocs.pl
+*.pm.bak
