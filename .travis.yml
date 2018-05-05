@@ -8,7 +8,7 @@ addons:
 language: perl
 
 env:
-  gp_version=5.0.1
+  gp_version=5.0.1 with_pdl_graphics_gnuplot=1
   
 perl:
     - "5.26"
@@ -22,7 +22,9 @@ perl:
 matrix:
   include:
     - perl: 5.24
-      env: gp_version=5.0.5
+      env: gp_version=5.0.5 with_pdl_graphics_gnuplot=1
+    - perl: 5.24
+      env: gp_version=5.0.1 with_pdl_graphics_gnuplot=
 
 before_install:
   # Prevent "Please tell me who you are" errors for certain DZIL configs
@@ -49,7 +51,7 @@ install:
 
   # install dependencies
   - travis_wait dzil listdeps --missing --cpanm | grep -vP '[^\w:~"\.]' | xargs cpanm  --notest
-  - cpanm --verbose -f PDL::Graphics::Gnuplot
+  - if [ $with_pdl_graphics_gnuplot ]; then cpanm --verbose -f PDL::Graphics::Gnuplot; fi
   - cpanm -n Test::Perl::Critic
 
 script:
