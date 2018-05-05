@@ -4,6 +4,10 @@ History for the Lab-Measurement Perl distribution
 This document is work in progress (in the sense of adding
 historical information).
 
+3.641 2018-05-05
+
+  * When PDL::Graphics::Gnuplot is not installed, skip tests that need it
+
 3.640 2018-05-04
 
   * Add SpectrumAnalyzer role
