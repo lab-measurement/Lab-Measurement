@@ -49,7 +49,7 @@ sub _build_setter {
 
 sub _getter {
     my $self = shift;
-    return $self->get_T();
+    return $self->instrument()->get_T();
 }
 
 sub _temp_setter {

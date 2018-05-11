@@ -1,6 +1,6 @@
 package Lab::Moose::Instrument::OI_Triton;
 
-#ABSTRACT: Oxford Instruments Mercury Cryocontrol magnet power supply
+#ABSTRACT: Oxford Instruments Triton temperature control
 
 use 5.010;
 use Moose;
@@ -27,8 +27,7 @@ around default_connection_options => sub {
     my $self    = shift;
     my $options = $self->$orig();
 
-    #  TODO: insert port
-    #    $options->{Socket}{port}    = 7020;
+    $options->{Socket}{port}    = 33576;
     $options->{Socket}{timeout} = 10;
     return $options;
 };
@@ -39,12 +38,22 @@ with 'Lab::Moose::Instrument::OI_Common';
 
  use Lab::Moose;
 
+ my $oi_triton = instrument(
+     type => 'OI_Triton',
+     connection_type => 'Socket',
+     connection_options => {host => 'xxx.xxx.xxx.xxx'},
+ );
+
+ my $temp = $oi_triton->get_T();
+ 
 
 =head1 METHODS
 
 =cut
 
 =head2 get_temperature
+
+ $temp = $oi_triton->get_temperature(channel => 1);
 
 =cut
 
@@ -58,10 +67,25 @@ sub get_temperature {
     return $self->get_temperature_channel(%args);
 }
 
+=head2 get_T
+
+equivalent to
+
+ $oi_triton->get_temperature(channel => 5);
+
+=cut
+
 sub get_T {
     my ( $self, %args ) = validated_getter( \@_ );
     return $self->get_temperature( channel => 5, %args );
 }
+
+=head2 set_user
+
+ $oi_triton->set_user(value => 'NORM');
+ $oi_triton->set_user(value => 'GUEST');
+
+=cut
 
 sub set_user {
     my ( $self, $value, %args ) = validated_setter(
@@ -70,6 +94,20 @@ sub set_user {
     );
     return $self->oi_setter( cmd => "SET:SYS:USER", value => $value, %args );
 }
+
+=head2 enable_control/disable_control
+
+ $oi_triton->enable_control();
+ $oi_triton->disable_control();
+
+Equivalent to 
+
+ $oi_triton->set_user(value => 'NORM');
+ $oi_triton->set_user(value => 'GUEST');
+
+respectively.
+
+=cut
 
 sub enable_control {
     my ( $self, %args ) = validated_getter( \@_ );
@@ -80,6 +118,15 @@ sub disable_control {
     my ( $self, %args ) = validated_getter( \@_ );
     return $self->set_user( value => 'GUEST', %args );
 }
+
+=head2 set_temp_pid/enable_temp_pid/disable_temp_pid
+
+ $oi_triton->set_temp_pid(value => 'ON');
+ # or $oi_triton->enable_temp_pid();
+
+set PID control to 'ON' or 'OFF'.
+ 
+=cut
 
 sub set_temp_pid {
     my ( $self, $value, %args ) = validated_setter(
@@ -102,6 +149,14 @@ sub disable_temp_pid {
     return $self->set_temp_pid( value => 'OFF', %args );
 }
 
+=head2 set_max_current
+
+ $oi_triton->set_max_current(value => 0.005);
+
+Set heater current range (in Amperes).
+
+=cut
+
 sub set_max_current {
     my ( $self, $value, %args ) = validated_setter(
         \@_,
@@ -117,6 +172,7 @@ sub set_max_current {
     );
 }
 
+# low-level method. Use safer set_T in high-level code.
 sub t_set {
     my ( $self, $value, %args ) = validated_setter(
         \@_,
@@ -127,6 +183,14 @@ sub t_set {
         value => $value, %args
     );
 }
+
+=head2 set_T
+
+ $oi_triton->set_T(value => 0.1);
+
+Set temperature (in K).
+
+=cut
 
 sub set_T {
     my ( $self, $value, %args ) = validated_setter( \@_ );
@@ -153,6 +217,15 @@ sub set_T {
     $self->enable_temp_pid();
     return $self->t_set( value => $value );
 }
+
+=head2 get_P/set_P
+
+ my $power = $oi_triton->get_P();
+ $oi_triton->set_P(value => $power);
+
+Get/Set heater power.
+
+=cut
 
 sub get_P {
     my ( $self, %args ) = validated_getter( \@_ );
