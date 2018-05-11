@@ -8,7 +8,7 @@ addons:
 language: perl
 
 env:
-  gp_version=5.0.1 with_pdl_graphics_gnuplot=1
+  gp_version=5.0.5 with_pdl_graphics_gnuplot=1
   
 perl:
     - "5.26"
@@ -22,9 +22,7 @@ perl:
 matrix:
   include:
     - perl: 5.24
-      env: gp_version=5.0.5 with_pdl_graphics_gnuplot=1
-    - perl: 5.24
-      env: gp_version=5.0.1 with_pdl_graphics_gnuplot=
+      env: gp_version=5.0.5 with_pdl_graphics_gnuplot=0
 
 before_install:
   # Prevent "Please tell me who you are" errors for certain DZIL configs
