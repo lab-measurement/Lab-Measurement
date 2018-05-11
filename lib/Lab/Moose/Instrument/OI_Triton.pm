@@ -1,6 +1,6 @@
 package Lab::Moose::Instrument::OI_Triton;
 
-#ABSTRACT: Oxford Instruments Triton temperature control
+#ABSTRACT: Oxford Instruments Triton gas handling system control
 
 use 5.010;
 use Moose;
@@ -41,7 +41,7 @@ with qw(Lab::Moose::Instrument::OI_Common);
  my $oi_triton = instrument(
      type => 'OI_Triton',
      connection_type => 'Socket',
-     connection_options => {host => 'xxx.xxx.xxx.xxx'},
+     connection_options => {host => 'triton'},
  );
 
  my $temp = $oi_triton->get_T();
@@ -124,7 +124,7 @@ sub disable_control {
  $oi_triton->set_temp_pid(value => 'ON');
  # or $oi_triton->enable_temp_pid();
 
-set PID control to 'ON' or 'OFF'.
+Set PID control of the mixing chamber temperature to 'ON' or 'OFF'.
  
 =cut
 
@@ -153,7 +153,7 @@ sub disable_temp_pid {
 
  $current_range = $oi_triton->get_max_current();
  
-Return heater current range (in Amperes).
+Return the mixing chamber heater current range (in Amperes).
 
 =cut
 
@@ -168,7 +168,7 @@ sub get_max_current {
 
  $oi_triton->set_max_current(value => 0.005);
 
-Set heater current range (in Amperes).
+Set the mixing chamber heater current range (in Amperes).
 
 =cut
 
@@ -211,7 +211,9 @@ sub t_set {
 
  $oi_triton->set_T(value => 0.1);
 
-Set temperature (in K).
+Program the GHS to regulate the temperature towards a specific value (in K).
+The function returns immediately; this means that the target temperature most
+likely has not been reached yet.
 
 =cut
 
@@ -235,7 +237,10 @@ sub set_T {
         $self->set_max_current( value => 0.01 );
     }
 
-    # Why call t_set twice? (Taken from old Lab::Instrument code)
+    # Why call t_set twice?
+    # Because of very weird bugs in the OI GHS control software.
+    # If you don't do that you may end up with a setpoint different from
+    # what you really want... :/
     $self->t_set( value => $value );
     $self->enable_temp_pid();
     return $self->t_set( value => $value );
@@ -246,7 +251,9 @@ sub set_T {
  my $power = $oi_triton->get_P();
  $oi_triton->set_P(value => $power);
 
-Get/Set heater power (in micro Watts).
+Get/set the mixing chamber heater power (in micro Watts).
+
+Obviously this only makes sense while we're not in loop control mode.
 
 =cut
 

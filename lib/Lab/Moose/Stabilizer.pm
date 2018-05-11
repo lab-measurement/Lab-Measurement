@@ -25,18 +25,17 @@ Helper methods for sensor (temperature, magnetic field, ...) stabilization.
  $self->stabilize(
      setpoint => 10,
      getter => sub { ...; return $number},
-     tolerance_setpoint => 0.1, # allowed median
-     tolerance_std_dev => 0.1, # allowed standard deviation
-     measurement_interval => 2, # time between calling getter sub
-     observation_time => 20, # length of window for median/std_dev
-     max_stabilization_time => 100, # abort stabilization after 100 sec (optional)
+     tolerance_setpoint => 0.1,     # max. allowed median
+     tolerance_std_dev => 0.1,      # max. allowed standard deviation
+     measurement_interval => 2,     # time (s) between calls of getter
+     observation_time => 20,        # length of window (s) for median/std_dev
+     max_stabilization_time => 100, # abort stabilization after (s, optional)
      verbose => 1
  );
 
-Call the C<getter> method repeatedly. If enought points have been measured,
+Call the C<getter> method repeatedly. As soon as enough points have been measured,
 start calculating median and standard deviation and repeat until convergence.
-All times are given in seconds.
-Print status messages if C<verbose> is true.
+All times are given in seconds. Print status messages if C<verbose> is true.
 
 =cut
 

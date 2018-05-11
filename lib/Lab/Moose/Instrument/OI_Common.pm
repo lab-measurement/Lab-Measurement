@@ -1,17 +1,15 @@
 package Lab::Moose::Instrument::OI_Common;
 
-#ABSTRACT: Role for handling Oxfords Instruments common SCPI commands
+#ABSTRACT: Role for handling Oxfords Instruments pseudo-SCPI commands
 
 use Moose::Role;
 use MooseX::Params::Validate;
 use Lab::Moose::Instrument qw/validated_getter validated_setter/;
 
 use Carp;
-
 use namespace::autoclean;
 
 =head1 DESCRIPTION
-
 
 =head1 METHODS
 
@@ -19,7 +17,7 @@ use namespace::autoclean;
 
  $t = $m->get_temperature_channel(channel => 'MB1.T1');
 
-Read out the designated temperature channel. Result is in Kelvin.
+Read out the designated temperature channel. The result is in Kelvin.
 
 =cut
 

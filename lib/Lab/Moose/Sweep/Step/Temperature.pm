@@ -21,11 +21,11 @@ package Lab::Moose::Sweep::Step::Temperature;
 
 =head1 Description
 
-Step sweep of temperature. Set temperature with instrument's C<set_T> method.
+Step sweep of temperature. 
 
-Use L<Lab::Moose::Stabilizer> to wait until temperature has converged to
+Set the temperature with instrument's C<set_T> method; use 
+L<Lab::Moose::Stabilizer> to wait until temperature has converged to the
 setpoint.
-
 
 =cut
 

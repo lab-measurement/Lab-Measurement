@@ -1,6 +1,6 @@
 package Lab::Moose::Instrument::OI_Mercury::Magnet;
 
-#ABSTRACT: Oxford Instruments Mercury Cryocontrol magnet power supply
+#ABSTRACT: Oxford Instruments Mercury magnet power supply
 
 use 5.010;
 use Moose;
@@ -47,7 +47,7 @@ with 'Lab::Moose::Instrument::OI_Common';
      type => 'OI_Mercury::Magnet',
      connection_type => 'Socket',
      connection_options => {host => '192.168.3.15'},
-     magnet => 'X', # 'X', 'Y' or 'Z'. default is 'Z'
+     magnet => 'X',    # 'X', 'Y' or 'Z'. default is 'Z'
  );
 
  say "He level (%): ", $magnet->get_he_level();
@@ -102,7 +102,7 @@ In this case, we obtain for example:
    DEV:GRPY:PSU     |- a 3-axis magnet power supply unit
    DEV:GRPZ:PSU     |
    DEV:MB1.T1:TEMP  -- a temperature sensor
-   DEV:DB5.L1:LVL   -- a cryogen level sensor
+   DEV:DB5.L1:LVL   -- a cryoliquid level sensor
    
 In each of these blocks, the second component after "DEV:" is the UID of the device;
 it can be used in other commands such as get_level to address it.
@@ -136,7 +136,7 @@ sub get_temperature {
 
    $level = $m->get_he_level(channel => 'DB5.L1');
 
-Read out the designated liquid helium level meter channel. Result is in percent as calibrated.
+Read out the designated liquid helium level meter. Result is in percent as calibrated.
 
 =cut
 
@@ -158,7 +158,7 @@ sub get_he_level {
 
    $res = $m->get_he_level_resistance(channel => 'DB5.L1');
 
-Read out the designated liquid helium level meter channel. Result is the raw sensor resistance.
+Read out the designated liquid helium level meter. Result is the raw sensor resistance.
 
 =cut
 
@@ -180,7 +180,7 @@ sub get_he_level_resistance {
 
    $level = $m->get_n2_level(channel => 'DB5.L1');
 
-Read out the designated liquid nitrogen level meter channel. Result is in percent as calibrated.
+Read out the designated liquid nitrogen level meter. Result is in percent as calibrated.
 
 =cut
 
@@ -202,7 +202,7 @@ sub get_n2_level {
 
    $frq = $m->get_n2_level_frequency(channel => 'DB5.L1');
 
-Read out the designated liquid nitrogen level meter channel. Result is the raw internal frequency value.
+Read out the designated liquid nitrogen level meter. Result is the raw internal frequency value.
 
 =cut
 
@@ -268,7 +268,7 @@ sub validated_magnet_setter {
 
   $curr = $m->oim_get_current();
 
-Reads out the momentary current of the PSU in Ampere. Only Z for now. 
+Reads out the momentary current of the PSU in Ampere.
 
 TODO: what happens if we're in persistent mode?
 
