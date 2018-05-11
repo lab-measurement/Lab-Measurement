@@ -100,8 +100,8 @@ sub stabilize {
 
             if ($verbose) {
                 printf(
-                    "Value: %.6e, std_dev: %.6e, median: %.6e             ",
-                    $new_value, $std_dev, $median
+                    "Setpoint: %.6e, Value: %.6e, std_dev: %.6e, median: %.6e             ",
+                    $setpoint, $new_value, $std_dev, $median
                 );
             }
             if ( $crit_stddev and $crit_setpoint ) {
@@ -116,8 +116,8 @@ sub stabilize {
         else {
             if ($verbose) {
                 printf(
-                    "Value: %.6e, need more points...       \r",
-                    $new_value
+                    "Setpoint: %.6e, Value: %.6e, need more points...       \r",
+                    $setpoint, $new_value
                 );
             }
         }

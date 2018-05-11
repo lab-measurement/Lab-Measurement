@@ -32,7 +32,7 @@ around default_connection_options => sub {
     return $options;
 };
 
-with 'Lab::Moose::Instrument::OI_Common';
+with qw(Lab::Moose::Instrument::OI_Common);
 
 =head1 SYNOPSIS
 
@@ -149,6 +149,21 @@ sub disable_temp_pid {
     return $self->set_temp_pid( value => 'OFF', %args );
 }
 
+=head2 get_max_current
+
+ $current_range = $oi_triton->get_max_current();
+ 
+Return heater current range (in Amperes).
+
+=cut
+
+sub get_max_current {
+    my ($self, %args) = validated_getter(\@_);
+    my $range = $self->oi_getter(cmd => "READ:DEV:T5:TEMP:LOOP:RANGE", %args);
+    $range =~ s/mA$//;
+    return $range / 1000; # return Amps, not mA
+}
+
 =head2 set_max_current
 
  $oi_triton->set_max_current(value => 0.005);
@@ -170,6 +185,14 @@ sub set_max_current {
         cmd   => "SET:DEV:T5:TEMP:LOOP:RANGE",
         value => $value, %args
     );
+}
+
+
+sub t_get {
+    my ($self, %args) = validated_getter(\@_);
+    my $t = $self->oi_getter(cmd   => "READ:DEV:T5:TEMP:LOOP:TSET", %args);
+    $t =~ s/K$//;
+    return $t;
 }
 
 # low-level method. Use safer set_T in high-level code.
@@ -223,13 +246,15 @@ sub set_T {
  my $power = $oi_triton->get_P();
  $oi_triton->set_P(value => $power);
 
-Get/Set heater power.
+Get/Set heater power (in micro Watts).
 
 =cut
 
 sub get_P {
     my ( $self, %args ) = validated_getter( \@_ );
-    return $self->oi_getter( cmd => "READ:DEV:H1:HTR:SIG:POWR", %args );
+    my $power = $self->oi_getter( cmd => "READ:DEV:H1:HTR:SIG:POWR", %args );
+    $power =~ s/uW$//;
+    return $power;
 }
 
 sub set_P {

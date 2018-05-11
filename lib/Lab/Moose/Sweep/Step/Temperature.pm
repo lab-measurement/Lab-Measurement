@@ -34,6 +34,8 @@ use Moose;
 
 extends 'Lab::Moose::Sweep::Step';
 
+with 'Lab::Moose::Stabilizer';
+
 has filename_extension => ( is => 'ro', isa => 'Str', default => 'T=' );
 
 has setter => ( is => 'ro', isa => 'CodeRef', builder => '_build_setter' );
