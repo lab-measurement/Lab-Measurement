@@ -33,7 +33,7 @@ before_install:
 install:
   # Install gnuplot 5 for plot tests. (Not available on Ubuntu 12.04)
   - cd /tmp
-  - wget https://sourceforge.net/projects/gnuplot/files/gnuplot/$gp_version/gnuplot-$gp_version.tar.gz
+  - wget ftp://ftp.dante.de/pub/tex/graphics/gnuplot/$gp_version/gnuplot-$gp_version.tar.gz
   - tar -xf gnuplot-$gp_version.tar.gz
   - cd gnuplot-$gp_version
   - ./configure --prefix=$HOME/local
