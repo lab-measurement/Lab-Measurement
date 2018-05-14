@@ -43,8 +43,6 @@ folder structure.
 
 =over
 
-=item * L<Lab::Moose::Tutorial>
-
 =item * L<Lab::Moose::Developer>
 
 =back

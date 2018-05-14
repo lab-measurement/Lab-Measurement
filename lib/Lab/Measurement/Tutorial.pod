@@ -573,7 +573,18 @@ C<hard_copy> option:
      hard_copy => 'data.png',
  );
  
+The C<hard_copy> attribute is mandatory if you add multiple plots to one datafile.
 
+=head3 Multiple curves per plot
+
+We can draw multiple curves in a single plot window:
+
+ $datafile->add_plot(
+     curves => [{x => 'voltage', y => 'current1'}, {x => 'voltage', y =>
+     'current2'}],
+     hard_copy_ => 'data.png'
+ );
+     
 =head3 Color maps (3D plots)
 
 Let us add a color plot to the gate/bias 2D sweep:
