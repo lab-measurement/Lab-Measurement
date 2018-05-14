@@ -39,6 +39,10 @@ install:
   - make install
   - export PATH="$HOME/local/bin:$PATH"
   - gnuplot --version
+  # Sometimes Alien::Gnuplot does not find the installed gnuplot
+  # (but problem not reproducible, see
+  # https://travis-ci.org/lab-measurement/Lab-Measurement/jobs/378743671
+  - export GNUPLOT_BINARY=/home/travis/local/bin/gnuplot
 
   # Install the DZIL dependencies
   - cpanm  --notest --skip-satisfied Dist::Zilla
