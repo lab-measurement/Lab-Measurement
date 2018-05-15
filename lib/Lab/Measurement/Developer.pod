@@ -1,5 +1,5 @@
-#PODNAME: Lab::Moose::Developer
-#ABSTRACT: Lab::Moose developer tutorial
+#PODNAME: Lab::Measurement::Developer
+#ABSTRACT: Lab::Measurement developer tutorial
 
 =encoding utf8
 

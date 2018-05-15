@@ -35,15 +35,9 @@ folder structure.
 
 =item * L<Lab::Measurement::Backends>
 
+=item * L<Lab::Measurement::Developer>
+
 =item * L<Lab::Measurement::Developer::Testing>
-
-=back
-
-=head1 Lab::Moose
-
-=over
-
-=item * L<Lab::Moose::Developer>
 
 =back
 
@@ -327,11 +321,11 @@ alias: C<Lab::Moose::Connection::VISA_GPIB>
 =back
 
 
-=head1 Old Lab::Measurement API
+=head1 Legacy Lab::Measurement API
 
 =over
 
-=item * L<Lab::Measurement::OldTutorial>
+=item * L<Lab::Measurement::Legacy::Tutorial>
 
 =back
 

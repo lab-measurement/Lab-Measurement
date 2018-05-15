@@ -6,7 +6,6 @@ toc:
       - lib/Lab/Measurement/Installation.pod
       - lib/Lab/Measurement/Tutorial.pod
       - lib/Lab/Measurement/Backends.pod
-      - lib/Lab/Measurement/Developer/Write-A-Source-Driver.pod
       - lib/Lab/Moose/Developer.pod
       - lib/Lab/Measurement/Developer/Testing.pod
       - lib/Lab/Measurement/Manual.pod

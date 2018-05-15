@@ -1,5 +1,5 @@
 #DistZilla: +PodWeaver
-#PODNAME: Lab::Measurement::OldTutorial
+#PODNAME: Lab::Measurement::Legacy::Tutorial
 #ABSTRACT: Old Tutorial on using the historical/deprecated API of the Lab::Measurement package stack
 
 =pod
