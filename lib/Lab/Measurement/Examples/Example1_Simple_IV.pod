@@ -1,25 +1,26 @@
-#ABSTRACT: XPRESS for DUMMIES - Example 1
-#PODNAME: Lab::XPRESS::Examples::Example1_Simple_IV
+#ABSTRACT: Lab::Measurement for DUMMIES - Example 1
+#PODNAME: Lab::Measurement::Examples::Example1_Simple_IV
 
 =pod
 
-=encoding utf-8
-
 =head1 Abstract
 
-This is a simple, but fully functional Lab::Measurment script, which makes use
-of the XPRESS add-on.
-Its purpose as a measurement script is to record a single IV-curve. However it
-is also a step-by-step tutorial (for beginners) in writing a XPRESS-style
-Lab::Measurement script.
+This is a simple, but fully functional Lab::Measurement script, which makes use
+of the Moose high-level interface. Its purpose as a measurement script is to
+record a single IV-curve. However it is also a step-by-step tutorial (for
+beginners) in writing a Lab::Measurement script.
 
 =head1 Introduction 
 
-XPRESS is an add-on to Lab::Measurement, that serves several purposes: 
-make writing scripts easy and structured, improve the script readability, save keystrokes and implement a whole bunch of features, that probably would make your scripts really messy if you would have to do it by your own.
-In order to fulfill those goals, we chose a very modular approach, that enables you to interchange elements within a script, and by that creating a whole new measurement without writing everything from scratch.
+The high-level, Moose-based sweeps interface of Lab::Measurement serves several
+purposes: make writing scripts easy and structured, improve the script
+readability, save keystrokes and implement a whole bunch of features, that
+probably would make your scripts really messy if you would have to do it by your
+own. In order to fulfill those goals, we chose a very modular approach, that
+enables you to interchange elements within a script, and by that creating a
+whole new measurement without writing everything from scratch.
 
-There is a simple recipe for a XPRESS style measurment script:
+There is a simple recipe for a measurement script:
 
 	Ingredients:
 
@@ -34,238 +35,246 @@ It's really that easy! In the following we would like to show you how to obtain
 the ingredients and how to put everything in place, using the example of a
 simple IV-curve measurement:
 
- #-------- 0. Import Lab::Measurement -------
+ #-------- 0. Import Lab::Moose -------------
  
- use Lab::Measurement;
- 
+ use Lab::Moose;
+
  #-------- 1. Initialize Instruments --------
  
- my $voltage_source = Instrument(
-     'Yokogawa7651',
-     {
-         connection_type => 'VISA_GPIB',
-         gpib_address    => 3,
-         gate_protect    => 0
-     }
+ my $voltage_source = instrument(
+    type => 'YokogawaGS200',
+    connection_type => 'LinuxGPIB',
+    connection_options => {pad => 1},
+    max_units_per_step => 0.002,
+    max_units_per_second => 0.1,
+    min_units => -10,
+    max_units => 10,
  );
  
- my $multimeter = Instrument(
-     'Agilent34410A',
-     {
-         connection_type => 'VISA_GPIB',
-         gpib_address    => 17,
-         nplc =>
-             10    # integration time in number of powerline cylces [10*(1/50)]
-     }
+ my instrument(
+    type => 'Keysight34470A',
+    connection_type => 'VXI11',
+    connection_options => {host => '192.168.3.28'},
  );
  
- #-------- 3. Define the Sweeps -------------
+ #-------- 2. Define the Sweeps -------------
  
- my $voltage_sweep = Sweep(
-     'Voltage',
-     {
-         instrument => $voltage_source,
-         points     => [ -5e-3, 5e-3 ],    # [starting point, target] in Volts
-         rate       => [ 0.1, 0.5e-3 ]
-         , # [rate to approach start, sweeping rate for measurement] in Volts/s
-         interval => 1    # measurement interval in s
-     }
+ my $voltage_sweep = sweep(
+    type       => 'Step::Voltage',
+    instrument => $gateyoko,
+    delay_in_loop => 0.05,        # wait 50ms after setting voltage
+    from => 0,
+    to => 3,
+    step => 0.002
  );
  
- #-------- 3. Create a DataFile -------------
+ #-------- 3. Create a datafile and plot ----
  
- my $DataFile = DataFile('IVcurve_sample1.dat');
- 
- $DataFile->add_column('Voltage');
- $DataFile->add_column('Current');
- $DataFile->add_column('Resistance');
- 
- $DataFile->add_plot(
-     {
-         'x-axis' => 'Voltage',
-         'y-axis' => 'Current'
-     }
+ my $datafile = sweep_datafile(
+    columns => [qw/voltage current/]
+ );
+
+ $datafile->add_plot(
+    x => 'voltage',
+    y => 'current',
  );
  
  #-------- 4. Measurement Instructions -------
  
- my $my_measurement = sub {
- 
-     my $sweep = shift;
- 
-     my $voltage    = $voltage_source->get_value();
-     my $current    = $multimeter->get_value() * 1e-7;
-     my $resistance = ( $current != 0 ) ? $voltage / $current : '?';
- 
-     $sweep->LOG(
-         {
-             Voltage    => $voltage,
-             Current    => $current,
-             Resistance => $resistance
-         }
-     );
- };
- 
- #-------- 5. Put everything together -------
- 
- $DataFile->add_measurement($my_measurement);
- 
- $voltage_sweep->add_DataFile($DataFile);
- 
- $voltage_sweep->start();
- 
- 1;
- 
+ my $meas = sub {
+   my $sweep = shift;
 
+   my $i_dc = $multimeter->get_value();
+
+   $sweep->log(
+        voltage => $voltage_source->cached_level(),
+        current => $i_dc,
+   );
+ };
+
+ #-------- 5. And run it ---------------------
+ 
+ $sweep->start(
+    measurement => $meas,
+    datafile    => $datafile,
+    folder => 'ivtrace',
+    date_prefix => 1,
+ );
+
+ 1;
 
 =head1 Step by step tutorial - How to write an IV-curve measurement
 
-=head2 0. Import Lab::Measurement
+=head2 0. Import Lab::Moose
 
 First thing to do in a script: write the following line
 
-	use Lab::Measurement;
+	use Lab::Moose;
 
-This is how you import the Lab::Measurement library. For basic usage, that's typically everything you need. So you're now ready to start...
+This is how you import the new, Moose-based part of the Lab::Measurement
+library. For basic usage, that's typically everything you need. So you're now
+ready to start...
 
 =head2 1. Measurement instruments
 
-For the measurment we need a voltage source and a multimeter to measure the current through our device. Physically the equipment is already next to the computer and connected via National Instruments GPIB interface.
-But how do we get it into the script? Here is, how it's done for the voltage source (We chose a Yokogawa7651): 
+For the measurment we need a voltage source and a multimeter to measure the
+current through our device. Physically the equipment is already next to the
+computer and connected.
+But how do we get it into the script? Here is, how it's done for the voltage
+source (We chose a Yokogawa GS200 connected via GPIB, address 1 on the bus):
 
-	my $voltage_source = Instrument('Yokogawa7651', 
-		{
-		connection_type => 'VISA_GPIB',
-		gpib_address => 5,
-		gate_protect => 0
-		});
+ my $voltage_source = instrument(
+    type => 'YokogawaGS200',
+    connection_type => 'LinuxGPIB',
+    connection_options => {pad => 1},
+    max_units_per_step => 0.01,
+    max_units_per_second => 0.1,
+    min_units => -10,
+    max_units => 10,
+ );
 
-The function Instrument() returns the Instrument as a Lab::Measurement object, which we assign to the variable $voltage_source. As first parameter, we have to pass the name of the instrument. 
-The second parameter, the part wrapped in {}, is the configuration hash. This hash should always contain at least the connection_type (here VISA_GPIB) and depending on the connection a corresponding address. Here we use, furthermore, the parameter gate_protect. Gate protection is a really great feature, which comes with Lab::Mesurement, that can help you protecting your samples. 
-But since this is no gate, we don't want to use it now. We just turn it off by setting the parameter to 0. The next example will introduce a gate, and explain the feature in more detail.
-However, the hash can contain more than that. The available options and parameters can be found in the particular instrument driver documentations. Let's try it on the example of our multimeter:
+The function instrument() returns the instrument as a Lab::Moose object,
+which we assign to the variable $voltage_source. As parameters, we pass
+configuration options in the format of a hash. The first option given above,
+type, specifies the driver to use. connection_type (here LinuxGPIB) specifies
+the connection to use for the instrument; a corresponding connection is
+automatically created with the options given in connection_options.
 
-	my $multimeter = Instrument('Agilent34410A', 
-		{
-		connection_type => 'VISA_GPIB',
-		gpib_address => 3,
-		nplc => 10					# integration time in number of powerline cylces [10*(1/50)]
-		});
+Here we use, furthermore, the so-called gate protection. Gate protection is a
+really great feature, which comes with Lab::Measurement, that can help you
+protecting your samples. We specify that the voltage source should make at most
+steps of 10mV, sweep at most with a speed of 100mV/s, and reach at most values
+of +- 10V output voltage.
 
-In addition to the connection parameters, we specified the integration time of the multimeter, which will be set in the device automatically with the initialization, according to the given value.
-Those are enough instruments for this simple experiment. Let's get the next ingrediant.
+The available options and parameters can be found in the particular instrument
+driver documentations. Next, we define our multimeter:
 
-=head2 2. Sweep Objects
+ my instrument(
+    type => 'Keysight34470A',
+    connection_type => 'VXI11',
+    connection_options => {host => '192.168.3.28'},
+ );
 
-Sweeps are executable objects, which define the basic character of the experiment. Which variable is beeing changed during the experiment, and at which range? How fast is it changed? How often will the experiment be repeated?
-To create a Sweep Object works very similar to initializing an instrument, but this time using the function Sweep():
+This is connected via ethernet and speaks the VXI11 protocol. Now we have
+enough instruments for a simple experiment. Let's get the next ingrediant.
 
-	my $voltage_sweep = Sweep('Voltage', 
-		{
-		instrument => $voltage_source,
-		points => [-5e-3, 5e-3],	# [starting point, target] in Volts
-		rate => [0.1, 0.5e-3],		# [rate to approach start, sweeping rate for measurement] in Volts/s
-		interval => 1 				# measurement interval in s
-		});
+=head2 2. Sweep objects
 
-Again we have to specify the type of sweep ('Voltage' here) and a configuration hash. In the config hash we have to pass the Yokogawa as the conducting instrument of the sweep to the parameter instrument. 
-The points parameter defines the starting point and the target of the Sweep in an array. 
-In the rate array, the first value specifies the rate at which the starting point is approached, while the second value defines the rate at which the target will be approached.
-Here points and rate are of length 2, but one could provide many more, in order to get a complex sweep sequence with changing sweep rates or reversing sweep directions. This is demonstrated in one of the other XPRESS example files.
-Besides that, there are many other parameters and options available to characterise the sweep, which are documented under the particular types of Sweep.
+Sweeps are objects which define the basic character of the experiment. Which
+variable is beeing changed during the experiment, and at which range? How fast
+is it changed? How often will the experiment be repeated?
+Creating a sweep works very similar to initializing an instrument, but
+this time using the function sweep():
 
-=head2 3. The DataFile
+ my $voltage_sweep = sweep(
+    type       => 'Step::Voltage',
+    instrument => $voltage_source,
+    delay_in_loop => 0.05,        # wait 50ms after setting voltage
+    from => 0,
+    to => 3,
+    step => 0.002
+ );
 
-In order to log our measurements, we need a DataFile object. It can be obtained using the function DataFile():
+Again we have to specify the type of sweep ('Step::Voltage' here for a
+stepwise voltage sweep) and further configuration. We have to pass the Yokogawa
+as the conducting instrument of the sweep to the parameter instrument.
+The from parameter defines the starting point and the to parameter the target
+of the sweep. step specifies the step size.
 
-	my $DataFile = DataFile('IVcurve_sample1.dat');
+How fast the starting point is approached before the sweep starts is decided by
+the instrument settings.
 
-where we have to pass the desired filename as first argument. Furthermore, columns have to be defined. For the purpose of the IV-curve, the following 3 are enough.
+=head2 3. The datafile and the plot
 
-	$DataFile->add_column('Voltage');
-	$DataFile->add_column('Current');
-	$DataFile->add_column('Resistance');
+In order to log our measurements, we need a datafile object. It can be obtained
+using the function sweep_datafile(),
 
-The data will later be logged in the DataFile, corresponding to the order you added the columns. If you wish you can also add a plot to the DataFile, which will refresh live, each time a new data point is logged. In it's simplest form this can look like this:
+ my $datafile = sweep_datafile(
+    columns => [qw/voltage current/]
+ );
 
-	$DataFile->add_plot(
-		{
-		x-axis => 'Voltage',
-		y-axis => 'Current'
-		});
+where we have to define the data columns. For the purpose
+of the IV-curve, voltage and current are enough.
 
-There are more parameters, that modify the look and type of the plot. Details can be found in the documentation of L<Lab::XPRESS::Data::XPRESS_DataFile>.
+The data will later be logged in the datafile, corresponding to the order you
+added the columns. If you wish you can also add a plot to the datafile, which
+will refresh live, each time a new data point is logged. In it's simplest form
+this can look like this:
 
+ $datafile->add_plot(
+    x => 'voltage',
+    y => 'current',
+ );
+
+There are more parameters, that modify the look and type of the plot. Details
+can be found in the documentation of L<Lab::Moose::Plot>.
 
 =head2 4. The measurement instructions
 
-As the last ingredient, we have to define how the data values per single measurement are generated. This set of instruction has to be wrapped into a subroutine, which will be executed each second while the sweep is sctive. First, let's have a look on the entire block, before discussing it in detail.
+As the last ingredient, we have to define how the data values per single
+measurement are generated. This set of instruction has to be wrapped into
+subroutine, which will be executed repeatedly while the sweep is sctive. First,
+let's have a look on the entire block, before discussing it in detail.
 
-	my $my_measurement = sub {
-	
-		my $sweep = shift;
-	
-		my $voltage = $voltage_source->get_value();
-		my $current = $multimeter->get_value()*1e-7;
-		my $resistance = ($current != 0) ? $voltage/$current : '?';
-	
-		$sweep->LOG({
-			Voltage => $voltage,
-			Current => $current,
-			Resistance => $resistance
-			});
-	};
+ my $meas = sub {
+   my $sweep = shift;
 
-Ok now have a closer look:
+   my $i_dc = $multimeter->get_value();
+
+   $sweep->log(
+        voltage => $voltage_source->cached_level(),
+        current => $i_dc,
+   );
+ };
+
+Now let's have a closer look:
 
 =over 4
 
-=item * C<< my $my_measurement = sub { ... >> -- Here we indicate by the word 'sub', that a new subroutine is created, which instructions, are enclosed by {}. At the same time, the subroutine is assigned to the variable $my_measurement. This allows us to work with it later on.
+=item * C<< my $meas = sub { ... >> -- Here we indicate by the word 'sub', that
+a new subroutine is created,  enclosed by {}. At the same time, the subroutine
+is assigned to the variable $meas. This allows us to work with it later on.
 
-=item * C<< my $sweep = shift; >> -- This line delivers us the current sweep object, which is important for propper logging of the data.
+=item * C<< my $sweep = shift; >> -- This line delivers us the current sweep
+object, which is important for propper logging of the data.
 
-=item * C<< my $voltage = $voltage_source->get_value(); >> -- By using the function get_value() of the voltage_source we retrieve the currently applied voltage.
+=item * C<< my $i_dc = $multimeter->get_value(); >> -- By using the function
+get_value() of the multimeter, we retrieve the current measured value. Note
+that we haven't done any configuration of the multimeter; while this is
+certainly possible in software, here we assume it has been done manually on the
+front panel first.
 
-=item * C<< my $current = $multimeter->get_value()*1e-7; >> -- Same as before, however since we are using a current to voltage converter, we have to multiply the measured value with an amplification factor.
+=item * C<< $voltage_source->cached_level() >> -- This reads out the last
+voltage value that was set on the Yokogawa. That's much faster than actually
+asking the Yokogawa for the current value.
 
-=item * C<< my $resistance = ($current != 0) ? $voltage/$current : '?'; >> -- This looks complicated, well but isn't. You have to read it like: If $current is not zero (?) then $resistance = $voltage / $current. Else (:) $resistance = '?'. This prevents from dividing by 0, which is not allowed. It might be unlikely, that $current is exactly 0, but we don't want to break our script in the middle of a measurement. 
+=item * C<< $sweep->log(
+        voltage => $voltage_source->cached_level(),
+        current => $i_dc,
+   ); >> -- To store the generated values we use $sweep->log(). With the hash
+you put into the function, you connect the freshly measured values with the
+columns you defined before in your datafile.
 
-=item * C<< $sweep->LOG({
-			Voltage => $voltage,
-			Current => $current,
-			Resistance => $resistance
-			}); >> 
-		-- To store the generated values use $sweep->LOG(). With the hash you put into the function, you connect the freshly measured values with the columns you defined before in your DataFile.
-
-=item * C<< }; >> -- close block and terminate with semicolon
+=item * C<< }; >> -- closes the block and terminates it with a semicolon
 
 =back
 
 =head2 5. Putting everything in place
 
-Now we have all ingredients together. But an onion and a potatoe lying side-by-side still make no dish. So, we have to put everything in place.
-First, the DataFile has to know whats to do to generate a single line of data. That's why, we have to connect our created measurement subroutine with the DataFile:
+Now we have all ingredients together. But an onion and a potatoe lying
+side-by-side still make no dish. So, now we have to run the sweep:.
 
-	$DataFile->add_measurement($my_measurement);
+ $sweep->start(
+    measurement => $meas,
+    datafile    => $datafile,
+    folder => 'ivtrace',
+    date_prefix => 1,
+ );
 
-But also, the Sweep has to know the DataFile:
+As parameters, we pass the measurement subroutine and the datafile object. In
+addition, we specify a folder name, and that the date should be used as folder
+name prefix.
 
-	$voltage_sweep->add_DataFile($DataFile);
-
-The internal process is the following: Every time a measurement should be performed (in our example every second, defined by the interval-parameter of the sweep), the sweep will call all of it's DataFiles (it can have several - i.e. if you have two or more samples -) and command them to log a new line of data. Therefore the DataFile will have to create the data first, using the instructions saved in $my_measurement.
-
-Last but not least, the sweep has to be started:
-
-	$voltage_sweep->start();
-
-Otherwise the script won't do anything. 
 And that's it!
-
-
-
-
-
-
-
 
 =cut
