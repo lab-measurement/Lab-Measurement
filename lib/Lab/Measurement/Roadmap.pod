@@ -1,0 +1,24 @@
+#DistZilla: +PodWeaver
+#PODNAME: Lab::Measurement::Roadmap
+#ABSTRACT: Some notes and speculations on future L::M development
+
+=pod
+
+=head1 Immediately: legacy code deprecation
+
+We should maybe have the old instrument or xpress code print a deprecation
+warning (on Linux to STDERR).
+
+=head1 3.800: legacy code removal
+
+The old code is completely removed. Old scripts stop working.
+
+=head1 3.900: move Lab::Moose and friends to Lab::Measurement
+
+Lab::Moose -> Lab::Measurement, Lab::Moose::Instrument -> Lab::Instrument,
+...
+
+More directory cleanup is possible, e.g. introducing a Lab::Role:: subdir...
+
+=head1 4.000: party!
+
