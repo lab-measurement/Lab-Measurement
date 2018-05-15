@@ -41,6 +41,8 @@ folder structure.
 
 =item * L<Lab::Measurement::Examples::Example1_Simple_IV>
 
+=item * L<Lab::Measurement::Roadmap>
+
 =back
 
 =head2 High-level tool classes
