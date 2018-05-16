@@ -1,30 +1,25 @@
-#ABSTRACT: XPRESS for DUMMIES - Example 2 - Nested Sweeps
-#PODNAME: Lab::XPRESS::Examples::Example2_Gate_IV_scan
+#ABSTRACT: Lab::Measurement for DUMMIES - Example 2 - Nested Sweeps
+#PODNAME: Lab::Measurement::Examples::Example2_Gate_IV_scan
 
 =pod
 
-=encoding utf-8
-
 =head1 Abstract
 
-This is a simple, but fully functional Lab::Measurment script, which makes use
-of the XPRESS add-on.
-Its purpose as a measurement script is to record a set of IV-curves at a series
-of gate voltages. 
-However it is also a tutorial, that introduces the XPRESS nested Sweeps
-feature. 
-Beginners should read Example1 first.
+This is a simple, but fully functional Lab::Measurment script. Its purpose as a
+measurement script is to record a set of IV-curves at a series of gate
+voltages. However it is also a tutorial, that introduces the nested sweep
+feature. Beginners should read Example1 first.
 
 =head1 Introduction 
 
-Example 1 presented a step by step tutorial in writing simple
-Lab::Measurement/XPRESS script.  
-In this example we show, how to extend this script, in order to get a set of
-IV-curves at a series of gate voltages. 
-XPRESS offers a nice feature to implement those extensions in a very simple and
-mostly already familiar way. 
-In the following, we will focus the new parts of our script and discuss it's
-meaning. 
+Example 1 presented a step by step tutorial in writing a simple
+Lab::Measurement script using the Moose sweep functionality. In this example we
+show how to extend this script, in order to get a set of IV-curves at a series
+of gate voltages. Lab::Measurement offers nice features to implement this
+extension in a very simple and mostly already familiar way. In the following,
+we will focus the new parts of our script and discuss their meaning.
+
+# bis hier
 
  #-------- 0. Import Lab::Measurement -------
  
