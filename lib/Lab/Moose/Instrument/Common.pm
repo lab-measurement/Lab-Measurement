@@ -37,6 +37,58 @@ sub idn {
     return $self->query( command => '*IDN?', %args );
 }
 
+=head2 idn_manufacturer
+
+Returns the manufacturer field from an  I<*IDN?> query.
+
+=cut
+
+sub idn_manufacturer {
+    my ( $self, %args ) = validated_getter( \@_ );
+    my $i=$self->query( command => '*IDN?', %args );
+    my ($man, $mod, $ser, $fir) = split /,/, $i, 4;
+    return $man;
+}
+
+=head2 idn_model
+
+Returns the model field from an  I<*IDN?> query.
+
+=cut
+
+sub idn_model {
+    my ( $self, %args ) = validated_getter( \@_ );
+    my $i=$self->query( command => '*IDN?', %args );
+    my ($man, $mod, $ser, $fir) = split /,/, $i, 4;
+    return $mod;
+}
+
+=head2 idn_serial
+
+Returns the serial number field from an  I<*IDN?> query.
+
+=cut
+
+sub idn_serial {
+    my ( $self, %args ) = validated_getter( \@_ );
+    my $i=$self->query( command => '*IDN?', %args );
+    my ($man, $mod, $ser, $fir) = split /,/, $i, 4;
+    return $ser;
+}
+
+=head2 idn_firmware
+
+Returns the firmware version field from an  I<*IDN?> query.
+
+=cut
+
+sub idn_firmware {
+    my ( $self, %args ) = validated_getter( \@_ );
+    my $i=$self->query( command => '*IDN?', %args );
+    my ($man, $mod, $ser, $fir) = split /,/, $i, 4;
+    return $fir;
+}
+
 =head2 opc
 
 Send I<*OPC> command.
