@@ -19,123 +19,104 @@ of gate voltages. Lab::Measurement offers nice features to implement this
 extension in a very simple and mostly already familiar way. In the following,
 we will focus the new parts of our script and discuss their meaning.
 
-# bis hier
-
- #-------- 0. Import Lab::Measurement -------
+ #-------- 0. Import Lab::Moose -------------
  
- use Lab::Measurement;
+ use Lab::Moose;
  
  #-------- 1. Initialize Instruments --------
  
- my $bias = Instrument(
-     'Yokogawa7651',
-     {
-         connection_type => 'VISA_GPIB',
-         gpib_address    => 3,
-         gate_protect    => 0
-     }
+ my $sample = "cnt13a";
+
+ my $bias = instrument(
+    type => 'YokogawaGS200',
+    connection_type => 'LinuxGPIB',
+    connection_options => {pad => 3},
+    max_units_per_step => 1,
+    max_units_per_second => 20,
+    min_units => -10,
+    max_units => 10,
+ );
+
+ my $biasdivider = 1000;
+ # the bias voltage is divided 1:1000 in hardware
+
+ my $multimeter = instrument(
+    type => 'Keysight34470A',
+    connection_type => 'VXI11',
+    connection_options => {host => '192.168.3.28'},
+    nlpc => 10;
  );
  
- my $multimeter = Instrument(
-     'Agilent34410A',
-     {
-         connection_type => 'VISA_GPIB',
-         gpib_address    => 17,
-         nplc =>
-             10    # integration time in number of powerline cylces [10*(1/50)]
-     }
+ my $gate = instrument(
+    type => 'YokogawaGS200',
+    connection_type => 'LinuxGPIB',
+    connection_options => {pad => 1},
+    max_units_per_step => 0.01,
+    max_units_per_second => 0.1,
+    min_units => -10,
+    max_units => 10,
  );
- 
- my $gate = Instrument(
-     'Yokogawa7651',
-     {
-         connection_type => 'VISA_GPIB',
-         gpib_address    => 6,
- 
-         gate_protect            => 1,
-         gp_min_units            => -10,
-         gp_max_units            => 15,
-         gp_max_units_per_second => 10e-3
-     }
- );
+
+ my $sensitivity = 1e9;
+ # the preamplifier converts 1nA -> 1V
  
  #-------- 2. Define the Sweeps -------------
- my $gate_sweep = Sweep(
-     'Voltage',
-     {
-         mode       => 'step',
-         instrument => $gate,
-         points     => [ -5, 5 ],    # [starting point, target] in Volts
-         stepwidth  => [0.1],
-         rate       => [5e-3]
-         , # [rate to approach start, sweeping rate for measurement] in Volts/s
-     }
+
+ my $gate_sweep = sweep(
+    type       => 'Step::Voltage',
+    instrument => $gate,
+    from => -5,
+    to => 5,
+    step => 0.002
  );
  
- my $bias_sweep = Sweep(
-     'Voltage',
-     {
-         instrument => $bias,
-         points     => [ -5e-3, 5e-3 ],    # [starting point, target] in Volts
-         rate       => [ 0.1, 0.5e-3 ]
-         , # [rate to approach start, sweeping rate for measurement] in Volts/s
-         interval => 1,    # measurement interval in s
- 
-         delay_before_loop => 10    # delay before Sweep begins in s
-     }
+ my $bias_sweep = sweep(
+    type       => 'Step::Voltage',
+    instrument => $bias,
+    delay_in_loop => 0.05,
+    delay_before_loop => 10,        # wait 10s before sweep
+    from => -5,                     # reminder: voltage divider 1:1000
+    to => 5,
+    step => 0.005
  );
- 
- #-------- 3. Create a DataFile -------------
- 
- my $DataFile = DataFile('Gate_IV_sample1.dat');
- 
- $DataFile->add_column('GateVoltage');
- $DataFile->add_column('BiasVoltage');
- $DataFile->add_column('Current');
- $DataFile->add_column('Resistance');
- 
- $DataFile->add_plot(
-     {
-         'type'    => 'pm3d',
-         'x-axis'  => 'GateVoltage',
-         'y-axis'  => 'BiasVoltage',
-         'cb-axis' => 'Current'
-     }
+
+ #-------- 3. Create a a datafile and plot ---
+
+ my $datafile = sweep_datafile(
+    columns => [qw/gate bias current/]
  );
- 
+
+ $datafile->add_plot(
+    type => 'pm3d',
+    x => 'gate',
+    y => 'bias',
+    z => 'current'
+ );
+
  #-------- 4. Measurement Instructions -------
  
- my $my_measurement = sub {
- 
-     my $sweep = shift;
- 
-     my $gate_voltage = $gate->get_value();
-     my $bias_voltage = $bias->get_value();
-     my $current      = $multimeter->get_value() * 1e-7;
-     my $resistance   = ( $current != 0 ) ? $voltage / $current : '?';
- 
-     $sweep->LOG(
-         {
-             GateVoltage => $gate_voltage,
-             Voltage     => $bias_voltage,
-             Current     => $current,
-             Resistance  => $resistance
-         }
-     );
+ my $meas = sub {
+    my $sweep = shift;
+    my $gate = $gateyoko->cached_level();
+    my $current = $multimeter->get_value() / $sensitivity;
+    my $bias = $biasyoko->cached_level() / $divider;
+    $sweep->log(
+        gate    => $gate,
+        bias    => $bias,
+        current => $current,
+    );
  };
+
+ #-------- 5. And run it ... ----------------
  
- #-------- 5. Put everything together -------
- 
- $DataFile->add_measurement($my_measurement);
- 
- $voltage_sweep->add_DataFile($DataFile);
- 
- my $frame = Frame();
- $frame->add_master($gate_sweep);
- $frame->add_slave($bias_sweep);
- 
- $frame->start();
- 
+ $gate_sweep->start(
+    slave       => $bias_sweep,
+    measurement => $meas,
+    datafile    => $datafile,
+    folder      => $sample.'diamonds',
+    date_prefix => 1,
+ );
+
  1;
  
 
@@ -143,154 +124,145 @@ we will focus the new parts of our script and discuss their meaning.
 
 =head2 Instrument initialization
 
-	#-------- 0. Import Lab::Measurement -------
+ #-------- 0. Import Lab::Moose -------------
 
-	use Lab::Measurement;
+ use Lab::Moose;
 
-	#-------- 1. Initialize Instruments --------
+ #-------- 1. Initialize Instruments --------
 
-	my $bias = Instrument('Yokogawa7651', 
-		{
-		connection_type => 'VISA_GPIB',
-		gpib_address => 3,
-		gate_protect => 0
-		});
+ my $sample = "cnt13a";
 
-	my $multimeter = Instrument('Agilent34410A', 
-		{
-		connection_type => 'VISA_GPIB',
-		gpib_address => 17,
-		nplc => 10					# integration time in number of powerline cylces [10*(1/50)]
-		});
+ my $bias = instrument(
+    type => 'YokogawaGS200',
+    connection_type => 'LinuxGPIB',
+    connection_options => {pad => 3},
+    max_units_per_step => 1,
+    max_units_per_second => 20,
+    min_units => -10,
+    max_units => 10,
+ );
 
-	my $gate = Instrument('Yokogawa7651', 
-		{
-		connection_type => 'VISA_GPIB',
-		gpib_address => 6,
+ my $biasdivider = 1000;
+ # the bias voltage is divided 1:1000 in hardware
 
-		gate_protect => 1,
-		gp_min_units => -10,
-		gp_max_units => 15,
-		gp_max_units_per_second => 10e-3
-		});
+ my $multimeter = instrument(
+    type => 'Keysight34470A',
+    connection_type => 'VXI11',
+    connection_options => {host => '192.168.3.28'},
+    nlpc => 10;
+ );
 
-In this first part of this script, we are doing more or less the same as in Example 1. Import the Lab::Measurement library, 
-then initialize the instruments we need. Now what's new is, that we initialize here a third instrument,
-the gate, which is again a Yokogawa7651. No big deal, so far. New is, that we are using the gate protection mode this time.
-It's turned on by C<<gate_protect => 1>>. With C<<gp_min_units => -10>> and C<<gp_max_units => 15>> we define the lower and upper limits, which we do not
-want to be exceeded by the source instrument. So if the Yokogawa is in voltage sourcing mode (which we expect to be for now), 
-the output Voltage will be limited to values between -10V and 15V. If it would be in current mode, it would not be limited at all, because 15A might be a little bit to much for this device :)
-With C<<gp_max_units_per_second => 10e-3>> we define the highest possible sweep rate, so it will sweep no faster than 10mV per second. 
+ my $gate = instrument(
+    type => 'YokogawaGS200',
+    connection_type => 'LinuxGPIB',
+    connection_options => {pad => 1},
+    max_units_per_step => 0.01,
+    max_units_per_second => 0.1,
+    min_units => -10,
+    max_units => 10,
+ );
 
+ my $sensitivity = 1e9;
+ # the preamplifier converts 1nA -> 1V
+
+In this first part of this script, we are doing more or less the same as in
+Example 1. We import the Lab::Moose module, and theninitialize the instruments
+that we need. What's new is that we initialize here a third instrument,
+the bias voltage source, which is again a Yokogawa GS200. No big deal, so far.
+
+In addition, we define a few constants that characterize our experiment: the
+sample name $sample, the factor of a voltage divider that is placed between
+bias Yokogawa and sample $biasdivider, and the sensitivity of a current
+preamplifier $sensitivity.
 
 =head2 Sweep Objects
 
-	#-------- 2. Define the Sweeps -------------
-	my $gate_sweep = Sweep('Voltage', 
-		{
-		mode => 'step',
-		instrument => $gate,
-		points => [-5, 5],	# [starting point, target] in Volts
-		stepwidth => [0.1],
-		rate => [5e-3],			# [rate to approach start, sweeping rate for measurement] in Volts/s
-		});
+ #-------- 2. Define the Sweeps -------------
 
-	my $bias_sweep = Sweep('Voltage', 
-		{
-		instrument => $bias,
-		points => [-5e-3, 5e-3],	# [starting point, target] in Volts
-		rate => [0.1, 0.5e-3],		# [rate to approach start, sweeping rate for measurement] in Volts/s
-		interval => 1, 				# measurement interval in s
+ my $gate_sweep = sweep(
+    type       => 'Step::Voltage',
+    instrument => $gate,
+    from => -5,
+    to => 5,
+    step => 0.002
+ );
 
-		delay_before_loop => 10 	# delay before Sweep begins in s
-		});
+ my $bias_sweep = sweep(
+    type       => 'Step::Voltage',
+    instrument => $bias,
+    delay_in_loop => 0.05,
+    delay_before_loop => 2,         # wait 2s before sweep
+    from => -5,                     # reminder: voltage divider 1:1000
+    to => 5,
+    step => 0.005
+ );
 
-In this experiment, we want to measure the current through our sample, depending on two parameters: the source-drain voltage and the gate voltage.
-Of course, that means we need instead of only one sweep, now two sweeps. And as you see, we created a second sweep, which we called $gate_sweep.
-Unlike $source_sweep, this one is in mode 'step'. This means, that instead of sweeping and measuring simultaniously, the instrument will sweep, stop, make a new 
-data value, sweep to the next step ... and so on. And in our case it will be: go to the next step, make an IV-curve and so on. Therefore we have to define the parameter stepwidth,
-while the rates parameter defines the rate, which is used to approach the steps.
+In this experiment, we want to measure the current through our sample, depending
+on two parameters: the bias (or source-drain) voltage and the gate voltage.
+Of course, that means we need instead of only one sweep now two sweeps. And as
+you see, we create a second sweep which we call $gate_sweep.
 
-=head2 The DataFile
-	
-	#-------- 3. Create a DataFile -------------
+We intend that the "outer loop" is the gate sweep. For each gate voltage value,
+the bias sweep is executed. Since we want to make sure the preamplifier has
+settled after returning the bias voltage to the start value, we add to the bias
+sweep a parameter delay_before_loop of 2 seconds.
 
-	my $DataFile = DataFile('Gate_IV_sample1.dat');
+=head2 The datafile and the plot
 
-	$DataFile->add_column('GateVoltage');
-	$DataFile->add_column('BiasVoltage');
-	$DataFile->add_column('Current');
-	$DataFile->add_column('Resistance');
+ #-------- 3. Create a a datafile and plot ---
 
+ my $datafile = sweep_datafile(
+    columns => [qw/gate bias current/]
+ );
 
-	$DataFile->add_plot({
-		'type'	  => 'pm3d'
+ $datafile->add_plot(
+    type => 'pm3d',
+    x => 'gate',
+    y => 'bias',
+    z => 'current'
+ );
 
-		'x-axis'  => 'GateVoltage',
-		'y-axis'  => 'BiasVoltage',
-		'cb-axis' => 'Current'
-		});
-
-Almost nothing new here, besides: plot-type is now pm3d. This creates a color coded 2D plot. Therefore we have to specify a third axis, the cb-axis, which defines the values, which will be presented color-coded
+There is almost nothing new here, except that the plot type is now pm3d. This
+creates a color coded 2D plot. Therefore we have to specify a third axis, the
+z-axis, which defines the values, which will be presented color-coded
 in the plot later on.
-
 
 =head2 4. The measurement instructions
 
 #-------- 4. Measurement Instructions -------
 
-	my $my_measurement = sub {
+ my $meas = sub {
+    my $sweep = shift;
+    my $gate = $gateyoko->cached_level();
+    my $current = $multimeter->get_value() / $sensitivity;
+    my $bias = $biasyoko->cached_level() / $divider;
+    $sweep->log(
+        gate    => $gate,
+        bias    => $bias,
+        current => $current,
+    );
+ };
 
-		my $sweep = shift;
+Again, almost nothing new here. Note how we use the various variables that we
+defined above.
 
-		my $gate_voltage = $gate->get_value();
-		my $bias_voltage = $bias->get_value();
-		my $current = $multimeter->get_value()*1e-7;
-		my $resistance = ($current != 0) ? $voltage/$current : '?';
+=head2 5. Running it.
 
-		$sweep->LOG({
-			GateVoltage => $gate_voltage,
-			Voltage => $bias_voltage,
-			Current => $current,
-			Resistance => $resistance
-			});
-	};
+This is the place where now we have to put the two sweeps together.
 
-Again, almost nothing new here. But its getting really interesting in the next paragraph, so stay with us!
+ #-------- 5. And run it ... ----------------
 
-=head2 5. Putting everything in place
+ $gate_sweep->start(
+    slave       => $bias_sweep,
+    measurement => $meas,
+    datafile    => $datafile,
+    folder      => $sample.'diamonds',
+    date_prefix => 1,
+ );
 
-Ok now we are finally, at the heart of this lesson! That's where most of the logic takes place, so we will do it step by step.
+We start the gate sweep (the outer loop), and at the same time tell it to run
+the bias sweep as "slave", i.e., as inner loop.
 
-	#-------- 5. Put everything together -------
-
-	$DataFile->add_measurement($my_measurement);
-
-	$voltage_sweep->add_DataFile($DataFile);
-
-We still remember the first two lines. But why is the DataFile only connected to the voltage sweep, and not to the gate sweep? 
-Thats because the voltage sweep is the one, during which the actual measurements take place. 
-But to define which sweep acts first, and which one is controlled by the other one, we introduce a new object. The Frame:
-	
-	my $frame = Frame();
-
-You can assign masters and slaves in a frame, just like this:
-
-	$frame->add_master($gate_sweep);
-	$frame->add_slave($bias_sweep);
-
-The master, has to be a sweep-object, which is in mode 'step' or 'list', here $gate_sweep. Each frame can have only one master.
-For the slave, you have more freedom. You can put as many slaves as you want into the frame, just by calling add_slave multiple times.
-It's possible to assign sweep objects of any type as a slave. It's even possible to put your own individual, handwritten code, into the frame as a slave, which will be called
-each time the master makes a new step. We will show you how to do this in one of the next examples. And you can use another frame as a slave.
-This way, one can reach an unlimited degree of nesting sweeps, and create experiments, that last years!
-
-Last but not least, as always, you have to start the whole thing. But this time we start the frame instead of one particular sweep:
-
-	$frame->start();
-
-Otherwise the script won't do anything. 
 And that's it!
-
 
 =cut
