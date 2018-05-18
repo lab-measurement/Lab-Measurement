@@ -51,7 +51,7 @@ simple IV-curve measurement:
     max_units => 10,
  );
  
- my instrument(
+ my $multimeter = instrument(
     type => 'Keysight34470A',
     connection_type => 'VXI11',
     connection_options => {host => '192.168.3.28'},
@@ -149,7 +149,7 @@ of +- 10V output voltage.
 The available options and parameters can be found in the particular instrument
 driver documentations. Next, we define our multimeter:
 
- my instrument(
+ my $multimeter = instrument(
     type => 'Keysight34470A',
     connection_type => 'VXI11',
     connection_options => {host => '192.168.3.28'},
