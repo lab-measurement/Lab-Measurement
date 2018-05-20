@@ -6,6 +6,7 @@ use 5.010;
 use Moose::Role;
 use MooseX::Params::Validate 'validated_list';
 use Time::HiRes qw/time sleep/;
+use Lab::Moose::Countdown;
 use Lab::Moose              ();
 use Statistics::Descriptive ();
 use Scalar::Util 'looks_like_number';
@@ -120,7 +121,13 @@ sub stabilize {
                 );
             }
         }
-        sleep($measurement_interval);
+        
+        if ($measurement_interval > 5) {
+            countdown($measurement_interval, "Measurement interval: Sleeping for ");
+        }
+        else {
+            sleep ($measurement_interval);
+        }
 
         if ( defined $max_stabilization_time ) {
             if ( time() - $start_time > $max_stabilization_time ) {

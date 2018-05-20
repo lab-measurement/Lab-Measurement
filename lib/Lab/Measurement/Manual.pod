@@ -65,6 +65,8 @@ folder structure.
 
 =item * L<Lab::Moose::Plot>
 
+=item * L<Lab::Moose::Countdown>
+
 =back
 
 =head2 Sweep classes

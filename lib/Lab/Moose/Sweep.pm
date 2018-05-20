@@ -16,7 +16,7 @@ use MooseX::StrictConstructor;
 use Moose::Util::TypeConstraints 'enum';
 use MooseX::Params::Validate;
 use Lab::Moose::Sweep::DataFile;
-use Time::HiRes 'sleep';
+use Lab::Moose::Countdown 'countdown';
 use Data::Dumper;
 
 # Do not import all functions as they clash with the attribute methods.
@@ -360,11 +360,11 @@ sub _start {
     my $before_loop_code = $self->before_loop();
     $self->$before_loop_code();
 
-    sleep( $self->delay_before_loop );
+    countdown( $self->delay_before_loop );
     $self->start_sweep();
     while ( not $self->sweep_finished() ) {
         $self->go_to_next_point();
-        sleep( $self->delay_in_loop );
+        countdown( $self->delay_in_loop );
         my @filename_extensions = @{$filename_extensions};
 
         # Only call get_value if we have to
@@ -420,7 +420,7 @@ sub _start {
                 $datafile->new_block();
             }
         }
-        sleep( $self->delay_after_loop );
+        countdown( $self->delay_after_loop );
     }
 
 }
