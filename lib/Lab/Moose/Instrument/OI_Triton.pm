@@ -21,6 +21,12 @@ has verbose => (
     default => 1
 );
 
+has max_temperature => (
+    is      => 'ro',
+    isa     => 'Lab::Moose::PosNum',
+    default => 0.7
+);
+
 # default connection options:
 around default_connection_options => sub {
     my $orig    = shift;
@@ -42,6 +48,8 @@ with qw(Lab::Moose::Instrument::OI_Common);
      type => 'OI_Triton',
      connection_type => 'Socket',
      connection_options => {host => 'triton'},
+     max_temperature => 1.1, # Maximum temperature setpoint.
+                             # Defaults to 0.7 K.
  );
 
  my $temp = $oi_triton->get_T();
@@ -158,10 +166,11 @@ Return the mixing chamber heater current range (in Amperes).
 =cut
 
 sub get_max_current {
-    my ($self, %args) = validated_getter(\@_);
-    my $range = $self->oi_getter(cmd => "READ:DEV:T5:TEMP:LOOP:RANGE", %args);
+    my ( $self, %args ) = validated_getter( \@_ );
+    my $range
+        = $self->oi_getter( cmd => "READ:DEV:T5:TEMP:LOOP:RANGE", %args );
     $range =~ s/mA$//;
-    return $range / 1000; # return Amps, not mA
+    return $range / 1000;    # return Amps, not mA
 }
 
 =head2 set_max_current
@@ -187,10 +196,9 @@ sub set_max_current {
     );
 }
 
-
 sub t_get {
-    my ($self, %args) = validated_getter(\@_);
-    my $t = $self->oi_getter(cmd   => "READ:DEV:T5:TEMP:LOOP:TSET", %args);
+    my ( $self, %args ) = validated_getter( \@_ );
+    my $t = $self->oi_getter( cmd => "READ:DEV:T5:TEMP:LOOP:TSET", %args );
     $t =~ s/K$//;
     return $t;
 }
@@ -219,8 +227,9 @@ likely has not been reached yet.
 
 sub set_T {
     my ( $self, $value, %args ) = validated_setter( \@_ );
-    if ( $value > 0.7 ) {
-        croak "setting temperatures above 0.7K is forbidden\n";
+    my $max_temperature = $self->max_temperature;
+    if ( $value > $max_temperature ) {
+        croak "setting temperatures above $max_temperature K is forbidden\n";
     }
 
     # Adjust heater setting.
