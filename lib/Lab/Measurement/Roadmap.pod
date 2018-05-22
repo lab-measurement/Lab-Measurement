@@ -4,16 +4,20 @@
 
 =pod
 
-=head1 Immediately: legacy code deprecation
+=head1 Immediately
 
-We should maybe have the old instrument or xpress code print a deprecation
-warning (on Linux to STDERR).
+Old instrument or xpress code prints an informative message about the new Moose
+framework.
 
-=head1 3.800: legacy code removal
+=head1 3.800: legacy code deprecation
+
+Old instrument or xpress code prints a deprecation warning.
+
+=head1 3.900: legacy code removal
 
 The old code is completely removed. Old scripts stop working.
 
-=head1 3.900: move Lab::Moose and friends to Lab::Measurement
+=head1 3.990: move Lab::Moose and friends to Lab::Measurement
 
 Lab::Moose -> Lab::Measurement, Lab::Moose::Instrument -> Lab::Instrument,
 ...

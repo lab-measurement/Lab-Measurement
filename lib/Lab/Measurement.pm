@@ -10,13 +10,11 @@ use Exporter 'import';
 use Lab::XPRESS::hub qw(DataFile Sweep Frame Instrument Connection);
 our @EXPORT = qw(DataFile Sweep Frame Instrument Connection);
 
-carp "\"use Lab::Measurement;\" imports the deprecated legacy interface of\n" .
-     "Lab::Measurement. This script will stop working with Lab::Measurement\n" .
-     "version 3.800.\n" .
-     "Please port your measurement scripts to the new, Moose-based code.\n" .
-     "Documentation can be found at https://www.labmeasurement.de/\n" .
-     "    ... ";
-
+carp  <<"EOF";
+\"use Lab::Measurement;\" imports the legacy interface of Lab::Measurement.
+Please consider porting your measurement scripts to the new, Moose-based code.
+Documentation can be found at https://www.labmeasurement.de/
+EOF
 1;
 
 __END__
