@@ -36,6 +36,9 @@ use Moose;
 
 extends 'Lab::Moose::Sweep::Step';
 
+has instrument =>
+    ( is => 'ro', isa => 'Lab::Moose::Instrument', required => 1 );
+
 has start_rate =>
     ( is => 'ro', isa => 'Lab::Moose::PosNum', writer => '_start_rate' );
 has rate => ( is => 'ro', isa => 'Lab::Moose::PosNum', required => 1 );

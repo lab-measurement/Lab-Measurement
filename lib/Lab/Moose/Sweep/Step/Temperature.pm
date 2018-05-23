@@ -36,6 +36,9 @@ extends 'Lab::Moose::Sweep::Step';
 
 with 'Lab::Moose::Stabilizer';
 
+has instrument =>
+    ( is => 'ro', isa => 'Lab::Moose::Instrument', required => 1 );
+
 has filename_extension => ( is => 'ro', isa => 'Str', default => 'T=' );
 
 has setter => ( is => 'ro', isa => 'CodeRef', builder => '_build_setter' );

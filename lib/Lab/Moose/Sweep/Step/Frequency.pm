@@ -30,6 +30,9 @@ has filename_extension =>
 
 has setter => ( is => 'ro', isa => 'CodeRef', builder => '_build_setter' );
 
+has instrument =>
+    ( is => 'ro', isa => 'Lab::Moose::Instrument', required => 1 );
+
 sub _build_setter {
     return \&_frq_setter;
 }

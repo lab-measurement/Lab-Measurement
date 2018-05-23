@@ -85,6 +85,8 @@ folder structure.
 
 =item * L<Lab::Moose::Sweep::Step::Temperature>
 
+=item * L<Lab::Moose::Sweep::Step::Repeat>
+
 =item * L<Lab::Moose::Sweep::Continuous>
 
 =item * L<Lab::Moose::Sweep::Continuous::Time>

@@ -30,6 +30,9 @@ has filename_extension => ( is => 'ro', isa => 'Str', default => 'Voltage=' );
 
 has setter => ( is => 'ro', isa => 'CodeRef', builder => '_build_setter' );
 
+has instrument =>
+    ( is => 'ro', isa => 'Lab::Moose::Instrument', required => 1 );
+
 sub _build_setter {
     return \&_voltage_setter;
 }
