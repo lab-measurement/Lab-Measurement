@@ -670,4 +670,46 @@ EOF
     );
 }
 
+{
+    #
+    # Step::Repeat
+    #
+
+    my $sweep = sweep(
+        type  => 'Step::Repeat',
+        count => 10,
+
+    );
+
+    my $datafile = sweep_datafile( columns => ['count'] );
+
+    my $meas = sub {
+        my $sweep = shift;
+        my $c     = $sweep->get_value();
+        $sweep->log( count => $c );
+    };
+
+    $sweep->start(
+        measurement => $meas,
+        datafile    => $datafile,
+        folder      => $dir,
+    );
+
+    my $expected = <<"EOF";
+# count
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+EOF
+    my $path = catfile( $sweep->foldername, 'data.dat' );
+    file_ok( $path, $expected, "Step::Repeat: datafile" );
+}
+
 done_testing();
