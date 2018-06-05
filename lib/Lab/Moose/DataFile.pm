@@ -14,7 +14,7 @@ use Lab::Moose::DataFolder;
 
 use File::Basename qw/dirname basename/;
 use File::Path 'make_path';
-use Lab::Moose 'our_catfile';
+use Lab::Moose::Catfile 'our_catfile';
 use IO::Handle;
 
 use Carp;

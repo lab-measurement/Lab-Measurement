@@ -10,6 +10,7 @@ use MooseX::Params::Validate;
 use Moose::Util::TypeConstraints qw/subtype as where message/;
 use Module::Load;
 use Lab::Moose::Connection;
+use Lab::Moose::DataFolder;
 use Carp;
 
 our @ISA = qw(Exporter);
@@ -17,7 +18,7 @@ our @ISA = qw(Exporter);
 # FIXME: export 'use warnings; use strict; into caller'
 
 our @EXPORT
-    = qw/instrument datafolder datafile linspace sweep sweep_datafile our_catfile/;
+    = qw/instrument datafolder datafile linspace sweep sweep_datafile/;
 
 =head1 SYNOPSIS
 
@@ -123,12 +124,11 @@ sub instrument {
 
  my $folder = datafolder(%args);
 
-Load L<Lab::Moose::DataFolder> and call it's C<new> method with C<%args>.
+Create a new L<Lab::Moose::DataFolder>.
 
 =cut
 
 sub datafolder {
-    load 'Lab::Moose::DataFolder';
     return Lab::Moose::DataFolder->new(@_);
 }
 
@@ -223,14 +223,6 @@ sub sweep_datafile {
     my $class = 'Lab::Moose::Sweep::DataFile';
     load $class;
     return $class->new( params => \%args );
-}
-
-# PDL::Graphics::Gnuplot <= 2.011 cannot handle backslashes on windows.
-sub our_catfile {
-    if ( @_ == 0 ) {
-        return undef;
-    }
-    return join( '/', @_ );
 }
 
 # Some often used subtypes

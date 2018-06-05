@@ -12,7 +12,7 @@ use MooseX::Params::Validate;
 
 use Carp;
 
-use Lab::Moose qw/our_catfile/;
+use Lab::Moose::Catfile 'our_catfile';
 use File::Basename qw/basename dirname/;
 use File::Copy 'copy';
 use List::Util 'max';

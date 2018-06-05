@@ -20,7 +20,7 @@ use Lab::Moose::Countdown 'countdown';
 use Data::Dumper;
 
 # Do not import all functions as they clash with the attribute methods.
-use Lab::Moose qw/our_catfile/;
+use Lab::Moose::Catfile qw/our_catfile/;
 
 use Carp;
 
