@@ -178,6 +178,7 @@ sub start {
         point_dim => { isa => enum( [qw/1 0/] ), default => 0 },
         folder      => { isa => 'Str|Lab::Moose::DataFolder', optional => 1 },
         date_prefix => { isa => 'Bool',                       default  => 0 },
+        meta_data   => { isa => 'HashRef',                    optional => 1 },
     );
 
     my $slaves          = _parse_slave_arg(%args);
@@ -187,6 +188,7 @@ sub start {
     my $point_dim       = $args{point_dim};
     my $folder          = $args{folder};
     my $date_prefix     = $args{date_prefix};
+    my $meta_data       = $args{meta_data};
 
     $self->_ensure_no_slave();
 
@@ -273,6 +275,10 @@ sub start {
     }
 
     $self->_foldername( $datafolder->path() );
+
+    if ($meta_data) {
+        $datafolder->meta_file->log( meta => $meta_data );
+    }
 
     my $datafiles;
 

@@ -9,6 +9,7 @@ use Lab::Test import => ['file_ok'];
 use File::Glob 'bsd_glob';
 use File::Spec::Functions 'catfile';
 use Lab::Moose;
+use YAML::XS 'LoadFile';
 
 use File::Temp qw/tempdir/;
 
@@ -54,6 +55,7 @@ sub dummysource {
         datafile    => $datafile,
         folder      => $dir,
         date_prefix => 1,
+        meta_data   => { foo => 1, bar => 2 },
 
         # use default datafile_dim and point_dim
     );
@@ -74,6 +76,10 @@ EOF
     );
     my $path = catfile( $sweep->foldername, 'data.dat' );
     file_ok( $path, $expected, "basic 1D sweep: datafile" );
+    my $meta_file = catfile( $sweep->foldername, 'META.yml' );
+    my $meta = LoadFile($meta_file);
+    is( $meta->{foo}, 1, "meta data: foo => 1" );
+    is( $meta->{bar}, 2, "meta data: bar => 2" );
 }
 
 {
