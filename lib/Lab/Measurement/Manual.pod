@@ -134,6 +134,8 @@ alias: L<Lab::Moose::Instrument::Agilent34410A>
 
 =item * L<Lab::Moose::Instrument::Yokogawa7651>
 
+=item * L<Lab::Moose::Instrument::Keithley2400>
+
 =item * L<Lab::Moose::Instrument::DummySource>
 
 =back
