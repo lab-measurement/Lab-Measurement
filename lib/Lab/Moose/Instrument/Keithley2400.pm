@@ -84,8 +84,6 @@ Used roles:
 
 =item L<Lab::Moose::Instrument::SCPI::Source::Level>
 
-=item L<Lab::Moose::Instrument::SCPI::Source::Range>
-
 =item L<Lab::Moose::Instrument::LinearStepSweep>
 
 =back
@@ -155,6 +153,26 @@ sub set_voltage {
     my $self  = shift;
     my $value = shift;
     return $self->set_level( value => $value );
+}
+
+cache source_range => ( getter => 'source_range_query' );
+
+sub source_range_query {
+    my ( $self, %args ) = validated_getter( \@_ );
+    my $function = $self->cached_source_function();
+    return $self->cached_source_range(
+        $self->query( command => "SOUR:$function:RANG?", %args ) );
+}
+
+sub source_range {
+    my ( $self, $value, %args )
+        = validated_setter( \@_, value => { isa => 'Num' } );
+    my $function = $self->cached_source_function();
+    $self->write(
+        command => sprintf( "SOUR:$function:RANG %.15g", $value ),
+        %args
+    );
+    $self->cached_source_range($value);
 }
 
 # sub config_sweep {
@@ -285,7 +303,6 @@ with qw(
     Lab::Moose::Instrument::Common
     Lab::Moose::Instrument::SCPI::Source::Function
     Lab::Moose::Instrument::SCPI::Source::Level
-    Lab::Moose::Instrument::SCPI::Source::Range
     Lab::Moose::Instrument::LinearStepSweep
 );
 
