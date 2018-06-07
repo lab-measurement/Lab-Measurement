@@ -1,6 +1,6 @@
 #DistZilla: +PodWeaver
 #PODNAME: Lab::Measurement::Manual
-#ABSTRACT: API documentation for Lab::Measurement
+#ABSTRACT: API documentation manual for Lab::Measurement
 
 =pod
 
@@ -13,15 +13,13 @@ Currently, the Lab::Measurement API consists of:
 
 =item *
 
-L</Lab::Moose> is the recommended API, it is based on B<Modern Perl>
-techniques.
+L</Lab::Moose>, the recommended, current API, based on B<Modern Perl>
+techniques
 
 =item *
 
-The hisorical API, consisting of the Lab::Instrument virtual
-instruments and the high-level Lab::XPRESS interface, which provides simple
-generation of nested sweeps and logging of output data into a customizable
-folder structure.
+the historical API, consisting of the Lab::Instrument virtual
+instruments and the high-level Lab::XPRESS interface
 
 =back
 
