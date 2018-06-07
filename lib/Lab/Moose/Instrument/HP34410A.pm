@@ -47,7 +47,10 @@ around default_connection_options => sub {
     connection_type => 'VXI11',
     connection_options => {host => '192.168.3.27'},
     );
-    
+
+ $dmm->sense_range(value => 10);
+ $dmm->sense_nplc(value => 2);  
+      
  my $voltage = $dmm->get_value();
  
 =cut

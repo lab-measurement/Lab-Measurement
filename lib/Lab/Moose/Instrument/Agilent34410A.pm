@@ -4,7 +4,7 @@ package Lab::Moose::Instrument::Agilent34410A;
 
 =head1 DESCRIPTION
 
-Alias for L<Lab::Moose::Instrument::HP34410A>
+Alias for L<Lab::Moose::Instrument::HP34410A> with adjusted USB vendor/product IDs.
 
 =cut
 
