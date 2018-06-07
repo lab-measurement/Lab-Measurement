@@ -28,8 +28,9 @@ cache source_range => ( getter => 'source_range_query' );
 sub source_range_query {
     my ( $self, %args ) = validated_getter( \@_ );
 
+    my $function = $self->cached_source_function();
     return $self->cached_source_range(
-        $self->query( command => "SOUR:RANG?", %args ) );
+        $self->query( command => "SOUR:$function:RANG?", %args ) );
 }
 
 sub source_range {
@@ -37,7 +38,8 @@ sub source_range {
         \@_,
     );
 
-    $self->write( command => "SOUR:RANG $value", %args );
+    my $function = $self->cached_source_function();
+    $self->write( command => "SOUR:$function:RANG $value", %args );
 
     $self->cached_source_range($value);
 }

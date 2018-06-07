@@ -3,7 +3,6 @@ package Lab::Moose::Instrument::SCPI::Sense::NPLC;
 #ABSTRACT: Role for the SCPI SENSe:$function:NPLC subsystem
 
 use Moose::Role;
-use Moose::Util::TypeConstraints 'enum';
 use Lab::Moose::Instrument::Cache;
 use Lab::Moose::Instrument qw/validated_getter validated_setter/;
 

@@ -84,6 +84,8 @@ Used roles:
 
 =item L<Lab::Moose::Instrument::SCPI::Source::Level>
 
+=item L<Lab::Moose::Instrument::SCPI::Source::Range>
+
 =item L<Lab::Moose::Instrument::LinearStepSweep>
 
 =back
@@ -301,8 +303,11 @@ sub source_range {
 
 with qw(
     Lab::Moose::Instrument::Common
+    Lab::Moose::Instrument::SCPI::Sense::Protection
+    Lab::Moose::Instrument::SCPI::Sense::Range
     Lab::Moose::Instrument::SCPI::Source::Function
     Lab::Moose::Instrument::SCPI::Source::Level
+    Lab::Moose::Instrument::SCPI::Source::Range
     Lab::Moose::Instrument::LinearStepSweep
 );
 
