@@ -79,7 +79,7 @@ sub get_value {
 
  $dmm->route_terminals(value => 'FRON2');
 
-Set/get used measurement channel. Allowed values: C<FRON1, FRON2>.
+Set/get used measurement channel. Allowed values: C<FRON[1], FRON2>.
 
 =cut
 
@@ -94,7 +94,7 @@ sub route_terminals_query {
 sub route_terminals {
     my ( $self, $value, %args ) = validated_setter(
         \@_,
-        value => { isa => enum( [qw/FRON1 FRON2/] ) }
+        value => { isa => enum( [qw/FRON FRON1 FRON2/] ) }
     );
     $self->write( command => "ROUT:TERM $value" );
     $self->cached_route_terminals($value);
