@@ -45,6 +45,10 @@ sub BUILD {
     # }
     $self->clear();
     $self->cls();
+
+    # Concurrent sense is not really supported.
+    $self->sense_function_concurrent( value => 0 );
+
 }
 
 =encoding utf8

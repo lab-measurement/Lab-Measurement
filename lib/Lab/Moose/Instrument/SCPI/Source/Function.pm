@@ -17,7 +17,7 @@ use namespace::autoclean;
 
  $self->source_function(value => 'VOLT');
 
-Query/Set the type of output signal. Can be B<VOLT> or B<CURR>.
+Query/Set the type of output signal.
 
 =cut
 
@@ -32,10 +32,7 @@ sub source_function_query {
 }
 
 sub source_function {
-    my ( $self, $value, %args ) = validated_setter(
-        \@_,
-        value => { isa => enum( [qw/VOLT CURR/] ) }
-    );
+    my ( $self, $value, %args ) = validated_setter( \@_ );
     $self->write( command => "SOUR:FUNC $value", %args );
     $self->cached_source_function($value);
 }
