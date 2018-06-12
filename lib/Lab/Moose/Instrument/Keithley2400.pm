@@ -38,7 +38,7 @@ sub BUILD {
     # # error in libusb_control_transfer_write: Pipe error at /home/simon/.plenv/versions/5.24.0/lib/perl5/site_perl/5.24.0/x86_64-linux/USB/LibUSB/Device/Handle.pm line 22.
     # # apparently in USB::TMC::clear_feature_endpoint_out
     # if ( $self->connection_type eq 'USB' ) {
-    #     $self->clear( yoko => 1 );
+    #     $self->clear( source => 1 );
     # }
     # else {
     #     $self->clear();
@@ -98,7 +98,7 @@ Used roles:
 
 =head2 set_level
 
- $yoko->set_level(value => $new_level);
+ $source->set_level(value => $new_level);
 
 Go to new level. Sweep with multiple steps if the distance between current and
 new level is larger than C<max_units_per_step>.
@@ -117,13 +117,32 @@ sub set_level {
     );
 }
 
+=head2 get_measurement
+
+ my $sample = $source->get_measurement();
+ my $current = $sample->{current};
+
+Do new measurement and return sample hashref of measured elements.
+
+=cut
+
+sub get_measurement {
+    my ( $self, %args ) = validated_getter( \@_ );
+    my $meas = $self->query( command => ':MEAS:CURR?', %args );
+    my $elements = $self->query( command => ':FORM:ELEM?' );
+    my @elements    = split /,/, $elements;
+    my @meas_values = split /,/, $meas;
+    my %result = map { $_ => shift @meas_values } @elements;
+    return \%result;
+}
+
 #
 # Aliases for Lab::XPRESS::Sweep API
 #
 
 =head2 cached_level
 
- my $current_level = $yoko->cached_level();
+ my $current_level = $source->cached_level();
 
 Get current value from device cache.
 
@@ -136,7 +155,7 @@ sub cached_level {
 
 =head2 get_level
 
- my $current_level = $yoko->get_level();
+ my $current_level = $source->get_level();
 
 Query current level.
 
@@ -149,7 +168,7 @@ sub get_level {
 
 =head2 set_voltage
 
- $yoko->set_voltage($value);
+ $source->set_voltage($value);
 
 For XPRESS voltage sweep. Equivalent to C<< set_level(value => $value) >>.
 
@@ -286,7 +305,7 @@ sub source_range {
 
 # =head2 sweep_to_level
 
-#  $yoko->sweep_to_level(target => $value, rate => $rate);
+#  $source->sweep_to_level(target => $value, rate => $rate);
 
 # =cut
 
@@ -309,6 +328,7 @@ with qw(
     Lab::Moose::Instrument::Common
     Lab::Moose::Instrument::SCPI::Sense::Protection
     Lab::Moose::Instrument::SCPI::Sense::Range
+    Lab::Moose::Instrument::SCPI::Sense::NPLC
     Lab::Moose::Instrument::SCPI::Source::Function
     Lab::Moose::Instrument::SCPI::Source::Level
     Lab::Moose::Instrument::SCPI::Source::Range
