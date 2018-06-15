@@ -68,6 +68,13 @@ sub BUILD {
      max_units => 10,
  );
 
+ ### Sourcing
+
+
+ # Source voltage
+ $source->source_function(value => 'VOLT');
+ $source->source_range(value => 210);
+ 
  # Step-sweep to new level.
  # Stepsize and speed is given by (max|min)_units* settings.
  $source->set_level(value => 9);
@@ -76,6 +83,20 @@ sub BUILD {
  # instrument):
  my $level = $source->cached_level();
 
+ ### Measurement 
+
+ # Measure current
+ $source->sense_function(value => 'current');
+ # Use measurement integration time of 2 NPLC
+ $source->sense_nplc(value => 2);
+
+ # Get measurement sample
+ my $sample = $source->get_measurement();
+ my $current = $sample->{CURR};
+ # print all entries in sample (Voltage, Current, Resistance, Timestamp):
+ use Data::Dumper;
+ print Dumper $sample;
+
 =head1 METHODS
 
 Used roles:
@@ -83,6 +104,12 @@ Used roles:
 =over
 
 =item L<Lab::Moose::Instrument::Common>
+
+=item L<Lab::Moose::Instrument::SCPI::Sense::Protection>
+    
+=item L<Lab::Moose::Instrument::SCPI::Sense::Range>
+
+=item L<Lab::Moose::Instrument::SCPI::Sense::NPLC>
 
 =item L<Lab::Moose::Instrument::SCPI::Source::Function>
 
@@ -120,8 +147,8 @@ sub set_level {
 =head2 get_measurement
 
  my $sample = $source->get_measurement();
- my $current = $sample->{current};
-
+ my $current $sample->{CURR};
+ 
 Do new measurement and return sample hashref of measured elements.
 
 =cut
