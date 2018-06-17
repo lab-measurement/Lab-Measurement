@@ -86,7 +86,7 @@ sub BUILD {
  ### Measurement 
 
  # Measure current
- $source->sense_function(value => 'current');
+ $source->sense_function(value => 'CURR');
  # Use measurement integration time of 2 NPLC
  $source->sense_nplc(value => 2);
 
@@ -147,7 +147,7 @@ sub set_level {
 =head2 get_measurement
 
  my $sample = $source->get_measurement();
- my $current $sample->{CURR};
+ my $current = $sample->{CURR};
  
 Do new measurement and return sample hashref of measured elements.
 
