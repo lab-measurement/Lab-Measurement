@@ -90,6 +90,12 @@ has date_prefix => (
     default => 0
 );
 
+has time_prefix => (
+    is      => 'ro',
+    isa     => 'Bool',
+    default => 0
+);
+
 has meta_file => (
     is       => 'ro',
     isa      => 'Lab::Moose::DataFile::Meta',
@@ -112,6 +118,11 @@ sub BUILD {
     my $folder   = $self->path();
     my $dirname  = dirname($folder);
     my $basename = basename($folder);
+
+    if ( $self->time_prefix ) {
+        $basename = strftime( '%H-%M-%S', localtime() ) . "_$basename";
+        $folder = our_catfile( $dirname, $basename );
+    }
 
     if ( $self->date_prefix ) {
         $basename = strftime( '%Y-%m-%d', localtime() ) . "_$basename";
