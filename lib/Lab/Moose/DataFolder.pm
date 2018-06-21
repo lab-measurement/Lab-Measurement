@@ -87,13 +87,13 @@ has path => (
 has date_prefix => (
     is      => 'ro',
     isa     => 'Bool',
-    default => 0
+    default => 1
 );
 
 has time_prefix => (
     is      => 'ro',
     isa     => 'Bool',
-    default => 0
+    default => 1
 );
 
 has meta_file => (

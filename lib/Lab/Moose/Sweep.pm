@@ -177,8 +177,8 @@ sub start {
         # might allow point_dim = 2 in the future.
         point_dim => { isa => enum( [qw/1 0/] ), default => 0 },
         folder      => { isa => 'Str|Lab::Moose::DataFolder', optional => 1 },
-        date_prefix => { isa => 'Bool',                       default  => 0 },
-        time_prefix => { isa => 'Bool',                       default  => 0 },
+        date_prefix => { isa => 'Bool',                       default  => 1 },
+        time_prefix => { isa => 'Bool',                       default  => 1 },
         meta_data   => { isa => 'HashRef',                    optional => 1 },
     );
 
