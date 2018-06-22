@@ -1,6 +1,6 @@
 package Lab::Moose::Sweep::Step::Repeat;
 
-#ABSTRACT Repeat something (e.g. some sweep) N times
+#ABSTRACT: Repeat something (e.g. some sweep) N times
 
 =head1 SYNOPSIS
 
