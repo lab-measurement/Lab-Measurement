@@ -78,7 +78,8 @@ $name = our_catfile( $dir, 'abc def' );
     my @entries = get_dir_entries($dir);
     is( @entries, 9, "created 9 folders with time prefix" );
 
-    my $ti = eval(strftime( '%H*60*60 + %M*60 + %S', localtime() ));
+    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
+    my $ti = $hour*60*60 + $min*60 + $sec;
 
     for my $entry (@entries) {
 
@@ -106,7 +107,8 @@ $name = our_catfile( $dir, 'abc def' );
     my @entries = get_dir_entries($dir);
     is( @entries, 9, "created 9 folders with date_time prefix" );
 
-    my $ti = eval(strftime( '%H*60*60 + %M*60 + %S', localtime() ));
+    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
+    my $ti = $hour*60*60 + $min*60 + $sec;
     my $date_prefix = strftime( '%Y-%m-%d', localtime() );
 
     for my $entry (@entries) {
