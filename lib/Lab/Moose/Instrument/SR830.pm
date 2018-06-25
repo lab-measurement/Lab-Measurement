@@ -19,10 +19,19 @@ with qw(
     Lab::Moose::Instrument::Common
 );
 
+has empty_buffer_count =>
+    ( is => 'ro', isa => 'Lab::Moose::PosInt', default => 1 );
+
 sub BUILD {
     my $self = shift;
     $self->clear();
     $self->cls();
+
+    # When killing a script with Ctrl-C, garbage might remain in the output
+    # buffer. Try read and catch possible timeout exception with eval.
+    for ( 1 .. $self->empty_buffer_count ) {
+        eval { $self->read( timeout => 1 ); };
+    }
 }
 
 =encoding utf8
