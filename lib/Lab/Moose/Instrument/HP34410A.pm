@@ -17,8 +17,9 @@ extends 'Lab::Moose::Instrument';
 with qw(
     Lab::Moose::Instrument::Common
     Lab::Moose::Instrument::SCPI::Sense::Function
-    Lab::Moose::Instrument::SCPI::Sense::Range
+    Lab::Moose::Instrument::SCPI::Sense::Impedance
     Lab::Moose::Instrument::SCPI::Sense::NPLC
+    Lab::Moose::Instrument::SCPI::Sense::Range
 );
 
 sub BUILD {
