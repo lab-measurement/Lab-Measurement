@@ -19,6 +19,7 @@ with qw(
     Lab::Moose::Instrument::SCPI::Sense::Function
     Lab::Moose::Instrument::SCPI::Sense::Impedance
     Lab::Moose::Instrument::SCPI::Sense::NPLC
+    Lab::Moose::Instrument::SCPI::Sense::Null
     Lab::Moose::Instrument::SCPI::Sense::Range
 );
 
@@ -64,9 +65,15 @@ Used roles:
 
 =item L<Lab::Moose::Instrument::SCPI::Sense::Function>
 
-=item L<Lab::Moose::Instrument::SCPI::Sense::Range>
+=item L<Lab::Moose::Instrument::SCPI::Sense::Impedance>
 
 =item L<Lab::Moose::Instrument::SCPI::Sense::NPLC>
+
+=item L<Lab::Moose::Instrument::SCPI::Sense::Null>
+
+
+=item L<Lab::Moose::Instrument::SCPI::Sense::Range>
+
 
 =back
     

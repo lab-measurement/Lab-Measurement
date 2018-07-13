@@ -5,6 +5,7 @@ package Lab::Moose::Instrument::SCPI::Sense::Impedance;
 use Moose::Role;
 use Lab::Moose::Instrument::Cache;
 use Lab::Moose::Instrument qw/validated_getter validated_setter/;
+use Moose::Util::TypeConstraints 'enum';
 use Carp;
 use namespace::autoclean;
 
