@@ -583,6 +583,16 @@ C<hard_copy> option:
  
 The C<hard_copy> attribute is mandatory if you add multiple plots to one datafile.
 
+=head3 Connection problems associated with persistent plot windows
+
+Some gnuplot terminals like B<qt> are always persistent, i.e. the live
+plot windows persist after the measurement script is finished. Some connection
+types like B<LinuxGPIB> only work after closing all plot windows. This might
+be caused by file locks which are inherited by the forked gnuplot processes even when
+the main perl process is finished. As an alternative to close the plot
+windows yourself, one can use terminals like B<x11> where one can set
+C<< persist => 0 >> in the C<terminal_options> attribute (see below).
+
 =head3 Multiple curves per plot
 
 We can draw multiple curves in a single plot window:
