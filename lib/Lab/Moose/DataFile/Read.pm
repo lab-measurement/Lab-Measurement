@@ -37,6 +37,14 @@ our @EXPORT = qw/read_gnuplot_format/;
      num_columns => 3,
  );
 
+ # Read 3D gnuplot ASCII datafile and return 3D PDL with dimensions
+ # [column, line, block]
+ my $pdl = read_gnuplot_format(
+    type => 'bare',
+    file => '3d_data.dat',
+    num_columns => 3,
+ );
+ 
 =head1 Functions
 
 =head2 read_gnuplot_format
@@ -47,7 +55,7 @@ our @EXPORT = qw/read_gnuplot_format/;
 
 =item * type
 
-Either C<'columns'> or C<'maps'>.
+Either C<'columns'>,  C<'maps'>, or C<'bare'>.
 
 =item * file
 
@@ -119,7 +127,7 @@ sub get_blocks {
 sub read_gnuplot_format {
     my ( $type, $fh, $file, $num_columns ) = validated_list(
         \@_,
-        type => { isa => enum( [qw/columns maps/] ) },
+        type => { isa => enum( [qw/columns maps bare/] ) },
         fh          => { isa => 'FileHandle', optional => 1 },
         file        => { isa => 'Str',        optional => 1 },
         num_columns => { isa => 'Int' },
@@ -145,7 +153,10 @@ sub read_gnuplot_format {
     # 1st dim: row (in block)
     # 2nd dim: block
 
-    if ( $type eq 'columns' ) {
+    if ( $type eq 'bare' ) {
+        return $blocks;
+    }
+    elsif ( $type eq 'columns' ) {
 
         # merge blocks
         my $result = $blocks->clump( 1, 2 );
