@@ -897,5 +897,5 @@ C<meta_data> attribute to the C<start> method:
 =head1 Writing new instrument drivers
 
 Detailed instructions for writing new instrument drivers are provided in
-L<Lab::Moose::Developer>.
+L<Lab::Measurement::Developer>.
 
