@@ -13,7 +13,7 @@ requires qw/allowed_ranges set_range get_cached_range/;
 
 =head1 DESCRIPTION
 
-This role provides the C<'adjust_range'> method,
+This role provides the C<'adjust_measurement_range'> method,
  which selects a measurement range suitable for the current input signal.
 
 =head1 METHODS
@@ -21,7 +21,7 @@ This role provides the C<'adjust_range'> method,
 =head2 adjust_measurement_range
 
  my $value = $instrument->get_value();
- my $old_range = $instrument->adjust_range(
+ my $old_range = $instrument->adjust_measurement_range(
      value => $value,
      verbose => 1,
  );
@@ -30,7 +30,7 @@ This role provides the C<'adjust_range'> method,
 
 To limit the allowed ranges, supply an arrayref with allowed ranges:
 
- $instrument->adjust_range(
+ $instrument->adjust_measurement_range(
      value => ...,
      allowed_ranges => [0.1, 10],
  );
@@ -40,7 +40,7 @@ If C<verbose> is set, carp whenever the measurement range is changed.
 
 By default, the range is changed, whenever the signal exceeds 100% of the measurement range, this factor can be adjusted with the C<safety_factor> attribute.
 
- $instrument->adjust_range(
+ $instrument->adjust_measurement_range(
      ...,
      ...,
      safety_factor => 0.8, # change range when signal is at 80% of current range
@@ -93,6 +93,7 @@ sub adjust_measurement_range {
         }
         $self->set_range( value => $new_range );
     }
+    return $current_range;
 }
 
 =head1 REQUIRED METHODS
