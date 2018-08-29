@@ -211,6 +211,8 @@ contains support for temperature sensor and He/N2 level meters.
 
 =over
 
+=item * L<Lab::Moose::Instrument::AdjustRange>
+
 =item * L<Lab::Moose::Instrument::Common>
 
 =item * L<Lab::Moose::Instrument::LinearStepSweep>
