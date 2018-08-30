@@ -8,7 +8,7 @@ addons:
 language: perl
 
 env:
-  gp_version=5.0.5 with_pdl_graphics_gnuplot=1
+  gp_version=5.2.4 with_pdl_graphics_gnuplot=1
   
 perl:
     - "5.26"
@@ -22,14 +22,14 @@ perl:
 matrix:
   include:
     - perl: 5.24
-      env: gp_version=5.0.5 with_pdl_graphics_gnuplot=0
+      env: gp_version=5.2.4 with_pdl_graphics_gnuplot=0
 
 before_install:
   # Prevent "Please tell me who you are" errors for certain DZIL configs
   - git config --global user.name "TravisCI"
 
 install:
-  # Install gnuplot 5 for plot tests. (Not available on Ubuntu 12.04)
+  # Install gnuplot 5 for plot tests. (Not available on Ubuntu 12.04 / 14.04)
   - cd /tmp
   - wget http://mirrors.ctan.org/graphics/gnuplot/$gp_version/gnuplot-$gp_version.tar.gz
   - tar -xf gnuplot-$gp_version.tar.gz
