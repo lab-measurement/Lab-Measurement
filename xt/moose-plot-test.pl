@@ -36,9 +36,10 @@ my $sweep = sweep(
 my $datafile_2d = sweep_datafile( columns => [qw/x y y2/] );
 my $curve_options = { with => 'lines', linewidth => 2 };
 $datafile_2d->add_plot(
+    live   => 0,
     curves => [
-        {x => 'x', y => 'y', curve_options => $curve_options},
-        {x => 'x', y => 'y2', curve_options => {axes => 'x1y2'}},
+        { x => 'x', y => 'y',  curve_options => $curve_options },
+        { x => 'x', y => 'y2', curve_options => { axes => 'x1y2' } },
     ],
     plot_options => {
         title  => 'some title',

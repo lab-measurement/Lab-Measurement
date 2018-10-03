@@ -405,6 +405,15 @@ F<data.png>. Mandatory if you add multiple plots to one datafile.
 Terminal for hard_copy option. Use png terminal by default. The 'output'
 terminal option must be supported.
 
+=item * live
+
+Set to false to only create the hardcopy and no live plot.
+
+ $file->add_plot(
+     live => 0,
+     ...,
+ );
+
 =back
 
 =cut
