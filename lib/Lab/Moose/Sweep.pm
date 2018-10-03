@@ -274,7 +274,10 @@ sub start {
         }
     }
     else {
-        $datafolder = Lab::Moose::datafolder( date_prefix => $date_prefix, time_prefix => $time_prefix );
+        $datafolder = Lab::Moose::datafolder(
+            date_prefix => $date_prefix,
+            time_prefix => $time_prefix
+        );
     }
 
     $self->_foldername( $datafolder->path() );
@@ -434,7 +437,7 @@ sub _start {
 
 }
 
-sub _validated_log {
+sub _validated_datafile_arg {
 
     # could only use validated_hash without caching
     my $self = shift;
@@ -448,7 +451,6 @@ sub _validated_log {
     if ( keys(%datafiles) < 1 ) {
         croak "no datafiles available in log method";
     }
-
     if ( not defined $handle ) {
         my @keys = keys(%datafiles);
         if ( @keys != 1 ) {
@@ -459,6 +461,11 @@ sub _validated_log {
 
     }
     $datafile = $datafiles{$handle};
+    return ( $self, $datafile, $handle, %args );
+}
+
+sub _validated_log {
+    my ( $self, $datafile, $handle, %args ) = _validated_datafile_arg(@_);
     $self->logged_datafiles()->{$handle} = 1;
     return ( $self, $datafile, %args );
 }
@@ -471,6 +478,22 @@ sub log {
 sub log_block {
     my ( $self, $datafile, %args ) = _validated_log(@_);
     $datafile->log_block(%args);
+}
+
+sub _get_innermost_slave {
+    my $self = shift;
+    while ( defined $self->slave ) {
+        $self = $self->slave;
+    }
+    return $self;
+}
+
+sub refresh_plots {
+    my $self = shift;
+    $self = $self->_get_innermost_slave();
+    my ( $self2, $datafile, $handle, %args )
+        = _validated_datafile_arg( $self, @_ );
+    $datafile->refresh_plots(%args);
 }
 
 __PACKAGE__->meta->make_immutable();
