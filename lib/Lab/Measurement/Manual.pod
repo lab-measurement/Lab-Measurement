@@ -57,6 +57,8 @@ instruments and the high-level Lab::XPRESS interface
 
 =item * L<Lab::Moose::DataFile::Gnuplot>
 
+=item * L<Lab::Moose::DataFile::Gnuplot::Compressed>
+
 =item * L<Lab::Moose::DataFile::Meta>
 
 =item * L<Lab::Moose::DataFile::Read>

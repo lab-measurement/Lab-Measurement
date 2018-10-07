@@ -20,6 +20,41 @@ has compression => (
     default => 'Bzip2',
 );
 
+=head1 SYNOPSIS
+
+ use Lab::Moose;
+
+ my $folder = datafolder();
+
+ my $file = datafile(
+     type => 'Gnuplot::Compressed',
+     folder => $folder,
+     filename => 'gnuplot-file.dat',
+     columns => [qw/time voltage temp/]
+     );
+
+ $file->log(time => 1, voltage => 2, temp => 3);
+
+=head1 METHODS
+
+=head2 new
+
+Supports the following attributes in addition to the 
+L<Lab::Moose::DataFile::Gnuplot> requirements:
+
+=over
+
+=item * compression
+
+Compression type; defaults to 'Bzip2' (which is also the only supported value 
+right now).
+
+=back
+
+Note: this datafile type does not (yet) support any plots.
+
+=cut
+
 sub _open_file {
     my $self = shift;
 
