@@ -12,7 +12,7 @@ use Test::Fatal;
 use File::Spec::Functions qw/catfile/;
 use Lab::Moose;
 use Module::Load 'autoload';
-use IO::Uncompress::Bunzip2 qw/bunzip2/;
+use IO::Uncompress::Bunzip2 qw(bunzip2 $Bunzip2Error);
 
 my $dir = tempdir( CLEANUP => 1 );
 my $folder = datafolder( path => catfile( $dir, 'gnuplot' ) );
@@ -44,7 +44,8 @@ my $expected = <<"EOF";
 2\t3\t4
 EOF
 
-bunzip2 $path => $path . '.raw';
+bunzip2( $path => $path . '.raw', BinModeOut => 1 )
+    or die "error $Bunzip2Error\n";
 
 file_ok(
     $path . '.raw', $expected,
