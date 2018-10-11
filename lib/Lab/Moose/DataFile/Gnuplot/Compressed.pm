@@ -64,7 +64,7 @@ sub _modify_file_path {
 sub _open_filehandle {
     my $self = shift;
     my $path = shift;
-    my $fh   = new IO::Compress::Bzip2 $path
+    my $fh   = IO::Compress::Bzip2->new($path)
         or croak "cannot open '$path': $!";
     return $fh;
 }
