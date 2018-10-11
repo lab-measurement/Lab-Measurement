@@ -7,9 +7,9 @@ use warnings;
 use strict;
 
 use Moose;
-use IO::Compress::Bzip2;
 use File::Basename qw/dirname basename/;
 use Lab::Moose::Catfile 'our_catfile';
+use Module::Load;
 use Carp;
 
 extends 'Lab::Moose::DataFile::Gnuplot';
@@ -46,26 +46,68 @@ L<Lab::Moose::DataFile::Gnuplot> requirements:
 
 =item * compression
 
-Compression type; defaults to 'Bzip2' (which is also the only supported value 
-right now).
+Compression type; defaults to 'Bzip2', which is also the only value
+that has been tested so far. The following values are possible:
+
+  None
+  Gzip
+  Bzip2
+  Lzf
+  Xz
+
+Note that (except for None) this requires the corresponding
+IO::Compress:: modules to be available; only Gzip and Bzip2 are
+part of core perl.
 
 =back
 
-Note: this datafile type does not (yet) support any plots.
+This datafile type does not support any plots.
 
 =cut
+
+sub _suffix {
+    my %suffixtable=(
+        None  => '',
+        Gzip  => '.gz',
+        Bzip2 => '.bz2',
+        Lzf   => '.lzf',
+        Xz    => '.xz'
+    );
+
+    my $module = shift;
+    if (defined $suffixtable{$module}) {
+        return $suffixtable{$module};
+    } else {
+        croak "Unsupported compression module $module";
+    };
+}
 
 sub _modify_file_path {
     my $self = shift;
     my $path = shift;
-    return "$path." . lc $self->compression();
+    return $path . _suffix($self->compression());
 }
 
 sub _open_filehandle {
     my $self = shift;
     my $path = shift;
-    my $fh   = IO::Compress::Bzip2->new($path)
-        or croak "cannot open '$path': $!";
+
+    my $fh;
+
+    if ($self->compression() eq 'None') {
+
+        $fh = super();
+
+    } else {
+
+	my $modulename = "IO::Compress::" . $self->compression();
+        load $modulename;
+
+        $fh   = ("IO::Compress::".$self->compression())->new($path)
+            or croak "cannot open '$path': $!";
+
+    }
+
     return $fh;
 }
 

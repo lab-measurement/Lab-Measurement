@@ -27,7 +27,6 @@ my $path;
         columns  => [qw/A B C/],
     );
     $path = $file->path();
-    warn "path: $path";
     $file->log( A => 0.7, B => 2, C => 3 );
     $file->new_block();
     $file->log_comment( comment => 'YOLO' );
