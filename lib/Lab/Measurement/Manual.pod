@@ -4,6 +4,8 @@
 
 =pod
 
+=encoding UTF-8
+
 =head1 OVERVIEW
 
 Currently, the Lab::Measurement API consists of:
