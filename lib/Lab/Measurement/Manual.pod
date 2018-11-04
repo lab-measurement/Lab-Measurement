@@ -209,6 +209,8 @@ contains support for temperature sensor and He/N2 level meters.
 
 =item * L<Lab::Moose::Instrument::OI_Triton>
 
+=item * L<Lab::Moose::Instrument::Lakeshore340>
+
 =back
 
 =head2 Moose::Instrument Roles
