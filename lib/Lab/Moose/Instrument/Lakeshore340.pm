@@ -69,7 +69,7 @@ alias for C<get_T>.
 sub get_T {
     my ( $self, %args ) = validated_getter(
         \@_,
-        channel => { isa => enum( [qw/A B/] ) }
+        channel => { isa => enum( [qw/A B/] ), optional => 1 }
     );
     my $channel = delete $args{channel} // $self->input_channel();
     return $self->query( command => "KRDG? $channel", %args );
