@@ -138,9 +138,17 @@ alias: L<Lab::Moose::Instrument::Agilent34410A>
 
 =item * L<Lab::Moose::Instrument::Yokogawa7651>
 
+=item * L<Lab::Moose::Instrument::DummySource>
+
+=back
+
+=head3 Source/Measure Units
+
+=over
+
 =item * L<Lab::Moose::Instrument::Keithley2400>
 
-=item * L<Lab::Moose::Instrument::DummySource>
+=item * L<Lab::Moose::Instrument::KeysightB2901A>
 
 =back
 

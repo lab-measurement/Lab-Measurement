@@ -17,10 +17,13 @@ use namespace::autoclean;
 
 =head2 sense_function
 
-Query/Set the function used by the instrument.
+Query/Enable the sense function used by the instrument. Assumes that only a
+single functions is in use. Concurrent sense would need slightly more difficult
+implementation
 
 =cut
 
+# Cache used by multiple functions in sense subsystem
 cache sense_function => ( getter => 'sense_function_query' );
 
 sub sense_function_query {
@@ -40,6 +43,7 @@ sub sense_function {
 
 =head2 sense_function_concurrent_query/sense_function_concurrent
 
+Concurrent sense is not yet really supported.
 Set/Get concurrent property of sensor block. Allowed values: C<0> or C<1>.
 
 =cut
