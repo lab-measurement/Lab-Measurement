@@ -1,6 +1,6 @@
 package Lab::Moose::Instrument::KeysightB2901A;
 
-#ABSTRACT: Keysight B2901A voltage/current sourcemeter.
+#ABSTRACT: Agilent/Keysight B2901A voltage/current sourcemeter.
 
 use 5.010;
 
@@ -31,12 +31,13 @@ has verbose => (
 
 sub BUILD {
     my $self = shift;
+
     $self->clear();
     $self->cls();
 
-    # Concurrent sense is not really supported.
-    # $self->sense_function_concurrent( value => 0 );
-
+    # Hack: so far only single sense function is supported :(
+    $self->write( command => "SENS:FUNC:OFF:ALL" );
+    $self->sense_function( value => 'CURR' );
 }
 
 around default_connection_options => sub {
@@ -44,7 +45,7 @@ around default_connection_options => sub {
     my $self     = shift;
     my $options  = $self->$orig();
     my $usb_opts = {
-        vid => 0x2a8d    # , pid => 0x0201
+        vid => 0x0957, pid => 0x8b18    # Agilent vid!
     };
     $options->{USB} = $usb_opts;
     $options->{'VISA::USB'} = $usb_opts;
@@ -123,6 +124,20 @@ Used roles:
     
 =cut
 
+sub source_function_query {
+    my ( $self, %args ) = validated_getter( \@_ );
+
+    my $value = $self->query( command => "SOUR:FUNC:MODE?", %args );
+    $value =~ s/["']//g;
+    return $self->cached_source_function($value);
+}
+
+sub source_function {
+    my ( $self, $value, %args ) = validated_setter( \@_ );
+    $self->write( command => "SOUR:FUNC:MODE $value", %args );
+    $self->cached_source_function($value);
+}
+
 =head2 set_level
 
  $source->set_level(value => $new_level);
@@ -155,8 +170,8 @@ Do new measurement and return sample hashref of measured elements.
 
 sub get_measurement {
     my ( $self, %args ) = validated_getter( \@_ );
-    my $meas = $self->query( command => ':MEAS:CURR?', %args );
-    my $elements = $self->query( command => ':FORM:ELEM?' );
+    my $meas = $self->query( command => ':MEAS?', %args );
+    my $elements = $self->query( command => ':FORM:ELEM:SENS?' );
     my @elements    = split /,/, $elements;
     my @meas_values = split /,/, $meas;
     my %result = map { $_ => shift @meas_values } @elements;
@@ -361,6 +376,14 @@ with qw(
     Lab::Moose::Instrument::SCPI::Source::Range
     Lab::Moose::Instrument::LinearStepSweep
 );
+
+after source_level => sub {
+    my $self = shift;
+
+    # B2901A (with GPIB) accepts "SOUR:VOLT:LEV" in a faster rate than
+    # it can set the value. Slow it down by doing a query after each set.
+    $self->source_level_query();
+};
 
 __PACKAGE__->meta()->make_immutable();
 
