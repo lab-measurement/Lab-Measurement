@@ -20,7 +20,7 @@ Query/Set the input nplc.
 
 =cut
 
-with 'Lab::Moose::Instrument::SCPI::Sense::Function';
+requires 'cached_sense_function';
 
 cache sense_nplc => ( getter => 'sense_nplc_query' );
 

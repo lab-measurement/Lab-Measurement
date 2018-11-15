@@ -21,7 +21,7 @@ Query/Set state of null function.
 
 =cut
 
-with 'Lab::Moose::Instrument::SCPI::Sense::Function';
+requires 'cached_sense_function';
 
 cache sense_null_state => ( getter => 'sense_null_state_query' );
 

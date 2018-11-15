@@ -10,6 +10,7 @@ use MooseX::Params::Validate;
 use Module::Load 'load';
 use Data::Dumper;
 use Exporter 'import';
+use Carp;
 
 our @EXPORT_OK = qw(
     timeout_param
