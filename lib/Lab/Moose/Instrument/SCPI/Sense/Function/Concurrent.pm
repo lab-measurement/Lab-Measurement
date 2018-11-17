@@ -13,7 +13,7 @@ use namespace::autoclean;
 
 excludes 'Lab::Moose::Instrument::SCPI::Sense::Function';
 
-=head2 DESCRIPTION
+=head1 DESCRIPTION
 
 This role is intended for instruments which support multiple concurrent sense
 functions. For example, the Keithley2400 or KeysightB2901A source/measure units
@@ -35,6 +35,8 @@ measured parameters:
  $source->sense_function(value => 'VOLT');
  $source->sense_nplc(value => 10); 
 
+
+=head1 METHODS
 
 =head2 sense_function_concurrent_query/sense_function_concurrent
 

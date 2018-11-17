@@ -23,6 +23,8 @@ Query/Set state of null function.
 
 requires 'cached_sense_function';
 
+cache sense_null_state => ( getter => 'sense_null_state_query' );
+
 sub sense_null_state_query {
     my ( $self, %args ) = validated_getter( \@_ );
 
