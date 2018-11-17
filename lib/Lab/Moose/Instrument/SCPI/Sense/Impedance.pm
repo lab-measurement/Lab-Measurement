@@ -21,7 +21,7 @@ Query/Set input impedance mode. Allowed values: '0' or '1'.
 
 =cut
 
-with 'Lab::Moose::Instrument::SCPI::Sense::Function';
+requires 'cached_sense_function';
 
 cache sense_impedance_auto => ( getter => 'sense_impedance_auto_query' );
 

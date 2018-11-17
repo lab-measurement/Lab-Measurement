@@ -6,11 +6,11 @@ command: '*CLS'
 id: 1
 method: Write
 ---
-command: SENS:FUNC:CONC 0
+command: '*RST'
 id: 2
 method: Write
 ---
-command: '*RST'
+command: SENS:FUNC:CONC 0
 id: 3
 method: Write
 ---
@@ -40,25 +40,25 @@ command: SENS:FUNC:CONC 0
 id: 8
 method: Write
 ---
-command: SENS:FUNC 'CURR:DC'
+command: SENS:FUNC:ON 'CURR:DC'
 id: 9
 method: Write
 ---
-command: SENS:FUNC?
+command: SENS:FUNC:ON?
 id: 10
 method: Query
 retval: "\"CURR:DC\"\n"
 ---
-command: SENS:FUNC 'VOLT:DC'
+command: SENS:FUNC:ON 'VOLT:DC'
 id: 11
 method: Write
 ---
-command: SENS:FUNC?
+command: SENS:FUNC:ON?
 id: 12
 method: Query
 retval: "\"VOLT:DC\"\n"
 ---
-command: SENS:FUNC 'CURR'
+command: SENS:FUNC:ON 'CURR'
 id: 13
 method: Write
 ---

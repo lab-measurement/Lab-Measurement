@@ -20,7 +20,7 @@ Query/Set the measurement protection limit
 
 =cut
 
-with 'Lab::Moose::Instrument::SCPI::Sense::Function';
+requires 'cached_sense_function';
 
 cache sense_protection => ( getter => 'sense_protection_query' );
 

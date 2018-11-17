@@ -21,9 +21,7 @@ Query/Set state of null function.
 
 =cut
 
-with 'Lab::Moose::Instrument::SCPI::Sense::Function';
-
-cache sense_null_state => ( getter => 'sense_null_state_query' );
+requires 'cached_sense_function';
 
 sub sense_null_state_query {
     my ( $self, %args ) = validated_getter( \@_ );

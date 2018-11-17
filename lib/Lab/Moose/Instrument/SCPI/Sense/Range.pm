@@ -21,7 +21,7 @@ Query/Set the input range.
 
 =cut
 
-with 'Lab::Moose::Instrument::SCPI::Sense::Function';
+requires 'cached_sense_function';
 
 cache sense_range => ( getter => 'sense_range_query' );
 

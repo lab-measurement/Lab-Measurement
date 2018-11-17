@@ -32,23 +32,8 @@ has verbose => (
 sub BUILD {
     my $self = shift;
 
-    #
-
-    # # with USB-TMC, clear results in this error:
-    # # error in libusb_control_transfer_write: Pipe error at /home/simon/.plenv/versions/5.24.0/lib/perl5/site_perl/5.24.0/x86_64-linux/USB/LibUSB/Device/Handle.pm line 22.
-    # # apparently in USB::TMC::clear_feature_endpoint_out
-    # if ( $self->connection_type eq 'USB' ) {
-    #     $self->clear( source => 1 );
-    # }
-    # else {
-    #     $self->clear();
-    # }
     $self->clear();
     $self->cls();
-
-    # Concurrent sense is not really supported.
-    $self->sense_function_concurrent( value => 0 );
-
 }
 
 =encoding utf8
@@ -86,8 +71,9 @@ sub BUILD {
  ### Measurement 
 
  # Measure current
- $source->sense_function(value => 'CURR');
+ $source->sense_function_on(value => ['CURR']);
  # Use measurement integration time of 2 NPLC
+ $source->sense_function(value => 'CURR');
  $source->sense_nplc(value => 2);
 
  # Get measurement sample
@@ -111,7 +97,7 @@ Used roles:
 
 =item L<Lab::Moose::Instrument::SCPI::Sense::NPLC>
 
-=item L<Lab::Moose::Instrument::SCPI::Source::Function>
+=item L<Lab::Moose::Instrument::SCPI::Source::Function::Concurrent>
 
 =item L<Lab::Moose::Instrument::SCPI::Source::Level>
 
@@ -353,6 +339,7 @@ sub source_range {
 
 with qw(
     Lab::Moose::Instrument::Common
+    Lab::Moose::Instrument::SCPI::Sense::Function::Concurrent
     Lab::Moose::Instrument::SCPI::Sense::Protection
     Lab::Moose::Instrument::SCPI::Sense::Range
     Lab::Moose::Instrument::SCPI::Sense::NPLC

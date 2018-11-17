@@ -34,10 +34,6 @@ sub BUILD {
 
     $self->clear();
     $self->cls();
-
-    # Hack: so far only single sense function is supported :(
-    $self->write( command => "SENS:FUNC:OFF:ALL" );
-    $self->sense_function( value => 'CURR' );
 }
 
 around default_connection_options => sub {
@@ -87,6 +83,7 @@ around default_connection_options => sub {
  ### Measurement 
 
  # Measure current
+ $source->sense_function_on(value => ['CURR']);
  $source->sense_function(value => 'CURR');
  # Use measurement integration time of 2 NPLC
  $source->sense_nplc(value => 2);
@@ -105,6 +102,8 @@ Used roles:
 =over
 
 =item L<Lab::Moose::Instrument::Common>
+
+=item L<Lab::Moose::Instrument::SCPI::Sense::Function::Concurrent>
 
 =item L<Lab::Moose::Instrument::SCPI::Sense::Protection>
     
@@ -368,6 +367,7 @@ sub source_range {
 
 with qw(
     Lab::Moose::Instrument::Common
+    Lab::Moose::Instrument::SCPI::Sense::Function::Concurrent
     Lab::Moose::Instrument::SCPI::Sense::Protection
     Lab::Moose::Instrument::SCPI::Sense::Range
     Lab::Moose::Instrument::SCPI::Sense::NPLC
