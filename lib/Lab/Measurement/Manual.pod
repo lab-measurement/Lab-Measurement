@@ -37,8 +37,6 @@ instruments and the high-level Lab::XPRESS interface
 
 =item * L<Lab::Measurement::Developer>
 
-=item * L<Lab::Measurement::Developer::Testing>
-
 =item * L<Lab::Measurement::Examples::Example1_Simple_IV>
 
 =item * L<Lab::Measurement::Examples::Example2_Gate_IV_scan>
@@ -354,6 +352,8 @@ alias: C<Lab::Moose::Connection::VISA_GPIB>
 =over
 
 =item * L<Lab::Measurement::Legacy::Tutorial>
+
+=item * L<Lab::Measurement::Legacy::Developer::Testing>
 
 =back
 
