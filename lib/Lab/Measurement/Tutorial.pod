@@ -380,20 +380,16 @@ the C<start> method:
      folder      => 'IV_curve'
  );
 
-This will create output folders with names F<IV_curve_xxx>.
-
-Setting the C<date_prefix> attribute to C<1> will prefix the folder name with
-the date:
+This will create output folders with names F<YYYY-MM-DD_HH-MM-SS_IV_curve_xxx>
+If you do not want to use the date/time prefixes use
 
  $sweep->start(
      measurement => $meas,
      datafile    => $datafile,
      folder      => 'IV_curve',
-     date_prefix => 1
+     date_prefix => 0,
+     time_prefix => 0
  );
-
-This will create output folders with names F<YYYY-MM-DD_IV_curve_xxx>. The
-exact timestamp with second precision can always be found in F<META.yml>.
 
 
 =head2 Multiple datafiles
