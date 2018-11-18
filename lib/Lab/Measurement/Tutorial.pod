@@ -706,6 +706,29 @@ L<PDL::Graphics::Gnuplot> separates between plot options and curve options.
 
 More plot and curve options are documented in L<PDL::Graphics::Gnuplot>.
 
+=head3 Live plots in higher dimensional sweeps
+
+Live plotting is also supported for higher dimensional sweeps. When the sweep
+creates multiple subfolders with datafiles, C<add_plot> will be called each
+time a new datafile is created. In this case, the C<hard_copy> argument to
+C<add_plot> cannot be used, as the hard copies of each datafile plot need to
+have unique names. Instead we use C<hard_copy_suffix>:
+
+ # plot current versus voltage
+ $datafile->add_plot(
+     x         => 'voltage',
+     y         => 'current',
+     hard_copy_suffix => '_IV',
+ );
+
+ # plot voltage versus current
+ $datafile->add_plot(
+     x         => 'current',
+     y         => 'voltage',
+     hard_copy_suffix => '_VI',
+ );
+
+
 =head2 Block data
 
 There are types of instruments which return more than a single data. Examples
