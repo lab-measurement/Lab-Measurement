@@ -82,18 +82,30 @@ around default_connection_options => sub {
 
  ### Measurement 
 
+The B2901A provides a concurrent SENSE subsystem. See also L<Lab::Moose::Instrument::SCPI::Sense::Function::Concurrent>. 
+
  # Measure current
  $source->sense_function_on(value => ['CURR']);
  $source->sense_function(value => 'CURR');
+ # Set measurement range to 100nA
+ $source->sense_range(value => 100e-9);
  # Use measurement integration time of 2 NPLC
  $source->sense_nplc(value => 2);
-
+ # Set compliance limit to 10nA
+ $source->sense_protection(value => 10e-9);
+ 
  # Get measurement sample
  my $sample = $source->get_measurement();
  my $current = $sample->{CURR};
  # print all entries in sample (Voltage, Current, Resistance, Timestamp):
  use Data::Dumper;
  print Dumper $sample;
+
+
+=head1 NOTES
+
+There are problems with the USB connection:
+L<https://community.keysight.com/thread/36706>. GPIB works fine.
 
 =head1 METHODS
 
