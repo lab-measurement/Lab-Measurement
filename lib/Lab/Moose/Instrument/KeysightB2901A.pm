@@ -55,7 +55,7 @@ around default_connection_options => sub {
  use Lab::Moose;
 
  my $source = instrument(
-     type => 'Keithley2400',
+     type => 'KeysightB2901A',
      connection_type => 'LinuxGPIB',
      connection_options => {gpib_address => 15},
      # mandatory protection settings

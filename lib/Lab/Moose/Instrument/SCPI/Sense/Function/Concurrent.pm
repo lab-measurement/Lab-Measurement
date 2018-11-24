@@ -25,7 +25,7 @@ example, let us enable concurrent measurement of voltage and current and set the
 measured parameters:
 
  $source->sense_function_concurrent(value => 1);
- $source->sense_function_on(value => ['VOLT, 'CURR']); 
+ $source->sense_function_on(value => ['VOLT', 'CURR']); 
 
  # Set NPLC for current measurement
  $source->sense_function(value => 'CURR');
