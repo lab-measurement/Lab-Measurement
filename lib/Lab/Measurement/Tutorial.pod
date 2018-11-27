@@ -725,6 +725,22 @@ have unique names. Instead we use C<hard_copy_suffix>:
  );
 
 
+=head3 Refresh interval
+
+We can set a mininum type between redraws of the live plot. This becomes handy
+for large plot, where the redrawing the plot is slow. 
+
+ # Wait at least 10 minutes before redraw:
+ $datafile->add_plot(
+     ...
+     refresh_interval => 600,
+ );
+
+To ensure that the whole data is plotted at the end of the measurement, we force a
+redraw of all plots:
+
+ $sweep->refresh_plots(force => 1);
+
 =head2 Block data
 
 There are types of instruments which return more than a single data. Examples
