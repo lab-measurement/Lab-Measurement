@@ -83,6 +83,8 @@ instruments and the high-level Lab::XPRESS interface
 
 =item * L<Lab::Moose::Sweep::Step::Frequency>
 
+=item * L<Lab::Moose::Sweep::Step::Power>
+
 =item * L<Lab::Moose::Sweep::Step::Magnet>
 
 =item * L<Lab::Moose::Sweep::Step::Temperature>
