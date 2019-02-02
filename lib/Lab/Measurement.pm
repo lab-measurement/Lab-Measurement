@@ -1,4 +1,5 @@
 package Lab::Measurement;
+
 #ABSTRACT: Log, describe and plot data on the fly
 
 use strict;
@@ -10,7 +11,7 @@ use Exporter 'import';
 use Lab::XPRESS::hub qw(DataFile Sweep Frame Instrument Connection);
 our @EXPORT = qw(DataFile Sweep Frame Instrument Connection);
 
-carp  <<"EOF";
+carp <<"EOF";
 \"use Lab::Measurement;\" imports the legacy interface of Lab::Measurement.
 Please consider porting your measurement scripts to the new, Moose-based code.
 Documentation can be found at https://www.labmeasurement.de/

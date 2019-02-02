@@ -1,4 +1,5 @@
 package Lab::MultiChannelInstrument;
+
 #ABSTRACT: Multi-channel instrument base class
 
 use strict;

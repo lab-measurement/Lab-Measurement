@@ -1,4 +1,5 @@
 package Lab::Instrument;
+
 #ABSTRACT: Instrument base class
 
 use strict;

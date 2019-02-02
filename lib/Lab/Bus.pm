@@ -1,4 +1,5 @@
 package Lab::Bus;
+
 #ABSTRACT: Bus base class
 
 use strict;

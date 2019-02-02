@@ -1,4 +1,5 @@
 package Lab::Connection;
+
 #ABSTRACT: Connection base class
 
 use strict;

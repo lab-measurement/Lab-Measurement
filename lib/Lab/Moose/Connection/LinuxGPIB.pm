@@ -389,6 +389,9 @@ Enable termination of reads when eos character is received.
 
 =cut
 
+# With default LinuxGPIB configuration, the END bit of ibsta will be set
+# when the eos char is received (see IbcEndBitIsNormal mode of ibconfig).
+
 sub enable_read_termchar {
     my ( $self, %args ) = validated_hash(
         \@_,

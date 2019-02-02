@@ -1,4 +1,5 @@
 package Lab::Exception;
+
 #ABSTRACT: Exception handling classes
 
 #

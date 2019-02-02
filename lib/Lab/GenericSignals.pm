@@ -1,10 +1,9 @@
 package Lab::GenericSignals;
+
 #ABSTRACT: Signal handling
 
 use warnings;
 use strict;
-
-
 
 use sigtrap 'handler' => \&abort_all, qw(normal-signals error-signals);
 

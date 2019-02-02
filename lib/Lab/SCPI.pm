@@ -1,4 +1,5 @@
 package Lab::SCPI;
+
 #ABSTRACT: Match L<SCPI|http://www.ivifoundation.org/scpi/> headers and parameters against keywords
 
 use 5.010;
@@ -9,7 +10,6 @@ use strict;
 use Carp;
 use English;    # avoid editor nonsense with odd special variables
 use Exporter 'import';
-
 
 our @EXPORT = qw( scpi_match scpi_parse scpi_canon
     scpi_flat scpi_parse_sequence );

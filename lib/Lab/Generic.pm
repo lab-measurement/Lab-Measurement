@@ -1,8 +1,8 @@
 package Lab::Generic;
+
 #ABSTRACT: General function library for the L::M classes
 
 use Lab::Generic::CLOptions;
-
 
 use strict;
 use Term::ReadKey;
