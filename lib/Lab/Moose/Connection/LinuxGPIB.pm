@@ -17,7 +17,7 @@ package Lab::Moose::Connection::LinuxGPIB;
 
 This module provides a connection interface to
 L<Linux-GPIB|http://linux-gpib.sourceforge.net/>. See
-L<Lab::Measurement::Backends> for more information on Linux-GPIB and it's Perl
+L<Lab::Measurement::Backends> for more information on Linux-GPIB and its Perl
 backend.
 
 =cut
@@ -43,6 +43,7 @@ use LinuxGpib qw/
     ibwrt
     ibtmo
     ibclr
+    ibconfig
     /;
 
 =head1 METHODS
@@ -357,6 +358,49 @@ sub Clear {
 
     $self->_croak_on_err( ibsta => $ibsta, name => 'ibclr' );
 
+}
+
+=head2 set_termchar
+
+ $connection->set_termchar(termchar => "\r");
+
+Set the end-of-string byte
+
+=cut
+
+sub set_termchar {
+    my ( $self, %args ) = validated_hash(
+        \@_,
+        timeout_param,
+        termchar => { isa => 'Str' },
+    );
+    my $timeout = $self->_timeout_arg(%args);
+    $self->_set_timeout( timeout => $timeout );
+    my $termchar = ord( $args{termchar} );
+    my $ibsta = ibconfig( $self->device_descriptor, 0xf, $termchar );
+    $self->_croak_on_err( ibsta => $ibsta, name => 'ibconfig set_termchar' );
+}
+
+=head2 enable_read_termchar
+
+ $connection->enable_read_termchar();
+
+Enable termination of reads when eos character is received.
+
+=cut
+
+sub enable_read_termchar {
+    my ( $self, %args ) = validated_hash(
+        \@_,
+        timeout_param
+    );
+    my $timeout = $self->_timeout_arg(%args);
+    $self->_set_timeout( timeout => $timeout );
+    my $ibsta = ibconfig( $self->device_descriptor, 0xc, 1 );
+    $self->_croak_on_err(
+        ibsta => $ibsta,
+        name  => 'ibconfig enable_termchar'
+    );
 }
 
 sub _set_timeout {
