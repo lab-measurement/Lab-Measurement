@@ -17,6 +17,13 @@ extends 'Lab::Moose::Instrument';
 has empty_buffer_count =>
     ( is => 'ro', isa => 'Lab::Moose::PosInt', default => 1 );
 has auto_pid => ( is => 'ro', isa => 'Bool', default => 1 );
+
+has high_temp_sensor =>
+    ( is => 'ro', isa => enum( [qw/1 2 3/] ), default => 3 );
+has low_temp_sensor =>
+    ( is => 'ro', isa => enum( [qw/1 2 3/] ), default => 2 );
+
+# currently used sensor
 has t_sensor => ( is => 'rw', isa => enum( [qw/1 2 3/] ), default => 3 );
 
 # most function names should be backwards compatible with the
@@ -59,6 +66,20 @@ sub BUILD {
  );
  
 
+=head1 DESCRIPTION
+
+By default, two temperature sensors are used: Sensor 2 for temperatures below
+1.5K and sensor 3 for temperatures above 1.5K. The used sensors can be set in
+the constructor, e.g.
+
+ my $itc = instrument(
+     ...
+     high_temp_sensor => 2,
+     low_temp_sensor => 3
+ );
+
+The get_value and set_T functions will dynamically choose the proper sensor.
+
 =head1 METHODS
 
 =cut
@@ -89,6 +110,14 @@ received '$status' on command '$cmd'";
     return substr( $result, 1 );
 };
 
+=head2 set_control
+
+ $itc->set_control(value => 1);
+
+Set device local/remote mode (0, 1, 2, 3)
+
+=cut
+
 sub set_control {
     my ( $self, $value, %args ) = validated_setter(
         \@_,
@@ -99,12 +128,369 @@ sub set_control {
     return $result;
 }
 
+=head2 itc_set_communications_protocol
+
+ $itc->itc_set_communications_protocol(value => 0); # 0 or 2
+ 
+=cut
+
+sub itc_set_communications_protocol {
+    my ( $self, $value, %args ) = validated_setter(
+        \@_,
+        value => { isa => enum( [qw/0 2/] ) }
+    );
+    return $self->query( command => "Q$value\r" );
+}
+
+# for XPRESS compatibility
+sub set_T {
+    my $self = shift;
+    my $temp = shift;
+    $self->itc_set_T( value => $temp );
+}
+
+=head2 itc_set_T
+
+ $itc->itc_set_T(value => 0.5);
+
+Set target temperature.
+
+=cut
+
+sub itc_set_T {
+    my ( $self, $value, %args ) = validated_setter(
+        \@_,
+        value => { isa => 'Lab::Moose::PosNum' },
+    );
+    my $t_sensor         = $self->t_sensor;
+    my $high_temp_sensor = $self->high_temp_sensor;
+    my $low_temp_sensor  = $self->low_temp_sensor;
+
+    if ( $value < 1.5 && $t_sensor != $low_temp_sensor ) {
+        $t_sensor = $low_temp_sensor;
+    }
+    elsif ( $value >= 1.5 && $t_sensor != $high_temp_sensor ) {
+        $t_sensor = $high_temp_sensor;
+    }
+    $self->itc_set_heater_auto( value => 0 );
+    $self->itc_set_heater_sensor( value => $t_sensor );
+    $self->itc_set_heater_auto( value => 1 );
+    $self->itc_T_set_point( value => $value );
+
+    warn "Set temperature $value with sensor $t_sensor.";
+    $self->t_sensor($t_sensor);
+}
+
+=head2 get_value
+
+ my $temp = $itc->get_value();
+
+Get current temperature value.
+
+=cut
+
+sub get_value {
+    my ( $self, %args ) = validated_getter( \@_ );
+    my $t_sensor         = $self->t_sensor();
+    my $high_temp_sensor = $self->high_temp_sensor();
+    my $low_temp_sensor  = $self->low_temp_sensor();
+    my $temp             = $self->itc_read_parameter( param => $t_sensor );
+    $temp = $self->itc_read_parameter( param => $t_sensor );
+    $temp = $self->itc_read_parameter( param => $t_sensor );
+    if ( $temp < 1.5 && $t_sensor != $low_temp_sensor ) {
+        $t_sensor = $low_temp_sensor;
+        $temp     = $self->itc_read_parameter( param => $t_sensor );
+        $temp     = $self->itc_read_parameter( param => $t_sensor );
+        $temp     = $self->itc_read_parameter( param => $t_sensor );
+        warn "Switching to sensor $t_sensor at temperature $temp";
+    }
+    elsif ( $temp >= 1.5 && $t_sensor != $high_temp_sensor ) {
+        $t_sensor = $high_temp_sensor;
+        $temp     = $self->itc_read_parameter( param => $t_sensor );
+        $temp     = $self->itc_read_parameter( param => $t_sensor );
+        $temp     = $self->itc_read_parameter( param => $t_sensor );
+        warn "Switching to sensor $t_sensor at temperature $temp";
+    }
+    warn "Read temperature $temp with sensor $t_sensor.";
+    $self->t_sensor($t_sensor);
+    return $temp;
+}
+
+=head2 itc_read_parameter
+
+ my $value = $itc->itc_read_parameter(param => 1);
+
+Allowed values for C<param> are 0..13
+
+=cut
+
+sub itc_read_parameter {
+    my ( $self, %args ) = validated_getter(
+        \@_,
+        param => { isa => enum( [qw/0 1 2 3 4 5 6 7 8 9 10 11 12 13/] ) },
+    );
+    my $param = $args{param};
+    my $result = $self->query( command => "R$param\r", %args );
+    return sprintf( "%e", $result );
+}
+
+=head2 itc_set_wait
+
+ $itc->itc_set_wait(value => $milli_seconds);
+
+=cut
+
+sub itc_set_wait {
+    my ( $self, $value, %args ) = validated_setter(
+        \@_,
+        value => { isa => 'Lab::Moose::PosInt' }
+    );
+    $self->query( command => "W$value\r" );
+}
+
+=head2 itc_examine
+
+ my $status = $itc->itc_examine();
+
+
+=cut
+
+sub itc_examine {
+    my ( $self, %args ) = validated_getter( \@_ );
+    return $self->query( command => "X\r", %args );
+}
+
+# for XPRESS compatiblity
+sub set_heatercontrol {
+    my $self = shift;
+    my $mode = shift;
+
+    if ( $mode eq 'MAN' ) {
+        $self->itc_set_heater_auto( value => 0 );
+    }
+    elsif ( $mode eq 'AUTO' ) {
+        $self->itc_set_heater_auto( value => 1 );
+    }
+    else {
+        warn "set_heatercontrol received an invalid parameter: $mode";
+    }
+
+}
+
+=head2 itc_set_heater_auto
+
+ $itc->itc_set_heater_auto(value => 0);
+
+Allowed values:
+0 Heater Manual, Gas Manual;
+1 Heater Auto, Gas Manual
+2 Heater Manual, Gas Auto
+3 Heater Auto, Gas Auto
+
+=cut
+
+sub itc_set_heater_auto {
+    my ( $self, $value, %args ) = validated_setter(
+        \@_,
+        value => { isa => enum( [qw/0 1 2 3/] ) }
+    );
+    return $self->query( command => "A$value\r", %args );
+}
+
+# for XPRESS compatibility
+sub set_PID {
+    my $self = shift;
+    my $p    = shift;
+    my $i    = shift;
+    my $d    = shift;
+    $self->itc_set_PID( p => $p, i => $i, d => $d );
+}
+
+=head2 itc_set_PID
+
+ $itc->itc_set_PID(
+     p => $p,
+     i => $i,
+     d => $d
+ );
+
+=cut
+
+sub itc_set_PID {
+    my ( $self, %args ) = validated_getter(
+        \@_,
+        p => { isa => 'Num' },
+        i => { isa => 'Num' },
+        d => { isa => 'Num' },
+    );
+    $self->itc_set_proportional_value( value => $args{p} );
+    $self->itc_set_integral_value( value => $args{i} );
+    $self->itc_set_derivative_value( value => $args{d} );
+}
+
+sub itc_set_proportional_value {
+    my ( $self, $value, %args ) = validated_setter(
+        \@_,
+        value => { isa => 'Lab::Moose::PosInt' }
+    );
+    $self->itc_set_PID_auto( value => 0 );
+    return $self->query( command => "P$value\r", %args );
+}
+
+sub itc_set_integral_value {
+    my ( $self, $value, %args ) = validated_setter(
+        \@_,
+        value => { isa => 'Lab::Moose::PosInt' }
+    );
+    $self->itc_set_PID_auto( value => 0 );
+    return $self->query( command => "I$value\r", %args );
+}
+
+sub itc_set_derivative_value {
+    my ( $self, $value, %args ) = validated_setter(
+        \@_,
+        value => { isa => 'Lab::Moose::PosInt' }
+    );
+    $self->itc_set_PID_auto( value => 0 );
+    return $self->query( command => "D$value\r", %args );
+}
+
+=head2 itc_set_PID_auto
+ 
+ $itc->itc_set_PID_auto(value => 1); # enable
+ $itc->itc_set_PID_auto(value => 0); # disable
+
+=cut
+
 sub itc_set_PID_auto {
     my ( $self, $value, %args ) = validated_setter(
         \@_,
         value => { isa => enum( [qw/0 1/] ) }
     );
     return $self->query( command => "L$value\r", %args );
+}
+
+=head2 itc_set_max_heater_voltage
+
+ $itc->itc_set_max_heater_voltage(value => $voltage);
+
+=cut
+
+# in 0.1 V
+# 0 dynamical varying limit
+sub itc_set_max_heater_voltage {
+    my ( $self, $value, %args ) = validated_setter(
+        \@_,
+        value => { isa => 'Lab::Moose::PosNum' }
+    );
+    return $self->query( command => "M$value\r", %args );
+}
+
+# from 0 to 0.999
+# 0 dynamical varying limit
+
+=head2 itc_set_heater_output
+
+ $itc->itc_set_heater_output(value => $output); # value from 0 to 0.999
+
+=cut
+
+sub itc_set_heater_output {
+    my ( $self, $value, %args ) = validated_setter( \@_ );
+    $value = sprintf( "%d", 1000 * $value );
+    return $self->query( command => "O$value\r", %args );
+}
+
+=head2 itc_T_set_point
+
+ $itc->itc_T_set_point(value => $temp);
+
+=cut
+
+sub itc_T_set_point {
+    my ( $self, $value, %args ) = validated_setter(
+        \@_,
+        value => { isa => 'Lab::Moose::PosNum' }
+    );
+    $value = sprintf( "%.3f", $value );
+    return $self->query( command => "T$value\r" );
+}
+
+#
+#
+# subs below need some more care
+#
+#
+
+sub itc_sweep {
+    my ( $self, $value, %args ) = validated_setter(
+        \@_,
+        value => { isa => 'Lab::Moose::PosInt' },
+    );
+    if ( $value > 32 ) {
+        croak "value argument of itc_sweep must be in the range 0..32";
+    }
+    return $self->query( command => "S$value\r", %args );
+}
+
+sub itc_set_pointer {
+
+    # Sets Pointer in internal ITC memory
+    my $self = shift;
+    my $x    = shift;
+    my $y    = shift;
+    if ( $x < 0 or $x > 128 ) {
+        printf "x=$x no valid ITC Pointer value\n";
+        die;
+    }
+    if ( $y < 0 or $y > 128 ) {
+        printf "y=$y no valid ITC Pointer value\n";
+        die;
+    }
+    my $cmd = sprintf( "x%d\r", $x );
+    $self->query( command => $cmd );
+    $cmd = sprintf( "y%d\r", $y );
+    $self->query( command => $cmd );
+}
+
+sub itc_program_sweep_table {
+    my $self      = shift;
+    my $setpoint  = shift;    #K Sweep Stop Point
+    my $sweeptime = shift;    #Min. Total Sweep Time
+    my $holdtime  = shift;    #sec. Hold Time
+
+    if ( $setpoint < 0. or $setpoint > 9.9 ) {
+        printf "Cannot reach setpoint: $setpoint\n";
+        die;
+    }
+
+    $self->itc_set_pointer( 1, 1 );
+    $setpoint = sprintf( "%1.4f", $setpoint );
+    $self->query( command => "s$setpoint\r" );
+
+    $self->itc_set_pointer( 1, 2 );
+    $sweeptime = sprintf( "%.4f", $sweeptime );
+    $self->query( command => "s$sweeptime\r" );
+
+    $self->itc_set_pointer( 1, 3 );
+    $holdtime = sprintf( "%.4f", $holdtime );
+    $self->query( command => "s$holdtime\r" );
+
+    $self->itc_set_pointer( 0, 0 );
+}
+
+sub itc_read_sweep_table {
+
+    # Clears Sweep Program Table
+    my $self = shift;
+    $self->query( command => "r\r" );
+}
+
+sub itc_clear_sweep_table {
+
+    # Clears Sweep Program Table
+    my $self = shift;
+    $self->query( command => "w\r" );
 }
 
 =head2 Consumed Roles
