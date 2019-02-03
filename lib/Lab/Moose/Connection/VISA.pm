@@ -105,6 +105,45 @@ sub _set_visa_attribute {
     $self->_handle_status( $status, "viSetAttribute" );
 }
 
+=head2 set_termchar
+
+ $connection->set_termchar(termchar => "\r");
+
+Set the end-of-string byte
+
+=cut
+
+sub set_termchar {
+    my ( $self, %args ) = validated_hash(
+        \@_,
+        timeout_param,
+        termchar => { isa => 'Str' },
+    );
+
+    my $timeout = $self->_timeout_arg(%args);
+    $self->_set_timeout( timeout => $timeout );
+    my $termchar = ord( $args{termchar} );
+    $self->_set_visa_attribute( attribute => VI_ATTR_TERMCHAR, $termchar );
+}
+
+=head2 enable_read_termchar
+
+ $connection->enable_read_termchar();
+
+Enable termination of reads when eos character is received.
+
+=cut
+
+sub enable_read_termchar {
+    my ( $self, %args ) = validated_hash(
+        \@_,
+        timeout_param
+    );
+    my $timeout = $self->_timeout_arg(%args);
+    $self->_set_timeout( timeout => $timeout );
+    $self->_set_visa_attribute( attribute => VI_ATTR_TERMCHAR_EN, VI_TRUE );
+}
+
 sub gen_resource_name {
     return shift->resource_name();
 }
@@ -158,7 +197,9 @@ sub Read {
         $result .= $data;
         $read_length -= length($data);
 
-        if ( $status == VI_SUCCESS or $status == VI_SUCCESS_MAX_CNT ) {
+        if (   $status == VI_SUCCESS
+            or $status == VI_SUCCESS_TERM_CHAR
+            or $status == VI_SUCCESS_MAX_CNT ) {
             last;
         }
     }
