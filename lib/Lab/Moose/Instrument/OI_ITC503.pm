@@ -34,10 +34,6 @@ sub BUILD {
 
     warn "The ITC driver is work in progress. You have been warned";
 
-    if ( $self->auto_pid ) {
-        $self->itc_set_PID_auto(1);
-    }
-
     # Unlike modern GPIB equipment, this device does not assert the EOI
     # at end of message. The controller shell stop reading when receiving the
     # eos byte.
@@ -48,8 +44,14 @@ sub BUILD {
     # Dont clear the instrument since that may make it unresponsive.
     # Instead, set the communication protocol to "Normal", which should
     # also clear all communication buffers.
-    $self->write("Q0\r");    # why not use set_control ???
+    $self->write( command => "Q0\r" );    # why not use set_control ???
     $self->set_control( value => 3 );
+
+    if ( $self->auto_pid ) {
+        warn "setting PID to AUTO";
+        $self->itc_set_PID_auto( value => 1 );
+    }
+
 }
 
 =encoding utf8
@@ -229,7 +231,7 @@ sub itc_read_parameter {
         \@_,
         param => { isa => enum( [qw/0 1 2 3 4 5 6 7 8 9 10 11 12 13/] ) },
     );
-    my $param = $args{param};
+    my $param = delete $args{param};
     my $result = $self->query( command => "R$param\r", %args );
     return sprintf( "%e", $result );
 }

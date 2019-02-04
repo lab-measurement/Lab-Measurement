@@ -200,6 +200,20 @@ And for the SR830 lock-in amplifier:
  say "x = $xy->{x}, y = $xy->{y}";
 
 
+=head2 Connection logging
+
+We can monitor the commands sent to the instrument by specifying a log file in
+the constructor:
+
+ my $lia = instrument(
+     type => 'SR830',
+     connection_type => 'VISA::GPIB',
+     connection_options => {pad => 1},
+     log_file => 'some_file.yml'
+ );
+
+All communication will be logged in the human readable file F<some_file.yml>.  
+
 =head1 Types of instrument drivers
 
 Here we show some examples of more advanced types of instruments.
