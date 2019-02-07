@@ -66,7 +66,17 @@ sub BUILD {
      connection_type => 'LinuxGPIB',
      connection_options => {pad => 10},
  );
- 
+
+
+ # Get temperature
+ say "Temperature: ", $itc->get_value();
+
+ # Set heater to AUTO
+ $itc->itc_set_heater_auto( value => 0 );
+
+ # Set PID to AUTO
+ $itc->itc_set_PID_auto( value => 1 );
+
 
 =head1 DESCRIPTION
 
@@ -80,7 +90,7 @@ the constructor, e.g.
      low_temp_sensor => 3
  );
 
-The get_value and set_T functions will dynamically choose the proper sensor.
+The L</get_value> and L</set_T> functions will dynamically choose the proper sensor.
 
 =head1 METHODS
 
@@ -216,6 +226,17 @@ sub get_value {
     warn "Read temperature $temp with sensor $t_sensor.";
     $self->t_sensor($t_sensor);
     return $temp;
+}
+
+=head2 get_T
+
+Alias for L</get_value>.
+
+=cut
+
+sub get_T {
+    my $self = shift;
+    return $self->get_value(@_);
 }
 
 =head2 itc_read_parameter
