@@ -154,11 +154,10 @@ sub itc_set_communications_protocol {
     return $self->query( command => "Q$value\r" );
 }
 
-# for XPRESS compatibility
+# For Lab::Moose::Sweep interface
 sub set_T {
     my $self = shift;
-    my $temp = shift;
-    $self->itc_set_T( value => $temp );
+    $self->itc_set_T(@_);
 }
 
 =head2 itc_set_T
@@ -376,6 +375,23 @@ sub itc_set_derivative_value {
     );
     $self->itc_set_PID_auto( value => 0 );
     return $self->query( command => "D$value\r", %args );
+}
+
+=head2 itc_set_heater_sensor
+
+ $itc->itc_set_heater_sensor( value => 1 );
+
+Value must be one of 1, 2, or 3.
+
+
+=cut
+
+sub itc_set_heater_sensor {
+    my ( $self, $value, %args ) = validated_setter(
+        \@_,
+        value => { isa => enum( [ 1, 2, 3 ] ) }
+    );
+    return $self->query( command => "H$value\r", %args );
 }
 
 =head2 itc_set_PID_auto
