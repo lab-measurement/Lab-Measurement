@@ -40,6 +40,7 @@ sub BUILD {
 
     $self->connection->set_termchar( termchar => "\r" );
     $self->connection->enable_read_termchar();
+    $self->clear();
 
     # Dont clear the instrument since that may make it unresponsive.
     # Instead, set the communication protocol to "Normal", which should
