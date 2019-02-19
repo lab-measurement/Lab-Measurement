@@ -9,6 +9,7 @@ use MooseX::Params::Validate;
 use Lab::Moose::Instrument qw/
     validated_getter validated_setter setter_params /;
 use Lab::Moose::Instrument::Cache;
+use Lab::Moose::Countdown 'countdown';
 use Carp;
 use namespace::autoclean;
 
@@ -32,7 +33,7 @@ has t_sensor => ( is => 'rw', isa => enum( [qw/1 2 3/] ), default => 3 );
 sub BUILD {
     my $self = shift;
 
-    warn "The ITC driver is work in progress. You have been warned";
+    warn "The ITC driver is work in progress. You have been warned\n";
 
     # Unlike modern GPIB equipment, this device does not assert the EOI
     # at end of message. The controller shell stop reading when receiving the
@@ -49,7 +50,7 @@ sub BUILD {
     $self->set_control( value => 3 );
 
     if ( $self->auto_pid ) {
-        warn "setting PID to AUTO";
+        warn "setting PID to AUTO\n";
         $self->itc_set_PID_auto( value => 1 );
     }
 
@@ -189,7 +190,7 @@ sub itc_set_T {
     $self->itc_set_heater_auto( value => 1 );
     $self->itc_T_set_point( value => $value );
 
-    warn "Set temperature $value with sensor $t_sensor.";
+    warn "Set temperature $value with sensor $t_sensor\n";
     $self->t_sensor($t_sensor);
 }
 
@@ -214,16 +215,16 @@ sub get_value {
         $temp     = $self->itc_read_parameter( param => $t_sensor );
         $temp     = $self->itc_read_parameter( param => $t_sensor );
         $temp     = $self->itc_read_parameter( param => $t_sensor );
-        warn "Switching to sensor $t_sensor at temperature $temp";
+        warn "Switching to sensor $t_sensor at temperature $temp\n";
     }
     elsif ( $temp >= 1.5 && $t_sensor != $high_temp_sensor ) {
         $t_sensor = $high_temp_sensor;
         $temp     = $self->itc_read_parameter( param => $t_sensor );
         $temp     = $self->itc_read_parameter( param => $t_sensor );
         $temp     = $self->itc_read_parameter( param => $t_sensor );
-        warn "Switching to sensor $t_sensor at temperature $temp";
+        warn "Switching to sensor $t_sensor at temperature $temp\n";
     }
-    warn "Read temperature $temp with sensor $t_sensor.";
+    warn "Read temperature $temp with sensor $t_sensor\n";
     $self->t_sensor($t_sensor);
     return $temp;
 }
@@ -295,7 +296,7 @@ sub set_heatercontrol {
         $self->itc_set_heater_auto( value => 1 );
     }
     else {
-        warn "set_heatercontrol received an invalid parameter: $mode";
+        warn "set_heatercontrol received an invalid parameter: $mode\n";
     }
 
 }
@@ -531,6 +532,76 @@ sub itc_clear_sweep_table {
     # Clears Sweep Program Table
     my $self = shift;
     $self->query( command => "w\r" );
+}
+
+=head2 
+
+ $itc->heat_sorb(
+     max_temp => $max_temp, # default: 30 K
+     max_temp_time => ..., # default: 20 * 60 seconds
+     middle_temp => ..., # default: 20 K
+     middle_temp_time => ..., # default: 200 seconds
+     target_time => ..., # default: 0.3 K
+     sorb_sensor => ..., # default: 1
+     sample_sensor => ..., # default: 2
+ );
+
+Heat the sorb of a 3-He cryostat (like OI HelioxVL). The sorb temperature is
+first set to C<middle_temp> for C<middle_temp_time> seconds, then to
+C<max_temp> for C<max_temp_time> seconds. Then the heater is switched off and
+the routine returns when the temperature at C<sample_sensor> has dropped below C<target_time>.  
+ 
+
+
+=cut
+
+sub heat_sorb {
+    my $self = shift;
+    my (
+        $max_temp,    $max_temp_time, $middle_temp, $middle_temp_time,
+        $target_temp, $sorb_sensor
+        )
+        = validated_list(
+        \@_,
+        max_temp      => { isa => 'Lab::Moose::PosNum', default => 30 },
+        max_temp_time => { isa => 'Lab::Moose::PosNum', default => 20 * 60 },
+        middle_temp   => { isa => 'Lab::Moose::PosNum', default => 10 },
+        middle_temp_time => { isa => 'Lab::Moose::PosNum', default => 200 },
+        target_temp      => { isa => 'Lab::Moose::PosNum', default => 0.3 },
+        sorb_sensor => { isa => enum( [ 1, 2, 3 ] ), default => 1 },
+        );
+    warn "Heating sorb\n";
+    $self->itc_set_heater_auto( value => 0 );
+    $self->itc_set_PID_auto( value => 1 );
+
+    $self->itc_set_heater_output( value => 0 );
+    $self->itc_set_heater_sensor( value => $sorb_sensor );
+    $self->itc_T_set_point( value => $middle_temp );
+
+    $self->itc_set_heater_auto( value => 1 );
+
+    warn "Sorb setpoint set to $middle_temp K\n";
+    countdown( $middle_temp_time, "Waiting for $middle_temp_time seconds: " );
+
+    $self->itc_T_set_point( value => $max_temp );
+    $self->itc_set_heater_auto( value => 1 );
+    warn "Sorb setpoint set to $max_temp K\n";
+    countdown( $max_temp_time, "Waiting for $max_temp_time seconds: " );
+    warn "He3 should be condensated. Switching off heater\n";
+
+    $self->itc_set_heater_auto( value => 0 );
+    $self->itc_set_heater_output( value => 0 );
+    $self->itc_set_PID_auto( value => 1 );
+    warn "Waiting until target temperature $target_temp is reached\n";
+    while (1) {
+        my $temp = $self->get_value();
+        warn "temp: $temp\n";
+        if ( $temp <= $target_temp ) {
+            warn "reached target temperature\n";
+            last;
+        }
+        sleep(5);
+    }
 }
 
 =head2 Consumed Roles
