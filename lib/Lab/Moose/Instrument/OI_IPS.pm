@@ -15,8 +15,13 @@ use namespace::autoclean;
 
 extends 'Lab::Moose::Instrument';
 
-has max_field      => ( isa => 'Lab::Moose::PosNum', required => 1 );
-has max_field_rate => ( isa => 'Lab::Moose::PosNum', required => 1 );
+# Ideally, max_fields and max_field_rates should be preconfigured in a
+# subclass, with values specific for the magnet used at the setup
+
+has max_fields =>
+    ( is => 'ro', isa => 'ArrayRef[Lab::Moose::PosNum]', required => 1 );
+has max_field_rates =>
+    ( is => 'ro', isa => 'ArrayRef[Lab::Moose::PosNum]', required => 1 );
 
 has verbose => (
     is      => 'ro',
@@ -39,6 +44,59 @@ sub BUILD {
 
     $self->write( command => "Q0\r" );    # why not use set_control ???
     $self->set_control( value => 3 );
+
+    $self->_check_field_rates();
+}
+
+sub _check_field_rates {
+    my $self            = shift;
+    my @max_fields      = @{ $self->max_fields };
+    my @max_field_rates = @{ $self->max_field_rates };
+    if ( @max_fields < 1 ) {
+        croak "Need at least one element in max_fields array";
+    }
+    if ( @max_fields != @max_field_rates ) {
+        croak "Need as many values in max_fields as in max_field_rates";
+    }
+
+    for my $i ( 1 .. $#max_fields ) {
+        if ( $max_fields[$i] <= $max_fields[ $i - 1 ] ) {
+            croak "values in max_fields must be in increasing order";
+        }
+        if ( $max_field_rates[$i] > $max_field_rates[ $i - 1 ] ) {
+            croak "values in max_field_rates must decrease";
+        }
+    }
+}
+
+sub _check_sweep_parameters {
+    my $self   = shift;
+    my $target = shift;
+    my $rate   = shift;
+
+    $target = abs($target);
+    $rate   = abs($rate);
+
+    my @max_fields      = @{ $self->max_fields };
+    my @max_field_rates = @{ $self->max_field_rates };
+    my $maximum_field   = $max_fields[-1];
+
+    my $i = 0;
+    while (1) {
+        if ( $target <= $max_fields[$i] ) {
+            last;
+        }
+        if ( $target > $maximum_field ) {
+            croak
+                "target field $target exceeds absolute maximum field $maximum_field";
+        }
+        ++$i;
+
+    }
+    my $max_rate = $max_field_rates[$i];
+    if ( $rate > $max_rate ) {
+        croak "Rate $rate exceeds maximum allowed rate $max_rate";
+    }
 }
 
 =encoding utf8
@@ -138,6 +196,9 @@ sub config_sweep {
 
     my $setrate = $self->set_field_sweep_rate( value => $rate, %args );
     my $setpoint = $self->set_target_field( value => $target, %args );
+
+    $self->_check_sweep_parameters( $target, $rate );
+
     if ( $self->verbose() ) {
         say "config_sweep: setpoint: $setpoint (T), rate: $setrate (T/min)";
     }
@@ -253,6 +314,11 @@ sub set_activity {
         \@_,
         value => { isa => enum( [ 0, 1, 2, 4 ] ) },
     );
+
+    if ( $value == 1 ) {
+        $self->_check_sweep_parameters();
+    }
+
     return $self->query( command => "A$value\r", %args );
 }
 
@@ -263,6 +329,7 @@ sub hold {
 
 sub to_setpoint {
     my $self = shift;
+    $self->_check_sweep_parameters();
     return $self->set_activity( value => 1, @_ );
 }
 
