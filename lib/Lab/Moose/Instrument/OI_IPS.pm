@@ -148,15 +148,14 @@ around query => sub {
     my $cmd = $args{command};
     my $cmd_char = substr( $cmd, 0, 1 );
 
-    # ITC query answers always start with the command character
+    # IPS query answers always start with the command character
     # if successful with a question mark and the command char on failure
     my $status = substr( $result, 0, 1 );
     if ( $status eq '?' ) {
-        croak "ITC503 returned error '$result' on command '$cmd'";
+        croak "IPS returned error '$result' on command '$cmd'";
     }
     elsif ( defined $cmd_char and ( $status ne $cmd_char ) ) {
-        croak
-            "ITC503 returned unexpected answer. Expected '$cmd_char' prefix, 
+        croak "IPS returned unexpected answer. Expected '$cmd_char' prefix, 
 received '$status' on command '$cmd'";
     }
     return substr( $result, 1 );
@@ -222,7 +221,7 @@ sub config_sweep {
 
 =head2 set_control
 
- $itc->set_control(value => 1);
+ $ips->set_control(value => 1);
 
 Set device local/remote mode (0, 1, 2, 3)
 
@@ -238,13 +237,13 @@ sub set_control {
     return $result;
 }
 
-=head2 itc_set_communications_protocol
+=head2 set_communications_protocol
 
- $itc->itc_set_communications_protocol(value => 0); # 0 or 2
+ $ips->set_communications_protocol(value => 0); # 0 or 2
  
 =cut
 
-sub itc_set_communications_protocol {
+sub set_communications_protocol {
     my ( $self, $value, %args ) = validated_setter(
         \@_,
         value => { isa => enum( [qw/0 2/] ) }
@@ -252,9 +251,9 @@ sub itc_set_communications_protocol {
     return $self->query( command => "Q$value\r" );
 }
 
-=head2 itc_examine
+=head2 examine_status
 
- my $status = $itc->itc_examine();
+ my $status = $ips->examine_status();
 
 
 =cut
@@ -391,6 +390,13 @@ sub set_front_panel_display_parameter {
     );
     return $self->query( command => "F$value\r", %args );
 }
+
+=head2 set_switch_heater
+
+ $ips->set_switch_heater(value => 0); # Heater off
+ $ips->set_switch_heater(value => 1); # Heater on (only done if magnet current equals power supply current)
+
+=cut
 
 sub set_switch_heater {
     my ( $self, $value, %args ) = validated_setter(
