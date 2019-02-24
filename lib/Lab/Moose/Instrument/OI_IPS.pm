@@ -70,25 +70,31 @@ sub _check_field_rates {
 }
 
 sub _check_sweep_parameters {
-    my $self   = shift;
-    my $target = shift;
-    my $rate   = shift;
+    my ( $self, %args ) = validated_hash(
+        \@_,
+        current => { isa => 'Num' },
+        target  => { isa => 'Num' },
+        rate    => { isa => 'Num' },
+    );
 
-    $target = abs($target);
-    $rate   = abs($rate);
+    my $current = abs( delete $args{current} );
+    my $target  = abs( delete $args{target} );
+    my $rate    = abs( delete $args{rate} );
 
-    my @max_fields      = @{ $self->max_fields };
-    my @max_field_rates = @{ $self->max_field_rates };
-    my $maximum_field   = $max_fields[-1];
+    my $max_field = ( $current > $target ) ? $current : $target;
+
+    my @max_fields            = @{ $self->max_fields };
+    my @max_field_rates       = @{ $self->max_field_rates };
+    my $maximum_allowed_field = $max_fields[-1];
 
     my $i = 0;
     while (1) {
-        if ( $target <= $max_fields[$i] ) {
+        if ( $max_field <= $max_fields[$i] ) {
             last;
         }
-        if ( $target > $maximum_field ) {
+        if ( $max_field > $maximum_allowed_field ) {
             croak
-                "target field $target exceeds absolute maximum field $maximum_field";
+                "target field $max_field exceeds absolute maximum field $maximum_allowed_field";
         }
         ++$i;
 
@@ -106,36 +112,25 @@ sub _check_sweep_parameters {
  use Lab::Moose;
 
  # Constructor
- my $itc = instrument(
+ my $ips = instrument(
      type => 'OI_IPS',
      connection_type => 'LinuxGPIB',
      connection_options => {pad => 10},
+     
+     # safety limits, should be fixed in a subclass of this driver
+     max_fields => [7, 10],          # absolute maximum field of 10T
+     max_field_rates => [0.1, 0.05], # 0.1 T/min maximum rate in range 0T..7T
+                                     # 0.05 T/min maximum rate in range 7T..10T
  );
 
 
- # Get temperature
- say "Temperature: ", $itc->get_value();
+ # Get field
+ my $field = $ips->get_field();
 
- # Set heater to AUTO
- $itc->itc_set_heater_auto( value => 0 );
+ # Sweep to 1T with rate 0.1T/min
 
- # Set PID to AUTO
- $itc->itc_set_PID_auto( value => 1 );
+ $ips->sweep_to_field(target => 1, rate => 0.1);
 
-
-=head1 DESCRIPTION
-
-By default, two temperature sensors are used: Sensor 2 for temperatures below
-1.5K and sensor 3 for temperatures above 1.5K. The used sensors can be set in
-the constructor, e.g.
-
- my $itc = instrument(
-     ...
-     high_temp_sensor => 2,
-     low_temp_sensor => 3
- );
-
-The L</get_value> and L</set_T> functions will dynamically choose the proper sensor.
 
 =head1 METHODS
 
@@ -167,6 +162,15 @@ received '$status' on command '$cmd'";
     return substr( $result, 1 );
 };
 
+=head1 sweep_to_field
+
+ my $new_field = $ips->sweep_to_field(
+    target => $target_field, # Tesla
+    rate => $rate, # Tesla/min
+ );
+
+=cut
+
 sub sweep_to_field {
     my ( $self, %args ) = validated_getter(
         \@_,
@@ -185,6 +189,14 @@ sub sweep_to_field {
     return $self->get_field(%args);
 }
 
+=head1 config_sweep
+
+ $ips->config_sweep(point => $target, rate => $rate);
+
+Only define setpoints, do not start sweep.
+
+=cut
+
 sub config_sweep {
     my ( $self, %args ) = validated_hash(
         \@_,
@@ -197,7 +209,11 @@ sub config_sweep {
     my $setrate = $self->set_field_sweep_rate( value => $rate, %args );
     my $setpoint = $self->set_target_field( value => $target, %args );
 
-    $self->_check_sweep_parameters( $target, $rate );
+    my $current_field = $self->get_field();
+    $self->_check_sweep_parameters(
+        current => $current_field, target => $target,
+        rate    => $rate
+    );
 
     if ( $self->verbose() ) {
         say "config_sweep: setpoint: $setpoint (T), rate: $setrate (T/min)";
@@ -248,11 +264,27 @@ sub examine_status {
     return $self->query( command => "X\r", %args );
 }
 
+=head2 active
+
+ my $status = $ips->active();
+
+Return true value if IPS is sweeping. Return false when sweep finished.
+
+=cut
+
 sub active {
     my ( $self, %args ) = validated_getter( \@_ );
     my $status = $self->examine_status(@_);
     return substr( $status, 11, 1 );
 }
+
+=head2 wait
+
+ $ips->wait();
+
+Wait until current sweep is finished. Print status messages if C<verbose> attribute was set in constructor (default).
+
+=cut
 
 sub wait {
     my ( $self, %args ) = validated_getter( \@_ );
@@ -294,10 +326,24 @@ sub read_parameter {
     return sprintf( "%e", $result );
 }
 
+=head2 get_field
+
+ my $field = $ips->get_field();
+
+Return current field (Tesla).
+
+=cut
+
 sub get_field {
     my $self = shift;
     return $self->read_parameter( value => 7, @_ );
 }
+
+=head2 get_value
+
+Alias for L</get_field>
+
+=cut
 
 sub get_value {
     my $self = shift;
@@ -315,10 +361,6 @@ sub set_activity {
         value => { isa => enum( [ 0, 1, 2, 4 ] ) },
     );
 
-    if ( $value == 1 ) {
-        $self->_check_sweep_parameters();
-    }
-
     return $self->query( command => "A$value\r", %args );
 }
 
@@ -329,7 +371,6 @@ sub hold {
 
 sub to_setpoint {
     my $self = shift;
-    $self->_check_sweep_parameters();
     return $self->set_activity( value => 1, @_ );
 }
 
@@ -366,12 +407,6 @@ sub set_target_field {
         \@_,
         value => { isa => 'Num' },
     );
-    my $max_field = $self->max_field;
-    if ( abs($value) > $self->max_field ) {
-        croak(
-            "set_target_field: Value $value exceeds maximum field $max_field"
-        );
-    }
     $value = sprintf( "%.5f", $value );
     return $self->query( command => "J$value\r", %args );
 }
@@ -394,12 +429,6 @@ sub set_field_sweep_rate {
         \@_,
         value => { isa => 'Lab::Moose::PosNum' },
     );
-    my $max_field_rate = $self->max_field_rate;
-    if ( abs($value) > $max_field_rate ) {
-        croak(
-            "set_field_sweep_rate: Value $value exceeds maximum rate $max_field_rate"
-        );
-    }
     $value = sprintf( "%.4f", $value );
     return $self->query( command => "T$value\r" );
 }
