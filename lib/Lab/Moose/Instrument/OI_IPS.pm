@@ -205,17 +205,16 @@ sub config_sweep {
     my $target = delete $args{point};
     my $rate   = delete $args{rate};
 
-    my $setrate = $self->set_field_sweep_rate( value => $rate, %args );
-    my $setpoint = $self->set_target_field( value => $target, %args );
+    $self->set_field_sweep_rate( value => $rate, %args );
+    $self->set_target_field( value => $target, %args );
 
     my $current_field = $self->get_field();
     $self->_check_sweep_parameters(
         current => $current_field, target => $target,
         rate    => $rate
     );
-
     if ( $self->verbose() ) {
-        say "config_sweep: setpoint: $setpoint (T), rate: $setrate (T/min)";
+        say "config_sweep: target: $target (T), rate: $rate (T/min)";
     }
 }
 
@@ -255,12 +254,13 @@ sub set_communications_protocol {
 
  my $status = $ips->examine_status();
 
+Return status (XmnAnCnHnMmnPmn).
 
 =cut
 
 sub examine_status {
     my ( $self, %args ) = validated_getter( \@_ );
-    return $self->query( command => "X\r", %args );
+    return "X" . $self->query( command => "X\r", %args );
 }
 
 =head2 active
