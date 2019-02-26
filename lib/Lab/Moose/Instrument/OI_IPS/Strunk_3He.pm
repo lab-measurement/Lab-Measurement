@@ -17,7 +17,7 @@ extends 'Lab::Moose::Instrument::OI_IPS';
 
 has +max_fields => (
     is      => 'ro', isa => 'ArrayRef[Lab::Moose::PosNum]',
-    default => sub { [ 7, 9, 10 ] }
+    default => sub { [ 7, 9, 12 ] }
 );
 has +max_field_rates => (
     is      => 'ro', isa => 'ArrayRef[Lab::Moose::PosNum]',
