@@ -41,7 +41,9 @@ around default_connection_options => sub {
     my $self     = shift;
     my $options  = $self->$orig();
     my $usb_opts = {
-        vid => 0x0957, pid => 0x8b18    # Agilent vid!
+        vid => 0x0957, pid => 0x8b18,    # Agilent vid!
+        reset_device => 0
+        , # Problem of the B2901A: https://community.keysight.com/thread/36706
     };
     $options->{USB} = $usb_opts;
     $options->{'VISA::USB'} = $usb_opts;
