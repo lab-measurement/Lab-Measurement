@@ -102,6 +102,17 @@ sub get_frequency {
 
 }
 
+sub get_frq {
+    my $self = shift;
+    return $self->get_frequency(@_);
+}
+
+=head2 get_frq
+
+Alias for L</get_frequency>.
+
+=cut
+
 =head2 set_frequency
 
  $mfli->set_frequency(value => 10000);
@@ -122,6 +133,17 @@ sub set_frequency {
             value => $value
         )
     );
+}
+
+=head2 set_frq
+
+Alias for L</set_frequency>.
+
+=cut
+
+sub set_frq {
+    my $self = shift;
+    return $self->set_frequency(@_);
 }
 
 =head2 get_voltage_sens

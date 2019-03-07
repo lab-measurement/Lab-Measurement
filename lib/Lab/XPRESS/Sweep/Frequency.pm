@@ -24,6 +24,7 @@ sub new {
                 Lab::Instrument::SignalRecovery726x   Lab::Instrument::SR830
                 Lab::Instrument::HP83732A             Lab::Instrument::MG369xB
                 Lab::Instrument::RSSMB100A   Lab::Moose::Instrument::RS_SMB
+                Lab::Moose::Instrument::ZI_MFIA Lab::Moose::Instrument::ZI_MFLI
                 /
         ],
         allowed_sweep_modes => [ 'list', 'step' ],
