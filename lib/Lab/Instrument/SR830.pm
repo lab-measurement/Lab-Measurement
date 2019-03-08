@@ -1,4 +1,5 @@
 package Lab::Instrument::SR830;
+
 #ABSTRACT: Stanford Research SR830 lock-in amplifier
 
 use strict;
@@ -65,7 +66,8 @@ sub get_frq {
 }
 
 sub set_amplitude {
-    my ( $self, $ampl ) = @_;
+    my $self = shift;
+    my ($ampl) = $self->_check_args( \@_, ['value'] );
     $self->write("SLVL $ampl");
     my $realampl = $self->query("SLVL?");
     chomp $realampl;

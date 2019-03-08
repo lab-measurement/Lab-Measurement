@@ -318,6 +318,113 @@ sub set_amplitude_range {
     );
 }
 
+=head2 set_output_status
+
+ $mfli->set_output_status(value => 1); # Enable output
+ $mfli->set_output_status(value => 0); # Disable output
+
+=cut
+
+sub set_output_status {
+    my ( $self, $value, %args ) = validated_setter(
+        \@_,
+        value => { isa => enum( [ 0, 1 ] ) },
+    );
+
+    return $self->sync_set_value(
+        path  => $self->device() . "/sigouts/0/on",
+        type  => 'I',
+        value => $value,
+    );
+}
+
+cache offset_voltage => ( getter => 'get_offset_voltage' );
+
+=head2 get_offset_voltage
+
+ my $offset = $mfli->get_offset_voltage();
+
+Get DC offset.
+
+=cut
+
+sub get_offset_voltage {
+    my $self = shift;
+    return $self->cached_offset_voltage(
+        $self->get_value(
+            path => $self->device() . "/sigouts/0/offset",
+            type => 'D'
+        )
+    );
+}
+
+=head2 set_offset_voltage
+
+ $mfli->set_offset_voltage(value => 1e-3);
+
+Set DC offset.
+ 
+=cut
+
+sub set_offset_voltage {
+    my ( $self, $value, %args ) = validated_setter(
+        \@_,
+        value => { isa => 'Num' }
+    );
+    return $self->cached_offset_voltage(
+        $self->sync_set_value(
+            path  => $self->device() . "/sigouts/0/offset",
+            type  => 'D',
+            value => $value
+        )
+    );
+}
+
+=head2 set_offset_status
+
+ $mfli->set_offset_status(value => 1); # Enable offset voltage
+ $mfli->set_offset_status(value => 0); # Disable offset voltage
+
+=cut
+
+sub set_offset_status {
+    my ( $self, $value, %args ) = validated_setter(
+        \@_,
+        value => { isa => enum( [ 0, 1 ] ) },
+    );
+
+    return $self->sync_set_value(
+        path  => $self->device() . "/sigouts/0/add",
+        type  => 'I',
+        value => $value,
+    );
+}
+
+#
+# compatibility with XPRESS::Sweep::Voltage sweep
+#
+
+sub get_level {
+    my $self = shift;
+    return $self->get_offset_voltage();
+}
+
+sub sweep_to_level {
+    my $self = shift;
+    my ( $target, $time, $stepwidth ) = @_;
+    $self->set_offset_voltage( value => $target );
+}
+
+sub config_sweep {
+    croak "ZI_MFLI only supports step/list sweep with 'jump => 1'";
+}
+
+sub set_voltage {
+    my $self  = shift;
+    my $value = shift;
+    $self->set_offset_voltage( value => $value );
+}
+
 #
 # Demodulators
 #

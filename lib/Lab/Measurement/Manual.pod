@@ -432,6 +432,8 @@ alias: C<Lab::Moose::Connection::VISA_GPIB>
 
 =item * L<Lab::XPRESS::Sweep::PulseLength>
 
+=item * L<Lab::XPRESS::Sweep::Amplitude>
+
 =item * L<Lab::XPRESS::Sweep::LogBlock>
 
 =back

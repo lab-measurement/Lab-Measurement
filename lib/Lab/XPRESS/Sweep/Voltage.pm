@@ -27,7 +27,7 @@ sub new {
                 Lab::Instrument::Yokogawa7651 Lab::Instrument::Keithley2400
                 Lab::Instrument::YokogawaGS200 Lab::Instrument::DummySource
                 Lab::Instrument::SR830::AuxOut Lab::Moose::Instrument::DummySource
-                Lab::Moose::Instrument::YokogawaGS200/
+                Lab::Moose::Instrument::YokogawaGS200 Lab::Moose::Instrument::ZI_MFLI Lab::Moose::Instrument::ZI_MFIA/
         ],
         allowed_sweep_modes => [ 'continuous', 'list', 'step' ],
         number_of_points    => [undef]
