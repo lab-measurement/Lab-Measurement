@@ -1,4 +1,5 @@
 package Lab::Instrument::Lakeshore340;
+
 #ABSTRACT: Lakeshore 340 temperature controller
 
 use warnings;
@@ -6,7 +7,6 @@ use strict;
 use 5.010;
 
 use Lab::Instrument;
-
 
 our @ISA = ('Lab::Instrument');
 
@@ -486,9 +486,10 @@ sub set_PID {
         die
             "unexpected value ($loop) for LOOP in sub set_PID. Expected values are between 1 and 2.";
     }
-    else {
-        die "unexpected values in sub set_PID.";
-    }
+
+    # else {
+    #     die "unexpected values in sub set_PID.";
+    # }
 
     if ( $D < 0 or $D > 200 ) {
         die
