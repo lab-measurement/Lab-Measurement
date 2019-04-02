@@ -25,6 +25,7 @@ sub new {
         allowed_instruments => [
             qw/
                 Lab::Instrument::Yokogawa7651 Lab::Instrument::Keithley2400
+                Lab::Moose::Instrument::KeysightE3633E
                 Lab::Instrument::YokogawaGS200 Lab::Instrument::DummySource
                 Lab::Instrument::SR830::AuxOut Lab::Moose::Instrument::DummySource
                 Lab::Moose::Instrument::YokogawaGS200 Lab::Moose::Instrument::ZI_MFLI Lab::Moose::Instrument::ZI_MFIA/
