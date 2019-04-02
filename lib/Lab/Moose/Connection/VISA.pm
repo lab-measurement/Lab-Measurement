@@ -27,6 +27,7 @@ use Lab::VISA;
 use namespace::autoclean;
 
 use constant {
+    VI_TRUE              => $Lab::VISA::VI_TRUE,
     VI_NULL              => $Lab::VISA::VI_NULL,
     VI_SUCCESS           => $Lab::VISA::VI_SUCCESS,
     VI_SUCCESS_TERM_CHAR => $Lab::VISA::VI_SUCCESS_TERM_CHAR,
