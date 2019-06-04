@@ -75,6 +75,22 @@ sub get_temperature {
     return $self->get_temperature_channel(%args);
 }
 
+=head2 get_temperature_resistance
+
+ $resistance = $oi_triton->get_temperature_resistance(channel => 1);
+
+=cut
+
+sub get_temperature_resistance {
+    my ( $self, %args ) = validated_getter(
+        \@_,
+        channel => { isa => 'Int', default => 1 }
+    );
+    $args{channel} = 'T' . $args{channel};
+
+    return $self->get_temperature_channel_resistance(%args);
+}
+
 =head2 get_T
 
 equivalent to
