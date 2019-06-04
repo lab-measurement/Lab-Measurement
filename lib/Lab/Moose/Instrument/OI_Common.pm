@@ -19,6 +19,12 @@ use namespace::autoclean;
 
 Read out the designated temperature channel. The result is in Kelvin.
 
+=head2 get_temperature_channel_resistance
+
+ $r = $m->get_temperature_channel_resistance(channel => 'MB1.T1');
+
+Read out the designated temperature channel resistance. The result is in Ohm.
+
 =cut
 
 sub get_temperature_channel {
@@ -32,6 +38,20 @@ sub get_temperature_channel {
     my $rv
         = $self->oi_getter( cmd => "READ:DEV:$channel:TEMP:SIG:TEMP", %args );
     $rv =~ s/K.*$//;
+    return $rv;
+}
+
+sub get_temperature_channel_resistance {
+    my ( $self, %args ) = validated_getter(
+        \@_,
+        channel => { isa => 'Str' }
+    );
+
+    my $channel = delete $args{channel};
+
+    my $rv
+        = $self->oi_getter( cmd => "READ:DEV:$channel:TEMP:SIG:RES", %args );
+    $rv =~ s/Ohm.*$//;
     return $rv;
 }
 
