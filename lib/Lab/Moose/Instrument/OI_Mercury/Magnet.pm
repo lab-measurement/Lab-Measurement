@@ -12,6 +12,7 @@ use Lab::Moose::Instrument::Cache;
 use Carp;
 use namespace::autoclean;
 use YAML::XS;
+use Lab::Moose::Countdown;
 
 extends 'Lab::Moose::Instrument';
 
@@ -25,6 +26,12 @@ has magnet => (
     is      => 'ro',
     isa     => enum( [qw/X Y Z/] ),
     default => 'Z'
+);
+
+has heater_delay => (
+    is      => 'ro',
+    isa     => 'Lab::Moose::PosInt',
+    default => 60
 );
 
 # default connection options:
@@ -289,7 +296,7 @@ sub oim_get_current {
 
 Read PSU field in Tesla.
 
-TODO: what happens if we're in persistent mode?
+Returns 0 when in persistent mode.
 
 =cut
 
@@ -298,6 +305,23 @@ sub oim_get_field {
 
     my $field
         = $self->oi_getter( cmd => "READ:DEV:$channel:PSU:SIG:FLD", %args );
+    $field =~ s/T$//;
+    return $field;
+}
+
+=head2 oim_get_persistent_field
+
+ $field = $m->oim_get_persistent_field();
+
+Read PSU field for persistent mode in Tesla.
+
+=cut
+
+sub oim_get_persistent_field {
+    my ( $self, $channel, %args ) = validated_magnet_getter( \@_ );
+
+    my $field
+        = $self->oi_getter( cmd => "READ:DEV:$channel:PSU:SIG:PFLD", %args );
     $field =~ s/T$//;
     return $field;
 }
@@ -336,6 +360,28 @@ sub oim_set_heater {
         value => $value,
         %args
     );
+}
+
+=head2 heater_on/heater_off
+
+ $m->heater_on();
+ $m->heater_off();
+
+Enable/disable switch heater. Wait for 60s after changing the state of the
+heater.
+
+=cut
+
+sub heater_on {
+    my $self = shift;
+    return $self->oim_set_heater( value => 'ON' );
+    countdown( $self->heater_delay, "OI Mercury heater ON" );
+}
+
+sub heater_off {
+    my $self = shift;
+    return $self->oim_set_heater( value => 'OFF' );
+    countdown( $self->heater_delay, "OI Mercury heater OFF" );
 }
 
 =head2 oim_force_heater
@@ -581,12 +627,9 @@ sub get_field {
     return $self->oim_get_field(@_);
 }
 
-sub set_persistent_mode {
-    croak "persistent mode is not yet implemented";
-}
-
 sub get_persistent_field {
-    croak "persistent mode is not yet implemented";
+    my $self = shift;
+    return $self->oim_get_persistent_field(@_);
 }
 
 sub sweep_to_field {

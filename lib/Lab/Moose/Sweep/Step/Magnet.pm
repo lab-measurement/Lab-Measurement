@@ -10,7 +10,8 @@ package Lab::Moose::Sweep::Step::Magnet;
      from => -1, # Tesla
      to => 1,
      step => 0.1, # steps of 0.1 Tesla
-     rate => 1, (Tesla/min, mandatory, always positive)
+     rate => 1, # Tesla/min, mandatory, always positive
+     persistent_mode => 1, # use persistent mode (default: 0)
  );
 
 =head1 Description
@@ -33,9 +34,9 @@ Default filename extension: C<'Field='>
 
 use 5.010;
 use Moose;
+use Lab::Moose::Countdown;
 
 extends 'Lab::Moose::Sweep::Step';
-
 has instrument =>
     ( is => 'ro', isa => 'Lab::Moose::Instrument', required => 1 );
 
@@ -49,10 +50,18 @@ has filename_extension => ( is => 'ro', isa => 'Str', default => 'Field=' );
 
 has setter => ( is => 'ro', isa => 'CodeRef', builder => '_build_setter' );
 
+has persistent_mode => ( is => 'ro', isa => 'Bool', default => 0 );
+
 sub BUILD {
     my $self = shift;
     if ( not defined $self->start_rate ) {
         $self->_start_rate( $self->rate );
+    }
+
+    if ( $self->persistent_mode ) {
+
+        # the _field_setter needs a well-defined initial state
+        $self->set_persistent_mode();
     }
 }
 
@@ -70,11 +79,37 @@ sub _build_setter {
     return \&_field_setter;
 }
 
+sub set_persistent_mode {
+    my $self       = shift;
+    my $instrument = $self->instrument();
+    $instrument->heater_off();
+    my $rate = $self->_current_rate;
+    $instrument->sweep_to_field( target => 0, rate => $rate );
+    countdown( 10, "Set persistent mode" );
+}
+
+sub unset_persistent_mode {
+    my $self             = shift;
+    my $instrument       = $self->instrument();
+    my $persistent_field = $instrument->get_persistent_field();
+    my $rate             = $self->_current_rate;
+    $instrument->sweep_to_field( target => $persistent_field, rate => $rate );
+    $instrument->heater_on();
+}
+
 sub _field_setter {
     my $self  = shift;
     my $value = shift;
     my $rate  = $self->_current_rate;
+    if ( $self->persistent_mode ) {
+        $self->unset_persistent_mode();
+    }
+
     $self->instrument->sweep_to_field( target => $value, rate => $rate );
+
+    if ( $self->persistent_mode ) {
+        $self->set_persistent_mode();
+    }
 }
 
 __PACKAGE__->meta->make_immutable();
