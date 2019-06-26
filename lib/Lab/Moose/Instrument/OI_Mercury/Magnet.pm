@@ -374,14 +374,14 @@ heater.
 
 sub heater_on {
     my $self = shift;
-    return $self->oim_set_heater( value => 'ON' );
-    countdown( $self->heater_delay, "OI Mercury heater ON" );
+    $self->oim_set_heater( value => 'ON' );
+    countdown( $self->heater_delay, "OI Mercury heater ON: " );
 }
 
 sub heater_off {
     my $self = shift;
-    return $self->oim_set_heater( value => 'OFF' );
-    countdown( $self->heater_delay, "OI Mercury heater OFF" );
+    $self->oim_set_heater( value => 'OFF' );
+    countdown( $self->heater_delay(), "OI Mercury heater OFF: " );
 }
 
 =head2 oim_force_heater

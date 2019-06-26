@@ -59,7 +59,7 @@ sub BUILD {
     }
 
     if ( $self->persistent_mode ) {
-
+        $self->_current_rate( $self->start_rate );
         # the _field_setter needs a well-defined initial state
         $self->set_persistent_mode();
     }
@@ -85,7 +85,7 @@ sub set_persistent_mode {
     $instrument->heater_off();
     my $rate = $self->_current_rate;
     $instrument->sweep_to_field( target => 0, rate => $rate );
-    countdown( 10, "Set persistent mode" );
+    countdown( 10, "Set persistent mode: " );
 }
 
 sub unset_persistent_mode {
