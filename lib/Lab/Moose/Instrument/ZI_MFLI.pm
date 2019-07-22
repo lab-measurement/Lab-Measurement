@@ -8,7 +8,6 @@ use MooseX::Params::Validate;
 use Lab::Moose::Instrument::Cache;
 use Carp;
 use namespace::autoclean;
-
 use Lab::Moose::Instrument 'validated_setter';
 use Lab::Moose::Instrument::Cache;
 use constant {
@@ -25,6 +24,7 @@ extends 'Lab::Moose::Instrument::Zhinst';
  my $mfli = instrument(
      type => 'ZI_MFLI',
      connection_type => 'Zhinst',
+     oscillator => 1, # 1 is default
      connection_options => {
          host => '132.188.12.13',
          port => 8004,
@@ -51,6 +51,12 @@ has num_demods => (
     builder  => '_get_num_demods',
     lazy     => 1,
     init_arg => undef,
+);
+
+has oscillator => (
+    is      => 'ro',
+    isa     => 'Lab::Moose::PosInt',
+    default => 1
 );
 
 sub _get_num_demods {
@@ -236,7 +242,7 @@ sub set_current_sens {
 
  my $amplitude = $mfli->get_amplitude();
 
-Get amplitude of voltage output.
+Get amplitude of voltage output. The oscillator is determined by the C<oscillator> attribute.
 
 =cut
 
@@ -244,9 +250,10 @@ cache amplitude => ( getter => 'get_amplitude' );
 
 sub get_amplitude {
     my $self = shift;
+    my $osc  = $self->oscillator();
     return $self->cached_amplitude(
         $self->get_value(
-            path => $self->device() . "/sigouts/0/amplitudes/1",
+            path => $self->device() . "/sigouts/0/amplitudes/$osc",
             type => 'D'
         )
     );
@@ -256,7 +263,7 @@ sub get_amplitude {
 
  $mfli->set_amplitude(value => 300e-3);
 
-Set amplitude of voltage output.
+Set amplitude of voltage output. The oscillator is determined by the C<oscillator> attribute.
 
 =cut
 
@@ -265,10 +272,10 @@ sub set_amplitude {
         \@_,
         value => { isa => 'Num' }
     );
-
+    my $osc = $self->oscillator();
     return $self->cached_amplitude(
         $self->sync_set_value(
-            path  => $self->device() . "/sigouts/0/amplitudes/1",
+            path  => $self->device() . "/sigouts/0/amplitudes/$osc",
             type  => 'D',
             value => $value
         )
