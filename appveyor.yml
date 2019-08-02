@@ -1,6 +1,8 @@
 environment:
   matrix:
     # Should we run dependency tests?
+    - strawberry_version: 5.30.0.1
+      installdeps_options: --verbose --notest
     - strawberry_version: 5.20.3.3
       installdeps_options: --verbose --notest
     - strawberry_version: 5.20.3.3 --x86
