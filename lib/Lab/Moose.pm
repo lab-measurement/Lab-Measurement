@@ -193,7 +193,7 @@ sub linspace {
 
 =head2 sweep/sweep_datafile
 
-These are described in a separate tutorial: L<Lab::Moose::Sweep::Tutorial>.
+These are described in a separate tutorial: L<Lab::Measurement::Tutorial>.
 
 =cut
 
