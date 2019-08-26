@@ -48,7 +48,8 @@ install:
   - export GNUPLOT_BINARY=/home/travis/local/bin/gnuplot
 
   # Install the DZIL dependencies
-  - cpanm  --notest --skip-satisfied Dist::Zilla
+  # - cpanm  --notest --skip-satisfied Dist::Zilla
+  - cpanm -v Dist::Zilla
 
   # Install DZIL plugins etc if needed
   - cd $TRAVIS_BUILD_DIR
