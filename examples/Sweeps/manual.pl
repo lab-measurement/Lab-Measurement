@@ -1,4 +1,7 @@
 #!/usr/bin/env perl
+#PODNAME: manual.pl
+#ABSTRACT: Example of custom sweep without Sweep framework
+
 use lib '/home/simon/lab-measurement/lib';
 
 use Lab::Moose;               # get instrument, datafolder, datafile, linspace
