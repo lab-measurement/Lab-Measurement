@@ -34,7 +34,7 @@ use Moose;
 
 extends 'Lab::Moose::Sweep::Step';
 
-with 'Lab::Moose::Stabilizer';
+use Lab::Moose::Stabilizer;
 
 has instrument =>
     ( is => 'ro', isa => 'Lab::Moose::Instrument', required => 1 );
@@ -52,18 +52,14 @@ sub _build_setter {
     return \&_temp_setter;
 }
 
-sub _getter {
-    my $self = shift;
-    return $self->instrument()->get_T();
-}
-
 sub _temp_setter {
     my $self  = shift;
     my $value = shift;
     $self->instrument->set_T( value => $value );
-    $self->stabilize(
+    stabilize(
+        instrument             => $self->instrument,
         setpoint               => $value,
-        getter                 => \&_getter,
+        getter                 => 'get_T',
         tolerance_setpoint     => $self->tolerance_setpoint,
         tolerance_std_dev      => $self->tolerance_std_dev,
         measurement_interval   => $self->measurement_interval,

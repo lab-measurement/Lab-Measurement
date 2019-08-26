@@ -1,31 +1,35 @@
 package Lab::Moose::Stabilizer;
 
-#ABSTRACT: Sensor stabilizers role
+#ABSTRACT: Sensor stabilizer subroutine
 
 use 5.010;
-use Moose::Role;
+use warnings;
+use strict;
+
 use MooseX::Params::Validate 'validated_list';
 use Time::HiRes qw/time sleep/;
 use Lab::Moose::Countdown;
-use Lab::Moose              ();
 use Statistics::Descriptive ();
 use Scalar::Util 'looks_like_number';
 use Carp;
-use namespace::autoclean;
+use Exporter 'import';
+our @EXPORT = qw/stabilize/;
 
 # inspired by old Lab::XPRESS stabilization routines
 
 =head1 DESCRIPTION
 
-Helper methods for sensor (temperature, magnetic field, ...) stabilization.
+Routine for sensor (temperature, magnetic field, ...) stabilization.
 
-=head1 METHODS
+=head1 SUBROUTINES
 
 =head2 stabilize
 
- $self->stabilize(
+ stabilize(
+     instrument => $OI_ITC,
      setpoint => 10,
-     getter => sub { ...; return $number},
+     getter => sub { ...; return $number}, # or method name like 'get_T'
+                                           # will call '$instrument->$getter()'
      tolerance_setpoint => 0.1,     # max. allowed median
      tolerance_std_dev => 0.1,      # max. allowed standard deviation
      measurement_interval => 2,     # time (s) between calls of getter
@@ -41,16 +45,17 @@ All times are given in seconds. Print status messages if C<verbose> is true.
 =cut
 
 sub stabilize {
-    my $self = shift;
     my (
-        $setpoint, $getter, $tolerance_setpoint, $tolerance_std_dev,
+        $instrument, $setpoint, $getter, $tolerance_setpoint,
+        $tolerance_std_dev,
         $measurement_interval, $observation_time, $max_stabilization_time,
         $verbose
         )
         = validated_list(
         \@_,
+        instrument           => { isa => 'Lab::Moose::Instrument' },
         setpoint             => { isa => 'Num' },
-        getter               => { isa => 'CodeRef' },
+        getter               => { isa => 'CodeRef | Str' },
         tolerance_setpoint   => { isa => 'Lab::Moose::PosNum' },
         tolerance_std_dev    => { isa => 'Lab::Moose::PosNum' },
         measurement_interval => { isa => 'Lab::Moose::PosNum' },
@@ -72,7 +77,7 @@ sub stabilize {
     my $start_time = time();
 
     while (1) {
-        my $new_value = $self->$getter();
+        my $new_value = $instrument->$getter();
         if ( not looks_like_number($new_value) ) {
             croak "$new_value is not a number";
         }
@@ -121,12 +126,15 @@ sub stabilize {
                 );
             }
         }
-        
-        if ($measurement_interval > 5) {
-            countdown($measurement_interval, "Measurement interval: Sleeping for ");
+
+        if ( $measurement_interval > 5 ) {
+            countdown(
+                $measurement_interval,
+                "Measurement interval: Sleeping for "
+            );
         }
         else {
-            sleep ($measurement_interval);
+            sleep($measurement_interval);
         }
 
         if ( defined $max_stabilization_time ) {
