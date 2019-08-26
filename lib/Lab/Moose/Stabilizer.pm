@@ -5,7 +5,7 @@ package Lab::Moose::Stabilizer;
 use 5.010;
 use warnings;
 use strict;
-
+use Lab::Moose ();
 use MooseX::Params::Validate 'validated_list';
 use Time::HiRes qw/time sleep/;
 use Lab::Moose::Countdown;
@@ -53,7 +53,7 @@ sub stabilize {
         )
         = validated_list(
         \@_,
-        instrument           => { isa => 'Lab::Moose::Instrument' },
+        instrument           => { isa => 'Object' },
         setpoint             => { isa => 'Num' },
         getter               => { isa => 'CodeRef | Str' },
         tolerance_setpoint   => { isa => 'Lab::Moose::PosNum' },
