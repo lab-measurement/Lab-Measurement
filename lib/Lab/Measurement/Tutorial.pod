@@ -1003,7 +1003,6 @@ For example, the 2D sweep example from above could be rewritten like this:
              );
      }
      $datafile->new_block();
-     $datafile->refresh_plots();
  }
  
  $bias_source->set_level(value => 0);
