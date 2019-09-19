@@ -63,7 +63,7 @@ sub gen_resource_name {
         $pid = hex($pid);
     }
 
-    return sprintf( "USB::0x%04x::::0x%04x::%s::INSTR", $vid, $pid, $serial );
+    return sprintf( "USB::0x%04x::0x%04x::%s::INSTR", $vid, $pid, $serial );
 }
 
 __PACKAGE__->meta->make_immutable();

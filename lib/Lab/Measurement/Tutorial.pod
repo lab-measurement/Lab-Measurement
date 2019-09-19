@@ -135,7 +135,7 @@ package are installed, see L<Lab::VISA::Installation>. The I<VISA interactive
 control>, part of the NI VISA installation, can be used to get a list of
 connected equipment.
 
-We first connect the DMM via USB:
+We first connect the DMM via USB. The serial number can be found using I<VISA interactive control> or from the utility menu of the instrument.
 
  use 5.010;
  use Lab::Moose;
@@ -143,6 +143,7 @@ We first connect the DMM via USB:
  my $multimeter = instrument(
      type => 'Agilent34410A',
      connection_type => 'VISA::USB',
+     connection_options => {serial => '00B50DAE'},
  );
 
 To use the LAN interface, set the C<connection_type> to I<VISA::VXI11> and
