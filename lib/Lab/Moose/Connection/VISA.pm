@@ -77,7 +77,7 @@ sub _set_timeout {
     my $current_ms_value = _timeout_to_ms($current_timeout);
 
     if ( $ms_value != $current_ms_value ) {
-        $self->_set_visa_attribute( VI_ATTR_TMO_VALUE, $ms_value );
+        $self->_set_visa_attribute( attribute => VI_ATTR_TMO_VALUE, value => $ms_value );
         $self->_current_timeout($timeout);
     }
 }
@@ -98,6 +98,7 @@ sub _handle_status {
 sub _set_visa_attribute {
     my $self = shift;
     my ( $attribute, $value ) = validated_list(
+		\@_,
         attribute => { isa => 'Int' },
         value     => { isa => 'Int' },
     );
@@ -124,7 +125,7 @@ sub set_termchar {
     my $timeout = $self->_timeout_arg(%args);
     $self->_set_timeout( timeout => $timeout );
     my $termchar = ord( $args{termchar} );
-    $self->_set_visa_attribute( attribute => VI_ATTR_TERMCHAR, $termchar );
+    $self->_set_visa_attribute( attribute => VI_ATTR_TERMCHAR, value => $termchar );
 }
 
 =head2 enable_read_termchar
@@ -142,7 +143,7 @@ sub enable_read_termchar {
     );
     my $timeout = $self->_timeout_arg(%args);
     $self->_set_timeout( timeout => $timeout );
-    $self->_set_visa_attribute( attribute => VI_ATTR_TERMCHAR_EN, VI_TRUE );
+    $self->_set_visa_attribute( attribute => VI_ATTR_TERMCHAR_EN, value => VI_TRUE );
 }
 
 sub gen_resource_name {
