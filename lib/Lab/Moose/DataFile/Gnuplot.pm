@@ -358,12 +358,12 @@ For datafiles with multiple blocks, name of the column which is used to label th
 
 =item * terminal
 
-gnuplot terminal. Default is qt.
+gnuplot terminal. If not set, use default gnuplot terminal.
 
 =item * terminal_options
 
-HashRef of terminal options. For the qt and x11 terminals, this defaults to
-C<< {persist => 1, raise => 0} >>.
+HashRef of terminal options. This defaults to
+C<< {persist => 1, raise => 0, enhanced => 0} >>.
 
 =item * plot_options
 
@@ -675,7 +675,11 @@ sub add_plot {
 
     delete $args{terminal};
     delete $args{terminal_options};
-
+    my $hard_copy_path = $hard_copy_file->path();
+    if ( $hard_copy_path =~ /\\/ ) {
+        carp
+            "gnuplot on windows has problems with '\\' character. (hard copy filename: $hard_copy_path";
+    }
     $self->$plot_generator_sub(
         terminal         => $hard_copy_terminal,
         terminal_options => {
