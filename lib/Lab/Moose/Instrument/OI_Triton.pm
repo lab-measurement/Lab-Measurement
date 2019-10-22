@@ -173,6 +173,60 @@ sub disable_temp_pid {
     return $self->set_temp_pid( value => 'OFF', %args );
 }
 
+=head2 set_temp_ramp_status/get_temp_ramp_status
+
+ $oi_triton->set_temp_ramp_status(value => 'ON');
+ $oi_triton->set_temp_ramp_status(value => 'OFF'); 
+
+ my $status = $oi_triton->get_temp_ramp_status();
+
+=cut
+
+sub set_temp_ramp_status {
+    my ( $self, $value, %args ) = validated_setter(
+        \@_,
+        value => { isa => enum( [qw/ON OFF/] ) },
+    );
+    return $self->oi_setter(
+        cmd   => "SET:DEV:T5:TEMP:LOOP:RAMP:ENAB",
+        value => $value, %args
+    );
+}
+
+sub get_temp_ramp_status {
+    my ( $self, %args ) = validated_getter( \@_ );
+    return $self->oi_getter(
+        cmd => "READ:DEV:T5:TEMP:LOOP:RAMP:ENAB",
+        %args
+    );
+}
+
+=head2 set_temp_ramp_rate/get_temp_ramp_rate
+
+ $oi_triton->set_temp_ramp_rate(value => 1e-3); # 1mk/min
+ my $ramp_rate = $oi_triton->get_temp_ramp_rate();
+
+=cut
+
+sub get_temp_ramp_rate {
+    my ( $self, %args ) = validated_getter( \@_ );
+    return $self->oi_getter(
+        cmd => "READ:DEV:T5:TEMP:LOOP:RAMP:RATE",
+        %args
+    );
+}
+
+sub set_temp_ramp_rate {
+    my ( $self, $value, %args ) = validated_setter(
+        \@_,
+        value => { isa => 'Lab::Moose::PosNum' },
+    );
+    return $self->oi_setter(
+        cmd   => "SET:DEV:T5:TEMP:LOOP:RAMP:RATE",
+        value => $value, %args
+    );
+}
+
 =head2 get_max_current
 
  $current_range = $oi_triton->get_max_current();
