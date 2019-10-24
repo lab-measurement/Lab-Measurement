@@ -143,7 +143,7 @@ sub disable_control {
     return $self->set_user( value => 'GUEST', %args );
 }
 
-=head2 set_temp_pid/enable_temp_pid/disable_temp_pid
+=head2 set_temp_pid/get_temp_pid/enable_temp_pid/disable_temp_pid
 
  $oi_triton->set_temp_pid(value => 'ON');
  # or $oi_triton->enable_temp_pid();
@@ -162,6 +162,15 @@ sub set_temp_pid {
         value => $value, %args
     );
 }
+
+sub get_temp_pid {
+    my ( $self, %args ) = validated_getter( \@_ );
+    return $self->oi_getter(
+        cmd => "READ:DEV:T5:TEMP:LOOP:MODE",
+        %args
+    );
+}
+
 
 sub enable_temp_pid {
     my ( $self, %args ) = validated_getter( \@_ );
@@ -316,12 +325,6 @@ sub set_T {
         $self->set_max_current( value => 0.01 );
     }
 
-    # Why call t_set twice?
-    # Because of very weird bugs in the OI GHS control software.
-    # If you don't do that you may end up with a setpoint different from
-    # what you really want... :/
-    $self->t_set( value => $value );
-    $self->enable_temp_pid();
     return $self->t_set( value => $value );
 }
 
