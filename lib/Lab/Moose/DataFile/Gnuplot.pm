@@ -364,6 +364,10 @@ gnuplot terminal. If not set, use default gnuplot terminal.
 
 HashRef of terminal options. This defaults to
 C<< {persist => 1, raise => 0, enhanced => 0} >>.
+The different graphical terminal types (qt,x11,wxt) show different behaviour
+regarding persistent windows. For wxt, the plot windows are closed when
+the datafile object goes out of scope. To prevent this, push each new
+datafile object onto a global array.
 
 =item * plot_options
 
