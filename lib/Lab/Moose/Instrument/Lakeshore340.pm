@@ -196,11 +196,10 @@ sub set_control_parameters {
         state          => { isa => enum( [qw/0 1/] ) },
         powerup_enable => { isa => enum( [qw/0 1/] ), default => 1 },
     );
-    my $loop           = delete $args{loop};
-    my $channel        = delete $args{channel} // $self->input_channel();
-    my $units          = delete $args{units};
-    my $state          = delete $args{state};
-    my $powerup_enable = delete $args{powerup_enable};
+    my $channel = delete $args{channel} // $self->input_channel();
+
+    my ( $loop, $units, $state, $powerup_enable )
+        = delete @args{qw/loop units state powerup_enable/};
     $self->write( command => "CSET $loop, $channel, $units, $state,"
             . "$powerup_enable", %args );
 }
@@ -244,6 +243,61 @@ sub get_input_curve {
     );
     my $channel = delete $args{channel} // $self->input_channel();
     return $self->query( command => "INCRV $channel", %args );
+}
+
+=head2 set_remote_mode/get_remote_mode
+
+ $lakeshore->set_remote_mode(value => 1);
+ my $mode = $lakeshore->get_remote_mode();
+
+Valid entries: 1 = local, 2 = remote, 3 = remote with local lockout.
+
+=cut
+
+sub set_remote_mode {
+    my ( $self, $value, %args )
+        = validated_setter( \@_, value => { isa => enum( [ 1 .. 3 ] ) } );
+    $self->write( command => "MODE $value", %args );
+}
+
+sub get_remote_mode {
+    my ( $self, %args ) = validated_getter( \@_ );
+    return $self->query( command => "MODE?", %args );
+}
+
+=head2 set_pid/get_pid
+
+ $lakeshore->set_pid(loop => 1, P => 1, I => 50, D => 50)
+ my %PID = $lakeshore->get_pid(loop => 1);
+ # %PID = (P => $P, I => $I, D => $D);
+ 
+=cut
+
+sub set_pid {
+    my ( $self, %args ) = validated_getter(
+        \@_,
+        %loop_arg,
+        P => { isa => 'Lab::Moose::PosNum' },
+        I => { isa => 'Lab::Moose::PosNum' },
+        D => { isa => 'Lab::Moose::PosNum' }
+    );
+    my ( $loop, $P, $I, $D ) = delete @args{qw/loop P I D/};
+    $self->write(
+        command => sprintf( "PID $loop %f.1 %f.1 %d", $P, $I, $D ),
+        %args
+    );
+}
+
+sub get_pid {
+    my ( $self, %args ) = validated_getter(
+        \@_,
+        %loop_arg
+    );
+    my $loop = delete $args{loop};
+    my $pid = $self->query( command => "PID? $loop", %args );
+    my %pid;
+    @pid{qw/P I D/} = split /,/, $pid;
+    return %pid;
 }
 
 =head2 Consumed Roles
