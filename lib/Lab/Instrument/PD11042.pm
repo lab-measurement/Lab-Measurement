@@ -1,9 +1,11 @@
 package Lab::Instrument::PD11042;
+
 #ABSTRACT: Trinamic PD-110-42 low-cost 42mm stepper motor
 
 use strict;
 use Time::HiRes qw/usleep/, qw/time/;
 use Lab::Instrument;
+use Config;
 
 # todo:
 # * test with VISA_RS232
@@ -99,8 +101,8 @@ our %fields = (
         speed_max    => 180,
         upper_limit  => 180,
         lower_limit  => -180,
-        inipath      => "C:\\Perl\\site\\lib\\Lab\\Instrument\\PD11042.ini",
-        logpath      => "C:\\Perl\\site\\lib\\Lab\\Instrument\\PD11042.log",
+        inipath      => $Config{sitelib} . "/Lab/Instrument/PD11042.ini",
+        logpath      => $Config{sitelib} . "/Lab/Instrument/PD11042.log",
 
     },
 
@@ -596,12 +598,8 @@ sub _set_REF {
 
     my $old_ref = $self->get_position();
 
-    if (
-        not
-        open( DUMP, ">>C:\\Perl\\site\\lib\\Lab\\Instrument\\PD11042.log" ) )
-    {
-        print "cant open logfile\n";
-    }
+    open( my $handle, ">>", $self->device_settings()->{logpath} )
+        or print "cant open logfile\n";
 
     print "Set actual position from $old_ref to $new_ref\n";
     my ( $result, $errcode ) = $self->exec_cmd( TMCL_SAP, target_position,
@@ -610,8 +608,9 @@ sub _set_REF {
     ( $result, $errcode ) = $self->exec_cmd( TMCL_SAP, actual_position,
         $self->angle2steps($new_ref)
     );
-    print DUMP ( my_timestamp() ) . "\t set new REF: $old_ref -> $new_ref \n";
-    close(DUMP);
+    print {$handle} ( my_timestamp() )
+        . "\t set new REF: $old_ref -> $new_ref \n";
+    close($handle);
 
     # this writes the new position to the ini-file.
     $self->get_position();
