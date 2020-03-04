@@ -83,6 +83,23 @@ sub get_value {
     return $self->get_T(@_);
 }
 
+=head2 get_sensor_units_reading
+
+ my $reading = $lakeshore->get_sensor_units_reading(channel => $channel);
+
+Get sensor units reading (like resistance) of an input channel.
+
+=cut
+
+sub get_sensor_units_reading {
+    my ( $self, %args ) = validated_getter(
+        \@_,
+        %channel_arg
+    );
+    my $channel = delete $args{channel} // $self->input_channel();
+    return $self->query( command => "SRDG? $channel", %args );
+}
+
 =head2 set_setpoint/get_setpoint
  # set/get SP for loop 1 in whatever units the setpoint is using
  $lakeshore->set_setpoint(value => 10, loop => 1); 
