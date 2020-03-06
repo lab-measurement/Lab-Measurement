@@ -1,4 +1,5 @@
 package Lab::XPRESS::Data::XPRESS_DataFile;
+
 #ABSTRACT: XPRESS data file module
 
 use strict;
@@ -8,11 +9,11 @@ use File::Copy;
 use Lab::XPRESS::Data::XPRESS_logger;
 use Lab::XPRESS::Sweep;
 
-
 our $counter        = 0;
 our $GLOBAL_PATH    = "./";
 our $GLOBAL_FOLDER  = undef;
 our $DEFAULT_FOLDER = "MEAS";
+our $DEFAULT_HEADER = "#";
 
 sub new {
     my $proto = shift;
@@ -288,7 +289,7 @@ sub start_log {
         $self->{logger}->LOG( $self->{CONFIG} );
     }
     if ( defined @{ $self->{COLUMNS} }[0] ) {
-        my $columns = "#";
+        my $columns = $DEFAULT_HEADER;
         $columns .= join( "\t", @{ $self->{COLUMNS} } );
 
         $self->{logger}->LOG($columns);
