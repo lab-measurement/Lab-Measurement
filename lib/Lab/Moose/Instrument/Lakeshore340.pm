@@ -300,7 +300,7 @@ sub set_pid {
     );
     my ( $loop, $P, $I, $D ) = delete @args{qw/loop P I D/};
     $self->write(
-        command => sprintf( "PID $loop %f.1 %f.1 %d", $P, $I, $D ),
+        command => sprintf( "PID $loop, %f.1, %f.1, %d", $P, $I, $D ),
         %args
     );
 }
@@ -315,6 +315,64 @@ sub get_pid {
     my %pid;
     @pid{qw/P I D/} = split /,/, $pid;
     return %pid;
+}
+
+=head2 set_zone/get_zone
+
+ $lakeshore->set_zone(
+     loop => 1,
+     zone => 1,
+     top  => 10,
+     P    => 25,
+     I    => 10,
+     D    => 20,
+     range => 1
+ );
+
+ my %zone = $lakeshore->get_zone(loop => 1, zone => 1);
+=cut
+
+sub set_zone {
+    my ( $self, %args ) = validated_getter(
+        \@_,
+        %loop_arg,
+        zone => { isa => enum( [ 1 .. 10 ] ) },
+        top  => { isa => 'Lab::Moose::PosNum' },
+        P    => { isa => 'Lab::Moose::PosNum' },
+        I    => { isa => 'Lab::Moose::PosNum' },
+        D    => { isa => 'Lab::Moose::PosNum' },
+        mout => { isa => 'Lab::Moose::PosNum', optional => 1 },
+        range => { isa => enum( [ 0 .. 5 ] ) },
+    );
+    my ( $loop, $zone, $top, $P, $I, $D, $mout, $range )
+        = delete @args{qw/loop zone top P I D mout range/};
+    if ( defined $mout ) {
+        $mout = sprintf( "%.1f", $mout );
+    }
+    else {
+        $mout = ' ';
+    }
+
+    $self->write(
+        command => sprintf(
+            "ZONE $loop, $zone, %.6G, %.1f, %.1f, %d, $mout, $range", $top,
+            $P, $I, $D
+        ),
+        %args
+    );
+}
+
+sub get_zone {
+    my ( $self, %args ) = validated_getter(
+        \@_,
+        %loop_arg,
+        zone => { isa => enum( [ 1 .. 10 ] ) }
+    );
+    my ( $loop, $zone ) = delete @args{qw/loop zone/};
+    my $result = $self->query( command => "ZONE? $loop, $zone", %args );
+    my %zone;
+    @zone{qw/top P I D mout range/} = split /,/, $result;
+    return %zone;
 }
 
 =head2 Consumed Roles
