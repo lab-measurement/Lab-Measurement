@@ -8,7 +8,8 @@ use MooseX::Params::Validate;
 use Lab::Moose::Instrument::Cache;
 use Carp;
 use namespace::autoclean;
-use Lab::Moose::Instrument 'validated_setter';
+use Moose::Util::TypeConstraints 'enum';
+use Lab::Moose::Instrument qw/validated_setter validated_getter/;
 use Lab::Moose::Instrument::Cache;
 use constant {
     ZI_LIST_NODES_RECURSIVE => 1,
@@ -24,7 +25,7 @@ extends 'Lab::Moose::Instrument::Zhinst';
  my $mfli = instrument(
      type => 'ZI_MFLI',
      connection_type => 'Zhinst',
-     oscillator => 1, # 1 is default
+     oscillator => 1, # 0 is default
      connection_options => {
          host => '132.188.12.13',
          port => 8004,
@@ -53,11 +54,23 @@ has num_demods => (
     init_arg => undef,
 );
 
+my %oscillator_arg
+    = ( oscillator => { isa => 'Lab::Moose::PosInt', optional => 1 } );
 has oscillator => (
     is      => 'ro',
     isa     => 'Lab::Moose::PosInt',
-    default => 1
+    default => 0
 );
+
+sub _get_oscillator {
+    my $self = shift;
+    my %args = @_;
+    my $osc  = delete $args{oscillator};
+    if ( not defined $osc ) {
+        $osc = $self->oscillator();
+    }
+    $osc;
+}
 
 sub _get_num_demods {
     my $self  = shift;
@@ -89,19 +102,27 @@ C<set_tc> will not work.
 
 =head2 get_frequency
 
+ # Get oscillator frequency of default oscillator.
  my $freq = $mfli->get_frequency();
 
-Get oscillator frequency.
+
+ my $freq = $mfli->get_frequency(oscillator => ...);
 
 =cut
 
 cache frequency => ( getter => 'get_frequency' );
 
 sub get_frequency {
-    my $self = shift;
+    my ( $self, %args ) = validated_hash(
+        \@_,
+        %oscillator_arg,
+    );
+
+    my $osc = $self->_get_oscillator(%args);
+
     return $self->cached_frequency(
         $self->get_value(
-            path => $self->device() . "/oscs/0/freq",
+            path => $self->device() . "/oscs/$osc/freq",
             type => 'D'
         )
     );
@@ -130,15 +151,17 @@ Set oscillator frequency.
 sub set_frequency {
     my ( $self, $value, %args ) = validated_setter(
         \@_,
+        %oscillator_arg,
         value => { isa => 'Num' },
     );
-
+    my $osc = $self->_get_oscillator(%args);
     return $self->cached_frequency(
         $self->sync_set_value(
-            path  => $self->device() . "/oscs/0/freq", type => 'D',
+            path  => $self->device() . "/oscs/$osc/freq", type => 'D',
             value => $value
         )
     );
+
 }
 
 =head2 set_frq
@@ -232,50 +255,6 @@ sub set_current_sens {
     return $self->cached_current_sens(
         $self->sync_set_value(
             path  => $self->device() . "/currins/0/range",
-            type  => 'D',
-            value => $value
-        )
-    );
-}
-
-=head2 get_amplitude
-
- my $amplitude = $mfli->get_amplitude();
-
-Get amplitude of voltage output. The oscillator is determined by the C<oscillator> attribute.
-
-=cut
-
-cache amplitude => ( getter => 'get_amplitude' );
-
-sub get_amplitude {
-    my $self = shift;
-    my $osc  = $self->oscillator();
-    return $self->cached_amplitude(
-        $self->get_value(
-            path => $self->device() . "/sigouts/0/amplitudes/$osc",
-            type => 'D'
-        )
-    );
-}
-
-=head2 set_amplitude
-
- $mfli->set_amplitude(value => 300e-3);
-
-Set amplitude of voltage output. The oscillator is determined by the C<oscillator> attribute.
-
-=cut
-
-sub set_amplitude {
-    my ( $self, $value, %args ) = validated_setter(
-        \@_,
-        value => { isa => 'Num' }
-    );
-    my $osc = $self->oscillator();
-    return $self->cached_amplitude(
-        $self->sync_set_value(
-            path  => $self->device() . "/sigouts/0/amplitudes/$osc",
             type  => 'D',
             value => $value
         )
@@ -432,9 +411,62 @@ sub set_voltage {
     $self->set_offset_voltage( value => $value );
 }
 
+my %adcselect_signals = (
+    0   => 'sigin1',
+    1   => 'currin1',
+    2   => 'trigger1',
+    3   => 'trigger2',
+    4   => 'auxout1',
+    5   => 'auxout2',
+    6   => 'auxout3',
+    7   => 'auxout4',
+    8   => 'auxin1',
+    9   => 'auxin2',
+    174 => 'constant_input',
+);
+my %adcselect_signals_revers = reverse %adcselect_signals;
+my @adcselect_signals        = values %adcselect_signals;
+
 #
 # Demodulators
 #
+
+=head2 set_input/get_input
+
+ $mfli->set_input(demod => 0, value => 'CurrIn1');
+ my $signal = $mfli->get_input(demod => 0);
+
+Valid inputs:   currin1, trigger1, trigger2, auxout1, auxout2, auxout3, auxout4, auxin1, auxin2, constant_input
+
+t
+=cut
+
+sub set_input {
+    my ( $self, $value, %args ) = validated_setter(
+        \@_,
+        value => { isa => enum( [@adcselect_signals] ) },
+        demod => { isa => 'Int' },
+    );
+
+    $value = $adcselect_signals_revers{$value};
+    my $demod = delete $args{demod};
+    $self->sync_set_value(
+        path => $self->device() . "/demods/$demod/adcselect",
+        type => 'I', value => $value
+    );
+}
+
+sub get_input {
+    my $self = shift;
+    my ($demod) = validated_list(
+        \@_, demod => { isa => 'Int' },
+    );
+    my $v = $self->get_value(
+        path => $self->device() . "/demods/$demod/adcselect",
+        type => 'I'
+    );
+    return $adcselect_signals{$v};
+}
 
 =head2 get_phase
 
@@ -584,6 +616,65 @@ sub set_order {
         )
     );
 }
+
+=head2 get_amplitude
+
+ # set amplitude for default oscillator
+ my $amplitude = $mfli->get_amplitude();
+
+ # set amplitude of oscillator 1
+ my $amplitude = $mfli->get_amplitude(oscillator => 1);
+
+Get amplitude of voltage output. The default oscillator is determined by the C<oscillator> attribute.
+
+=cut
+
+cache amplitude => ( getter => 'get_amplitude' );
+
+sub get_amplitude {
+    my ( $self, %args ) = validated_getter(
+        \@_,
+        demod => { isa => 'Int' },
+    );
+
+    my $demod = delete $args{demod};
+    return $self->cached_amplitude(
+        $self->get_value(
+            path => $self->device() . "/sigouts/0/amplitudes/$demod",
+            type => 'D'
+        )
+    );
+}
+
+=head2 set_amplitude
+
+ $mfli->set_amplitude(value => 300e-3);
+ $mfli->set_amplitude(value => ..., demod => ...);
+
+Set amplitude of voltage output. The oscillator is determined by the C<oscillator> attribute.
+
+=cut
+
+sub set_amplitude {
+    my ( $self, $value, %args ) = validated_setter(
+        \@_,
+        value => { isa => 'Num' },
+        demod => { isa => 'Int' },
+    );
+    my $osc   = $self->_get_oscillator(%args);
+    my $demod = delete $args{demod};
+    return $self->cached_amplitude(
+        $self->sync_set_value(
+            path  => $self->device() . "/sigouts/0/amplitudes/$demod",
+            type  => 'D',
+            value => $value
+        )
+    );
+}
+
+#
+# Output commands
+#
 
 =head2 get_xy
 
