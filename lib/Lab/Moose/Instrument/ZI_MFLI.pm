@@ -625,7 +625,7 @@ sub set_order {
  # set amplitude of oscillator 1
  my $amplitude = $mfli->get_amplitude(oscillator => 1);
 
-Get amplitude of voltage output. The default oscillator is determined by the C<oscillator> attribute.
+Get peak amplitude of voltage output. The default oscillator is determined by the C<oscillator> attribute.
 
 =cut
 
@@ -651,7 +651,7 @@ sub get_amplitude {
  $mfli->set_amplitude(value => 300e-3);
  $mfli->set_amplitude(value => ..., demod => ...);
 
-Set amplitude of voltage output. The oscillator is determined by the C<oscillator> attribute.
+Set peak amplitude of voltage output. The oscillator is determined by the C<oscillator> attribute.
 
 =cut
 
@@ -670,6 +670,25 @@ sub set_amplitude {
             value => $value
         )
     );
+}
+
+=head2 get_amplitude_rms/set_amplitude_rms
+
+Get/Set root mean square value of amplitude. These are wrappers around get_amplitude/set_amplitude and divide/multiply the peak amplitude with sqrt(2).
+
+=cut
+
+sub get_amplitude_rms {
+    my $self  = shift;
+    my $value = $self->get_amplitude(@_);
+    return $value / sqrt(2);
+}
+
+sub set_amplitude_rms {
+    my $self = shift;
+    my %args = @_;
+    $args{value} *= sqrt(2);
+    return $self->set_amplitude(%args);
 }
 
 #
