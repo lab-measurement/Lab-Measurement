@@ -60,6 +60,7 @@ sub BUILD {
 
     if ( $self->persistent_mode ) {
         $self->_current_rate( $self->start_rate );
+
         # the _field_setter needs a well-defined initial state
         $self->set_persistent_mode();
     }
@@ -82,6 +83,10 @@ sub _build_setter {
 sub set_persistent_mode {
     my $self       = shift;
     my $instrument = $self->instrument();
+    if ( $instrument->in_persistent_mode ) {
+        return;
+    }
+
     $instrument->heater_off();
     my $rate = $self->_current_rate;
     $instrument->sweep_to_field( target => 0, rate => $rate );
@@ -89,8 +94,11 @@ sub set_persistent_mode {
 }
 
 sub unset_persistent_mode {
-    my $self             = shift;
-    my $instrument       = $self->instrument();
+    my $self       = shift;
+    my $instrument = $self->instrument();
+    if ( not $instrument->in_persistent_mode ) {
+        return;
+    }
     my $persistent_field = $instrument->get_persistent_field();
     my $rate             = $self->_current_rate;
     $instrument->sweep_to_field( target => $persistent_field, rate => $rate );

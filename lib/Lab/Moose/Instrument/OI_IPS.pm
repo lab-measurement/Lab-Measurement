@@ -277,6 +277,33 @@ sub active {
     return substr( $status, 11, 1 );
 }
 
+=head2 in_persistent_mode
+
+ if ($ips->in_persistent_mode()) {
+    ...
+ }
+
+Return 1 if in persistent mode; otherwise return false.
+
+=cut
+
+sub in_persistent_mode {
+    my ( $self, %args ) = validated_getter( \@_ );
+    my $status = $self->examine_status(@_);
+    my $n = substr( $status, 8, 1 );
+    if ( $n == 0 || $n == 2 ) {
+
+        # heater off
+        return 1;
+    }
+    elsif ( $n == 1 ) {
+        return;
+    }
+    else {
+        croak "bad heater status $n";
+    }
+}
+
 =head2 wait
 
  $ips->wait();

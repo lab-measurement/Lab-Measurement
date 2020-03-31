@@ -384,6 +384,30 @@ sub heater_off {
     countdown( $self->heater_delay(), "OI Mercury heater OFF: " );
 }
 
+=head2 in_persistent_mode
+
+ if ($m->in_persistent_mode()) {
+    ...
+ }
+
+Return 1 if in persistent mode; otherwise return false.
+
+=cut
+
+sub in_persistent_mode {
+    my $self = shift;
+    my $rv   = $self->oim_get_heater(@_);
+    if ( $rv eq 'ON' ) {
+        return;
+    }
+    elsif ( $rv eq 'OFF' ) {
+        return 1;
+    }
+    else {
+        croak("unknown heater setting $rv");
+    }
+}
+
 =head2 oim_force_heater
 
 
