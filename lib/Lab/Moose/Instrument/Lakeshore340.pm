@@ -26,6 +26,12 @@ has input_channel => (
     default => 'A',
 );
 
+has default_loop => (
+    is      => 'ro',
+    isa     => enum( [ 1 .. 2 ] ),
+    default => 1,
+);
+
 sub BUILD {
     my $self = shift;
     $self->clear();
@@ -33,7 +39,7 @@ sub BUILD {
 }
 
 my %channel_arg = ( channel => { isa => enum( [qw/A B/] ), optional => 1 } );
-my %loop_arg = ( loop => { isa => enum( [qw/1 2/] ) } );
+my %loop_arg    = ( loop    => { isa => enum( [qw/1 2/] ), optional => 1 } );
 
 =encoding utf8
 
@@ -112,7 +118,7 @@ sub get_setpoint {
         \@_,
         %loop_arg
     );
-    my $loop = delete $args{loop};
+    my $loop = delete $args{loop} // $self->default_loop;
     return $self->query( command => "SETP? $loop", %args );
 }
 
@@ -121,7 +127,7 @@ sub set_setpoint {
         \@_,
         %loop_arg
     );
-    my $loop = delete $args{loop};
+    my $loop = delete $args{loop} // $self->default_loop;
 
     # Device bug. The 340 cannot parse values with too many digits.
     $value = sprintf( "%.6G", $value );
@@ -178,7 +184,7 @@ sub set_control_mode {
         value => { isa => enum( [ ( 1 .. 6 ) ] ) },
         %loop_arg
     );
-    my $loop = delete $args{loop};
+    my $loop = delete $args{loop} // $self->default_loop;
     return $self->write( command => "CMODE $loop,$value", %args );
 }
 
@@ -187,7 +193,7 @@ sub get_control_mode {
         \@_,
         %loop_arg
     );
-    my $loop = delete $args{loop};
+    my $loop = delete $args{loop} // $self->default_loop;
     return $self->query( command => "CMODE? $loop", %args );
 }
 
@@ -217,6 +223,7 @@ sub set_control_parameters {
 
     my ( $loop, $units, $state, $powerup_enable )
         = delete @args{qw/loop units state powerup_enable/};
+    $loop = $loop // $self->default_loop;
     $self->write( command => "CSET $loop, $channel, $units, $state,"
             . "$powerup_enable", %args );
 }
@@ -226,9 +233,9 @@ sub get_control_parameters {
         \@_,
         %loop_arg
     );
-    my $loop = delete $args{loop};
-    my $rv   = $self->query( command => "CSET? $loop", %args );
-    my @rv   = split /,/, $rv;
+    my $loop = delete $args{loop} // $self->default_loop();
+    my $rv = $self->query( command => "CSET? $loop", %args );
+    my @rv = split /,/, $rv;
     return (
         channel        => $rv[0], units => $rv[1], state => $rv[2],
         powerup_enable => $rv[3]
@@ -299,6 +306,7 @@ sub set_pid {
         D => { isa => 'Lab::Moose::PosNum' }
     );
     my ( $loop, $P, $I, $D ) = delete @args{qw/loop P I D/};
+    $loop = $loop // $self->default_loop();
     $self->write(
         command => sprintf( "PID $loop, %f.1, %f.1, %d", $P, $I, $D ),
         %args
@@ -310,7 +318,7 @@ sub get_pid {
         \@_,
         %loop_arg
     );
-    my $loop = delete $args{loop};
+    my $loop = delete $args{loop} // $self->default_loop;
     my $pid = $self->query( command => "PID? $loop", %args );
     my %pid;
     @pid{qw/P I D/} = split /,/, $pid;
@@ -346,6 +354,7 @@ sub set_zone {
     );
     my ( $loop, $zone, $top, $P, $I, $D, $mout, $range )
         = delete @args{qw/loop zone top P I D mout range/};
+    $loop = $loop // $self->default_loop;
     if ( defined $mout ) {
         $mout = sprintf( "%.1f", $mout );
     }
@@ -369,6 +378,7 @@ sub get_zone {
         zone => { isa => enum( [ 1 .. 10 ] ) }
     );
     my ( $loop, $zone ) = delete @args{qw/loop zone/};
+    $loop = $loop // $self->default_loop;
     my $result = $self->query( command => "ZONE? $loop, $zone", %args );
     my %zone;
     @zone{qw/top P I D mout range/} = split /,/, $result;
