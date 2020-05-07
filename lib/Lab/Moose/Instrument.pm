@@ -17,6 +17,7 @@ our @EXPORT_OK = qw(
     read_length_param
     channel_param
     precision_param
+    endian_param
     getter_params
     setter_params
     validated_getter
@@ -266,6 +267,18 @@ parameter has to be either 'single' (default) or 'double'.
 sub precision_param {
     return ( precision =>
             { isa => enum( [qw/single double/] ), default => 'single' } );
+}
+
+=head2 endian_param
+
+Return optional validation parameter for floating point endianness. The
+parameter has to be 'native' (default), 'big', or 'little'.
+
+=cut
+
+sub endian_param {
+    return ( endian =>
+            { isa => enum( [qw/native big little/] ), default => 'native' } );
 }
 
 =head2 getter_params
