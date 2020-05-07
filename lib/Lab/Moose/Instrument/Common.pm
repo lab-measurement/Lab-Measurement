@@ -46,7 +46,7 @@ Returns the manufacturer field from an  I<*IDN?> query.
 sub idn_manufacturer {
     my ( $self, %args ) = validated_getter( \@_ );
     my $i=$self->query( command => '*IDN?', %args );
-    my ($man, $mod, $ser, $fir) = split /,/, $i, 4;
+    my ($man, $mod, $ser, $fir) = split /,\s*/, $i, 4;
     return $man;
 }
 
@@ -59,7 +59,7 @@ Returns the model field from an  I<*IDN?> query.
 sub idn_model {
     my ( $self, %args ) = validated_getter( \@_ );
     my $i=$self->query( command => '*IDN?', %args );
-    my ($man, $mod, $ser, $fir) = split /,/, $i, 4;
+    my ($man, $mod, $ser, $fir) = split /,\s*/, $i, 4;
     return $mod;
 }
 
@@ -72,7 +72,7 @@ Returns the serial number field from an  I<*IDN?> query.
 sub idn_serial {
     my ( $self, %args ) = validated_getter( \@_ );
     my $i=$self->query( command => '*IDN?', %args );
-    my ($man, $mod, $ser, $fir) = split /,/, $i, 4;
+    my ($man, $mod, $ser, $fir) = split /,\s/, $i, 4;
     return $ser;
 }
 
@@ -85,7 +85,7 @@ Returns the firmware version field from an  I<*IDN?> query.
 sub idn_firmware {
     my ( $self, %args ) = validated_getter( \@_ );
     my $i=$self->query( command => '*IDN?', %args );
-    my ($man, $mod, $ser, $fir) = split /,/, $i, 4;
+    my ($man, $mod, $ser, $fir) = split /,\s/, $i, 4;
     return $fir;
 }
 
