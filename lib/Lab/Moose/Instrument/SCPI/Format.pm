@@ -37,7 +37,7 @@ sub format_data_query {
 
     my $format = $self->query( command => 'FORM?', %args );
 
-    if ( $format !~ /^(?<format>\w+)(,(?<length>\d+))?$/ ) {
+    if ( $format !~ /^(?<format>\w+)(,\+?(?<length>\d+))?$/ ) {
         croak "illegal value of DATA:FORMat: $format";
     }
 

@@ -90,7 +90,7 @@ sub block_to_array {
     }
 
     my @floats = unpack(
-        $precision eq 'single' ? 'f*' : 'd*',
+        $precision eq 'single' ? 'f>*' : 'd*',
         substr( $binary, 2 + $num_digits, $num_bytes )
     );
 
