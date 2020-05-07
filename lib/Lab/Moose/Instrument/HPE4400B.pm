@@ -45,10 +45,10 @@ sub BUILD {
     my $self = shift;
 
     # limitation of hardware
-		# TODO: Detect firmware version and set the below appropriately
-		#$self->capable_to_query_number_of_X_points_in_hardware(0);
-		#$self->capable_to_set_number_of_X_points_in_hardware(0);
-		#$self->hardwired_number_of_X_points(601);
+    # TODO: Detect firmware version and set the below appropriately
+    #$self->capable_to_query_number_of_X_points_in_hardware(0);
+    #$self->capable_to_set_number_of_X_points_in_hardware(0);
+    #$self->hardwired_number_of_X_points(601);
 
     $self->clear();
     $self->cls();
