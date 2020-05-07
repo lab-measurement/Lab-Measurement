@@ -1,6 +1,6 @@
-package Lab::Moose::Instrument::E4400B;
+package Lab::Moose::Instrument::HPE4400B;
 
-#ABSTRACT: E4400B Series Spectrum Analyzer
+#ABSTRACT: HP E4400B Series Spectrum Analyzer
 
 use 5.010;
 
@@ -45,10 +45,20 @@ sub BUILD {
     my $self = shift;
 
     # limitation of hardware
-    # TODO: Detect firmware version and set the below appropriately
-    #$self->capable_to_query_number_of_X_points_in_hardware(0);
-    #$self->capable_to_set_number_of_X_points_in_hardware(0);
-    #$self->hardwired_number_of_X_points(601);
+    my $firmware = $self->idn_firmware;
+    my $model = $self->idn_model;
+    if (!$firmware ||
+         $firmware !~ /^A\.(\d+)\.\d+$/ ||
+         $1 < 4)
+    {
+         $self->capable_to_query_number_of_X_points_in_hardware(0);
+    }
+
+    if (!$model || $model !~ /^E440[12457]B$/) {
+        print STDERR "Model $model does not support setting X points\n";
+        $self->capable_to_set_number_of_X_points_in_hardware(0);
+        $self->hardwired_number_of_X_points(401);
+    }
 
     $self->clear();
     $self->cls();
