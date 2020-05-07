@@ -188,6 +188,8 @@ alias: L<Lab::Moose::Instrument::Agilent34410A>
 
 =item * L<Lab::Moose::Instrument::HP8596E>
 
+=item * L<Lab::Moose::Instrument::HPE4400B>
+
 =item * L<Lab::Moose::Instrument::Rigol_DSA815>
 
 =back
