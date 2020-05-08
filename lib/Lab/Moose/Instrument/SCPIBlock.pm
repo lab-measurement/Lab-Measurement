@@ -87,7 +87,6 @@ sub block_to_array {
         little => '<'
         );
     my $endianflag = $endians{$self->endian};
-		print STDERR "$self->endian => $endianflag\n";
 
     my $num_digits = substr( $binary, 1, 1 );
     my $num_bytes  = substr( $binary, 2, $num_digits );
