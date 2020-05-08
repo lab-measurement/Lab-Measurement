@@ -7,7 +7,6 @@ use MooseX::Params::Validate;
 
 use Lab::Moose::Instrument qw/
     precision_param
-    endian_param
     /;
 
 use Carp;
@@ -32,8 +31,7 @@ See "8.7.9 <DEFINITE LENGTH ARBITRARY BLOCK RESPONSE DATA>" in IEEE 488.2.
 
  my $array_ref = $self->block_to_array(
      binary => "#232${bytes}";
-     precision => 'double',
-     endian => 'native'
+     precision => 'double'
  );
 
 Convert block data to arrayref, where the binary block holds floating point
@@ -73,13 +71,11 @@ sub block_to_array {
         \@_,
         binary => { isa => 'Str' },
         precision_param(),
-        endian_param(),
         ,
     );
 
     my $precision = delete $args{precision};
     my $binary    = delete $args{binary};
-    my $endian    = delete $args{endian};
 
     if ( substr( $binary, 0, 1 ) ne '#' ) {
         croak 'does not look like binary data';
@@ -90,7 +86,8 @@ sub block_to_array {
         big    => '>',
         little => '<'
         );
-    my $endianflag = $endians{$endian};
+    my $endianflag = $endians{$self->endian};
+		print STDERR "$self->endian => $endianflag\n";
 
     my $num_digits = substr( $binary, 1, 1 );
     my $num_bytes  = substr( $binary, 2, $num_digits );
