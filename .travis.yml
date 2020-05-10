@@ -57,7 +57,7 @@ install:
 
   # install dependencies
   - travis_wait dzil listdeps --missing --cpanm | grep -vP '[^\w:~"\.]' | xargs cpanm  --notest
-  - if [ $with_pdl_graphics_gnuplot ]; then cpanm --verbose -f PDL::Graphics::Gnuplot; fi
+  - if [ $with_pdl_graphics_gnuplot -eq "1" ]; then cpanm --verbose -f PDL::Graphics::Gnuplot; fi
   - cpanm -n Test::Perl::Critic
 
 script:
