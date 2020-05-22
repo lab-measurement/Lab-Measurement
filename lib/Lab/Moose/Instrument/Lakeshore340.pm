@@ -107,7 +107,9 @@ sub get_sensor_units_reading {
 }
 
 =head2 set_setpoint/get_setpoint
- # set/get SP for loop 1 in whatever units the setpoint is using
+
+Set/get setpoint for loop 1 in whatever units the setpoint is using
+
  $lakeshore->set_setpoint(value => 10, loop => 1); 
  my $setpoint1 = $lakeshore->get_setpoint(loop => 1);
  
