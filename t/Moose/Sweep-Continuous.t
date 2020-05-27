@@ -19,12 +19,14 @@ my $dir = catfile( tempdir(), 'sweep' );
     #
     # Time sweep
     #
-    my @intervals = ( 0.1, 0.2 );
-    my @durations = ( 0.5, 0.6 );
+    my @intervals = ( 1, 2 );
+    my @durations = ( 2, 4 );
 
+    # expected number of measurement points
     my $num_points0 = $durations[0] / $intervals[0] + 1;
     my $num_points1 = $durations[1] / $intervals[1] + 1;
-    my $sweep       = sweep(
+
+    my $sweep = sweep(
         type      => 'Continuous::Time',
         durations => [@durations],
         intervals => [@intervals],
