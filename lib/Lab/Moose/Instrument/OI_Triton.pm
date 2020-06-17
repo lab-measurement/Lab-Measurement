@@ -63,6 +63,11 @@ with qw(Lab::Moose::Instrument::OI_Common);
 
  $temp = $oi_triton->get_temperature(channel => 1);
 
+Read out the current temperature of a resistance thermometer channel configured in the Triton software. 
+This does not trigger a measurement but merely returns the last measured value. 
+Measurements progress as configured in the Triton control panel and the resistance
+bridge.
+
 =cut
 
 sub get_temperature {
@@ -79,6 +84,11 @@ sub get_temperature {
 
  $resistance = $oi_triton->get_temperature_resistance(channel => 1);
 
+Read out the current resistance of a resistance thermometer channel configured in the Triton software. 
+This does not trigger a measurement but merely returns the last measured value. 
+Measurements progress as configured in the Triton control panel and the resistance
+bridge.
+
 =cut
 
 sub get_temperature_resistance {
@@ -93,9 +103,9 @@ sub get_temperature_resistance {
 
 =head2 get_T
 
-equivalent to
-
  $oi_triton->get_temperature(channel => 5);
+
+This is a shortcut for reading out temperature channel 5, typically the mixing chamber temperature.
 
 =cut
 
@@ -109,6 +119,9 @@ sub get_T {
  $oi_triton->set_user(value => 'NORM');
  $oi_triton->set_user(value => 'GUEST');
 
+Set the access level as configured in the Triton software. Typically, GUEST means read-only
+access and NORM means control access.
+ 
 =cut
 
 sub set_user {
@@ -146,7 +159,10 @@ sub disable_control {
 =head2 set_temp_pid/get_temp_pid/enable_temp_pid/disable_temp_pid
 
  $oi_triton->set_temp_pid(value => 'ON');
- # or $oi_triton->enable_temp_pid();
+ # or equivalently $oi_triton->enable_temp_pid();
+
+ $oi_triton->set_temp_pid(value => 'OFF');
+ # or equivalently $oi_triton->disable_temp_pid();
 
 Set PID control of the mixing chamber temperature to 'ON' or 'OFF'.
  
@@ -171,7 +187,6 @@ sub get_temp_pid {
     );
 }
 
-
 sub enable_temp_pid {
     my ( $self, %args ) = validated_getter( \@_ );
     return $self->set_temp_pid( value => 'ON', %args );
@@ -189,6 +204,8 @@ sub disable_temp_pid {
 
  my $status = $oi_triton->get_temp_ramp_status();
 
+Control and read out whether the temperature is being ramped.
+ 
 =cut
 
 sub set_temp_ramp_status {
@@ -215,6 +232,8 @@ sub get_temp_ramp_status {
  $oi_triton->set_temp_ramp_rate(value => 1e-3); # 1mk/min
  my $ramp_rate = $oi_triton->get_temp_ramp_rate();
 
+Set and read out the temperature ramp rate in K/min.
+ 
 =cut
 
 sub get_temp_ramp_rate {
