@@ -122,8 +122,7 @@ has interval   => ( is => 'ro', isa => 'Lab::Moose::PosNum' );
 has points => (
     is      => 'ro', isa => 'ArrayRef[Num]', traits => ['Array'],
     handles => {
-        shift_points => 'shift', num_points => 'count',
-        points_array => 'elements'
+        get_point => 'get', num_points => 'count', points_array => 'elements'
     },
     writer => '_points',
 );
@@ -133,8 +132,8 @@ has intervals => (
     isa     => 'ArrayRef[Num]',
     traits  => ['Array'],
     handles => {
-        shift_intervals => 'shift', get_interval    => 'get',
-        num_intervals   => 'count', intervals_array => 'elements',
+        get_interval    => 'get', num_intervals => 'count',
+        intervals_array => 'elements',
     },
     writer => '_intervals',
 );
@@ -142,8 +141,7 @@ has intervals => (
 has rates => (
     is      => 'ro', isa => 'ArrayRef[Num]', traits => ['Array'],
     handles => {
-        shift_rates => 'shift', num_rates => 'count',
-        rates_array => 'elements'
+        get_rate => 'get', num_rates => 'count', rates_array => 'elements'
     },
     writer => '_rates',
 );
@@ -154,9 +152,17 @@ has backsweep => ( is => 'ro', isa => 'Bool', default => 0 );
 # Private attributes used internally
 #
 
+has points_index => (
+    is     => 'ro', isa => 'Int', default => 0, init_arg => undef,
+    traits => ['Counter'],
+    handles => { inc_points_index => 'inc', reset_points_index => 'reset' },
+
+);
+
+# index for timing measurement sub
 has index => (
-    is => 'ro', isa => 'Num', default => 0, init_arg => undef, default => 0,
-    traits  => ['Counter'],
+    is     => 'ro', isa => 'Int', default => 0, init_arg => undef,
+    traits => ['Counter'],
     handles => { inc_index => 'inc', reset_index => 'reset' }
 );
 
@@ -301,10 +307,8 @@ sub BUILD {
 sub go_to_next_point {
     my $self  = shift;
     my $index = $self->index;
-    if ( $self->num_intervals < 1 ) {
-        croak "num_intervals error";
-    }
-    my $interval = $self->get_interval(0);
+
+    my $interval = $self->get_interval( $self->points_index - 2 );
     if ( $index == 0 or $interval == 0 ) {
 
         # first point is special
@@ -334,8 +338,12 @@ EOF
 sub go_to_sweep_start {
     my $self = shift;
     $self->reset_index();
-    my $point = $self->shift_points();
-    my $rate  = $self->shift_rates();
+    $self->reset_points_index();
+
+    my $point = $self->get_points(0);
+    my $rate  = $self->shift_rates(0);
+    $self->inc_points_index;
+
     carp <<"EOF";
 Going to sweep start:
 Setpoint: $point
@@ -353,8 +361,11 @@ EOF
 sub start_sweep {
     my $self       = shift;
     my $instrument = $self->instrument();
-    my $to         = $self->shift_points();
-    my $rate       = $self->shift_rates();
+
+    my $to   = $self->get_point( $self->points_index );
+    my $rate = $self->get_rate( $self->points_index );
+    $self->inc_points_index();
+
     carp <<"EOF";
 Starting sweep
 Setpoint: $to
@@ -377,11 +388,10 @@ sub sweep_finished {
 
     # finished one segment of the sweep
 
-    if ( $self->num_points > 0 ) {
+    if ( $self->points_index < $self->num_points ) {
 
         # continue with next point
         $self->start_sweep();
-        $self->shift_intervals();
         return 0;
     }
     else {

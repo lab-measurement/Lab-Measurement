@@ -99,6 +99,7 @@ sub BUILD {
 sub go_to_sweep_start {
     my $self = shift;
     $self->reset_index();
+    $self->reset_points_index();
 }
 
 sub start_sweep {
@@ -107,19 +108,21 @@ sub start_sweep {
 }
 
 sub sweep_finished {
-    my $self     = shift;
-    my $duration = $self->get_duration(0);
-    if ( not defined $duration ) {
+    my $self = shift;
+
+    my $duration = $self->get_duration( $self->points_index );
+
+    if ( time() - $self->start_time < $duration ) {
+
+        # still in duration
         return 0;
     }
 
-    my $start_time = $self->start_time;
-    if ( time() - $start_time < $duration ) {
-        return 0;
-    }
-    if ( $self->num_durations > 1 ) {
-        $self->shift_intervals();
-        $self->shift_durations();
+    # duration is finished.
+    $self->inc_points_index();
+
+    # Are there more durations?
+    if ( $self->points_index < $self->num_durations() ) {
         $self->reset_index();
         $self->start_sweep();
         return 0;
