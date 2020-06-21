@@ -340,8 +340,8 @@ sub go_to_sweep_start {
     $self->reset_index();
     $self->reset_points_index();
 
-    my $point = $self->get_points(0);
-    my $rate  = $self->shift_rates(0);
+    my $point = $self->get_point(0);
+    my $rate  = $self->get_rate(0);
     $self->inc_points_index;
 
     carp <<"EOF";

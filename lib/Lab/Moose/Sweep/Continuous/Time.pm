@@ -100,6 +100,7 @@ sub go_to_sweep_start {
     my $self = shift;
     $self->reset_index();
     $self->reset_points_index();
+    $self->inc_points_index();
 }
 
 sub start_sweep {
@@ -110,7 +111,7 @@ sub start_sweep {
 sub sweep_finished {
     my $self = shift;
 
-    my $duration = $self->get_duration( $self->points_index );
+    my $duration = $self->get_duration( $self->points_index - 1 );
 
     if ( time() - $self->start_time < $duration ) {
 
