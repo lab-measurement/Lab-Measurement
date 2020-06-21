@@ -59,17 +59,22 @@ my $dir = catfile( tempdir(), 'sweep' );
     );
     my $times = $cols[0]->unpdl();
     print Dumper $times;
-    is( @{$times}, $num_points0 + $num_points1, "datafile size" );
+
+    # can get one extra point on slow windows test machines
+    is_absolute_error(
+        @{$times}, $num_points0 + $num_points1, 1.001,
+        "datafile size"
+    );
 
     is_absolute_error(
         $times->[ $num_points0 - 1 ],
-        $times->[0] + $durations[0], $intervals[0],
+        $times->[0] + $durations[0], 2 * $intervals[0],
         "first sweep segment look ok"
     );
 
     is_absolute_error(
-        $times->[-1],  $times->[$num_points0] + $durations[1],
-        $intervals[1], "second sweep segment look ok"
+        $times->[-1],      $times->[$num_points0] + $durations[1],
+        2 * $intervals[1], "second sweep segment look ok"
     );
 }
 
