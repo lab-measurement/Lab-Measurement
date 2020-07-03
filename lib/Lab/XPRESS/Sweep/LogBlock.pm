@@ -1,10 +1,11 @@
 package Lab::XPRESS::Sweep::LogBlock;
 #ABSTRACT: Sweep add-on for matrix logging
 
+use v5.20;
+
 use Role::Tiny;
 requires qw/LOG write_LOG/;
 
-use 5.010;
 
 use Carp;
 

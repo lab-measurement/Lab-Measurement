@@ -1,9 +1,10 @@
 package Lab::Instrument::YokogawaGS200;
 #ABSTRACT: Yokogawa GS200 DC source
 
+use v5.20;
+
 use strict;
 use warnings;
-use 5.010;
 
 use feature "switch";
 use Lab::Instrument;

@@ -1,6 +1,8 @@
 package Lab::Bus::USBtmc;
 #ABSTRACT: USBtmc (Test & Measurement) Linux kernel driver bus
 
+use v5.20;
+
 # "sys/ioctl.ph" throws a warning about FORTIFY_SOURCE, but
 # this alternate is (perhaps?) not present on all systems,
 # so do a workaround

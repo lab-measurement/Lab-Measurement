@@ -1,6 +1,8 @@
 package Lab::XPRESS::Sweep::Repeater;
 #ABSTRACT: Simple repeater
 
+use v5.20;
+
 use Lab::XPRESS::Sweep;
 use Time::HiRes qw/usleep/, qw/time/;
 use strict;

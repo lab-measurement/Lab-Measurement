@@ -2,6 +2,8 @@ package Lab::Moose::Plot;
 
 #ABSTRACT: Frontend to L<PDL::Graphics::Gnuplot>
 
+use v5.20;
+
 =head1 SYNOPSIS
 
  use PDL;
@@ -58,7 +60,6 @@ terminal-, plot- and curve-options.
 
 use warnings;
 use strict;
-use 5.010;
 
 use Moose;
 use MooseX::StrictConstructor;

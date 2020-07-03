@@ -1,7 +1,8 @@
 package Lab::Moose::Instrument::LinearStepSweep;
 
 #ABSTRACT: Role for linear step sweeps used by voltage/current sources.
-use 5.010;
+
+use v5.20;
 use Moose::Role;
 use MooseX::Params::Validate;
 use Lab::Moose::Instrument 'setter_params';

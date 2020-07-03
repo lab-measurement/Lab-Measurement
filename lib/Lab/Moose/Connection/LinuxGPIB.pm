@@ -2,6 +2,8 @@ package Lab::Moose::Connection::LinuxGPIB;
 
 #ABSTRACT: Connection back end to the LinuxGpib library and kernel drivers
 
+use v5.20;
+
 =head1 SYNOPSIS
 
  use Lab::Moose
@@ -22,7 +24,6 @@ backend.
 
 =cut
 
-use 5.010;
 
 use Moose;
 use MooseX::Params::Validate;

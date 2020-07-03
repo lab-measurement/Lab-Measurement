@@ -2,6 +2,8 @@ package Lab::Moose::Instrument::OI_Common;
 
 #ABSTRACT: Role for handling Oxfords Instruments pseudo-SCPI commands
 
+use v5.20;
+
 use Moose::Role;
 use MooseX::Params::Validate;
 use Lab::Moose::Instrument qw/validated_getter validated_setter/;

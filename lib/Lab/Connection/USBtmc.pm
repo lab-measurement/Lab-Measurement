@@ -1,6 +1,8 @@
 package Lab::Connection::USBtmc;
 #ABSTRACT: F</dev/usbtmc> Linux USB Test&Measurement kernel driver connection
 
+use v5.20;
+
 use strict;
 use Scalar::Util qw(weaken);
 use Time::HiRes qw (usleep sleep);

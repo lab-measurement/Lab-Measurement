@@ -1,6 +1,8 @@
 package Lab::XPRESS::Sweep::VM_DIR;
 #ABSTRACT: Vector magnet sweep
 
+use v5.20;
+
 use Lab::XPRESS::Sweep::SweepND;
 use Time::HiRes qw/usleep/, qw/time/;
 use strict;

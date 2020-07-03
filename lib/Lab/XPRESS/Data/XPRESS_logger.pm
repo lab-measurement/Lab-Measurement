@@ -1,6 +1,8 @@
 package Lab::XPRESS::Data::XPRESS_logger;
 #ABSTRACT: XPRESS logging module
 
+use v5.20;
+
 
 use Time::HiRes qw/usleep/, qw/time/;
 use strict;

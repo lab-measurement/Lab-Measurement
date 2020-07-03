@@ -2,7 +2,8 @@ package Lab::Moose::Instrument::RS_SMB;
 
 #ABSTRACT: Rohde & Schwarz SMB Signal Generator
 
-use 5.010;
+use v5.20;
+
 
 use Moose;
 use Moose::Util::TypeConstraints;

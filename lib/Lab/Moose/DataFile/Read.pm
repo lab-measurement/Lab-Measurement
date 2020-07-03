@@ -2,7 +2,8 @@ package Lab::Moose::DataFile::Read;
 
 #ABSTRACT: Read a gnuplot-style 2D data file
 
-use 5.010;
+use v5.20;
+
 use warnings;
 use strict;
 use MooseX::Params::Validate 'validated_list';

@@ -2,7 +2,8 @@ package Lab::Moose::Instrument::DisplayXY;
 
 #ABSTRACT: Display with y vs x traces Role for Lab::Moose::Instrument
 
-use 5.010;
+use v5.20;
+
 
 use PDL::Core qw/pdl cat nelem sclr/;
 use PDL::NiceSlice;

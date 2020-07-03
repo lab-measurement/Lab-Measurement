@@ -2,7 +2,8 @@ package Lab::Moose::Instrument::SpectrumAnalyzer;
 
 #ABSTRACT: Role of Generic Spectrum Analyzer for Lab::Moose::Instrument
 
-use 5.010;
+use v5.20;
+
 
 use PDL::Core qw/pdl cat nelem/;
 

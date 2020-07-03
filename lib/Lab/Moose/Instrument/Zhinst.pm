@@ -2,7 +2,8 @@ package Lab::Moose::Instrument::Zhinst;
 
 #ABSTRACT: Base class for Zurich Instruments device drivers
 
-use 5.010;
+use v5.20;
+
 use Moose;
 use MooseX::Params::Validate qw/validated_list validated_hash/;
 use Carp;

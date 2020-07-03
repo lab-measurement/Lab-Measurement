@@ -2,7 +2,8 @@ package Lab::Moose::DataFile::Gnuplot;
 
 #ABSTRACT: Text based data file ('Gnuplot style')
 
-use 5.010;
+use v5.20;
+
 
 use Moose;
 use MooseX::Params::Validate;

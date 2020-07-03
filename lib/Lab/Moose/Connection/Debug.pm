@@ -2,8 +2,9 @@ package Lab::Moose::Connection::Debug;
 
 #ABSTRACT: Debug connection, printing / reading on terminal
 
+use v5.20;
+
 use Moose;
-use 5.010;
 use namespace::autoclean;
 use Data::Dumper;
 use YAML::XS;

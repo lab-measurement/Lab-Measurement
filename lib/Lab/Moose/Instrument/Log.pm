@@ -2,6 +2,8 @@ package Lab::Moose::Instrument::Log;
 
 #ABSTRACT: Role for Lab::Moose::Instrument connection logging.
 
+use v5.20;
+
 use Moose::Role;
 use Carp;
 use namespace::autoclean;

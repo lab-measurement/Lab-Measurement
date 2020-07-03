@@ -1,6 +1,8 @@
 package Lab::Bus::MODBUS_RS232;
 #ABSTRACT: RS232/RS485 MODBUS RTU protocol bus
 
+use v5.20;
+
 #
 # MODBUS bus driver.
 # The MODBUS standard defines a protocol to access the memory of connected devices,

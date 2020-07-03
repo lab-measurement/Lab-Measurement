@@ -2,7 +2,8 @@ package Lab::Moose::Instrument::RS_FSV;
 
 #ABSTRACT: Rohde & Schwarz FSV Signal and Spectrum Analyzer
 
-use 5.010;
+use v5.20;
+
 
 use PDL::Core qw/pdl cat/;
 

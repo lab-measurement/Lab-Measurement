@@ -1,7 +1,8 @@
 package Lab::Instrument::WR640;
 #ABSTRACT: LeCroy WaveRunner 640 digital oscilloscope
 
-use 5.006;
+use v5.20;
+
 use strict;
 use warnings;
 use Lab::Instrument;

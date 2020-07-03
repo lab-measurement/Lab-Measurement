@@ -2,6 +2,8 @@ package Lab::XPRESS::Sweep;
 
 #ABSTRACT: Base sweep class
 
+use v5.20;
+
 use Role::Tiny::With;
 
 use Time::HiRes qw/usleep/, qw/time/;

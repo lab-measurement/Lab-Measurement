@@ -2,7 +2,8 @@ package Lab::Moose::DataFile::Gnuplot::Compressed;
 
 #ABSTRACT: Text based data file ('Gnuplot style'), auto-compressed
 
-use 5.010;
+use v5.20;
+
 use warnings;
 use strict;
 

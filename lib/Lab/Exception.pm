@@ -2,6 +2,10 @@ package Lab::Exception;
 
 #ABSTRACT: Exception handling classes
 
+use v5.20;
+
+no strict; # FIXME
+
 #
 # un/comment the following BEGIN clause to slap in the custom base class above
 #

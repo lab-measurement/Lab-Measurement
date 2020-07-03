@@ -2,6 +2,8 @@ package Lab::Generic::CLOptions;
 
 #ABSTRACT: Global command line option processing
 
+use v5.20;
+
 use Getopt::Long qw/:config pass_through/;
 
 our $DEBUG        = 0;

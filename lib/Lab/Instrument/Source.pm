@@ -1,9 +1,10 @@
 package Lab::Instrument::Source;
 #ABSTRACT: Generic voltage source base class
 
+use v5.20;
+
 use strict;
 use warnings;
-use 5.010;
 
 use Lab::Exception;
 use Lab::Instrument;

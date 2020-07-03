@@ -1,6 +1,8 @@
 package Lab::Instrument::ITC;
 #ABSTRACT: Oxford Instruments ITC Intelligent Temperature Control
 
+use v5.20;
+
 use strict;
 use Lab::Instrument;
 use Lab::MultiChannelInstrument;

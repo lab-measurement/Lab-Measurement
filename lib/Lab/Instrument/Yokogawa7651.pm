@@ -1,12 +1,13 @@
 package Lab::Instrument::Yokogawa7651;
 #ABSTRACT: Yokogawa 7651 DC source
 
+use v5.20;
+
 use warnings;
 use strict;
 use Time::HiRes qw/usleep/;
 
 
-use 5.010;
 
 use Lab::Instrument;
 use Lab::Instrument::Source;

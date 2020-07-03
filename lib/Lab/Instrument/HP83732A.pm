@@ -1,6 +1,8 @@
 package Lab::Instrument::HP83732A;
 #ABSTRACT: HP 83732A Series Synthesized Signal Generator
 
+use v5.20;
+
 use strict;
 use Lab::Instrument;
 use Time::HiRes qw (usleep);

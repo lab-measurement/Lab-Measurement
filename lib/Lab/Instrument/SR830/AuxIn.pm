@@ -1,6 +1,8 @@
 package Lab::Instrument::SR830::AuxIn;
 #ABSTRACT: Aux Inputs of the Stanford Research SR830 Lock-In Amplifier
 
+use v5.20;
+
 =head1 SYNOPSIS
 
  use Lab::Instrument::SR830::AuxIn
@@ -41,7 +43,6 @@ B<To use multiple virtual instruments, which use the same physical device, you h
 
 use warnings;
 use strict;
-use 5.010;
 
 use Data::Dumper;
 use Carp;

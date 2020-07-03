@@ -2,6 +2,8 @@ package Lab::Instrument::SR830;
 
 #ABSTRACT: Stanford Research SR830 lock-in amplifier
 
+use v5.20;
+
 use strict;
 use Lab::Instrument;
 use Data::Dumper;

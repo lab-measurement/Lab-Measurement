@@ -1,6 +1,8 @@
 package Lab::Instrument::MG369xB;
 #ABSTRACT: Anritsu MG369xB series signal generator
 
+use v5.20;
+
 use strict;
 use Lab::Instrument;
 use Time::HiRes qw (usleep);

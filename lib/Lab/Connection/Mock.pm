@@ -1,9 +1,10 @@
 package Lab::Connection::Mock;
 #ABSTRACT: ???
 
+use v5.20;
+
 use warnings;
 use strict;
-use 5.010;
 
 use Class::Method::Modifiers;
 use YAML::XS qw/Dump LoadFile/;

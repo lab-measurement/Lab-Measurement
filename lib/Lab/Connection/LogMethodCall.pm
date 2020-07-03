@@ -1,9 +1,10 @@
 package Lab::Connection::LogMethodCall;
 #ABSTRACT: ???
 
+use v5.20;
+
 use warnings;
 use strict;
-use 5.010;
 
 use Carp;
 use Exporter qw(import);

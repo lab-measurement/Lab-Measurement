@@ -2,7 +2,8 @@ package Lab::Moose::Instrument::KeysightB2901A;
 
 #ABSTRACT: Agilent/Keysight B2901A voltage/current sourcemeter.
 
-use 5.010;
+use v5.20;
+
 
 use Moose;
 use MooseX::Params::Validate;

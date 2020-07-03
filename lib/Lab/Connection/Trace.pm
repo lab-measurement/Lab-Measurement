@@ -1,7 +1,8 @@
 package Lab::Connection::Trace;
 #ABSTRACT: Trace communication with instruments
 
-use 5.010;
+use v5.20;
+
 use warnings;
 use strict;
 

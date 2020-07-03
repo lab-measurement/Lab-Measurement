@@ -2,6 +2,8 @@ package Lab::Moose::Sweep::Continuous;
 
 #ABSTRACT: Base class for continuous sweeps (time, temperature, magnetic field)
 
+use v5.20;
+
 =head1 SYNOPSIS
 
  use Lab::Moose;
@@ -94,7 +96,6 @@ Do backsweep if C<backsweep> attribute is set to 1.
 
 =cut
 
-use 5.010;
 use Moose;
 use MooseX::Params::Validate;
 

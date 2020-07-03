@@ -2,6 +2,8 @@ package Lab::Moose::Sweep::Step;
 
 #ABSTRACT: Base class for step/list sweeps
 
+use v5.20;
+
 =head1 SYNOPSIS
 
  use Lab::Moose;
@@ -151,7 +153,6 @@ define defaults for this. E.g. for the Voltage sweep:
 
 =cut
 
-use 5.010;
 use Moose;
 use Moose::Util::TypeConstraints 'enum';
 use MooseX::Params::Validate;

@@ -1,6 +1,8 @@
 package Lab::Instrument::TRMC2;
 #ABSTRACT: ABB TRMC2 temperature controller
 
+use v5.20;
+
 use strict;
 use warnings;
 use Lab::Instrument;

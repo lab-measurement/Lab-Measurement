@@ -1,6 +1,8 @@
 package Lab::Instrument::Vectormagnet;
 #ABSTRACT: ???
 
+use v5.20;
+
 use strict;
 use Time::HiRes qw/usleep/, qw/time/;
 use Math::Trig;

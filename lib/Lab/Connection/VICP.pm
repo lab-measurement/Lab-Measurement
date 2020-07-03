@@ -1,6 +1,8 @@
 package Lab::Connection::VICP;
 #ABSTRACT: VICP ethernet protocol connection
 
+use v5.20;
+
 use strict;
 use Time::HiRes qw (usleep sleep);
 use Lab::Connection::GPIB;

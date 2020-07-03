@@ -2,6 +2,8 @@ package Lab::Moose::Sweep::Step::Temperature;
 
 #ABSTRACT: Step/list sweep of temperature
 
+use v5.20;
+
 =head1 SYNOPSIS
 
  my $sweep = sweep(
@@ -29,7 +31,6 @@ setpoint.
 
 =cut
 
-use 5.010;
 use Moose;
 
 extends 'Lab::Moose::Sweep::Step';

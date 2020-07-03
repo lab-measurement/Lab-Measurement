@@ -1,6 +1,10 @@
 #PODNAME: Lab::XPRESS::Utilities
 #ABSTRACT: Global utility functions for XPRESS
 
+use v5.20;
+
+no strict; # FIXME
+
 #note: this is no "package"
 
 use Term::ReadKey;

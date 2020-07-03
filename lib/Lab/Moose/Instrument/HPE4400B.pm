@@ -2,7 +2,8 @@ package Lab::Moose::Instrument::HPE4400B;
 
 #ABSTRACT: HP E4400B Series Spectrum Analyzer
 
-use 5.010;
+use v5.20;
+
 
 use PDL::Core qw/pdl cat nelem/;
 

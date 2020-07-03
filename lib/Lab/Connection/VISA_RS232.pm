@@ -1,6 +1,8 @@
 package Lab::Connection::VISA_RS232;
 #ABSTRACT: RS232-type connection which uses NI VISA (L<Lab::VISA>) as backend
 
+use v5.20;
+
 use strict;
 use Lab::Bus::VISA;
 use Lab::Connection;

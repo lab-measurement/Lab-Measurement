@@ -1,6 +1,8 @@
 package Lab::Bus::IsoBus;
 #ABSTRACT: Oxford Instruments ISOBUS bus
 
+use v5.20;
+
 use strict;
 use Lab::Connection;
 use Scalar::Util qw(weaken);

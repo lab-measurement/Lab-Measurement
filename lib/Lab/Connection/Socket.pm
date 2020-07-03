@@ -1,6 +1,8 @@
 package Lab::Connection::Socket;
 #ABSTRACT: IP socket connection
 
+use v5.20;
+
 use Lab::Bus::Socket;
 use Lab::Connection;
 use Lab::Exception;

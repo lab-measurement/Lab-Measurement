@@ -1,6 +1,8 @@
 package Lab::Instrument::OI_ITC503;
 #ABSTRACT: Oxford Instruments ITC503 Intelligent Temperature Control
 
+use v5.20;
+
 use strict;
 use feature "switch";
 use Lab::Instrument;

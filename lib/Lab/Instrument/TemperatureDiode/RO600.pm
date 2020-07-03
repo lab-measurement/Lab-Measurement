@@ -1,6 +1,8 @@
 package Lab::Instrument::TemperatureDiode::RO600;
 #ABSTRACT: RO600 (????)
 
+use v5.20;
+
 use strict;
 use Math::Complex;
 use Lab::Instrument::TemperatureDiode;

@@ -2,6 +2,8 @@ package Lab::GenericSignals;
 
 #ABSTRACT: Signal handling
 
+use v5.20;
+
 use warnings;
 use strict;
 

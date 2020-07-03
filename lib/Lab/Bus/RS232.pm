@@ -1,6 +1,8 @@
 package Lab::Bus::RS232;
 #ABSTRACT: RS232 or Virtual Comm port bus
 
+use v5.20;
+
 use strict;
 use warnings;
 

@@ -2,6 +2,8 @@ package Lab::Moose::Instrument::SCPIBlock;
 
 #ABSTRACT: Role for handling SCPI/IEEE 488.2 block data
 
+use v5.20;
+
 use Moose::Role;
 use MooseX::Params::Validate;
 

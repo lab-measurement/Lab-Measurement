@@ -1,7 +1,8 @@
 package Lab::Connection::VISA_GPIB::Log;
 #ABSTRACT: Add logging capability to a VISA_GPIB connection
 
-use 5.010;
+use v5.20;
+
 use warnings;
 use strict;
 

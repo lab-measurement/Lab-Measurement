@@ -1,6 +1,8 @@
 package Lab::Instrument::TemperatureDiode;
 #ABSTRACT: ?????
 
+use v5.20;
+
 use strict;
 use Math::Complex;
 use Lab::Exception;

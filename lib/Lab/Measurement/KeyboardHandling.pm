@@ -1,6 +1,8 @@
 package Lab::Measurement::KeyboardHandling;
 #ABSTRACT: Minimal keyboard input handling
 
+use v5.20;
+
 use Term::ReadKey;
 
 my $labkey_initialized = 0;

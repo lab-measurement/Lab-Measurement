@@ -2,6 +2,8 @@ package Lab::Moose::Sweep::Continuous::Time;
 
 #ABSTRACT: Time sweep
 
+use v5.20;
+
 =head1 SYNOPSIS
 
  use Lab::Moose;
@@ -22,7 +24,6 @@ package Lab::Moose::Sweep::Continuous::Time;
 
 =cut
 
-use 5.010;
 use Moose;
 use Time::HiRes qw/time sleep/;
 use Carp;

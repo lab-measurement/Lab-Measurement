@@ -2,6 +2,8 @@ package Lab::Moose::Instrument::Agilent34410A;
 
 #ABSTRACT: Agilent 34410A digital multimeter.
 
+use v5.20;
+
 =head1 DESCRIPTION
 
 Alias for L<Lab::Moose::Instrument::HP34410A> with adjusted USB vendor/product IDs.

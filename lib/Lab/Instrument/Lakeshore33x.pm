@@ -2,11 +2,12 @@ package Lab::Instrument::Lakeshore33x;
 
 #ABSTRACT: Lakeshore 33x Temperature controller
 
+use v5.20;
+
 use strict;
 use Lab::Instrument;
 use warnings;
 
-use 5.010;
 
 our @ISA = ('Lab::Instrument');
 

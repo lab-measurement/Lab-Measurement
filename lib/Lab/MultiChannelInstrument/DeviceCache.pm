@@ -1,6 +1,8 @@
 package Lab::MultiChannelInstrument::DeviceCache;
 #ABSTRACT: Multi-channel instrument device cache
 
+use v5.20;
+
 use warnings;
 use strict;
 

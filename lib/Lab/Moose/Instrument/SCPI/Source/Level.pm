@@ -2,6 +2,8 @@ package Lab::Moose::Instrument::SCPI::Source::Level;
 
 #ABSTRACT: Role for the SCPI SOURce:(CURRent|VOLTage):Level commands
 
+use v5.20;
+
 use Moose::Role;
 use Moose::Util::TypeConstraints 'enum';
 use Lab::Moose::Instrument::Cache;

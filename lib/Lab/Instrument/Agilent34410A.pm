@@ -1,6 +1,8 @@
 package Lab::Instrument::Agilent34410A;
 #ABSTRACT: HP/Agilent/Keysight 34410A or 34411A digital multimeter
 
+use v5.20;
+
 
 =head1 SYNOPSIS
 
@@ -18,7 +20,6 @@ and 34411A digital multimeters by Agilent (now Keysight, formerly HP).
 
 use warnings;
 use strict;
-use 5.010;
 
 use Time::HiRes qw (usleep);
 use Lab::Instrument;

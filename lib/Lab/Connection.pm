@@ -2,6 +2,8 @@ package Lab::Connection;
 
 #ABSTRACT: Connection base class
 
+use v5.20;
+
 use strict;
 
 #use POSIX; # added for int() function

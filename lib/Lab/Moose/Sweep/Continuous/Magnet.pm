@@ -2,6 +2,8 @@ package Lab::Moose::Sweep::Continuous::Magnet;
 
 #ABSTRACT: Continuous sweep of magnetic field
 
+use v5.20;
+
 =head1 SYNOPSIS
 
  use Lab::Moose;
@@ -44,7 +46,6 @@ package Lab::Moose::Sweep::Continuous::Magnet;
 
 =cut
 
-use 5.010;
 use Moose;
 use Carp;
 use Time::HiRes 'time';

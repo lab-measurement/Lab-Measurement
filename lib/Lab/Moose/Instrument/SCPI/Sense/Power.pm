@@ -1,6 +1,8 @@
 package Lab::Moose::Instrument::SCPI::Sense::Power;
 #ABSTRACT: Role for the SCPI SENSe:POWer subsystem
 
+use v5.20;
+
 use Moose::Role;
 use Lab::Moose::Instrument::Cache;
 use Lab::Moose::Instrument

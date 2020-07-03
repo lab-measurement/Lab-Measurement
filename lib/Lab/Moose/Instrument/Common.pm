@@ -1,6 +1,8 @@
 package Lab::Moose::Instrument::Common;
 #ABSTRACT: Role for common commands declared mandatory by IEEE 488.2
 
+use v5.20;
+
 use Moose::Role;
 use MooseX::Params::Validate;
 

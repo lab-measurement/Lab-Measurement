@@ -1,7 +1,8 @@
 package Lab::Instrument::HP33120A;
 #ABSTRACT: HP 33120A 15MHz function/arbitrary waveform generator
 
-use 5.006;
+use v5.20;
+
 use strict;
 use warnings;
 use Lab::Instrument;

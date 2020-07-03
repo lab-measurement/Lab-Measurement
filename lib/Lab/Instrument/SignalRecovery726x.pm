@@ -1,6 +1,8 @@
 package Lab::Instrument::SignalRecovery726x;
 #ABSTRACT: Signal Recovery 7260 / 7265 Lock-in Amplifier
 
+use v5.20;
+
 use strict;
 use Time::HiRes qw/usleep/, qw/time/;
 use Lab::Instrument;

@@ -2,7 +2,8 @@ package Lab::Moose::Instrument::YokogawaGS200;
 
 #ABSTRACT: YokogawaGS200 voltage/current source.
 
-use 5.010;
+use v5.20;
+
 
 use Moose;
 use MooseX::Params::Validate;

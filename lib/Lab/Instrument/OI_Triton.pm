@@ -1,6 +1,8 @@
 package Lab::Instrument::OI_Triton;
 #ABSTRACT: Oxford Instruments Triton dilution refrigerator control
 
+use v5.20;
+
 use strict;
 use Lab::Instrument;
 use Carp;

@@ -14,6 +14,8 @@
 package Lab::Connection::RS232;
 #ABSTRACT: RS232 Connection base class
 
+use v5.20;
+
 use Lab::Connection;
 use strict;
 use Lab::Exception;

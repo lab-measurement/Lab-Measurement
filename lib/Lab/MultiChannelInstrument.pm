@@ -2,6 +2,8 @@ package Lab::MultiChannelInstrument;
 
 #ABSTRACT: Multi-channel instrument base class
 
+use v5.20;
+
 use strict;
 use Lab::Generic;
 use List::MoreUtils qw{ any };

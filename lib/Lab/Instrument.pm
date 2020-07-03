@@ -2,6 +2,8 @@ package Lab::Instrument;
 
 #ABSTRACT: Instrument base class
 
+use v5.20;
+
 use strict;
 use warnings;
 

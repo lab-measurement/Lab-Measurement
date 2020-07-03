@@ -1,6 +1,8 @@
 package Lab::Connection::TCPraw;
 #ABSTRACT: Raw TCP connection; deprecated, use Socket instead
 
+use v5.20;
+
 use strict;
 use Scalar::Util qw(weaken);
 use Time::HiRes qw (usleep sleep);

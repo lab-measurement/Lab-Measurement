@@ -1,6 +1,8 @@
 package Lab::Instrument::ProStep4;
 #ABSTRACT: ProStep4 step motor
 
+use v5.20;
+
 use strict;
 use Time::HiRes qw/usleep/, qw/time/;
 use Lab::Instrument;

@@ -2,7 +2,8 @@ package Lab::Moose::Stabilizer;
 
 #ABSTRACT: Sensor stabilizer subroutine
 
-use 5.010;
+use v5.20;
+
 use warnings;
 use strict;
 use Lab::Moose ();

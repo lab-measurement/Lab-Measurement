@@ -1,6 +1,8 @@
 package Lab::Instrument::Keithley2000;
 #ABSTRACT: Keithley 2000 digital multimeter
 
+use v5.20;
+
 use strict;
 use Lab::Instrument;
 use Time::HiRes qw (usleep);

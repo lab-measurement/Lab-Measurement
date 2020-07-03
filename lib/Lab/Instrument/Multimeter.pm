@@ -1,6 +1,8 @@
 package Lab::Instrument::Multimeter;
 #ABSTRACT: Generic digital multimeter base class
 
+use v5.20;
+
 use strict;
 use Lab::Instrument;
 

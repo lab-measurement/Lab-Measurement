@@ -2,6 +2,8 @@ package Lab::Moose::Instrument::SCPI::Sense::Range;
 
 #ABSTRACT: Role for the SCPI SENSe:$function:RANGe subsystem.
 
+use v5.20;
+
 use Moose::Role;
 use Moose::Util::TypeConstraints 'enum';
 use Lab::Moose::Instrument::Cache;

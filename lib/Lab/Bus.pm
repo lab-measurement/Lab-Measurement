@@ -2,6 +2,8 @@ package Lab::Bus;
 
 #ABSTRACT: Bus base class
 
+use v5.20;
+
 use strict;
 
 use Lab::Generic;

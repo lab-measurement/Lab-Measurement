@@ -2,6 +2,8 @@ package Lab::Instrument::PD11042;
 
 #ABSTRACT: Trinamic PD-110-42 low-cost 42mm stepper motor
 
+use v5.20;
+
 use strict;
 use Time::HiRes qw/usleep/, qw/time/;
 use Lab::Instrument;

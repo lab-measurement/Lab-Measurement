@@ -1,7 +1,8 @@
 package Lab::Data::Analysis::WaveRunner;
 #ABSTRACT: Analysis routine for LeCroy WaveRunner/etc. scopes
 
-use 5.006;
+use v5.20;
+
 use strict;
 use warnings;
 use English;

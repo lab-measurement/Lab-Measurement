@@ -2,7 +2,8 @@ package Lab::Moose::Connection::USB;
 
 #ABSTRACT: Connection backend to USB Test & Measurement (USBTMC) bus
 
-use 5.010;
+use v5.20;
+
 
 use Moose;
 use MooseX::Params::Validate;

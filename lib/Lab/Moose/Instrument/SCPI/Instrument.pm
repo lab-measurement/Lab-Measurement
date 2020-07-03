@@ -2,6 +2,8 @@ package Lab::Moose::Instrument::SCPI::Instrument;
 
 #ABSTRACT: Role for SCPI INSTrument subsystem.
 
+use v5.20;
+
 use Moose::Role;
 use Lab::Moose::Instrument::Cache;
 use Lab::Moose::Instrument qw/validated_getter validated_setter/;

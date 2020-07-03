@@ -1,11 +1,12 @@
 package Lab::XPRESS::Sweep::Temperature;
 #ABSTRACT: Temperature sweep
 
+use v5.20;
+
 use Lab::XPRESS::Sweep;
 use Statistics::Descriptive;
 use Time::HiRes qw/usleep/;
 use strict;
-use 5.010;
 
 our @ISA = ('Lab::XPRESS::Sweep');
 

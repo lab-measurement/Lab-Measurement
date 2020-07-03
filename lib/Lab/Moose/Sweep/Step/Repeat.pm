@@ -2,6 +2,8 @@ package Lab::Moose::Sweep::Step::Repeat;
 
 #ABSTRACT: Repeat something (e.g. some sweep) N times
 
+use v5.20;
+
 =head1 SYNOPSIS
 
 
@@ -24,7 +26,6 @@ package Lab::Moose::Sweep::Step::Repeat;
  
 =cut
 
-use 5.010;
 use Moose;
 use Carp;
 extends 'Lab::Moose::Sweep::Step';

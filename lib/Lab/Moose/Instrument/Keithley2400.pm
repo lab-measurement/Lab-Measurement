@@ -2,7 +2,8 @@ package Lab::Moose::Instrument::Keithley2400;
 
 #ABSTRACT: Keithley 2400 voltage/current sourcemeter.
 
-use 5.010;
+use v5.20;
+
 
 use Moose;
 use MooseX::Params::Validate;

@@ -2,11 +2,12 @@ package Lab::XPRESS::Sweep::Level;
 
 #ABSTRACT: Level (e.g. Voltage or Current) sweep
 
+use v5.20;
+
 use Lab::XPRESS::Sweep;
 use Time::HiRes qw/usleep/, qw/time/;
 use warnings;
 use strict;
-use 5.010;
 use Carp;
 our @ISA = ('Lab::XPRESS::Sweep');
 

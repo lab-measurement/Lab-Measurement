@@ -1,6 +1,8 @@
 package Lab::Instrument::Keithley2400;
 #ABSTRACT: Keithley 2400 SourceMeter
 
+use v5.20;
+
 use strict;
 use Lab::Instrument;
 use Lab::Instrument::Source;

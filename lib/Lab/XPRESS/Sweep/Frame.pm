@@ -1,6 +1,8 @@
 package Lab::XPRESS::Sweep::Frame;
 #ABSTRACT: Frames for nested sweep structures
 
+use v5.20;
+
 use Time::HiRes qw/usleep/, qw/time/;
 use strict;
 use Lab::Exception;

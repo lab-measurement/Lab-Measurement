@@ -2,6 +2,8 @@ package Lab::Moose::Sweep::Step::Voltage;
 
 #ABSTRACT: Voltage sweep.
 
+use v5.20;
+
 =head1 DESCRIPTION
 
 Step sweep with following properties:
@@ -21,7 +23,6 @@ Default filename extension: C<'Voltage='>
 
 =cut
 
-use 5.010;
 use Moose;
 
 extends 'Lab::Moose::Sweep::Step';

@@ -2,6 +2,8 @@ package Lab::Moose::Connection::VISA::GPIB;
 
 #ABSTRACT: GPIB frontend to National Instruments' VISA library.
 
+use v5.20;
+
 =head1 SYNOPSIS
 
  use Lab::Moose
@@ -18,7 +20,6 @@ gpib_address (or pad), sad (secondary address), board_index (defaults to 0).
 
 =cut
 
-use 5.010;
 
 use Moose;
 use Moose::Util::TypeConstraints qw(enum);

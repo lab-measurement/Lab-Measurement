@@ -2,9 +2,10 @@ package Lab::Instrument::Lakeshore340;
 
 #ABSTRACT: Lakeshore 340 temperature controller
 
+use v5.20;
+
 use warnings;
 use strict;
-use 5.010;
 
 use Lab::Instrument;
 

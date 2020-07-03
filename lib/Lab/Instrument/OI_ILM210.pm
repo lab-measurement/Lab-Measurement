@@ -1,6 +1,8 @@
 package Lab::Instrument::OI_ILM210;
 #ABSTRACT: Oxford Instruments ILM Intelligent Level Meter
 
+use v5.20;
+
 use strict;
 use Lab::Instrument;
 

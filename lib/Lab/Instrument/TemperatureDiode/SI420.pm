@@ -1,6 +1,8 @@
 package Lab::Instrument::TemperatureDiode::SI420;
 #ABSTRACT: SI420 (???)
 
+use v5.20;
+
 use strict;
 use Math::Complex;
 use Lab::Instrument::TemperatureDiode;

@@ -2,6 +2,8 @@ package Lab::Moose::Connection::VISA::VXI11;
 
 #ABSTRACT: VXI-11 frontend to National Instruments' VISA library.
 
+use v5.20;
+
 =head1 SYNOPSIS
 
  use Lab::Moose
@@ -17,7 +19,6 @@ Creates a VXI-11 resource name for the VISA backend.
 
 =cut
 
-use 5.010;
 
 use Moose;
 use Moose::Util::TypeConstraints qw(enum);

@@ -2,13 +2,14 @@ package Lab::Moose::Instrument::Keysight34470A;
 
 #ABSTRACT: Keysight 34470A digital multimeter.
 
+use v5.20;
+
 =head1 DESCRIPTION
 
 Inherits from L<Lab::Moose::Instrument::HP34410A>
 
 =cut
 
-use 5.010;
 use warnings;
 use strict;
 

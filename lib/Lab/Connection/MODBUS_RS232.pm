@@ -1,6 +1,8 @@
 package Lab::Connection::MODBUS_RS232;
 #ABSTRACT: RS232/RS485 MODBUS RTU connection
 
+use v5.20;
+
 use strict;
 use Scalar::Util qw(weaken);
 use Time::HiRes qw (usleep sleep);

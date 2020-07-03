@@ -1,7 +1,8 @@
 package Lab::Connection::DEBUG::Log;
 #ABSTRACT: Add logging capability to the DEBUG connection
 
-use 5.010;
+use v5.20;
+
 use warnings;
 use strict;
 

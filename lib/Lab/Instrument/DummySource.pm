@@ -1,9 +1,10 @@
 package Lab::Instrument::DummySource;
 #ABSTRACT: Dummy voltage source
 
+use v5.20;
+
 use warnings;
 use strict;
-use 5.010;
 
 use Data::Dumper;
 

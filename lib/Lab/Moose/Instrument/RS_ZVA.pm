@@ -2,7 +2,8 @@ package Lab::Moose::Instrument::RS_ZVA;
 
 #ABSTRACT: Rohde & Schwarz ZVA Vector Network Analyzer
 
-use 5.010;
+use v5.20;
+
 use Moose;
 use Moose::Util::TypeConstraints;
 use MooseX::Params::Validate;

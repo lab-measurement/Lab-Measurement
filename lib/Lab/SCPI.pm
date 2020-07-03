@@ -2,7 +2,8 @@ package Lab::SCPI;
 
 #ABSTRACT: Match L<SCPI|http://www.ivifoundation.org/scpi/> headers and parameters against keywords
 
-use 5.010;
+use v5.20;
+
 use warnings;
 no warnings 'recursion';
 use strict;

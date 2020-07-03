@@ -1,6 +1,8 @@
 package Lab::Instrument::HP34420A;
 #ABSTRACT: HP/Agilent 34420A digital multimeter
 
+use v5.20;
+
 use strict;
 use Scalar::Util qw(weaken);
 use Lab::Instrument;

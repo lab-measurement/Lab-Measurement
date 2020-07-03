@@ -1,12 +1,13 @@
 package Lab::XPRESS::Sweep::Time;
 #ABSTRACT: Simple time-controlled repeater
 
+use v5.20;
+
 use Lab::XPRESS::Sweep;
 use Time::HiRes qw/usleep/, qw/time/;
 use Statistics::Descriptive;
 use Carp;
 use strict;
-use 5.010;
 
 our @ISA = ('Lab::XPRESS::Sweep');
 

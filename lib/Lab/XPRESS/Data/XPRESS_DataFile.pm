@@ -2,6 +2,8 @@ package Lab::XPRESS::Data::XPRESS_DataFile;
 
 #ABSTRACT: XPRESS data file module
 
+use v5.20;
+
 use strict;
 use Time::HiRes qw/usleep/, qw/time/;
 use Storable qw(dclone);

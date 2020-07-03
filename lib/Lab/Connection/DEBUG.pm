@@ -1,6 +1,8 @@
 package Lab::Connection::DEBUG;
 #ABSTRACT: Connection to the DEBUG bus
 
+use v5.20;
+
 use strict;
 use Time::HiRes qw (usleep sleep);
 use Lab::Connection;

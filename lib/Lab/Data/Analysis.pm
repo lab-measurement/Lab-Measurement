@@ -1,7 +1,8 @@
 package Lab::Data::Analysis;
 #ABSTRACT: Analyze data from 'Trace' files
 
-use 5.006;
+use v5.20;
+
 use strict;
 use Clone qw(clone);
 use warnings;

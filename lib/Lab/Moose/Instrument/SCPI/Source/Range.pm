@@ -2,6 +2,8 @@ package Lab::Moose::Instrument::SCPI::Source::Range;
 
 #ABSTRACT: Role for the SCPI SOURce:RANGe subsystem.
 
+use v5.20;
+
 use Moose::Role;
 use Moose::Util::TypeConstraints 'enum';
 use Lab::Moose::Instrument::Cache;

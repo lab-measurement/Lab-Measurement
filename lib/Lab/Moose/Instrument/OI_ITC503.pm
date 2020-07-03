@@ -2,7 +2,8 @@ package Lab::Moose::Instrument::OI_ITC503;
 
 #ABSTRACT: Oxford Instruments ITC503 Intelligent Temperature Control
 
-use 5.010;
+use v5.20;
+
 use Moose;
 use Moose::Util::TypeConstraints qw/enum/;
 use MooseX::Params::Validate;

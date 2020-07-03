@@ -1,6 +1,8 @@
 package Lab::Instrument::Cryogenic_SMS;
 #ABSTRACT: Cryogenic SMS magnet power supply
 
+use v5.20;
+
 use strict;
 use Lab::Instrument;
 

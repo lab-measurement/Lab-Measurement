@@ -1,6 +1,8 @@
 package Lab::Connection::LinuxGPIB;
 #ABSTRACT: LinuxGPIB connection
 
+use v5.20;
+
 #
 # GPIB Connection class for Lab::Bus::LinuxGPIB
 #

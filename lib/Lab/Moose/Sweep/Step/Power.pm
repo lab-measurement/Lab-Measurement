@@ -2,6 +2,8 @@ package Lab::Moose::Sweep::Step::Power;
 
 #ABSTRACT: Power sweep.
 
+use v5.20;
+
 =head1 Description
 
 Step sweep with following properties:
@@ -20,7 +22,6 @@ Default filename extension: C<'Power='>
 
 =cut
 
-use 5.010;
 use Moose;
 
 extends 'Lab::Moose::Sweep::Step';

@@ -2,7 +2,8 @@ package Lab::Moose::Instrument::HP3458A;
 
 #ABSTRACT: HP 3458A digital multimeter
 
-use 5.010;
+use v5.20;
+
 use Moose;
 use Moose::Util::TypeConstraints qw/enum/;
 use MooseX::Params::Validate;

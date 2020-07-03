@@ -1,6 +1,8 @@
 package Lab::Bus::VICP;
 #ABSTRACT: VICP bus
 
+use v5.20;
+
 use strict;
 use Scalar::Util qw(weaken);
 use Time::HiRes qw (usleep sleep);

@@ -2,6 +2,8 @@ package Lab::Moose::Instrument::SCPI::Output::State;
 
 #ABSTRACT: Role for the SCPI OUTPut:STATe subsystem
 
+use v5.20;
+
 use Moose::Role;
 use Moose::Util::TypeConstraints 'enum';
 use Lab::Moose::Instrument::Cache;

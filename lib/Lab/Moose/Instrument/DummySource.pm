@@ -2,7 +2,8 @@ package Lab::Moose::Instrument::DummySource;
 
 #ABSTRACT: Dummy YokogawaGS200 source for use with 'Debug' connection
 
-use 5.010;
+use v5.20;
+
 
 use Moose;
 use MooseX::Params::Validate;

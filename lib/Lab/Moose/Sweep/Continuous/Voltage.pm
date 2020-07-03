@@ -2,6 +2,8 @@ package Lab::Moose::Sweep::Continuous::Voltage;
 
 #ABSTRACT: Continuous sweep of voltage
 
+use v5.20;
+
 =head1 SYNOPSIS
 
  use Lab::Moose;
@@ -10,7 +12,6 @@ package Lab::Moose::Sweep::Continuous::Voltage;
 
 =cut
 
-use 5.010;
 use Moose;
 use Carp;
 use Time::HiRes 'time';

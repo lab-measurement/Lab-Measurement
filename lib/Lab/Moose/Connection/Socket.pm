@@ -2,7 +2,8 @@ package Lab::Moose::Connection::Socket;
 
 #ABSTRACT: Transfer IEEE 488.2 / SCPI messages over TCP
 
-use 5.010;
+use v5.20;
+
 
 use Moose;
 use MooseX::Params::Validate;

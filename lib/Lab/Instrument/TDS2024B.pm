@@ -1,7 +1,8 @@
 package Lab::Instrument::TDS2024B;
 #ABSTRACT: Tektronix TDS2024B digital oscilloscope
 
-use 5.006;
+use v5.20;
+
 use strict;
 use warnings;
 use Lab::Instrument;

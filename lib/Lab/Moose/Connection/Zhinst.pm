@@ -2,6 +2,8 @@ package Lab::Moose::Connection::Zhinst;
 
 #ABSTRACT: Connection back end to Zurich Instrument's LabOne measurement control API
 
+use v5.20;
+
 =head1 SYNOPSIS
 
  use Lab::Moose;
@@ -18,7 +20,6 @@ method calls. The YAML commands are produced in Lab::Moose::Instrument::Zhinst.
 
 =cut
 
-use 5.010;
 
 use Moose;
 use MooseX::Params::Validate;

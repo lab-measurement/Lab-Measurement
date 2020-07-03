@@ -1,6 +1,8 @@
 package Lab::XPRESS::Sweep::SweepND;
 #ABSTRACT: Some sweep (?!)
 
+use v5.20;
+
 use Time::HiRes qw/usleep/, qw/time/;
 use POSIX qw(ceil);
 use Term::ReadKey;

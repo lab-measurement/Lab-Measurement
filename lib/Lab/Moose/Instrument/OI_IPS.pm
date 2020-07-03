@@ -2,7 +2,8 @@ package Lab::Moose::Instrument::OI_IPS;
 
 #ABSTRACT: Oxford Instruments IPS Intelligent Power Supply
 
-use 5.010;
+use v5.20;
+
 use Moose;
 use Moose::Util::TypeConstraints qw/enum/;
 use MooseX::Params::Validate;

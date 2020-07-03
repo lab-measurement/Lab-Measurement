@@ -1,6 +1,8 @@
 package Lab::Connection::IsoBus;
 #ABSTRACT: Oxford Instruments IsoBus connection
 
+use v5.20;
+
 use strict;
 use Lab::Bus::VISA;
 use Lab::Connection;

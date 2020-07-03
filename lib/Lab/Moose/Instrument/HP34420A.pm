@@ -2,10 +2,11 @@ package Lab::Moose::Instrument::HP34420A;
 
 #ABSTRACT: HP 34420A nanovolt meter.
 
+use v5.20;
+
 # So far only one channel. Could add support for two channels
 # by using validated_channel_(setter/getter) in the SCPI/SENSE roles.
 
-use 5.010;
 
 use Moose;
 use Moose::Util::TypeConstraints 'enum';

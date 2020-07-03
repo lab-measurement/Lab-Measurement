@@ -2,7 +2,8 @@ package Lab::Moose::Countdown;
 
 #ABSTRACT: Verbose countdown/delay with pretty printing of remaining time
 
-use 5.010;
+use v5.20;
+
 use warnings;
 use strict;
 

@@ -2,7 +2,8 @@ package Lab::Moose::Instrument::OI_IPS::Strunk_3He;
 
 #ABSTRACT: Example subclass with predefined field limits of a Oxford Instruments IPS
 
-use 5.010;
+use v5.20;
+
 use Moose;
 use Moose::Util::TypeConstraints qw/enum/;
 use MooseX::Params::Validate;

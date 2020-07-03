@@ -2,7 +2,8 @@ package Lab::Moose::Instrument::HP34410A;
 
 #ABSTRACT: HP 34410A digital multimeter.
 
-use 5.010;
+use v5.20;
+
 
 use Moose;
 use Moose::Util::TypeConstraints;

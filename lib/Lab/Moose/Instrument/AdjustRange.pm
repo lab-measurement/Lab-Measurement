@@ -2,7 +2,8 @@ package Lab::Moose::Instrument::AdjustRange;
 
 #ABSTRACT: Role for automatic adjustment of measurement ranges.
 
-use 5.010;
+use v5.20;
+
 use Moose::Role;
 use MooseX::Params::Validate;
 use Lab::Moose::Instrument 'setter_params';

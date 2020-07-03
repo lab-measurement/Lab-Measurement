@@ -1,6 +1,8 @@
 package Lab::Connection::GPIB;
 #ABSTRACT: GPIB Connection base class
 
+use v5.20;
+
 #
 # This is the GPIB Connection base class. It provides the interface definition for all
 # connections implementing the GPIB protocol.

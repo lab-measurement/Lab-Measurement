@@ -1,6 +1,8 @@
 package Lab::Instrument::Lakeshore224;
 #ABSTRACT: Lake Shore 224 temperature monitor
 
+use v5.20;
+
 use strict;
 
 use Lab::Instrument;

@@ -2,6 +2,8 @@ package Lab::Moose::Sweep;
 
 #ABSTRACT: Base class for high level sweeps
 
+use v5.20;
+
 # Step/List and Continuous sweep are implemented as subclasses
 
 =head1 DESCRIPTION
@@ -10,7 +12,6 @@ The Sweep interface is documented in L<Lab::Measurement::Tutorial>.
 
 =cut
 
-use 5.010;
 use Moose;
 use MooseX::StrictConstructor;
 use Moose::Util::TypeConstraints 'enum';

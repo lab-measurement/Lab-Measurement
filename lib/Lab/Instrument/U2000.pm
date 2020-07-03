@@ -1,6 +1,8 @@
 package Lab::Instrument::U2000;
 #ABSTRACT: Agilent U2000 series USB Power Sensor
 
+use v5.20;
+
 use strict;
 use Lab::Instrument;
 

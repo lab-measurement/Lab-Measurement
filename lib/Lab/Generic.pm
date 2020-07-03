@@ -2,6 +2,8 @@ package Lab::Generic;
 
 #ABSTRACT: General function library for the L::M classes
 
+use v5.20;
+
 use Lab::Generic::CLOptions;
 
 use strict;

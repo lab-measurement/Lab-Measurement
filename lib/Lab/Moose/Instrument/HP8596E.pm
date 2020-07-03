@@ -2,7 +2,8 @@ package Lab::Moose::Instrument::HP8596E;
 
 #ABSTRACT: HP8596E Spectrum Analyzer
 
-use 5.010;
+use v5.20;
+
 
 use PDL::Core qw/pdl cat nelem/;
 

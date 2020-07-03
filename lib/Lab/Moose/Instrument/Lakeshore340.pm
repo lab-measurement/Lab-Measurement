@@ -2,7 +2,8 @@ package Lab::Moose::Instrument::Lakeshore340;
 
 #ABSTRACT: Lakeshore Model 340 Temperature Controller
 
-use 5.010;
+use v5.20;
+
 use Moose;
 use Moose::Util::TypeConstraints qw/enum/;
 use MooseX::Params::Validate;

@@ -1,7 +1,8 @@
 package Lab::Data::Analysis::TekTDS;
 #ABSTRACT: Analysis routine for Tektronix TDS1000/TDS2000/etc. scopes
 
-use 5.006;
+use v5.20;
+
 use strict;
 use warnings;
 use Carp;

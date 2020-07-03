@@ -1,6 +1,8 @@
 package Lab::Bus::VISA;
 #ABSTRACT: National Instruments VISA bus
 
+use v5.20;
+
 use strict;
 use Lab::VISA;
 use Scalar::Util qw(weaken);

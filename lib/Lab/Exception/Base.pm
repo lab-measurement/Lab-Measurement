@@ -1,6 +1,8 @@
 package Lab::Exception::Base;
 #ABSTRACT: Exception base class
 
+use v5.20;
+
 #
 # This is for comfy optional adding of custom methods via our own exception base class later
 #

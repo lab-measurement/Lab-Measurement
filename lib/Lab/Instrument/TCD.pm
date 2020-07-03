@@ -1,6 +1,8 @@
 package Lab::Instrument::TCD;
 #ABSTRACT: Temperature control for our Oxford Instruments TLM dilution fridge
 
+use v5.20;
+
 use strict;
 use Lab::Instrument;
 

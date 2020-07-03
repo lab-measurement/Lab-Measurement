@@ -2,9 +2,10 @@ package Lab::Moose;
 
 #ABSTRACT: Convenient loaders and constructors for L<Lab::Moose::Instrument>, L<Lab::Moose::Sweep>, L<Lab::Moose::DataFolder> and L<Lab::Moose::DataFile>
 
+use v5.20;
+
 use warnings;
 use strict;
-use 5.010;
 
 use MooseX::Params::Validate;
 use Moose::Util::TypeConstraints qw/subtype as where message/;

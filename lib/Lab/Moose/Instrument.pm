@@ -2,7 +2,8 @@ package Lab::Moose::Instrument;
 
 #ABSTRACT: Base class for instrument drivers
 
-use 5.010;
+use v5.20;
+
 use Moose;
 use MooseX::StrictConstructor;
 use Moose::Util::TypeConstraints qw(enum duck_type);

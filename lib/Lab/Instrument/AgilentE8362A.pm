@@ -1,6 +1,8 @@
 package Lab::Instrument::AgilentE8362A;
 #ABSTRACT: Agilent E8362A PNA Series Network Analyzer
 
+use v5.20;
+
 use strict;
 use warnings;
 

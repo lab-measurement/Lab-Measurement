@@ -2,7 +2,8 @@ package Lab::Moose::Connection::VXI11;
 
 #ABSTRACT: Connection backend to VXI-11 (Lan/TCP)
 
-use 5.010;
+use v5.20;
+
 
 use Moose;
 use MooseX::Params::Validate;

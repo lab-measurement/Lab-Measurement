@@ -2,6 +2,8 @@ package Lab::Moose::Sweep::Step::Magnet;
 
 #ABSTRACT: Step/list sweep of magnetic field
 
+use v5.20;
+
 =head1 SYNOPSIS
 
  my $sweep = sweep(
@@ -32,7 +34,6 @@ Default filename extension: C<'Field='>
 
 =cut
 
-use 5.010;
 use Moose;
 use Lab::Moose::Countdown;
 

@@ -1,6 +1,8 @@
 package Lab::Instrument::LabViewHeater;
 #ABSTRACT: ?????
 
+use v5.20;
+
 use strict;
 use warnings;
 use Lab::Instrument;

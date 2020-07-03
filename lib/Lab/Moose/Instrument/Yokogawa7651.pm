@@ -2,7 +2,8 @@ package Lab::Moose::Instrument::Yokogawa7651;
 
 #ABSTRACT: Yokogawa7651 voltage/current source.
 
-use 5.010;
+use v5.20;
+
 
 use Moose;
 use MooseX::Params::Validate;

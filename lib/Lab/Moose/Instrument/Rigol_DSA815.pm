@@ -2,7 +2,8 @@ package Lab::Moose::Instrument::Rigol_DSA815;
 
 #ABSTRACT: Rigol DSA815 Spectrum Analyzer
 
-use 5.010;
+use v5.20;
+
 
 use PDL::Core qw/pdl cat nelem/;
 

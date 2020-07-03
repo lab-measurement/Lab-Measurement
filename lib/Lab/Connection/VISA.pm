@@ -1,6 +1,8 @@
 package Lab::Connection::VISA;
 #ABSTRACT: VISA-type connection
 
+use v5.20;
+
 use strict;
 use Lab::Bus::VISA;
 use Lab::Connection;

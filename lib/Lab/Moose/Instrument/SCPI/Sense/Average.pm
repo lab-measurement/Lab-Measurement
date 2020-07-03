@@ -1,6 +1,8 @@
 package Lab::Moose::Instrument::SCPI::Sense::Average;
 #ABSTRACT: Role for the SCPI SENSe:AVERage subsystem
 
+use v5.20;
+
 use Moose::Role;
 use Lab::Moose::Instrument::Cache;
 use Lab::Moose::Instrument

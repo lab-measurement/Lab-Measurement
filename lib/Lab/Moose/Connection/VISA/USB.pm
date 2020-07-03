@@ -2,6 +2,8 @@ package Lab::Moose::Connection::VISA::USB;
 
 #ABSTRACT: USB-TMC frontend to National Instruments' VISA library.
 
+use v5.20;
+
 =head1 SYNOPSIS
 
  use Lab::Moose
@@ -17,7 +19,6 @@ Creates a USB resource name for the VISA backend.
 
 =cut
 
-use 5.010;
 
 use Moose;
 use Moose::Util::TypeConstraints qw(enum);

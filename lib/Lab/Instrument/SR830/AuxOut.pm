@@ -1,6 +1,8 @@
 package Lab::Instrument::SR830::AuxOut;
 #ABSTRACT: Aux Outputs of the Stanford Research SR830 Lock-In Amplifier
 
+use v5.20;
+
 =head1 SYNOPSIS
 
  use Lab::Instrument::SR830::AuxOut
@@ -58,7 +60,6 @@ C<1>. Example sweep configuration:
 
 use warnings;
 use strict;
-use 5.010;
 
 
 use Lab::Instrument;

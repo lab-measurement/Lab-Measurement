@@ -2,7 +2,8 @@ package Lab::Moose::Connection::Mock;
 
 #ABSTRACT: Mock connection, supplying instrument responses from a log file
 
-use 5.010;
+use v5.20;
+
 use Moose;
 use MooseX::Params::Validate;
 use namespace::autoclean;

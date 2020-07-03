@@ -1,6 +1,8 @@
 package Lab::Instrument::HP3458A;
 #ABSTRACT: Agilent 3458A Multimeter
 
+use v5.20;
+
 use strict;
 use Lab::Instrument;
 use Lab::Instrument::Multimeter;

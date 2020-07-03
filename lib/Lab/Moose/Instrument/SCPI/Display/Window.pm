@@ -2,6 +2,8 @@ package Lab::Moose::Instrument::SCPI::Display::Window;
 
 #ABSTRACT: Role for the SCPI DISPlay:WINDow subsystem
 
+use v5.20;
+
 use Moose::Role;
 use Lab::Moose::Instrument::Cache;
 use Lab::Moose::Instrument

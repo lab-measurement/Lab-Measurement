@@ -2,6 +2,8 @@ package Lab::Measurement;
 
 #ABSTRACT: Log, describe and plot data on the fly
 
+use v5.20;
+
 use strict;
 use warnings;
 use Lab::Generic;

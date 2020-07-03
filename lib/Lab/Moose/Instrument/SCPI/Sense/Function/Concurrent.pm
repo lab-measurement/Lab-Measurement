@@ -2,6 +2,8 @@ package Lab::Moose::Instrument::SCPI::Sense::Function::Concurrent;
 
 #ABSTRACT: Role for the SCPI SENSe:FUNCtion subsystem with support for concurrent sense
 
+use v5.20;
+
 use Moose::Role;
 use Lab::Moose::Instrument::Cache;
 use Lab::Moose::Instrument

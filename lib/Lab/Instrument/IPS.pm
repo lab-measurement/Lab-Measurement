@@ -6,6 +6,8 @@
 package Lab::Instrument::IPS;
 #ABSTRACT: Oxford Instruments IPS Magnet Power Supply
 
+use v5.20;
+
 use strict;
 use Time::HiRes qw/usleep/, qw/time/;
 

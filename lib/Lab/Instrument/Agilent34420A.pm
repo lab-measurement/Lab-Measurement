@@ -1,6 +1,8 @@
 package Lab::Instrument::Agilent34420A;
 #ABSTRACT: HP/Agilent/Keysight 34420A or 34421A digital multimeter
 
+use v5.20;
+
 use strict;
 use Lab::Instrument;
 use Lab::MultiChannelInstrument;

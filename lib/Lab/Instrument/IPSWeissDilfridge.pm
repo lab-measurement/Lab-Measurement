@@ -1,6 +1,8 @@
 package Lab::Instrument::IPSWeissDillFridge;
 #ABSTRACT: Derived IPS instrument for the AG Weiss dilution refrigerator
 
+use v5.20;
+
 use strict;
 use Lab::Instrument::IPS;
 our @ISA = ('Lab::Instrument::IPS');

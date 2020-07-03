@@ -2,6 +2,8 @@ package Lab::Moose::Connection::VISA;
 
 #ABSTRACT: Connection back end to National Instruments' VISA library.
 
+use v5.20;
+
 =head1 SYNOPSIS
 
  use Lab::Moose
@@ -14,7 +16,6 @@ package Lab::Moose::Connection::VISA;
 
 =cut
 
-use 5.010;
 
 use Moose;
 use MooseX::Params::Validate;

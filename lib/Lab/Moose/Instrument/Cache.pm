@@ -2,6 +2,8 @@ package Lab::Moose::Instrument::Cache;
 
 #ABSTRACT: Device caching functionality in Moose::Instrument drivers
 
+use v5.20;
+
 =head1 SYNOPSIS
 
 in your driver:

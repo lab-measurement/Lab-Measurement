@@ -2,6 +2,8 @@ package Lab::Moose::Instrument::VNASweep;
 
 #ABSTRACT: Role for network analyzer sweeps
 
+use v5.20;
+
 # Some default exports like 'inner' would collide with PDL
 use Moose::Role qw/with requires/;
 

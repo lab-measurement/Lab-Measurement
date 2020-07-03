@@ -1,6 +1,8 @@
 package Lab::Instrument::AH2700A;
 #ABSTRACT: Andeen-Hagerling AH2700A ultra-precision capacitance bridge
 
+use v5.20;
+
 use strict;
 use Time::HiRes qw (usleep);
 use Lab::Instrument;

@@ -1,6 +1,8 @@
 package Lab::Instrument::TemperatureControl;
 #ABSTRACT: Generic temperature control instrument base class
 
+use v5.20;
+
 use strict;
 
 our @ISA = ('Lab::Instrument');

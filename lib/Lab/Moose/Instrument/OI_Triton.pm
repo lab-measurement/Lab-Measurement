@@ -2,7 +2,8 @@ package Lab::Moose::Instrument::OI_Triton;
 
 #ABSTRACT: Oxford Instruments Triton gas handling system control
 
-use 5.010;
+use v5.20;
+
 use Moose;
 use Moose::Util::TypeConstraints qw/enum/;
 use MooseX::Params::Validate 'validated_hash';

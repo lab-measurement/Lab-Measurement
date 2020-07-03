@@ -2,6 +2,8 @@ package Lab::XPRESS::Sweep::Amplitude;
 
 #ABSTRACT: Amplitude sweep of AC voltage/current
 
+use v5.20;
+
 use Lab::XPRESS::Sweep;
 use Time::HiRes qw/usleep/, qw/time/;
 use strict;

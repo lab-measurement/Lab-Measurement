@@ -1,7 +1,8 @@
 package Lab::Connection::LinuxGPIB::Trace;
 #ABSTRACT: ???
 
-use 5.010;
+use v5.20;
+
 use warnings;
 use strict;
 

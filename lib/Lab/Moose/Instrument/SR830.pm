@@ -2,7 +2,8 @@ package Lab::Moose::Instrument::SR830;
 
 #ABSTRACT: Stanford Research SR830 Lock-In Amplifier
 
-use 5.010;
+use v5.20;
+
 use Moose;
 use Moose::Util::TypeConstraints qw/enum/;
 use MooseX::Params::Validate;

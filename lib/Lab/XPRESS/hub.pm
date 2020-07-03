@@ -2,6 +2,8 @@ package Lab::XPRESS::hub;
 
 #ABSTRACT: The XPRESS main hub
 
+use v5.20;
+
 use Lab::Exception;
 use strict;
 use Exporter 'import';

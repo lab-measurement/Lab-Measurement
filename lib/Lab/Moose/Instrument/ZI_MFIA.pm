@@ -2,7 +2,8 @@ package Lab::Moose::Instrument::ZI_MFIA;
 
 #ABSTRACT: Zurich Instruments MFIA Impedance Analyzer.
 
-use 5.010;
+use v5.20;
+
 use Moose;
 use MooseX::Params::Validate;
 use Lab::Moose::Instrument::Cache;

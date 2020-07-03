@@ -1,6 +1,8 @@
 package Lab::Moose::Instrument::SCPI::Source::Power;
 #ABSTRACT: Role for the SCPI SOURce:POWer subsystem
 
+use v5.20;
+
 use Moose::Role;
 use Lab::Moose::Instrument::Cache;
 use Lab::Moose::Instrument
