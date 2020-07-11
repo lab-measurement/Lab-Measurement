@@ -29,7 +29,7 @@ extends 'Lab::Moose::Instrument::Zhinst';
      oscillator => 1, # 0 is default
      connection_options => {
          host => '132.188.12.13',
-         port => 8004,
+         port => 8004, # Note: The HF2LI uses port 8005.
      });
 
  $mfli->set_frequency(value => 10000);
