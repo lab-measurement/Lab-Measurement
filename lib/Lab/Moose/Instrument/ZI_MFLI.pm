@@ -178,7 +178,7 @@ sub set_frq {
 
 =head2 get_voltage_sens
 
- my $sens = $mfli->get_voltage_sens();
+ my $sens = $mfli->get_voltage_sens(sigin => 0);
 
 Get sensitivity (range) of voltage input.
 
@@ -188,9 +188,13 @@ cache voltage_sens => ( getter => 'voltage_sens' );
 
 sub get_voltage_sens {
     my $self = shift;
+    my ($sigin) = validated_list(
+        \@_, sigin => { isa => 'Int' },
+    );
+
     return $self->cached_voltage_sens(
         $self->get_value(
-            path => $self->device() . "/sigins/0/range",
+            path => $self->device() . "/sigins/$sigin/range",
             type => 'D'
         )
     );
@@ -198,7 +202,7 @@ sub get_voltage_sens {
 
 =head2 set_voltage_sens
 
- $mfli->set_voltage_sens(value => 1);
+ $mfli->set_voltage_sens(value => 1, sigin => 0);
 
 Set sensitivity (range) of voltage input.
 
@@ -208,11 +212,12 @@ sub set_voltage_sens {
     my ( $self, $value, %args ) = validated_setter(
         \@_,
         value => { isa => 'Num' },
+        sigin => { isa => 'Int' },
     );
-
+    my $sigin = delete $args{sigin};
     return $self->cached_voltage_sens(
         $self->sync_set_value(
-            path  => $self->device() . "/sigins/0/range",
+            path  => $self->device() . "/sigins/$sigin/range",
             type  => 'D',
             value => $value
         )
