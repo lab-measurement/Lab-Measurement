@@ -57,6 +57,9 @@ has num_demods => (
 
 my %oscillator_arg
     = ( oscillator => { isa => 'Lab::Moose::PosInt', optional => 1 } );
+
+my %sigin_arg = ( sigin => { isa => 'Lab::Moose::PosInt' } );
+
 has oscillator => (
     is      => 'ro',
     isa     => 'Lab::Moose::PosInt',
@@ -189,7 +192,8 @@ cache voltage_sens => ( getter => 'voltage_sens' );
 sub get_voltage_sens {
     my $self = shift;
     my ($sigin) = validated_list(
-        \@_, sigin => { isa => 'Int' },
+        \@_,
+        %sigin_arg,
     );
 
     return $self->cached_voltage_sens(
@@ -212,7 +216,79 @@ sub set_voltage_sens {
     my ( $self, $value, %args ) = validated_setter(
         \@_,
         value => { isa => 'Num' },
-        sigin => { isa => 'Int' },
+        %sigin_arg,
+    );
+    my $sigin = delete $args{sigin};
+    return $self->cached_voltage_sens(
+        $self->sync_set_value(
+            path  => $self->device() . "/sigins/$sigin/range",
+            type  => 'D',
+            value => $value
+        )
+    );
+}
+
+=head2 set_sigin_diff, set_sigin_ac, set_sigin_imp50, set_sigin_float, set_sigin_autorange, set_sigin_on
+
+These all take either C<0> or C<1> as value:
+
+ $mfli->set_sigin_ac(sigin => 0, value => 0); # No AC coupling for first input
+ $mfli->set_sigin_imp50(sigin => 0, value => 1); # Use 50 Ohm input impedance for first input
+
+=head2 get_sigin_diff, get_sigin_ac, get_sigin_imp50, get_sigin_float, get_sigin_autorange, get_sigin_on
+
+These all return either C<0> or C<1> as value:
+
+ say $mfli->get_sigin_ac(sigin => 0); # Does the first input use AC coupling?
+ $mfli->get_sigin_imp50(sigin => 0); # Is the impedance of the first input 50 Ohms?
+
+=cut
+
+# add methods for various "ON/OFF" properties of the inputs
+for my $sigin_arg (qw/diff ac imp50 float autorange on/) {
+    my $meta         = __PACKAGE__->meta();
+    my $set_function = "set_sigin_$sigin_arg";
+    my $get_function = "get_sigin_$sigin_arg";
+
+    # create setter function
+    $meta->add_method(
+        $set_function => sub {
+            my ( $self, $value, %args ) = validated_setter(
+                \@_,
+                value => { isa => enum( [ 0, 1 ] ) },
+                %sigin_arg,
+            );
+            my $sigin = delete $args{sigin};
+            return $self->sync_set_value(
+                path  => $self->device() . "/sigins/$sigin/$sigin_arg",
+                type  => 'I',
+                value => $value
+            );
+        }
+    );
+
+    # create getter function
+    $meta->add_method(
+        $get_function => sub {
+            my $self = shift;
+            my ($sigin) = validated_list(
+                \@_,
+                %sigin_arg,
+            );
+
+            return $self->get_value(
+                path => $self->device() . "/sigins/$sigin/$sigin_arg",
+                type => 'I',
+            );
+        }
+    );
+}
+
+sub set__sens {
+    my ( $self, $value, %args ) = validated_setter(
+        \@_,
+        value => { isa => 'Num' },
+        %sigin_arg,
     );
     my $sigin = delete $args{sigin};
     return $self->cached_voltage_sens(
@@ -264,6 +340,21 @@ sub set_current_sens {
             type  => 'D',
             value => $value
         )
+    );
+}
+
+sub set_sigin_diff {
+    my ( $self, $value, %args ) = validated_setter(
+        \@_,
+        value => { isa => enum( [ 0, 1 ] ) },
+        %sigin_arg,
+    );
+    my $sigin = delete $args{sigin};
+
+    return $self->sync_set_value(
+        path  => $self->device() . "/sigins/$sigin/diff",
+        type  => 'I',
+        value => $value
     );
 }
 
