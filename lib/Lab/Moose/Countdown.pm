@@ -56,7 +56,7 @@ sub countdown {
 
     while () {
         my $remaining = $delay - ( time() - $t1 );
-        if ( $remaining < 0.5 ) {
+        if ( $remaining < 0.5 and $remaining > 0 ) {
             sleep $remaining;
             last;
         }
