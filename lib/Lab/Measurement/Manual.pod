@@ -124,6 +124,8 @@ instruments and the high-level Lab::XPRESS interface
 
 alias: L<Lab::Moose::Instrument::Agilent34410A>
 
+=item * L<Lab::Moose::Instrument::Agilent34460A>
+
 =item * L<Lab::Moose::Instrument::Keysight34470A>
 
 =item * L<Lab::Moose::Instrument::HP34420A>
