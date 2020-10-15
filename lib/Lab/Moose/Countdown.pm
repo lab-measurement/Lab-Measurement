@@ -46,7 +46,9 @@ sub countdown {
     my $prefix = shift // "Sleeping for ";
 
     if ( $delay < 0.5 ) {
-        sleep $delay;
+        if ( $delay > 0 ) {
+            sleep $delay;
+        }
         return;
     }
 
@@ -56,8 +58,10 @@ sub countdown {
 
     while () {
         my $remaining = $delay - ( time() - $t1 );
-        if ( $remaining < 0.5 and $remaining > 0 ) {
-            sleep $remaining;
+        if ( $remaining < 0.5 ) {
+            if ( $remaining > 0 ) {
+                sleep $remaining;
+            }
             last;
         }
         $remaining = Time::Seconds->new( int($remaining) + 1 );
