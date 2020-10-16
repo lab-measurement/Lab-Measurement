@@ -311,7 +311,7 @@ sub set_pid {
     my ( $loop, $P, $I, $D ) = delete @args{qw/loop P I D/};
     $loop = $loop // $self->default_loop();
     $self->write(
-        command => sprintf( "PID $loop, %f.1, %f.1, %d", $P, $I, $D ),
+        command => sprintf( "PID $loop, %.1f, %.1f, %d", $P, $I, $D ),
         %args
     );
 }
