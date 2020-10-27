@@ -233,6 +233,14 @@ contains support for temperature sensor and He/N2 level meters.
 
 =back
 
+=head3 Oscilloscopes
+
+=over
+
+=item * L<Lab::Moose::Instrument::TBS1000C>
+
+=back
+
 =head2 Moose::Instrument Roles
 
 =over
