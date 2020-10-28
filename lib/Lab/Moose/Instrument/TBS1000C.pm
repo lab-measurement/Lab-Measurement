@@ -60,6 +60,10 @@ sub BUILD {
  
  # Get waveform as arrayref
  my $data_block = $tbs->curve_query(); 
+ 
+ # Logging multiple blocks into a datafile
+ 
+ $sweep->log_block(prefix => ..., block => [$block1, $block2]);
 
 =head1 METHODS
 
