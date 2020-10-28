@@ -39,7 +39,7 @@ sub BUILD {
 
  my $tbs = instrument(
     type => 'TBS1000C',
-    connection_type => 'USB'
+    connection_type => 'USB' # For NT-VISA use 'VISA::USB'
     );
 
  # Configure measurement setup

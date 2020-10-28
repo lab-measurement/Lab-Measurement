@@ -241,6 +241,16 @@ contains support for temperature sensor and He/N2 level meters.
 
 =back
 
+=head3 Function/Waveform Generators
+
+=over
+
+=item * L<Lab::Moose::Instrument::Rigol_DG5000>
+
+=back
+
+
+
 =head2 Moose::Instrument Roles
 
 =over
