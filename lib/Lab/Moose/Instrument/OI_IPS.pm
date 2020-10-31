@@ -43,7 +43,9 @@ sub BUILD {
     $self->connection->enable_read_termchar();
     $self->clear();
 
-    $self->write( command => "Q0\r" );    # why not use set_control ???
+    # Use extended resolution mode (setpoint 10 μT, rate 100 μT/min)
+    $self->set_communications_protocol( value => 4 );
+
     $self->set_control( value => 3 );
 
     $self->_check_field_rates();
@@ -145,12 +147,14 @@ around query => sub {
 
     my $result = $self->$orig(@_);
 
-    chomp $result;
+    # remove trailing "\n" and "\r"
+    $result =~ s/\s*$//;
     my $cmd = $args{command};
     my $cmd_char = substr( $cmd, 0, 1 );
 
     # IPS query answers always start with the command character
-    # if successful with a question mark and the command char on failure
+    # if successful.
+    # With a question mark and the command char on failure
     my $status = substr( $result, 0, 1 );
     if ( $status eq '?' ) {
         croak "IPS returned error '$result' on command '$cmd'";
@@ -239,16 +243,22 @@ sub set_control {
 
 =head2 set_communications_protocol
 
- $ips->set_communications_protocol(value => 0); # 0 or 2
+ $ips->set_communications_protocol(value => 0);
  
+Allowed values: C<0, 2, 4, 6>.
+
+This driver sets the protocol to C<4> "Extended Resolution" on startup.
+
 =cut
 
 sub set_communications_protocol {
     my ( $self, $value, %args ) = validated_setter(
         \@_,
-        value => { isa => enum( [qw/0 2/] ) }
+        value => { isa => enum( [qw/0 2 4 6/] ) }
     );
-    return $self->query( command => "Q$value\r" );
+
+    # This command does not produce an echo -> use write, not query.
+    $self->write( command => "Q$value\r" );
 }
 
 =head2 examine_status
