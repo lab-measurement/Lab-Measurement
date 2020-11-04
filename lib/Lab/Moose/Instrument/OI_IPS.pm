@@ -146,10 +146,12 @@ around query => sub {
     my %args = @_;
 
     my $result = $self->$orig(@_);
+    my $cmd    = $args{command};
 
     # remove trailing "\n" and "\r"
     $result =~ s/\s*$//;
-    my $cmd = $args{command};
+    $cmd =~ s/\s*$//;
+
     my $cmd_char = substr( $cmd, 0, 1 );
 
     # IPS query answers always start with the command character
