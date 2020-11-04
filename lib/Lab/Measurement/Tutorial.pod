@@ -740,6 +740,25 @@ have unique names. Instead we use C<hard_copy_suffix>:
  );
 
 
+=head3 Refresh type 'block' for 2D plots
+
+By default, 2D plots will be refreshed after every new point that is appended
+to the datafile. For C<pm3d> plots, the default is to refresh after every new
+block/line of data. When using C<datafile_dim = 2> with a 2D plot, as shown
+above, it is often useful to refresh only after each finished block:
+
+ $datafile->add_plot(
+    ...
+    refresh => 'block',
+ );
+
+
+As more and more data points are contained in a plot, refreshing the plot
+becomes slower. Without the C<< refresh => 'block' >> this would lead to a
+increasing delay of the measurement.
+
+
+
 =head3 Refresh interval
 
 We can set a mininum type between redraws of the live plot. This becomes handy
