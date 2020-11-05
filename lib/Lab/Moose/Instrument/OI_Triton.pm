@@ -332,10 +332,10 @@ sub set_T {
     }
 
     # Adjust heater setting.
-    if ( $value < 0.035 ) {
+    if ( $value < 0.031 ) {
         $self->set_max_current( value => 0.000316 );
     }
-    elsif ( $value < 0.07 ) {
+    elsif ( $value < 0.126 ) {
         $self->set_max_current( value => 0.001 );
     }
     elsif ( $value < 0.35 ) {
@@ -372,6 +372,12 @@ sub set_P {
         cmd   => "SET:DEV:H1:HTR:SIG:POWR",
         value => $value, %args
     );
+}
+
+# Setter for Step::Power sweep
+sub set_power {
+    my $self = shift;
+    return $self->set_P(@_);
 }
 
 __PACKAGE__->meta()->make_immutable();
