@@ -761,7 +761,7 @@ increasing delay of the measurement.
 
 =head3 Refresh interval
 
-We can set a mininum type between redraws of the live plot. This becomes handy
+We can set a mininum time between redraws of the live plot. This becomes handy
 for large plot, where the redrawing the plot is slow. 
 
  # Wait at least 10 minutes before redraw:
