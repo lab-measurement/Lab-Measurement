@@ -717,12 +717,10 @@ sub set_order {
 =head2 get_amplitude
 
  # set amplitude for default oscillator
- my $amplitude = $mfli->get_amplitude();
+ my $amplitude = $mfli->get_amplitude(demod => ...);
 
- # set amplitude of oscillator 1
- my $amplitude = $mfli->get_amplitude(oscillator => 1);
 
-Get peak amplitude of voltage output. The default oscillator is determined by the C<oscillator> attribute.
+Get peak amplitude of voltage output.
 
 =cut
 
@@ -745,10 +743,9 @@ sub get_amplitude {
 
 =head2 set_amplitude
 
- $mfli->set_amplitude(value => 300e-3);
  $mfli->set_amplitude(value => ..., demod => ...);
 
-Set peak amplitude of voltage output. The oscillator is determined by the C<oscillator> attribute.
+Set peak amplitude of voltage output.
 
 =cut
 
@@ -758,7 +755,6 @@ sub set_amplitude {
         value => { isa => 'Num' },
         demod => { isa => 'Int' },
     );
-    my $osc   = $self->_get_oscillator(%args);
     my $demod = delete $args{demod};
     return $self->cached_amplitude(
         $self->sync_set_value(
