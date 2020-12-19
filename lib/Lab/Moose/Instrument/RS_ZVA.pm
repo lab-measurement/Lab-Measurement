@@ -92,7 +92,6 @@ sub sparam_sweep_data {
 =head1 SYNOPSIS
 
  my $data = $zva->sparam_sweep(timeout => 10);
- my $matrix = $data->matrix;
 
 =cut
 
