@@ -8,15 +8,7 @@ use Moose;
 
 extends 'Lab::Moose::Instrument::RS_ZVA';
 
-around default_connection_options => sub {
-    my $orig     = shift;
-    my $self     = shift;
-    my $options  = $self->$orig();
-    my $usb_opts = { vid => 0x0957, pid => 0x8b18 };
-    $options->{USB} = $usb_opts;
-    $options->{'VISA::USB'} = $usb_opts;
-    return $options;
-};
+# does not support USBTMC
 
 =head1 SYNOPSIS
 
