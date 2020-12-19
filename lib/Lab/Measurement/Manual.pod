@@ -204,7 +204,10 @@ alias: L<Lab::Moose::Instrument::Agilent34410A>
 
 =item * L<Lab::Moose::Instrument::RS_ZVA>
 
+=item * L<Lab::Moose::Instrument::RS_ZNL>
+
 =item * L<Lab::Moose::Instrument::RS_ZVM>
+
 
 =back
 
