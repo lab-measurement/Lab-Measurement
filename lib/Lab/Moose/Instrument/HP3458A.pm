@@ -226,6 +226,56 @@ sub set_end {
     $self->cached_trig_event($value);
 }
 
+=head2 get_range/set_range
+
+ $dmm->set_range(value => 100e-3); # select 100mV range (if in DCV mode)
+ $range = $dmm->get_range();
+
+Get/Set measurement range.
+
+=cut
+
+cache range => ( getter => 'get_range' );
+
+sub get_range {
+    my ( $self, %args ) = validated_getter( \@_ );
+    return $self->cached_end( $self->query( command => "RANGE?", %args ) );
+}
+
+sub set_range {
+    my ( $self, $value, %args ) = validated_setter(
+        \@_,
+        value => { isa => 'Lab::Moose::PosNum' }
+    );
+    $self->write( command => "RANGE $value" );
+    $self->cached_range($value);
+}
+
+=head2 get_auto_range/set_auto_range
+
+ $dmm->set_auto_range(value => 'OFF');
+ $auto_range = $dmm->get_auto_range();
+
+Get/Set the status of the autorange function.
+Possible values: C<OFF, ON, ONCE>.
+=cut
+
+cache auto_range => ( getter => 'get_auto_range' );
+
+sub get_auto_range {
+    my ( $self, %args ) = validated_getter( \@_ );
+    return $self->cached_end( $self->query( command => "ARANGE?", %args ) );
+}
+
+sub set_auto_range {
+    my ( $self, $value, %args ) = validated_setter(
+        \@_,
+        value => { isa => enum( [qw/ON OFF ONCE/] ) }
+    );
+    $self->write( command => "ARANGE $value" );
+    $self->cached_auto_range($value);
+}
+
 =head2 Consumed Roles
 
 This driver consumes the following roles:
