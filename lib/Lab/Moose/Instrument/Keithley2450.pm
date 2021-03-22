@@ -1,0 +1,212 @@
+package Lab::Moose::Instrument::Keithley2450;
+
+#ABSTRACT: Keithley 2450 voltage/current sourcemeter.
+
+use v5.20;
+
+
+use Moose;
+use MooseX::Params::Validate;
+use Lab::Moose::Instrument
+    qw/validated_getter validated_setter setter_params/;
+use Lab::Moose::Instrument::Cache;
+use Carp;
+use namespace::autoclean;
+
+extends 'Lab::Moose::Instrument';
+
+around default_connection_options => sub {
+    my $orig     = shift;
+    my $self     = shift;
+    my $options  = $self->$orig();
+    my $usb_opts = { vid => ..., pid => ... }; # FIXME
+    $options->{USB} = $usb_opts;
+    $options->{'VISA::USB'} = $usb_opts;
+    return $options;
+};
+
+
+has [qw/max_units_per_second max_units_per_step min_units max_units/] =>
+    ( is => 'ro', isa => 'Num', required => 1 );
+
+has source_level_timestamp => (
+    is       => 'rw',
+    isa      => 'Num',
+    init_arg => undef,
+);
+
+has verbose => (
+    is      => 'ro',
+    isa     => 'Bool',
+    default => 1
+);
+
+sub BUILD {
+    my $self = shift;
+
+    $self->clear();
+    $self->cls();
+}
+
+=encoding utf8
+
+=head1 SYNOPSIS
+
+ use Lab::Moose;
+
+ my $smu = instrument(
+     type => 'Keithley2450',
+     connection_type => 'LinuxGPIB',
+     connection_options => {gpib_address => 15},
+     # mandatory protection settings
+     max_units_per_step => 0.001, # max step is 1mV/1mA
+     max_units_per_second => 0.01,
+     min_units => -10,
+     max_units => 10,
+ );
+
+ ### Sourcing
+
+
+ # Source voltage
+ $smu->source_function(value => 'VOLT');
+ $smu->source_range(value => 210);
+ 
+ # Step-sweep to new level.
+ # Stepsize and speed is given by (max|min)_units* settings.
+ $smu->set_level(value => 9);
+
+ # Get current level from device cache (without sending a query to the
+ # instrument):
+ my $level = $smu->cached_level();
+
+ ### Measurement 
+
+ # Measure current
+ $smu->sense_function(value => 'CURR');
+ $smu->sense_nplc(value => 2);
+
+ # Get value of current
+ my $current = $smu->get_value();
+
+
+=head1 METHODS
+
+Used roles:
+
+=over
+
+=item L<Lab::Moose::Instrument::Common>
+
+=item L<Lab::Moose::Instrument::SCPI::Sense::Protection>
+    
+=item L<Lab::Moose::Instrument::SCPI::Sense::Range>
+
+=item L<Lab::Moose::Instrument::SCPI::Sense::NPLC>
+
+=item L<Lab::Moose::Instrument::SCPI::Source::Function>
+
+=item L<Lab::Moose::Instrument::SCPI::Source::Level>
+
+=item L<Lab::Moose::Instrument::SCPI::Source::Range>
+
+=item L<Lab::Moose::Instrument::LinearStepSweep>
+
+=back
+    
+=cut
+
+=head2 set_level
+
+ $smu->set_level(value => $new_level);
+
+Go to new level. Sweep with multiple steps if the distance between current and
+new level is larger than C<max_units_per_step>.
+
+=cut
+
+sub set_level {
+    my ( $self, $value, %args ) = validated_setter(
+        \@_,
+        value => { isa => 'Num' },
+    );
+
+    return $self->linear_step_sweep(
+        to => $value, verbose => $self->verbose,
+        %args
+    );
+}
+
+=head2 get_value
+
+ my $value = $smu->get_value();
+ 
+Perform measurement of value defined by C<sense_function>.
+
+=cut
+
+sub get_value {
+    my ( $self, %args ) = validated_getter( \@_ );
+    return $self->query(command => 'READ?', %args);
+}
+
+#
+# Aliases for Lab::XPRESS::Sweep API
+#
+
+=head2 cached_level
+
+ my $current_level = $smu->cached_level();
+
+Get current value from device cache.
+
+=cut
+
+sub cached_level {
+    my $self = shift;
+    return $self->cached_source_level(@_);
+}
+
+=head2 get_level
+
+ my $current_level = $smu->get_level();
+
+Query current level.
+
+=cut
+
+sub get_level {
+    my $self = shift;
+    return $self->source_level_query(@_);
+}
+
+=head2 set_voltage
+
+ $smu->set_voltage($value);
+
+For XPRESS voltage sweep. Equivalent to C<< set_level(value => $value) >>.
+
+=cut
+
+sub set_voltage {
+    my $self  = shift;
+    my $value = shift;
+    return $self->set_level( value => $value );
+}
+
+
+with qw(
+    Lab::Moose::Instrument::Common
+    Lab::Moose::Instrument::SCPI::Sense::Function::Concurrent
+    Lab::Moose::Instrument::SCPI::Sense::Protection
+    Lab::Moose::Instrument::SCPI::Sense::Range
+    Lab::Moose::Instrument::SCPI::Sense::NPLC
+    Lab::Moose::Instrument::SCPI::Source::Function
+    Lab::Moose::Instrument::SCPI::Source::Level
+    Lab::Moose::Instrument::SCPI::Source::Range
+    Lab::Moose::Instrument::LinearStepSweep
+);
+
+__PACKAGE__->meta()->make_immutable();
+
+1;
