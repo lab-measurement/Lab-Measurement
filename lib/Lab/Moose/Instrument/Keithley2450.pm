@@ -148,6 +148,62 @@ sub get_value {
     return $self->query( command => 'READ?', %args );
 }
 
+=head2 source_limit/source_limit_query
+
+Set current compliance limit of voltage source to 1mA
+
+ $smu->source_function(value => 'VOLT');
+ $smu->source_limit(value => 1e-3);
+
+Set voltage compliance limit of current source to 1V
+
+ $smu->source_function(value => 'CURR');
+ $smu->source_limit(value => 1);
+
+
+Get current source limit
+ my $limit = $smu->source_limit_query();
+
+=cut
+
+sub source_limit {
+    my ( $self, $value, %args ) = validated_setter(
+        \@_,
+        value => { isa => 'Num' },
+    );
+    my $func = $self->cached_source_function();
+    my $lim_func;
+
+    if ( $func eq 'VOLT' ) {
+        $lim_func = 'I';
+    }
+    elsif ( $func eq 'CURR' ) {
+        $lim_func = 'V';
+    }
+    else {
+        croak("unknown source function $func (must one of VOLT or CURR)");
+    }
+    $self->write( command => "SOUR:${func}:${lim_func}LIM $value", %args );
+}
+
+sub source_limit_query {
+    my ( $self, %args ) = validated_getter( \@_ );
+
+    my $func = $self->cached_source_function();
+    my $lim_func;
+
+    if ( $func eq 'VOLT' ) {
+        $lim_func = 'I';
+    }
+    elsif ( $func eq 'CURR' ) {
+        $lim_func = 'V';
+    }
+    else {
+        croak("unknown source function $func (must one of VOLT or CURR)");
+    }
+    return $self->query( command => "SOUR:${func}:${lim_func}LIM?", %args );
+}
+
 #
 # Aliases for Lab::XPRESS::Sweep API
 #
