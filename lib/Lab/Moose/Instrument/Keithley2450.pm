@@ -4,7 +4,6 @@ package Lab::Moose::Instrument::Keithley2450;
 
 use v5.20;
 
-
 use Moose;
 use MooseX::Params::Validate;
 use Lab::Moose::Instrument
@@ -19,12 +18,11 @@ around default_connection_options => sub {
     my $orig     = shift;
     my $self     = shift;
     my $options  = $self->$orig();
-    my $usb_opts = { vid => ..., pid => ... }; # FIXME
+    my $usb_opts = { vid => 0x05e6, pid => 0x2450 };    # FIXME
     $options->{USB} = $usb_opts;
     $options->{'VISA::USB'} = $usb_opts;
     return $options;
 };
-
 
 has [qw/max_units_per_second max_units_per_step min_units max_units/] =>
     ( is => 'ro', isa => 'Num', required => 1 );
@@ -97,9 +95,9 @@ Used roles:
 =over
 
 =item L<Lab::Moose::Instrument::Common>
-
-=item L<Lab::Moose::Instrument::SCPI::Sense::Protection>
     
+=item L<Lab::Moose::Instrument::SCPI::Output::State>
+
 =item L<Lab::Moose::Instrument::SCPI::Sense::Range>
 
 =item L<Lab::Moose::Instrument::SCPI::Sense::NPLC>
@@ -147,7 +145,7 @@ Perform measurement of value defined by C<sense_function>.
 
 sub get_value {
     my ( $self, %args ) = validated_getter( \@_ );
-    return $self->query(command => 'READ?', %args);
+    return $self->query( command => 'READ?', %args );
 }
 
 #
@@ -194,11 +192,10 @@ sub set_voltage {
     return $self->set_level( value => $value );
 }
 
-
 with qw(
     Lab::Moose::Instrument::Common
-    Lab::Moose::Instrument::SCPI::Sense::Function::Concurrent
-    Lab::Moose::Instrument::SCPI::Sense::Protection
+    Lab::Moose::Instrument::SCPI::Output::State
+    Lab::Moose::Instrument::SCPI::Sense::Function
     Lab::Moose::Instrument::SCPI::Sense::Range
     Lab::Moose::Instrument::SCPI::Sense::NPLC
     Lab::Moose::Instrument::SCPI::Source::Function
