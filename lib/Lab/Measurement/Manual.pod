@@ -168,6 +168,8 @@ alias: L<Lab::Moose::Instrument::Agilent34410A>
 
 =item * L<Lab::Moose::Instrument::ZI_HF2LI>
 
+=item * work in progress: L<Lab::Moose::Instrument::SignalRecovery7265>
+
 =back
 
 =head3 Impedance analyzers
