@@ -448,6 +448,34 @@ sub set_switch_heater {
     return $self->query( command => "H$value\r", %args );
 }
 
+=head2 get_switch_heater
+
+ my $switch = $ips->get_switch_heater();
+
+Return values:
+
+=over
+
+=item 0: Off Magnet at Zero (switch closed)
+
+=item 1: On (switch open)
+
+=item 2: Off Magnet at Field (switch closed)
+
+=item 5: Heater Fault (heater is on but current is low)
+
+=item 8: No Switch Fitted
+
+=back
+
+=cut
+
+sub get_switch_heater {
+    my ( $self, %args ) = validated_getter( \@_ );
+    my $status = $self->examine_status(@_);
+    return substr( $status, 8, 1 );
+}
+
 sub set_target_field {
     my ( $self, $value, %args ) = validated_setter(
         \@_,
