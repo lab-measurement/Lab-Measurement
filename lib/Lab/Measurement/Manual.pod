@@ -471,6 +471,8 @@ alias: C<Lab::Moose::Connection::VISA_GPIB>
 
 =item * L<Lab::XPRESS::Sweep::LogBlock>
 
+=item * L<Lab::XPRESS::Sweep::SignalRecoveryPhase>
+
 =back
 
 =head2 Instrument control classes
