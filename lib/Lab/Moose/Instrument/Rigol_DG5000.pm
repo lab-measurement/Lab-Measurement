@@ -68,6 +68,24 @@ Used roles:
 # SOURCE APPLY
 #
 
+sub source_apply_sinusoid {
+    my ( $self, $channel, %args ) = validated_channel_getter(
+        \@_,
+        freq   => { isa => 'Num' },
+        amp    => { isa => 'Num' },
+        offset => { isa => 'Num' },
+        phase  => { isa => 'Num' },
+    );
+
+    my ( $freq, $amp, $offset, $phase )
+        = delete @args{qw/freq amp offset phase/};
+
+    $self->write(
+        command => "SOURCE${channel}:APPLY:SINUSOID $freq,$amp,$offset,$phase",
+        %args
+    );
+}
+
 =head2 source_apply_ramp
 
  $rigol->source_apply_ramp(
