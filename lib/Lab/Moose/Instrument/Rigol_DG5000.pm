@@ -7,6 +7,9 @@ use v5.20;
 use Moose;
 use MooseX::Params::Validate;
 use Moose::Util::TypeConstraints qw/enum/;
+use List::Util qw/sum/;
+use List::MoreUtils qw/minmax/;
+use Math::Round;
 use Lab::Moose::Instrument
     qw/validated_channel_getter validated_channel_setter validated_getter validated_setter/;
 use Lab::Moose::Instrument::Cache;
@@ -47,7 +50,8 @@ sub get_default_channel {
     );
 
 
-All C<source_*> commands accept a C<channel> argument, which can be 1 (default) or 2:
+All C<source_*> commands accept a C<channel> argument, which can be 1 (default)
+or 2:
 
  $rigol->source_function_shape(value => 'SIN'); # Channel 1
  $rigol->source_function_shape(value => 'SQU', channel => 2); # Channel 2
@@ -78,6 +82,221 @@ Used roles:
  );
 
 =cut
+
+#
+# MY FUNCTIONS
+#
+
+sub gen_arb_step {
+  my ( $self, $channel, $value, %args ) = validated_channel_setter(
+      \@_,
+      value => { isa => 'ArrayRef' }, # Reference on float array data type??
+      bdelay => { isa => 'Num' },
+      bcycles => { isa => 'Num'}
+  );
+  my @data = @$value; # Dereference the input data
+  my ( $bdelay, $bcycles )
+      = delete @args{qw/bdelay bcycles/};
+
+  # If number of input data points is uneven croak
+  unless (@data % 2 == 0) {croak "Please enter an even number of arguments with
+    the layout <amplitude1[V]>,<length1[s]>,<amplitude2[V]>,<length2[s]>,...";};
+
+  # Split input data into the time lengths and amplitude values...
+  my @times = @data[ grep { $_ % 2 == 1 } 0..@data-1 ];
+  my @amps = @data[grep { $_ % 2 == 0 } 0..@data-1 ];
+  # ...and compute the period lentgth as well as the min and max amplitude
+  my $period = sum @times;
+  my ($minamp, $maxamp) = minmax @amps;
+
+  # now apply everything to the Rigol: Frequency = 1/T, amplitude and offset
+  # are computed, so that the whole waveform lies within that amplitude range
+  $self->source_apply_arb(channel => $channel, freq => 1/$period, amp => 2*abs($maxamp)+2*abs($minamp), offset => $maxamp+$minamp, phase => 0.0);
+  $self->arb_mode(channel => $channel, value => 'INTernal');
+  $self->trace_data_points_interpolate(value => 'OFF');
+
+  # Convert all amplitudes into values from 0 to 16383 (14Bit) and generate
+  # 16384 data points in total
+  my $input = "";
+  my $counter;
+
+  # go through each amp (or time) value
+  foreach (0..@amps-1){
+    # Compute what length in units of the resolution (16384) each step has
+    my $c = round(16383*$times[$_]/$period);
+    $counter += $c; # Count them all up
+    # On the last iteration check, if there are really 16384 data points,
+    # there might be less because of rounding. Add the remaining at the end if
+    # necessary
+    if ($_ == @amps-1 && $counter != 16384) {$c += 16384-$counter};
+    # Lastly append the according amplitude value (in 14Bit resolution) to the
+    # whole string
+    $input = $input.(",".round(16383*$amps[$_]/(1.5*$maxamp-0.5*$minamp))) x $c;
+  };
+  # Finally download everything to the volatile memory
+  $self->trace_data_points(value => 16384);
+  $self->trace_data_dac(value => $input);
+  if ($bdelay > 0){
+    $self->source_burst_mode(channel => $channel, value => 'TRIG');
+    $self->source_burst_tdelay(channel => $channel, value => $bdelay);
+    $self->source_burst_ncycles(channel => $channel, value => $bcycles);
+    $self->source_burst_state(channel => $channel, value => 'ON');
+
+    $self->trace_data_value(point => 0, data => 0);
+    $self->trace_data_value(point => 16383, data => 0);
+  };
+}
+
+sub gen_arb_step2 {
+  my ( $self, $channel, $value, %args ) = validated_channel_setter(
+      \@_,
+      value => { isa => 'ArrayRef' } # Reference on float array data type??
+  );
+  my @data = @$value; #Dereference the input data
+
+  # If number of input data points is uneven croak
+  unless (@data % 2 == 0) {croak "Please enter an even number of arguments with
+    the layout <amplitude1[V]>,<length1[s]>,<amplitude2[V]>,<length2[s]>,...";};
+
+  # Split input data into the time lengths and amplitude values...
+  my @times = @data[ grep { $_ % 2 == 1 } 0..@data-1 ];
+  my @amps = @data[grep { $_ % 2 == 0 } 0..@data-1 ];
+  # ...and compute the period lentgth as well as the min and max amplitude
+  my $period = sum @times;
+  my ($minamp, $maxamp) = minmax @amps;
+
+  # now apply everything to the Rigol: Frequency = 1/T, amplitude and offset
+  # are computed, so that the whole waveform lies within that amplitude range
+  $self->source_apply_arb(channel => $channel, freq => 1/$period, amp => 2*abs($maxamp)+2*abs($minamp), offset => ($maxamp+$minamp)/2, phase => 0.0);
+  $self->arb_mode(channel => $channel, value => 'INTernal');
+  $self->trace_data_points_interpolate(value => 'OFF');
+  $self->trace_data_points(value => 16384);
+
+
+  # Convert all amplitudes into values from 0 to 16383 (14Bit) and generate
+  # 16384 data points in total
+  my $input = "";
+  my $counter = 0;
+
+  # go through each amp (or time) value
+  foreach (0..@amps-1){
+
+    my $c = round(16383*$times[$_]/$period);
+    # if ($_ == @amps-1 && $counter != 16384) {$c += 16384-$counter};
+
+    my $val = round(16383*$amps[$_]/(1.5*$maxamp-0.5*$minamp));
+
+    $counter += $c;
+    $self->trace_data_value(point => $counter, data => $val);
+
+  };
+  # Finally download everything to the volatile memory
+  $self->trace_data_dac(value => $input);
+}
+
+sub trace_data_dac {
+    my ( $self, $value, %args ) = validated_setter(
+        \@_,
+        value => { isa => 'Str' }
+    );
+    $self->write( command => "TRACE:DATA:DAC VOLATILE$value", %args );
+}
+
+sub arb_mode {
+    my ( $self, $channel, $value, %args ) = validated_channel_setter(
+        \@_,
+        value => { isa => enum( [qw/INTernal PLAY/] ) }
+    );
+
+    $self->write( command => ":SOURCE${channel}:FUNCtion:ARB:MODE $value", %args );
+}
+
+sub phase_align {
+    my ( $self, %args ) = validated_setter( \@_, );
+
+    $self->write( command => ":PHASe:INITiate", %args );
+}
+
+sub source_apply_arb {
+    my ( $self, $channel, %args ) = validated_channel_getter(
+        \@_,
+        freq   => { isa => 'Num' },
+        amp    => { isa => 'Num' },
+        offset => { isa => 'Num' },
+        phase  => { isa => 'Num' },
+    );
+
+    my ( $freq, $amp, $offset, $phase )
+        = delete @args{qw/freq amp offset phase/};
+
+    $self->write(
+        command => "SOURCE${channel}:APPLY:USER $freq,$amp,$offset,$phase",
+        %args
+    );
+}
+
+sub output_toggle {
+    my ( $self, $channel, %args ) = validated_channel_getter(
+        \@_,
+        state => { isa => enum( [qw/ON OFF/] ) }
+    );
+
+    my $state = delete $args{'state'};
+
+    $self->write( command => "OUTPUT${channel} $state", %args );
+}
+
+sub source_apply_sinusoid {
+    my ( $self, $channel, %args ) = validated_channel_getter(
+        \@_,
+        freq   => { isa => 'Num' },
+        amp    => { isa => 'Num' },
+        offset => { isa => 'Num' },
+        phase  => { isa => 'Num' },
+    );
+
+    my ( $freq, $amp, $offset, $phase )
+        = delete @args{qw/freq amp offset phase/};
+
+    $self->write(
+        command => "SOURCE${channel}:APPLY:SINUSOID $freq,$amp,$offset,$phase",
+        %args
+    );
+}
+
+#
+
+sub source_apply_pulse {
+    my ( $self, $channel, %args ) = validated_channel_getter(
+        \@_,
+        freq   => { isa => 'Num' },
+        amp    => { isa => 'Num' },
+        offset => { isa => 'Num' },
+        delay  => { isa => 'Num' },
+    );
+
+    my ( $freq, $amp, $offset, $delay )
+        = delete @args{qw/freq amp offset delay/};
+
+    $self->write(
+        command => "SOURCE${channel}:APPLY:PULSE $freq,$amp,$offset,$delay",
+        %args
+    );
+}
+
+sub source_burst_period {
+    my ( $self, $channel, $value, %args ) = validated_channel_setter(
+        \@_,
+        value => { isa => 'Lab::Moose::PosNum' }
+    );
+
+    $self->write( command => "SOURCE${channel}:BURST:INTERNAL:PERIOD $value", %args );
+}
+
+#
+# SOURCE APPLY
+#
+
 
 sub source_apply_ramp {
     my ( $self, $channel, %args ) = validated_channel_getter(
@@ -462,6 +681,11 @@ sub trace_data_points {
         \@_,
         value => { isa => 'Lab::Moose::PosInt' }
     );
+
+    if ( $value < 2 ) {
+        croak("The minimum number of inital data points is 2");
+    }
+
     $self->write( command => "TRACE:DATA:POINTS VOLATILE,$value", %args );
 }
 
