@@ -77,7 +77,7 @@ $iss = 'undef' unless defined $iss;
 die "status $iss error $@\n" if $iss ne '0';
 
 print "dzil mkrpmspec\n";
-$iss = system("dzil mkrpmspec");
+$iss = system("dzil mkrpmspec perl-Lab-Measurement.spec");
 $iss = 'undef' unless defined $iss;
 die "status $iss error $@\n" if $iss ne '0';
 
@@ -86,9 +86,9 @@ $iss = system("dzil build");
 $iss = 'undef' unless defined $iss;
 die "status $iss error $@\n" if $iss ne '0';
 
-my $sline = `grep '^Source:' dzil.spec 2>/dev/null`;
+my $sline = `grep '^Source:' perl-Lab-Measurement.spec 2>/dev/null`;
 chomp($sline);
-die "error, missing dzil.spec?" if $sline =~ /^\s*$/;
+die "error, missing perl-Lab-Measurement.spec?" if $sline =~ /^\s*$/;
 my ($dum,$tgzfile) = split(/\s+/,$sline);
 
 print "rpmbuild -ta $tgzfile\n";
@@ -101,7 +101,7 @@ my $iss = system("dzil clean");
 $iss = 'undef' unless defined $iss;
 die "status $iss error $@\n" if $iss ne '0';
 
-unlink('dzil.spec');
+unlink('perl-Lab-Measurement.spec');
 
 print "DONE!\n";
 exit 0;

@@ -1,7 +1,6 @@
 Name: <% $zilla->name %>
 Version: <% (my $v = $zilla->version) =~ s/^v//; $v %>
-Release: 2%{?dist}
-
+Release: 3%{?dist}
 Summary: <% $zilla->abstract %>
 License: GPL+ or Artistic
 Group: Development/Libraries
@@ -13,16 +12,17 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-BUILD
 Provides: perl(Lab::XPRESS::Utilities::Utilities)
 
 
+%global __requires_exclude ^perl\\((Lab::Zhinst|USB::TMC|LinuxGpib|Lab::VISA|Lab::VXI11))
+%{?perl_default_filter}
+
 # make the hardware interface modules non-required, but
 # (if possible) 'Recommends'/Suggested, otherwise 
 # package has problems being installed unless the full
 # suite of interfaces is used.
 
-%global __requires_exclude ^perl\\((Lab::Zhinst|USB::TMC|LinuxGpib|Lab::VISA|Lab::VXI11))
-%{?perl_default_filter}
-
-%if %{defined fedora}
-# not all distros have 'recommends', but Fedora does
+# not all distros have 'recommends', but rpm >= 4.12.0 added it
+# this is a bit of trickery to check version of rpm and compare to 4.12.0
+%if %(printf '%s\n%s\n' `rpm -q rpm --qf %{V}` "4.12.0"| sort -VC ; echo $?)
 Recommends:  perl(Lab::Zhinst)
 Recommends:  perl(USB::TMC)
 Recommends:  perl(LinuxGpib)
