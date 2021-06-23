@@ -1,6 +1,6 @@
 Name: <% $zilla->name %>
 Version: <% (my $v = $zilla->version) =~ s/^v//; $v %>
-Release: 3%{?dist}
+Release: 1%{?dist}
 Summary: <% $zilla->abstract %>
 License: GPL+ or Artistic
 Group: Development/Libraries

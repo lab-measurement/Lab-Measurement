@@ -1,13 +1,14 @@
 #!/usr/bin/perl
 
-# usage:  MakeRPM [release]
+# usage:  MakeRPM [release#]
 
-# if release is not given, defaults to "1"
+# if release is not given, defaults to "1" (or whatever is in
+# the rpm/perl-Lab-Measurement.spec template file)
 # automatically default to suffixing with "linux distribution" if set
 # in the rpmbuild defaults
 use File::Spec;
 
-my $release = shift;
+my $release = shift;  # modify release, if defined in script argument
 
 # check on installed rpms first, because the whole point of this
 # thing is to install Perl modules as rpms, so that should be
@@ -48,7 +49,8 @@ foreach my $p (qw(perl-Dist-Zilla
 die("missing modules, aborting") if $missing;
 
 # find the parent directory of where this script lives
-# more complicated to be non-Unix compatable
+# more complicated to be non-Unix compatable; not sure
+# why I bother, maybe to stay in practice?
 
 my $pwd = `pwd`;
 chomp($pwd);
@@ -63,12 +65,6 @@ while ($j-- > 0) {
 }
 my $parent = File::Spec->catdir($vol,@dirs);
 
-if (defined($release)) {
-    $iss = system("sed -e '/^Release: /c\\\nRelease: $release%{?dist}' -i $here/perl-Lab-Measurement.spec");
-    $iss = 'undef' unless defined $iss;
-    die "status $iss error $@\n" if $iss ne '0';
-}
-
 chdir($parent);
 
 print "dzil clean\n";
@@ -80,6 +76,13 @@ print "dzil mkrpmspec\n";
 $iss = system("dzil mkrpmspec perl-Lab-Measurement.spec");
 $iss = 'undef' unless defined $iss;
 die "status $iss error $@\n" if $iss ne '0';
+
+# change release# if given as an argument to this script
+if (defined($release)) {
+    $iss = system("sed -e '/^Release: /c\\\nRelease: $release%{?dist}' -i perl-Lab-Measurement.spec");
+    $iss = 'undef' unless defined $iss;
+    die "status $iss error $@\n" if $iss ne '0';
+}
 
 print "dzil build\n";
 $iss = system("dzil build");
