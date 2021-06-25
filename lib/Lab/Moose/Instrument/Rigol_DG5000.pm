@@ -44,7 +44,7 @@ sub get_default_channel {
 
  use Lab::Moose;
 
- my $tbs = instrument(
+ my $rigol = instrument(
     type => 'Rigol_DG5000',
     connection_type => 'USB' # For NT-VISA use 'VISA::USB'
     );
@@ -69,28 +69,34 @@ Used roles:
 =cut
 
 #
-# SOURCE APPLY
-#
-
-=head2 source_apply_ramp
-
- $rigol->source_apply_ramp(
-     freq => ...,
-     amp => ...,
-     offset => ....,
-     phase => ...
- );
-
-=cut
-
-#
 # MY FUNCTIONS
 #
+
+=head2 gen_arb_step
+
+$rigol->gen_arb_step(channel => 1, value => [
+  0.2,  0.00002,
+  0.5,  0.0001,
+  0.35, 0.0001
+  ], bdelay => 0, bcycles => 1
+);
+
+Generate an arbitrary voltage step function. With C<value> an array referrence is
+passed to the function, containing data pairs of an amplitude and time value.
+In the example above repeatedly outputs a constant 200mV for 20µs, 500mV for
+100µs and 350mV for 100µs.
+
+WORK IN PROGRESS: With C<bdelay> and C<bcycles> a delay between a specified
+amount of cycles is enabled using the Rigols burst mode.
+
+ If C<bdelay> = 0 the burst mode is disabled.
+
+=cut
 
 sub gen_arb_step {
   my ( $self, $channel, $value, %args ) = validated_channel_setter(
       \@_,
-      value => { isa => 'ArrayRef' }, # Reference on float array data type??
+      value => { isa => 'ArrayRef' },
       bdelay => { isa => 'Num' },
       bcycles => { isa => 'Num'}
   );
@@ -136,6 +142,8 @@ sub gen_arb_step {
   # Finally download everything to the volatile memory
   $self->trace_data_points(value => 16384);
   $self->trace_data_dac(value => $input);
+
+  my $off =  0;
   if ($bdelay > 0){
     $self->source_burst_mode(channel => $channel, value => 'TRIG');
     $self->source_burst_tdelay(channel => $channel, value => $bdelay);
@@ -144,127 +152,97 @@ sub gen_arb_step {
 
     $self->trace_data_value(point => 0, data => 0);
     $self->trace_data_value(point => 16383, data => 0);
+    $off = $amps[0];
   };
 }
 
-sub gen_arb_step2 {
-  my ( $self, $channel, $value, %args ) = validated_channel_setter(
-      \@_,
-      value => { isa => 'ArrayRef' } # Reference on float array data type??
-  );
-  my @data = @$value; #Dereference the input data
+=head2 arb_mode
 
-  # If number of input data points is uneven croak
-  unless (@data % 2 == 0) {croak "Please enter an even number of arguments with
-    the layout <amplitude1[V]>,<length1[s]>,<amplitude2[V]>,<length2[s]>,...";};
+ $rigol->arb_mode(value => 'INTernal');
 
-  # Split input data into the time lengths and amplitude values...
-  my @times = @data[ grep { $_ % 2 == 1 } 0..@data-1 ];
-  my @amps = @data[grep { $_ % 2 == 0 } 0..@data-1 ];
-  # ...and compute the period lentgth as well as the min and max amplitude
-  my $period = sum @times;
-  my ($minamp, $maxamp) = minmax @amps;
+Allowed values: C<INT, INTernal, PLAY>
 
-  # now apply everything to the Rigol: Frequency = 1/T, amplitude and offset
-  # are computed, so that the whole waveform lies within that amplitude range
-  $self->source_apply_arb(channel => $channel, freq => 1/$period, amp => 2*abs($maxamp)+2*abs($minamp), offset => ($maxamp+$minamp)/2, phase => 0.0);
-  $self->arb_mode(channel => $channel, value => 'INTernal');
-  $self->trace_data_points_interpolate(value => 'OFF');
-  $self->trace_data_points(value => 16384);
-
-
-  # Convert all amplitudes into values from 0 to 16383 (14Bit) and generate
-  # 16384 data points in total
-  my $input = "";
-  my $counter = 0;
-
-  # go through each amp (or time) value
-  foreach (0..@amps-1){
-
-    my $c = round(16383*$times[$_]/$period);
-    # if ($_ == @amps-1 && $counter != 16384) {$c += 16384-$counter};
-
-    my $val = round(16383*$amps[$_]/(1.5*$maxamp-0.5*$minamp));
-
-    $counter += $c;
-    $self->trace_data_value(point => $counter, data => $val);
-
-  };
-  # Finally download everything to the volatile memory
-  $self->trace_data_dac(value => $input);
-}
-
-sub trace_data_dac {
-    my ( $self, $value, %args ) = validated_setter(
-        \@_,
-        value => { isa => 'Str' }
-    );
-    $self->write( command => "TRACE:DATA:DAC VOLATILE$value", %args );
-}
+=cut
 
 sub arb_mode {
     my ( $self, $channel, $value, %args ) = validated_channel_setter(
         \@_,
-        value => { isa => enum( [qw/INTernal PLAY/] ) }
+        value => { isa => enum( [qw/INT INTernal PLAY/] ) }
     );
 
     $self->write( command => ":SOURCE${channel}:FUNCtion:ARB:MODE $value", %args );
 }
 
+=head2 phase_align
+
+ $rigol->phase_align();
+
+Phase-align the two output channels.
+
+=cut
+
 sub phase_align {
-    my ( $self, %args ) = validated_setter( \@_, );
+    my ( $self, $channel, %args ) = validated_channel_getter( \@_, );
 
-    $self->write( command => ":PHASe:INITiate", %args );
+    $self->write( command => ":SOURce${channel}:PHASe:INITiate", %args );
 }
 
-sub source_apply_arb {
-    my ( $self, $channel, %args ) = validated_channel_getter(
-        \@_,
-        freq   => { isa => 'Num' },
-        amp    => { isa => 'Num' },
-        offset => { isa => 'Num' },
-        phase  => { isa => 'Num' },
-    );
+=head2 output_toggle
 
-    my ( $freq, $amp, $offset, $phase )
-        = delete @args{qw/freq amp offset phase/};
+ $rigol->source_apply_pulse(channel => 1, state => 'ON');
 
-    $self->write(
-        command => "SOURCE${channel}:APPLY:USER $freq,$amp,$offset,$phase",
-        %args
-    );
-}
+Turn output channels on or off, allowed values: C<ON, OFF>
+
+=cut
 
 sub output_toggle {
-    my ( $self, $channel, %args ) = validated_channel_getter(
+    my ( $self, $channel, $value, %args ) = validated_channel_setter(
         \@_,
-        state => { isa => enum( [qw/ON OFF/] ) }
+        value => { isa => enum( [qw/ON OFF/] ) }
     );
 
-    my $state = delete $args{'state'};
-
-    $self->write( command => "OUTPUT${channel} $state", %args );
-}
-
-sub source_apply_sinusoid {
-    my ( $self, $channel, %args ) = validated_channel_getter(
-        \@_,
-        freq   => { isa => 'Num' },
-        amp    => { isa => 'Num' },
-        offset => { isa => 'Num' },
-        phase  => { isa => 'Num' },
-    );
-
-    my ( $freq, $amp, $offset, $phase )
-        = delete @args{qw/freq amp offset phase/};
-
-    $self->write(
-        command => "SOURCE${channel}:APPLY:SINUSOID $freq,$amp,$offset,$phase",
-        %args
-    );
+    $self->write( command => "OUTPUT${channel} $value", %args );
 }
 
 #
+# SOURCE APPLY
+#
+
+=head2 source_apply_ramp
+
+ $rigol->source_apply_ramp(
+     freq => ...,
+     amp => ...,
+     offset => ....,
+     phase => ...
+ );
+
+=cut
+
+
+sub source_apply_ramp {
+    my ( $self, $channel, %args ) = validated_channel_getter(
+        \@_,
+        freq   => { isa => 'Num' },
+        amp    => { isa => 'Num' },
+        offset => { isa => 'Num' },
+        phase  => { isa => 'Num' },
+    );
+
+    my ( $freq, $amp, $offset, $phase )
+        = delete @args{qw/freq amp offset phase/};
+
+    $self->write(
+        command => "SOURCE${channel}:APPLY:RAMP $freq,$amp,$offset,$phase",
+        %args
+    );
+}
+
+=head2 source_apply_pulse
+
+ $rigol->source_apply_pulse(freq => 50000000, amp => 1, offset => 0, delay => 0.000001);
+
+=cut
 
 sub source_apply_pulse {
     my ( $self, $channel, %args ) = validated_channel_getter(
@@ -284,21 +262,13 @@ sub source_apply_pulse {
     );
 }
 
-sub source_burst_period {
-    my ( $self, $channel, $value, %args ) = validated_channel_setter(
-        \@_,
-        value => { isa => 'Lab::Moose::PosNum' }
-    );
+=head2 source_apply_sinusoid
 
-    $self->write( command => "SOURCE${channel}:BURST:INTERNAL:PERIOD $value", %args );
-}
+ $rigol->source_apply_sinusoid(freq => 50000000, amp => 1, offset => 0, phase => 0);
 
-#
-# SOURCE APPLY
-#
+=cut
 
-
-sub source_apply_ramp {
+sub source_apply_sinusoid {
     my ( $self, $channel, %args ) = validated_channel_getter(
         \@_,
         freq   => { isa => 'Num' },
@@ -311,7 +281,55 @@ sub source_apply_ramp {
         = delete @args{qw/freq amp offset phase/};
 
     $self->write(
-        command => "SOURCE${channel}:APPLY:RAMP $freq,$amp,$offset,$phase",
+        command => "SOURCE${channel}:APPLY:SINUSOID $freq,$amp,$offset,$phase",
+        %args
+    );
+}
+
+=head2 source_apply_square
+
+ $rigol->source_apply_square(freq => 50000000, amp => 1, offset => 0, phase => 0);
+
+=cut
+
+sub source_apply_square {
+    my ( $self, $channel, %args ) = validated_channel_getter(
+        \@_,
+        freq   => { isa => 'Num' },
+        amp    => { isa => 'Num' },
+        offset => { isa => 'Num' },
+        phase  => { isa => 'Num' },
+    );
+
+    my ( $freq, $amp, $offset, $phase )
+        = delete @args{qw/freq amp offset phase/};
+
+    $self->write(
+        command => "SOURCE${channel}:APPLY:SQUare $freq,$amp,$offset,$phase",
+        %args
+    );
+}
+
+=head2 source_apply_arb
+
+ $rigol->source_apply_arb(freq => 50000000, amp => 1, offset => 0, phase => 0);
+
+=cut
+
+sub source_apply_arb {
+    my ( $self, $channel, %args ) = validated_channel_getter(
+        \@_,
+        freq   => { isa => 'Num' },
+        amp    => { isa => 'Num' },
+        offset => { isa => 'Num' },
+        phase  => { isa => 'Num' },
+    );
+
+    my ( $freq, $amp, $offset, $phase )
+        = delete @args{qw/freq amp offset phase/};
+
+    $self->write(
+        command => "SOURCE${channel}:APPLY:USER $freq,$amp,$offset,$phase",
         %args
     );
 }
@@ -489,7 +507,7 @@ sub source_burst_trigger_trigout_query {
 
  $rigol->source_burst_trigger_source(value => 'INT');
  $rigol->source_burst_trigger_source_query();
- 
+
 Allowed values: C<INT, EXT>.
 
 =cut
@@ -512,6 +530,21 @@ sub source_burst_trigger_source_query {
         command => "SOURCE${channel}:BURST:TRIGGER:SOURCE?",
         %args
     );
+}
+
+=head2 source_burst_period
+
+ $rigol->source_burst_period(value => 0.00001);
+
+=cut
+
+sub source_burst_period {
+    my ( $self, $channel, $value, %args ) = validated_channel_setter(
+        \@_,
+        value => { isa => 'Lab::Moose::PosNum' }
+    );
+
+    $self->write( command => "SOURCE${channel}:BURST:INTERNAL:PERIOD $value", %args );
 }
 
 #
@@ -714,6 +747,28 @@ sub trace_data_points_interpolate {
 sub trace_data_points_interpolate_query {
     my ( $self, %args ) = validated_getter( \@_ );
     return $self->query( command => "TRACE:DATA:POINTS:INTERPOLATE?", %args );
+}
+
+=head2 trace_data_points_interpolate, trace_data_points_interpolate_query
+
+ $rigol->trace_data_dac(value => '16383,8192,0,0,8192,8192,6345,0');
+
+Input a string of comma-seperated integers ranging from 0 to 16383 (14Bit). If
+there are less than 16384 data points given, the Rigol will automatically
+interpolate.
+
+=cut
+
+sub trace_data_dac {
+    my ( $self, $value, %args ) = validated_setter(
+        \@_,
+        value => { isa => 'Str' }
+    );
+    if (substr($value, 0, 1) eq ','){
+      $self->write( command => "TRACE:DATA:DAC VOLATILE$value", %args );
+    } else {
+      $self->write( command => "TRACE:DATA:DAC VOLATILE,$value", %args );
+    }
 }
 
 with qw(
