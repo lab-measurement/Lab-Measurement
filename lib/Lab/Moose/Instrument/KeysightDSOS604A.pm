@@ -33,9 +33,29 @@ sub BUILD {
     $self->cls();
 }
 
-###
-### DEBUGGING
-###
+=encoding utf8
+
+=head1 SYNOPSIS
+
+ use Lab::Moose;
+
+ ... (some brief example how it is used)
+
+=head1 METHODS
+
+Used roles:
+
+=over
+
+=item L<Lab::Moose::Instrument::Common>
+
+=back
+
+=cut
+
+#
+# DEBUGGING
+#
 
 sub read_error {
     my ( $self, %args ) = validated_getter( \@_ );
