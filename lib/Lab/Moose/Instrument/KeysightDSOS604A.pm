@@ -27,35 +27,25 @@ around default_connection_options => sub {
     return $options;
 };
 
+# On this Infiniium S-Series oscilloscope, the implementation of the *OPC?
+# query does not honor the definition in the SCPI standard. Instead it returns
+# from the *OPC? query after parsing the previous commands, not after the
+# effects of the previous commands are completed. See the programming manual
+# page 209 for more information.
+# around opc_query  => sub {
+#     my ( $self, %args ) = validated_getter( \@_ );
+#     return $self->query( command => ':PDER?', %args );
+# };
+
 sub BUILD {
     my $self = shift;
     $self->clear();
     $self->cls();
 }
 
-=encoding utf8
-
-=head1 SYNOPSIS
-
- use Lab::Moose;
-
- ... (some brief example how it is used)
-
-=head1 METHODS
-
-Used roles:
-
-=over
-
-=item L<Lab::Moose::Instrument::Common>
-
-=back
-
-=cut
-
-#
-# DEBUGGING
-#
+###
+### DEBUGGING
+###
 
 sub read_error {
     my ( $self, %args ) = validated_getter( \@_ );
@@ -73,6 +63,29 @@ sub system_debug {
 sub disable_debug {
     my ( $self, %args ) = validated_getter( \@_);
     $self->write( command => ":SYSTem:DEBug OFF", %args );
+}
+
+sub get_waveform_voltage {
+  my ( $self, %args ) = validated_getter( \@_);
+  my $yOrg = $self->query(command => ":WAVeform:YORigin?");
+  my $yInc = $self->query(command => ":WAVeform:YINCrement?");
+  my $cData = $self->query(command => ":WAVeform:DATA?", read_length => 1000000);
+  my @data = ( split /,/, $cData );
+  foreach (0..@data-1) {$data[$_] = $data[$_]*$yInc+$yOrg;}
+  return \@data;
+}
+
+# obsolete as of right now
+
+sub get_waveform_time {
+  my ( $self, %args ) = validated_getter( \@_);
+  my $xOrg = $self->query(command => ":WAVeform:XORigin?");
+  my $xInc = $self->query(command => ":WAVeform:XINCrement?");
+  my $points = $self->query(command => ":ACQuire:POINts:ANALog?");
+  my @time;
+  foreach (0..$points) {@time[$_] = $_*$xInc+$xOrg}
+  return \@time;
+
 }
 
 ###
