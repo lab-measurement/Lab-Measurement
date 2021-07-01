@@ -33,7 +33,7 @@ around default_connection_options => sub {
 # effects of the previous commands are completed. See the programming manual
 # page 209 for more information.
 
-# ?? what does that mean, and what would the definition below then be good for?
+# ?? Was heißt das, und wozu wäre das sub unten gut??
 
 # around opc_query  => sub {
 #     my ( $self, %args ) = validated_getter( \@_ );
@@ -83,7 +83,6 @@ sub get_waveform_voltage {
 }
 
 # obsolete as of right now
-
 # ?? why? I mean, you still need the time axis!
 
 sub get_waveform_time {
@@ -111,6 +110,8 @@ sub get_waveform_time {
  $keysight->measure_vpp(source => 'CHANnel1');
 
 Query the Vpp voltage of a specified source.
+
+  ?? generell, wäre da nicht ein Parameter channel => 1 sinnvoller?
 
 =cut
 

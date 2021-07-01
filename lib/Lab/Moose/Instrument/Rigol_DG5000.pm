@@ -91,6 +91,9 @@ amount of cycles is enabled using the Rigols burst mode.
 
 C<bdelay> = 0 by default disabling burst mode.
 
+  ?? Ich bin mir nicht sicher ob "value" als Parametername hier wirklich sinnvoll
+     ist. Vielleicht "sequence"?
+
 =cut
 
 sub gen_arb_step {
@@ -111,7 +114,7 @@ sub gen_arb_step {
   # Split input data into the time lengths and amplitude values...
   my @times = @data[ grep { $_ % 2 == 1 } 0..@data-1 ];
   my @amps = @data[grep { $_ % 2 == 0 } 0..@data-1 ];
-  # ...and compute the period lentgth as well as the min and max amplitude
+  # ...and compute the period length as well as the min and max amplitude
   my $period = sum @times;
   my ($minamp, $maxamp) = minmax @amps;
 
@@ -139,12 +142,15 @@ sub gen_arb_step {
     # whole string
     $input = $input.(",".round(16383*$amps[$_]/(1.5*$maxamp-0.5*$minamp))) x $c;
   };
+
   # Finally download everything to the volatile memory
+  # ?? eventuell mußt Du hier beachten, daß große Datenmengen übertragen werden
   $self->trace_data_points(value => 16384);
   $self->trace_data_dac(value => $input);
 
   my $off =  0;
   if ($bdelay > 0){
+    # ?? was macht das hier?
     $self->source_burst_mode(channel => $channel, value => 'TRIG');
     $self->source_burst_tdelay(channel => $channel, value => $bdelay);
     $self->source_burst_ncycles(channel => $channel, value => $bcycles);
@@ -162,7 +168,7 @@ sub gen_arb_step {
 
 Allowed values: C<INT, INTernal, PLAY>
 
- ?? what does this actually do ??
+ ?? Was bedeuten die Werte?
 
 =cut
 
@@ -209,9 +215,11 @@ sub output_toggle {
     $self->write(command => ":OUTPut${channel}:STATe $value");
 }
 
+# vielleicht noch zwei functionen output_on und output_off (die nur den Kanal kriegen)?
+
 =head2 set_pulsewidth
 
-  ??
+  ?? doku
 
 =cut
 
@@ -226,7 +234,7 @@ sub set_pulsewidth {
 
 =head2 get_pulsewidth
 
-  ??
+  ?? doku
 
 =cut
 
@@ -236,9 +244,9 @@ sub get_pulsewidth {
     return $self->query( command => ":SOURce${channel}:PULSe:WIDTh?", %args );
 }
 
-# ?? would be useful to be able to do the same also for the amplitude and/or the
-#    offset
-
+# ?? wäre praktisch, wenn man sowas auch mit der Pulsamplitude oder mit einer
+#    Verzögerungszeit machen könnte... können wir besprechen, es kann sein daß ich
+#    da anderweitig noch Schnittstellen einbauen muß
 
 
 #
@@ -254,7 +262,7 @@ sub get_pulsewidth {
      phase => ...
  );
 
- ??
+ ?? doku
 
 =cut
 
@@ -281,6 +289,8 @@ sub source_apply_ramp {
 
  $rigol->source_apply_pulse(freq => 50000000, amp => 1, offset => 0, delay => 0.000001);
 
+ ?? doku
+
 =cut
 
 sub source_apply_pulse {
@@ -304,6 +314,8 @@ sub source_apply_pulse {
 =head2 source_apply_sinusoid
 
  $rigol->source_apply_sinusoid(freq => 50000000, amp => 1, offset => 0, phase => 0);
+
+ ?? doku
 
 =cut
 
@@ -329,6 +341,8 @@ sub source_apply_sinusoid {
 
  $rigol->source_apply_square(freq => 50000000, amp => 1, offset => 0, phase => 0);
 
+ ?? doku
+
 =cut
 
 sub source_apply_square {
@@ -352,6 +366,8 @@ sub source_apply_square {
 =head2 source_apply_arb
 
  $rigol->source_apply_arb(freq => 50000000, amp => 1, offset => 0, phase => 0);
+
+ ?? doku
 
 =cut
 
@@ -384,6 +400,7 @@ sub source_apply_arb {
 
 Allowed values: C<TRIG, GAT, INF>.
 
+ ?? was macht der, was bedeutet das?
 
 =cut
 
