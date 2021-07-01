@@ -162,6 +162,8 @@ sub gen_arb_step {
 
 Allowed values: C<INT, INTernal, PLAY>
 
+ ?? what does this actually do ??
+
 =cut
 
 sub arb_mode {
@@ -180,6 +182,8 @@ sub arb_mode {
 Phase-align the two output channels, only available if the output function is
 either Sine, Square, Ramp or Arbitrary.
 
+  ?? this is obviously adjusting some time delay between channels, but how ??
+
 =cut
 
 sub phase_align {
@@ -190,7 +194,7 @@ sub phase_align {
 
 =head2 output_toggle
 
- $rigol->source_apply_pulse(channel => 1, state => 'ON');
+ $rigol->output_toggle(channel => 1, state => 'ON');
 
 Turn output channels on or off, allowed values: C<ON, OFF>
 
@@ -205,6 +209,12 @@ sub output_toggle {
     $self->write(command => ":OUTPut${channel}:STATe $value");
 }
 
+=head2 set_pulsewidth
+
+  ??
+
+=cut
+
 sub set_pulsewidth {
     my ( $self, $channel, $value, %args ) = validated_channel_setter(
         \@_,
@@ -214,11 +224,22 @@ sub set_pulsewidth {
     $self->write( command => ":SOURce${channel}:PULSe:WIDTh $value", %args );
 }
 
+=head2 get_pulsewidth
+
+  ??
+
+=cut
+
 sub get_pulsewidth {
     my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
 
     return $self->query( command => ":SOURce${channel}:PULSe:WIDTh?", %args );
 }
+
+# ?? would be useful to be able to do the same also for the amplitude and/or the
+#    offset
+
+
 
 #
 # SOURCE APPLY
@@ -232,6 +253,8 @@ sub get_pulsewidth {
      offset => ....,
      phase => ...
  );
+
+ ??
 
 =cut
 
