@@ -1,9 +1,8 @@
-printenv 
 # Prevent "Please tell me who you are" errors for certain DZIL configs
 git config --global user.name 'github-actions'
 
 # check perl version
-perl -V
+perl --version
 
 
 #
@@ -29,17 +28,17 @@ export GNUPLOT_BINARY=$HOME/local/bin/gnuplot
 # Install Dist::Zilla and Lab::Measurement dependencies
 #
 
-cpanm -v Dist::Zilla
+cpanm -n Dist::Zilla
 
 # Install DZIL plugins etc if needed
 cd $GITHUB_WORKSPACE
-ls -la
-
-dzil authordeps --missing | grep -vP '[^\w:]' | xargs cpanm -v
-dzil listdeps --missing --cpanm | grep -vP '[^\w:~"\.]' | xargs cpanm  -v
+dzil authordeps --missing | grep -vP '[^\w:]' | xargs cpanm -n
+dzil listdeps --missing --cpanm | grep -vP '[^\w:~"\.]' | xargs cpanm -n
 if [ $with_pdl_graphics_gnuplot -eq "1" ]; then cpanm --verbose -f PDL::Graphics::Gnuplot; fi
-cpanm -v Test::Perl::Critic
 
+# dependencies of module tests
+cpanm -n Test::Perl::Critic
+cpanm -n File::Slurper
 
 #
 # Run tests

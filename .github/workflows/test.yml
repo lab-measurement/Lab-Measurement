@@ -9,10 +9,7 @@ jobs:
       - uses: shogo82148/actions-setup-perl@v1
         with:
           perl-version: '5.34'
-      - run: pwd
-      - run: ls -a
-      - run: whoami
-      - run: ls -la .github/scripts/
+        # run test in script to avoid tedious quoting of bash code
       - name: prove-test
         run: ./.github/scripts/prove-test.bash
         shell: bash
