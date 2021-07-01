@@ -1,3 +1,6 @@
+# PODNAME: singlechannel_sweep.pl
+# ABSTRACT: Use Rigol_DG5000 with KeysightDSOS604A
+
 use Lab::Moose;
 use Class::Unload;
 
