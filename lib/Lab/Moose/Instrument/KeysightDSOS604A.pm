@@ -32,6 +32,9 @@ around default_connection_options => sub {
 # from the *OPC? query after parsing the previous commands, not after the
 # effects of the previous commands are completed. See the programming manual
 # page 209 for more information.
+
+# ?? what does that mean, and what would the definition below then be good for?
+
 # around opc_query  => sub {
 #     my ( $self, %args ) = validated_getter( \@_ );
 #     return $self->query( command => ':PDER?', %args );
@@ -69,6 +72,10 @@ sub get_waveform_voltage {
   my ( $self, %args ) = validated_getter( \@_);
   my $yOrg = $self->query(command => ":WAVeform:YORigin?");
   my $yInc = $self->query(command => ":WAVeform:YINCrement?");
+
+  # ?? maybe ask the scope for the number of points and adapt the read_length then?
+  #    now we just have another maximum value that can break things!
+
   my $cData = $self->query(command => ":WAVeform:DATA?", read_length => 1000000);
   my @data = ( split /,/, $cData );
   foreach (0..@data-1) {$data[$_] = $data[$_]*$yInc+$yOrg;}
@@ -76,6 +83,8 @@ sub get_waveform_voltage {
 }
 
 # obsolete as of right now
+
+# ?? why? I mean, you still need the time axis!
 
 sub get_waveform_time {
   my ( $self, %args ) = validated_getter( \@_);
@@ -88,25 +97,14 @@ sub get_waveform_time {
 
 }
 
+# ?? also, what would be useful is a function "get_waveform", which returns a
+#    block with two matching columns, time and voltage
+#    (this is a standard problem, so not something the actual measurement script
+#     should need to care about)
+
 ###
 ### MEASURE
 ###
-
-=head2 save_measurement
-
- $keysight->save_measurement(value => 'C:\Users\Administrator\Documents\Results\my_measurement');
-
-Save all current measurements on screen to the specified path.
-
-=cut
-
-sub save_measurement {
-    my ( $self, $value, %args ) = validated_setter(
-        \@_,
-        value => { isa => 'Str' }
-    );
-    $self->write( command => ":DISK:SAVE:MEASurements \"$value\"", %args );
-}
 
 =head2 measure_vpp
 
@@ -129,7 +127,8 @@ sub measure_vpp {
 
 =head2 save_waveform
 
- $keysight->save_waveform(source => 'CHANnel1', filename => 'C:\Users\Administrator\Documents\Results\data2306_c1_5',format => 'CSV');
+ $keysight->save_waveform(source => 'CHANnel1',
+   filename => 'C:\Users\Administrator\Documents\Results\data2306_c1_5',format => 'CSV');
 
 Save the waveform currently displayed on screen. C<source> can be a channel, function,
 histogram, etc, C<filename> specifies the path the waveform is saved to and format can be
@@ -137,7 +136,7 @@ C<BIN CSV INTernal TSV TXT H5 H5INt MATlab>.
 
 The following file name extensions are used for the different formats:
 =item BIN = file_name.bin
-=item  CSV (comma separated values) = file_name.csv
+=item CSV (comma separated values) = file_name.csv
 =item INTernal = file_name.wfm
 =item TSV (tab separated values) = file_name.tsv
 =item TXT = file_name.txt
@@ -168,7 +167,8 @@ sub save_waveform {
 
  $keysight->save_measurements(filename => 'C:\Users\Administrator\Documents\Results\my_measurements');
 
-WIP
+Save all current measurements on screen to the specified path on the internal
+harddrive of the DSO.
 
 =cut
 
@@ -204,6 +204,15 @@ sub force_trigger {
 
 Adjust the trigger source and level.
 
+  ?? is that adjusting the trigger *of* channel1, or the global triggering to use
+     channel1 as source?
+
+  ?? also, to make life easier, it would probably make sense to always use just
+     a channel number (and maybe "X") as parameter and translate inside the function
+     ... e.g., $keysight->trigger_level(channel => 1, level => 0.1);
+
+  ?? what is 0.1 here? 10% of the maximum range, or 0.1V, or.... ?
+
 =cut
 
 sub trigger_level {
@@ -227,6 +236,9 @@ sub trigger_level {
 
 Allowed values: C<ETIMe, RTIMe, PDETect, HRESolution, SEGMented, SEGPdetect, SEGHres>
 
+ ?? Either write something about the values (much work), or point to the page
+    number in the programming handbook (easier): See ... for an explanation.
+
 =cut
 
 sub acquire_mode {
@@ -242,6 +254,10 @@ sub acquire_mode {
  $keysight->acquire_hres(value => 'BITF16');
 
 Specify the resolution for the High Resolution acquisition mode.
+
+Allowed values: ...
+
+ ?? how about 0 (= AUTO), 11, 12, ..., 16
 
 =cut
 
@@ -259,6 +275,11 @@ sub acquire_hres {
 
 Specify the amount of data points collected within an acquisition window. 40000
 seems to be the minimum. Using this command adjusts the sample rate automatically.
+
+  ?? let's try to explain this for dummies... "acquisition window" is the "recording
+     time" of a time trace? is that equal to the "timebase range" below?
+     And is it as simple as, an acquisition window of 100ms and 100000 points
+     gives a sample rate of 1us?
 
 =cut
 
@@ -279,6 +300,8 @@ sub acquire_points {
  $keysight->timebase_range(value => 0.00022);
 
 Manually adjust the Oscilloscopes time scale on the x axis.
+
+  ?? see also comments above
 
 =cut
 
@@ -336,7 +359,7 @@ sub timebase_ref_perc {
 
 Enable or disable the Oscilloscopes 10 MHz REF IN BNC input (ON or OFF) or the
 100MHz REF IN SMA input (HFRequency or OFF). When either option is enabled, the
-the external reference input is used as a reference clock for the Oscilloscopes
+external reference input is used as a reference clock for the Oscilloscopes
 horizonal scale instead of the internal reference clock.
 
 =cut
