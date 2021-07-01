@@ -9,7 +9,11 @@ jobs:
       - uses: shogo82148/actions-setup-perl@v1
         with:
           perl-version: '5.34'
-        # run test in script to avoid tedious quoting of bash code
+          
+      # for png terminal of gnuplot
+      - run: sudo apt-get install libgd2-noxpm-dev
+        
+      # run test in script to avoid tedious quoting of bash code
       - name: prove-test
         run: ./.github/scripts/prove-test.bash
         shell: bash

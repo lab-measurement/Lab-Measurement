@@ -105,7 +105,7 @@ sub gen_arb_step {
       = delete @args{qw/bdelay bcycles/};
 
   # If number of input data points is uneven croak
-  unless (@data % 2 == 0) {croak "Please enter an even number of arguments with
+  if (@data % 2 != 0) {croak "Please enter an even number of arguments with
     the layout <amplitude1[V]>,<length1[s]>,<amplitude2[V]>,<length2[s]>,...";};
 
   # Split input data into the time lengths and amplitude values...
