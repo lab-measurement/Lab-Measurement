@@ -3,12 +3,15 @@ on: [push]
 jobs:
   'prove-lrt':
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        perl: ['5.20', '5.22', '5.24', '5.26', '5.28', '5.30', '5.32', '5.34']
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
       - uses: shogo82148/actions-setup-perl@v1
         with:
-          perl-version: '5.34'
+          perl-version: ${{matrix.perl}}
       - run: lsb_release -a
       # for png terminal of gnuplot
       - run: sudo apt-get install gnuplot-nox
