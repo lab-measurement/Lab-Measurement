@@ -27,6 +27,19 @@ around default_connection_options => sub {
     return $options;
 };
 
+=encoding utf8
+
+=head1 SYNOPSIS
+
+ use Lab::Moose;
+
+ my $source = instrument(
+     type => 'KeysightDSOS604A',
+     ...
+ );
+
+=cut
+
 # On this Infiniium S-Series oscilloscope, the implementation of the *OPC?
 # query does not honor the definition in the SCPI standard. Instead it returns
 # from the *OPC? query after parsing the previous commands, not after the
