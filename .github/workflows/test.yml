@@ -1,0 +1,28 @@
+name: learn-github-actions
+on: [push]
+jobs:
+  'prove-lrt':
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        perl: ['5.24', '5.26', '5.28', '5.30', '5.32', '5.34']
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+      - uses: shogo82148/actions-setup-perl@v1
+        with:
+          perl-version: ${{matrix.perl}}
+      - run: lsb_release -a
+      # for png terminal of gnuplot
+      - run: sudo apt-get install gnuplot-nox
+      
+        
+      # run test in script to avoid tedious quoting of bash code
+      - name: prove-test
+        run: ./.github/scripts/prove-test.bash
+        shell: bash
+        env:
+          gp_version: 5.2.4
+          with_pdl_graphics_gnuplot: 1
+      
+      

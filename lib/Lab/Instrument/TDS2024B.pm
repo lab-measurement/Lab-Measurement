@@ -25,6 +25,7 @@ our %fields  = (
         usb_vendor      => 0x0699,     #Tektronix
         usb_product     => 0x036a,     #TDS2024A
         usb_serial      => '*',        #any serial number
+	read_buffer     => 1024,
     },
 
     device_settings => {},
@@ -443,6 +444,7 @@ sub new {
     my $self = $class->SUPER::new(@_);
     $self->${ \( __PACKAGE__ . '::_construct' ) }(__PACKAGE__);
 
+    $self->{connection_settings}->{READ_BUFFER} = 1024;  # TDS2024B limit?
     $self->{config}->{no_cache}          = 1;
     $self->{config}->{default_read_mode} = 'cache';
     $DEBUG = $self->{config}->{debug} if exists $self->{config}->{debug};
@@ -1050,6 +1052,53 @@ sub get_status {
     return $s;
 }
 
+=head2 get_datetime
+
+$datetime = $s->get_datetime();
+
+fetches the date and time from the scope, returned
+in form "YYYY-MM-DD HH:MM:SS"  (numeric month, 24hr time)
+=cut
+
+sub get_datetime {
+    my $self = shift;
+    my $d = $self->query("DATE?");
+    $d = $self->_parseReply($d);
+    
+    my $t = $self->query("TIM?");
+    $t = $self->_parseReply($t);
+    return "$d $t";
+}
+
+=head2 set_datetime
+
+$s->set_datetime();           set to current date and time
+$s->set_datetime($unixtime);  set to unix time $unixtime
+
+Note that the TDS2024B has no notion of 'time zones', so
+default is 'local time'. 
+
+Returns the date and time in the same format as get_datetime.
+=cut
+
+sub set_datetime {
+    my $self = shift;
+    my $unixtime = shift;
+    $unixtime = time() unless defined $unixtime;
+    
+    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) =
+        localtime($unixtime);
+
+    my $date = sprintf('%04d-%02d-%02d',$year+1900,$mon+1,$mday);
+    my $time = sprintf('%02d:%02d:%02d',$hour,$min,$sec);
+
+    $self->write("DATE \"$date\"");
+    $self->write("TIME \"$time\"");
+
+    return "$date $time";
+}
+
+    
 =head2 wait_done
 
 $s->wait_done([$time[,$deltaT]);
@@ -1581,7 +1630,7 @@ sub get_setup {
 
     my $v = $self->get_verbose();
     $self->set_verbose(1) if !$v;
-    my $r = $self->query( "SET?", read_length => 10240, timeout => 60 );
+    my $r = $self->query( "SET?", read_length => -1, timeout => 60 );
     my $post_status = $self->query("*STB?");
 
     # print Dumper($r),"\n";
@@ -2228,7 +2277,7 @@ sub set_channel {
             "Invalid channel '$ch' should be CH1..4 or MATH \n");
         return;
     }
-    return if $ch eq $self->{$ch};    # already set to that channel
+    return if $ch eq $self->{channel};    # already set to that channel
 
     # store the shared cache entries
     foreach my $k ( keys( %{ $self->{shared_cache} } ) ) {
@@ -2245,6 +2294,64 @@ sub set_channel {
 
     $self->{channel} = $ch;
 }
+
+=head2 get_vertical_settings
+
+This is like get_chan_setup, but faster (one query
+to scope) and output is kept in original form.
+
+$settings = $s->get_vertical_settings($chan);
+$settings = $s->get_vertical_settings(channel => $chan);
+
+$chan = scope channel or MATH
+
+Fetch the vertical settings for a channel into a
+hash structure (example for CH1):
+	$settings->{CH1:POS}	# position on display
+        $settings->{CH1:INV}    # inverted?
+        $settings->{CH1:SCAL}   # vertical scale
+	$settings->{CH1:YUN}    # units for y-axis (volts, db, etc)
+	$settings->{CH1:PRO}    # voltage probe attenuation
+	$settings->{CH1:CURRENTPRO} # current probe attenuation
+        $settings->{CH1:COUP}   # input coupling (AC, DC,..)
+	$settings->{CH1:BANWID} # input bandwidth setting
+	$settings->{MATH:DEFINE} # math definition, if $chan=MATH
+
+
+=cut
+
+sub get_vertical_settings {
+    my $self = shift;
+    my ($ch) = $self->_check_args_strict( \@_ ,'channel');
+    
+    if ( $ch =~ /^\s*(CH[1-4])\s*$/i ) {
+        $ch = uc($1);
+    }
+    elsif ( $ch =~ /^\s*([1-4])\s*$/ ) {
+        $ch = "CH${1}";
+    }
+    elsif ( $ch =~ /^\s*MA/i) {
+	$ch = 'MATH';
+    }
+    else {
+        Lab::Exception::CorruptParameter->throw(
+            "Invalid channel '$ch' should be CH1..4 or MATH \n");
+        return;
+    }
+
+
+    my $v = $self->get_verbose();
+    $self->set_verbose(1) if !$v;
+    my $hd = $self->get_header();
+    $self->set_header(1) if !$hd;
+
+    my $reply = $self->query("${ch}?");
+    $self->set_verbose(0) if !$v;
+    $self->set_header(0) if !$hd;
+    return scpi_flat(scpi_parse($reply));
+}
+    
+
 
 =head2 set_visible
 
@@ -4156,25 +4263,20 @@ sub get_image {
     my $head = $self->get_header();
     $self->set_header(0);
 
-    # default 30s timeout
+    # default 30s timeout, unlimited length, maybe no \n at end
+    # note that we really need READ_BUFFER to be set correctly
+    # for efficient image reading.
     my $args = {};
     $args->{timeout}     = 30;
-    $args->{read_length} = 20480;
+    $args->{read_length} = -1;
     $args->{timeout}     = $tail->{timeout} if exists( $tail->{timeout} );
-    $args->{read_length} = $tail->{read_length}
-        if exists $tail->{read_length};
+    
     $args->{brutal} = 1;    # read to the very end
+    $args->{no_LF} = 1;
 
     my $r;
     $self->write("HARDC STAR");
-
-    while (1) {
-        my $part = $self->read($args);
-        last if $part eq '';
-        $r .= $part;
-        last if length($part) < $args->{read_length};
-    }
-
+    $r = $self->read($args);
     $self->set_header($head);
 
     carp("No image data read") unless defined($r);
@@ -6407,18 +6509,24 @@ sub get_waveform {
     $self->set_header(1);
     my $dath = $self->query("DAT?");
     $self->_debug();
-    my $wf = $self->query( "WAVF?", read_length => 20000, timeout => 30 );
+    
+    
+    my $wfpre = $self->query( "WFMP?", read_length => 2000, timeout => 10 );
     $self->_debug();
 
+    my $wf = $self->query("CURV?", read_length => -1, timeout => 60);
+    $self->_debug();
+    
     $self->set_header($header);
 
     #    $self->set_data_stop($dstop) if defined $dstop;
 
     my $hd = scpi_parse($dath);
-    my $h = scpi_flat( scpi_parse( $wf, $hd ), $self->{scpi_override} );
+    my $hp = scpi_parse($wfpre,$hd);
+    my $h = scpi_flat( scpi_parse( $wf, $hp ), $self->{scpi_override} );
 
     my (@dat);
-    if ( $h->{'DAT:ENC'} eq 'ASC' ) {
+    if ( $h->{'DAT:ENC'} =~ /^ASC/i ) {
         @dat = split( /,/, $h->{CURV} );
     }
     else {
