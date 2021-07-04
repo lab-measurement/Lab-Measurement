@@ -17,13 +17,13 @@ use namespace::autoclean;
 extends 'Lab::Moose::Instrument';
 
 has input_impedance => (
-    is      => 'rw',
+    is      => 'ro',
     isa     => enum( [qw/DC DC50 DCFifty LFR1 LFR2/]),
     default => 'DC50'
 );
 
 has instrument_nselect => (
-    is      => 'rw',
+    is      => 'ro',
     isa     => 'Int',
     default => 1
 );
@@ -54,8 +54,14 @@ around default_connection_options => sub {
 
  my $source = instrument(
      type => 'KeysightDSOS604A',
-     input_impedance =>
+     input_impedance => ...,
+     instrument_nselect => ...,
+     waveform_format => ...
  );
+
+=item input_impedance specifies the default input input impedance. See channel_input for more information
+=item instrument_nselect specifies the default input channel
+=item waveform_format specifies the default format for waveform data. See set_waveform_format for more information
 
 =cut
 
@@ -146,11 +152,15 @@ sub get_waveform {
   my $xOrg = $self->query(command => ":WAVeform:XORigin?");
   my $xInc = $self->query(command => ":WAVeform:XINCrement?");
   my $points = $self->query(command => ":ACQuire:POINts:ANALog?");
-  # Set the read length to the number of acquired points times 16, since float
-  # values use 4 bytes of data. An additional 128 bytes are given as a buffer.
+  my $format = $self->query(command => ":WAVeform:FORMat?");
+  my $fbytes;
+  if ($format eq 'BYTE') { $fbytes = 1; } elsif ($format eq 'WORD') { $fbytes = 2; }
+  elsif ($format eq 'FLOat') { $fbytes = 4; } else { $fbytes = 8; }
+  # Set the read length to the number of acquired points times the amount of
+  # bytes the format requires
   my @data = ( split /,/, $self->query(
     command => ":WAVeform:DATA?",
-    read_length => $points*4+128
+    read_length => $points*$fbytes+128
   ));
   $self->opc_query();
   # Rescale the voltage values
@@ -437,7 +447,22 @@ sub timebase_clock {
  $keysight->set_waveform_format(value => 'WORD');
 
 This command controls how the data is formatted when it is sent from
-the oscilloscope, and pertains to all waveforms. The default format is ASCii.
+the oscilloscope, and pertains to all waveforms. The default format is FLOat.
+The possible formats are:
+=item ASCii
+ASCii-formatted data consists of waveform data values converted to the currently
+selected units, such as volts, and are output as a string of ASCII characters with
+each value separated from the next value by a comma.
+=item BYTE
+BYTE data is formatted as signed 8-bit integers.
+=item WORD
+WORD-formatted data is transferred as signed 16-bit integers in two bytes.
+=item BINary
+BINary will return a binary block of (8-byte) uint64 values.
+=item FLOat
+FLOat will return a binary block of (4-byte) single-precision floating-point values.
+
+For more information on these formats see the programming manual on page 1564.
 
 =cut
 
