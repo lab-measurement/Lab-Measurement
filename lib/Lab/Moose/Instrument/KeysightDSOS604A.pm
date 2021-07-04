@@ -8,12 +8,31 @@ use Moose;
 use MooseX::Params::Validate;
 use Moose::Util::TypeConstraints qw/enum/;
 use Lab::Moose::Instrument
-    qw/validated_getter validated_setter setter_params/;
+    qw/validated_getter validated_setter setter_params validated_channel_getter
+    validated_channel_setter/;
 use Lab::Moose::Instrument::Cache;
 use Carp 'croak';
 use namespace::autoclean;
 
 extends 'Lab::Moose::Instrument';
+
+has input_impedance => (
+    is      => 'rw',
+    isa     => enum( [qw/DC DC50 DCFifty LFR1 LFR2/]),
+    default => 'DC50'
+);
+
+has instrument_nselect => (
+    is      => 'rw',
+    isa     => 'Int',
+    default => 1
+);
+
+has waveform_format => (
+    is      => 'rw',
+    isa     => enum( [qw/ASCii BINary BYTE WORD FLOat/]),
+    default => 'FLOat'
+);
 
 around default_connection_options => sub {
     my $orig     = shift;
@@ -35,25 +54,41 @@ around default_connection_options => sub {
 
  my $source = instrument(
      type => 'KeysightDSOS604A',
-     ...
+     input_impedance =>
  );
 
 =cut
 
-# On this Infiniium S-Series oscilloscope, the implementation of the *OPC?
-# query does not honor the definition in the SCPI standard. Instead it returns
-# from the *OPC? query after parsing the previous commands, not after the
-# effects of the previous commands are completed. See the programming manual
-# page 209 for more information.
+# It is recommended to use the :PDER? query instead of the standard *OPC? query
+# on this oscilloscope. This is because *OPC? returns after the previous
+# commands are parsed, not after the previous commands are executed completely.
+# :PDER? does just this, like you would expect from the standard SCPI *OPC?
+# query. See the programming manual page 209 for more information.
+
 # around opc_query  => sub {
 #     my ( $self, %args ) = validated_getter( \@_ );
 #     return $self->query( command => ':PDER?', %args );
 # };
 
 sub BUILD {
-    my $self = shift;
-    $self->clear();
-    $self->cls();
+  my $self = shift;
+  $self->clear();
+  $self->cls();
+  $self->write(command => ":CHANnel".$self->instrument_nselect.":DISPlay ON");
+  $self->write(command => ":WAVeform:FORMat ".$self->waveform_format);
+  $self->write(command => ":WAVeform:BYTeorder LSBFirst" );
+  $self->write(command => ":WAVeform:SOURce CHANnel".$self->instrument_nselect);
+  $self->write(command => ":WAVeform:STReaming ON" );
+  $self->timebase_reference(value => 'LEFT');
+  $self->timebase_ref_perc(value => 5);
+  $self->channel_input(channel => $self->instrument_nselect, parameter => $self->input_impedance);
+  $self->write(command => ":TRIGger:EDGE:SOURce CHANnel".$self->instrument_nselect);
+  $self->write(command => ":TRIGger:EDGE:SLOPe POSitive");
+}
+
+sub cached_instrument_nselect {
+  my $self = shift;
+  return $self->instrument_nselect;
 }
 
 ###
@@ -78,27 +113,53 @@ sub disable_debug {
     $self->write( command => ":SYSTem:DEBug OFF", %args );
 }
 
-sub get_waveform_voltage {
-  my ( $self, %args ) = validated_getter( \@_);
+=head2 get_waveform
+
+ $keysight->get_waveform(channel => 1);
+
+Query the waveform on any channel. When executing this subroutine the oscilloscope
+waits for a trigger event, acquires a full waveform and returns an array reference
+containing the scaled time and voltage axis in the form of [\@time, \@voltage].
+
+This acquisition method is called Blocking Synchronisation and should only be
+used if the oscilloscope is certain to trigger, for example when measuring a
+periodically oscillating signal. For more information see the programming manual
+on page 211 and following.
+
+=cut
+
+sub get_waveform {
+  my ( $self, $channel, %args ) = validated_channel_getter( \@_);
+  if ($channel < 1 or $channel > 4){
+    croak "The available channels are 1,2,3 and 4";
+  }
+  # Adjust the settings to the specified channel
+  $self->write(command => ":CHANnel${channel}:DISPlay ON");
+  $self->write(command => ":WAVeform:SOURce CHANnel${channel}");
+  $self->write(command => ":TRIGger:EDGE:SOURce CHANnel${channel}");
+  # Capture a waveform after the next trigger event
+  $self->write(command => ":DIGitize CHANnel${channel}");
+  $self->opc_query();
+  # Query some parameters
   my $yOrg = $self->query(command => ":WAVeform:YORigin?");
   my $yInc = $self->query(command => ":WAVeform:YINCrement?");
-  my $cData = $self->query(command => ":WAVeform:DATA?", read_length => 1000000);
-  my @data = ( split /,/, $cData );
-  foreach (0..@data-1) {$data[$_] = $data[$_]*$yInc+$yOrg;}
-  return \@data;
-}
-
-# obsolete as of right now
-
-sub get_waveform_time {
-  my ( $self, %args ) = validated_getter( \@_);
   my $xOrg = $self->query(command => ":WAVeform:XORigin?");
   my $xInc = $self->query(command => ":WAVeform:XINCrement?");
   my $points = $self->query(command => ":ACQuire:POINts:ANALog?");
-  my @time;
-  foreach (0..$points) {@time[$_] = $_*$xInc+$xOrg}
-  return \@time;
-
+  # Set the read length to the number of acquired points times 16, since float
+  # values use 4 bytes of data. An additional 128 bytes are given as a buffer.
+  my @data = ( split /,/, $self->query(
+    command => ":WAVeform:DATA?",
+    read_length => $points*4+128
+  ));
+  $self->opc_query();
+  # Rescale the voltage values
+  foreach (0..@data-1) {$data[$_] = $data[$_]*$yInc+$yOrg;}
+  # Compute the time axis corresponding to each voltage value
+  my @times;
+  foreach (1..@data) {@times[$_-1] = $_*$xInc+$xOrg}
+  # Return a data block containing both the time and voltage values
+  return [\@times, \@data];
 }
 
 ###
@@ -130,10 +191,9 @@ Query the Vpp voltage of a specified source.
 =cut
 
 sub measure_vpp {
-    my ( $self, %args ) = validated_getter( \@_ );
-    my $source = delete $args{'source'};
+    my ( $self, $channel, %args ) = validated_getter( \@_ );
 
-    return $self->query( command => ":MEASure:VPP? $source", %args );
+    return $self->query( command => ":MEASure:VPP? CHANnel${channel}", %args );
 }
 
 ###
@@ -166,22 +226,21 @@ added to the Y origin value to get the actual vertical values.
 =cut
 
 sub save_waveform {
-    my ( $self, %args ) = validated_getter( \@_,
-      source => { isa => 'Str'},
+    my ( $self, $channel, %args ) = validated_channel_getter( \@_,
       filename => { isa => 'Str'},
       format => { isa => enum( [qw/BIN CSV INTernal TSV TXT H5 H5INt MATlab/])}
      );
     my ( $source, $filename, $format)
         = delete @args{qw/source filename format/};
 
-    $self->write( command => ":DISK:SAVE:WAVeform $source,\"$filename\",$format,ON", %args );
+    $self->write( command => ":DISK:SAVE:WAVeform CHANnel${channel},\"$filename\",$format,ON", %args );
 }
 
 =head2 save_measurements
 
  $keysight->save_measurements(filename => 'C:\Users\Administrator\Documents\Results\my_measurements');
 
-WIP
+Save all measurements on-screen to a file.
 
 =cut
 
@@ -213,21 +272,16 @@ sub force_trigger {
 
 =head2 trigger_level
 
- $keysight->trigger_level(channel => 'CHANnel1', level => 0.1);
+ $keysight->trigger_level(channel => 1, value => 0.1);
 
-Adjust the trigger source and level.
+Set the global trigger to a specified channel with a trigger level in volts.
 
 =cut
 
 sub trigger_level {
-    my ( $self, %args ) = validated_getter(
-        \@_,
-        channel => { isa => enum( [qw/CHANnel1 CHANnel2 CHANnel3 CHANnel4 AUX/])},
-        level => { isa => 'Num'}
-    );
-    my ( $channel, $level ) = delete @args{qw/channel level/};
+    my ( $self, $channel, $value, %args ) = validated_channel_setter( \@_ );
 
-    $self->write( command => ":TRIGger:LEVel $channel,$level", %args );
+    $self->write( command => ":TRIGger:LEVel CHANnel${channel},$value", %args );
 }
 
 ###
@@ -239,6 +293,9 @@ sub trigger_level {
  $keysight->acquire_mode(value => 'HRESolution');
 
 Allowed values: C<ETIMe, RTIMe, PDETect, HRESolution, SEGMented, SEGPdetect, SEGHres>
+
+See the programming manual on page 243 for more information on the different
+acquisation modes. The default is RTIMe.
 
 =cut
 
@@ -254,31 +311,38 @@ sub acquire_mode {
 
  $keysight->acquire_hres(value => 'BITF16');
 
-Specify the resolution for the High Resolution acquisition mode.
+Specify the minimum resolution for the High Resolution acquisition mode.
 
 =cut
 
 sub acquire_hres {
     my ( $self, $value, %args ) = validated_setter(
         \@_,
-        value => { isa => enum( [qw/AUTO BITF11 BITF12 BITF13 BITF14 BITF15 BITF16/])},
+        value => { isa => 'Int', default => 0},
     );
-    $self->write( command => ":ACQuire:HRESolution $value", %args );
+    if ($value == 0){
+      $self->write( command => ":ACQuire:HRESolution AUTO", %args );
+    } elsif ($value >= 11 and $value <= 16){
+      $self->write( command => ":ACQuire:HRESolution BITF$value", %args );
+    } else {
+      croak "The Bit resolution can be 0 (for an automatic choice) or between 11 and 16";
+    }
+
 }
 
 =head2 acquire_points
 
  $keysight->acquire_points(value => 40000);
 
-Specify the amount of data points collected within an acquisition window. 40000
-seems to be the minimum. Using this command adjusts the sample rate automatically.
+Specify the amount of data points collected within an acquisition window. Using
+this command adjusts the sample rate automatically.
 
 =cut
 
 sub acquire_points {
     my ( $self, $value, %args ) = validated_setter(
         \@_,
-        value => { isa => 'Lab::Moose::PosNum' },
+        value => { isa => 'Lab::Moose::PosNum' }
     );
     $self->write( command => ":ACQuire:POINts:ANALog $value", %args );
 }
@@ -291,14 +355,15 @@ sub acquire_points {
 
  $keysight->timebase_range(value => 0.00022);
 
-Manually adjust the Oscilloscopes time scale on the x axis.
+Manually adjust the Oscilloscopes time scale on the x-axis. The timebase range
+specifies the time interval on-screen.
 
 =cut
 
 sub timebase_range {
     my ( $self, $value, %args ) = validated_setter(
         \@_,
-        value => { isa => 'Num' }
+        value => { isa => 'Lab::Moose::PosNum' }
     );
 
     $self->write( command => ":TIMebase:RANGe $value", %args );
@@ -367,16 +432,16 @@ sub timebase_clock {
 ### WAVEFORM
 ###
 
-=head2 waveform_format
+=head2 set_waveform_format
 
- $keysight->waveform_format(value => 'WORD');
+ $keysight->set_waveform_format(value => 'WORD');
 
 This command controls how the data is formatted when it is sent from
 the oscilloscope, and pertains to all waveforms. The default format is ASCii.
 
 =cut
 
-sub waveform_format {
+sub set_waveform_format {
     my ( $self, $value, %args ) = validated_setter(
         \@_,
         value => { isa => enum( [qw/ASCii BINary BYTE WORD FLOat/]) }
@@ -387,19 +452,16 @@ sub waveform_format {
 
 =head2 waveform_source
 
- $keysight->waveform_source(value => 'CHANnel1');
+ $keysight->waveform_source(channel => 1);
 
-Select a source to the acquired waveform. Allowed values: C<CHANnel1, CHANnel2, CHANnel3, CHANnel4, CLOCk>
+Select an input channel for the acquired waveform.
 
 =cut
 
 sub waveform_source {
-    my ( $self, $value, %args ) = validated_setter(
-        \@_,
-        value => { isa => enum( [qw/CHANnel1 CHANnel2 CHANnel3 CHANnel4 CLOCk/]) }
-    );
+    my ( $self, $channel, %args ) = validated_channel_getter( \@_, );
 
-    $self->write( command => ":WAVeform:SOURce $value", %args );
+    $self->write( command => ":WAVeform:SOURce CHANnel${channel}", %args );
 }
 
 ###
@@ -421,65 +483,63 @@ If you have an 1153A probe attached, the valid parameters are DC, LFR1, and LFR2
 =cut
 
 sub channel_input {
-    my ( $self, %args ) = validated_getter(
+    my ( $self, $channel, %args ) = validated_channel_getter(
         \@_,
-        channel => { isa => enum( [qw/CHANnel1 CHANnel2 CHANnel3 CHANnel4/])},
         parameter => { isa => enum( [qw/DC DC50 DCFifty LFR1 LFR2/])}
     );
-    my ( $channel, $parameter ) = delete @args{qw/channel parameter/};
+    my $parameter = delete $args{'parameter'};
 
-    $self->write( command => ":$channel:INPut $parameter", %args );
+    $self->write( command => ":CHANnel${channel}:INPut $parameter", %args );
 }
 
 =head2 channel_differential
 
- $keysight->channel_differential(channel => 'CHANnel1', mode => 'ON');
+ $keysight->channel_differential(channel => 1, mode => 1);
 
-Turns on or off differential mode. C<'mode'> can be C<ON OFF 1 0>.
+Turns on or off differential mode. C<'mode'> is an integer value, where 0 is
+false and everything else is true.
 
 =cut
 
 sub channel_differential {
-    my ( $self, %args ) = validated_getter(
+    my ( $self, $channel, %args ) = validated_channel_getter(
         \@_,
-        channel => { isa => enum( [qw/CHANnel1 CHANnel2 CHANnel3 CHANnel4/])},
-        mode => { isa => enum( [qw/ON OFF 1 0/])}
+        mode => { isa => 'Int'}
     );
-    my ( $channel, $mode ) = delete @args{qw/channel mode/};
+    my $mode = delete $args{'mode'};
 
-    $self->write( command => ":$channel:DIFFerential $mode", %args );
+    $self->write( command => ":CHANnel${channel}:DIFFerential $mode", %args );
 }
 
 =head2 channel_range/channel_offset
 
- $keysight->channel_range(channel => 'CHANnel1', range => 1);
- $keysight->channel_offset(channel => 'CHANnel1', offset => 0.2);
+ $keysight->channel_range(channel => 1, range => 1);
+ $keysight->channel_offset(channel => 1, offset => 0.2);
 
-Allows for manual adjustment of the Oscilloscopes vertical voltage range and -offset for a specific
-channel. Requires differential mode to be turned on.
+Allows for manual adjustment of the oscilloscopes vertical voltage range and
+-offset for a specific channel. Differential mode is turned on automatically
+on execution. C<range> and C<offset> parameters are in volts.
 
 =cut
 
 sub channel_range {
-    my ( $self, %args ) = validated_getter(
+    my ( $self, $channel, %args ) = validated_channel_setter(
         \@_,
-        channel => { isa => enum( [qw/CHANnel1 CHANnel2 CHANnel3 CHANnel4/])},
         range => { isa => 'Num'}
     );
-    my ( $channel, $range ) = delete @args{qw/channel range/};
+    my $range = delete $args{'range'};
 
-    $self->write( command => ":$channel:RANGe $range", %args );
+    $self->write( command => ":CHANnel${channel}:RANGe $range", %args );
 }
 
 sub channel_offset {
-    my ( $self, %args ) = validated_getter(
+    my ( $self, $channel, %args ) = validated_channel_getter(
         \@_,
-        channel => { isa => enum( [qw/CHANnel1 CHANnel2 CHANnel3 CHANnel4/])},
         offset => { isa => 'Num'}
     );
-    my ( $channel, $offset ) = delete @args{qw/channel offset/};
+    my $offset = delete $args{'offset'};
 
-    $self->write( command => ":$channel:OFFSet $offset", %args );
+    $self->write( command => ":CHANnel${channel}:OFFSet $offset", %args );
 }
 
 with qw(
