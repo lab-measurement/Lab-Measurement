@@ -94,15 +94,15 @@ C<bdelay> = 0 by default disabling burst mode.
 =cut
 
 sub gen_arb_step {
-  my ( $self, $channel, $value, %args ) = validated_channel_setter(
+  my ( $self, $channel, %args ) = validated_channel_getter(
       \@_,
-      value => { isa => 'ArrayRef' },
+      sequence => { isa => 'ArrayRef' },
       bdelay => { isa => 'Num' , default => 0},
       bcycles => { isa => 'Num', default => 1}
   );
-  my @data = @$value; # Dereference the input data
-  my ( $bdelay, $bcycles )
-      = delete @args{qw/bdelay bcycles/};
+  my ($sequence, $bdelay, $bcycles )
+      = delete @args{qw/sequence bdelay bcycles/};
+  my @data = @$sequence; # Dereference the input data
 
   # If number of input data points is uneven croak
   if (@data % 2 != 0) {croak "Please enter an even number of arguments with
@@ -143,6 +143,7 @@ sub gen_arb_step {
   $self->trace_data_points(value => 16384);
   $self->trace_data_dac(value => $input);
 
+  # WIP: If a burst delay and number of cycles is given, enable burst mode
   my $off =  0;
   if ($bdelay > 0){
     $self->source_burst_mode(channel => $channel, value => 'TRIG');
@@ -160,7 +161,11 @@ sub gen_arb_step {
 
  $rigol->arb_mode(value => 'INTernal');
 
-Allowed values: C<INT, INTernal, PLAY>
+Allowed values: C<INT, INTernal, PLAY>. In normal or internal mode he output
+frequency ranges from 1 μHz to 50 MHz, and the sample rate is fixed at 1G Sa/s,
+while the number of points is 16Mpts. Play mode is used once the number of points
+of the arbitrary waveform to be output is greater than 16 Mpts, ranging up to
+128Mpts. See the Rigols user manual page 3-4 and following for more information.
 
 =cut
 
@@ -171,6 +176,32 @@ sub arb_mode {
     );
 
     $self->write( command => ":SOURCE${channel}:FUNCtion:ARB:MODE $value", %args );
+}
+
+=head2 play_coefficient
+
+ $rigol->play_coefficient(value => 10);
+
+When using the arbitrary waveform in play mode, a frequency division coefficient
+N can be used to reduce the sample rate fs via the relations
+=item fs = 1G/2^N, When N≤2
+=item fs = 1G/((N-2)*8), When N>2
+The range of N is from 0 to 268435456 (2^28)
+
+See the Rigols user manual page 3-4 and following for more information.
+
+=cut
+
+sub play_coefficient {
+    my ( $self, $channel, $value, %args ) = validated_channel_setter(
+        \@_,
+        value => { isa => 'Num' }
+    );
+    if ($value < 0 or $value > 268435456){
+      croak "The the frequency division coefficient must be between 0 and 268435456";
+    };
+
+    $self->write( command => ":SOURCE${channel}:FUNCtion:ARB:SAMPLE $value", %args );
 }
 
 =head2 phase_align
@@ -188,28 +219,49 @@ sub phase_align {
     $self->write( command => ":SOURce${channel}:PHASe:INITiate", %args );
 }
 
-=head2 output_toggle
+=head2 output_on/output_off
 
- $rigol->source_apply_pulse(channel => 1, state => 'ON');
+ $rigol->output_on(channel => 1);
+ $rigol->output_off(channel => 2);
 
-Turn output channels on or off, allowed values: C<ON, OFF>
+Turn output channels on or off.
 
 =cut
 
-sub output_toggle {
-    my ( $self, $channel, $value, %args ) = validated_channel_setter(
-        \@_,
-        value => { isa => enum( [qw/ON OFF/] ) }
-    );
+sub output_on {
+    my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
 
-    $self->write(command => ":OUTPut${channel}:STATe $value");
+    $self->write(command => ":OUTPut${channel}:STATe ON");
 }
+
+sub output_off {
+    my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
+
+    $self->write(command => ":OUTPut${channel}:STATe OFF");
+}
+
+=head2 set_pulsewidth/get_pulsewidth
+
+ $rigol->set_pulsewidth(channel => 1, value => 0.0000001, constant_delay => 1);
+
+When the output functon is PULSE these subroutines set/get the pulses width.
+This reduces the pulse delay however, since the pulse period stays the same.
+An optional parameter C<constant_delay> can be passed to adapt the waveform period
+and keep the delay constant.
+
+=cut
 
 sub set_pulsewidth {
     my ( $self, $channel, $value, %args ) = validated_channel_setter(
         \@_,
-        value => { isa => 'Num' }
+        value => { isa => 'Num' },
+        constant_delay => { isa => 'Int', default => 0}
     );
+    my $constant_delay = delete $args{'constant_delay'};
+    if ($constant_delay){
+      my $delay = $self->get_pulsedelay();
+      $self->set_period(channel => $channel, value => $delay+$value);
+    }
 
     $self->write( command => ":SOURce${channel}:PULSe:WIDTh $value", %args );
 }
@@ -220,36 +272,196 @@ sub get_pulsewidth {
     return $self->query( command => ":SOURce${channel}:PULSe:WIDTh?", %args );
 }
 
+=head2 set_pulsedelay/get_pulsedelay
+
+ $rigol->set_pulsedelay(channel => 1, value => 0.0000003, constant_width => 1);
+
+When the output functon is PULSE these subroutines set/get the pulses width.
+This reduces the pulse delay however, since the pulse period stays the same.
+As with the delay an optional parameter C<constant_width> can be passed to adapt
+the waveform period and keep the width constant.
+
+=cut
+
+sub set_pulsedelay {
+    my ( $self, $channel, $value, %args ) = validated_channel_setter(
+        \@_,
+        value => { isa => 'Num' },
+        constant_width => { isa => 'Int', default => 0}
+    );
+    my $constant_width = delete $args{'constant_delay'};
+    if ($constant_width){
+      my $width = $self->get_pulsewidth();
+      $self->set_period(channel => $channel, value => $width+$value);
+    }
+
+    $self->write( command => ":SOURce${channel}:PULSe:DELay $value", %args );
+}
+
+sub get_pulsedelay {
+    my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
+
+    return $self->query( command => ":SOURce${channel}:PULSe:DELay?", %args );
+}
+
+=head2 set_period/get_period
+
+ $rigol->set_pulsedelay(channel => 1, value => 0.00000045);
+
+Set/query the current waveforms period.
+
+=cut
+
+sub set_period {
+    my ( $self, $channel, $value, %args ) = validated_channel_setter(
+        \@_,
+        value => { isa => 'Num' }
+    );
+
+    $self->write( command => ":SOURce${channel}:PERiod $value", %args );
+}
+
+sub get_period{
+    my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
+
+    return $self->query( command => ":SOURce${channel}:PERiod?", %args );
+}
+
+=head2 set_frq/get_frq
+
+ $rigol->set_frq(channel => 1, value => 10000000);
+
+Set/query the current waveforms frequency in Hz. This subroutine is used in
+frequency sweeps.
+
+=cut
+
+sub set_frq {
+    my ( $self, $channel, $value, %args ) = validated_channel_setter(
+        \@_,
+        value => { isa => 'Num' }
+    );
+
+    $self->write( command => ":SOURce${channel}:FREQuency $value", %args );
+}
+
+sub get_frq{
+    my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
+
+    return $self->query( command => ":SOURce${channel}:FREQuency?", %args );
+}
+
+=head2 set_voltage/get_voltage
+
+ $rigol->set_voltage(channel => 1, value => 1);
+
+Set/query the current waveforms peak-to-peak amplitude in volts.
+
+=cut
+
+sub set_voltage {
+    my ( $self, $channel, $value, %args ) = validated_channel_setter(
+        \@_,
+        value => { isa => 'Num' }
+    );
+
+    $self->write( command => ":SOURce${channel}:AMPLitude $value", %args );
+}
+
+sub get_voltage{
+    my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
+
+    return $self->query( command => ":SOURce${channel}:AMPLitude?", %args );
+}
+
+=head2 set_level/get_level
+
+ $rigol->set_level(channel => 1, value => 1);
+
+Set/query the current waveforms maximum amplitude amplitude in volts. This
+subroutine is used in voltage sweeps.
+
+=cut
+
+sub set_level {
+    my ( $self, $channel, $value, %args ) = validated_channel_setter(
+        \@_,
+        value => { isa => 'Num' }
+    );
+
+    $self->write( command => ":SOURce${channel}:VOLTage:HIGH $value", %args );
+}
+
+sub get_level{
+    my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
+
+    return $self->query( command => ":SOURce${channel}:VOLTage:HIGH?", %args );
+}
+
+=head2 set_level_low/get_level_low
+
+ $rigol->set_level_low(channel => 1, value => 1);
+
+Set/query the current waveforms minimum amplitude amplitude in volts.
+
+=cut
+
+sub set_level_low {
+    my ( $self, $channel, $value, %args ) = validated_channel_setter(
+        \@_,
+        value => { isa => 'Num' }
+    );
+
+    $self->write( command => ":SOURce${channel}:VOLTage:LOW $value", %args );
+}
+
+sub get_level_low{
+    my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
+
+    return $self->query( command => ":SOURce${channel}:VOLTage:LOW?", %args );
+}
+
+=head2 set_offset/get_offset
+
+ $rigol->set_offset(channel => 1, value => 0.5);
+
+Set/query the current waveforms dc offset in volts.
+
+=cut
+
+sub set_offset {
+    my ( $self, $channel, $value, %args ) = validated_channel_setter(
+        \@_,
+        value => { isa => 'Num' }
+    );
+
+    $self->write( command => ":SOURce${channel}:AMPLitude:OFFSet $value", %args );
+}
+
+sub get_offset{
+    my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
+
+    return $self->query( command => ":SOURce${channel}:AMPLitude:OFFSet?", %args );
+}
+
 #
 # SOURCE APPLY
 #
 
-sub source_apply_sinusoid {
-    my ( $self, $channel, %args ) = validated_channel_getter(
-        \@_,
-        freq   => { isa => 'Num' },
-        amp    => { isa => 'Num' },
-        offset => { isa => 'Num' },
-        phase  => { isa => 'Num' },
-    );
-
-    my ( $freq, $amp, $offset, $phase )
-        = delete @args{qw/freq amp offset phase/};
-
-    $self->write(
-        command => "SOURCE${channel}:APPLY:SINUSOID $freq,$amp,$offset,$phase",
-        %args
-    );
-}
-
-=head2 source_apply_ramp
+=head2 source_apply_ramp/source_apply_sinusoid/source_apply_square/source_apply_arb
 
  $rigol->source_apply_ramp(
      freq => ...,
      amp => ...,
-     offset => ....,
+     offset => ...,
      phase => ...
  );
+
+Apply a ramp, sine, square function or arbitrary waveform with the given parameters,
+=item freq = frequency in Hz
+=item amp = amplitude in Volts
+=item offset = DC offset in Volts
+=item phase = phase in degrees (0 to 360)
 
 =cut
 
@@ -274,7 +486,18 @@ sub source_apply_ramp {
 
 =head2 source_apply_pulse
 
- $rigol->source_apply_pulse(freq => 50000000, amp => 1, offset => 0, delay => 0.000001);
+ $rigol->source_apply_ramp(
+     freq => ...,
+     amp => ...,
+     offset => ...,
+     delay => ...
+ );
+
+Apply a pulse function with the given parameters,
+=item freq = frequency in Hz
+=item amp = amplitude in Volts
+=item offset = DC offset in Volts
+=item delay = pulse delay in seconds
 
 =cut
 
@@ -378,6 +601,7 @@ sub source_apply_arb {
  say $rigol->source_burst_mode_query();
 
 Allowed values: C<TRIG, GAT, INF>.
+For more information see the Rigols user manual page 7-3.
 
 
 =cut
@@ -400,6 +624,9 @@ sub source_burst_mode_query {
 
  $rigol->source_burst_ncycles(value => 1);
  say $rigol->source_burst_ncycles_query();
+
+Output a specified amount of full wave cycles, with a delay between them.
+See source_burst_tdelay/source_burst_tdelay_query for more information.
 
 =cut
 
@@ -426,6 +653,7 @@ sub source_burst_ncycles_query {
  say $rigol_source_burst_state_query();
 
 Allowed values: C<ON, OFF>
+Turns the burst mode on or off.
 
 
 =cut
@@ -449,6 +677,7 @@ sub source_burst_state_query {
  $rigol->source_burst_tdelay(value => 1e-3);
  say $rigol->source_burst_tdelay_query();
 
+Specify/query the delay between bursts in seconds.
 =cut
 
 sub source_burst_tdelay {
@@ -469,6 +698,7 @@ sub source_burst_tdelay_query {
 
  $rigol->source_burst_trigger();
 
+Trigger a burst via program.
 =cut
 
 sub source_burst_trigger {
@@ -485,6 +715,8 @@ sub source_burst_trigger {
  say $rigol->source_burst_trigger_slope_query();
 
 Allowed values: C<POS, NEG>.
+In Gated mode, the generator will output burst at specified polarity of the
+gated signal received from the [ExtTrig] connector at the rear panel.
 
 =cut
 
@@ -514,6 +746,10 @@ sub source_burst_trigger_slope_query {
  $rigol->source_burst_trigger_trigout_query();
 
 Allowed values: C<POS, NEG, OFF>.
+In Burst mode, when “Internal” or “Manual” trigger source is selected, the generator
+will output a TTL compatible signal with specified polarity from the [ExtTrig] connector
+at the rear panel.
+For more information see the Rigols user manual page 7-7.
 
 =cut
 
@@ -543,6 +779,9 @@ sub source_burst_trigger_trigout_query {
  $rigol->source_burst_trigger_source_query();
 
 Allowed values: C<INT, EXT>.
+Specify whether the trigger signal for a burst is controlled internally or
+externally via the [ExtTrig] connector.
+For more information see the Rigols user manual page 7-6.
 
 =cut
 
@@ -569,6 +808,9 @@ sub source_burst_trigger_source_query {
 =head2 source_burst_period
 
  $rigol->source_burst_period(value => 0.00001);
+
+Defined as the time from the beginning of the N cycle burst to the beginning of
+the next burst. Only for N cycle burst in internal trigger mode.
 
 =cut
 
