@@ -91,6 +91,10 @@ instruments and the high-level Lab::XPRESS interface
 
 =item * L<Lab::Moose::Sweep::Step::Repeat>
 
+=item * L<Lab::Moose::Sweep::Step::Pulsewidth>
+
+=item * L<Lab::Moose::Sweep::Step::Pulsedelay>
+
 =item * L<Lab::Moose::Sweep::Continuous>
 
 =item * L<Lab::Moose::Sweep::Continuous::Time>
@@ -701,6 +705,3 @@ citation in the resulting publications. Please cite us as follows:
 equipment and conducting measurements", S. Reinhardt, C. Butschkow, S. Geissler,
 A. Dirnaichner, F. Olbrich, C. Lane, D. Schröer, and A. K. Hüttel,
 Computer Physics Communications 234, 216 (2019); doi:10.1016/j.cpc.2018.07.024
-
-
-
