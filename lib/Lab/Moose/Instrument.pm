@@ -127,18 +127,18 @@ A complete device driver based on Lab::Moose::Instrument:
 
  package Lab::Moose::Instrument::FooBar;
  use Moose;
- 
+
  use Lab::Moose::Instrument qw/validated_getter validated_setter/;
 
  use namespace::autoclean;
- 
+
  extends 'Lab::Moose::Instrument';
 
  sub get_foo {
      my ($self, %args) = validated_getter(\@_);
      return $self->query(command => "Foo?", %args);
  }
- 
+
  sub set_foo {
      my ($self, $value, %args) = validated_setter(\@_);
      return $self->write(command => "Foo $value", %args);
@@ -172,7 +172,7 @@ Call the connection's C<Write> method. The timeout parameter is optional.
  my $data = $instrument->binary_read(timeout => 10);
 
 Call the connection's C<Read> method. The timeout parameter is optional.
-    
+
 
 =head2 read
 

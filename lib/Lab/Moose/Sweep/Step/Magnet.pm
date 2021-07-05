@@ -24,7 +24,7 @@ Step sweep with following properties:
 
 =item *
 
- Uses instruments C<sweep_to_field> method to set the field.
+Uses instruments C<sweep_to_field> method to set the field.
 
 =item *
 

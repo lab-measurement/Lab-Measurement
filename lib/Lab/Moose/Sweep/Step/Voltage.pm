@@ -12,8 +12,7 @@ Step sweep with following properties:
 
 =item *
 
- Uses instruments C<set_level> method to change the output voltage.
- The default filename extension is 
+Uses instruments C<set_level> method to change the output voltage.
 
 =item *
 

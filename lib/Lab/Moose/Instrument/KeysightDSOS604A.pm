@@ -59,9 +59,9 @@ around default_connection_options => sub {
      waveform_format => ...
  );
 
-=item input_impedance specifies the default input input impedance. See channel_input for more information
-=item instrument_nselect specifies the default input channel
-=item waveform_format specifies the default format for waveform data. See set_waveform_format for more information
+=item * C<input_impedance> specifies the default input input impedance. See channel_input for more information
+=item * C<instrument_nselect> specifies the default input channel
+=item * C<waveform_format> specifies the default format for waveform data. See set_waveform_format for more information
 
 =cut
 
@@ -121,59 +121,6 @@ sub disable_debug {
     $self->write( command => ":SYSTem:DEBug OFF", %args );
 }
 
-=head2 get_waveform
-
- $keysight->get_waveform(channel => 1);
-
-Query the waveform on any channel. When executing this subroutine the oscilloscope
-waits for a trigger event, acquires a full waveform and returns an array reference
-containing the scaled time and voltage axis in the form of [\@time, \@voltage].
-
-This acquisition method is called Blocking Synchronisation and should only be
-used if the oscilloscope is certain to trigger, for example when measuring a
-periodically oscillating signal. For more information see the programming manual
-on page 211 and following.
-
-=cut
-
-sub get_waveform {
-  my ( $self, $channel, %args ) = validated_channel_getter( \@_);
-  if ($channel < 1 or $channel > 4){
-    croak "The available channels are 1,2,3 and 4";
-  }
-  # Capture a waveform after the next trigger event
-  $self->write(command => ":DIGitize CHANnel${channel}");
-  $self->opc_query();
-  # Query some parameters
-  my $yOrg = $self->query(command => ":WAVeform:YORigin?");
-  my $yInc = $self->query(command => ":WAVeform:YINCrement?");
-  my $xOrg = $self->query(command => ":WAVeform:XORigin?");
-  my $xInc = $self->query(command => ":WAVeform:XINCrement?");
-  my $points = $self->query(command => ":ACQuire:POINts:ANALog?");
-  # Compute the required data size in bits depending on the waveform format
-  my $format = $self->query(command => ":WAVeform:FORMat?");
-  my $fbits;
-  if ($format eq 'BYTE') { $fbits = 8; } elsif ($format eq 'WORD') { $fbits = 16; }
-  elsif ($format eq 'FLOat') { $fbits = 32; } else { $fbits = 64; }
-  # The read length is the amount of acquired points times the bit count plus
-  # a small buffer of 128 bits
-  my @data = ( split /,/, $self->query(
-    command => ":WAVeform:DATA?",
-    read_length => $points*$fbits+128
-  ));
-  # Wait for the data download to complete
-  $self->opc_query();
-  # Turn on the display for visual feedback
-  $self->write(command => ":CHANnel${channel}:DISPlay ON");
-  # Rescale the voltage values
-  foreach (0..@data-1) {$data[$_] = $data[$_]*$yInc+$yOrg;}
-  # Compute the time axis corresponding to each voltage value
-  my @times;
-  foreach (1..@data) {@times[$_-1] = $_*$xInc+$xOrg}
-  # Return a data block containing both the time and voltage values
-  return [\@times, \@data];
-}
-
 ###
 ### MEASURE
 ###
@@ -221,19 +168,24 @@ histogram, etc, C<filename> specifies the path the waveform is saved to and form
 C<BIN CSV INTernal TSV TXT H5 H5INt MATlab>.
 
 The following file name extensions are used for the different formats:
-=item BIN = file_name.bin
-=item  CSV (comma separated values) = file_name.csv
-=item INTernal = file_name.wfm
-=item TSV (tab separated values) = file_name.tsv
-=item TXT = file_name.txt
-=item H5 (HDF5) = file_name.h5
+
+=over
+
+=item * BIN = file_name.bin
+=item * CSV (comma separated values) = file_name.csv
+=item * INTernal = file_name.wfm
+=item * TSV (tab separated values) = file_name.tsv
+=item * TXT = file_name.txt
+=item * H5 (HDF5) = file_name.h5
 In the H5 format, data is saved as floats. In this case, the data values are actual
 vertical values and do not need to be multiplied by the Y increment value.
-=item H5INt (HDF5) = file_name.h5
+=item * H5INt (HDF5) = file_name.h5
 In the H5INt format, data is saved as integers. In this case, data values are
 quantization values and need to be multiplied by the Y increment value and
 added to the Y origin value to get the actual vertical values.
-=item MATlab (MATLAB data format) = file_name.mat
+=item * MATlab (MATLAB data format) = file_name.mat
+
+=back
 
 =cut
 
@@ -444,6 +396,59 @@ sub timebase_clock {
 ### WAVEFORM
 ###
 
+=head2 get_waveform
+
+ $keysight->get_waveform(channel => 1);
+
+Query the waveform on any channel. When executing this subroutine the oscilloscope
+waits for a trigger event, acquires a full waveform and returns an array reference
+containing the scaled time and voltage axis in the form of [\@time, \@voltage].
+
+This acquisition method is called Blocking Synchronisation and should only be
+used if the oscilloscope is certain to trigger, for example when measuring a
+periodically oscillating signal. For more information see the programming manual
+on page 211 and following.
+
+=cut
+
+sub get_waveform {
+  my ( $self, $channel, %args ) = validated_channel_getter( \@_);
+  if ($channel < 1 or $channel > 4){
+    croak "The available channels are 1,2,3 and 4";
+  }
+  # Capture a waveform after the next trigger event
+  $self->write(command => ":DIGitize CHANnel${channel}");
+  $self->opc_query();
+  # Query some parameters
+  my $yOrg = $self->query(command => ":WAVeform:YORigin?");
+  my $yInc = $self->query(command => ":WAVeform:YINCrement?");
+  my $xOrg = $self->query(command => ":WAVeform:XORigin?");
+  my $xInc = $self->query(command => ":WAVeform:XINCrement?");
+  my $points = $self->query(command => ":ACQuire:POINts:ANALog?");
+  # Compute the required data size in bits depending on the waveform format
+  my $format = $self->query(command => ":WAVeform:FORMat?");
+  my $fbits;
+  if ($format eq 'BYTE') { $fbits = 8; } elsif ($format eq 'WORD') { $fbits = 16; }
+  elsif ($format eq 'FLOat') { $fbits = 32; } else { $fbits = 64; }
+  # The read length is the amount of acquired points times the bit count plus
+  # a small buffer of 128 bits
+  my @data = ( split /,/, $self->query(
+    command => ":WAVeform:DATA?",
+    read_length => $points*$fbits+128
+  ));
+  # Wait for the data download to complete
+  $self->opc_query();
+  # Turn on the display for visual feedback
+  $self->write(command => ":CHANnel${channel}:DISPlay ON");
+  # Rescale the voltage values
+  foreach (0..@data-1) {$data[$_] = $data[$_]*$yInc+$yOrg;}
+  # Compute the time axis corresponding to each voltage value
+  my @times;
+  foreach (1..@data) {@times[$_-1] = $_*$xInc+$xOrg}
+  # Return a data block containing both the time and voltage values
+  return [\@times, \@data];
+}
+
 =head2 set_waveform_format
 
  $keysight->set_waveform_format(value => 'WORD');
@@ -451,18 +456,23 @@ sub timebase_clock {
 This command controls how the data is formatted when it is sent from
 the oscilloscope, and pertains to all waveforms. The default format is FLOat.
 The possible formats are:
-=item ASCii
+
+=over
+
+=item * ASCii
 ASCii-formatted data consists of waveform data values converted to the currently
 selected units, such as volts, and are output as a string of ASCII characters with
 each value separated from the next value by a comma.
-=item BYTE
+=item * BYTE
 BYTE data is formatted as signed 8-bit integers.
-=item WORD
+=item * WORD
 WORD-formatted data is transferred as signed 16-bit integers in two bytes.
-=item BINary
+=item * BINary
 BINary will return a binary block of (8-byte) uint64 values.
-=item FLOat
+=item * FLOat
 FLOat will return a binary block of (4-byte) single-precision floating-point values.
+
+=over
 
 For more information on these formats see the programming manual on page 1564.
 
@@ -500,12 +510,21 @@ sub waveform_source {
  $keysight->channel_input(channel => 'CHANnel1', parameter => 'DC50');
 
 C<parameter> can be either
-=item DC — DC coupling, 1 MΩ impedance.
-=item DC50 | DCFifty — DC coupling, 50Ω impedance.
-=item AC — AC coupling, 1 MΩ impedance.
-=item LFR1 | LFR2 — AC 1 MΩ input impedance.
-When no probe is attached, the coupling for each channel can be AC, DC, DC50, or DCFifty.
-If you have an 1153A probe attached, the valid parameters are DC, LFR1, and LFR2 (low-frequency reject).
+
+=over
+
+=item * DC — DC coupling, 1 MΩ impedance.
+=item * DC50 | DCFifty — DC coupling, 50Ω impedance.
+=item * AC — AC coupling, 1 MΩ impedance.
+=item * LFR1 | LFR2 — AC 1 MΩ input impedance.
+
+=back
+
+When no probe is attached, the coupling for each channel can be AC, DC, DC50, or
+DCFifty. If you have an 1153A probe attached, the valid parameters are DC, LFR1,
+and LFR2 (low-frequency reject). See the programming manual on page 347 for more
+information.
+
 
 =cut
 
@@ -523,7 +542,7 @@ sub channel_input {
 
  $keysight->channel_differential(channel => 1, mode => 1);
 
-Turns on or off differential mode. C<'mode'> is an integer value, where 0 is
+Turns on or off differential mode. C<mode> is an integer value, where 0 is
 false and everything else is true.
 
 =cut

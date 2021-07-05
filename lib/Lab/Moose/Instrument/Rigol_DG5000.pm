@@ -481,10 +481,15 @@ sub get_offset{
  );
 
 Apply a ramp, sine, square function or arbitrary waveform with the given parameters,
-=item freq = frequency in Hz
-=item amp = amplitude in Volts
-=item offset = DC offset in Volts
-=item phase = phase in degrees (0 to 360)
+
+=over
+
+=item * freq = frequency in Hz
+=item * amp = amplitude in Volts
+=item * offset = DC offset in Volts
+=item * phase = phase in degrees (0 to 360)
+
+=back
 
 =cut
 
@@ -517,10 +522,15 @@ sub source_apply_ramp {
  );
 
 Apply a pulse function with the given parameters,
-=item freq = frequency in Hz
-=item amp = amplitude in Volts
-=item offset = DC offset in Volts
-=item delay = pulse delay in seconds
+
+=over
+
+=item * freq = frequency in Hz
+=item * amp = amplitude in Volts
+=item * offset = DC offset in Volts
+=item * delay = pulse delay in seconds
+
+=back
 
 =cut
 

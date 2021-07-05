@@ -1,9 +1,28 @@
 package Lab::Moose::Sweep::Step::Pulsewidth;
-$Lab::Moose::Sweep::Step::Pulsewidth::VERSION = '3.750';
+
 #ABSTRACT: Pulsewidth sweep.
 
 use v5.20;
 
+=head1 Description
+
+Step sweep with following properties:
+
+=over
+
+=item *
+
+Uses instruments C<set_pulsewidth> method to change the pulsewidth. On initialization
+an optional boolean parameter C<constant_delay> can be passed to keep a constant
+delay time over a pulse period.
+
+=item *
+
+Default filename extension: C<'Pulsewidth='>
+
+=back
+
+=cut
 
 use Moose;
 
@@ -17,9 +36,7 @@ has setter => ( is => 'ro', isa => 'CodeRef', builder => '_build_setter' );
 has instrument =>
     ( is => 'ro', isa => 'Lab::Moose::Instrument', required => 1 );
 
-has channel => ( is => 'ro', isa => 'Num', default => 1 );
-
-has constant_delay => ( is => 'ro', isa => 'Num', default => 0 );
+has constant_delay => ( is => 'ro', isa => 'Bool', default => 0 );
 
 sub _build_setter {
     return \&_pulsewidth_setter;
@@ -29,7 +46,6 @@ sub _pulsewidth_setter {
     my $self  = shift;
     my $value = shift;
     $self->instrument->set_pulsewidth(
-      channel => $self->channel,
       value => $value,
       constant_delay => $self->constant_delay
     );

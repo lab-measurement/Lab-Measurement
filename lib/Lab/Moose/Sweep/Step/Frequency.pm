@@ -12,7 +12,7 @@ Step sweep with following properties:
 
 =item *
 
- Uses instruments C<set_frq> method to change the frequency.
+Uses instruments C<set_frq> method to change the frequency.
 
 =item *
 

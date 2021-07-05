@@ -12,7 +12,7 @@ Step sweep with following properties:
 
 =item *
 
- Uses instruments C<set_power> method to change the power.
+Uses instruments C<set_power> method to change the power.
 
 =item *
 
