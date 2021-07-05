@@ -1,6 +1,6 @@
-package Lab::Moose::Sweep::Step::Pulsewidth;
-$Lab::Moose::Sweep::Step::Pulsewidth::VERSION = '3.750';
-#ABSTRACT: Pulsewidth sweep.
+package Lab::Moose::Sweep::Step::Pulsedelay;
+$Lab::Moose::Sweep::Step::Pulsedelay::VERSION = '3.750';
+#ABSTRACT: Pulsedelay sweep.
 
 use v5.20;
 
@@ -22,10 +22,10 @@ has channel => ( is => 'ro', isa => 'Num', default => 1 );
 has constant_width => ( is => 'ro', isa => 'Num', default => 0 );
 
 sub _build_setter {
-    return \&_pulsewidth_setter;
+    return \&_pulsedelay_setter;
 }
 
-sub _pulsewidth_setter {
+sub _pulsedelay_setter {
     my $self  = shift;
     my $value = shift;
     $self->instrument->set_pulsedelay(
