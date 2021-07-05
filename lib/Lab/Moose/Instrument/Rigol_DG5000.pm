@@ -18,6 +18,18 @@ use namespace::autoclean;
 
 extends 'Lab::Moose::Instrument';
 
+has instrument_nselect => (
+    is      => 'ro',
+    isa     => 'Int',
+    default => 1
+);
+
+has function => (
+    is      => 'ro',
+    isa     => enum([qw/SIN SQU RAMP PULSE NOISE USER DC SINC EXPR EXPF CARD GAUS HAV LOR ARBPULSE DUA/]),
+    default => 'SIN'
+);
+
 around default_connection_options => sub {
     my $orig     = shift;
     my $self     = shift;
@@ -32,10 +44,18 @@ sub BUILD {
     my $self = shift;
     $self->clear();
     $self->cls();
+    $self->source_function_shape(channel => $self->instrument_nselect, value => $self->function);
+    if ($self->function eq 'PULSE'){
+      $self->write(command => ":SOURce".$self->instrument_nselect.":PULSe:TRANsition:LEADing 0.0000000025");
+      $self->write(command => ":SOURce".$self->instrument_nselect.":PULSe:TRANsition:TRAiling 0.0000000025");
+    }
+    $self->set_level_low(channel => $self->instrument_nselect, value => 0);
+    $self->output_on(channel => $self->instrument_nselect);
 }
 
 sub get_default_channel {
-    return '';
+  my $self = shift;
+  return $self->instrument_nselect;
 }
 
 =encoding utf8
@@ -46,12 +66,15 @@ sub get_default_channel {
 
  my $rigol = instrument(
     type => 'Rigol_DG5000',
-    connection_type => 'USB' # For NT-VISA use 'VISA::USB'
+    connection_type => 'USB', # For NT-VISA use 'VISA::USB'
+    instrument_nselect => 2,
+    function => 'PULSE'
     );
 
 
-All C<source_*> commands accept a C<channel> argument, which can be 1 (default)
-or 2:
+All C<source_*> commands accept a C<channel> argument, which can be 1 or 2. On
+initalization an argument instrument_nselect can be passed to specify a default
+channel, though if instrument_nselect is not passed the default channel is 1:
 
  $rigol->source_function_shape(value => 'SIN'); # Channel 1
  $rigol->source_function_shape(value => 'SQU', channel => 2); # Channel 2
@@ -74,14 +97,14 @@ Used roles:
 
 =head2 gen_arb_step
 
- $rigol->gen_arb_step(channel => 1, value => [
+ $rigol->gen_arb_step(channel => 1, sequence => [
    0.2,  0.00002,
    0.5,  0.0001,
    0.35, 0.0001
    ], bdelay => 0, bcycles => 1
  );
 
-Generate an arbitrary voltage step function. With C<value> an array referrence is
+Generate an arbitrary voltage step function. With C<sequence> an array referrence is
 passed to the function, containing data pairs of an amplitude and time value.
 The example above repeatedly outputs a constant 200mV for 20µs, 500mV for
 100µs and 350mV for 100µs.
@@ -255,7 +278,7 @@ sub set_pulsewidth {
     my ( $self, $channel, $value, %args ) = validated_channel_setter(
         \@_,
         value => { isa => 'Num' },
-        constant_delay => { isa => 'Int', default => 0}
+        constant_delay => { isa => 'Bool', default => 0}
     );
     my $constant_delay = delete $args{'constant_delay'};
     if ($constant_delay){
@@ -287,9 +310,9 @@ sub set_pulsedelay {
     my ( $self, $channel, $value, %args ) = validated_channel_setter(
         \@_,
         value => { isa => 'Num' },
-        constant_width => { isa => 'Int', default => 0}
+        constant_width => { isa => 'Bool', default => 0}
     );
-    my $constant_width = delete $args{'constant_delay'};
+    my $constant_width = delete $args{'constant_width'};
     if ($constant_width){
       my $width = $self->get_pulsewidth();
       $self->set_period(channel => $channel, value => $width+$value);
@@ -365,13 +388,13 @@ sub set_voltage {
         value => { isa => 'Num' }
     );
 
-    $self->write( command => ":SOURce${channel}:AMPLitude $value", %args );
+    $self->write( command => ":SOURce${channel}:VOLTage:AMPLitude $value", %args );
 }
 
 sub get_voltage{
     my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
 
-    return $self->query( command => ":SOURce${channel}:AMPLitude?", %args );
+    return $self->query( command => ":SOURce${channel}:VOLTage:AMPLitude?", %args );
 }
 
 =head2 set_level/get_level
