@@ -30,7 +30,7 @@ has instrument_nselect => (
 
 has waveform_format => (
     is      => 'rw',
-    isa     => enum( [qw/ASCii BINary BYTE WORD FLOat/]),
+    isa     => enum([qw/ASCii BINary BYTE WORD FLOat/]),
     default => 'FLOat'
 );
 
@@ -90,9 +90,11 @@ sub BUILD {
   $self->channel_input(channel => $self->instrument_nselect, parameter => $self->input_impedance);
   $self->write(command => ":TRIGger:EDGE:SOURce CHANnel".$self->instrument_nselect);
   $self->write(command => ":TRIGger:EDGE:SLOPe POSitive");
+  $self->write(command => ":MEASure:CLEar");
+
 }
 
-sub cached_instrument_nselect {
+sub get_default_channel {
   my $self = shift;
   return $self->instrument_nselect;
 }
@@ -139,10 +141,6 @@ sub get_waveform {
   if ($channel < 1 or $channel > 4){
     croak "The available channels are 1,2,3 and 4";
   }
-  # Adjust the settings to the specified channel
-  $self->write(command => ":CHANnel${channel}:DISPlay ON");
-  $self->write(command => ":WAVeform:SOURce CHANnel${channel}");
-  $self->write(command => ":TRIGger:EDGE:SOURce CHANnel${channel}");
   # Capture a waveform after the next trigger event
   $self->write(command => ":DIGitize CHANnel${channel}");
   $self->opc_query();
@@ -152,17 +150,21 @@ sub get_waveform {
   my $xOrg = $self->query(command => ":WAVeform:XORigin?");
   my $xInc = $self->query(command => ":WAVeform:XINCrement?");
   my $points = $self->query(command => ":ACQuire:POINts:ANALog?");
+  # Compute the required data size in bits depending on the waveform format
   my $format = $self->query(command => ":WAVeform:FORMat?");
-  my $fbytes;
-  if ($format eq 'BYTE') { $fbytes = 1; } elsif ($format eq 'WORD') { $fbytes = 2; }
-  elsif ($format eq 'FLOat') { $fbytes = 4; } else { $fbytes = 8; }
-  # Set the read length to the number of acquired points times the amount of
-  # bytes the format requires
+  my $fbits;
+  if ($format eq 'BYTE') { $fbits = 8; } elsif ($format eq 'WORD') { $fbits = 16; }
+  elsif ($format eq 'FLOat') { $fbits = 32; } else { $fbits = 64; }
+  # The read length is the amount of acquired points times the bit count plus
+  # a small buffer of 128 bits
   my @data = ( split /,/, $self->query(
     command => ":WAVeform:DATA?",
-    read_length => $points*$fbytes+128
+    read_length => $points*$fbits+128
   ));
+  # Wait for the data download to complete
   $self->opc_query();
+  # Turn on the display for visual feedback
+  $self->write(command => ":CHANnel${channel}:DISPlay ON");
   # Rescale the voltage values
   foreach (0..@data-1) {$data[$_] = $data[$_]*$yInc+$yOrg;}
   # Compute the time axis corresponding to each voltage value
@@ -435,7 +437,7 @@ sub timebase_clock {
         value => { isa => enum( [qw/ON 1 OFF 0 HFRequency/]) }
     );
 
-    $self->write( command => ":TIMebase: $value", %args );
+    $self->write( command => ":TIMebase:REFClock $value", %args );
 }
 
 ###
@@ -548,7 +550,7 @@ on execution. C<range> and C<offset> parameters are in volts.
 =cut
 
 sub channel_range {
-    my ( $self, $channel, %args ) = validated_channel_setter(
+    my ( $self, $channel, %args ) = validated_channel_getter(
         \@_,
         range => { isa => 'Num'}
     );
