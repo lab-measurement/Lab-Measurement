@@ -59,9 +59,13 @@ around default_connection_options => sub {
      waveform_format => ...
  );
 
+=over
+
 =item * C<input_impedance> specifies the default input input impedance. See channel_input for more information
 =item * C<instrument_nselect> specifies the default input channel
 =item * C<waveform_format> specifies the default format for waveform data. See set_waveform_format for more information
+
+=back
 
 =cut
 
@@ -472,7 +476,7 @@ BINary will return a binary block of (8-byte) uint64 values.
 =item * FLOat
 FLOat will return a binary block of (4-byte) single-precision floating-point values.
 
-=over
+=back
 
 For more information on these formats see the programming manual on page 1564.
 
