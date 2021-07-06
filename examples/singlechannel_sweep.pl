@@ -2,11 +2,6 @@
 # ABSTRACT: Use Rigol_DG5000 with KeysightDSOS604A
 
 use Lab::Moose;
-use Class::Unload;
-
-Class::Unload->unload('Lab::Moose::Instrument::Rigol_DG5000');
-
-use lib '/media/fabian/Volume/fabian/Documents/Uni/Bachelor Arbeit/Perl/lib';
 use Lab::Moose::Instrument::Rigol_DG5000;
 use Lab::Moose::Instrument::KeysightDSOS604A;
 
