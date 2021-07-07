@@ -77,13 +77,12 @@ sub source_level_query {
     my ( $self, %args ) = validated_getter( \@_ );
 
     my $value = $self->query( command => "OD", %args );
+    # Typical result: NDCV+0.0000E-00
 
-    # FIXME: why do we need this????
-    $value = substr( $value, 4 );
+    # we need to drop the uppercase letters at the start
+    $value =~ s/^[A-Z]*//;
 
-    # ????????
-
-    return $self->cached_source_level();
+    return $self->cached_source_level($value);
 }
 
 sub source_level {
@@ -95,7 +94,7 @@ sub source_level {
     $self->write(
 
         # Trailing 'e' is trigger.
-        command => sprintf( "S%.17ge", $value ),
+        command => sprintf( "S%.10ge", $value ),
         %args
     );
     $self->cached_source_level($value);
