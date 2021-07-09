@@ -36,7 +36,7 @@ has setter => ( is => 'ro', isa => 'CodeRef', builder => '_build_setter' );
 has instrument =>
     ( is => 'ro', isa => 'Lab::Moose::Instrument', required => 1 );
 
-has constant_width => ( is => 'ro', isa => 'Num', default => 0 );
+has constant_width => ( is => 'ro', isa => 'Bool', default => 0 );
 
 sub _build_setter {
     return \&_pulsedelay_setter;

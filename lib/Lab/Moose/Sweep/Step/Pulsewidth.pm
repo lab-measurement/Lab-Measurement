@@ -22,6 +22,9 @@ Default filename extension: C<'Pulsewidth='>
 
 =back
 
+See pulsewidth-sweep.pl in the examples::Sweeps folder for a simple pulsewidth
+sweep example. 
+
 =cut
 
 use Moose;

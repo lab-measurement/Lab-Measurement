@@ -72,9 +72,10 @@ sub get_default_channel {
     );
 
 
-All C<source_*> commands accept a C<channel> argument, which can be 1 or 2. On
-initalization an argument instrument_nselect can be passed to specify a default
-channel, though if instrument_nselect is not passed the default channel is 1:
+All C<source_*>, C<set_*> and C<get_*> commands accept a C<channel> argument,
+which can be 1 or 2. On initalization an argument C<instrument_nselect> can be
+passed to specify a default channel, though if C<instrument_nselect> is not passed
+the default channel is 1:
 
  $rigol->source_function_shape(value => 'SIN'); # Channel 1
  $rigol->source_function_shape(value => 'SQU', channel => 2); # Channel 2
@@ -206,12 +207,14 @@ sub arb_mode {
  $rigol->play_coefficient(value => 10);
 
 When using the arbitrary waveform in play mode, a frequency division coefficient
-N can be used to reduce the sample rate fs via the relations
-=item fs = 1G/2^N, When N≤2
-=item fs = 1G/((N-2)*8), When N>2
-The range of N is from 0 to 268435456 (2^28)
+C<N> can be used to reduce the sample rate fs via the relations
 
-See the Rigols user manual page 3-4 and following for more information.
+=item * fs = 1G/2^N, When N≤2
+
+=item * fs = 1G/((N-2)*8), When N>2
+
+The range of N is from 0 to 268435456 (2^28). See the Rigols user manual page
+3-4 and following for more information.
 
 =cut
 
@@ -266,9 +269,10 @@ sub output_off {
 =head2 set_pulsewidth/get_pulsewidth
 
  $rigol->set_pulsewidth(channel => 1, value => 0.0000001, constant_delay => 1);
+ $rigol->get_pulsewidth();
 
-When the output functon is PULSE these subroutines set/get the pulses width.
-This reduces the pulse delay however, since the pulse period stays the same.
+When the output functon is C<PULSE> these subroutines set/get the pulses width
+in s. This reduces the pulse delay however, since the pulse period stays the same.
 An optional parameter C<constant_delay> can be passed to adapt the waveform period
 and keep the delay constant.
 
@@ -298,9 +302,10 @@ sub get_pulsewidth {
 =head2 set_pulsedelay/get_pulsedelay
 
  $rigol->set_pulsedelay(channel => 1, value => 0.0000003, constant_width => 1);
+ $rigol->get_pulsedelay();
 
-When the output functon is PULSE these subroutines set/get the pulses width.
-This reduces the pulse delay however, since the pulse period stays the same.
+When the output functon is C<PULSE> these subroutines set/get the pulses width
+in s. This reduces the pulse delay however, since the pulse period stays the same.
 As with the delay an optional parameter C<constant_width> can be passed to adapt
 the waveform period and keep the width constant.
 
@@ -329,9 +334,10 @@ sub get_pulsedelay {
 
 =head2 set_period/get_period
 
- $rigol->set_pulsedelay(channel => 1, value => 0.00000045);
+ $rigol->set_period(channel => 1, value => 0.00000045);
+ $rigol->get_period();
 
-Set/query the current waveforms period.
+Set/query the current waveforms period in s.
 
 =cut
 
@@ -353,8 +359,9 @@ sub get_period{
 =head2 set_frq/get_frq
 
  $rigol->set_frq(channel => 1, value => 10000000);
+ $rigol->get_frq();
 
-Set/query the current waveforms frequency in Hz. This subroutine is used in
+Set/query the current waveforms frequency in Hz. This subroutine is used for
 frequency sweeps.
 
 =cut
@@ -377,6 +384,7 @@ sub get_frq{
 =head2 set_voltage/get_voltage
 
  $rigol->set_voltage(channel => 1, value => 1);
+ $rigol->get_voltage();
 
 Set/query the current waveforms peak-to-peak amplitude in volts.
 
@@ -400,9 +408,10 @@ sub get_voltage{
 =head2 set_level/get_level
 
  $rigol->set_level(channel => 1, value => 1);
+ $rigol->get_level();
 
 Set/query the current waveforms maximum amplitude amplitude in volts. This
-subroutine is used in voltage sweeps.
+subroutine is used for voltage sweeps.
 
 =cut
 
@@ -424,6 +433,7 @@ sub get_level{
 =head2 set_level_low/get_level_low
 
  $rigol->set_level_low(channel => 1, value => 1);
+ $rigol->get_level_low();
 
 Set/query the current waveforms minimum amplitude amplitude in volts.
 
@@ -447,6 +457,7 @@ sub get_level_low{
 =head2 set_offset/get_offset
 
  $rigol->set_offset(channel => 1, value => 0.5);
+ $rigol->get_offset();
 
 Set/query the current waveforms dc offset in volts.
 
@@ -471,7 +482,50 @@ sub get_offset{
 # SOURCE APPLY
 #
 
-=head2 source_apply_ramp/source_apply_sinusoid/source_apply_square/source_apply_arb
+=head2 source_apply_pulse
+
+ $rigol->source_apply_ramp(
+     freq => ...,
+     amp => ...,
+     offset => ...,
+     delay => ...
+ );
+
+Apply a pulse function with the given parameters,
+
+=over
+
+=item * C<freq> = frequency in Hz
+
+=item * C<amp> = amplitude in Volts
+
+=item * C<offset> = DC offset in Volts
+
+=item * C<delay> = pulse delay in seconds
+
+=back
+
+=cut
+
+sub source_apply_pulse {
+    my ( $self, $channel, %args ) = validated_channel_getter(
+        \@_,
+        freq   => { isa => 'Num' },
+        amp    => { isa => 'Num' },
+        offset => { isa => 'Num' },
+        delay  => { isa => 'Num' },
+    );
+
+    my ( $freq, $amp, $offset, $delay )
+        = delete @args{qw/freq amp offset delay/};
+
+    $self->write(
+        command => "SOURCE${channel}:APPLY:PULSE $freq,$amp,$offset,$delay",
+        %args
+    );
+}
+
+=head2 source_apply_ramp/square/arb
 
  $rigol->source_apply_ramp(
      freq => ...,
@@ -484,10 +538,13 @@ Apply a ramp, sine, square function or arbitrary waveform with the given paramet
 
 =over
 
-=item * freq = frequency in Hz
-=item * amp = amplitude in Volts
-=item * offset = DC offset in Volts
-=item * phase = phase in degrees (0 to 360)
+=item * C<freq> = frequency in Hz
+
+=item * C<amp> = amplitude in Volts
+
+=item * C<offset> = DC offset in Volts
+
+=item * C<phase> = phase in degrees (0 to 360)
 
 =back
 
@@ -512,52 +569,6 @@ sub source_apply_ramp {
     );
 }
 
-=head2 source_apply_pulse
-
- $rigol->source_apply_ramp(
-     freq => ...,
-     amp => ...,
-     offset => ...,
-     delay => ...
- );
-
-Apply a pulse function with the given parameters,
-
-=over
-
-=item * freq = frequency in Hz
-=item * amp = amplitude in Volts
-=item * offset = DC offset in Volts
-=item * delay = pulse delay in seconds
-
-=back
-
-=cut
-
-sub source_apply_pulse {
-    my ( $self, $channel, %args ) = validated_channel_getter(
-        \@_,
-        freq   => { isa => 'Num' },
-        amp    => { isa => 'Num' },
-        offset => { isa => 'Num' },
-        delay  => { isa => 'Num' },
-    );
-
-    my ( $freq, $amp, $offset, $delay )
-        = delete @args{qw/freq amp offset delay/};
-
-    $self->write(
-        command => "SOURCE${channel}:APPLY:PULSE $freq,$amp,$offset,$delay",
-        %args
-    );
-}
-
-=head2 source_apply_sinusoid
-
- $rigol->source_apply_sinusoid(freq => 50000000, amp => 1, offset => 0, phase => 0);
-
-=cut
-
 sub source_apply_sinusoid {
     my ( $self, $channel, %args ) = validated_channel_getter(
         \@_,
@@ -576,12 +587,6 @@ sub source_apply_sinusoid {
     );
 }
 
-=head2 source_apply_square
-
- $rigol->source_apply_square(freq => 50000000, amp => 1, offset => 0, phase => 0);
-
-=cut
-
 sub source_apply_square {
     my ( $self, $channel, %args ) = validated_channel_getter(
         \@_,
@@ -599,12 +604,6 @@ sub source_apply_square {
         %args
     );
 }
-
-=head2 source_apply_arb
-
- $rigol->source_apply_arb(freq => 50000000, amp => 1, offset => 0, phase => 0);
-
-=cut
 
 sub source_apply_arb {
     my ( $self, $channel, %args ) = validated_channel_getter(
@@ -973,7 +972,7 @@ sub trace_data_data {
     $self->write( command => "TRACE:DATA:DATA VOLATILE,$data", %args );
 }
 
-=head2 trace_data_value, trace_data_value_query
+=head2 trace_data_value/trace_data_value_query
 
  $rigol->trace_data_value(point => 2, data => 8192);
 
@@ -1011,7 +1010,7 @@ sub trace_data_value_query {
     );
 }
 
-=head2 trace_data_points, trace_data_points_query
+=head2 trace_data_points/trace_data_points_query
 
  $rigol->trace_data_points(value => 3);
  say $rigol->trace_data_points_query();
@@ -1036,7 +1035,7 @@ sub trace_data_points_query {
     return $self->query( command => "TRACE:DATA:POINTS? VOLATILE", %args );
 }
 
-=head2 trace_data_points_interpolate, trace_data_points_interpolate_query
+=head2 trace_data_points_interpolate/trace_data_points_interpolate_query
 
  $rigol->trace_data_points_interpolate(value => 'LIN');
  say $rigol->trace_data_points_interpolate_query();
@@ -1058,7 +1057,7 @@ sub trace_data_points_interpolate_query {
     return $self->query( command => "TRACE:DATA:POINTS:INTERPOLATE?", %args );
 }
 
-=head2 trace_data_points_interpolate, trace_data_points_interpolate_query
+=head2 trace_data_dac
 
  $rigol->trace_data_dac(value => '16383,8192,0,0,8192,8192,6345,0');
 
