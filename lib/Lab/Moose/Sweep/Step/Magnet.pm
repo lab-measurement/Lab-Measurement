@@ -9,11 +9,14 @@ use v5.20;
  my $sweep = sweep(
      type => 'Step::Magnet',
      instrument => $ips,
-     from => -1, # Tesla
-     to => 1,
-     step => 0.1, # steps of 0.1 Tesla
-     rate => 1, # Tesla/min, mandatory, always positive
-     persistent_mode => 1, # use persistent mode (default: 0)
+     from => -1,           # Tesla
+     to => 1,              # Tesla
+     step => 0.1,          # Tesla
+     rate => 1,            # Tesla/min, mandatory, always positive,
+                           #   used to change the magnetic field
+     start_rate => 1,      # Tesla/min, default equals rate, always positive,
+                           #   used when switch heater is off
+     persistent_mode => 1, # use persistent mode, default 0
  );
 
 =head1 Description
