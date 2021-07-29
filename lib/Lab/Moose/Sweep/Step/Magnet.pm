@@ -31,6 +31,14 @@ Uses instruments C<sweep_to_field> method to set the field.
 
 =item *
 
+Uses instruments C<in_persistent_mode> and C<get_persistent_field> methods to query persistent mode status
+
+=item *
+
+Uses instruments C<heater_off> and C<heater_on> to control persistent mode switch
+
+=item *
+
 Default filename extension: C<'Field='>
 
 =back
