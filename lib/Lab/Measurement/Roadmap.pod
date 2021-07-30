@@ -28,6 +28,7 @@ Lakeshore33x, TLK43(?), OI_ILM210, PD11042
 
 Sweep support: Motor, Phase (for lock-in or signal generator?)
 
+=back
 
 =head1 3.800: legacy code deprecation
 
