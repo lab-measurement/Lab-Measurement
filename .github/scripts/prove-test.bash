@@ -39,6 +39,7 @@ if [ $with_pdl_graphics_gnuplot -eq "1" ]; then cpanm --verbose -f PDL::Graphics
 # dependencies of module tests
 cpanm -n Test::Perl::Critic
 cpanm -n File::Slurper
+cpanm -n Test::Pod
 
 #
 # Run tests
