@@ -18,16 +18,6 @@ framework.
 Remaining features that are still missing in the Moose code are ported from old
 drivers or implemented.
 
-=item *
-
-Missing hardware support: SignalRecovery7265, HP34420A(?), Keithley2000, SR830 aux
-in/out, HP33120A, HP83732A, MG369xB, U2000, TDS2024B, WR640, TRMC2, TCD(?),
-Lakeshore33x, TLK43(?), OI_ILM210, PD11042
-
-=item *
-
-Sweep support: Motor, Phase (for lock-in or signal generator?)
-
 =back
 
 =head1 3.800: legacy code deprecation
