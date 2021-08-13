@@ -132,50 +132,41 @@ Possible values are in the range [min_setpoint, max_setpoint], by default
 sub set_T {
     my ( $self, $value, %args ) = validated_setter( \@_ );
 
-    if ( $value > $max_setpoint ) {
-        croak "setting temperatures above $max_setpoint K is forbidden\n";
-    }
-    if ( $value < $min_setpoint ) {
-        croak "setting temperatures below $max_setpoint K is forbidden\n";
-    }
-    
-    return TRMC2_set_SetPoint(@_);
+    $self->TRMC2_set_SetPoint($value);
+
+    # what do we need to return here?
+    #return TRMC2_set_SetPoint(@_);
 }
 
 sub TRMC2_set_SetPoint {
-    my $self       = shift;
-    my $Setpoint   = shift;
-    my $FrSetpoint = MakeFrenchComma( sprintf( "%.6E", $Setpoint ) );
-    my $cmd        = sprintf("MAIN:SP=$FrSetpoint");
-    TRMC2_Write( $cmd, 0.2 );
-}
-
-sub TRMC2_Set_T {
     my $self = shift;
-    my $T    = shift;
-    $T = sprintf( "%.6E", $T );
+    my $Setpoint = shift;
 
-    #printf "T_SET=$T\n";
-    my $Tfr = MakeFrenchComma( sprintf( "%.6E", $T ) );
-
-    #printf "Frensh T_SET=$Tfr\n";
-    my $cmd = sprintf("MAIN:SP=$Tfr");
-    my @value = TRMC2_Query( $cmd, 0.1 );
-    foreach my $val (@value) {
-        chomp $val;
-        $val = RemoveFrenchComma($val);
+    if ( $value > $self->max_setpoint ) {
+        croak "setting temperatures above $self->max_setpoint K is forbidden\n";
     }
-    return $value[0];
+    if ( $value < $self->min_setpoint ) {
+        croak "setting temperatures below $self->max_setpoint K is forbidden\n";
+    }
+
+    my $FrSetpoint = MakeFrenchComma( sprintf( "%.6E", $Setpoint ) );
+
+    my $cmd = "MAIN:SP=$FrSetpoint";
+    $self->TRMC2_Write( $cmd, 0.2 );
 }
 
-sub get_value {
-    return TRMC2_get_PV(@_);
-}
+=head2 TRMC2_get_PV
+
+What does this do?
+
+=cut
 
 sub TRMC2_get_PV {
+    my $self = shift;
 
-    my $cmd = sprintf("MAIN:PV?");
-    my @value = TRMC2_Query( $cmd, 0.2 );
+    my $cmd = "MAIN:PV?";
+    my @value = $self->TRMC2_Query( $cmd, 0.2 );
+
     foreach my $val (@value) {
         chomp $val;
         $val = RemoveFrenchComma($val);
@@ -183,73 +174,96 @@ sub TRMC2_get_PV {
     return $value[0];
 }
 
-sub TRMC2_AllMEAS {
-    my $cmd = sprintf("ALLMEAS?");
-    my @value = TRMC2_Query( $cmd, 0.2 );
+=head2 TRMC2_AllMeas
+
+Read out all sensor channels.
+
+=cut
+
+sub TRMC2_AllMeas {
+    my $self = shift;
+
+    my $cmd = "ALLMEAS?";
+    my @value = $self->TRMC2_Query( $cmd, 0.2 );
+
     foreach my $val (@value) {
         chomp $val;
         $val = RemoveFrenchComma($val);
     }
-    return @value;
 
+    return @value;
 }
 
-sub TRMC2_get_T {    #------------Reads Out Temperature-------------
-                     # Sensor Number:
-                     # 1 Heater
-                     # 2 Output
-                     # 3 Sample
-                     # 4 Still
-                     # 5 Mixing Chamber
-                     # 6 Cernox
+=head2 TRMC2_get_T
+
+ my $t = $trmc->TRMC2_get_T($channel);
+
+Reads out temperature of a sensor channel.
+
+Sensor number:
+ 1 Heater
+ 2 Output
+ 3 Sample
+ 4 Still
+ 5 Mixing Chamber
+ 6 Cernox
+
+=cut
+
+sub TRMC2_get_T {
     my $self   = shift;
     my $sensor = shift;
 
     if ( $sensor < 0 || $sensor > 6 ) {
         die "Sensor# $sensor not available\n";
     }
-    my $cmd = sprintf("ALLMEAS?");
+    my $cmd = "ALLMEAS?";
     my @value = TRMC2_Query( $cmd, 0.2 );
 
     foreach my $val (@value) {
         chomp $val;
         $val = RemoveFrenchComma($val);
-
-        #printf "$val\n";
     }
+
     my @sensorval = split( /;/, $value[$sensor] );
     my $T = $sensorval[1];
     return $T;
-
 }
 
-sub TRMC2_get_R {    #------------Reads Out Resistance-------------
-                     # Sensor Number:
-                     # 1 Heater
-                     # 2 Output
-                     # 3 Sample
-                     # 4 Still
-                     # 5 Mixing Chamber
-                     # 6 Cernox
+=head2 TRMC2_get_R
+
+  my $r = $trmc->TRMC2_get_R($channel);
+
+Reads out resistance of a sensor channel.
+
+Sensor number:
+ 1 Heater
+ 2 Output
+ 3 Sample
+ 4 Still
+ 5 Mixing Chamber
+ 6 Cernox
+
+=cut
+
+sub TRMC2_get_R {
     my $self   = shift;
     my $sensor = shift;
 
     if ( $sensor < 0 || $sensor > 6 ) {
         die "Sensor# $sensor not available\n";
     }
-    my $cmd = sprintf("ALLMEAS?");
-    my @value = TRMC2_Query( $cmd, 0.2 );
+
+    my $cmd = "ALLMEAS?";
+    my @value = $self->TRMC2_Query( $cmd, 0.2 );
 
     foreach my $val (@value) {
         chomp $val;
         $val = RemoveFrenchComma($val);
-
-        #printf "$val\n";
     }
     my @sensorval = split( /;/, $value[$sensor] );
     my $R = $sensorval[0];
     return $R;
-
 }
 
 =head2 TRMC2_get_RT
