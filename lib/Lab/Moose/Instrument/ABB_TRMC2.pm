@@ -1,21 +1,37 @@
-package Lab::Instrument::TRMC2;
+package Lab::Moose::Instrument::ABB_TRMC2;
 #ABSTRACT: ABB TRMC2 temperature controller
 
 use v5.20;
 
-use strict;
-use warnings;
-use Lab::Instrument;
-use Lab::Instrument::TemperatureControl;
-use IO::File;
-use Time::HiRes qw/usleep/;
-use Time::HiRes qw/sleep/;
+use Moose;
+use Lab::Moose::Instrument qw/
+    validated_getter validated_setter setter_params /;
+use Lab::Moose::Instrument::Cache;
 
-our @ISA = ("Lab::Instrument::TemperatureControl");
+extends 'Lab::Moose::Instrument';
 
-our %fields = ( supported_connections => ['none'], );
+has max_setpoint => (
+    is      => 'ro',
+    isa     => 'Lab::Moose::PosNum',
+    default => 1
+);
 
-my $WAIT    = 0.3;    #sec. waiting time for each reading;
+has min_setpoint => (
+    is      => 'ro',
+    isa     => 'Lab::Moose::PosNum',
+    default => 0.02
+);
+
+#my $TRMC2_LSP = 0.02;                           #Lower Setpoint Limit
+#my $TRMC2_HSP = 1;                              #Upper Setpoint Limit
+
+has read_delay => (
+    is      => 'ro', 
+    isa     => 'Num', 
+    default => 0.3
+);
+# my $WAIT    = 0.3;    #sec. waiting time for each reading;
+
 my $mounted = 0;      # Ist sie schon mal angemeldet
 
 my $buffin
@@ -23,17 +39,21 @@ my $buffin
 my $buffout
     = "C:\\Program Files\\Trmc2\\buffout.txt";  # Hierher kommen die Antworten
 
-my $TRMC2_LSP = 0.02;                           #Lower Setpoint Limit
-my $TRMC2_HSP = 1;                              #Upper Setpoint Limit
+=head1 SYNOPSIS
 
-sub new {
-    my $proto = shift;
-    my $class = ref($proto) || $proto;
-    my $self  = $class->SUPER::new(@_);
-    $self->${ \( __PACKAGE__ . '::_construct' ) }(__PACKAGE__);
+ use Lab::Moose;
+ 
+ my $trmc = instrument(
+      type => 'ABB_TRMC2'
+ );
+ 
+ my $temp = $trmc->get_T();
 
-    return $self;
-}
+Warning: Due to the rather unique (and silly) way of device communication, the 
+TRMC2 driver does not use the connection layer.
+ 
+=cut
+    
 
 sub TRMC2init {
 
@@ -41,12 +61,12 @@ sub TRMC2init {
     my $self = shift;
     if ( $mounted == 1 ) { die "TRMC already Initialized\n" }
 
-    #files Ã¶ffnen und schliessen
-    if ( !open FHIN, "<$buffin" ) {
+    # Test file communication
+    if ( !open FHIN, "<", $buffin ) {
         die "could not open command file $buffin: $!\n";
     }
     close(FHIN);
-    if ( !open FHOUT, "<$buffout" ) {
+    if ( !open FHOUT, "<", $buffout ) {
         die "could not open reply file $buffout: $!\n";
     }
     close(FHOUT);
@@ -59,10 +79,6 @@ sub TRMC2off {
 
     # "Unmounts" the TRMC
     $mounted = 0;
-}
-
-sub set_heatercontrol {
-
 }
 
 sub TRMC2_Heater_Control_On {
@@ -100,7 +116,29 @@ sub TRMC2_get_SetPoint {
     return $value[0];
 }
 
+=head2 set_T
+
+ $trmc->set_T(value => 0.1);
+
+Program the TRMC to regulate the temperature towards a specific value (in K).
+The function returns immediately; this means that the target temperature most
+likely has not been reached yet.
+
+Possible values are in the range [min_setpoint, max_setpoint], by default
+[0.02, 1.0].
+
+=cut
+
 sub set_T {
+    my ( $self, $value, %args ) = validated_setter( \@_ );
+
+    if ( $value > $max_setpoint ) {
+        croak "setting temperatures above $max_setpoint K is forbidden\n";
+    }
+    if ( $value < $min_setpoint ) {
+        croak "setting temperatures below $max_setpoint K is forbidden\n";
+    }
+    
     return TRMC2_set_SetPoint(@_);
 }
 
@@ -214,15 +252,24 @@ sub TRMC2_get_R {    #------------Reads Out Resistance-------------
 
 }
 
+=head2 TRMC2_get_RT
+
+  my ($r, $t) = $trmc->TRMC2_get_RT();
+
+Reads out resistance and temperature simultaneously. 
+
+Sensor number: 
+ 1 Heater
+ 2 Output
+ 3 Sample
+ 4 Still
+ 5 Mixing Chamber
+ 6 Cernox
+
+=cut
+
 sub TRMC2_get_RT
-{ #------------Reads Out Resistance and Temperature simoultaneously-------------
-        # Sensor Number:
-        # 1 Heater
-        # 2 Output
-        # 3 Sample
-        # 4 Still
-        # 5 Mixing Chamber
-        # 6 Cernox
+{
     my $self   = shift;
     my $sensor = shift;
 
@@ -230,48 +277,53 @@ sub TRMC2_get_RT
         die "Sensor# $sensor not available\n";
     }
     my $cmd = sprintf("ALLMEAS?");
-    my @value = TRMC2_Query( $cmd, 0.2 );
+    my @value = $self->TRMC2_Query( $cmd, 0.2 );
 
     foreach my $val (@value) {
         chomp $val;
         $val = RemoveFrenchComma($val);
-
-        #printf "$val\n";
     }
     my @sensorval = split( /;/, $value[$sensor] );
     my $R         = $sensorval[0];
     my $T         = $sensorval[1];
     return ( $R, $T );
-
 }
 
-sub TRMC2_Read_Prog {    #------------Reads Heater Batch Job-------------
+
+=head2 TRMC2_Read_Prog
+
+Reads Heater Batch Job
+
+=cut 
+
+sub TRMC2_Read_Prog {
     my $self  = shift;
-    my $cmd   = sprintf("MAIN:PROG_Table?\0");
-    my @value = TRMC2_Query( $cmd, 0.2 );
+
+    my $cmd   = "MAIN:PROG_Table?\0";
+    my @value = $self->TRMC2_Query( $cmd, 0.2 );
+    
     foreach my $val (@value) {
         chomp $val;
         $val = RemoveFrenchComma($val);
-
-        #printf "$val\n";
     }
     return @value;
-
 }
 
-sub TRMC2_Set_T_Sweep {    #------------Set T_Sweep-------------
-        # TRMC2_Set_T_Sweep(SetPoint,Sweeprate,Holdtime=0)
-        # Programs the built in Temperature Sweep.
-        # After Activation it will sweep from the current Temperature
-        # to the Set Temperature with the given Sweeprate.
-        # The Sweep can be started with TRMC2_Start_Sweep(1)
-        # Variables:
-        # SetPoint in K
-        # Sweeprate in K/Min
-        # Holdtime=0
+=head2 TRMC2_Set_T_Sweep
+
+ $trmc->TRMC2_Set_T_Sweep(SetPoint, Sweeprate, Holdtime)
+ 
+Programs the built in temperature sweep. After Activation it will sweep from the 
+current temperature to the set temperature with the given sweeprate. The Sweep 
+can be started with TRMC2_Start_Sweep(1).
+
+Variables: SetPoint in K, Sweeprate in K/Min, Holdtime in s (defaults to 0)
+
+=cut
+
+sub TRMC2_Set_T_Sweep {
     my $arg_cnt = @_;
 
-    #printf "#of variables=$arg_cnt\n";
     my $self      = shift;
     my $Setpoint  = shift;    #K
     my $Sweeprate = shift;    #K/min
@@ -280,25 +332,30 @@ sub TRMC2_Set_T_Sweep {    #------------Set T_Sweep-------------
     my $FrSetpoint  = MakeFrenchComma( sprintf( "%.6E", $Setpoint ) );
     my $FrSweeprate = MakeFrenchComma( sprintf( "%.6E", $Sweeprate ) );
     my $FrHoldtime  = MakeFrenchComma( sprintf( "%.6E", $Holdtime ) );
-    my $cmd         = sprintf("MAIN:PROG_Table=1\0");
 
-    #printf $cmd;
-    TRMC2_Write( $cmd, 0.5 );
+    my $cmd = "MAIN:PROG_Table=1\0";
+    $self->TRMC2_Write( $cmd, 0.5 );
+    
     $cmd = sprintf(
         "PROG_TABLE(%d)=%s;%s;%s\n",
         0, $FrSetpoint, $FrSweeprate, $FrHoldtime
     );
-
-    #printf $cmd;
-    TRMC2_Write( $cmd, 0.5 );
+    $self->TRMC2_Write( $cmd, 0.5 );
 }
 
+=head2 TRMC2_Start_Sweep
+
+ $trmc->TRMC2_Start_Sweep(1);
+
+Starts (1) / stops (0) the sweep --- provided the heater in TRMC2 window is 
+turned ON. At a sweep stop the power is left on.
+
+=cut
+
 sub TRMC2_Start_Sweep
-{ #---Start/Stops The Sweep---Provided Heater in TRMC2 Window is turned ON------
-        # 1 Start Sweep
-        # 0 Stop Sweep leaves power on;
     my $self  = shift;
     my $state = shift;
+
     if ( $state != 0 && $state != 1 ) {
         die "Sweep can be turned off or on by 0 and 1 not by $state\n";
     }
@@ -306,43 +363,66 @@ sub TRMC2_Start_Sweep
     $self->TRMC2_Prog_On($state);
 }
 
-sub TRMC2_All_CHANNEL {
+=head2 TRMC2_All_Channels
 
-    # Reads Out All Channels and Values and returns an Array
-    my $cmd = sprintf("*CHANNEL");
-    my @value = TRMC2_Query( $cmd, 0.1 );
+Reads out all channels and values and returns an array
+
+=cut
+
+sub TRMC2_All_Channels {
+    my $self = shift;
+
+    my $cmd = "*CHANNEL";
+    my @value = $self->TRMC2_Query( $cmd, 0.1 );
     foreach my $val (@value) {
         chomp $val;
         $val = RemoveFrenchComma($val);
     }
     return @value;
-
 }
 
-sub TRMC2_Active_CHANNEL {
+=head2 TRMC2_Active_Channel
 
-    my $cmd = sprintf("CHANNEL?");
-    my @value = TRMC2_Query( $cmd, $WAIT );
+Reads out the active channel (?)
+
+=cut
+
+sub TRMC2_Active_Channel {
+    my $self = shift;
+
+    my $cmd = "CHANNEL?";
+    my @value = $self->TRMC2_Query( $cmd, $WAIT );
     foreach my $val (@value) {
         chomp $val;
         $val = RemoveFrenchComma($val);
     }
     return @value;
-
 }
+
+=head2 TRMC2_Shut_Down
+
+Stops the sweep and the heater control
+
+=cut 
 
 sub TRMC2_Shut_Down {
-
-    # Will Stop the Sweep and the Heater Control
     my $self = shift;
+
     $self->TRMC2_Start_Sweep(0);
     $self->TRMC2_Heater_Control_On(0);
 }
 
-sub TRMC2_Write {
+=head2 TRMC2_Write
 
-    # TRMC2_Write($cmd, $wait_write=$WAIT)
-    # Sends a command to the TRMC and will wait $wait_write
+ TRMC2_Write($cmd, $wait_write=$WAIT)
+
+Sends a command to the TRMC and will wait $wait_write.
+
+=cut 
+
+sub TRMC2_Write {
+    my $self = shift;
+
     my $arg_cnt    = @_;
     my $cmd        = shift;
     my $wait_write = $WAIT;
@@ -351,22 +431,26 @@ sub TRMC2_Write {
         die "could not open command file $buffin: $!\n";
     }
 
-    #printf "$cmd\n";
-    printf FHIN $cmd;    #put $cmd it in buffin!
+    printf FHIN $cmd;
     close(FHIN);
 
-    #printf "Wait Write=$wait_write\n";
     sleep($wait_write);
 }
 
-sub TRMC2_Query {
+=head2 TRMC2_Query
 
-    # TRMC2_Query($cmd, $wait_query=$WAIT)
-    # Sends a command to the TRMC and will wait $wait_query sec long
-    # and returns the result
+ TRMC2_Query($cmd, $wait_query=$WAIT)
+
+Sends a command to the TRMC and will wait $wait_query sec long and returns the 
+result.
+
+=cut
+
+sub TRMC2_Query {
+    my $self = shift;
+
     my $arg_cnt = @_;
 
-    #printf "# Variables=$arg_cnt\n";
     my $cmd        = shift;
     my $wait_query = $WAIT;
     if ( $arg_cnt == 2 ) { $wait_query = shift }
@@ -376,11 +460,8 @@ sub TRMC2_Query {
         die "could not open command file $buffin: $!\n";
     }
 
-    #printf "Command $cmd\n";
-    printf FHIN $cmd;    #put $cmd it in buffin!
+    printf FHIN $cmd;
     close(FHIN);
-
-    #printf "Wait Query=$wait_query\n";
     #-----------End Of Setting Command-----------
     sleep($wait_query);
 
@@ -391,9 +472,14 @@ sub TRMC2_Query {
     my @line = <FHOUT>;
     close(FHOUT);
 
-    #printf "read lines are:@line\n";
     return @line;
 }
+
+=head2 RemoveFrenchComma
+
+Replace "," in a number with "." (yay for French hardware!)
+
+=cut 
 
 sub RemoveFrenchComma {
     my $value = shift;
@@ -401,40 +487,15 @@ sub RemoveFrenchComma {
     return $value;
 }
 
+=head2 MakeFrenchComma
+
+Replace "." in a number with "," (yay for French hardware!)
+
+=cut 
+
 sub MakeFrenchComma {
     my $value = shift;
     $value =~ s/\./,/g;
     return $value;
 }
 
-=pod
-
-=encoding UTF-8
-
-=head1 SYNOPSIS
-
-    use Lab::Instrument::TRMC2;
-
-=head1 DESCRIPTION
-
-The Lab::Instrument::ILM class implements an interface to the ABB TRMC2 temperature 
-controller. The driver works, but documentation is lacking.
-
-
-=head1 CONSTRUCTOR
-
-    my $trmc=...
-
-=head1 CAVEATS/BUGS
-
-probably many
-
-=head1 SEE ALSO
-
-=over 4
-
-=item L<Lab::Instrument>
-
-=back
-
-=cut
