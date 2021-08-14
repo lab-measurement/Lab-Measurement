@@ -7,6 +7,7 @@ use Moose;
 use Lab::Moose::Instrument qw/
     validated_getter validated_setter setter_params /;
 use Lab::Moose::Instrument::Cache;
+use Carp;
 
 extends 'Lab::Moose::Instrument';
 
@@ -30,7 +31,6 @@ has read_delay => (
     isa     => 'Num', 
     default => 0.3
 );
-# my $WAIT    = 0.3;    #sec. waiting time for each reading;
 
 my $mounted = 0;      # Ist sie schon mal angemeldet
 
@@ -408,7 +408,7 @@ turned ON. At a sweep stop the power is left on.
 
 =cut
 
-sub TRMC2_Start_Sweep
+sub TRMC2_Start_Sweep {
     my $self  = shift;
     my $state = shift;
 
