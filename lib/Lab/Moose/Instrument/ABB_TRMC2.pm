@@ -77,6 +77,21 @@ sub set_T {
     #return TRMC2_set_SetPoint(@_);
 }
 
+=head2 get_T
+
+ $trmc->get_T();
+
+This is a shortcut for reading out temperature channel 5, typically the mixing chamber temperature.
+
+TODO: Which channel is typically used for the control loop here?
+
+=cut
+
+sub get_T {
+    my ( $self, %args ) = validated_getter( \@_ );
+    return $self->TRMC2_get_T(5);
+}
+
 =head2 TRMC2init
 
 Checks input and output buffer for TRMC2 commands and tests the file communication.
@@ -258,13 +273,8 @@ sub TRMC2_get_T {
     if ( $sensor < 0 || $sensor > 6 ) {
         die "Sensor# $sensor not available\n";
     }
-    my $cmd = "ALLMEAS?";
-    my @value = TRMC2_Query( $cmd, 0.2 );
 
-    foreach my $val (@value) {
-        chomp $val;
-        $val = RemoveFrenchComma($val);
-    }
+    my @value = $self->TRMC2_AllMeas();
 
     my @sensorval = split( /;/, $value[$sensor] );
     my $T = $sensorval[1];
@@ -295,13 +305,8 @@ sub TRMC2_get_R {
         die "Sensor# $sensor not available\n";
     }
 
-    my $cmd = "ALLMEAS?";
-    my @value = $self->TRMC2_Query( $cmd, 0.2 );
+    my @value = $self->TRMC2_AllMeas();
 
-    foreach my $val (@value) {
-        chomp $val;
-        $val = RemoveFrenchComma($val);
-    }
     my @sensorval = split( /;/, $value[$sensor] );
     my $R = $sensorval[0];
     return $R;
@@ -331,13 +336,9 @@ sub TRMC2_get_RT
     if ( $sensor < 0 || $sensor > 6 ) {
         die "Sensor# $sensor not available\n";
     }
-    my $cmd = sprintf("ALLMEAS?");
-    my @value = $self->TRMC2_Query( $cmd, 0.2 );
 
-    foreach my $val (@value) {
-        chomp $val;
-        $val = RemoveFrenchComma($val);
-    }
+    my @value = $self->TRMC2_AllMeas();
+
     my @sensorval = split( /;/, $value[$sensor] );
     my $R         = $sensorval[0];
     my $T         = $sensorval[1];
@@ -554,3 +555,12 @@ sub MakeFrenchComma {
     return $value;
 }
 
+=head2 Consumed Roles
+
+This driver consumes no roles.
+
+=cut
+
+__PACKAGE__->meta()->make_immutable();
+
+1;
