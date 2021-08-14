@@ -55,67 +55,6 @@ TRMC2 driver does not use the connection layer.
 =cut
     
 
-sub TRMC2init {
-
-    # Checks input and output buffer for TRMC2 commands
-    my $self = shift;
-    if ( $mounted == 1 ) { die "TRMC already Initialized\n" }
-
-    # Test file communication
-    if ( !open FHIN, "<", $buffin ) {
-        die "could not open command file $buffin: $!\n";
-    }
-    close(FHIN);
-    if ( !open FHOUT, "<", $buffout ) {
-        die "could not open reply file $buffout: $!\n";
-    }
-    close(FHOUT);
-
-    #sleep($WAIT);
-    $mounted = 1;
-}
-
-sub TRMC2off {
-
-    # "Unmounts" the TRMC
-    $mounted = 0;
-}
-
-sub TRMC2_Heater_Control_On {
-
-    # Switch the Heater Control (The coupling heater and set point NOT the heater switch in the main menu)
-    # 1 On
-    # 0 Off
-    my $self  = shift;
-    my $state = shift;
-    if ( $state != 0 && $state != 1 ) {
-        die
-            "TRMC heater control can be turned off or on by 0 and 1 not by $state\n";
-    }
-    my $cmd = sprintf( "MAIN:ON=%d\0", $state );
-    TRMC2_Write( $cmd, 0.3 );
-}
-
-sub TRMC2_Prog_On {
-    my $self  = shift;
-    my $state = shift;
-    if ( $state != 0 && $state != 1 ) {
-        die "TRMC Program can be turned off or on by 0 and 1 not by $state\n";
-    }
-    my $cmd = sprintf( "MAIN:PROG=%d\0", $state );
-    TRMC2_Write( $cmd, 1.0 );
-}
-
-sub TRMC2_get_SetPoint {
-    my $cmd = sprintf("MAIN:SP?");
-    my @value = TRMC2_Query( $cmd, 0.1 );
-    foreach my $val (@value) {
-        chomp $val;
-        $val = RemoveFrenchComma($val);
-    }
-    return $value[0];
-}
-
 =head2 set_T
 
  $trmc->set_T(value => 0.1);
@@ -137,6 +76,108 @@ sub set_T {
     # what do we need to return here?
     #return TRMC2_set_SetPoint(@_);
 }
+
+=head2 TRMC2init
+
+Checks input and output buffer for TRMC2 commands and tests the file communication.
+
+=cut
+
+sub TRMC2init {
+    my $self = shift;
+    if ( $mounted == 1 ) { die "TRMC already Initialized\n" }
+
+    if ( !open FHIN, "<", $buffin ) {
+        die "could not open command file $buffin: $!\n";
+    }
+    close(FHIN);
+    if ( !open FHOUT, "<", $buffout ) {
+        die "could not open reply file $buffout: $!\n";
+    }
+    close(FHOUT);
+
+    $mounted = 1;
+}
+
+=head2 TRMC2off
+
+Unmounts, i.e., releases control of the TRMC
+
+=cut
+
+sub TRMC2off {
+    $mounted = 0;
+}
+
+=head2 TRMC2_Heater_Control_On
+
+Switch the Heater Control (The coupling heater and set point NOT the heater switch in the main menu); 1 on, 0 off
+=cut
+
+sub TRMC2_Heater_Control_On {
+    my $self  = shift;
+    my $state = shift;
+
+    if ( $state != 0 && $state != 1 ) {
+        die
+            "TRMC heater control can be turned off or on by 0 and 1 not by $state\n";
+    }
+    my $cmd = sprintf( "MAIN:ON=%d\0", $state );
+    $self->TRMC2_Write( $cmd, 0.3 );
+}
+
+=head2 TRMC2_Prog_On
+
+What does this precisely do?
+
+=cut
+
+sub TRMC2_Prog_On {
+    my $self  = shift;
+    my $state = shift;
+
+    if ( $state != 0 && $state != 1 ) {
+        die "TRMC Program can be turned off or on by 0 and 1 not by $state\n";
+    }
+
+    my $cmd = sprintf( "MAIN:PROG=%d\0", $state );
+    $self->TRMC2_Write( $cmd, 1.0 );
+}
+
+=head2 TRMC2_get_SetPoint
+
+ my $target = $trmc->TRMC2_get_SetPoint();
+
+Return the current setpoint of the TRMC2 in Kelvin.
+ 
+=cut
+
+sub TRMC2_get_SetPoint {
+    my $self = shift;
+
+    my $cmd = "MAIN:SP?";
+    my @value = $self->TRMC2_Query( $cmd, 0.1 );
+ 
+    foreach my $val (@value) {
+        chomp $val;
+        $val = RemoveFrenchComma($val);
+    }
+
+    return $value[0];
+}
+
+=head2 TRMC2_set_SetPoint
+
+ $trmc->TRMC2_set_SetPoint(0.1);
+
+Program the TRMC to regulate the temperature towards a specific value (in K).
+The function returns immediately; this means that the target temperature most
+likely has not been reached yet.
+
+Possible values are in the range [min_setpoint, max_setpoint], by default
+[0.02, 1.0].
+
+=cut
 
 sub TRMC2_set_SetPoint {
     my $self = shift;
