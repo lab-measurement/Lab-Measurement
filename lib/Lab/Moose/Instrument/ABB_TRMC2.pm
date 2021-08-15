@@ -62,8 +62,7 @@ has initialized => (
 Warning: Due to the rather unique (and silly) way of device communication, the 
 TRMC2 driver does not use the connection layer.
  
-=cut
-    
+=head1 External interface
 
 =head2 set_T
 
@@ -101,6 +100,8 @@ sub get_T {
     my ( $self, %args ) = validated_getter( \@_ );
     return $self->TRMC2_get_T(5);
 }
+
+=head1 Internal / hardware-specific functions
 
 =head2 TRMC2init
 
