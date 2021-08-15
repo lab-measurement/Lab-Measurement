@@ -9,6 +9,8 @@ use Lab::Moose::Instrument qw/
 use Lab::Moose::Instrument::Cache;
 use Carp;
 
+carp "The ABB_TRMC2 driver is untested so far. Feedback welcome...";
+
 extends 'Lab::Moose::Instrument';
 
 has max_setpoint => (
