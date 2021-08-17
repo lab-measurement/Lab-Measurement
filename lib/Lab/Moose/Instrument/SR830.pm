@@ -777,6 +777,25 @@ sub calculate_settling_time {
     return $multiplier * $tc;
 }
 
+
+=head2 get_auxin
+
+ my $v = $lia->get_auxin();
+
+Measure voltage on one of the four auxiliary input ports 1..4.
+
+=cut
+
+sub get_auxin {
+    my ( $self, %args ) = validated_getter( 
+      \@_, 
+      channel => { isa => 'Int' },
+    );
+    my $channel = $args{channel};
+    return $self->query( command => "OAUX? $channel", %args );
+}
+
+
 =head2 Consumed Roles
 
 This driver consumes the following roles:
