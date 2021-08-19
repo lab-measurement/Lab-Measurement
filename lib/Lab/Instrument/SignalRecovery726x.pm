@@ -1,4 +1,5 @@
 package Lab::Instrument::SignalRecovery726x;
+
 #ABSTRACT: Signal Recovery 7260 / 7265 Lock-in Amplifier
 
 use v5.20;
@@ -524,7 +525,13 @@ sub get_refpha {    # basic setting
 
     my ($tail) = $self->_check_args( \@_ );
 
-    return $self->query("REFP.");
+    my $val = $self->query("REFP.");
+
+    # Trailing zero byte if phase is zero. Device bug??
+    $val =~ s/\0//;
+
+    return $val;
+
 }
 
 # ----------------- SIGNAL CHANNEL OUTPUT FILTERS ---------------
