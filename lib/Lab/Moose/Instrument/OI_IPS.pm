@@ -362,6 +362,9 @@ sub read_parameter {
         value => { isa => enum( [ ( 0 .. 24 ) ] ) },
     );
     my $result = $self->query( command => "R$value\r", %args );
+
+    # device bug: sometimes the value is returned with a leading 'R'
+    $result =~ s/^R//;
     return sprintf( "%e", $result );
 }
 
