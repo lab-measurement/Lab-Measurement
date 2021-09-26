@@ -177,36 +177,6 @@ sub get_heater_range {
     return $self->query( command => "RANGE? $loop", %args );
 }
 
-=head2 set_control_mode/get_control_mode
-
-Specifies the control mode. Valid entries: 1 = Manual PID, 2 = Zone,
- 3 = Open Loop 4 = AutoTune PID, 5 = AutoTune PI, 6 = AutoTune P.
-
- # Set loop 1 to manual PID
- $lakeshore->set_control_mode(value => 1, loop => 1);
- my $cmode = $lakeshore->get_control_mode(loop => 1);
-
-=cut
-
-sub set_control_mode {
-    my ( $self, $value, %args ) = validated_setter(
-        \@_,
-        value => { isa => enum( [ ( 1 .. 6 ) ] ) },
-        %loop_arg
-    );
-    my $loop = delete $args{loop} // $self->default_loop;
-    return $self->write( command => "CMODE $loop,$value", %args );
-}
-
-sub get_control_mode {
-    my ( $self, %args ) = validated_getter(
-        \@_,
-        %loop_arg
-    );
-    my $loop = delete $args{loop} // $self->default_loop;
-    return $self->query( command => "CMODE? $loop", %args );
-}
-
 =head2 set_outmode/get_outmode
 
  $lakeshore->set_outmode(
@@ -259,9 +229,9 @@ sub get_outmode {
 
 =head2 set_input_curve/get_input_curve
 
- # Set channel 'B' to use curve 25
- $lakeshore->set_input_curve(channel => 'B', value => 25);
- my $curve = $lakeshore->get_input_curve(channel => 'B');
+ # Set channel 5 to use curve 25
+ $lakeshore->set_input_curve(channel => 5, value => 25);
+ my $curve = $lakeshore->get_input_curve(channel => 5);
 
 =cut
 
@@ -286,16 +256,16 @@ sub get_input_curve {
 
 =head2 set_remote_mode/get_remote_mode
 
- $lakeshore->set_remote_mode(value => 1);
+ $lakeshore->set_remote_mode(value => 0);
  my $mode = $lakeshore->get_remote_mode();
 
-Valid entries: 1 = local, 2 = remote, 3 = remote with local lockout.
+Valid entries: 0 = local, 1 = remote, 2 = remote with local lockout.
 
 =cut
 
 sub set_remote_mode {
     my ( $self, $value, %args )
-        = validated_setter( \@_, value => { isa => enum( [ 1 .. 3 ] ) } );
+        = validated_setter( \@_, value => { isa => enum( [ 0 .. 2 ] ) } );
     $self->write( command => "MODE $value", %args );
 }
 
@@ -323,7 +293,7 @@ sub set_pid {
     my ( $loop, $P, $I, $D ) = delete @args{qw/loop P I D/};
     $loop = $loop // $self->default_loop();
     $self->write(
-        command => sprintf( "PID $loop, %.1f, %.1f, %d", $P, $I, $D ),
+        command => sprintf( "PID $loop, %.1f, %d, %d", $P, $I, $D ),
         %args
     );
 }
@@ -349,7 +319,11 @@ sub get_pid {
      P    => 25,
      I    => 10,
      D    => 20,
-     range => 1
+     mout => 0, # 0%
+     range => 1,
+     rate => 1.2, # 1.2 K / min
+     relay_1 => 0,
+     relay_2 => 0,
  );
 
  my %zone = $lakeshore->get_zone(loop => 1, zone => 1);
@@ -364,23 +338,31 @@ sub set_zone {
         P    => { isa => 'Lab::Moose::PosNum' },
         I    => { isa => 'Lab::Moose::PosNum' },
         D    => { isa => 'Lab::Moose::PosNum' },
-        mout => { isa => 'Lab::Moose::PosNum', optional => 1 },
-        range => { isa => enum( [ 0 .. 5 ] ) },
+        mout => { isa => 'Lab::Moose::PosNum', default => 0 },
+        range => { isa => enum( [ 0 .. 8 ] ) },
+        rate => { isa => 'Lab::Moose::PosNum' },
+        relay_1 => { isa => enum( [ 0, 1 ] ), default => 0 },
+        relay_2 => { isa => enum( [ 0, 1 ] ), default => 0 },
     );
-    my ( $loop, $zone, $top, $P, $I, $D, $mout, $range )
-        = delete @args{qw/loop zone top P I D mout range/};
+    my (
+        $loop, $zone, $top, $P, $I, $D, $mout, $range, $rate, $relay_1,
+        $relay_2
+        )
+        = delete @args{
+        qw/loop zone top P I D mout range rate relay_1 relay_2/};
     $loop = $loop // $self->default_loop;
-    if ( defined $mout ) {
-        $mout = sprintf( "%.1f", $mout );
-    }
-    else {
-        $mout = ' ';
-    }
+
+    # if ( defined $mout ) {
+    #     $mout = sprintf( "%.1f", $mout );
+    # }
+    # else {
+    #     $mout = ' ';
+    # }
 
     $self->write(
         command => sprintf(
-            "ZONE $loop, $zone, %.6G, %.1f, %.1f, %d, $mout, $range", $top,
-            $P, $I, $D
+            "ZONE $loop, $zone, %.6G, %.1f, %.1f, %d, $mout, $range, %.1f, $relay_1, $relay_2",
+            $top, $P, $I, $D
         ),
         %args
     );
@@ -396,7 +378,7 @@ sub get_zone {
     $loop = $loop // $self->default_loop;
     my $result = $self->query( command => "ZONE? $loop, $zone", %args );
     my %zone;
-    @zone{qw/top P I D mout range/} = split /,/, $result;
+    @zone{qw/top P I D mout range rate relay_1 relay_2/} = split /,/, $result;
     return %zone;
 }
 
