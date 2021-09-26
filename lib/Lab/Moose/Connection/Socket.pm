@@ -4,7 +4,6 @@ package Lab::Moose::Connection::Socket;
 
 use v5.20;
 
-
 use Moose;
 use MooseX::Params::Validate;
 use Socket qw(IPPROTO_TCP TCP_NODELAY);
@@ -58,6 +57,9 @@ sub BUILD {
         PeerPort => $port,
         Proto    => 'tcp',
         Timeout  => $timeout,
+
+        # enable use of orphaned connection after a script was killed by user
+        ReuseAddr => 1,
     ) or croak "cannot open connection with $host on port $port: $!";
 
     $client->setsockopt( IPPROTO_TCP, TCP_NODELAY, 1 )
