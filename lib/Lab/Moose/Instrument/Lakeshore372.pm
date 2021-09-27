@@ -382,6 +382,82 @@ sub get_zone {
     return %zone;
 }
 
+=head2 set_filter/get_filter
+
+ $lakeshore->set_filter(
+     channel => 5,
+     on      => 1,
+     settle_time => 1, # (1s..200s) 
+     window => 2, # % 2 percent of full scale window (1% ... 80%)
+ );
+
+ my %filter = $lakeshore->get_filter(channel => 5);
+
+=cut
+
+sub set_filter {
+    my ( $self, %args ) = validated_getter(
+        \@_,
+        %channel_arg,
+        on => { isa => enum( [ 0, 1 ] ) },
+        settle_time => { isa => enum( [ 1 .. 200 ] ) },
+        window      => { isa => enum( [ 1 .. 80 ] ) }
+    );
+    my ( $channel, $on, $settle_time, $window )
+        = delete @args{qw/channel on settle_time window/};
+    $channel = $channel // $self->input_channel();
+
+    $self->write(
+        command => "FILTER $channel,$on,$settle_time,$window",
+        %args
+    );
+}
+
+sub get_filter {
+    my ( $self, %args ) = validated_getter(
+        \@_,
+        %channel_arg,
+    );
+    my $channel = delete $args{channel} // $self->input_channel();
+    my $result = $self->query( command => "FILTER? $channel", %args );
+
+    my %filter;
+    @filter{qw/on settle_time window/} = split /,/, $result;
+    return %filter;
+}
+
+=head2 set_freq/get_freq
+
+ # Set input channel 0 (measurement input) excitation frequency to 9.8Hz
+ $lakeshore->set_freq(channel => 0, value => 1);
+
+ my $freq = $lakeshore->get_freq(channel => 0);
+
+Allowed channels: 0 (measurement input), 'A' (control input).
+Allowed values: 1 = 9.8 Hz, 2 = 13.7 Hz, 3 = 16.2 Hz, 4 = 11.6 Hz, 5 = 18.2 Hz.
+
+
+=cut
+
+sub set_freq {
+    my ( $self, $value, %args ) = validated_setter(
+        \@_,
+        %channel_arg,
+        value => { isa => enum( [ 1 .. 5 ] ) },
+    );
+    my $channel = delete $args{channel} // $self->input_channel();
+    $self->write( command => "FREQ $channel,$value", %args );
+}
+
+sub get_freq {
+    my ( $self, %args ) = validated_getter(
+        \@_,
+        %channel_arg,
+    );
+    my $channel = delete $args{channel} // $self->input_channel();
+    return $self->query( command => "FREQ? $channel", %args );
+}
+
 =head2 Consumed Roles
 
 This driver consumes the following roles:
