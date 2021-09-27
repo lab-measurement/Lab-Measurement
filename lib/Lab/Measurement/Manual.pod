@@ -134,6 +134,8 @@ alias: L<Lab::Moose::Instrument::Agilent34410A>
 
 =item * L<Lab::Moose::Instrument::HP34420A>
 
+=item * L<Lab::Moose::Instrument::Keithley2000>
+
 =back
 
 =head3 Voltage sources
