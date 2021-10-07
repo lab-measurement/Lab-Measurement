@@ -625,7 +625,7 @@ Preset Signal Recovery 7260 / 7265 Lock-in Amplifier
 
 =item $value
 
-	  REFERENCE PHASE can be between 0 ... 306°
+	  REFERENCE PHASE can be between 0 ... 360°
 
 =back
 
@@ -964,17 +964,12 @@ Preset the oscillator frequency of the Signal Recovery 7260 / 7265 Lock-in Ampli
 cache frq => (getter => 'get_frq');
 
 sub set_frq {
-    my ( $self, $value, %args ) = validated_setter( \@_ );
+    my ( $self, $value, %args ) = validated_setter( \@_,
+        value => { isa => 'Num' }
+    );
 
-    if ( index( $value, "m" ) >= 0 ) {
-        $value = int($value) * 1e-3;
-    }
-    elsif ( index( $value, "k" ) >= 0 ) {
-        $value = int($value) * 1e3;
-    }
-
-    if ( $value > 0 && $value <= 250000 ) {
-        $self->write( command => sprintf( "OF %d", $value * 1e3 ) );
+    if ( $value > 0 && $value <= 259000 ) {
+        $self->write( command => sprintf( "OF %d", $value * 1e3) );
         $self->cached_frq($value);
     }
     else {
@@ -1034,56 +1029,56 @@ sub get_value {
     if ( $channel eq "X" ) {
 
         if ( $read_mode eq 'cache'
-            and defined ${$self->cached_value()}{X} ) {
-            return ${$self->cached_value()}{X};
+            and defined $self->cached_value()->{X} ) {
+            return $self->cached_value()->{X};
         }
 
         $result = $self->query( command => "X.", %args );
         $result =~ s/\x00//g;
-        ${$self->cached_value()}{X} = $result;
+        $self->cached_value()->{X} = $result;
         return $result;
     }
     elsif ( $channel eq "Y" ) {
 
         if ( $read_mode eq 'cache'
-            and defined ${$self->cached_value()}{'Y'} ) {
-            return ${$self->cached_value()}{'Y'};
+            and defined $self->cached_value()->{Y} ) {
+            return $self->cached_value()->{Y};
         }
 
         $result = $self->query( command => "Y.", %args );
         $result =~ s/\x00//g;
-        ${$self->cached_value()}{'Y'} = $result;
+        $self->cached_value()->{Y} = $result;
         return $result;
     }
     elsif ( $channel eq "MAG" ) {
 
         if ( $read_mode eq 'cache'
-            and defined ${$self->cached_value()}{'MAG'} ) {
-            return ${$self->cached_value()}{'MAG'};
+            and defined $self->cached_value()->{MAG} ) {
+            return $self->cached_value()->{MAG};
         }
 
         $result = $self->query( command => "MAG.", %args );
         $result =~ s/\x00//g;
-        ${$self->cached_value()}{'MAG'} = $result;
+        $self->cached_value()->{'MAG'} = $result;
         return $result;
     }
     elsif ( $channel eq "PHA" ) {
 
         if ( $read_mode eq 'cache'
-            and defined ${$self->cached_value()}{'PHA'} ) {
-            return ${$self->cached_value()}{'PHA'};
+            and defined $self->cached_value()->{PHA} ) {
+            return $self->cached_value()->{PHA};
         }
 
         $result = $self->query( command => "PHA.", %args );
         $result =~ s/\x00//g;
-        ${$self->cached_value()}{'PHA'} = $result;
+        $self->cached_value()->{'PHA'} = $result;
         return $result;
     }
     elsif ( $channel eq "XY" ) {
 
         if (    $read_mode eq 'cache'
-            and defined ${$self->cached_value()}{'X'}
-            and defined ${$self->cached_value()}{'Y'} ) {
+            and defined $self->cached_value()->{X}
+            and defined $self->cached_value()->{Y} ) {
             return $self->cached_value();
         }
 
@@ -1091,8 +1086,8 @@ sub get_value {
         $result =~ s/\x00//g;
 
         (
-            ${$self->cached_value()}{'X'},
-            ${$self->cached_value()}{'Y'}
+            $self->cached_value()->{X},
+            $self->cached_value()->{Y}
         ) = split( ",", $result );
 
         return $self->cached_value();
@@ -1100,26 +1095,26 @@ sub get_value {
     elsif ( $channel eq "MP" ) {
 
         if (    $read_mode eq 'cache'
-            and defined ${$self->cached_value()}{'MAG'}
-            and defined ${$self->cached_value()}{'PHA'} ) {
+            and defined $self->cached_value()->{MAG}
+            and defined $self->cached_value()->{PHA} ) {
             return $self->cached_value();
         }
 
         $result = $self->query( command => "MP.", %args );
         $result =~ s/\x00//g;
         (
-            ${$self->cached_value()}{'MAG'},
-            ${$self->cached_value()}{'PHA'}
+            $self->cached_value()->{MAG},
+            $self->cached_value()->{PHA}
         ) = split( ",", $result );
         return $self->cached_value();
     }
     elsif ( $channel eq "ALL" or $channel eq "" ) {
 
         if (    $read_mode eq 'cache'
-            and defined ${$self->cached_value()}{'X'}
-            and defined ${$self->cached_value()}{'Y'}
-            and defined ${$self->cached_value()}{'MAG'}
-            and defined ${$self->cached_value()}{'PHA'} ) {
+            and defined $self->cached_value()->{X}
+            and defined $self->cached_value()->{Y}
+            and defined $self->cached_value()->{MAG}
+            and defined $self->cached_value()->{PHA} ) {
             return $self->cached_value();
         }
 
@@ -1127,10 +1122,10 @@ sub get_value {
             . $self->query( command => "MP.", %args );
         $result =~ s/\x00//g;
         (
-            ${$self->cached_value()}{'X'},
-            ${$self->cached_value()}{'Y'},
-            ${$self->cached_value()}{'MAG'},
-            ${$self->cached_value()}{'PHA'}
+            $self->cached_value()->{X},
+            $self->cached_value()->{Y},
+            $self->cached_value()->{MAG},
+            $self->cached_value()->{PHA}
         ) = split( ",", $result );
         return $self->cached_value();
     }

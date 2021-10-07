@@ -91,6 +91,8 @@ instruments and the high-level Lab::XPRESS interface
 
 =item * L<Lab::Moose::Sweep::Step::Repeat>
 
+=item * L<Lab::Moose::Sweep::Step::Phase>
+
 =item * L<Lab::Moose::Sweep::Step::Pulsewidth>
 
 =item * L<Lab::Moose::Sweep::Step::Pulsedelay>
