@@ -8,7 +8,7 @@ use warnings;
 use strict;
 
 use MooseX::Params::Validate;
-use Moose::Util::TypeConstraints qw/subtype as where message/;
+use Moose::Util::TypeConstraints qw/subtype as where message coerce from via/;
 use Module::Load;
 use Lab::Moose::Connection;
 use Lab::Moose::DataFolder;
@@ -30,7 +30,7 @@ our @EXPORT
      connection_type => 'LinuxGPIB',
      connection_options => {timeout => 2}
  );
- 
+
  my $folder = datafolder();
  my $file = datafile(
      type => 'Gnuplot',
@@ -89,7 +89,7 @@ This can be useful when testing out new equipment before writing a new driver.
 
  # Use low-level methods provided by the connection: write, query, clear
  print $instrument->query(command => "*IDN?");
- 
+
 =cut
 
 # Enable "use warnings; use strict" in caller.
@@ -161,7 +161,7 @@ sub datafile {
 
 =head2 linspace
 
- # create array (-1, -0.9, ..., 0.9, 1) 
+ # create array (-1, -0.9, ..., 0.9, 1)
  my @points = linspace(from => -1, to => 1, step => 0.1);
 
  # create array without first point (-0.9, ..., 1)
@@ -237,5 +237,11 @@ subtype 'Lab::Moose::PosInt',
     as 'Int',
     where { $_ >= 0 },
     message {"$_ is not a positive integer number"};
+
+subtype 'ArrayRefOfInstruments',
+        as 'ArrayRef[Lab::Moose::Instrument]';
+
+coerce 'ArrayRefOfInstruments',
+    from 'Lab::Moose::Instrument', via { [ $_ ] };
 
 1;

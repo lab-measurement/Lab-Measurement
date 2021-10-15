@@ -32,7 +32,7 @@ has filename_extension =>
 has setter => ( is => 'ro', isa => 'CodeRef', builder => '_build_setter' );
 
 has instrument =>
-    ( is => 'ro', isa => 'Lab::Moose::Instrument', required => 1 );
+    ( is => 'ro', isa => 'ArrayRefOfInstruments', coerce => 1, required => 1 );
 
 sub _build_setter {
     return \&_phase_setter;
@@ -41,7 +41,9 @@ sub _build_setter {
 sub _phase_setter {
     my $self  = shift;
     my $value = shift;
-    $self->instrument->set_phase( value => $value );
+    foreach (@{$self->instrument}) {
+        $_->set_phase( value => $value );
+    }
 }
 
 __PACKAGE__->meta->make_immutable();

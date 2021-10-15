@@ -32,7 +32,7 @@ has filename_extension =>
 has setter => ( is => 'ro', isa => 'CodeRef', builder => '_build_setter' );
 
 has instrument =>
-    ( is => 'ro', isa => 'Lab::Moose::Instrument', required => 1 );
+    ( is => 'ro', isa => 'ArrayRefOfInstruments', coerce => 1, required => 1 );
 
 sub _build_setter {
     return \&_frq_setter;
@@ -41,7 +41,9 @@ sub _build_setter {
 sub _frq_setter {
     my $self  = shift;
     my $value = shift;
-    $self->instrument->set_frq( value => $value );
+    foreach (@{$self->instrument}) {
+        $_->set_frq( value => $value );
+    }
 }
 
 __PACKAGE__->meta->make_immutable();

@@ -23,7 +23,7 @@ Default filename extension: C<'Pulsewidth='>
 =back
 
 See pulsewidth-sweep.pl in the examples::Sweeps folder for a simple pulsewidth
-sweep example. 
+sweep example.
 
 =cut
 
@@ -37,7 +37,7 @@ has filename_extension =>
 has setter => ( is => 'ro', isa => 'CodeRef', builder => '_build_setter' );
 
 has instrument =>
-    ( is => 'ro', isa => 'Lab::Moose::Instrument', required => 1 );
+    ( is => 'ro', isa => 'ArrayRefOfInstruments', coerce => 1, required => 1 );
 
 has constant_delay => ( is => 'ro', isa => 'Bool', default => 0 );
 
@@ -48,10 +48,12 @@ sub _build_setter {
 sub _pulsewidth_setter {
     my $self  = shift;
     my $value = shift;
-    $self->instrument->set_pulsewidth(
-      value => $value,
-      constant_delay => $self->constant_delay
-    );
+    foreach (@{$self->instrument}) {
+        $_->set_pulsewidth(
+          value => $value,
+          constant_width => $self->constant_delay
+        );
+    }
 }
 
 __PACKAGE__->meta->make_immutable();

@@ -34,7 +34,7 @@ has filename_extension =>
 has setter => ( is => 'ro', isa => 'CodeRef', builder => '_build_setter' );
 
 has instrument =>
-    ( is => 'ro', isa => 'Lab::Moose::Instrument', required => 1 );
+    ( is => 'ro', isa => 'ArrayRefOfInstruments', coerce => 1, required => 1 );
 
 has constant_width => ( is => 'ro', isa => 'Bool', default => 0 );
 
@@ -45,10 +45,12 @@ sub _build_setter {
 sub _pulsedelay_setter {
     my $self  = shift;
     my $value = shift;
-    $self->instrument->set_pulsedelay(
-      value => $value,
-      constant_width => $self->constant_width
-    );
+    foreach (@{$self->instrument}) {
+        $_->set_pulsedelay(
+          value => $value,
+          constant_width => $self->constant_width
+        );
+    }
 }
 
 __PACKAGE__->meta->make_immutable();
