@@ -209,9 +209,13 @@ sub arb_mode {
 When using the arbitrary waveform in play mode, a frequency division coefficient
 C<N> can be used to reduce the sample rate fs via the relations
 
+=over
+
 =item * fs = 1G/2^N, When N≤2
 
 =item * fs = 1G/((N-2)*8), When N>2
+
+=back
 
 The range of N is from 0 to 268435456 (2^28). See the Rigols user manual page
 3-4 and following for more information.
