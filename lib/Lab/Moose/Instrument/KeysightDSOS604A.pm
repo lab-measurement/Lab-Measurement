@@ -572,7 +572,7 @@ sub channel_input {
 
  $keysight->channel_differential(channel => 1, mode => 1);
 
-Turns on or off differential mode. C<mode> is an boolen value, where 0 is
+Turns on or off differential mode. C<mode> is a boolean value, where 0 is
 false and everything else is true.
 
 =cut
