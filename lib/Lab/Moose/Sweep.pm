@@ -41,6 +41,13 @@ has before_loop       => (
         sub { }
     }
 );
+has after_loop       => (
+    is      => 'ro',
+    isa     => 'CodeRef',
+    default => sub {
+        sub { }
+    }
+);
 
 #
 # Private attributes used internally
@@ -435,6 +442,8 @@ sub _start {
         }
         countdown( $self->delay_after_loop );
     }
+    my $after_loop_code = $self->after_loop();
+    $self->$after_loop_code();
 
 }
 

@@ -9,24 +9,33 @@ use Moose;
 use Moose::Util::TypeConstraints qw/enum/;
 use MooseX::Params::Validate;
 use Lab::Moose::Instrument qw/
-    validated_getter validated_setter validated_no_param_setter setter_params /;
+    validated_getter
+    validated_setter
+    validated_no_param_setter
+    setter_params
+/;
 use Lab::Moose::Instrument::Cache;
 use Carp;
 use namespace::autoclean;
-use Time::HiRes qw (usleep);
+use Time::HiRes qw/usleep/;
 
 extends 'Lab::Moose::Instrument';
 
+has [qw/max_units_per_second max_units_per_step min_units max_units/] =>
+    ( is => 'ro', isa => 'Num', required => 1 );
+
+has source_level_timestamp => (
+    is       => 'rw',
+    isa      => 'Num',
+    init_arg => undef,
+);
+
 sub BUILD {
     my $self = shift;
-
+    $self->get_id();
 }
 
 =encoding utf8
-
-=head1 WORK IN PROGRESS...
-
-The subroutines are ported to Moose but not yet tested, beware of bugs.
 
 =head1 SYNOPSIS
 
@@ -35,6 +44,7 @@ The subroutines are ported to Moose but not yet tested, beware of bugs.
  # Constructor
  my $SR = instrument(
     type => 'SignalRecovery7265',
+    connection_type => 'LinuxGPIB'
     %connection_options
  );
 
@@ -45,6 +55,13 @@ The subroutines are ported to Moose but not yet tested, beware of bugs.
 sub reset {
     my $self = shift;
     $self->write(command => "ADF 1");
+}
+
+cache id => (getter => 'get_id');
+
+sub get_id {
+    my $self = shift;
+    return $self->cached_id($self->query( command => "ID" ));
 }
 
 # ------------------ SIGNAL CHANNEL -------------------------
@@ -94,7 +111,7 @@ sub get_imode {
 
 =head2 set_vmode
 
-	$SR->set_vmode($vmode);
+	$SR->set_vmode(value => $vmode);
 
 Preset Signal Recovery 7260 / 7265 Lock-in Amplifier
 
@@ -140,16 +157,16 @@ sub get_vmode {
 
 =head2 set_fet
 
-	$SR->set_fet($value);
+	$SR->set_fet(value => $fet);
 
 Preset Signal Recovery 7260 / 7265 Lock-in Amplifier
 
 =over 4
 
-=item $value
+=item $fet
 
-	  $value == 0 --> Bipolar device, 10 kOhm input impedance, 2nV/sqrt(Hz) voltage noise at 1 kHz
-	  $value == 1 --> FET, 10 MOhm input impedance, 5nV/sqrt(Hz) voltage noise at 1 kHz
+	  $fet == 0 --> Bipolar device, 10 kOhm input impedance, 2nV/sqrt(Hz) voltage noise at 1 kHz
+	  $fet == 1 --> FET, 10 MOhm input impedance, 5nV/sqrt(Hz) voltage noise at 1 kHz
 
 =back
 
@@ -180,16 +197,16 @@ sub get_fet {
 
 =head2 set_float
 
-	$SR->set_float($value);
+	$SR->set_float(value => $float);
 
 Preset Signal Recovery 7260 / 7265 Lock-in Amplifier
 
 =over 4
 
-=item $value
+=item $float
 
-	  $value == 0 --> input conector shield set to GROUND
-	  $value == 1 --> input conector shield set to FLOAT
+	  $float == 0 --> input conector shield set to GROUND
+	  $float == 1 --> input conector shield set to FLOAT
 
 =back
 
@@ -221,16 +238,16 @@ sub get_float {
 
 =head2 set_cp
 
-	$SR->set_cp($value);
+	$SR->set_cp(value => $cp);
 
 Preset Signal Recovery 7260 / 7265 Lock-in Amplifier
 
 =over 4
 
-=item $value
+=item $cp
 
-	  $value == 0 --> input coupling mode AC\n
-	  $value == 1 --> input coupling mode DC\n
+	  $cp == 0 --> input coupling mode AC\n
+	  $cp == 1 --> input coupling mode DC\n
 
 =back
 
@@ -262,7 +279,7 @@ sub get_cp {
 
 =head2 set_sen
 
-	$SR->set_sen($value);
+	$SR->set_sen(value => $value);
 
 Preset Signal Recovery 7260 / 7265 Lock-in Amplifier
 
@@ -276,14 +293,16 @@ Preset Signal Recovery 7260 / 7265 Lock-in Amplifier
 
 =back
 
+Every value can be entered via string, for example
+
+    $SR->set_sen(value => '100nV');
+
 =cut
 
 cache sen => (getter => 'get_sen');
 
 sub set_sen {
-    my ( $self, $value, %args ) = validated_setter( \@_,
-        value => { isa => 'Int' }
-    );
+    my ( $self, $value, %args ) = validated_setter( \@_ );
 
     my @matrix = (
         {
@@ -369,26 +388,26 @@ sub set_sen {
         }
     );
 
-    my $imode = $self->get_imode();
+    my $imode = $self->cached_imode();
 
     # SENSITIVITY (IMODE == 0) --> 2nV, 5nV, 10nV, 20nV, 50nV, 100nV, 200nV, 500nV, 1uV, 2uV, 5uV, 10uV, 20uV, 50uV, 100uV, 200uV, 500uV, 1mV, 2mV, 5mV, 10mV, 20mV, 50mV, 100mV, 200mV, 500mV, 1V\n
     # SENSITIVITY (IMODE == 1) --> 2fA, 5fA, 10fA, 20fA, 50fA, 100fA, 200fA, 500fA, 1pA, 2pA, 5pA, 10pA, 20pA, 50pA, 100pA, 200pA, 500pA, 1nA, 2nA, 5nA, 10nA, 20nA, 50nA, 100nA, 200nA, 500nA, 1uA\n
     # SENSITIVITY (IMODE == 2) --> 2fA, 5fA, 10fA, 20fA, 50fA, 100fA, 200fA, 500fA, 1pA, 2pA, 5pA, 10pA, 20pA, 50pA, 100pA, 200pA, 500pA, 1nA, 2nA, 5nA, 10nA\n
 
-    if ( index( $value, "n" ) >= 0 ) {
-        $value = int($value) * 1e-9;
-    }
-    elsif ( index( $value, "f" ) >= 0 ) {
-        $value = int($value) * 1e-15;
+    if ( index( $value, "f" ) >= 0 ) {
+        $value *= 1e-15;
     }
     elsif ( index( $value, "p" ) >= 0 ) {
-        $value = int($value) * 1e-12;
+        $value *= 1e-12;
+    }
+    elsif ( index( $value, "n" ) >= 0 ) {
+        $value *= 1e-9;
     }
     elsif ( index( $value, "u" ) >= 0 ) {
-        $value = int($value) * 1e-6;
+        $value *= 1e-6;
     }
     elsif ( index( $value, "m" ) >= 0 ) {
-        $value = int($value) * 1e-3;
+        $value *= 1e-3;
     }
 
     if ( exists $matrix[$imode]->{$value} ) {
@@ -434,13 +453,13 @@ sub get_sen {
 
 =head2 set_acgain
 
-	$SR->set_acgain($value);
+	$SR->set_acgain(value => $acgain);
 
 Preset Signal Recovery 7260 / 7265 Lock-in Amplifier
 
 =over 4
 
-=item $value
+=item $acgain
 
 	  AC-GAIN == 0 -->  0 dB gain of the signal channel amplifier\n
 	  AC-GAIN == 1 --> 10 dB gain of the signal channel amplifier\n
@@ -488,13 +507,13 @@ sub get_acgain {
 
 =head2 set_linefilter
 
-	$SR->set_linefilter($value);
+	$SR->set_linefilter(value => $linefilter);
 
 Preset Signal Recovery 7260 / 7265 Lock-in Amplifier
 
 =over 4
 
-=item $value
+=item $linefilter
 
 	  LINE-FILTER == 0 --> OFF\n
 	  LINE-FILTER == 1 --> enable 50Hz/60Hz notch filter\n
@@ -508,17 +527,16 @@ Preset Signal Recovery 7260 / 7265 Lock-in Amplifier
 cache linefilter => (getter => 'get_linefilter');
 
 sub set_linefilter {
-    my ( $self, $value, $linefrequency, %args ) = validated_setter( \@_,
+    my ( $self, $value, %args ) = validated_setter( \@_,
         value => { isa => 'Int'},
         linefrequency => { isa => enum([qw/50Hz 60Hz/])}
     );
 
-    if    ( not defined $linefrequency ) { $linefrequency = 1; }  # 1-->50Hz
-    elsif ( $linefrequency eq "50Hz" )   { $linefrequency = 1; }
-    elsif ( $linefrequency eq "60Hz" )   { $linefrequency = 0; }  # 0 --> 60Hz
-    else {
-        croak "\nSIGNAL REOCOVERY 726x:\nunexpected value for LINEFREQUENCY in sub set_linefilter. Expected values are '50Hz' or '60Hz'.";
-    }
+    my $linefrq = delete $args{linefrequeny};
+
+    if    ( not defined $linefrq ) { $linefrq = 1; }  # 1-->50Hz
+    elsif ( $linefrq eq "50Hz" )   { $linefrq = 1; }
+    elsif ( $linefrq eq "60Hz" )   { $linefrq = 0; }  # 0 --> 60Hz
 
     # LINE-FILTER == 0 --> OFF\n
     # LINE-FILTER == 1 --> enable 50Hz/60Hz notch filter\n
@@ -528,7 +546,7 @@ sub set_linefilter {
     if ( defined $value
         and ( $value == 0 || $value == 1 || $value == 2 || $value == 3 ) ) {
 
-        $self->write(command => sprintf( "LF %d, %d", $value, $linefrequency ));
+        $self->write(command => sprintf( "LF %d, %d", $value, $linefrq ));
         $self->cached_linefilter($value);
     }
     else {
@@ -546,17 +564,17 @@ sub get_linefilter {
 
 =head2 set_refchannel
 
-	$SR->set_refchannel($value);
+	$SR->set_refchannel(value => $refchannel);
 
 Preset Signal Recovery 7260 / 7265 Lock-in Amplifier
 
 =over 4
 
-=item $value
+=item $refchannel
 
-	  INT --> internal reference input mode\n
-	  EXT LOGIC --> external rear panel TTL input\n
-	  EXT --> external front panel analog input\n
+	  REF-CHANNEL == 'INT' --> internal reference input mode\n
+	  REF-CHANNEL == 'EXT LOGIC' --> external rear panel TTL input\n
+	  REF-CHANNEL == 'EXT' --> external front panel analog input\n
 
 =back
 
@@ -615,15 +633,15 @@ sub autophase {
     usleep( 5 * $self->get_tc() * 1e6 );
 }
 
-=head2 set_refpha
+=head2 set_phase
 
-	$SR->set_refpha($value);
+	$SR->set_phase(value => $phase);
 
 Preset Signal Recovery 7260 / 7265 Lock-in Amplifier
 
 =over 4
 
-=item $value
+=item $phase
 
 	  REFERENCE PHASE can be between 0 ... 360°
 
@@ -631,23 +649,23 @@ Preset Signal Recovery 7260 / 7265 Lock-in Amplifier
 
 =cut
 
-cache refpha => (getter => 'refpha');
+cache phase => (getter => 'phase');
 
-sub set_refpha {
+sub set_phase {
     my ( $self, $value, %args ) = validated_setter( \@_,
-        value => { isa => 'Int'}
+        value => { isa => 'Num'}
     );
 
     if ( $value >= 0 && $value <= 360 ) {
         $self->write(command => sprintf( "REFP %d", $value * 1e3 ));
-        $self->cached_refpha($value);
+        $self->cached_phase($value);
     }
     else {
-        croak "\nSIGNAL REOCOVERY 726x:\nunexpected value for REFERENCE PHASE in sub set_refpha. Expected values must be in the range 0..360";
+        croak "\nSIGNAL REOCOVERY 726x:\nunexpected value for REFERENCE PHASE in sub set_phase. Expected values must be in the range 0..360";
     }
 }
 
-sub get_refpha {
+sub get_phase {
     my ( $self, %args ) = validated_getter( \@_ );
 
     my $val = $self->query(command => "REFP.", %args );
@@ -655,20 +673,20 @@ sub get_refpha {
     # Trailing zero byte if phase is zero. Device bug??
     $val =~ s/\0//;
 
-    return $self->cached_refpha($val);
+    return $self->cached_phase($val);
 }
 
 # ----------------- SIGNAL CHANNEL OUTPUT FILTERS ---------------
 
 =head2 set_outputfilter_slope
 
-	$SR->set_outputfilter_slope($value);
+	$SR->set_outputfilter_slope(value => $slope);
 
 Preset Signal Recovery 7260 / 7265 Lock-in Amplifier
 
 =over 4
 
-=item $value
+=item $slope
 
 	   6dB -->  6dB/octave slope of output filter\n
 	  12dB --> 12dB/octave slope of output filter\n
@@ -727,13 +745,13 @@ sub get_ouputfilter_slope {
 
 =head2 set_tc
 
-	$SR->set_tc($value);
+	$SR->set_tc(value => $tc);
 
 Preset the output(signal channel) low pass filters time constant tc of the Signal Recovery 7260 / 7265 Lock-in Amplifier
 
 =over 4
 
-=item $value
+=item $tc
 
 	  Filter Time Constant:
 	10us, 20us, 40us, 80us, 160us, 320us, 640us, 5ms, 10ms, 20ms, 50ms, 100ms, 200ms, 500ms, 1s, 2s, 5s, 10s, 20s, 50s, 100s, 200s, 500s, 1ks, 2ks, 5ks, 10ks, 20ks, 50ks, 100ks\n
@@ -822,36 +840,52 @@ sub get_tc {
 
 =head2 set_offset
 
-Yet to document
+    $SR->set_offset(X => $x_offset, Y => $y_offset);
+
+=over 4
+
+=item $x_offset/$y_offset
+
+    -300 to 300 --> Set the offset
+    OFF         --> disable the offset
+    AUTO        --> automatically set offset
+
+=back
 
 =cut
 
 cache offset => (getter => 'get_offset');
 
 sub set_offset {
-    my ( $self, $X, $Y, %args ) = validated_setter( \@_ );
+    my ( $self, %args ) = validated_no_param_setter( \@_,
+        X => {isa => 'Num'},
+        Y => {isa => 'Num'}
+    );
+
+    my $x_value = delete $args{X};
+    my $y_value = delete $args{Y};
 
     my @offset;
 
-    if ( $X >= -300 || $X <= 300 ) {
-        $self->write(command => sprintf( "XOF 1 %d", $X * 100 ));
+    if ( $x_value >= -300 || $x_value <= 300 ) {
+        $self->write(command => sprintf( "XOF 1 %d", $x_value * 100 ));
         my @temp = split( /,/, $self->query(command => "XOF") );
         $offset[0] = $temp[1] / 100;
-        if ( $offset[0] != $X ) {
+        if ( $offset[0] != $x_value ) {
             croak "\nSIGNAL REOCOVERY 726x:\ncouldn't set X chanel output offset";
         }
     }
 
-    if ( $Y >= -300 || $Y <= 300 ) {
-        $self->write(command => sprintf( "YOF 1 %d", $Y * 100 ));
+    if ( $y_value >= -300 || $y_value <= 300 ) {
+        $self->write(command => sprintf( "YOF 1 %d", $y_value * 100 ));
         my @temp = split( /,/, $self->query(command => "YOF") );
         $offset[1] = $temp[1] / 100;
-        if ( $offset[1] != $Y ) {
+        if ( $offset[1] != $y_value ) {
             croak "\nSIGNAL REOCOVERY 726x:\ncouldn't set Y chanel output offset";
         }
     }
 
-    if ( $X eq 'OFF' ) {
+    if ( $x_value eq 'OFF' ) {
         $self->write(command => "XOF 0");
         my @temp = split( /,/, $self->query(command => "XOF") );
         $offset[0] = $temp[0];
@@ -860,7 +894,7 @@ sub set_offset {
         }
     }
 
-    if ( $Y eq 'OFF' ) {
+    if ( $y_value eq 'OFF' ) {
         $self->write(command => "YOF 0");
         my @temp = split( /,/, $self->query(command => "YOF") );
         $offset[1] = $temp[0];
@@ -869,7 +903,7 @@ sub set_offset {
         }
     }
 
-    if ( $X eq 'AUTO' ) {
+    if ( $x_value eq 'AUTO' ) {
         $self->write(command => "AXO");
         my @temp = split( /,/, $self->query(command => "XOF") );
         $offset[0] = $temp[1];
@@ -881,34 +915,43 @@ sub set_offset {
 }
 
 sub get_offset {
+    my ( $self, %args ) = validated_getter( \@_ );
 
-    # not yet implemented
+    my @offset;
+    my @temp = split( /,/, $self->query(command => "XOF") );
+    $offset[0] = $temp[1];
+    @temp = split( /,/, $self->query(command => "YOF") );
+    $offset[1] = $temp[1];
+
+    return $self->cached_offset(\@offset);
 }
 
 # -------------- INTERNAL OSCILLATOR ------------------------------
 
-=head2 set_osc
+=head2 source_level
 
-	$SR->set_osc($value);
+	$SR->source_level(value => $level);
 
 Preset the oscillator output voltage of the Signal Recovery 7260 / 7265 Lock-in Amplifier
 
 =over 4
 
-=item $value
+=item $level
 
 	  OSCILLATOR OUTPUT VOLTAGE can be between 0 ... 5V in steps of 1mV (Signal Recovery 7260) and 1uV (Signal Recovery 7265)
 
 =back
 
+Use source_level(value => $level)) to jump to a desired amplitude, use set_level(value => $level) to slowly sweep to that amplitude.
+
 =cut
 
-cache osc => (getter => 'get_osc');
+cache source_level => (getter => 'get_source_level');
 
-sub set_osc {
+sub source_level {
     my ( $self, $value, %args ) = validated_setter( \@_ );
 
-    my $id = $self->query( command => "ID" );
+    my $id = $self->cached_id();
 
     if ( index( $value, "u" ) >= 0 ) {
         $value = int($value) * 1e-6;
@@ -924,36 +967,45 @@ sub set_osc {
         elsif ( $id == 7265 ) {
             $self->write( command => sprintf( "OA %d", sprintf( "%d", $value * 1e6 ) ) );
         }
-        $self->cached_osc($value);
+        $self->cached_source_level($value);
 
     }
     else {
-        croak "\nSIGNAL REOCOVERY 726x:\n\nSIGNAL REOCOVERY 726x:\nunexpected value for OSCILLATOR OUTPUT in sub set_osc. Expected values must be in the range 0..5V.";
+        croak "\nSIGNAL REOCOVERY 726x:\n\nSIGNAL RECOVERY 726x:\nunexpected value for OSCILLATOR OUTPUT in sub source_level. Expected values must be in the range 0..5V.";
     }
 }
 
-sub get_osc {
+sub get_source_level {
     my ( $self, %args ) = validated_getter( \@_ );
 
-    my $id = $self->query( command => "ID" );
+    my $id = $self->cached_id();
 
     if ( $id == 7260 ) {
-        return $self->cached_osc($self->query( command => "OA", %args ) / 1e3);
+        return $self->cached_source_level($self->query( command => "OA", %args ) / 1e3);
     }
     elsif ( $id == 7265 ) {
-        return $self->cached_osc($self->query( command => "OA", %args ) / 1e6);
+        return $self->cached_source_level($self->query( command => "OA", %args ) / 1e6);
     }
+}
+
+sub set_level {
+    my ( $self, $value, %args ) = validated_setter(
+    \@_,
+    value => { isa => 'Num' },
+    );
+
+    $self->linear_step_sweep( to => $value, %args );
 }
 
 =head2 set_frq
 
-	$SR->set_frq($value);
+	$SR->set_frq(value => $frequency);
 
 Preset the oscillator frequency of the Signal Recovery 7260 / 7265 Lock-in Amplifier
 
 =over 4
 
-=item $value
+=item $frequency
 
 	  OSCILLATOR FREQUENCY can be between 0 ... 259kHz
 
@@ -987,6 +1039,8 @@ sub get_frq {
 
 =head2 get_value
 
+WORK IN PROGRESS... This subroutines still has some bugs, please beware
+
 	$value=$SR->get_value($channel);
 
 Makes a measurement using the actual settings.
@@ -1015,70 +1069,72 @@ CHANNEL can be:
 
 =cut
 
-cache value => (getter => 'get_value', isa => 'HashRef');
+cache value => (getter => 'get_value');
 
 sub get_value {
-    my ( $self, $channel, $read_mode, %args ) = validated_setter( \@_,
-        channel => {isa => enum([qw/X Y MAG PHA XY MP ALL/])},
-        read_mode => {isa => 'Str', optional => 1}
+    my ( $self, %args ) = validated_no_param_setter( \@_,
+        channel => {isa => enum([qw/X Y MAG PHA XY MP ALL/]), default => 'MAG'},
+        read_mode => {isa => 'Str', default => ''}
     );
 
+    my $chan = delete $args{channel};
+    my $rmode = delete $args{read_mode};
     my $result;
 
     # $channel can be:\n X   --> X channel output\n Y   --> Y channel output\n MAG --> Magnitude\n PHA --> Signale phase\n XY  --> X and Y channel output\n MP  --> Magnitude and signal Phase\n ALL --> X,Y, Magnitude and signal Phase\n
-    if ( $channel eq "X" ) {
+    if ( $chan eq 'X' ) {
 
-        if ( $read_mode eq 'cache'
-            and defined $self->cached_value()->{X} ) {
-            return $self->cached_value()->{X};
+        if ( $rmode eq 'cache'
+            and defined $self->{cached_value()}{X} ) {
+            return $self->{cached_value()}{X};
         }
 
         $result = $self->query( command => "X.", %args );
         $result =~ s/\x00//g;
-        $self->cached_value()->{X} = $result;
+        $self->{cached_value()}{X} = $result;
         return $result;
     }
-    elsif ( $channel eq "Y" ) {
+    elsif ( $chan eq "Y" ) {
 
-        if ( $read_mode eq 'cache'
-            and defined $self->cached_value()->{Y} ) {
-            return $self->cached_value()->{Y};
+        if ( $rmode eq 'cache'
+            and defined $self->{cached_value()}{Y} ) {
+            return $self->{cached_value()}{Y};
         }
 
         $result = $self->query( command => "Y.", %args );
         $result =~ s/\x00//g;
-        $self->cached_value()->{Y} = $result;
+        $self->{cached_value()}{Y} = $result;
         return $result;
     }
-    elsif ( $channel eq "MAG" ) {
+    elsif ( $chan eq "MAG" ) {
 
-        if ( $read_mode eq 'cache'
-            and defined $self->cached_value()->{MAG} ) {
-            return $self->cached_value()->{MAG};
+        if ( $rmode eq 'cache'
+            and defined $self->{cached_value()}{MAG} ) {
+            return $self->{cached_value()}{MAG};
         }
 
         $result = $self->query( command => "MAG.", %args );
         $result =~ s/\x00//g;
-        $self->cached_value()->{'MAG'} = $result;
+        $self->{cached_value()}{MAG} = $result;
         return $result;
     }
-    elsif ( $channel eq "PHA" ) {
+    elsif ( $chan eq "PHA" ) {
 
-        if ( $read_mode eq 'cache'
-            and defined $self->cached_value()->{PHA} ) {
-            return $self->cached_value()->{PHA};
+        if ( $rmode eq 'cache'
+            and defined $self->{cached_value()}{PHA} ) {
+            return $self->{cached_value()}{PHA};
         }
 
         $result = $self->query( command => "PHA.", %args );
         $result =~ s/\x00//g;
-        $self->cached_value()->{'PHA'} = $result;
+        $self->{cached_value()}{'PHA'} = $result;
         return $result;
     }
-    elsif ( $channel eq "XY" ) {
+    elsif ( $chan eq "XY" ) {
 
-        if (    $read_mode eq 'cache'
-            and defined $self->cached_value()->{X}
-            and defined $self->cached_value()->{Y} ) {
+        if (    $rmode eq 'cache'
+            and defined $self->{cached_value()}{X}
+            and defined $self->{cached_value()}{Y} ) {
             return $self->cached_value();
         }
 
@@ -1086,35 +1142,35 @@ sub get_value {
         $result =~ s/\x00//g;
 
         (
-            $self->cached_value()->{X},
-            $self->cached_value()->{Y}
+            $self->{cached_value()}{X},
+            $self->{cached_value()}{Y}
         ) = split( ",", $result );
 
         return $self->cached_value();
     }
-    elsif ( $channel eq "MP" ) {
+    elsif ( $chan eq "MP" ) {
 
-        if (    $read_mode eq 'cache'
-            and defined $self->cached_value()->{MAG}
-            and defined $self->cached_value()->{PHA} ) {
+        if (    $rmode eq 'cache'
+            and defined $self->{cached_value()}{MAG}
+            and defined $self->{cached_value()}{PHA} ) {
             return $self->cached_value();
         }
 
         $result = $self->query( command => "MP.", %args );
         $result =~ s/\x00//g;
         (
-            $self->cached_value()->{MAG},
-            $self->cached_value()->{PHA}
+            $self->{cached_value()}{MAG},
+            $self->{cached_value()}{PHA}
         ) = split( ",", $result );
         return $self->cached_value();
     }
-    elsif ( $channel eq "ALL" or $channel eq "" ) {
+    elsif ( $chan eq "ALL" ) {
 
-        if (    $read_mode eq 'cache'
-            and defined $self->cached_value()->{X}
-            and defined $self->cached_value()->{Y}
-            and defined $self->cached_value()->{MAG}
-            and defined $self->cached_value()->{PHA} ) {
+        if (    $rmode eq 'cache'
+            and defined $self->{cached_value()}{X}
+            and defined $self->{cached_value()}{Y}
+            and defined $self->{cached_value()}{MAG}
+            and defined $self->{cached_value()}{PHA} ) {
             return $self->cached_value();
         }
 
@@ -1122,10 +1178,10 @@ sub get_value {
             . $self->query( command => "MP.", %args );
         $result =~ s/\x00//g;
         (
-            $self->cached_value()->{X},
-            $self->cached_value()->{Y},
-            $self->cached_value()->{MAG},
-            $self->cached_value()->{PHA}
+            $self->{cached_value()}{X},
+            $self->{cached_value()}{Y},
+            $self->{cached_value()}{MAG},
+            $self->{cached_value()}{PHA}
         ) = split( ",", $result );
         return $self->cached_value();
     }
@@ -1133,7 +1189,12 @@ sub get_value {
 
 =head2 config_measurement
 
-	$SR->config_measurement($channel, $number_of_points, $interval, [$trigger]);
+	$SR->config_measurement(
+        channel => $channel,
+        nop => $number_of_points,
+        interval => $interval,
+        trigger => $trigger
+    );
 
 Preset the Signal Recovery 7260 / 7265 Lock-in Amplifier for a TRIGGERED measurement.
 
@@ -1201,11 +1262,18 @@ DEF is 'INT'. If no value is given, DEF will be selected.
 =cut
 
 sub config_measurement {
-    my ( $self, $channel, $nop, $interval, $trigger, %args ) = validated_setter( \@_,
+    my ( $self, %args ) = validated_no_param_setter( \@_,
         channel => {isa => enum([qw/X Y MAG PHA XY MP ALL X- Y- MAG- PHA -XY- MP- ALL-/])},
         nop => {isa => 'Int'},
+        interval => {isa => 'Num'},
         trigger => {isa => enum([qw/INT EXT/]), optional => 1, default => 'INT'}
     );
+
+    my $chan = delete $args{channel};
+    my $np = delete $args{nop};
+    my $int = delete $args{interval};
+    my $trg = delete $args{trigger};
+
 
     print "--------------------------------------\n";
     print "SignalRecovery sub config_measurement:\n";
@@ -1213,43 +1281,43 @@ sub config_measurement {
     $self->_clear_buffer();
 
     # select which data to store in buffer
-    if    ( $channel eq "X" )   { $channel = 17; }
-    elsif ( $channel eq "Y" )   { $channel = 18; }
-    elsif ( $channel eq "XY" )  { $channel = 19; }
-    elsif ( $channel eq "MAG" ) { $channel = 20; }
-    elsif ( $channel eq "PHA" ) { $channel = 24; }
-    elsif ( $channel eq "MP" )  { $channel = 28; }
-    elsif ( $channel eq "ALL" ) { $channel = 31; }
-    elsif ( $channel eq "X-" ) {
-        $channel = 1;
+    if    ( $chan eq "X" )   { $chan = 17; }
+    elsif ( $chan eq "Y" )   { $chan = 18; }
+    elsif ( $chan eq "XY" )  { $chan = 19; }
+    elsif ( $chan eq "MAG" ) { $chan = 20; }
+    elsif ( $chan eq "PHA" ) { $chan = 24; }
+    elsif ( $chan eq "MP" )  { $chan = 28; }
+    elsif ( $chan eq "ALL" ) { $chan = 31; }
+    elsif ( $chan eq "X-" ) {
+        $chan = 1;
     } # only X channel; Sensitivity not logged --> floating point read out not possible!
-    elsif ( $channel eq "Y-" ) {
-        $channel = 2;
+    elsif ( $chan eq "Y-" ) {
+        $chan = 2;
     } # only Y channel; Sensitivity not logged --> floating point read out not possible!
-    elsif ( $channel eq "XY-" ) {
-        $channel = 3;
+    elsif ( $chan eq "XY-" ) {
+        $chan = 3;
     } # only XY channel; Sensitivity not logged --> floating point read out not possible!
-    elsif ( $channel eq "MAG-" ) {
-        $channel = 4;
+    elsif ( $chan eq "MAG-" ) {
+        $chan = 4;
     } # only MAG channel; Sensitivity not logged --> floating point read out not possible!
-    elsif ( $channel eq "PHA-" ) {
-        $channel = 8;
+    elsif ( $chan eq "PHA-" ) {
+        $chan = 8;
     } # only PHA channel; Sensitivity not logged --> floating point read out not possible!
-    elsif ( $channel eq "MP-" ) {
-        $channel = 12;
+    elsif ( $chan eq "MP-" ) {
+        $chan = 12;
     } # only MP channel; Sensitivity not logged --> floating point read out not possible!
-    elsif ( $channel eq "ALL-" ) {
-        $channel = 15;
+    elsif ( $chan eq "ALL-" ) {
+        $chan = 15;
     } # only XYMP channel; Sensitivity not logged --> floating point read out not possible!
 
-    $self->_set_buffer_datachannels($channel);
+    $self->_set_buffer_datachannels($chan);
 
     print "SIGNAL REOCOVERY 726x: set channels: "
-        . $self->_set_buffer_datachannels($channel);
+        . $self->_set_buffer_datachannels($chan);
 
     # set buffer size
     print "SIGNAL REOCOVERY 726x: set buffer length: "
-        . $self->_set_buffer_length($nop);
+        . $self->_set_buffer_length($np);
 
     # set measurement interval
     if ( not defined $interval ) {
@@ -1258,7 +1326,7 @@ sub config_measurement {
     print "SIGNAL REOCOVERY 726x: set storage interval: "
         . $self->_set_buffer_storageinterval($interval) . "\n";
 
-    if ( $trigger eq "EXT" ) {
+    if ( $trg eq "EXT" ) {
         $self->write(command => "TDT");
         usleep(1e6);
     }
@@ -1269,7 +1337,10 @@ sub config_measurement {
 
 =head2 get_data
 
-	@data = $SR->get_data(<$sensitivity>);
+	@data = $SR->get_data(
+        sensitivity => $sensitivity,
+        timeout => $timeout
+    );
 
 Reads all recorded values from the internal buffer and returns them as an (2-dim) array of floatingpoint values.
 
@@ -1289,16 +1360,25 @@ The LabVisa-script cannot be continued until all requested readings have been re
 
 SENSITIVITY is an optional parameter.
 When it is defined, it will be assumed that the data recieved from the Lock-in are in full range notation.
-The return values will be calculated by $value = ($value/100)*$sensitifity.
+The return values will be calculated by $value = ($value/100)*$sensitivity.
+
+=item $timeout
+
+TIMEOUT is another optional parameter.
+Since it takes approximately 4ms per datapoint, with 25k-Points a default timeout of 100s should be sufficient.
 
 =back
 
 =cut
 
 sub get_data {
-    my ( $self, $SEN, $timeout, %args ) = validated_setter( \@_,
+    my ( $self, %args ) = validated_no_param_setter( \@_,
+        sensitivity => {isa => 'Num'},
         timeout => {isa => 'Num', optional => 1, default => 100} # it takes approx. 4ms per datapoint; 25k-Points --> 100sec
     );
+
+    my $SEN = delete $args{sensitivity};
+    my $tmt = delete $args{timeout};
 
     my @dummy;
     my @data;
@@ -1319,7 +1399,7 @@ sub get_data {
         31 => "0,1,2,3"
     );
 
-    my @channels = split( ",", $channel_list{ int( $self->query(command => "CBD", timeout => $timeout) ) } );
+    my @channels = split( ",", $channel_list{ int( $self->query(command => "CBD", timeout => $tmt) ) } );
 
     #if ($channels == 17) { $channels = 1; }
     #elsif ($channels == 19) { $channels = 2; }
@@ -1334,7 +1414,7 @@ sub get_data {
             my $data;
 
             while (1) {
-                eval '$self->read(timeout => $timeout)*$SEN*0.01';
+                eval '$self->read(timeout => $tmt)*$SEN*0.01';
                 if ( $@ =~ /(Error while reading:)/ ) { last; }
                 push( @temp, $data );
             }
@@ -1347,7 +1427,7 @@ sub get_data {
             my $data;
 
             while (1) {
-                eval '$data = $self->read(timeout => $timeout)';
+                eval '$data = $self->read(timeout => $tmt)';
                 if ( $@ =~ /(Error while reading:)/ ) { last; }
                 push( @temp, $data );
             }
@@ -1469,11 +1549,13 @@ sub _set_buffer_datachannels {
 }
 
 sub _set_buffer_length {
-    my ( $self, $nop, %args ) = validated_no_param_setter( \@_,
+    my ( $self, %args ) = validated_no_param_setter( \@_,
         nop => {optional => 1}
     );
 
-    if ( not defined $nop ) {
+    my $noop = delete $args{nop};
+
+    if ( not defined $noop ) {
         return $self->query(command => "LEN");
     }
 
@@ -1484,11 +1566,11 @@ sub _set_buffer_length {
     elsif ( $channels == 31 ) { $channels = 5; }
 
     # check buffer size
-    if ( $nop > int( 32000 / $channels ) ) {
+    if ( $noop > int( 32000 / $channels ) ) {
         croak "\nSIGNAL REOCOVERY 726x:\n\nSIGNAL REOCOVERY 726x:\ncan't init BUFFER. Buffersize is too small for the given NUMBER OF POINTS and NUMBER OF CHANNELS to store.\n POINTS x (CHANNELS+1) cant exceed 32000.\n";
     }
 
-    $self->write( command => sprintf( "LEN %d", $nop ) );
+    $self->write( command => sprintf( "LEN %d", $noop ) );
     return my $return = $self->query(command => "LEN");
 }
 
@@ -1509,6 +1591,10 @@ sub _set_buffer_storageinterval {
 
     return $self->query(command => "STR") / 1e3;
 }
+
+with qw(
+    Lab::Moose::Instrument::LinearStepSweep
+);
 
 __PACKAGE__->meta()->make_immutable();
 
