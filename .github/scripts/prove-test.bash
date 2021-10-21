@@ -47,15 +47,9 @@ cpanm -n Test::Pod
 
 
 
- # "normal" tests
-prove --verbose -l -s -r t
+# "normal" tests, perl critic, pod coverage
+# we need to abort if any of them fails
 
-# Perl::Critic tests
-prove --verbose -l -r xt/critic/
-
-# Pod manual test
-prove --verbose xt/pod-manual-coverage.t
-
-
-
-
+prove --verbose -l -s -r t && \
+  prove --verbose -l -r xt/critic/ && \
+  prove --verbose xt/pod-manual-coverage.t
