@@ -42,14 +42,8 @@ cpanm -n File::Slurper
 cpanm -n Test::Pod
 
 #
-# Run tests
+# Run tests (user tests as well as maintainer tests)
 #
 
+prove --verbose -l -s -r t xt
 
-
-# "normal" tests, perl critic, pod coverage
-# we need to abort if any of them fails
-
-prove --verbose -l -s -r t && \
-  prove --verbose -l -r xt/critic/ && \
-  prove --verbose xt/pod-manual-coverage.t
