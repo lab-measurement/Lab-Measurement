@@ -1414,7 +1414,7 @@ sub get_data {
             my $data;
 
             while (1) {
-                eval '$self->read(timeout => $tmt)*$SEN*0.01';
+                eval { $self->read(timeout => $tmt)*$SEN*0.01 };
                 if ( $@ =~ /(Error while reading:)/ ) { last; }
                 push( @temp, $data );
             }
@@ -1427,7 +1427,7 @@ sub get_data {
             my $data;
 
             while (1) {
-                eval '$data = $self->read(timeout => $tmt)';
+                eval { $data = $self->read(timeout => $tmt) };
                 if ( $@ =~ /(Error while reading:)/ ) { last; }
                 push( @temp, $data );
             }
