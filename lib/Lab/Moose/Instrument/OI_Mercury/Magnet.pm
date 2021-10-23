@@ -341,7 +341,8 @@ Returns 0 when in persistent mode.
 sub oim_get_field {
     my $self = shift;
     my $current = $self->oim_get_current(@_);
-    return $current / $self->ATOB();
+    my $rv = $current / $self->ATOB();
+    return sprintf("%.6f", $rv);
 }
 
 =head2 oim_get_persistent_field
@@ -357,8 +358,8 @@ sub oim_get_persistent_field {
     my $self = shift;
     my $current = $self->oim_get_persistent_current(@_);
 
-    my $atob = $self->ATOB();
-    return $current / $atob;
+    my $rv = $current / $self->ATOB();
+    return sprintf("%.6f", $rv)
 }
 
 =head2 oim_get_heater
@@ -517,7 +518,8 @@ Get sweep rate (Tesla/min).
 sub oim_get_field_sweeprate {
     my $self = shift;
     my $current_sweeprate = $self->oim_get_current_sweeprate(@_);
-    return $current_sweeprate / $self->ATOB();
+    my $rv = $current_sweeprate / $self->ATOB();
+    return sprintf("%.6f", $rv);
 }
 
 =head2 oim_set_field_sweeprate
@@ -630,7 +632,8 @@ sub oim_set_field_setpoint {
 
     my $rv = $self->oim_set_current_setpoint(value => $value, %args);
 
-    return $rv / $self->ATOB();
+    $rv = $rv / $self->ATOB();
+    return sprintf("%.6f", $rv);
 }
 
 =head2 oim_get_field_setpoint
