@@ -74,13 +74,13 @@ is_float(
 );
 
 # field sweeprate
-is(
-    $mercury->oim_set_field_sweeprate( value => 0.0015 ), 0.0015,
+is_absolute_error(
+    $mercury->oim_set_field_sweeprate( value => 0.0015 ), 0.0015, 0.0001,
     "oim_set_field_sweeprate"
 );
 
-is_float(
-    $mercury->oim_get_field_sweeprate(), 0.0015,
+is_absolute_error(
+    $mercury->oim_get_field_sweeprate(), 0.0015, 0.0001,
     "oim_get_field_sweeprate"
 );
 
@@ -105,12 +105,12 @@ is_float(
 );
 
 # field setpoint
-is(
-    $mercury->oim_set_field_setpoint( value => 0.0023 ), 0.0023,
+is_absolute_error(
+    $mercury->oim_set_field_setpoint( value => 0.0023 ), 0.0023, 0.0001,
     "oim_set_field_setpoint"
 );
-is_float(
-    $mercury->oim_get_field_setpoint(), 0.0023,
+is_absolute_error(
+    $mercury->oim_get_field_setpoint(), 0.0023, 0.0001,
     "oim_get_field_setpoint"
 );
 

@@ -494,6 +494,8 @@ Sets the desired target sweep rate, parameter is in Amperes per minute.
 sub oim_set_current_sweeprate {
     my ( $self, $value, $channel, %args ) = validated_magnet_setter( \@_ );
 
+    $value = sprintf("%.3f", $value);
+    
     my $rv = $self->oi_setter(
         cmd   => "SET:DEV:$channel:PSU:SIG:RCST",
         value => $value, %args
@@ -584,6 +586,8 @@ sub oim_set_current_setpoint {
         value => { isa => 'Num' },
     );
 
+    $value = sprintf("%.4f", $value);
+    
     my $rv = $self->oi_setter(
         cmd   => "SET:DEV:$channel:PSU:SIG:CSET",
         value => $value, %args

@@ -47,83 +47,88 @@ method: Query
 retval: |
   STAT:DEV:GRPZ:PSU:SIG:CURR:-0.0001A
 ---
-command: READ:DEV:GRPZ:PSU:SIG:FLD
+command: READ:DEV:GRPZ:PSU:SIG:CURR
 id: 8
 method: Query
 retval: |
-  STAT:DEV:GRPZ:PSU:SIG:FLD:-0.0000T
+  STAT:DEV:GRPZ:PSU:SIG:CURR:-0.0000A
+---
+command: READ:DEV:GRPZ:PSU:ATOB
+id: 9
+method: Query
+retval: "STAT:DEV:GRPZ:PSU:ATOB:18.705\n"
 ---
 command: SET:DEV:GRPZ:PSU:SIG:SWHT:ON
-id: 9
+id: 10
 method: Query
 retval: |
   STAT:SET:DEV:GRPZ:PSU:SIG:SWHT:ON:VALID
 ---
 command: READ:DEV:GRPZ:PSU:SIG:SWHT
-id: 10
+id: 11
 method: Query
 retval: "STAT:DEV:GRPZ:PSU:SIG:SWHT:ON\n"
 ---
 command: SET:DEV:GRPZ:PSU:SIG:RCST:0.001
-id: 11
+id: 12
 method: Query
 retval: |
   STAT:SET:DEV:GRPZ:PSU:SIG:RCST:0.001:VALID
 ---
 command: READ:DEV:GRPZ:PSU:SIG:RCST
-id: 12
+id: 13
 method: Query
 retval: |
   STAT:DEV:GRPZ:PSU:SIG:RCST:0.0010A/m
 ---
-command: SET:DEV:GRPZ:PSU:SIG:RFST:0.0015
-id: 13
-method: Query
-retval: |
-  STAT:SET:DEV:GRPZ:PSU:SIG:RFST:0.0015:VALID
----
-command: READ:DEV:GRPZ:PSU:SIG:RFST
+command: SET:DEV:GRPZ:PSU:SIG:RCST:0.028
 id: 14
 method: Query
 retval: |
-  STAT:DEV:GRPZ:PSU:SIG:RFST:0.0015T/m
+  STAT:SET:DEV:GRPZ:PSU:SIG:RCST:0.028:VALID
+---
+command: READ:DEV:GRPZ:PSU:SIG:RCST
+id: 15
+method: Query
+retval: |
+  STAT:DEV:GRPZ:PSU:SIG:RCST:0.028A/m
 ---
 command: SET:DEV:GRPZ:PSU:ACTN:HOLD
-id: 15
+id: 16
 method: Query
 retval: |
   STAT:SET:DEV:GRPZ:PSU:ACTN:HOLD:VALID
 ---
 command: READ:DEV:GRPZ:PSU:ACTN
-id: 16
+id: 17
 method: Query
 retval: "STAT:DEV:GRPZ:PSU:ACTN:HOLD\n"
 ---
 command: SET:DEV:GRPZ:PSU:SIG:CSET:0.0012
-id: 17
+id: 18
 method: Query
 retval: |
   STAT:SET:DEV:GRPZ:PSU:SIG:CSET:0.0012:VALID
 ---
 command: READ:DEV:GRPZ:PSU:SIG:CSET
-id: 18
+id: 19
 method: Query
 retval: |
   STAT:DEV:GRPZ:PSU:SIG:CSET:0.0012A
 ---
-command: SET:DEV:GRPZ:PSU:SIG:FSET:0.0023
-id: 19
-method: Query
-retval: |
-  STAT:SET:DEV:GRPZ:PSU:SIG:FSET:0.0023:VALID
----
-command: READ:DEV:GRPZ:PSU:SIG:FSET
+command: SET:DEV:GRPZ:PSU:SIG:CSET:0.0430
 id: 20
 method: Query
 retval: |
-  STAT:DEV:GRPZ:PSU:SIG:FSET:0.0023T
+  STAT:SET:DEV:GRPZ:PSU:SIG:CSET:0.0430:VALID
+---
+command: READ:DEV:GRPZ:PSU:SIG:CSET
+id: 21
+method: Query
+retval: |
+  STAT:DEV:GRPZ:PSU:SIG:CSET:0.0430
 ---
 command: READ:DEV:GRPZ:PSU:ATOB
-id: 21
+id: 22
 method: Query
 retval: "STAT:DEV:GRPZ:PSU:ATOB:18.705\n"
