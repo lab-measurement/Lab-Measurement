@@ -42,7 +42,11 @@ sub BUILD {
  use Lab::Moose;
 
  # Constructor
- my $lia = instrument(type => 'SR830', %connection_options);
+ my $lia = instrument(
+     type => 'SR830',
+     connection_type => 'VISA::GPIB',
+     connection_options => {'gpib_address' => 10}
+ );
  
  # Set reference frequency to 10 kHz
  $lia->set_frq(value => 10000);
@@ -50,7 +54,7 @@ sub BUILD {
  # Set time constant to 10 sec
  $lia->set_tc(value => 10);
 
- # Set sensitivity to 10 mV
+ # Set sensitivity to 1 mV
  $lia->set_sens(value => 0.001);
  
  # Get X and Y values
