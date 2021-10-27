@@ -1320,11 +1320,11 @@ sub config_measurement {
         . $self->_set_buffer_length($np);
 
     # set measurement interval
-    if ( not defined $interval ) {
-        $interval = $self->set_tc();
+    if ( $int == 0 ) {
+        $int = $self->set_tc();
     }
     print "SIGNAL REOCOVERY 726x: set storage interval: "
-        . $self->_set_buffer_storageinterval($interval) . "\n";
+        . $self->_set_buffer_storageinterval($int) . "\n";
 
     if ( $trg eq "EXT" ) {
         $self->write(command => "TDT");
