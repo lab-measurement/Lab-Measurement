@@ -649,11 +649,6 @@ sub beep {
     $self->write("BEEP");
 }
 
-with qw(
-    Lab::Moose::Instrument::Common
-    Lab::Moose::Instrument::SCPI::Sense::Range
-    Lab::Moose::Instrument::SCPI::Sense::NPLC
-);
 
 __PACKAGE__->meta()->make_immutable();
 
