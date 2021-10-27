@@ -59,7 +59,7 @@ around default_connection_options => sub {
      waveform_format => ...
  );
 
-=over
+=over 4
 
 =item * C<input_impedance> specifies the default input input impedance. See channel_input for more information
 
@@ -177,7 +177,7 @@ C<BIN CSV INTernal TSV TXT H5 H5INt MATlab>.
 
 The following file name extensions are used for the different formats:
 
-=over
+=over 4
 
 =item * BIN = file_name.bin
 
@@ -474,7 +474,7 @@ This command controls how the data is formatted when it is sent from
 the oscilloscope, and pertains to all waveforms. The default format is FLOat.
 The possible formats are:
 
-=over
+=over 4
 
 =item * ASCii
 
@@ -538,7 +538,7 @@ sub waveform_source {
 
 C<parameter> can be either
 
-=over
+=over 4
 
 =item * C<DC> — DC coupling, 1 MΩ impedance.
 

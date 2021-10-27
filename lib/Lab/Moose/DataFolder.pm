@@ -64,7 +64,8 @@ This method will create the following files in the folder:
 =item F<< <SCRIPT> .pl >>
 
 A copy of the user script. You can change the name of this script by setting
-the C<script_name> attribute in the constructor.
+the C<script_name> attribute in the constructor. In case you don't want the
+script to be copied, just set C<copy_script> to 0 when creating your DataFolder.
 
 =item F<META.yml>
 
@@ -102,6 +103,12 @@ has meta_file => (
     isa      => 'Lab::Moose::DataFile::Meta',
     init_arg => undef,
     writer   => '_meta_file'
+);
+
+has copy_script => (
+    is  => 'ro',
+    isa => 'Bool',
+    default => 1
 );
 
 has script_name => (
@@ -144,7 +151,9 @@ sub BUILD {
 
     $self->_create_meta_file();
 
-    $self->_copy_user_script();
+    if ( $self->copy_script ) {
+        $self->_copy_user_script();
+    }
 
 }
 

@@ -17,7 +17,8 @@ use Lab::Moose::Instrument qw/
 use Lab::Moose::Instrument::Cache;
 use Carp;
 use namespace::autoclean;
-use Time::HiRes qw/usleep/;
+use Time::HiRes qw/time usleep/;
+use Lab::Moose 'linspace';
 
 extends 'Lab::Moose::Instrument';
 
@@ -451,6 +452,118 @@ sub get_sen {
     return $matrix_reverse[$imode][ $self->cached_sen($self->query(command =>"SEN", %args)) - 1 ];
 }
 
+sub auto_sen {
+    my ( $self, $value, %args ) = validated_setter( \@_,
+        value => {isa => 'Num'}
+    );
+
+    my @matrix = (
+        {
+            2e-9  => 1,
+            5e-9  => 2,
+            10e-9 => 3,
+            2e-8  => 4,
+            5e-8  => 5,
+            10e-8 => 6,
+            2e-7  => 7,
+            5e-7  => 8,
+            10e-7 => 9,
+            2e-6  => 10,
+            5e-6  => 11,
+            10e-6 => 12,
+            2e-5  => 13,
+            5e-5  => 14,
+            10e-5 => 15,
+            2e-4  => 16,
+            5e-4  => 17,
+            10e-4 => 18,
+            2e-3  => 19,
+            5e-3  => 20,
+            10e-3 => 21,
+            2e-2  => 22,
+            5e-2  => 23,
+            10e-2 => 24,
+            2e-1  => 25,
+            5e-1  => 26,
+            10e-1 => 27
+        },
+        {
+            2e-15  => 1,
+            5e-15  => 2,
+            10e-15 => 3,
+            2e-14  => 4,
+            5e-14  => 5,
+            10e-14 => 6,
+            2e-13  => 7,
+            5e-13  => 8,
+            10e-13 => 9,
+            2e-12  => 10,
+            5e-12  => 11,
+            10e-12 => 12,
+            2e-11  => 13,
+            5e-11  => 14,
+            10e-11 => 15,
+            2e-10  => 16,
+            5e-10  => 17,
+            10e-10 => 18,
+            2e-9   => 19,
+            5e-9   => 20,
+            10e-9  => 21,
+            2e-8   => 22,
+            5e-8   => 23,
+            10e-8  => 24,
+            2e-7   => 25,
+            5e-7   => 26,
+            10e-7  => 27
+        },
+        {
+            2e-15  => 7,
+            5e-15  => 8,
+            10e-15 => 9,
+            2e-14  => 10,
+            5e-14  => 11,
+            10e-14 => 12,
+            2e-13  => 13,
+            5e-13  => 14,
+            10e-13 => 15,
+            2e-12  => 16,
+            5e-12  => 17,
+            10e-12 => 18,
+            2e-11  => 19,
+            5e-11  => 20,
+            10e-11 => 21,
+            2e-10  => 22,
+            5e-10  => 23,
+            10e-10 => 24,
+            2e-9   => 25,
+            5e-9   => 26,
+            10e-9  => 27
+        }
+    );
+
+    my $imode = $self->cached_imode();
+
+    # SENSITIVITY (IMODE == 0) --> 2nV, 5nV, 10nV, 20nV, 50nV, 100nV, 200nV, 500nV, 1uV, 2uV, 5uV, 10uV, 20uV, 50uV, 100uV, 200uV, 500uV, 1mV, 2mV, 5mV, 10mV, 20mV, 50mV, 100mV, 200mV, 500mV, 1V\n
+    # SENSITIVITY (IMODE == 1) --> 2fA, 5fA, 10fA, 20fA, 50fA, 100fA, 200fA, 500fA, 1pA, 2pA, 5pA, 10pA, 20pA, 50pA, 100pA, 200pA, 500pA, 1nA, 2nA, 5nA, 10nA, 20nA, 50nA, 100nA, 200nA, 500nA, 1uA\n
+    # SENSITIVITY (IMODE == 2) --> 2fA, 5fA, 10fA, 20fA, 50fA, 100fA, 200fA, 500fA, 1pA, 2pA, 5pA, 10pA, 20pA, 50pA, 100pA, 200pA, 500pA, 1nA, 2nA, 5nA, 10nA\n
+
+    my @vals = sort { $a <=> $b } keys(%{$matrix[$imode]});
+
+    if ($value < 3*$vals[0]) {
+        $self->set_sen(value => $vals[0]);
+    }
+    elsif ($value >= 3*$vals[-1]) {
+        $self->set_sen(value => $vals[-1]);
+    } else {
+        foreach (0..$#vals-1) {
+            if ($value >= 3*$vals[$_] && $value < 3*$vals[$_+1]) {
+                $self->set_sen(value => $vals[$_+1]);
+            }
+
+        }
+    }
+}
+
 =head2 set_acgain
 
 	$SR->set_acgain(value => $acgain);
@@ -649,23 +762,23 @@ Preset Signal Recovery 7260 / 7265 Lock-in Amplifier
 
 =cut
 
-cache phase => (getter => 'phase');
+cache refpha => (getter => 'get_refpha');
 
-sub set_phase {
+sub set_refpha {
     my ( $self, $value, %args ) = validated_setter( \@_,
         value => { isa => 'Num'}
     );
 
-    if ( $value >= 0 && $value <= 360 ) {
+    if ( $value >= -360 && $value <= 360 ) {
         $self->write(command => sprintf( "REFP %d", $value * 1e3 ));
-        $self->cached_phase($value);
+        $self->cached_refpha($value);
     }
     else {
-        croak "\nSIGNAL REOCOVERY 726x:\nunexpected value for REFERENCE PHASE in sub set_phase. Expected values must be in the range 0..360";
+        croak "\nSIGNAL REOCOVERY 726x:\nunexpected value for REFERENCE PHASE in sub set_phase. Expected values must be in the range -360..360";
     }
 }
 
-sub get_phase {
+sub get_refpha {
     my ( $self, %args ) = validated_getter( \@_ );
 
     my $val = $self->query(command => "REFP.", %args );
@@ -673,7 +786,88 @@ sub get_phase {
     # Trailing zero byte if phase is zero. Device bug??
     $val =~ s/\0//;
 
-    return $self->cached_phase($val);
+    return $self->cached_refpha($val);
+}
+
+# Basically a linear_step_sweep - but for the phase
+sub set_phase {
+    my ( $self, %args ) = validated_no_param_setter( \@_,
+        value   => { isa => 'Num' },
+        verbose => { isa => 'Bool', default => 1 },
+        step    => { isa => 'Num', default => 1},
+        rate    => { isa => 'Num', default => 36},
+    );
+    my $to             = delete $args{value};
+    my $verbose        = delete $args{verbose};
+    my $step           = delete $args{step};
+    my $rate           = delete $args{rate};
+
+    if ( $to >= -360 && $to <= 360 ) {
+        my $from           = $self->cached_refpha();
+        my $last_timestamp = time();
+        my $distance       = abs( $to - $from );
+
+        # Enforce step size and rate.
+        if ( $step < 1e-9 ) {
+            croak "step size must be > 0";
+        }
+
+        if ( $rate < 1e-9 ) {
+            croak "rate must be > 0";
+        }
+
+        my @steps = linspace(
+            from         => $from, to => $to, step => $step,
+            exclude_from => 1
+        );
+
+        my $time_per_step;
+        if ( $distance < $step ) {
+            $time_per_step = $distance / $rate;
+        }
+        else {
+            $time_per_step = $step / $rate;
+        }
+
+        my $time = time();
+
+        if ( $time < $last_timestamp ) {
+
+            # should never happen
+            croak "time error";
+        }
+
+        # Do we have to wait to enforce the maximum rate or can we start right now?
+        my $waiting_time = $time_per_step - ( $time - $last_timestamp );
+        if ( $waiting_time > 0 ) {
+            usleep( 1e6 * $waiting_time );
+        }
+        $self->set_refpha( value => shift @steps, %args );
+
+        # enable autoflush
+        my $autoflush = STDOUT->autoflush();
+        for my $step (@steps) {
+            usleep( 1e6 * $time_per_step );
+
+            #  YokogawaGS200 has 5 + 1/2 digits precision
+            if ($verbose) {
+                printf(
+                    "Sweeping to %.5g: Setting level to %.5e          \r", $to,
+                    $step
+                );
+            }
+            $self->set_refpha( value => $step, %args );
+        }
+        if ($verbose) {
+            print " " x 70 . "\r";
+        }
+
+        # reset autoflush to previous value
+        STDOUT->autoflush($autoflush);
+    }
+    else {
+        croak "\nSIGNAL REOCOVERY 726x:\nunexpected value for REFERENCE PHASE in sub set_phase. Expected values must be in the range 0..360";
+    }
 }
 
 # ----------------- SIGNAL CHANNEL OUTPUT FILTERS ---------------
@@ -994,7 +1188,7 @@ sub set_level {
     value => { isa => 'Num' },
     );
 
-    $self->linear_step_sweep( to => $value, %args );
+    $self->linear_step_sweep( to => $value, verbose => 0, %args );
 }
 
 =head2 set_frq
@@ -1041,7 +1235,7 @@ sub get_frq {
 
 WORK IN PROGRESS... This subroutines still has some bugs, please beware
 
-	$value=$SR->get_value($channel);
+	$value=$SR->get_value(channel => $channel);
 
 Makes a measurement using the actual settings.
 The CHANNELS defined by $channel are returned as floating point values.
@@ -1069,11 +1263,11 @@ CHANNEL can be:
 
 =cut
 
-cache value => (getter => 'get_value');
+cache value => (getter => 'get_value', isa => 'HashRef');
 
 sub get_value {
     my ( $self, %args ) = validated_no_param_setter( \@_,
-        channel => {isa => enum([qw/X Y MAG PHA XY MP ALL/]), default => 'MAG'},
+        channel => {isa => enum([qw/X Y MAG PHA XY MP ALL/])},
         read_mode => {isa => 'Str', default => ''}
     );
 
@@ -1085,66 +1279,66 @@ sub get_value {
     if ( $chan eq 'X' ) {
 
         if ( $rmode eq 'cache'
-            and defined $self->{cached_value()}{X} ) {
-            return $self->{cached_value()}{X};
+            and defined ${$self->cached_value()}{X} ) {
+            return ${$self->cached_value()}{X};
         }
 
         $result = $self->query( command => "X.", %args );
         $result =~ s/\x00//g;
-        $self->{cached_value()}{X} = $result;
+        $self->cached_value({X => $result});
         return $result;
     }
     elsif ( $chan eq "Y" ) {
 
         if ( $rmode eq 'cache'
-            and defined $self->{cached_value()}{Y} ) {
-            return $self->{cached_value()}{Y};
+            and defined ${$self->cached_value()}{Y} ) {
+            return ${$self->cached_value()}{Y};
         }
 
         $result = $self->query( command => "Y.", %args );
         $result =~ s/\x00//g;
-        $self->{cached_value()}{Y} = $result;
+        $self->cached_value({Y => $result});
         return $result;
     }
     elsif ( $chan eq "MAG" ) {
 
         if ( $rmode eq 'cache'
-            and defined $self->{cached_value()}{MAG} ) {
-            return $self->{cached_value()}{MAG};
+            and defined ${$self->cached_value()}{MAG} ) {
+            return ${$self->cached_value()}{MAG};
         }
 
         $result = $self->query( command => "MAG.", %args );
         $result =~ s/\x00//g;
-        $self->{cached_value()}{MAG} = $result;
+        $self->cached_value({MAG => $result});
         return $result;
     }
     elsif ( $chan eq "PHA" ) {
 
         if ( $rmode eq 'cache'
-            and defined $self->{cached_value()}{PHA} ) {
-            return $self->{cached_value()}{PHA};
+            and defined ${$self->cached_value()}{PHA} ) {
+            return ${$self->cached_value()}{PHA};
         }
 
         $result = $self->query( command => "PHA.", %args );
         $result =~ s/\x00//g;
-        $self->{cached_value()}{'PHA'} = $result;
+        $self->cached_value({PHA => $result});
         return $result;
     }
     elsif ( $chan eq "XY" ) {
 
         if (    $rmode eq 'cache'
-            and defined $self->{cached_value()}{X}
-            and defined $self->{cached_value()}{Y} ) {
-            return $self->cached_value();
+            and defined ${$self->cached_value()}{X}
+            and defined ${$self->cached_value()}{Y} ) {
+            return [${$self->cached_value()}{X},${$self->cached_value()}{Y}];
         }
 
         $result = $self->query( command => "XY.", %args );
         $result =~ s/\x00//g;
 
-        (
-            $self->{cached_value()}{X},
-            $self->{cached_value()}{Y}
-        ) = split( ",", $result );
+        my @temp = split( ",", $result );
+
+        #my $new = ${$self->cached_value()}{X => $temp[0]};
+        #$self->cached_value($new);
 
         return $self->cached_value();
     }
@@ -1320,7 +1514,7 @@ sub config_measurement {
         . $self->_set_buffer_length($np);
 
     # set measurement interval
-    if ( $int == 0 ) {
+    if ( not defined $int ) {
         $int = $self->set_tc();
     }
     print "SIGNAL REOCOVERY 726x: set storage interval: "

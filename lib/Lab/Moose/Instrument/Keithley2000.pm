@@ -8,7 +8,7 @@ use Moose;
 use MooseX::Params::Validate;
 use Moose::Util::TypeConstraints qw/enum/;
 use Lab::Moose::Instrument
-    qw/validated_getter validated_setter setter_params/;
+    qw/validated_getter validated_setter setter_params validated_no_param_setter/;
 use Lab::Moose::Instrument::Cache;
 use Carp;
 use namespace::autoclean;
@@ -16,28 +16,13 @@ use Time::HiRes qw (usleep);
 
 extends 'Lab::Moose::Instrument';
 
-around default_connection_options => sub {
-    my $orig     = shift;
-    my $self     = shift;
-    my $options  = $self->$orig();
-    my $gpib_opts = {
-      board_index  => undef,
-      gpib_address => undef,
-      current_timeout => 2
-    };
-    $options->{LinuxGPIB} = $gpib_opts;
-    $options->{'VISA::GPIB'} = $gpib_opts;
-    return $options;
-};
-
-
 # ---------------------- Init DMM --------------------------------------------------------
 sub BUILD {
   my $self = shift;
 
   $self->clear();
   $self->cls();
-  $self->write('INIT:CONT OFF');
+  $self->write(command => command => 'INIT:CONT OFF');
 }
 
 =encoding utf8
@@ -75,21 +60,27 @@ Used roles:
 # ----------------------- Config DMM ------------------------------------------------------
 
 sub set_function {    # basic
-    my ( $self, $function, %args ) = validated_getter( \@_,
+    my ( $self, %args ) = validated_no_param_setter( \@_,
       function => { isa => enum( [qw/PERIOD period PER per FREQUENCY frequency FREQ freq TEMPERATURE temperature TEMP temp DIODE diode DIOD diod CURRENT current CURR curr CURRENT:AC current:ac CURR:AC curr:ac CURRENT:DC current:dc CURR:DC curr:dc VOLTAGE voltage VOLT volt VOLTAGE:AC voltage:ac VOLT:AC volt:ac VOLTAGE:DC voltage:dc VOLT:DC volt:dc RESISTANCE resisitance RES res FRESISTANCE fresistance FRES fres/]) },
     );
+    my $function = delete $args{function};
 
-    return $self->query( sprintf( ":SENSE:FUNCTION '%s'; FUNCTION?", $function ) );
+    $self->write(command => ":SENSE:FUNCTION ".$function, %args );
 }
 
 sub get_function {
     my ( $self, %args ) = validated_getter( \@_);
-    my $function = $self->query(":SENSE:FUNCTION?");
+    my $function = $self->query( command => ":SENSE:FUNCTION?");
     return substr( $function, 1, -1 );    # cut off quotes ""
 }
 
 sub set_range {                           # basic
-    my ( $self, $range, $function, %args ) = validated_getter( \@_);
+    my ( $self, %args ) = validated_no_param_setter( \@_,
+        function => {optional => 1}
+    );
+
+    my $function = delete $args{function};
+    my $range = delete $args{range};
 
     # return settings
 
@@ -165,20 +156,26 @@ sub set_range {                           # basic
 
     # set range
     if ( $range =~ /\b(AUTO|auto)\b/ ) {
-        $self->write( sprintf( ":SENSE:%s:RANGE:AUTO ON", $function ) );
+        $self->write(command => sprintf( ":SENSE:%s:RANGE:AUTO ON", $function ) );
     }
     elsif ( $range =~ /\b(MIN|min|MAX|max|DEF|def)\b/ ) {
-        $self->write( sprintf( ":SENSE:%s:RANGE %s", $function, $range ) );
+        $self->write(command => sprintf( ":SENSE:%s:RANGE %s", $function, $range ) );
     }
     else {
-        $self->write( sprintf( ":SENSE:%s:RANGE %.2f", $function, $range ) );
+        $self->write(command => sprintf( ":SENSE:%s:RANGE %.2f", $function, $range ) );
     }
     return;
 
 }
 
 sub set_nplc {    # basic
-    my ( $self, $nplc, $function, %args ) = validated_getter( \@_);
+    my ( $self, %args ) = validated_getter( \@_,
+        function => {optional => 1}
+    );
+
+    my $function = delete $args{function};
+    my $nplc = delete $args{nplc};
+
 
     # return settings if no new values are given
     if ( not defined $function ) {
@@ -194,11 +191,11 @@ sub set_nplc {    # basic
         =~ /\b(CURRENT|CURR|current|curr|VOLTAGE|VOLT|voltage|volt|RESISTANCE|RES|resistance|res)\b/
         ) {
         if ( $nplc =~ /\b(MAX|max|MIN|min|DEF|def)\b/ ) {
-            return $self->query(
+            return $self->query(command =>
                 sprintf( ":SENSE:%s:NPLC %s; NPLC?", $function, $nplc ) );
         }
         elsif ( $nplc =~ /\b\d+(e\d+|E\d+|exp\d+|EXP\d+)?\b/ ) {
-            return $self->query(
+            return $self->query(command =>
                 sprintf( ":SENSE:%s:NPLC %e; NPLC?", $function, $nplc ) );
         }
         else {
@@ -211,9 +208,15 @@ sub set_nplc {    # basic
 }
 
 sub set_averaging {    # advanced
-    my ( $self, $count, $mode, $function, %args ) = validated_getter( \@_,
+    my ( $self, %args ) = validated_getter( \@_,
+        function => {optional => 1},
         mode => {default => "REPEAT"} # set REPeating as standard value; MOVing would be 2nd option
     );
+
+    my $function = delete $args{function};
+    my $mode = delete $args{mode};
+    my $count = delete $args{count};
+
 
     if ( not defined $function ) {
         $function = $self->get_function();    # get selected function
@@ -223,13 +226,13 @@ sub set_averaging {    # advanced
         if ( $count >= 0.5 and $count <= 100.5 ) {
 
             # set averaging
-            $self->write(":SENSE:$function:AVERAGE:STATE ON");
-            $self->write(":SENSE:$function:AVERAGE:TCONTROL $mode");
+            $self->write(command => ":SENSE:$function:AVERAGE:STATE ON");
+            $self->write(command => ":SENSE:$function:AVERAGE:TCONTROL $mode");
 
             if (   $count =~ /\b(MIN|min|MAX|max|DEF|def)\b/
                 or $count =~ /\b\d+(e\d+|E\d+|exp\d+|EXP\d+)?\b/ ) {
                 $count
-                    = $self->query(
+                    = $self->query(command =>
                     ":SENSE:$function:AVERAGE:COUNT $count; STATE?; COUNT?; TCONTROL?"
                     );
                 my $result;
@@ -241,9 +244,9 @@ sub set_averaging {    # advanced
             }
         }
         elsif ( $count =~ /\b(OFF|off)\b/ or $count == 0 ) {
-            $self->write(":SENSE:$function:AVERAGE:STATE OFF")
+            $self->write(command => ":SENSE:$function:AVERAGE:STATE OFF")
                 ;    # switch OFF Averaging
-            $count = $self->query(
+            $count = $self->query(command =>
                 ":SENSE:$function:AVERAGE:STATE?; COUNT?; TCONTROL?");
             my $result;
             ( $result->{'state'}, $result->{'count'}, $result->{'tcontrol'} )
@@ -262,14 +265,18 @@ sub set_averaging {    # advanced
 }
 
 sub get_averaging {
-    my ( $self, $function, %args ) = validated_getter( \@_);
+    my ( $self, %args ) = validated_getter( \@_,
+        function => {optional => 1},
+    );
+
+    my $function = delete $args{function};
 
     if ( not defined $function ) {
         $function = $self->get_function();
     }
 
     my $count
-        = $self->query(":SENSE:$function:AVERAGE:STATE?; COUNT?; TCONTROL?");
+        = $self->query(command => ":SENSE:$function:AVERAGE:STATE?; COUNT?; TCONTROL?");
     my $result;
     ( $result->{'state'}, $result->{'count'}, $result->{'tcontrol'} )
         = split( /;/, $count );
@@ -280,10 +287,14 @@ sub get_averaging {
 # ----------------------------------------- MEASUREMENT ----------------------------------
 
 sub get_value {    # basic
-    my ( $self, $function, %args ) = validated_getter( \@_);
+    my ( $self, %args ) = validated_getter( \@_,
+        function => {optional => 1},
+    );
+
+    my $function = delete $args{function};
 
     if ( not defined $function ) {
-        $self->device_cache()->{value} = $self->query(':READ?');
+        $self->device_cache()->{value} = $self->query(command => ':READ?');
         return $self->device_cache()->{value};
 
     }
@@ -291,7 +302,7 @@ sub get_value {    # basic
         =~ /\b(PERIOD|period|PER|per|FREQUENCY|frequency|FREQ|freq|TEMPERATURE|temperature|TEMP|temp|DIODE|diode|DIOD|diod|CURRENT|current|CURR|curr|CURRENT:AC|current:ac|CURR:AC|curr:ac|CURRENT:DC|current:dc|CURR:DC|curr:dc|VOLTAGE|voltage|VOLT|volt|VOLTAGE:AC|voltage:ac|VOLT:AC|volt:ac|VOLTAGE:DC|voltage:dc|VOLT:DC|volt:dc|RESISTANCE|resisitance|RES|res|FRESISTANCE|fresistance|FRES|fres)\b/
         ) {
         my $cmd = sprintf( ":MEASURE:%s?", $function );
-        $self->device_cache()->{value} = $self->query($cmd);
+        $self->device_cache()->{value} = $self->query(command => $cmd);
         return $self->device_cache()->{value};
     }
     else {
@@ -300,37 +311,45 @@ sub get_value {    # basic
 }
 
 sub config_measurement {    # basic
-    my ( $self, $function, $nop, $time, $range, $trigger, %args ) = validated_getter( \@_,
+    my ( $self, %args ) = validated_getter( \@_,
+        function => {optional => 1},
         range => {default => 'DEF'},
         trigger => {default => 'BUS'}
     );
+
+    my $function = delete $args{function};
+    my $nop = delete $args{nop};
+    my $time = delete $args{time};
+    my $range = delete $args{range};
+    my $trigger = delete $args{trigger};
+
 
     # check input data
     if ( not defined $time ) {
         croak "too view arguments given in sub config_measurement. Expected arguments are FUNCTION, #POINTS, TIME, <RANGE>, <TRIGGERSOURCE>";
     }
 
-    $self->set_function($function);
+    $self->set_function(function => $function);
     print "sub config_measurement: set FUNCTION: "
         . $self->set_function() . "\n";
 
-    $self->set_range( $function, $range );
+    $self->set_range(function => $function, range => $range );
     print "sub config_measurement: set RANGE: " . $self->set_range() . "\n";
 
     my $nplc = ( $time * 50 ) / $nop;
     if ( $nplc < 0.01 ) {
         croak "unexpected value for TIME in sub config_measurement. Expected values are between 0.5 ... 50000 sec.";
     }
-    $self->set_nplc( $function, $nplc );
+    $self->set_nplc(function => $function, nplc => $nplc );
     print "sub config_measurement: set NPLC: " . $self->set_nplc() . "\n";
 
-    $self->_init_buffer($nop);
+    $self->_init_buffer(nop => $nop);
     print "sub config_measurement: init BUFFER: "
-        . $self->_init_buffer($nop) . "\n";
+        . $self->_init_buffer(nop => $nop) . "\n";
 
-    $self->_init_trigger($trigger);
+    $self->_init_trigger(source => $trigger);
     print "sub config_measurement: init TRIGGER: "
-        . $self->_init_trigger($trigger) . "\n";
+        . $self->_init_trigger(source => $trigger) . "\n";
 
     return $nplc;
 
@@ -338,12 +357,12 @@ sub config_measurement {    # basic
 
 sub trg {    # basic
     my ( $self, %args ) = validated_getter( \@_ );
-    $self->write("*TRG");
+    $self->write(command => "*TRG");
 }
 
 sub abort {    # basic
     my ( $self, %args ) = validated_getter( \@_ );
-    $self->write("ABORT");
+    $self->write(command => "ABORT");
 }
 
 sub wait {     # basic
@@ -351,62 +370,29 @@ sub wait {     # basic
         timeout => {default => 100}
     );
 
-#     my $status = Lab::VISA::viSetAttribute(
-#         $self->{vi}->{instr},
-#         $Lab::VISA::VI_ATTR_TMO_VALUE, $timeout
-#     );
-#     if ( $status != $Lab::VISA::VI_SUCCESS ) {
-#         croak "Error while setting baud: $status";
-#     }
-
     print "waiting for data ... \n";
     while (1) {
-        if ( $self->query(":STATUS:OPERATION:CONDITION?") >= 1024 ) {
+        if ( $self->query(command => ":STATUS:OPERATION:CONDITION?") >= 1024 ) {
             last;
         }    # check if measurement has been finished
         else { usleep(1e3); }
     }
-
-#     $status = Lab::VISA::viSetAttribute(
-#         $self->{vi}->{instr},
-#         $Lab::VISA::VI_ATTR_TMO_VALUE, 3000
-#     );
-#     if ( $status != $Lab::VISA::VI_SUCCESS ) {
-#         croak "Error while setting baud: $status";
-#     }
-
 }
 
 sub active {    # basic
-    my ( $self, $value, %args ) = validated_setter( \@_,
-        value => {default => 100}
+    my ( $self, %args ) = validated_no_param_setter( \@_,
+        timeout => {default => 100}
     );
 
-    my $timeout = $value;
-
-#     my $status = Lab::VISA::viSetAttribute(
-#         $self->{vi}->{instr},
-#         $Lab::VISA::VI_ATTR_TMO_VALUE, $timeout
-#     );
-#     if ( $status != $Lab::VISA::VI_SUCCESS ) {
-#         croak "Error while setting baud: $status";
-#     }
+    my $timeout = delete $args{timeout};
 
     # check if measurement has been finished
-    if ( $self->query(":STATUS:OPERATION:CONDITION?") >= 1024 ) {
+    if ( $self->query(command => ":STATUS:OPERATION:CONDITION?") >= 1024 ) {
         return 0;
     }
     else {
         return 1;
     }
-
-#     $status = Lab::VISA::viSetAttribute(
-#         $self->{vi}->{instr},
-#         $Lab::VISA::VI_ATTR_TMO_VALUE, 3000
-#     );
-#     if ( $status != $Lab::VISA::VI_SUCCESS ) {
-#         croak "Error while setting baud: $status";
-#     }
 }
 
 sub get_data {    # basic
@@ -418,27 +404,28 @@ sub get_data {    # basic
 
 sub _clear_buffer {    # internal
     my ( $self, %args ) = validated_getter( \@_ );
-    $self->write(":DATA:CLEAR");
-    return $self->query(":DATA:FREE?");
+    $self->write(command => ":DATA:CLEAR");
+    return $self->query(command => ":DATA:FREE?");
 }
 
 sub _init_buffer {     # internal
-    my ( $self, $value, %args ) = validated_setter( \@_ );
-    my $nop = $value;
+    my ( $self, $value, %args ) = validated_no_param_setter( \@_ );
+
+    my $nop = delete $args{nop};
 
     $self->_clear_buffer();
 
     if ( $nop >= 2 && $nop <= 1024 ) {
         $self->cls();
-        $self->write(":STATUS:OPERATION:ENABLE 16")
+        $self->write(command => ":STATUS:OPERATION:ENABLE 16")
             ;          # enable status bit for measuring/idle status
-        $self->write("INIT:CONT OFF");    # set DMM to IDLE-state
-        $self->_init_trigger("BUS")
+        $self->write(command => "INIT:CONT OFF");    # set DMM to IDLE-state
+        $self->_init_trigger(sourece => "BUS")
             ; # trigger-count = 1, trigger-delay = 0s, trigger-source = IMM/EXT/TIM/MAN/BUS
-        $self->_set_triggercount(1);
-        $self->_set_triggerdelay(0);
-        my $return_nop = $self->_set_samplecount($nop);
-        $self->write(":INIT");  # set DMM from IDLE to WAIT-FOR_TRIGGER status
+            $self->_set_triggercount(triggercount => 1);
+        $self->_set_triggerdelay(triggerdelay => 0);
+        my $return_nop = $self->_set_samplecount(nop => $nop);
+        $self->write(command => ":INIT");  # set DMM from IDLE to WAIT-FOR_TRIGGER status
         return $return_nop;
     }
     else {
@@ -447,16 +434,17 @@ sub _init_buffer {     # internal
 }
 
 sub _read_buffer {              # basic
-    my ( $self, $value, %args ) = validated_setter( \@_ );
-    my $print = $value;
+    my ( $self, %args ) = validated_no_param_setter( \@_ );
+
+    my $print = delete $args{print};
 
     # wait until data are available
     $self->wait();
 
     #read data
-    $self->write(":FORMAT:DATA ASCII; :FORMAT:ELEMENTS READING")
+    $self->write(command => ":FORMAT:DATA ASCII; :FORMAT:ELEMENTS READING")
         ;                       # select Format for reading DATA
-    my $data = $self->{vi}->LongQuery(":DATA:DATA?");
+    my $data = $self->query(command => ":DATA:DATA?", read_length => 65536);
     chomp $data;
     my @data = split( ",", $data );
 
@@ -471,30 +459,34 @@ sub _read_buffer {              # basic
 # -------------------------------------- TRIGGER ----------------------------------------------
 
 sub _init_trigger {    # internal
-    my ( $self, $source, %args ) = validated_getter( \@_,
+    my ( $self, %args ) = validated_getter( \@_,
         source => {default => "BUS"} # set BUS as default trigger source
     );
 
-    $self->_set_triggercount("DEF");    # DEF = 1
-    $self->_set_triggerdelay("DEF");    # DEF = 0
-    $self->_set_triggersource("BUS");
+    my $source = delete $args{source};
+
+    $self->_set_triggercount(triggersource => "DEF");    # DEF = 1
+    $self->_set_triggerdelay(triggersource => "DEF");    # DEF = 0
+    $self->_set_triggersource(triggersource => "BUS");
 
     return "trigger initiated";
 }
 
 sub _set_triggersource {                # internal
-    my ( $self, $triggersource, %args ) = validated_getter( \@_ );
+    my ( $self, %args ) = validated_getter( \@_ );
+
+    my $triggersource = delete $args{triggersource};
 
     #return setting
     if ( not defined $triggersource ) {
-        $triggersource = $self->query(":TRIGGER:SOURCE?");
+        $triggersource = $self->query(command => ":TRIGGER:SOURCE?");
         chomp($triggersource);
         return $triggersource;
     }
 
     #set triggersoource
     if ( $triggersource =~ /\b(IMM|imm|EXT|ext|TIM|tim|MAN|man|BUS|bus)\b/ ) {
-        return $self->query(
+        return $self->query(command =>
             sprintf( ":TRIGGER:SOURCE %s; SOURCE?", $triggersource ) );
     }
     else {
@@ -503,19 +495,20 @@ sub _set_triggersource {                # internal
 }
 
 sub _set_samplecount {    # internal
-    my ( $self, $value, %args ) = validated_setter( \@_ );
-    my $samplecount = $value;
+    my ( $self, %args ) = validated_no_param_setter( \@_ );
+
+    my $samplecount = delete $args{samplecount};
 
     #return setting
     if ( not defined $samplecount ) {
-        $samplecount = $self->query(":SAMPLE:COUNT?");
+        $samplecount = $self->query(command => ":SAMPLE:COUNT?");
         chomp($samplecount);
         return $samplecount;
     }
 
     #set samplecount
     if ( $samplecount >= 1 && $samplecount <= 1024 ) {
-        return $self->query(
+        return $self->query(command =>
             sprintf( ":SAMPLE:COUNT %d; COUNT?", $samplecount ) );
     }
     else {
@@ -525,12 +518,13 @@ sub _set_samplecount {    # internal
 }
 
 sub _set_triggercount {    # internal
-    my ( $self, $value, %args ) = validated_setter( \@_ );
-    my $triggercount = $value;
+    my ( $self, %args ) = validated_no_param_setter( \@_ );
+
+    my $triggercount = delete $args{triggercount};
 
     #return setting
     if ( not defined $triggercount ) {
-        $triggercount = $self->query(":TRIGGER:COUNT?");
+        $triggercount = $self->query(command => ":TRIGGER:COUNT?");
         chomp($triggercount);
         return $triggercount;
     }
@@ -538,7 +532,7 @@ sub _set_triggercount {    # internal
     #set triggercount
     if ( ( $triggercount >= 1 && $triggercount <= 1024 )
         or $triggercount =~ /\b(MIN|min|MAX|max|DEF|def)\b/ ) {
-        return $self->query(":TRIGGER:COUNT $triggercount; COUNT?");
+        return $self->query(command => ":TRIGGER:COUNT $triggercount; COUNT?");
     }
     else {
         croak "unexpected value for TRIGGERCOUNT in  sub _set_triggercount. Must be between 1 and 1024 or MIN/MAX/DEF.";
@@ -546,12 +540,14 @@ sub _set_triggercount {    # internal
 }
 
 sub _set_triggerdelay {    # internal
-    my ( $self, $value, %args ) = validated_setter( \@_ );
-    my $triggerdelay = $value;
+    my ( $self, %args ) = validated_no_param_setter( \@_ );
+
+    my $triggerdelay = delete $args{triggerdelay};
+
 
     #return setting
     if ( not defined $triggerdelay ) {
-        $triggerdelay = $self->query(":TRIGGER:DELAY?");
+        $triggerdelay = $self->query(command => ":TRIGGER:DELAY?");
         chomp($triggerdelay);
         return $triggerdelay;
     }
@@ -559,20 +555,22 @@ sub _set_triggerdelay {    # internal
     #set triggerdelay
     if ( ( $triggerdelay >= 0 && $triggerdelay <= 999999.999 )
         or $triggerdelay =~ /\b(MIN|min|MAX|max|DEF|def)\b/ ) {
-        return $self->query(":TRIGGER:DELAY $triggerdelay; DELAY?");
+        return $self->query(command => ":TRIGGER:DELAY $triggerdelay; DELAY?");
     }
     else {
-    croak "unexpected value for TRIGGERDELAY in  sub _set_triggerdelay. Must be between 0 and 999999.999sec or MIN/MAX/DEF.";
+        croak "unexpected value for TRIGGERDELAY in  sub _set_triggerdelay. Must be between 0 and 999999.999sec or MIN/MAX/DEF.";
     }
 }
 
 sub set_timer {    # advanced
-    my ( $self, $value, %args ) = validated_setter( \@_ );
-    my $timer = $value;
+    my ( $self, %args ) = validated_no_param_setter( \@_ );
+
+    my $timer = delete $args{timer};
+
 
     #return setting
     if ( not defined $timer ) {
-        $timer = $self->query(":TRIGGER:TIMER?");
+        $timer = $self->query(command => ":TRIGGER:TIMER?");
         chomp($timer);
         return $timer;
     }
@@ -580,17 +578,19 @@ sub set_timer {    # advanced
     #set timer
     if ( ( $timer >= 1e-3 && $timer <= 999999.999 )
         or $timer =~ /\b(MIN|min|MAX|max|DEF|def)\b/ ) {
-        return $self->query(":TRIGGER:TIMER $timer; TIMER?");
+        return $self->query(command => ":TRIGGER:TIMER $timer; TIMER?");
     }
     else {
-    croak "unexpected value for TIMER in  sub set_timer. Must be between 0 and 999999.999sec or MIN/MAX/DEF.";
+        croak "unexpected value for TIMER in  sub set_timer. Must be between 0 and 999999.999sec or MIN/MAX/DEF.";
     }
 }
 
 # -----------------------------------------DISPLAY --------------------------------
 
 sub display {    # basic
-    my ( $self, $state, %args ) = validated_getter( \@_ );
+    my ( $self, %args ) = validated_getter( \@_ );
+
+    my $state = delete $args{state};
 
     if ( not defined $state ) {
         return $self->_display_text();
@@ -605,33 +605,35 @@ sub display {    # basic
         return $self->_display_clear();
     }
     else {
-        return $self->_display_text($state);
+        return $self->_display_text(text => $state);
     }
 
 }
 
 sub display_on {    # for internal/advanced use only
     my ( $self, %args ) = validated_getter( \@_ );
-    $self->write(":DISPLAY:ENABLE ON");
+    $self->write(command => ":DISPLAY:ENABLE ON");
 }
 
 sub display_off {    # for internal/advanced use only
     my ( $self, %args ) = validated_getter( \@_ );
-    $self->write(":DISPLAY:ENABLE OFF")
+    $self->write(command => ":DISPLAY:ENABLE OFF")
         ; # when display is disabled, the instrument operates at a higher speed. Frontpanel commands are frozen.
 }
 
 sub display_text {    # for internal/advanced use only
-    my ( $self, $text, %args ) = validated_getter( \@_ );
+    my ( $self, %args ) = validated_getter( \@_ );
+
+    my $text = delete $args{text};
 
     if ($text) {
         chomp( $text
-                = $self->query("DISPLAY:TEXT:DATA '$text'; STATE 1; DATA?") );
+                = $self->query(command => "DISPLAY:TEXT:DATA '$text'; STATE 1; DATA?") );
         $text =~ s/\"//g;
         return $text;
     }
     else {
-        chomp( $text = $self->query("DISPLAY:TEXT:DATA?") );
+        chomp( $text = $self->query(command => "DISPLAY:TEXT:DATA?") );
         $text =~ s/\"//g;
         return $text;
     }
@@ -639,16 +641,15 @@ sub display_text {    # for internal/advanced use only
 
 sub display_clear {    # for internal/advanced use only
     my ( $self, %args ) = validated_getter( \@_ );
-    $self->write("DISPlay:TEXT:STATE 0");
+    $self->write(command => "DISPlay:TEXT:STATE 0");
 }
 
 # ----------------------------------------------------------------------------------------
 
 sub beep {
     my ( $self, %args ) = validated_getter( \@_ );
-    $self->write("BEEP");
+    $self->write(command => "BEEP");
 }
-
 
 __PACKAGE__->meta()->make_immutable();
 

@@ -209,9 +209,9 @@ sub arb_mode {
 When using the arbitrary waveform in play mode, a frequency division coefficient
 C<N> can be used to reduce the sample rate fs via the relations
 
-=over
+=over 4
 
-=item * fs = 1G/2^N, when N≤2
+=item * fs = 1G/2^N, When N≤2
 
 =item * fs = 1G/((N-2)*8), when N>2
 
@@ -497,7 +497,7 @@ sub get_offset{
 
 Apply a pulse function with the given parameters,
 
-=over
+=over 4
 
 =item * C<freq> = frequency in Hz
 
@@ -540,7 +540,7 @@ sub source_apply_pulse {
 
 Apply a ramp, sine, square function or arbitrary waveform with the given parameters,
 
-=over
+=over 4
 
 =item * C<freq> = frequency in Hz
 
@@ -735,6 +735,7 @@ sub source_burst_tdelay_query {
  $rigol->source_burst_trigger();
 
 Trigger a burst via program.
+
 =cut
 
 sub source_burst_trigger {
