@@ -22,7 +22,7 @@ sub BUILD {
 
   $self->clear();
   $self->cls();
-  $self->write(command => command => 'INIT:CONT OFF');
+  $self->write(command => 'INIT:CONT OFF');
 }
 
 =encoding utf8
