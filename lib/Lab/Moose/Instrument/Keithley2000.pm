@@ -351,13 +351,13 @@ sub wait {     # basic
         timeout => {default => 100}
     );
 
-    my $status = Lab::VISA::viSetAttribute(
-        $self->{vi}->{instr},
-        $Lab::VISA::VI_ATTR_TMO_VALUE, $timeout
-    );
-    if ( $status != $Lab::VISA::VI_SUCCESS ) {
-        croak "Error while setting baud: $status";
-    }
+#     my $status = Lab::VISA::viSetAttribute(
+#         $self->{vi}->{instr},
+#         $Lab::VISA::VI_ATTR_TMO_VALUE, $timeout
+#     );
+#     if ( $status != $Lab::VISA::VI_SUCCESS ) {
+#         croak "Error while setting baud: $status";
+#     }
 
     print "waiting for data ... \n";
     while (1) {
@@ -367,13 +367,13 @@ sub wait {     # basic
         else { usleep(1e3); }
     }
 
-    $status = Lab::VISA::viSetAttribute(
-        $self->{vi}->{instr},
-        $Lab::VISA::VI_ATTR_TMO_VALUE, 3000
-    );
-    if ( $status != $Lab::VISA::VI_SUCCESS ) {
-        croak "Error while setting baud: $status";
-    }
+#     $status = Lab::VISA::viSetAttribute(
+#         $self->{vi}->{instr},
+#         $Lab::VISA::VI_ATTR_TMO_VALUE, 3000
+#     );
+#     if ( $status != $Lab::VISA::VI_SUCCESS ) {
+#         croak "Error while setting baud: $status";
+#     }
 
 }
 
@@ -384,13 +384,13 @@ sub active {    # basic
 
     my $timeout = $value;
 
-    my $status = Lab::VISA::viSetAttribute(
-        $self->{vi}->{instr},
-        $Lab::VISA::VI_ATTR_TMO_VALUE, $timeout
-    );
-    if ( $status != $Lab::VISA::VI_SUCCESS ) {
-        croak "Error while setting baud: $status";
-    }
+#     my $status = Lab::VISA::viSetAttribute(
+#         $self->{vi}->{instr},
+#         $Lab::VISA::VI_ATTR_TMO_VALUE, $timeout
+#     );
+#     if ( $status != $Lab::VISA::VI_SUCCESS ) {
+#         croak "Error while setting baud: $status";
+#     }
 
     # check if measurement has been finished
     if ( $self->query(":STATUS:OPERATION:CONDITION?") >= 1024 ) {
@@ -400,13 +400,13 @@ sub active {    # basic
         return 1;
     }
 
-    $status = Lab::VISA::viSetAttribute(
-        $self->{vi}->{instr},
-        $Lab::VISA::VI_ATTR_TMO_VALUE, 3000
-    );
-    if ( $status != $Lab::VISA::VI_SUCCESS ) {
-        croak "Error while setting baud: $status";
-    }
+#     $status = Lab::VISA::viSetAttribute(
+#         $self->{vi}->{instr},
+#         $Lab::VISA::VI_ATTR_TMO_VALUE, 3000
+#     );
+#     if ( $status != $Lab::VISA::VI_SUCCESS ) {
+#         croak "Error while setting baud: $status";
+#     }
 }
 
 sub get_data {    # basic
