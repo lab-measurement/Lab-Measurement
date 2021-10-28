@@ -16,7 +16,7 @@ use Time::HiRes qw (usleep);
 
 extends 'Lab::Moose::Instrument';
 
-# ---------------------- Init DMM --------------------------------------------------------
+# ---------------------- Init DMM ----------------------------------------------
 sub BUILD {
   my $self = shift;
 
@@ -39,25 +39,18 @@ sub BUILD {
 
 =head1 DESCRIPTION
 
-The Lab::Moose::Instrument::Keithley2000 class implements an interface to the Keithley 2000 digital multimeter.
+The Lab::Moose::Instrument::Keithley2000 class implements an interface to the 
+Keithley 2000 digital multimeter.
 
 =head1 METHODS
-
-Used roles:
-
-=over
-
-=item L<Lab::Moose::Instrument::Common>
-
-=item L<Lab::Moose::Instrument::SCPI::Sense::Range>
-
-=item L<Lab::Moose::Instrument::SCPI::Sense::NPLC>
 
 =back
 
 =cut
 
 # ----------------------- Config DMM ------------------------------------------------------
+
+# CHECK: this could probably be implemented with Lab::Moose::Instrument::SCPI::Sense::Function
 
 sub set_function {    # basic
     my ( $self, %args ) = validated_no_param_setter( \@_,
@@ -73,6 +66,8 @@ sub get_function {
     my $function = $self->query( command => ":SENSE:FUNCTION?");
     return substr( $function, 1, -1 );    # cut off quotes ""
 }
+
+# CHECK: Lab::Moose::Instrument::SCPI::Sense::Range
 
 sub set_range {                           # basic
     my ( $self, %args ) = validated_no_param_setter( \@_,
