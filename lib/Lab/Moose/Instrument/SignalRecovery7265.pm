@@ -46,10 +46,7 @@ sub BUILD {
  my $SR = instrument(
     type => 'SignalRecovery7265',
     connection_type => 'LinuxGPIB'
-    %connection_options
  );
-
-
 
 =cut
 
@@ -71,17 +68,11 @@ sub get_id {
 
 	$SR->set_imode(value => $imode);
 
-Preset Signal Recovery 7260 / 7265 Lock-in Amplifier
-
-=over 4
-
-=item $imode
+Set input amplifier mode; valid arguments for imode are:
 
 	 $imode == 0  --> Current Mode OFF
 	 $imode == 1  --> High Bandwidth Current Mode
 	 $imode == 2  --> Low Noise Current Mode
-
-=back
 
 =cut
 
@@ -91,10 +82,6 @@ sub set_imode {    # basic setting
     my ( $self, $value, %args ) = validated_setter( \@_,
         value => { isa => 'Int' }
     );
-
-    # $imode == 0  --> Current Mode OFF
-    # $imode == 1  --> High Bandwidth Current Mode
-    # $imode == 2  --> Low Noise Current Mode
 
     if ( defined $value and ( $value == 0 || $value == 1 || $value == 2 ) ) {
         $self->write(command => sprintf("IMODE %d", $value));
@@ -114,18 +101,12 @@ sub get_imode {
 
 	$SR->set_vmode(value => $vmode);
 
-Preset Signal Recovery 7260 / 7265 Lock-in Amplifier
-
-=over 4
-
-=item $vmode
+Set input channel and/or differental mode; valid arguments for vmode are:
 
 	  $vmode == 0  --> Both inputs grounded (testmode)
 	  $vmode == 1  --> A input only
 	  $vmode == 2  --> -B input only
 	  $vmode == 3  --> A-B differential mode
-
-=back
 
 =cut
 
@@ -135,11 +116,6 @@ sub set_vmode {
     my ( $self, $value, %args ) = validated_setter( \@_,
         value => { isa => 'Int' }
     );
-
-    # $vmode == 0  --> Both inputs grounded (testmode)
-    # $vmode == 1  --> A input only
-    # $vmode == 2  --> -B input only
-    # $vmode == 3  --> A-B differential mode
 
     if ( defined $value
         and ( $value == 0 || $value == 1 || $value == 2 || $value == 3 ) ) {
@@ -160,16 +136,11 @@ sub get_vmode {
 
 	$SR->set_fet(value => $fet);
 
-Preset Signal Recovery 7260 / 7265 Lock-in Amplifier
-
-=over 4
-
-=item $fet
+Set input impedance and noise via selection of the initial stage transistor; 
+valid values for fet are:
 
 	  $fet == 0 --> Bipolar device, 10 kOhm input impedance, 2nV/sqrt(Hz) voltage noise at 1 kHz
 	  $fet == 1 --> FET, 10 MOhm input impedance, 5nV/sqrt(Hz) voltage noise at 1 kHz
-
-=back
 
 =cut
 
@@ -179,8 +150,6 @@ sub set_fet {
     my ( $self, $value, %args ) = validated_setter( \@_,
         value => { isa => 'Int' }
     );
-    # $value == 0 --> Bipolar device, 10 kOhm input impedance, 2nV/sqrt(Hz) voltage noise at 1 kHz
-    # $value == 1 --> FET, 10 MOhm input impedance, 5nV/sqrt(Hz) voltage noise at 1 kHz
 
     if ( defined $value and ( $value == 0 || $value == 1 ) ) {
         $self->write(command => sprintf( "FET %d", $value ));
@@ -200,16 +169,10 @@ sub get_fet {
 
 	$SR->set_float(value => $float);
 
-Preset Signal Recovery 7260 / 7265 Lock-in Amplifier
-
-=over 4
-
-=item $float
+Switch ground reference of the input connector on or off; valid values for float are:
 
 	  $float == 0 --> input conector shield set to GROUND
 	  $float == 1 --> input conector shield set to FLOAT
-
-=back
 
 =cut
 
@@ -219,9 +182,6 @@ sub set_float {
     my ( $self, $value, %args ) = validated_setter( \@_,
         value => { isa => 'Int' }
     );
-
-    # $value == 0 --> input conector shield set to GROUND
-    # $value == 1 --> input conector shield set to FLOAT
 
     if ( defined $value and ( $value == 0 || $value == 1 ) ) {
         $self->write(command => sprintf( "FLOAT %d", $value ));
@@ -241,16 +201,10 @@ sub get_float {
 
 	$SR->set_cp(value => $cp);
 
-Preset Signal Recovery 7260 / 7265 Lock-in Amplifier
-
-=over 4
-
-=item $cp
+Set input coupling to ac or dc; valid values are:
 
 	  $cp == 0 --> input coupling mode AC\n
 	  $cp == 1 --> input coupling mode DC\n
-
-=back
 
 =cut
 
@@ -260,9 +214,6 @@ sub set_cp {
     my ( $self, $value, %args ) = validated_setter( \@_,
         value => { isa => 'Int' }
     );
-
-    # $value == 0 --> input conector shield set to GROUND
-    # $value == 1 --> input conector shield set to FLOAT
 
     if ( defined $value and ( $value == 0 || $value == 1 ) ) {
         $self->write(command => sprintf( "CP %d", $value ));
@@ -282,17 +233,11 @@ sub get_cp {
 
 	$SR->set_sen(value => $value);
 
-Preset Signal Recovery 7260 / 7265 Lock-in Amplifier
-
-=over 4
-
-=item $value
+Set input sensitivity; valid values are:
 
 	  SENSITIVITY (IMODE == 0) --> 2nV, 5nV, 10nV, 20nV, 50nV, 100nV, 200nV, 500nV, 1uV, 2uV, 5uV, 10uV, 20uV, 50uV, 100uV, 200uV, 500uV, 1mV, 2mV, 5mV, 10mV, 20mV, 50mV, 100mV, 200mV, 500mV, 1V\n
 	  SENSITIVITY (IMODE == 1) --> 2fA, 5fA, 10fA, 20fA, 50fA, 100fA, 200fA, 500fA, 1pA, 2pA, 5pA, 10pA, 20pA, 50pA, 100pA, 200pA, 500pA, 1nA, 2nA, 5nA, 10nA, 20nA, 50nA, 100nA, 200nA, 500nA, 1uA\n
 	  SENSITIVITY (IMODE == 2) --> 2fA, 5fA, 10fA, 20fA, 50fA, 100fA, 200fA, 500fA, 1pA, 2pA, 5pA, 10pA, 20pA, 50pA, 100pA, 200pA, 500pA, 1nA, 2nA, 5nA, 10nA\n
-
-=back
 
 Every value can be entered via string, for example
 
