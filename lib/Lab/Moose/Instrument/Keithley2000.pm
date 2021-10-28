@@ -44,8 +44,6 @@ Keithley 2000 digital multimeter.
 
 =head1 METHODS
 
-=back
-
 =cut
 
 # ----------------------- Config DMM ------------------------------------------------------
