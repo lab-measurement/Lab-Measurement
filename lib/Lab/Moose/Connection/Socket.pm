@@ -82,6 +82,8 @@ sub Write {
     my $write_termchar = $self->write_termchar() // '';
     my $command        = $args{command} . $write_termchar;
     my $timeout        = $self->_timeout_arg(%args);
+    my $host    = $self->host();
+    my $port    = $self->port();
 
     my $client = $self->client();
 
@@ -90,10 +92,10 @@ sub Write {
     my $select  = $self->select();
     while ($length) {
         if ( !$select->can_write($timeout) ) {
-            croak "timeout in Socket connection Write";
+            croak "timeout in Socket connection Write, host $host on port $port";
         }
         my $bytes_written = $client->syswrite( $command, $length, $written )
-            or croak("Write: syswrite failed: $!");
+            or croak("Write: syswrite to host $host on port $port failed: $!");
         $written += $bytes_written;
         $length -= $bytes_written;
     }
@@ -109,6 +111,8 @@ sub Read {
     my $read_length = $self->_read_length_arg(%args);
     my $client      = $self->client();
     my $select      = $self->select();
+    my $host    = $self->host();
+    my $port    = $self->port();
 
     my $string;
     my $length = 0;
@@ -118,18 +122,18 @@ sub Read {
         # Keep reading until we have $read_length bytes.
         while ($read_length) {
             if ( !$select->can_read($timeout) ) {
-                croak "timeout in connection Read";
+                croak "timeout in connection Read, host $host on port $port";
             }
             my $read_bytes
                 = $client->sysread( $string, $read_length, $length )
-                or croak "socket read error: $!";
+                or croak "socket read error, host $host on port $port: $!";
             $read_length -= $read_bytes;
             $length += $read_bytes;
         }
     }
     else {
         if ( !$select->can_read($timeout) ) {
-            croak "timeout in connection Read";
+            croak "timeout in connection Read, host $host on port $port";
         }
         $client->sysread( $string, $read_length )
             or croak "socket read error: $!";
