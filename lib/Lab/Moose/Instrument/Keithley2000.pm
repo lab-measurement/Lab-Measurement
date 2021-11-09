@@ -16,16 +16,30 @@ use Time::HiRes qw (usleep);
 
 extends 'Lab::Moose::Instrument';
 
+with qw(
+    Lab::Moose::Instrument::Common
+    Lab::Moose::Instrument::SCPI::Sense::Function
+    Lab::Moose::Instrument::SCPI::Sense::NPLC
+    Lab::Moose::Instrument::SCPI::Sense::Range
+    Lab::Moose::Instrument::SCPI::Format
+    Lab::Moose::Instrument::SCPI::Initiate
+);
+
 # ---------------------- Init DMM ----------------------------------------------
 sub BUILD {
   my $self = shift;
 
   $self->clear();
   $self->cls();
-  $self->write(command => 'INIT:CONT OFF');
+  $self->initiate_continuous(value => 0);
 }
 
 =encoding utf8
+
+=head1 WORK IN PROGRESS
+
+Most of the basic methods work, all methods from the Moose:Instrument roles are
+tested to work flawlessly. Beware of bugs nevertheless... 
 
 =head1 SYNOPSIS
 
@@ -39,181 +53,42 @@ sub BUILD {
 
 =head1 DESCRIPTION
 
-The Lab::Moose::Instrument::Keithley2000 class implements an interface to the 
+The Lab::Moose::Instrument::Keithley2000 class implements an interface to the
 Keithley 2000 digital multimeter.
 
 =head1 METHODS
+
+Used roles:
+
+=over
+
+=item L<Lab::Moose::Instrument::Common>
+
+=item L<Lab::Moose::Instrument::SCPI::Sense::Function>
+
+=item L<Lab::Moose::Instrument::SCPI::Sense::NPLC>
+
+=item L<Lab::Moose::Instrument::SCPI::Sense::Range>
+
+=item L<Lab::Moose::Instrument::SCPI::Format>
+
+=item L<Lab::Moose::Instrument::SCPI::Initiate>
+
+=back
 
 =cut
 
 # ----------------------- Config DMM ------------------------------------------------------
 
-# CHECK: this could probably be implemented with Lab::Moose::Instrument::SCPI::Sense::Function
-
-sub set_function {    # basic
-    my ( $self, %args ) = validated_no_param_setter( \@_,
-      function => { isa => enum( [qw/PERIOD period PER per FREQUENCY frequency FREQ freq TEMPERATURE temperature TEMP temp DIODE diode DIOD diod CURRENT current CURR curr CURRENT:AC current:ac CURR:AC curr:ac CURRENT:DC current:dc CURR:DC curr:dc VOLTAGE voltage VOLT volt VOLTAGE:AC voltage:ac VOLT:AC volt:ac VOLTAGE:DC voltage:dc VOLT:DC volt:dc RESISTANCE resisitance RES res FRESISTANCE fresistance FRES fres/]) },
-    );
-    my $function = delete $args{function};
-
-    $self->write(command => ":SENSE:FUNCTION ".$function, %args );
-}
-
-sub get_function {
-    my ( $self, %args ) = validated_getter( \@_);
-    my $function = $self->query( command => ":SENSE:FUNCTION?");
-    return substr( $function, 1, -1 );    # cut off quotes ""
-}
-
-# CHECK: Lab::Moose::Instrument::SCPI::Sense::Range
-
-sub set_range {                           # basic
-    my ( $self, %args ) = validated_no_param_setter( \@_,
-        function => {optional => 1}
-    );
-
-    my $function = delete $args{function};
-    my $range = delete $args{range};
-
-    # return settings
-
-    if ( not defined $function ) {
-        $function = $self->get_function();
-    }
-
-    #set range
-    if ( $function
-        =~ /\b(CURRENT|current|CURR|curr|CURRENT:AC|current:ac|CURR:AC|curr:ac","CURRENT:DC|current:dc|CURR:DC|curr:dc)\b/
-        ) {
-        if ( $range =~ /\b(AUTO|auto|MIN|min|MAX|max|DEF|def)\b/ ) {
-
-            #pass
-        }
-        elsif ( ( $range >= 0 && $range <= 3.03 ) ) {
-            $range = sprintf( "%.2f", $range );
-        }
-        else {
-            croak "unexpected value in sub config_range for 'RANGE'. Must be between 0 and 3.03.";
-        }
-    }
-
-    elsif ( $function =~ /\b(VOLTAGE:AC|voltage:ac|VOLT:AC|volt:ac)\b/ ) {
-        if ( $range =~ /\b(AUTO|auto|MIN|min|MAX|max|DEF|def)\b/ ) {
-
-            #pass
-        }
-        elsif ( ( $range >= 0 && $range <= 757.5 ) ) {
-            $range = sprintf( "%.1f", $range );
-        }
-        else {
-            croak "unexpected value in sub config_range for 'RANGE'. Must be between 0 and 757.5.";
-        }
-    }
-    elsif ( $function
-        =~ /\b(VOLTAGE|voltage|VOLT|volt|VOLTAGE:DC|voltage:dc|VOLT:DC|volt:dc)\b/
-        ) {
-        if ( $range =~ /\b(AUTO|auto|MIN|min|MAX|max|DEF|def)\b/ ) {
-
-            #pass
-        }
-        elsif ( ( $range >= 0 && $range <= 1010 ) ) {
-            $range = sprintf( "%.1f", $range );
-        }
-        else {
-            croak "unexpected value in sub config_range for 'RANGE'. Must be between 0 and 1010.";
-        }
-    }
-    elsif ( $function
-        =~ /\b(RESISTANCE|resisitance|RES|res|FRESISTANCE|fresistance|FRES|fres)\b/
-        ) {
-        if ( $range =~ /\b(AUTO|auto|MIN|min|MAX|max|DEF|def)\b/ ) {
-
-            #pass
-        }
-        elsif ( ( $range >= 0 && $range <= 101e6 ) ) {
-            $range = sprintf( "%d", $range );
-        }
-        else {
-            croak "unexpected value in sub config_range for 'RANGE'. Must be between 0 and 101E6.";
-        }
-    }
-    elsif ( $function =~ /\b(DIODE|DIOD|diode|diod)\b/ ) {
-        $function = "DIOD:CURRENT";
-        if ( $range < 0 || $range > 1e-3 ) {
-            croak "unexpected value in sub config_range for 'RANGE'. Must be between 0 and 1E-3.";
-        }
-    }
-    else {
-        croak "unexpected value in sub set_range. Function can be CURRENT:AC, CURRENT:DC, VOLTAGE:AC, VOLTAGE:DC, RESISTANCE, FRESISTANCE";
-    }
-
-    # set range
-    if ( $range =~ /\b(AUTO|auto)\b/ ) {
-        $self->write(command => sprintf( ":SENSE:%s:RANGE:AUTO ON", $function ) );
-    }
-    elsif ( $range =~ /\b(MIN|min|MAX|max|DEF|def)\b/ ) {
-        $self->write(command => sprintf( ":SENSE:%s:RANGE %s", $function, $range ) );
-    }
-    else {
-        $self->write(command => sprintf( ":SENSE:%s:RANGE %.2f", $function, $range ) );
-    }
-    return;
-
-}
-
-sub set_nplc {    # basic
-    my ( $self, %args ) = validated_getter( \@_,
-        function => {optional => 1}
-    );
-
-    my $function = delete $args{function};
-    my $nplc = delete $args{nplc};
-
-
-    # return settings if no new values are given
-    if ( not defined $function ) {
-        $function = $self->get_function();
-    }
-
-    if ( ( $nplc < 0.01 && $nplc > 10 )
-        and not $nplc =~ /\b(MAX|max|MIN|min|DEF|def)\b/ ) {
-            croak "unexpected value for NPLC in sub set_sense_nplc. Expected values are between 0.01 and 1000 POWER LINE CYCLES or MIN/MAX/DEF.";
-    }
-
-    if ( $function
-        =~ /\b(CURRENT|CURR|current|curr|VOLTAGE|VOLT|voltage|volt|RESISTANCE|RES|resistance|res)\b/
-        ) {
-        if ( $nplc =~ /\b(MAX|max|MIN|min|DEF|def)\b/ ) {
-            return $self->query(command =>
-                sprintf( ":SENSE:%s:NPLC %s; NPLC?", $function, $nplc ) );
-        }
-        elsif ( $nplc =~ /\b\d+(e\d+|E\d+|exp\d+|EXP\d+)?\b/ ) {
-            return $self->query(command =>
-                sprintf( ":SENSE:%s:NPLC %e; NPLC?", $function, $nplc ) );
-        }
-        else {
-            croak "unexpected value for NPLC in sub set_sense_nplc. Expected values are between 0.01 and 10 POWER LINE CYCLES or MIN/MAX/DEF.";
-        }
-    }
-    else {
-        croak "unexpected value for FUNCTION in sub set_sense_nplc. Expected values are CURRENT:AC, CURRENT:DC, VOLTAGE:AC, VOLTAGE:DC, RESISTANCE, FRESISTANCE, TEMPERATURE";
-    }
-}
-
 sub set_averaging {    # advanced
     my ( $self, %args ) = validated_getter( \@_,
-        function => {optional => 1},
         mode => {default => "REPEAT"} # set REPeating as standard value; MOVing would be 2nd option
     );
 
-    my $function = delete $args{function};
     my $mode = delete $args{mode};
     my $count = delete $args{count};
 
-
-    if ( not defined $function ) {
-        $function = $self->get_function();    # get selected function
-    }
+    my $function = $self->sense_function_query();    # get selected function
 
     if ( $mode =~ /\b(REPEAT|repeat|MOVING|moving)\b/ ) {
         if ( $count >= 0.5 and $count <= 100.5 ) {
@@ -249,24 +124,16 @@ sub set_averaging {    # advanced
         else {
             croak "unexpected value for COUNT in sub set_averaging. Expected values are between 1 ... 100 or MIN/MAX/DEF/OFF.";
         }
-
     }
     else {
         croak "unexpected value for FILTERMODE in sub set_averaging. Expected values are REPEAT and MOVING.";
     }
-
 }
 
 sub get_averaging {
-    my ( $self, %args ) = validated_getter( \@_,
-        function => {optional => 1},
-    );
+    my ( $self, %args ) = validated_getter( \@_ );
 
-    my $function = delete $args{function};
-
-    if ( not defined $function ) {
-        $function = $self->get_function();
-    }
+    my $function = $self->sense_function_query();
 
     my $count
         = $self->query(command => ":SENSE:$function:AVERAGE:STATE?; COUNT?; TCONTROL?");
@@ -277,26 +144,65 @@ sub get_averaging {
 
 }
 
-# ----------------------------------------- MEASUREMENT ----------------------------------
+cache sense_average_state => ( getter => 'sense_average_state_query' );
 
-sub get_value {    # basic
-    my ( $self, %args ) = validated_getter( \@_,
-        function => {optional => 1},
+sub sense_average_state_query {
+    my ( $self, %args ) = validated_getter( \@_ );
+
+    my $function = $self->sense_function_query();
+
+    return $self->cached_sense_average_state(
+        $self->query( command => "SENS:$function:AVER:STAT?", %args ) );
+}
+
+sub sense_average_state {
+    my ( $self, $value, %args ) = validated_setter( \@_ );
+
+    my $function = $self->sense_function_query();
+
+    $self->write( command => "SENS:$function:AVER $value", %args );
+    return $self->cached_sense_average_state($value);
+}
+
+cache sense_average_count => (
+    getter => 'sense_average_count_query',
+    isa    => 'Int'
+);
+
+sub sense_average_count_query {
+    my ( $self, %args ) = validated_getter( \@_ );
+
+    my $function = $self->sense_function_query();
+
+    return $self->cached_sense_average_state(
+        $self->query( command => "SENS:$function:AVER:COUN?", %args ) );
+}
+
+sub sense_average_count {
+    my ( $self, $value, %args ) = validated_setter( \@_,
+        value => {isa => 'Int'}
     );
 
-    my $function = delete $args{function};
+    my $function = $self->sense_function_query();
 
-    if ( not defined $function ) {
-        $self->device_cache()->{value} = $self->query(command => ':READ?');
-        return $self->device_cache()->{value};
+    $self->write( command => "SENS:$function:AVER:COUN $value", %args );
+    return $self->cached_sense_average_state($value);
+}
 
-    }
-    elsif ( $function
+# ----------------------------------------- MEASUREMENT ----------------------------------
+
+cache value => ( getter => 'get_value' );
+
+sub get_value {    # basic
+    my ( $self, %args ) = validated_getter( \@_ );
+
+    my $function = $self->sense_function_query();
+
+    if ( $function
         =~ /\b(PERIOD|period|PER|per|FREQUENCY|frequency|FREQ|freq|TEMPERATURE|temperature|TEMP|temp|DIODE|diode|DIOD|diod|CURRENT|current|CURR|curr|CURRENT:AC|current:ac|CURR:AC|curr:ac|CURRENT:DC|current:dc|CURR:DC|curr:dc|VOLTAGE|voltage|VOLT|volt|VOLTAGE:AC|voltage:ac|VOLT:AC|volt:ac|VOLTAGE:DC|voltage:dc|VOLT:DC|volt:dc|RESISTANCE|resisitance|RES|res|FRESISTANCE|fresistance|FRES|fres)\b/
         ) {
-        my $cmd = sprintf( ":MEASURE:%s?", $function );
-        $self->device_cache()->{value} = $self->query(command => $cmd);
-        return $self->device_cache()->{value};
+            print $function."\n";
+        return $self->query(command => 'MEAS?' );
     }
     else {
         croak "unexpected value for 'function' in sub measure. Function can be CURRENT:AC, CURRENT:DC, VOLTAGE:AC, VOLTAGE:DC, RESISTANCE, FRESISTANCE, PERIOD, FREQUENCY, TEMPERATURE, DIODE";

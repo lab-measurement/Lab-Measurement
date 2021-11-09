@@ -45,8 +45,24 @@ sub BUILD {
  # Constructor
  my $SR = instrument(
     type => 'SignalRecovery7265',
-    connection_type => 'LinuxGPIB'
+    connection_type => 'LinuxGPIB',
+    min_units => 0,
+    max_units => 1,
+    max_units_per_step => 0.001,
+    max_units_per_second => 1
  );
+
+=over 4
+
+=item * C<max_units>
+
+=item * C<min_units>
+
+=item * C<max_units_per_step>
+
+=item * C<max_units_per_second>
+
+=back
 
 =cut
 
@@ -136,7 +152,7 @@ sub get_vmode {
 
 	$SR->set_fet(value => $fet);
 
-Set input impedance and noise via selection of the initial stage transistor; 
+Set input impedance and noise via selection of the initial stage transistor;
 valid values for fet are:
 
 	  $fet == 0 --> Bipolar device, 10 kOhm input impedance, 2nV/sqrt(Hz) voltage noise at 1 kHz
@@ -396,6 +412,15 @@ sub get_sen {
 
     return $matrix_reverse[$imode][ $self->cached_sen($self->query(command =>"SEN", %args)) - 1 ];
 }
+
+=head2 auto_sen
+
+	$SR->auto_sen(value => $amplitude);
+
+Adjust the Lock-Ins sensitivity based on a specified amplitude value $amplitude.
+This function will select a sensitivity, that covers the given amplitude the best.
+
+=cut
 
 sub auto_sen {
     my ( $self, $value, %args ) = validated_setter( \@_,
@@ -691,8 +716,9 @@ sub autophase {
     usleep( 5 * $self->get_tc() * 1e6 );
 }
 
-=head2 set_phase
+=head2 set_refpha/set_phase
 
+    $SR->set_refpha(value => $phase);
 	$SR->set_phase(value => $phase);
 
 Preset Signal Recovery 7260 / 7265 Lock-in Amplifier
@@ -704,6 +730,28 @@ Preset Signal Recovery 7260 / 7265 Lock-in Amplifier
 	  REFERENCE PHASE can be between 0 ... 360°
 
 =back
+
+Use C<set_refpha> to instantly set the Lock-Ins phase, use C<set_phase> for a
+linear step sweep to the desired phase. Like the L<Lab::Moose::Instrument::LinearStepSweep>
+class, optional arguments for C<set_phase> are
+
+=item $verbose
+
+Default = true. Set to false if you don't want the sweeping process to be
+printed on-screen.
+
+=item $step
+
+Default = 1 [°]. Adjust the step size in degrees, can't be smaller than 0.001°.
+
+=item $rate
+
+Default = 30 [°/s]. Adjust the sweep rate in degrees per second, can't be
+smaller than 0.001°/s.
+
+=back
+
+Note that C<set_phase> is used in phase sweeps.
 
 =cut
 
@@ -740,7 +788,7 @@ sub set_phase {
         value   => { isa => 'Num' },
         verbose => { isa => 'Bool', default => 1 },
         step    => { isa => 'Num', default => 1},
-        rate    => { isa => 'Num', default => 36},
+        rate    => { isa => 'Num', default => 30},
     );
     my $to             = delete $args{value};
     my $verbose        = delete $args{verbose};
@@ -753,12 +801,12 @@ sub set_phase {
         my $distance       = abs( $to - $from );
 
         # Enforce step size and rate.
-        if ( $step < 1e-9 ) {
-            croak "step size must be > 0";
+        if ( $step < 1e-3 ) {
+            croak "step size must be >= 0.001 degrees";
         }
 
-        if ( $rate < 1e-9 ) {
-            croak "rate must be > 0";
+        if ( $rate < 1e-3 ) {
+            croak "rate must be >= 0.001 degrees/second";
         }
 
         my @steps = linspace(
@@ -774,6 +822,7 @@ sub set_phase {
             $time_per_step = $step / $rate;
         }
 
+        usleep(10);
         my $time = time();
 
         if ( $time < $last_timestamp ) {
@@ -811,7 +860,7 @@ sub set_phase {
         STDOUT->autoflush($autoflush);
     }
     else {
-        croak "\nSIGNAL REOCOVERY 726x:\nunexpected value for REFERENCE PHASE in sub set_phase. Expected values must be in the range 0..360";
+        croak "\nSIGNAL REOCOVERY 726x:\nunexpected value for REFERENCE PHASE in sub set_phase. Expected values must be in the range -360..360";
     }
 }
 
