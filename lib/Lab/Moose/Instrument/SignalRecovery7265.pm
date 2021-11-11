@@ -735,6 +735,8 @@ Use C<set_refpha> to instantly set the Lock-Ins phase, use C<set_phase> for a
 linear step sweep to the desired phase. Like the L<Lab::Moose::Instrument::LinearStepSweep>
 class, optional arguments for C<set_phase> are
 
+=over 4
+
 =item $verbose
 
 Default = true. Set to false if you don't want the sweeping process to be
