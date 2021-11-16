@@ -18,6 +18,8 @@ use File::Path 'make_path';
 use Lab::Moose::Catfile 'our_catfile';
 use IO::Handle;
 
+use Net::RFC3161::Timestamp;
+
 use Carp;
 
 use namespace::autoclean;
@@ -38,6 +40,18 @@ has autoflush => (
     is      => 'ro',
     isa     => 'Bool',
     default => 1
+);
+
+has timestamp => (
+    is      => 'ro',
+    isa     => 'Bool',
+    default => 0
+);
+
+has tsauthority => (
+    is      => 'ro',
+    isa     => 'Str',
+    default => 'dfn.de'
 );
 
 has filehandle => (
@@ -125,8 +139,6 @@ sub _open_file {
     $self->_filehandle($fh);
 }
 
-__PACKAGE__->meta->make_immutable();
-
 =head1 METHODS
 
 =head2 new
@@ -152,6 +164,22 @@ filename in the folder.
 
 Enable autoflush of the filehandle. On by default.
 
+=item timestamp
+
+Request RFC3616 compatible timestamps of the measured data
+upon completion, from the timestamp authority specified via
+tsauthority. Off by default.
+
+If enabled, an additional file with the suffix .ts containing
+the signed timestamp will be created.
+
+=item tsauthority
+
+When timestamps are requested, specify the authority to be
+contacted. The parameter can be a shorthand as, e.g., "dfn.de";
+see L<Net::RFC3161::Timestamp> for details. If no valid shorthand
+is found, the parameter is interpreted as a RFC3161 URL.
+
 =item mode
 
 C<open> mode. Defaults to ">".
@@ -171,5 +199,25 @@ path relative to the current working directory.
 =back
 
 =cut
+
+sub _close_file {
+    my $self = shift;
+    my $fh = $self->filehandle();
+
+    close $fh || croak "cannot close datafile";
+}
+
+sub DEMOLISH {
+    my $self = shift;
+
+    if ( $self->timestamp() ) {
+
+        $self->_close_file();
+        attest_file($self->path(), $self->path().".ts", $self->tsauthority());
+
+    }
+};
+
+__PACKAGE__->meta->make_immutable();
 
 1;
