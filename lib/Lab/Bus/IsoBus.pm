@@ -224,7 +224,7 @@ This is the IsoBus bus class. Typically you create it implicit through instrumen
 	base_connection => new Lab::Bus::VISA_GPIB({ gpib_board => 0, gpib_address => 24}),
 	isobus_addres => 2,
   }
-  
+
 =head1 METHODS
 
 =head2 connection_new
@@ -288,4 +288,3 @@ For further information refer to the specific connection class of $base_connecti
 =cut
 
 1;
-

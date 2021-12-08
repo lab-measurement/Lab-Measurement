@@ -8,7 +8,7 @@ use Moose;
 use Moose::Util::TypeConstraints qw/enum/;
 use MooseX::Params::Validate;
 use Lab::Moose::Instrument qw/
-    validated_getter validated_setter setter_params /;
+    validated_getter validated_setter validated_no_param_setter setter_params /;
 use Lab::Moose::Instrument::Cache;
 use Lab::Moose::Countdown 'countdown';
 use Carp;
@@ -119,7 +119,7 @@ sub _check_sweep_parameters {
      type => 'OI_IPS',
      connection_type => 'LinuxGPIB',
      connection_options => {pad => 10},
-     
+
      # safety limits, should be fixed in a subclass of this driver
      max_fields => [7, 10],          # absolute maximum field of 10T
      max_field_rates => [0.1, 0.05], # 0.1 T/min maximum rate in range 0T..7T
@@ -162,7 +162,7 @@ around query => sub {
         croak "IPS returned error '$result' on command '$cmd'";
     }
     elsif ( defined $cmd_char and ( $status ne $cmd_char ) ) {
-        croak "IPS returned unexpected answer. Expected '$cmd_char' prefix, 
+        croak "IPS returned unexpected answer. Expected '$cmd_char' prefix,
 received '$status' on command '$cmd'";
     }
     return substr( $result, 1 );
@@ -246,7 +246,7 @@ sub set_control {
 =head2 set_communications_protocol
 
  $ips->set_communications_protocol(value => 0);
- 
+
 Allowed values: C<0, 2, 4, 6>.
 
 This driver sets the protocol to C<4> "Extended Resolution" on startup.
@@ -315,6 +315,60 @@ sub in_persistent_mode {
     else {
         croak "bad heater status $n";
     }
+}
+
+sub set_persistent_mode {
+    my ( $self, %args ) = validated_setter( \@_,
+		value => {isa => 'Int'}
+	);
+
+    my $mode = delete %args{mode};
+
+    # return 0 if not $self->{device_settings}->{has_switchheater};
+
+    my $switch = $self->get_switch_heater();
+
+    #print "We are in mode $current_mode \n";
+
+    if ( $mode == 1 ) {
+
+        $self->hold();
+        $self->set_switch_heater(value => 0);
+
+        $self->to_zero();
+
+        #$current_mode = 1;
+
+    }
+    elsif ( $mode == 0 and $switch == 2 ) {
+
+        my $setpoint = $self->get_persistent_field();
+
+        $self->set_target_field(value => $setpoint);
+
+        $self->to_setpoint();
+
+        #print "Try to start switchheater...\n";
+        $self->set_switchheater(value => 1);
+
+        #print "Switchheater has status ".$self->get_switchheater();
+
+    }
+    elsif ( $mode == 0 and $switch == 0 ) {
+        print "Zero magnetic field. Switch on switchheater.\n";
+        $self->set_switchheater(value => 1);
+
+    }
+
+}
+
+sub get_persistent_field {
+    my ( $self, %args ) = validated_getter( \@_ );
+
+    # Are we really in persistent mode?
+
+    return $self->read_parameter(value => 18);
+
 }
 
 =head2 wait
