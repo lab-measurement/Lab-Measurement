@@ -67,3 +67,10 @@ with 'Lab::Moose::Connection';
 __PACKAGE__->meta->make_immutable();
 
 1;
+
+=head1 DESCRIPTION
+
+Connection backend for the Oxford Instruments IsoBus, a serial protocol
+connecting several instruments via a bus master.
+
+=cut

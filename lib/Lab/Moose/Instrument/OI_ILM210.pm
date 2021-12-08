@@ -45,3 +45,9 @@ sub get_level {
 __PACKAGE__->meta()->make_immutable();
 
 1;
+
+=head1 DESCRIPTION
+
+Driver for the Oxford Instruments ILM210 Intelligent Level Meter.
+
+=cut
