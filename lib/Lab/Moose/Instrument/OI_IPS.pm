@@ -322,7 +322,7 @@ sub set_persistent_mode {
 		value => {isa => 'Int'}
 	);
 
-    my $mode = delete $args{mode};
+    my $mode = delete %args{mode};
 
     # return 0 if not $self->{device_settings}->{has_switchheater};
 
