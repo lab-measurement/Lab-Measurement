@@ -7,7 +7,7 @@ use v5.20;
 use Moose;
 use Lab::Moose::Instrument qw/
     validated_no_param_setter
-/;
+    /;
 use Carp;
 use namespace::autoclean;
 
@@ -30,13 +30,13 @@ sub BUILD {
 
 sub get_level {
     my ( $self, %args ) = validated_no_param_setter(
-		\@_,
-        channel => { isa => 'Int' , default => 1},
+        \@_,
+        channel => { isa => 'Int', default => 1 },
     );
 
-	my $channel = delete %args{channel};
+    my $channel = delete $args{channel};
 
-    my $level = $self->query(command => "R$channel\r");
+    my $level = $self->query( command => "R$channel\r" );
     $level =~ s/^R//;
     $level /= 10;
     return $level;
