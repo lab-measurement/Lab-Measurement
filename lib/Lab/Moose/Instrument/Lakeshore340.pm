@@ -23,7 +23,7 @@ with qw(
 
 has input_channel => (
     is      => 'ro',
-    isa     => enum( [qw/A B/] ),
+    isa     => enum( [qw/A B C D/] ),
     default => 'A',
 );
 
@@ -39,7 +39,7 @@ sub BUILD {
     $self->cls();
 }
 
-my %channel_arg = ( channel => { isa => enum( [qw/A B/] ), optional => 1 } );
+my %channel_arg = ( channel => { isa => enum( [qw/A B C D/] ), optional => 1 } );
 my %loop_arg    = ( loop    => { isa => enum( [qw/1 2/] ), optional => 1 } );
 
 =encoding utf8
