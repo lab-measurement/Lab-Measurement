@@ -719,6 +719,7 @@ L<PDL::Graphics::Gnuplot> separates between plot options and curve options.
          ylabel  => 'y (V)',
          cblabel => 'current (A)', # label for color box
          format  => {x => "'%.2e'", y => "'%.2e'"},
+         clut    => 'sepia',
          grid    => 0, # disable grid
      },
      curve_options => {

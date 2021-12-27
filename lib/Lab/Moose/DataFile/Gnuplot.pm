@@ -4,7 +4,6 @@ package Lab::Moose::DataFile::Gnuplot;
 
 use v5.20;
 
-
 use Moose;
 use MooseX::Params::Validate;
 use Moose::Util::TypeConstraints 'enum';
@@ -572,7 +571,6 @@ sub _add_pm3d_plot {
         ylabel  => $y_column,
         title   => $self->path(),
         grid    => 1,
-        clut    => 'sepia',
 
         #        border => '4095 front linetype -1 linewidth 1.000');
     );
