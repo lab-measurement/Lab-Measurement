@@ -406,7 +406,7 @@ sub set_analog_out {
     my ( $self, %args ) = validated_getter(
         \@_,
         output         => { isa => enum( [ 1, 2 ] ) },
-        bipolar_enable => { isa => enum( [ 0, 1 ] ) },
+        bipolar_enable => { isa => enum( [ 0, 1 ] ), default => 0 },
         mode           => { isa => enum( [ 0, 1, 2, 3 ] ) },
         input => { isa => enum( [qw/A B C D/] ), default => '' },
         source => { isa => enum( [ 1, 2, 3, 4 ] ), default => '' },
