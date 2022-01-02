@@ -70,13 +70,18 @@ sample_high => 'B' (optional)
 sorb => 'C'
 1K-pot => 'D'
 
- 
+Can be configured with attributes C<sample_channel>, C<sorb_channel>, C<one_K_channel>. 
+
 default heater config:
 loop 1 (dual Banana jack) => sorb heater
 loop 2 (Analog output 2, BNC) => he3-pot heater
 
 (Analog out 1 can be used for IVC-sorb)
 
+The attribute C<T_switch> (default: 1.5) determines the used control loop for a given temperature setpoint:
+
+- T < C<T_switch>: use sorb heater, ramp sample heater to zero
+- T > C<T_switch>: use 3He-pot heater, set sorb to 15K
 
 
 =head1 METHODS
@@ -159,17 +164,7 @@ sub condensate {
 
  $helium3->set_T(value => 0.345);
 
-Behaviour depends on the attribute value C<T_switch>:
-
-If C<value> < C<T_switch>, control temperature by 3He vapour pressure:
-
-- set sorb heater setpoint to C<value>
-- set sample heater output to zero
-
-If C<value> > C<T_switch>:
-
-- set sorb heater setpoint to 15K
-- set sample heater setpoint to C<value>
+Behaviour depends on the attribute value C<T_switch> (see L</Synopsis>).
 
 =cut
 
