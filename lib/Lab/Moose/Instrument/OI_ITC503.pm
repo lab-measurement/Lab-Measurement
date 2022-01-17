@@ -356,7 +356,7 @@ sub itc_set_PID {
 sub itc_set_proportional_value {
     my ( $self, $value, %args ) = validated_setter(
         \@_,
-        value => { isa => 'Lab::Moose::PosInt' }
+        value => { isa => 'Lab::Moose::PosNum' }
     );
     $self->itc_set_PID_auto( value => 0 );
     return $self->query( command => "P$value\r", %args );
@@ -365,7 +365,7 @@ sub itc_set_proportional_value {
 sub itc_set_integral_value {
     my ( $self, $value, %args ) = validated_setter(
         \@_,
-        value => { isa => 'Lab::Moose::PosInt' }
+        value => { isa => 'Lab::Moose::PosNum' }
     );
     $self->itc_set_PID_auto( value => 0 );
     return $self->query( command => "I$value\r", %args );
@@ -374,7 +374,7 @@ sub itc_set_integral_value {
 sub itc_set_derivative_value {
     my ( $self, $value, %args ) = validated_setter(
         \@_,
-        value => { isa => 'Lab::Moose::PosInt' }
+        value => { isa => 'Lab::Moose::PosNum' }
     );
     $self->itc_set_PID_auto( value => 0 );
     return $self->query( command => "D$value\r", %args );
