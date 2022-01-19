@@ -14,6 +14,7 @@ jobs:
           perl-version: ${{matrix.perl}}
       - run: lsb_release -a
       # for png terminal of gnuplot
+      - run: sudo apt-get update
       - run: sudo apt-get install gnuplot-nox
       
         
