@@ -65,9 +65,9 @@ my %loop_arg = ( loop => { isa => enum( [ 0, 1, 2 ] ), optional => 1 } );
 
 =head2 get_T
 
-my $temp = $lakeshore->get_T(channel => $channel);
+ my $temp = $lakeshore->get_T(channel => $channel);
 
- C<$channel> needs to be one of 'A', 1, ..., 16.
+C<$channel> needs to be one of 'A', 1, ..., 16.
 
 
 =head2 get_value
