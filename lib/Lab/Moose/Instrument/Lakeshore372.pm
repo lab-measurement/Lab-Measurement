@@ -458,6 +458,28 @@ sub get_freq {
     return $self->query( command => "FREQ? $channel", %args );
 }
 
+=head2 set_common_mode_reduction/get_common_mode_reduction
+
+ $lakeshore->set_common_mode_reduction(value => 1);
+ my $cmr = $lakeshore->get_common_mode_reduction();
+
+Allowed values: 0 and 1.
+
+=cut
+
+sub set_common_mode_reduction {
+    my ( $self, $value, %args ) = validated_setter(
+        \@_,
+        value => { isa => enum( [ 0, 1 ] ) },
+    );
+    $self->write( command => "CMR $value", %args );
+}
+
+sub get_common_mode_reduction {
+    my ( $self, %args ) = validated_getter( \@_ );
+    return $self->query( command => "CMR?", %args );
+}
+
 =head2 Consumed Roles
 
 This driver consumes the following roles:
