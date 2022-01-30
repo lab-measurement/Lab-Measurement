@@ -201,6 +201,36 @@ sub get_control_mode {
     return $self->query( command => "CMODE? $loop", %args );
 }
 
+=head2 set_mout/get_mout
+ $lakeshore->set_mout(
+    loop => 1,
+    value => 22.45, # percent of range
+ );
+ my $mout = $lakeshore->get_mout(loop => 1);
+
+In open loop mode: Set/get manual output.
+
+=cut
+
+sub set_mout {
+    my ( $self, $value, %args ) = validated_setter(
+        \@_,
+        value => { isa => 'Num' },
+        %loop_arg
+    );
+    my $loop = delete $args{loop} // $self->default_loop;
+    return $self->write( command => "MOUT $loop,$value", %args );
+}
+
+sub get_mout {
+    my ( $self, %args ) = validated_getter(
+        \@_,
+        %loop_arg
+    );
+    my $loop = delete $args{loop} // $self->default_loop;
+    return $self->query( command => "MOUT? $loop", %args );
+}
+
 =head2 set_control_parameters/get_control_parameters
 
  $lakeshore->set_control_parameters(
