@@ -65,9 +65,9 @@ my %loop_arg = ( loop => { isa => enum( [ 0, 1, 2 ] ), optional => 1 } );
 
 =head2 get_T
 
-my $temp = $lakeshore->get_T(channel => $channel);
+ my $temp = $lakeshore->get_T(channel => $channel);
 
- C<$channel> needs to be one of 'A', 1, ..., 16.
+C<$channel> needs to be one of 'A', 1, ..., 16.
 
 
 =head2 get_value
@@ -456,6 +456,28 @@ sub get_freq {
     );
     my $channel = delete $args{channel} // $self->input_channel();
     return $self->query( command => "FREQ? $channel", %args );
+}
+
+=head2 set_common_mode_reduction/get_common_mode_reduction
+
+ $lakeshore->set_common_mode_reduction(value => 1);
+ my $cmr = $lakeshore->get_common_mode_reduction();
+
+Allowed values: 0 and 1.
+
+=cut
+
+sub set_common_mode_reduction {
+    my ( $self, $value, %args ) = validated_setter(
+        \@_,
+        value => { isa => enum( [ 0, 1 ] ) },
+    );
+    $self->write( command => "CMR $value", %args );
+}
+
+sub get_common_mode_reduction {
+    my ( $self, %args ) = validated_getter( \@_ );
+    return $self->query( command => "CMR?", %args );
 }
 
 =head2 Consumed Roles
