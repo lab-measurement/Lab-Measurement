@@ -54,13 +54,19 @@ has plots => (
     init_arg => undef
 );
 
+has comment_string => (
+    is      => 'rw',
+    isa     => 'Str',
+    default => ' ',
+);
+
 sub BUILD {
     my $self    = shift;
     my @columns = @{ $self->columns() };
     if ( @columns == 0 ) {
         croak "need at least one column";
     }
-    $self->log_comment( comment => join( "\t", @columns ) );
+    $self->log_comment( comment => $self->comment_string().join( "\t", @columns ) );
 }
 
 =head1 SYNOPSIS
@@ -316,7 +322,7 @@ sub log_comment {
     my @lines = split( "\n", $comment );
     my $fh = $self->filehandle();
     for my $line (@lines) {
-        print {$fh} "# $line\n";
+        print {$fh} "#$line\n";
     }
 }
 
