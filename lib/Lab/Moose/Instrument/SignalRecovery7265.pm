@@ -1,4 +1,4 @@
-package Lab::Moose::Instrument::SignalRECOVERY7265;
+package Lab::Moose::Instrument::SignalRecovery7265;
 
 #ABSTRACT: Model 7265 Lock-In Amplifier
 
@@ -65,7 +65,7 @@ sub BUILD {
 
  # Constructor
  my $SR = instrument(
-    type => 'SignalRECOVERY7265',
+    type => 'SignalRecovery7265',
     connection_type => 'LinuxGPIB',
     min_units => 0,
     max_units => 1,
@@ -613,7 +613,7 @@ sub get_acgain {
 
 	$SR->set_linefilter(value => $linefilter);
 
-Preset Signal RECOVERY 7260 / 7265 Lock-in Amplifier
+Preset Signal Recovery 7260 / 7265 Lock-in Amplifier
 
 =over 4
 
@@ -670,7 +670,7 @@ sub get_linefilter {
 
 	$SR->set_refchannel(value => $refchannel);
 
-Preset Signal RECOVERY 7260 / 7265 Lock-in Amplifier
+Preset Signal Recovery 7260 / 7265 Lock-in Amplifier
 
 =over 4
 
@@ -742,7 +742,7 @@ sub autophase {
     $SR->set_refpha(value => $phase);
 	$SR->set_phase(value => $phase);
 
-Preset Signal RECOVERY 7260 / 7265 Lock-in Amplifier
+Preset Signal Recovery 7260 / 7265 Lock-in Amplifier
 
 =over 4
 
@@ -893,7 +893,7 @@ sub set_phase {
 
 	$SR->set_outputfilter_slope(value => $slope);
 
-Preset Signal RECOVERY 7260 / 7265 Lock-in Amplifier
+Preset Signal Recovery 7260 / 7265 Lock-in Amplifier
 
 =over 4
 
@@ -958,7 +958,7 @@ sub get_ouputfilter_slope {
 
 	$SR->set_tc(value => $tc);
 
-Preset the output(signal channel) low pass filters time constant tc of the Signal RECOVERY 7260 / 7265 Lock-in Amplifier
+Preset the output(signal channel) low pass filters time constant tc of the Signal Recovery 7260 / 7265 Lock-in Amplifier
 
 =over 4
 
@@ -1143,13 +1143,13 @@ sub get_offset {
 
 	$SR->source_level(value => $level);
 
-Preset the oscillator output voltage of the Signal RECOVERY 7260 / 7265 Lock-in Amplifier
+Preset the oscillator output voltage of the Signal Recovery 7260 / 7265 Lock-in Amplifier
 
 =over 4
 
 =item $level
 
-	  OSCILLATOR OUTPUT VOLTAGE can be between 0 ... 5V in steps of 1mV (Signal RECOVERY 7260) and 1uV (Signal RECOVERY 7265)
+	  OSCILLATOR OUTPUT VOLTAGE can be between 0 ... 5V in steps of 1mV (Signal Recovery 7260) and 1uV (Signal Recovery 7265)
 
 =back
 
@@ -1212,7 +1212,7 @@ sub set_level {
 
 	$SR->set_frq(value => $frequency);
 
-Preset the oscillator frequency of the Signal RECOVERY 7260 / 7265 Lock-in Amplifier
+Preset the oscillator frequency of the Signal Recovery 7260 / 7265 Lock-in Amplifier
 
 =over 4
 
@@ -1406,7 +1406,7 @@ sub get_value {
         trigger => $trigger
     );
 
-Preset the Signal RECOVERY 7260 / 7265 Lock-in Amplifier for a TRIGGERED measurement.
+Preset the Signal Recovery 7260 / 7265 Lock-in Amplifier for a TRIGGERED measurement.
 
 =over 4
 
@@ -1445,7 +1445,7 @@ CHANNEL can be:
 
 Preset the NUMBER OF POINTS to be taken for one measurement trace.
 The single measured points will be stored in the internal memory of the Lock-in Amplifier.
-For the Signal RECOVERY 7260 / 7265 Lock-in Amplifier the internal memory is limited to 32.000 values.
+For the Signal Recovery 7260 / 7265 Lock-in Amplifier the internal memory is limited to 32.000 values.
 
 	--> If you request data for the channels X and Y in floating point notation, for each datapoint three values have to be stored in memory (X,Y and Sensitivity).
 	--> So you can store effectivly 32.000/3 = 10666 datapoints.
@@ -1541,7 +1541,7 @@ sub config_measurement {
         usleep(1e6);
     }
 
-    print "SignalRECOVERY config_measurement complete\n";
+    print "SignalRecovery config_measurement complete\n";
     print "--------------------------------------\n";
 }
 
@@ -1654,7 +1654,7 @@ sub get_data {
 	$SR->trg();
 
 Sends a trigger signal via the GPIB-BUS to start the predefined measurement.
-The LabVisa-script can immediatally be continued, e.g. to start another triggered measurement using a second Signal RECOVERY 7260 / 7265 Lock-in Amplifier.
+The LabVisa-script can immediatally be continued, e.g. to start another triggered measurement using a second Signal Recovery 7260 / 7265 Lock-in Amplifier.
 
 =cut
 
@@ -1800,7 +1800,7 @@ sub _set_buffer_storageinterval {
     $self->write( command => sprintf( "STR %d", $value * 1e3 ) );
 
     return $self->query(command => "STR") / 1e3;
-}<
+}
 
 with qw(
     Lab::Moose::Instrument::LinearStepSweep
