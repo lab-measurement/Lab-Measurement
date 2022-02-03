@@ -1,4 +1,4 @@
-package Lab::Moose::Instrument::SignalRecovery7265;
+package Lab::Moose::Instrument::SignalRECOVERY7265;
 
 #ABSTRACT: Model 7265 Lock-In Amplifier
 
@@ -65,7 +65,7 @@ sub BUILD {
 
  # Constructor
  my $SR = instrument(
-    type => 'SignalRecovery7265',
+    type => 'SignalRECOVERY7265',
     connection_type => 'LinuxGPIB',
     min_units => 0,
     max_units => 1,
@@ -159,7 +159,7 @@ sub set_vmode {
         $self->write(command => sprintf( "VMODE %d", $value ));
         $self->cached_vmode($value);
     } else {
-        croak "\nSIGNAL REOCOVERY 726x:\nunexpected value for VMODE in sub set_vmode. Expected values are:\n 0 --> Both inputs grounded (testmode)\n 1 --> A input only\n 2 --> -B input only\n 3 --> A-B differential mode\n";
+        croak "\nSIGNAL RECOVERY 726x:\nunexpected value for VMODE in sub set_vmode. Expected values are:\n 0 --> Both inputs grounded (testmode)\n 1 --> A input only\n 2 --> -B input only\n 3 --> A-B differential mode\n";
     }
 }
 
@@ -192,7 +192,7 @@ sub set_fet {
         $self->write(command => sprintf( "FET %d", $value ));
         $self->cached_fet($value);
     } else {
-        croak "\nSIGNAL REOCOVERY 726x:\nunexpected value in sub set_fet. Expected values are:\n 0 --> Bipolar device, 10 kOhm input impedance, 2nV/sqrt(Hz) voltage noise at 1 kHz\n 1 --> FET, 10 MOhm input impedance, 5nV/sqrt(Hz) voltage noise at 1 kHz\n";
+        croak "\nSIGNAL RECOVERY 726x:\nunexpected value in sub set_fet. Expected values are:\n 0 --> Bipolar device, 10 kOhm input impedance, 2nV/sqrt(Hz) voltage noise at 1 kHz\n 1 --> FET, 10 MOhm input impedance, 5nV/sqrt(Hz) voltage noise at 1 kHz\n";
     }
 }
 
@@ -224,7 +224,7 @@ sub set_float {
         $self->write(command => sprintf( "FLOAT %d", $value ));
         $self->cached_float($value);
     } else {
-        croak "\nSIGNAL REOCOVERY 726x:\nunexpected value in sub set_float. Expected values are:\n 0 --> input conector shield set to GROUND\n 1 --> input conector shield set to FLOAT\n";
+        croak "\nSIGNAL RECOVERY 726x:\nunexpected value in sub set_float. Expected values are:\n 0 --> input conector shield set to GROUND\n 1 --> input conector shield set to FLOAT\n";
     }
 }
 
@@ -256,7 +256,7 @@ sub set_cp {
         $self->write(command => sprintf( "CP %d", $value ));
         $self->cached_cp($value);
     } else {
-        croak "\nSIGNAL REOCOVERY 726x:\nunexpected value in sub set_cp. Expected values are:\n 0 --> input coupling mode AC\n 1 --> input coupling mode DC\n";
+        croak "\nSIGNAL RECOVERY 726x:\nunexpected value in sub set_cp. Expected values are:\n 0 --> input coupling mode AC\n 1 --> input coupling mode DC\n";
     }
 }
 
@@ -402,7 +402,7 @@ sub set_sen {
     }
 
     else {
-        croak "\nSIGNAL REOCOVERY 726x:\nunexpected value for SENSITIVITY in sub set_sen. Expected values are: \n\n SENSITIVITY (IMODE == 0) --> 2nV, 5nV, 10nV, 20nV, 50nV, 100nV, 200nV, 500nV, 1uV, 2uV, 5uV, 10uV, 20uV, 50uV, 100uV, 200uV, 500uV, 1mV, 2mV, 5mV, 10mV, 20mV, 50mV, 100mV, 200mV, 500mV, 1V\n\n SENSITIVITY (IMODE == 1) --> 2fA, 5fA, 10fA, 20fA, 50fA, 100fA, 200fA, 500fA, 1pA, 2pA, 5pA, 10pA, 20pA, 50pA, 100pA, 200pA, 500pA, 1nA, 2nA, 5nA, 10nA, 20nA, 50nA, 100nA, 200nA, 500nA, 1uA\n\n SENSITIVITY (IMODE == 2) --> 2fA, 5fA, 10fA, 20fA, 50fA, 100fA, 200fA, 500fA, 1pA, 2pA, 5pA, 10pA, 20pA, 50pA, 100pA, 200pA, 500pA, 1nA, 2nA, 5nA, 10nA\n";
+        croak "\nSIGNAL RECOVERY 726x:\nunexpected value for SENSITIVITY in sub set_sen. Expected values are: \n\n SENSITIVITY (IMODE == 0) --> 2nV, 5nV, 10nV, 20nV, 50nV, 100nV, 200nV, 500nV, 1uV, 2uV, 5uV, 10uV, 20uV, 50uV, 100uV, 200uV, 500uV, 1mV, 2mV, 5mV, 10mV, 20mV, 50mV, 100mV, 200mV, 500mV, 1V\n\n SENSITIVITY (IMODE == 1) --> 2fA, 5fA, 10fA, 20fA, 50fA, 100fA, 200fA, 500fA, 1pA, 2pA, 5pA, 10pA, 20pA, 50pA, 100pA, 200pA, 500pA, 1nA, 2nA, 5nA, 10nA, 20nA, 50nA, 100nA, 200nA, 500nA, 1uA\n\n SENSITIVITY (IMODE == 2) --> 2fA, 5fA, 10fA, 20fA, 50fA, 100fA, 200fA, 500fA, 1pA, 2pA, 5pA, 10pA, 20pA, 50pA, 100pA, 200pA, 500pA, 1nA, 2nA, 5nA, 10nA\n";
     }
 }
 
@@ -559,7 +559,7 @@ sub auto_sen {
 
 	$SR->set_acgain(value => $acgain);
 
-Preset Signal Recovery 7260 / 7265 Lock-in Amplifier
+Preset Signal RECOVERY 7260 / 7265 Lock-in Amplifier
 
 =over 4
 
@@ -599,7 +599,7 @@ sub set_acgain {
         $self->cached_acgain("AUTO");
     }
     else {
-        croak "\nSIGNAL REOCOVERY 726x:\nunexpected value for AC-GAIN in sub set_acgain. Expected values are:\n AC-GAIN == 0 -->  0 dB gain of the signal channel amplifier\n AC-GAIN == 1 --> 10 dB gain of the signal channel amplifier\n ...\n AC-GAIN == 9 --> 90 dB gain of the signal channel amplifier\n";
+        croak "\nSIGNAL RECOVERY 726x:\nunexpected value for AC-GAIN in sub set_acgain. Expected values are:\n AC-GAIN == 0 -->  0 dB gain of the signal channel amplifier\n AC-GAIN == 1 --> 10 dB gain of the signal channel amplifier\n ...\n AC-GAIN == 9 --> 90 dB gain of the signal channel amplifier\n";
     }
 }
 
@@ -613,7 +613,7 @@ sub get_acgain {
 
 	$SR->set_linefilter(value => $linefilter);
 
-Preset Signal Recovery 7260 / 7265 Lock-in Amplifier
+Preset Signal RECOVERY 7260 / 7265 Lock-in Amplifier
 
 =over 4
 
@@ -654,7 +654,7 @@ sub set_linefilter {
         $self->cached_linefilter($value);
     }
     else {
-        croak "\nSIGNAL REOCOVERY 726x:\nunexpected value for FILTER in sub set_linefilter. Expected values are:\n LINE-FILTER == 0 --> OFF\n LINE-FILTER == 1 --> enable 50Hz/60Hz notch filter\n LINE-FILTER == 2 --> enable 100Hz/120Hz notch filter\n LINE-FILTER == 3 --> enable 50Hz/60Hz and 100Hz/120Hz notch filter\n";
+        croak "\nSIGNAL RECOVERY 726x:\nunexpected value for FILTER in sub set_linefilter. Expected values are:\n LINE-FILTER == 0 --> OFF\n LINE-FILTER == 1 --> enable 50Hz/60Hz notch filter\n LINE-FILTER == 2 --> enable 100Hz/120Hz notch filter\n LINE-FILTER == 3 --> enable 50Hz/60Hz and 100Hz/120Hz notch filter\n";
     }
 }
 
@@ -670,7 +670,7 @@ sub get_linefilter {
 
 	$SR->set_refchannel(value => $refchannel);
 
-Preset Signal Recovery 7260 / 7265 Lock-in Amplifier
+Preset Signal RECOVERY 7260 / 7265 Lock-in Amplifier
 
 =over 4
 
@@ -701,7 +701,7 @@ sub set_refchannel {
     elsif ( $value eq "EXT LOGIC" ) { $value = 1; }
     elsif ( $value eq "EXT" )       { $value = 2; }
     else {
-        croak "\nSIGNAL REOCOVERY 726x:\nunexpected value for REFERENCE CHANEL in sub set_refchennel. Expected values are:\n INT --> internal reference input mode\n EXT LOGIC --> external rear panel TTL input\n EXT --> external front panel analog input\n";
+        croak "\nSIGNAL RECOVERY 726x:\nunexpected value for REFERENCE CHANEL in sub set_refchennel. Expected values are:\n INT --> internal reference input mode\n EXT LOGIC --> external rear panel TTL input\n EXT --> external front panel analog input\n";
     }
 
     $self->write(command => sprintf( "IE %d", $value ));
@@ -742,7 +742,7 @@ sub autophase {
     $SR->set_refpha(value => $phase);
 	$SR->set_phase(value => $phase);
 
-Preset Signal Recovery 7260 / 7265 Lock-in Amplifier
+Preset Signal RECOVERY 7260 / 7265 Lock-in Amplifier
 
 =over 4
 
@@ -790,7 +790,7 @@ sub set_refpha {
         $self->cached_refpha($value);
     }
     else {
-        croak "\nSIGNAL REOCOVERY 726x:\nunexpected value for REFERENCE PHASE in sub set_phase. Expected values must be in the range -360..360";
+        croak "\nSIGNAL RECOVERY 726x:\nunexpected value for REFERENCE PHASE in sub set_phase. Expected values must be in the range -360..360";
     }
 }
 
@@ -883,7 +883,7 @@ sub set_phase {
         STDOUT->autoflush($autoflush);
     }
     else {
-        croak "\nSIGNAL REOCOVERY 726x:\nunexpected value for REFERENCE PHASE in sub set_phase. Expected values must be in the range -360..360";
+        croak "\nSIGNAL RECOVERY 726x:\nunexpected value for REFERENCE PHASE in sub set_phase. Expected values must be in the range -360..360";
     }
 }
 
@@ -893,7 +893,7 @@ sub set_phase {
 
 	$SR->set_outputfilter_slope(value => $slope);
 
-Preset Signal Recovery 7260 / 7265 Lock-in Amplifier
+Preset Signal RECOVERY 7260 / 7265 Lock-in Amplifier
 
 =over 4
 
@@ -927,7 +927,7 @@ sub set_outputfilter_slope {
     elsif ( $value eq "18dB" ) { $value = 2; }
     elsif ( $value eq "24dB" ) { $value = 3; }
     else {
-        croak "\nSIGNAL REOCOVERY 726x:\nunexpected value for SLOPE in sub set_ouputfilter_slope. Expected values are:\n  6dB -->  6dB/octave slope of output filter\n 12dB --> 12dB/octave slope of output filter\n 18dB --> 18dB/octave slope of output filter\n 24dB --> 24dB/octave slope of output filter\n";
+        croak "\nSIGNAL RECOVERY 726x:\nunexpected value for SLOPE in sub set_ouputfilter_slope. Expected values are:\n  6dB -->  6dB/octave slope of output filter\n 12dB --> 12dB/octave slope of output filter\n 18dB --> 18dB/octave slope of output filter\n 24dB --> 24dB/octave slope of output filter\n";
     }
 
     $self->write(command => sprintf( "SLOPE %d", $value ));
@@ -958,7 +958,7 @@ sub get_ouputfilter_slope {
 
 	$SR->set_tc(value => $tc);
 
-Preset the output(signal channel) low pass filters time constant tc of the Signal Recovery 7260 / 7265 Lock-in Amplifier
+Preset the output(signal channel) low pass filters time constant tc of the Signal RECOVERY 7260 / 7265 Lock-in Amplifier
 
 =over 4
 
@@ -1083,7 +1083,7 @@ sub set_offset {
         my @temp = split( /,/, $self->query(command => "XOF") );
         $offset[0] = $temp[1] / 100;
         if ( $offset[0] != $x_value ) {
-            croak "\nSIGNAL REOCOVERY 726x:\ncouldn't set X chanel output offset";
+            croak "\nSIGNAL RECOVERY 726x:\ncouldn't set X chanel output offset";
         }
     }
 
@@ -1092,7 +1092,7 @@ sub set_offset {
         my @temp = split( /,/, $self->query(command => "YOF") );
         $offset[1] = $temp[1] / 100;
         if ( $offset[1] != $y_value ) {
-            croak "\nSIGNAL REOCOVERY 726x:\ncouldn't set Y chanel output offset";
+            croak "\nSIGNAL RECOVERY 726x:\ncouldn't set Y chanel output offset";
         }
     }
 
@@ -1101,7 +1101,7 @@ sub set_offset {
         my @temp = split( /,/, $self->query(command => "XOF") );
         $offset[0] = $temp[0];
         if ( $offset[0] != 0 ) {
-            croak "\nSIGNAL REOCOVERY 726x:\ncouldn't set X chanel output offset";
+            croak "\nSIGNAL RECOVERY 726x:\ncouldn't set X chanel output offset";
         }
     }
 
@@ -1110,7 +1110,7 @@ sub set_offset {
         my @temp = split( /,/, $self->query(command => "YOF") );
         $offset[1] = $temp[0];
         if ( $offset[1] != 0 ) {
-            croak "\nSIGNAL REOCOVERY 726x:\ncouldn't set Y chanel output offset";
+            croak "\nSIGNAL RECOVERY 726x:\ncouldn't set Y chanel output offset";
         }
     }
 
@@ -1143,13 +1143,13 @@ sub get_offset {
 
 	$SR->source_level(value => $level);
 
-Preset the oscillator output voltage of the Signal Recovery 7260 / 7265 Lock-in Amplifier
+Preset the oscillator output voltage of the Signal RECOVERY 7260 / 7265 Lock-in Amplifier
 
 =over 4
 
 =item $level
 
-	  OSCILLATOR OUTPUT VOLTAGE can be between 0 ... 5V in steps of 1mV (Signal Recovery 7260) and 1uV (Signal Recovery 7265)
+	  OSCILLATOR OUTPUT VOLTAGE can be between 0 ... 5V in steps of 1mV (Signal RECOVERY 7260) and 1uV (Signal RECOVERY 7265)
 
 =back
 
@@ -1182,7 +1182,7 @@ sub source_level {
 
     }
     else {
-        croak "\nSIGNAL REOCOVERY 726x:\n\nSIGNAL RECOVERY 726x:\nunexpected value for OSCILLATOR OUTPUT in sub source_level. Expected values must be in the range 0..5V.";
+        croak "\nSIGNAL RECOVERY 726x:\n\nSIGNAL RECOVERY 726x:\nunexpected value for OSCILLATOR OUTPUT in sub source_level. Expected values must be in the range 0..5V.";
     }
 }
 
@@ -1212,7 +1212,7 @@ sub set_level {
 
 	$SR->set_frq(value => $frequency);
 
-Preset the oscillator frequency of the Signal Recovery 7260 / 7265 Lock-in Amplifier
+Preset the oscillator frequency of the Signal RECOVERY 7260 / 7265 Lock-in Amplifier
 
 =over 4
 
@@ -1236,7 +1236,7 @@ sub set_frq {
         $self->cached_frq($value);
     }
     else {
-        croak "\nSIGNAL REOCOVERY 726x:\n\nSIGNAL REOCOVERY 726x:\nunexpected value for OSCILLATOR FREQUENCY in sub set_frq. Expected values must be in the range 0..250kHz";
+        croak "\nSIGNAL RECOVERY 726x:\n\nSIGNAL RECOVERY 726x:\nunexpected value for OSCILLATOR FREQUENCY in sub set_frq. Expected values must be in the range 0..250kHz";
     }
 }
 
@@ -1406,7 +1406,7 @@ sub get_value {
         trigger => $trigger
     );
 
-Preset the Signal Recovery 7260 / 7265 Lock-in Amplifier for a TRIGGERED measurement.
+Preset the Signal RECOVERY 7260 / 7265 Lock-in Amplifier for a TRIGGERED measurement.
 
 =over 4
 
@@ -1445,7 +1445,7 @@ CHANNEL can be:
 
 Preset the NUMBER OF POINTS to be taken for one measurement trace.
 The single measured points will be stored in the internal memory of the Lock-in Amplifier.
-For the Signal Recovery 7260 / 7265 Lock-in Amplifier the internal memory is limited to 32.000 values.
+For the Signal RECOVERY 7260 / 7265 Lock-in Amplifier the internal memory is limited to 32.000 values.
 
 	--> If you request data for the channels X and Y in floating point notation, for each datapoint three values have to be stored in memory (X,Y and Sensitivity).
 	--> So you can store effectivly 32.000/3 = 10666 datapoints.
@@ -1486,7 +1486,7 @@ sub config_measurement {
 
 
     print "--------------------------------------\n";
-    print "SignalRecovery sub config_measurement:\n";
+    print "SignalRECOVERY sub config_measurement:\n";
 
     $self->_clear_buffer();
 
@@ -1522,18 +1522,18 @@ sub config_measurement {
 
     $self->_set_buffer_datachannels($chan);
 
-    print "SIGNAL REOCOVERY 726x: set channels: "
+    print "SIGNAL RECOVERY 726x: set channels: "
         . $self->_set_buffer_datachannels($chan);
 
     # set buffer size
-    print "SIGNAL REOCOVERY 726x: set buffer length: "
+    print "SIGNAL RECOVERY 726x: set buffer length: "
         . $self->_set_buffer_length($np);
 
     # set measurement interval
     if ( not defined $int ) {
         $int = $self->set_tc();
     }
-    print "SIGNAL REOCOVERY 726x: set storage interval: "
+    print "SIGNAL RECOVERY 726x: set storage interval: "
         . $self->_set_buffer_storageinterval($int) . "\n";
 
     if ( $trg eq "EXT" ) {
@@ -1541,7 +1541,7 @@ sub config_measurement {
         usleep(1e6);
     }
 
-    print "SignalRecovery config_measurement complete\n";
+    print "SignalRECOVERY config_measurement complete\n";
     print "--------------------------------------\n";
 }
 
@@ -1654,7 +1654,7 @@ sub get_data {
 	$SR->trg();
 
 Sends a trigger signal via the GPIB-BUS to start the predefined measurement.
-The LabVisa-script can immediatally be continued, e.g. to start another triggered measurement using a second Signal Recovery 7260 / 7265 Lock-in Amplifier.
+The LabVisa-script can immediatally be continued, e.g. to start another triggered measurement using a second Signal RECOVERY 7260 / 7265 Lock-in Amplifier.
 
 =cut
 
@@ -1777,7 +1777,7 @@ sub _set_buffer_length {
 
     # check buffer size
     if ( $noop > int( 32000 / $channels ) ) {
-        croak "\nSIGNAL REOCOVERY 726x:\n\nSIGNAL REOCOVERY 726x:\ncan't init BUFFER. Buffersize is too small for the given NUMBER OF POINTS and NUMBER OF CHANNELS to store.\n POINTS x (CHANNELS+1) cant exceed 32000.\n";
+        croak "\nSIGNAL RECOVERY 726x:\n\nSIGNAL RECOVERY 726x:\ncan't init BUFFER. Buffersize is too small for the given NUMBER OF POINTS and NUMBER OF CHANNELS to store.\n POINTS x (CHANNELS+1) cant exceed 32000.\n";
     }
 
     $self->write( command => sprintf( "LEN %d", $noop ) );
@@ -1794,13 +1794,13 @@ sub _set_buffer_storageinterval {
     }
 
     if ( $value < 5e-3 or $value > 1e6 ) {
-        croak "\nSIGNAL REOCOVERY 726x:\nunexpected value for INTERVAL in sub set_buffer_interval. Expected values are between 5ms...1E6s with a resolution of 5ms.";
+        croak "\nSIGNAL RECOVERY 726x:\nunexpected value for INTERVAL in sub set_buffer_interval. Expected values are between 5ms...1E6s with a resolution of 5ms.";
     }
 
     $self->write( command => sprintf( "STR %d", $value * 1e3 ) );
 
     return $self->query(command => "STR") / 1e3;
-}
+}<
 
 with qw(
     Lab::Moose::Instrument::LinearStepSweep
