@@ -136,7 +136,6 @@ sub get_cable {
     print " @results ";
 
     return @results;
-
 }
 
 # What?
@@ -193,12 +192,11 @@ sub get_single {
         warn ("AH2700A: Error in get_single. Errorcode = "
                 . $values{"E"} . "\n" );
     }
+    
+    $values{"C"} = $values{"C"}*1e-12;
+    $values{"L"} = $values{"L"}*1e-9;
 
-    return (
-        $values{"C"} * 1e-12,
-        $values{"L"} * 1e-9,
-        $values{"V"}, $values{"S"}, $values{"E"}
-    );
+    return %values;
 }
 
 sub get_value {
@@ -217,23 +215,22 @@ sub set_wait {
 }
 
 # controls which fields are sent to GPIB port
-# sub set_field {
-#     my ( $self, $wait, %args ) = validated_setter( \@_,
-#       fi1 => { isa => 'Str' },
-#     	fi2 => { isa => 'Str' },
-# 		fi3 => { isa => 'Num' },
-# 		fi4 => { isa => 'Num' },
-# 		fi5 => { isa => 'Str' },
-# 		fi6 => { isa => 'Str' },
-#     );
-# 
-#     $self->write( command => 
-#         sprintf(
-#             "FIELD %s,%s,%d,%d,%s,%s", $fi1, $fi2, $fi3, $fi4, $fi5, $fi6
-#         ),
-#         %args
-#     );
-# }
+sub set_field {
+    my ( $self, $wait, %args ) = validated_setter( \@_,
+		fi1 => { isa => 'Str' },
+    	fi2 => { isa => 'Str' },
+		fi3 => { isa => 'Num' },
+		fi4 => { isa => 'Num' },
+		fi5 => { isa => 'Str' },
+		fi6 => { isa => 'Str' },
+    );
+
+    $self->write( command => 
+        sprintf(
+            "FIELD %s,%s,%d,%d,%s,%s", $fi1, $fi2, $fi3, $fi4, $fi5, $fi6
+        ), %args
+    );
+}
 
 sub set_volt {
     my ( $self, $wait, %args ) = validated_setter( \@_,
