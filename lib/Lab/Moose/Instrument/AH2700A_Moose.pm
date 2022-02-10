@@ -91,13 +91,13 @@ sub set_bright {
     if ( $bright1 eq 'ALL' ) {
         $self->write( command => sprintf( "BR %s %d", $bright1, $bright2 ), %args );
     }
-    if ( $bright1 eq 'C' ) {
+    elsif ( $bright1 eq 'C' ) {
         $self->write( command => sprintf( "BR %s %d", $bright1, $bright2 ), %args );
     }
-    if ( $bright1 eq 'LOS' ) {
+    elsif ( $bright1 eq 'LOS' ) {
         $self->write( command => sprintf( "BR %s %d", $bright1, $bright2 ), %args );
     }
-    if ( $bright1 eq 'OT' ) {
+    elsif ( $bright1 eq 'OT' ) {
         $self->write( command => sprintf( "BR %s %d", $bright1, $bright2 ), %args );
     }
 }
@@ -183,29 +183,22 @@ sub get_single {
     my $result = $self->write( command => sprintf("SI"), %args );
     
     # Rewrite with hash
-    my $values;
+    my %values;
     while ( $result =~ /([A-Z])=\s(\d+\.\d+)/g ) {
-        $values->{$1} = $2;
+        $values{"$1"} = $2;
     }
-    $values->{E} = 00;
+    $values{E} = 00;
     if ( $result =~ /^(\d+)/ and $result != /00/ ) {
-        $values->{E} = $1;
+        $values{"E"} = $1;
         warn ("AH2700A: Error in get_single. Errorcode = "
-                . $values->{E}
-                . "\n" );
+                . $values{"E"} . "\n" );
     }
 
-    if ( wantarray() ) {
-        return (
-            $values->{C} * 1e-12,
-            $values->{L} * 1e-9,
-            $values->{V}, $values->{S}, $values->{E}
-        );
-    }
-    else {
-        return $values->{C} * 1e-12;
-    }
-
+    return (
+        $values{"C"} * 1e-12,
+        $values{"L"} * 1e-9,
+        $values{"V"}, $values{"S"}, $values{"E"}
+    );
 }
 
 sub get_value {
@@ -223,14 +216,11 @@ sub set_wait {
 
 }
 
-# TODO
-# ====
-
 # controls which fields are sent to GPIB port
 # sub set_field {
 #     my ( $self, $wait, %args ) = validated_setter( \@_,
-#         fi1 => { isa => 'Str' },
-#         fi2 => { isa => 'Str' },
+#       fi1 => { isa => 'Str' },
+#     	fi2 => { isa => 'Str' },
 # 		fi3 => { isa => 'Num' },
 # 		fi4 => { isa => 'Num' },
 # 		fi5 => { isa => 'Str' },
