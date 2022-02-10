@@ -19,7 +19,6 @@ use namespace::autoclean;
 use Time::HiRes qw/time usleep/;
 use LWP::Simple;
 
-extends 'Lab::Moose::Instrument';
 
 # TODO
 # ====
@@ -50,6 +49,7 @@ sub request {
     return get($self->url()."type=$type&id=$id&action=$action&path=$path");
 }
 
+# WTF is das System mit dem Array?
 sub get_L1_DC_0 {
     return $self->request(
         type    => "data",
@@ -58,6 +58,7 @@ sub get_L1_DC_0 {
         path    => "/output_cluster/DataReadings/DC[0]/"
     );
 }
+
 sub get_L1_X_0 {
     return $self->request(
         type    => "data",
@@ -66,6 +67,7 @@ sub get_L1_X_0 {
         path    => "/output_cluster/DataReadings/X[0]/"
     );
 }
+
 sub get_L1_Y_0 {
     return $self->request(
         type    => "data",
@@ -75,18 +77,69 @@ sub get_L1_Y_0 {
     );
 }
 
+sub get_L1_DC_10 {
+    return $self->request(
+        type    => "data",
+        id      => "L1",
+        action  => "get",
+        path    => "/output_cluster/DataReadings/DC[10]/"
+    );
+}
 
-    my $i_dc_A = get ("http://172.22.11.2:8002/MCL/api?type=data&id=L1&action=get&path=/output_cluster/DataReadings/DC[10]/");
-    my $i_AC_x_A = get ("http://172.22.11.2:8002/MCL/api?type=data&id=L1&action=get&path=/output_cluster/DataReadings/X[10]/"); 
- 
-    my $i_AC_y_A = get ("http://172.22.11.2:8002/MCL/api?type=data&id=L1&action=get&path=/output_cluster/DataReadings/Y[10]/");
-    
-    my $i_AC_R_A = get ("http://172.22.11.2:8002/MCL/api?type=data&id=L1&action=get&path=/output_cluster/DataReadings/R[10]/");
-    my $i_AC_Theta_A = get ("http://172.22.11.2:8002/MCL/api?type=data&id=L1&action=get&path=/output_cluster/DataReadings/theta_(deg)[10]/");
-    
-    my $u_osc_A = get("http://172.22.11.2:8002/MCL/api?type=data&id=L1&action=get&path=/output_cluster/GeneralReadings/Module_data[0]/Module/Amplitude_(Vrms)"); 
+sub get_L1_X_10 {
+    return $self->request(
+        type    => "data",
+        id      => "L1",
+        action  => "get",
+        path    => "/output_cluster/DataReadings/X[10]/"
+    );
+}
 
-    my $output_offset_A = get("http://172.22.11.2:8002/MCL/api?type=data&id=L1&action=get&path=/output_cluster/GeneralReadings/Module_data[0]/Module/Output_offset_(V)");
+sub get_L1_Y_10 {
+    return $self->request(
+        type    => "data",
+        id      => "L1",
+        action  => "get",
+        path    => "/output_cluster/DataReadings/Y[10]/"
+    );
+}
+
+sub get_L1_R_10 {
+    return $self->request(
+        type    => "data",
+        id      => "L1",
+        action  => "get",
+        path    => "/output_cluster/DataReadings/R[10]/"
+    );
+}
+
+sub get_L1_Theta_10 {
+    return $self->request(
+        type    => "data",
+        id      => "L1",
+        action  => "get",
+        path    => "/output_cluster/DataReadings/theta_(deg)[10]/"
+    );
+}
+
+sub get_L1_Amplitude {
+    return $self->request(
+        type    => "data",
+        id      => "L1",
+        action  => "get",
+        path    => "/output_cluster/GeneralReadings/Module_data[0]/Module/Amplitude_(Vrms)"
+    );
+}
+
+sub get_L1_Output_Offset {
+    return $self->request(
+        type    => "data",
+        id      => "L1",
+        action  => "get",
+        path    => "/output_cluster/GeneralReadings/Module_data[0]/Module/Output_offset_(V)"
+    );
+}
+
 
     my $u_sample_B = get ("http://172.22.11.2:8002/MCL/api?type=data&id=L1&action=get&path=/output_cluster/DataReadings/DC[2]/"); 	 #entspricht V1 DC
     
