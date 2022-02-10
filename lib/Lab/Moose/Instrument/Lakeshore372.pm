@@ -642,11 +642,117 @@ sub get_intype {
         %channel_arg,
     );
     my $channel = delete $args{channel} // $self->input_channel();
-    my $rv = $self->query( command => "INTYPE? $channel" );
+    my $rv = $self->query( command => "INTYPE? $channel", %args );
     my %intype;
     @intype{qw/mode excitation autorange range cs_shunt units/} = split /,/,
         $rv;
     return %intype;
+}
+
+=head2 curve_delete
+
+ $lakeshore->curve_delete(curve => 21);
+
+=cut
+
+sub curve_delete {
+    my ( $self, %args ) = validated_getter(
+        \@_,
+        curve => { isa => enum( [ 21 .. 59 ] ) },
+    );
+    my $curve = delete $args{curve};
+    $self->write( command => "CRVDEL $curve", %args );
+}
+
+=head2 set_curve_header/get_curve_header
+
+ $lakeshore->set_curve_header(
+     curve       => 21,
+     name        => "Germanium",
+     SN          => "selfmade",
+     format      => 4, # log Ohm / Kelvin
+     limit       => 300,
+     coefficient => 1,  # negative
+ );
+ 
+ my %header = $lakeshore->get_curve_header(curve => 21);
+
+=cut
+
+sub set_curve_header {
+    my ( $self, %args ) = validated_getter(
+        \@_,
+        curve => { isa => enum( [ 21 .. 59 ] ) },
+        name  => { isa => 'Str' },
+        SN    => { isa => 'Str' },
+        format => { isa => enum( [ 3, 4, 7 ] ) },
+        limit => { isa => 'Lab::Moose::PosNum' },
+        coefficient => { isa => enum( [ 1, 2 ] ) }
+    );
+    my ( $curve, $name, $SN, $format, $limit, $coefficient )
+        = delete @args{qw/curve name SN format limit coefficient/};
+    $self->write(
+        command =>
+            "SRVHDR $curve, \"$name\", \"$SN\", $format, $limit, $coefficient",
+        %args
+    );
+}
+
+sub get_curve_header {
+    my ( $self, %args ) = validated_getter(
+        \@_,
+        curve => { isa => enum( [ 21 .. 59 ] ) },
+    );
+    my $curve = delete $args{curve};
+    my $rv = $self->query( command => "SRVHDR? $curve", %args );
+    my %header;
+    @header{qw/name SN format limit coefficient/} = split /,/,
+        $rv;
+    return %header;
+}
+
+=head2 set_curve_point/get_curve_point
+
+ $lakeshore->set_curve_point(
+     curve => 21, # 21..59
+     index => 1, # sets first point (1..200)
+     units => 2, # R or log(R)
+     temp => 0.012345,
+     curvature => 0, # default: 0
+ );
+
+ my %point = $lakeshore->get_curve_point(curve => 21, point => 1);
+     
+=cut
+
+sub set_curve_point {
+    my ( $self, %args ) = validated_getter(
+        \@_,
+        curve => { isa => enum( [ 21 .. 59 ] ) },
+        index => { isa => enum( [ 1 .. 200 ] ) },
+        units => { isa => 'Num' },
+        temp  => { isa => 'Num' },
+        curvature => { isa => 'Num', default => 0 },
+    );
+    my ( $curve, $index, $units, $temp, $curvature )
+        = delete @args{qw/curve index units temp curvature/};
+    $self->write(
+        command => "CRVPT $curve, $index, $units, $temp, $curvature", %args );
+}
+
+sub get_curve_point {
+    my ( $self, %args ) = validated_getter(
+        \@_,
+        curve => { isa => enum( [ 21 .. 59 ] ) },
+        index => { isa => enum( [ 1 .. 200 ] ) },
+    );
+    my $curve = delete $args{curve};
+    my $index = delete $args{index};
+    my $rv    = $self->query( command => "CRVPT? $curve, $index", %args );
+    my %point;
+    @point{qw/units temp curvature/} = split /,/,
+        $rv;
+    return %point;
 }
 
 =head2 Consumed Roles
