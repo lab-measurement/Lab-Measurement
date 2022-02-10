@@ -49,7 +49,6 @@ sub get_frq {
 sub set_aver {
 	my ( $self, $aver, %args ) = validated_setter( \@_,
         aver => { isa => enum(0..15) },
-        tail => { isa => 'Str' },
     );
 
     $self->write( command => sprintf( "AV %d", $aver ), %args );
@@ -220,7 +219,7 @@ sub set_wait {
         wait => { isa => 'Num' },
     );
 
-    $self->write( command => sprintf( "WAIT DELAY %d", $wait ), $tail );
+    $self->write( command => sprintf( "WAIT DELAY %d", $wait ), %args );
 
 }
 
