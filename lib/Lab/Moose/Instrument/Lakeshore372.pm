@@ -4,8 +4,11 @@ package Lab::Moose::Instrument::Lakeshore372;
 
 #
 # TODO:
-# HTRSET, HTRST, INNAME
-# RAMP, RAMPST, ANALOG, QRDG, CRVHDR, CRVPT, DISPFLD, DISPLAY, DOUT,
+# HTRSET, HTRST
+# RAMP, RAMPST, ANALOG, QRDG
+# DISPFLD, DISPLAY, DOUT
+# 
+
 use v5.20;
 
 use Moose;
@@ -285,7 +288,7 @@ sub set_input_curve {
     my ( $self, $value, %args ) = validated_setter(
         \@_,
         %channel_arg,
-        value => { isa => enum( [ 0 .. 60 ] ) },
+        value => { isa => enum( [ 0 .. 59 ] ) },
     );
     my $channel = delete $args{channel} // $self->input_channel();
     $self->write( command => "INCRV $channel,$value", %args );
@@ -297,7 +300,7 @@ sub get_input_curve {
         %channel_arg,
     );
     my $channel = delete $args{channel} // $self->input_channel();
-    return $self->query( command => "INCRV $channel", %args );
+    return $self->query( command => "INCRV? $channel", %args );
 }
 
 =head2 set_remote_mode/get_remote_mode
@@ -754,6 +757,34 @@ sub get_curve_point {
         $rv;
     return %point;
 }
+
+=head2 set_input_name/get_input_name
+
+ $lakeshore->set_input_name(channel => 1, value => 'RuOx_Sample');
+ 
+ my $name = $lakeshore->get_input_name(channel => 1);
+
+
+=cut
+
+sub set_input_name {
+    my ($self, $value, %args) = validated_setter(
+        \@_,
+        %channel_arg,
+        );
+    my $channel = delete $args{channel} // $self->input_channel();
+    $self->write(command => "INNAME $channel, $value", %args);
+}
+
+sub get_input_name {
+    my ($self, %args) = validated_getter(
+        \@_,
+        %channel_arg,
+        );
+    my $channel = delete $args{channel} // $self->input_channel();
+    return $self->query(command => "INNAME? $channel", %args);
+}
+
 
 =head2 Consumed Roles
 
