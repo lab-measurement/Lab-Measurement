@@ -202,13 +202,15 @@ sub get_control_mode {
 }
 
 =head2 set_mout/get_mout
+
  $lakeshore->set_mout(
     loop => 1,
     value => 22.45, # percent of range
  );
  my $mout = $lakeshore->get_mout(loop => 1);
 
-In open loop mode: Set/get manual output.
+Set/get manual output. Only works if output is configured for open
+loop control.
 
 =cut
 
