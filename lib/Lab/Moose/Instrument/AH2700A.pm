@@ -1,198 +1,130 @@
-package Lab::Instrument::AH2700A;
+package Lab::Moose::Instrument::AH2700A;
 #ABSTRACT: Andeen-Hagerling AH2700A ultra-precision capacitance bridge
-$Lab::Instrument::AH2700A::VERSION = '3.802';
+
 use v5.20;
 
 use strict;
 use Time::HiRes qw (usleep);
-use Lab::Instrument;
+use Moose;
+use Moose::Util::TypeConstraints qw/enum/;
+use MooseX::Params::Validate;
+use Lab::Moose::Instrument qw/
+    validated_getter
+    validated_setter
+    validated_no_param_setter
+    setter_params
+/;
+use Lab::Moose::Instrument::Cache;
+use Carp;
+use namespace::autoclean;
+use Time::HiRes qw/time usleep/;
+use Lab::Moose 'linspace';
 
-our @ISA = ("Lab::Instrument");
+extends 'Lab::Moose::Instrument';
 
-our %fields = (
-    supported_connections => [ 'VISA_GPIB', 'GPIB', 'DEBUG', 'DUMMY' ],
 
-    # default settings for the supported connections
-    connection_settings => {
-        gpib_board   => 0,
-        gpib_address => undef,
-        timeout      => 2,
-        termchar     => "\n"
-    },
-
-    device_settings => {
-
-    },
-
-    device_cache => {
-        aver => undef,
-        frq  => undef,
-        bias => undef
-    },
-
-    device_cache_order => [],
-
-);
-
-sub new {
-    my $proto = shift;
-    my $class = ref($proto) || $proto;
-    my $self  = $class->SUPER::new(@_);
-    $self->${ \( __PACKAGE__ . '::_construct' ) }(__PACKAGE__);
-
-    return $self;
-}
-
-sub _device_init {
-
+sub BUILD {
+    my $self = shift;
+    # $self->get_id();
 }
 
 sub set_frq {
-    my $self = shift;
+	my ( $self, $value, %args ) = validated_setter( \@_,
+        value  => { isa => enum( [ ( 50..20000 ) ] ) },
+    );
 
-    # read from cache or from device?
-    my ( $frq, $tail ) = $self->_check_args( \@_, ['frq'] );
-
-    if ( $frq < 50 or $frq > 20000 ) {
-        Lab::Exception::CorruptParameter->throw(
-            error => "bad frequency-parameter!\n" );
-    }
-    else {
-        $self->write( sprintf( "FREQ %d", $frq ), $tail );
-    }
-
+	$self->write( command => sprintf("FREQ %d", $value), %args ); 
 }
 
 sub get_frq {
     my $self = shift;
 
-    my $result = $self->query( sprintf("SH FR") );
+    my $result = $self->query( command => sprintf("SH FR") );
 
     $result =~ /(\D+)(\d+\.\d+)(\D+)/;
 
     return $2;
-
 }
 
 sub set_aver {
-    my $self = shift;
+	my ( $self, $value, %args ) = validated_setter( \@_,
+        value => { isa => enum( [ ( 0..15 ) ] ) },
+    );
 
-    # read from cache or from device?
-    my ( $aver, $tail ) = $self->_check_args( \@_, ['aver'] );
-
-    if ( $aver < 0 or $aver > 15 ) {
-        Lab::Exception::CorruptParameter->throw(
-            error => "bad average-parameter!\n" );
-    }
-    else {
-        $self->write( sprintf( "AV %d", $aver ), $tail );
-    }
+    $self->write( command => sprintf( "AV %d", $value ), %args );
 }
 
 sub get_aver {
     my $self = shift;
 
-    my $result = $self->query( sprintf("SH AV") );
+    my $result = $self->query( command => sprintf("SH AV") );
 
     $result =~ /(\D+)(\D+\=)(\d+)/;
 
     return $3;
-
 }
 
 sub set_bias {
-    my $self = shift;
-
-    # read from cache or from device?
-    my ( $bias, $tail ) = $self->_check_args( \@_, ['bias'] );
-
-    if ( $bias eq "OFF" or $bias eq "IHIGH" or $bias eq "ILOW" ) {
-        $self->write( sprintf( "BI %s", $bias ), $tail );
-    }
-    else {
-        Lab::Exception::CorruptParameter->throw(
-            error => "bad bias-parameter!\n" );
-    }
-
+	my ( $self, $value, %args ) = validated_setter( \@_,
+        value => { isa => enum([qw/ OFF IHIGH ILOW /]) },
+    );
+    
+    $self->write( command => sprintf( "BI %s", $value ), %args );
 }
 
 sub get_bias {
     my $self = shift;
 
-    my $result = $self->query( sprintf("SH BI") );
+    my $result = $self->query( command => sprintf("SH BI") );
 
     $result =~ /(\D+\s)(\D+)/;
 
-    return $2;
-
+    return $result;
 }
 
-sub set_bright {
-    my $self = shift;
-
-    # read from cache or from device?
-    my ( $bright1, $bright2, $tail )
-        = $self->_check_args( \@_, [ 'bright1', 'bright2' ] );
-
-    if (
-        (
-               $bright1 ne 'ALL'
-            or $bright1 ne 'C'
-            or $bright1 ne 'LOS'
-            or $bright1 ne 'OT'
-        )
-        and ( $bright2 < 0 or $bright2 > 9 )
-        ) {
-        Lab::Exception::CorruptParameter->throw(
-            error => "bad brightness-parameter!\n" );
-    }
-    if ( $bright1 eq 'ALL' ) {
-        $self->write( sprintf( "BR %s %d", $bright1, $bright2 ), $tail );
-    }
-    if ( $bright1 eq 'C' ) {
-        $self->write( sprintf( "BR %s %d", $bright1, $bright2 ), $tail );
-    }
-    if ( $bright1 eq 'LOS' ) {
-        $self->write( sprintf( "BR %s %d", $bright1, $bright2 ), $tail );
-    }
-    if ( $bright1 eq 'OT' ) {
-        $self->write( sprintf( "BR %s %d", $bright1, $bright2 ), $tail );
-    }
-
-}
+# sub set_bright {
+# 	my ( $self, $bias, %args ) = validated_setter( \@_,
+#         bright1 => { isa => enum([qw/ ALL C LOS OT /]) },
+#         bright2 => { isa => enum(0..9) },
+#     );
+# 
+#     if ( $bright1 eq 'ALL' ) {
+#         $self->write( command => sprintf( "BR %s %d", $bright1, $bright2 ), %args );
+#     }
+#     elsif ( $bright1 eq 'C' ) {
+#         $self->write( command => sprintf( "BR %s %d", $bright1, $bright2 ), %args );
+#     }
+#     elsif ( $bright1 eq 'LOS' ) {
+#         $self->write( command => sprintf( "BR %s %d", $bright1, $bright2 ), %args );
+#     }
+#     elsif ( $bright1 eq 'OT' ) {
+#         $self->write( command => sprintf( "BR %s %d", $bright1, $bright2 ), %args );
+#     }
+# }
 
 sub get_bright {
     my $self = shift;
 
-    my $result = $self->query( sprintf("SH BR") );
+    my $result = $self->query( command => sprintf("SH BR") );
 
     $result =~ /(\D+\s)(\D\=\d\s\D\=\d\s\D\=\d)/;
 
     return $2;
-
 }
 
 sub set_cable {
-    my $self = shift;
+	my ( $self, $cab1, $cab2, %args ) = validated_setter( \@_,
+        cab1 => { isa => enum([qw/ L RES I C /]) },
+        cab2 => { isa => 'Str' },
+    );
 
-    # read from cache or from device?
-    my ( $cab1, $cab2, $tail )
-        = $self->_check_args( \@_, [ 'cab1', 'cab2' ] );
-
-    if ( not $cab1 =~ m/L|RES|I|C/ ) {
-        Lab::Exception::CorruptParameter->throw(
-            error => "bad cable-parameter!\n" );
-    }
-    else {
-        $self->write( sprintf( "CAB %s %d", $cab1, $cab2 ), $tail );
-    }
-
+    $self->write( command => sprintf( "CAB %s %d", $cab1, $cab2 ), %args );
 }
 
 sub get_cable {
     my $self = shift;
 
-    my $result = $self->write( sprintf("SH CAB") );
+    my $result = $self->write( command => sprintf("SH CAB") );
 
     my @results;
 
@@ -204,54 +136,24 @@ sub get_cable {
     print " @results ";
 
     return @results;
-
 }
 
-# set number of measurements for continuous-mode
-sub set_cont {
-    my $self = shift;
-
-    # read from cache or from device?
-    my ( $cont, $tail ) = $self->_check_args( \@_, ['cont'] );
-
-    if ( $cont > 10 ) {
-        Lab::Exception::CorruptParameter->throw(
-            error => "number of measurements higher than 10!\n" );
-    }
-    else {
-        $self->write( sprintf( "CO TO %d", $cont ), $tail );
-    }
-}
-
-# get number of measurements for continuous-mode
-sub get_cont {
-    my $self = shift;
-
-    my $result = $self->query( sprintf("SH CO TO") );
-
-    $result =~ /(\D+)(\D+\=)(\d+)/;
-
-    return $result;
-
-}
-
-# start continuous-mode
-sub cont {
-    my $self = shift;
-
-    $self->write("CO");
-
-}
-
+# What?
+# Does this function get everything the device can return and 
+# gives only a single one to get_value()?
+# Is self->request() still available in Moose?
+# What is $tail and can it be simply substituted by %args?
 sub get_single {
-    my $self = shift;
+	my ( $self, %args ) = validated_getter( \@_,
+    );
 
-    # read from cache or from device?
-    my ($tail) = $self->_check_args( \@_ );
+	# Implement cache; just use Lab::Moose::Instrument::Cache
+	# and write cache id => (getter => 'get_id') for all get
+	# functions?
+    my $average  = $self->get_aver();
+    my $frequency = $self->get_frq();
 
-    my $average = $self->get_aver( { read_mode => "cache" } );
-    my $frequency = $self->get_frq( { read_mode => "cache" } );
-
+	# Rewrite with hash
     my $time_table_highf = {
         0  => [ 0.28,  80 ],
         1  => [ 0.29,  110 ],
@@ -269,41 +171,33 @@ sub get_single {
         13 => [ 68.0,  108000 ],
         14 => [ 140.0, 220000 ],
         15 => [ 280.0, 480000 ],
-
     };
 
     my $timeout = @{ $time_table_highf->{$average} }[0]
         + @{ $time_table_highf->{$average} }[1] / $frequency;
 
-    if ( not defined $tail->{timeout} ) {
-        $tail->{timeout} = 100;
+    if ( not exists($args{'timeout'}) ) {
+        $args{'timeout'} = 100;
     }
 
-    my $result = $self->request( sprintf("SI"), $tail );
-    my $values;
+    my $result = $self->query( command => sprintf("SI"), %args );
+	#print "$result";
+    # Rewrite with hash
+	#if ($result eq "") { croak "AH2700A: Low to Ground\n"; }
+	my $values;
     while ( $result =~ /([A-Z])=\s(\d+\.\d+)/g ) {
         $values->{$1} = $2;
     }
     $values->{E} = 00;
-    if ( $result =~ /^(\d+)/ and $result != /00/ ) {
-        $values->{E} = $1;
-        print new Lab::Exception::Warning(
-                  error => "Error in get_single. Errorcode = "
-                . $values->{E}
-                . "\n" );
-    }
-
-    if ( wantarray() ) {
-        return (
-            $values->{C} * 1e-12,
-            $values->{L} * 1e-9,
-            $values->{V}, $values->{S}, $values->{E}
-        );
-    }
-    else {
-        return $values->{C} * 1e-12;
-    }
-
+    #if ( $result =~ /^(\d+)/ and $result != /00/ ) {
+    #    $values->{E} = $1;
+    #}
+	
+    return (
+        $values->{C} * 1e-12,
+        $values->{L} * 1e-9,
+        $values->{V}, $values->{S}, $values->{E}
+    );
 }
 
 sub get_value {
@@ -313,187 +207,44 @@ sub get_value {
 }
 
 sub set_wait {
-    my $self = shift;
+    my ( $self, $wait, %args ) = validated_setter( \@_,
+        wait => { isa => 'Num' },
+    );
 
-    # read from cache or from device?
-    my ( $wait, $tail ) = $self->_check_args( \@_, ['wait'] );
-
-    $self->write( sprintf( "WAIT DELAY %d", $wait ), $tail );
-
-}
-
-sub reset {
-    my $self = shift;
-
-    $self->write("*RST");
-
-}
-
-# fetch-function
-sub get_last {
-    my $self = shift;
-
-    $self->write("FE");
+    $self->write( command => sprintf( "WAIT DELAY %d", $wait ), %args );
 
 }
 
 # controls which fields are sent to GPIB port
 sub set_field {
-    my $self = shift;
-
-    # read from cache or from device?
-    my ( $fi1, $fi2, $fi3, $fi4, $fi5, $fi6, $tail ) = $self->_check_args(
-        \@_,
-        [ 'fi1', 'fi2', 'fi3', 'fi4', 'fi5', 'fi6' ]
+    my ( $self, %args ) = validated_getter( \@_,
+		fi1 => { isa => 'Str' },
+    	fi2 => { isa => 'Str' },
+		fi3 => { isa => 'Num' },
+		fi4 => { isa => 'Num' },
+		fi5 => { isa => 'Str' },
+		fi6 => { isa => 'Str' },
     );
+	
+	my $fi1 = delete $args{fi1};
+	my $fi2 = delete $args{fi2};
+	my $fi3 = delete $args{fi3};
+	my $fi4 = delete $args{fi4};
+	my $fi5 = delete $args{fi5};
+	my $fi6 = delete $args{fi6};
 
-    $self->write(
+    $self->write( command => 
         sprintf(
             "FIELD %s,%s,%d,%d,%s,%s", $fi1, $fi2, $fi3, $fi4, $fi5, $fi6
-        ),
-        $tail
+        ), %args
     );
-
-}
-
-sub get_field {
-    my $self = shift;
-
-    $self->write("SH FI");
-
-}
-
-sub set_gpib {
-    my $self = shift;
-
-    # read from cache or from device?
-    my ( $gp1, $gp2, $gp3, $gp4, $gp5, $tail )
-        = $self->_check_args( \@_, [ 'gp1', 'gp2', 'gp3', 'gp4', 'gp5' ] );
-
-    $self->write(
-        sprintf( "GP %d,%d,%s,%s,%s", $gp1, $gp2, $gp3, $gp4, $gp5 ),
-        $tail
-    );
-
-}
-
-sub get_gpib {
-    my $self = shift;
-
-    $self->write("SH GP");
-
-}
-
-# stops remote mode (switches to local mode)
-sub go_to_local {
-    my $self = shift;
-
-    $self->write("LOC");
-
-}
-
-sub set_date {
-    my $self = shift;
-
-    # read from cache or from device?
-    my ( $yr, $mo, $day, $tail )
-        = $self->_check_args( \@_, [ 'yr', 'mo', 'day' ] );
-
-    $self->write( sprintf( "STO %d,%d,%d", $yr, $mo, $day ), $tail );
-
-}
-
-sub get_date {
-    my $self = shift;
-
-    $self->write("SH DATE");
-
-}
-
-sub set_time {
-    my $self = shift;
-
-    # read from cache or from device?
-    my ( $hr, $min, $sec, $tail )
-        = $self->_check_args( \@_, [ 'hr', 'min', 'sec' ] );
-
-    $self->write( sprintf( "STO %d,%d,%d", $hr, $min, $sec ), $tail );
-
-}
-
-sub get_time {
-    my $self = shift;
-
-    $self->write("SH TIME");
-
-}
-
-sub set_units {
-    my $self = shift;
-
-    # read from cache or from device?
-    my ( $units, $tail ) = $self->_check_args( \@_, ['units'] );
-
-    if ( not $units =~ m/NS|DS|KO|GO|JP/ ) {
-        Lab::Exception::CorruptParameter->throw(
-            error => "bad units-parameter!\n" );
-    }
-    else {
-        $self->write( sprintf( "UN %s", $units ), $tail );
-    }
-
 }
 
 sub set_volt {
-    my $self = shift;
+    my ( $self, $value, %args ) = validated_setter( \@_,
+        value => { isa => 'Num' },
+    );
 
-    # read from cache or from device?
-    my ( $volt, $tail ) = $self->_check_args( \@_, ['volt'] );
-
-    $self->write( sprintf( "V %2.2f", $volt ), $tail );
-
+    $self->write( command => sprintf( "V %2.2f", $value ), %args );
 }
 
-sub get_volt {
-    my $self = shift;
-
-    my $result = $self->query( sprintf("SH V") );
-
-    $result =~ /(\D+)(\d+\.\d+)(\D+)/;
-
-    return $2;
-
-}
-
-#sub sample_select {}	# only  in conjunction with the sample switch port
-
-1;
-
-__END__
-
-=pod
-
-=encoding UTF-8
-
-=head1 NAME
-
-Lab::Instrument::AH2700A - Andeen-Hagerling AH2700A ultra-precision capacitance bridge
-
-=head1 VERSION
-
-version 3.802
-
-=head1 COPYRIGHT AND LICENSE
-
-This software is copyright (c) 2021 by the Lab::Measurement team; in detail:
-
-  Copyright 2013       Christian Butschkow
-            2016       Andreas K. Huettel, Simon Reinhardt
-            2017       Andreas K. Huettel
-            2020       Andreas K. Huettel
-
-
-This is free software; you can redistribute it and/or modify it under
-the same terms as the Perl 5 programming language system itself.
-
-=cut
