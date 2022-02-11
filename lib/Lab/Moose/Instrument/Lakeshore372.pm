@@ -696,7 +696,7 @@ sub set_curve_header {
         = delete @args{qw/curve name SN format limit coefficient/};
     $self->write(
         command =>
-            "SRVHDR $curve, \"$name\", \"$SN\", $format, $limit, $coefficient",
+            "CRVHDR $curve, \"$name\", \"$SN\", $format, $limit, $coefficient",
         %args
     );
 }
@@ -704,10 +704,10 @@ sub set_curve_header {
 sub get_curve_header {
     my ( $self, %args ) = validated_getter(
         \@_,
-        curve => { isa => enum( [ 21 .. 59 ] ) },
+        curve => { isa => enum( [ 1 .. 59 ] ) },
     );
     my $curve = delete $args{curve};
-    my $rv = $self->query( command => "SRVHDR? $curve", %args );
+    my $rv = $self->query( command => "CRVHDR? $curve", %args );
     my %header;
     @header{qw/name SN format limit coefficient/} = split /,/,
         $rv;
@@ -746,7 +746,7 @@ sub set_curve_point {
 sub get_curve_point {
     my ( $self, %args ) = validated_getter(
         \@_,
-        curve => { isa => enum( [ 21 .. 59 ] ) },
+        curve => { isa => enum( [ 1 .. 59 ] ) },
         index => { isa => enum( [ 1 .. 200 ] ) },
     );
     my $curve = delete $args{curve};
