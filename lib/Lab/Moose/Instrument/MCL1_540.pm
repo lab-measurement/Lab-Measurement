@@ -45,10 +45,10 @@ sub request {
         action  => {isa => enum([qw/get set/])},
         path    => {isa => 'Str'},
     );
-    my $type   = delete %args{'type'};
-    my $id     = delete %args{'id'};
-    my $action = delete %args{'action'};
-    my $path   = delete %args{'path'};
+    my $type   = delete $args{'type'};
+    my $id     = delete $args{'id'};
+    my $action = delete $args{'action'};
+    my $path   = delete $args{'path'};
     
     return get($self->url()."type=$type&id=$id&action=$action&path=$path");
 }
