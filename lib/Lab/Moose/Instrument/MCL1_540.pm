@@ -36,7 +36,6 @@ has ip => (
 	required => 1,
 );
 
-my $url = "http://$self->ip():8002/MCL/api?";
 
 sub request {
     my ( $self, %args ) = validated_getter( \@_,
@@ -50,7 +49,8 @@ sub request {
     my $action = delete $args{'action'};
     my $path   = delete $args{'path'};
     
-    return get($self->url()."type=$type&id=$id&action=$action&path=$path");
+    my $url = "http://$self->ip():8002/MCL/api?";
+    return get($url."type=$type&id=$id&action=$action&path=$path");
 }
 
 # WTF is das System mit dem Array?
