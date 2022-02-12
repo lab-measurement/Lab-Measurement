@@ -113,6 +113,7 @@ sub BUILD {
      folder => datafolder(),
      filename => 'data.dat',
      columns => [qw/x y z/],
+     comment_string => "COLUMNS#\t"
  );
 
  $datafile->add_plot(
