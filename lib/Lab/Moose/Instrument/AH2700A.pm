@@ -1,4 +1,5 @@
 package Lab::Moose::Instrument::AH2700A;
+
 #ABSTRACT: Andeen-Hagerling AH2700A ultra-precision capacitance bridge
 
 use v5.20;
@@ -28,6 +29,33 @@ sub BUILD {
     # $self->get_id();
 }
 
+=encoding utf8
+
+=head1 SYNOPSIS
+
+ use Lab::Moose;
+
+ # Constructor
+ my $AH = instrument(
+     type            => 'AH2700A',
+     connection_type => 'VISA_GPIB',
+     connection_options => {
+         pad => 28,
+     },
+ );
+
+=head1 METHODS
+
+=head2 set_frq
+
+ $AH->set_frq( value => (50..20000) );
+
+ The frequency can be chosen between 50 Hz and 20 kHz.
+ Since the AH2700A is a discrete frequency bridge it will select
+ the nearest supported frequency when entering a value.
+
+=cut
+
 sub set_frq {
 	my ( $self, $value, %args ) = validated_setter( \@_,
         value  => { isa => enum( [ ( 50..20000 ) ] ) },
@@ -35,6 +63,12 @@ sub set_frq {
 
 	$self->write( command => sprintf("FREQ %d", $value), %args ); 
 }
+
+=head2 get_frq
+
+ $AH->get_frq();
+
+=cut
 
 sub get_frq {
     my $self = shift;
@@ -46,6 +80,19 @@ sub get_frq {
     return $2;
 }
 
+=head2 set_aver
+
+ $AH->set_aver( value => (0..15) );
+
+ Sets the approximate time used to make a measurement.
+ This command sets the "average time exponent" controlling
+ the measurement times for cold and warm-start measurements.
+
+ The actual time taken can be calculated using the table from
+ the manual on this function.
+
+=cut
+
 sub set_aver {
 	my ( $self, $value, %args ) = validated_setter( \@_,
         value => { isa => enum( [ ( 0..15 ) ] ) },
@@ -53,6 +100,12 @@ sub set_aver {
 
     $self->write( command => sprintf( "AV %d", $value ), %args );
 }
+
+=head2 get_aver
+
+ $AH->get_aver();
+
+=cut
 
 sub get_aver {
     my $self = shift;
@@ -64,6 +117,20 @@ sub get_aver {
     return $3;
 }
 
+=head2 set_bias
+
+ $AH->set_bias( value = (OFF / IHIGH / ILOW) );
+
+ Controls the user-supplied DC bias voltage and selects the
+ value of an internal resistor placed in series with this
+ voltage.
+
+ OFF:   Disabled
+ ILOW:  100 megaohm resistor
+ IHIGH: 1 megaohm resistor
+
+=cut
+
 sub set_bias {
 	my ( $self, $value, %args ) = validated_setter( \@_,
         value => { isa => enum([qw/ OFF IHIGH ILOW /]) },
@@ -71,6 +138,12 @@ sub set_bias {
     
     $self->write( command => sprintf( "BI %s", $value ), %args );
 }
+
+=head2 get_bias
+
+ $AH->get_bias();
+
+=cut
 
 sub get_bias {
     my $self = shift;
@@ -82,35 +155,8 @@ sub get_bias {
     return $result;
 }
 
-# sub set_bright {
-# 	my ( $self, $bias, %args ) = validated_setter( \@_,
-#         bright1 => { isa => enum([qw/ ALL C LOS OT /]) },
-#         bright2 => { isa => enum(0..9) },
-#     );
-# 
-#     if ( $bright1 eq 'ALL' ) {
-#         $self->write( command => sprintf( "BR %s %d", $bright1, $bright2 ), %args );
-#     }
-#     elsif ( $bright1 eq 'C' ) {
-#         $self->write( command => sprintf( "BR %s %d", $bright1, $bright2 ), %args );
-#     }
-#     elsif ( $bright1 eq 'LOS' ) {
-#         $self->write( command => sprintf( "BR %s %d", $bright1, $bright2 ), %args );
-#     }
-#     elsif ( $bright1 eq 'OT' ) {
-#         $self->write( command => sprintf( "BR %s %d", $bright1, $bright2 ), %args );
-#     }
-# }
-
-sub get_bright {
-    my $self = shift;
-
-    my $result = $self->query( command => sprintf("SH BR") );
-
-    $result =~ /(\D+\s)(\D\=\d\s\D\=\d\s\D\=\d)/;
-
-    return $2;
-}
+=head2 set_cable
+=cut
 
 sub set_cable {
 	my ( $self, $cab1, $cab2, %args ) = validated_setter( \@_,
@@ -120,6 +166,9 @@ sub set_cable {
 
     $self->write( command => sprintf( "CAB %s %d", $cab1, $cab2 ), %args );
 }
+
+=head2 get_cable
+=cut
 
 sub get_cable {
     my $self = shift;
@@ -138,13 +187,9 @@ sub get_cable {
     return @results;
 }
 
-# What?
-# Does this function get everything the device can return and 
-# gives only a single one to get_value()?
-# Is self->request() still available in Moose?
-# What is $tail and can it be simply substituted by %args?
+# used internally for get_value
 sub get_single {
-	my ( $self, %args ) = validated_getter( \@_,
+    my ( $self, %args ) = validated_getter( \@_,
     );
 
 	# Implement cache; just use Lab::Moose::Instrument::Cache
@@ -189,16 +234,30 @@ sub get_single {
         $values->{$1} = $2;
     }
     $values->{E} = 00;
+    # Didn't work in my last test
     #if ( $result =~ /^(\d+)/ and $result != /00/ ) {
     #    $values->{E} = $1;
     #}
 	
+    # TODO
+    # S was always empty in my last test and caused the script
+    # to crash, so i'll just document the first three values
+    # for the moment.
     return (
         $values->{C} * 1e-12,
         $values->{L} * 1e-9,
-        $values->{V}, $values->{S}, $values->{E}
+        $values->{V}
+        #,$values->{S}, $values->{E}
     );
 }
+
+=head2 get_value
+
+ ($frequency, $capacity, $loss) = $AH->get_value();
+
+ Causes the bridge to take a single measurement. 
+
+=cut
 
 sub get_value {
     my $self = shift;
@@ -206,14 +265,32 @@ sub get_value {
     return $self->get_single(@_);
 }
 
-sub set_wait {
-    my ( $self, $wait, %args ) = validated_setter( \@_,
-        wait => { isa => 'Num' },
+=head2 set_wait
+=cut
+sub set_wait { my ( $self, $wait, %args ) = validated_setter( \@_, wait => { isa => 'Num' },
     );
 
     $self->write( command => sprintf( "WAIT DELAY %d", $wait ), %args );
 
 }
+
+=head2 set_field
+
+ $AH->set_field(fi1 => "OFF", fi2 => "OFF", fi3 => 9, fi4 => 9, fi5 => "ON", fi6 => "OFF");
+
+ Controls the fields sent and the number of significant digits
+ reported for capacitance and/or loss measurements.
+
+ fi1: send the sample field ON/OFF
+ fi2: send the frequency field ON/OFF
+ fi3: send the capacitance field and control number of digits
+      0..9
+ fi4: send the loss field and control number of digits
+      0..9
+ fi5: send the voltage field ON/OFF
+ fi6: send the error field ON/OFF
+
+=cut 
 
 # controls which fields are sent to GPIB port
 sub set_field {
@@ -239,6 +316,9 @@ sub set_field {
         ), %args
     );
 }
+
+=head2 set_volt
+=cut
 
 sub set_volt {
     my ( $self, $value, %args ) = validated_setter( \@_,
