@@ -154,7 +154,6 @@ sub get_L1_Output_Offset {
     );
 }
 
- 
 #     my $u_sample_B = get ("http://172.22.11.2:8002/MCL/api?type=data&id=L1&action=get&path=/output_cluster/DataReadings/DC[2]/"); 	 #entspricht V1 DC
 #     
 #     my $u_AC_sample_B = get("http://172.22.11.2:8002/MCL/api?type=data&id=L1&action=get&path=/output_cluster/DataReadings/X[2]/"); #ist das hier dann das u_x? 
@@ -172,4 +171,3 @@ sub get_L1_Output_Offset {
 #     my $u_osc_B = get("http://172.22.11.2:8002/MCL/api?type=data&id=L1&action=get&path=/output_cluster/GeneralReadings/Module_data[1]/Module/Amplitude_(Vrms)"); 
 # 
 #     my $output_offset_B = get("http://172.22.11.2:8002/MCL/api?type=data&id=L1&action=get&path=/output_cluster/GeneralReadings/Module_data[1]/Module/Output_offset_(V)");
-	 
