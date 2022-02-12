@@ -4,8 +4,9 @@ package Lab::Moose::Instrument::Lakeshore372;
 
 #
 # TODO:
-# RAMPST, ANALOG, DISPFLD, DISPLAY, DOUT
-#
+# SCAN, SCAN?, TLIMIT, TLIMIT?
+# HTR? RAMPST?, DISPFLD, DISPLAY, RDGPWR?, RDGST?, RDGSTL?
+# MONITOR
 
 use v5.20;
 
@@ -883,6 +884,37 @@ sub get_heater_setup {
     @htr{qw/resistance max_current max_user_current display/} = split ',',
         $rv;
     return %htr;
+}
+
+=head2 set_scanner/get_scanner
+
+ # Set scanner to channel 5 and start autoscanning
+ $lakeshore->set_scanner(
+    channel => 5,
+    autoscan => 1,
+ );
+ 
+ my %scanner = $lakeshore->get_scanner();
+ my $current_channel = $scanner{channel};
+
+=cut
+
+sub set_scanner {
+    my ( $self, %args ) = validated_getter(
+        \@_,
+        %channel_arg,
+        autoscan => { isa => enum( [ 0, 1 ] ) },
+    );
+    my $channel = delete $args{channel} // $self->input_channel();
+    my $autoscan = delete $args{autoscan};
+    $self->write( command => "SCAN $channel, $autoscan", %args );
+}
+
+sub get_scanner {
+    my ( $self, %args ) = validated_getter( \@_ );
+    my $rv = $self->query( command => "SCAN?", %args );
+    my ( $channel, $autoscan ) = split ',', $rv;
+    return ( channel => $channel, autoscan => $autoscan );
 }
 
 =head2 Consumed Roles
