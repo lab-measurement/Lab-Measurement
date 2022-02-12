@@ -4,10 +4,8 @@ package Lab::Moose::Instrument::Lakeshore372;
 
 #
 # TODO:
-# HTRSET, HTRST
-# RAMP, RAMPST, ANALOG, QRDG
-# DISPFLD, DISPLAY, DOUT
-# 
+# RAMPST, ANALOG, DISPFLD, DISPLAY, DOUT
+#
 
 use v5.20;
 
@@ -153,6 +151,24 @@ sub get_sensor_units_reading {
     );
     my $channel = delete $args{channel} // $self->input_channel();
     return $self->query( command => "SRDG? $channel", %args );
+}
+
+=head2 get_quadrature_reading
+
+ my $imaginary_part = $lakeshore->get_quadrature_reading(
+    channel => 1, # 1..16 (only measurement input)
+ );
+ 
+
+=cut
+
+sub get_quadrature_reading {
+    my ( $self, %args ) = validated_getter(
+        \@_,
+        %channel_arg
+    );
+    my $channel = delete $args{channel} // $self->input_channel();
+    return $self->query( command => "QRDG? $channel", %args );
 }
 
 =head2 set_setpoint/get_setpoint
@@ -696,7 +712,7 @@ sub set_curve_header {
         = delete @args{qw/curve name SN format limit coefficient/};
     $self->write(
         command =>
-            "SRVHDR $curve, \"$name\", \"$SN\", $format, $limit, $coefficient",
+            "CRVHDR $curve, \"$name\", \"$SN\", $format, $limit, $coefficient",
         %args
     );
 }
@@ -704,10 +720,10 @@ sub set_curve_header {
 sub get_curve_header {
     my ( $self, %args ) = validated_getter(
         \@_,
-        curve => { isa => enum( [ 21 .. 59 ] ) },
+        curve => { isa => enum( [ 1 .. 59 ] ) },
     );
     my $curve = delete $args{curve};
-    my $rv = $self->query( command => "SRVHDR? $curve", %args );
+    my $rv = $self->query( command => "CRVHDR? $curve", %args );
     my %header;
     @header{qw/name SN format limit coefficient/} = split /,/,
         $rv;
@@ -746,7 +762,7 @@ sub set_curve_point {
 sub get_curve_point {
     my ( $self, %args ) = validated_getter(
         \@_,
-        curve => { isa => enum( [ 21 .. 59 ] ) },
+        curve => { isa => enum( [ 1 .. 59 ] ) },
         index => { isa => enum( [ 1 .. 200 ] ) },
     );
     my $curve = delete $args{curve};
@@ -768,23 +784,106 @@ sub get_curve_point {
 =cut
 
 sub set_input_name {
-    my ($self, $value, %args) = validated_setter(
+    my ( $self, $value, %args ) = validated_setter(
         \@_,
         %channel_arg,
-        );
+    );
     my $channel = delete $args{channel} // $self->input_channel();
-    $self->write(command => "INNAME $channel, $value", %args);
+    $self->write( command => "INNAME $channel, $value", %args );
 }
 
 sub get_input_name {
-    my ($self, %args) = validated_getter(
+    my ( $self, %args ) = validated_getter(
         \@_,
         %channel_arg,
-        );
+    );
     my $channel = delete $args{channel} // $self->input_channel();
-    return $self->query(command => "INNAME? $channel", %args);
+    return $self->query( command => "INNAME? $channel", %args );
 }
 
+=head2 set_ramp/get_ramp
+
+ $lakeshore->set_ramp(
+     loop => 0,
+     on => 1, # 0 or 1
+     rate => 10e-3, # ramp rate in K/min
+ );
+
+ my %rate = $lakeshore->get_ramp(loop => 0);
+
+
+=cut
+
+sub set_ramp {
+    my ( $self, %args ) = validated_getter(
+        \@_,
+        %loop_arg,
+        rate => { isa => 'Lab::Moose::PosNum' },
+        on   => { isa => enum( [ 0, 1 ] ) },
+    );
+    my $loop = delete $args{loop} // $self->default_loop;
+    my $rate = delete $args{rate};
+    my $on   = delete $args{on};
+    $self->write( command => "RAMP $loop, $on, $rate", %args );
+}
+
+sub get_ramp {
+    my ( $self, %args ) = validated_getter(
+        \@_,
+        %loop_arg,
+    );
+    my $loop = delete $args{loop} // $self->default_loop;
+    my $rv = $self->query( command => "RAMP? $loop", %args );
+    my %ramp;
+    @ramp{qw/on rate/} = split ',', $rv;
+    return %ramp;
+}
+
+=head2 set_heater_setup/get_heater_setup
+
+ $lakeshore->set_heater_setup(
+    loop => 0,
+    resistance => 1500, # Ohms
+    max_current => 0, # warm-up heater
+    max_user_current => 0.1, # Amps
+    display => 2, # Display power 
+ );
+
+ my %setup = $lakeshore->get_heater_setup(loop => 0);
+
+=cut
+
+sub set_heater_setup {
+    my ( $self, %args ) = validated_getter(
+        \@_,
+        %loop_arg,
+        resistance       => { isa => 'Lab::Moose::PosNum' },
+        max_current      => { isa => enum( [ 0, 1, 2 ] ) },
+        max_user_current => { isa => 'Lab::Moose::PosNum' },
+        display => { isa => enum( [ 0, 1 ] ) },
+    );
+    my $loop = delete $args{loop} // $self->default_loop;
+    my ( $resistance, $max_current, $max_user_current, $display )
+        = delete @args{qw/resistance max_current max_user_current display/};
+    $self->write(
+        command =>
+            "HTRSET $loop, $resistance, $max_current, $max_user_current, $display",
+        %args
+    );
+}
+
+sub get_heater_setup {
+    my ( $self, %args ) = validated_getter(
+        \@_,
+        %loop_arg,
+    );
+    my $loop = delete $args{loop} // $self->default_loop;
+    my $rv = $self->query( command => "HTRSET? $loop", %args );
+    my %htr;
+    @htr{qw/resistance max_current max_user_current display/} = split ',',
+        $rv;
+    return %htr;
+}
 
 =head2 Consumed Roles
 
