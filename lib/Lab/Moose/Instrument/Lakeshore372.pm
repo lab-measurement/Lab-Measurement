@@ -4,8 +4,8 @@ package Lab::Moose::Instrument::Lakeshore372;
 
 #
 # TODO:
-# SCAN, SCAN?, TLIMIT, TLIMIT?
-# HTR? RAMPST?, DISPFLD, DISPLAY, RDGPWR?, RDGST?, RDGSTL?
+# TLIMIT, TLIMIT?
+# HTR? RAMPST?, RDGPWR?, RDGST?, RDGSTL?
 # MONITOR
 
 use v5.20;
@@ -170,6 +170,24 @@ sub get_quadrature_reading {
     );
     my $channel = delete $args{channel} // $self->input_channel();
     return $self->query( command => "QRDG? $channel", %args );
+}
+
+=head2 get_excitation_power_reading
+
+ my $excitation_power = $lakeshore->get_excitation_power_reading(
+     channel => 1, # 1..16 or A
+ );
+
+=cut
+
+sub get_excitation_power_reading {
+    my ( $self, %args ) = validated_getter(
+        \@_,
+        %channel_arg
+    );
+    my $channel = delete $args{channel} // $self->input_channel();
+    return $self->query( command => "RDGPWR? $channel", %args );
+
 }
 
 =head2 set_setpoint/get_setpoint
@@ -915,6 +933,77 @@ sub get_scanner {
     my $rv = $self->query( command => "SCAN?", %args );
     my ( $channel, $autoscan ) = split ',', $rv;
     return ( channel => $channel, autoscan => $autoscan );
+}
+
+=head2 set_display_field/get_display_field
+
+ $lakeshore->set_display_field(
+    field => 1,
+    input => 1,
+    units => 1, # Kelvin
+ );
+
+ my %field = $lakeshore->get_display_field(field => 1);
+
+=cut
+
+sub set_display_field {
+    my ( $self, %args ) = validated_getter(
+        \@_,
+        field => { isa => enum( [ 1 .. 8 ] ) },
+        input => { isa => enum( [ 0 .. 17 ] ) },
+        units => { isa => enum( [ 1 .. 6 ] ) },
+    );
+    my ( $field, $input, $units ) = delete @args{qw/field input units/};
+    $self->write( command => "DISPFLD $field, $input, $units", %args );
+}
+
+sub get_display_field {
+    my ( $self, %args ) = validated_getter(
+        \@_,
+        field => { isa => enum( [ 1 .. 8 ] ) }
+    );
+    my $field = delete $args{field};
+    my $rv = $self->query( command => "DISPFLD? $field", %args );
+    my ( $input, $units ) = split ',', $rv;
+    return ( input => $input, units => $units );
+}
+
+=head2 set_display/get_display
+
+ $lakeshore->set_display(
+    mode => 2, # custom
+    num_fields => 2, # 8 fields
+    displayed_info => 1, # sample_heater
+ );
+
+ my %display = $lakeshore->get_display();
+
+=cut
+
+sub set_display {
+    my ( $self, %args ) = validated_getter(
+        \@_,
+        mode       => { isa => enum( [ 0, 1, 2 ] ) },
+        num_fields => { isa => enum( [ 0, 1, 2 ] ) },
+        displayed_info => { isa => enum( [ 0 .. 3 ] ) }
+    );
+    my ( $mode, $num_fields, $displayed_info )
+        = delete @args{qw/mode num_fields displayed_info/};
+    $self->write(
+        command => "DISPLAY $mode, $num_fields, $displayed_info",
+        %args
+    );
+}
+
+sub get_display {
+    my ( $self, %args ) = validated_getter( \@_ );
+    my $rv = $self->query( command => "DISPLAY?", %args );
+    my ( $mode, $num_fields, $displayed_info ) = split ',', $rv;
+    return (
+        mode           => $mode, num_fields => $num_fields,
+        displayed_info => $displayed_info
+    );
 }
 
 =head2 Consumed Roles
