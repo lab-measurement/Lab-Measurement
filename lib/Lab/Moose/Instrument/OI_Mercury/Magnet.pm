@@ -85,6 +85,8 @@ with 'Lab::Moose::Instrument::OI_Common';
  # Sweep to 0.1 T with rate of 1 T/min
  $magnet->sweep_to_field(target => 0.1, rate => 1);
 
+See L<https://github.com/lab-measurement/Lab-Measurement/blob/master/examples/RealWorld/level-plot.pl> for an example of a He/N2 level plotter.
+
 =head1 METHODS
 
 The default names for the used board names are as follows. You can
