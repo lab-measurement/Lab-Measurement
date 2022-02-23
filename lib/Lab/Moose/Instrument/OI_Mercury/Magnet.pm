@@ -36,20 +36,17 @@ has heater_delay => (
 );
 
 has ATOB => (
-    is => 'ro',
-    isa => 'Lab::Moose::PosNum',
+    is      => 'ro',
+    isa     => 'Lab::Moose::PosNum',
     builder => '_build_ATOB',
-    lazy => 1,
-    );
-
+    lazy    => 1,
+);
 
 sub _build_ATOB {
-    my $self = shift;
+    my $self   = shift;
     my $magnet = $self->magnet();
-    return $self->oi_getter(cmd => "READ:DEV:GRP${magnet}:PSU:ATOB");
+    return $self->oi_getter( cmd => "READ:DEV:GRP${magnet}:PSU:ATOB" );
 }
-
-
 
 # default connection options:
 around default_connection_options => sub {
@@ -85,7 +82,7 @@ with 'Lab::Moose::Instrument::OI_Common';
  # Sweep to 0.1 T with rate of 1 T/min
  $magnet->sweep_to_field(target => 0.1, rate => 1);
 
-See L<https://github.com/lab-measurement/Lab-Measurement/blob/master/examples/RealWorld/level-plot.pl> for an example of a He/N2 level plotter.
+See also an L<example|https://github.com/lab-measurement/Lab-Measurement/blob/master/examples/RealWorld/level-plot.pl> of a He/N2 level plotter.
 
 =head1 METHODS
 
@@ -290,8 +287,6 @@ sub validated_magnet_setter {
     return ( $self, $value, $channel, %args );
 }
 
-
-
 =head2 oim_get_current
 
   $curr = $m->oim_get_current();
@@ -328,7 +323,6 @@ sub oim_get_persistent_current {
     return $current;
 }
 
-
 =head2 oim_get_field
 
  $field = $m->oim_get_field();
@@ -341,10 +335,10 @@ Returns 0 when in persistent mode.
 =cut
 
 sub oim_get_field {
-    my $self = shift;
+    my $self    = shift;
     my $current = $self->oim_get_current(@_);
-    my $rv = $current / $self->ATOB();
-    return sprintf("%.6f", $rv);
+    my $rv      = $current / $self->ATOB();
+    return sprintf( "%.6f", $rv );
 }
 
 =head2 oim_get_persistent_field
@@ -357,11 +351,11 @@ Internally, this uses oim_get_persistent_current and calculates the field with t
 =cut
 
 sub oim_get_persistent_field {
-    my $self = shift;
+    my $self    = shift;
     my $current = $self->oim_get_persistent_current(@_);
 
     my $rv = $current / $self->ATOB();
-    return sprintf("%.6f", $rv)
+    return sprintf( "%.6f", $rv );
 }
 
 =head2 oim_get_heater
@@ -497,8 +491,8 @@ Sets the desired target sweep rate, parameter is in Amperes per minute.
 sub oim_set_current_sweeprate {
     my ( $self, $value, $channel, %args ) = validated_magnet_setter( \@_ );
 
-    $value = sprintf("%.3f", $value);
-    
+    $value = sprintf( "%.3f", $value );
+
     my $rv = $self->oi_setter(
         cmd   => "SET:DEV:$channel:PSU:SIG:RCST",
         value => $value, %args
@@ -518,10 +512,10 @@ Get sweep rate (Tesla/min).
 =cut
 
 sub oim_get_field_sweeprate {
-    my $self = shift;
+    my $self              = shift;
     my $current_sweeprate = $self->oim_get_current_sweeprate(@_);
-    my $rv = $current_sweeprate / $self->ATOB();
-    return sprintf("%.6f", $rv);
+    my $rv                = $current_sweeprate / $self->ATOB();
+    return sprintf( "%.6f", $rv );
 }
 
 =head2 oim_set_field_sweeprate
@@ -533,11 +527,11 @@ Set sweep rate (Tesla/min).
 =cut
 
 sub oim_set_field_sweeprate {
-    my $self = shift;
-    my %args = @_;
+    my $self  = shift;
+    my %args  = @_;
     my $value = delete $args{value};
     $value = $value * $self->ATOB();
-    my $rv = $self->oim_set_current_sweeprate(value => $value, %args);
+    my $rv = $self->oim_set_current_sweeprate( value => $value, %args );
     return $rv / $self->ATOB();
 }
 
@@ -590,8 +584,8 @@ sub oim_set_current_setpoint {
         value => { isa => 'Num' },
     );
 
-    $value = sprintf("%.4f", $value);
-    
+    $value = sprintf( "%.4f", $value );
+
     my $rv = $self->oi_setter(
         cmd   => "SET:DEV:$channel:PSU:SIG:CSET",
         value => $value, %args
@@ -626,16 +620,16 @@ Set the field setpoint in Tesla.
 =cut
 
 sub oim_set_field_setpoint {
-    my $self = shift;
-    my %args = @_;
+    my $self  = shift;
+    my %args  = @_;
     my $value = delete $args{value};
-    
+
     $value = $value * $self->ATOB();
 
-    my $rv = $self->oim_set_current_setpoint(value => $value, %args);
+    my $rv = $self->oim_set_current_setpoint( value => $value, %args );
 
     $rv = $rv / $self->ATOB();
-    return sprintf("%.6f", $rv);
+    return sprintf( "%.6f", $rv );
 }
 
 =head2 oim_get_field_setpoint
@@ -665,7 +659,6 @@ sub oim_get_fieldconstant {
     return $self->oi_getter( cmd => "READ:DEV:$channel:PSU:ATOB", %args );
 }
 
-
 =head2 field_step
 
 Return the minimum field stepwidth of the magnet
@@ -676,7 +669,6 @@ sub field_step {
     my $self = shift;
     return 1e-4 / $self->oim_get_fieldconstant(@_);
 }
-
 
 ############### XPRESS interface #####################
 
