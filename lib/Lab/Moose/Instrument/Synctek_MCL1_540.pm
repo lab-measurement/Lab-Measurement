@@ -1,4 +1,4 @@
-package Lab::Moose::Instrument::Synctek_MCL1-540;
+package Lab::Moose::Instrument::Synctek_MCL1_540;
 
 #ABSTRACT: Synctek MCL1-540 Lock-in Amplifier
 
