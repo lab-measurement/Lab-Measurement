@@ -180,7 +180,7 @@ alias: L<Lab::Moose::Instrument::Agilent34410A>
 
 =item * L<Lab::Moose::Instrument::SignalRecovery7265>
 
-=item * L<Lab::Moose::Instrument::MCL1_540>
+=item * L<Lab::Moose::Instrument::Synctek_MCL1_540>
 
 =item * L<Lab::Moose::Instrument::ZI_MFIA>
 
@@ -379,6 +379,8 @@ contains support for temperature sensor and He/N2 level meters.
 =item * L<Lab::Moose::Connection::VISA::GPIB>
 
 alias: C<Lab::Moose::Connection::VISA_GPIB>
+
+=item * L<Lab::Moose::Connection::WWW>
 
 =back
 
