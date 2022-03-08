@@ -1,4 +1,4 @@
-package Lab::Moose::Instrument::MCL1_540;
+package Lab::Moose::Instrument::Synctek_MCL1-540;
 
 #ABSTRACT: Synctek MCL1-540 Lock-in Amplifier
 
@@ -17,7 +17,6 @@ use Lab::Moose::Instrument qw/
 use Carp;
 use namespace::autoclean;
 use Time::HiRes qw/time usleep/;
-use LWP::Simple;
 
 =encoding utf8
 
@@ -41,11 +40,16 @@ TODO
 # - names of outputs
 # - which functions to implement?
 
-has ip => (
-    is       => 'ro',
-    isa      => 'Str',
-    required => 1,
-);
+
+# default connection options:
+around default_connection_options => sub {
+	my $orig = shift;
+	my $self = shift;
+	my $options = $self->$orig();
+
+	$options->{port} = 8002;
+	return $options;
+}
 
 
 sub request {
@@ -60,9 +64,9 @@ sub request {
     my $id     = delete $args{'id'};
     my $action = delete $args{'action'};
     my $path   = delete $args{'path'};
-    my $url = "http://$self->ip():8002/MCL/api?";
-    return get( $url . "type=$type&id=$id&action=$action&path=$path" );
-
+    return query( command =>
+		":8002/MCL/api?type=$type&id=$id&action=$action&path=$path" 
+	);
 }
 
 # WTF is das System mit dem Array?
