@@ -49,7 +49,7 @@ around default_connection_options => sub {
 
 	$options->{port} = 8002;
 	return $options;
-}
+};
 
 
 sub request {
@@ -65,7 +65,7 @@ sub request {
     my $action = delete $args{'action'};
     my $path   = delete $args{'path'};
     return query( command =>
-		":8002/MCL/api?type=$type&id=$id&action=$action&path=$path" 
+		"/MCL/api?type=$type&id=$id&action=$action&path=$path" 
 	);
 }
 
