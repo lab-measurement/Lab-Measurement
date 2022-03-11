@@ -20,8 +20,6 @@ use Time::HiRes qw/time usleep/;
 
 extends 'Lab::Moose::Instrument';
 
-=encoding utf8
-
 =head1 SYNOPSIS
 
  use Lab::Moose;
@@ -42,6 +40,7 @@ TODO
 # - names of outputs
 # - which functions to implement?
 
+
 # default connection options:
 around default_connection_options => sub {
     my $orig    = shift;
@@ -51,6 +50,7 @@ around default_connection_options => sub {
     $options->{port} = 8002;
     return $options;
 };
+
 
 sub request {
     my ( $self, %args ) = validated_getter(
@@ -64,6 +64,7 @@ sub request {
     my $id     = delete $args{'id'};
     my $action = delete $args{'action'};
     my $path   = delete $args{'path'};
+
     return query(
         command => "/MCL/api?type=$type&id=$id&action=$action&path=$path" );
 }
