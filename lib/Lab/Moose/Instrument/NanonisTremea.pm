@@ -1,5 +1,7 @@
 package Lab::Moose::Instrument::NanonisTremea;
 
+#ABSTRACT: Nanonis Tramea
+
 use v5.20;
 
 use Moose;
@@ -8,12 +10,21 @@ use MooseX::Params::Validate;
 use Carp;
 use namespace::autoclean;
 
-use Lab::Moose::Instrument qw/     
+use Lab::Moose::Instrument qw/
     validated_getter validated_setter setter_params /;
-
 
 extends 'Lab::Moose::Instrument';
 
+=encoding utf8
+
+=head1 SYNOPSIS
+
+ my $tramea = instrument(
+     type => 'NanonisTramea',
+ );
+
+
+=cut
 
 sub nt_string {
   my $s = shift;
@@ -125,11 +136,6 @@ sub float32ArrayUnpacker {
 =head1 1DSweep
 =cut
 
-
-
-
-
-
 sub oneDSwp_AcqChsSet { 
     my $self = shift;
     my @channels; 
@@ -149,18 +155,16 @@ sub oneDSwp_AcqChsSet {
 
 
 sub oneDSwp_AcqChsGet {
-    #######not working for some reason
     my $self = shift;
     my $command_name="1dswp.acqchsget";
     my $bodysize = 0;
     my $head= $self->nt_header($command_name,$bodysize,1);
     $self->write(command=>$head);
 
-    my $return = $self->read();
-    #my $channelNum = unpack("N!",substr $return,40,4);
-    print(length($return));
-    #my @channels = $self->intArrayUnpacker($channelNum,(substr $return,44));
-    #print(join(",",@channels));
+    my $return = $self->binary_read();
+    my $channelNum = unpack("N!",substr $return,40,4);
+    my @channels = $self->intArrayUnpacker($channelNum,(substr $return,44));
+    return(@channels);
 }
 
 sub oneDSwp_SwpSignalSet {
@@ -181,7 +185,7 @@ sub oneDSwp_SwpSignalGet {
     my $command_name="1dswp.swpsignalget";
     my $head= $self->nt_header($command_name,0,1);
     $self->write(command=>$head);
-    my $response = $self->read();
+    my $response = $self->binary_read();
     my $strlen= unpack("N!",substr $response,40,4);
 
     if (($option eq "select") == 1){
@@ -221,7 +225,7 @@ sub oneDSwp_LimitsGet {
   my $rbodysize = 8;
   my $head= $self->nt_header($command_name,$bodysize,1);
   $self->write(command=>$head);
-  my $return = $self->read();
+  my $return = $self->binary_read();
   $return= returnFormatter($rbodysize,$return);
   my $Lower_limit= substr $return,40,4;
   $Lower_limit= unpack("f>",$Lower_limit);
@@ -1102,6 +1106,283 @@ sub Signals_AddRTSet {
   $self->write(command=>$head.$body);
 }
 
+=head1 User
+=cut
+
+sub UserIn_CalibrSet {
+  my $self = shift;
+  my ($Input_index,$Calibration_per_volt,$Offset_in_physical_units)= @_;
+  my $command_name= "userin.calibrset";
+  my $bodysize = 12;
+  my $head= $self->nt_header($command_name,$bodysize,0);
+  my $body=nt_int($Input_index);
+  $body=$body.nt_float32($Calibration_per_volt);
+  $body=$body.nt_float32($Offset_in_physical_units);
+  $self->write(command=>$head.$body);
+}
+
+sub UserOut_ModeSet {
+  my $self = shift;
+  my ($Output_index,$Output_mode)= @_;
+  my $command_name= "userout.modeset";
+  my $bodysize = 6;
+  my $head= $self->nt_header($command_name,$bodysize,0);
+  my $body=nt_int($Output_index);
+  $body=$body.nt_uint16($Output_mode);
+  $self->write(command=>$head.$body);
+}
+
+sub UserOut_ModeGet {
+  my $self = shift;
+  my ($Output_index)= @_;
+  my $command_name= "userout.modeget";
+  my $bodysize = 4;
+  my $head= $self->nt_header($command_name,$bodysize,1);
+  my $body=nt_int($Output_index);
+  $self->write(command=>$head.$body);
+  my $return = $self->binary_read(); 
+  my $Output_mode= substr $return,40,2;
+  $Output_mode= unpack("n",$Output_mode);
+  return($Output_mode);
+}
+
+sub UserOut_MonitorChSet {
+  my $self = shift;
+  my ($Output_index,$Monitor_channel_index)= @_;
+  my $command_name= "userout.monitorchset";
+  my $bodysize = 8;
+  my $head= $self->nt_header($command_name,$bodysize,0);
+  my $body=nt_int($Output_index);
+  $body=$body.nt_int($Monitor_channel_index);
+  $self->write(command=>$head.$body);
+}
+
+
+sub UserOut_MonitorChGet {
+  my $self = shift;
+  my ($Output_index)= @_;
+  my $command_name= "userout.monitorchget";
+  my $bodysize = 4;
+  my $head= $self->nt_header($command_name,$bodysize,1);
+  my $body=nt_int($Output_index);
+  $self->write(command=>$head.$body);
+  my $return = $self->binary_read(); 
+  my $Monitor_channel_index= substr $return,40,4;
+  $Monitor_channel_index= unpack("N!",$Monitor_channel_index);
+  return($Monitor_channel_index);
+}
+
+sub UserOut_ValSet {
+  my $self = shift;
+  my ($Output_index,$Output_value)= @_;
+  my $command_name= "userout.valset";
+  my $bodysize = 8;
+  my $head= $self->nt_header($command_name,$bodysize,0);
+  my $body=nt_int($Output_index);
+  $body=$body.nt_float32($Output_value);
+  $self->write(command=>$head.$body);
+}
+
+sub UserOut_CalibrSet {
+  my $self = shift;
+  my ($Output_index,$Calibration_per_volt,$Offset_in_physical_units)= @_;
+  my $command_name= "userout.calibrset";
+  my $bodysize = 12;
+  my $head= $self->nt_header($command_name,$bodysize,0);
+  my $body=nt_int($Output_index);
+  $body=$body.nt_float32($Calibration_per_volt);
+  $body=$body.nt_float32($Offset_in_physical_units);
+  $self->write(command=>$head.$body);
+}
+
+
+sub UserOut_CalcSignalNameSet {
+  my $self = shift;
+  my $output_index = shift;
+  my $string = shift;
+  my $command_name = "userout.calcsignalnameset";
+  my $bodysize= 8 + length($string);
+  my $head = $self->nt_header($command_name,$bodysize,1);
+  my $body = nt_int($output_index).nt_int(length($string)).$string;
+
+  $self->write(command=>$head.$body);
+}
+
+sub UserOut_CalcSignalNameGet {
+
+  my $self = shift;
+  my $output_index = shift;
+  my $command_name = "userout.calcsignalnameget";
+
+  $self->write(command=>$self->nt_header($command_name,4,1).nt_int($output_index));
+
+  my $return = $self->binary_read();
+  my $strLen = unpack("N!",substr($return,40,4));
+  return substr $return,44,$strLen;
+
+}
+
+sub UserOut_CalcSignalConfigSet {
+  my $self = shift;
+  my ($Output_index,$Operation_1,$Value_1,$Operation_2,$Value_2,$Operation_3,$Value_3,$Operation_4,$Value_4)= @_;
+  my $command_name= "userout.calcsignalconfigset";
+  my $bodysize = 28;
+  my $head= $self->nt_header($command_name,$bodysize,0);
+  my $body=nt_int($Output_index);
+  $body=$body.nt_uint16($Operation_1);
+  $body=$body.nt_float32($Value_1);
+  $body=$body.nt_uint16($Operation_2);
+  $body=$body.nt_float32($Value_2);
+  $body=$body.nt_uint16($Operation_3);
+  $body=$body.nt_float32($Value_3);
+  $body=$body.nt_uint16($Operation_4);
+  $body=$body.nt_float32($Value_4);
+  $self->write(command=>$head.$body);
+}
+
+sub UserOut_CalcSignalConfigGet {
+  my $self = shift;
+  my ($Output_index)= @_;
+  my $command_name= "userout.calcsignalconfigget";
+  my $bodysize = 4;
+  my $head= $self->nt_header($command_name,$bodysize,1);
+  my $body=nt_int($Output_index);
+  $self->write(command=>$head.$body);
+  my $return = $self->binary_read(); 
+  my $Operation_1= substr $return,40,2;
+  $Operation_1= unpack("n",$Operation_1);
+  my $Value_1= substr $return,42,4;
+  $Value_1= unpack("f>",$Value_1);
+  my $Operation_2= substr $return,46,2;
+  $Operation_2= unpack("n",$Operation_2);
+  my $Value_2= substr $return,48,4;
+  $Value_2= unpack("f>",$Value_2);
+  my $Operation_3= substr $return,52,2;
+  $Operation_3= unpack("n",$Operation_3);
+  my $Value_3= substr $return,54,4;
+  $Value_3= unpack("f>",$Value_3);
+  my $Operation_4= substr $return,58,2;
+  $Operation_4= unpack("n",$Operation_4);
+  my $Value_4= substr $return,60,4;
+  $Value_4= unpack("f>",$Value_4);
+  return($Operation_1,$Value_1,$Operation_2,$Value_2,$Operation_3,$Value_3,$Operation_4,$Value_4);
+}
+
+sub UserOut_LimitsSet {
+  my $self = shift;
+  my ($Output_index,$Upper_limit,$Lower_limit)= @_;
+  my $command_name= "userout.limitsset";
+  my $bodysize = 12;
+  my $head= $self->nt_header($command_name,$bodysize,0);
+  my $body=nt_int($Output_index);
+  $body=$body.nt_float32($Upper_limit);
+  $body=$body.nt_float32($Lower_limit);
+  $self->write(command=>$head.$body);
+}
+sub UserOut_LimitsGet {
+  my $self = shift;
+  my ($Output_index)= @_;
+  my $command_name= "userout.limitsget";
+  my $bodysize = 4;
+  my $head= $self->nt_header($command_name,$bodysize,1);
+  my $body=nt_int($Output_index);
+  $self->write(command=>$head.$body);
+  my $return = $self->binary_read(); 
+  my $Upper_limit= substr $return,40,4;
+  $Upper_limit= unpack("f>",$Upper_limit);
+  my $Lower_limit= substr $return,44,4;
+  $Lower_limit= unpack("f>",$Lower_limit);
+  return($Upper_limit,$Lower_limit);
+}
+sub UserOut_SlewRateSet {
+  my $self = shift;
+  my ($Output_index,$Slew_Rate)= @_;
+  my $command_name= "userout.slewrateset";
+  my $bodysize = 12;
+  my $head= $self->nt_header($command_name,$bodysize,0);
+  my $body=nt_int($Output_index);
+  $body=$body.nt_float64($Slew_Rate);
+  $self->write(command=>$head.$body);
+}
+sub UserOut_SlewRateGet {
+  my $self = shift;
+  my ($Output_index)= @_;
+  my $command_name= "userout.slewrateget";
+  my $bodysize = 4;
+  my $head= $self->nt_header($command_name,$bodysize,1);
+  my $body=nt_int($Output_index);
+  $self->write(command=>$head.$body);
+  my $return = $self->binary_read(); 
+  my $Slew_Rate= substr $return,40,8;
+  $Slew_Rate= unpack("d>",$Slew_Rate);
+  return($Slew_Rate);
+}
+
+=head1 Digita Lines 
+=cut 
+
+sub DigLines_PropsSet {
+  my $self = shift;
+  my ($Digital_line,$Port,$Direction,$Polarity)= @_;
+  my $command_name= "diglines.propsset";
+  my $bodysize = 16;
+  my $head= $self->nt_header($command_name,$bodysize,0);
+  my $body=nt_uint32($Digital_line);
+  $body=$body.nt_uint32($Port);
+  $body=$body.nt_uint32($Direction);
+  $body=$body.nt_uint32($Polarity);
+  $self->write(command=>$head.$body);
+}
+
+sub DigLines_OutStatusSet {
+  my $self = shift;
+  my ($Port,$Digital_line,$Status)= @_;
+  my $command_name= "diglines.outstatusset";
+  my $bodysize = 12;
+  my $head= $self->nt_header($command_name,$bodysize,0);
+  my $body=nt_uint32($Port);
+  $body=$body.nt_uint32($Digital_line);
+  $body=$body.nt_uint32($Status);
+  $self->write(command=>$head.$body);
+}
+
+sub DigLines_TTLValGet {
+  
+  my $self = shift;
+  my $port = shift;
+  my $command_name = "diglines.ttlvalget";
+  my $head = $self->nt_header($command_name,4,1);
+
+  $self->write(command=>$head.nt_uint16($port));
+
+  my $return = $self->binary_read();
+
+  my $intArraySize = unpack("N!",substr($return,40,4));
+  my @intArray = $self->intArrayUnpacker($intArraySize,substr($return,44,$intArraySize*4));
+  return @intArray;
+}
+
+sub DigLines_Pulse {
+   #Changing different order of args here, we pass the lines array as last argument
+   my $self = shift;
+   my $port = shift;
+   my $Pulse_width = shift;
+   my $Pulse_pause = shift; 
+   my $Pulse_number = shift;
+   my $Wait_param = shift; 
+   my @lines = @_;
+   my $command_name = "diglines.pulse";
+   my $head = $self->nt_header($command_name,22 + scalar(@lines),0);
+   my $body = nt_uint16($port).nt_int(scalar(@lines));
+   foreach(@lines){
+    $body = $body.pack("c",$_);
+   }
+   $body = $body.nt_float32($Pulse_width).nt_float32($Pulse_pause);
+   $body = $body.nt_int($Pulse_number).nt_uint32($Wait_param);
+
+   $self->write(command=>$head.$body);
+}
+
 =head1 Utilities
 =cut
 
@@ -1250,6 +1531,8 @@ sub Util_RTOversamplGet {
   $RT_oversampling= unpack("N!",$RT_oversampling);
   return($RT_oversampling);
 }
+
+#Some modules are missing
 __PACKAGE__->meta()->make_immutable();
 
 1;
