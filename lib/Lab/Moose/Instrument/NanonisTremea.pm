@@ -54,8 +54,12 @@ sub nt_float64 {
   return pack "d>", $f;
 }
 
-sub  header_write{
-    my ($self,$command) = @_;
+
+
+
+sub  nt_header {
+    my ($self,$command,$b_size,$response) =@_;
+    
     $command = lc($command);
 
     my ($pad_len) = 32 - length($command);
@@ -66,10 +70,38 @@ sub  header_write{
 
         $template=$template."x"
     }
-    my $packed= pack($template,$command); 
-    $self->write(command=>$packed);
+    my $cmd= pack($template,$command);
+    my $bodysize= nt_int($b_size);
+    my $rsp= nt_uint16($response);
+    return $cmd.$bodysize.$rsp.nt_uint16(0);
+    #$self->write(command=>$cmd.$bodysize.$rsp.nt_uint16(0));
+   
 }
 
+
+
+
+sub swp1d_AcqChsSet{
+    my $self = shift;
+    my @channels; 
+    foreach(@_){
+        push @channels,$_;
+    }
+    my $command_name="1dswp.acqchsset";
+    my $bodysize= (2 + $#channels)*4;
+    my $head= $self->nt_header($command_name,$bodysize,1);
+    #Create body
+    my $body= nt_int($#channels+1);
+    foreach(@channels){
+        $body= $body.nt_int($_);
+    }
+
+    $self->write(command=>$head.$body);
+    #printf("Number of selected channels %d\n",$channels);
+
+
+}
+    
 __PACKAGE__->meta()->make_immutable();
 
 1;
