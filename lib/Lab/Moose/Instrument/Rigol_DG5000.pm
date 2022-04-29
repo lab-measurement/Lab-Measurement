@@ -24,12 +24,6 @@ has instrument_nselect => (
     default => 1
 );
 
-has function => (
-    is      => 'ro',
-    isa     => enum([qw/SIN SQU RAMP PULSE NOISE USER DC SINC EXPR EXPF CARD GAUS HAV LOR ARBPULSE DUA/]),
-    default => 'SIN'
-);
-
 around default_connection_options => sub {
     my $orig     = shift;
     my $self     = shift;
@@ -44,18 +38,11 @@ sub BUILD {
     my $self = shift;
     $self->clear();
     $self->cls();
-    $self->source_function_shape(channel => $self->instrument_nselect, value => $self->function);
-    if ($self->function eq 'PULSE'){
-      $self->write(command => ":SOURce".$self->instrument_nselect.":PULSe:TRANsition:LEADing 0.0000000025");
-      $self->write(command => ":SOURce".$self->instrument_nselect.":PULSe:TRANsition:TRAiling 0.0000000025");
-    }
-    $self->set_level_low(channel => $self->instrument_nselect, value => 0);
-    $self->output_on(channel => $self->instrument_nselect);
 }
 
 sub get_default_channel {
-  my $self = shift;
-  return $self->instrument_nselect;
+    my $self = shift;
+    return $self->instrument_nselect;
 }
 
 =encoding utf8
@@ -68,7 +55,6 @@ sub get_default_channel {
     type => 'Rigol_DG5000',
     connection_type => 'USB', # For NT-VISA use 'VISA::USB'
     instrument_nselect => 2,
-    function => 'PULSE'
     );
 
 
@@ -118,67 +104,83 @@ C<bdelay> = 0 by default disabling burst mode.
 =cut
 
 sub gen_arb_step {
-  my ( $self, $channel, %args ) = validated_channel_getter(
-      \@_,
-      sequence => { isa => 'ArrayRef' },
-      bdelay => { isa => 'Num' , default => 0},
-      bcycles => { isa => 'Num', default => 1}
-  );
-  my ($sequence, $bdelay, $bcycles )
-      = delete @args{qw/sequence bdelay bcycles/};
-  my @data = @$sequence; # Dereference the input data
+    my ( $self, $channel, %args ) = validated_channel_getter(
+        \@_,
+        sequence => { isa => 'ArrayRef' },
+        bdelay   => { isa => 'Num', default => 0 },
+        bcycles  => { isa => 'Num', default => 1 }
+    );
+    my ( $sequence, $bdelay, $bcycles )
+        = delete @args{qw/sequence bdelay bcycles/};
+    my @data = @$sequence;    # Dereference the input data
 
-  # If number of input data points is uneven croak
-  if (@data % 2 != 0) {croak "Please enter an even number of arguments with
-    the layout <amplitude1[V]>,<length1[s]>,<amplitude2[V]>,<length2[s]>,...";};
+    # If number of input data points is uneven croak
+    if ( @data % 2 != 0 ) {
+        croak "Please enter an even number of arguments with
+    the layout <amplitude1[V]>,<length1[s]>,<amplitude2[V]>,<length2[s]>,...";
+    }
 
-  # Split input data into the time lengths and amplitude values...
-  my @times = @data[ grep { $_ % 2 == 1 } 0..@data-1 ];
-  my @amps = @data[grep { $_ % 2 == 0 } 0..@data-1 ];
-  # ...and compute the period lentgth as well as the min and max amplitude
-  my $period = sum @times;
-  my ($minamp, $maxamp) = minmax @amps;
+    # Split input data into the time lengths and amplitude values...
+    my @times = @data[ grep { $_ % 2 == 1 } 0 .. @data - 1 ];
+    my @amps  = @data[ grep { $_ % 2 == 0 } 0 .. @data - 1 ];
 
-  # now apply everything to the Rigol: Frequency = 1/T, amplitude and offset
-  # are computed, so that the whole waveform lies within that amplitude range
-  $self->source_apply_arb(channel => $channel, freq => 1/$period, amp => 2*abs($maxamp)+2*abs($minamp), offset => $maxamp+$minamp, phase => 0.0);
-  $self->arb_mode(channel => $channel, value => 'INTernal');
-  $self->trace_data_points_interpolate(value => 'OFF');
+    # ...and compute the period lentgth as well as the min and max amplitude
+    my $period = sum @times;
+    my ( $minamp, $maxamp ) = minmax @amps;
 
-  # Convert all amplitudes into values from 0 to 16383 (14Bit) and generate
-  # 16384 data points in total
-  my $input = "";
-  my $counter;
+    # now apply everything to the Rigol: Frequency = 1/T, amplitude and offset
+    # are computed, so that the whole waveform lies within that amplitude range
+    $self->source_apply_arb(
+        channel => $channel,          freq  => 1 / $period,
+        amp     => 2 * abs($maxamp) + 2 * abs($minamp),
+        offset  => $maxamp + $minamp, phase => 0.0
+    );
+    $self->arb_mode( channel => $channel, value => 'INTernal' );
+    $self->trace_data_points_interpolate( value => 'OFF' );
 
-  # go through each amp (or time) value
-  foreach (0..@amps-1){
-    # Compute what length in units of the resolution (16384) each step has
-    my $c = round(16383*$times[$_]/$period);
-    $counter += $c; # Count them all up
-    # On the last iteration check, if there are really 16384 data points,
-    # there might be less because of rounding. Add the remaining at the end if
-    # necessary
-    if ($_ == @amps-1 && $counter != 16384) {$c += 16384-$counter};
-    # Lastly append the according amplitude value (in 14Bit resolution) to the
-    # whole string
-    $input = $input.(",".round(16383*$amps[$_]/(1.5*$maxamp-0.5*$minamp))) x $c;
-  };
-  # Finally download everything to the volatile memory
-  $self->trace_data_points(value => 16384);
-  $self->trace_data_dac(value => $input);
+    # Convert all amplitudes into values from 0 to 16383 (14Bit) and generate
+    # 16384 data points in total
+    my $input = "";
+    my $counter;
 
-  # WIP: If a burst delay and number of cycles is given, enable burst mode
-  my $off =  0;
-  if ($bdelay > 0){
-    $self->source_burst_mode(channel => $channel, value => 'TRIG');
-    $self->source_burst_tdelay(channel => $channel, value => $bdelay);
-    $self->source_burst_ncycles(channel => $channel, value => $bcycles);
-    $self->source_burst_state(channel => $channel, value => 'ON');
+    # go through each amp (or time) value
+    foreach ( 0 .. @amps - 1 ) {
 
-    $self->trace_data_value(point => 0, data => 0);
-    $self->trace_data_value(point => 16383, data => 0);
-    $off = $amps[0];
-  };
+        # Compute what length in units of the resolution (16384) each step has
+        my $c = round( 16383 * $times[$_] / $period );
+        $counter += $c;    # Count them all up
+          # On the last iteration check, if there are really 16384 data points,
+          # there might be less because of rounding. Add the remaining at the end if
+          # necessary
+        if ( $_ == @amps - 1 && $counter != 16384 ) { $c += 16384 - $counter }
+
+        # Lastly append the according amplitude value (in 14Bit resolution) to the
+        # whole string
+        $input = $input
+            . (
+            ","
+                . round(
+                16383 * $amps[$_] / ( 1.5 * $maxamp - 0.5 * $minamp )
+                )
+            ) x $c;
+    }
+
+    # Finally download everything to the volatile memory
+    $self->trace_data_points( value => 16384 );
+    $self->trace_data_dac( value => $input );
+
+    # WIP: If a burst delay and number of cycles is given, enable burst mode
+    my $off = 0;
+    if ( $bdelay > 0 ) {
+        $self->source_burst_mode( channel => $channel, value => 'TRIG' );
+        $self->source_burst_tdelay( channel => $channel, value => $bdelay );
+        $self->source_burst_ncycles( channel => $channel, value => $bcycles );
+        $self->source_burst_state( channel => $channel, value => 'ON' );
+
+        $self->trace_data_value( point => 0,     data => 0 );
+        $self->trace_data_value( point => 16383, data => 0 );
+        $off = $amps[0];
+    }
 }
 
 =head2 arb_mode
@@ -199,7 +201,10 @@ sub arb_mode {
         value => { isa => enum( [qw/INT INTernal PLAY/] ) }
     );
 
-    $self->write( command => ":SOURCE${channel}:FUNCtion:ARB:MODE $value", %args );
+    $self->write(
+        command => ":SOURCE${channel}:FUNCtion:ARB:MODE $value",
+        %args
+    );
 }
 
 =head2 play_coefficient
@@ -227,11 +232,15 @@ sub play_coefficient {
         \@_,
         value => { isa => 'Num' }
     );
-    if ($value < 0 or $value > 268435456){
-      croak "The the frequency division coefficient must be between 0 and 268435456";
-    };
+    if ( $value < 0 or $value > 268435456 ) {
+        croak
+            "The the frequency division coefficient must be between 0 and 268435456";
+    }
 
-    $self->write( command => ":SOURCE${channel}:FUNCtion:ARB:SAMPLE $value", %args );
+    $self->write(
+        command => ":SOURCE${channel}:FUNCtion:ARB:SAMPLE $value",
+        %args
+    );
 }
 
 =head2 phase_align
@@ -261,13 +270,13 @@ Turn output channels on or off.
 sub output_on {
     my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
 
-    $self->write(command => ":OUTPut${channel}:STATe ON");
+    $self->write( command => ":OUTPut${channel}:STATe ON" );
 }
 
 sub output_off {
     my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
 
-    $self->write(command => ":OUTPut${channel}:STATe OFF");
+    $self->write( command => ":OUTPut${channel}:STATe OFF" );
 }
 
 =head2 set_pulsewidth/get_pulsewidth
@@ -285,13 +294,13 @@ and keep the delay constant.
 sub set_pulsewidth {
     my ( $self, $channel, $value, %args ) = validated_channel_setter(
         \@_,
-        value => { isa => 'Num' },
-        constant_delay => { isa => 'Bool', default => 0}
+        value          => { isa => 'Num' },
+        constant_delay => { isa => 'Bool', default => 0 }
     );
     my $constant_delay = delete $args{'constant_delay'};
-    if ($constant_delay){
-      my $delay = $self->get_pulsedelay();
-      $self->set_period(channel => $channel, value => $delay+$value);
+    if ($constant_delay) {
+        my $delay = $self->get_pulsedelay();
+        $self->set_period( channel => $channel, value => $delay + $value );
     }
 
     $self->write( command => ":SOURce${channel}:PULSe:WIDTh $value", %args );
@@ -318,13 +327,13 @@ the waveform period and keep the width constant.
 sub set_pulsedelay {
     my ( $self, $channel, $value, %args ) = validated_channel_setter(
         \@_,
-        value => { isa => 'Num' },
-        constant_width => { isa => 'Bool', default => 0}
+        value          => { isa => 'Num' },
+        constant_width => { isa => 'Bool', default => 0 }
     );
     my $constant_width = delete $args{'constant_width'};
-    if ($constant_width){
-      my $width = $self->get_pulsewidth();
-      $self->set_period(channel => $channel, value => $width+$value);
+    if ($constant_width) {
+        my $width = $self->get_pulsewidth();
+        $self->set_period( channel => $channel, value => $width + $value );
     }
 
     $self->write( command => ":SOURce${channel}:PULSe:DELay $value", %args );
@@ -354,7 +363,7 @@ sub set_period {
     $self->write( command => ":SOURce${channel}:PERiod $value", %args );
 }
 
-sub get_period{
+sub get_period {
     my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
 
     return $self->query( command => ":SOURce${channel}:PERiod?", %args );
@@ -379,7 +388,7 @@ sub set_frq {
     $self->write( command => ":SOURce${channel}:FREQuency $value", %args );
 }
 
-sub get_frq{
+sub get_frq {
     my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
 
     return $self->query( command => ":SOURce${channel}:FREQuency?", %args );
@@ -400,13 +409,19 @@ sub set_voltage {
         value => { isa => 'Num' }
     );
 
-    $self->write( command => ":SOURce${channel}:VOLTage:AMPLitude $value", %args );
+    $self->write(
+        command => ":SOURce${channel}:VOLTage:AMPLitude $value",
+        %args
+    );
 }
 
-sub get_voltage{
+sub get_voltage {
     my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
 
-    return $self->query( command => ":SOURce${channel}:VOLTage:AMPLitude?", %args );
+    return $self->query(
+        command => ":SOURce${channel}:VOLTage:AMPLitude?",
+        %args
+    );
 }
 
 =head2 set_level/get_level
@@ -428,10 +443,13 @@ sub set_level {
     $self->write( command => ":SOURce${channel}:VOLTage:HIGH $value", %args );
 }
 
-sub get_level{
+sub get_level {
     my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
 
-    return $self->query( command => ":SOURce${channel}:VOLTage:HIGH?", %args );
+    return $self->query(
+        command => ":SOURce${channel}:VOLTage:HIGH?",
+        %args
+    );
 }
 
 =head2 set_level_low/get_level_low
@@ -452,7 +470,7 @@ sub set_level_low {
     $self->write( command => ":SOURce${channel}:VOLTage:LOW $value", %args );
 }
 
-sub get_level_low{
+sub get_level_low {
     my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
 
     return $self->query( command => ":SOURce${channel}:VOLTage:LOW?", %args );
@@ -473,13 +491,19 @@ sub set_offset {
         value => { isa => 'Num' }
     );
 
-    $self->write( command => ":SOURce${channel}:AMPLitude:OFFSet $value", %args );
+    $self->write(
+        command => ":SOURce${channel}:AMPLitude:OFFSet $value",
+        %args
+    );
 }
 
-sub get_offset{
+sub get_offset {
     my ( $self, $channel, %args ) = validated_channel_getter( \@_ );
 
-    return $self->query( command => ":SOURce${channel}:AMPLitude:OFFSet?", %args );
+    return $self->query(
+        command => ":SOURce${channel}:AMPLitude:OFFSet?",
+        %args
+    );
 }
 
 #
@@ -554,7 +578,6 @@ Apply a ramp, sine, square function or arbitrary waveform with the given paramet
 
 =cut
 
-
 sub source_apply_ramp {
     my ( $self, $channel, %args ) = validated_channel_getter(
         \@_,
@@ -586,7 +609,8 @@ sub source_apply_sinusoid {
         = delete @args{qw/freq amp offset phase/};
 
     $self->write(
-        command => "SOURCE${channel}:APPLY:SINUSOID $freq,$amp,$offset,$phase",
+        command =>
+            "SOURCE${channel}:APPLY:SINUSOID $freq,$amp,$offset,$phase",
         %args
     );
 }
@@ -857,7 +881,10 @@ sub source_burst_period {
         value => { isa => 'Lab::Moose::PosNum' }
     );
 
-    $self->write( command => "SOURCE${channel}:BURST:INTERNAL:PERIOD $value", %args );
+    $self->write(
+        command => "SOURCE${channel}:BURST:INTERNAL:PERIOD $value",
+        %args
+    );
 }
 
 #
@@ -1077,10 +1104,11 @@ sub trace_data_dac {
         \@_,
         value => { isa => 'Str' }
     );
-    if (substr($value, 0, 1) eq ','){
-      $self->write( command => "TRACE:DATA:DAC VOLATILE$value", %args );
-    } else {
-      $self->write( command => "TRACE:DATA:DAC VOLATILE,$value", %args );
+    if ( substr( $value, 0, 1 ) eq ',' ) {
+        $self->write( command => "TRACE:DATA:DAC VOLATILE$value", %args );
+    }
+    else {
+        $self->write( command => "TRACE:DATA:DAC VOLATILE,$value", %args );
     }
 }
 
