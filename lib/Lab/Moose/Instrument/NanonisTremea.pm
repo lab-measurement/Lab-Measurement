@@ -101,17 +101,7 @@ sub threeDSwp_StatusGet{
   $Status= unpack("N",$Status);
   return($Status);
 }
-sub threeDSwp_SwpChSignalSet{
-  my $self = shift;
-  my $command_name= "3dswp.swpchsignalset";
-  my $bodysize = 0;
-  my $head= $self->nt_header($command_name,$bodysize,1);
-  $self->write(command=>$head);
-  my $return = $self->read(); 
-  my $Sweep_channel_index= substr $return,40,4;
-  $Sweep_channel_index= unpack("N!",$Sweep_channel_index);
-  return($Sweep_channel_index);
-}
+
 sub threeDSwp_SwpChLimitsSet{
   my $self = shift;
   my ($Start,$Stop)= @_;
@@ -202,17 +192,8 @@ sub threeDSwp_SwpChTimingGet{
   $s= unpack("f>",$s);
   return($Initial_settling_time_s,$Settling_time_s,$Integration_time_s,$End_settling_time_s,$s);
 }
-sub threeDSwp_StpCh1SignalSet{
-  my $self = shift;
-  my $command_name= "3dswp.stpch1signalset";
-  my $bodysize = 0;
-  my $head= $self->nt_header($command_name,$bodysize,1);
-  $self->write(command=>$head);
-  my $return = $self->read(); 
-  my $Step_channel_1_index= substr $return,40,4;
-  $Step_channel_1_index= unpack("N!",$Step_channel_1_index);
-  return($Step_channel_1_index);
-}
+
+
 sub threeDSwp_StpCh1LimitsSet{
   my $self = shift;
   my ($Start,$Stop)= @_;
@@ -343,17 +324,7 @@ sub threeDSwp_StpCh2PropsGet{
   $End_of_sweep_arbitrary_value= unpack("f>",$End_of_sweep_arbitrary_value);
   return($Number_of_points,$Backward_sweep,$End_of_sweep_action,$End_of_sweep_arbitrary_value);
 }
-sub threeDSwp_StpCh2TimingSet{
-  my $self = shift;
-  my ($Initial_settling_time_s,$End_settling_time_s,$s)= @_;
-  my $command_name= "3dswp.stpch2timingset";
-  my $bodysize = 12;
-  my $head= $self->nt_header($command_name,$bodysize,0);
-  my $body=nt_float32($Initial_settling_time_s);
-  $body=$body.nt_float32($End_settling_time_s);
-  $body=$body.nt_float32($s);
-  $self->write(command=>$head.$body);
-}
+
 sub threeDSwp_StpCh2TimingGet{
   my $self = shift;
   my $command_name= "3dswp.stpch2timingget";
@@ -457,29 +428,7 @@ sub threeDSwp_TimingSend{
   my $head= $self->nt_header($command_name,$bodysize,0);
   $self->write(command=>$head);
 }
-sub oneDSwp_LimitsSet{
-  my $self = shift;
-  my ($Lower_limit,$Upper_limit)= @_;
-  my $command_name= "1dswp.limitsset";
-  my $bodysize = 8;
-  my $head= $self->nt_header($command_name,$bodysize,0);
-  my $body=nt_float32($Lower_limit);
-  $body=$body.nt_float32($Upper_limit);
-  $self->write(command=>$head.$body);
-}
-sub oneDSwp_LimitsGet{
-  my $self = shift;
-  my $command_name= "1dswp.limitsget";
-  my $bodysize = 0;
-  my $head= $self->nt_header($command_name,$bodysize,1);
-  $self->write(command=>$head);
-  my $return = $self->read(); 
-  my $Lower_limit= substr $return,40,4;
-  $Lower_limit= unpack("f>",$Lower_limit);
-  my $Upper_limit= substr $return,44,4;
-  $Upper_limit= unpack("f>",$Upper_limit);
-  return($Lower_limit,$Upper_limit);
-}
+
 sub oneDSwp_PropsSet{
   my $self = shift;
   my ($Initial_Settling_time_ms,$s,$Number_of_steps,$Period_ms,$Autosave,$Save_dialog_box,$Settling_time_ms)= @_;
