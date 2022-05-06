@@ -195,6 +195,8 @@ sub oneDSwp_Stop {
   my $head= $self->nt_header($command_name,$bodysize,0);
   $self->write(command=>$head);
 }
+
+
 sub oneDSwp_Open {
   my $self = shift;
   my $command_name= "1dswp.open";
