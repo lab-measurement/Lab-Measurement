@@ -91,6 +91,19 @@ sub strArrayUnpacker {
   return %unpckStrArray;
 }
 
+sub intArrayUnpacker {
+  my ($self,$elementNum,$intArray) = @_;
+  my $position = 0;
+  my @intArray;
+  for(0...$elementNum-1){
+    my $int = unpack("N!", substr $intArray,$position,4);
+    push @intArray, $int;
+    $position+=4;
+  }
+  print(join(",",@intArray));
+  #return @intArray;
+}
+
 
 =head1 1DSweep
 =cut
@@ -112,9 +125,61 @@ sub oneDSwp_AcqChsSet {
     }
     $self->write(command=>$head.$body);
 }
-#missing AcqChsGet
-#1DSwp.SwpSignalSet
-#1DSwp.SwpSignalGet
+
+
+sub oneDSwp_AcqChsGet {
+    #######not working for some reason
+    my $self = shift;
+    my $command_name="1dswp.acqchsget";
+    my $bodysize = 0;
+    my $head= $self->nt_header($command_name,$bodysize,1);
+    $self->write(command=>$head);
+
+    my $return = $self->read();
+    #my $channelNum = unpack("N!",substr $return,40,4);
+    print(length($return));
+    #my @channels = $self->intArrayUnpacker($channelNum,(substr $return,44));
+    #print(join(",",@channels));
+}
+
+sub oneDSwp_SwpSignalSet {
+    my ($self, $channelName) = @_;
+    my $strlen = length($channelName);
+    my $command_name="1dswp.swpsignalset";
+    my $bodysize = $strlen+4;
+    $strlen=nt_int($strlen);
+    my $head= $self->nt_header($command_name,$bodysize,0);
+    $self->write(command=>$head.$strlen.$channelName);
+}
+
+sub oneDSwp_SwpSignalGet {
+    my $self = shift;
+    my $option= "select";
+    $option = shift if (scalar(@_)>0);
+    my $command_name="1dswp.swpsignalget";
+    my $head= $self->nt_header($command_name,0,1);
+    $self->write(command=>$head);
+    my $response = $self->read();
+    my $strlen= unpack("N!",substr $response,40,4);
+
+    if (($option eq "select") == 1){
+        my $selected = substr $response,44,$strlen;
+        print($selected,"\n");
+    }
+    elsif (($option eq "info")==1){
+      my $elementNum = unpack("N!", substr $response,48+$strlen,4);
+      my $strArray= substr $response,52+$strlen;
+      my %channels = $self->strArrayUnpacker($elementNum,$strArray);
+      return %channels;
+    }
+    else{
+      return "Invalid Options!"
+    }
+
+
+     
+
+}
 
 sub oneDSwp_LimitsSet {
   my $self = shift;
@@ -167,7 +232,7 @@ sub oneDSwp_PropsGet {
   my $head= $self->nt_header($command_name,$bodysize,1);
   $self->write(command=>$head);
 
-  my $return = $self->read(); 
+  my $return = $self->binary_read(); 
   my $rbodysize = 26;
   $return= returnFormatter($rbodysize,$return);
   my $Initial_Settling_time_ms= substr $return,40,4;
@@ -187,7 +252,58 @@ sub oneDSwp_PropsGet {
   return($Initial_Settling_time_ms,$s,$Number_of_steps,$Period_ms,$Autosave,$Save_dialog_box,$Settling_time_ms);
 }
 
-#Start missing
+sub oneDSwp_Start {
+     my ($self,$get,$direction,$name,$reset,$timeout) = @_;
+     my $command_name= "1dswp.start";
+     my $name_len= length($name);
+     my $bodysize = 16 +$name_len;
+     
+     $get = 1 if $get != 0;
+     $direction = 1 if $direction != 0;
+     $reset = 1 if $reset != 0;
+     my $head= $self->nt_header($command_name,$bodysize,$get);
+     my $body = nt_uint32($get);
+     $body = $body.nt_uint32($direction);
+     $body = $body.nt_int($name_len);
+     $body = $body.$name;
+     $body = $body.nt_uint32($reset);
+     $self->write(command=>$head.$body);
+
+    if($get==1){
+        my $return = $self->binary_read(timeout=>$timeout);
+        my $channelSize = unpack("N!",substr($return,40,4));
+        my $channelNum =unpack("N!",substr($return,44,4));
+        my %channels = $self->strArrayUnpacker($channelNum,substr($return,48,$channelSize));
+        $channels{0}=$channels{0}."*";
+        my $newPos = 48 +$channelSize;
+        my $rowNum = unpack("N!",substr($return,$newPos,4));
+        my $colNum = unpack("N!",substr($return,$newPos+4,4));
+        my $rawData = substr($return,$newPos+8,$rowNum*$colNum*4);
+        my %data;
+        my $pos = 0;
+        for(my $row = 0;$row<$rowNum;$row++){
+          my @rowBuffer;
+          for(my $col = 0;$col<$colNum;$col++){
+            push  @rowBuffer , unpack("f>",substr($rawData,$pos,4));
+            $pos +=4;
+          }
+          #print("$channels{$row}:".join(",",@rowBuffer)."\n");
+          $data{$channels{$row}} = [@rowBuffer];
+        }
+        return %data;
+    }
+    else{
+      print("Sweep Started.");
+      return 0;
+    }
+
+
+
+
+
+
+}
+
 sub oneDSwp_Stop {
   my $self = shift;
   my $command_name= "1dswp.stop";
@@ -204,6 +320,9 @@ sub oneDSwp_Open {
   my $head= $self->nt_header($command_name,$bodysize,0);
   $self->write(command=>$head);
 }
+
+
+
 =head1 Signals
 =cut
 
