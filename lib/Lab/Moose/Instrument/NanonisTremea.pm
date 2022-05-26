@@ -376,18 +376,57 @@ sub threeDSwp_AcqChsGet {
 
 sub threeDSwp_SaveOptionsSet {
     my $self = shift ;
-    my $command_name = "3dswp.saveoptionset";
+    my $command_name = "3dswp.saveoptionsset";
     my $Series_Name = shift;
     my $DT_Folder_opt = shift;
     my $Comment = shift;
     my @Module_Names = @_ ;
     my $bodysize = 4*(5+length($Series_Name)+length($Comment));
-    $bodysize+=4*length($_) foreach(@Module_Names);
-    print($bodysize);
+    my $Module_Name_Size = 0;
+    $Module_Name_Size+=4*length($_) foreach(@Module_Names);
+    $bodysize+= $Module_Name_Size ;
+    my $head = $self->nt_header($command_name,$bodysize,0);
+    my $body = nt_int(length($Series_Name)).$Series_Name;
+    $body=$body.nt_int($DT_Folder_opt);
+    $body=$body.nt_int(length($Comment)).$Comment;
+    $body=$body.nt_int($Module_Name_Size);
+    $body=$body.nt_int(scalar(@Module_Names));
+    $body=$body.nt_int(length($_)).$_ foreach(@Module_Names);
+
+    $self->write(command=>$head.$body);
+}
+
+sub threeDSwp_SaveOptionsGet {
+    my $self = shift;
+    my $command_name = "3dswp.saveoptionsget";
+    $self->write(command=>$self->nt_header($command_name,0,1));
+
+    my $return = $self->binary_read();
+    my $pos = unpack("N!",substr($return,40,4));
+    my $Series_Name = substr($return,44,$pos);
+    $pos+=44;
+    my $DT_Folder_opt = unpack("N",substr($return,$pos,4));
+    $pos += 12 + unpack("N!",substr($return,$pos+4,4));
+    
+    # my %Fixed_Parameter = $self->strArrayUnpacker(unpack("N!",substr($return,$pos+8,4)),substr($return,$pos+12,$strArray_size));
+    # @Fix_Parameters = values %Fixed_Parameter;
+    #print($_." :".$Fixed_Parameter{$_}."\n") foreach(keys %Fixed_Parameter);
+    my $strLen = unpack("N!",substr($return,$pos,4));
+    my $Comment = substr($return,$pos+4,$strLen);
+    $pos+=4+$strLen;
+    my $MP_size = unpack("N!",substr($return,$pos,4));
+    my $MP_number = unpack("N!",substr($return,$pos+4,4));
+    my %Modules_parameters = $self->strArrayUnpacker($MP_number,substr($return,$pos+8,$MP_size));
+    #print($_." :".$Modules_parameters{$_}."\n") foreach(keys %Modules_parameters);
+    my @Modules_param = @Modules_parameters{0...(scalar(keys %Modules_parameters)-1)};
+    return($Series_Name,$DT_Folder_opt,$Comment,@Modules_param);
 
 
-    print(join(",",@Module_Names)."\n");
 
+
+
+
+   
 }
 
 sub threeDSwp_Start {
