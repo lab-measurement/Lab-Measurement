@@ -382,7 +382,10 @@ sub threeDSwp_SaveOptionsSet {
     my $Comment = shift;
     my @Module_Names = @_ ;
     my $bodysize = 4*(5+length($Series_Name)+length($Comment));
-    
+    $bodysize+=4*length($_) foreach(@Module_Names);
+    print($bodysize);
+
+
     print(join(",",@Module_Names)."\n");
 
 }
