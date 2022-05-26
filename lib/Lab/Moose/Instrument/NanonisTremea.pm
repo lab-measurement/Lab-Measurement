@@ -376,11 +376,13 @@ sub threeDSwp_AcqChsGet {
 
 sub threeDSwp_SaveOptionsSet {
     my $self = shift ;
+    my $command_name = "3dswp.saveoptionset";
     my $Series_Name = shift;
     my $DT_Folder_opt = shift;
     my $Comment = shift;
     my @Module_Names = @_ ;
-
+    my $bodysize = 4*(5+length($Series_Name)+length($Comment));
+    
     print(join(",",@Module_Names)."\n");
 
 }
