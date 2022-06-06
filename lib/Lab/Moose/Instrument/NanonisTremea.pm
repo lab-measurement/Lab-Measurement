@@ -104,6 +104,20 @@ sub intArrayUnpacker {
   return @intArray;
 }
 
+sub float32ArrayUnpacker {
+  my ($self,$elementNum,$Array) = @_;
+  my $position = 0;
+  my @floatArray;
+  for(0...$elementNum-1){
+    my $float = unpack("f>", substr $Array,$position,4);
+    push @floatArray, $float;
+    $position+=4;
+  }
+
+  return @floatArray;
+}
+
+
 
 
 
@@ -924,9 +938,129 @@ sub threeDSwp_TimingSend {
 =head1 Signals
 =cut
 
+sub Signals_NamesGet {
+  my $self =shift;
+  my $command_name="signals.namesget";
+  my $head = $self->nt_header($command_name,0,1);
 
+  $self->write(command=>$head);
 
+  my $response =$self->read();
+  my $strArraySize = unpack("N!", substr $response,40,4);
+  my $strNumber = unpack("N!", substr $response, 44, 4 );
+  my $strArray = substr $response,48,$strArraySize;
+  my %strings = $self->strArrayUnpacker($strNumber,$strArray);
+  return %strings;
+}
 
+sub Signals_InSlotSet {
+  my $self = shift;
+  my ($Slot,$RT_signal_index)= @_;
+  my $command_name= "signals.inslotset";
+  my $bodysize = 8;
+  my $head= $self->nt_header($command_name,$bodysize,0);
+  my $body=nt_int($Slot);
+  $body=$body.nt_int($RT_signal_index);
+  $self->write(command=>$head.$body);
+}
+
+sub Signals_InSlotsGet {
+  #Discuss output format 
+  my $self = shift;
+  my $command_name= "signals.inslotsget";
+  my $head = $self->nt_header($command_name,0,1);
+  $self->write(command=>$head);
+
+  my $response = $self->binary_read();
+  my $namesSize= unpack("N!",substr $response,40,4);
+  my $namesNumber= unpack("N!",substr $response,44,4);
+  my %Strings = $self->strArrayUnpacker($namesNumber,substr($response,48,$namesSize));
+  my $idxNumber = unpack("N!",substr $response,48+$namesSize,4);
+  my @idxArray = $self->intArrayUnpacker($idxNumber,substr($response,52+$namesSize,4*$idxNumber));
+  foreach(keys %Strings){
+    $Strings{$_}= join(" RT ",$Strings{$_},$idxArray[$_]);
+  }
+  return (%Strings);
+}
+
+sub Signals_CalibrGet {
+  my $self = shift;
+  my ($Signal_index)= @_;
+  my $command_name= "signals.calibrget";
+  my $bodysize = 4;
+  my $head= $self->nt_header($command_name,$bodysize,1);
+  my $body=nt_int($Signal_index);
+  $self->write(command=>$head.$body);
+  my $return = $self->binary_read(); 
+  my $Calibration_per_volt= substr $return,40,4;
+  $Calibration_per_volt= unpack("f>",$Calibration_per_volt);
+  my $Offset_in_physical_units= substr $return,44,4;
+  $Offset_in_physical_units= unpack("f>",$Offset_in_physical_units);
+  return($Calibration_per_volt,$Offset_in_physical_units);
+}
+
+sub Signals_RangeGet {
+  my $self = shift;
+  my ($Signal_index)= @_;
+  my $command_name= "signals.rangeget";
+  my $bodysize = 4;
+  my $head= $self->nt_header($command_name,$bodysize,1);
+  my $body=nt_int($Signal_index);
+  $self->write(command=>$head.$body);
+  my $return = $self->binary_read(); 
+  my $Maximum_limit= substr $return,40,4;
+  $Maximum_limit= unpack("f>",$Maximum_limit);
+  my $Minimum_limit= substr $return,44,4;
+  $Minimum_limit= unpack("f>",$Minimum_limit);
+  return($Maximum_limit,$Minimum_limit);
+}
+
+sub Signals_ValGet {
+  my $self = shift;
+  my ($Signal_index,$Wait_for_newest_data)= @_;
+  my $command_name= "signals.valget";
+  my $bodysize = 8;
+  my $head= $self->nt_header($command_name,$bodysize,1);
+  my $body=nt_int($Signal_index);
+  $body=$body.nt_uint32($Wait_for_newest_data);
+  $self->write(command=>$head.$body);
+  my $return = $self->binary_read(); 
+  my $Signal_value= substr $return,40,4;
+  $Signal_value= unpack("f>",$Signal_value);
+  return($Signal_value);
+}
+
+sub Signals_ValsGet {
+  #this function behaves differently. 
+  #Usualy requested size is actual Byte size, here is element count.
+
+  my $self = shift;
+  my @idxArray = @_;
+  my $WFND = pop @idxArray;
+  my $command_name = "signals.valsget";
+
+  if($WFND > 0){
+    $WFND=1;
+  }
+  else{
+    $WFND = 0;
+  }
+
+  my $bodysize = 8+ 4 * scalar @idxArray;
+  my $head = $self->nt_header($command_name,$bodysize,1);
+  my $body = pack("N!",(scalar @idxArray));
+  foreach(@idxArray){
+    $body = $body.pack("N!",$_);
+  }
+  $body= $body.pack("N",$WFND);
+
+  $self->write(command=>$head.$body);
+
+  my $response = $self->binary_read();
+  my $valuesSize = unpack("N!", substr $response,40,4);
+  my @floatArray = $self->float32ArrayUnpacker($valuesSize,substr($response,44,$valuesSize*4));
+  return @floatArray;
+}
 
 sub Signals_MeasNamesGet {
   my $self = shift;
@@ -937,13 +1071,36 @@ sub Signals_MeasNamesGet {
   my $response = $self->read();
   my $channelSize= unpack("N!",substr $response,40,4);
   my $channelNum= unpack("N!",substr $response,44,4);
-  # print($channelSize,"\n");
-  # print($channelNum,"\n");
   my $strArray = substr $response,48,$channelSize;
   my %channels = $self->strArrayUnpacker($channelNum,$strArray);
   return %channels;
 }
 
+sub Signals_AddRTGet() {
+  # Incomplete, not getting a response
+  my $self = shift;
+  my $command_name="signals.addrtget";
+  my $head = $self->nt_header($command_name,0,1);
+  $self->write(command=>$head);
+
+  my $response = $self->binary_read();
+  my $namesSize = unpack("N!",substr $response,40,4);
+  my $namesNumber = unpack("N!",substr $response,44,4);
+  my %addRtArray = $self->strArrayUnpacker($namesNumber,substr($response,48,$namesSize));
+  return %addRtArray;
+
+}
+
+sub Signals_AddRTSet {
+  my $self = shift;
+  my ($Additional_RT_signal_1,$Additional_RT_signal_2)= @_;
+  my $command_name= "signals.addrtset";
+  my $bodysize = 8;
+  my $head= $self->nt_header($command_name,$bodysize,0);
+  my $body=nt_int($Additional_RT_signal_1);
+  $body=$body.nt_int($Additional_RT_signal_2);
+  $self->write(command=>$head.$body);
+}
 
 
 
