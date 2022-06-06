@@ -1102,8 +1102,154 @@ sub Signals_AddRTSet {
   $self->write(command=>$head.$body);
 }
 
+=head1 Utilities
+=cut
 
+sub Util_SessionPathGet {
+    my $self = shift;
+    my $command_name ="util.sessionpathget";
+    my $head = $self->nt_header($command_name,0,1);
+    $self->write(command=>$head);
 
+    my $response = $self->binary_read();
+    return substr $response,44,unpack("N!",substr $response,40,4);
+}
+
+sub Util_SettingsLoad {
+  #Not sure if working
+  my $self = shift;
+  my ($path,$Automatic_Load) = @_;
+  my $command_name = "util.settingsload";
+  $Automatic_Load = 1 if($Automatic_Load > 0);
+  $Automatic_Load = 0 if ($Automatic_Load <=0);
+  my $bodysize = 8 + 4*length($path);
+  my $head = $self->nt_header($command_name,$bodysize,0);
+  my $body = pack("N!",length($path)).$path.pack("N",$Automatic_Load);
+  $self->write( command => $head.$body);
+}
+
+sub Util_SettingsSave {
+  #Not sure if working 
+  my $self = shift;
+  my ($path,$Automatic_save) = @_;
+  my $command_name = "util.settingssave";
+  $Automatic_save = 1 if($Automatic_save > 0);
+  $Automatic_save = 0 if ($Automatic_save <=0);
+  my $bodysize = 8 + 4*length($path);
+  my $head = $self->nt_header($command_name,$bodysize,1);
+  my $body = pack("N!",length($path)).$path.pack("N",$Automatic_save);
+  $self->write( command => $head.$body);
+  print($self->binary_read());
+}
+
+sub Util_LayoutLoad {
+  #Not sure if working
+  my $self = shift;
+  my ($path,$Automatic_Load) = @_;
+  my $command_name = "util.layoutload";
+  $Automatic_Load = 1 if($Automatic_Load > 0);
+  $Automatic_Load = 0 if ($Automatic_Load <=0);
+  my $bodysize = 8 + 4*length($path);
+  my $head = $self->nt_header($command_name,$bodysize,0);
+  my $body = pack("N!",length($path)).$path.pack("N",$Automatic_Load);
+  $self->write( command => $head.$body);
+}
+
+sub Util_LayoutSave {
+  #Not sure if working 
+  my $self = shift;
+  my ($path,$Automatic_save) = @_;
+  my $command_name = "util.layoutsave";
+  $Automatic_save = 1 if($Automatic_save > 0);
+  $Automatic_save = 0 if ($Automatic_save <=0);
+  my $bodysize = 8 + 4*length($path);
+  my $head = $self->nt_header($command_name,$bodysize,1);
+  my $body = pack("N!",length($path)).$path.pack("N",$Automatic_save);
+  $self->write( command => $head.$body);
+  print($self->binary_read());
+}
+
+sub Util_Lock {
+  my $self = shift;
+  my $command_name= "util.lock";
+  my $bodysize = 0;
+  my $head= $self->nt_header($command_name,$bodysize,0);
+  $self->write(command=>$head);
+}
+
+sub Util_UnLock {
+  my $self = shift;
+  my $command_name= "util.unlock";
+  my $bodysize = 0;
+  my $head= $self->nt_header($command_name,$bodysize,0);
+  $self->write(command=>$head);
+}
+
+sub Util_RTFreqSet {
+  my $self = shift;
+  my ($RT_frequency)= @_;
+  my $command_name= "util.rtfreqset";
+  my $bodysize = 4;
+  my $head= $self->nt_header($command_name,$bodysize,0);
+  my $body=nt_float32($RT_frequency);
+  $self->write(command=>$head.$body);
+}
+
+sub Util_RTFreqGet {
+  my $self = shift;
+  my $command_name= "util.rtfreqget";
+  my $bodysize = 0;
+  my $head= $self->nt_header($command_name,$bodysize,1);
+  $self->write(command=>$head);
+  my $return = $self->binary_read(); 
+  my $RT_frequency= substr $return,40,4;
+  $RT_frequency= unpack("f>",$RT_frequency);
+  return($RT_frequency);
+}
+
+sub Util_AcqPeriodSet {
+  my $self = shift;
+  my ($Acquisition_Period_s)= @_;
+  my $command_name= "util.acqperiodset";
+  my $bodysize = 4;
+  my $head= $self->nt_header($command_name,$bodysize,0);
+  my $body=nt_float32($Acquisition_Period_s);
+  $self->write(command=>$head.$body);
+}
+
+sub Util_AcqPeriodGet {
+  my $self = shift;
+  my $command_name= "util.acqperiodget";
+  my $bodysize = 0;
+  my $head= $self->nt_header($command_name,$bodysize,1);
+  $self->write(command=>$head);
+  my $return = $self->binary_read(); 
+  my $Acquisition_Period_s= substr $return,40,4;
+  $Acquisition_Period_s= unpack("f>",$Acquisition_Period_s);
+  return($Acquisition_Period_s);
+}
+
+sub Util_RTOversamplSet {
+  my $self = shift;
+  my ($RT_oversampling)= @_;
+  my $command_name= "util.rtoversamplset";
+  my $bodysize = 4;
+  my $head= $self->nt_header($command_name,$bodysize,0);
+  my $body=nt_int($RT_oversampling);
+  $self->write(command=>$head.$body);
+}
+
+sub Util_RTOversamplGet {
+  my $self = shift;
+  my $command_name= "util.rtoversamplget";
+  my $bodysize = 0;
+  my $head= $self->nt_header($command_name,$bodysize,1);
+  $self->write(command=>$head);
+  my $return = $self->binary_read(); 
+  my $RT_oversampling= substr $return,40,4;
+  $RT_oversampling= unpack("N!",$RT_oversampling);
+  return($RT_oversampling);
+}
 __PACKAGE__->meta()->make_immutable();
 
 1;
