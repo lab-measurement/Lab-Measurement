@@ -1314,8 +1314,96 @@ sub UserOut_SlewRateGet {
   return($Slew_Rate);
 }
 
+=head1 Digita Lines 
+=cut 
+
+sub DigLines_PropsSet {
+  my $self = shift;
+  my ($Digital_line,$Port,$Direction,$Polarity)= @_;
+  my $command_name= "diglines.propsset";
+  my $bodysize = 16;
+  my $head= $self->nt_header($command_name,$bodysize,0);
+  my $body=nt_uint32($Digital_line);
+  $body=$body.nt_uint32($Port);
+  $body=$body.nt_uint32($Direction);
+  $body=$body.nt_uint32($Polarity);
+  $self->write(command=>$head.$body);
+}
+
+sub DigLines_OutStatusSet {
+  my $self = shift;
+  my ($Port,$Digital_line,$Status)= @_;
+  my $command_name= "diglines.outstatusset";
+  my $bodysize = 12;
+  my $head= $self->nt_header($command_name,$bodysize,0);
+  my $body=nt_uint32($Port);
+  $body=$body.nt_uint32($Digital_line);
+  $body=$body.nt_uint32($Status);
+  $self->write(command=>$head.$body);
+}
+
+sub DigLines_TTLValGet {
+  
+  my $self = shift;
+  my $port = shift;
+  my $command_name = "diglines.ttlvalget";
+  my $head = $self->nt_header($command_name,4,1);
+
+  $self->write(command=>$head.nt_uint16($port));
+
+  my $return = $self->binary_read();
+
+  my $intArraySize = unpack("N!",substr($return,40,4));
+  my @intArray = $self->intArrayUnpacker($intArraySize,substr($return,44,$intArraySize*4));
+  return @intArray;
+}
+
+sub DigLines_Pulse {
+   #Changing different order of args here, we pass the lines array as last argument
+   my $self = shift;
+   my $port = shift;
+   my $Pulse_width = shift;
+   my $Pulse_pause = shift; 
+   my $Pulse_number = shift;
+   my $Wait_param = shift; 
+   my @lines = @_;
+   my $command_name = "diglines.pulse";
+   my $head = $self->nt_header($command_name,22 + scalar(@lines),0);
+   my $body = nt_uint16($port).nt_int(scalar(@lines));
+   foreach(@lines){
+    $body = $body.pack("c",$_);
+   }
+   $body = $body.nt_float32($Pulse_width).nt_float32($Pulse_pause);
+   $body = $body.nt_int($Pulse_number).nt_uint32($Wait_param);
+
+   $self->write(command=>$head.$body);
+}
+
+=head1 Data Logger 
+=cut 
+
+# No Data Logger in the simulator 
 
 
+=head1 Tcp Logge r
+=cut 
+
+# Tcp Logger also not present in the simulator 
+
+=head1 Oscilloscope High Resolution 
+=cut 
+
+# No HR Oscilloscope in the simulator 
+
+=head1 Script 
+=cut 
+
+#No script tool identified in the module section 
+
+=head1 LockIn
+=cut 
+
+#No lockin module identified 
 
 =head1 Utilities
 =cut
