@@ -125,11 +125,6 @@ sub float32ArrayUnpacker {
 =head1 1DSweep
 =cut
 
-
-
-
-
-
 sub oneDSwp_AcqChsSet { 
     my $self = shift;
     my @channels; 
@@ -149,18 +144,16 @@ sub oneDSwp_AcqChsSet {
 
 
 sub oneDSwp_AcqChsGet {
-    #######not working for some reason
     my $self = shift;
     my $command_name="1dswp.acqchsget";
     my $bodysize = 0;
     my $head= $self->nt_header($command_name,$bodysize,1);
     $self->write(command=>$head);
 
-    my $return = $self->read();
-    #my $channelNum = unpack("N!",substr $return,40,4);
-    print(length($return));
-    #my @channels = $self->intArrayUnpacker($channelNum,(substr $return,44));
-    #print(join(",",@channels));
+    my $return = $self->binary_read();
+    my $channelNum = unpack("N!",substr $return,40,4);
+    my @channels = $self->intArrayUnpacker($channelNum,(substr $return,44));
+    return(@channels);
 }
 
 sub oneDSwp_SwpSignalSet {
@@ -181,7 +174,7 @@ sub oneDSwp_SwpSignalGet {
     my $command_name="1dswp.swpsignalget";
     my $head= $self->nt_header($command_name,0,1);
     $self->write(command=>$head);
-    my $response = $self->read();
+    my $response = $self->binary_read();
     my $strlen= unpack("N!",substr $response,40,4);
 
     if (($option eq "select") == 1){
@@ -221,7 +214,7 @@ sub oneDSwp_LimitsGet {
   my $rbodysize = 8;
   my $head= $self->nt_header($command_name,$bodysize,1);
   $self->write(command=>$head);
-  my $return = $self->read();
+  my $return = $self->binary_read();
   $return= returnFormatter($rbodysize,$return);
   my $Lower_limit= substr $return,40,4;
   $Lower_limit= unpack("f>",$Lower_limit);
@@ -1378,32 +1371,6 @@ sub DigLines_Pulse {
 
    $self->write(command=>$head.$body);
 }
-
-=head1 Data Logger 
-=cut 
-
-# No Data Logger in the simulator 
-
-
-=head1 Tcp Logge r
-=cut 
-
-# Tcp Logger also not present in the simulator 
-
-=head1 Oscilloscope High Resolution 
-=cut 
-
-# No HR Oscilloscope in the simulator 
-
-=head1 Script 
-=cut 
-
-#No script tool identified in the module section 
-
-=head1 LockIn
-=cut 
-
-#No lockin module identified 
 
 =head1 Utilities
 =cut
