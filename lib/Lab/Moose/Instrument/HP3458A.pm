@@ -9,6 +9,7 @@ use Moose::Util::TypeConstraints qw/enum/;
 use MooseX::Params::Validate;
 use Lab::Moose::Instrument qw/
     validated_getter validated_setter setter_params /;
+use Lab::Moose::Instrument::Cache;
 use Carp;
 use namespace::autoclean;
 
@@ -70,7 +71,16 @@ sub get_value {
  $dmm->set_nplc(value => 10);
  $nplc = $dmm->get_nplc();
 
-Get/Set integration time in Number of Power Line Cycles.
+Get/Set integration time in Number of Power Line Cycles. This also affects the resolution (bits/digits) of the readings:
+
+- 0.0001 NPLC: 4.5 digits, 16 bits, 83300 readings/s  (OFORMAT SINT)
+- 0.0006 NPLC: 5.5 digits, 18 bits, 41650 readings/s
+- 0.01   NPLC: 6.5 digits, 21 bits, 4414  readings/s
+- 0.1    NPLC: 6.5 digits, 21 bits, 493   readings/s
+- 1      NPLC: 7.5 digits, 25 bits, 50    readings/s
+- 10     NPLC: 8.5 digits, 28 bits, 5     readings/s
+
+All values for auto-zero disabled.
 
 =cut
 
@@ -147,20 +157,6 @@ sub set_trig_event {
         value => { isa => enum( [qw/AUTO EXT SGL HOLD SYN LEVEL LINE/] ) },
     );
     $self->write( command => "TRIG $value", %args );
-}
-
-=head2 tarm_sgl_query
-
- my $data = $dmm->tarm_sgl_query();
-
-Low level command which sends the "TARM SGL" command and query the data which is returned.
-Only useful when the DMM is in high-speed mode. The returned data is formatted according to the current data output format setting.
-
-=cut
-
-sub tarm_sgl_query {
-    my ( $self, %args ) = validated_getter( \@_ );
-    return $self->query( command => "TARM SGL", %args );
 }
 
 =head2 get_end/set_end
@@ -245,7 +241,7 @@ sub set_output_format {
 
 sub get_memory_format {
     my ( $self, %args ) = validated_getter( \@_ );
-    return $self->query( command => 'OFORMAT?', %args );
+    return $self->query( command => 'MFORMAT?', %args );
 }
 
 sub set_memory_format {
@@ -253,7 +249,27 @@ sub set_memory_format {
         \@_,
         value => { isa => enum( [qw/ASCII SINT DINT SREAL DREAL/] ) },
     );
-    $self->write( command => "OFORMAT $value", %args );
+    $self->write( command => "MFORMAT $value", %args );
+}
+
+sub get_memory {
+    my ( $self, %args ) = validated_getter( \@_ );
+    return $self->query( command => 'MEM?', %args );
+}
+
+sub set_memory {
+    my ( $self, $value, %args ) = validated_setter(
+        \@_,
+        value => { isa => enum( [qw/OFF LIFO FIFO CONT/] ) },
+    );
+    $self->write( command => "MEM $value", %args );
+}
+
+cache iscale => ( getter => 'get_iscale' );
+
+sub get_iscale {
+    my ( $self, %args ) = validated_getter( \@_ );
+    return $self->query( command => 'ISCALE?', %args );
 }
 
 sub get_auto_zero {
@@ -282,11 +298,30 @@ sub set_disp {
     $self->write( command => "DISP $value", %args );
 }
 
+sub set_math_off {
+    my ( $self, %args ) = validated_getter( \@_ );
+    $self->write( command => 'MATH OFF', %args );
+}
+
+=head2 get_mem_size
+
+ my ($msize, $unused) = $dmm->get_mem_size();
+
+=cut
+
+sub get_mem_size {
+    my ( $self, %args ) = validated_getter( \@_ );
+    my $rv = $self->query( command => 'MSIZE?', %args );
+    return split( /,/, $rv );
+}
+
 =head2 set_high_speed_mode
 
  $dmm->set_high_speed_mode(format => 'DINT');
 
 C<format> can be 'SINT' or 'DINT'.
+
+Croak if autorange is enabled.
 
 =back
 
@@ -305,6 +340,7 @@ sub set_high_speed_mode {
 
     $self->set_auto_zero( value => 'OFF' );
     $self->set_disp( value => 'OFF' );
+    $self->set_math_off();
 
     if ( $self->get_auto_range() ) {
         croak("Autorange mode is on, cannot set high-speed mode");
