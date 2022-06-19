@@ -14,4 +14,4 @@ severity = 5
 severity = 5
 
 [ControlStructures::ProhibitPostfixControls]
-severity = 5
+severity = 4
