@@ -288,7 +288,7 @@ contains support for temperature sensor and He/N2 level meters.
 
 =over
 
-=item * L<Lab::Moose::Instrument::NanonisTremea> (work in progress)
+=item * L<Lab::Moose::Instrument::NanonisTramea> (work in progress)
 
 =back
 

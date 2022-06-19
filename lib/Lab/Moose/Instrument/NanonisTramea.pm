@@ -1,4 +1,4 @@
-package Lab::Moose::Instrument::NanonisTremea;
+package Lab::Moose::Instrument::NanonisTramea;
 
 #ABSTRACT: Nanonis Tramea
 
