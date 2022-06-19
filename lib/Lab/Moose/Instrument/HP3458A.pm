@@ -323,9 +323,6 @@ C<format> can be 'SINT' or 'DINT'.
 
 Croak if autorange is enabled.
 
-=back
-
-
 =cut
 
 sub set_high_speed_mode {
