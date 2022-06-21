@@ -57,18 +57,6 @@ sub nt_float64 {
   return pack "d>", $f;
 }
 
-sub returnFormatter {
-    my $expBody= shift;
-    my $body= shift;
-    my $diff = $expBody - (length($body)-40);
-    my $padding;
-    if ($diff!=0){
-        $padding = "\0"x $diff;
-      }
-    $body=$body.$padding;
-    return $body;
-}
-
 sub  nt_header {
     my ($self,$command,$b_size,$response) =@_;
     
@@ -181,7 +169,9 @@ sub oneDSwp_SwpSignalSet {
 sub oneDSwp_SwpSignalGet {
     my $self = shift;
     my $option= "select";
-    $option = shift if (scalar(@_)>0);
+    if (scalar(@_)>0){
+      $option = shift;
+    }
     my $command_name="1dswp.swpsignalget";
     my $head= $self->nt_header($command_name,0,1);
     $self->write(command=>$head);
@@ -225,8 +215,7 @@ sub oneDSwp_LimitsGet {
   my $rbodysize = 8;
   my $head= $self->nt_header($command_name,$bodysize,1);
   $self->write(command=>$head);
-  my $return = $self->binary_read();
-  $return= returnFormatter($rbodysize,$return);
+  $return = $self->binary_read();
   my $Lower_limit= substr $return,40,4;
   $Lower_limit= unpack("f>",$Lower_limit);
   my $Upper_limit= substr $return,44,4;
@@ -259,8 +248,6 @@ sub oneDSwp_PropsGet {
   $self->write(command=>$head);
 
   my $return = $self->binary_read(); 
-  my $rbodysize = 26;
-  $return= returnFormatter($rbodysize,$return);
   my $Initial_Settling_time_ms= substr $return,40,4;
   $Initial_Settling_time_ms= unpack("f>",$Initial_Settling_time_ms);
   my $s= substr $return,44,4;
@@ -284,9 +271,15 @@ sub oneDSwp_Start {
      my $name_len= length($name);
      my $bodysize = 16 +$name_len;
      
-     $get = 1 if $get != 0;
-     $direction = 1 if $direction != 0;
-     $reset = 1 if $reset != 0;
+     if($get!= 0){
+      $get = 1;
+     }
+     if($direction!= 0){
+      $direction = 1; 
+     }
+     if($reset!= 0){
+      $reset = 1; 
+     }
      my $head= $self->nt_header($command_name,$bodysize,$get);
      my $body = nt_uint32($get);
      $body = $body.nt_uint32($direction);
@@ -313,7 +306,6 @@ sub oneDSwp_Start {
             push  @rowBuffer , unpack("f>",substr($rawData,$pos,4));
             $pos +=4;
           }
-          #print("$channels{$row}:".join(",",@rowBuffer)."\n");
           $data{$channels{$row}} = [@rowBuffer];
         }
         return %data;
@@ -401,7 +393,10 @@ sub threeDSwp_SaveOptionsSet {
     my @Module_Names = @_ ;
     my $bodysize = 4*(5+length($Series_Name)+length($Comment));
     my $Module_Name_Size = 0;
-    $Module_Name_Size+=4*length($_) foreach(@Module_Names);
+
+    foreach(@Module_Names){
+      $Module_Name_Size+=4*length($_);
+    }
     $bodysize+= $Module_Name_Size ;
     my $head = $self->nt_header($command_name,$bodysize,0);
     my $body = nt_int(length($Series_Name)).$Series_Name;
@@ -409,8 +404,9 @@ sub threeDSwp_SaveOptionsSet {
     $body=$body.nt_int(length($Comment)).$Comment;
     $body=$body.nt_int($Module_Name_Size);
     $body=$body.nt_int(scalar(@Module_Names));
-    $body=$body.nt_int(length($_)).$_ foreach(@Module_Names);
-
+    foreach(@Module_Names){
+      $body=$body.nt_int(length($_)).$_;
+    }
     $self->write(command=>$head.$body);
 }
 
@@ -1393,8 +1389,12 @@ sub Util_SettingsLoad {
   my $self = shift;
   my ($path,$Automatic_Load) = @_;
   my $command_name = "util.settingsload";
-  $Automatic_Load = 1 if($Automatic_Load > 0);
-  $Automatic_Load = 0 if ($Automatic_Load <=0);
+  if($Automatic_Load> 0){
+    $Automatic_Load = 1;
+  }
+  else{
+    $Automatic_Load = 0;
+  }
   my $bodysize = 8 + 4*length($path);
   my $head = $self->nt_header($command_name,$bodysize,0);
   my $body = pack("N!",length($path)).$path.pack("N",$Automatic_Load);
@@ -1406,8 +1406,14 @@ sub Util_SettingsSave {
   my $self = shift;
   my ($path,$Automatic_save) = @_;
   my $command_name = "util.settingssave";
-  $Automatic_save = 1 if($Automatic_save > 0);
-  $Automatic_save = 0 if ($Automatic_save <=0);
+
+  if($Automatic_save> 0){
+    $Automatic_save= 1;
+  }
+  else{
+    $Automatic_save = 0;
+  }
+
   my $bodysize = 8 + 4*length($path);
   my $head = $self->nt_header($command_name,$bodysize,1);
   my $body = pack("N!",length($path)).$path.pack("N",$Automatic_save);
@@ -1420,6 +1426,13 @@ sub Util_LayoutLoad {
   my $self = shift;
   my ($path,$Automatic_Load) = @_;
   my $command_name = "util.layoutload";
+  if($Automatic_Load> 0){
+    $Automatic_Load= 1;
+  }
+  else{
+    $Automatic_Load = 0;
+  }
+
   $Automatic_Load = 1 if($Automatic_Load > 0);
   $Automatic_Load = 0 if ($Automatic_Load <=0);
   my $bodysize = 8 + 4*length($path);
