@@ -1432,9 +1432,6 @@ sub Util_LayoutLoad {
   else{
     $Automatic_Load = 0;
   }
-
-  $Automatic_Load = 1 if($Automatic_Load > 0);
-  $Automatic_Load = 0 if ($Automatic_Load <=0);
   my $bodysize = 8 + 4*length($path);
   my $head = $self->nt_header($command_name,$bodysize,0);
   my $body = pack("N!",length($path)).$path.pack("N",$Automatic_Load);
@@ -1446,8 +1443,12 @@ sub Util_LayoutSave {
   my $self = shift;
   my ($path,$Automatic_save) = @_;
   my $command_name = "util.layoutsave";
-  $Automatic_save = 1 if($Automatic_save > 0);
-  $Automatic_save = 0 if ($Automatic_save <=0);
+  if($Automatic_save> 0){
+    $Automatic_save= 1;
+  }
+  else{
+    $Automatic_save = 0;
+  }
   my $bodysize = 8 + 4*length($path);
   my $head = $self->nt_header($command_name,$bodysize,1);
   my $body = pack("N!",length($path)).$path.pack("N",$Automatic_save);
