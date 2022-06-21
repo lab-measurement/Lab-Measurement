@@ -425,17 +425,12 @@ sub threeDSwp_SaveOptionsGet {
     $pos+=44;
     my $DT_Folder_opt = unpack("N",substr($return,$pos,4));
     $pos += 12 + unpack("N!",substr($return,$pos+4,4));
-    
-    # my %Fixed_Parameter = $self->strArrayUnpacker(unpack("N!",substr($return,$pos+8,4)),substr($return,$pos+12,$strArray_size));
-    # @Fix_Parameters = values %Fixed_Parameter;
-    #print($_." :".$Fixed_Parameter{$_}."\n") foreach(keys %Fixed_Parameter);
     my $strLen = unpack("N!",substr($return,$pos,4));
     my $Comment = substr($return,$pos+4,$strLen);
     $pos+=4+$strLen;
     my $MP_size = unpack("N!",substr($return,$pos,4));
     my $MP_number = unpack("N!",substr($return,$pos+4,4));
     my %Modules_parameters = $self->strArrayUnpacker($MP_number,substr($return,$pos+8,$MP_size));
-    #print($_." :".$Modules_parameters{$_}."\n") foreach(keys %Modules_parameters);
     my @Modules_param = @Modules_parameters{0...(scalar(keys %Modules_parameters)-1)};
     return($Series_Name,$DT_Folder_opt,$Comment,@Modules_param);
 
@@ -897,8 +892,6 @@ sub threeDSwp_TimingRowValsSet {
   $body=$body.nt_float64($UR_value);
   $body=$body.nt_float64($AR_value);
   $self->write(command=>$head.$body);
-  # my $return = $self->binary_read();
-  # print($return."\n");
 }
 
 sub threeDSwp_TimingRowValsGet {
@@ -969,7 +962,6 @@ sub Signals_InSlotSet {
 }
 
 sub Signals_InSlotsGet {
-  #Discuss output format 
   my $self = shift;
   my $command_name= "signals.inslotsget";
   my $head = $self->nt_header($command_name,0,1);
