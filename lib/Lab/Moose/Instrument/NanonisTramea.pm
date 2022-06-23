@@ -215,6 +215,7 @@ sub oneDSwp_LimitsGet {
   my $rbodysize = 8;
   my $head= $self->nt_header($command_name,$bodysize,1);
   $self->write(command=>$head);
+  my $return = $self->binary_read();
   $return = $self->binary_read();
   my $Lower_limit= substr $return,40,4;
   $Lower_limit= unpack("f>",$Lower_limit);
