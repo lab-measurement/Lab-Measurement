@@ -1,3 +1,6 @@
+#PODNAME: gate-vna.pl
+#ABSTRACT: Gate voltage sweep with VNA spectrum at each point
+
 use 5.010;
 
 use Lab::Moose;
