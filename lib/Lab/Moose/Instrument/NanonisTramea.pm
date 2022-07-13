@@ -1812,9 +1812,9 @@ sub sweep1D {
     sleep(0.5);
   }
 
-  #Prototype: Function to parse into pdl from .dat Nanonis file
+#Prototype: Function to parse into pdl from .dat Nanonis file
 
-  sub to_pdl_1D{
+sub to_pdl_1D{
     my ($self,%params) =  validated_hash(
       \@_,
       file_name=>{isa => "Str"},
