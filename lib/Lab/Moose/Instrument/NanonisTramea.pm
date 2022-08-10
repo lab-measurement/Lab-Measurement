@@ -1838,6 +1838,7 @@ sub to_pdl_1D{
         my $EOF=1; 
         my $buffer_line;
         my @col_names;
+        my @cols;
         open(my $fa,'<',$self->Session_Path().'/'.$params{file_name});
         while($EOF)
         {
@@ -1853,8 +1854,11 @@ sub to_pdl_1D{
               if ($startdata==1){
                   #Correction needed here for more than 2 colums needed 
                   my @buffer = split(" ",$buffer_line);
-                  push(@x_col,$buffer[0]);
-                  push(@y_col,$buffer[1]);
+                  print(scalar(@buffer)."\n");
+                  for(my $index=0;$index<scalar(@buffer);$index++)
+                  {
+                    push(@{$cols[$index]},$buffer[$index]);
+                  }
               }
           }
           else
@@ -1863,7 +1867,8 @@ sub to_pdl_1D{
           }
         }
         close($fa);
-        my $new_pdl = pdl(pdl(@x_col),pdl(@y_col));
+        #my $new_pdl = pdl(pdl(@x_col),pdl(@y_col));
+        my $new_pdl = pdl(@cols);
         return $new_pdl,@col_names; 
       }
       else
