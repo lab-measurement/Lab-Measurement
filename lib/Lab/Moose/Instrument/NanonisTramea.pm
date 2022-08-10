@@ -1811,7 +1811,8 @@ sub sweep1D {
   {
     sleep(0.5);
   }
-
+  #Note: Delay Between response and successfull file creation,may be due to VM setup
+}
 #Prototype: Function to parse into pdl from .dat Nanonis file
 
 sub to_pdl_1D{
@@ -1850,6 +1851,7 @@ sub to_pdl_1D{
                   $startdata = 1;
               }
               if ($startdata==1){
+                  #Correction needed here for more than 2 colums needed 
                   my @buffer = split(" ",$buffer_line);
                   push(@x_col,$buffer[0]);
                   push(@y_col,$buffer[1]);
@@ -1873,11 +1875,9 @@ sub to_pdl_1D{
     {
       die "Error: Session_Path is not set";
     }
-
+  return 0;
   }
-
-  return 0; 
-}
+ 
 __PACKAGE__->meta()->make_immutable();
 
 1;
