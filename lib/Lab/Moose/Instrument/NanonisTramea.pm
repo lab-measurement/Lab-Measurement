@@ -1837,16 +1837,16 @@ sub to_pdl_1D{
         my $EOF=1; 
         my $buffer_line;
         my @col_names;
-        open(FH,'<',$self->Session_Path().'/'.$params{file_name});
+        open(my $fa,'<',$self->Session_Path().'/'.$params{file_name});
         while($EOF)
         {
-          $buffer_line=<FH>;
+          $buffer_line=<$fa>;
           if($buffer_line)
           {
               if ($buffer_line =~ /(\[DATA])/){
-                  $buffer_line = <FH>;
+                  $buffer_line = <$fa>;
                   @col_names = (split "\t",$buffer_line);
-                  $buffer_line=<FH>;
+                  $buffer_line=<$fa>;
                   $startdata = 1;
               }
               if ($startdata==1){
@@ -1860,7 +1860,7 @@ sub to_pdl_1D{
               $EOF=0;
           }
         }
-        close(FH);
+        close($fa);
         my $new_pdl = pdl(pdl(@x_col),pdl(@y_col));
         return $new_pdl,@col_names; 
       }
