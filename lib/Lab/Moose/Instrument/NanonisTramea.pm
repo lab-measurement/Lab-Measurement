@@ -1831,7 +1831,6 @@ sub to_pdl_1D{
     {
       if(-s $self->Session_Path().'/'.$params{file_name})
       {
-        print("File exists.\n");
         my $startdata = 0;
         my @x_col = ();
         my @y_col  = ();
@@ -1851,10 +1850,9 @@ sub to_pdl_1D{
                   $buffer_line=<$fa>;
                   $startdata = 1;
               }
-              if ($startdata==1){
-                  #Correction needed here for more than 2 colums needed 
+              if ($startdata==1){ 
                   my @buffer = split(" ",$buffer_line);
-                  print(scalar(@buffer)."\n");
+
                   for(my $index=0;$index<scalar(@buffer);$index++)
                   {
                     push(@{$cols[$index]},$buffer[$index]);
