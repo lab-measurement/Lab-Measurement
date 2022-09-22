@@ -394,7 +394,8 @@ sub threeDSwp_SaveOptionsSet {
   my $Series_Name= shift;
   my $Create_Date_Time =shift;
   my $Comment = shift;
-  my @Modules_Names = @_;
+  my $Modules_Names_ref = shift;
+  my @Modules_Names = @{$Modules_Names_ref};
   my $command_name = "3dswp.saveoptionsset";
   my $bodysize = 8;
   my $body = nt_int(0);
@@ -429,7 +430,7 @@ sub threeDSwp_SaveOptionsSet {
     foreach(@Modules_Names)
     {
       $buffer_body = $buffer_body.nt_int(length($_)).$_;
-      $buffer_size+= 4*(1+length($_));
+      $buffer_size+= 4+length($_);
     }
     $body = $body.nt_int($buffer_size).nt_int(scalar(@Modules_Names)).$buffer_body;
     $bodysize += 8 + $buffer_size;
@@ -1108,7 +1109,7 @@ sub Signals_MeasNamesGet {
 }
 
 sub Signals_AddRTGet() {
-  # Incomplete, not getting a response
+  
   my $self = shift;
   my $command_name="signals.addrtget";
   my $head = $self->nt_header($command_name,0,1);
@@ -2032,7 +2033,7 @@ sub sweep {
      { 
        if(exists($params{point_number_step2}) && $params{point_number_step2}!= $self->step2_prop_configuration()->{point_number})
        {
-          #$self->step2_prop_configure(point_number=>$params{point_number_step2});
+          $self->step2_prop_configure(point_number=>$params{point_number_step2});
        }
 
        if(exists($params{lower_limit_step2}))
