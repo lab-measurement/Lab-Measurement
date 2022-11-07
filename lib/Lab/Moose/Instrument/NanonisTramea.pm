@@ -26,36 +26,63 @@ use namespace::autoclean;
 
 =cut
 
+=head1 FORMATTERS
+Collections of functions to pack or unpack numbers and srings for TCP comunication
+=cut
+
+
+=head2 nt_string
+=cut
 sub nt_string {
   my $s = shift;
   return (pack "N", length($s)) . $s;
 }
 
+=head2 nt_int
+=cut
 sub nt_int {
   my $i = shift;
   return pack "N!", $i;
 }
 
+=head2 nt_uint16
+=cut
 sub nt_uint16 {
   my $i = shift;
   return pack "n", $i;
 }
 
+=head2 nt_uint32
+=cut
 sub nt_uint32 {
   my $i = shift;
   return pack "N", $i;
 }
 
-
+=head2 nt_float32
+=cut
 sub nt_float32 {
   my $f = shift;
   return pack "f>", $f;
 }
 
+=head2 nt_float64
+=cut
 sub nt_float64 {
   my $f = shift;
   return pack "d>", $f;
 }
+
+=head2 nt_header
+
+    my $header =  $tramea->nt_header($command,$body_size,$response);
+
+  Function to format Header of tcp message.
+  C<command> refers to command name as reported in the Nanonis Tramea documentation
+  C<body_size> refers to the size of the message body, not including the header itself.
+  C<response> Must have value of either 0 or 1. If value is the nanonis Software will send a response according to documentation.
+
+=cut
 
 sub  nt_header {
     my ($self,$command,$b_size,$response) =@_;
@@ -72,6 +99,10 @@ sub  nt_header {
     return $cmd.$bodysize.$rsp.nt_uint16(0);
 }
 
+=head2 _end_of_com
+
+=cut
+
 sub _end_of_com
 {
   my $self = shift;
@@ -82,6 +113,16 @@ sub _end_of_com
     print(substr($response,40,$response_bodysize)."\n");
   }
 }
+
+=head2 strArrayUnpacker
+
+  my %strArray = $tramea->strArrayUnpacker($element_number, $string_array);
+
+Returns an hash that has as keys the indexes of the strings in the array and as items the strings themselves.
+C<element_number> refers to the ammount of strings about to be in the array.
+C<string_array> refers to the binary of the strings array.
+
+=cut
 
 sub strArrayUnpacker {
     my ($self, $elementNum, $strArray) = @_;
@@ -97,6 +138,15 @@ sub strArrayUnpacker {
      return %unpckStrArray;
 }
 
+=head2 intArrayUnpacker
+
+  my @int_array = $tramea->intArrayUnpacker($element_number, $int_array);
+
+Unpacks binary array of int and returns into perl Array type.
+C<element_number> refers to the expected number of elements in the array.
+C<int_array> refers to the int array binary.
+
+=cut
 sub intArrayUnpacker {
   my ($self,$elementNum,$intArray) = @_;
   my $position = 0;
@@ -110,6 +160,15 @@ sub intArrayUnpacker {
   return @intArray;
 }
 
+=head2 float32ArrayUnpacker
+
+  my $floeat32_array = $tramea->float32ArrayUnpacker($element_number, $float32_array);
+
+Unpacks binary array of float32 and returns into perl Array type.
+C<element_number> refers to the expected number of elements in the array.
+C<float32_array> refers to float32 array binary.
+
+=cut
 sub float32ArrayUnpacker {
   my ($self,$elementNum,$Array) = @_;
   my $position = 0;
@@ -122,10 +181,6 @@ sub float32ArrayUnpacker {
 
   return @floatArray;
 }
-
-
-
-
 
 
 =head1 1DSweep
