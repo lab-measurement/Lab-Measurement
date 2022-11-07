@@ -1,0 +1,126 @@
+package Lab::Moose::Instrument::RS_RTB2000;
+
+#ABSTRACT: Rohde & Schwarz RTB 2000 oscilloscope (work in progress)
+
+use v5.20;
+
+use Moose;
+use MooseX::Params::Validate;
+use Moose::Util::TypeConstraints qw/enum/;
+use List::Util qw/sum/;
+use List::MoreUtils qw/minmax/;
+use Lab::Moose::Instrument
+    qw/validated_channel_getter validated_channel_setter validated_getter validated_setter/;
+use Lab::Moose::Instrument::Cache;
+use Carp 'croak';
+use namespace::autoclean;
+
+extends 'Lab::Moose::Instrument';
+
+# around default_connection_options => sub {
+#     my $orig     = shift;
+#     my $self     = shift;
+#     my $options  = $self->$orig();
+#     my $usb_opts = { vid => 0x0957, pid => 0x2b07 };
+#     $options->{USB} = $usb_opts;
+#     $options->{'VISA::USB'} = $usb_opts;
+#     return $options;
+# };
+
+sub BUILD {
+    my $self = shift;
+    $self->clear();
+    $self->cls();
+}
+
+=encoding utf8
+
+=head1 SYNOPSIS
+
+ use Lab::Moose;
+ my $rtb = instrument(
+    type => 'RS_RTB2000',
+    connection_type => '...',
+    connection_options => {...}
+ );
+
+ $rtb->write(command => 'CHAN:TYPE HRES'); # set high-resolution mode
+ $rtb->write(command => 'ACQ:POIN 10000'); # record 10k points per waveform
+ $rtb->write(command => 'ACQ:TYPE AVER');
+ $rtb->write(command => 'ACQ:AVER:COUN 100'); # average over 100 waveforms
+ 
+ 
+ 
+
+ $rtb->write(command => 'TIM:SCAL 1E-7'); # set high-resolution mode
+ $rtb->write(command => 'FORM REAL');
+ $rtb->write(command => 'FORM:BORD LSBF'); # little-endian data format
+ 
+ # trigger 
+ $rtb->write(command => 'TRIG:A:MODE NORM');
+ $rtb->write(command => 'TRIG:A:SOUR CH1');
+ $rtb->write(command => 'TRIG:A:TYPE EDGE');
+ $rtb->write(command => 'TRIG:A:EDGE:SLOP NEG');
+ $rtb->write(command => 'TRIG:A:LEV1 10e-3');
+ $rtb->write(command => 'TRIG:A:EDGE:FILT:HFR ON'); # 5kHz filter 
+
+ # output signal (option R&S RTB-B6)
+ $rtb->write(command => 'WGEN:OUTP ON');
+ $rtb->write(command => 'WGEN:FUNC RAMP');
+ $rtb->write(command => 'WGEN:FUNC:RAMP:POL POS');
+ $rtb->write(command => 'WGEN:VOLT 5');
+ $rtb->write(command => 'WGEN:VOLT:OFFS 2.5');
+ $rtb->write(command => 'WGEN:FREQ 100');
+
+ # burst setup
+ $rtb->write(command => 'WGEN:BURS ON');
+ $rtb->write(command => 'WGEN:BURS:NCYC 50'); # 50 ramps
+ $rtb->write(command => 'WGEN:BURS:TRIG SING');
+ 
+ # record single measurement
+ $rtb->write(command => 'ACQ:AVER:RESET'); # reset average calculation
+ $rtb->write(command => 'SING');
+ $rtb->write(command => 'WGEN:BURS:TRIG:SING'); # start output signal
+ $rtb->query(command => '*OPC?');
+ 
+ my $header = $rtb->query(command => 'CHAN1:DATA:HEAD?');
+ my ($x_start, $x_stop, $samples, $vals_per_sample) = split(',', $header);
+ my $data = $rtb->query(command => 'CHAN:DATA?', read_length => '...');
+ # returns binary data #520000>??[>??[>??[>??[>??[>??...
+
+ my @points = $rtb->block_to_array($data, precision => 'single');
+
+ 
+
+=head1 METHODS
+
+Used roles:
+
+=over
+
+=item L<Lab::Moose::Instrument::Common>
+
+=item L<Lab::Moose::Instrument::SCPIBlock>
+
+=back
+
+=cut
+
+#
+# MY FUNCTIONS
+#
+
+=head2 
+
+
+
+=cut
+
+with qw(
+    Lab::Moose::Instrument::Common
+    Lab::Moose::Instrument::SCPIBlock
+);
+
+__PACKAGE__->meta()->make_immutable();
+
+1;

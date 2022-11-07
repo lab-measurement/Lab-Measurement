@@ -9,7 +9,6 @@ use MooseX::Params::Validate;
 use Moose::Util::TypeConstraints qw/enum/;
 use List::Util qw/sum/;
 use List::MoreUtils qw/minmax/;
-use Math::Round;
 use Lab::Moose::Instrument
     qw/validated_channel_getter validated_channel_setter validated_getter validated_setter/;
 use Lab::Moose::Instrument::Cache;
@@ -27,7 +26,6 @@ around default_connection_options => sub {
     $options->{'VISA::USB'} = $usb_opts;
     return $options;
 };
-
 
 sub BUILD {
     my $self = shift;
