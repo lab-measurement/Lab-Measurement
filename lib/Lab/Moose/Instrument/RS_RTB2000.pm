@@ -48,30 +48,15 @@ sub BUILD {
  $rtb->write(command => 'ACQ:POIN 10000'); # record 10k points per waveform
  $rtb->write(command => 'ACQ:TYPE AVER');
  $rtb->write(command => 'ACQ:AVER:COUN 100'); # average over 100 waveforms
-
-
- # vertical setup 
- $rtb->write(command => 'CHAN1:RANG 10'); # set 0 to 10V range
- $rtb->write(command => 'CHAN1:POS -5');
- $rtb->write(command => 'CHAN1:COUP DCLimit');
- $rtb->write(command => 'CHAN1:BAND B20'); # 20MHz Bandwith
-   
-
-
  
- # horizontal setup 
+ 
+ 
 
- # set measurement time of 1ms, i.e. 1/12 ms per division
- $rtb->write(command => 'TIM:RANG 1e-3');
- $rtb->write(command => 'TIM:REF 50'); # reference point in the middle
- # set trigger position at start of measurement time
- $rtb->write(command => 'TIM:POS 0.5e-3');
-
+ $rtb->write(command => 'TIM:SCAL 1E-7'); # set high-resolution mode
  $rtb->write(command => 'FORM REAL');
  $rtb->write(command => 'FORM:BORD LSBF'); # little-endian data format
  
  # trigger 
-
  $rtb->write(command => 'TRIG:A:MODE NORM');
  $rtb->write(command => 'TRIG:A:SOUR CH1');
  $rtb->write(command => 'TRIG:A:TYPE EDGE');
@@ -80,7 +65,6 @@ sub BUILD {
  $rtb->write(command => 'TRIG:A:EDGE:FILT:HFR ON'); # 5kHz filter 
 
  # output signal (option R&S RTB-B6)
-
  $rtb->write(command => 'WGEN:OUTP ON');
  $rtb->write(command => 'WGEN:FUNC RAMP');
  $rtb->write(command => 'WGEN:FUNC:RAMP:POL POS');
@@ -94,13 +78,10 @@ sub BUILD {
  $rtb->write(command => 'WGEN:BURS:TRIG SING');
  
  # record single measurement
-
  $rtb->write(command => 'ACQ:AVER:RESET'); # reset average calculation
  $rtb->write(command => 'SING');
  $rtb->write(command => 'WGEN:BURS:TRIG:SING'); # start output signal
- $rtb->query(command => '*OPC?'); # wait until acquisiton is complete
-
- # transfer data
+ $rtb->query(command => '*OPC?');
  
  my $header = $rtb->query(command => 'CHAN1:DATA:HEAD?');
  my ($x_start, $x_stop, $samples, $vals_per_sample) = split(',', $header);
