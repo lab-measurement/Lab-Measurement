@@ -1982,45 +1982,6 @@ sub step2_prop_configure {
                                   $params{at_end_val});  
 }
 
-# Deprecate after expanding to 3D
-sub sweep1D {
-  my ($self, %params) = validated_hash(
-    \@_,
-    sweep_channel => {isa => "Int"},
-    aquisition_channels => {isa=>"ArrayRef[Int]"},
-    lower_limit =>{isa=>"Num"},
-    upper_limit =>{isa=>"Num"},
-    point_number =>{isa=>"Int", optional=>1},
-    series_name => {isa=> "Str", optional=>1},
-    comment => {isa=>"Str", optional =>1}
-  );
-
-  if(exists($params{point_number}) && $params{point_number}!= $self->sweep_prop_configuration()->{point_number}){
-    $self->sweep_prop_configure(point_number=>$params{point_number});
-  }
-  if(exists($params{series_name})&& $params{series_name} ne $self->sweep_save_configuration()->{series_name}){
-    $self->sweep_save_configure(series_name=>$params{series_name});
-  }
-  if(exists($params{comment})&& ($params{comment} ne $self->sweep_save_configuration()->{comment})){
-    $self->sweep_save_configure(comment=>$params{comment});
-  }
-
-  $self->threeDSwp_SwpChSignalSet($params{sweep_channel});
-  $self->threeDSwp_StpCh1SignalSet(-1);
-  $self->threeDSwp_StpCh2SignalSet(-1);
-
-  $self->threeDSwp_SwpChLimitsSet($params{lower_limit},$params{upper_limit});
-  $self->threeDSwp_AcqChsSet(scalar(@{$params{aquisition_channels}}),@{$params{aquisition_channels}});
-  $self->threeDSwp_Start();
-
-  #Not sure whats the best approach here.
-  while($self->threeDSwp_StatusGet()!=0 && $self->threeDSwp_StatusGet()!=2)
-  {
-    sleep(0.5);
-  }
-  #Note: Delay Between response and successfull file creation,may be due to VM setup
-}
-
 sub sweep {
   my ($self, %params) = validated_hash(
     \@_,
@@ -2144,7 +2105,6 @@ sub sweep {
     sleep(0.1);
   }
 }
-#Prototype: Function to parse into pdl from .dat Nanonis file
 
 sub to_pdl_1D{
     my ($self,%params) =  validated_hash(
