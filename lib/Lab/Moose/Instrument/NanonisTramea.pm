@@ -1673,16 +1673,30 @@ sub _build_sweep_prop_configuration {
   $hash{save_all}=-1;
   return \%hash;
 }
-#This is needed due to the contraint on Stp Channel2
 
 has signals => (
     is=>'ro',
     isa => 'HashRef',
     reader => "signals",
+    lazy =>1,
     builder => '_signals_builder',
 );
 
 sub _signals_builder {
+  my $self = shift;
+  my %hash = $self->Signals_InSlotsGet();
+  return \%hash;
+}
+
+has outputs => (
+  is => 'rw',
+  isa => 'HashRef',
+  reader =>'outputs',
+  writer => '_outputs',
+  builder => '_outputs_builder'
+);
+
+sub _outputs_builder {
   my $self = shift;
   my %hash;
   $hash{0}="Plunger Gate (V)";
@@ -1694,7 +1708,6 @@ sub _signals_builder {
   $hash{6}="Output 7 (V)";
   $hash{7}="Output 8 (V)";
   return \%hash;
-
 }
 
 has step1_prop_configuration => (
@@ -1987,7 +2000,8 @@ sub sweep {
     \@_,
     sweep_channel => {isa => "Int"},
     step1_channel => {isa => "Int", optional=>1},
-    step2_channel => {isa => "Int", optional=>1},
+    step2_channel_idx => {isa => "Int", optional=>1},
+    step2_channel_name => {isa => "Str", optional=>1},
     aquisition_channels => {isa=>"ArrayRef[Int]"},
     lower_limit_sweep =>{isa=>"Num"},
     upper_limit_sweep =>{isa=>"Num"},
@@ -2050,10 +2064,24 @@ sub sweep {
   {
     $self->threeDSwp_StpCh1SignalSet(-1);
   }
+
+
   # PARAMETER CONTROLL FOR Step channel 2
-   if(exists($params{step2_channel}))
+  if(exists($params{step2_channel_idx})&&exists($params{step2_channel_name}))
+  {
+    croak "Supply either step2_channel_idx or step2_channel_name";
+  }
+  elsif(exists($params{step2_channel_idx}) or exists($params{step2_channel_name}))
   { 
-    if($params{step2_channel}>=0)
+    if (exists($params{step2_channel_idx}))
+    {
+      $params{step2_channel_name}=" ";
+    }
+    elsif(exists($params{step2_channel_name}))
+    {
+      $params{step2_channel_idx}=-1;
+    }
+    if($params{step2_channel_idx}>=0 or $params{step2_channel_name} ne " ")
      { 
        if(exists($params{point_number_step2}) && $params{point_number_step2}!= $self->step2_prop_configuration()->{point_number})
        {
@@ -2065,8 +2093,14 @@ sub sweep {
 
         if(exists($params{upper_limit_step2}))
         { 
-
-          $self->threeDSwp_StpCh2SignalSet($self->signals->{$params{step2_channel}});
+          if($params{step2_channel_idx}>=0)
+          {
+            $self->threeDSwp_StpCh2SignalSet($self->outputs->{$params{step2_channel_idx}});
+          }
+          elsif($params{step2_channel_name} ne " ")
+          {
+            $self->threeDSwp_StpCh2SignalSet($params{step2_channel_name});
+          }
           $self->threeDSwp_StpCh2LimitsSet($params{lower_limit_step2},$params{upper_limit_step2})
         }
         else
@@ -2082,7 +2116,7 @@ sub sweep {
      }
     else
     {
-      die "Invalid value for step2_channel, value must be greter or equal  to 0!"
+      die "Invalid value for step2_channel_idx, value must be greter or equal  to 0!"
     }     
   }
   else
