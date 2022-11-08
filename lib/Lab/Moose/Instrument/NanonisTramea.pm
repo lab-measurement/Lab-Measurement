@@ -403,22 +403,23 @@ sub oneDSwp_Open {
 
 
 sub threeDSwp_AcqChsSet {
-  #Some issues with this function, calling Start too soon after it breakes software
-  #not sure whats happening, I am waiting for response :/
   my $self = shift;
-  my $Number_of_Channels= shift;
+  my $channels_ref = shift;
+  my @channels = @{$channels_ref};
+  my $Number_of_Channels= scalar @channels;
   my $command_name = "3dswp.acqchsset";
   my $bodysize = 4*($Number_of_Channels+1);
   my $header = $self->nt_header($command_name,$bodysize,1);
   my $body = nt_int($Number_of_Channels);
-  while(scalar(@_)!=0){
-    $body =$body.nt_int(shift);
+  for(my $i = 0;$i<$Number_of_Channels;$i++)
+  {
+    $body=$body.nt_int($channels[$i]);
   }
   $self->write(command=>$header.$body);
   $self->_end_of_com();
   #This sleep here solves "some issue" with threeDSwp_AcqChsSet, 
   #even if it sends a response baclo, software bhaves wierdly if another command is sent too soon
-  sleep(0.1);
+  #sleep(0.1);
 
 }
 
@@ -449,16 +450,20 @@ sub threeDSwp_SaveOptionsSet {
   my $Series_Name= shift;
   my $Create_Date_Time =shift;
   my $Comment = shift;
-  my $Modules_Names_ref = shift;
-  my @Modules_Names = @{$Modules_Names_ref};
+  my @Modules_Names= ();
+  if(scalar(@_) >0)
+  {
+    my $Modules_Names_ref = shift;
+    @Modules_Names = @{$Modules_Names_ref};
+  }
   my $command_name = "3dswp.saveoptionsset";
-  my $bodysize = 8;
+  my $bodysize = 20;
   my $body = nt_int(0);
   if(length($Series_Name)!=0)
   {
     $body=nt_int(length($Series_Name));
     $body=$body.$Series_Name;
-    $bodysize= 4*(1+length($Series_Name));
+    $bodysize+=length($Series_Name);
   }
   if($Create_Date_Time >0)
   {
@@ -472,7 +477,7 @@ sub threeDSwp_SaveOptionsSet {
   if(length($Comment)!=0)
   {
     $body = $body.nt_int(length($Comment)).$Comment;
-    $bodysize+= 4*(1+length($Comment));
+    $bodysize+= length($Comment);
   }
   else
   {
@@ -487,13 +492,14 @@ sub threeDSwp_SaveOptionsSet {
       $buffer_body = $buffer_body.nt_int(length($_)).$_;
       $buffer_size+= 4+length($_);
     }
-    $body = $body.nt_int($buffer_size).nt_int(scalar(@Modules_Names)).$buffer_body;
+    $body = $body.nt_int($buffer_size);
+    $body = $body.nt_int(scalar(@Modules_Names));
+    $body = $body.$buffer_body;
     $bodysize += 8 + $buffer_size;
   }
   else
   {
     $body= $body.nt_int(0).nt_int(0);
-    $bodysize+=8;
   }
   
   $self->write(command=>$self->nt_header($command_name,$bodysize,1).$body);
@@ -795,7 +801,7 @@ sub threeDSwp_StpCh2SignalSet {
   my $self = shift;
   my $Channel_name = shift;
   my $name_len = length($Channel_name);
-  my $bodysize = 4*($name_len+1);
+  my $bodysize = 4+($name_len);
   my $command_name = "3dswp.stpch2signalset";
   my $head= $self->nt_header($command_name,$bodysize,1);
   $self->write(command=>$head.nt_int($name_len).$Channel_name);
@@ -1659,8 +1665,8 @@ has sweep_prop_configuration => (
 sub _build_sweep_prop_configuration {
   my $self = shift;
   my %hash;
-  $hash{point_number}=0;
-  $hash{number_of_sweeps}=0;
+  $hash{point_number}=2;
+  $hash{number_of_sweeps}=1;
   $hash{backwards}=-1;
   $hash{at_end}=-1;
   $hash{at_end_val}=0;
@@ -2034,15 +2040,17 @@ sub sweep {
     series_name => {isa=> "Str", optional=>1},
     comment => {isa=>"Str", optional =>1}
   );
+  
 
   # PARAMETER CONTROLL FOR Sweep Channel, Need to check for maximum channel?
 
   if(exists($params{point_number_sweep}) && $params{point_number_sweep}!= $self->sweep_prop_configuration()->{point_number}){
-    #$self->sweep_prop_configure(point_number=>$params{point_number_sweep});
+    $self->sweep_prop_configure(point_number=>$params{point_number_sweep});
   }
   
-  #$self->threeDSwp_SwpChSignalSet($params{sweep_channel});
+  $self->threeDSwp_SwpChSignalSet($params{sweep_channel});
   
+  $self->threeDSwp_SwpChLimitsSet($params{lower_limit_sweep},$params{upper_limit_sweep});
   # PARAMETER CONTROLL FOR Step channel 1
   if(exists($params{step1_channel}))
   {
@@ -2121,8 +2129,6 @@ sub sweep {
     $self->threeDSwp_StpCh2SignalSet("");
   }
 
-
-  # Needs a better solution here to not call Sweep Save configure twice
   if(exists($params{series_name})&& $params{series_name} ne $self->sweep_save_configuration()->{series_name}){
     $self->sweep_save_configure(series_name=>$params{series_name});
   }
@@ -2130,16 +2136,13 @@ sub sweep {
   if(exists($params{comment})&& ($params{comment} ne $self->sweep_save_configuration()->{comment})){
     $self->sweep_save_configure(comment=>$params{comment});
   }
-  $self->threeDSwp_AcqChsSet(scalar(@{$params{aquisition_channels}}),@{$params{aquisition_channels}});
-  $self->threeDSwp_SwpChLimitsSet($params{lower_limit_sweep},$params{upper_limit_sweep});
+  $self->threeDSwp_AcqChsSet($params{aquisition_channels});
   $self->threeDSwp_Start();
 
-  #Not sure whats the best approach here.
   while($self->threeDSwp_StatusGet()!=0 && $self->threeDSwp_StatusGet()!=2)
   {
     sleep(0.1);
   }
-  #Note: Delay Between response and successfull file creation,may be due to VM setup
 }
 #Prototype: Function to parse into pdl from .dat Nanonis file
 
