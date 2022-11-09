@@ -1667,6 +1667,21 @@ sub Util_RTOversamplGet {
   return($RT_oversampling);
 }
 #Some modules are missing
+=head1 File
+=cut 
+
+sub File_datLoad {
+  my $self = shift;
+  my $file_path = shift;
+  my $header_only = shift;
+  my $command_name = "file.datload";
+  my $bodysize = 8 + length($file_path);
+  my $head = $self->nt_header($command_name,$bodysize,1);
+  $self->write(command=>$head.nt_int(length($file_path)).$file_path.nt_int($header_only));
+  print($self->binary_read());
+
+
+}
 
 =head1 High Level COM
 =cut
