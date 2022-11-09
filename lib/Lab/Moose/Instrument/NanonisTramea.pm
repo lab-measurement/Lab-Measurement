@@ -1029,6 +1029,23 @@ sub threeDSwp_TimingSend {
   my $head= $self->nt_header($command_name,$bodysize,0);
   $self->write(command=>$head);
 }
+
+=head2 3DSwp.FilePathsGet
+=cut
+
+sub threeDSwp_FilePathsGet {
+  my $self = shift;
+  my $command_name = "3dswp.filepathsget";
+  my $head = 
+  $self->write(command=>$self->nt_header($command_name,0,1));
+  my $response = $self->binary_read();
+  my $strArraySize = unpack("N!", substr $response,40,4);
+  my $strNumber = unpack("N!", substr $response, 44, 4 );
+  my $strArray = substr $response,48,$strArraySize;
+  my %strings = $self->strArrayUnpacker($strNumber,$strArray);
+  return %strings;
+}
+
 =head1 Signals
 =cut
 
@@ -1483,6 +1500,17 @@ sub Util_SessionPathGet {
 
     my $response = $self->binary_read();
     return substr $response,44,unpack("N!",substr $response,40,4);
+}
+
+sub Util_SessionPathSet {  
+  my $self = shift ;
+  my $command_name ="util.sessionpathset" ;
+  my $session_path = shift;
+  my $save_settings = shift;
+  my $bodysize = 8 + length($session_path);
+  my $head = $self->nt_header($command_name,$bodysize,1) ;
+  $self->write(command=>$head.nt_int(length($session_path)).$session_path.nt_uint32($save_settings));
+  $self->_end_of_com();
 }
 
 sub Util_SettingsLoad {
