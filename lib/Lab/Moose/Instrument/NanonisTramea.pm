@@ -1692,9 +1692,9 @@ sub File_datLoad {
 has _Session_Path => (
     is => 'rw',
     isa => 'Str',
+ #   lazy => 1,
     reader => 'Session_Path',
     writer => '_Session_Path',
-    default => ''
 );
 
 has sweep_prop_configuration => (
@@ -1810,21 +1810,27 @@ sub _build_sweep_save_configuration {
 =cut
 
 sub set_Session_Path {
-  my($self,$value,%args) = validated_setter(
+  my($self,%params) = validated_hash(
     \@_,
-    value => {isa => 'Str'}
+    session_path => {isa => 'Str'},
+    save_settings => {isa => 'Int',optional => 1}
     );
-  if($value =~ /(\/[\s\S]+?(?:$|\n))/){
-    if(-s $value."/Nanonis-Session.ini"){
-        $self->_Session_Path($value);
+  
+  if($params{session_path} =~ /^([a-zA-Z]:)(([\\]?[\w _!#()-]+)*[\\])?$/)
+  {
+    if(exists($params{save_settings}))
+    {
+      $self->Util_SessionPathSet($params{session_path},$params{save_settings});
     }
-    else {
-      die "No Nanonis-Session.ini detected at Path";
-    } 
+    else
+    {
+      $self->Util_SessionPathSet($params{session_path},0);
+    }
+    $self->_Session_Path($params{session_path});
   }
   else
   {
-    die "Invalid path in set_Session_Path: Path is not Unix Path";
+    die "Invalid path in set_Session_Path: Path is not Windows Directory Path";
   }
 }
 
