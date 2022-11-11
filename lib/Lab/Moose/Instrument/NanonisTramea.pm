@@ -1692,10 +1692,16 @@ sub File_datLoad {
 has _Session_Path => (
     is => 'rw',
     isa => 'Str',
- #   lazy => 1,
+    lazy => 1,
     reader => 'Session_Path',
     writer => '_Session_Path',
+    builder =>'_build_Session_Path'
 );
+
+sub _build_Session_Path {
+  my $self = shift ;
+  return $self->Util_SessionPathGet();
+}
 
 has sweep_prop_configuration => (
     is=>'rw',
