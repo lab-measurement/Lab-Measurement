@@ -21,6 +21,11 @@ use namespace::autoclean;
 
  my $tramea = instrument(
      type => 'NanonisTramea',
+     connection_type => 'Socket',
+     connection_options => { host => '000.000.000.00',
+                             port => '0000',
+                             write_termchar => ''
+                            }
  );
 
 
