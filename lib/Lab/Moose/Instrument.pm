@@ -77,7 +77,7 @@ sub default_connection_options {
         'VISA::USB'  => {},
         Socket       => {},
         Zhinst       => {},
-
+		WWW			 => {},
     };
 }
 
