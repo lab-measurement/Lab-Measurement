@@ -1689,22 +1689,23 @@ sub File_datLoad {
   my $bodysize = 8 + length($file_path);
   my $head = $self->nt_header($command_name,$bodysize,1);
   $self->write(command=>$head.nt_int(length($file_path)).$file_path.nt_int($header_only));
-
-  my $result = $self->binary_read();
-
-  my $original_len = length($result);
-  my $Channel_names_size = unpack('N!', substr $result,40,4);
-  my $Name_number = unpack('N!', substr $result,44,4);
-  my $raw_names = substr $result,48,$Channel_names_size;
+  my $result_head = $self->read(read_length=>40);
+  my $result_size = unpack("N!",substr $result_head,32,4);
+  my $result = $self->read(read_length=>$result_size);
+  my $Channel_names_size = unpack('N!', substr $result,0,4);
+  my $Name_number = unpack('N!', substr $result,4,4);
+  my $raw_names = substr $result,8,$Channel_names_size;
+  #my $raw_names = $self->read(read_length=>$Channel_names_size);
   my %Channel_names = $self->strArrayUnpacker($Name_number,$raw_names);
-  $result = substr($result,-1*(length($result)-48-$Channel_names_size));
+  $result = substr($result,-1*(length($result)-8-$Channel_names_size));
   my $Data_rows  = unpack("N!",substr($result,0,4));
   my $Data_cols  = unpack ("N!",substr($result,4,8));
   my $Data_size  = 4*$Data_cols*$Data_rows;
   my @float2Darray = $self->float32ArrayUnpacker($Data_cols*$Data_rows,substr($result,8,$Data_size));
+  # my $raw_float_array = $self->read(read_length=>$Data_size);
+  # my @float2Darray = $self->float32ArrayUnpacker($Data_cols*$Data_rows,$raw_float_array);
   my $parsed_body = "";
   for(my $index = 0;$index < max(keys %Channel_names);$index++){
-    # print("$index: $Channel_names{$index}\n");
     $parsed_body = $parsed_body.$Channel_names{$index}." ;";
   }
   $parsed_body=$parsed_body."\n";
@@ -1992,13 +1993,12 @@ sub parse_last {
   my $self = shift ;
   my ($destination_path) = validated_list(\@_, path =>{isa=>'Str'});
   my %files = $self->threeDSwp_FilePathsGet();
-  print($files{$_}) foreach keys %files;
   foreach(keys %files){
     my ($filename) = $files{$_} =~ m/([ \w-]+\.dat)/g;
-    print("$filename\n");
     open(my $fh,'>',$destination_path.$filename) or die "Could not open file'$filename' $!";
     print $fh $self->File_datLoad($files{$_},0,15000);
     close $fh;
+    sleep(1);
     print("Parsed $filename\n");
   }  
 }
@@ -2322,7 +2322,7 @@ sub sweep {
 
 
   # PARAMETER CONTROLL FOR Step channel 2
-  if(exists($params{step2_channel_idx})&&exists($params{step2_channel_name}))
+  if(exists($params{step2_channel_idx}) && exists($params{step2_channel_name}))
   {
     croak "Supply either step2_channel_idx or step2_channel_name";
   }
@@ -2376,7 +2376,7 @@ sub sweep {
   }
   else
   {
-    $self->threeDSwp_StpCh2SignalSet("");
+    $self->threeDSwp_StpCh2SignalSet(" ");
   }
 
   if(exists($params{series_name})&& $params{series_name} ne $self->sweep_save_configuration()->{series_name}){
@@ -2387,6 +2387,8 @@ sub sweep {
     $self->sweep_save_configure(comment=>$params{comment});
   }
   $self->threeDSwp_AcqChsSet($params{aquisition_channels});
+  #Still unclear what is happenig here  ://///// 
+  sleep(1);
   $self->threeDSwp_Start();
 
   while($self->threeDSwp_StatusGet()!=0 && $self->threeDSwp_StatusGet()!=2)
