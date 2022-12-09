@@ -1723,6 +1723,7 @@ has sweep_timing_configuration =>(
     reader => 'sweep_timing_configuration',
     writer => '_sweep_timing_configuration',
     builder => '_build_sweep_timing_configuration',
+    clearer =>'reset_swp_timing',
     lazy => 1
 
 );
@@ -1811,6 +1812,7 @@ has step1_timing_configuration =>(
     reader => 'step1_timing_configuration',
     writer => '_step1_timing_configuration',
     builder => '_build_step1_timing_configuration',
+    clearer =>'reset_stp1_timing',
     lazy => 1
 
 );
@@ -1850,6 +1852,7 @@ has step2_timing_configuration =>(
     reader => 'step2_timing_configuration',
     writer => '_step2_timing_configuration',
     builder => '_build_step2_timing_configuration',
+    clearer =>'reset_stp2_timing',
     lazy => 1
 
 );
@@ -1977,11 +1980,94 @@ sub sweep_save_configure {
     die "Invalid create_date value in sweep_save_configure: value must be -1,0 or 1!"
   }
 
-  $self->_sweep_save_configuration(\%params); 
+  $self->_sweep_save_configuration(\%params);
   $self->threeDSwp_SaveOptionsSet($params{series_name},
                                   $params{create_datetime},
                                   $params{comment})
 }
+
+sub sweep_timing_configure {
+  my ($self, %params) =  validated_hash(
+  \@_,
+  initial_settling_time =>{isa=>"Num",optional =>1},
+  settling_time => {isa =>"Num",optional =>1}, 
+  integration_time=> {isa=>"Num",optional =>1},
+  end_settling_time => {isa =>"Num",optional =>1},
+  maximum_slew_rate =>{isa =>"Num",optional =>1}
+  );
+  # NOTE : Here some validation may be necessary, Nanonis does not returrn error if Value is invalid 
+  if(!exists($params{initial_settling_time})){
+      $params{initial_settling_time} = $self->sweep_timing_configuration()->{initial_settling_time};
+  };
+  if(!exists($params{settling_time})){
+      $params{settling_time} = $self->sweep_timing_configuration()->{settling_time};
+  };
+  if(!exists($params{integration_time})){
+      $params{integration_time} = $self->sweep_timing_configuration()->{integration_time};
+  };
+  if(!exists($params{end_settling_time})){
+      $params{end_settling_time} = $self->sweep_timing_configuration()->{end_settling_time};
+  };
+  if(!exists($params{maximum_slew_rate})){
+      $params{maximum_slew_rate} = $self->sweep_timing_configuration()->{maximum_slew_rate};
+  };
+  $self->reset_swp_timing;
+  $self->threeDSwp_SwpChTimingSet( $params{initial_settling_time},
+                                   $params{settling_time},
+                                   $params{integration_time},
+                                   $params{end_settling_time}, 
+                                   $params{maximum_slew_rate})
+
+}
+
+sub step1_timing_configure {
+  my ($self, %params) =  validated_hash(
+  \@_,
+  initial_settling_time =>{isa=>"Num",optional =>1},
+  end_settling_time => {isa =>"Num",optional =>1},
+  maximum_slew_rate =>{isa =>"Num",optional =>1}
+  );
+  # NOTE : Here some validation may be necessary, Nanonis does not returrn error if Value is invalid 
+  if(!exists($params{initial_settling_time})){
+      $params{initial_settling_time} = $self->step1_timing_configuration()->{initial_settling_time};
+  };
+  if(!exists($params{end_settling_time})){
+      $params{end_settling_time} = $self->step1_timing_configuration()->{end_settling_time};
+  };
+  if(!exists($params{maximum_slew_rate})){
+      $params{maximum_slew_rate} = $self->step1_timing_configuration()->{maximum_slew_rate};
+  };
+  $self->reset_stp1_timing;
+  $self->threeDSwp_StpCh1TimingSet( $params{initial_settling_time},
+                                   $params{end_settling_time}, 
+                                   $params{maximum_slew_rate})
+}
+
+sub step2_timing_configure {
+  my ($self, %params) =  validated_hash(
+  \@_,
+  initial_settling_time =>{isa=>"Num",optional =>1},
+  end_settling_time => {isa =>"Num",optional =>1},
+  maximum_slew_rate =>{isa =>"Num",optional =>1}
+  );
+  # NOTE : Here some validation may be necessary, Nanonis does not returrn error if Value is invalid 
+  if(!exists($params{initial_settling_time})){
+      $params{initial_settling_time} = $self->step2_timing_configuration()->{initial_settling_time};
+  };
+  if(!exists($params{end_settling_time})){
+      $params{end_settling_time} = $self->step2_timing_configuration()->{end_settling_time};
+  };
+  if(!exists($params{maximum_slew_rate})){
+      $params{maximum_slew_rate} = $self->step2_timing_configuration()->{maximum_slew_rate};
+  };
+  $self->reset_stp2_timing;
+  $self->threeDSwp_StpCh1TimingSet( $params{initial_settling_time},
+                                   $params{end_settling_time}, 
+                                   $params{maximum_slew_rate})
+}
+
+
+
 
 sub sweep_prop_configure {
   my $self= shift;
