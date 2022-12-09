@@ -1695,15 +1695,12 @@ sub File_datLoad {
   my $Channel_names_size = unpack('N!', substr $result,0,4);
   my $Name_number = unpack('N!', substr $result,4,4);
   my $raw_names = substr $result,8,$Channel_names_size;
-  #my $raw_names = $self->read(read_length=>$Channel_names_size);
   my %Channel_names = $self->strArrayUnpacker($Name_number,$raw_names);
   $result = substr($result,-1*(length($result)-8-$Channel_names_size));
   my $Data_rows  = unpack("N!",substr($result,0,4));
   my $Data_cols  = unpack ("N!",substr($result,4,8));
   my $Data_size  = 4*$Data_cols*$Data_rows;
   my @float2Darray = $self->float32ArrayUnpacker($Data_cols*$Data_rows,substr($result,8,$Data_size));
-  # my $raw_float_array = $self->read(read_length=>$Data_size);
-  # my @float2Darray = $self->float32ArrayUnpacker($Data_cols*$Data_rows,$raw_float_array);
   my $parsed_body = "";
   for(my $index = 0;$index < max(keys %Channel_names);$index++){
     $parsed_body = $parsed_body.$Channel_names{$index}." ;";
@@ -1942,52 +1939,6 @@ sub set_Session_Path {
   }
 }
 
-# Prototype for a file cat
-# deprecated from now daa tranfer functionalities 
-# sub get_filenames {
-#   my($self,%params)= validated_hash(
-#     \@_,
-#     series_name=> {isa=>"Str", optional=>1},
-#     session_path => {isa=>"Str",optional=>1}, 
-#     );
-#   	if(exists($params{session_path}))
-#     {
-#       $self->set_Session_Path(value=>$params{session_path});
-#     } 
-#     if($self->Session_Path() ne '')
-#     {
-#       opendir my $filedir, $self->Session_Path or die "Can not open directory";
-#       my @files = readdir $filedir;
-#       my @selected_files;
-#       if(exists($params{series_name}))
-#       {
-#         foreach(@files)
-#         {
-#           if($_ =~ /^($params{series_name})\d{5}(.dat)/)
-#            {
-#             push  @selected_files, $_;
-#            }
-#         }
-#         return @selected_files; 
-#       }
-#       else
-#       {
-#         foreach(@files)
-#         {
-#           if($_ =~ /[\w\d]\d{5}(.dat)/)
-#            {
-#             push  @selected_files, $_;
-#            }
-#         }
-#         return @selected_files;
-#       }
-#   }
-#   else
-#   {
-#     die "Error: Session_Path is not set";
-#   }
-# }
-
 
 sub parse_last {
   my $self = shift ;
@@ -1998,8 +1949,6 @@ sub parse_last {
     open(my $fh,'>',$destination_path.$filename) or die "Could not open file'$filename' $!";
     print $fh $self->File_datLoad($files{$_},0,15000);
     close $fh;
-    sleep(1);
-    print("Parsed $filename\n");
   }  
 }
 
