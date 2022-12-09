@@ -116,6 +116,7 @@ sub _end_of_com
   if($response_bodysize>0)
   {
     print(substr($response,40,$response_bodysize)."\n");
+    die  "(Proto) Error returned by nanonis software"
   }
 }
 
@@ -1716,6 +1717,28 @@ has sweep_prop_configuration => (
     builder => '_build_sweep_prop_configuration',
 );
 
+has sweep_timing_configuration =>(
+    is=>'rw',
+    isa => 'HashRef',
+    reader => 'sweep_timing_configuration',
+    writer => '_sweep_timing_configuration',
+    builder => '_build_sweep_timing_configuration',
+    lazy => 1
+
+);
+
+sub _build_sweep_timing_configuration {
+  my $self = shift ;
+  my %hash;
+  my @values = $self->threeDSwp_SwpChTimingGet();
+  $hash{initial_settling_time} = $values[0];
+  $hash{settling_time} = $values[1];
+  $hash{integration_time} = $values[2];
+  $hash{end_settling_time} = $values[3];
+  $hash{Maximum_slew_rate} = $values[4];
+  return \%hash;
+}
+
 sub _build_sweep_prop_configuration {
   my $self = shift;
   my %hash;
@@ -1782,6 +1805,27 @@ sub _build_step1_prop_configuration {
   return \%hash;
 }
 
+has step1_timing_configuration =>(
+    is=>'rw',
+    isa => 'HashRef',
+    reader => 'step1_timing_configuration',
+    writer => '_step1_timing_configuration',
+    builder => '_build_step1_timing_configuration',
+    lazy => 1
+
+);
+
+sub _build_step1_timing_configuration {
+  my $self = shift ;
+  my %hash;
+  my @values = $self->threeDSwp_StpCh1TimingGet;
+  $hash{initial_settling_time} = $values[0];
+  $hash{end_settling_time} = $values[1];
+  $hash{Maximum_slew_rate} = $values[2];
+  return \%hash;
+}
+
+
 has step2_prop_configuration => (
     is=>'rw',
     isa => 'HashRef',
@@ -1799,6 +1843,27 @@ sub _build_step2_prop_configuration {
   $hash{at_end_val}=0;
   return \%hash;
 }
+
+has step2_timing_configuration =>(
+    is=>'rw',
+    isa => 'HashRef',
+    reader => 'step2_timing_configuration',
+    writer => '_step2_timing_configuration',
+    builder => '_build_step2_timing_configuration',
+    lazy => 1
+
+);
+
+sub _build_step2_timing_configuration {
+  my $self = shift ;
+  my %hash;
+  my @values = $self->threeDSwp_StpCh2TimingGet;
+  $hash{initial_settling_time} = $values[0];
+  $hash{end_settling_time} = $values[1];
+  $hash{Maximum_slew_rate} = $values[2];
+  return \%hash;
+}
+
 
 has sweep_save_configuration => (
     is=>'rw',
