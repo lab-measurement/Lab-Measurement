@@ -10,6 +10,7 @@ use MooseX::Params::Validate;
 use Carp;
 use PDL::Core;
 use PDL::IO::CSV ":all";
+use List::Util qw(max);
 use Lab::Moose::Instrument qw/
     validated_getter validated_setter/;
 extends 'Lab::Moose::Instrument';
@@ -118,6 +119,7 @@ sub _end_of_com
     print(substr($response,40,$response_bodysize)."\n");
     die  "(Proto) Error returned by nanonis software"
   }
+  return $response
 }
 
 =head2 strArrayUnpacker
@@ -653,13 +655,14 @@ sub threeDSwp_SwpChTimingSet {
   my ($Initial_settling_time_s,$Settling_time_s,$Integration_time_s,$End_settling_time_s,$Maximum_slw_rate)= @_;
   my $command_name= "3dswp.swpchtimingset";
   my $bodysize = 20;
-  my $head= $self->nt_header($command_name,$bodysize,0);
+  my $head= $self->nt_header($command_name,$bodysize,1);
   my $body=nt_float32($Initial_settling_time_s);
   $body=$body.nt_float32($Settling_time_s);
   $body=$body.nt_float32($Integration_time_s);
   $body=$body.nt_float32($End_settling_time_s);
   $body=$body.nt_float32($Maximum_slw_rate);
   $self->write(command=>$head.$body);
+  $self->_end_of_com();
 }
 
 sub threeDSwp_SwpChTimingGet {
@@ -782,6 +785,7 @@ sub threeDSwp_StpCh1TimingSet {
   $body=$body.nt_float32($End_settling_time_s);
   $body=$body.nt_float32($Maximum_slw_rate);
   $self->write(command=>$head.$body);
+  $self->_end_of_com();
 }
 
 sub threeDSwp_StpCh1TimingGet {
@@ -1680,13 +1684,37 @@ sub File_datLoad {
   my $self = shift;
   my $file_path = shift;
   my $header_only = shift;
+  my $read_length = shift ;
   my $command_name = "file.datload";
   my $bodysize = 8 + length($file_path);
   my $head = $self->nt_header($command_name,$bodysize,1);
   $self->write(command=>$head.nt_int(length($file_path)).$file_path.nt_int($header_only));
-  print($self->binary_read());
 
+  my $result = $self->binary_read();
 
+  my $original_len = length($result);
+  my $Channel_names_size = unpack('N!', substr $result,40,4);
+  my $Name_number = unpack('N!', substr $result,44,4);
+  my $raw_names = substr $result,48,$Channel_names_size;
+  my %Channel_names = $self->strArrayUnpacker($Name_number,$raw_names);
+  $result = substr($result,-1*(length($result)-48-$Channel_names_size));
+  my $Data_rows  = unpack("N!",substr($result,0,4));
+  my $Data_cols  = unpack ("N!",substr($result,4,8));
+  my $Data_size  = 4*$Data_cols*$Data_rows;
+  my @float2Darray = $self->float32ArrayUnpacker($Data_cols*$Data_rows,substr($result,8,$Data_size));
+  my $parsed_body = "";
+  for(my $index = 0;$index < max(keys %Channel_names);$index++){
+    # print("$index: $Channel_names{$index}\n");
+    $parsed_body = $parsed_body.$Channel_names{$index}." ;";
+  }
+  $parsed_body=$parsed_body."\n";
+  for (my $index = 0; $index< scalar(@float2Darray);$index++){
+    $parsed_body=$parsed_body.$float2Darray[$index]." ;";
+    if(($index+1)%$Data_cols == 0){
+      $parsed_body=$parsed_body."\n";
+    }
+  }
+  return $parsed_body;
 }
 
 =head1 High Level COM
@@ -1913,50 +1941,66 @@ sub set_Session_Path {
   }
 }
 
-#Prototype for a file cat
+# Prototype for a file cat
+# deprecated from now daa tranfer functionalities 
+# sub get_filenames {
+#   my($self,%params)= validated_hash(
+#     \@_,
+#     series_name=> {isa=>"Str", optional=>1},
+#     session_path => {isa=>"Str",optional=>1}, 
+#     );
+#   	if(exists($params{session_path}))
+#     {
+#       $self->set_Session_Path(value=>$params{session_path});
+#     } 
+#     if($self->Session_Path() ne '')
+#     {
+#       opendir my $filedir, $self->Session_Path or die "Can not open directory";
+#       my @files = readdir $filedir;
+#       my @selected_files;
+#       if(exists($params{series_name}))
+#       {
+#         foreach(@files)
+#         {
+#           if($_ =~ /^($params{series_name})\d{5}(.dat)/)
+#            {
+#             push  @selected_files, $_;
+#            }
+#         }
+#         return @selected_files; 
+#       }
+#       else
+#       {
+#         foreach(@files)
+#         {
+#           if($_ =~ /[\w\d]\d{5}(.dat)/)
+#            {
+#             push  @selected_files, $_;
+#            }
+#         }
+#         return @selected_files;
+#       }
+#   }
+#   else
+#   {
+#     die "Error: Session_Path is not set";
+#   }
+# }
 
-sub get_filenames {
-  my($self,%params)= validated_hash(
-    \@_,
-    series_name=> {isa=>"Str", optional=>1},
-    session_path => {isa=>"Str",optional=>1}, 
-    );
-  	if(exists($params{session_path}))
-    {
-      $self->set_Session_Path(value=>$params{session_path});
-    } 
-    if($self->Session_Path() ne '')
-    {
-      opendir my $filedir, $self->Session_Path or die "Can not open directory";
-      my @files = readdir $filedir;
-      my @selected_files;
-      if(exists($params{series_name}))
-      {
-        foreach(@files)
-        {
-          if($_ =~ /^($params{series_name})\d{5}(.dat)/)
-           {
-            push  @selected_files, $_;
-           }
-        }
-        return @selected_files; 
-      }
-      else
-      {
-        foreach(@files)
-        {
-          if($_ =~ /[\w\d]\d{5}(.dat)/)
-           {
-            push  @selected_files, $_;
-           }
-        }
-        return @selected_files;
-      }
-  }
-  else
-  {
-    die "Error: Session_Path is not set";
-  }
+
+sub parse_last {
+  my $self = shift ;
+  my ($destination_path) = validated_list(\@_, path =>{isa=>'Str'});
+  my %files = $self->threeDSwp_FilePathsGet();
+  print($files{$_}) foreach keys %files;
+  foreach(keys %files){
+    my ($filename) = $files{$_} =~ m/([ \w-]+\.dat)/g;
+    print("$filename\n");
+    open(my $fh,'>',$destination_path.$filename) or die "Could not open file'$filename' $!";
+    print $fh $self->File_datLoad($files{$_},0,15000);
+    close $fh;
+    print("Parsed $filename\n");
+  }  
 }
 
 sub sweep_save_configure {
