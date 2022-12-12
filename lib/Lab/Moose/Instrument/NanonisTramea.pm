@@ -11,6 +11,7 @@ use Carp;
 use PDL::Core;
 use PDL::IO::CSV ":all";
 use List::Util qw(max);
+use Lab::Moose;
 use Lab::Moose::Instrument qw/
     validated_getter validated_setter/;
 extends 'Lab::Moose::Instrument';
@@ -1688,35 +1689,63 @@ sub File_datLoad {
   my $self = shift;
   my $file_path = shift;
   my $header_only = shift;
-  my $read_length = shift ;
   my $command_name = "file.datload";
   my $bodysize = 8 + length($file_path);
   my $head = $self->nt_header($command_name,$bodysize,1);
+  # MISSING: Do not try to read column names and data if you are not asking for it 
   $self->write(command=>$head.nt_int(length($file_path)).$file_path.nt_int($header_only));
+
   my $result_head = $self->read(read_length=>40);
   my $result_size = unpack("N!",substr $result_head,32,4);
+
   my $result = $self->read(read_length=>$result_size);
   my $Channel_names_size = unpack('N!', substr $result,0,4);
   my $Name_number = unpack('N!', substr $result,4,4);
   my $raw_names = substr $result,8,$Channel_names_size;
   my %Channel_names = $self->strArrayUnpacker($Name_number,$raw_names);
+
   $result = substr($result,-1*(length($result)-8-$Channel_names_size));
+
   my $Data_rows  = unpack("N!",substr($result,0,4));
   my $Data_cols  = unpack ("N!",substr($result,4,8));
   my $Data_size  = 4*$Data_cols*$Data_rows;
   my @float2Darray = $self->float32ArrayUnpacker($Data_cols*$Data_rows,substr($result,8,$Data_size));
-  my $parsed_body = "";
-  for(my $index = 0;$index < max(keys %Channel_names);$index++){
-    $parsed_body = $parsed_body.$Channel_names{$index}." ;";
+
+  my @channel_names;
+  my $pdl = zeros($Data_rows,$Data_cols);
+  for(my $index = 0;$index <=max(keys %Channel_names);$index++){  
+    push @channel_names,$Channel_names{$index};
   }
-  $parsed_body=$parsed_body."\n";
+  my $row_num = 0 ;
+  my $col_num = 0 ;
   for (my $index = 0; $index< scalar(@float2Darray);$index++){
-    $parsed_body=$parsed_body.$float2Darray[$index]." ;";
+    $pdl->slice("$row_num,$col_num") .=$float2Darray[$index];
+    $col_num+=1;
     if(($index+1)%$Data_cols == 0){
-      $parsed_body=$parsed_body."\n";
+      $row_num+=1;
+      $col_num = 0 ;
     }
   }
-  return $parsed_body;
+
+
+  # Header Stuff
+  #Return hash (?)
+  my %head;
+
+  $result = substr($result,-1*(length($result)-8-$Data_size));
+  my $Header_rows = unpack("N!", substr $result,0,4);
+  my $Header_col = unpack("N!", substr $result,4,4);
+  my %strings = $self->strArrayUnpacker($Header_rows*$Header_col-1,substr $result,-1*(length($result)-8));
+  my $value_buffer="";
+  for(my $index = 0; $index <= max(keys %strings)-1;$index+=$Header_col)
+  {
+    for(my $idx2 = 1; $idx2<$Header_col;$idx2++){
+      $value_buffer = $value_buffer.$strings{$index+$idx2};
+    }
+    $head{$strings{$index}} = $value_buffer;
+    $value_buffer ="";
+  }
+  return $pdl,\@channel_names,\%head,
 }
 
 =head1 High Level COM
@@ -1944,16 +1973,46 @@ sub set_Session_Path {
 }
 
 
-sub parse_last {
-  my $self = shift ;
-  my ($destination_path) = validated_list(\@_, path =>{isa=>'Str'});
+sub load_data {
+ my($self,%params) = validated_hash(
+  \@_,
+  file_origin => {isa=>"Str"},
+  return_head => {isa=>"Bool", default => 0},
+  return_colnames => {isa=>"Bool", default => 1},
+  return_raw => {isa =>"Bool",default =>0}
+ );
+ my %to_return;
+ my ($pdl,$cols_ref,$head) = $self->File_datLoad($params{file_origin},0);
+
+ if($params{return_raw} == 1){
+  #this shall return a string version of the parsed data
+ }
+ else{
+    $to_return{pdl}= $pdl;
+    if ($params{return_head} == 1){
+
+      $to_return{cols}=$cols_ref;
+    }
+    if ($params{return_colnames} == 1){
+
+      $to_return{header}=$head;
+
+    }
+    return \%to_return;  
+ }
+
+}
+
+sub parse_last_measurement {
+  my ($self,%params) = validated_hash(\@_,
+      folder=>{isa=>'Lab::Moose::DataFolder'});
   my %files = $self->threeDSwp_FilePathsGet();
   foreach(keys %files){
     my ($filename) = $files{$_} =~ m/([ \w-]+\.dat)/g;
-    open(my $fh,'>',$destination_path.$filename) or die "Could not open file'$filename' $!";
-    print $fh $self->File_datLoad($files{$_},0,15000);
-    close $fh;
-  }  
+    my $data_hash = $self->load_data(file_origin => $files{$_},return_head=>1,return_colnames=>1);
+    my $new_datafile = datafile(filename => $filename,folder=>$params{folder},columns=>$data_hash->{cols});
+    $new_datafile->log_block(block=>$data_hash->{pdl});
+  }
 }
 
 sub sweep_save_configure {
@@ -2203,7 +2262,7 @@ sub step2_prop_configure {
                                   $params{at_end_val});  
 }
 
-sub sweep {
+sub nanonis_sweep {
   my ($self, %params) = validated_hash(
     \@_,
     sweep_channel => {isa => "Int"},
@@ -2349,72 +2408,73 @@ sub sweep {
     sleep(0.1);
   }
 }
+### To be deprecated!
 
-sub to_pdl_1D{
-    my ($self,%params) =  validated_hash(
-      \@_,
-      file_name=>{isa => "Str"},
-      session_path=>{isa => "Str", optional =>1},
-    );
+# sub to_pdl_1D{
+#     my ($self,%params) =  validated_hash(
+#       \@_,
+#       file_name=>{isa => "Str"},
+#       session_path=>{isa => "Str", optional =>1},
+#     );
 
-    #check for file existence
-    if(exists($params{session_path}))
-    {
-      $self->set_Session_Path(value=>$params{session_path});
-    } 
-    if($self->Session_Path() ne '')
-    {
-      if(-s $self->Session_Path().'/'.$params{file_name})
-      {
-        my $startdata = 0;
-        my @x_col = ();
-        my @y_col  = ();
-        my $EOF=1; 
-        my $buffer_line;
-        my @col_names;
-        my @cols;
-        open(my $fa,'<',$self->Session_Path().'/'.$params{file_name});
-        while($EOF)
-        {
-          $buffer_line=<$fa>;
-          if($buffer_line)
-          {
-              if ($buffer_line =~ /(\[DATA])/){
-                  $buffer_line = <$fa>;
-                  @col_names = (split "\t",$buffer_line);
-                  $buffer_line=<$fa>;
-                  $startdata = 1;
-              }
-              if ($startdata==1){ 
-                  my @buffer = split(" ",$buffer_line);
+#     #check for file existence
+#     if(exists($params{session_path}))
+#     {
+#       $self->set_Session_Path(value=>$params{session_path});
+#     } 
+#     if($self->Session_Path() ne '')
+#     {
+#       if(-s $self->Session_Path().'/'.$params{file_name})
+#       {
+#         my $startdata = 0;
+#         my @x_col = ();
+#         my @y_col  = ();
+#         my $EOF=1; 
+#         my $buffer_line;
+#         my @col_names;
+#         my @cols;
+#         open(my $fa,'<',$self->Session_Path().'/'.$params{file_name});
+#         while($EOF)
+#         {
+#           $buffer_line=<$fa>;
+#           if($buffer_line)
+#           {
+#               if ($buffer_line =~ /(\[DATA])/){
+#                   $buffer_line = <$fa>;
+#                   @col_names = (split "\t",$buffer_line);
+#                   $buffer_line=<$fa>;
+#                   $startdata = 1;
+#               }
+#               if ($startdata==1){ 
+#                   my @buffer = split(" ",$buffer_line);
 
-                  for(my $index=0;$index<scalar(@buffer);$index++)
-                  {
-                    push(@{$cols[$index]},$buffer[$index]);
-                  }
-              }
-          }
-          else
-          {
-              $EOF=0;
-          }
-        }
-        close($fa);
-        #my $new_pdl = pdl(pdl(@x_col),pdl(@y_col));
-        my $new_pdl = pdl(@cols);
-        return $new_pdl,@col_names; 
-      }
-      else
-      {
-        die "File not found at ".$self->Session_Path()."/".$params{file_name};
-      }
-    }
-    else
-    {
-      die "Error: Session_Path is not set";
-    }
-  return 0;
-  }
+#                   for(my $index=0;$index<scalar(@buffer);$index++)
+#                   {
+#                     push(@{$cols[$index]},$buffer[$index]);
+#                   }
+#               }
+#           }
+#           else
+#           {
+#               $EOF=0;
+#           }
+#         }
+#         close($fa);
+#         #my $new_pdl = pdl(pdl(@x_col),pdl(@y_col));
+#         my $new_pdl = pdl(@cols);
+#         return $new_pdl,@col_names; 
+#       }
+#       else
+#       {
+#         die "File not found at ".$self->Session_Path()."/".$params{file_name};
+#       }
+#     }
+#     else
+#     {
+#       die "Error: Session_Path is not set";
+#     }
+#   return 0;
+#   }
  
 __PACKAGE__->meta()->make_immutable();
 
