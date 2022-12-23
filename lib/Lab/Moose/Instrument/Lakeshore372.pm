@@ -213,7 +213,7 @@ sub set_setpoint {
     my $loop = delete $args{loop} // $self->default_loop;
 
     # Device bug. The 340 cannot parse values with too many digits.
-    $value = sprintf( "%.6G", $value );
+    $value = sprintf( "%.6E", $value );
     $self->write( command => "SETP $loop,$value", %args );
 }
 
