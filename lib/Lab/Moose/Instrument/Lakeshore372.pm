@@ -42,7 +42,7 @@ sub BUILD {
     $self->cls();
 }
 
-my %channel_arg = ( channel => { isa => enum( [ 'A', 1 .. 16 ] ) } );
+my %channel_arg = ( channel => { isa => enum( [ 'A', 1 .. 16 ] ), optional => 1} );
 my %loop_arg    = ( loop    => { isa => enum( [ 0,   1 ] ), optional => 1 } );
 my %output_arg  = ( output  => { isa => enum( [ 0,   1, 2 ] ) } );
 
