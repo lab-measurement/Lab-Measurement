@@ -2002,6 +2002,26 @@ sub load_data {
 
 }
 
+# Function prototype to add sweep functionalities 
+
+sub load_last_measurement_2D {
+  my($self,%params) = validated_hash(
+  \@_,
+  return_head => {isa=>"Bool", default => 0},
+  return_colnames => {isa=>"Bool", default => 1},
+  return_raw => {isa =>"Bool",default =>0}
+ );
+  my %files = $self->threeDSwp_FilePathsGet();
+ if(scalar(keys %files)>1)
+ {
+   croak "Last Measurement was not a 2D swep, number of files recived: ".scalar(keys %files) ;
+ }
+ else
+ {
+    return $self->load_data(file_origin=>$files{0}, return_head=>$params{return_head},return_colnames=>$params{return_colnames});
+ }
+}
+
 sub parse_last_measurement {
   my ($self,%params) = validated_hash(\@_,
       folder=>{isa=>'Lab::Moose::DataFolder'});
@@ -2261,7 +2281,7 @@ sub step2_prop_configure {
                                   $params{at_end_val});  
 }
 
-sub nanonis_sweep {
+sub tramea_sweep {
   my ($self, %params) = validated_hash(
     \@_,
     sweep_channel => {isa => "Int"},
@@ -2279,7 +2299,8 @@ sub nanonis_sweep {
     point_number_step1 =>{isa=>"Int", optional=>1},
     point_number_step2 =>{isa=>"Int", optional=>1},
     series_name => {isa=> "Str", optional=>1},
-    comment => {isa=>"Str", optional =>1}
+    comment => {isa=>"Str", optional =>1},
+    load => {isa=>"Bool", default=>1}
   );
   
 
@@ -2406,75 +2427,11 @@ sub nanonis_sweep {
   {
     sleep(0.1);
   }
+  if($params{load}==1)
+  {
+    return $self->load_last_measurement_2D();
+  }
 }
-### To be deprecated!
-
-# sub to_pdl_1D{
-#     my ($self,%params) =  validated_hash(
-#       \@_,
-#       file_name=>{isa => "Str"},
-#       session_path=>{isa => "Str", optional =>1},
-#     );
-
-#     #check for file existence
-#     if(exists($params{session_path}))
-#     {
-#       $self->set_Session_Path(value=>$params{session_path});
-#     } 
-#     if($self->Session_Path() ne '')
-#     {
-#       if(-s $self->Session_Path().'/'.$params{file_name})
-#       {
-#         my $startdata = 0;
-#         my @x_col = ();
-#         my @y_col  = ();
-#         my $EOF=1; 
-#         my $buffer_line;
-#         my @col_names;
-#         my @cols;
-#         open(my $fa,'<',$self->Session_Path().'/'.$params{file_name});
-#         while($EOF)
-#         {
-#           $buffer_line=<$fa>;
-#           if($buffer_line)
-#           {
-#               if ($buffer_line =~ /(\[DATA])/){
-#                   $buffer_line = <$fa>;
-#                   @col_names = (split "\t",$buffer_line);
-#                   $buffer_line=<$fa>;
-#                   $startdata = 1;
-#               }
-#               if ($startdata==1){ 
-#                   my @buffer = split(" ",$buffer_line);
-
-#                   for(my $index=0;$index<scalar(@buffer);$index++)
-#                   {
-#                     push(@{$cols[$index]},$buffer[$index]);
-#                   }
-#               }
-#           }
-#           else
-#           {
-#               $EOF=0;
-#           }
-#         }
-#         close($fa);
-#         #my $new_pdl = pdl(pdl(@x_col),pdl(@y_col));
-#         my $new_pdl = pdl(@cols);
-#         return $new_pdl,@col_names; 
-#       }
-#       else
-#       {
-#         die "File not found at ".$self->Session_Path()."/".$params{file_name};
-#       }
-#     }
-#     else
-#     {
-#       die "Error: Session_Path is not set";
-#     }
-#   return 0;
-#   }
- 
 __PACKAGE__->meta()->make_immutable();
 
 1;
