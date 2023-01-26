@@ -260,7 +260,6 @@ sub oneDSwp_SwpSignalGet {
 
     if (($option eq "select") == 1){
         my $selected = substr $response,44,$strlen;
-        # print($selected,"\n");
     }
     elsif (($option eq "info")==1){
       my $elementNum = unpack("N!", substr $response,48+$strlen,4);
@@ -1695,10 +1694,10 @@ sub File_datLoad {
   # MISSING: Do not try to read column names and data if you are not asking for it 
   $self->write(command=>$head.nt_int(length($file_path)).$file_path.nt_int($header_only));
 
-  my $result_head = $self->read(read_length=>40);
+  my $result_head = $self->binary_read(read_length=>40);
   my $result_size = unpack("N!",substr $result_head,32,4);
 
-  my $result = $self->read(read_length=>$result_size);
+  my $result = $self->binary_read(read_length=>$result_size);
   my $Channel_names_size = unpack('N!', substr $result,0,4);
   my $Name_number = unpack('N!', substr $result,4,4);
   my $raw_names = substr $result,8,$Channel_names_size;
@@ -1991,11 +1990,11 @@ sub load_data {
     $to_return{pdl}= $pdl;
     if ($params{return_head} == 1){
 
-      $to_return{cols}=$cols_ref;
+      $to_return{header}=$head;
     }
     if ($params{return_colnames} == 1){
 
-      $to_return{header}=$head;
+      $to_return{cols}=$cols_ref;
 
     }
     return \%to_return;  
