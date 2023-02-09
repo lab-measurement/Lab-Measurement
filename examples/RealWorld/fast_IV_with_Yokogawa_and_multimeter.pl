@@ -103,7 +103,7 @@ $dmm->write(command => 'SENS:VOLT:ZERO:AUTO OFF'); # disable auto zero alogrithm
 $dmm->sense_range(value => 10); # ensure manual range
 
 # trigger setup
-$dmm->sense_nplc(value => 0.06);
+$dmm->sense_nplc(value => $nplc);
 $dmm->write(command => "SAMP:COUN  $num_readings"); # measure 25000 points
 $dmm->write(command => 'SAMP:SOUR TIM'); # defined time between samples
 $dmm->write(command => "SAMP:TIM $sample_time");
