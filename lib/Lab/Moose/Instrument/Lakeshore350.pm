@@ -36,7 +36,8 @@ sub BUILD {
     $self->cls();
 }
 
-my %channel_arg = ( channel => { isa => enum( [qw/ A B C D/] ) } );
+my %channel_arg
+    = ( channel => { isa => enum( [qw/ A B C D/] ), optional => 1 } );
 my %loop_arg = ( loop => { isa => enum( [ 1, 2, 3, 4 ] ), optional => 1 } );
 my %output_arg = ( output => { isa => enum( [ 1, 2, 3, 4 ] ) } );
 
@@ -609,8 +610,7 @@ sub set_curve_header {
     my ( $curve, $name, $SN, $format, $limit, $coefficient )
         = delete @args{qw/curve name SN format limit coefficient/};
     $self->write(
-        command =>
-            "CRVHDR $curve, \"$name\", \"$SN\", $format, $limit, $coefficient",
+        command => "CRVHDR $curve, $name, $SN, $format, $limit, $coefficient",
         %args
     );
 }
