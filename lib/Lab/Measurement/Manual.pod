@@ -152,6 +152,8 @@ alias: L<Lab::Moose::Instrument::Agilent34410A>
 
 =item * L<Lab::Moose::Instrument::KeysightE3633E>
 
+=item * L<Lab::Moose::Instrument::Agilent33120A>
+
 =item * L<Lab::Moose::Instrument::DummySource>
 
 =back
@@ -286,6 +288,8 @@ contains support for temperature sensor and He/N2 level meters.
 =item * L<Lab::Moose::Instrument::Keysight33600>
 
 =item * L<Lab::Moose::Instrument::HP83732A>
+
+=item * L<Lab::Moose::Instrument::Agilent33120A>
 
 =back
 
