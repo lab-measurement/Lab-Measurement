@@ -117,7 +117,7 @@ sub set_amplitude {
         value  => { isa => 'Num' },
     );
 
-    $self->write( command => sprintf("VOLTage %d V", $value) );
+    $self->write( command => sprintf("VOLTage %e V", $value) );
 }
 
 =head2 get_amplitude
@@ -144,7 +144,7 @@ sub set_offset {
         value  => { isa => 'Num' },
     );
 
-    $self->write( command => sprintf("VOLTage:OFFSet %d V", $value) );
+    $self->write( command => sprintf("VOLTage:OFFSet %e V", $value) );
 }
 
 =head2 get_offset
