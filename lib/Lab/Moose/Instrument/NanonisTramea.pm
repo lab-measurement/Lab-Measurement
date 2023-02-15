@@ -2004,24 +2004,107 @@ sub load_data {
 
 # Function prototype to add sweep functionalities 
 
-sub load_last_measurement_2D {
+sub load_pdl_2D {
   my($self,%params) = validated_hash(
   \@_,
-  return_head => {isa=>"Bool", default => 0},
-  return_colnames => {isa=>"Bool", default => 1},
-  return_raw => {isa =>"Bool",default =>0}
+  file_origin => {isa=> "Str"},
+  acq_number => {isa =>"Int", optional => 1},
+  format => {isa =>"Bool", optional =>1, depends=>['acq_number','lower_limit_step1','upper_limit_step1']},
+  lower_limit_step1 =>{isa =>"Num", optional=>1},
+  upper_limit_step1 =>{isa=>"Num",optional=>1},
+
  );
-  my %files = $self->threeDSwp_FilePathsGet();
- if(scalar(keys %files)>1)
- {
-   croak "Last Measurement was not a 2D swep, number of files recived: ".scalar(keys %files) ;
- }
- else
- {
-    return $self->load_data(file_origin=>$files{0}, return_head=>$params{return_head},return_colnames=>$params{return_colnames});
- }
+
+  my $pdl = $self->load_data(file_origin=>$params{file_origin},return_colnames=>0)->{pdl};
+  # print($pdl);
+  if(exists($params{format}) &&  $params{format} == 1)
+  {
+    my @dims = $pdl->dims;
+    my $swp_point_number = $dims[0];
+    my $stp1_point_number = ($dims[1]-1)/$params{acq_number};
+    my $stp1_values = zeroes($stp1_point_number)->xlinvals($params{lower_limit_step1},$params{upper_limit_step1});
+    my $formatted_pdl = zeroes($stp1_point_number,$dims[0],$params{acq_number}+2);
+    my @newDims = $formatted_pdl->dims;
+    my $col_start;
+    my $col_end;
+    my $col_end2;
+    for( my $index = 0; $index < $stp1_point_number ;$index++)
+    {
+      $col_start= $params{acq_number}*$index + 1;
+      $col_end= $params{acq_number}*$index + $params{acq_number};
+      $col_end2 = $params{acq_number}+1;
+      $stp1_values->at($index);
+      $formatted_pdl->slice("($index),:,(0)")+= $stp1_values->at($index);
+      $formatted_pdl->slice("($index),:,(1)")+= $pdl->slice(":,(0)");
+      $formatted_pdl->slice("($index),:,2:$col_end2") += $pdl->slice(":,$col_start:$col_end");
+    }
+    return $formatted_pdl;
+  }
+  else
+  {
+    return $pdl;
+  }
 }
 
+
+# Multidimensional load prototype
+
+sub load_last_measurement {
+  my($self,%params) = validated_hash(
+  \@_,
+  acq_number => {isa=>"Int"},
+  lower_limit_step1 =>{isa => "Num",optional=>1},
+  upper_limit_step1 =>{isa => "Num",optional=>1},
+  point_number_step1 => {isa=>"Int",optional => 1},
+  lower_limit_step2 =>{isa => "Num",optional=>1},
+  upper_limit_step2 =>{isa => "Num",optional=>1},
+  point_number_step2 => {isa=>"Int",optional=>1},
+ );
+  my %files = $self->threeDSwp_FilePathsGet();
+  if(scalar(keys %files)>1)
+  {
+    # Detected use of step2
+    if(exists($params{point_number_step2}) && exists($params{upper_limit_step2}) && exists($params{lower_limit_step2}))
+    {
+      my @files_ordered;
+      my @ordered = sort(keys %files);
+      push @files_ordered, $files{$_} foreach @ordered;
+      foreach(@files_ordered)
+      {
+        
+        my $return_hash = $self->load_data(file_origin=>$files{0},return_colnames=>0);
+        my @dims = $return_hash->{pdl}->dims;
+
+        # my @dim =  $return_hash->{pdl}
+        # print(%return_hash{pdl});
+        # print("\n\n");
+      }
+    }
+    else
+    {
+      my $list = "";
+      if(!exists($params{point_number_step2}))
+      {
+        $list= $list." point_number_step2";
+      }
+      if(!exists($params{lower_limit_step2}))
+      {
+        $list= $list." lower_limit_step2";
+      }
+
+      if(!exists($params{upper_limit_step2}))
+      {
+        $list= $list." upper_limit_step2";
+      }
+      croak "Use of step channel 2 detected but following parameters where not supplied:".$list; 
+    }
+  }
+  
+  #return $self->load_data(file_origin=>$files{0}, return_head=>$params{return_head},return_colnames=>$params{return_colnames});
+}
+
+
+# Probably to be deprecated 
 sub parse_last_measurement {
   my ($self,%params) = validated_hash(\@_,
       folder=>{isa=>'Lab::Moose::DataFolder'});
@@ -2429,7 +2512,7 @@ sub tramea_sweep {
   }
   if($params{load}==1)
   {
-    return $self->load_last_measurement_2D();
+    # return $self->load_last_measurement_2D();
   }
 }
 __PACKAGE__->meta()->make_immutable();
