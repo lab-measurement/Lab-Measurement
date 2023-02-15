@@ -8,7 +8,7 @@ use Moose;
 use Moose::Util::TypeConstraints;
 use MooseX::Params::Validate;
 use Lab::Moose::Instrument
-    qw/validated_getter validated_channel_getter validated_channel_setter /;
+    qw/validated_getter validated_setter validated_channel_getter validated_channel_setter /;
 use Lab::Moose::Instrument::Cache;
 use Carp;
 use namespace::autoclean;
@@ -94,6 +94,19 @@ sub sparam_sweep_data {
  my $data = $zva->sparam_sweep(timeout => 10);
 
 =cut
+
+
+sub set_power {
+    my ( $self, $value, %args ) = validated_setter( \@_ );
+    $self->source_power_level_immediate_amplitude( value => $value );	
+}
+
+sub get_power {
+	my $self = shift;
+	return $self->source_power_level_immediate_amplitude_query();	
+}
+
+
 
 =head1 METHODS
 
