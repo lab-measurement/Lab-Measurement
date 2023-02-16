@@ -1977,38 +1977,34 @@ sub set_Session_Path {
 
 
 sub load_data {
- my($self,%params) = validated_hash(
-  \@_,
-  file_origin => {isa=>"Str"},
-  return_head => {isa=>"Bool", default => 0},
-  return_colnames => {isa=>"Bool", default => 1},
-  return_raw => {isa =>"Bool",default =>0}
- );
- my %to_return;
- my ($pdl,$cols_ref,$head) = $self->File_datLoad($params{file_origin},0);
+  my($self,%params) = validated_hash(
+         \@_,
+         file_origin => {isa=>"Str"},
+         return_pdl => {isa=>"Bool", default => 1},
+         return_head => {isa=>"Bool", default => 0},
+         return_colnames => {isa=>"Bool", default => 1},
+         );
+  my %to_return;
+  my ($pdl,$cols_ref,$head) = $self->File_datLoad($params{file_origin},0);
 
- if($params{return_raw} == 1){
-  #this shall return a string version of the parsed data
- }
- else{
+  if($params{return_pdl}==1)
+  {
     $to_return{pdl}= $pdl;
-    if ($params{return_head} == 1){
-
-      $to_return{header}=$head;
-    }
-    if ($params{return_colnames} == 1){
-
-      $to_return{cols}=$cols_ref;
-
-    }
-    return \%to_return;  
- }
-
+  }
+  if ($params{return_head} == 1)
+  {
+    $to_return{header}=$head;
+  }
+  if ($params{return_colnames} == 1)
+  {
+    $to_return{cols}=$cols_ref;
+  }
+  return \%to_return;  
 }
 
 # Function prototype to add sweep functionalities 
 
-sub load_pdl_2D {
+sub load_pdl {
   my($self,%params) = validated_hash(
   \@_,
   file_origin => {isa=> "Str"},
@@ -2034,7 +2030,9 @@ sub load_pdl_2D {
     # print("Detected Number of acq_number: $acq_number \n");
     # Now lets try and get the extremes of the stp1 channel from header
     my $stp1_start;
-    my $stp1_stop; 
+    my $stp1_stop;
+    my $using_stp2 =0;
+    my $stp2_level; 
     foreach(keys %head)
     {
       if($_=~ m/(?:Step\schannel\s1:\sStart)/)
@@ -2045,8 +2043,13 @@ sub load_pdl_2D {
       {
   	      $stp1_stop = $head{$_} +0;
       }
+      if($_=~m/(?:Step\schannel\s2\s[\w():\s]*\sLevel)/)
+      {
+        $using_stp2 = 1;
+        $stp2_level = $head{$_}+0;
+      }
     }
-    # finaly lets format the pdl
+    # lets format the pdl,2D
     my @dims = $pdl->dims;
     my $swp_point_number = $dims[0];
     my $stp1_values = zeroes($stp1_point_number)->xlinvals($stp1_start,$stp1_stop);
@@ -2065,7 +2068,21 @@ sub load_pdl_2D {
       $formatted_pdl->slice("($index),:,(1)")+= $pdl->slice(":,(0)");
       $formatted_pdl->slice("($index),:,2:$col_end2") += $pdl->slice(":,$col_start:$col_end");
     }
-    return $formatted_pdl;
+    # Now lets check if the sweep was using stpch2
+    if($using_stp2)
+    {
+      my $inflated_pdl = zeroes($stp1_point_number,$dims[0],$acq_number+3);
+      for( my $index = 0; $index < $stp1_point_number ;$index++)
+      {
+        $inflated_pdl->slice("($index),:,(0)")+=$stp2_level;
+        $inflated_pdl->slice("($index),:,1:-1")+= $formatted_pdl->slice("($index),:,:");
+      }
+      return $inflated_pdl;
+    }
+    else
+    {
+      return $formatted_pdl;
+    }
   }
   else
   {
@@ -2077,57 +2094,27 @@ sub load_pdl_2D {
 # Multidimensional load prototype
 
 sub load_last_measurement {
-  my($self,%params) = validated_hash(
-  \@_,
-  acq_number => {isa=>"Int"},
-  lower_limit_step1 =>{isa => "Num",optional=>1},
-  upper_limit_step1 =>{isa => "Num",optional=>1},
-  point_number_step1 => {isa=>"Int",optional => 1},
-  lower_limit_step2 =>{isa => "Num",optional=>1},
-  upper_limit_step2 =>{isa => "Num",optional=>1},
-  point_number_step2 => {isa=>"Int",optional=>1},
- );
+  my($self) = validated_hash(\@_);
   my %files = $self->threeDSwp_FilePathsGet();
-  if(scalar(keys %files)>1)
+  my $stp2_point_number = scalar(keys %files);
+  if($stp2_point_number>1)
   {
-    # Detected use of step2
-    if(exists($params{point_number_step2}) && exists($params{upper_limit_step2}) && exists($params{lower_limit_step2}))
+    my $pdl3d = $self->load_pdl(file_origin=>$files{0});
+    my @dims = $pdl3d->dims;
+    my $inflated_pdl = zeroes($stp2_point_number,$dims[0],$dims[1],$dims[2]);
+    $inflated_pdl->slice("(0),:,:,:") += $pdl3d;
+    for(my $idx = 1; $idx<$stp2_point_number; $idx++)
     {
-      my @files_ordered;
-      my @ordered = sort(keys %files);
-      push @files_ordered, $files{$_} foreach @ordered;
-      foreach(@files_ordered)
-      {
+      $pdl3d = $self->load_pdl(file_origin=>$files{$idx});
+      $inflated_pdl->slice("($idx),:,:,:") += $pdl3d;
+    }
+    return $inflated_pdl;
         
-        my $return_hash = $self->load_data(file_origin=>$files{0},return_colnames=>0);
-        my @dims = $return_hash->{pdl}->dims;
-
-        # my @dim =  $return_hash->{pdl}
-        # print(%return_hash{pdl});
-        # print("\n\n");
-      }
-    }
-    else
-    {
-      my $list = "";
-      if(!exists($params{point_number_step2}))
-      {
-        $list= $list." point_number_step2";
-      }
-      if(!exists($params{lower_limit_step2}))
-      {
-        $list= $list." lower_limit_step2";
-      }
-
-      if(!exists($params{upper_limit_step2}))
-      {
-        $list= $list." upper_limit_step2";
-      }
-      croak "Use of step channel 2 detected but following parameters where not supplied:".$list; 
-    }
   }
-  
-  #return $self->load_data(file_origin=>$files{0}, return_head=>$params{return_head},return_colnames=>$params{return_colnames});
+  else
+  {
+    return $self->load_pdl(file_origin=>$files{0});
+  }
 }
 
 
