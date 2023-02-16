@@ -1048,6 +1048,10 @@ sub threeDSwp_TimingSend {
 =cut
 
 sub threeDSwp_FilePathsGet {
+  # This sleep function deals with an internal issue of the tramea software
+  # If one askes for filenames too soon after sweep it tries to access
+  # files of previous sweep 
+  sleep(1);
   my $self = shift;
   my $command_name = "3dswp.filepathsget";
   my $head = 
@@ -2008,31 +2012,54 @@ sub load_pdl_2D {
   my($self,%params) = validated_hash(
   \@_,
   file_origin => {isa=> "Str"},
-  acq_number => {isa =>"Int", optional => 1},
-  format => {isa =>"Bool", optional =>1, depends=>['acq_number','lower_limit_step1','upper_limit_step1']},
-  lower_limit_step1 =>{isa =>"Num", optional=>1},
-  upper_limit_step1 =>{isa=>"Num",optional=>1},
-
  );
+  my $data_hash = $self->load_data(
+                         file_origin=>$params{file_origin},
+                         return_colnames=>1,
+                         return_head=>1);
 
-  my $pdl = $self->load_data(file_origin=>$params{file_origin},return_colnames=>0)->{pdl};
-  # print($pdl);
-  if(exists($params{format}) &&  $params{format} == 1)
+  my $pdl = $data_hash->{pdl};
+  my @colnames = @{$data_hash->{cols}};
+  my %head = %{$data_hash->{header}};
+  # Attempt to detect if it is 2D Sweep by cheking for caratteristic
+  # string that tels the point number
+  if($colnames[-1]=~ m/\[(?<idx_int>[0-9]{5})\]/)
   {
+    # print("Detected 2D SWP\n");
+    # Extractiong point number, +0 casts to number 
+    my $stp1_point_number = $+{idx_int} +0;
+    # print("Detected point number: $stp1_point_number\n");
+    # Now Detect total Acq_Channel number
+    my $acq_number = (scalar(@colnames)-1)/$stp1_point_number;
+    # print("Detected Number of acq_number: $acq_number \n");
+    # Now lets try and get the extremes of the stp1 channel from header
+    my $stp1_start;
+    my $stp1_stop; 
+    foreach(keys %head)
+    {
+      if($_=~ m/(?:Step\schannel\s1:\sStart)/)
+      {
+          $stp1_start = $head{$_} +0;
+      }
+      if($_=~ m/(?:Step\schannel\s1:\sStop)/)
+      {
+  	      $stp1_stop = $head{$_} +0;
+      }
+    }
+    # finaly lets format the pdl
     my @dims = $pdl->dims;
     my $swp_point_number = $dims[0];
-    my $stp1_point_number = ($dims[1]-1)/$params{acq_number};
-    my $stp1_values = zeroes($stp1_point_number)->xlinvals($params{lower_limit_step1},$params{upper_limit_step1});
-    my $formatted_pdl = zeroes($stp1_point_number,$dims[0],$params{acq_number}+2);
+    my $stp1_values = zeroes($stp1_point_number)->xlinvals($stp1_start,$stp1_stop);
+    my $formatted_pdl = zeroes($stp1_point_number,$dims[0],$acq_number+2);
     my @newDims = $formatted_pdl->dims;
     my $col_start;
     my $col_end;
     my $col_end2;
     for( my $index = 0; $index < $stp1_point_number ;$index++)
     {
-      $col_start= $params{acq_number}*$index + 1;
-      $col_end= $params{acq_number}*$index + $params{acq_number};
-      $col_end2 = $params{acq_number}+1;
+      $col_start= $acq_number*$index + 1;
+      $col_end= $acq_number*$index + $acq_number;
+      $col_end2 = $acq_number+1;
       $stp1_values->at($index);
       $formatted_pdl->slice("($index),:,(0)")+= $stp1_values->at($index);
       $formatted_pdl->slice("($index),:,(1)")+= $pdl->slice(":,(0)");
