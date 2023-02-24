@@ -230,7 +230,7 @@ sub get_single {
     # Rewrite with hash
 	#if ($result eq "") { croak "AH2700A: Low to Ground\n"; }
 	my $values;
-    while ( $result =~ /([A-Z])=\s(\d+\.\d+)/g ) {
+    while ( $result =~ /([A-Z])=\s?(-?\d+\.\d+)/g ) {
         $values->{$1} = $2;
     }
     $values->{E} = 00;
