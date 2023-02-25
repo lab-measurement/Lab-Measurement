@@ -2039,10 +2039,19 @@ sub load_pdl {
       {
           $stp1_start = $head{$_} +0;
       }
+      elsif($_=~m/(?:Step\schannel\s2\s[\w():\s]*\sStart)/)
+      {
+          $stp1_start = $head{$_} +0;
+      }
       if($_=~ m/(?:Step\schannel\s1:\sStop)/)
       {
   	      $stp1_stop = $head{$_} +0;
       }
+      elsif($_=~m/(?:Step\schannel\s2\s[\w():\s]*\sStop)/)
+      {
+          $stp1_stop = $head{$_} +0;
+      }
+
       if($_=~m/(?:Step\schannel\s2\s[\w():\s]*\sLevel)/)
       {
         $using_stp2 = 1;
@@ -2085,9 +2094,9 @@ sub load_pdl {
     }
   }
   else
-  {
-    return $pdl;
-  }
+    {
+      return $pdl;
+    }
 }
 
 
@@ -2119,6 +2128,52 @@ sub load_last_measurement {
 
 
 # Probably to be deprecated 
+sub tramea_log_block {
+    my ($self,$datafile,$prefix, $pdl, $add_newline, $refresh_plots)= validated_list(\@_,
+    datafile      => {isa=>"Lab::Moose::DataFile"},
+    prefix        => { isa => 'HashRef[Num]', optional => 1 },
+    pdl           => {isa =>"PDL"},
+    add_newline   => { isa => 'Bool',         default  => 0 },
+    refresh_plots => { isa => 'Bool',         default  => 0 },
+        );
+    
+    # Build args
+    my %args;
+    if($prefix)
+    {
+      $args{prefix}= $prefix;
+    }
+    $args{add_newline}=$add_newline;
+    $args{refresh_plots}=$refresh_plots;
+
+    my @dims = $pdl->dims;
+
+    if (scalar @dims == 4)
+    {
+      for(my $iter = 0; $iter <$dims[0]; $iter++)
+      {
+          for(my $iter1 = 0; $iter1 <$dims[1]; $iter1++)
+          {
+              $datafile->log_block(block=>$pdl->slice("($iter),($iter1),:,:"),%args);
+          }
+      }
+    }
+    elsif (scalar @dims == 3)
+    {
+      for(my $iter1 = 0; $iter1 <$dims[0]; $iter1++)
+      {
+          $datafile->log_block(block=>$pdl->slice("($iter1),:,:"),%args);
+      }
+    }
+    elsif (scalar @dims == 2)
+    {
+      $datafile->log_block(block=>$pdl,%args);
+    }
+    else
+    {
+      croak "Number of dimension is wrong:".scalar(@dims);
+    }
+}
 sub parse_last_measurement {
   my ($self,%params) = validated_hash(\@_,
       folder=>{isa=>'Lab::Moose::DataFolder'});
