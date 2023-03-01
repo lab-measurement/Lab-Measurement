@@ -15,7 +15,8 @@ use Lab::Moose;
 use Lab::Moose::Instrument qw/
     validated_getter validated_setter/;
 extends 'Lab::Moose::Instrument';
-
+class_type 'Lab::Moose::Sweep';
+class_type 'Lab::Moose::DataFile';
 use namespace::autoclean;
 =encoding utf8
 
@@ -2126,11 +2127,11 @@ sub load_last_measurement {
   }
 }
 
-
+#Lab::Moose::DataFile
 # Probably to be deprecated 
 sub tramea_log_block {
     my ($self,$datafile,$prefix, $pdl, $add_newline, $refresh_plots)= validated_list(\@_,
-    datafile      => {isa=>"Lab::Moose::DataFile"},
+    datafile      => {isa=>"Lab::Moose::Sweep | Lab::Moose::DataFile"},
     prefix        => { isa => 'HashRef[Num]', optional => 1 },
     pdl           => {isa =>"PDL"},
     add_newline   => { isa => 'Bool',         default  => 0 },
