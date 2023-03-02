@@ -2582,7 +2582,7 @@ sub tramea_sweep {
   }
   if($params{load}==1)
   {
-    # return $self->load_last_measurement_2D();
+    return $self->load_last_measurement();
   }
 }
 __PACKAGE__->meta()->make_immutable();
