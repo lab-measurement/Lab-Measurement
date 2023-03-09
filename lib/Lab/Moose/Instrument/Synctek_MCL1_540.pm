@@ -75,6 +75,8 @@ sub request {
 # Configuration dump and write todo
 
 # WTF is das System mit dem Array?
+# TODO: - use a single function to return all DC voltages
+#         => use hash to match A_V1->id=L1,DC[0] etc
 sub get_A_V1_DC {
     my $self = shift;
     return $self->request(
