@@ -267,11 +267,11 @@ sub get_value {
 
 =head2 set_wait
 =cut
-sub set_wait { my ( $self, $wait, %args ) = validated_setter( \@_, wait => { isa => 'Num' },
-    );
+sub set_wait {
+    my ( $self, $wait, %args )
+        = validated_setter( \@_, wait => { isa => 'Num' }, );
 
     $self->write( command => sprintf( "WAIT DELAY %d", $wait ), %args );
-
 }
 
 =head2 set_field
