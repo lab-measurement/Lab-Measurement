@@ -184,6 +184,8 @@ has list => (
 );
 has backsweep => ( is => 'ro', isa => 'Bool', default => 0 );
 
+has both_directions => ( is => 'ro', isa => 'Bool', default => 0 );
+
 has setter => ( is => 'ro', isa => 'CodeRef', required => 1 );
 
 #
@@ -193,7 +195,8 @@ has setter => ( is => 'ro', isa => 'CodeRef', required => 1 );
 has _points => (
     is => 'ro', isa => 'ArrayRef[Num]', lazy => 1, init_arg => undef,
     builder => '_build_points', traits => ['Array'],
-    handles => { get_point => 'get', num_points => 'count' },
+    handles => { get_point => 'get', num_points => 'count', points_array => 'elements' },
+    writer => 'write_points',
 );
 
 has index => (
@@ -273,6 +276,9 @@ sub _build_points {
         my @backsweep_points = reverse @points;
         push @points, @backsweep_points;
     }
+    if ( $self->backsweep && $self->both_directions ) {
+        croak "Can't use backsweep and both_directions together."
+    }
 
     return \@points;
 }
@@ -305,6 +311,11 @@ sub sweep_finished {
     my $self  = shift;
     my $index = $self->index();
     if ( $index >= $self->num_points ) {
+        if ( $self->both_directions ) {
+            my @points = $self->points_array;
+            @points = reverse @points;
+            $self->write_points( \@points );
+        }
         return 1;
     }
     return 0;
