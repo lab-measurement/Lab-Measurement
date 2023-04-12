@@ -224,7 +224,11 @@ sub _trim_pmt {
 
 sub read {
     my $self = shift;
-    return _trim_pmt( $self->binary_read(@_) );
+    if ($self->connection_type ne 'HTTP') {
+        return _trim_pmt( $self->binary_read(@_) );
+    } else {
+        return $self->binary_read(@_);
+    }
 }
 
 sub query {
