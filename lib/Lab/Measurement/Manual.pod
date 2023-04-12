@@ -251,6 +251,8 @@ contains support for temperature sensor and He/N2 level meters.
 
 =over
 
+=item * L<Lab::Moose::Instrument::Bluefors_Temp>
+
 =item * L<Lab::Moose::Instrument::OI_Triton>
 
 =item * L<Lab::Moose::Instrument::Lakeshore340>
@@ -406,7 +408,6 @@ contains support for temperature sensor and He/N2 level meters.
 
 alias: C<Lab::Moose::Connection::VISA_GPIB>
 
-=item * L<Lab::Moose::Connection::WWW>
 
 =back
 
@@ -425,6 +426,16 @@ alias: C<Lab::Moose::Connection::VISA_GPIB>
 =over
 
 =item * L<Lab::Moose::Connection::Socket>
+
+=back
+
+=head3 Http Connection
+
+=over
+
+=item * L<Lab::Moose::Connection::HTTP>
+
+=item * L<Lab::Moose::Connection::WWW>
 
 =back
 
