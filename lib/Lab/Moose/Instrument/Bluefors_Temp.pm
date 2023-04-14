@@ -232,8 +232,8 @@ sub set_network_config {
 sub set_channel_heater_relation {
         my ($self, %args) = validated_hash(
         \@_,
-        channel_nr => { isa => enum([ (1..12) ]) },
-        heater_nr  => { isa => enum([ (1..4)  ]) },
+        channel_nr => { isa => enum([ (0..12) ]) },
+        heater_nr  => { isa => enum([ (0..4)  ]) },
     );
     my $json = $self->json->encode(\%args);
 
