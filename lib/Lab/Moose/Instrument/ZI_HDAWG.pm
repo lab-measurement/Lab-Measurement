@@ -1139,7 +1139,7 @@ Unit: None
  set_awgs_outputs_modulation_carriers_harmonic(awg => $awg, output => $output, carrier=>$carrier, value => $value)
  get_awgs_outputs_modulation_carriers_harmonic(awg => $awg, output => $output, carrier=>$carrier)
 
-Multiplies the carriersÃ¢â‚¬â„¢s reference frequency with the integer factor defined by this field.
+Multiplies the carrier reference frequency with the integer factor defined by this field.
 Note: This option was not available in the device used for developement, it is therefore untested.
 =cut
 
@@ -1900,7 +1900,7 @@ Unit: None
 AWG sampling rate. The numeric values here are an example when the base sample rate is the
 default value of 2.4 GHz and are rounded for display purposes. The exact values are equal to
 the base sampling rate divided by 2^n, where n is the node value. The base sample clock is the
-node /DEVâ€¦/SYSTEM/CLOCKS/SAMPLECLOCK/FREQ. This value is used by default and can be
+node /DEV/SYSTEM/CLOCKS/SAMPLECLOCK/FREQ. This value is used by default and can be
 overridden in the Sequence program.
 02.4 GHz
 11.2 GHz
