@@ -6485,3 +6485,5 @@ sub get_dios_output {
 
 
 __PACKAGE__->meta()->make_immutable();
+
+1;
