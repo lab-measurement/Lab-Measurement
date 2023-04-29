@@ -7,7 +7,7 @@ use v5.20;
 use Moose;
 use Moose::Util::TypeConstraints;
 use MooseX::Params::Validate;
-use Lab::Moose::Instrument qw/getter_params timeout_param validated_getter/;
+use Lab::Moose::Instrument qw/getter_params timeout_param validated_getter validated_setter/;
 use Carp;
 use Config;
 use namespace::autoclean;
@@ -19,7 +19,7 @@ with 'Lab::Moose::Instrument::SCPI::Format' => {
     },
     qw(
     Lab::Moose::Instrument::SCPI::Sense::Function
-
+    Lab::Moose::Instrument::SCPI::Source::Power
     Lab::Moose::Instrument::VNASweep
 );
 
@@ -92,6 +92,23 @@ See L<Lab::Moose::Instrument::VNASweep> for the high-level C<sparam_sweep> and
 C<sparam_catalog> methods.
 
 =cut
+
+=head2 set_power, get_power
+
+Interface for power sweeps
+
+=cut
+
+sub set_power {
+    my ( $self, $value, %args ) = validated_setter( \@_ );
+    $self->source_power_level_immediate_amplitude( value => $value );
+}
+
+sub get_power {
+	my $self = shift;
+	return $self->source_power_level_immediate_amplitude_query();
+}
+
 
 __PACKAGE__->meta->make_immutable();
 
