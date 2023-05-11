@@ -2,6 +2,21 @@ package Lab::Moose::Instrument::ZI_HDAWG;
 
 #ABSTRACT: Zurich Instruments HDAWG Arbitrary Waveform Generator
 
+# Notes for further developement:
+
+	# out-commented functions
+		# All functions that are uncommented have been tested, all out-commented
+		# functions were not tested because of missing features or other issues.
+		# In particular, functions that set connectivity options could not be tested
+		# as they result in a lost of connection to the device.
+	# Modules:
+		# Implementation is missing Module controll as it is not supported by Lab::Zhinst.
+		# This driver has to be expanded once Lab::Zhinst functionality is incremented.
+		# In particular the use of the sequencere module is very limited for lack of controll
+		# over internal scripts and compiler options
+	# Vector functions:
+		# A total of 11 functions that make use of datatype ZIVectorData have been omitted,
+		# this again for lack of support from Lab::Zhinst or Zhinst.pl connection type.
 use v5.20;
 use Moose;
 use MooseX::Params::Validate;
@@ -2947,460 +2962,473 @@ sub get_dios_output {
 			type=>'I',
 		);
 }
-# =head1 Untested Functionality
-# =head2 FEATURES
-# =head3 /DEV/FEATURES/CODE 
-# Properties: Write 
-# Type: String(B)
-# Unit: None
-
-#  set_features_code(value => $value)
-
-# Node providing a mechanism to write feature codes.
-# Could not test as no feature code had to be installed.
-# =cut 
-
-
-# sub set_features_code {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Str'},
-# 	);
-# 	return $self->sync_set_value(
-# 			path => $self->device()."/features/code",
-# 			type=>'B',
-# 			value =>$value
-# 		);
-# }
-
-# =head3 /DEV/FEATURES/DEVTYPE 
-# Properties: Read 
-# Type: String(B)
-# Unit: None
-
-#  get_features_devtype()
-
-# Returns the device type.
-# =cut 
-
-
-# sub get_features_devtype {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/features/devtype",
-# 			type=>'B'
-# 		);
-# }
-
-# =head3 /DEV/FEATURES/OPTIONS 
-# Properties: Read 
-# Type: String(B)
-# Unit: None
-
-#  get_features_options()
-
-# Returns enabled options.
-# =cut 
-
-
-# sub get_features_options {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/features/options",
-# 			type=>'B',
-# 		);
-# }
-
-# =head3 /DEV/FEATURES/SERIAL 
-# Properties: Read 
-# Type: String(B)
-# Unit: None
-
-#  get_features_serial()
-
-# Device serial number.
-# =cut 
-
-
-# sub get_features_serial {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/features/serial",
-# 			type=>'B',
-# 		);
-# }
-
-# =head3 /DEV/OSCS/n/FREQ 
-# Properties: Read Write Setting 
-# Type: Double(D)
-# Unit: Hz
-
-#  set_oscs_freq(osc => $osc, value => $value)
-#  get_oscs_freq(osc => $osc)
-
-# Frequency control for each oscillator.
-# =cut 
-
-
-# sub set_oscs_freq {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		osc=>{isa => 'Int'},
-# 		value =>{isa =>'Num'},
-# 	);my $osc=delete $args{osc};
-# 	return $self->sync_set_value(
-# 			path => $self->device()."/oscs/$osc/freq",
-# 			type=>'D',
-# 			value =>$value
-# 		);
-# }
-
-# sub get_oscs_freq {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		osc=>{isa => 'Int'},
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	my $osc =delete $args{osc};
-# 	return $self->get_value(
-# 			path => $self->device()."/oscs/$osc/freq",
-# 			type=>'D',
-# 		);
-# }
-
-# =head3 /DEV/OSCS/n/FREQAWG 
-# Properties: Read 
-# Type: Double(D)
-# Unit: Hz
-
-#  get_oscs_freqawg(osc => $osc)
-
-# Frequency as set by the AWG sequencer.
-# =cut 
-
-
-# sub get_oscs_freqawg {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		osc=>{isa => 'Int'},
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	my $osc =delete $args{osc};
-# 	return $self->get_value(
-# 			path => $self->device()."/oscs/$osc/freqawg",
-# 			type=>'D',
-# 		);
-# }
-
-# =head3 /DEV/SIGOUTS/n/BUSY 
-# Properties: Read 
-# Type: Integer (64 bit)(I)
-# Unit: None
-
-#  get_sigouts_busy(sigout => $sigout)
-
-# Boolean value indicating whether a blocking process is being executed on the device. For
-# example, locking to the external reference clock.
-# =cut 
-
-
-# sub get_sigouts_busy {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		sigout=>{isa => 'Int'},
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	my $sigout =delete $args{sigout};
-# 	return $self->get_value(
-# 			path => $self->device()."/sigouts/$sigout/busy",
-# 			type=>'I',
-# 		);
-# }
-
-# =head3 /DEV/SIGOUTS/n/DELAY 
-# Properties: Read Write Setting 
-# Type: Double(D)
-# Unit: s
-
-#  set_sigouts_delay(sigout => $sigout, value => $value)
-#  get_sigouts_delay(sigout => $sigout)
-
-# This value allows to delay the output of the signal in order to align waves.
-# =cut 
-
-
-# sub set_sigouts_delay {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		sigout=>{isa => 'Int'},
-# 		value =>{isa =>'Num'},
-# 	);my $sigout=delete $args{sigout};
-# 	return $self->sync_set_value(
-# 			path => $self->device()."/sigouts/$sigout/delay",
-# 			type=>'D',
-# 			value =>$value
-# 		);
-# }
-
-# sub get_sigouts_delay {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		sigout=>{isa => 'Int'},
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	my $sigout =delete $args{sigout};
-# 	return $self->get_value(
-# 			path => $self->device()."/sigouts/$sigout/delay",
-# 			type=>'D',
-# 		);
-# }
-
-# =head3 /DEV/SIGOUTS/n/DIRECT 
-# Properties: Read Write Setting 
-# Type: Integer (enumerated)(I)
-# Unit: None
-
-#  set_sigouts_direct(sigout => $sigout, value => $value)
-#  get_sigouts_direct(sigout => $sigout)
-
-# Enables the direct output path. If enabled the signal will be fed directly from the DAC, reducing
-# delay and noise. However, the range will be fixed and offset is not available any more.
-# amplified_path0
-# Amplified Path
-# direct_path1
-# Direct Path
-# =cut 
-
-
-# sub set_sigouts_direct {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		sigout=>{isa => 'Int'},
-# 		value =>{isa =>'Num'},
-# 	);my $sigout=delete $args{sigout};
-# 	return $self->sync_set_value(
-# 			path => $self->device()."/sigouts/$sigout/direct",
-# 			type=>'I',
-# 			value =>$value
-# 		);
-# }
-
-# sub get_sigouts_direct {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		sigout=>{isa => 'Int'},
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	my $sigout =delete $args{sigout};
-# 	return $self->get_value(
-# 			path => $self->device()."/sigouts/$sigout/direct",
-# 			type=>'I',
-# 		);
-# }
-
-# =head3 /DEV/SIGOUTS/n/FILTER 
-# Properties: Read Write Setting 
-# Type: Integer (64 bit)(I)
-# Unit: None
-
-#  set_sigouts_filter(sigout => $sigout, value => $value)
-#  get_sigouts_filter(sigout => $sigout)
-
-# Enables a filter stage in the amplified path.
-# =cut 
-
-
-# sub set_sigouts_filter {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		sigout=>{isa => 'Int'},
-# 		value =>{isa =>'Num'},
-# 	);my $sigout=delete $args{sigout};
-# 	return $self->sync_set_value(
-# 			path => $self->device()."/sigouts/$sigout/filter",
-# 			type=>'I',
-# 			value =>$value
-# 		);
-# }
-
-# sub get_sigouts_filter {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		sigout=>{isa => 'Int'},
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	my $sigout =delete $args{sigout};
-# 	return $self->get_value(
-# 			path => $self->device()."/sigouts/$sigout/filter",
-# 			type=>'I',
-# 		);
-# }
-
-# =head3 /DEV/SIGOUTS/n/MAX 
-# Properties: Read 
-# Type: Double(D)
-# Unit: None
-
-#  get_sigouts_max(sigout => $sigout)
-
-# Maximum value transmitted to the DAC represented as a 16-bit integer in twoâ€™s complement
-# format.
-# =cut 
-
-
-# sub get_sigouts_max {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		sigout=>{isa => 'Int'},
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	my $sigout =delete $args{sigout};
-# 	return $self->get_value(
-# 			path => $self->device()."/sigouts/$sigout/max",
-# 			type=>'D',
-# 		);
-# }
-
-# =head3 /DEV/SIGOUTS/n/MIN 
-# Properties: Read 
-# Type: Double(D)
-# Unit: None
-
-#  get_sigouts_min(sigout => $sigout)
-
-# Minimum value transmitted to the DAC represented as a 16-bit integer in twoâ€™s complement
-# format.
-# =cut 
-
-
-# sub get_sigouts_min {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		sigout=>{isa => 'Int'},
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	my $sigout =delete $args{sigout};
-# 	return $self->get_value(
-# 			path => $self->device()."/sigouts/$sigout/min",
-# 			type=>'D',
-# 		);
-# }
-
-# =head3 /DEV/SIGOUTS/n/OFFSET 
-# Properties: Read Write Setting 
-# Type: Double(D)
-# Unit: V
-
-#  set_sigouts_offset(sigout => $sigout, value => $value)
-#  get_sigouts_offset(sigout => $sigout)
-
-# Defines the DC voltage that is added to the dynamic part of the output signal.
-# =cut 
-
-
-# sub set_sigouts_offset {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		sigout=>{isa => 'Int'},
-# 		value =>{isa =>'Num'},
-# 	);my $sigout=delete $args{sigout};
-# 	return $self->sync_set_value(
-# 			path => $self->device()."/sigouts/$sigout/offset",
-# 			type=>'D',
-# 			value =>$value
-# 		);
-# }
-
-# sub get_sigouts_offset {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		sigout=>{isa => 'Int'},
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	my $sigout =delete $args{sigout};
-# 	return $self->get_value(
-# 			path => $self->device()."/sigouts/$sigout/offset",
-# 			type=>'D',
-# 		);
-# }
-
-# =head3 /DEV/SIGOUTS/n/ON 
-# Properties: Read Write Setting 
-# Type: Integer (64 bit)(I)
-# Unit: None
-
-#  set_sigouts_on(sigout => $sigout, value => $value)
-#  get_sigouts_on(sigout => $sigout)
-
-# Enabling/Disabling the Signal Output. Corresponds to the blue LED indicator on the instrument
-# front panel.
-# =cut 
-
-
-# sub set_sigouts_on {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		sigout=>{isa => 'Int'},
-# 		value =>{isa =>'Num'},
-# 	);my $sigout=delete $args{sigout};
-# 	return $self->sync_set_value(
-# 			path => $self->device()."/sigouts/$sigout/on",
-# 			type=>'I',
-# 			value =>$value
-# 		);
-# }
-
-# sub get_sigouts_on {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		sigout=>{isa => 'Int'},
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	my $sigout =delete $args{sigout};
-# 	return $self->get_value(
-# 			path => $self->device()."/sigouts/$sigout/on",
-# 			type=>'I',
-# 		);
-# }
-
-# =head3 /DEV/SIGOUTS/n/OVER 
-# Properties: Read 
-# Type: Integer (64 bit)(I)
-# Unit: None
-
-#  get_sigouts_over(sigout => $sigout)
-
-# Indicates that the signal output is overloaded.
-# /DEVâ€¦
-# ./SIGOUTS/n/PRECOMPENSATION/BOUNCES/m/AMPLITUDE
-# Properties:Read, Write, Setting
-# Type:Double
-# Unit: None
-# Sets the amplitude of the bounce correction filter relative to the signal amplitude.
-# =cut 
-
-
-# sub get_sigouts_over {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		sigout=>{isa => 'Int'},
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	my $sigout =delete $args{sigout};
-# 	return $self->get_value(
-# 			path => $self->device()."/sigouts/$sigout/over",
-# 			type=>'I',
-# 		);
-# }
+
+
+=head2 FEATURES
+
+=head3 /DEV/FEATURES/CODE 
+Properties: Write 
+Type: String(B)
+Unit: None
+
+ set_features_code(value => $value)
+
+Node providing a mechanism to write feature codes.
+Could not test as no feature code had to be installed.
+=cut 
+
+
+sub set_features_code {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Str'},
+	);
+	return $self->sync_set_value(
+			path => $self->device()."/features/code",
+			type=>'B',
+			value =>$value
+		);
+}
+
+=head3 /DEV/FEATURES/DEVTYPE 
+Properties: Read 
+Type: String(B)
+Unit: None
+
+ get_features_devtype()
+
+Returns the device type.
+=cut 
+
+
+sub get_features_devtype {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+		read_length => {isa=>'Int'},
+	);
+	my $read_length = delete $args{read_length};
+
+	return $self->connection->get_value(
+			path => $self->device()."/features/devtype",
+			type=>'B',
+			read_length =>$read_length
+		);
+}
+
+=head3 /DEV/FEATURES/OPTIONS 
+Properties: Read 
+Type: String(B)
+Unit: None
+
+ get_features_options()
+
+Returns enabled options.
+=cut 
+
+
+sub get_features_options {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+		read_length => {isa=>'Num'}
+	);
+	my $read_length = delete $args{read_length};
+	return $self->connection->get_value(
+			path => $self->device()."/features/options",
+			type=>'B',
+			read_length => $read_length
+		);
+}
+
+=head3 /DEV/FEATURES/SERIAL 
+Properties: Read 
+Type: String(B)
+Unit: None
+
+ get_features_serial()
+
+Device serial number.
+=cut 
+
+
+sub get_features_serial {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+		read_length =>{isa=>'Int'}
+	);
+	my $read_length = delete $args{read_length};
+
+	return $self->connection->get_value(
+			path => $self->device()."/features/serial",
+			type=>'B',
+			read_length=>$read_length
+		);
+}
+
+=head3 /DEV/OSCS/n/FREQ 
+Properties: Read Write Setting 
+Type: Double(D)
+Unit: Hz
+
+ set_oscs_freq(osc => $osc, value => $value)
+ get_oscs_freq(osc => $osc)
+
+Frequency control for each oscillator.
+=cut 
+
+
+sub set_oscs_freq {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		osc=>{isa => 'Int'},
+		value =>{isa =>'Num'},
+	);my $osc=delete $args{osc};
+	return $self->sync_set_value(
+			path => $self->device()."/oscs/$osc/freq",
+			type=>'D',
+			value =>$value
+		);
+}
+
+sub get_oscs_freq {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		osc=>{isa => 'Int'},
+		value =>{isa =>'Num',optional=>1},
+	);
+	my $osc =delete $args{osc};
+	return $self->get_value(
+			path => $self->device()."/oscs/$osc/freq",
+			type=>'D',
+		);
+}
+
+=head3 /DEV/OSCS/n/FREQAWG 
+Properties: Read 
+Type: Double(D)
+Unit: Hz
+
+ get_oscs_freqawg(osc => $osc)
+
+Frequency as set by the AWG sequencer.
+=cut 
+
+
+sub get_oscs_freqawg {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		osc=>{isa => 'Int'},
+		value =>{isa =>'Num',optional=>1},
+	);
+	my $osc =delete $args{osc};
+	return $self->get_value(
+			path => $self->device()."/oscs/$osc/freqawg",
+			type=>'D',
+		);
+}
+
+=head3 /DEV/SIGOUTS/n/BUSY 
+Properties: Read 
+Type: Integer (64 bit)(I)
+Unit: None
+
+ get_sigouts_busy(sigout => $sigout)
+
+Boolean value indicating whether a blocking process is being executed on the device. For
+example, locking to the external reference clock.
+=cut 
+
+
+sub get_sigouts_busy {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		sigout=>{isa => 'Int'},
+		value =>{isa =>'Num',optional=>1},
+	);
+	my $sigout =delete $args{sigout};
+	return $self->get_value(
+			path => $self->device()."/sigouts/$sigout/busy",
+			type=>'I',
+		);
+}
+
+=head3 /DEV/SIGOUTS/n/DELAY 
+Properties: Read Write Setting 
+Type: Double(D)
+Unit: s
+
+ set_sigouts_delay(sigout => $sigout, value => $value)
+ get_sigouts_delay(sigout => $sigout)
+
+This value allows to delay the output of the signal in order to align waves.
+=cut 
+
+
+sub set_sigouts_delay {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		sigout=>{isa => 'Int'},
+		value =>{isa =>'Num'},
+	);my $sigout=delete $args{sigout};
+	return $self->sync_set_value(
+			path => $self->device()."/sigouts/$sigout/delay",
+			type=>'D',
+			value =>$value
+		);
+}
+
+sub get_sigouts_delay {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		sigout=>{isa => 'Int'},
+		value =>{isa =>'Num',optional=>1},
+	);
+	my $sigout =delete $args{sigout};
+	return $self->get_value(
+			path => $self->device()."/sigouts/$sigout/delay",
+			type=>'D',
+		);
+}
+
+=head3 /DEV/SIGOUTS/n/DIRECT 
+Properties: Read Write Setting 
+Type: Integer (enumerated)(I)
+Unit: None
+
+ set_sigouts_direct(sigout => $sigout, value => $value)
+ get_sigouts_direct(sigout => $sigout)
+
+Enables the direct output path. If enabled the signal will be fed directly from the DAC, reducing
+delay and noise. However, the range will be fixed and offset is not available any more.
+amplified_path0
+Amplified Path
+direct_path1
+Direct Path
+=cut 
+
+
+sub set_sigouts_direct {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		sigout=>{isa => 'Int'},
+		value =>{isa =>'Num'},
+	);my $sigout=delete $args{sigout};
+	return $self->sync_set_value(
+			path => $self->device()."/sigouts/$sigout/direct",
+			type=>'I',
+			value =>$value
+		);
+}
+
+sub get_sigouts_direct {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		sigout=>{isa => 'Int'},
+		value =>{isa =>'Num',optional=>1},
+	);
+	my $sigout =delete $args{sigout};
+	return $self->get_value(
+			path => $self->device()."/sigouts/$sigout/direct",
+			type=>'I',
+		);
+}
+
+=head3 /DEV/SIGOUTS/n/FILTER 
+Properties: Read Write Setting 
+Type: Integer (64 bit)(I)
+Unit: None
+
+ set_sigouts_filter(sigout => $sigout, value => $value)
+ get_sigouts_filter(sigout => $sigout)
+
+Enables a filter stage in the amplified path.
+=cut 
+
+
+sub set_sigouts_filter {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		sigout=>{isa => 'Int'},
+		value =>{isa =>'Num'},
+	);my $sigout=delete $args{sigout};
+	return $self->sync_set_value(
+			path => $self->device()."/sigouts/$sigout/filter",
+			type=>'I',
+			value =>$value
+		);
+}
+
+sub get_sigouts_filter {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		sigout=>{isa => 'Int'},
+		value =>{isa =>'Num',optional=>1},
+	);
+	my $sigout =delete $args{sigout};
+	return $self->get_value(
+			path => $self->device()."/sigouts/$sigout/filter",
+			type=>'I',
+		);
+}
+
+=head3 /DEV/SIGOUTS/n/MAX 
+Properties: Read 
+Type: Double(D)
+Unit: None
+
+ get_sigouts_max(sigout => $sigout)
+
+Maximum value transmitted to the DAC represented as a 16-bit integer in twoâ€™s complement
+format.
+=cut 
+
+
+sub get_sigouts_max {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		sigout=>{isa => 'Int'},
+		value =>{isa =>'Num',optional=>1},
+	);
+	my $sigout =delete $args{sigout};
+	return $self->get_value(
+			path => $self->device()."/sigouts/$sigout/max",
+			type=>'D',
+		);
+}
+
+=head3 /DEV/SIGOUTS/n/MIN 
+Properties: Read 
+Type: Double(D)
+Unit: None
+
+ get_sigouts_min(sigout => $sigout)
+
+Minimum value transmitted to the DAC represented as a 16-bit integer in twoâ€™s complement
+format.
+=cut 
+
+
+sub get_sigouts_min {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		sigout=>{isa => 'Int'},
+		value =>{isa =>'Num',optional=>1},
+	);
+	my $sigout =delete $args{sigout};
+	return $self->get_value(
+			path => $self->device()."/sigouts/$sigout/min",
+			type=>'D',
+		);
+}
+
+=head3 /DEV/SIGOUTS/n/OFFSET 
+Properties: Read Write Setting 
+Type: Double(D)
+Unit: V
+
+ set_sigouts_offset(sigout => $sigout, value => $value)
+ get_sigouts_offset(sigout => $sigout)
+
+Defines the DC voltage that is added to the dynamic part of the output signal.
+=cut 
+
+
+sub set_sigouts_offset {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		sigout=>{isa => 'Int'},
+		value =>{isa =>'Num'},
+	);my $sigout=delete $args{sigout};
+	return $self->sync_set_value(
+			path => $self->device()."/sigouts/$sigout/offset",
+			type=>'D',
+			value =>$value
+		);
+}
+
+sub get_sigouts_offset {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		sigout=>{isa => 'Int'},
+		value =>{isa =>'Num',optional=>1},
+	);
+	my $sigout =delete $args{sigout};
+	return $self->get_value(
+			path => $self->device()."/sigouts/$sigout/offset",
+			type=>'D',
+		);
+}
+
+=head3 /DEV/SIGOUTS/n/ON 
+Properties: Read Write Setting 
+Type: Integer (64 bit)(I)
+Unit: None
+
+ set_sigouts_on(sigout => $sigout, value => $value)
+ get_sigouts_on(sigout => $sigout)
+
+Enabling/Disabling the Signal Output. Corresponds to the blue LED indicator on the instrument
+front panel.
+=cut 
+
+
+sub set_sigouts_on {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		sigout=>{isa => 'Int'},
+		value =>{isa =>'Num'},
+	);my $sigout=delete $args{sigout};
+	return $self->sync_set_value(
+			path => $self->device()."/sigouts/$sigout/on",
+			type=>'I',
+			value =>$value
+		);
+}
+
+sub get_sigouts_on {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		sigout=>{isa => 'Int'},
+		value =>{isa =>'Num',optional=>1},
+	);
+	my $sigout =delete $args{sigout};
+	return $self->get_value(
+			path => $self->device()."/sigouts/$sigout/on",
+			type=>'I',
+		);
+}
+
+=head3 /DEV/SIGOUTS/n/OVER 
+Properties: Read 
+Type: Integer (64 bit)(I)
+Unit: None
+
+ get_sigouts_over(sigout => $sigout)
+
+Indicates that the signal output is overloaded.
+/DEVâ€¦
+./SIGOUTS/n/PRECOMPENSATION/BOUNCES/m/AMPLITUDE
+Properties:Read, Write, Setting
+Type:Double
+Unit: None
+Sets the amplitude of the bounce correction filter relative to the signal amplitude.
+=cut 
+
+
+sub get_sigouts_over {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		sigout=>{isa => 'Int'},
+		value =>{isa =>'Num',optional=>1},
+	);
+	my $sigout =delete $args{sigout};
+	return $self->get_value(
+			path => $self->device()."/sigouts/$sigout/over",
+			type=>'I',
+		);
+}
 
 # =head3 /DEV/SIGOUTS/n/PRECOMPENSATION/BOUNCES/m/DELAY 
 # Properties: Read Write Setting 
@@ -3411,6 +3439,7 @@ sub get_dios_output {
 #  get_sigouts_precompensation_bounces_delay(sigout => $sigout, bounce => $bounce)
 
 # Sets the delay of the bounce correction filter.
+# Note: This option was not available in the device used for developement, it is therefore untested.
 # =cut 
 
 
@@ -3453,6 +3482,7 @@ sub get_dios_output {
 #  get_sigouts_precompensation_bounces_enable(sigout => $sigout, bounce => $bounce)
 
 # Enables (1) or disables (0) the bounce correction filter.
+# Note: This option was not available in the device used for developement, it is therefore untested.
 # =cut 
 
 
@@ -3495,6 +3525,7 @@ sub get_dios_output {
 
 # Indicates the status of the bounce correction filter: 0 = normal, 1 = overflow during the last update
 # period (~100 ms), 2 = overflowed in the past.
+# Note: This option was not available in the device used for developement, it is therefore untested.
 # =cut 
 
 
@@ -3522,6 +3553,7 @@ sub get_dios_output {
 #  get_sigouts_precompensation_enable(sigout => $sigout)
 
 # Enables (1) or disables (0) the entire precompensation filter chain.
+# Note: This option was not available in the device used for developement, it is therefore untested.
 # /DEVâ€¦
 # ./SIGOUTS/n/PRECOMPENSATION/EXPONENTIALS/m/AMPLITUDE
 # Properties:Read, Write, Setting
@@ -3794,1360 +3826,1390 @@ sub get_dios_output {
 # 		);
 # }
 
-# =head3 /DEV/SIGOUTS/n/RANGE 
-# Properties: Read Write Setting 
-# Type: Double(D)
-# Unit: V
-
-#  set_sigouts_range(sigout => $sigout, value => $value)
-#  get_sigouts_range(sigout => $sigout)
-
-# Sets the output voltage range. The instrument selects the next higher available range.
-# =cut 
-
-
-# sub set_sigouts_range {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		sigout=>{isa => 'Int'},
-# 		value =>{isa =>'Num'},
-# 	);my $sigout=delete $args{sigout};
-# 	return $self->sync_set_value(
-# 			path => $self->device()."/sigouts/$sigout/range",
-# 			type=>'D',
-# 			value =>$value
-# 		);
-# }
-
-# sub get_sigouts_range {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		sigout=>{isa => 'Int'},
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	my $sigout =delete $args{sigout};
-# 	return $self->get_value(
-# 			path => $self->device()."/sigouts/$sigout/range",
-# 			type=>'D',
-# 		);
-# }
-
-# =head3 /DEV/SINES/n/AMPLITUDES/m 
-# Properties: Read Write Setting 
-# Type: Double(D)
-# Unit: None
-
-#  set_sines_amplitudes_m(sine => $sine, value => $value)
-#  get_sines_amplitudes_m(sine => $sine)
-
-# Sets the peak amplitude that the sine signal contributes to the signal output. Note that the last
-# index is either 0 or 1 and will map to the pair of outputs given by the first index. (e.g. sines/3/
-# amplitudes/0 corresponds to wave output 2)
-# =cut 
-
-
-# sub set_sines_amplitudes_m {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		sine=>{isa => 'Int'},
-# 		value =>{isa =>'Num'},
-# 	);my $sine=delete $args{sine};
-# 	return $self->sync_set_value(
-# 			path => $self->device()."/sines/$sine/amplitudes/m",
-# 			type=>'D',
-# 			value =>$value
-# 		);
-# }
-
-# sub get_sines_amplitudes_m {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		sine=>{isa => 'Int'},
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	my $sine =delete $args{sine};
-# 	return $self->get_value(
-# 			path => $self->device()."/sines/$sine/amplitudes/m",
-# 			type=>'D',
-# 		);
-# }
-
-# =head3 /DEV/SINES/n/ENABLES/m 
-# Properties: Read Write Setting 
-# Type: Integer (64 bit)(I)
-# Unit: None
-
-#  set_sines_enables_m(sine => $sine, value => $value)
-#  get_sines_enables_m(sine => $sine)
-
-# Enables the sine signal to the signal output. Note that the last index is either 0 or 1 and will map
-# to the pair of outputs given by the first index. (e.g. sines/3/amplitudes/0 corresponds to wave
-# output 2)
-# =cut 
-
-
-# sub set_sines_enables_m {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		sine=>{isa => 'Int'},
-# 		value =>{isa =>'Num'},
-# 	);my $sine=delete $args{sine};
-# 	return $self->sync_set_value(
-# 			path => $self->device()."/sines/$sine/enables/m",
-# 			type=>'I',
-# 			value =>$value
-# 		);
-# }
-
-# sub get_sines_enables_m {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		sine=>{isa => 'Int'},
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	my $sine =delete $args{sine};
-# 	return $self->get_value(
-# 			path => $self->device()."/sines/$sine/enables/m",
-# 			type=>'I',
-# 		);
-# }
-
-# =head3 /DEV/SINES/n/HARMONIC 
-# Properties: Read Write Setting 
-# Type: Integer (64 bit)(I)
-# Unit: None
-
-#  set_sines_harmonic(sine => $sine, value => $value)
-#  get_sines_harmonic(sine => $sine)
-
-# Multiplies the sine signalsâ€™s reference frequency with the integer factor defined by this field.
-# =cut 
-
-
-# sub set_sines_harmonic {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		sine=>{isa => 'Int'},
-# 		value =>{isa =>'Num'},
-# 	);my $sine=delete $args{sine};
-# 	return $self->sync_set_value(
-# 			path => $self->device()."/sines/$sine/harmonic",
-# 			type=>'I',
-# 			value =>$value
-# 		);
-# }
-
-# sub get_sines_harmonic {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		sine=>{isa => 'Int'},
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	my $sine =delete $args{sine};
-# 	return $self->get_value(
-# 			path => $self->device()."/sines/$sine/harmonic",
-# 			type=>'I',
-# 		);
-# }
-
-# =head3 /DEV/SINES/n/OSCSELECT 
-# Properties: Read Write Setting 
-# Type: Integer (64 bit)(I)
-# Unit: None
-
-#  set_sines_oscselect(sine => $sine, value => $value)
-#  get_sines_oscselect(sine => $sine)
-
-# Select oscillator for generation of this sine signal.
-# =cut 
-
-
-# sub set_sines_oscselect {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		sine=>{isa => 'Int'},
-# 		value =>{isa =>'Num'},
-# 	);my $sine=delete $args{sine};
-# 	return $self->sync_set_value(
-# 			path => $self->device()."/sines/$sine/oscselect",
-# 			type=>'I',
-# 			value =>$value
-# 		);
-# }
-
-# sub get_sines_oscselect {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		sine=>{isa => 'Int'},
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	my $sine =delete $args{sine};
-# 	return $self->get_value(
-# 			path => $self->device()."/sines/$sine/oscselect",
-# 			type=>'I',
-# 		);
-# }
-
-# =head3 /DEV/SINES/n/PHASESHIFT 
-# Properties: Read Write Setting 
-# Type: Double(D)
-# Unit: deg
-
-#  set_sines_phaseshift(sine => $sine, value => $value)
-#  get_sines_phaseshift(sine => $sine)
-
-# Phase shift applied to sine signal.
-# =cut 
-
-
-# sub set_sines_phaseshift {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		sine=>{isa => 'Int'},
-# 		value =>{isa =>'Num'},
-# 	);my $sine=delete $args{sine};
-# 	return $self->sync_set_value(
-# 			path => $self->device()."/sines/$sine/phaseshift",
-# 			type=>'D',
-# 			value =>$value
-# 		);
-# }
-
-# sub get_sines_phaseshift {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		sine=>{isa => 'Int'},
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	my $sine =delete $args{sine};
-# 	return $self->get_value(
-# 			path => $self->device()."/sines/$sine/phaseshift",
-# 			type=>'D',
-# 		);
-# }
-
-# =head3 /DEV/STATS/CMDSTREAM/BANDWIDTH 
-# Properties: Read 
-# Type: Double(D)
-# Unit: Mbit/s
-
-#  get_stats_cmdstream_bandwidth()
-
-# Command streaming bandwidth usage on the physical network connection between device and
-# data server.
-# =cut 
-
-
-# sub get_stats_cmdstream_bandwidth {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/stats/cmdstream/bandwidth",
-# 			type=>'D',
-# 		);
-# }
-
-# =head3 /DEV/STATS/CMDSTREAM/BYTESRECEIVED 
-# Properties: Read 
-# Type: Integer (64 bit)(I)
-# Unit: B
-
-#  get_stats_cmdstream_bytesreceived()
-
-# Number of bytes received on the command stream from the device since session start.
-# =cut 
-
-
-# sub get_stats_cmdstream_bytesreceived {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/stats/cmdstream/bytesreceived",
-# 			type=>'I',
-# 		);
-# }
-
-# =head3 /DEV/STATS/CMDSTREAM/BYTESSENT 
-# Properties: Read 
-# Type: Integer (64 bit)(I)
-# Unit: B
-
-#  get_stats_cmdstream_bytessent()
-
-# Number of bytes sent on the command stream from the device since session start.
-# =cut 
-
-
-# sub get_stats_cmdstream_bytessent {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/stats/cmdstream/bytessent",
-# 			type=>'I',
-# 		);
-# }
-
-# =head3 /DEV/STATS/CMDSTREAM/PACKETSLOST 
-# Properties: Read 
-# Type: Integer (64 bit)(I)
-# Unit: None
-
-#  get_stats_cmdstream_packetslost()
-
-# Number of command packets lost since device start. Command packets contain device settings
-# that are sent to and received from the device.
-# =cut 
-
-
-# sub get_stats_cmdstream_packetslost {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/stats/cmdstream/packetslost",
-# 			type=>'I',
-# 		);
-# }
-
-# =head3 /DEV/STATS/CMDSTREAM/PACKETSRECEIVED 
-# Properties: Read 
-# Type: Integer (64 bit)(I)
-# Unit: None
-
-#  get_stats_cmdstream_packetsreceived()
-
-# Number of packets received on the command stream from the device since session start.
-# =cut 
-
-
-# sub get_stats_cmdstream_packetsreceived {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/stats/cmdstream/packetsreceived",
-# 			type=>'I',
-# 		);
-# }
-
-# =head3 /DEV/STATS/CMDSTREAM/PACKETSSENT 
-# Properties: Read 
-# Type: Integer (64 bit)(I)
-# Unit: None
-
-#  get_stats_cmdstream_packetssent()
-
-# Number of packets sent on the command stream to the device since session start.
-# =cut 
-
-
-# sub get_stats_cmdstream_packetssent {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/stats/cmdstream/packetssent",
-# 			type=>'I',
-# 		);
-# }
-
-# =head3 /DEV/STATS/CMDSTREAM/PENDING 
-# Properties: Read 
-# Type: Integer (64 bit)(I)
-# Unit: None
-
-#  get_stats_cmdstream_pending()
-
-# Number of buffers ready for receiving command packets from the device.
-# =cut 
-
-
-# sub get_stats_cmdstream_pending {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/stats/cmdstream/pending",
-# 			type=>'I',
-# 		);
-# }
-
-# =head3 /DEV/STATS/CMDSTREAM/PROCESSING 
-# Properties: Read 
-# Type: Integer (64 bit)(I)
-# Unit: None
-
-#  get_stats_cmdstream_processing()
-
-# Number of buffers being processed for command packets. Small values indicate proper
-# performance. For a TCP/IP interface, command packets are sent using the TCP protocol.
-# =cut 
-
-
-# sub get_stats_cmdstream_processing {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/stats/cmdstream/processing",
-# 			type=>'I',
-# 		);
-# }
-
-# =head3 /DEV/STATS/DATASTREAM/BANDWIDTH 
-# Properties: Read 
-# Type: Double(D)
-# Unit: Mbit/s
-
-#  get_stats_datastream_bandwidth()
-
-# Data streaming bandwidth usage on the physical network connection between device and data
-# server.
-# =cut 
-
-
-# sub get_stats_datastream_bandwidth {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/stats/datastream/bandwidth",
-# 			type=>'D',
-# 		);
-# }
-
-# =head3 /DEV/STATS/DATASTREAM/BYTESRECEIVED 
-# Properties: Read 
-# Type: Integer (64 bit)(I)
-# Unit: B
-
-#  get_stats_datastream_bytesreceived()
-
-# Number of bytes received on the data stream from the device since session start.
-# =cut 
-
-
-# sub get_stats_datastream_bytesreceived {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/stats/datastream/bytesreceived",
-# 			type=>'I',
-# 		);
-# }
-
-# =head3 /DEV/STATS/DATASTREAM/PACKETSLOST 
-# Properties: Read 
-# Type: Integer (64 bit)(I)
-# Unit: None
-
-#  get_stats_datastream_packetslost()
-
-# Number of data packets lost since device start. Data packets contain measurement data.
-# =cut 
-
-
-# sub get_stats_datastream_packetslost {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/stats/datastream/packetslost",
-# 			type=>'I',
-# 		);
-# }
-
-# =head3 /DEV/STATS/DATASTREAM/PACKETSRECEIVED 
-# Properties: Read 
-# Type: Integer (64 bit)(I)
-# Unit: None
-
-#  get_stats_datastream_packetsreceived()
-
-# Number of packets received on the data stream from the device since session start.
-# =cut 
-
-
-# sub get_stats_datastream_packetsreceived {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/stats/datastream/packetsreceived",
-# 			type=>'I',
-# 		);
-# }
-
-# =head3 /DEV/STATS/DATASTREAM/PENDING 
-# Properties: Read 
-# Type: Integer (64 bit)(I)
-# Unit: None
-
-#  get_stats_datastream_pending()
-
-# Number of buffers ready for receiving data packets from the device.
-# =cut 
-
-
-# sub get_stats_datastream_pending {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/stats/datastream/pending",
-# 			type=>'I',
-# 		);
-# }
-
-# =head3 /DEV/STATS/DATASTREAM/PROCESSING 
-# Properties: Read 
-# Type: Integer (64 bit)(I)
-# Unit: None
-
-#  get_stats_datastream_processing()
-
-# Number of buffers being processed for data packets. Small values indicate proper performance.
-# For a TCP/IP interface, data packets are sent using the UDP protocol.
-# =cut 
-
-
-# sub get_stats_datastream_processing {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/stats/datastream/processing",
-# 			type=>'I',
-# 		);
-# }
-
-# =head3 /DEV/STATS/PHYSICAL/FPGA/AUX 
-# Properties: Read 
-# Type: Double(D)
-# Unit: V
-
-#  get_stats_physical_fpga_aux()
-
-# Supply voltage of the FPGA.
-# =cut 
-
-
-# sub get_stats_physical_fpga_aux {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/stats/physical/fpga/aux",
-# 			type=>'D',
-# 		);
-# }
-
-# =head3 /DEV/STATS/PHYSICAL/FPGA/CORE 
-# Properties: Read 
-# Type: Double(D)
-# Unit: V
-
-#  get_stats_physical_fpga_core()
-
-# Core voltage of the FPGA.
-# =cut 
-
-
-# sub get_stats_physical_fpga_core {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/stats/physical/fpga/core",
-# 			type=>'D',
-# 		);
-# }
-
-# =head3 /DEV/STATS/PHYSICAL/FPGA/TEMP 
-# Properties: Read 
-# Type: Double(D)
-# Unit: Â°C
-
-#  get_stats_physical_fpga_temp()
-
-# Internal temperature of the FPGA.
-# =cut 
-
-
-# sub get_stats_physical_fpga_temp {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/stats/physical/fpga/temp",
-# 			type=>'D',
-# 		);
-# }
-
-# =head3 /DEV/STATS/PHYSICAL/OVERTEMPERATURE 
-# Properties: Read 
-# Type: Integer (64 bit)(I)
-# Unit: None
-
-#  get_stats_physical_overtemperature()
-
-# This flag is set to 1 if the temperature of the FPGA exceeds 85Â°C. It will be reset to 0 after a restart
-# of the device.
-# =cut 
-
-
-# sub get_stats_physical_overtemperature {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/stats/physical/overtemperature",
-# 			type=>'I',
-# 		);
-# }
-
-# =head3 /DEV/STATS/PHYSICAL/POWER/CURRENTS/n 
-# Properties: Read 
-# Type: Double(D)
-# Unit: A
-
-#  get_stats_physical_power_currents_n()
-
-# Currents of the main power supply.
-# =cut 
-
-
-# sub get_stats_physical_power_currents_n {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/stats/physical/power/currents/n",
-# 			type=>'D',
-# 		);
-# }
-
-# =head3 /DEV/STATS/PHYSICAL/POWER/TEMPERATURES/n 
-# Properties: Read 
-# Type: Double(D)
-# Unit: Â°C
-
-#  get_stats_physical_power_temperatures_n()
-
-# Temperatures of the main power supply.
-# =cut 
-
-
-# sub get_stats_physical_power_temperatures_n {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/stats/physical/power/temperatures/n",
-# 			type=>'D',
-# 		);
-# }
-
-# =head3 /DEV/STATS/PHYSICAL/POWER/VOLTAGES/n 
-# Properties: Read 
-# Type: Double(D)
-# Unit: V
-
-#  get_stats_physical_power_voltages_n()
-
-# Voltages of the main power supply.
-# =cut 
-
-
-# sub get_stats_physical_power_voltages_n {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/stats/physical/power/voltages/n",
-# 			type=>'D',
-# 		);
-# }
-
-# =head3 /DEV/STATS/PHYSICAL/SLAVEFPGAS/n/AUX 
-# Properties: Read 
-# Type: Double(D)
-# Unit: V
-
-#  get_stats_physical_slavefpgas_aux(slavefpga => $slavefpga)
-
-# Supply voltage of the FPGA.
-# =cut 
-
-
-# sub get_stats_physical_slavefpgas_aux {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		slavefpga=>{isa => 'Int'},
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	my $slavefpga =delete $args{slavefpga};
-# 	return $self->get_value(
-# 			path => $self->device()."/stats/physical/slavefpgas/$slavefpga/aux",
-# 			type=>'D',
-# 		);
-# }
-
-# =head3 /DEV/STATS/PHYSICAL/SLAVEFPGAS/n/CORE 
-# Properties: Read 
-# Type: Double(D)
-# Unit: V
-
-#  get_stats_physical_slavefpgas_core(slavefpga => $slavefpga)
-
-# Core voltage of the FPGA.
-# =cut 
-
-
-# sub get_stats_physical_slavefpgas_core {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		slavefpga=>{isa => 'Int'},
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	my $slavefpga =delete $args{slavefpga};
-# 	return $self->get_value(
-# 			path => $self->device()."/stats/physical/slavefpgas/$slavefpga/core",
-# 			type=>'D',
-# 		);
-# }
-
-# =head3 /DEV/STATS/PHYSICAL/SLAVEFPGAS/n/TEMP 
-# Properties: Read 
-# Type: Double(D)
-# Unit: Â°C
-
-#  get_stats_physical_slavefpgas_temp(slavefpga => $slavefpga)
-
-# Internal temperature of the FPGA.
-# =cut 
-
-
-# sub get_stats_physical_slavefpgas_temp {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		slavefpga=>{isa => 'Int'},
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	my $slavefpga =delete $args{slavefpga};
-# 	return $self->get_value(
-# 			path => $self->device()."/stats/physical/slavefpgas/$slavefpga/temp",
-# 			type=>'D',
-# 		);
-# }
-
-# =head3 /DEV/STATS/PHYSICAL/TEMPERATURES/n 
-# Properties: Read 
-# Type: Double(D)
-# Unit: Â°C
-
-#  get_stats_physical_temperatures_n()
-
-# Internal temperature measurements.
-# =cut 
-
-
-# sub get_stats_physical_temperatures_n {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/stats/physical/temperatures/n",
-# 			type=>'D',
-# 		);
-# }
-
-# =head3 /DEV/STATS/PHYSICAL/VOLTAGES/n 
-# Properties: Read 
-# Type: Double(D)
-# Unit: V
-
-#  get_stats_physical_voltages_n()
-
-# Internal voltage measurements.
-# =cut 
-
-
-# sub get_stats_physical_voltages_n {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/stats/physical/voltages/n",
-# 			type=>'D',
-# 		);
-# }
-
-# =head3 /DEV/STATUS/ADC0MAX 
-# Properties: Read 
-# Type: Integer (64 bit)(I)
-# Unit: None
-
-#  get_status_adc0max()
-
-# The maximum value on Signal Input 1 (ADC0) during 100 ms.
-# =cut 
-
-
-# sub get_status_adc0max {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/status/adc0max",
-# 			type=>'I',
-# 		);
-# }
-
-# =head3 /DEV/STATUS/ADC0MIN 
-# Properties: Read 
-# Type: Integer (64 bit)(I)
-# Unit: None
-
-#  get_status_adc0min()
-
-# The minimum value on Signal Input 1 (ADC0) during 100 ms
-# =cut 
-
-
-# sub get_status_adc0min {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/status/adc0min",
-# 			type=>'I',
-# 		);
-# }
-
-# =head3 /DEV/STATUS/ADC1MAX 
-# Properties: Read 
-# Type: Integer (64 bit)(I)
-# Unit: None
-
-#  get_status_adc1max()
-
-# The maximum value on Signal Input 2 (ADC1) during 100 ms.
-# =cut 
-
-
-# sub get_status_adc1max {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/status/adc1max",
-# 			type=>'I',
-# 		);
-# }
-
-# =head3 /DEV/STATUS/ADC1MIN 
-# Properties: Read 
-# Type: Integer (64 bit)(I)
-# Unit: None
-
-#  get_status_adc1min()
-
-# The minimum value on Signal Input 2 (ADC1) during 100 ms
-# =cut 
-
-
-# sub get_status_adc1min {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/status/adc1min",
-# 			type=>'I',
-# 		);
-# }
-
-# =head3 /DEV/STATUS/FIFOLEVEL 
-# Properties: Read 
-# Type: Double(D)
-# Unit: None
-
-#  get_status_fifolevel()
-
-# USB FIFO level: Indicates the USB FIFO fill level inside the device. When 100%, data is lost
-# =cut 
-
-
-# sub get_status_fifolevel {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/status/fifolevel",
-# 			type=>'D',
-# 		);
-# }
-
-# =head3 /DEV/STATUS/FLAGS/BINARY 
-# Properties: Read 
-# Type: Integer (64 bit)(I)
-# Unit: None
-
-#  get_status_flags_binary()
-
-# A set of binary flags giving an indication of the state of various parts of the device. Bit 11: Sample
-# Loss.
-# =cut 
-
-
-# sub get_status_flags_binary {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/status/flags/binary",
-# 			type=>'I',
-# 		);
-# }
-
-# =head3 /DEV/STATUS/FLAGS/PACKETLOSSTCP 
-# Properties: Read 
-# Type: Integer (64 bit)(I)
-# Unit: None
-
-#  get_status_flags_packetlosstcp()
-
-# Flag indicating if tcp packages have been lost.
-# =cut 
-
-
-# sub get_status_flags_packetlosstcp {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/status/flags/packetlosstcp",
-# 			type=>'I',
-# 		);
-# }
-
-# =head3 /DEV/STATUS/FLAGS/PACKETLOSSUDP 
-# Properties: Read 
-# Type: Integer (64 bit)(I)
-# Unit: None
-
-#  get_status_flags_packetlossudp()
-
-# Flag indicating if udp packages have been lost.
-# =cut 
-
-
-# sub get_status_flags_packetlossudp {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/status/flags/packetlossudp",
-# 			type=>'I',
-# 		);
-# }
-
-# =head3 /DEV/STATUS/TIME 
-# Properties: Read 
-# Type: Integer (64 bit)(I)
-# Unit: None
-
-#  get_status_time()
-
-# The current timestamp.
-# =cut 
-
-
-# sub get_status_time {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/status/time",
-# 			type=>'I',
-# 		);
-# }
-
-# =head3 /DEV/SYSTEM/ACTIVEINTERFACE 
-# Properties: Read 
-# Type: String(B)
-# Unit: None
-
-#  get_system_activeinterface()
-
-# Currently active interface of the device.
-# =cut 
-
-
-# sub get_system_activeinterface {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/system/activeinterface",
-# 			type=>'B',
-# 		);
-# }
-
-# =head3 /DEV/SYSTEM/AWG/CHANNELGROUPING 
-# Properties: Read Write Setting 
-# Type: Integer (enumerated)(I)
-# Unit: None
-
-#  set_system_awg_channelgrouping(value => $value)
-#  get_system_awg_channelgrouping()
-
-# Sets the channel grouping mode of the device.
-# groups_of_20
-# Use the outputs in groups of 2. One sequencer program controls 2 outputs (use /
-# devâ€¦./awgs/0..4/).
-# groups_of_41
-# Use the outputs in groups of 4. One sequencer program controls 4 outputs (use /
-# devâ€¦./awgs/0/ and /dev/awgs/2/)
-# 2groups_of_8
-# Use the outputs in groups of 8. One sequencer program controls 8 outputs (use /
-# devâ€¦./awgs/0/). Requires 8 channel device.
-# =cut 
-
-
-# sub set_system_awg_channelgrouping {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num'},
-# 	);
-# 	return $self->sync_set_value(
-# 			path => $self->device()."/system/awg/channelgrouping",
-# 			type=>'I',
-# 			value =>$value
-# 		);
-# }
-
-# sub get_system_awg_channelgrouping {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/system/awg/channelgrouping",
-# 			type=>'I',
-# 		);
-# }
-
-# =head3 /DEV/SYSTEM/AWG/OSCILLATORCONTROL 
-# Properties: Read Write Setting 
-# Type: Integer (enumerated)(I)
-# Unit: None
-
-#  set_system_awg_oscillatorcontrol(value => $value)
-#  get_system_awg_oscillatorcontrol()
-
-# Sets the oscillator control mode.
-# api0
-# Oscillators are controlled by the UI/API.
-# awg_sequencer1
-# Oscillators are controlled by the AWG sequencer.
-# =cut 
-
-
-# sub set_system_awg_oscillatorcontrol {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num'},
-# 	);
-# 	return $self->sync_set_value(
-# 			path => $self->device()."/system/awg/oscillatorcontrol",
-# 			type=>'I',
-# 			value =>$value
-# 		);
-# }
-
-# sub get_system_awg_oscillatorcontrol {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/system/awg/oscillatorcontrol",
-# 			type=>'I',
-# 		);
-# }
-
-# =head3 /DEV/SYSTEM/BOARDREVISIONS/n 
-# Properties: Read 
-# Type: String(B)
-# Unit: None
-
-#  get_system_boardrevisions_n()
-
-# Hardware revision of the FPGA base board
-# =cut 
-
-
-# sub get_system_boardrevisions_n {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/system/boardrevisions/n",
-# 			type=>'B',
-# 		);
-# }
-
-# =head3 /DEV/SYSTEM/CLOCKS/REFERENCECLOCK/FREQ 
-# Properties: Read 
-# Type: Double(D)
-# Unit: Hz
-
-#  get_system_clocks_referenceclock_freq()
-
-# Indicates the frequency of the reference clock.
-# =cut 
-
-
-# sub get_system_clocks_referenceclock_freq {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/system/clocks/referenceclock/freq",
-# 			type=>'D',
-# 		);
-# }
-
-# =head3 /DEV/SYSTEM/CLOCKS/REFERENCECLOCK/SOURCE 
-# Properties: Read Write Setting 
-# Type: Integer (enumerated)(I)
-# Unit: None
-
-#  set_system_clocks_referenceclock_source(value => $value)
-#  get_system_clocks_referenceclock_source()
-
-# Reference clock source.
-# internal0
-# The internal clock is used as the frequency and time base reference.
-# external1
-# An external clock is intended to be used as the frequency and time base reference.
-# Provide a clean and stable 10MHz or 100MHz reference to the appropriate back panel
-# connector.
-# 2zsync
-# A ZSync clock is intended to be used as the frequency and time base reference.
-# =cut 
-
-
-# sub set_system_clocks_referenceclock_source {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num'},
-# 	);
-# 	return $self->sync_set_value(
-# 			path => $self->device()."/system/clocks/referenceclock/source",
-# 			type=>'I',
-# 			value =>$value
-# 		);
-# }
-
-# sub get_system_clocks_referenceclock_source {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/system/clocks/referenceclock/source",
-# 			type=>'I',
-# 		);
-# }
-
-# =head3 /DEV/SYSTEM/CLOCKS/REFERENCECLOCK/STATUS 
-# Properties: Read 
-# Type: Integer (enumerated)(I)
-# Unit: None
-
-#  get_system_clocks_referenceclock_status()
-
-# Status of the reference clock.
-# 0Reference clock has been locked on.
-# 1There was an error locking onto the reference clock signal. After an error the source
-# is automatically switched back to internal reference clock.
-# 2The device is busy trying to lock onto the reference clock signal.
-# =cut 
-
-
-# sub get_system_clocks_referenceclock_status {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/system/clocks/referenceclock/status",
-# 			type=>'I',
-# 		);
-# }
-
-# =head3 /DEV/SYSTEM/CLOCKS/SAMPLECLOCK/FREQ 
-# Properties: Read Write Setting 
-# Type: Double(D)
-# Unit: Hz
-
-#  set_system_clocks_sampleclock_freq(value => $value)
-#  get_system_clocks_sampleclock_freq()
-
-# Indicates the frequency of the sample clock. Changing the sample clock temporarily interrupts
-# the AWG sequencers.
-# =cut 
-
-
-# sub set_system_clocks_sampleclock_freq {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num'},
-# 	);
-# 	return $self->sync_set_value(
-# 			path => $self->device()."/system/clocks/sampleclock/freq",
-# 			type=>'D',
-# 			value =>$value
-# 		);
-# }
-
-# sub get_system_clocks_sampleclock_freq {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/system/clocks/sampleclock/freq",
-# 			type=>'D',
-# 		);
-# }
-
-# =head3 /DEV/SYSTEM/CLOCKS/SAMPLECLOCK/OUTPUTENABLE 
-# Properties: Read Write Setting 
-# Type: Integer (enumerated)(I)
-# Unit: None
-
-#  set_system_clocks_sampleclock_outputenable(value => $value)
-#  get_system_clocks_sampleclock_outputenable()
-
-# Enable the sampleclock output.
-# on0
-# Sample clock output is disabled.
-# off1
-# Sample clock output is enabled.
-# =cut 
-
-
-# sub set_system_clocks_sampleclock_outputenable {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num'},
-# 	);
-# 	return $self->sync_set_value(
-# 			path => $self->device()."/system/clocks/sampleclock/outputenable",
-# 			type=>'I',
-# 			value =>$value
-# 		);
-# }
-
-# sub get_system_clocks_sampleclock_outputenable {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/system/clocks/sampleclock/outputenable",
-# 			type=>'I',
-# 		);
-# }
-
-# =head3 /DEV/SYSTEM/CLOCKS/SAMPLECLOCK/STATUS 
-# Properties: Read 
-# Type: Integer (enumerated)(I)
-# Unit: None
-
-#  get_system_clocks_sampleclock_status()
-
-# Status of the sample clock.
-# 0Sample clock signal is valid and has been locked on.
-# 1There was an error adjusting the sample clock.
-# 2The device is busy trying to adjust the sample clock.
-# =cut 
-
-
-# sub get_system_clocks_sampleclock_status {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/system/clocks/sampleclock/status",
-# 			type=>'I',
-# 		);
-# }
-
-# =head3 /DEV/SYSTEM/FPGAREVISION 
-# Properties: Read 
-# Type: Integer (64 bit)(I)
-# Unit: None
-
-#  get_system_fpgarevision()
-
-# HDL firmware revision.
-# =cut 
-
-
-# sub get_system_fpgarevision {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/system/fpgarevision",
-# 			type=>'I',
-# 		);
-# }
+=head3 /DEV/SIGOUTS/n/RANGE 
+Properties: Read Write Setting 
+Type: Double(D)
+Unit: V
+
+ set_sigouts_range(sigout => $sigout, value => $value)
+ get_sigouts_range(sigout => $sigout)
+
+Sets the output voltage range. The instrument selects the next higher available range.
+=cut 
+
+
+sub set_sigouts_range {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		sigout=>{isa => 'Int'},
+		value =>{isa =>'Num'},
+	);my $sigout=delete $args{sigout};
+	return $self->sync_set_value(
+			path => $self->device()."/sigouts/$sigout/range",
+			type=>'D',
+			value =>$value
+		);
+}
+
+sub get_sigouts_range {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		sigout=>{isa => 'Int'},
+		value =>{isa =>'Num',optional=>1},
+	);
+	my $sigout =delete $args{sigout};
+	return $self->get_value(
+			path => $self->device()."/sigouts/$sigout/range",
+			type=>'D',
+		);
+}
+
+=head3 /DEV/SINES/n/AMPLITUDES/m 
+Properties: Read Write Setting 
+Type: Double(D)
+Unit: None
+
+ set_sines_amplitudes(sine => $sine, amplitude=> $amplitude, value => $value)
+ get_sines_amplitudes(sine => $sine, amplitude=>$amplitude)
+
+Sets the peak amplitude that the sine signal contributes to the signal output. Note that the last
+index is either 0 or 1 and will map to the pair of outputs given by the first index. (e.g. sines/3/
+amplitudes/0 corresponds to wave output 2)
+=cut 
+
+
+sub set_sines_amplitudes{
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		sine=>{isa => 'Int'},
+		amplitude => {isa=>'Int'},
+		value =>{isa =>'Num'},
+	);
+	my $sine=delete $args{sine};
+	my $amplitude = delete $args{amplitude};
+	return $self->sync_set_value(
+			path => $self->device()."/sines/$sine/amplitudes/$amplitude",
+			type=>'D',
+			value =>$value
+
+		);
+}
+
+sub get_sines_amplitudes {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		sine=>{isa => 'Int'},
+		value =>{isa =>'Num',optional=>1},
+		amplitude => {isa=>'Int'}
+	);
+	my $sine =delete $args{sine};
+	my $amplitude = delete $args{amplitude};
+	return $self->get_value(
+			path => $self->device()."/sines/$sine/amplitudes/$amplitude",
+			type=>'D',
+
+		);
+}
+
+=head3 /DEV/SINES/n/ENABLES/m 
+Properties: Read Write Setting 
+Type: Integer (64 bit)(I)
+Unit: None
+
+ set_sines_enables(sine => $sine, amplitude=>$amplitude,value => $value)
+ get_sines_enables(sine => $sine, amplitude=>$amplitude)
+
+Enables the sine signal to the signal output. Note that the last index is either 0 or 1 and will map
+to the pair of outputs given by the first index. (e.g. sines/3/amplitudes/0 corresponds to wave
+output 2)
+=cut 
+
+
+sub set_sines_enables {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		sine=>{isa => 'Int'},
+		value =>{isa =>'Num'},
+		amplitude => {isa=>'Int'}
+	);
+	my $sine=delete $args{sine};
+	my $amplitude = delete $args{amplitude};
+	return $self->sync_set_value(
+			path => $self->device()."/sines/$sine/enables/$amplitude",
+			type=>'I',
+			value =>$value
+		);
+}
+
+sub get_sines_enables {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		sine=>{isa => 'Int'},
+		value =>{isa =>'Num',optional=>1},
+		amplitude => {isa=>'Int'}
+	);
+	my $sine =delete $args{sine};
+	my $amplitude = delete $args{amplitude};
+	return $self->get_value(
+			path => $self->device()."/sines/$sine/enables/$amplitude",
+			type=>'I',
+		);
+}
+
+=head3 /DEV/SINES/n/HARMONIC 
+Properties: Read Write Setting 
+Type: Integer (64 bit)(I)
+Unit: None
+
+ set_sines_harmonic(sine => $sine, value => $value)
+ get_sines_harmonic(sine => $sine)
+
+Multiplies the sine signalsâ€™s reference frequency with the integer factor defined by this field.
+=cut 
+
+
+sub set_sines_harmonic {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		sine=>{isa => 'Int'},
+		value =>{isa =>'Num'},
+	);my $sine=delete $args{sine};
+	return $self->sync_set_value(
+			path => $self->device()."/sines/$sine/harmonic",
+			type=>'I',
+			value =>$value
+		);
+}
+
+sub get_sines_harmonic {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		sine=>{isa => 'Int'},
+		value =>{isa =>'Num',optional=>1},
+	);
+	my $sine =delete $args{sine};
+	return $self->get_value(
+			path => $self->device()."/sines/$sine/harmonic",
+			type=>'I',
+		);
+}
+
+=head3 /DEV/SINES/n/OSCSELECT 
+Properties: Read Write Setting 
+Type: Integer (64 bit)(I)
+Unit: None
+
+ set_sines_oscselect(sine => $sine, value => $value)
+ get_sines_oscselect(sine => $sine)
+
+Select oscillator for generation of this sine signal.
+=cut 
+
+
+sub set_sines_oscselect {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		sine=>{isa => 'Int'},
+		value =>{isa =>'Num'},
+	);my $sine=delete $args{sine};
+	return $self->sync_set_value(
+			path => $self->device()."/sines/$sine/oscselect",
+			type=>'I',
+			value =>$value
+		);
+}
+
+sub get_sines_oscselect {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		sine=>{isa => 'Int'},
+		value =>{isa =>'Num',optional=>1},
+	);
+	my $sine =delete $args{sine};
+	return $self->get_value(
+			path => $self->device()."/sines/$sine/oscselect",
+			type=>'I',
+		);
+}
+
+=head3 /DEV/SINES/n/PHASESHIFT 
+Properties: Read Write Setting 
+Type: Double(D)
+Unit: deg
+
+ set_sines_phaseshift(sine => $sine, value => $value)
+ get_sines_phaseshift(sine => $sine)
+
+Phase shift applied to sine signal.
+=cut 
+
+
+sub set_sines_phaseshift {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		sine=>{isa => 'Int'},
+		value =>{isa =>'Num'},
+	);my $sine=delete $args{sine};
+	return $self->sync_set_value(
+			path => $self->device()."/sines/$sine/phaseshift",
+			type=>'D',
+			value =>$value
+		);
+}
+
+sub get_sines_phaseshift {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		sine=>{isa => 'Int'},
+		value =>{isa =>'Num',optional=>1},
+	);
+	my $sine =delete $args{sine};
+	return $self->get_value(
+			path => $self->device()."/sines/$sine/phaseshift",
+			type=>'D',
+		);
+}
+
+=head3 /DEV/STATS/CMDSTREAM/BANDWIDTH 
+Properties: Read 
+Type: Double(D)
+Unit: Mbit/s
+
+ get_stats_cmdstream_bandwidth()
+
+Command streaming bandwidth usage on the physical network connection between device and
+data server.
+=cut 
+
+
+sub get_stats_cmdstream_bandwidth {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/stats/cmdstream/bandwidth",
+			type=>'D',
+		);
+}
+
+=head3 /DEV/STATS/CMDSTREAM/BYTESRECEIVED 
+Properties: Read 
+Type: Integer (64 bit)(I)
+Unit: B
+
+ get_stats_cmdstream_bytesreceived()
+
+Number of bytes received on the command stream from the device since session start.
+=cut 
+
+
+sub get_stats_cmdstream_bytesreceived {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/stats/cmdstream/bytesreceived",
+			type=>'I',
+		);
+}
+
+=head3 /DEV/STATS/CMDSTREAM/BYTESSENT 
+Properties: Read 
+Type: Integer (64 bit)(I)
+Unit: B
+
+ get_stats_cmdstream_bytessent()
+
+Number of bytes sent on the command stream from the device since session start.
+=cut 
+
+
+sub get_stats_cmdstream_bytessent {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/stats/cmdstream/bytessent",
+			type=>'I',
+		);
+}
+
+=head3 /DEV/STATS/CMDSTREAM/PACKETSLOST 
+Properties: Read 
+Type: Integer (64 bit)(I)
+Unit: None
+
+ get_stats_cmdstream_packetslost()
+
+Number of command packets lost since device start. Command packets contain device settings
+that are sent to and received from the device.
+=cut 
+
+
+sub get_stats_cmdstream_packetslost {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/stats/cmdstream/packetslost",
+			type=>'I',
+		);
+}
+
+=head3 /DEV/STATS/CMDSTREAM/PACKETSRECEIVED 
+Properties: Read 
+Type: Integer (64 bit)(I)
+Unit: None
+
+ get_stats_cmdstream_packetsreceived()
+
+Number of packets received on the command stream from the device since session start.
+=cut 
+
+
+sub get_stats_cmdstream_packetsreceived {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/stats/cmdstream/packetsreceived",
+			type=>'I',
+		);
+}
+
+=head3 /DEV/STATS/CMDSTREAM/PACKETSSENT 
+Properties: Read 
+Type: Integer (64 bit)(I)
+Unit: None
+
+ get_stats_cmdstream_packetssent()
+
+Number of packets sent on the command stream to the device since session start.
+=cut 
+
+
+sub get_stats_cmdstream_packetssent {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/stats/cmdstream/packetssent",
+			type=>'I',
+		);
+}
+
+=head3 /DEV/STATS/CMDSTREAM/PENDING 
+Properties: Read 
+Type: Integer (64 bit)(I)
+Unit: None
+
+ get_stats_cmdstream_pending()
+
+Number of buffers ready for receiving command packets from the device.
+=cut 
+
+
+sub get_stats_cmdstream_pending {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/stats/cmdstream/pending",
+			type=>'I',
+		);
+}
+
+=head3 /DEV/STATS/CMDSTREAM/PROCESSING 
+Properties: Read 
+Type: Integer (64 bit)(I)
+Unit: None
+
+ get_stats_cmdstream_processing()
+
+Number of buffers being processed for command packets. Small values indicate proper
+performance. For a TCP/IP interface, command packets are sent using the TCP protocol.
+=cut 
+
+
+sub get_stats_cmdstream_processing {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/stats/cmdstream/processing",
+			type=>'I',
+		);
+}
+
+=head3 /DEV/STATS/DATASTREAM/BANDWIDTH 
+Properties: Read 
+Type: Double(D)
+Unit: Mbit/s
+
+ get_stats_datastream_bandwidth()
+
+Data streaming bandwidth usage on the physical network connection between device and data
+server.
+=cut 
+
+
+sub get_stats_datastream_bandwidth {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/stats/datastream/bandwidth",
+			type=>'D',
+		);
+}
+
+=head3 /DEV/STATS/DATASTREAM/BYTESRECEIVED 
+Properties: Read 
+Type: Integer (64 bit)(I)
+Unit: B
+
+ get_stats_datastream_bytesreceived()
+
+Number of bytes received on the data stream from the device since session start.
+=cut 
+
+
+sub get_stats_datastream_bytesreceived {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/stats/datastream/bytesreceived",
+			type=>'I',
+		);
+}
+
+=head3 /DEV/STATS/DATASTREAM/PACKETSLOST 
+Properties: Read 
+Type: Integer (64 bit)(I)
+Unit: None
+
+ get_stats_datastream_packetslost()
+
+Number of data packets lost since device start. Data packets contain measurement data.
+=cut 
+
+
+sub get_stats_datastream_packetslost {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/stats/datastream/packetslost",
+			type=>'I',
+		);
+}
+
+=head3 /DEV/STATS/DATASTREAM/PACKETSRECEIVED 
+Properties: Read 
+Type: Integer (64 bit)(I)
+Unit: None
+
+ get_stats_datastream_packetsreceived()
+
+Number of packets received on the data stream from the device since session start.
+=cut 
+
+
+sub get_stats_datastream_packetsreceived {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/stats/datastream/packetsreceived",
+			type=>'I',
+		);
+}
+
+=head3 /DEV/STATS/DATASTREAM/PENDING 
+Properties: Read 
+Type: Integer (64 bit)(I)
+Unit: None
+
+ get_stats_datastream_pending()
+
+Number of buffers ready for receiving data packets from the device.
+=cut
+
+
+sub get_stats_datastream_pending {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/stats/datastream/pending",
+			type=>'I',
+		);
+}
+
+=head3 /DEV/STATS/DATASTREAM/PROCESSING 
+Properties: Read 
+Type: Integer (64 bit)(I)
+Unit: None
+
+ get_stats_datastream_processing()
+
+Number of buffers being processed for data packets. Small values indicate proper performance.
+For a TCP/IP interface, data packets are sent using the UDP protocol.
+=cut 
+
+
+sub get_stats_datastream_processing {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/stats/datastream/processing",
+			type=>'I',
+		);
+}
+
+=head3 /DEV/STATS/PHYSICAL/FPGA/AUX 
+Properties: Read 
+Type: Double(D)
+Unit: V
+
+ get_stats_physical_fpga_aux()
+
+Supply voltage of the FPGA.
+=cut 
+
+
+sub get_stats_physical_fpga_aux {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/stats/physical/fpga/aux",
+			type=>'D',
+		);
+}
+
+=head3 /DEV/STATS/PHYSICAL/FPGA/CORE 
+Properties: Read 
+Type: Double(D)
+Unit: V
+
+ get_stats_physical_fpga_core()
+
+Core voltage of the FPGA.
+=cut 
+
+
+sub get_stats_physical_fpga_core {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/stats/physical/fpga/core",
+			type=>'D',
+		);
+}
+
+=head3 /DEV/STATS/PHYSICAL/FPGA/TEMP 
+Properties: Read 
+Type: Double(D)
+Unit: Â°C
+
+ get_stats_physical_fpga_temp()
+
+Internal temperature of the FPGA.
+=cut 
+
+
+sub get_stats_physical_fpga_temp {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/stats/physical/fpga/temp",
+			type=>'D',
+		);
+}
+
+=head3 /DEV/STATS/PHYSICAL/OVERTEMPERATURE 
+Properties: Read 
+Type: Integer (64 bit)(I)
+Unit: None
+
+ get_stats_physical_overtemperature()
+
+This flag is set to 1 if the temperature of the FPGA exceeds 85Â°C. It will be reset to 0 after a restart
+of the device.
+=cut 
+
+
+sub get_stats_physical_overtemperature {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/stats/physical/overtemperature",
+			type=>'I',
+		);
+}
+
+=head3 /DEV/STATS/PHYSICAL/POWER/CURRENTS/n 
+Properties: Read 
+Type: Double(D)
+Unit: A
+
+ get_stats_physical_power_currents(current => $current)
+
+Currents of the main power supply.
+=cut 
+
+
+sub get_stats_physical_power_currents {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+		current =>{isa=>'Int'}
+	);
+	my $current = delete $args{current};
+	return $self->get_value(
+			path => $self->device()."/stats/physical/power/currents/$current",
+			type=>'D',
+		);
+}
+
+=head3 /DEV/STATS/PHYSICAL/POWER/TEMPERATURES/n 
+Properties: Read 
+Type: Double(D)
+Unit: Â°C
+
+ get_stats_physical_power_temperatures(temperature =>$temperature)
+
+Temperatures of the main power supply.
+=cut 
+
+
+sub get_stats_physical_power_temperatures{
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+		temperature => {isa=>'Int'}
+	);
+	my $temperature = delete $args{temperature};
+	return $self->get_value(
+			path => $self->device()."/stats/physical/power/temperatures/$temperature",
+			type=>'D',
+		);
+}
+
+=head3 /DEV/STATS/PHYSICAL/POWER/VOLTAGES/n 
+Properties: Read 
+Type: Double(D)
+Unit: V
+
+ get_stats_physical_power_voltages(voltage => $voltage)
+
+Voltages of the main power supply.
+=cut 
+
+
+sub get_stats_physical_power_voltages{
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+		voltage => {isa => 'Int'}
+	);
+	my $voltage = delete $args{voltage};
+	return $self->get_value(
+			path => $self->device()."/stats/physical/power/voltages/$voltage",
+			type=>'D',
+		);
+}
+
+=head3 /DEV/STATS/PHYSICAL/SLAVEFPGAS/n/AUX 
+Properties: Read 
+Type: Double(D)
+Unit: V
+
+ get_stats_physical_slavefpgas_aux(slavefpga => $slavefpga)
+
+Supply voltage of the FPGA.
+=cut 
+
+
+sub get_stats_physical_slavefpgas_aux {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		slavefpga=>{isa => 'Int'},
+		value =>{isa =>'Num',optional=>1},
+	);
+	my $slavefpga =delete $args{slavefpga};
+	return $self->get_value(
+			path => $self->device()."/stats/physical/slavefpgas/$slavefpga/aux",
+			type=>'D',
+		);
+}
+
+=head3 /DEV/STATS/PHYSICAL/SLAVEFPGAS/n/CORE 
+Properties: Read 
+Type: Double(D)
+Unit: V
+
+ get_stats_physical_slavefpgas_core(slavefpga => $slavefpga)
+
+Core voltage of the FPGA.
+=cut 
+
+
+sub get_stats_physical_slavefpgas_core {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		slavefpga=>{isa => 'Int'},
+		value =>{isa =>'Num',optional=>1},
+	);
+	my $slavefpga =delete $args{slavefpga};
+	return $self->get_value(
+			path => $self->device()."/stats/physical/slavefpgas/$slavefpga/core",
+			type=>'D',
+		);
+}
+
+=head3 /DEV/STATS/PHYSICAL/SLAVEFPGAS/n/TEMP 
+Properties: Read 
+Type: Double(D)
+Unit: Â°C
+
+ get_stats_physical_slavefpgas_temp(slavefpga => $slavefpga)
+
+Internal temperature of the FPGA.
+=cut 
+
+
+sub get_stats_physical_slavefpgas_temp {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		slavefpga=>{isa => 'Int'},
+		value =>{isa =>'Num',optional=>1},
+	);
+	my $slavefpga =delete $args{slavefpga};
+	return $self->get_value(
+			path => $self->device()."/stats/physical/slavefpgas/$slavefpga/temp",
+			type=>'D',
+		);
+}
+
+=head3 /DEV/STATS/PHYSICAL/TEMPERATURES/n 
+Properties: Read 
+Type: Double(D)
+Unit: Â°C
+
+ get_stats_physical_temperatures(temperature => $temperature)
+
+Internal temperature measurements.
+=cut 
+
+
+sub get_stats_physical_temperatures {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+		temperature =>{isa=>'Int'}
+	);
+	my $temperature = delete $args{temperature};
+	return $self->get_value(
+			path => $self->device()."/stats/physical/temperatures/$temperature",
+			type=>'D',
+		);
+}
+
+=head3 /DEV/STATS/PHYSICAL/VOLTAGES/n 
+Properties: Read 
+Type: Double(D)
+Unit: V
+
+ get_stats_physical_voltages(voltage => $voltage)
+
+Internal voltage measurements.
+=cut 
+
+
+sub get_stats_physical_voltages {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+		voltage=>{isa =>'Int'}
+	);
+	my $voltage = delete $args{voltage};
+	return $self->get_value(
+			path => $self->device()."/stats/physical/voltages/$voltage",
+			type=>'D',
+		);
+}
+
+=head3 /DEV/STATUS/ADC0MAX 
+Properties: Read 
+Type: Integer (64 bit)(I)
+Unit: None
+
+ get_status_adc0max()
+
+The maximum value on Signal Input 1 (ADC0) during 100 ms.
+=cut 
+
+
+sub get_status_adc0max {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/status/adc0max",
+			type=>'I',
+		);
+}
+
+=head3 /DEV/STATUS/ADC0MIN 
+Properties: Read 
+Type: Integer (64 bit)(I)
+Unit: None
+
+ get_status_adc0min()
+
+The minimum value on Signal Input 1 (ADC0) during 100 ms
+=cut 
+
+
+sub get_status_adc0min {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/status/adc0min",
+			type=>'I',
+		);
+}
+
+=head3 /DEV/STATUS/ADC1MAX 
+Properties: Read 
+Type: Integer (64 bit)(I)
+Unit: None
+
+ get_status_adc1max()
+
+The maximum value on Signal Input 2 (ADC1) during 100 ms.
+=cut 
+
+
+sub get_status_adc1max {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/status/adc1max",
+			type=>'I',
+		);
+}
+
+=head3 /DEV/STATUS/ADC1MIN 
+Properties: Read 
+Type: Integer (64 bit)(I)
+Unit: None
+
+ get_status_adc1min()
+
+The minimum value on Signal Input 2 (ADC1) during 100 ms
+=cut 
+
+
+sub get_status_adc1min {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/status/adc1min",
+			type=>'I',
+		);
+}
+
+=head3 /DEV/STATUS/FIFOLEVEL 
+Properties: Read 
+Type: Double(D)
+Unit: None
+
+ get_status_fifolevel()
+
+USB FIFO level: Indicates the USB FIFO fill level inside the device. When 100%, data is lost
+=cut 
+
+
+sub get_status_fifolevel {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/status/fifolevel",
+			type=>'D',
+		);
+}
+
+=head3 /DEV/STATUS/FLAGS/BINARY 
+Properties: Read 
+Type: Integer (64 bit)(I)
+Unit: None
+
+ get_status_flags_binary()
+
+A set of binary flags giving an indication of the state of various parts of the device. Bit 11: Sample
+Loss.
+=cut 
+
+
+sub get_status_flags_binary {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/status/flags/binary",
+			type=>'I',
+		);
+}
+
+=head3 /DEV/STATUS/FLAGS/PACKETLOSSTCP 
+Properties: Read 
+Type: Integer (64 bit)(I)
+Unit: None
+
+ get_status_flags_packetlosstcp()
+
+Flag indicating if tcp packages have been lost.
+=cut 
+
+
+sub get_status_flags_packetlosstcp {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/status/flags/packetlosstcp",
+			type=>'I',
+		);
+}
+
+=head3 /DEV/STATUS/FLAGS/PACKETLOSSUDP 
+Properties: Read 
+Type: Integer (64 bit)(I)
+Unit: None
+
+ get_status_flags_packetlossudp()
+
+Flag indicating if udp packages have been lost.
+=cut 
+
+
+sub get_status_flags_packetlossudp {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/status/flags/packetlossudp",
+			type=>'I',
+		);
+}
+
+=head3 /DEV/STATUS/TIME 
+Properties: Read 
+Type: Integer (64 bit)(I)
+Unit: None
+
+ get_status_time()
+
+The current timestamp.
+=cut 
+
+
+sub get_status_time {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/status/time",
+			type=>'I',
+		);
+}
+
+=head3 /DEV/SYSTEM/ACTIVEINTERFACE 
+Properties: Read 
+Type: String(B)
+Unit: None
+
+ get_system_activeinterface()
+
+Currently active interface of the device.
+=cut 
+
+
+sub get_system_activeinterface {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+		read_length => {isa=>'Int'}
+	);
+	my $read_length = delete $args{read_length};
+	return $self->connection->get_value(
+			path => $self->device()."/system/activeinterface",
+			type=>'B',
+			read_length=>$read_length
+		);
+}
+
+=head3 /DEV/SYSTEM/AWG/CHANNELGROUPING 
+Properties: Read Write Setting 
+Type: Integer (enumerated)(I)
+Unit: None
+
+ set_system_awg_channelgrouping(value => $value)
+ get_system_awg_channelgrouping()
+
+Sets the channel grouping mode of the device.
+groups_of_20
+Use the outputs in groups of 2. One sequencer program controls 2 outputs (use /
+devâ€¦./awgs/0..4/).
+groups_of_41
+Use the outputs in groups of 4. One sequencer program controls 4 outputs (use /
+devâ€¦./awgs/0/ and /dev/awgs/2/)
+2groups_of_8
+Use the outputs in groups of 8. One sequencer program controls 8 outputs (use /
+devâ€¦./awgs/0/). Requires 8 channel device.
+=cut 
+
+
+sub set_system_awg_channelgrouping {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num'},
+	);
+	return $self->sync_set_value(
+			path => $self->device()."/system/awg/channelgrouping",
+			type=>'I',
+			value =>$value
+		);
+}
+
+sub get_system_awg_channelgrouping {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/system/awg/channelgrouping",
+			type=>'I',
+		);
+}
+
+=head3 /DEV/SYSTEM/AWG/OSCILLATORCONTROL 
+Properties: Read Write Setting 
+Type: Integer (enumerated)(I)
+Unit: None
+
+ set_system_awg_oscillatorcontrol(value => $value)
+ get_system_awg_oscillatorcontrol()
+
+Sets the oscillator control mode.
+api0
+Oscillators are controlled by the UI/API.
+awg_sequencer1
+Oscillators are controlled by the AWG sequencer.
+=cut 
+
+
+sub set_system_awg_oscillatorcontrol {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num'},
+	);
+	return $self->sync_set_value(
+			path => $self->device()."/system/awg/oscillatorcontrol",
+			type=>'I',
+			value =>$value
+		);
+}
+
+sub get_system_awg_oscillatorcontrol {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/system/awg/oscillatorcontrol",
+			type=>'I',
+		);
+}
+
+=head3 /DEV/SYSTEM/BOARDREVISIONS/n 
+Properties: Read 
+Type: String(B)
+Unit: None
+
+ get_system_boardrevisions()
+
+Hardware revision of the FPGA base board
+=cut 
+
+
+sub get_system_boardrevisions {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+		boardrevision => {isa=>'Int'},
+		read_length => {isa=>'Int'}
+	);
+	my $boardrevision = delete $args{boardrevision};
+	my $read_length = delete $args{read_length};
+	return $self->connection->get_value(
+			path => $self->device()."/system/boardrevisions/$boardrevision",
+			type=>'B',
+			read_length => $read_length
+		);
+}
+
+=head3 /DEV/SYSTEM/CLOCKS/REFERENCECLOCK/FREQ 
+Properties: Read 
+Type: Double(D)
+Unit: Hz
+
+ get_system_clocks_referenceclock_freq()
+
+Indicates the frequency of the reference clock.
+=cut 
+
+
+sub get_system_clocks_referenceclock_freq {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/system/clocks/referenceclock/freq",
+			type=>'D',
+		);
+}
+
+=head3 /DEV/SYSTEM/CLOCKS/REFERENCECLOCK/SOURCE 
+Properties: Read Write Setting 
+Type: Integer (enumerated)(I)
+Unit: None
+
+ set_system_clocks_referenceclock_source(value => $value)
+ get_system_clocks_referenceclock_source()
+
+Reference clock source.
+internal0
+The internal clock is used as the frequency and time base reference.
+external1
+An external clock is intended to be used as the frequency and time base reference.
+Provide a clean and stable 10MHz or 100MHz reference to the appropriate back panel
+connector.
+2zsync
+A ZSync clock is intended to be used as the frequency and time base reference.
+=cut 
+
+
+sub set_system_clocks_referenceclock_source {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num'},
+	);
+	return $self->sync_set_value(
+			path => $self->device()."/system/clocks/referenceclock/source",
+			type=>'I',
+			value =>$value
+		);
+}
+
+sub get_system_clocks_referenceclock_source {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/system/clocks/referenceclock/source",
+			type=>'I',
+		);
+}
+
+=head3 /DEV/SYSTEM/CLOCKS/REFERENCECLOCK/STATUS 
+Properties: Read 
+Type: Integer (enumerated)(I)
+Unit: None
+
+ get_system_clocks_referenceclock_status()
+
+Status of the reference clock.
+0Reference clock has been locked on.
+1There was an error locking onto the reference clock signal. After an error the source
+is automatically switched back to internal reference clock.
+2The device is busy trying to lock onto the reference clock signal.
+=cut 
+
+
+sub get_system_clocks_referenceclock_status {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/system/clocks/referenceclock/status",
+			type=>'I',
+		);
+}
+
+=head3 /DEV/SYSTEM/CLOCKS/SAMPLECLOCK/FREQ 
+Properties: Read Write Setting 
+Type: Double(D)
+Unit: Hz
+
+ set_system_clocks_sampleclock_freq(value => $value)
+ get_system_clocks_sampleclock_freq()
+
+Indicates the frequency of the sample clock. Changing the sample clock temporarily interrupts
+the AWG sequencers.
+=cut 
+
+
+sub set_system_clocks_sampleclock_freq {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num'},
+	);
+	return $self->sync_set_value(
+			path => $self->device()."/system/clocks/sampleclock/freq",
+			type=>'D',
+			value =>$value
+		);
+}
+
+sub get_system_clocks_sampleclock_freq {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/system/clocks/sampleclock/freq",
+			type=>'D',
+		);
+}
+
+=head3 /DEV/SYSTEM/CLOCKS/SAMPLECLOCK/OUTPUTENABLE 
+Properties: Read Write Setting 
+Type: Integer (enumerated)(I)
+Unit: None
+
+ set_system_clocks_sampleclock_outputenable(value => $value)
+ get_system_clocks_sampleclock_outputenable()
+
+Enable the sampleclock output.
+on0
+Sample clock output is disabled.
+off1
+Sample clock output is enabled.
+=cut 
+
+
+sub set_system_clocks_sampleclock_outputenable {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num'},
+	);
+	return $self->sync_set_value(
+			path => $self->device()."/system/clocks/sampleclock/outputenable",
+			type=>'I',
+			value =>$value
+		);
+}
+
+sub get_system_clocks_sampleclock_outputenable {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/system/clocks/sampleclock/outputenable",
+			type=>'I',
+		);
+}
+
+=head3 /DEV/SYSTEM/CLOCKS/SAMPLECLOCK/STATUS 
+Properties: Read 
+Type: Integer (enumerated)(I)
+Unit: None
+
+ get_system_clocks_sampleclock_status()
+
+Status of the sample clock.
+0Sample clock signal is valid and has been locked on.
+1There was an error adjusting the sample clock.
+2The device is busy trying to adjust the sample clock.
+=cut 
+
+
+sub get_system_clocks_sampleclock_status {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/system/clocks/sampleclock/status",
+			type=>'I',
+		);
+}
+
+=head3 /DEV/SYSTEM/FPGAREVISION 
+Properties: Read 
+Type: Integer (64 bit)(I)
+Unit: None
+
+ get_system_fpgarevision()
+
+HDL firmware revision.
+=cut 
+
+
+sub get_system_fpgarevision {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/system/fpgarevision",
+			type=>'I',
+		);
+}
 
 # =head3 /DEV/SYSTEM/FWLOG 
 # Properties: Read 
@@ -5164,170 +5226,181 @@ sub get_dios_output {
 # 	my ($self, $value, %args) = validated_setter(
 # 		\@_,
 # 		value =>{isa =>'Num',optional=>1},
+# 		read_length=>{isa=>'Int'}
 # 	);
-# 	return $self->get_value(
+# 	my $read_length = delete $args{read_length};
+# 	return $self->connection->get_value(
 # 			path => $self->device()."/system/fwlog",
 # 			type=>'B',
+# 			read_length=>$read_length
+
 # 		);
 # }
 
-# =head3 /DEV/SYSTEM/FWLOGENABLE 
-# Properties: Read Write 
-# Type: Integer (64 bit)(I)
-# Unit: None
+=head3 /DEV/SYSTEM/FWLOGENABLE 
+Properties: Read Write 
+Type: Integer (64 bit)(I)
+Unit: None
 
-#  set_system_fwlogenable(value => $value)
-#  get_system_fwlogenable()
+ set_system_fwlogenable(value => $value)
+ get_system_fwlogenable()
 
-# Enables logging to the fwlog node.
-# =cut 
-
-
-# sub set_system_fwlogenable {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num'},
-# 	);
-# 	return $self->sync_set_value(
-# 			path => $self->device()."/system/fwlogenable",
-# 			type=>'I',
-# 			value =>$value
-# 		);
-# }
-
-# sub get_system_fwlogenable {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/system/fwlogenable",
-# 			type=>'I',
-# 		);
-# }
-
-# =head3 /DEV/SYSTEM/FWREVISION 
-# Properties: Read 
-# Type: Integer (64 bit)(I)
-# Unit: None
-
-#  get_system_fwrevision()
-
-# Revision of the device-internal controller software.
-# =cut 
+Enables logging to the fwlog node.
+=cut 
 
 
-# sub get_system_fwrevision {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/system/fwrevision",
-# 			type=>'I',
-# 		);
-# }
+sub set_system_fwlogenable {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num'},
+	);
+	return $self->sync_set_value(
+			path => $self->device()."/system/fwlogenable",
+			type=>'I',
+			value =>$value
+		);
+}
 
-# =head3 /DEV/SYSTEM/FX3REVISION 
-# Properties: Read 
-# Type: String(B)
-# Unit: None
+sub get_system_fwlogenable {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/system/fwlogenable",
+			type=>'I',
+		);
+}
 
-#  get_system_fx3revision()
+=head3 /DEV/SYSTEM/FWREVISION 
+Properties: Read 
+Type: Integer (64 bit)(I)
+Unit: None
 
-# USB firmware revision.
-# =cut 
+ get_system_fwrevision()
 
-
-# sub get_system_fx3revision {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/system/fx3revision",
-# 			type=>'B',
-# 		);
-# }
-
-# =head3 /DEV/SYSTEM/IDENTIFY 
-# Properties: Read Write 
-# Type: Integer (64 bit)(I)
-# Unit: None
-
-#  set_system_identify(value => $value)
-#  get_system_identify()
-
-# Setting this node to 1 will cause the device to blink the power led for a few seconds.
-# =cut 
+Revision of the device-internal controller software.
+=cut 
 
 
-# sub set_system_identify {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num'},
-# 	);
-# 	return $self->sync_set_value(
-# 			path => $self->device()."/system/identify",
-# 			type=>'I',
-# 			value =>$value
-# 		);
-# }
+sub get_system_fwrevision {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/system/fwrevision",
+			type=>'I',
+		);
+}
 
-# sub get_system_identify {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/system/identify",
-# 			type=>'I',
-# 		);
-# }
+=head3 /DEV/SYSTEM/FX3REVISION 
+Properties: Read 
+Type: String(B)
+Unit: None
 
-# =head3 /DEV/SYSTEM/INTERFACESPEED 
-# Properties: Read 
-# Type: String(B)
-# Unit: None
+ get_system_fx3revision()
 
-#  get_system_interfacespeed()
-
-# Speed of the currently active interface (USB only).
-# =cut 
+USB firmware revision.
+=cut 
 
 
-# sub get_system_interfacespeed {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/system/interfacespeed",
-# 			type=>'B',
-# 		);
-# }
+sub get_system_fx3revision {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/system/fx3revision",
+			type=>'B',
+		);
+}
 
-# =head3 /DEV/SYSTEM/KERNELTYPE 
-# Properties: Read 
-# Type: String(B)
-# Unit: None
+=head3 /DEV/SYSTEM/IDENTIFY 
+Properties: Read Write 
+Type: Integer (64 bit)(I)
+Unit: None
 
-#  get_system_kerneltype()
+ set_system_identify(value => $value)
+ get_system_identify()
 
-# Returns the type of the data server kernel (mdk or hpk).
-# =cut 
+Setting this node to 1 will cause the device to blink the power led for a few seconds.
+=cut 
 
 
-# sub get_system_kerneltype {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/system/kerneltype",
-# 			type=>'B',
-# 		);
-# }
+sub set_system_identify {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num'},
+	);
+	return $self->sync_set_value(
+			path => $self->device()."/system/identify",
+			type=>'I',
+			value =>$value
+		);
+}
+
+sub get_system_identify {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/system/identify",
+			type=>'I',
+		);
+}
+
+=head3 /DEV/SYSTEM/INTERFACESPEED 
+Properties: Read 
+Type: String(B)
+Unit: None
+
+ get_system_interfacespeed()
+
+Speed of the currently active interface (USB only).
+=cut 
+
+
+sub get_system_interfacespeed {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+		read_length => {isa=>'Int'}
+	);
+	my $read_length = delete $args{read_length};
+	return $self->connection->get_value(
+			path => $self->device()."/system/interfacespeed",
+			type=>'B',
+			read_length => $read_length
+
+		);
+}
+
+=head3 /DEV/SYSTEM/KERNELTYPE 
+Properties: Read 
+Type: String(B)
+Unit: None
+
+ get_system_kerneltype()
+
+Returns the type of the data server kernel (mdk or hpk).
+=cut 
+
+
+sub get_system_kerneltype {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+		read_length => {isa=>'Int'}
+	);
+	my $read_length = delete $args{read_length};
+	return $self->connection->get_value(
+			path => $self->device()."/system/kerneltype",
+			type=>'B',
+			read_length => $read_length
+		);
+}
 
 # =head3 /DEV/SYSTEM/NICS/n/DEFAULTGATEWAY 
 # Properties: Read Write 
@@ -5615,27 +5688,30 @@ sub get_dios_output {
 # 		);
 # }
 
-# =head3 /DEV/SYSTEM/OWNER 
-# Properties: Read 
-# Type: String(B)
-# Unit: None
+=head3 /DEV/SYSTEM/OWNER 
+Properties: Read 
+Type: String(B)
+Unit: None
 
-#  get_system_owner()
+ get_system_owner()
 
-# Returns the current owner of the device (IP).
-# =cut 
+Returns the current owner of the device (IP).
+=cut 
 
 
-# sub get_system_owner {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/system/owner",
-# 			type=>'B',
-# 		);
-# }
+sub get_system_owner {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+		read_length => {isa=>'Int'}
+	);
+	my $read_length = delete $args{read_length};
+	return $self->connection->get_value(
+			path => $self->device()."/system/owner",
+			type=>'B',
+			read_length=>$read_length
+		);
+}
 
 # =head3 /DEV/SYSTEM/PORTTCP 
 # Properties: Read Write 
@@ -5707,319 +5783,319 @@ sub get_dios_output {
 # 		);
 # }
 
-# =head3 /DEV/SYSTEM/POWERCONFIGDATE 
-# Properties: Read 
-# Type: Integer (64 bit)(I)
-# Unit: None
-
-#  get_system_powerconfigdate()
-
-# Contains the date of power configuration (format is: (year << 16) | (month << 8) | day)
-# =cut 
-
-
-# sub get_system_powerconfigdate {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/system/powerconfigdate",
-# 			type=>'I',
-# 		);
-# }
-
-# =head3 /DEV/SYSTEM/PRESET/BUSY 
-# Properties: Read 
-# Type: Integer (64 bit)(I)
-# Unit: None
-
-#  get_system_preset_busy()
-
-# Indicates if presets are currently loaded.
-# =cut 
-
-
-# sub get_system_preset_busy {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/system/preset/busy",
-# 			type=>'I',
-# 		);
-# }
-
-# =head3 /DEV/SYSTEM/PRESET/ERROR 
-# Properties: Read 
-# Type: Integer (64 bit)(I)
-# Unit: None
-
-#  get_system_preset_error()
-
-# Indicates if the last operation was illegal. Successful: 0, Error: 1.
-# =cut 
-
-
-# sub get_system_preset_error {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/system/preset/error",
-# 			type=>'I',
-# 		);
-# }
-
-# =head3 /DEV/SYSTEM/PRESET/LOAD 
-# Properties: Read Write 
-# Type: Integer (64 bit)(I)
-# Unit: None
-
-#  set_system_preset_load(value => $value)
-#  get_system_preset_load()
-
-# Load the selected preset.
-# =cut 
-
-
-# sub set_system_preset_load {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num'},
-# 	);
-# 	return $self->sync_set_value(
-# 			path => $self->device()."/system/preset/load",
-# 			type=>'I',
-# 			value =>$value
-# 		);
-# }
-
-# sub get_system_preset_load {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/system/preset/load",
-# 			type=>'I',
-# 		);
-# }
-
-# =head3 /DEV/SYSTEM/PROPERTIES/FREQRESOLUTION 
-# Properties: Read 
-# Type: Integer (64 bit)(I)
-# Unit: None
-
-#  get_system_properties_freqresolution()
-
-# The number of bits used to represent a frequency.
-# =cut 
-
-
-# sub get_system_properties_freqresolution {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/system/properties/freqresolution",
-# 			type=>'I',
-# 		);
-# }
-
-# =head3 /DEV/SYSTEM/PROPERTIES/FREQSCALING 
-# Properties: Read 
-# Type: Double(D)
-# Unit: None
-
-#  get_system_properties_freqscaling()
-
-# The scale factor to use to convert a frequency represented as a freqresolution-bit integer to a
-# floating point value.
-# =cut 
-
-
-# sub get_system_properties_freqscaling {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/system/properties/freqscaling",
-# 			type=>'D',
-# 		);
-# }
-
-# =head3 /DEV/SYSTEM/PROPERTIES/MAXFREQ 
-# Properties: Read 
-# Type: Double(D)
-# Unit: None
-
-#  get_system_properties_maxfreq()
-
-# The maximum oscillator frequency that can be set.
-# =cut 
-
-
-# sub get_system_properties_maxfreq {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/system/properties/maxfreq",
-# 			type=>'D',
-# 		);
-# }
-
-# =head3 /DEV/SYSTEM/PROPERTIES/MAXTIMECONSTANT 
-# Properties: Read 
-# Type: Double(D)
-# Unit: s
-
-#  get_system_properties_maxtimeconstant()
-
-# The maximum demodulator time constant that can be set. Only relevant for lock-in amplifiers.
-# =cut 
-
-
-# sub get_system_properties_maxtimeconstant {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/system/properties/maxtimeconstant",
-# 			type=>'D',
-# 		);
-# }
-
-# =head3 /DEV/SYSTEM/PROPERTIES/MINFREQ 
-# Properties: Read 
-# Type: Double(D)
-# Unit: None
-
-#  get_system_properties_minfreq()
-
-# The minimum oscillator frequency that can be set.
-# =cut 
-
-
-# sub get_system_properties_minfreq {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/system/properties/minfreq",
-# 			type=>'D',
-# 		);
-# }
-
-# =head3 /DEV/SYSTEM/PROPERTIES/MINTIMECONSTANT 
-# Properties: Read 
-# Type: Double(D)
-# Unit: s
-
-#  get_system_properties_mintimeconstant()
-
-# The minimum demodulator time constant that can be set. Only relevant for lock-in amplifiers.
-# =cut 
-
-
-# sub get_system_properties_mintimeconstant {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/system/properties/mintimeconstant",
-# 			type=>'D',
-# 		);
-# }
-
-# =head3 /DEV/SYSTEM/PROPERTIES/NEGATIVEFREQ 
-# Properties: Read 
-# Type: Integer (64 bit)(I)
-# Unit: None
-
-#  get_system_properties_negativefreq()
-
-# Indicates whether negative frequencies are supported.
-# =cut 
-
-
-# sub get_system_properties_negativefreq {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/system/properties/negativefreq",
-# 			type=>'I',
-# 		);
-# }
-
-# =head3 /DEV/SYSTEM/PROPERTIES/TIMEBASE 
-# Properties: Read 
-# Type: Double(D)
-# Unit: s
-
-#  get_system_properties_timebase()
-
-# Minimal time difference between two timestamps. The value is equal to 1/(maximum sampling
-# rate).
-# =cut 
-
-
-# sub get_system_properties_timebase {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/system/properties/timebase",
-# 			type=>'D',
-# 		);
-# }
-
-# =head3 /DEV/SYSTEM/SAVEPORTS 
-# Properties: Read Write 
-# Type: Integer (64 bit)(I)
-# Unit: None
-
-#  set_system_saveports(value => $value)
-#  get_system_saveports()
-
-# Flag indicating that the TCP and UDP ports should be saved.
-# =cut 
-
-
-# sub set_system_saveports {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num'},
-# 	);
-# 	return $self->sync_set_value(
-# 			path => $self->device()."/system/saveports",
-# 			type=>'I',
-# 			value =>$value
-# 		);
-# }
-
-# sub get_system_saveports {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/system/saveports",
-# 			type=>'I',
-# 		);
-# }
+=head3 /DEV/SYSTEM/POWERCONFIGDATE 
+Properties: Read 
+Type: Integer (64 bit)(I)
+Unit: None
+
+ get_system_powerconfigdate()
+
+Contains the date of power configuration (format is: (year << 16) | (month << 8) | day)
+=cut 
+
+
+sub get_system_powerconfigdate {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/system/powerconfigdate",
+			type=>'I',
+		);
+}
+
+=head3 /DEV/SYSTEM/PRESET/BUSY 
+Properties: Read 
+Type: Integer (64 bit)(I)
+Unit: None
+
+ get_system_preset_busy()
+
+Indicates if presets are currently loaded.
+=cut 
+
+
+sub get_system_preset_busy {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/system/preset/busy",
+			type=>'I',
+		);
+}
+
+=head3 /DEV/SYSTEM/PRESET/ERROR 
+Properties: Read 
+Type: Integer (64 bit)(I)
+Unit: None
+
+ get_system_preset_error()
+
+Indicates if the last operation was illegal. Successful: 0, Error: 1.
+=cut 
+
+
+sub get_system_preset_error {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/system/preset/error",
+			type=>'I',
+		);
+}
+
+=head3 /DEV/SYSTEM/PRESET/LOAD 
+Properties: Read Write 
+Type: Integer (64 bit)(I)
+Unit: None
+
+ set_system_preset_load(value => $value)
+ get_system_preset_load()
+
+Load the selected preset.
+=cut 
+
+
+sub set_system_preset_load {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num'},
+	);
+	return $self->sync_set_value(
+			path => $self->device()."/system/preset/load",
+			type=>'I',
+			value =>$value
+		);
+}
+
+sub get_system_preset_load {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/system/preset/load",
+			type=>'I',
+		);
+}
+
+=head3 /DEV/SYSTEM/PROPERTIES/FREQRESOLUTION 
+Properties: Read 
+Type: Integer (64 bit)(I)
+Unit: None
+
+ get_system_properties_freqresolution()
+
+The number of bits used to represent a frequency.
+=cut 
+
+
+sub get_system_properties_freqresolution {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/system/properties/freqresolution",
+			type=>'I',
+		);
+}
+
+=head3 /DEV/SYSTEM/PROPERTIES/FREQSCALING 
+Properties: Read 
+Type: Double(D)
+Unit: None
+
+ get_system_properties_freqscaling()
+
+The scale factor to use to convert a frequency represented as a freqresolution-bit integer to a
+floating point value.
+=cut 
+
+
+sub get_system_properties_freqscaling {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/system/properties/freqscaling",
+			type=>'D',
+		);
+}
+
+=head3 /DEV/SYSTEM/PROPERTIES/MAXFREQ 
+Properties: Read 
+Type: Double(D)
+Unit: None
+
+ get_system_properties_maxfreq()
+
+The maximum oscillator frequency that can be set.
+=cut 
+
+
+sub get_system_properties_maxfreq {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/system/properties/maxfreq",
+			type=>'D',
+		);
+}
+
+=head3 /DEV/SYSTEM/PROPERTIES/MAXTIMECONSTANT 
+Properties: Read 
+Type: Double(D)
+Unit: s
+
+ get_system_properties_maxtimeconstant()
+
+The maximum demodulator time constant that can be set. Only relevant for lock-in amplifiers.
+=cut 
+
+
+sub get_system_properties_maxtimeconstant {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/system/properties/maxtimeconstant",
+			type=>'D',
+		);
+}
+
+=head3 /DEV/SYSTEM/PROPERTIES/MINFREQ 
+Properties: Read 
+Type: Double(D)
+Unit: None
+
+ get_system_properties_minfreq()
+
+The minimum oscillator frequency that can be set.
+=cut 
+
+
+sub get_system_properties_minfreq {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/system/properties/minfreq",
+			type=>'D',
+		);
+}
+
+=head3 /DEV/SYSTEM/PROPERTIES/MINTIMECONSTANT 
+Properties: Read 
+Type: Double(D)
+Unit: s
+
+ get_system_properties_mintimeconstant()
+
+The minimum demodulator time constant that can be set. Only relevant for lock-in amplifiers.
+=cut 
+
+
+sub get_system_properties_mintimeconstant {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/system/properties/mintimeconstant",
+			type=>'D',
+		);
+}
+
+=head3 /DEV/SYSTEM/PROPERTIES/NEGATIVEFREQ 
+Properties: Read 
+Type: Integer (64 bit)(I)
+Unit: None
+
+ get_system_properties_negativefreq()
+
+Indicates whether negative frequencies are supported.
+=cut 
+
+
+sub get_system_properties_negativefreq {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/system/properties/negativefreq",
+			type=>'I',
+		);
+}
+
+=head3 /DEV/SYSTEM/PROPERTIES/TIMEBASE 
+Properties: Read 
+Type: Double(D)
+Unit: s
+
+ get_system_properties_timebase()
+
+Minimal time difference between two timestamps. The value is equal to 1/(maximum sampling
+rate).
+=cut 
+
+
+sub get_system_properties_timebase {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/system/properties/timebase",
+			type=>'D',
+		);
+}
+
+=head3 /DEV/SYSTEM/SAVEPORTS 
+Properties: Read Write 
+Type: Integer (64 bit)(I)
+Unit: None
+
+ set_system_saveports(value => $value)
+ get_system_saveports()
+
+Flag indicating that the TCP and UDP ports should be saved.
+=cut 
+
+
+sub set_system_saveports {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num'},
+	);
+	return $self->sync_set_value(
+			path => $self->device()."/system/saveports",
+			type=>'I',
+			value =>$value
+		);
+}
+
+sub get_system_saveports {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/system/saveports",
+			type=>'I',
+		);
+}
 
 # =head3 /DEV/SYSTEM/SHUTDOWN 
 # Properties: Read Write 
@@ -6058,27 +6134,27 @@ sub get_dios_output {
 # 		);
 # }
 
-# =head3 /DEV/SYSTEM/SLAVEREVISION 
-# Properties: Read 
-# Type: Integer (64 bit)(I)
-# Unit: None
+=head3 /DEV/SYSTEM/SLAVEREVISION 
+Properties: Read 
+Type: Integer (64 bit)(I)
+Unit: None
 
-#  get_system_slaverevision()
+ get_system_slaverevision()
 
-# HDL firmware revision of the slave FPGA.
-# =cut 
+HDL firmware revision of the slave FPGA.
+=cut 
 
 
-# sub get_system_slaverevision {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	return $self->get_value(
-# 			path => $self->device()."/system/slaverevision",
-# 			type=>'I',
-# 		);
-# }
+sub get_system_slaverevision {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		value =>{isa =>'Num',optional=>1},
+	);
+	return $self->get_value(
+			path => $self->device()."/system/slaverevision",
+			type=>'I',
+		);
+}
 
 # =head3 /DEV/SYSTEM/STALL 
 # Properties: Read Write 
@@ -6150,338 +6226,338 @@ sub get_dios_output {
 # 		);
 # }
 
-# =head3 /DEV/TRIGGERS/IN/n/IMP50 
-# Properties: Read Write Setting 
-# Type: Integer (64 bit)(I)
-# Unit: None
+=head3 /DEV/TRIGGERS/IN/n/IMP50 
+Properties: Read Write Setting 
+Type: Integer (64 bit)(I)
+Unit: None
 
-#  set_triggers_in_imp50(in => $in, value => $value)
-#  get_triggers_in_imp50(in => $in)
+ set_triggers_in_imp50(in => $in, value => $value)
+ get_triggers_in_imp50(in => $in)
 
-# Trigger input impedance: When on, the trigger input impedance is 50 Ohm, when off 1 k Ohm.
-# =cut 
-
-
-# sub set_triggers_in_imp50 {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		in=>{isa => 'Int'},
-# 		value =>{isa =>'Num'},
-# 	);my $in=delete $args{in};
-# 	return $self->sync_set_value(
-# 			path => $self->device()."/triggers/in/$in/imp50",
-# 			type=>'I',
-# 			value =>$value
-# 		);
-# }
-
-# sub get_triggers_in_imp50 {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		in=>{isa => 'Int'},
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	my $in =delete $args{in};
-# 	return $self->get_value(
-# 			path => $self->device()."/triggers/in/$in/imp50",
-# 			type=>'I',
-# 		);
-# }
-
-# =head3 /DEV/TRIGGERS/IN/n/LEVEL 
-# Properties: Read Write Setting 
-# Type: Double(D)
-# Unit: V
-
-#  set_triggers_in_level(in => $in, value => $value)
-#  get_triggers_in_level(in => $in)
-
-# Trigger voltage level at which the trigger input toggles between low and high. Use 50% amplitude
-# for digital input and consider the trigger hysteresis.
-# =cut 
+Trigger input impedance: When on, the trigger input impedance is 50 Ohm, when off 1 k Ohm.
+=cut 
 
 
-# sub set_triggers_in_level {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		in=>{isa => 'Int'},
-# 		value =>{isa =>'Num'},
-# 	);my $in=delete $args{in};
-# 	return $self->sync_set_value(
-# 			path => $self->device()."/triggers/in/$in/level",
-# 			type=>'D',
-# 			value =>$value
-# 		);
-# }
+sub set_triggers_in_imp50 {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		in=>{isa => 'Int'},
+		value =>{isa =>'Num'},
+	);my $in=delete $args{in};
+	return $self->sync_set_value(
+			path => $self->device()."/triggers/in/$in/imp50",
+			type=>'I',
+			value =>$value
+		);
+}
 
-# sub get_triggers_in_level {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		in=>{isa => 'Int'},
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	my $in =delete $args{in};
-# 	return $self->get_value(
-# 			path => $self->device()."/triggers/in/$in/level",
-# 			type=>'D',
-# 		);
-# }
+sub get_triggers_in_imp50 {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		in=>{isa => 'Int'},
+		value =>{isa =>'Num',optional=>1},
+	);
+	my $in =delete $args{in};
+	return $self->get_value(
+			path => $self->device()."/triggers/in/$in/imp50",
+			type=>'I',
+		);
+}
 
-# =head3 /DEV/TRIGGERS/IN/n/VALUE 
-# Properties: Read 
-# Type: Integer (64 bit)(I)
-# Unit: None
+=head3 /DEV/TRIGGERS/IN/n/LEVEL 
+Properties: Read Write Setting 
+Type: Double(D)
+Unit: V
 
-#  get_triggers_in_value(in => $in)
+ set_triggers_in_level(in => $in, value => $value)
+ get_triggers_in_level(in => $in)
 
-# Shows the trigger input. The value integrated over some time. Values are 1: low, 2: high, 3: was low
-# and high in the period.
-# =cut 
-
-
-# sub get_triggers_in_value {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		in=>{isa => 'Int'},
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	my $in =delete $args{in};
-# 	return $self->get_value(
-# 			path => $self->device()."/triggers/in/$in/value",
-# 			type=>'I',
-# 		);
-# }
-
-# =head3 /DEV/TRIGGERS/OUT/n/DELAY 
-# Properties: Read Write Setting 
-# Type: Double(D)
-# Unit: s
-
-#  set_triggers_out_delay(out => $out, value => $value)
-#  get_triggers_out_delay(out => $out)
-
-# Trigger delay, controls the fine delay of the trigger output. The resolution is 78 ps.
-# =cut 
+Trigger voltage level at which the trigger input toggles between low and high. Use 50% amplitude
+for digital input and consider the trigger hysteresis.
+=cut 
 
 
-# sub set_triggers_out_delay {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		out=>{isa => 'Int'},
-# 		value =>{isa =>'Num'},
-# 	);my $out=delete $args{out};
-# 	return $self->sync_set_value(
-# 			path => $self->device()."/triggers/out/$out/delay",
-# 			type=>'D',
-# 			value =>$value
-# 		);
-# }
+sub set_triggers_in_level {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		in=>{isa => 'Int'},
+		value =>{isa =>'Num'},
+	);my $in=delete $args{in};
+	return $self->sync_set_value(
+			path => $self->device()."/triggers/in/$in/level",
+			type=>'D',
+			value =>$value
+		);
+}
 
-# sub get_triggers_out_delay {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		out=>{isa => 'Int'},
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	my $out =delete $args{out};
-# 	return $self->get_value(
-# 			path => $self->device()."/triggers/out/$out/delay",
-# 			type=>'D',
-# 		);
-# }
+sub get_triggers_in_level {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		in=>{isa => 'Int'},
+		value =>{isa =>'Num',optional=>1},
+	);
+	my $in =delete $args{in};
+	return $self->get_value(
+			path => $self->device()."/triggers/in/$in/level",
+			type=>'D',
+		);
+}
 
-# =head3 /DEV/TRIGGERS/OUT/n/SOURCE 
-# Properties: Read Write Setting 
-# Type: Integer (enumerated)(I)
-# Unit: None
+=head3 /DEV/TRIGGERS/IN/n/VALUE 
+Properties: Read 
+Type: Integer (64 bit)(I)
+Unit: None
 
-#  set_triggers_out_source(out => $out, value => $value)
-#  get_triggers_out_source(out => $out)
+ get_triggers_in_value(in => $in)
 
-# Assign a signal to a marker.
-# awg_trigger00
-# Trigger output is assigned to AWG Trigger 1, controlled by AWG sequencer
-# commands.
-# awg_trigger11
-# Trigger output is assigned to AWG Trigger 2, controlled by AWG sequencer
-# commands.
-# awg_trigger22
-# Trigger output is assigned to AWG Trigger 3, controlled by AWG sequencer
-# commands.
-# awg_trigger33
-# Trigger output is assigned to AWG Trigger 4, controlled by AWG sequencer
-# commands.
-# output0_marker04
-# Output is assigned to Output 1 Marker 1.
-# output0_marker15
-# Output is assigned to Output 1 Marker 2.
-# 6output1_marker0
-# Output is assigned to Output 2 Marker 1.
-# output1_marker17
-# Output is assigned to Output 2 Marker 2.
-# trigin0, trigger_input0 8
-# Output is assigned to Trigger Input 1.
-# trigin1, trigger_input1 9
-# Output is assigned to Trigger Input 2.
-# trigin2, trigger_input2 10
-# Output is assigned to Trigger Input 3.
-# trigin3, trigger_input3 11
-# Output is assigned to Trigger Input 4.
-# trigin4, trigger_input4 12
-# Output is assigned to Trigger Input 5.
-# trigin5, trigger_input5 13
-# Output is assigned to Trigger Input 6.
-# trigin6, trigger_input6 14
-# Output is assigned to Trigger Input 7.
-# trigin7, trigger_input7 15
-# Output is assigned to Trigger Input 8.
-# high17
-# Output is set to high.
-# low18
-# Output is set to low.
-# =cut 
+Shows the trigger input. The value integrated over some time. Values are 1: low, 2: high, 3: was low
+and high in the period.
+=cut 
 
 
-# sub set_triggers_out_source {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		out=>{isa => 'Int'},
-# 		value =>{isa =>'Num'},
-# 	);my $out=delete $args{out};
-# 	return $self->sync_set_value(
-# 			path => $self->device()."/triggers/out/$out/source",
-# 			type=>'I',
-# 			value =>$value
-# 		);
-# }
+sub get_triggers_in_value {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		in=>{isa => 'Int'},
+		value =>{isa =>'Num',optional=>1},
+	);
+	my $in =delete $args{in};
+	return $self->get_value(
+			path => $self->device()."/triggers/in/$in/value",
+			type=>'I',
+		);
+}
 
-# sub get_triggers_out_source {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		out=>{isa => 'Int'},
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	my $out =delete $args{out};
-# 	return $self->get_value(
-# 			path => $self->device()."/triggers/out/$out/source",
-# 			type=>'I',
-# 		);
-# }
+=head3 /DEV/TRIGGERS/OUT/n/DELAY 
+Properties: Read Write Setting 
+Type: Double(D)
+Unit: s
 
-# =head3 /DEV/TRIGGERS/STREAMS/n/ENABLE 
-# Properties: Read Write Setting 
-# Type: Integer (64 bit)(I)
-# Unit: None
+ set_triggers_out_delay(out => $out, value => $value)
+ get_triggers_out_delay(out => $out)
 
-#  set_triggers_streams_enable(stream => $stream, value => $value)
-#  get_triggers_streams_enable(stream => $stream)
-
-# Enables trigger streaming.
-# =cut 
+Trigger delay, controls the fine delay of the trigger output. The resolution is 78 ps.
+=cut 
 
 
-# sub set_triggers_streams_enable {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		stream=>{isa => 'Int'},
-# 		value =>{isa =>'Num'},
-# 	);my $stream=delete $args{stream};
-# 	return $self->sync_set_value(
-# 			path => $self->device()."/triggers/streams/$stream/enable",
-# 			type=>'I',
-# 			value =>$value
-# 		);
-# }
+sub set_triggers_out_delay {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		out=>{isa => 'Int'},
+		value =>{isa =>'Num'},
+	);my $out=delete $args{out};
+	return $self->sync_set_value(
+			path => $self->device()."/triggers/out/$out/delay",
+			type=>'D',
+			value =>$value
+		);
+}
 
-# sub get_triggers_streams_enable {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		stream=>{isa => 'Int'},
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	my $stream =delete $args{stream};
-# 	return $self->get_value(
-# 			path => $self->device()."/triggers/streams/$stream/enable",
-# 			type=>'I',
-# 		);
-# }
+sub get_triggers_out_delay {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		out=>{isa => 'Int'},
+		value =>{isa =>'Num',optional=>1},
+	);
+	my $out =delete $args{out};
+	return $self->get_value(
+			path => $self->device()."/triggers/out/$out/delay",
+			type=>'D',
+		);
+}
 
-# =head3 /DEV/TRIGGERS/STREAMS/n/HOLDOFFTIME 
-# Properties: Read Write Setting 
-# Type: Double(D)
-# Unit: s
+=head3 /DEV/TRIGGERS/OUT/n/SOURCE 
+Properties: Read Write Setting 
+Type: Integer (enumerated)(I)
+Unit: None
 
-#  set_triggers_streams_holdofftime(stream => $stream, value => $value)
-#  get_triggers_streams_holdofftime(stream => $stream)
+ set_triggers_out_source(out => $out, value => $value)
+ get_triggers_out_source(out => $out)
 
-# Sets the holdoff time of the trigger unit.
-# =cut 
+Assign a signal to a marker.
+awg_trigger00
+Trigger output is assigned to AWG Trigger 1, controlled by AWG sequencer
+commands.
+awg_trigger11
+Trigger output is assigned to AWG Trigger 2, controlled by AWG sequencer
+commands.
+awg_trigger22
+Trigger output is assigned to AWG Trigger 3, controlled by AWG sequencer
+commands.
+awg_trigger33
+Trigger output is assigned to AWG Trigger 4, controlled by AWG sequencer
+commands.
+output0_marker04
+Output is assigned to Output 1 Marker 1.
+output0_marker15
+Output is assigned to Output 1 Marker 2.
+6output1_marker0
+Output is assigned to Output 2 Marker 1.
+output1_marker17
+Output is assigned to Output 2 Marker 2.
+trigin0, trigger_input0 8
+Output is assigned to Trigger Input 1.
+trigin1, trigger_input1 9
+Output is assigned to Trigger Input 2.
+trigin2, trigger_input2 10
+Output is assigned to Trigger Input 3.
+trigin3, trigger_input3 11
+Output is assigned to Trigger Input 4.
+trigin4, trigger_input4 12
+Output is assigned to Trigger Input 5.
+trigin5, trigger_input5 13
+Output is assigned to Trigger Input 6.
+trigin6, trigger_input6 14
+Output is assigned to Trigger Input 7.
+trigin7, trigger_input7 15
+Output is assigned to Trigger Input 8.
+high17
+Output is set to high.
+low18
+Output is set to low.
+=cut 
 
 
-# sub set_triggers_streams_holdofftime {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		stream=>{isa => 'Int'},
-# 		value =>{isa =>'Num'},
-# 	);my $stream=delete $args{stream};
-# 	return $self->sync_set_value(
-# 			path => $self->device()."/triggers/streams/$stream/holdofftime",
-# 			type=>'D',
-# 			value =>$value
-# 		);
-# }
+sub set_triggers_out_source {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		out=>{isa => 'Int'},
+		value =>{isa =>'Num'},
+	);my $out=delete $args{out};
+	return $self->sync_set_value(
+			path => $self->device()."/triggers/out/$out/source",
+			type=>'I',
+			value =>$value
+		);
+}
 
-# sub get_triggers_streams_holdofftime {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		stream=>{isa => 'Int'},
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	my $stream =delete $args{stream};
-# 	return $self->get_value(
-# 			path => $self->device()."/triggers/streams/$stream/holdofftime",
-# 			type=>'D',
-# 		);
-# }
+sub get_triggers_out_source {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		out=>{isa => 'Int'},
+		value =>{isa =>'Num',optional=>1},
+	);
+	my $out =delete $args{out};
+	return $self->get_value(
+			path => $self->device()."/triggers/out/$out/source",
+			type=>'I',
+		);
+}
 
-# =head3 /DEV/TRIGGERS/STREAMS/n/MASK 
-# Properties: Read Write Setting 
-# Type: Integer (64 bit)(I)
-# Unit: None
+=head3 /DEV/TRIGGERS/STREAMS/n/ENABLE 
+Properties: Read Write Setting 
+Type: Integer (64 bit)(I)
+Unit: None
 
-#  set_triggers_streams_mask(stream => $stream, value => $value)
-#  get_triggers_streams_mask(stream => $stream)
+ set_triggers_streams_enable(stream => $stream, value => $value)
+ get_triggers_streams_enable(stream => $stream)
 
-# Masks triggers for the current stream. The mask is bit encoded where bit 0..7 are the input triggers
-# and bit 8..11 are AWG triggers.
-# =cut 
+Enables trigger streaming.
+=cut 
 
 
-# sub set_triggers_streams_mask {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		stream=>{isa => 'Int'},
-# 		value =>{isa =>'Num'},
-# 	);my $stream=delete $args{stream};
-# 	return $self->sync_set_value(
-# 			path => $self->device()."/triggers/streams/$stream/mask",
-# 			type=>'I',
-# 			value =>$value
-# 		);
-# }
+sub set_triggers_streams_enable {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		stream=>{isa => 'Int'},
+		value =>{isa =>'Num'},
+	);my $stream=delete $args{stream};
+	return $self->sync_set_value(
+			path => $self->device()."/triggers/streams/$stream/enable",
+			type=>'I',
+			value =>$value
+		);
+}
 
-# sub get_triggers_streams_mask {
-# 	my ($self, $value, %args) = validated_setter(
-# 		\@_,
-# 		stream=>{isa => 'Int'},
-# 		value =>{isa =>'Num',optional=>1},
-# 	);
-# 	my $stream =delete $args{stream};
-# 	return $self->get_value(
-# 			path => $self->device()."/triggers/streams/$stream/mask",
-# 			type=>'I',
-# 		);
-# }
+sub get_triggers_streams_enable {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		stream=>{isa => 'Int'},
+		value =>{isa =>'Num',optional=>1},
+	);
+	my $stream =delete $args{stream};
+	return $self->get_value(
+			path => $self->device()."/triggers/streams/$stream/enable",
+			type=>'I',
+		);
+}
+
+=head3 /DEV/TRIGGERS/STREAMS/n/HOLDOFFTIME 
+Properties: Read Write Setting 
+Type: Double(D)
+Unit: s
+
+ set_triggers_streams_holdofftime(stream => $stream, value => $value)
+ get_triggers_streams_holdofftime(stream => $stream)
+
+Sets the holdoff time of the trigger unit.
+=cut 
+
+
+sub set_triggers_streams_holdofftime {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		stream=>{isa => 'Int'},
+		value =>{isa =>'Num'},
+	);my $stream=delete $args{stream};
+	return $self->sync_set_value(
+			path => $self->device()."/triggers/streams/$stream/holdofftime",
+			type=>'D',
+			value =>$value
+		);
+}
+
+sub get_triggers_streams_holdofftime {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		stream=>{isa => 'Int'},
+		value =>{isa =>'Num',optional=>1},
+	);
+	my $stream =delete $args{stream};
+	return $self->get_value(
+			path => $self->device()."/triggers/streams/$stream/holdofftime",
+			type=>'D',
+		);
+}
+
+=head3 /DEV/TRIGGERS/STREAMS/n/MASK 
+Properties: Read Write Setting 
+Type: Integer (64 bit)(I)
+Unit: None
+
+ set_triggers_streams_mask(stream => $stream, value => $value)
+ get_triggers_streams_mask(stream => $stream)
+
+Masks triggers for the current stream. The mask is bit encoded where bit 0..7 are the input triggers
+and bit 8..11 are AWG triggers.
+=cut 
+
+
+sub set_triggers_streams_mask {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		stream=>{isa => 'Int'},
+		value =>{isa =>'Num'},
+	);my $stream=delete $args{stream};
+	return $self->sync_set_value(
+			path => $self->device()."/triggers/streams/$stream/mask",
+			type=>'I',
+			value =>$value
+		);
+}
+
+sub get_triggers_streams_mask {
+	my ($self, $value, %args) = validated_setter(
+		\@_,
+		stream=>{isa => 'Int'},
+		value =>{isa =>'Num',optional=>1},
+	);
+	my $stream =delete $args{stream};
+	return $self->get_value(
+			path => $self->device()."/triggers/streams/$stream/mask",
+			type=>'I',
+		);
+}
 
 
 __PACKAGE__->meta()->make_immutable();
