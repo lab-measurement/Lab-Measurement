@@ -3553,28 +3553,24 @@ sub get_sigouts_over {
 
 # Enables (1) or disables (0) the entire precompensation filter chain.
 # Note: This option was not available in the device used for developement, it is therefore untested.
-# /DEVâ€¦
-# ./SIGOUTS/n/PRECOMPENSATION/EXPONENTIALS/m/AMPLITUDE
+# /DEV/SIGOUTS/n/PRECOMPENSATION/EXPONENTIALS/m/AMPLITUDE
 # Properties:Read, Write, Setting
 # Type:Double
 # Unit: None
 # Sets the amplitude of the exponential overshoot compensation filter relative to the signal
 # amplitude.
-# /DEVâ€¦
-# ./SIGOUTS/n/PRECOMPENSATION/EXPONENTIALS/m/ENABLE
+# /DEV/SIGOUTS/n/PRECOMPENSATION/EXPONENTIALS/m/ENABLE
 # Properties:Read, Write, Setting
 # Type:Integer (64 bit)
 # Unit: None
 # Enables (1) or disables (0) the exponential overshoot compensation filter.
-# /DEVâ€¦
-# ./SIGOUTS/n/PRECOMPENSATION/EXPONENTIALS/m/STATUS
+# /DEV/SIGOUTS/n/PRECOMPENSATION/EXPONENTIALS/m/STATUS
 # Properties:Read
 # Type:Integer (64 bit)
 # Unit: None
 # Indicates the status of the exponential overshoot compensation filter: 0 = normal, 1 = overflow
 # during the last update period (~100 ms), 2 = overflowed in the past.
-# /DEVâ€¦
-# ./SIGOUTS/n/PRECOMPENSATION/EXPONENTIALS/m/
+# /DEV/SIGOUTS/n/PRECOMPENSATION/EXPONENTIALS/m/
 # TIMECONSTANT
 # Properties:Read, Write, Setting
 # Type:Double
@@ -3656,8 +3652,7 @@ sub get_sigouts_over {
 
 # Indicates the status of the finite impulse response (FIR) precompensation filter: 0 = normal, 1 =
 # overflow during the last update period (~100 ms), 2 = overflowed in the past.
-# /DEVâ€¦
-# ./SIGOUTS/n/PRECOMPENSATION/HIGHPASS/m/CLEARING/
+# /DEV//SIGOUTS/n/PRECOMPENSATION/HIGHPASS/m/CLEARING/
 # SLOPE
 # Properties:Read, Write, Setting
 # Type:Integer (enumerated)
@@ -3739,8 +3734,7 @@ sub get_sigouts_over {
 
 # Indicates the status of the high-pass compensation filter: 0 = normal, 1 = overflow during the last
 # update period (~100 ms), 2 = overflowed in the past.
-# /DEVâ€¦
-# ./SIGOUTS/n/PRECOMPENSATION/HIGHPASS/m/TIMECONSTANT
+# /DEV/SIGOUTS/n/PRECOMPENSATION/HIGHPASS/m/TIMECONSTANT
 # Properties:Read, Write, Setting
 # Type:Double
 # Unit: s
@@ -4429,7 +4423,7 @@ sub get_stats_physical_fpga_core {
 =head3 /DEV/STATS/PHYSICAL/FPGA/TEMP 
 Properties: Read 
 Type: Double(D)
-Unit: °C
+Unit: Celsius
 
  get_stats_physical_fpga_temp()
 
@@ -4455,7 +4449,7 @@ Unit: None
 
  get_stats_physical_overtemperature()
 
-This flag is set to 1 if the temperature of the FPGA exceeds 85°C. It will be reset to 0 after a restart
+This flag is set to 1 if the temperature of the FPGA exceeds 85 Celsius. It will be reset to 0 after a restart
 of the device.
 =cut 
 
@@ -4498,7 +4492,7 @@ sub get_stats_physical_power_currents {
 =head3 /DEV/STATS/PHYSICAL/POWER/TEMPERATURES/n 
 Properties: Read 
 Type: Double(D)
-Unit: °C
+Unit: Celsius
 
  get_stats_physical_power_temperatures(temperature =>$temperature)
 
@@ -4594,7 +4588,7 @@ sub get_stats_physical_slavefpgas_core {
 =head3 /DEV/STATS/PHYSICAL/SLAVEFPGAS/n/TEMP 
 Properties: Read 
 Type: Double(D)
-Unit: °C
+Unit: Celsius
 
  get_stats_physical_slavefpgas_temp(slavefpga => $slavefpga)
 
@@ -4618,7 +4612,7 @@ sub get_stats_physical_slavefpgas_temp {
 =head3 /DEV/STATS/PHYSICAL/TEMPERATURES/n 
 Properties: Read 
 Type: Double(D)
-Unit: °C
+Unit: Celsius
 
  get_stats_physical_temperatures(temperature => $temperature)
 
