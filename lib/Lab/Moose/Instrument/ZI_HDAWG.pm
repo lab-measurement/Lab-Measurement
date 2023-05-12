@@ -3280,7 +3280,7 @@ Unit: None
 
  get_sigouts_max(sigout => $sigout)
 
-Maximum value transmitted to the DAC represented as a 16-bit integer in twoâ€™s complement
+Maximum value transmitted to the DAC represented as a 16-bit integer in two's complement
 format.
 =cut 
 
@@ -3305,7 +3305,7 @@ Unit: None
 
  get_sigouts_min(sigout => $sigout)
 
-Minimum value transmitted to the DAC represented as a 16-bit integer in twoâ€™s complement
+Minimum value transmitted to the DAC represented as a 16-bit integer in twos complement
 format.
 =cut 
 
@@ -3408,8 +3408,7 @@ Unit: None
  get_sigouts_over(sigout => $sigout)
 
 Indicates that the signal output is overloaded.
-/DEVâ€¦
-./SIGOUTS/n/PRECOMPENSATION/BOUNCES/m/AMPLITUDE
+/DEV/SIGOUTS/n/PRECOMPENSATION/BOUNCES/m/AMPLITUDE
 Properties:Read, Write, Setting
 Type:Double
 Unit: None
@@ -3964,7 +3963,7 @@ Unit: None
  set_sines_harmonic(sine => $sine, value => $value)
  get_sines_harmonic(sine => $sine)
 
-Multiplies the sine signalsâ€™s reference frequency with the integer factor defined by this field.
+Multiplies the sine signals reference frequency with the integer factor defined by this field.
 =cut 
 
 
@@ -4430,7 +4429,7 @@ sub get_stats_physical_fpga_core {
 =head3 /DEV/STATS/PHYSICAL/FPGA/TEMP 
 Properties: Read 
 Type: Double(D)
-Unit: Â°C
+Unit: °C
 
  get_stats_physical_fpga_temp()
 
@@ -4456,7 +4455,7 @@ Unit: None
 
  get_stats_physical_overtemperature()
 
-This flag is set to 1 if the temperature of the FPGA exceeds 85Â°C. It will be reset to 0 after a restart
+This flag is set to 1 if the temperature of the FPGA exceeds 85°C. It will be reset to 0 after a restart
 of the device.
 =cut 
 
@@ -4499,7 +4498,7 @@ sub get_stats_physical_power_currents {
 =head3 /DEV/STATS/PHYSICAL/POWER/TEMPERATURES/n 
 Properties: Read 
 Type: Double(D)
-Unit: Â°C
+Unit: °C
 
  get_stats_physical_power_temperatures(temperature =>$temperature)
 
@@ -4595,7 +4594,7 @@ sub get_stats_physical_slavefpgas_core {
 =head3 /DEV/STATS/PHYSICAL/SLAVEFPGAS/n/TEMP 
 Properties: Read 
 Type: Double(D)
-Unit: Â°C
+Unit: °C
 
  get_stats_physical_slavefpgas_temp(slavefpga => $slavefpga)
 
@@ -4619,7 +4618,7 @@ sub get_stats_physical_slavefpgas_temp {
 =head3 /DEV/STATS/PHYSICAL/TEMPERATURES/n 
 Properties: Read 
 Type: Double(D)
-Unit: Â°C
+Unit: °C
 
  get_stats_physical_temperatures(temperature => $temperature)
 
@@ -4898,14 +4897,14 @@ Unit: None
 
 Sets the channel grouping mode of the device.
 groups_of_20
-Use the outputs in groups of 2. One sequencer program controls 2 outputs (use /
-devâ€¦./awgs/0..4/).
+Use the outputs in groups of 2. One sequencer program controls 2 outputs (use 
+/dev/awgs/0..4/).
 groups_of_41
-Use the outputs in groups of 4. One sequencer program controls 4 outputs (use /
-devâ€¦./awgs/0/ and /dev/awgs/2/)
+Use the outputs in groups of 4. One sequencer program controls 4 outputs (use 
+/dev/awgs/0/ and /dev/awgs/2/)
 2groups_of_8
-Use the outputs in groups of 8. One sequencer program controls 8 outputs (use /
-devâ€¦./awgs/0/). Requires 8 channel device.
+Use the outputs in groups of 8. One sequencer program controls 8 outputs (use 
+/dev/awgs/0/). Requires 8 channel device.
 =cut 
 
 
