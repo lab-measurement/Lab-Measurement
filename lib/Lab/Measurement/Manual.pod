@@ -148,6 +148,8 @@ instruments and the high-level Lab::XPRESS interface
 
 =item * L<Lab::Moose::Instrument::Agilent33120A>
 
+=item * L<Lab::Moose::Instrument::Agilent33210A>
+
 =item * L<Lab::Moose::Instrument::HP33120A>
 
 =item * L<Lab::Moose::Instrument::KeysightE3633E>
