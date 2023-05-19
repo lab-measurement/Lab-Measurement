@@ -1,6 +1,6 @@
-package Lab::Moose::Instrument::Agilent33120A;
+package Lab::Moose::Instrument::HP33120A;
 
-#ABSTRACT: Agilent 33120A 15 MHz Arbitrary Waveform Generator, also as voltage source
+#ABSTRACT: HP 33120A 15 MHz Arbitrary Waveform Generator, also as voltage source
 
 use v5.20;
 
@@ -57,7 +57,7 @@ sub get_id {
 
  # Constructor
  my $HP = instrument(
-     type            => 'Agilent33120A',
+     type            => 'HP33120A',
      connection_type => 'VISA_GPIB',
      connection_options => {
          pad => 28,
