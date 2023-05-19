@@ -198,6 +198,8 @@ instruments and the high-level Lab::XPRESS interface
 
 =over
 
+=item * L<Lab::Moose::Instrument::KeysightN9310A>
+
 =item * L<Lab::Moose::Instrument::RS_SMB>
 
 =back
