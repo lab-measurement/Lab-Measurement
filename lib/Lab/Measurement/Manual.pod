@@ -130,7 +130,7 @@ instruments and the high-level Lab::XPRESS interface
 
 =item * L<Lab::Moose::Instrument::HP34410A>
 
-alias: L<Lab::Moose::Instrument::Agilent34410A>
+=item * L<Lab::Moose::Instrument::Agilent34410A>
 
 =item * L<Lab::Moose::Instrument::Agilent34460A>
 
@@ -146,13 +146,15 @@ alias: L<Lab::Moose::Instrument::Agilent34410A>
 
 =over
 
-=item * L<Lab::Moose::Instrument::YokogawaGS200>
+=item * L<Lab::Moose::Instrument::Agilent33120A>
 
-=item * L<Lab::Moose::Instrument::Yokogawa7651>
+=item * L<Lab::Moose::Instrument::HP33120A>
 
 =item * L<Lab::Moose::Instrument::KeysightE3633E>
 
-=item * L<Lab::Moose::Instrument::HP33120A>
+=item * L<Lab::Moose::Instrument::Yokogawa7651>
+
+=item * L<Lab::Moose::Instrument::YokogawaGS200>
 
 =item * L<Lab::Moose::Instrument::DummySource>
 
