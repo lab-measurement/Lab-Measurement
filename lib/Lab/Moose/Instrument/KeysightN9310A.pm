@@ -15,6 +15,35 @@ use namespace::autoclean;
 
 extends 'Lab::Moose::Instrument';
 
+=head1 SYNOPSIS
+
+ my $gen = instrument(
+    type => 'KeysightN9310A',
+    connection_type => 'VISA',
+    connection_options => {host => '192.168.3.26'},
+    );
+    
+ # Set frequency to 2 GHz
+ $gen->set_frq(value => 2e9);
+
+ # Get frequency from device cache
+ my $frq = $gen->cached_frq();
+ 
+ # Set power to -10 dBm
+ $gen->set_power(value => -10);
+
+=head1 METHODS
+
+Used roles:
+
+=over
+
+=item L<Lab::Moose::Instrument::SCPI::Output::State>
+
+=back
+
+=cut
+
 #around default_connection_options => sub {
 #    my $orig     = shift;
 #    my $self     = shift;
@@ -28,54 +57,22 @@ extends 'Lab::Moose::Instrument';
 with qw(
     Lab::Moose::Instrument::Common
 
-    Lab::Moose::Instrument::SCPI::Source::Power
     Lab::Moose::Instrument::SCPI::Output::State
 );
 
 sub BUILD {
     my $self = shift;
-    $self->clear();
-    $self->cls();
+#    $self->cls();
 }
 
-=head1 SYNOPSIS
 
- my $gen = instrument(
-    type => 'KeysightN9310A',
-    connection_type => 'USB',
-    );
-    
- # Set frequency to 2 GHz
- $gen->set_frq(value => 2e9);
-
- # Get frequency from device cache
- my $frq = $gen->cached_frq();
- 
- # Set power to -10 dBm
- $gen->set_power(value => -10);
- 
-=cut
-
-=head1 METHODS
-
-Used roles:
-
-=over
-
-=item L<Lab::Moose::Instrument::SCPI::Source::Power>
-
-=item L<Lab::Moose::Instrument::SCPI::Output::State>
-
-=back
-    
-=cut
 
 cache source_frequency => ( getter => 'source_frequency_query' );
 
 sub source_frequency_query {
     my ( $self, %args ) = validated_getter( \@_ );
     return $self->cached_source_frequency(
-        $self->query( command => "FREQ?", %args ) );
+        $self->query( command => ":FREQuency:CW?", %args ) );
 }
 
 sub source_frequency {
@@ -89,14 +86,34 @@ sub source_frequency {
         croak "value smaller than minimal frequency $min_freq";
     }
 
-    $self->write( command => sprintf( "FREQ %.17g", $value ), %args );
+    $self->write( command => sprintf( ":FREQuency:CW %f MHz", ($value/1e6) ), %args );
     $self->cached_source_frequency($value);
 }
+
+cache source_power => ( getter => 'source_power_query' );
+
+sub source_power_query {
+    my ( $self, %args ) = validated_getter( \@_ );
+    return $self->cached_source_power(
+        $self->query( command => ":AMPLitude:CW?", %args ) );
+}
+
+sub source_power {
+    my ( $self, $value, %args ) = validated_setter(
+        \@_,
+        value => { isa => 'Num' },
+    );
+
+    $self->write( command => sprintf( ":AMPLitude:CW %f dBm", $value ), %args );
+    $self->cached_source_power($value);
+}
+
+
 
 =head2 get_power/set_power
 
  $gen->set_power(value => -10);
- $power = $gen->get_power(); # or $gen->cached_power();
+ $power = $gen->get_power(); # or $get->cached_power();
 
 Get set output power (dBm);
 
@@ -104,18 +121,19 @@ Get set output power (dBm);
 
 sub set_power {
     my $self = shift;
-    return $self->source_power_level_immediate_amplitude(@_);
+    return $self->source_power(@_);
 }
 
 sub get_power {
     my $self = shift;
-    return $self->source_power_level_immediate_amplitude_query(@_);
+    return $self->source_power_query(@_);
 }
 
 sub cached_power {
     my $self = shift;
-    return $self->cached_source_power_level_immediate_amplitude(@_);
+    return $self->cached_source_power(@_);
 }
+
 
 =head2 get_frq/set_frq
 
@@ -131,8 +149,18 @@ sub cached_frq {
     return $self->cached_source_frequency(@_);
 }
 
+sub set_frq {
+    my $self = shift;
+    return $self->source_frequency(@_);
+}
+
+sub get_frq {
+    my $self = shift;
+    return $self->source_frequency_query();
+}
+
 #
-# Pulse/AM modulation stuff
+# Pulse/AM modulation stuff from old RSSMB100A driver; TODO: caching + docs
 #
 
 sub set_pulselength {
@@ -199,3 +227,4 @@ sub disable_internal_pulsemod {
 __PACKAGE__->meta()->make_immutable();
 
 1;
+
