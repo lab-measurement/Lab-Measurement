@@ -4,6 +4,9 @@ History for the Lab-Measurement Perl distribution
 This document is work in progress (in the sense of adding
 historical information).
 
+3.872 2023-05-22
+  * Fix driver for Keysight N9310A RF generator
+
 3.871 2023-05-19
   * Add driver for Keysight N9310A RF generator
   * Add driver for Agilent 33210A AWG
