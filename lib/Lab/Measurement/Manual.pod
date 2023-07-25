@@ -243,7 +243,7 @@ contains support for temperature sensor and He/N2 level meters.
 
 =item * L<Lab::Moose::Instrument::Cryomagnetics_4G> (work in progress)
 
-=item * L<Lab::Moose::Instrument::Bluefors_Magnet>
+=item * L<Lab::Moose::Instrument::AMI_430>
 
 =back
 

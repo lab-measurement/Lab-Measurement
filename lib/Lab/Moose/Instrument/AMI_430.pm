@@ -1,5 +1,5 @@
-package Lab::Moose::Instrument::Bluefors_Magnet;
-#ABSTRACT: Bluefors magnet power supply
+package Lab::Moose::Instrument::AMI_430;
+#ABSTRACT: American Magnetics magnet power supply
 
 use v5.20;
 
@@ -256,7 +256,7 @@ __END__
 
 =head1 NAME
 
-Lab::Moose::Instrument::Bluefors_Magnet - MODEL 4Q06125PS-430 HIGH STABILITY INTEGRATED POWER SUPPLY SYSTEM
+Lab::Moose::Instrument::AMI_430 - MODEL 4Q06125PS-430 HIGH STABILITY INTEGRATED POWER SUPPLY SYSTEM
 
 =head1 SYNOPSIS
 
@@ -264,7 +264,7 @@ Lab::Moose::Instrument::Bluefors_Magnet - MODEL 4Q06125PS-430 HIGH STABILITY INT
 
  # Constructor
  my $magnet_z = instrument(
-     type            => 'Bluefors_Magnet',
+     type            => 'AMI_430',
      connection_type => 'Socket',
      connection_options => { host => '169.254.226.70' },
      max_field => 1.0,
