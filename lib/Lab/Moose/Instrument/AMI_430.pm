@@ -1,5 +1,5 @@
-package Lab::Moose::Instrument::Bluefors_Magnet;
-#ABSTRACT: Bluefors magnet power supply
+package Lab::Moose::Instrument::AMI_430;
+#ABSTRACT: American Magnetics magnet power supply
 
 use v5.20;
 
@@ -258,7 +258,7 @@ __END__
 
  # Constructor
  my $magnet_z = instrument(
-     type            => 'Bluefors_Magnet',
+     type            => 'AMI_430',
      connection_type => 'Socket',
      connection_options => { host => '169.254.226.70' },
      max_field => 1.0,
