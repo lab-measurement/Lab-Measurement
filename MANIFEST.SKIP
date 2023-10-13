@@ -47,5 +47,3 @@ nytprof
 
 # not ready yet
 ^lib/Lab/Instrument/AgilentE8362A.pm
-^lib/Lab/XPRESS/Sweep/SweepND.pm
-^lib/Lab/XPRESS/Sweep/VM_DIR.pm

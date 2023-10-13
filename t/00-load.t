@@ -78,22 +78,12 @@ my %depencencies = (
             }
     ],
     'PDL::IO::CSV'        => ['Lab/Moose/Instrument/NanonisTramea.pm'],
-    'Statistics::LineFit' => ['Lab/XPRESS/Data/XPRESS_dataset.pm'],
 
     'Device::SerialPort' => $rs232_stuff,
     'threads'            => $rs232_stuff,
     'Thread::Semaphore'  => $rs232_stuff,
 
-    'Math::Interpolate' => ['Lab/XPRESS/Data/XPRESS_dataset.pm'],
-
     'Math::Round' => ['Lab/Moose/Instrument/Rigol_DG5000.pm'],
-
-    'IPC::Run' => [
-        qw{
-            Lab/XPRESS/Xpression/PlotterGUI_bidirectional.pm
-            Lab/XPRESS/Xpression/bidirectional_gnuplot_pipe.pm
-            }
-    ],
 
     'LinuxGpib' => ['LinuxGPIB'],
 

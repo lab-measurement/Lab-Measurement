@@ -29,12 +29,6 @@ This tutorial.
 
 =back
 
-A separate tutorial for the historical interfaces L<Lab::Instrument> and
-L<Lab::XPRESS> is provided in L<Lab::Measurement::Legacy::Tutorial>. These
-interfaces as well as the tutorial are not updated anymore, and included for
-compatibility with existing measurement scripts. They will be removed with
-Lab::Measurement release 4.
-
 =head1 Quickstart
 
 In this quickstart section we demonstrate how to connect to instruments and do

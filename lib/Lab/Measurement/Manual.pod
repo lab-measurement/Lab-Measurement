@@ -18,11 +18,6 @@ Currently, the Lab::Measurement API consists of:
 L</Lab::Moose>, the recommended, current API, based on B<Modern Perl>
 techniques
 
-=item *
-
-the historical API, consisting of the Lab::Instrument virtual
-instruments and the high-level Lab::XPRESS interface
-
 =back
 
 =head1 The Lab::Measurement package

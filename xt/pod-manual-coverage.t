@@ -86,37 +86,6 @@ my @whitelist = qw/
 
     Lab::SCPI
 
-    Lab::XPRESS::Data::XPRESS_plotter
-    Lab::XPRESS::Data::XPRESS_logger
-    Lab::XPRESS::Data::XPRESS_DataFile
-    Lab::XPRESS::Examples::Example1_Simple_IV
-    Lab::XPRESS::Examples::Example2_Gate_IV_scan
-    Lab::XPRESS::Examples::Example3_2samples_2files
-    Lab::XPRESS::Examples::Example4_3d_scan
-    Lab::XPRESS::hub
-    Lab::XPRESS::Sweep
-    Lab::XPRESS::Sweep::Frame
-    Lab::XPRESS::Sweep::Magnet
-    Lab::XPRESS::Sweep::Voltage
-    Lab::XPRESS::Sweep::Time
-    Lab::XPRESS::Sweep::Motor
-    Lab::XPRESS::Sweep::Repeater
-    Lab::XPRESS::Sweep::Temperature
-    Lab::XPRESS::Sweep::PulseLength
-    Lab::XPRESS::Sweep::Amplitude
-    Lab::XPRESS::Sweep::Level
-    Lab::XPRESS::Sweep::LogBlock
-    Lab::XPRESS::Sweep::SignalRecoveryPhase
-    Lab::XPRESS::Sweep::SignalRecoveryOscOut
-    Lab::XPRESS::Sweep::PulsePeriod
-    Lab::XPRESS::Sweep::SweepND
-    Lab::XPRESS::Sweep::Frequency
-    Lab::XPRESS::Sweep::DietersCrazyTempSweep
-    Lab::XPRESS::Sweep::VM_DIR
-    Lab::XPRESS::Sweep::Dummy
-    Lab::XPRESS::Sweep::Power
-    Lab::XPRESS::Utilities::Utilities
-
     Lab::Instrument
     Lab::Instrument::Multimeter
     Lab::Instrument::HP34401A
