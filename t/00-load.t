@@ -54,15 +54,6 @@ sub skip_modules {
 
 diag("checking installed modules");
 
-my $rs232_stuff = [
-    qw{
-        Lab/Bus/RS232.pm Lab/Bus/MODBUS_RS232.pm
-        Lab/Instrument/TemperatureControl/TLK43.pm
-        Lab/Bus/RS232.pm
-        Lab/Bus/MODBUS_RS232.pm
-        }
-];
-
 my %depencencies = (
 
     #    'PDL' => ['Lab/Data/PDL.pm'],
@@ -79,17 +70,15 @@ my %depencencies = (
     ],
     'PDL::IO::CSV'        => ['Lab/Moose/Instrument/NanonisTramea.pm'],
 
-    'Device::SerialPort' => $rs232_stuff,
-    'threads'            => $rs232_stuff,
-    'Thread::Semaphore'  => $rs232_stuff,
-
     'Math::Round' => ['Lab/Moose/Instrument/Rigol_DG5000.pm'],
 
     'LinuxGpib' => ['LinuxGPIB'],
 
     'Lab::VISA' => [
-        qw{VISA Lab/Bus/IsoBus.pm Lab/Connection/IsoBus.pm
-            Lab/Moose/Connection/VISA}
+        qw{
+            VISA
+            Lab/Moose/Connection/VISA
+            }
     ],
 
     'Lab::Zhinst' => ['Zhinst'],
