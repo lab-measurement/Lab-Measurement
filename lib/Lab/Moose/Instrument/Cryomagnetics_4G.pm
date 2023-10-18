@@ -314,7 +314,7 @@ C<value> is one off 'UP', 'UP FAST', 'DOWN', 'DOWN FAST', 'PAUSE', 'ZERO', 'LIMI
 =cut
 
 sub set_sweep {
-    my ( $self, $value, %args ) = validated_getter(
+    my ( $self, $value, %args ) = validated_setter(
         \@_,
         value => {
             isa => enum(
@@ -341,7 +341,7 @@ Uses either Amps or kilo Gauss, depending on units setting.
 =cut
 
 sub set_ulim {
-    my ( $self, $value, %args ) = validated_getter(
+    my ( $self, $value, %args ) = validated_setter(
         \@_,
         value => { isa => 'Num' },
     );
@@ -365,7 +365,7 @@ sub get_ulim {
 cache units => ( getter => 'get_units' );
 
 sub set_units {
-    my ( $self, $value, %args ) = validated_getter(
+    my ( $self, $value, %args ) = validated_setter(
         \@_,
         value => { isa => enum( [qw/A G/] ) },
     );
@@ -385,7 +385,7 @@ sub get_units {
 =cut
 
 sub set_vlim {
-    my ( $self, $value, %args ) = validated_getter(
+    my ( $self, $value, %args ) = validated_setter(
         \@_,
         value => { isa => 'Num' },
     );
