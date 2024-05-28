@@ -244,4 +244,16 @@ subtype 'ArrayRefOfInstruments',
 coerce 'ArrayRefOfInstruments',
     from 'Lab::Moose::Instrument', via { [ $_ ] };
 
+INIT {
+    my $percentage = 2;
+    my $message = "Please cite Lab::Measurement in your publications based on the measured data, \n" .
+                  "e.g. in the acknowledgment section of the article. The reference is:\n" .
+                  "  S. Reinhard et al., Comp. Phys. Comm. 234, 216 (2019)\n" .
+                  "  doi:10.1016/j.cpc.2018.07.024\n\n";
+
+    if( rand() < ($percentage / 100) ){
+        print $message;
+    };
+};
+
 1;
