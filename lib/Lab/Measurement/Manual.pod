@@ -457,11 +457,12 @@ alias: C<Lab::Moose::Connection::VISA_GPIB>
 =back
 
 
-=head1 Legacy Lab::Measurement API
+=head1 Lab::Measurement::Legacy API
 
-This part is deprecated and will be removed with Lab::Measurement 3.9. 
-Please base new measurements on the Moose-based API and port your old scripts.
-For documentation, see the module files.
+Previous to Lab::Measurement 3.900, an older, non-Moose based API existed.
+This has now been removed; an archived version which does not see any further
+development anymore can be found on CPAN as L<Lab::Measurement::Legacy>.
+Please do not use it for new measurement scripts.
 
 =head1 CITING Lab::Measurement
 
