@@ -6,20 +6,6 @@
 
 =encoding UTF-8
 
-=head1 OVERVIEW
-
-Currently, the Lab::Measurement API consists of:
-
-=over
-
-
-=item *
-
-L</Lab::Moose>, the recommended, current API, based on B<Modern Perl>
-techniques
-
-=back
-
 =head1 The Lab::Measurement package
 
 =over
