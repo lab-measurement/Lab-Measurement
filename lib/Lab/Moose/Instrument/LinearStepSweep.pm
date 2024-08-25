@@ -90,7 +90,7 @@ sub linear_step_sweep {
     if ( $time < $last_timestamp ) {
 
         # should never happen
-        croak "time error";
+        # -> but it does seem to happen on Windows, so do not croak here.
     }
 
     # Do we have to wait to enforce the maximum rate or can we start right now?
