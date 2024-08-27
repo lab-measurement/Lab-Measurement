@@ -41,7 +41,6 @@ my %source_files = map {
 
 # The following legacy modules are not required in the manual
 my @whitelist = qw/
-    Lab::Measurement::Legacy
     Lab::Measurement::Manual
     Lab::Moose::Connection::VISA_GPIB
     Lab::Moose::Instrument::OI_IPS::Strunk_3He
