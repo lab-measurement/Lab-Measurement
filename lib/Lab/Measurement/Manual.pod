@@ -461,7 +461,7 @@ alias: C<Lab::Moose::Connection::VISA_GPIB>
 
 Previous to Lab::Measurement 3.900, an older, non-Moose based API existed.
 This has now been removed; an archived version which does not see any further
-development anymore can be found on CPAN as L<Lab::Measurement::Legacy>.
+development anymore L<can be found on CPAN|https://metacpan.org/pod/Lab::Measurement::Legacy>.
 Please do not use it for new measurement scripts.
 
 =head1 CITING Lab::Measurement
