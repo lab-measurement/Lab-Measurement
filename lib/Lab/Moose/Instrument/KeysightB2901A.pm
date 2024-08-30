@@ -176,6 +176,14 @@ sub set_level {
         value => { isa => 'Num' },
     );
 
+
+    # Make sure that source is not out of range
+    # The instrument does not complain in any way the value is outside the range
+    my $range = $self->cached_source_range();
+    if (abs($value) > $range * 1.00001) {
+        croak "Source level $value is beyond the current source range $range";
+    }
+    
     return $self->linear_step_sweep(
         to => $value, verbose => $self->verbose,
         %args
