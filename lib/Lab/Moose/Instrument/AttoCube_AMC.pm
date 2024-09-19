@@ -218,12 +218,13 @@ sub getLockStatus {
 
 	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 grantAccess
  Description:
-		  Grants access to a locked device for the requesting IP by checking against the password 
+		  Grants access to a locked device for the requesting IP by checking
+against the password
  Arguments:
 		password 
 		string the current password 
@@ -237,16 +238,19 @@ sub grantAccess {
 		password	=> {isa => 'Str', optional => 0,},
 	);
 
-	my $response = $self->request(method => 'grantAccess', params => [$password])
+	my $response = $self->request(method => 'grantAccess', params =>
+[$password]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 lock
  Description:
-		  This function locks the device with a password, so the calling of functions is only possible with this password. The locking IP is automatically added to the devices which can access functions 
+		  This function locks the device with a password, so the calling of
+functions is only possible with this password. The locking IP is automatically
+added to the devices which can access functions
  Arguments:
 		password 
 		string the password to be set 
@@ -260,16 +264,17 @@ sub lock {
 		password	=> {isa => 'Str', optional => 0,},
 	);
 
-	my $response = $self->request(method => 'lock', params => [$password])
+	my $response = $self->request(method => 'lock', params => [$password]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 unlock
  Description:
-		  This function unlocks the device, so it will not be necessary to execute the grantAccess function to run any function 
+		  This function unlocks the device, so it will not be necessary to
+execute the grantAccess function to run any function
  Arguments:
 		password 
 		string the current password 
@@ -283,16 +288,18 @@ sub unlock {
 		password	=> {isa => 'Str', optional => 0,},
 	);
 
-	my $response = $self->request(method => 'unlock', params => [$password])
+	my $response = $self->request(method => 'unlock', params => [$password]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getLowerSoftLimit
  Description:
-		  Gets the lower boundary of the soft limit protection. This protection is needed if the IDS working range is smaller than the positioners travel range. It is no hard limit, so, it is possible to overshoot it! 
+		  Gets the lower boundary of the soft limit protection. This protection
+is needed if the IDS working range is smaller than the positioners travel range.
+It is no hard limit, so, it is possible to overshoot it!
  Arguments:
 		axis 
 		Axis of the AMC to get the soft limit status from 
@@ -310,16 +317,19 @@ sub getLowerSoftLimit {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.amcids.getLowerSoftLimit', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.amcids.getLowerSoftLimit', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getSoftLimitEnabled
  Description:
-		  Gets whether the soft limit protection is enabled. This protection is needed if the IDS working range is smaller than the positioners travel range. It is no hard limit, so, it is possible to overshoot it! 
+		  Gets whether the soft limit protection is enabled. This protection is
+needed if the IDS working range is smaller than the positioners travel range. It
+is no hard limit, so, it is possible to overshoot it!
  Arguments:
 		axis 
 		Axis of the AMC to get the soft limit status from 
@@ -337,16 +347,20 @@ sub getSoftLimitEnabled {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.amcids.getSoftLimitEnabled', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.amcids.getSoftLimitEnabled', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getSoftLimitReached
  Description:
-		  Gets whether the current position is out of the soft limit boundaries. This protection is needed if the IDS working range is smaller than the positioners travel range. It is no hard limit, so, it is possible to overshoot it! 
+		  Gets whether the current position is out of the soft limit boundaries.
+This protection is needed if the IDS working range is smaller than the
+positioners travel range. It is no hard limit, so, it is possible to overshoot
+it!
  Arguments:
 		axis 
 		Axis of the AMC to get the soft limit status from 
@@ -364,16 +378,19 @@ sub getSoftLimitReached {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.amcids.getSoftLimitReached', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.amcids.getSoftLimitReached', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getUpperSoftLimit
  Description:
-		  Gets the upper lower boundary of the soft limit protection. This protection is needed if the IDS working range is smaller than the positioners travel range. It is no hard limit, so, it is possible to overshoot it! 
+		  Gets the upper lower boundary of the soft limit protection. This
+protection is needed if the IDS working range is smaller than the positioners
+travel range. It is no hard limit, so, it is possible to overshoot it!
  Arguments:
 		axis 
 		Axis of the AMC to get the soft limit status from 
@@ -391,16 +408,19 @@ sub getUpperSoftLimit {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.amcids.getUpperSoftLimit', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.amcids.getUpperSoftLimit', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 resetIdsAxis
  Description:
-		  Resets the position value to zero of a specific measurement axis. Use this for positioners with an IDS as sensor. This method does not work for NUM and RES sensors. Use com.attocube.amc.control.resetAxis instead. 
+		  Resets the position value to zero of a specific measurement axis. Use
+this for positioners with an IDS as sensor. This method does not work for NUM
+and RES sensors. Use com.attocube.amc.control.resetAxis instead.
  Arguments:
 		axis 
 		Axis of the IDS to reset the position 
@@ -415,16 +435,19 @@ sub resetIdsAxis {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.amcids.resetIdsAxis', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.amcids.resetIdsAxis', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setLowerSoftLimit
  Description:
-		  Sets the lower boundary of the soft limit protection in pm. This protection is needed if the IDS working range is smaller than the positioners travel range. It is no hard limit, so, it is possible to overshoot it! 
+		  Sets the lower boundary of the soft limit protection in pm. This
+protection is needed if the IDS working range is smaller than the positioners
+travel range. It is no hard limit, so, it is possible to overshoot it!
  Arguments:
 		axis 
 		Axis of the AMC where the soft limit should be changed 
@@ -439,19 +462,22 @@ sub resetIdsAxis {
 sub setLowerSoftLimit {
 	my ($self, $axis, $limit, %args) = validated_list(
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
-		limit	=> {, optional => 0,},
+		limit	=> {optional => 0},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.amcids.setLowerSoftLimit', params => [$axis, $limit])
+	my $response = $self->request(method =>
+'com.attocube.amc.amcids.setLowerSoftLimit', params => [$axis, $limit]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setSoftLimitEnabled
  Description:
-		  Enables/disables the soft limit protection. This protection is needed if the IDS working range is smaller than the positioners travel range. It is no hard limit, so, it is possible to overshoot it! 
+		  Enables/disables the soft limit protection. This protection is needed
+if the IDS working range is smaller than the positioners travel range. It is no
+hard limit, so, it is possible to overshoot it!
  Arguments:
 		axis 
 		Axis of the AMC where the soft limit should be changed 
@@ -469,16 +495,19 @@ sub setSoftLimitEnabled {
 		enabled	=> {isa => 'Bool', optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.amcids.setSoftLimitEnabled', params => [$axis, $enabled])
+	my $response = $self->request(method =>
+'com.attocube.amc.amcids.setSoftLimitEnabled', params => [$axis, $enabled]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setUpperSoftLimit
  Description:
-		  Sets the upper boundary of the soft limit protection in pm. This protection is needed if the IDS working range is smaller than the positioners travel range. It is no hard limit, so, it is possible to overshoot it! 
+		  Sets the upper boundary of the soft limit protection in pm. This
+protection is needed if the IDS working range is smaller than the positioners
+travel range. It is no hard limit, so, it is possible to overshoot it!
  Arguments:
 		axis 
 		Axis of the AMC where the soft limit should be changed 
@@ -493,19 +522,21 @@ sub setSoftLimitEnabled {
 sub setUpperSoftLimit {
 	my ($self, $axis, $limit, %args) = validated_list(
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
-		limit	=> {, optional => 0,},
+		limit	=> {optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.amcids.setUpperSoftLimit', params => [$axis, $limit])
+	my $response = $self->request(method =>
+'com.attocube.amc.amcids.setUpperSoftLimit', params => [$axis, $limit]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 MultiAxisPositioning
  Description:
-		  Simultaneously set 3 axes positions and get positions to minimize network latency 
+		  Simultaneously set 3 axes positions and get positions to minimize
+network latency
  Arguments:
 		set1 
 		axis1 otherwise pos1 target is ignored 
@@ -542,20 +573,23 @@ sub setUpperSoftLimit {
 		 
 =cut
 sub MultiAxisPositioning {
-	my ($self, $set1, $set2, $set3, $target1, $target2, $target3, %args) = validated_list(
-		set1	=> {, optional => 0,},
-		set2	=> {, optional => 0,},
-		set3	=> {, optional => 0,},
-		target1	=> {, optional => 0,},
-		target2	=> {, optional => 0,},
-		target3	=> {, optional => 0,},
+	my ($self, $set1, $set2, $set3, $target1, $target2, $target3, %args) =
+validated_list(
+		set1	=> { optional => 0,},
+		set2	=> { optional => 0,},
+		set3	=> { optional => 0,},
+		target1	=> { optional => 0,},
+		target2	=> { optional => 0,},
+		target3	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.control.MultiAxisPositioning', params => [$set1, $set2, $set3, $target1, $target2, $target3])
+	my $response = $self->request(method =>
+'com.attocube.amc.control.MultiAxisPositioning', params => [$set1, $set2, $set3,
+$target1, $target2, $target3]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getActorName
@@ -575,11 +609,12 @@ sub getActorName {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.control.getActorName', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.control.getActorName', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getActorParametersActorName
@@ -599,11 +634,12 @@ sub getActorParametersActorName {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.control.getActorParametersActorName', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.control.getActorParametersActorName', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getActorSensitivity
@@ -623,11 +659,12 @@ sub getActorSensitivity {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.control.getActorSensitivity', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.control.getActorSensitivity', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getActorType
@@ -647,16 +684,18 @@ sub getActorType {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.control.getActorType', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.control.getActorType', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getAutoMeasure
  Description:
-		  This function returns if the automeasurement on axis enable is enabled 
+		  This function returns if the automeasurement on axis enable is
+enabled
  Arguments:
 		axis 
 		[0|1|2] 
@@ -671,16 +710,18 @@ sub getAutoMeasure {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.control.getAutoMeasure', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.control.getAutoMeasure', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getControlAmplitude
  Description:
-		  This function gets the amplitude of the actuator signal of the selected axis. 
+		  This function gets the amplitude of the actuator signal of the
+selected axis.
  Arguments:
 		axis 
 		[0|1|2] 
@@ -695,16 +736,18 @@ sub getControlAmplitude {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.control.getControlAmplitude', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.control.getControlAmplitude', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getControlAutoReset
  Description:
-		  This function resets the position every time the reference position is detected. 
+		  This function resets the position every time the reference position is
+detected.
  Arguments:
 		axis 
 		[0|1|2] 
@@ -719,11 +762,12 @@ sub getControlAutoReset {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.control.getControlAutoReset', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.control.getControlAutoReset', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getControlFixOutputVoltage
@@ -743,16 +787,18 @@ sub getControlFixOutputVoltage {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.control.getControlFixOutputVoltage', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.control.getControlFixOutputVoltage', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getControlFrequency
  Description:
-		  This function gets the frequency of the actuator signal of the selected axis. 
+		  This function gets the frequency of the actuator signal of the
+selected axis.
  Arguments:
 		axis 
 		[0|1|2] 
@@ -767,16 +813,18 @@ sub getControlFrequency {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.control.getControlFrequency', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.control.getControlFrequency', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getControlMove
  Description:
-		  This function gets the approach of the selected axis' positioner to the target position.
+		  This function gets the approach of the selected axis' positioner to
+the target position.
  Arguments:
 		axis 
 		[0|1|2] 
@@ -792,16 +840,18 @@ sub getControlMove {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.control.getControlMove', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.control.getControlMove', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getControlOutput
  Description:
-		  This function gets the status of the output relays of the selected axis. 
+		  This function gets the status of the output relays of the selected
+axis.
  Arguments:
 		axis 
 		[0|1|2] 
@@ -816,16 +866,20 @@ sub getControlOutput {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.control.getControlOutput', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.control.getControlOutput', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getControlReferenceAutoUpdate
  Description:
-		  This function gets the status of whether the reference position is updated when the reference mark is hit. When this function is disabled, the reference marking will be considered only the first time and after then ignored. 
+		  This function gets the status of whether the reference position is
+updated when the reference mark is hit. When this function is disabled, the
+reference marking will be considered only the first time and after then
+ignored.
  Arguments:
 		axis 
 		[0|1|2] 
@@ -840,16 +894,18 @@ sub getControlReferenceAutoUpdate {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.control.getControlReferenceAutoUpdate', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.control.getControlReferenceAutoUpdate', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getControlTargetRange
  Description:
-		  This function gets the range around the target position in which the flag "In Target Range" becomes active. 
+		  This function gets the range around the target position in which the
+flag "In Target Range" becomes active.
  Arguments:
 		axis 
 		[0|1|2] 
@@ -864,16 +920,18 @@ sub getControlTargetRange {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.control.getControlTargetRange', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.control.getControlTargetRange', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getCrosstalkThreshold
  Description:
-		  This function gets the threshold range and slip phase time which is used while moving another axis 
+		  This function gets the threshold range and slip phase time which is
+used while moving another axis
  Arguments:
 		axis 
 		[0|1|2] 
@@ -881,7 +939,8 @@ sub getControlTargetRange {
 		range 
 		in pm 
 		time 
-		after slip phase which is waited until the controller is acting again in 
+		after slip phase which is waited until the controller is acting again
+in
 		microseconds 
 		JSON Method 
 		 
@@ -891,11 +950,12 @@ sub getCrosstalkThreshold {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.control.getCrosstalkThreshold', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.control.getCrosstalkThreshold', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getCurrentOutputVoltage
@@ -915,16 +975,18 @@ sub getCurrentOutputVoltage {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.control.getCurrentOutputVoltage', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.control.getCurrentOutputVoltage', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getExternalSensor
  Description:
-		  This function gets whether the sensor source of closed loop is IDS It is only available when the feature AMC/IDS closed loop has been activated 
+		  This function gets whether the sensor source of closed loop is IDS It
+is only available when the feature AMC/IDS closed loop has been activated
  Arguments:
 		axis 
 		[0|1|2] 
@@ -939,11 +1001,12 @@ sub getExternalSensor {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.control.getExternalSensor', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.control.getExternalSensor', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getFinePositioningRange
@@ -963,11 +1026,12 @@ sub getFinePositioningRange {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.control.getFinePositioningRange', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.control.getFinePositioningRange', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getFinePositioningSlewRate
@@ -987,16 +1051,18 @@ sub getFinePositioningSlewRate {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.control.getFinePositioningSlewRate', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.control.getFinePositioningSlewRate', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getMotionControlThreshold
  Description:
-		  This function gets the threshold range within the closed-loop controlled movement stops to regulate. 
+		  This function gets the threshold range within the closed-loop
+controlled movement stops to regulate.
  Arguments:
 		axis 
 		[0|1|2] 
@@ -1011,16 +1077,18 @@ sub getMotionControlThreshold {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.control.getMotionControlThreshold', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.control.getMotionControlThreshold', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getPositionsAndVoltages
  Description:
-		  Simultaneously get 3 axes positions as well as the DC offset to maximize sampling rate over network 
+		  Simultaneously get 3 axes positions as well as the DC offset to
+maximize sampling rate over network
  Arguments:
  Returns:
 		pos1 
@@ -1039,13 +1107,14 @@ sub getMotionControlThreshold {
 		 
 =cut
 sub getPositionsAndVoltages {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.amc.control.getPositionsAndVoltages')
+	my $response = $self->request(method =>
+'com.attocube.amc.control.getPositionsAndVoltages');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getReferencePosition
@@ -1066,16 +1135,19 @@ sub getReferencePosition {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.control.getReferencePosition', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.control.getReferencePosition', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getSensorDirection
  Description:
-		  This function gets whether the IDS sensor source of closed loop is inverted It is only available when the feature AMC/IDS closed loop has been activated 
+		  This function gets whether the IDS sensor source of closed loop is
+inverted It is only available when the feature AMC/IDS closed loop has been
+activated
  Arguments:
 		axis 
 		[0|1|2] 
@@ -1090,11 +1162,12 @@ sub getSensorDirection {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.control.getSensorDirection', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.control.getSensorDirection', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getSensorEnabled
@@ -1114,11 +1187,12 @@ sub getSensorEnabled {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.control.getSensorEnabled', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.control.getSensorEnabled', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getStatusMovingAllAxes
@@ -1136,18 +1210,20 @@ sub getSensorEnabled {
 		 
 =cut
 sub getStatusMovingAllAxes {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.amc.control.getStatusMovingAllAxes')
+	my $response = $self->request(method =>
+'com.attocube.amc.control.getStatusMovingAllAxes');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 searchReferencePosition
  Description:
-		  This function searches for the reference position of the selected axis. 
+		  This function searches for the reference position of the selected
+axis.
  Arguments:
 		axis 
 		[0|1|2] 
@@ -1160,16 +1236,18 @@ sub searchReferencePosition {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.control.searchReferencePosition', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.control.searchReferencePosition', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setActorParametersByName
  Description:
-		  This function sets the name for the positioner on the selected axis. The possible names can be retrieved by executing getPositionersList 
+		  This function sets the name for the positioner on the selected axis.
+The possible names can be retrieved by executing getPositionersList
  Arguments:
 		axis 
 		[0|1|2] 
@@ -1182,19 +1260,22 @@ sub searchReferencePosition {
 sub setActorParametersByName {
 	my ($self, $axis, $actorname, %args) = validated_list(
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
-		actorname	=> {, optional => 0,},
+		actorname	=> {optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.control.setActorParametersByName', params => [$axis, $actorname])
+	my $response = $self->request(method =>
+'com.attocube.amc.control.setActorParametersByName', params => [$axis,
+$actorname]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setActorParametersJson
  Description:
-		  Select and override a positioner out of the Current default list only override given parameters set others default 
+		  Select and override a positioner out of the Current default list only
+override given parameters set others default
  Arguments:
 		axis 
 		[0|1|2] 
@@ -1208,14 +1289,16 @@ sub setActorParametersByName {
 sub setActorParametersJson {
 	my ($self, $axis, $json_dict, %args) = validated_list(
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
-		json_dict	=> {, optional => 0,},
+		json_dict	=> {optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.control.setActorParametersJson', params => [$axis, $json_dict])
+	my $response = $self->request(method =>
+'com.attocube.amc.control.setActorParametersJson', params => [$axis,
+$json_dict]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setActorSensitivity
@@ -1233,19 +1316,22 @@ sub setActorParametersJson {
 sub setActorSensitivity {
 	my ($self, $axis, $sensitivity, %args) = validated_list(
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
-		sensitivity	=> {, optional => 0,},
+		sensitivity	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.control.setActorSensitivity', params => [$axis, $sensitivity])
+	my $response = $self->request(method =>
+'com.attocube.amc.control.setActorSensitivity', params => [$axis,
+$sensitivity]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setAutoMeasure
  Description:
-		  This function enables/disables the automatic C/R measurement on axis enable 
+		  This function enables/disables the automatic C/R measurement on axis
+enable
  Arguments:
 		axis 
 		[0|1|2] 
@@ -1258,19 +1344,21 @@ sub setActorSensitivity {
 sub setAutoMeasure {
 	my ($self, $axis, $enable, %args) = validated_list(
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
-		enable	=> {, optional => 0,},
+		enable	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.control.setAutoMeasure', params => [$axis, $enable])
+	my $response = $self->request(method =>
+'com.attocube.amc.control.setAutoMeasure', params => [$axis, $enable]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setControlAmplitude
  Description:
-		  This function sets the amplitude of the actuator signal of the selected axis. 
+		  This function sets the amplitude of the actuator signal of the
+selected axis.
  Arguments:
 		axis 
 		[0|1|2] 
@@ -1283,19 +1371,21 @@ sub setAutoMeasure {
 sub setControlAmplitude {
 	my ($self, $axis, $amplitude, %args) = validated_list(
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
-		amplitude	=> {, optional => 0,},
+		amplitude	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.control.setControlAmplitude', params => [$axis, $amplitude])
+	my $response = $self->request(method =>
+'com.attocube.amc.control.setControlAmplitude', params => [$axis, $amplitude]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setControlAutoReset
  Description:
-		  This function resets the position every time the reference position is detected. 
+		  This function resets the position every time the reference position is
+detected.
  Arguments:
 		axis 
 		[0|1|2] 
@@ -1308,14 +1398,15 @@ sub setControlAmplitude {
 sub setControlAutoReset {
 	my ($self, $axis, $enable, %args) = validated_list(
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
-		enable	=> {, optional => 0,},
+		enable	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.control.setControlAutoReset', params => [$axis, $enable])
+	my $response = $self->request(method =>
+'com.attocube.amc.control.setControlAutoReset', params => [$axis, $enable]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setControlFixOutputVoltage
@@ -1333,19 +1424,23 @@ sub setControlAutoReset {
 sub setControlFixOutputVoltage {
 	my ($self, $axis, $amplitude_mv, %args) = validated_list(
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
-		amplitude_mv	=> {, optional => 0,},
+		amplitude_mv	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.control.setControlFixOutputVoltage', params => [$axis, $amplitude_mv])
+	my $response = $self->request(method =>
+'com.attocube.amc.control.setControlFixOutputVoltage', params => [$axis,
+$amplitude_mv]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setControlFrequency
  Description:
-		  This function sets the frequency of the actuator signal of the selected axis. Note: Approximate the slewrate of the motion controller  according to Input Frequency 
+		  This function sets the frequency of the actuator signal of the
+selected axis. Note: Approximate the slewrate of the motion controller
+according to Input Frequency
  Arguments:
 		axis 
 		[0|1|2] 
@@ -1358,19 +1453,21 @@ sub setControlFixOutputVoltage {
 sub setControlFrequency {
 	my ($self, $axis, $frequency, %args) = validated_list(
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
-		frequency	=> {, optional => 0,},
+		frequency	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.control.setControlFrequency', params => [$axis, $frequency])
+	my $response = $self->request(method =>
+'com.attocube.amc.control.setControlFrequency', params => [$axis, $frequency]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setControlMove
  Description:
-		  This function sets the approach of the selected axis' positioner to the target position.
+		  This function sets the approach of the selected axis' positioner to
+the target position.
  Arguments:
 		axis 
 		[0|1|2] 
@@ -1383,19 +1480,22 @@ sub setControlFrequency {
 sub setControlMove {
 	my ($self, $axis, $enable, %args) = validated_list(
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
-		enable	=> {, optional => 0,},
+		enable	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.control.setControlMove', params => [$axis, $enable])
+	my $response = $self->request(method =>
+'com.attocube.amc.control.setControlMove', params => [$axis, $enable]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setControlOutput
  Description:
-		  This function sets the status of the output relays of the selected axis. Enable only if cable is connected and FlyBack is enabled use a PWM startup of 1sec 
+		  This function sets the status of the output relays of the selected
+axis. Enable only if cable is connected and FlyBack is enabled use a PWM startup
+of 1sec
  Arguments:
 		axis 
 		[0|1|2] 
@@ -1408,19 +1508,23 @@ sub setControlMove {
 sub setControlOutput {
 	my ($self, $axis, $enable, %args) = validated_list(
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
-		enable	=> {, optional => 0,},
+		enable	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.control.setControlOutput', params => [$axis, $enable])
+	my $response = $self->request(method =>
+'com.attocube.amc.control.setControlOutput', params => [$axis, $enable]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setControlReferenceAutoUpdate
  Description:
-		  This function sets the status of whether the reference position is updated when the reference mark is hit. When this function is disabled, the reference marking will be considered only the first time and after then ignored. 
+		  This function sets the status of whether the reference position is
+updated when the reference mark is hit. When this function is disabled, the
+reference marking will be considered only the first time and after then
+ignored.
  Arguments:
 		axis 
 		[0|1|2] 
@@ -1433,19 +1537,22 @@ sub setControlOutput {
 sub setControlReferenceAutoUpdate {
 	my ($self, $axis, $enable, %args) = validated_list(
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
-		enable	=> {, optional => 0,},
+		enable	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.control.setControlReferenceAutoUpdate', params => [$axis, $enable])
+	my $response = $self->request(method =>
+'com.attocube.amc.control.setControlReferenceAutoUpdate', params => [$axis,
+$enable]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setControlTargetRange
  Description:
-		  This function sets the range around the target position in which the flag "In Target Range" (see VIII.7.a) becomes active. 
+		  This function sets the range around the target position in which the
+flag "In Target Range" (see VIII.7.a) becomes active.
  Arguments:
 		axis 
 		[0|1|2] 
@@ -1458,19 +1565,21 @@ sub setControlReferenceAutoUpdate {
 sub setControlTargetRange {
 	my ($self, $axis, $range, %args) = validated_list(
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
-		range	=> {, optional => 0,},
+		range	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.control.setControlTargetRange', params => [$axis, $range])
+	my $response = $self->request(method =>
+'com.attocube.amc.control.setControlTargetRange', params => [$axis, $range]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setCrosstalkThreshold
  Description:
-		  This function sets the threshold range and slip phase time which is used while moving another axis 
+		  This function sets the threshold range and slip phase time which is
+used while moving another axis
  Arguments:
 		axis 
 		[0|1|2] 
@@ -1486,20 +1595,25 @@ sub setControlTargetRange {
 sub setCrosstalkThreshold {
 	my ($self, $axis, $threshold, $slipphasetime, %args) = validated_list(
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
-		threshold	=> {, optional => 0,},
-		slipphasetime	=> {, optional => 0,},
+		threshold	=> { optional => 0,},
+		slipphasetime	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.control.setCrosstalkThreshold', params => [$axis, $threshold, $slipphasetime])
+	my $response = $self->request(method =>
+'com.attocube.amc.control.setCrosstalkThreshold', params => [$axis, $threshold,
+$slipphasetime]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setExternalSensor
  Description:
-		  This function sets the sensor source of closed loop to the IDS when enabled. Otherwise the normal AMC Sensor depending on the configuration (e.g. NUM or RES) is used It is only available when the feature AMC/IDS closed loop has been activated 
+		  This function sets the sensor source of closed loop to the IDS when
+enabled. Otherwise the normal AMC Sensor depending on the configuration (e.g.
+NUM or RES) is used It is only available when the feature AMC/IDS closed loop
+has been activated
  Arguments:
 		axis 
 		[0|1|2] 
@@ -1518,11 +1632,12 @@ sub setExternalSensor {
 		enabled	=> {isa => 'Bool', optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.control.setExternalSensor', params => [$axis, $enabled])
+	my $response = $self->request(method =>
+'com.attocube.amc.control.setExternalSensor', params => [$axis, $enabled]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setFinePositioningRange
@@ -1540,14 +1655,15 @@ sub setExternalSensor {
 sub setFinePositioningRange {
 	my ($self, $axis, $range, %args) = validated_list(
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
-		range	=> {, optional => 0,},
+		range	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.control.setFinePositioningRange', params => [$axis, $range])
+	my $response = $self->request(method =>
+'com.attocube.amc.control.setFinePositioningRange', params => [$axis, $range]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setFinePositioningSlewRate
@@ -1565,19 +1681,22 @@ sub setFinePositioningRange {
 sub setFinePositioningSlewRate {
 	my ($self, $axis, $slewrate, %args) = validated_list(
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
-		slewrate	=> {, optional => 0,},
+		slewrate	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.control.setFinePositioningSlewRate', params => [$axis, $slewrate])
+	my $response = $self->request(method =>
+'com.attocube.amc.control.setFinePositioningSlewRate', params => [$axis,
+$slewrate]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setMotionControlThreshold
  Description:
-		  This function sets the threshold range within the closed-loop controlled movement stops to regulate. Default depends on connected sensor type 
+		  This function sets the threshold range within the closed-loop
+controlled movement stops to regulate. Default depends on connected sensor type
  Arguments:
 		axis 
 		[0|1|2] 
@@ -1590,19 +1709,25 @@ sub setFinePositioningSlewRate {
 sub setMotionControlThreshold {
 	my ($self, $axis, $threshold, %args) = validated_list(
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
-		threshold	=> {, optional => 0,},
+		threshold	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.control.setMotionControlThreshold', params => [$axis, $threshold])
+	my $response = $self->request(method =>
+'com.attocube.amc.control.setMotionControlThreshold', params => [$axis,
+$threshold]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setReset
  Description:
-		  This function resets the actual position of the selected axis given by the NUM sensor to zero and marks the reference position as invalid. It does not work for RES positioners and positions read by IDS. For IDS, use com.attocube.ids.displacement.resetAxis() or com.attocube.amc.amcids.resetIdsAxis() instead. 
+		  This function resets the actual position of the selected axis given by
+the NUM sensor to zero and marks the reference position as invalid. It does not
+work for RES positioners and positions read by IDS. For IDS, use
+com.attocube.ids.displacement.resetAxis() or
+com.attocube.amc.amcids.resetIdsAxis() instead.
  Arguments:
 		axis 
 		[0|1|2] 
@@ -1615,16 +1740,19 @@ sub setReset {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.control.setReset', params => [$axis])
+	my $response = $self->request(method => 'com.attocube.amc.control.setReset',
+params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setSensorDirection
  Description:
-		  This function sets the IDS sensor source of closed loop to inverted when true. It is only available when the feature AMC/IDS closed loop has been activated 
+		  This function sets the IDS sensor source of closed loop to inverted
+when true. It is only available when the feature AMC/IDS closed loop has been
+activated
  Arguments:
 		axis 
 		[0|1|2] 
@@ -1637,19 +1765,22 @@ sub setReset {
 sub setSensorDirection {
 	my ($self, $axis, $inverted, %args) = validated_list(
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
-		inverted	=> {, optional => 0,},
+		inverted	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.control.setSensorDirection', params => [$axis, $inverted])
+	my $response = $self->request(method =>
+'com.attocube.amc.control.setSensorDirection', params => [$axis, $inverted]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setSensorEnabled
  Description:
-		  Set sensor power supply status, can be switched off to save heat generated by sensor [NUM or RES] Positions retrieved will be invalid when activating this, so closed-loop control should be switched off beforehand 
+		  Set sensor power supply status, can be switched off to save heat
+generated by sensor [NUM or RES] Positions retrieved will be invalid when
+activating this, so closed-loop control should be switched off beforehand
  Arguments:
 		axis 
 		[0|1|2] 
@@ -1662,14 +1793,15 @@ sub setSensorDirection {
 sub setSensorEnabled {
 	my ($self, $axis, $value, %args) = validated_list(
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
-		value	=> {, optional => 0,},
+		value	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.control.setSensorEnabled', params => [$axis, $value])
+	my $response = $self->request(method =>
+'com.attocube.amc.control.setSensorEnabled', params => [$axis, $value]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 checkChassisNbr
@@ -1686,13 +1818,14 @@ sub setSensorEnabled {
 		 
 =cut
 sub checkChassisNbr {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.amc.description.checkChassisNbr')
+	my $response = $self->request(method =>
+'com.attocube.amc.description.checkChassisNbr');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getDeviceType
@@ -1707,13 +1840,14 @@ sub checkChassisNbr {
 		 
 =cut
 sub getDeviceType {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.amc.description.getDeviceType')
+	my $response = $self->request(method =>
+'com.attocube.amc.description.getDeviceType');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getFeaturesActivated
@@ -1728,18 +1862,20 @@ sub getDeviceType {
 		 
 =cut
 sub getFeaturesActivated {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.amc.description.getFeaturesActivated')
+	my $response = $self->request(method =>
+'com.attocube.amc.description.getFeaturesActivated');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getPositionersList
  Description:
-		  This function reads the actor names that can be connected to the device. 
+		  This function reads the actor names that can be connected to the
+device.
  Arguments:
  Returns:
 		PositionersList 
@@ -1748,13 +1884,14 @@ sub getFeaturesActivated {
 		 
 =cut
 sub getPositionersList {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.amc.description.getPositionersList')
+	my $response = $self->request(method =>
+'com.attocube.amc.description.getPositionersList');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getDiagnosticPower
@@ -1774,16 +1911,18 @@ sub getDiagnosticPower {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.diagnostic.getDiagnosticPower', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.diagnostic.getDiagnosticPower', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getDiagnosticResults
  Description:
-		  Returns the results of the last diagnostic run and an error, if there was no run, it is currently running or the run failed 
+		  Returns the results of the last diagnostic run and an error, if there
+was no run, it is currently running or the run failed
  Arguments:
 		axis 
 		[0|1|2] 
@@ -1800,16 +1939,18 @@ sub getDiagnosticResults {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.diagnostic.getDiagnosticResults', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.diagnostic.getDiagnosticResults', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getDiagnosticStepSize
  Description:
-		  Performs 10 steps in forward and backward and calculates the average step size in both directions on a specific axis 
+		  Performs 10 steps in forward and backward and calculates the average
+step size in both directions on a specific axis
  Arguments:
 		axis 
 		[0|1|2] 
@@ -1826,11 +1967,12 @@ sub getDiagnosticStepSize {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.diagnostic.getDiagnosticStepSize', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.diagnostic.getDiagnosticStepSize', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getDiagnosticTemperature
@@ -1850,11 +1992,12 @@ sub getDiagnosticTemperature {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.diagnostic.getDiagnosticTemperature', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.diagnostic.getDiagnosticTemperature', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 startDiagnostic
@@ -1872,11 +2015,12 @@ sub startDiagnostic {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.diagnostic.startDiagnostic', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.diagnostic.startDiagnostic', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getControlContinuousBkwd
@@ -1896,11 +2040,12 @@ sub getControlContinuousBkwd {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.move.getControlContinuousBkwd', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.move.getControlContinuousBkwd', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getControlContinuousFwd
@@ -1920,16 +2065,18 @@ sub getControlContinuousFwd {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.move.getControlContinuousFwd', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.move.getControlContinuousFwd', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getControlEotOutputDeactive
  Description:
-		  This function gets the output applied to the selected axis on the end of travel. /PRO feature. 
+		  This function gets the output applied to the selected axis on the end
+of travel. /PRO feature.
  Arguments:
 		axis 
 		[0|1|2] 
@@ -1945,16 +2092,18 @@ sub getControlEotOutputDeactive {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.move.getControlEotOutputDeactive', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.move.getControlEotOutputDeactive', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getControlTargetPosition
  Description:
-		  This function gets the target position for the movement on the selected axis. 
+		  This function gets the target position for the movement on the
+selected axis.
  Arguments:
 		axis 
 		[0|1|2] 
@@ -1969,11 +2118,12 @@ sub getControlTargetPosition {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.move.getControlTargetPosition', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.move.getControlTargetPosition', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getGroundAxis
@@ -1994,16 +2144,18 @@ sub getGroundAxis {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.move.getGroundAxis', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.move.getGroundAxis', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getGroundAxisAutoOnTarget
  Description:
-		  Pull axis piezo drive to GND if positioner is in ground target range only in AMC300 
+		  Pull axis piezo drive to GND if positioner is in ground target range
+only in AMC300
  Arguments:
 		axis 
 		montion controler axis [0|1|2] 
@@ -2019,16 +2171,18 @@ sub getGroundAxisAutoOnTarget {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.move.getGroundAxisAutoOnTarget', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.move.getGroundAxisAutoOnTarget', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getGroundTargetRange
  Description:
-		  Retrieves the range around the target position in which the auto grounding becomes active. only in AMC300 
+		  Retrieves the range around the target position in which the auto
+grounding becomes active. only in AMC300
  Arguments:
 		axis 
 		[0|1|2] 
@@ -2043,11 +2197,12 @@ sub getGroundTargetRange {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.move.getGroundTargetRange', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.move.getGroundTargetRange', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getNSteps
@@ -2067,16 +2222,18 @@ sub getNSteps {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.move.getNSteps', params => [$axis])
+	my $response = $self->request(method => 'com.attocube.amc.move.getNSteps',
+params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getPosition
  Description:
-		  This function gets the current position of the positioner on the selected axis. The axis on the web application are indexed from 1 to 3 
+		  This function gets the current position of the positioner on the
+selected axis. The axis on the web application are indexed from 1 to 3
  Arguments:
 		axis 
 		[0|1|2] 
@@ -2091,16 +2248,19 @@ sub getPosition {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.move.getPosition', params => [$axis])
+	my $response = $self->request(method => 'com.attocube.amc.move.getPosition',
+params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 moveReference
  Description:
-		  This function starts an approach to the reference position. A running motion command is aborted; closed loop moving is switched on. Requires a valid reference position. 
+		  This function starts an approach to the reference position. A running
+motion command is aborted; closed loop moving is switched on. Requires a valid
+reference position.
  Arguments:
 		axis 
 		[0|1|2] 
@@ -2113,11 +2273,12 @@ sub moveReference {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.move.moveReference', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.move.moveReference', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 performNSteps
@@ -2136,19 +2297,21 @@ sub moveReference {
 sub performNSteps {
 	my ($self, $axis, $backward, %args) = validated_list(
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
-		backward	=> {, optional => 0,},
+		backward	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.move.performNSteps', params => [$axis, $backward])
+	my $response = $self->request(method =>
+'com.attocube.amc.move.performNSteps', params => [$axis, $backward]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setControlContinuousBkwd
  Description:
-		  This function sets a continuous movement on the selected axis in backward direction. 
+		  This function sets a continuous movement on the selected axis in
+backward direction.
  Arguments:
 		axis 
 		[0|1|2] 
@@ -2163,19 +2326,21 @@ sub performNSteps {
 sub setControlContinuousBkwd {
 	my ($self, $axis, $enable, %args) = validated_list(
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
-		enable	=> {, optional => 0,},
+		enable	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.move.setControlContinuousBkwd', params => [$axis, $enable])
+	my $response = $self->request(method =>
+'com.attocube.amc.move.setControlContinuousBkwd', params => [$axis, $enable]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setControlContinuousFwd
  Description:
-		  This function sets a continuous movement on the selected axis in positive direction. 
+		  This function sets a continuous movement on the selected axis in
+positive direction.
  Arguments:
 		axis 
 		[0|1|2] 
@@ -2190,19 +2355,21 @@ sub setControlContinuousBkwd {
 sub setControlContinuousFwd {
 	my ($self, $axis, $enable, %args) = validated_list(
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
-		enable	=> {, optional => 0,},
+		enable	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.move.setControlContinuousFwd', params => [$axis, $enable])
+	my $response = $self->request(method =>
+'com.attocube.amc.move.setControlContinuousFwd', params => [$axis, $enable]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setControlEotOutputDeactive
  Description:
-		  This function sets the output applied to the selected axis on the end of travel. 
+		  This function sets the output applied to the selected axis on the end
+of travel.
  Arguments:
 		axis 
 		[0|1|2] 
@@ -2216,19 +2383,22 @@ sub setControlContinuousFwd {
 sub setControlEotOutputDeactive {
 	my ($self, $axis, $enable, %args) = validated_list(
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
-		enable	=> {, optional => 0,},
+		enable	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.move.setControlEotOutputDeactive', params => [$axis, $enable])
+	my $response = $self->request(method =>
+'com.attocube.amc.move.setControlEotOutputDeactive', params => [$axis,
+$enable]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setControlTargetPosition
  Description:
-		  This function sets the target position for the movement on the selected axis. careful: the maximum positon in nm is 2**47/1000 
+		  This function sets the target position for the movement on the
+selected axis. careful: the maximum positon in nm is 2**47/1000
  Arguments:
 		axis 
 		[0|1|2] 
@@ -2242,19 +2412,21 @@ sub setControlEotOutputDeactive {
 sub setControlTargetPosition {
 	my ($self, $axis, $target, %args) = validated_list(
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
-		target	=> {, optional => 0,},
+		target	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.move.setControlTargetPosition', params => [$axis, $target])
+	my $response = $self->request(method =>
+'com.attocube.amc.move.setControlTargetPosition', params => [$axis, $target]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setGroundAxis
  Description:
-		  Pull axis piezo drive to GND actively only in AMC300 this is used in MIC-Mode 
+		  Pull axis piezo drive to GND actively only in AMC300 this is used in
+MIC-Mode
  Arguments:
 		axis 
 		motion controler axis [0|1|2] 
@@ -2271,16 +2443,18 @@ sub setGroundAxis {
 		enabled	=> {isa => 'Bool', optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.move.setGroundAxis', params => [$axis, $enabled])
+	my $response = $self->request(method =>
+'com.attocube.amc.move.setGroundAxis', params => [$axis, $enabled]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setGroundAxisAutoOnTarget
  Description:
-		  Pull axis piezo drive to GND actively if positioner is in ground target range only in AMC300 this is used in MIC-Mode 
+		  Pull axis piezo drive to GND actively if positioner is in ground
+target range only in AMC300 this is used in MIC-Mode
  Arguments:
 		axis 
 		montion controler axis [0|1|2] 
@@ -2297,16 +2471,18 @@ sub setGroundAxisAutoOnTarget {
 		enabled	=> {isa => 'Bool', optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.move.setGroundAxisAutoOnTarget', params => [$axis, $enabled])
+	my $response = $self->request(method =>
+'com.attocube.amc.move.setGroundAxisAutoOnTarget', params => [$axis, $enabled]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setGroundTargetRange
  Description:
-		  Set  the range around the target position in which the auto grounding becomes active. only in AMC300 
+		  Set  the range around the target position in which the auto grounding
+becomes active. only in AMC300
  Arguments:
 		axis 
 		[0|1|2] 
@@ -2319,19 +2495,21 @@ sub setGroundAxisAutoOnTarget {
 sub setGroundTargetRange {
 	my ($self, $axis, $range, %args) = validated_list(
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
-		range	=> {, optional => 0,},
+		range	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.move.setGroundTargetRange', params => [$axis, $range])
+	my $response = $self->request(method =>
+'com.attocube.amc.move.setGroundTargetRange', params => [$axis, $range]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setNSteps
  Description:
-		  This function triggers n steps on the selected axis in desired direction. /PRO feature. 
+		  This function triggers n steps on the selected axis in desired
+direction. /PRO feature.
  Arguments:
 		axis 
 		[0|1|2] 
@@ -2347,20 +2525,22 @@ sub setGroundTargetRange {
 sub setNSteps {
 	my ($self, $axis, $backward, $step, %args) = validated_list(
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
-		backward	=> {, optional => 0,},
-		step	=> {, optional => 0,},
+		backward	=> { optional => 0,},
+		step	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.move.setNSteps', params => [$axis, $backward, $step])
+	my $response = $self->request(method => 'com.attocube.amc.move.setNSteps',
+params => [$axis, $backward, $step]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setSingleStep
  Description:
-		  This function triggers one step on the selected axis in desired direction. 
+		  This function triggers one step on the selected axis in desired
+direction.
  Arguments:
 		axis 
 		[0|1|2] 
@@ -2374,19 +2554,21 @@ sub setNSteps {
 sub setSingleStep {
 	my ($self, $axis, $backward, %args) = validated_list(
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
-		backward	=> {, optional => 0,},
+		backward	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.move.setSingleStep', params => [$axis, $backward])
+	my $response = $self->request(method =>
+'com.attocube.amc.move.setSingleStep', params => [$axis, $backward]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 writeNSteps
  Description:
-		  Sets the number of steps to perform on stepwise movement. /PRO feature. 
+		  Sets the number of steps to perform on stepwise movement. /PRO
+feature.
  Arguments:
 		axis 
 		[0|1|2] 
@@ -2399,14 +2581,15 @@ sub setSingleStep {
 sub writeNSteps {
 	my ($self, $axis, $step, %args) = validated_list(
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
-		step	=> {, optional => 0,},
+		step	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.move.writeNSteps', params => [$axis, $step])
+	my $response = $self->request(method => 'com.attocube.amc.move.writeNSteps',
+params => [$axis, $step]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getChainGain
@@ -2426,11 +2609,12 @@ sub getChainGain {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.res.getChainGain', params => [$axis])
+	my $response = $self->request(method => 'com.attocube.amc.res.getChainGain',
+params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getLinearization
@@ -2450,16 +2634,18 @@ sub getLinearization {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.res.getLinearization', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.res.getLinearization', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getLutSn
  Description:
-		  get the identifier of the loaded lookuptable (will be empty if disabled) 
+		  get the identifier of the loaded lookuptable (will be empty if
+disabled)
  Arguments:
 		axis 
 		[0|1|2] 
@@ -2474,16 +2660,18 @@ sub getLutSn {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.res.getLutSn', params => [$axis])
+	my $response = $self->request(method => 'com.attocube.amc.res.getLutSn',
+params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getMode
  Description:
-		  Get mode of RES application, see setMode for the description of possible parameters 
+		  Get mode of RES application, see setMode for the description of
+possible parameters
  Arguments:
  Returns:
 		mode 
@@ -2492,18 +2680,19 @@ sub getLutSn {
 		 
 =cut
 sub getMode {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.amc.res.getMode')
+	my $response = $self->request(method => 'com.attocube.amc.res.getMode');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getSensorStatus
  Description:
-		  Gets wether a valid RES position signal is present (always true for a disabled sensor and for rotators) 
+		  Gets wether a valid RES position signal is present (always true for a
+disabled sensor and for rotators)
  Arguments:
 		axis 
 		[0|1|2] 
@@ -2518,11 +2707,12 @@ sub getSensorStatus {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.res.getSensorStatus', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.res.getSensorStatus', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setChainGain
@@ -2541,19 +2731,22 @@ sub getSensorStatus {
 sub setChainGain {
 	my ($self, $axis, $gainconfig, %args) = validated_list(
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
-		gainconfig	=> {, optional => 0,},
+		gainconfig	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.res.setChainGain', params => [$axis, $gainconfig])
+	my $response = $self->request(method => 'com.attocube.amc.res.setChainGain',
+params => [$axis, $gainconfig]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setConfigurationFile
  Description:
-		  Load configuration file which either contains a JSON dict with parameters for the positioner on the axis or the LUT file itself (as legacy support for ANC350 .aps files) 
+		  Load configuration file which either contains a JSON dict with
+parameters for the positioner on the axis or the LUT file itself (as legacy
+support for ANC350 .aps files)
  Arguments:
 		axis 
 		[0|1|2] 
@@ -2566,7 +2759,8 @@ sub setChainGain {
 		mapping between ratio of the RES element travelled (0 to 1) and the 
 		corresponding absolute value at this ratio given in [nm]. 
 		Note: when generating these tables with position data in absolute 
-		units, the scaling of the travel ratio with the current sensor range has 
+		units, the scaling of the travel ratio with the current sensor range
+has
 		to be reversed. 
 		'lut_sn': optional, a string to uniquely identify the loaded LUT 
  Returns:
@@ -2576,14 +2770,15 @@ sub setChainGain {
 sub setConfigurationFile {
 	my ($self, $axis, $content, %args) = validated_list(
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
-		content	=> {, optional => 0,},
+		content	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.res.setConfigurationFile', params => [$axis, $content])
+	my $response = $self->request(method =>
+'com.attocube.amc.res.setConfigurationFile', params => [$axis, $content]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setLinearization
@@ -2601,19 +2796,26 @@ sub setConfigurationFile {
 sub setLinearization {
 	my ($self, $axis, $enable, %args) = validated_list(
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
-		enable	=> {, optional => 0,},
+		enable	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.res.setLinearization', params => [$axis, $enable])
+	my $response = $self->request(method =>
+'com.attocube.amc.res.setLinearization', params => [$axis, $enable]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setMode
  Description:
-		  Sets the mode of the RES position measurement This selects which frequency/ies are used for the lock-in measurement of the RES position, currently there are two possibilities: 1: Individual per axis: each axis is measured on a different frequency; this mode reduces noise coupling between axes, while requiring more wiring 2: Shared line/MIC-Mode: each axis is measured on the same frequency, which reduces the number of required wires while more coupling noise is excpected 
+		  Sets the mode of the RES position measurement This selects which
+frequency/ies are used for the lock-in measurement of the RES position,
+currently there are two possibilities: 1: Individual per axis: each axis is
+measured on a different frequency; this mode reduces noise coupling between
+axes, while requiring more wiring 2: Shared line/MIC-Mode: each axis is measured
+on the same frequency, which reduces the number of required wires while more
+coupling noise is excpected
  Arguments:
 		mode 
 		1: Individual per axis 2: Shared line mode 
@@ -2623,14 +2825,15 @@ sub setLinearization {
 =cut
 sub setMode {
 	my ($self, $mode, %args) = validated_list(
-		mode	=> {, optional => 0,},
+		mode	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.res.setMode', params => [$mode])
+	my $response = $self->request(method => 'com.attocube.amc.res.setMode',
+params => [$mode]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getControlTargetRanges
@@ -2648,13 +2851,14 @@ sub setMode {
 		 
 =cut
 sub getControlTargetRanges {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.amc.rotcomp.getControlTargetRanges')
+	my $response = $self->request(method =>
+'com.attocube.amc.rotcomp.getControlTargetRanges');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getEnabled
@@ -2672,13 +2876,14 @@ sub getControlTargetRanges {
 		 
 =cut
 sub getEnabled {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.amc.rotcomp.getEnabled')
+	my $response = $self->request(method =>
+'com.attocube.amc.rotcomp.getEnabled');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getLUT
@@ -2695,13 +2900,13 @@ sub getEnabled {
 		 
 =cut
 sub getLUT {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.amc.rotcomp.getLUT')
+	my $response = $self->request(method => 'com.attocube.amc.rotcomp.getLUT');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setEnabled
@@ -2722,11 +2927,12 @@ sub setEnabled {
 		enabled	=> {isa => 'Bool', optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.rotcomp.setEnabled', params => [$enabled])
+	my $response = $self->request(method =>
+'com.attocube.amc.rotcomp.setEnabled', params => [$enabled]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setLUT
@@ -2743,14 +2949,15 @@ sub setEnabled {
 =cut
 sub setLUT {
 	my ($self, $lut_string, %args) = validated_list(
-		lut_string	=> {, optional => 0,},
+		lut_string	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.rotcomp.setLUT', params => [$lut_string])
+	my $response = $self->request(method => 'com.attocube.amc.rotcomp.setLUT',
+params => [$lut_string]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 updateOffsets
@@ -2770,17 +2977,20 @@ sub setLUT {
 		 
 =cut
 sub updateOffsets {
-	my ($self, $offset_axis0, $offset_axis1, $offset_axis2, %args) = validated_list(
-		offset_axis0	=> {, optional => 0,},
-		offset_axis1	=> {, optional => 0,},
-		offset_axis2	=> {, optional => 0,},
+	my ($self, $offset_axis0, $offset_axis1, $offset_axis2, %args) =
+validated_list(
+		offset_axis0	=> { optional => 0,},
+		offset_axis1	=> { optional => 0,},
+		offset_axis2	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.rotcomp.updateOffsets', params => [$offset_axis0, $offset_axis1, $offset_axis2])
+	my $response = $self->request(method =>
+'com.attocube.amc.rotcomp.updateOffsets', params => [$offset_axis0,
+$offset_axis1, $offset_axis2]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 apply
@@ -2792,13 +3002,13 @@ sub updateOffsets {
 		 
 =cut
 sub apply {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.amc.rtin.apply')
+	my $response = $self->request(method => 'com.attocube.amc.rtin.apply');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 discard
@@ -2810,18 +3020,19 @@ sub apply {
 		 
 =cut
 sub discard {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.amc.rtin.discard')
+	my $response = $self->request(method => 'com.attocube.amc.rtin.discard');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getControlAQuadBInResolution
  Description:
-		  This function gets the AQuadB input resolution for setpoint parameter. 
+		  This function gets the AQuadB input resolution for setpoint
+parameter.
  Arguments:
 		axis 
 		[0|1|2] 
@@ -2836,16 +3047,18 @@ sub getControlAQuadBInResolution {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.rtin.getControlAQuadBInResolution', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.rtin.getControlAQuadBInResolution', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getControlMoveGPIO
  Description:
-		  This function gets the status for real time input on the selected axis in closed-loop mode. 
+		  This function gets the status for real time input on the selected axis
+in closed-loop mode.
  Arguments:
 		axis 
 		[0|1|2] 
@@ -2860,11 +3073,12 @@ sub getControlMoveGPIO {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.rtin.getControlMoveGPIO', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.rtin.getControlMoveGPIO', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getGpioMode
@@ -2878,13 +3092,14 @@ sub getControlMoveGPIO {
 		 
 =cut
 sub getGpioMode {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.amc.rtin.getGpioMode')
+	my $response = $self->request(method =>
+'com.attocube.amc.rtin.getGpioMode');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getNslMux
@@ -2903,19 +3118,21 @@ sub getGpioMode {
 =cut
 sub getNslMux {
 	my ($self, $mux_mode, %args) = validated_list(
-		mux_mode	=> {, optional => 0,},
+		mux_mode	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.rtin.getNslMux', params => [$mux_mode])
+	my $response = $self->request(method => 'com.attocube.amc.rtin.getNslMux',
+params => [$mux_mode]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getRealTimeInChangePerPulse
  Description:
-		  This function gets the change per pulse for the selected axis under real time input in the closed-loop mode. 
+		  This function gets the change per pulse for the selected axis under
+real time input in the closed-loop mode.
  Arguments:
 		axis 
 		[0|1|2] 
@@ -2930,16 +3147,18 @@ sub getRealTimeInChangePerPulse {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.rtin.getRealTimeInChangePerPulse', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.rtin.getRealTimeInChangePerPulse', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getRealTimeInFeedbackLoopMode
  Description:
-		  Get if the realtime function must operate in close loop operation or open loop operation 
+		  Get if the realtime function must operate in close loop operation or
+open loop operation
  Arguments:
 		axis 
 		[0|1|2] 
@@ -2954,16 +3173,18 @@ sub getRealTimeInFeedbackLoopMode {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.rtin.getRealTimeInFeedbackLoopMode', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.rtin.getRealTimeInFeedbackLoopMode', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getRealTimeInMode
  Description:
-		  This function sets or gets the real time input mode for the selected axis. 
+		  This function sets or gets the real time input mode for the selected
+axis.
  Arguments:
 		axis 
 		[0|1|2] 
@@ -2978,16 +3199,18 @@ sub getRealTimeInMode {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.rtin.getRealTimeInMode', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.rtin.getRealTimeInMode', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getRealTimeInStepsPerPulse
  Description:
-		  Get the change in step per pulse  of the realtime input when trigger and stepper mode is used 
+		  Get the change in step per pulse  of the realtime input when trigger
+and stepper mode is used
  Arguments:
 		axis 
 		[0|1|2] 
@@ -3002,16 +3225,18 @@ sub getRealTimeInStepsPerPulse {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.rtin.getRealTimeInStepsPerPulse', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.rtin.getRealTimeInStepsPerPulse', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setControlAQuadBInResolution
  Description:
-		  This function sets the AQuadB input resolution for setpoint parameter. 
+		  This function sets the AQuadB input resolution for setpoint
+parameter.
  Arguments:
 		axis 
 		[0|1|2] 
@@ -3024,19 +3249,22 @@ sub getRealTimeInStepsPerPulse {
 sub setControlAQuadBInResolution {
 	my ($self, $axis, $resolution, %args) = validated_list(
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
-		resolution	=> {, optional => 0,},
+		resolution	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.rtin.setControlAQuadBInResolution', params => [$axis, $resolution])
+	my $response = $self->request(method =>
+'com.attocube.amc.rtin.setControlAQuadBInResolution', params => [$axis,
+$resolution]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setControlMoveGPIO
  Description:
-		  This function sets the status for real time input on the selected axis in closed-loop mode. 
+		  This function sets the status for real time input on the selected axis
+in closed-loop mode.
  Arguments:
 		axis 
 		[0|1|2] 
@@ -3049,14 +3277,15 @@ sub setControlAQuadBInResolution {
 sub setControlMoveGPIO {
 	my ($self, $axis, $enable, %args) = validated_list(
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
-		enable	=> {, optional => 0,},
+		enable	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.rtin.setControlMoveGPIO', params => [$axis, $enable])
+	my $response = $self->request(method =>
+'com.attocube.amc.rtin.setControlMoveGPIO', params => [$axis, $enable]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setGpioMode
@@ -3073,14 +3302,15 @@ sub setControlMoveGPIO {
 =cut
 sub setGpioMode {
 	my ($self, $gpio_mode, %args) = validated_list(
-		gpio_mode	=> {, optional => 0,},
+		gpio_mode	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.rtin.setGpioMode', params => [$gpio_mode])
+	my $response = $self->request(method => 'com.attocube.amc.rtin.setGpioMode',
+params => [$gpio_mode]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setNslMux
@@ -3099,19 +3329,21 @@ sub setGpioMode {
 =cut
 sub setNslMux {
 	my ($self, $mux_mode, %args) = validated_list(
-		mux_mode	=> {, optional => 0,},
+		mux_mode	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.rtin.setNslMux', params => [$mux_mode])
+	my $response = $self->request(method => 'com.attocube.amc.rtin.setNslMux',
+params => [$mux_mode]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setRealTimeInChangePerPulse
  Description:
-		  This function sets the change per pulse for the selected axis under real time input in the closed-loop mode. only used in closed loop operation 
+		  This function sets the change per pulse for the selected axis under
+real time input in the closed-loop mode. only used in closed loop operation
  Arguments:
 		axis 
 		[0|1|2] 
@@ -3124,19 +3356,21 @@ sub setNslMux {
 sub setRealTimeInChangePerPulse {
 	my ($self, $axis, $delta, %args) = validated_list(
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
-		delta	=> {, optional => 0,},
+		delta	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.rtin.setRealTimeInChangePerPulse', params => [$axis, $delta])
+	my $response = $self->request(method =>
+'com.attocube.amc.rtin.setRealTimeInChangePerPulse', params => [$axis, $delta]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setRealTimeInFeedbackLoopMode
  Description:
-		  Set if the realtime function must operate in close loop operation or open loop operation 
+		  Set if the realtime function must operate in close loop operation or
+open loop operation
  Arguments:
 		axis 
 		[0|1|2] 
@@ -3149,14 +3383,16 @@ sub setRealTimeInChangePerPulse {
 sub setRealTimeInFeedbackLoopMode {
 	my ($self, $axis, $mode, %args) = validated_list(
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
-		mode	=> {, optional => 0,},
+		mode	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.rtin.setRealTimeInFeedbackLoopMode', params => [$axis, $mode])
+	my $response = $self->request(method =>
+'com.attocube.amc.rtin.setRealTimeInFeedbackLoopMode', params => [$axis,
+$mode]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setRealTimeInMode
@@ -3174,19 +3410,21 @@ sub setRealTimeInFeedbackLoopMode {
 sub setRealTimeInMode {
 	my ($self, $axis, $mode, %args) = validated_list(
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
-		mode	=> {, optional => 0,},
+		mode	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.rtin.setRealTimeInMode', params => [$axis, $mode])
+	my $response = $self->request(method =>
+'com.attocube.amc.rtin.setRealTimeInMode', params => [$axis, $mode]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setRealTimeInStepsPerPulse
  Description:
-		  Set the change in step per pulse  of the realtime input when trigger and stepper mode is used only used in open loop operation 
+		  Set the change in step per pulse  of the realtime input when trigger
+and stepper mode is used only used in open loop operation
  Arguments:
 		axis 
 		[0|1|2] 
@@ -3199,14 +3437,15 @@ sub setRealTimeInMode {
 sub setRealTimeInStepsPerPulse {
 	my ($self, $axis, $steps, %args) = validated_list(
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
-		steps	=> {, optional => 0,},
+		steps	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.rtin.setRealTimeInStepsPerPulse', params => [$axis, $steps])
+	my $response = $self->request(method =>
+'com.attocube.amc.rtin.setRealTimeInStepsPerPulse', params => [$axis, $steps]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 apply
@@ -3218,13 +3457,13 @@ sub setRealTimeInStepsPerPulse {
 		 
 =cut
 sub apply {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.amc.rtout.apply')
+	my $response = $self->request(method => 'com.attocube.amc.rtout.apply');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 applyAxis
@@ -3242,11 +3481,12 @@ sub applyAxis {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.rtout.applyAxis', params => [$axis])
+	my $response = $self->request(method => 'com.attocube.amc.rtout.applyAxis',
+params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 discard
@@ -3258,18 +3498,19 @@ sub applyAxis {
 		 
 =cut
 sub discard {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.amc.rtout.discard')
+	my $response = $self->request(method => 'com.attocube.amc.rtout.discard');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 discardAxis
  Description:
-		  Discard rtout value of specific axis set by the set function(not applied yet) 
+		  Discard rtout value of specific axis set by the set function(not
+applied yet)
  Arguments:
 		axis 
 		[0|1|2] 
@@ -3282,11 +3523,12 @@ sub discardAxis {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.rtout.discardAxis', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.rtout.discardAxis', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 discardSignalMode
@@ -3298,18 +3540,20 @@ sub discardAxis {
 		 
 =cut
 sub discardSignalMode {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.amc.rtout.discardSignalMode')
+	my $response = $self->request(method =>
+'com.attocube.amc.rtout.discardSignalMode');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getControlAQuadBOut
  Description:
-		  This function gets if of AQuadB output for position indication is enabled 
+		  This function gets if of AQuadB output for position indication is
+enabled
  Arguments:
 		axis 
 		[0|1|2] 
@@ -3324,11 +3568,12 @@ sub getControlAQuadBOut {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.rtout.getControlAQuadBOut', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.rtout.getControlAQuadBOut', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getControlAQuadBOutClock
@@ -3349,16 +3594,18 @@ sub getControlAQuadBOutClock {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.rtout.getControlAQuadBOutClock', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.rtout.getControlAQuadBOutClock', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getControlAQuadBOutResolution
  Description:
-		  This function gets the AQuadB output resolution for position indication. 
+		  This function gets the AQuadB output resolution for position
+indication.
  Arguments:
 		axis 
 		[0|1|2] 
@@ -3373,11 +3620,12 @@ sub getControlAQuadBOutResolution {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.rtout.getControlAQuadBOutResolution', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.rtout.getControlAQuadBOutResolution', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getMode
@@ -3397,11 +3645,12 @@ sub getMode {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.rtout.getMode', params => [$axis])
+	my $response = $self->request(method => 'com.attocube.amc.rtout.getMode',
+params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getSignalMode
@@ -3415,13 +3664,14 @@ sub getMode {
 		 
 =cut
 sub getSignalMode {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.amc.rtout.getSignalMode')
+	my $response = $self->request(method =>
+'com.attocube.amc.rtout.getSignalMode');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getTriggerConfig
@@ -3447,11 +3697,12 @@ sub getTriggerConfig {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.rtout.getTriggerConfig', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.rtout.getTriggerConfig', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setControlAQuadBOutClock
@@ -3470,19 +3721,21 @@ sub getTriggerConfig {
 sub setControlAQuadBOutClock {
 	my ($self, $axis, $clock, %args) = validated_list(
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
-		clock	=> {, optional => 0,},
+		clock	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.rtout.setControlAQuadBOutClock', params => [$axis, $clock])
+	my $response = $self->request(method =>
+'com.attocube.amc.rtout.setControlAQuadBOutClock', params => [$axis, $clock]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setControlAQuadBOutResolution
  Description:
-		  This function sets the AQuadB output resolution for position indication. 
+		  This function sets the AQuadB output resolution for position
+indication.
  Arguments:
 		axis 
 		[0|1|2] 
@@ -3495,14 +3748,16 @@ sub setControlAQuadBOutClock {
 sub setControlAQuadBOutResolution {
 	my ($self, $axis, $resolution, %args) = validated_list(
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
-		resolution	=> {, optional => 0,},
+		resolution	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.rtout.setControlAQuadBOutResolution', params => [$axis, $resolution])
+	my $response = $self->request(method =>
+'com.attocube.amc.rtout.setControlAQuadBOutResolution', params => [$axis,
+$resolution]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setMode
@@ -3520,14 +3775,15 @@ sub setControlAQuadBOutResolution {
 sub setMode {
 	my ($self, $axis, $mode, %args) = validated_list(
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
-		mode	=> {, optional => 0,},
+		mode	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.rtout.setMode', params => [$axis, $mode])
+	my $response = $self->request(method => 'com.attocube.amc.rtout.setMode',
+params => [$axis, $mode]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setSignalMode
@@ -3542,14 +3798,15 @@ sub setMode {
 =cut
 sub setSignalMode {
 	my ($self, $mode, %args) = validated_list(
-		mode	=> {, optional => 0,},
+		mode	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.rtout.setSignalMode', params => [$mode])
+	my $response = $self->request(method =>
+'com.attocube.amc.rtout.setSignalMode', params => [$mode]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setTriggerConfig
@@ -3571,24 +3828,28 @@ sub setSignalMode {
 		 
 =cut
 sub setTriggerConfig {
-	my ($self, $axis, $higher, $lower, $epsilon, $polarity, %args) = validated_list(
+	my ($self, $axis, $higher, $lower, $epsilon, $polarity, %args) =
+validated_list(
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
-		higher	=> {, optional => 0,},
-		lower	=> {, optional => 0,},
-		epsilon	=> {, optional => 0,},
-		polarity	=> {, optional => 0,},
+		higher	=> { optional => 0,},
+		lower	=> { optional => 0,},
+		epsilon	=> { optional => 0,},
+		polarity	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.rtout.setTriggerConfig', params => [$axis, $higher, $lower, $epsilon, $polarity])
+	my $response = $self->request(method =>
+'com.attocube.amc.rtout.setTriggerConfig', params => [$axis, $higher, $lower,
+$epsilon, $polarity]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getFullCombinedStatus
  Description:
-		  Get the full combined status of a positioner axis and return the status as a string (to be used in the Webapplication) 
+		  Get the full combined status of a positioner axis and return the
+status as a string (to be used in the Webapplication)
  Arguments:
 		axis 
 		[0|1|2] 
@@ -3605,11 +3866,12 @@ sub getFullCombinedStatus {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.status.getFullCombinedStatus', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.status.getFullCombinedStatus', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getOlStatus
@@ -3630,16 +3892,18 @@ sub getOlStatus {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.status.getOlStatus', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.status.getOlStatus', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getStatusConnected
  Description:
-		  This function gets information about the connection status of the selected axis' positioner.
+		  This function gets information about the connection status of the
+selected axis' positioner.
  Arguments:
 		axis 
 		[0|1|2] 
@@ -3654,16 +3918,18 @@ sub getStatusConnected {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.status.getStatusConnected', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.status.getStatusConnected', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getStatusEot
  Description:
-		  Retrieves the status of the end of travel (EOT) detection in backward direction or in forward direction. 
+		  Retrieves the status of the end of travel (EOT) detection in backward
+direction or in forward direction.
  Arguments:
 		axis 
 		[0|1|2] 
@@ -3678,16 +3944,18 @@ sub getStatusEot {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.status.getStatusEot', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.status.getStatusEot', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getStatusEotBkwd
  Description:
-		  This function gets the status of the end of travel detection on the selected axis in backward direction. 
+		  This function gets the status of the end of travel detection on the
+selected axis in backward direction.
  Arguments:
 		axis 
 		[0|1|2] 
@@ -3702,16 +3970,18 @@ sub getStatusEotBkwd {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.status.getStatusEotBkwd', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.status.getStatusEotBkwd', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getStatusEotFwd
  Description:
-		  This function gets the status of the end of travel detection on the selected axis in forward direction. 
+		  This function gets the status of the end of travel detection on the
+selected axis in forward direction.
  Arguments:
 		axis 
 		[0|1|2] 
@@ -3726,11 +3996,12 @@ sub getStatusEotFwd {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.status.getStatusEotFwd', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.status.getStatusEotFwd', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getStatusMoving
@@ -3754,16 +4025,18 @@ sub getStatusMoving {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.status.getStatusMoving', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.status.getStatusMoving', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getStatusReference
  Description:
-		  This function gets information about the status of the reference position. 
+		  This function gets information about the status of the reference
+position.
  Arguments:
 		axis 
 		[0|1|2] 
@@ -3778,16 +4051,21 @@ sub getStatusReference {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.status.getStatusReference', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.status.getStatusReference', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getStatusTargetRange
  Description:
-		  This function gets information about whether the selected axis' positioner is in target range or not. The detection only indicates whether the position is within the defined range. This status is updated periodically but currently not in real-time. If a fast detection is desired, please check the position in a loop
+		  This function gets information about whether the selected axis'
+positioner is in target range or not. The detection only indicates whether the
+position is within the defined range. This status is updated periodically but
+currently not in real-time. If a fast detection is desired, please check the
+position in a loop
  Arguments:
 		axis 
 		[0|1|2] 
@@ -3802,11 +4080,12 @@ sub getStatusTargetRange {
 		axis	=> {isa => enum([ qw(0 1 2 ) ]), optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.amc.status.getStatusTargetRange', params => [$axis])
+	my $response = $self->request(method =>
+'com.attocube.amc.status.getStatusTargetRange', params => [$axis]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getInstalledPackages
@@ -3821,13 +4100,14 @@ sub getStatusTargetRange {
 		 
 =cut
 sub getInstalledPackages {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.system.about.getInstalledPackages')
+	my $response = $self->request(method =>
+'com.attocube.system.about.getInstalledPackages');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getPackageLicense
@@ -3845,14 +4125,15 @@ sub getInstalledPackages {
 =cut
 sub getPackageLicense {
 	my ($self, $pckg, %args) = validated_list(
-		pckg	=> {, optional => 0,},
+		pckg	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.system.about.getPackageLicense', params => [$pckg])
+	my $response = $self->request(method =>
+'com.attocube.system.about.getPackageLicense', params => [$pckg]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 apply
@@ -3865,13 +4146,13 @@ sub getPackageLicense {
 		 
 =cut
 sub apply {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.system.apply')
+	my $response = $self->request(method => 'com.attocube.system.apply');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 errorNumberToRecommendation
@@ -3892,15 +4173,17 @@ sub apply {
 =cut
 sub errorNumberToRecommendation {
 	my ($self, $language, $errNbr, %args) = validated_list(
-		language	=> {, optional => 0,},
-		errNbr	=> {, optional => 0,},
+		language	=> { optional => 0,},
+		errNbr	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.system.errorNumberToRecommendation', params => [$language, $errNbr])
+	my $response = $self->request(method =>
+'com.attocube.system.errorNumberToRecommendation', params => [$language,
+$errNbr]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 errorNumberToString
@@ -3921,20 +4204,23 @@ sub errorNumberToRecommendation {
 =cut
 sub errorNumberToString {
 	my ($self, $language, $errNbr, %args) = validated_list(
-		language	=> {, optional => 0,},
-		errNbr	=> {, optional => 0,},
+		language	=> { optional => 0,},
+		errNbr	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.system.errorNumberToString', params => [$language, $errNbr])
+	my $response = $self->request(method =>
+'com.attocube.system.errorNumberToString', params => [$language, $errNbr]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 factoryReset
  Description:
-		  Turns on the factory reset flag. To perform the factory reset, a reboot is necessary afterwards. All settings will be set to default and the IDS will be configured as DHCP server. 
+		  Turns on the factory reset flag. To perform the factory reset, a
+reboot is necessary afterwards. All settings will be set to default and the IDS
+will be configured as DHCP server.
  Arguments:
  Returns:
 		errorCode 
@@ -3942,29 +4228,31 @@ sub errorNumberToString {
 		 
 =cut
 sub factoryReset {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.system.factoryReset')
+	my $response = $self->request(method => 'com.attocube.system.factoryReset');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 checkAMCinRack
  Description:
-		  If AMC is on Rack position 0, use it as DHCP server, else use it as DHCP client 
+		  If AMC is on Rack position 0, use it as DHCP server, else use it as
+DHCP client
  Arguments:
  Returns:
 =cut
 sub checkAMCinRack {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.system.functions.checkAMCinRack')
+	my $response = $self->request(method =>
+'com.attocube.system.functions.checkAMCinRack');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getDeviceName
@@ -3979,13 +4267,14 @@ sub checkAMCinRack {
 		 
 =cut
 sub getDeviceName {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.system.getDeviceName')
+	my $response = $self->request(method =>
+'com.attocube.system.getDeviceName');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getFirmwareVersion
@@ -4000,13 +4289,14 @@ sub getDeviceName {
 		 
 =cut
 sub getFirmwareVersion {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.system.getFirmwareVersion')
+	my $response = $self->request(method =>
+'com.attocube.system.getFirmwareVersion');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getFluxCode
@@ -4021,13 +4311,13 @@ sub getFirmwareVersion {
 		 
 =cut
 sub getFluxCode {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.system.getFluxCode')
+	my $response = $self->request(method => 'com.attocube.system.getFluxCode');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getHostname
@@ -4042,13 +4332,13 @@ sub getFluxCode {
 		 
 =cut
 sub getHostname {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.system.getHostname')
+	my $response = $self->request(method => 'com.attocube.system.getHostname');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getMacAddress
@@ -4063,13 +4353,14 @@ sub getHostname {
 		 
 =cut
 sub getMacAddress {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.system.getMacAddress')
+	my $response = $self->request(method =>
+'com.attocube.system.getMacAddress');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getSerialNumber
@@ -4084,13 +4375,14 @@ sub getMacAddress {
 		 
 =cut
 sub getSerialNumber {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.system.getSerialNumber')
+	my $response = $self->request(method =>
+'com.attocube.system.getSerialNumber');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 apply
@@ -4103,13 +4395,14 @@ sub getSerialNumber {
 		 
 =cut
 sub apply {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.system.network.apply')
+	my $response = $self->request(method =>
+'com.attocube.system.network.apply');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 configureWifi
@@ -4129,16 +4422,17 @@ sub apply {
 =cut
 sub configureWifi {
 	my ($self, $mode, $ssid, $psk, %args) = validated_list(
-		mode	=> {, optional => 0,},
-		ssid	=> {, optional => 0,},
-		psk	=> {, optional => 0,},
+		mode	=> { optional => 0,},
+		ssid	=> { optional => 0,},
+		psk	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.system.network.configureWifi', params => [$mode, $ssid, $psk])
+	my $response = $self->request(method =>
+'com.attocube.system.network.configureWifi', params => [$mode, $ssid, $psk]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 discard
@@ -4151,13 +4445,14 @@ sub configureWifi {
 		 
 =cut
 sub discard {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.system.network.discard')
+	my $response = $self->request(method =>
+'com.attocube.system.network.discard');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getDefaultGateway
@@ -4172,13 +4467,14 @@ sub discard {
 		 
 =cut
 sub getDefaultGateway {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.system.network.getDefaultGateway')
+	my $response = $self->request(method =>
+'com.attocube.system.network.getDefaultGateway');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getDnsResolver
@@ -4196,14 +4492,15 @@ sub getDefaultGateway {
 =cut
 sub getDnsResolver {
 	my ($self, $priority, %args) = validated_list(
-		priority	=> {, optional => 0,},
+		priority	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.system.network.getDnsResolver', params => [$priority])
+	my $response = $self->request(method =>
+'com.attocube.system.network.getDnsResolver', params => [$priority]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getEnableDhcpClient
@@ -4218,13 +4515,14 @@ sub getDnsResolver {
 		 
 =cut
 sub getEnableDhcpClient {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.system.network.getEnableDhcpClient')
+	my $response = $self->request(method =>
+'com.attocube.system.network.getEnableDhcpClient');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getEnableDhcpServer
@@ -4239,13 +4537,14 @@ sub getEnableDhcpClient {
 		 
 =cut
 sub getEnableDhcpServer {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.system.network.getEnableDhcpServer')
+	my $response = $self->request(method =>
+'com.attocube.system.network.getEnableDhcpServer');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getIpAddress
@@ -4260,13 +4559,14 @@ sub getEnableDhcpServer {
 		 
 =cut
 sub getIpAddress {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.system.network.getIpAddress')
+	my $response = $self->request(method =>
+'com.attocube.system.network.getIpAddress');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getProxyServer
@@ -4281,18 +4581,20 @@ sub getIpAddress {
 		 
 =cut
 sub getProxyServer {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.system.network.getProxyServer')
+	my $response = $self->request(method =>
+'com.attocube.system.network.getProxyServer');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getRealIpAddress
  Description:
-		  Get the real IP address of the device set to the network interface (br0, eth1 or eth0) 
+		  Get the real IP address of the device set to the network interface
+(br0, eth1 or eth0)
  Arguments:
  Returns:
 		errorCode 
@@ -4302,13 +4604,14 @@ sub getProxyServer {
 		 
 =cut
 sub getRealIpAddress {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.system.network.getRealIpAddress')
+	my $response = $self->request(method =>
+'com.attocube.system.network.getRealIpAddress');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getSubnetMask
@@ -4323,13 +4626,14 @@ sub getRealIpAddress {
 		 
 =cut
 sub getSubnetMask {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.system.network.getSubnetMask')
+	my $response = $self->request(method =>
+'com.attocube.system.network.getSubnetMask');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getWifiMode
@@ -4344,18 +4648,20 @@ sub getSubnetMask {
 		 
 =cut
 sub getWifiMode {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.system.network.getWifiMode')
+	my $response = $self->request(method =>
+'com.attocube.system.network.getWifiMode');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getWifiPassphrase
  Description:
-		  Get the the passphrase of the network hosted (mode: Access point) or connected to (mode: client) 
+		  Get the the passphrase of the network hosted (mode: Access point) or
+connected to (mode: client)
  Arguments:
  Returns:
 		errorCode 
@@ -4365,13 +4671,14 @@ sub getWifiMode {
 		 
 =cut
 sub getWifiPassphrase {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.system.network.getWifiPassphrase')
+	my $response = $self->request(method =>
+'com.attocube.system.network.getWifiPassphrase');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getWifiPresent
@@ -4386,18 +4693,20 @@ sub getWifiPassphrase {
 		 
 =cut
 sub getWifiPresent {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.system.network.getWifiPresent')
+	my $response = $self->request(method =>
+'com.attocube.system.network.getWifiPresent');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getWifiSSID
  Description:
-		  Get the the SSID of the network hosted (mode: Access point) or connected to (mode: client) 
+		  Get the the SSID of the network hosted (mode: Access point) or
+connected to (mode: client)
  Arguments:
  Returns:
 		errorCode 
@@ -4407,13 +4716,14 @@ sub getWifiPresent {
 		 
 =cut
 sub getWifiSSID {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.system.network.getWifiSSID')
+	my $response = $self->request(method =>
+'com.attocube.system.network.getWifiSSID');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setDefaultGateway
@@ -4429,14 +4739,15 @@ sub getWifiSSID {
 =cut
 sub setDefaultGateway {
 	my ($self, $gateway, %args) = validated_list(
-		gateway	=> {, optional => 0,},
+		gateway	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.system.network.setDefaultGateway', params => [$gateway])
+	my $response = $self->request(method =>
+'com.attocube.system.network.setDefaultGateway', params => [$gateway]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setDnsResolver
@@ -4454,15 +4765,16 @@ sub setDefaultGateway {
 =cut
 sub setDnsResolver {
 	my ($self, $priority, $resolver, %args) = validated_list(
-		priority	=> {, optional => 0,},
-		resolver	=> {, optional => 0,},
+		priority	=> { optional => 0,},
+		resolver	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.system.network.setDnsResolver', params => [$priority, $resolver])
+	my $response = $self->request(method =>
+'com.attocube.system.network.setDnsResolver', params => [$priority, $resolver]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setEnableDhcpClient
@@ -4478,14 +4790,15 @@ sub setDnsResolver {
 =cut
 sub setEnableDhcpClient {
 	my ($self, $enable, %args) = validated_list(
-		enable	=> {, optional => 0,},
+		enable	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.system.network.setEnableDhcpClient', params => [$enable])
+	my $response = $self->request(method =>
+'com.attocube.system.network.setEnableDhcpClient', params => [$enable]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setEnableDhcpServer
@@ -4501,14 +4814,15 @@ sub setEnableDhcpClient {
 =cut
 sub setEnableDhcpServer {
 	my ($self, $enable, %args) = validated_list(
-		enable	=> {, optional => 0,},
+		enable	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.system.network.setEnableDhcpServer', params => [$enable])
+	my $response = $self->request(method =>
+'com.attocube.system.network.setEnableDhcpServer', params => [$enable]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setIpAddress
@@ -4524,14 +4838,15 @@ sub setEnableDhcpServer {
 =cut
 sub setIpAddress {
 	my ($self, $address, %args) = validated_list(
-		address	=> {, optional => 0,},
+		address	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.system.network.setIpAddress', params => [$address])
+	my $response = $self->request(method =>
+'com.attocube.system.network.setIpAddress', params => [$address]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setProxyServer
@@ -4547,14 +4862,15 @@ sub setIpAddress {
 =cut
 sub setProxyServer {
 	my ($self, $proxyServer, %args) = validated_list(
-		proxyServer	=> {, optional => 0,},
+		proxyServer	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.system.network.setProxyServer', params => [$proxyServer])
+	my $response = $self->request(method =>
+'com.attocube.system.network.setProxyServer', params => [$proxyServer]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setSubnetMask
@@ -4570,14 +4886,15 @@ sub setProxyServer {
 =cut
 sub setSubnetMask {
 	my ($self, $netmask, %args) = validated_list(
-		netmask	=> {, optional => 0,},
+		netmask	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.system.network.setSubnetMask', params => [$netmask])
+	my $response = $self->request(method =>
+'com.attocube.system.network.setSubnetMask', params => [$netmask]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setWifiMode
@@ -4593,19 +4910,21 @@ sub setSubnetMask {
 =cut
 sub setWifiMode {
 	my ($self, $mode, %args) = validated_list(
-		mode	=> {, optional => 0,},
+		mode	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.system.network.setWifiMode', params => [$mode])
+	my $response = $self->request(method =>
+'com.attocube.system.network.setWifiMode', params => [$mode]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setWifiPassphrase
  Description:
-		  Change the passphrase of the network hosted (mode: Access point) or connected to (mode: client) 
+		  Change the passphrase of the network hosted (mode: Access point) or
+connected to (mode: client)
  Arguments:
 		psk 
 		Pre-shared key 
@@ -4616,19 +4935,21 @@ sub setWifiMode {
 =cut
 sub setWifiPassphrase {
 	my ($self, $psk, %args) = validated_list(
-		psk	=> {, optional => 0,},
+		psk	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.system.network.setWifiPassphrase', params => [$psk])
+	my $response = $self->request(method =>
+'com.attocube.system.network.setWifiPassphrase', params => [$psk]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setWifiSSID
  Description:
-		  Change the SSID of the network hosted (mode: Access point) or connected to (mode: client) 
+		  Change the SSID of the network hosted (mode: Access point) or
+connected to (mode: client)
  Arguments:
 		ssid 
 		 
@@ -4639,14 +4960,15 @@ sub setWifiPassphrase {
 =cut
 sub setWifiSSID {
 	my ($self, $ssid, %args) = validated_list(
-		ssid	=> {, optional => 0,},
+		ssid	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.system.network.setWifiSSID', params => [$ssid])
+	my $response = $self->request(method =>
+'com.attocube.system.network.setWifiSSID', params => [$ssid]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 verify
@@ -4659,13 +4981,14 @@ sub setWifiSSID {
 		 
 =cut
 sub verify {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.system.network.verify')
+	my $response = $self->request(method =>
+'com.attocube.system.network.verify');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 rebootSystem
@@ -4678,13 +5001,13 @@ sub verify {
 		 
 =cut
 sub rebootSystem {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.system.rebootSystem')
+	my $response = $self->request(method => 'com.attocube.system.rebootSystem');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setDeviceName
@@ -4700,14 +5023,15 @@ sub rebootSystem {
 =cut
 sub setDeviceName {
 	my ($self, $name, %args) = validated_list(
-		name	=> {, optional => 0,},
+		name	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.system.setDeviceName', params => [$name])
+	my $response = $self->request(method => 'com.attocube.system.setDeviceName',
+params => [$name]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 setTime
@@ -4732,25 +5056,28 @@ sub setDeviceName {
 		 
 =cut
 sub setTime {
-	my ($self, $day, $month, $year, $hour, $minute, $second, %args) = validated_list(
-		day	=> {, optional => 0,},
-		month	=> {, optional => 0,},
-		year	=> {, optional => 0,},
-		hour	=> {, optional => 0,},
-		minute	=> {, optional => 0,},
-		second	=> {, optional => 0,},
+	my ($self, $day, $month, $year, $hour, $minute, $second, %args) =
+validated_list(
+		day	=> { optional => 0,},
+		month	=> { optional => 0,},
+		year	=> { optional => 0,},
+		hour	=> { optional => 0,},
+		minute	=> { optional => 0,},
+		second	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.system.setTime', params => [$day, $month, $year, $hour, $minute, $second])
+	my $response = $self->request(method => 'com.attocube.system.setTime',
+params => [$day, $month, $year, $hour, $minute, $second]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 softReset
  Description:
-		  Performs a soft reset (Reset without deleting the network settings). Please reboot the device directly afterwards. 
+		  Performs a soft reset (Reset without deleting the network settings).
+Please reboot the device directly afterwards.
  Arguments:
  Returns:
 		errorCode 
@@ -4758,13 +5085,13 @@ sub setTime {
 		 
 =cut
 sub softReset {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.system.softReset')
+	my $response = $self->request(method => 'com.attocube.system.softReset');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 updateTimeFromInternet
@@ -4777,13 +5104,14 @@ sub softReset {
 		 
 =cut
 sub updateTimeFromInternet {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.system.updateTimeFromInternet')
+	my $response = $self->request(method =>
+'com.attocube.system.updateTimeFromInternet');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getLicenseUpdateProgress
@@ -4798,13 +5126,14 @@ sub updateTimeFromInternet {
 		 
 =cut
 sub getLicenseUpdateProgress {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.system.update.getLicenseUpdateProgress')
+	my $response = $self->request(method =>
+'com.attocube.system.update.getLicenseUpdateProgress');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 getSwUpdateProgress
@@ -4819,18 +5148,20 @@ sub getLicenseUpdateProgress {
 		 
 =cut
 sub getSwUpdateProgress {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.system.update.getSwUpdateProgress')
+	my $response = $self->request(method =>
+'com.attocube.system.update.getSwUpdateProgress');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 licenseUpdateBase64
  Description:
-		  Execute the license update with base64 file uploaded. After execution, a manual reboot is nevessary. 
+		  Execute the license update with base64 file uploaded. After execution,
+a manual reboot is nevessary.
  Arguments:
  Returns:
 		errorCode 
@@ -4838,18 +5169,20 @@ sub getSwUpdateProgress {
 		 
 =cut
 sub licenseUpdateBase64 {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.system.update.licenseUpdateBase64')
+	my $response = $self->request(method =>
+'com.attocube.system.update.licenseUpdateBase64');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 softwareUpdateBase64
  Description:
-		  Execute the update with base64 file uploaded. After completion, a manual reboot is necessary. 
+		  Execute the update with base64 file uploaded. After completion, a
+manual reboot is necessary.
  Arguments:
  Returns:
 		errorCode 
@@ -4857,13 +5190,14 @@ sub licenseUpdateBase64 {
 		 
 =cut
 sub softwareUpdateBase64 {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'com.attocube.system.update.softwareUpdateBase64')
+	my $response = $self->request(method =>
+'com.attocube.system.update.softwareUpdateBase64');
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 =head2 uploadLicenseBase64
@@ -4881,15 +5215,17 @@ sub softwareUpdateBase64 {
 =cut
 sub uploadLicenseBase64 {
 	my ($self, $offset, $b64Data, %args) = validated_list(
-		offset	=> {, optional => 0,},
-		b64Data	=> {, optional => 0,},
+		offset	=> { optional => 0,},
+		b64Data	=> { optional => 0,},
 	);
 
-	my $response = $self->request(method => 'com.attocube.system.update.uploadLicenseBase64', params => [$offset, $b64Data])
+	my $response = $self->request(method =>
+'com.attocube.system.update.uploadLicenseBase64', params => [$offset,
+$b64Data]);
 
-	$self->handle_error($response)
+	$self->handle_error($response);
 
-	return response
+	return $response;
 }
 
 # (9)
