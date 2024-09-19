@@ -41,6 +41,7 @@ my %source_files = map {
 
 # The following modules are not required in the manual
 my @whitelist = qw/
+    Lab::Measurement
     Lab::Measurement::Manual
     Lab::Moose::Connection::VISA_GPIB
     Lab::Moose::Instrument::AttoCube_AMC
