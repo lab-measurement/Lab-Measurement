@@ -1,6 +1,5 @@
 package Lab::Moose::Instrument::AMI_430;
 #ABSTRACT: American Magnetics magnet power supply
-
 use v5.20;
 
 use Moose;
@@ -34,6 +33,24 @@ has verbose => (
     default => 1
 );
 
+has persistent_mode => ( 
+    is => 'ro', 
+    isa => 'Bool', 
+    builder => '_persistent_builder',
+    lazy => 1,
+);
+
+#subroutines needed: heater_off, in_persistent_mode, get_persistent_field, heater_on
+
+#heater off: turns off the switch heater
+#heater on: turns on the switch heater 
+#get_persistent_field: gives back the applied persistent field - done
+#in_persistent_mode: gives back whether the magnet is in the persistent mode or not - done
+
+sub _persistent_builder {
+    my $self = shift;
+    return $self -> query( command => " PSwitch:INSTalled?");
+}
 
 sub BUILD {
   my $self = shift;
@@ -88,6 +105,69 @@ sub get_field {
         \@_
     );
     return $self->query( command => "FIELD:MAGNET?", %args );
+}
+
+sub get_voltage {
+    my ( $self, %args ) = validated_getter(
+        \@_
+    );
+    return $self->query( command => "VOLTage:SUPPly?", %args );
+}
+
+sub get_persistent_field {
+    my ( $self, %args ) = validated_getter( \@_ );
+ 
+    return $self->query( command => "FIELD:MAGnet?");
+}
+
+sub in_persistent_mode {
+    my ( $self, %args ) = validated_getter( \@_ );
+    my $status = $self->query( command => "PERSistent?");
+    if ( $status == 0) {
+        return 0;
+    }
+    else {
+        return 1;
+    }
+}
+
+sub set_switch_heater {
+    my ( $self, $value, %args ) = validated_setter(
+        \@_,
+        value => {isa => enum( [ 0,1 ] ) },
+    );
+    if ($value == 0) {
+        return $self->query( command => "PSwitch 0" );
+    }
+    else {
+        return $self->query( command => "PSwitch 1" );
+    }
+}
+
+sub heater_on {
+   my ( $self, $value, %args ) = validated_setter(
+        \@_,
+   );
+   $self ->query( command => "PSwitch?");
+   if ($self == 0) {
+        return $self->set_switch_heater(value => 1);
+   }
+   else {
+    croak ( "The switch heater is already turned on." );
+   }
+}
+
+sub heater_off {
+   my ( $self, $value, %args ) = validated_setter(
+        \@_,
+   );
+   $self ->query( command => "PSwitch?");
+   if ($self == 1) {
+        return $self->set_switch_heater(value => 0);
+   }
+   else {
+    croak("The switch heater is already turned off.");
+   }
 }
 
 sub get_value {
@@ -276,7 +356,6 @@ __END__
  You can check this in the menu on the front panel.
  For security purposes this driver does not allow changing those critical settings.
 
-
 =head1 METHODS
 
 =head2 idn
@@ -300,4 +379,3 @@ $magnet_z->to_zero()
 Sweeps back to zero with the maximum allowed rate.
 This function waits for the device to finish.
 
-=cut
