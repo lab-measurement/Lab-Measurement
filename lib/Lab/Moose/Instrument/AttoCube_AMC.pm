@@ -44,9 +44,13 @@ has 'response_qeue' => (
   is => 'rw',
   isa => 'HashRef',
   default => sub { {} },
-)
+);
+
+=pod
 
 =head1 AttoCube AMC300
+
+=encoding UTF-8
 
 Here very nice documentation will follow soon. In the meantime, please be warned
 that the driver is new, under construction, and still very experimental. Part
@@ -112,15 +116,15 @@ sub _receive_response {
   );
 
   my $start_time = time();
-  while(true) {
+  while (1) {
     # Check if response is in queue
-    if exists $self->response_qeue->{$response_id} {
+    if (exists $self->response_qeue->{$response_id}) {
       my $response = $self->response_qeue->{$response_id};
       delete $self->response_qeue->{$response_id};
       return $response;
     }
 
-    if time() - start_time > 10 {
+    if (time() - $start_time > 10) {
       croak "Received no response from server after 10 seconds";
     }
 
@@ -156,11 +160,12 @@ sub handle_error {
     \@_,
     response => { isa => 'HashRef' },
   );
-  # Check for JSON-RPC protocol errors
-  if 'error' in $response {
-    my $error = $response->{error};
-    croak "JSON-RPC Error occured: $error->{message} ($error->{code})\n";
-  }
+  ## Check for JSON-RPC protocol errors
+  ## TODO: this was broken, I commented it out
+  #if 'error' in $response {
+  #  my $error = $response->{error};
+  #  croak "JSON-RPC Error occured: $error->{message} ($error->{code})\n";
+  #}
   # Check for AttoCube errors
   my $errNo = $response->{result}[0];
   # TODO: add ignoreFunctionError here as well?
@@ -207,11 +212,11 @@ The code below was automatically generated. Please use carefully!
 		 
 =cut
 sub getLockStatus {
-	my ($self) = shift
+	my $self = shift;
 
-	my $response = $self->request(method => 'getLockStatus')
+	my $response = $self->request(method => 'getLockStatus');
 
-	self->handle_error($response)
+	$self->handle_error($response);
 
 	return response
 }
@@ -234,7 +239,7 @@ sub grantAccess {
 
 	my $response = $self->request(method => 'grantAccess', params => [$password])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -257,7 +262,7 @@ sub lock {
 
 	my $response = $self->request(method => 'lock', params => [$password])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -280,7 +285,7 @@ sub unlock {
 
 	my $response = $self->request(method => 'unlock', params => [$password])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -307,7 +312,7 @@ sub getLowerSoftLimit {
 
 	my $response = $self->request(method => 'com.attocube.amc.amcids.getLowerSoftLimit', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -334,7 +339,7 @@ sub getSoftLimitEnabled {
 
 	my $response = $self->request(method => 'com.attocube.amc.amcids.getSoftLimitEnabled', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -361,7 +366,7 @@ sub getSoftLimitReached {
 
 	my $response = $self->request(method => 'com.attocube.amc.amcids.getSoftLimitReached', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -388,7 +393,7 @@ sub getUpperSoftLimit {
 
 	my $response = $self->request(method => 'com.attocube.amc.amcids.getUpperSoftLimit', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -412,7 +417,7 @@ sub resetIdsAxis {
 
 	my $response = $self->request(method => 'com.attocube.amc.amcids.resetIdsAxis', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -439,7 +444,7 @@ sub setLowerSoftLimit {
 
 	my $response = $self->request(method => 'com.attocube.amc.amcids.setLowerSoftLimit', params => [$axis, $limit])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -466,7 +471,7 @@ sub setSoftLimitEnabled {
 
 	my $response = $self->request(method => 'com.attocube.amc.amcids.setSoftLimitEnabled', params => [$axis, $enabled])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -493,7 +498,7 @@ sub setUpperSoftLimit {
 
 	my $response = $self->request(method => 'com.attocube.amc.amcids.setUpperSoftLimit', params => [$axis, $limit])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -548,7 +553,7 @@ sub MultiAxisPositioning {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.MultiAxisPositioning', params => [$set1, $set2, $set3, $target1, $target2, $target3])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -572,7 +577,7 @@ sub getActorName {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.getActorName', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -596,7 +601,7 @@ sub getActorParametersActorName {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.getActorParametersActorName', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -620,7 +625,7 @@ sub getActorSensitivity {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.getActorSensitivity', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -644,7 +649,7 @@ sub getActorType {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.getActorType', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -668,7 +673,7 @@ sub getAutoMeasure {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.getAutoMeasure', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -692,7 +697,7 @@ sub getControlAmplitude {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.getControlAmplitude', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -716,7 +721,7 @@ sub getControlAutoReset {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.getControlAutoReset', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -740,7 +745,7 @@ sub getControlFixOutputVoltage {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.getControlFixOutputVoltage', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -764,14 +769,14 @@ sub getControlFrequency {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.getControlFrequency', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
 
 =head2 getControlMove
  Description:
-		  This function gets the approach of the selected axis’ positioner to the target position. 
+		  This function gets the approach of the selected axis' positioner to the target position.
  Arguments:
 		axis 
 		[0|1|2] 
@@ -789,7 +794,7 @@ sub getControlMove {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.getControlMove', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -813,7 +818,7 @@ sub getControlOutput {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.getControlOutput', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -837,7 +842,7 @@ sub getControlReferenceAutoUpdate {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.getControlReferenceAutoUpdate', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -861,7 +866,7 @@ sub getControlTargetRange {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.getControlTargetRange', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -888,7 +893,7 @@ sub getCrosstalkThreshold {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.getCrosstalkThreshold', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -912,7 +917,7 @@ sub getCurrentOutputVoltage {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.getCurrentOutputVoltage', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -936,7 +941,7 @@ sub getExternalSensor {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.getExternalSensor', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -960,7 +965,7 @@ sub getFinePositioningRange {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.getFinePositioningRange', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -984,7 +989,7 @@ sub getFinePositioningSlewRate {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.getFinePositioningSlewRate', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -1008,7 +1013,7 @@ sub getMotionControlThreshold {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.getMotionControlThreshold', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -1038,7 +1043,7 @@ sub getPositionsAndVoltages {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.getPositionsAndVoltages')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -1063,7 +1068,7 @@ sub getReferencePosition {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.getReferencePosition', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -1087,7 +1092,7 @@ sub getSensorDirection {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.getSensorDirection', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -1111,7 +1116,7 @@ sub getSensorEnabled {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.getSensorEnabled', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -1135,7 +1140,7 @@ sub getStatusMovingAllAxes {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.getStatusMovingAllAxes')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -1157,7 +1162,7 @@ sub searchReferencePosition {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.searchReferencePosition', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -1182,7 +1187,7 @@ sub setActorParametersByName {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.setActorParametersByName', params => [$axis, $actorname])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -1208,7 +1213,7 @@ sub setActorParametersJson {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.setActorParametersJson', params => [$axis, $json_dict])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -1233,7 +1238,7 @@ sub setActorSensitivity {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.setActorSensitivity', params => [$axis, $sensitivity])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -1258,7 +1263,7 @@ sub setAutoMeasure {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.setAutoMeasure', params => [$axis, $enable])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -1283,7 +1288,7 @@ sub setControlAmplitude {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.setControlAmplitude', params => [$axis, $amplitude])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -1308,7 +1313,7 @@ sub setControlAutoReset {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.setControlAutoReset', params => [$axis, $enable])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -1333,7 +1338,7 @@ sub setControlFixOutputVoltage {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.setControlFixOutputVoltage', params => [$axis, $amplitude_mv])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -1358,14 +1363,14 @@ sub setControlFrequency {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.setControlFrequency', params => [$axis, $frequency])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
 
 =head2 setControlMove
  Description:
-		  This function sets the approach of the selected axis’ positioner to the target position. 
+		  This function sets the approach of the selected axis' positioner to the target position.
  Arguments:
 		axis 
 		[0|1|2] 
@@ -1383,7 +1388,7 @@ sub setControlMove {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.setControlMove', params => [$axis, $enable])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -1408,7 +1413,7 @@ sub setControlOutput {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.setControlOutput', params => [$axis, $enable])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -1433,7 +1438,7 @@ sub setControlReferenceAutoUpdate {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.setControlReferenceAutoUpdate', params => [$axis, $enable])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -1458,7 +1463,7 @@ sub setControlTargetRange {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.setControlTargetRange', params => [$axis, $range])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -1487,7 +1492,7 @@ sub setCrosstalkThreshold {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.setCrosstalkThreshold', params => [$axis, $threshold, $slipphasetime])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -1515,7 +1520,7 @@ sub setExternalSensor {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.setExternalSensor', params => [$axis, $enabled])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -1540,7 +1545,7 @@ sub setFinePositioningRange {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.setFinePositioningRange', params => [$axis, $range])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -1565,7 +1570,7 @@ sub setFinePositioningSlewRate {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.setFinePositioningSlewRate', params => [$axis, $slewrate])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -1590,7 +1595,7 @@ sub setMotionControlThreshold {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.setMotionControlThreshold', params => [$axis, $threshold])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -1612,7 +1617,7 @@ sub setReset {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.setReset', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -1637,7 +1642,7 @@ sub setSensorDirection {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.setSensorDirection', params => [$axis, $inverted])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -1662,7 +1667,7 @@ sub setSensorEnabled {
 
 	my $response = $self->request(method => 'com.attocube.amc.control.setSensorEnabled', params => [$axis, $value])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -1685,7 +1690,7 @@ sub checkChassisNbr {
 
 	my $response = $self->request(method => 'com.attocube.amc.description.checkChassisNbr')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -1706,7 +1711,7 @@ sub getDeviceType {
 
 	my $response = $self->request(method => 'com.attocube.amc.description.getDeviceType')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -1727,7 +1732,7 @@ sub getFeaturesActivated {
 
 	my $response = $self->request(method => 'com.attocube.amc.description.getFeaturesActivated')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -1747,7 +1752,7 @@ sub getPositionersList {
 
 	my $response = $self->request(method => 'com.attocube.amc.description.getPositionersList')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -1771,7 +1776,7 @@ sub getDiagnosticPower {
 
 	my $response = $self->request(method => 'com.attocube.amc.diagnostic.getDiagnosticPower', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -1797,7 +1802,7 @@ sub getDiagnosticResults {
 
 	my $response = $self->request(method => 'com.attocube.amc.diagnostic.getDiagnosticResults', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -1823,7 +1828,7 @@ sub getDiagnosticStepSize {
 
 	my $response = $self->request(method => 'com.attocube.amc.diagnostic.getDiagnosticStepSize', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -1847,7 +1852,7 @@ sub getDiagnosticTemperature {
 
 	my $response = $self->request(method => 'com.attocube.amc.diagnostic.getDiagnosticTemperature', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -1869,14 +1874,14 @@ sub startDiagnostic {
 
 	my $response = $self->request(method => 'com.attocube.amc.diagnostic.startDiagnostic', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
 
 =head2 getControlContinuousBkwd
  Description:
-		  This function gets the axis’ movement status in backward direction. 
+		  This function gets the axis' movement status in backward direction.
  Arguments:
 		axis 
 		[0|1|2] 
@@ -1893,14 +1898,14 @@ sub getControlContinuousBkwd {
 
 	my $response = $self->request(method => 'com.attocube.amc.move.getControlContinuousBkwd', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
 
 =head2 getControlContinuousFwd
  Description:
-		  This function gets the axis’ movement status in positive direction. 
+		  This function gets the axis' movement status in positive direction.
  Arguments:
 		axis 
 		[0|1|2] 
@@ -1917,7 +1922,7 @@ sub getControlContinuousFwd {
 
 	my $response = $self->request(method => 'com.attocube.amc.move.getControlContinuousFwd', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -1942,7 +1947,7 @@ sub getControlEotOutputDeactive {
 
 	my $response = $self->request(method => 'com.attocube.amc.move.getControlEotOutputDeactive', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -1966,7 +1971,7 @@ sub getControlTargetPosition {
 
 	my $response = $self->request(method => 'com.attocube.amc.move.getControlTargetPosition', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -1991,7 +1996,7 @@ sub getGroundAxis {
 
 	my $response = $self->request(method => 'com.attocube.amc.move.getGroundAxis', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -2016,7 +2021,7 @@ sub getGroundAxisAutoOnTarget {
 
 	my $response = $self->request(method => 'com.attocube.amc.move.getGroundAxisAutoOnTarget', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -2040,7 +2045,7 @@ sub getGroundTargetRange {
 
 	my $response = $self->request(method => 'com.attocube.amc.move.getGroundTargetRange', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -2064,7 +2069,7 @@ sub getNSteps {
 
 	my $response = $self->request(method => 'com.attocube.amc.move.getNSteps', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -2088,7 +2093,7 @@ sub getPosition {
 
 	my $response = $self->request(method => 'com.attocube.amc.move.getPosition', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -2110,7 +2115,7 @@ sub moveReference {
 
 	my $response = $self->request(method => 'com.attocube.amc.move.moveReference', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -2136,7 +2141,7 @@ sub performNSteps {
 
 	my $response = $self->request(method => 'com.attocube.amc.move.performNSteps', params => [$axis, $backward])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -2163,7 +2168,7 @@ sub setControlContinuousBkwd {
 
 	my $response = $self->request(method => 'com.attocube.amc.move.setControlContinuousBkwd', params => [$axis, $enable])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -2190,7 +2195,7 @@ sub setControlContinuousFwd {
 
 	my $response = $self->request(method => 'com.attocube.amc.move.setControlContinuousFwd', params => [$axis, $enable])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -2216,7 +2221,7 @@ sub setControlEotOutputDeactive {
 
 	my $response = $self->request(method => 'com.attocube.amc.move.setControlEotOutputDeactive', params => [$axis, $enable])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -2242,7 +2247,7 @@ sub setControlTargetPosition {
 
 	my $response = $self->request(method => 'com.attocube.amc.move.setControlTargetPosition', params => [$axis, $target])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -2268,7 +2273,7 @@ sub setGroundAxis {
 
 	my $response = $self->request(method => 'com.attocube.amc.move.setGroundAxis', params => [$axis, $enabled])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -2294,7 +2299,7 @@ sub setGroundAxisAutoOnTarget {
 
 	my $response = $self->request(method => 'com.attocube.amc.move.setGroundAxisAutoOnTarget', params => [$axis, $enabled])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -2319,7 +2324,7 @@ sub setGroundTargetRange {
 
 	my $response = $self->request(method => 'com.attocube.amc.move.setGroundTargetRange', params => [$axis, $range])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -2348,7 +2353,7 @@ sub setNSteps {
 
 	my $response = $self->request(method => 'com.attocube.amc.move.setNSteps', params => [$axis, $backward, $step])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -2374,7 +2379,7 @@ sub setSingleStep {
 
 	my $response = $self->request(method => 'com.attocube.amc.move.setSingleStep', params => [$axis, $backward])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -2399,7 +2404,7 @@ sub writeNSteps {
 
 	my $response = $self->request(method => 'com.attocube.amc.move.writeNSteps', params => [$axis, $step])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -2423,7 +2428,7 @@ sub getChainGain {
 
 	my $response = $self->request(method => 'com.attocube.amc.res.getChainGain', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -2447,7 +2452,7 @@ sub getLinearization {
 
 	my $response = $self->request(method => 'com.attocube.amc.res.getLinearization', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -2471,7 +2476,7 @@ sub getLutSn {
 
 	my $response = $self->request(method => 'com.attocube.amc.res.getLutSn', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -2491,7 +2496,7 @@ sub getMode {
 
 	my $response = $self->request(method => 'com.attocube.amc.res.getMode')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -2515,7 +2520,7 @@ sub getSensorStatus {
 
 	my $response = $self->request(method => 'com.attocube.amc.res.getSensorStatus', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -2541,7 +2546,7 @@ sub setChainGain {
 
 	my $response = $self->request(method => 'com.attocube.amc.res.setChainGain', params => [$axis, $gainconfig])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -2576,7 +2581,7 @@ sub setConfigurationFile {
 
 	my $response = $self->request(method => 'com.attocube.amc.res.setConfigurationFile', params => [$axis, $content])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -2601,7 +2606,7 @@ sub setLinearization {
 
 	my $response = $self->request(method => 'com.attocube.amc.res.setLinearization', params => [$axis, $enable])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -2623,7 +2628,7 @@ sub setMode {
 
 	my $response = $self->request(method => 'com.attocube.amc.res.setMode', params => [$mode])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -2647,7 +2652,7 @@ sub getControlTargetRanges {
 
 	my $response = $self->request(method => 'com.attocube.amc.rotcomp.getControlTargetRanges')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -2671,7 +2676,7 @@ sub getEnabled {
 
 	my $response = $self->request(method => 'com.attocube.amc.rotcomp.getEnabled')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -2694,7 +2699,7 @@ sub getLUT {
 
 	my $response = $self->request(method => 'com.attocube.amc.rotcomp.getLUT')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -2719,7 +2724,7 @@ sub setEnabled {
 
 	my $response = $self->request(method => 'com.attocube.amc.rotcomp.setEnabled', params => [$enabled])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -2743,7 +2748,7 @@ sub setLUT {
 
 	my $response = $self->request(method => 'com.attocube.amc.rotcomp.setLUT', params => [$lut_string])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -2773,7 +2778,7 @@ sub updateOffsets {
 
 	my $response = $self->request(method => 'com.attocube.amc.rotcomp.updateOffsets', params => [$offset_axis0, $offset_axis1, $offset_axis2])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -2791,7 +2796,7 @@ sub apply {
 
 	my $response = $self->request(method => 'com.attocube.amc.rtin.apply')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -2809,7 +2814,7 @@ sub discard {
 
 	my $response = $self->request(method => 'com.attocube.amc.rtin.discard')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -2833,7 +2838,7 @@ sub getControlAQuadBInResolution {
 
 	my $response = $self->request(method => 'com.attocube.amc.rtin.getControlAQuadBInResolution', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -2857,7 +2862,7 @@ sub getControlMoveGPIO {
 
 	my $response = $self->request(method => 'com.attocube.amc.rtin.getControlMoveGPIO', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -2877,7 +2882,7 @@ sub getGpioMode {
 
 	my $response = $self->request(method => 'com.attocube.amc.rtin.getGpioMode')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -2903,7 +2908,7 @@ sub getNslMux {
 
 	my $response = $self->request(method => 'com.attocube.amc.rtin.getNslMux', params => [$mux_mode])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -2927,7 +2932,7 @@ sub getRealTimeInChangePerPulse {
 
 	my $response = $self->request(method => 'com.attocube.amc.rtin.getRealTimeInChangePerPulse', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -2951,7 +2956,7 @@ sub getRealTimeInFeedbackLoopMode {
 
 	my $response = $self->request(method => 'com.attocube.amc.rtin.getRealTimeInFeedbackLoopMode', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -2975,7 +2980,7 @@ sub getRealTimeInMode {
 
 	my $response = $self->request(method => 'com.attocube.amc.rtin.getRealTimeInMode', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -2999,7 +3004,7 @@ sub getRealTimeInStepsPerPulse {
 
 	my $response = $self->request(method => 'com.attocube.amc.rtin.getRealTimeInStepsPerPulse', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -3024,7 +3029,7 @@ sub setControlAQuadBInResolution {
 
 	my $response = $self->request(method => 'com.attocube.amc.rtin.setControlAQuadBInResolution', params => [$axis, $resolution])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -3049,7 +3054,7 @@ sub setControlMoveGPIO {
 
 	my $response = $self->request(method => 'com.attocube.amc.rtin.setControlMoveGPIO', params => [$axis, $enable])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -3073,7 +3078,7 @@ sub setGpioMode {
 
 	my $response = $self->request(method => 'com.attocube.amc.rtin.setGpioMode', params => [$gpio_mode])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -3099,7 +3104,7 @@ sub setNslMux {
 
 	my $response = $self->request(method => 'com.attocube.amc.rtin.setNslMux', params => [$mux_mode])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -3124,7 +3129,7 @@ sub setRealTimeInChangePerPulse {
 
 	my $response = $self->request(method => 'com.attocube.amc.rtin.setRealTimeInChangePerPulse', params => [$axis, $delta])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -3149,7 +3154,7 @@ sub setRealTimeInFeedbackLoopMode {
 
 	my $response = $self->request(method => 'com.attocube.amc.rtin.setRealTimeInFeedbackLoopMode', params => [$axis, $mode])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -3174,7 +3179,7 @@ sub setRealTimeInMode {
 
 	my $response = $self->request(method => 'com.attocube.amc.rtin.setRealTimeInMode', params => [$axis, $mode])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -3199,7 +3204,7 @@ sub setRealTimeInStepsPerPulse {
 
 	my $response = $self->request(method => 'com.attocube.amc.rtin.setRealTimeInStepsPerPulse', params => [$axis, $steps])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -3217,7 +3222,7 @@ sub apply {
 
 	my $response = $self->request(method => 'com.attocube.amc.rtout.apply')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -3239,7 +3244,7 @@ sub applyAxis {
 
 	my $response = $self->request(method => 'com.attocube.amc.rtout.applyAxis', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -3257,7 +3262,7 @@ sub discard {
 
 	my $response = $self->request(method => 'com.attocube.amc.rtout.discard')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -3279,7 +3284,7 @@ sub discardAxis {
 
 	my $response = $self->request(method => 'com.attocube.amc.rtout.discardAxis', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -3297,7 +3302,7 @@ sub discardSignalMode {
 
 	my $response = $self->request(method => 'com.attocube.amc.rtout.discardSignalMode')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -3321,7 +3326,7 @@ sub getControlAQuadBOut {
 
 	my $response = $self->request(method => 'com.attocube.amc.rtout.getControlAQuadBOut', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -3346,7 +3351,7 @@ sub getControlAQuadBOutClock {
 
 	my $response = $self->request(method => 'com.attocube.amc.rtout.getControlAQuadBOutClock', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -3370,7 +3375,7 @@ sub getControlAQuadBOutResolution {
 
 	my $response = $self->request(method => 'com.attocube.amc.rtout.getControlAQuadBOutResolution', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -3394,7 +3399,7 @@ sub getMode {
 
 	my $response = $self->request(method => 'com.attocube.amc.rtout.getMode', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -3414,7 +3419,7 @@ sub getSignalMode {
 
 	my $response = $self->request(method => 'com.attocube.amc.rtout.getSignalMode')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -3444,7 +3449,7 @@ sub getTriggerConfig {
 
 	my $response = $self->request(method => 'com.attocube.amc.rtout.getTriggerConfig', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -3470,7 +3475,7 @@ sub setControlAQuadBOutClock {
 
 	my $response = $self->request(method => 'com.attocube.amc.rtout.setControlAQuadBOutClock', params => [$axis, $clock])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -3495,7 +3500,7 @@ sub setControlAQuadBOutResolution {
 
 	my $response = $self->request(method => 'com.attocube.amc.rtout.setControlAQuadBOutResolution', params => [$axis, $resolution])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -3520,7 +3525,7 @@ sub setMode {
 
 	my $response = $self->request(method => 'com.attocube.amc.rtout.setMode', params => [$axis, $mode])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -3542,7 +3547,7 @@ sub setSignalMode {
 
 	my $response = $self->request(method => 'com.attocube.amc.rtout.setSignalMode', params => [$mode])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -3576,7 +3581,7 @@ sub setTriggerConfig {
 
 	my $response = $self->request(method => 'com.attocube.amc.rtout.setTriggerConfig', params => [$axis, $higher, $lower, $epsilon, $polarity])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -3602,7 +3607,7 @@ sub getFullCombinedStatus {
 
 	my $response = $self->request(method => 'com.attocube.amc.status.getFullCombinedStatus', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -3627,14 +3632,14 @@ sub getOlStatus {
 
 	my $response = $self->request(method => 'com.attocube.amc.status.getOlStatus', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
 
 =head2 getStatusConnected
  Description:
-		  This function gets information about the connection status of the selected axis’ positioner. 
+		  This function gets information about the connection status of the selected axis' positioner.
  Arguments:
 		axis 
 		[0|1|2] 
@@ -3651,7 +3656,7 @@ sub getStatusConnected {
 
 	my $response = $self->request(method => 'com.attocube.amc.status.getStatusConnected', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -3675,7 +3680,7 @@ sub getStatusEot {
 
 	my $response = $self->request(method => 'com.attocube.amc.status.getStatusEot', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -3699,7 +3704,7 @@ sub getStatusEotBkwd {
 
 	my $response = $self->request(method => 'com.attocube.amc.status.getStatusEotBkwd', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -3723,7 +3728,7 @@ sub getStatusEotFwd {
 
 	my $response = $self->request(method => 'com.attocube.amc.status.getStatusEotFwd', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -3751,7 +3756,7 @@ sub getStatusMoving {
 
 	my $response = $self->request(method => 'com.attocube.amc.status.getStatusMoving', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -3775,14 +3780,14 @@ sub getStatusReference {
 
 	my $response = $self->request(method => 'com.attocube.amc.status.getStatusReference', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
 
 =head2 getStatusTargetRange
  Description:
-		  This function gets information about whether the selected axis’ positioner is in target range or not. The detection only indicates whether the position is within the defined range. This status is updated periodically but currently not in real-time. If a fast detection is desired, please check the position in a loop 
+		  This function gets information about whether the selected axis' positioner is in target range or not. The detection only indicates whether the position is within the defined range. This status is updated periodically but currently not in real-time. If a fast detection is desired, please check the position in a loop
  Arguments:
 		axis 
 		[0|1|2] 
@@ -3799,7 +3804,7 @@ sub getStatusTargetRange {
 
 	my $response = $self->request(method => 'com.attocube.amc.status.getStatusTargetRange', params => [$axis])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -3820,7 +3825,7 @@ sub getInstalledPackages {
 
 	my $response = $self->request(method => 'com.attocube.system.about.getInstalledPackages')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -3845,7 +3850,7 @@ sub getPackageLicense {
 
 	my $response = $self->request(method => 'com.attocube.system.about.getPackageLicense', params => [$pckg])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -3864,7 +3869,7 @@ sub apply {
 
 	my $response = $self->request(method => 'com.attocube.system.apply')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -3893,7 +3898,7 @@ sub errorNumberToRecommendation {
 
 	my $response = $self->request(method => 'com.attocube.system.errorNumberToRecommendation', params => [$language, $errNbr])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -3922,7 +3927,7 @@ sub errorNumberToString {
 
 	my $response = $self->request(method => 'com.attocube.system.errorNumberToString', params => [$language, $errNbr])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -3941,7 +3946,7 @@ sub factoryReset {
 
 	my $response = $self->request(method => 'com.attocube.system.factoryReset')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -3957,7 +3962,7 @@ sub checkAMCinRack {
 
 	my $response = $self->request(method => 'com.attocube.system.functions.checkAMCinRack')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -3978,7 +3983,7 @@ sub getDeviceName {
 
 	my $response = $self->request(method => 'com.attocube.system.getDeviceName')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -3999,7 +4004,7 @@ sub getFirmwareVersion {
 
 	my $response = $self->request(method => 'com.attocube.system.getFirmwareVersion')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -4020,7 +4025,7 @@ sub getFluxCode {
 
 	my $response = $self->request(method => 'com.attocube.system.getFluxCode')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -4041,7 +4046,7 @@ sub getHostname {
 
 	my $response = $self->request(method => 'com.attocube.system.getHostname')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -4062,7 +4067,7 @@ sub getMacAddress {
 
 	my $response = $self->request(method => 'com.attocube.system.getMacAddress')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -4083,7 +4088,7 @@ sub getSerialNumber {
 
 	my $response = $self->request(method => 'com.attocube.system.getSerialNumber')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -4102,7 +4107,7 @@ sub apply {
 
 	my $response = $self->request(method => 'com.attocube.system.network.apply')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -4131,7 +4136,7 @@ sub configureWifi {
 
 	my $response = $self->request(method => 'com.attocube.system.network.configureWifi', params => [$mode, $ssid, $psk])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -4150,7 +4155,7 @@ sub discard {
 
 	my $response = $self->request(method => 'com.attocube.system.network.discard')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -4171,7 +4176,7 @@ sub getDefaultGateway {
 
 	my $response = $self->request(method => 'com.attocube.system.network.getDefaultGateway')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -4196,7 +4201,7 @@ sub getDnsResolver {
 
 	my $response = $self->request(method => 'com.attocube.system.network.getDnsResolver', params => [$priority])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -4217,7 +4222,7 @@ sub getEnableDhcpClient {
 
 	my $response = $self->request(method => 'com.attocube.system.network.getEnableDhcpClient')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -4238,7 +4243,7 @@ sub getEnableDhcpServer {
 
 	my $response = $self->request(method => 'com.attocube.system.network.getEnableDhcpServer')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -4259,7 +4264,7 @@ sub getIpAddress {
 
 	my $response = $self->request(method => 'com.attocube.system.network.getIpAddress')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -4280,7 +4285,7 @@ sub getProxyServer {
 
 	my $response = $self->request(method => 'com.attocube.system.network.getProxyServer')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -4301,7 +4306,7 @@ sub getRealIpAddress {
 
 	my $response = $self->request(method => 'com.attocube.system.network.getRealIpAddress')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -4322,7 +4327,7 @@ sub getSubnetMask {
 
 	my $response = $self->request(method => 'com.attocube.system.network.getSubnetMask')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -4343,7 +4348,7 @@ sub getWifiMode {
 
 	my $response = $self->request(method => 'com.attocube.system.network.getWifiMode')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -4364,7 +4369,7 @@ sub getWifiPassphrase {
 
 	my $response = $self->request(method => 'com.attocube.system.network.getWifiPassphrase')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -4385,7 +4390,7 @@ sub getWifiPresent {
 
 	my $response = $self->request(method => 'com.attocube.system.network.getWifiPresent')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -4406,7 +4411,7 @@ sub getWifiSSID {
 
 	my $response = $self->request(method => 'com.attocube.system.network.getWifiSSID')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -4429,7 +4434,7 @@ sub setDefaultGateway {
 
 	my $response = $self->request(method => 'com.attocube.system.network.setDefaultGateway', params => [$gateway])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -4455,7 +4460,7 @@ sub setDnsResolver {
 
 	my $response = $self->request(method => 'com.attocube.system.network.setDnsResolver', params => [$priority, $resolver])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -4478,7 +4483,7 @@ sub setEnableDhcpClient {
 
 	my $response = $self->request(method => 'com.attocube.system.network.setEnableDhcpClient', params => [$enable])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -4501,7 +4506,7 @@ sub setEnableDhcpServer {
 
 	my $response = $self->request(method => 'com.attocube.system.network.setEnableDhcpServer', params => [$enable])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -4524,7 +4529,7 @@ sub setIpAddress {
 
 	my $response = $self->request(method => 'com.attocube.system.network.setIpAddress', params => [$address])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -4547,7 +4552,7 @@ sub setProxyServer {
 
 	my $response = $self->request(method => 'com.attocube.system.network.setProxyServer', params => [$proxyServer])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -4570,7 +4575,7 @@ sub setSubnetMask {
 
 	my $response = $self->request(method => 'com.attocube.system.network.setSubnetMask', params => [$netmask])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -4593,7 +4598,7 @@ sub setWifiMode {
 
 	my $response = $self->request(method => 'com.attocube.system.network.setWifiMode', params => [$mode])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -4616,7 +4621,7 @@ sub setWifiPassphrase {
 
 	my $response = $self->request(method => 'com.attocube.system.network.setWifiPassphrase', params => [$psk])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -4639,7 +4644,7 @@ sub setWifiSSID {
 
 	my $response = $self->request(method => 'com.attocube.system.network.setWifiSSID', params => [$ssid])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -4658,7 +4663,7 @@ sub verify {
 
 	my $response = $self->request(method => 'com.attocube.system.network.verify')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -4677,7 +4682,7 @@ sub rebootSystem {
 
 	my $response = $self->request(method => 'com.attocube.system.rebootSystem')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -4700,7 +4705,7 @@ sub setDeviceName {
 
 	my $response = $self->request(method => 'com.attocube.system.setDeviceName', params => [$name])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -4738,7 +4743,7 @@ sub setTime {
 
 	my $response = $self->request(method => 'com.attocube.system.setTime', params => [$day, $month, $year, $hour, $minute, $second])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -4757,7 +4762,7 @@ sub softReset {
 
 	my $response = $self->request(method => 'com.attocube.system.softReset')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -4776,7 +4781,7 @@ sub updateTimeFromInternet {
 
 	my $response = $self->request(method => 'com.attocube.system.updateTimeFromInternet')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -4797,7 +4802,7 @@ sub getLicenseUpdateProgress {
 
 	my $response = $self->request(method => 'com.attocube.system.update.getLicenseUpdateProgress')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -4818,7 +4823,7 @@ sub getSwUpdateProgress {
 
 	my $response = $self->request(method => 'com.attocube.system.update.getSwUpdateProgress')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -4837,7 +4842,7 @@ sub licenseUpdateBase64 {
 
 	my $response = $self->request(method => 'com.attocube.system.update.licenseUpdateBase64')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -4856,7 +4861,7 @@ sub softwareUpdateBase64 {
 
 	my $response = $self->request(method => 'com.attocube.system.update.softwareUpdateBase64')
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
@@ -4882,7 +4887,7 @@ sub uploadLicenseBase64 {
 
 	my $response = $self->request(method => 'com.attocube.system.update.uploadLicenseBase64', params => [$offset, $b64Data])
 
-	self->handle_error($response)
+	$self->handle_error($response)
 
 	return response
 }
