@@ -3,7 +3,7 @@ package Lab::Moose::Instrument::AttoCube_AMC;
 use 5.020;
 
 use Moose;
-use time::HiRes qw/time/;
+use Time::HiRes qw/time/;
 use MooseX::Params::Validate;
 use Lab::Moose::Instrument qw/validated_getter validated_setter/;
 #use Lab::Moose::Instrument::Cache;
