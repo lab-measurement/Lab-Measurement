@@ -36,11 +36,11 @@ extends 'Lab::Moose::Instrument';
     from => -0.2, to => 0.2, interval => 1,
  )
 
- Setting the maximum allowed field strength and the maximum rate are mandatory.
- This model allows to change the units for field strength (kG/T) and time
+Setting the maximum allowed field strength and the maximum rate are mandatory.
+This model allows to change the units for field strength (kG/T) and time
 (min/s).
- You can check this in the menu on the front panel.
- For security purposes this driver does not allow changing those critical
+You can check this in the menu on the front panel.
+For security purposes this driver does not allow changing those critical
 settings.
 
 =head1 METHODS
@@ -109,7 +109,7 @@ sub cls {
 
 =head2 idn
 
-say $magnet_z->idn();
+ say $magnet_z->idn();
 
 Returns the identification string of the device. It contains the AMI model
 number and firmware revision code.
@@ -239,7 +239,7 @@ sub set_target_field {
 
 =head2 sweep_to_field
 
-$magnet_z->sweep_to_field( target => 0.5, rate => 0.02 );
+ $magnet_z->sweep_to_field( target => 0.5, rate => 0.02 );
 
 Checks the provided field strength and rate and starts a sweep.
 This function waits for the device to finish.
@@ -276,7 +276,7 @@ sub ramp {
 
 =head2 to_zero
 
-$magnet_z->to_zero()
+ $magnet_z->to_zero()
 
 Sweeps back to zero with the maximum allowed rate.
 This function waits for the device to finish.
