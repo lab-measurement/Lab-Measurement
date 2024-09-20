@@ -1,4 +1,5 @@
 package Lab::Moose::Instrument::AMI_430;
+
 #ABSTRACT: American Magnetics magnet power supply
 use v5.20;
 
@@ -14,6 +15,37 @@ use Time::HiRes qw (usleep);
 
 extends 'Lab::Moose::Instrument';
 
+=pod
+
+=head1 SYNOPSIS
+
+ use Lab::Moose;
+
+ # Constructor
+ my $magnet_z = instrument(
+     type            => 'AMI_430',
+     connection_type => 'Socket',
+     connection_options => { host => '169.254.226.70' },
+     max_field => 1.0,
+     max_rate  => 0.1,
+ );
+
+ $magnet_sweep = sweep(
+    type  => 'Continuous::Magnet',
+    instrument => $magnet_z,
+    from => -0.2, to => 0.2, interval => 1,
+ )
+
+Setting the maximum allowed field strength and the maximum rate are mandatory.
+This model allows to change the units for field strength (kG/T) and time
+(min/s).
+You can check this in the menu on the front panel.
+For security purposes this driver does not allow changing those critical
+settings.
+
+=head1 METHODS
+
+=cut
 
 has max_field => (
     is      => 'ro',
@@ -75,6 +107,15 @@ sub cls {
     return $self->query( command => "*CLS", %args );
 }
 
+=head2 idn
+
+ say $magnet_z->idn();
+
+Returns the identification string of the device. It contains the AMI model
+number and firmware revision code.
+
+=cut
+
 sub idn {
     my ( $self, %args ) = validated_getter( \@_ );
     return $self->query( command => "*IDN?", %args );
@@ -116,12 +157,17 @@ sub get_voltage {
 
 sub get_persistent_field {
     my ( $self, %args ) = validated_getter( \@_ );
- 
+    if ( $self -> persistent_mode == 0) {
+        return croak ( "No persistent switch installed!" );
+    }
     return $self->query( command => "FIELD:MAGnet?");
 }
 
 sub in_persistent_mode {
     my ( $self, %args ) = validated_getter( \@_ );
+    if ( $self -> persistent_mode == 0) {
+        return croak ( "No persistent switch installed!" );
+    }
     my $status = $self->query( command => "PERSistent?");
     if ( $status == 0) {
         return 0;
@@ -136,6 +182,9 @@ sub set_switch_heater {
         \@_,
         value => {isa => enum( [ 0,1 ] ) },
     );
+    if ( $self -> persistent_mode == 0) {
+        return croak ( "No persistent switch installed!" );
+    }
     if ($value == 0) {
         return $self->query( command => "PSwitch 0" );
     }
@@ -148,6 +197,9 @@ sub heater_on {
    my ( $self, $value, %args ) = validated_setter(
         \@_,
    );
+   if ( $self -> persistent_mode == 0) {
+        return croak ( "No persistent switch installed!" );
+   }
    $self ->query( command => "PSwitch?");
    if ($self == 0) {
         return $self->set_switch_heater(value => 1);
@@ -161,6 +213,9 @@ sub heater_off {
    my ( $self, $value, %args ) = validated_setter(
         \@_,
    );
+   if ( $self -> persistent_mode == 0) {
+        return croak ( "No persistent switch installed!" );
+   }
    $self ->query( command => "PSwitch?");
    if ($self == 1) {
         return $self->set_switch_heater(value => 0);
@@ -196,6 +251,15 @@ sub set_target_field {
     return $self->write( command => "CONFIGURE:FIELD:TARGET $value", %args );
 }
 
+=head2 sweep_to_field
+
+ $magnet_z->sweep_to_field( target => 0.5, rate => 0.02 );
+
+Checks the provided field strength and rate and starts a sweep.
+This function waits for the device to finish.
+
+=cut
+
 sub sweep_to_field {
     my ( $self, %args ) = validated_getter(
         \@_,
@@ -223,6 +287,15 @@ sub ramp {
     }
     return $ret_val;
 }
+
+=head2 to_zero
+
+ $magnet_z->to_zero()
+
+Sweeps back to zero with the maximum allowed rate.
+This function waits for the device to finish.
+
+=cut
 
 sub to_zero {
     my ( $self, %args ) = validated_getter(
@@ -327,55 +400,4 @@ sub _check_sweep_parameters {
 __PACKAGE__->meta()->make_immutable();
 
 1;
-
-__END__
-
-=pod
-
-=head1 SYNOPSIS
-
- use Lab::Moose;
-
- # Constructor
- my $magnet_z = instrument(
-     type            => 'AMI_430',
-     connection_type => 'Socket',
-     connection_options => { host => '169.254.226.70' },
-     max_field => 1.0,
-     max_rate  => 0.1,
- );
-
- $magnet_sweep = sweep(
-    type  => 'Continuous::Magnet',
-    instrument => $magnet_z,
-    from => -0.2, to => 0.2, interval => 1,
- )
-
- Setting the maximum allowed field strength and the maximum rate are mandatory.
- This model allows to change the units for field strength (kG/T) and time (min/s).
- You can check this in the menu on the front panel.
- For security purposes this driver does not allow changing those critical settings.
-
-=head1 METHODS
-
-=head2 idn
-
-say $magnet_z->idn();
-
-Returns the identification string of the device. It contains the AMI model
-number and firmware revision code.
-
-=head2 sweep_to_field
-
-$magnet_z->sweep_to_field( target => 0.5, rate => 0.02 );
-
-Checks the provided field strength and rate and starts a sweep.
-This function waits for the device to finish.
-
-=head2 to_zero
-
-$magnet_z->to_zero()
-
-Sweeps back to zero with the maximum allowed rate.
-This function waits for the device to finish.
 
