@@ -1,5 +1,6 @@
 # Stop script on first error
 set -o errexit
+set -o pipefail
 
 # Prevent "Please tell me who you are" errors for certain DZIL configs
 git config --global user.name 'github-actions'

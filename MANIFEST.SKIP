@@ -37,8 +37,6 @@ nytprof
 # coding documentation not for distribution
 \bdoc\b
 
-# drivers and modules that are not ready yet for release
-
 # dont distribute the old examples
 ^examples/Old
 

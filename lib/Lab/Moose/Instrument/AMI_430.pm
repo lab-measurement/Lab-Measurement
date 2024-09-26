@@ -157,17 +157,21 @@ sub get_voltage {
 
 sub get_persistent_field {
     my ( $self, %args ) = validated_getter( \@_ );
+
     if ( $self -> persistent_mode == 0) {
-        return croak ( "No persistent switch installed!" );
+         croak ( "No persistent switch installed!" );
     }
+
     return $self->query( command => "FIELD:MAGnet?");
 }
 
 sub in_persistent_mode {
     my ( $self, %args ) = validated_getter( \@_ );
+
     if ( $self -> persistent_mode == 0) {
-        return croak ( "No persistent switch installed!" );
+        croak ( "No persistent switch installed!" );
     }
+
     my $status = $self->query( command => "PERSistent?");
     if ( $status == 0) {
         return 0;
@@ -182,9 +186,11 @@ sub set_switch_heater {
         \@_,
         value => {isa => enum( [ 0,1 ] ) },
     );
+
     if ( $self -> persistent_mode == 0) {
-        return croak ( "No persistent switch installed!" );
+         croak ( "No persistent switch installed!" );
     }
+
     if ($value == 0) {
         return $self->query( command => "PSwitch 0" );
     }
@@ -197,9 +203,11 @@ sub heater_on {
    my ( $self, $value, %args ) = validated_setter(
         \@_,
    );
+
    if ( $self -> persistent_mode == 0) {
         return croak ( "No persistent switch installed!" );
    }
+
    $self ->query( command => "PSwitch?");
    if ($self == 0) {
         return $self->set_switch_heater(value => 1);
@@ -213,9 +221,11 @@ sub heater_off {
    my ( $self, $value, %args ) = validated_setter(
         \@_,
    );
+
    if ( $self -> persistent_mode == 0) {
         return croak ( "No persistent switch installed!" );
    }
+
    $self ->query( command => "PSwitch?");
    if ($self == 1) {
         return $self->set_switch_heater(value => 0);
