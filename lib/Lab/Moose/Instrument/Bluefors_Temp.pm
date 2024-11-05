@@ -20,7 +20,7 @@ use Time::HiRes qw/time usleep/;
 
 # HTTP request JSON stuff
 use DateTime;
-use JSON;
+use JSON::PP;
 use Data::Dumper;
 
 =head1 SYNOPSIS
@@ -64,7 +64,7 @@ has json => (
     builder => '_build_json',
 );
 sub _build_json {
-    return JSON->new;
+    return JSON::PP->new;
 }
 
 around default_connection_options => sub {
@@ -190,9 +190,9 @@ sub set_heater {
     );
     if (exists $args{'active'} and defined $args{'active'}) {
         if ( $args{"active"} eq 1 ) {
-            $args{"active"} = JSON::true;
+            $args{"active"} = JSON::PP::true;
         } else {
-            $args{"active"} = JSON::false;
+            $args{"active"} = JSON::PP::false;
         }
     }
     my $json = $self->json->encode(\%args);
@@ -237,9 +237,9 @@ sub set_channel {
     );
     if (exists $args{'active'} and defined $args{'active'}) {
         if ( $args{"active"} eq 1 ) {
-            $args{"active"} = JSON::true;
+            $args{"active"} = JSON::PP::true;
         } else {
-            $args{"active"} = JSON::false;
+            $args{"active"} = JSON::PP::false;
         }
     }
     my $json = $self->json->encode(\%args);
