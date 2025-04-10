@@ -98,7 +98,7 @@ sub _tesla_to_amp {
 		value => { isa => 'num' },
 	);
 
-	return $value * field_constant;
+	return $value * $self->field_constant();
 }
 	
 
