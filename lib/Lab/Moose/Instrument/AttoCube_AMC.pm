@@ -1,5 +1,7 @@
 package Lab::Moose::Instrument::AttoCube_AMC;
 
+#ABSTRACT: AttoCube Motion Controller
+
 use 5.020;
 
 use Moose;
